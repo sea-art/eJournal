@@ -21,7 +21,9 @@ setup:
 	pip3 install pipenv
 	pipenv sync
 	sudo npm cache clean -f
+	npm config set strict-ssl false
 	sudo npm install -g n
+	npm config set strict-ssl true
 	sudo n stable
 	sudo npm install -g vue-cli	
 	npm install --prefix ./src/main/vue
