@@ -14,16 +14,16 @@ run-back: build
 	pipenv run python ./src/main/django/manage.py runserver
 
 clean:
-	echo "To be implemented: clean..."
+	rm -rf src/main/vue/node_modules
 
 setup:
 	sudo apt install npm python3 mysql-client mysql-server python3-pip python3-dev libmysqlclient-dev -y
-	pip3 install pipenv
-	pipenv sync
-	sudo npm cache clean -f
+	sudo pip3 install pipenv
+	sudo pipenv sync
+	npm cache clean -f
 	npm config set strict-ssl false
 	sudo npm install -g n
 	npm config set strict-ssl true
 	sudo n stable
-	sudo npm install -g vue-cli	
+	npm install --prefix ./src/main/vue vue-cli	
 	npm install --prefix ./src/main/vue
