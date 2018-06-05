@@ -7,10 +7,12 @@ build: clean
 	echo "To be implmented: build..."	
 
 run-front: build
+	python -mwebbrowser http://localhost:8080
 	npm run dev --prefix ./src/main/vue
 
 run-back: build
 	sudo service mysql start
+	python -mwebbrowser http://localhost:8000
 	pipenv run python3.6 ./src/main/django/manage.py runserver
 
 clean:
@@ -25,7 +27,6 @@ setup:
 	
 	npm cache clean -f
 	npm config set strict-ssl false
-	#sudo npm install -g npm
 	sudo npm install -g n
 	npm config set strict-ssl true
 	sudo n stable
