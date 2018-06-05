@@ -5,6 +5,29 @@ During the first and second years of the Bachelor Informatics at the University 
 
 [Full description](https://www.overleaf.com/read/hxzqgqqmzvwc)
 
+# Setup
+```
+git clone git@github.com:Rickyboy320/PSE_Hokkies.git
+cd PSE_Hokkies
+make setup
+```
+During the setup you will be asked to give a password for the mysql server. Please leave this empty.
+
+# Start development environment
+Frontend:  
+Files are stored in `src/main/vue`.  
+To start the vue-server type `make run-front` in the `PSE_Hokkies` folder.  
+
+Backend:  
+Files are stored in `src/main/django`.  
+To start the django-server type `make run-back` in the `PSE_Hokkies` folder.  
+
+# Testing
+Not yet implemented. Tests are written in `src/test/vue` and `src/test/django` respectively.
+
+# Deployment
+Not yet implemented.
+
 # Contributors
 Jeroen van Bennekum  
 Xavier van Dommelen  

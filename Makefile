@@ -19,8 +19,11 @@ clean:
 	
 
 setup:
-	(sudo apt-cache show python3.6 | grep "Package: python3.6") || (sudo add-apt-repository ppa:deadsnakes/ppa -y; sudo apt update) || 0
+	(sudo apt-cache show python3.6 | grep "Package: python3.6") || (sudo add-apt-repository ppa:deadsnakes/ppa -y; sudo apt update) || echo "0"
 	sudo apt install npm nodejs python3.6 mysql-client mysql-server python3-pip python3.6-dev libmysqlclient-dev -y
+	sudo service mysql start
+	echo "CREATE DATABASE IF NOT EXISTS VLE;" | sudo mysql -uroot
+	echo "DROP USER 'root'@'localhost';CREATE USER 'root'@'%' IDENTIFIED BY '';GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' WITH GRANT OPTION;FLUSH PRIVILEGES;"
 	
 	sudo pip3 install pipenv
 	sudo pipenv sync
@@ -32,5 +35,5 @@ setup:
 	sudo n stable
 	npm install --prefix ./src/main/vue vue-cli webpack
 	npm install --prefix ./src/main/vue
-	echo "CREATE DATABASE IF NOT EXISTS VLE;" | mysql -uroot
+	
 	@echo "DONE!"
