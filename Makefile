@@ -17,10 +17,10 @@ clean:
 	
 
 setup:
-	sudo apt install nodejs python3 mysql-client mysql-server python3-pip python3-dev libmysqlclient-dev -y
+	sudo apt install npm python3 mysql-client mysql-server python3-pip python3-dev libmysqlclient-dev -y
 	sudo pip3 install pipenv
-	sudo pipenv sync
-	sudo npm cache clean -f
+	pipenv sync
+	npm cache clean -f
 	npm config set strict-ssl false
 	sudo npm install -g n
 	npm config set strict-ssl true
