@@ -13,7 +13,7 @@ make setup
 ```
 During the setup you will be asked to give a password for the mysql server. Please leave this empty.
 
-# Start development environment
+# Development environment
 Frontend:  
 Files are stored in `src/main/vue`.  
 To start the vue-server type `make run-front` in the `PSE_Hokkies` folder.  
@@ -23,7 +23,20 @@ Files are stored in `src/main/django`.
 To start the django-server type `make run-back` in the `PSE_Hokkies` folder.  
 
 # Testing
-Not yet implemented. Tests are written in `src/test/vue` and `src/test/django` respectively.
+Tests are written in `src/test/vue` and `src/test/django` respectively.  
+To run the tests and linters, use `make test`.  
+
+# Git Flow
+To initiate git flow, use `git flow init`. It will ask for settings, just press enter for all.
+
+Feature:  
+`git flow feature start [name]`  
+Program the feature and test if everything works.  
+Add and commit.  
+Merge with the latest develop branch.  
+`git flow feature publish`  
+Start a pull request (on github.com).  
+Wait for Travis to finish testing, and let a fellow developer review and approve your code.  
 
 # Deployment
 Not yet implemented.
