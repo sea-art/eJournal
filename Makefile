@@ -6,7 +6,6 @@ test: build
 	bash -c "source ./venv/bin/activate && ./src/main/django/manage.py test ./src/test/django && deactivate"
 	npm run lint --prefix ./src/main/vue
 	npm run test --prefix ./src/main/vue
-	npm run unit --prefix ./src/main/vue
 
 build: clean
 	echo "To be implmented: build..."	
