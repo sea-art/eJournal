@@ -1,25 +1,17 @@
-all: test
-
-test: build
+test:
 	pep8 ./src/main/django --max-line-length=120
 	pep8 ./src/test/django --max-line-length=120
 	bash -c "source ./venv/bin/activate && ./src/main/django/manage.py test ./src/test/django && deactivate"
 	npm run lint --prefix ./src/main/vue
 	npm run test --prefix ./src/main/vue
 
-build: clean
-	echo "To be implmented: build..."	
-
-run-front: build
+run-front:
 	python -mwebbrowser http://localhost:8080
 	bash -c "source ./venv/bin/activate && npm run dev --prefix ./src/main/vue && deactivate"
 
-run-back: build
+run-back:
 	python -mwebbrowser http://localhost:8000
 	bash -c "source ./venv/bin/activate && python3.6 ./src/main/django/manage.py runserver && deactivate"
-
-clean:
-		
 
 cleansetup:
 	rm -rf ./venv
