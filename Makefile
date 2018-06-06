@@ -2,6 +2,7 @@ all: test
 
 test: build
 	echo "To be implemented: test..."
+	bash -c "source ./venv/bin/activate && ./src/main/django/manage.py test ./src/test/django && deactivate"
 
 build: clean
 	echo "To be implmented: build..."	
