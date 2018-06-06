@@ -4,9 +4,7 @@
     <div>
       <ul>
         <li><router-link to="/">Hello</router-link></li>
-        <li><router-link to="/Courses/PAV">Courses</router-link></li>
-        <li><router-link to="/Courses/PAV/Colloquium">Assignment</router-link></li>
-        <li><router-link to="/Courses/PAV/Colloquium/Dennis">Journal</router-link></li>
+        <li><router-link to="/PAV">Courses</router-link></li>
       </ul>
     </div>
     <router-view/>
