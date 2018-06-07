@@ -4,17 +4,22 @@
 
         <!-- Get these by ajax json -->
         <router-link tag="button" to="/Courses/PAV">PAV</router-link>
-
+        <Deadline></Deadline>
     </div>
 </template>
 
 <script>
+import Deadline from '@/components/Deadline'
+
 export default {
     name : 'hello',
     data () {
         return {
             msg : 'Courses',
         }
+    },
+    components: {
+        Deadline
     }
 }
 </script>
