@@ -9,27 +9,27 @@
 </template>
 
 <script>
-    import newTemplate from '@/components/newTemplate'
-    export default {
-        name : 'newAssign',
-        components: {
-		          newTemplate
-              },
-        data () {
-            return {
-                createNew : false,
-                ButtonCreateNew : "new template"
-            }
-        },
-        methods: {
-            newTemplateToggle () {
-                this.createNew = !this.createNew
-                if (this.createNew) {
-                    this.ButtonCreateNew = "Cancel"
-                } else {
-                    this.ButtonCreateNew = "new template"
-                }
+import newTemplate from '@/components/newTemplate'
+export default {
+    name: 'newAssign',
+    components: {
+	          newTemplate
+          },
+    data () {
+        return {
+            createNew: false,
+            ButtonCreateNew: 'new template'
+        }
+    },
+    methods: {
+        newTemplateToggle () {
+            this.createNew = !this.createNew
+            if (this.createNew) {
+                this.ButtonCreateNew = 'Cancel'
+            } else {
+                this.ButtonCreateNew = 'new template'
             }
         }
     }
+}
 </script>

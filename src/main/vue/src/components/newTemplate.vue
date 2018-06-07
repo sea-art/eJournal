@@ -5,12 +5,12 @@
 </template>
 
 <script>
-    export default {
-        name : 'newTemplate',
-        data () {
-            return {
-                msg : "ok"
-            }
+export default {
+    name: 'newTemplate',
+    data () {
+        return {
+            msg: 'ok'
         }
     }
+}
 </script>
