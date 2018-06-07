@@ -28,11 +28,11 @@ setup: cleansetup
 	bash -c 'source ./venv/bin/activate && pip install -r requirements.txt && deactivate'
 	
 	#Update n & install nodejs dependencies.
-	npm cache clean -f
-	npm config set strict-ssl false
-	sudo npm install -g n
-	npm config set strict-ssl true
-	sudo n stable
+	#npm cache clean -f
+	#npm config set strict-ssl false
+	#sudo npm install -g n
+	#npm config set strict-ssl true
+	#sudo n stable
 	npm install --prefix ./src/main/vue vue-cli webpack
 	npm install --prefix ./src/main/vue
 	

@@ -33,6 +33,9 @@ class User(models.Model):
         null=True,
     )
 
+    def __str__(self):
+        return self.username
+
     class Meta:
         unique_together = ('username', 'education',)
 
@@ -41,6 +44,9 @@ class Course(models.Model):
     name = models.TextField()
     author = models.ManyToManyField(User)
 
+    def __str__(self):
+        return self.name
+
 
 class Assignment(models.Model):
     name = models.TextField()
@@ -48,6 +54,9 @@ class Assignment(models.Model):
         null=True,
     )
     course = models.ManyToManyField(Course)
+
+    def __str__(self):
+        return self.name
 
 
 class Journal(models.Model):
@@ -60,6 +69,9 @@ class Journal(models.Model):
         on_delete=models.CASCADE
     )
 
+    def __str__(self):
+        return self.assignment.name + " from " + self.user.username
+
 
 class Entry(models.Model):
     journal = models.ForeignKey(
@@ -70,3 +82,6 @@ class Entry(models.Model):
         auto_now_add=True
     )
     late = models.BooleanField()
+
+    def __str__(self):
+        return "Entry: " + str(self.pk)
