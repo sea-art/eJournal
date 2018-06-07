@@ -1,8 +1,8 @@
 <template>
     <div>
-        <li><router-link to="/PAV/Colloquium">Assignment</router-link></li>
         <h1>{{ msg }}</h1>
-        Hello {{ $route.params.course }}
+        Hello {{ $route.params.course }} <br>
+        <router-link tag="button" to="/Courses/PAV/Colloquium">Assignment</router-link>
     </div>
 </template>
 

@@ -4,6 +4,7 @@ import Hello from '@/components/Hello'
 import Journal from '@/components/Journal'
 import Assignment from '@/components/Assignment'
 import Courses from '@/components/Courses'
+import Login from '@/components/Login'
 
 Vue.use(Router)
 
@@ -15,17 +16,22 @@ export default new Router({
             component : Hello
         },
         {
-            path : '/:course',
+            path : '/Login',
+            name : 'login',
+            component : Login,
+        },
+        {
+            path : '/Courses/:course',
             name : 'courses',
             component : Courses,
         },
         {
-            path : '/:course/:assign',
+            path : '/Courses/:course/:assign',
             name : 'assignment',
             component : Assignment,
         },
         {
-            path : '/:course/:assign/:student',
+            path : '/Courses/:course/:assign/:student',
             name : 'journal',
             component : Journal
         }

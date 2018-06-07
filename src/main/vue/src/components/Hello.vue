@@ -1,7 +1,10 @@
 <template>
     <div class="hello">
         <h1>{{ msg }}</h1>
-        <hr />
+
+        <!-- Get these by ajax json -->
+        <router-link tag="button" to="/Courses/PAV">PAV</router-link>
+
     </div>
 </template>
 
@@ -10,7 +13,7 @@ export default {
     name : 'hello',
     data () {
         return {
-            msg : 'Welcome to Your Vue.js App',
+            msg : 'Courses',
         }
     }
 }

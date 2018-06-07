@@ -1,19 +1,24 @@
 <template>
-  <div id="app">
-    <img src="./assets/logo.png">
-    <div>
-      <ul>
-        <li><router-link to="/">Hello</router-link></li>
-        <li><router-link to="/PAV">Courses</router-link></li>
-      </ul>
-    </div>
-    <router-view/>
+    <div id="app">
+        <div id="header">
+            <img src="./assets/logo.png">
+            <router-link tag="button" to="/">Homepage</router-link>
+            <router-link v-if="login" tag="button" to="/Login">Inloggen</router-link>
+            <router-link v-if="$route.params.assign != undefined" tag="button" :to='"/Courses/"+$route.params.course'>{{$route.params.course}}</router-link>
+            <router-link v-if="$route.params.student != undefined" tag="button" :to='"/Courses/"+$route.params.course+"/"+$route.params.assign'>{{$route.params.assign}}</router-link>
+        </div>
+        <router-view/>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'App'
+  name : 'app',
+  data () {
+        return {
+            login: true
+        }
+        }
 }
 </script>
 
@@ -23,7 +28,13 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+
+  margin-top: 10px;
+}
+
+#header {
+  background-color: #252C39;
+  color: #DEDEDE;
+  margin-top: 10px;
 }
 </style>
