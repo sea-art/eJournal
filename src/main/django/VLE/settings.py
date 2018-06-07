@@ -74,7 +74,7 @@ WSGI_APPLICATION = 'VLE.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'VLE.db',
+        'NAME': os.path.join(BASE_DIR, 'VLE.db'),
     }
 }
 
