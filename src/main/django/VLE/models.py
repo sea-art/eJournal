@@ -11,13 +11,11 @@ class User(models.Model):
         (TEACHER_ASSISTANT, 'Teacher assistant'),
         (STUDENT, 'Student'),
     )
-
     type = models.TextField(
         max_length=2,
         choices=USER_TYPES,
         default=STUDENT,
     )
-
     email = models.TextField(
         unique=True,
         null=True,
@@ -31,13 +29,13 @@ class User(models.Model):
     education = models.TextField(
         null=True,
     )
-
     lti_id = models.TextField(
         null=True,
     )
 
     class Meta:
         unique_together = ('username', 'education',)
+
 
 class Course(models.Model):
     name = models.TextField()
@@ -68,3 +66,7 @@ class Entry(models.Model):
         'Journal',
         on_delete=models.CASCADE
     )
+    datatime = models.DateTimeField(
+        auto_now_add=True
+    )
+    late = models.BooleanField()
