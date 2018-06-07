@@ -5,7 +5,7 @@ class User(models.Model):
     ADMIN = 'AD'
     TEACHER = 'TE'
     TEACHER_ASSISTANT = 'TA'
-    STUDENT = 'SU'
+    STUDENT = 'SD'
     USER_TYPES = (
         (ADMIN, 'Admin'),
         (TEACHER, 'Teacher'),
