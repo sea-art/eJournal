@@ -1,9 +1,8 @@
 <template>
     <div>
         <h1>{{ msg }}</h1>
-        Hello {{ $route.params.assign }}
-
-        <li><router-link tag="button" to="/Courses/PAV/Colloquium/Dennis">Dennis Journal</router-link></li>
+        Hello {{ $route.params.assign }} </br>
+        <router-link tag="button" to="/Courses/PAV/Colloquium/Dennis">Dennis Journal</router-link>
 
         <!-- <courses v-if="seen"></courses> -->
     </div>
@@ -18,7 +17,7 @@
         //       },
         data () {
             return {
-                msg : 'Assignment',
+                msg : 'Docent student overview',
             }
         }
     }
