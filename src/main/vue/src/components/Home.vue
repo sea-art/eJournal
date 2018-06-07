@@ -1,5 +1,5 @@
 <template>
-    <div class="hello">
+    <div class="home">
         <h1>{{ msg }}</h1>
 
         <!-- Get these by ajax json -->
@@ -12,7 +12,7 @@
 import Deadline from '@/components/Deadline'
 
 export default {
-    name: 'hello',
+    name: 'home',
     data () {
         return {
             msg: 'Courses'

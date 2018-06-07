@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Hello from '@/components/Hello'
+import Home from '@/components/Home'
 import Journal from '@/components/Journal'
 import Assignment from '@/components/Assignment'
 import Courses from '@/components/Courses'
@@ -10,6 +10,9 @@ import Profile from '@/components/Profile'
 Vue.use(Router)
 
 export default new Router({
+    /* the router controls the path and which component is used in the
+     * router-view
+     */
     routes: [
         {
             path: '/',
@@ -18,8 +21,8 @@ export default new Router({
         },
         {
             path: '/Courses',
-            name: 'Hello',
-            component: Hello
+            name: 'Home',
+            component: Home
         },
         {
             path: '/Profile',
@@ -27,6 +30,10 @@ export default new Router({
             component: Profile
         },
         {
+            /* In the courses path the sub paths are variable so each
+             * assignment, course and journal has his own link but use the same
+             * router view.
+             */
             path: '/Courses/:course',
             name: 'courses',
             component: Courses

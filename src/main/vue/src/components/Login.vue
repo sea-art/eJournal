@@ -5,7 +5,6 @@
 
         <input v-model="login" placeholder="Username">
         <input type="password" v-model="password" placeholder="Password">
-        <p>Password is: {{ password }}</p>
 
         <router-link tag="button" to="/Courses">Login</router-link>
         <router-link tag="button" to="/">Register</router-link>

@@ -1,7 +1,9 @@
 <template>
     <div id="app">
         <div id="header">
+            <!-- Place holder image -->
             <img src="./assets/logo.png">
+            <!-- Redirection buttons, only visible dependent on current router path -->
             <router-link tag="button" to="/">Homepage</router-link>
             <router-link v-if="$route.path != '/'" tag="button" :to='"/Profile"'>Profile</router-link>
             <router-link v-if="$route.params.course != undefined" tag="button" :to='"/Courses"'>Courses</router-link>
