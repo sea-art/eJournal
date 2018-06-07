@@ -3,7 +3,6 @@
         <div id="header">
             <img src="./assets/logo.png">
             <router-link tag="button" to="/">Homepage</router-link>
-            <!-- <router-link v-if="login" tag="button" to="/Login">Inloggen</router-link> -->
             <router-link v-if="$route.path != '/'" tag="button" :to='"/Profile"'>Profile</router-link>
             <router-link v-if="$route.params.course != undefined" tag="button" :to='"/Courses"'>Courses</router-link>
             <router-link v-if="$route.params.assign != undefined" tag="button" :to='"/Courses/"+$route.params.course'>{{$route.params.course}}</router-link>
@@ -15,7 +14,7 @@
 
 <script>
 export default {
-  name : 'app',
+  name: 'app',
   data () {
         return {
             login: true

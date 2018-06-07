@@ -12,10 +12,10 @@
 import Deadline from '@/components/Deadline'
 
 export default {
-    name : 'hello',
+    name: 'hello',
     data () {
         return {
-            msg : 'Courses',
+            msg: 'Courses',
         }
     },
     components: {
@@ -27,12 +27,12 @@ export default {
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
 h1, h2 {
-  font-weight: normal;
+    font-weight: normal;
 }
 ul {
     list-style-position: inside;
 }
 a {
-  color: #42b983;
+    color: #42b983;
 }
 </style>

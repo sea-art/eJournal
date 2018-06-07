@@ -12,34 +12,34 @@ Vue.use(Router)
 export default new Router({
     routes: [
         {
-            path : '/',
-            name : 'Login',
-            component : Login
+            path: '/',
+            name: 'Login',
+            component: Login
         },
         {
-            path : '/Courses',
-            name : 'Hello',
-            component : Hello
+            path: '/Courses',
+            name: 'Hello',
+            component: Hello
         },
         {
-            path : '/Profile',
-            name : 'Profile',
-            component : Profile
+            path: '/Profile',
+            name: 'Profile',
+            component: Profile
         },
         {
-            path : '/Courses/:course',
-            name : 'courses',
-            component : Courses,
+            path: '/Courses/:course',
+            name: 'courses',
+            component: Courses,
         },
         {
-            path : '/Courses/:course/:assign',
-            name : 'assignment',
-            component : Assignment,
+            path: '/Courses/:course/:assign',
+            name: 'assignment',
+            component: Assignment,
         },
         {
-            path : '/Courses/:course/:assign/:student',
-            name : 'journal',
-            component : Journal
+            path: '/Courses/:course/:assign/:student',
+            name: 'journal',
+            component: Journal
         }
     ]
 })
