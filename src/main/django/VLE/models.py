@@ -44,6 +44,8 @@ class User(models.Model):
 class Course(models.Model):
     name = models.TextField()
     author = models.ManyToManyField(User)
+    abbreviation = models.TextField(max_length=3)
+    startdate = models.DateField()
 
     def __str__(self):
         return self.name
