@@ -15,7 +15,7 @@ export default {
     name: 'hello',
     data () {
         return {
-            msg: 'Courses',
+            msg: 'Courses'
         }
     },
     components: {

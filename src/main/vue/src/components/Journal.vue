@@ -8,12 +8,12 @@
 </template>
 
 <script>
-    export default {
-        name : 'journal',
-        data () {
-            return {
-                msg : 'Journal'
-            }
+export default {
+    name: 'journal',
+    data () {
+        return {
+            msg: 'Journal'
         }
     }
+}
 </script>

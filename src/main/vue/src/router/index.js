@@ -29,12 +29,12 @@ export default new Router({
         {
             path: '/Courses/:course',
             name: 'courses',
-            component: Courses,
+            component: Courses
         },
         {
             path: '/Courses/:course/:assign',
             name: 'assignment',
-            component: Assignment,
+            component: Assignment
         },
         {
             path: '/Courses/:course/:assign/:student',

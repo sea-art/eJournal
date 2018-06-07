@@ -14,12 +14,10 @@
 
 <script>
 export default {
-  name: 'app',
-  data () {
-        return {
-            login: true
-        }
-        }
+    name: 'app',
+    data () {
+        return {}
+    }
 }
 </script>
 
