@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="login">
         <h1>{{ msg }}</h1>
         Welcome to eDag {{ $route.params.course }} <br>
 

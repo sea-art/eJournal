@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="deadline">
         <h1>{{ msg }}</h1>
         Deadline 1
         Deadline 2
