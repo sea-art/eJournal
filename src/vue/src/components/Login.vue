@@ -17,14 +17,6 @@
         <router-link tag="b-button" to="/Dashboard">Login</router-link>
         <router-link tag="b-button" to="/">Register</router-link>
 
-        <b-container class="bv-example-row">
-            <b-row class="text-center">
-                <b-col class="p-3 mb-2 bg-primary text-white" cols="3">1 of 3</b-col>
-                <b-col class="p-3 mb-2 bg-danger text-white" cols="6">2 of 3 (wider)</b-col>
-                <b-col class="p-3 mb-2 bg-primary text-white" cols="3">3 of 3</b-col>
-            </b-row>
-        </b-container>
-
     </div>
 </template>
 
