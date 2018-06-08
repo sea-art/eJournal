@@ -35,13 +35,13 @@
                 </b-collapse>
             </b-navbar>
 
-            <!-- <b-row class="text-center">
+            <b-row class="text-center">
                 <router-link tag="b-button" to="/">Homepage</router-link>
                 <router-link v-if="$route.path != '/'" tag="b-button" :to='"/Profile"'>Profile</router-link>
-                <router-link v-if="$route.params.course != undefined" tag="b-button" :to='"/Courses"'>Courses</router-link>
-                <router-link v-if="$route.params.assign != undefined" tag="b-button" :to='"/Courses/"+$route.params.course'>{{$route.params.course}}</router-link>
-                <router-link v-if="$route.params.student != undefined" tag="b-button" :to='"/Courses/"+$route.params.course+"/"+$route.params.assign'>{{$route.params.assign}}</router-link>
-            </b-row> -->
+                <router-link v-if="$route.params.course != undefined" tag="b-button" :to='"/Dashboard"'>Courses</router-link>
+                <router-link v-if="$route.params.assign != undefined" tag="b-button" :to='"/Dashboard/"+$route.params.course'>{{$route.params.course}}</router-link>
+                <router-link v-if="$route.params.student != undefined" tag="b-button" :to='"/Dashboard/"+$route.params.course+"/"+$route.params.assign'>{{$route.params.assign}}</router-link>
+            </b-row>
 
         </div>
         <div class="container" width="90%">
@@ -74,5 +74,9 @@ export default {
   background-color: #252C39;
   color: #DEDEDE;
   margin-top: 10px;
+}
+
+.container {
+    min-width: 95%
 }
 </style>

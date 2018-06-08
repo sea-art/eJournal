@@ -20,7 +20,7 @@ export default new Router({
             component: Login
         },
         {
-            path: '/Course',
+            path: '/Dashboard',
             name: 'Dashboard',
             component: Dashboard
         },
@@ -34,17 +34,17 @@ export default new Router({
              * assignment, course and journal has his own link but use the same
              * router view.
              */
-            path: '/Course/:course',
+            path: '/Dashboard/:course',
             name: 'course',
             component: Course
         },
         {
-            path: '/Course/:course/:assign',
+            path: '/Dashboard/:course/:assign',
             name: 'assignment',
             component: Assignment
         },
         {
-            path: '/Course/:course/:assign/:student',
+            path: '/Dashboard/:course/:assign/:student',
             name: 'journal',
             component: Journal
         }
