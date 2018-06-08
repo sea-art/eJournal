@@ -46,6 +46,6 @@ export default {
 }
 
 .container {
-    min-width: 95%
+    min-width: 100%
 }
 </style>

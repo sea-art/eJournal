@@ -1,9 +1,5 @@
 <template>
     <div id="header">
-        <!-- Place holder image -->
-        <img src="./assets/logo.png">
-        <!-- Redirection buttons, only visible dependent on current router path -->
-
         <b-navbar toggleable="md" type="light" variant="info">
             <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
             <b-navbar-brand :to='"/"'>Edag</b-navbar-brand>
@@ -21,7 +17,8 @@
                     <b-nav-item-dropdown right v-if="$route.path != '/'">
                         <!-- Using button-content slot -->
                         <template slot="button-content">
-                        <em>User</em>
+                                <img src="./assets/ohno.jpeg" class="profile-image"> Engel <b class="caret"></b></a>
+                            <!-- <em>User</em> -->
                         </template>
                         <router-link v-if="$route.path != '/'" tag="b-dropdown-item" :to='"/Profile"'>Profile</router-link>
                         <router-link v-if="$route.path != '/'" tag="b-dropdown-item" :to='"/"'>Sign Out</router-link>
@@ -32,19 +29,16 @@
     </div>
 </template>
 
-// <script>
-// export default {
-//     name: 'app',
-//     data () {
-//         return {}
-//     },
-// }
-// </script>
-
 <style>
 #header {
   background-color: #252C39;
   color: #DEDEDE;
   margin-top: 10px;
+}
+
+.profile-image{
+    width: 100%;
+    max-width: 60px;
+    border-radius: 50%;
 }
 </style>
