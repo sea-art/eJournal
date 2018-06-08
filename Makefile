@@ -25,7 +25,7 @@ fixnpm:
 	npm config set strict-ssl false
 	sudo npm install -g n
 	npm config set strict-ssl true
-	#sudo n stable
+	sudo n stable
 
 setup: clean
 	#Install apt dependencies and ppa's.
@@ -38,7 +38,6 @@ setup: clean
 	bash -c 'source ./venv/bin/activate && pip install -r requirements.txt && deactivate'
 	
 	#Update n & install nodejs dependencies.
-	npm install --prefix ./src/vue vue-cli webpack
 	npm install --prefix ./src/vue
 	
 	@echo "DONE!"
