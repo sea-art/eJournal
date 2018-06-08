@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import Deadline from '@/components/Deadline'
+import Deadline from '@/views/Deadline'
 
 export default {
     name: 'dashboard',

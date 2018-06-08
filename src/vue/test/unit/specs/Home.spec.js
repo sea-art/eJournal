@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import Home from '@/components/Home'
+import Home from '@/views/Home'
 import router from '@/router'
 
 describe('Home.vue', () => {
