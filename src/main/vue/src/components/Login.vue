@@ -11,7 +11,7 @@
         <!-- <input v-model="login" placeholder="Username"> -->
         <!-- <input type="password" v-model="password" placeholder="Password"> -->
 
-        <!-- <b-button><b-link :to="'/Courses'">Login</b-link></b-button> -->
+        <b-button><b-link :to="'/Courses'">Login</b-link></b-button>
         <!-- <b-button>Register</b-button> -->
 
         <router-link tag="b-button" to="/Courses">Login</router-link>

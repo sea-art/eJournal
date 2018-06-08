@@ -23,9 +23,6 @@ export default {
     }
 }
 </script>
-<!-- // <style lang="scss">*/
-//     @import '../node_modules/bootstrap/dist/bootstrap.css';*/
-//     @import '../node_modules/bootstrap-vue/dist/bootstrap-vue.css';*/ -->
 
 <style>
 #app {
