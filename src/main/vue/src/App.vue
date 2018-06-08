@@ -1,5 +1,5 @@
 <template>
-    <div id="app">
+    <div id="app" class="container">
         <div id="header">
             <!-- Place holder image -->
             <img src="./assets/logo.png">
@@ -11,7 +11,7 @@
             <router-link v-if="$route.params.student != undefined" tag="button" :to='"/Courses/"+$route.params.course+"/"+$route.params.assign'>{{$route.params.assign}}</router-link>
         </div>
         <router-view/>
-  </div>
+    </div>
 </template>
 
 <script>
@@ -22,10 +22,9 @@ export default {
     }
 }
 </script>
-<!--
-<style lang="scss">*/
-    @import '../node_modules/bootstrap/scss/bootstrap.scss';*/
-</style> -->
+<!-- // <style lang="scss">*/
+//     @import '../node_modules/bootstrap/dist/bootstrap.css';*/
+//     @import '../node_modules/bootstrap-vue/dist/bootstrap-vue.css';*/ -->
 
 <style>
 #app {
