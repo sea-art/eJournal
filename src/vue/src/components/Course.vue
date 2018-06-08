@@ -1,8 +1,6 @@
 <template>
-
-
-    <!--
     <div>
+        <!--
         <h1>{{ msg }}</h1>
 
         Button used to check for different path for student and teacher
@@ -14,8 +12,8 @@
         <newAssign v-if="createNew && !student"></newAssign>
         Toggle between the 2 components above
         <button v-if="!student" v-on:click="newToggle">{{ButtonCreateNew}}</button>
-    </div>
     -->
+    </div>
 </template>
 
 <script>

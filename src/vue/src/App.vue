@@ -4,11 +4,14 @@
             <!-- Place holder image -->
             <img src="./assets/logo.png">
             <!-- Redirection buttons, only visible dependent on current router path -->
-            <router-link tag="button" to="/">Homepage</router-link>
-            <router-link v-if="$route.path != '/'" tag="button" :to='"/Profile"'>Profile</router-link>
-            <router-link v-if="$route.params.course != undefined" tag="button" :to='"/Dashboard"'>Courses</router-link>
-            <router-link v-if="$route.params.assign != undefined" tag="button" :to='"/Dashboard/"+$route.params.course'>{{$route.params.course}}</router-link>
-            <router-link v-if="$route.params.student != undefined" tag="button" :to='"/Dashboard/"+$route.params.course+"/"+$route.params.assign'>{{$route.params.assign}}</router-link>
+            <b-row class="text-center">
+                <router-link tag="b-button" to="/">Homepage</router-link>
+                <router-link v-if="$route.path != '/'" tag="b-button" :to='"/Profile"'>Profile</router-link>
+                <router-link v-if="$route.params.course != undefined" tag="b-button" :to='"/Dashboard"'>Courses</router-link>
+                <router-link v-if="$route.params.assign != undefined" tag="b-button" :to='"/Dashboard/"+$route.params.course'>{{$route.params.course}}</router-link>
+                <router-link v-if="$route.params.student != undefined" tag="b-button" :to='"/Dashboard/"+$route.params.course+"/"+$route.params.assign'>{{$route.params.assign}}</router-link>
+            </b-row>
+
         </div>
         <div class="container">
             <router-view/>
