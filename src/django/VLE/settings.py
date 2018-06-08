@@ -29,6 +29,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'VLE.apps.VLEConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -73,7 +74,7 @@ WSGI_APPLICATION = 'VLE.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'VLE.db',
+        'NAME': os.path.join(BASE_DIR, 'VLE.db'),
     }
 }
 

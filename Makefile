@@ -25,7 +25,7 @@ fixnpm:
 	npm config set strict-ssl false
 	sudo npm install -g n
 	npm config set strict-ssl true
-	sudo n stable
+	#sudo n stable
 
 setup: clean
 	#Install apt dependencies and ppa's.
