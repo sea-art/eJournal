@@ -44,4 +44,8 @@ export default {
   color: #DEDEDE;
   margin-top: 10px;
 }
+
+.container {
+    min-width: 95%
+}
 </style>
