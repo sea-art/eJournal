@@ -2,24 +2,38 @@
     <div class="dashboard">
         <h1>{{ msg }}</h1>
 
-        <!-- Get these by ajax json -->
-        <router-link tag="button" to="/Dashboard/PAV">PAV</router-link>
-        <Deadline></Deadline>
+        <div v-for="names in courses">
+            {{ names }}
+        </div>
+
+        <!-- <router-link tag="button" to="/Dashboard/PAV">PAV</router-link> -->
+        <courseCard></courseCard>
     </div>
 </template>
 
 <script>
-import Deadline from '@/views/Deadline'
+import courseCard from '@/components/courseCard'
 
 export default {
     name: 'dashboard',
-    data () {
+    data() {
         return {
-            msg: 'Dashboard'
+            msg: "Dashboard",
+            courses: {
+                names: ["Webprogrammeren en databases project",
+                        "Academische vaardigheden informatica 2",
+                        "Academische vaardigheden informatica 1"],
+                authors: ["Rob Belleman",
+                          "Robert van Wijk",
+                          "Robert van Wijk"],
+                startdates: ["01-01-2017",
+                             "01-01-2017",
+                             "01-01-2017"]
+            }
         }
     },
     components: {
-        Deadline
+        courseCard
     }
 }
 </script>

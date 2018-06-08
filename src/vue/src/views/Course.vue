@@ -21,7 +21,7 @@
 import overview from '@/components/assignmentOverview'
 import newAssign from '@/components/newAssign'
 export default {
-    name: 'courses',
+    name: 'course',
     components: {
         overview,
         newAssign
@@ -31,7 +31,7 @@ export default {
             names: ["Webprogrammeren en databases project",
                     "Academische vaardigheden informatica 2",
                     "Academische vaardigheden informatica 1"],
-            authors: ["Robert van Wijk",
+            authors: ["Rob Belleman",
                       "Robert van Wijk",
                       "Robert van Wijk"],
             startdates: ["01-01-2017",
