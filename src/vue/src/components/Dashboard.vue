@@ -1,9 +1,9 @@
 <template>
-    <div class="home">
+    <div class="dashboard">
         <h1>{{ msg }}</h1>
 
         <!-- Get these by ajax json -->
-        <router-link tag="button" to="/Courses/PAV">PAV</router-link>
+        <router-link tag="button" to="/Dashboard/PAV">PAV</router-link>
         <Deadline></Deadline>
     </div>
 </template>
@@ -12,10 +12,10 @@
 import Deadline from '@/components/Deadline'
 
 export default {
-    name: 'home',
+    name: 'dashboard',
     data () {
         return {
-            msg: 'Courses'
+            msg: 'Dashboard'
         }
     },
     components: {

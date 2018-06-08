@@ -6,9 +6,9 @@
             <!-- Redirection buttons, only visible dependent on current router path -->
             <router-link tag="button" to="/">Homepage</router-link>
             <router-link v-if="$route.path != '/'" tag="button" :to='"/Profile"'>Profile</router-link>
-            <router-link v-if="$route.params.course != undefined" tag="button" :to='"/Courses"'>Courses</router-link>
-            <router-link v-if="$route.params.assign != undefined" tag="button" :to='"/Courses/"+$route.params.course'>{{$route.params.course}}</router-link>
-            <router-link v-if="$route.params.student != undefined" tag="button" :to='"/Courses/"+$route.params.course+"/"+$route.params.assign'>{{$route.params.assign}}</router-link>
+            <router-link v-if="$route.params.course != undefined" tag="button" :to='"/Dashboard"'>Courses</router-link>
+            <router-link v-if="$route.params.assign != undefined" tag="button" :to='"/Dashboard/"+$route.params.course'>{{$route.params.course}}</router-link>
+            <router-link v-if="$route.params.student != undefined" tag="button" :to='"/Dashboard/"+$route.params.course+"/"+$route.params.assign'>{{$route.params.assign}}</router-link>
         </div>
         <div class="container">
             <router-view/>
