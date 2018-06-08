@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Dashboard from '@/components/Dashboard'
-import Journal from '@/components/Journal'
-import Assignment from '@/components/Assignment'
-import Course from '@/components/Course'
-import Login from '@/components/Login'
-import Profile from '@/components/Profile'
+import Dashboard from '@/views/Dashboard'
+import Journal from '@/views/Journal'
+import Assignment from '@/views/Assignment'
+import Course from '@/views/Course'
+import Login from '@/views/Login'
+import Profile from '@/views/Profile'
 
 Vue.use(Router)
 
