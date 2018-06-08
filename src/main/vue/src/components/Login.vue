@@ -14,7 +14,7 @@
         <b-button><b-link :to="'/Courses'">Login</b-link></b-button>
         <b-button>Register</b-button>
 
-        <!-- <router-link to="/Courses">Login</router-link> -->
+        <router-link to="/Courses">Login</router-link>
         <!-- <router-link tag="button" to="/">Register</router-link> -->
     </div>
 </template>
