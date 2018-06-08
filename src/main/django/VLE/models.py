@@ -68,8 +68,8 @@ class Course(models.Model):
     name = models.TextField()
     author = models.ManyToManyField(User)
     abbreviation = models.TextField(
-        max_length=3,
-        default='XXX',
+        max_length=4,
+        default='XXXX',
     )
     startdate = models.DateField(
         null=True,

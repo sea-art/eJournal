@@ -1,7 +1,6 @@
 test:
 	pep8 ./src/main/django --max-line-length=120 --exclude='./src/main/django/VLE/migrations'
-	pep8 ./src/test/django --max-line-length=120
-	bash -c "source ./venv/bin/activate && ./src/main/django/manage.py test ./src/test/django && deactivate"
+	bash -c "source ./venv/bin/activate && ./src/main/django/manage.py test ./src/main/django/VLE && deactivate"
 	npm run lint --prefix ./src/main/vue
 	npm run test --prefix ./src/main/vue
 
@@ -26,7 +25,7 @@ fixnpm:
 	npm config set strict-ssl false
 	sudo npm install -g n
 	npm config set strict-ssl true
-	sudo n stable
+	#sudo n stable
 
 setup: clean
 	#Install apt dependencies and ppa's.
