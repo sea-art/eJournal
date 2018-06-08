@@ -1,23 +1,21 @@
 <template>
     <div class="login">
-        <div class="row">
-            <div class="col" style="background-color:powderblue;">
-                HALLOOO
-            </div>
-            <div class="col-6">
-                <h1>{{ msg }}</h1>
-                Welcome to eDag {{ $route.params.course }} <br>
+        <h1>{{ msg }}</h1>
+        Welcome to eDag {{ $route.params.course }} <br>
 
-                <input v-model="login" placeholder="Username">
-                <input type="password" v-model="password" placeholder="Password">
+        <b-container fluid>
+            <b-col align-self="center"><input v-model="login" placeholder="Username"></b-col>
+            <b-col align-self="center"><input type="password" v-model="password" placeholder="Password"></b-col>
+        </b-container>
 
-                <router-link tag="button" to="/Courses">Login</router-link>
-                <router-link tag="button" to="/">Register</router-link>
-            </div>
-            <div class="col" style="background-color:powderblue;">
-                HAAAIII
-            </div>
-        </div>
+        <!-- <input v-model="login" placeholder="Username"> -->
+        <!-- <input type="password" v-model="password" placeholder="Password"> -->
+
+        <b-button><b-link :to="'/Courses'">Login</b-link></b-button>
+        <b-button>Register</b-button>
+
+        <!-- <router-link to="/Courses">Login</router-link> -->
+        <!-- <router-link tag="button" to="/">Register</router-link> -->
     </div>
 </template>
 
@@ -28,7 +26,7 @@ export default {
         return {
             login: '',
             password: '',
-            msg: 'Login'
+            msg: 'Login',
         }
     }
 }
