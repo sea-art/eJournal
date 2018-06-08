@@ -26,22 +26,36 @@ export default {
         overview,
         newAssign
     },
-    data () {
+    data() {
         return {
-            createNew: false,
-            student: false,
-            ButtonCreateNew: 'new assignment'
-        }
-    },
-    methods: {
-        newToggle () {
-            this.createNew = !this.createNew
-            if (this.createNew) {
-                this.ButtonCreateNew = 'Cancel'
-            } else {
-                this.ButtonCreateNew = 'new assignment'
-            }
+            names: ["Webprogrammeren en databases project",
+                    "Academische vaardigheden informatica 2",
+                    "Academische vaardigheden informatica 1"],
+            authors: ["Robert van Wijk",
+                      "Robert van Wijk",
+                      "Robert van Wijk"],
+            startdates: ["01-01-2017",
+                         "01-01-2017",
+                         "01-01-2017"]
         }
     }
+
+    // data () {
+    //     return {
+    //         createNew: false,
+    //         student: false,
+    //         ButtonCreateNew: 'new assignment'
+    //     }
+    // },
+    // methods: {
+    //     newToggle () {
+    //         this.createNew = !this.createNew
+    //         if (this.createNew) {
+    //             this.ButtonCreateNew = 'Cancel'
+    //         } else {
+    //             this.ButtonCreateNew = 'new assignment'
+    //         }
+    //     }
+    // }
 }
 </script>
