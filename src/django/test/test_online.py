@@ -2,7 +2,7 @@ from django.test import Client
 from django.test import TestCase
 
 
-class runnning(TestCase):
+class IsOnline(TestCase):
     def setUp(self):
         self.c = Client()
 
