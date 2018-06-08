@@ -1,5 +1,5 @@
 <template>
-    <div id="app" class="container">
+    <div id="app">
         <div id="header">
             <!-- Place holder image -->
             <img src="./assets/logo.png">
@@ -10,7 +10,9 @@
             <router-link v-if="$route.params.assign != undefined" tag="button" :to='"/Courses/"+$route.params.course'>{{$route.params.course}}</router-link>
             <router-link v-if="$route.params.student != undefined" tag="button" :to='"/Courses/"+$route.params.course+"/"+$route.params.assign'>{{$route.params.assign}}</router-link>
         </div>
-        <router-view/>
+        <div class="container">
+            <router-view/>
+        </div>
     </div>
 
 </template>
