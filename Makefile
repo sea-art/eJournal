@@ -1,22 +1,24 @@
 test:
-	pep8 ./src/main/django --max-line-length=120
-	pep8 ./src/test/django --max-line-length=120
-	bash -c "source ./venv/bin/activate && ./src/main/django/manage.py test ./src/test/django && deactivate"
-	npm run lint --prefix ./src/main/vue
-	npm run test --prefix ./src/main/vue
+	pep8 ./src/django --max-line-length=120 --exclude='./src/django/VLE/migrations'
+	bash -c "source ./venv/bin/activate && cd ./src/django/ && python3.6 manage.py test && deactivate"
+	npm run lint --prefix ./src/vue
+	npm run test --prefix ./src/vue
+
+migrate-back:
+	bash -c "source ./venv/bin/activate && python3.6 ./src/django/manage.py makemigrations && python3.6 ./src/django/manage.py migrate && deactivate"
 
 run-front:
 	python -mwebbrowser http://localhost:8080
-	bash -c "source ./venv/bin/activate && npm run dev --prefix ./src/main/vue && deactivate"
+	bash -c "source ./venv/bin/activate && npm run dev --prefix ./src/vue && deactivate"
 
 run-back:
 	python -mwebbrowser http://localhost:8000
-	bash -c "source ./venv/bin/activate && python3.6 ./src/main/django/manage.py runserver && deactivate"
+	bash -c "source ./venv/bin/activate && python3.6 ./src/django/manage.py runserver && deactivate"
 
 clean:
 	rm -rf ./venv
-	rm -rf ./src/main/vue/node_modules
-	rm -rf ./src/main/django/VLE/migrations
+	rm -rf ./src/vue/node_modules
+	rm -rf ./src/django/VLE/migrations
 
 fixnpm:
 	npm cache clean -f
@@ -36,7 +38,7 @@ setup: clean
 	bash -c 'source ./venv/bin/activate && pip install -r requirements.txt && deactivate'
 	
 	#Update n & install nodejs dependencies.
-	npm install --prefix ./src/main/vue vue-cli webpack
-	npm install --prefix ./src/main/vue
+	npm install --prefix ./src/vue vue-cli webpack
+	npm install --prefix ./src/vue
 	
 	@echo "DONE!"
