@@ -2,38 +2,32 @@
     <div class="dashboard">
         <h1>{{ msg }}</h1>
 
-        <div v-for="names in courses">
-            {{ names }}
+        <div v-for="c in courses">
+            <router-link tag="button" :to="{ name: 'Course', params: {course: c[3]} }">
+                <course-comp :cName="c[0]" :cAuth="c[1]" :cDate="c[2]"></course-comp>
+            </router-link>
         </div>
-
-        <!-- <router-link tag="button" to="/Dashboard/PAV">PAV</router-link> -->
-        <courseCard></courseCard>
     </div>
 </template>
 
 <script>
-import courseCard from '@/components/courseCard'
+import courseCard from '@/components/courseCard.vue'
 
 export default {
     name: 'dashboard',
     data() {
         return {
             msg: "Dashboard",
-            courses: {
-                names: ["Webprogrammeren en databases project",
-                        "Academische vaardigheden informatica 2",
-                        "Academische vaardigheden informatica 1"],
-                authors: ["Rob Belleman",
-                          "Robert van Wijk",
-                          "Robert van Wijk"],
-                startdates: ["01-01-2017",
-                             "01-01-2017",
-                             "01-01-2017"]
-            }
+            courses: [["Webprogrammeren en databases project",
+                       "Rob Belleman", "01-01-2017", "WebDB"],
+                      ["Academische vaardigheden informatica 2",
+                       "Robert van Wijk", "01-01-2017", "PAV"],
+                      ["Academische vaardigheden informatica 1",
+                       "Robert van Wijk", "01-01-2017", "PAV"]]
         }
     },
     components: {
-        courseCard
+        'course-comp': courseCard
     }
 }
 </script>

@@ -16,17 +16,17 @@ export default new Router({
     routes: [
         {
             path: '/',
-            name: 'Login',
+            // name: 'Login',
             component: Login
         },
         {
             path: '/Dashboard',
-            name: 'Dashboard',
+            // name: 'Dashboard',
             component: Dashboard
         },
         {
             path: '/Profile',
-            name: 'Profile',
+            // name: 'Profile',
             component: Profile
         },
         {
@@ -35,17 +35,17 @@ export default new Router({
              * router view.
              */
             path: '/Dashboard/:course',
-            name: 'course',
+            name: 'Course',
             component: Course
         },
         {
             path: '/Dashboard/:course/:assign',
-            name: 'assignment',
+            // name: 'assignment',
             component: Assignment
         },
         {
             path: '/Dashboard/:course/:assign/:student',
-            name: 'journal',
+            // name: 'journal',
             component: Journal
         }
     ]

@@ -1,16 +1,16 @@
 <template>
     <div>
-        <h1>{{ msg }}</h1>
+        <p>
+            {{ cName }}<br>
+            {{ cAuth }}<br>
+            {{ cDate }}
+        </p>
     </div>
 </template>
 
 <script>
 export default {
     name: 'courseCard',
-    data(vars) {
-        return {
-            msg: vars
-        }
-    }
+    props: ["cName", "cAuth", "cDate"]
 }
 </script>
