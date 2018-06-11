@@ -17,13 +17,15 @@ assign_examples = [
     {"name": "colloquium", "courses": [0]},
     {"name": "Verslag", "courses": [0, 1]}
 ]
-
+journal_examples = [
+    {"assigns": [0], "users": [0]},
+]
 
 users = []
 for u in users_examples:
-    user = User(username=u["username"], passhash='pass', group=u["type"])
-    users.append(user)
+    user = User(username=u["username"], password='pass', group=u["type"])
     user.save()
+    users.append(user)
 
 courses = []
 for c in courses_examples:
@@ -41,3 +43,7 @@ for a in assign_examples:
         assignment.course.add(courses[course])
 
     assignments.append(assignment)
+
+journal = []
+for j in journal_examples:
+    pass

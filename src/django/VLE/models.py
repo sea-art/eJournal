@@ -36,7 +36,7 @@ class User(models.Model):
     username = models.TextField(
         unique=True,
     )
-    passhash = models.CharField(
+    password = models.CharField(
         max_length=256,
     )
     education = models.TextField(
