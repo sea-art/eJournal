@@ -37,11 +37,13 @@ export default {
 
 
 .left-content {
+    background-color: Blue
 }
 
 .main-content {
 }
 
 .right-content {
+    background-color: Blue
 }
 </style>
