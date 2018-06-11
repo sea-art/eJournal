@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1>{{ msg }}</h1>
+        <h1>Journal Page</h1>
         Hello {{ $route.params.student }}
         Hello {{ $route.params.assign }}
         Hello {{ $route.params.course }}
@@ -9,11 +9,6 @@
 
 <script>
 export default {
-    name: 'journal',
-    data () {
-        return {
-            msg: 'Journal'
-        }
-    }
+    name: 'Journal'
 }
 </script>

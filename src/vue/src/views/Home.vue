@@ -1,25 +1,24 @@
 <template>
-    <div class="container-fluid">
-        <b-row>
-            <b-col3 class="left-content"></b-col3>
-            <b-col6 class="main-content">
-                <h1>Home</h1>
+    <b-row>
+        <b-col cols="3" class="left-content"></b-col>
+        <b-col cols="6" class="main-content">
+            <h1>Home Page</h1>
 
-                <div v-for="c in courses">
-                    <b-link tag="b-button" :to="{ name: 'Course', params: {course: c.cID} }">
-                        <course-comp :course="c"></course-comp>
-                    </b-link>
-                </div>
-            </b-col6>
-            <b-col3 class="right-content">1/4</b-col3>
-        </b-row>
-    </div>
+            <div v-for="c in courses">
+                <b-link tag="b-button" :to="{ name: 'Course', params: {course: c.cID} }">
+                    <course-comp :course="c"></course-comp>
+                </b-link>
+            </div>
+        </b-col>
+        <b-col cols="3" class="right-content"></b-col>
+    </b-row>
 </template>
 
 <script>
 import courseCard from '@/components/courseCard.vue'
 
 export default {
+    name: "Home",
     data() {
         return {
             courses: [{name: "Webprogrammeren en databases project",

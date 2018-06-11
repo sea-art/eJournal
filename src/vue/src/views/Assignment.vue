@@ -1,19 +1,11 @@
 <template>
     <div>
-        <h1>{{ msg }}</h1>
-        <!-- $route.params.assign is part of the path used by the router see router/index.js -->
-        Hello {{ $route.params.assign }} <br>
-        <router-link tag="button" to="/Dashboard/PAV/Colloquium/Dennis">Dennis Journal</router-link>
+        <h1>Assignment Page</h1>
     </div>
 </template>
 
 <script>
 export default {
-    name: 'assignment',
-    data () {
-        return {
-            msg: 'Docent student overview'
-        }
-    }
+    name: 'Assignment'
 }
 </script>

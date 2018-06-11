@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1>{{ msg }}</h1>
+        <h1>Profile Page</h1>
         <img src="../assets/ohno.jpeg">
         <router-link tag="button" :to='"/Dashboard"'>Back</router-link>
     </div>
@@ -8,18 +8,9 @@
 
 <script>
 export default {
-    name: 'edit',
-    data () {
-        return {
-            msg: 'Profile'
-        }
-    }
+    name: 'Profile'
 }
 </script>
 
 <style>
-img{
-    width:100%;
-    max-width:500px;
-}
 </style>

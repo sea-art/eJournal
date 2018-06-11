@@ -1,19 +1,7 @@
 <template>
     <div id="app">
-        <b-container id="main-container">
-            <header-bar></header-bar>
-            <router-view/>
-
-            <!-- Example of the used grid system. -->
-            <b-row>
-                <b-col12><h1>Example of the grid system:</h1></b-col12>
-            </b-row>
-            <b-row>
-                <b-col class="p-3 mb-2 bg-primary text-white" cols="3">1/4</b-col>
-                <b-col class="p-3 mb-2 bg-danger text-white" cols="6">2/4 (wider)</b-col>
-                <b-col class="p-3 mb-2 bg-primary text-white" cols="3">1/4</b-col>
-            </b-row>
-        </b-container>
+        <header-bar></header-bar>
+        <router-view/>
     </div>
 </template>
 
@@ -28,6 +16,15 @@ export default {
 </script>
 
 <style>
+:root {
+    --theme-dark-blue: #252C39;
+    --theme-peach: #E9A480;
+    --theme-light-grey: #EDEDED;
+    --theme-dark-grey: #DDDDDD;
+    --theme-pink: #E64769;
+    --theme-blue: #22648A;
+}
+
 #app {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -35,15 +32,14 @@ export default {
   text-align: center;
 }
 
-
 .left-content {
-    background-color: Blue
 }
 
 .main-content {
+    background-color: var(--theme-dark-grey);
 }
 
 .right-content {
-    background-color: Blue
 }
+
 </style>
