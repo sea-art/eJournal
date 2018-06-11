@@ -1,18 +1,18 @@
 from VLE.models import *
 
 users_examples = [
-    {"username":"Lars", "type":"SD"},
-    {"username":"Rick", "type":"SD"},
-    {"username":"Dennis", "type":"SD"},
-    {"username":"Zi", "type":"TA"},
-    {"username":"Jeroen", "type":"TE"},
-    {"username":"Maarten", "type":"SU"}
+    {"username": "Lars", "type": "SD"},
+    {"username": "Rick", "type": "SD"},
+    {"username": "Dennis", "type": "SD"},
+    {"username": "Zi", "type": "TA"},
+    {"username": "Jeroen", "type": "TE"},
+    {"username": "Maarten", "type": "SU"}
 ]
 courses_examples = [
-    {"name":"Portofolio Academische Vaardigheden 1", "abbr":"PAV"},
-    {"name":"Portofolio Academische Vaardigheden 2", "abbr":"PAV"},
-    {"name":"Beeldbewerken", "abbr":"BB"},
-    {"name":"Automaten en Formele Talen", "abbr":"AFT"}
+    {"name": "Portofolio Academische Vaardigheden 1", "abbr": "PAV"},
+    {"name": "Portofolio Academische Vaardigheden 2", "abbr": "PAV"},
+    {"name": "Beeldbewerken", "abbr": "BB"},
+    {"name": "Automaten en Formele Talen", "abbr": "AFT"}
 ]
 assign_examples = [
     {"name": "Logboek", "courses": [0, 1, 2, 3]},
