@@ -11,10 +11,10 @@
         <!-- <input v-model="login" placeholder="Username"> -->
         <!-- <input type="password" v-model="password" placeholder="Password"> -->
 
-        <!-- <b-button><b-link :to="'/Dashboard'">Login</b-link></b-button> -->
+        <!-- <b-button><b-link :to="'/Home'">Login</b-link></b-button> -->
         <!-- <b-button>Register</b-button> -->
 
-        <router-link tag="b-button" to="/Dashboard">Login</router-link>
+        <router-link tag="b-button" to="/Home">Login</router-link>
         <router-link tag="b-button" to="/">Register</router-link>
 
     </div>

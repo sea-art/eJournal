@@ -1,16 +1,19 @@
 <template>
     <div id="app">
-        <Header></Header>
-        <div class="container" width="90%">
+        <b-container id="main-container">
+            <header-bar></header-bar>
             <router-view/>
-            <b-container class="bv-example-row">
-                <b-row class="text-center">
-                    <b-col class="p-3 mb-2 bg-primary text-white" cols="3">1/4</b-col>
-                    <b-col class="p-3 mb-2 bg-danger text-white" cols="6">2/4 (wider)</b-col>
-                    <b-col class="p-3 mb-2 bg-primary text-white" cols="3">1/4</b-col>
-                </b-row>
-            </b-container>
-        </div>
+
+            <!-- Example of the used grid system. -->
+            <b-row>
+                <b-col12><h1>Example of the grid system:</h1></b-col12>
+            </b-row>
+            <b-row>
+                <b-col class="p-3 mb-2 bg-primary text-white" cols="3">1/4</b-col>
+                <b-col class="p-3 mb-2 bg-danger text-white" cols="6">2/4 (wider)</b-col>
+                <b-col class="p-3 mb-2 bg-primary text-white" cols="3">1/4</b-col>
+            </b-row>
+        </b-container>
     </div>
 </template>
 
@@ -18,12 +21,8 @@
 import Header from '@/Header'
 
 export default {
-    name: 'app',
-    data () {
-        return {}
-    },
     components: {
-        Header
+        'header-bar': Header
     }
 }
 </script>
@@ -34,17 +33,15 @@ export default {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-
-  margin-top: 10px;
 }
 
-#header {
-  background-color: #252C39;
-  color: #DEDEDE;
-  margin-top: 10px;
+
+.left-content {
 }
 
-.container {
-    min-width: 100%
+.main-content {
+}
+
+.right-content {
 }
 </style>

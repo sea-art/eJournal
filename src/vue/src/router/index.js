@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Dashboard from '@/views/Dashboard'
+import Home from '@/views/Home'
 import Journal from '@/views/Journal'
 import Assignment from '@/views/Assignment'
 import Course from '@/views/Course'
@@ -14,15 +14,8 @@ export default new Router({
      * router-view
      */
     routes: [
-        {
-            path: '/',
-            // name: 'Login',
-            component: Login
-        },
-        {
-            path: '/Dashboard',
-            // name: 'Dashboard',
-            component: Dashboard
+        {path: '/', component: Login},
+        {path: '/Home', component: Home
         },
         {
             path: '/Profile',
@@ -34,17 +27,17 @@ export default new Router({
              * assignment, course and journal has his own link but use the same
              * router view.
              */
-            path: '/Dashboard/:course',
+            path: '/Home/:course',
             name: 'Course',
             component: Course
         },
         {
-            path: '/Dashboard/:course/:assign',
+            path: '/Home/:course/:assign',
             // name: 'assignment',
             component: Assignment
         },
         {
-            path: '/Dashboard/:course/:assign/:student',
+            path: '/Home/:course/:assign/:student',
             // name: 'journal',
             component: Journal
         }
