@@ -11,6 +11,6 @@
 <script>
 export default {
     name: 'courseCard',
-    props: ["course"]
+    props: ['course']
 }
 </script>
