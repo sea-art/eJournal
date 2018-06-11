@@ -12,7 +12,7 @@ def create_connection(db_file):
 
 
 if __name__=='__main__':
-    tables = ["user", "course", "assignment"]
+    tables = ["user", "course", "assignment", "journal"]
     conn = create_connection(database)
     for table in tables:
         print(table)
