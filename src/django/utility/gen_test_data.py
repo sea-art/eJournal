@@ -1,7 +1,7 @@
 from VLE.models import *
 
-
 users_examples = [
+<<<<<<< HEAD:src/django/utility/gen_test_data.py
     {"username":"Lars", "type":"SD"},
     {"username":"Rick", "type":"SD"},
     {"username":"Dennis", "type":"SD"},
@@ -14,6 +14,17 @@ courses_examples = [
     {"name":"Portofolio Academische Vaardigheden 2", "abbr":"PAV"},
     {"name":"Beeldbewerken", "abbr":"BB"},
     {"name":"Automaten en Formele Talen", "abbr":"AFT"}
+=======
+    {"username": "Lars", "type": "SD"},
+    {"username": "Zi", "type": "TA"},
+    {"username": "Jeroen", "type": "TE"},
+    {"username": "Maarten", "type": "SU"}
+]
+courses_examples = [
+    {"name": "Portofolio Academische Vaardigheden", "abbr": "PAV"},
+    {"name": "Beeldbewerken", "abbr": "BB"},
+    {"name": "Automaten en Formele Talen", "abbr": "AFT"}
+>>>>>>> 2f1eb33505ffc7e2427bc63663e0f09416efe0ab:src/django/utility/gen_test_data.py
 ]
 assign_examples = [
     {"name": "Logboek", "courses": [0, 1, 2, 3]},
