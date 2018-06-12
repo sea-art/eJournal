@@ -5,18 +5,14 @@ from VLE.serializers import *
 
 
 @api_view(['GET'])
-def test(request, format=None):
-    return JsonResponse({'result': 'success',
-                         'user': request.user.username})
-
-
-@api_view(['GET'])
 def get_user_courses(request):
+    """
+    Returns the courses for an user.
+    """
     user = request.user
     response = {'result': 'success', 'courses': []}
     if user.is_authenticated:
-        courses = user.participant.all()
-        for course in courses:
+        for course in user.participant.all():
             response['courses'].append(CourseSerializer(course).data)
         return JsonResponse(response)
     else:

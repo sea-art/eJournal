@@ -27,6 +27,9 @@ class RestTests(TestCase):
             c.save()
 
     def test_get_user_courses(self):
+        """
+        Testing get_user_courses.
+        """
         result = self.client.post(reverse('token_obtain_pair'),
                                   {'username': self.username,
                                    'password': self.password}, format='json')
