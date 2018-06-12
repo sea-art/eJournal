@@ -41,8 +41,9 @@ class Command(BaseCommand):
 
             teachers = User.objects.filter(group='TE')
             teacher_amount = random.randint(1, 3)
-            for author in random.choices(teachers, k=teacher_amount):
-                course.authors.add(author)
+            if len(teachers) > 0:
+                for author in random.choices(teachers, k=teacher_amount):
+                    course.authors.add(author)
 
             students = User.objects.all().filter(group='SD')
             for student in students[:min(50, len(students))]:

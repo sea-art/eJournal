@@ -43,7 +43,7 @@ for a in assign_examples:
     assignment = Assignment(name=a["name"])
     assignment.save()
     for course in a["courses"]:
-        assignment.course.add(courses[course])
+        assignment.courses.add(courses[course])
     assignments.append(assignment)
 
 journals = []
