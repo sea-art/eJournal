@@ -1,5 +1,5 @@
 import names
-
+import random
 
 from VLE.models import *
 
@@ -20,19 +20,20 @@ for _ in range(5):
 
 users = []
 for u in random_users:
-    print(u)
     user = User(username=u["username"], password='pass', group=u["type"])
     user.save()
     users.append(user)
 
+print("Created random users")
 
+courses = []
+for c in Course.objects.all():
+    for u in random.sample(users, 75):
+        c.participants.add(u)
+    c.save()
 
-# courses = []
-# for c in Course.objects.all():
-#     course.author.add(users[2])
-#     course.author.add(users[3])
-#     courses.append(course)
-# #
+print("Added random users to the courses")
+
 # assignments = []
 # for a in assign_examples:
 #     assignment = Assignment(name=a["name"])

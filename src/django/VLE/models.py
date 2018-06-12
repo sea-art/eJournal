@@ -66,7 +66,8 @@ class Course(models.Model):
     - startdate: the date that the course starts.
     """
     name = models.TextField()
-    author = models.ManyToManyField(User)
+    author = models.ManyToManyField(User, related_name="authors")
+    participants = models.ManyToManyField(User, related_name="students")
     abbreviation = models.TextField(
         max_length=4,
         default='XXXX',

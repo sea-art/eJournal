@@ -1,17 +1,16 @@
 import sqlite3
 
-database = 'VLE.db'
 
 def create_connection(db_file):
     try:
-        conn = sqlite3.connect(db_file)
-        return conn
+        return sqlite3.connect(db_file)
     except Error as e:
         print(e)
     return None
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
+    database = 'VLE.db'
     tables = ["user", "course", "assignment", "journal"]
     conn = create_connection(database)
     for table in tables:
@@ -22,3 +21,4 @@ if __name__=='__main__':
             print(row)
         print()
     conn.close()
+
