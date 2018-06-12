@@ -11,6 +11,7 @@ export default {
             .then(response => {
                 localStorage.setItem('jwt_access', response.data.access)
                 localStorage.setItem('jwt_refresh', response.data.refresh)
+                connection.conn.defaults.headers.common['Authorization'] = "Bearer " + response.data.access
             })
             .catch(error => {
                 console.error(error)
@@ -24,20 +25,18 @@ export default {
     logout () {
         localStorage.removeItem('jwt_access')
         localStorage.removeItem('jwt_refresh')
+        connection.conn.defaults.headers.common['Authorization'] = ''
     },
 
     /* Run an authenticated request.
      * This appends the JWT token to the headers of the request, so that it can access
      * protected resources.
      */
-    authenticated_post (url, data, options = {}) {
-        options.header = {...options.header, ...{Authorization: 'Bearer ' + localStorage.getItem('jwt_access')}}
+    authenticated_post (url, data, options={}) {
         return connection.conn.post(url, data, options)
     },
 
-    authenticated_get (url, data = {}, options = {}) {
-        options.header = {...options.header, ...{Authorization: 'Bearer ' + localStorage.getItem('jwt_access')}}
-        console.log(options)
-        return connection.conn.get(url, data, options)
+    authenticated_get (url, options={}) {
+        return connection.conn.get(url, options)
     }
 }
