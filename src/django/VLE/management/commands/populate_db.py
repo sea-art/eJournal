@@ -4,6 +4,7 @@ from faker import Faker
 import random
 faker = Faker()
 
+
 class Command(BaseCommand):
     help = 'Generates random data for the database.'
 
@@ -39,8 +40,8 @@ class Command(BaseCommand):
             course.name = faker.company()
 
             teachers = User.objects.filter(group='TE')
-            teacher_amount = random.randint(1,3)
-            for author in random.choices(teachers, k = teacher_amount):
+            teacher_amount = random.randint(1, 3)
+            for author in random.choices(teachers, k=teacher_amount):
                 course.authors.add(author)
 
             students = User.objects.all().filter(group='SD')
@@ -48,11 +49,11 @@ class Command(BaseCommand):
                 course.participants.add(student)
 
             TAs = User.objects.all().filter(group='TA')
-            TA_amount = random.randint(2,7)
-            for TA in random.choices(TAs, k = TA_amount):
+            TA_amount = random.randint(2, 7)
+            for TA in random.choices(TAs, k=TA_amount):
                 course.TAs.add(TA)
 
-            course.abbrevation = random.choices(course.name, k = 4)
+            course.abbrevation = random.choices(course.name, k=4)
             course.startdate = faker.date_this_decade(before_today=True)
             print("course: ", course)
             course.save()
@@ -66,7 +67,7 @@ class Command(BaseCommand):
             assignment.name = faker.catch_phrase()
             assignment.description = faker.paragraph()
             courses = Course.objects.all()
-            for course in random.choices(courses, k = 3):
+            for course in random.choices(courses, k=3):
                 if assignment.courses.count():
                     assignment.courses.add(course)
                 else:
@@ -95,4 +96,3 @@ class Command(BaseCommand):
             entry.late = faker.boolean()
             entry.save()
             print("entry: ", entry)
-            
