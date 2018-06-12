@@ -3,10 +3,9 @@
         <b-col cols="3" class="left-content"></b-col>
         <b-col cols="6" class="main-content">
             <h1>Home Page</h1>
-
             <div v-for="c in courses" :key="c.cID">
                 <b-link tag="b-button" :to="{ name: 'Course', params: {course: c.cID} }">
-                    <course-comp :course="c"></course-comp>
+                    <main-card :line1="c.name" :line2="c.date"> <!-- Enter obj3 --> </main-card>
                 </b-link>
             </div>
         </b-col>
@@ -15,7 +14,7 @@
 </template>
 
 <script>
-import courseCard from '@/components/courseCard.vue'
+import mainCard from '@/components/MainCard.vue'
 
 export default {
     name: 'Home',
@@ -43,7 +42,7 @@ export default {
         }
     },
     components: {
-        'course-comp': courseCard
+        'main-card': mainCard
     }
 }
 </script>

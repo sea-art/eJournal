@@ -48,6 +48,6 @@ export default {
 #nav-profile-image{
     width: 100%;
     max-width: 60px;
-    border-radius: 50%;
+    border-radius: 50% !important;
 }
 </style>
