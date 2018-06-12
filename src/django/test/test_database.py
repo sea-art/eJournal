@@ -8,7 +8,6 @@ class DataBaseTests(TestCase):
         """
         Testing the foreignkeys.
         """
-        check = True
         user_test = User(group='SD', email='lers@uva.nl', username='lers',
                          password='lers123', education='uva', lti_id='1')
         course_test = Course(name='tname', abbreviation='XXXX',
@@ -24,8 +23,8 @@ class DataBaseTests(TestCase):
         entr_test = Entry(journal=journ_test,
                           datetime=datetime.datetime.today(), late=True)
         entr_test.save()
-        check &= entr_test.journal.pk == journ_test.pk
-        check &= journ_test.user.pk == user_test.pk
-        check &= journ_test.assignment.pk == ass_test.pk
-        check &= course_test.authors.all()[0].pk == user_test.pk
-        self.assertIs(check, True)
+
+        self.assertEquals(entr_test.journal.pk, journ_test.pk)
+        self.assertEquals(journ_test.user.pk, user_test.pk)
+        self.assertEquals(journ_test.assignment.pk, ass_test.pk)
+        self.assertEquals(course_test.authors.all()[0].pk, user_test.pk)
