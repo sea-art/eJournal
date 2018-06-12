@@ -21,3 +21,8 @@ def get_user_courses(request):
         return JsonResponse(response)
     else:
         return JsonResponse({'result': 'fail', 'courses': ''})
+
+
+@api_view(['GET'])
+def get_journal(request):
+    pass
