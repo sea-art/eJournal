@@ -27,6 +27,10 @@ class RestTests(TestCase):
             c.save()
 
     def test_get_user_courses(self):
+        result = self.client.get(reverse('get_user_courses'), {}, format='json')
+        print(result)
+        print(result.json())
+        self.assertEquals(result.status_code, 401)
         result = self.client.post(reverse('token_obtain_pair'),
                                   {'username': self.username,
                                    'password': self.password}, format='json')

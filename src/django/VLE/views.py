@@ -14,13 +14,14 @@ def test(request, format=None):
 def get_user_courses(request):
     user = request.user
     response = {'result': 'success', 'courses': []}
-    if user.is_authenticated:
-        courses = user.participant.all()
-        for course in courses:
-            response['courses'].append(CourseSerializer(course).data)
-        return JsonResponse(response)
-    else:
-        return JsonResponse({'result': 'fail', 'courses': ''})
+
+    if not user.is_authenticated:
+        return JsonResponse({'error': '401 Authentication Error'}, status=401)
+
+    courses = user.participant.all()
+    for course in courses:
+        response['courses'].append(CourseSerializer(course).data)
+    return JsonResponse(response)
 
 
 @api_view(['GET'])
