@@ -36,7 +36,21 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
+AUTH_USER_MODEL = "VLE.User"
+
+SIMPLE_JWT = {
+    'USER_ID_FIELD': 'username',
+    'USER_ID_CLAIM': 'username',
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
