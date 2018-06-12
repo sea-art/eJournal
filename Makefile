@@ -5,7 +5,7 @@ test:
 	npm run test --prefix ./src/vue
 
 migrate-back:
-	bash -c "source ./venv/bin/activate && python3.6 ./src/django/manage.py makemigrations VLE && python3.6 ./src/django/manage.py migrate VLE && deactivate"
+	bash -c "source ./venv/bin/activate && python3.6 ./src/django/manage.py makemigrations && python3.6 ./src/django/manage.py migrate && python3.6 ./src/django/manage.py makemigrations VLE && python3.6 ./src/django/manage.py migrate VLE && deactivate"
 
 run-front:
 	python -mwebbrowser http://localhost:8080
