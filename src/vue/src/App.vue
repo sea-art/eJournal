@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <header-bar/>
-        <router-view/>
+        <router-view style="height: 100%"/>
     </div>
 </template>
 
@@ -16,6 +16,7 @@ export default {
 </script>
 
 <style>
+
 :root {
     --theme-dark-blue: #252C39;
     --theme-peach: #E9A480;

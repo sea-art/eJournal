@@ -1,5 +1,5 @@
 <template>
-    <b-card class="main-card" @mouseover="hover">
+    <b-card id="card" class="main-card" :class="color" @mouseover="hover">
         <b-row>
             <b-col id="main-card-left-column" cols="6">
                 <h>{{ line1 }}</h><br/>
@@ -14,7 +14,7 @@
 
 <script>
 export default {
-    props: ['line1', 'line2']
+    props: ['line1', 'line2', 'color']
 }
 </script>
 
@@ -25,8 +25,19 @@ export default {
     background-color: var(--theme-light-grey);
     border-width: 0px;
     border-left-width: 20px;
-    border-left-color: red;
     border-radius: 0px;
+}
+
+.main-card.pink-border {
+    border-left-color: var(--theme-pink);
+}
+
+.main-card.peach-border {
+    border-left-color: var(--theme-peach);
+}
+
+.main-card.blue-border {
+    border-left-color: var(--theme-blue);
 }
 
 .main-card:hover {
