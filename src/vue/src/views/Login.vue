@@ -39,7 +39,7 @@ export default {
         send_login () {
             auth.login(this.$refs.username.value, this.$refs.password.value)
         },
-        access_resources() {
+        access_resources () {
             auth.authenticated_get('get_user_courses/')
                 .then(response => console.log(response))
                 .catch(error => console.error(error))

@@ -1,10 +1,10 @@
 <template>
     <b-form inline id="inline-login-form">
           <label class="sr-only" for="inlineFormInputUsername">Username</label>
-          <b-input class="mb-2 mr-sm-2 mb-sm-0" id="inlineFormInputUsername" v-model="username" placeholder="Username"/>
+          <b-input class="mb-2 mr-sm-2 mb-sm-0" id="inlineFormInputUsername" v-model="username" value="rick" placeholder="Username"/>
 
           <label class="sr-only" for="inlineFormInputPassword">Password</label>
-          <b-input class="mb-2 mr-sm-2 mb-sm-0" id="inlineFormInputPassword" v-model="password" placeholder="Password" />
+          <b-input class="mb-2 mr-sm-2 mb-sm-0" id="inlineFormInputPassword" v-model="password" value="admin123" placeholder="Password" />
 
          <b-button class="mb-2 mr-sm-2 mb-sm-0" @click="handleLogin()">Login</b-button>
          <b-button class="mb-2 mr-sm-2 mb-sm-0" @click="handleRegister()">Register</b-button>
@@ -12,6 +12,8 @@
 </template>
 
 <script>
+import auth from '@/api/auth'
+
 export default {
     data () {
         return {
@@ -21,9 +23,10 @@ export default {
     },
     methods: {
         handleLogin () {
+            auth.login(this.username, this.password)
             console.log(this.username)
             console.log(this.password)
-            this.$router.push('/Home')
+            // this.$router.push('/Home')
         },
         handleRegister () {
             console.log(this.username)
