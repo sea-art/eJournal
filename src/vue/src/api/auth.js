@@ -1,11 +1,16 @@
-import axios from 'axios'
+import connection from '@/api/connection'
 
 export default {
-  login(username, password) {
-    response = axios.post('/api/token/', { 'username': username, 'password': password })
-    response.json()
-  },
-  logout() {
-    // Remove token
-  },
-};
+    login(username, password) {
+      connection.conn.post('/token/', {data: {username: 'rick', password: 'admin123'}}, {headers: {'Content-Type': 'application/json' }})
+          .then(response => {
+          console.log(response)
+          })
+          .catch(error => {
+            console.error(error)
+          })
+      },
+    logout() {
+        localStorage.removeItem('jwt')
+    },
+}
