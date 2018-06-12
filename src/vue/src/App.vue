@@ -33,12 +33,44 @@ export default {
     color: var(--theme-dark-blue);
 }
 
+@import url('https://fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700');
+
 #app {
     overflow-x: hidden;
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    font-family: 'Roboto', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
+}
+
+h1 {
+    font-weight: bold;
+    font-size: 60px;
+}
+
+h2 {
+    font-weight: bold;
+    font-size: 35px;
+}
+
+h3 {
+    font-weight: bold;
+    font-size: 30px;
+    color: var(--theme-blue);
+}
+
+h4 {
+    font-size: 30px;
+}
+
+h5 {
+    font-size: 20px;
+    color: var(--theme-blue);
+}
+
+h6 {
+    font-family: 'Roboto Condensed', sans-serif;
+    font-size: 25px;
 }
 
 .left-content {
