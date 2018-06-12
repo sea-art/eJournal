@@ -15,11 +15,11 @@
 export default {
     methods: {
         handleLogin () {
-            this.$router.push('/Home');
+            this.$router.push('/Home')
         },
         handleRegister () {
-            alert("TODO Handle register");
-        },
+            alert('TODO Handle register')
+        }
     }
 }
 </script>
