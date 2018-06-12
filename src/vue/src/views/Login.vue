@@ -18,6 +18,7 @@
 
         <button tag="b-button" v-on:click="send_login()">Login</button>
         <router-link tag="b-button" to="/">Register</router-link>
+        <button tag="b-button" v-on:click="access_resources()">SUPER HAX0R</button>
 
     </div>
 </template>
@@ -37,6 +38,11 @@ export default {
     methods: {
         send_login() {
             auth.login(this.$refs.username.value, this.$refs.password.value)
+        },
+        access_resources() {
+            auth.authenticated_get('get_user_courses/')
+                .then(response => console.log(response.data))
+                .catch(error => console.error(error.data))
         }
     }
 }
