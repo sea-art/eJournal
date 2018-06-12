@@ -1,51 +1,56 @@
 <template>
     <div id="app">
-        <Header></Header>
-        <div class="container" width="90%">
-            <router-view/>
-            <b-container class="bv-example-row">
-                <b-row class="text-center">
-                    <b-col class="p-3 mb-2 bg-primary text-white" cols="3">1/4</b-col>
-                    <b-col class="p-3 mb-2 bg-danger text-white" cols="6">2/4 (wider)</b-col>
-                    <b-col class="p-3 mb-2 bg-primary text-white" cols="3">1/4</b-col>
-                </b-row>
-            </b-container>
-        </div>
+        <header-bar/>
+        <router-view/>
     </div>
-
 </template>
 
 <script>
 import Header from '@/Header'
 
 export default {
-    name: 'app',
-    data () {
-        return {}
-    },
     components: {
-        Header
+        'header-bar': Header
     }
 }
 </script>
 
 <style>
+:root {
+    --theme-dark-blue: #252C39;
+    --theme-peach: #E9A480;
+    --theme-light-grey: #EEEEEE;
+    --theme-dark-grey: #BBBBBB;
+    --theme-pink: #E64769;
+    --theme-blue: #22648A;
+    --theme-red: #c83b4b;
+    --theme-medium-grey: #DEDEDE;
+}
+
+* {
+    border-radius: 0px !important;
+    text-decoration: none !important;
+    color: var(--theme-dark-blue);
+}
+
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-
-  margin-top: 10px;
+    overflow-x: hidden;
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
 }
 
-#header {
-  background-color: #252C39;
-  color: #DEDEDE;
-  margin-top: 10px;
+.left-content {
 }
 
-.container {
-    min-width: 95%
+.main-content {
+    padding-left: 0px;
+    padding-right: 0px;
+    background-color: var(--theme-medium-grey);
 }
+
+.right-content {
+}
+
 </style>
