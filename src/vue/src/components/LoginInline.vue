@@ -12,6 +12,8 @@
 </template>
 
 <script>
+import auth from '@/api/auth'
+
 export default {
     data () {
         return {
@@ -21,9 +23,8 @@ export default {
     },
     methods: {
         handleLogin () {
-            console.log(this.username)
-            console.log(this.password)
-            this.$router.push('/Home')
+            auth.login(this.username, this.password)
+                .then(this.$router.push('/Home'))
         },
         handleRegister () {
             console.log(this.username)

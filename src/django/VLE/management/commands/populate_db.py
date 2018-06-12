@@ -6,11 +6,69 @@ faker = Faker()
 
 
 class Command(BaseCommand):
-    help = 'Generates random data for the database.'
+    help = 'Generates data for the database.'
 
-    def handle(self, *args, **options):
-        amount = 10
-        # User
+    def gen_prepared_data(self, ):
+        """Generate useful data to test with.
+
+        These are preselected users and are assigned to courses to run tests with.
+        """
+        users_examples = [
+            {"username": "Lars", "type": "SD"},
+            {"username": "Rick", "type": "SD"},
+            {"username": "Dennis", "type": "SD"},
+            {"username": "Zi", "type": "TA"},
+            {"username": "Jeroen", "type": "TE"},
+            {"username": "Maarten", "type": "SU"}
+        ]
+        courses_examples = [
+            {"name": "Portofolio Academische Vaardigheden 1", "abbr": "PAV"},
+            {"name": "Portofolio Academische Vaardigheden 2", "abbr": "PAV"},
+            {"name": "Beeldbewerken", "abbr": "BB"},
+            {"name": "Automaten en Formele Talen", "abbr": "AFT"}
+        ]
+        assign_examples = [
+            {"name": "Logboek", "courses": [0, 1, 2, 3]},
+            {"name": "colloquium", "courses": [0]},
+            {"name": "Verslag", "courses": [0, 1]},
+        ]
+        journal_examples = [
+            {"assigns": 0, "users": 0},
+            {"assigns": 1, "users": 2},
+        ]
+
+        users = []
+        for u in users_examples:
+            user = User(username=u["username"], group=u["type"])
+            user.set_password('pass')
+            user.save()
+            users.append(user)
+
+        courses = []
+        for c in courses_examples:
+            course = Course(name=c["name"], abbreviation=c["abbr"])
+            course.save()
+            course.authors.add(users[2])
+            course.authors.add(users[3])
+            courses.append(course)
+
+        assignments = []
+        for a in assign_examples:
+            assignment = Assignment(name=a["name"])
+            assignment.save()
+            for course in a["courses"]:
+                assignment.courses.add(courses[course])
+            assignments.append(assignment)
+
+        journals = []
+        for j in journal_examples:
+            journal = Journal(assignment=assignments[j["assigns"]], user=users[j["users"]])
+            journal.save()
+
+    def gen_random_users(self, amount):
+        """
+        Generate random users.
+        """
         for _ in range(amount):
             user = User()
             groups = [x[0] for x in user._meta.get_field('group').choices]
@@ -30,10 +88,12 @@ class Command(BaseCommand):
             user.set_password(faker.password())
             user.education = faker.sentence()
             user.lti_id = faker.random_int()
-            print("user: ", user)
             user.save()
 
-        # Course
+    def gen_random_courses(self, amount):
+        """
+        Generate random courses.
+        """
         for _ in range(amount):
             course = Course()
             course.save()
@@ -57,10 +117,12 @@ class Command(BaseCommand):
 
             course.abbrevation = random.choices(course.name, k=4)
             course.startdate = faker.date_this_decade(before_today=True)
-            print("course: ", course)
             course.save()
 
-        # Assignment
+    def gen_random_assignments(self, amount):
+        """
+        Generate random assignments.
+        """
         for _ in range(amount):
             if Course.objects.all().count() == 0:
                 continue
@@ -75,20 +137,24 @@ class Command(BaseCommand):
                 else:
                     if random.randint(1, 101) > 70:
                         assignment.courses.add(course)
-            print("assignment: ", assignment)
             assignment.save()
 
-        # Journal
+    def gen_random_journals(self, amount):
+        """
+        Generate random journals.
+        """
         for _ in range(amount):
             if Assignment.objects.all().count() == 0:
                 continue
             journal = Journal()
             journal.assignment = random.choice(Assignment.objects.all())
             journal.user = random.choice(User.objects.all())
-            print("journal: ", journal)
             journal.save()
 
-        # Entry
+    def gen_random_entries(self, amount):
+        """
+        Generate random entries.
+        """
         for _ in range(amount):
             if Journal.objects.all().count() == 0:
                 continue
@@ -97,4 +163,23 @@ class Command(BaseCommand):
             entry.datetime = faker.date_time_this_month(before_now=True)
             entry.late = faker.boolean()
             entry.save()
-            print("entry: ", entry)
+
+    def handle(self, *args, **options):
+        """This function generates data to test and fill the database with.
+
+        It has both useful test data and randomly created data to create a more real life example.
+        """
+        # Preselected items
+        self.gen_prepared_data()
+
+        amount = 10
+        # Random users
+        self.gen_random_users(amount)
+        # Random course
+        self.gen_random_courses(amount)
+        # Random assignments
+        self.gen_random_assignments(amount)
+        # Random journals
+        self.gen_random_journals(amount)
+        # Random entries
+        self.gen_random_entries(amount)

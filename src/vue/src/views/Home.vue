@@ -15,34 +15,22 @@
 
 <script>
 import mainCard from '@/components/MainCard.vue'
+import course from '@/api/course'
 
 export default {
     name: 'Home',
     data () {
         return {
-            courses: [{
-                name: 'Webprogrammeren en databases project',
-                auth: 'Rob Belleman',
-                date: '01-01-2017',
-                abbr: 'WDB7',
-                cID: '2017WDB'
-            }, {
-                name: 'Academische vaardigheden informatica 2',
-                auth: 'Robert van Wijk',
-                date: '01-01-2017',
-                abbr: 'AVI2',
-                cID: '2017AVI2'
-            }, {
-                name: 'Academische vaardigheden informatica 1',
-                auth: 'Robert van Wijk',
-                date: '01-01-2017',
-                abbr: 'AVI1',
-                cID: '2017AVI1'
-            }]
+            courses: []
         }
     },
     components: {
         'main-card': mainCard
+    },
+    created () {
+        course.get_user_courses().then(response => {
+            this.courses = response
+        })
     }
 }
 </script>
