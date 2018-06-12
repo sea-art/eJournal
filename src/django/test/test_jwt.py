@@ -34,9 +34,7 @@ class JWTTests(TestCase):
 
         result = self.client.get(reverse('test'), {}, format='json')
 
-        self.assertEquals(result.status_code, 200)
-        self.assertEquals(result.json()['result'], 'success')
-        self.assertEquals(result.json()['user'], '')
+        self.assertEquals(result.status_code, 401)
 
     def test_user(self):
         """
