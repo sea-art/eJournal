@@ -50,6 +50,7 @@ class User(AbstractBaseUser):
         null=True,
     )
     username = models.TextField(
+        max_length=30,
         unique=True,
     )
     education = models.TextField(
@@ -80,6 +81,7 @@ class Course(models.Model):
     """
     name = models.TextField()
     authors = models.ManyToManyField(User, related_name="authors")
+    participants = models.ManyToManyField(User, related_name="students")
     TAs = models.ManyToManyField(User, related_name="TAs")
     abbreviation = models.TextField(
         max_length=4,
