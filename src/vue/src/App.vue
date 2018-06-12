@@ -45,8 +45,8 @@ export default {
 }
 
 .main-content {
-    padding-left: 0px;
-    padding-right: 0px;
+    /*padding-left: 0px;
+    padding-right: 0px;*/
     background-color: var(--theme-medium-grey);
 }
 

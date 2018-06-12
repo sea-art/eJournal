@@ -1,11 +1,12 @@
 <template>
     <b-card class="main-card" @mouseover="hover">
         <b-row>
-            <b-col id="main-card-left-column" cols="6">
+            <b-col id="main-card-left-column" xs-cols="12" lg-cols="6">
                 <h>{{ line1 }}</h><br/>
                 <h>{{ line2 }}</h>
             </b-col>
-            <b-col id="main-card-right-column" cols="6">
+            <b-col id="main-card-right-column" xs-cols="12" lg-cols="6">
+                <h1>TESTT</h1>
                 <slot></slot>
             </b-col>
         </b-row>
