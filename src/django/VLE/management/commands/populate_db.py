@@ -50,8 +50,9 @@ class Command(BaseCommand):
 
             TAs = User.objects.all().filter(group='TA')
             TA_amount = random.randint(2, 7)
-            for TA in random.choices(TAs, k=TA_amount):
-                course.TAs.add(TA)
+            if len(TAs) > 0:
+                for TA in random.choices(TAs, k=TA_amount):
+                    course.TAs.add(TA)
 
             course.abbrevation = random.choices(course.name, k=4)
             course.startdate = faker.date_this_decade(before_today=True)
