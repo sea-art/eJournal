@@ -18,7 +18,6 @@ class JWTTests(TestCase):
         """
         Testing simple authentication with JWT keys.
         """
-
         result = self.client.post(reverse('token_obtain_pair'),
                                   {'username': self.username,
                                    'password': self.password}, format='json')
