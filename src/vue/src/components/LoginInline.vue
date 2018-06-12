@@ -1,7 +1,7 @@
 <template>
     <b-form inline id="inline-login-form">
           <label class="sr-only" for="inlineFormInputUsername">Username</label>
-          <b-input class="mb-2 mr-sm-2 mb-sm-0" id="inlineFormInputUsername" v-model="username" value="rick" placeholder="Username"/>
+          <b-input class="mb-2 mr-sm-2 mb-sm-0" id="inlineFormInputUsername" v-model="username" value="rick2" placeholder="Username"/>
 
           <label class="sr-only" for="inlineFormInputPassword">Password</label>
           <b-input class="mb-2 mr-sm-2 mb-sm-0" id="inlineFormInputPassword" v-model="password" value="admin123" placeholder="Password" />
@@ -17,16 +17,13 @@ import auth from '@/api/auth'
 export default {
     data () {
         return {
-            username: '',
-            password: ''
+            username: 'rick2',
+            password: 'admin123'
         }
     },
     methods: {
         handleLogin () {
             auth.login(this.username, this.password)
-            console.log(this.username)
-            console.log(this.password)
-            // this.$router.push('/Home')
         },
         handleRegister () {
             console.log(this.username)

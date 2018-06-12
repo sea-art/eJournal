@@ -9,9 +9,10 @@ export default {
     login (username, password) {
         connection.conn.post('/token/', {username: username, password: password})
             .then(response => {
+                console.log('Success')
                 localStorage.setItem('jwt_access', response.data.access)
                 localStorage.setItem('jwt_refresh', response.data.refresh)
-                connection.conn.defaults.headers.common['Authorization'] = "Bearer " + response.data.access
+                connection.conn.defaults.headers.common['Authorization'] = 'Bearer ' + response.data.access
             })
             .catch(error => {
                 console.error(error)
@@ -32,11 +33,13 @@ export default {
      * This appends the JWT token to the headers of the request, so that it can access
      * protected resources.
      */
-    authenticated_post (url, data, options={}) {
+    authenticated_post (url, data, options = {}) {
+        connection.conn.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('jwt_access')
         return connection.conn.post(url, data, options)
     },
 
-    authenticated_get (url, options={}) {
+    authenticated_get (url, options = {}) {
+        connection.conn.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('jwt_access')
         return connection.conn.get(url, options)
     }
 }
