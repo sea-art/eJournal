@@ -24,3 +24,12 @@ def get_user_courses(request):
 @api_view(['GET'])
 def get_journal(request):
     pass
+
+
+@api_view(['GET'])
+def test(request, format=None):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': '401 Authentication Error'}, status=401)
+
+    return JsonResponse({'result': 'success',
+                         'user': request.user.username})

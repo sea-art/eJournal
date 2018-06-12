@@ -1,41 +1,56 @@
 <template>
     <div id="app">
-        <div id="header">
-            <!-- Place holder image -->
-            <img src="./assets/logo.png">
-            <!-- Redirection buttons, only visible dependent on current router path -->
-            <router-link tag="button" to="/">Homepage</router-link>
-            <router-link v-if="$route.path != '/'" tag="button" :to='"/Profile"'>Profile</router-link>
-            <router-link v-if="$route.params.course != undefined" tag="button" :to='"/Courses"'>Courses</router-link>
-            <router-link v-if="$route.params.assign != undefined" tag="button" :to='"/Courses/"+$route.params.course'>{{$route.params.course}}</router-link>
-            <router-link v-if="$route.params.student != undefined" tag="button" :to='"/Courses/"+$route.params.course+"/"+$route.params.assign'>{{$route.params.assign}}</router-link>
-        </div>
+        <header-bar/>
         <router-view/>
-  </div>
+    </div>
 </template>
 
 <script>
+import Header from '@/Header'
+
 export default {
-    name: 'app',
-    data () {
-        return {}
+    components: {
+        'header-bar': Header
     }
 }
 </script>
 
 <style>
+:root {
+    --theme-dark-blue: #252C39;
+    --theme-peach: #E9A480;
+    --theme-light-grey: #EEEEEE;
+    --theme-dark-grey: #BBBBBB;
+    --theme-pink: #E64769;
+    --theme-blue: #22648A;
+    --theme-red: #c83b4b;
+    --theme-medium-grey: #DEDEDE;
+}
+
+* {
+    border-radius: 0px !important;
+    text-decoration: none !important;
+    color: var(--theme-dark-blue);
+}
+
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-
-  margin-top: 10px;
+    overflow-x: hidden;
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
 }
 
-#header {
-  background-color: #252C39;
-  color: #DEDEDE;
-  margin-top: 10px;
+.left-content {
 }
+
+.main-content {
+    padding-left: 0px;
+    padding-right: 0px;
+    background-color: var(--theme-medium-grey);
+}
+
+.right-content {
+}
+
 </style>
