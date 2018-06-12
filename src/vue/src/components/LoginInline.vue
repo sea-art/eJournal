@@ -28,7 +28,6 @@ export default {
         handleRegister () {
             console.log(this.username)
             console.log(this.password)
-            alert('TODO Handle register')
         }
     }
 }
