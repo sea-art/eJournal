@@ -1,4 +1,6 @@
 Django==2.0.6
+django-faker==0.2
 djangorestframework==3.8.2
-names==0.3.0
+djangorestframework-simplejwt==3.2.3
+faker==0.8.15
 pytz==2018.4

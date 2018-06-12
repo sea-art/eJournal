@@ -34,8 +34,8 @@ courses = []
 for c in courses_examples:
     course = Course(name=c["name"], abbreviation=c["abbr"])
     course.save()
-    course.author.add(users[2])
-    course.author.add(users[3])
+    course.authors.add(users[2])
+    course.authors.add(users[3])
     courses.append(course)
 
 assignments = []

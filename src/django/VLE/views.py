@@ -1,9 +1,10 @@
-from django.http import HttpResponse, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.renderers import JSONRenderer
-from rest_framework.parsers import JSONParser
-from .models import *
-from .serializers import *
+from rest_framework.decorators import api_view
+from rest_framework_simplejwt.authentication import JWTAuthentication
+
+from django.http import JsonResponse
 
 
-@csrf_exempt:
+@api_view(['GET'])
+def test(request, format=None):
+    return JsonResponse({'result': 'success',
+                         'user': request.user.username})

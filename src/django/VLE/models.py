@@ -1,8 +1,21 @@
 # Database file
 from django.db import models
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 
-class User(models.Model):
+class UserManager(BaseUserManager):
+    def create_user(self, username, password=None):
+        user = User(username=username)
+        user.set_password(password)
+        user.save()
+
+    def create_superuser(self, username, password):
+        user = User(username=username)
+        user.set_password(password)
+        user.save()
+
+
+class User(AbstractBaseUser):
     """
     User is an entity in the database with the following features:
     - group: the group determines the permissions on the application.
@@ -12,6 +25,9 @@ class User(models.Model):
     - education: the education institute of the userself.
     - lti_id: the DLO id of the user.
     """
+    USERNAME_FIELD = 'username'
+    objects = UserManager()
+
     SUPERUSER = 'SU'
     EXAMINATOR = 'EX'
     TEACHER = 'TE'
@@ -34,10 +50,8 @@ class User(models.Model):
         null=True,
     )
     username = models.TextField(
+        max_length=30,
         unique=True,
-    )
-    password = models.CharField(
-        max_length=256,
     )
     education = models.TextField(
         null=True,
@@ -66,8 +80,9 @@ class Course(models.Model):
     - startdate: the date that the course starts.
     """
     name = models.TextField()
-    author = models.ManyToManyField(User, related_name="authors")
+    authors = models.ManyToManyField(User, related_name="authors")
     participants = models.ManyToManyField(User, related_name="students")
+    TAs = models.ManyToManyField(User, related_name="TAs")
     abbreviation = models.TextField(
         max_length=4,
         default='XXXX',
@@ -91,7 +106,7 @@ class Assignment(models.Model):
     description = models.TextField(
         null=True,
     )
-    course = models.ManyToManyField(Course)
+    courses = models.ManyToManyField(Course)
 
     def __str__(self):
         return self.name
