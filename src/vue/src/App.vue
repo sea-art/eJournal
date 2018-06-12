@@ -52,6 +52,7 @@ export default {
 }
 
 .right-content {
+
 }
 
 </style>

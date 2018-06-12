@@ -10,13 +10,18 @@
             </div>
         </b-col>
         <b-col cols="3" class="right-content">
-
+            <div v-for="d in deadlines">
+                <b-link tag="b-button" :to="{name: 'Assignment', params: {course: d.cID[0], assign: d.dID}}">
+                    <todo-card :line0="d.datetime" :line1="d.name" :line2="d.course" :color="set_color()">hoi</todo-card>
+                </b-link>
+            </div>
         </b-col>
     </b-row>
 </template>
 
 <script>
 import mainCard from '@/components/MainCard.vue'
+import todoCard from '@/components/TodoCard.vue'
 
 export default {
     name: 'Home',
@@ -46,15 +51,21 @@ export default {
             }],
             deadlines: [{
                 name: 'Individueel logboek',
-                vak: 'WEDA',
+                course: 'WEDA',
+                cID: ['2017WDB'],
+                dID: '2017IL1',
                 datetime: '8-6-2018 13:00'
             }, {
                 name: 'Logboek academia',
-                vak: 'AVI2',
+                course: 'AVI2',
+                cID: ['2017AVI2'],
+                dID: '2017LA',
                 datetime: '8-6-2018 13:00'
             }, {
                 name: 'Individueel logboek',
-                vak: 'AVI1, AVI2',
+                course: 'AVI1, AVI2',
+                cID: ['2017AVI1', '2017AVI2'],
+                dID: '2017IL2',
                 datetime: '8-6-2018 13:00'
             }]
         }
@@ -66,7 +77,8 @@ export default {
         }
     },
     components: {
-        'main-card': mainCard
+        'main-card': mainCard,
+        'todo-card': todoCard
     }
 }
 </script>
