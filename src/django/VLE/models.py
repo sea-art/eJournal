@@ -33,7 +33,7 @@ class User(AbstractUser):
     )
     email = models.EmailField(
         null=True,
-        blank=True,
+        blank=True
     )
     education = models.TextField(
         null=True,
@@ -62,8 +62,9 @@ class Course(models.Model):
     - startdate: the date that the course starts.
     """
     name = models.TextField()
-    authors = models.ManyToManyField(User, related_name="author")
-    participants = models.ManyToManyField(User, related_name="participant")
+    authors = models.ManyToManyField(User, related_name="authors")
+    participants = models.ManyToManyField(User, related_name="students")
+
     abbreviation = models.TextField(
         max_length=4,
         default='XXXX',
