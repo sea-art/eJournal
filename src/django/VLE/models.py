@@ -63,8 +63,8 @@ class Course(models.Model):
     """
     name = models.TextField()
     authors = models.ManyToManyField(User, related_name="authors")
-    participants = models.ManyToManyField(User, related_name="students")
-
+    participants = models.ManyToManyField(User, related_name="participant")
+    TAs = models.ManyToManyField(User, related_name="TAs")
     abbreviation = models.TextField(
         max_length=4,
         default='XXXX',

@@ -9,13 +9,13 @@ export default {
      */
     login (username, password) {
         return connection.conn.post('/token/', {username: username, password: password})
-                .then(response => {
-                    localStorage.setItem('jwt_access', response.data.access)
-                    localStorage.setItem('jwt_refresh', response.data.refresh)
-                })
-                .catch(error => {
-                    throw error
-                })
+            .then(response => {
+                localStorage.setItem('jwt_access', response.data.access)
+                localStorage.setItem('jwt_refresh', response.data.refresh)
+            })
+            .catch(error => {
+                throw error
+            })
     },
 
     /* Log out.

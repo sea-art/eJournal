@@ -14,8 +14,7 @@ export default {
                 return response
             })
             .catch(error => {
-               console.error(error)
+                console.error(error)
             })
-
     }
 }
