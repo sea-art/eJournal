@@ -5,18 +5,17 @@ export default {
     /* Log in.
      * Requests the api server for a JWT token.
      * Stores this token in jwt_access and jwt_refresh.
+     * Returns a new Promise that can be used to chain more requests.
      */
     login (username, password) {
-        connection.conn.post('/token/', {username: username, password: password})
-            .then(response => {
-                console.log('Success')
-                localStorage.setItem('jwt_access', response.data.access)
-                localStorage.setItem('jwt_refresh', response.data.refresh)
-                connection.conn.defaults.headers.common['Authorization'] = 'Bearer ' + response.data.access
-            })
-            .catch(error => {
-                console.error(error)
-            })
+        return connection.conn.post('/token/', {username: username, password: password})
+                .then(response => {
+                    localStorage.setItem('jwt_access', response.data.access)
+                    localStorage.setItem('jwt_refresh', response.data.refresh)
+                })
+                .catch(error => {
+                    throw error
+                })
     },
 
     /* Log out.
@@ -26,12 +25,12 @@ export default {
     logout () {
         localStorage.removeItem('jwt_access')
         localStorage.removeItem('jwt_refresh')
-        connection.conn.defaults.headers.common['Authorization'] = ''
     },
 
     /* Run an authenticated request.
      * This appends the JWT token to the headers of the request, so that it can access
      * protected resources.
+     * Returns a Promise to handle the request.
      */
     authenticated_post (url, data, options = {}) {
         connection.conn.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('jwt_access')
@@ -40,6 +39,7 @@ export default {
 
     authenticated_get (url, options = {}) {
         connection.conn.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('jwt_access')
+        console.log(connection.conn.defaults.headers)
         return connection.conn.get(url, options)
     }
 }

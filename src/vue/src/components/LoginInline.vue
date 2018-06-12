@@ -24,6 +24,7 @@ export default {
     methods: {
         handleLogin () {
             auth.login(this.username, this.password)
+                .then(_ => this.$router.push('/Home'))
         },
         handleRegister () {
             console.log(this.username)

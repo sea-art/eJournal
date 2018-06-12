@@ -12,7 +12,6 @@ run-front:
 	bash -c "source ./venv/bin/activate && npm run dev --prefix ./src/vue && deactivate"
 
 run-back:
-	python -mwebbrowser http://localhost:8000
 	bash -c "source ./venv/bin/activate && python3.6 ./src/django/manage.py runserver && deactivate"
 
 clean:
