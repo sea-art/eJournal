@@ -21,11 +21,16 @@ export default {
     name: 'Home',
     data () {
         return {
-            courses: course.get_user_courses()
+            courses: []
         }
     },
     components: {
         'main-card': mainCard
+    },
+    created () {
+        course.get_user_courses().then(response => {
+            this.courses = response
+        })
     }
 }
 </script>

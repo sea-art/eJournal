@@ -16,14 +16,16 @@ def get_user_courses(request):
 
     response = {'result': 'success', 'courses': []}
     for course in user.participant.all():
-        response['courses'].append(CourseSerializer(course).data)
+        course_obj = {
+            'name': str(course.name),
+            'auth': str(course.authors),
+            'date': str(course.startdate),
+            'abbr': str(course.abbreviation),
+            'cID': str(course.abbreviation)
+        }
+        response['courses'].append(course_obj)
 
     return JsonResponse(response)
-
-
-@api_view(['GET'])
-def get_journal(request):
-    pass
 
 
 @api_view(['GET'])

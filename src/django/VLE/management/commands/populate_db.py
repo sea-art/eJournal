@@ -65,7 +65,6 @@ class Command(BaseCommand):
             journal = Journal(assignment=assignments[j["assigns"]], user=users[j["users"]])
             journal.save()
 
-
     def gen_random_users(self, amount):
         """
         Generate random users.
@@ -90,7 +89,6 @@ class Command(BaseCommand):
             user.education = faker.sentence()
             user.lti_id = faker.random_int()
             user.save()
-
 
     def gen_random_courses(self, amount):
         """
@@ -121,7 +119,6 @@ class Command(BaseCommand):
             course.startdate = faker.date_this_decade(before_today=True)
             course.save()
 
-
     def gen_random_assignments(self, amount):
         """
         Generate random assignments.
@@ -142,7 +139,6 @@ class Command(BaseCommand):
                         assignment.courses.add(course)
             assignment.save()
 
-
     def gen_random_journals(self, amount):
         """
         Generate random journals.
@@ -154,7 +150,6 @@ class Command(BaseCommand):
             journal.assignment = random.choice(Assignment.objects.all())
             journal.user = random.choice(User.objects.all())
             journal.save()
-
 
     def gen_random_entries(self, amount):
         """

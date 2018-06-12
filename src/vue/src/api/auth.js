@@ -39,7 +39,6 @@ export default {
 
     authenticated_get (url, options = {}) {
         connection.conn.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('jwt_access')
-        console.log(connection.conn.defaults.headers)
         return connection.conn.get(url, options)
     }
 }
