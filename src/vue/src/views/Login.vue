@@ -41,8 +41,8 @@ export default {
         },
         access_resources() {
             auth.authenticated_get('get_user_courses/')
-                .then(response => console.log(response.data))
-                .catch(error => console.error(error.data))
+                .then(response => console.log(response))
+                .catch(error => console.error(error))
         }
     }
 }

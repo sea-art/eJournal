@@ -7,9 +7,8 @@ export default {
      * Stores this token in jwt_access and jwt_refresh.
      */
     login(username, password) {
-        connection.conn.post('/token/', {data: {username: username, password: password}})
+        connection.conn.post('/token/', {username: username, password: password})
             .then(response => {
-                console.log(response)
                 localStorage.setItem('jwt_access', response.data.access)
                 localStorage.setItem('jwt_refresh', response.data.refresh)
             })
@@ -32,12 +31,13 @@ export default {
      * protected resources.
      */
     authenticated_post(url, data, options={}) {
-        options.header = {...options.header, ...{Authentication: 'Bearer ' + localStorage.getItem('jwt_access')}}
+        options.header = {...options.header, ...{Authorization: 'Bearer ' + localStorage.getItem('jwt_access')}}
         return connection.conn.post(url, data, options)
     },
 
     authenticated_get(url, data={}, options={}) {
-        options.header = {...options.header, ...{Authentication: 'Bearer ' + localStorage.getItem('jwt_access')}}
+        options.header = {...options.header, ...{Authorization: 'Bearer ' + localStorage.getItem('jwt_access')}}
+        console.log(options)
         return connection.conn.get(url, data, options)
     }
 }
