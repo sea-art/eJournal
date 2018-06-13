@@ -38,8 +38,10 @@
 -->
 
 <template>
-    <div>
-        <edag-node v-for="node in this.nodes" @click.native="$emit('select-node', node.id)" :node="node" :selected="isSelected(node.id)" :key="node.id"/>
+    <div class="scrollbar-parent-div">
+        <div id="edag-div" class="scrollbar-child-div" ref="scd" :style="styleObject">
+            <edag-node v-for="node in this.nodes" @select-node="$emit('select-node', $event)" :node="node" :selected="isSelected(node.id)" :key="node.id"/>
+        </div>
     </div>
 </template>
 
@@ -48,13 +50,47 @@ import edagNode from '@/components/EdagNode'
 
 export default {
     props: ['selected', 'nodes'],
+    data () {
+        return {
+            padright: 0
+        }
+    },
     methods: {
         isSelected (id) {
             return id === this.selected
         }
     },
+    computed: {
+        styleObject () {
+            return {
+                'padding-right': this.padright + 'px'
+            }
+        }
+    },
     components: {
         'edag-node': edagNode
+    },
+    mounted () {
+        this.padright = this.$refs.scd.offsetWidth - this.$refs.scd.clientWidth
     }
 }
 </script>
+
+<style>
+#edag-div {
+}
+
+.scrollbar-parent-div {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.scrollbar-child-div {
+    width: 100%;
+    height: 99%;
+    overflow: auto;
+    padding-right: 0px; /* exact value is given in JavaScript code */
+    box-sizing: content-box;
+}
+</style>

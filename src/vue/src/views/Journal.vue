@@ -40,6 +40,13 @@ export default {
                 textbox2: 'Rob Belleman enzo',
                 date: new Date(),
                 id: 1
+            }, {
+                type: 'progress',
+                textbox1: 'Jaar 1 Deadline',
+                textbox2: 'oh no',
+                text: '5',
+                date: new Date(),
+                id: 2
             }]
         }
     },

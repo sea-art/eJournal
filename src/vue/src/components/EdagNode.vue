@@ -13,7 +13,7 @@
         </b-col>
         <b-col cols="4" class="d-flex align-items-center justify-content-center">
             <div style="width: 0.5em; height: 5em; background-color: var(--theme-light-grey)" :style="{ height: this.lineHeight }"/> <!-- grey line -->
-            <edag-node-circle style="position: absolute" :type="node.type" :text="node.text" :selected="selected"></edag-node-circle>
+            <edag-node-circle @click.native="$emit('select-node', node.id)" style="position: absolute" :type="node.type" :text="node.text" :selected="selected"></edag-node-circle>
         </b-col>
     </b-row>
 </template>
@@ -26,7 +26,7 @@ export default {
     props: ['node', 'selected'],
     computed: {
         lineHeight () {
-            return (this.selected) ? '7em' : '5em'
+            return (this.selected) ? '6em' : '6em'
         }
     },
     components: {
