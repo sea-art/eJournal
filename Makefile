@@ -4,15 +4,17 @@ test:
 	npm run lint --prefix ./src/vue
 	npm run test --prefix ./src/vue
 
+fill-db:
+	bash -c 'source ./venv/bin/activate && cd ./src/django && echo "delete from sqlite_sequence where name like \"VLE_%\";" | sqlite3 VLE.db && python3.6 manage.py flush --no-input && python3.6 manage.py populate_db && python3.6 manage.py show_db && deactivate'
+
 migrate-back:
-	bash -c "source ./venv/bin/activate && python3.6 ./src/django/manage.py makemigrations && python3.6 ./src/django/manage.py migrate && deactivate"
+	bash -c "source ./venv/bin/activate && python3.6 ./src/django/manage.py makemigrations VLE && python3.6 ./src/django/manage.py migrate && deactivate"
 
 run-front:
 	python -mwebbrowser http://localhost:8080
 	bash -c "source ./venv/bin/activate && npm run dev --prefix ./src/vue && deactivate"
 
 run-back:
-	python -mwebbrowser http://localhost:8000
 	bash -c "source ./venv/bin/activate && python3.6 ./src/django/manage.py runserver && deactivate"
 
 clean:
@@ -30,7 +32,7 @@ fixnpm:
 setup: clean
 	#Install apt dependencies and ppa's.
 	(sudo apt-cache show python3.6 | grep "Package: python3.6") || (sudo add-apt-repository ppa:deadsnakes/ppa -y; sudo apt update) || echo "0"
-	sudo apt install npm nodejs git-flow python3.6 python3-pip python3.6-dev pep8 -y
+	sudo apt install npm nodejs git-flow python3.6 python3-pip python3.6-dev pep8 sqlite3 -y
 	
 	#Install dependencies for python (django, etc).
 	sudo pip3 install virtualenv

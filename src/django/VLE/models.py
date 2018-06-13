@@ -1,8 +1,9 @@
 # Database file
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 
-class User(models.Model):
+class User(AbstractUser):
     """
     User is an entity in the database with the following features:
     - group: the group determines the permissions on the application.
@@ -12,6 +13,7 @@ class User(models.Model):
     - education: the education institute of the userself.
     - lti_id: the DLO id of the user.
     """
+
     SUPERUSER = 'SU'
     EXAMINATOR = 'EX'
     TEACHER = 'TE'
@@ -29,15 +31,9 @@ class User(models.Model):
         choices=USER_TYPES,
         default=STUDENT,
     )
-    email = models.TextField(
-        unique=True,
+    email = models.EmailField(
         null=True,
-    )
-    username = models.TextField(
-        unique=True,
-    )
-    passhash = models.CharField(
-        max_length=256,
+        blank=True
     )
     education = models.TextField(
         null=True,
@@ -66,7 +62,9 @@ class Course(models.Model):
     - startdate: the date that the course starts.
     """
     name = models.TextField()
-    author = models.ManyToManyField(User)
+    authors = models.ManyToManyField(User, related_name="authors")
+    participants = models.ManyToManyField(User, related_name="participant")
+    TAs = models.ManyToManyField(User, related_name="TAs")
     abbreviation = models.TextField(
         max_length=4,
         default='XXXX',
@@ -90,7 +88,7 @@ class Assignment(models.Model):
     description = models.TextField(
         null=True,
     )
-    course = models.ManyToManyField(Course)
+    courses = models.ManyToManyField(Course)
 
     def __str__(self):
         return self.name
