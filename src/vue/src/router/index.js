@@ -6,6 +6,7 @@ import Assignment from '@/views/Assignment'
 import Course from '@/views/Course'
 import Profile from '@/views/Profile'
 import Guest from '@/views/Guest'
+import LtiLaunch from '@/views/LtiLaunch'
 
 Vue.use(Router)
 
@@ -34,5 +35,9 @@ export default new Router({
         path: '/Home/:course/:assign/:student',
         name: 'journal',
         component: Journal
+    }, {
+        path: '/lti/launch',
+        name: 'LtiLaunch',
+        component: LtiLaunch
     }]
 })
