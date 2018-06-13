@@ -1,15 +1,31 @@
 'use strict'
 // This is the webpack config used for unit tests.
 
+const path = require('path')
 const utils = require('./utils')
 const webpack = require('webpack')
 const merge = require('webpack-merge')
 const baseWebpackConfig = require('./webpack.base.conf')
 
+function resolve (dir) {
+  return path.join(__dirname, '..', dir)
+}
+
 const webpackConfig = merge(baseWebpackConfig, {
   // use inline sourcemap for karma-sourcemap-loader
+  // use babel-loader to also recompile axios to not use ES6,
+  // as ES6 is not present in PhantomJS.
   module: {
-    rules: utils.styleLoaders()
+    rules: [
+    	...(utils.styleLoaders()),
+        {
+            test: /\.js$/,
+            loader: 'babel-loader',
+            include: [resolve('src'),
+		      resolve('test'),
+		      resolve('node_modules/webpack-dev-server/client'),
+		      resolve('node_modules/axios')]
+        }]
   },
   devtool: '#inline-source-map',
   resolveLoader: {
