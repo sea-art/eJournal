@@ -16,6 +16,7 @@ export default {
 </script>
 
 <style>
+@import url('https://fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700');
 
 :root {
     --theme-dark-blue: #252C39;
@@ -35,7 +36,10 @@ export default {
     text-align: left;
 }
 
-@import url('https://fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700');
+img {
+    max-width: 100%;
+    max-height: 100%;
+}
 
 #app {
     overflow-x: hidden;
@@ -71,6 +75,7 @@ h4 {
     color: var(--theme-blue);
     border-left: 20px solid var(--theme-dark-blue);
     padding-left: 20px;
+    margin-bottom: 0px;
 }
 
 h5 {
@@ -92,8 +97,6 @@ h6 {
 
 .main-content {
     padding-top: 40px;
-    padding-left: 0px;
-    padding-right: 0px;
     background-color: var(--theme-medium-grey);
 }
 
@@ -101,4 +104,28 @@ h6 {
 
 }
 
+.portrait-container {
+    height: 100px;
+    width: 100px;
+}
+
+.card.pink-border {
+    border-left-color: var(--theme-pink);
+}
+
+.card.peach-border {
+    border-left-color: var(--theme-peach);
+}
+
+.card.blue-border {
+    border-left-color: var(--theme-blue);
+}
+
+.card:hover {
+    background-color: var(--theme-dark-grey);
+}
+
+.card:hover {
+    background-color: var(--theme-dark-grey);
+}
 </style>

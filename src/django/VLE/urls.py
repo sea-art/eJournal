@@ -16,7 +16,9 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from .views import test
+from VLE.views import get_user_courses
+from VLE.views import get_course_assignments
+from VLE.views import get_assignment_journals
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -29,5 +31,7 @@ urlpatterns = [
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-    path('test/', test, name='test')
+    path('api/get_user_courses/', get_user_courses, name='get_user_courses'),
+    path('api/get_course_assignments/<str:cID>/', get_course_assignments, name='get_course_assignments'),
+    path('api/get_assignment_journals/<str:aID>/', get_assignment_journals, name='get_assignment_journals'),
 ]

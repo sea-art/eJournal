@@ -1,11 +1,11 @@
 <template>
-    <b-card id="card" class="main-card" :class="color" @mouseover="hover">
+    <b-card class="card main-card" :class="color">
         <b-row>
-            <b-col id="main-card-left-column" cols="6">
+            <b-col id="main-card-left-column" cols="12" lg-cols="6">
                 <h2>{{ line1 }}</h2>
                 {{ line2 }}
             </b-col>
-            <b-col id="main-card-right-column" cols="6">
+            <b-col id="main-card-right-column" cols="12" lg-cols="6">
                 <slot></slot>
             </b-col>
         </b-row>
@@ -26,21 +26,5 @@ export default {
     border-width: 0px;
     border-left-width: 20px;
     border-radius: 0px;
-}
-
-.main-card.pink-border {
-    border-left-color: var(--theme-pink);
-}
-
-.main-card.peach-border {
-    border-left-color: var(--theme-peach);
-}
-
-.main-card.blue-border {
-    border-left-color: var(--theme-blue);
-}
-
-.main-card:hover {
-    background-color: var(--theme-dark-grey);
 }
 </style>
