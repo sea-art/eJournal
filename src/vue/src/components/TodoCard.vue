@@ -2,7 +2,7 @@
     <b-card id="card" class="main-card" :class="color" @mouseover="hover">
         <b-row>
             <b-col id="main-card-left-column" cols="6">
-                <h>{{ line0 }}</h><br/>                
+                <h>{{ line0 }}</h><br/>
                 <h>{{ line1 }}</h><br/>
                 <h>{{ line2 }}</h>
             </b-col>

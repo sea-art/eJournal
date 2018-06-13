@@ -23,7 +23,7 @@ export default {
             instutes: [
                 { text: 'Select the applicable institute', value: null },
                 'Universiteit van Amsterdam (UvA)']
-            }
+        }
     },
     methods: {
         onSubmit (evt) {
