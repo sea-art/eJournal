@@ -10,7 +10,7 @@
                     Fill in the template using the corresponding data
                     of the entry
                 . -->
-                <entry-template :textbox1="nodes[variable].textbox1"
+                <entry-template @edit-data="adaptData" :textbox1="nodes[variable].textbox1"
                 :textbox2="nodes[variable].textbox2"
                 :deadline="nodes[variable].deadline">  </entry-template>
             </b-col>
@@ -27,6 +27,7 @@ export default {
     data () {
         return {
             variable: 0,
+            editedData: ['', ''],
             nodes: [{
                 type: 'entry',
                 textbox1: 'Awesome IT',
@@ -42,6 +43,14 @@ export default {
             }]
         }
     },
+
+    methods: {
+        adaptData (editedData) {
+            this.nodes[this.variable].textbox1 = editedData[0],
+            this.nodes[this.variable].textbox2 = editedData[1]
+        }
+    },
+
     components: {
         'entry-template': entryTemplate,
         'edag': edag
