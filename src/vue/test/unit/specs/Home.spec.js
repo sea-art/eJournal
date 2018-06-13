@@ -7,11 +7,6 @@ describe('Home.vue', () => {
         const Constructor = Vue.extend(Home)
         const vm = new Constructor({router}).$mount()
         expect(vm.$el.querySelector('h1').textContent)
-            .to.equal('Courses')
+            .to.equal('\n        Courses\n    ')
     })
-    // it('sets the correct default data', () => {
-    //     expect(typeof Home.data).equal('function')
-    //     const defaultData = Home.data()
-    //     expect(defaultData.msg).equal('Courses')
-    // })
 })

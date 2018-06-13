@@ -6,7 +6,7 @@ from VLE.models import *
 class DataBaseTests(TestCase):
     def test_foreignkeys(self):
         """
-        Testing the foreignkeys.
+        Testing the foreign keys in de database.
         """
         user_test = User(group='SD', email='lers@uva.nl', username='lers',
                          password='lers123', education='uva', lti_id='1')
