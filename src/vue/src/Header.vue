@@ -1,5 +1,5 @@
 <template>
-    <b-navbar id="header" toggleable="md">
+    <b-navbar id="header" toggleable="md" type="dark">
         <b-navbar-brand :to='"/Home"'>Edag</b-navbar-brand>
         <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
 
@@ -42,7 +42,8 @@ export default {
 
 <style>
 #header {
-  background-color: var(--theme-dark-blue);
+    background-color: var(--theme-dark-blue);
+    color: var(--theme-pink) ;
 }
 
 #nav-profile-image{
