@@ -23,7 +23,8 @@ export default {
     methods: {
         handleLogin () {
             auth.login(this.username, this.password)
-                .then(this.$router.push('/Home'))
+                .then(_ => this.$router.push('/Home'))
+                .catch(_ => alert('Could not login'))
         }
     }
 }

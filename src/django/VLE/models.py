@@ -13,7 +13,6 @@ class User(AbstractUser):
     - education: the education institute of the userself.
     - lti_id: the DLO id of the user.
     """
-
     SUPERUSER = 'SU'
     EXAMINATOR = 'EX'
     TEACHER = 'TE'
@@ -88,6 +87,11 @@ class Assignment(models.Model):
     description = models.TextField(
         null=True,
     )
+    author = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+        null=True
+    )
     courses = models.ManyToManyField(Course)
 
     def __str__(self):
@@ -127,7 +131,12 @@ class Entry(models.Model):
     datetime = models.DateTimeField(
         auto_now_add=True
     )
-    late = models.BooleanField()
+    late = models.BooleanField(
+        default=False
+    )
+    graded = models.BooleanField(
+        default=False
+    )
 
     def __str__(self):
         return str(self.pk)
