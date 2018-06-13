@@ -50,6 +50,11 @@ img {
     text-align: center;
 }
 
+body {
+    padding-top: 70px;
+}
+
+
 h1 {
     font-weight: bold;
     font-size: 60px;
