@@ -10,11 +10,14 @@
                 </b-link>
             </div>
         </b-col>
-        <b-col md="12" lg="3" order="1" order-lg="3" class="right-content">
-            <div v-for="d in deadlines" :key="d.dID">
-                <b-link tag="b-button" :to="{name: 'Assignment', params: {course: d.cID[0], assign: d.dID}}">
-                    <todo-card :line0="d.datetime" :line1="d.name" :line2="d.course" :color="set_color()">hoi</todo-card>
-                </b-link>
+        <b-col md="12" lg="3" order="1" order-lg="3">
+            <div class="right-content">
+                <h3>Upcoming</h3>
+                <div v-for="d in deadlines" :key="d.dID">
+                    <b-link tag="b-button" :to="{name: 'Assignment', params: {course: d.cID[0], assign: d.dID}}">
+                        <todo-card :line0="d.datetime" :line1="d.name" :line2="d.course" :color="set_color()">hoi</todo-card>
+                    </b-link>
+                </div>
             </div>
         </b-col>
     </b-row>
@@ -33,7 +36,26 @@ export default {
             /* Define the banner colors and set the index to -1 for first setup. */
             colors: ['pink-border', 'peach-border', 'blue-border'],
             color_idx: -1,
-            courses: []
+            courses: [],
+            deadlines: [{
+                name: 'Individueel logboek',
+                course: 'WEDA',
+                cID: ['2017WDB'],
+                dID: '2017IL1',
+                datetime: '8-6-2018 13:00'
+            }, {
+                name: 'Logboek academia',
+                course: 'AVI2',
+                cID: ['2017AVI2'],
+                dID: '2017LA',
+                datetime: '8-6-2018 13:00'
+            }, {
+                name: 'Individueel logboek',
+                course: 'AVI1, AVI2',
+                cID: ['2017AVI1', '2017AVI2'],
+                dID: '2017IL2',
+                datetime: '8-6-2018 13:00'
+            }]
         }
     },
     methods: {
