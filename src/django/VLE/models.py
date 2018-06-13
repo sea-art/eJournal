@@ -18,6 +18,7 @@ class User(AbstractUser):
     )
     lti_id = models.TextField(
         null=True,
+        unique=True,
     )
 
     def __str__(self):
@@ -81,7 +82,7 @@ class Participation(models.Model):
         Role,
         null=True,
         on_delete=models.SET_NULL,
-        related_name="",
+        related_name='role',
     )
 
 
