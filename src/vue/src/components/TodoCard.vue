@@ -15,7 +15,7 @@
 
 <script>
 export default {
-    props: ['line1', 'line2', 'color']
+    props: ['line0', 'line1', 'line2', 'color']
 }
 </script>
 

@@ -14,8 +14,8 @@
 <script>
 export default {
     /* Variables that are needed to fill in the template. */
-    props: ['textbox1', 'textbox2', 'deadline'],
-  }
+    props: ['textbox1', 'textbox2', 'deadline']
+}
 
 </script>
 

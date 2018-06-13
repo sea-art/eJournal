@@ -11,10 +11,11 @@
 
 <script>
 export default {
-    props: {
-        currentPage: String,
-        links: Array
-    },
+    // props: {
+    //     currentPage: String,
+    //     links: Array
+    // },
+    props: ['currentPage', 'links'],
     data () {
         return {
             items: ~[{
