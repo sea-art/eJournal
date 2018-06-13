@@ -7,7 +7,6 @@
           <b-input class="mb-2 mr-sm-2 mb-sm-0" id="inlineFormInputPassword" v-model="password" placeholder="Password" />
 
          <b-button class="mb-2 mr-sm-2 mb-sm-0" @click="handleLogin()">Login</b-button>
-         <b-button class="mb-2 mr-sm-2 mb-sm-0" @click="handleRegister()">Register</b-button>
     </b-form>
 </template>
 
@@ -24,11 +23,8 @@ export default {
     methods: {
         handleLogin () {
             auth.login(this.username, this.password)
-                .then(this.$router.push('/Home'))
-        },
-        handleRegister () {
-            console.log(this.username)
-            console.log(this.password)
+                .then(_ => this.$router.push('/Home'))
+                .catch(_ => alert('Could not login'))
         }
     }
 }
