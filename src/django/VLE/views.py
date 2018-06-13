@@ -7,6 +7,7 @@ from VLE.serializers import *
 def hex_to_dec(hex):
     return int(hex, 16)
 
+
 def dec_to_hex(dec):
     return hex(dec).split('x')[-1]
 
