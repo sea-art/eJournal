@@ -26,31 +26,23 @@
 <script>
 import studentCard from '@/components/StudentCard.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
+import journal from '@/api/journal.js'
 
 export default {
     name: 'Assignment',
     data () {
         return {
-            assignmentJournals: [{
-                student: 'Maarten van Keulen',
-                studentNumber: '6066364',
-                studentPortraitPath: '../assets/logo.png',
-                progress: {acquired: 10, total: 10},
-                entriesStats: {graded: 1, total: 1},
-                uid: 1
-            }, {
-                student: 'Dennis Wind',
-                studentNumber: '1111111',
-                studentPortraitPath: '../assets/logo.png',
-                progress: {acquired: 8, total: 10},
-                entriesStats: {graded: 1, total: 1},
-                uid: 2
-            }]
+            assignmentJournals: []
         }
     },
     components: {
         'student-card': studentCard,
         'bread-crumb': breadCrumb
+    },
+    created () {
+        journal.get_assignment_journals(this.$route.params.assign)
+            .then(response => { this.assignmentJournals = response })
+            .catch(_ => alert('Error while loading jounals'))
     }
 }
 </script>
