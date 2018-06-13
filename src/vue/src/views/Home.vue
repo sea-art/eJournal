@@ -2,7 +2,8 @@
     <b-row>
         <b-col cols="3" class="left-content"></b-col>
         <b-col cols="6" class="main-content">
-            <h1>Home Page</h1>
+            <bread-crumb :links="['test', 'test2']" :currentPage="'Courses'"></bread-crumb>
+
             <div v-for="c in courses" :key="c.cID">
                 <b-link tag="b-button" :to="{ name: 'Course', params: {course: c.cID} }">
                     <main-card :line1="c.name" :line2="c.date"> <!-- Enter obj3 --> </main-card>
@@ -14,6 +15,7 @@
 </template>
 
 <script>
+import breadCrumb from '@/components/BreadCrumb.vue'
 import mainCard from '@/components/MainCard.vue'
 
 export default {
@@ -42,6 +44,7 @@ export default {
         }
     },
     components: {
+        'bread-crumb': breadCrumb,
         'main-card': mainCard
     }
 }
