@@ -12,14 +12,14 @@
                     <student-card
                         :student="journal.student"
                         :studentNumber="journal.studentNumber"
-                        :studentPortrait="journal.studentPortrait"
-                        :grade="journal.grade"
-                        :progress="journal.progress">
+                        :studentPortraitPath="journal.studentPortraitPath"
+                        :progress="journal.progress"
+                        :entriesStats="journal.entriesStats">
                     </student-card>
                 </b-link>
             </div>
         </b-col>
-        <b-col md="12" lg="3" order="1" order-lg="3" class="right-content"></b-col>
+        <b-col md="12" lg="3" order="1" order-lg="3" class="right-content">Notifications</b-col>
     </b-row>
 </template>
 
@@ -33,16 +33,16 @@ export default {
             assignmentJournals: [{
                 student: 'Maarten van Keulen',
                 studentNumber: '6066364',
-                studentPortrait: '../assets/logo.png',
-                grade: '8.5',
+                studentPortraitPath: '../assets/logo.png',
                 progress: {acquired: 10, total: 10},
+                entriesStats: {graded: 1, total: 1},
                 uid: 1
             }, {
                 student: 'Dennis Wind',
                 studentNumber: '1111111',
-                studentPortrait: '../assets/logo.png',
-                grade: 'Nan',
+                studentPortraitPath: '../assets/logo.png',
                 progress: {acquired: 8, total: 10},
+                entriesStats: {graded: 1, total: 1},
                 uid: 2
             }]
         }
