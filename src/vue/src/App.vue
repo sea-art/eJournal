@@ -29,6 +29,15 @@ export default {
     --theme-medium-grey: #DEDEDE;
 }
 
+#app {
+    overflow-x: hidden;
+    font-family: 'Roboto', sans-serif;
+    font-size: 20px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+}
+
 * {
     border-radius: 0px !important;
     text-decoration: none !important;
@@ -39,15 +48,6 @@ export default {
 img {
     max-width: 100%;
     max-height: 100%;
-}
-
-#app {
-    overflow-x: hidden;
-    font-family: 'Roboto', sans-serif;
-    font-size: 20px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
 }
 
 h1 {
@@ -101,12 +101,22 @@ h6 {
 }
 
 .right-content {
-
+    padding-top: 30px;
+    padding-left: 30px;
+    padding-right: 30px;
 }
 
-.portrait-container {
-    height: 100px;
-    width: 100px;
+.card {
+    margin-bottom: 8px;
+    text-align: left;
+    background-color: var(--theme-light-grey);
+    border-width: 0px;
+    border-left-width: 20px;
+    border-radius: 0px;
+}
+
+.card:hover {
+    background-color: var(--theme-dark-grey);
 }
 
 .card.pink-border {
@@ -121,11 +131,8 @@ h6 {
     border-left-color: var(--theme-blue);
 }
 
-.card:hover {
-    background-color: var(--theme-dark-grey);
-}
-
-.card:hover {
-    background-color: var(--theme-dark-grey);
+.portrait-container {
+    height: 100px;
+    width: 100px;
 }
 </style>
