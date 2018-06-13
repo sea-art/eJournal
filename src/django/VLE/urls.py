@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path
 
 from VLE.views import get_user_courses
+from VLE.lti_launch import lti_launch
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -30,4 +31,5 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('api/get_user_courses/', get_user_courses, name='get_user_courses'),
+    path('api/lti/launch', lti_launch, name='lti_launch'),
 ]
