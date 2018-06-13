@@ -80,11 +80,13 @@ h4 {
 
 h5 {
     font-size: 30px;
+    margin-bottom: 0px;
 }
 
 h6 {
     font-size: 20px;
     color: var(--theme-blue);
+    margin-bottom: 0px;
 }
 
 .button {
@@ -113,6 +115,13 @@ h6 {
     border-width: 0px;
     border-left-width: 20px;
     border-radius: 0px;
+}
+
+.card-body {
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 12px;
+    padding-bottom: 12px;
 }
 
 .card:hover {

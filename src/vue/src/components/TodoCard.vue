@@ -1,5 +1,5 @@
 <template>
-    <b-card id="card" class="card" :class="color" @mouseover="hover">
+    <b-card class="card" :class="color">
         <h6>{{ line0 }}</h6>
         <h5>{{ line1 }}</h5>
         {{ line2 }}

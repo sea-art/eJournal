@@ -36,7 +36,26 @@ export default {
             /* Define the banner colors and set the index to -1 for first setup. */
             colors: ['pink-border', 'peach-border', 'blue-border'],
             color_idx: -1,
-            courses: []
+            courses: [],
+            deadlines: [{
+                name: 'Individueel logboek',
+                course: 'WEDA',
+                cID: ['2017WDB'],
+                dID: '2017IL1',
+                datetime: '8-6-2018 13:00'
+            }, {
+                name: 'Logboek academia',
+                course: 'AVI2',
+                cID: ['2017AVI2'],
+                dID: '2017LA',
+                datetime: '8-6-2018 13:00'
+            }, {
+                name: 'Individueel logboek',
+                course: 'AVI1, AVI2',
+                cID: ['2017AVI1', '2017AVI2'],
+                dID: '2017IL2',
+                datetime: '8-6-2018 13:00'
+            }]
         }
     },
     methods: {
