@@ -38,7 +38,7 @@
 -->
 
 <template>
-    <div>
+    <div id="edag-div" class="h-100 mh-100">
         <edag-node v-for="node in this.nodes" @click.native="$emit('select-node', node.id)" :node="node" :selected="isSelected(node.id)" :key="node.id"/>
     </div>
 </template>
@@ -58,3 +58,9 @@ export default {
     }
 }
 </script>
+
+<style>
+#edag-div {
+    overflow-y: scroll;
+}
+</style>
