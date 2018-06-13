@@ -1,7 +1,7 @@
 <template>
     <b-row no-gutters>
-        <b-col lg="3" order="3" order-sm="3" order-md="3" order-lg="1" order-xl="1" class="left-content d-none d-lg-block"></b-col>
-        <b-col md="12" lg="6" order="2" order-sm="2" order-md="2" order-lg="2" order-xl="2" class="main-content">
+        <b-col lg="3" order="3" order-lg="1" class="left-content d-none d-lg-block"></b-col>
+        <b-col md="12" lg="6" order="2" class="main-content">
             <h1>Home Page</h1>
             <div v-for="c in courses" :key="c.cID">
                 <b-link tag="b-button" :to="{ name: 'Course', params: {course: c.cID} }">
@@ -9,7 +9,7 @@
                 </b-link>
             </div>
         </b-col>
-        <b-col md="12" lg="3" order="1" order-sm="1" order-md="1" order-lg="3" order-xl="3" class="right-content">TEST</b-col>
+        <b-col md="12" lg="3" order="1" order-lg="3" class="right-content"></b-col>
     </b-row>
 </template>
 

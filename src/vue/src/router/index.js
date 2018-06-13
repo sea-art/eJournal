@@ -36,6 +36,11 @@ export default new Router({
         name: 'Assignment',
         component: Assignment
     }, {
+        // TODO Create non dummy link
+        path: '/Assignment',
+        name: 'Assignment',
+        component: Assignment
+    }, {
         path: '/Home/:course/:assign/:student',
         name: 'journal',
         component: Journal

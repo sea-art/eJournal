@@ -33,6 +33,11 @@ export default {
     color: var(--theme-dark-blue);
 }
 
+img {
+    max-width: 100%;
+    max-height: 100%;
+}
+
 #app {
     overflow-x: hidden;
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
@@ -45,12 +50,18 @@ export default {
 }
 
 .main-content {
-    /*padding-left: 0px;
-    padding-right: 0px;*/
     background-color: var(--theme-medium-grey);
 }
 
 .right-content {
 }
 
+.portrait-container {
+    height: 100px;
+    width: 100px;
+}
+
+.card:hover {
+    background-color: var(--theme-dark-grey);
+}
 </style>

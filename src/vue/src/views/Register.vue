@@ -21,9 +21,13 @@ export default {
                 email: ''
             },
             instutes: [
-                { text: 'Select the applicable institute', value: null },
-                'Universiteit van Amsterdam (UvA)']
-            }
+                {
+                    text: 'Select the applicable institute',
+                    value: null
+                },
+                'Universiteit van Amsterdam (UvA)'
+            ]
+        }
     },
     methods: {
         onSubmit (evt) {

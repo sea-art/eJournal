@@ -1,12 +1,11 @@
 <template>
-    <b-card class="main-card" @mouseover="hover">
+    <b-card class="card main-card">
         <b-row>
             <b-col id="main-card-left-column" xs-cols="12" lg-cols="6">
                 <h>{{ line1 }}</h><br/>
                 <h>{{ line2 }}</h>
             </b-col>
             <b-col id="main-card-right-column" xs-cols="12" lg-cols="6">
-                <h1>TESTT</h1>
                 <slot></slot>
             </b-col>
         </b-row>
@@ -28,9 +27,5 @@ export default {
     border-left-width: 20px;
     border-left-color: red;
     border-radius: 0px;
-}
-
-.main-card:hover {
-    background-color: var(--theme-dark-grey);
 }
 </style>
