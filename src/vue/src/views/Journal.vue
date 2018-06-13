@@ -2,8 +2,7 @@
     <div>
         <b-row>
             <b-col cols="3" class="left-content">
-                  <button v-on:click="variable = 0">Select entry 1</button>
-                  <button v-on:click="variable = 1">Select entry 2</button>
+                  <edag @select-node="variable = $event" :selected="variable" :nodes="nodes"></edag>
             </b-col>
             <b-col cols="6" class="main-content">
                 <h1>path enzo</h1>
@@ -22,26 +21,30 @@
 
 <script>
 import entryTemplate from '@/components/TemplateCard.vue'
+import edag from '@/components/Edag.vue'
 export default {
     name: 'Journal',
     data () {
         return {
             variable: 0,
             nodes: [{
+                type: 'entry',
                 textbox1: 'Awesome IT',
                 textbox2: 'het was leuk veel dingen enzo.',
-                deadline: '13-12-2018 23:00',
-                id: '1'
+                date: new Date(),
+                id: 0
             }, {
+                type: 'entry',
                 textbox1: 'Lezing NNS',
                 textbox2: 'Rob Belleman enzo',
-                deadline: '14-03-2019 06:00',
-                id: '2'
+                date: new Date(),
+                id: 1
             }]
         }
     },
     components: {
-        'entry-template': entryTemplate
+        'entry-template': entryTemplate,
+        'edag': edag
     }
 }
 </script>

@@ -39,7 +39,7 @@
 
 <template>
     <div>
-        <edag-node v-for="node in this.nodes" :node="node" :selected="isSelected(node.id)" :key="node.id"/>
+        <edag-node v-for="node in this.nodes" @click.native="$emit('select-node', node.id)" :node="node" :selected="isSelected(node.id)" :key="node.id"/>
     </div>
 </template>
 

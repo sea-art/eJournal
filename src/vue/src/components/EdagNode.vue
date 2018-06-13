@@ -7,11 +7,11 @@
 
 <template>
     <b-row>
-        <b-col cols="1"/>
-        <b-col cols="1" class="d-flex align-items-center justify-content-center">
+        <b-col cols="4"/>
+        <b-col cols="4" class="d-flex align-items-center justify-content-center">
             <edag-node-date :date="node.date" :selected="selected"/>
         </b-col>
-        <b-col cols="1" class="d-flex align-items-center justify-content-center">
+        <b-col cols="4" class="d-flex align-items-center justify-content-center">
             <div style="width: 0.5em; height: 5em; background-color: var(--theme-light-grey)" :style="{ height: this.lineHeight }"/> <!-- grey line -->
             <edag-node-circle style="position: absolute" :type="node.type" :text="node.text" :selected="selected"></edag-node-circle>
         </b-col>
