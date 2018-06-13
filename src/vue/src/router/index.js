@@ -6,6 +6,7 @@ import Assignment from '@/views/Assignment'
 import Course from '@/views/Course'
 import Profile from '@/views/Profile'
 import Guest from '@/views/Guest'
+import Register from '@/views/Register'
 
 Vue.use(Router)
 
@@ -14,6 +15,10 @@ export default new Router({
         path: '/',
         name: 'Guest',
         component: Guest
+    }, {
+        path: '/Register',
+        name: Register,
+        component: Register
     }, {
         path: '/Home',
         name: 'Home',
