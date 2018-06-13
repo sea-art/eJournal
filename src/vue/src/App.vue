@@ -106,9 +106,17 @@ h6 {
     padding-right: 30px;
 }
 
-.portrait-container {
-    height: 100px;
-    width: 100px;
+.card {
+    margin-bottom: 8px;
+    text-align: left;
+    background-color: var(--theme-light-grey);
+    border-width: 0px;
+    border-left-width: 20px;
+    border-radius: 0px;
+}
+
+.card:hover {
+    background-color: var(--theme-dark-grey);
 }
 
 .card.pink-border {
@@ -123,7 +131,8 @@ h6 {
     border-left-color: var(--theme-blue);
 }
 
-.card:hover {
-    background-color: var(--theme-dark-grey);
+.portrait-container {
+    height: 100px;
+    width: 100px;
 }
 </style>
