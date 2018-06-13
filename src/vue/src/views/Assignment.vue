@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h1>Assignment Page</h1>
+        <h1>{{ $route.params.assign }}</h1>
     </div>
 </template>
 
