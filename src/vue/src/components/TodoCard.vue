@@ -1,5 +1,5 @@
 <template>
-    <b-card id="card" class="main-card" :class="color" @mouseover="hover">
+    <b-card id="card" class="todo-card" :class="color" @mouseover="hover">
         <b-row>
             <b-col id="main-card-left-column" cols="6">
                 <h>{{ line0 }}</h><br/>
@@ -20,8 +20,10 @@ export default {
 </script>
 
 <style>
-.main-card {
+.todo-card {
     margin-bottom: 8px;
+    margin-left: 15px;
+    margin-right: 30px;
     text-align: left;
     background-color: var(--theme-light-grey);
     border-width: 0px;
@@ -29,19 +31,19 @@ export default {
     border-radius: 0px;
 }
 
-.main-card.pink-border {
+.todo-card.pink-border {
     border-left-color: var(--theme-pink);
 }
 
-.main-card.peach-border {
+.todo-card.peach-border {
     border-left-color: var(--theme-peach);
 }
 
-.main-card.blue-border {
+.todo-card.blue-border {
     border-left-color: var(--theme-blue);
 }
 
-.main-card:hover {
+.todo-card:hover {
     background-color: var(--theme-dark-grey);
 }
 </style>
