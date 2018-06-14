@@ -20,12 +20,12 @@ The first step downloads the full repository.
 
 # Development environment
 Frontend:  
-Files are stored in `src/main/vue`.  
+Files are stored in `src/vue`.  
 To start the vue-server type `make run-front` in the `PSE_Hokkies` folder.
 The frontent is dependent on the Backend to work properly with requesting data, so make sure to also run the backend.
 
 Backend:  
-Files are stored in `src/main/django`.  
+Files are stored in `src/django`.  
 To start the django-server type `make run-back` in the `PSE_Hokkies` folder.  
 
 # Testing
