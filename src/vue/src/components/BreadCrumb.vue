@@ -1,7 +1,7 @@
 <template>
     <div>
         <h4>
-            <b-breadcrumb v-if="$route.params.student != undefined" class="bread-crumb" :items="items.concat(' ')"/>
+            <b-breadcrumb v-if="$route.params.student != undefined" class="bread-crumb" :items="items.slice(0, 2).concat(' ')"/>
             <b-breadcrumb v-else-if="$route.params.assign != undefined" class="bread-crumb" :items="items.slice(0, 2).concat(' ')"/>
             <b-breadcrumb v-else-if="$route.params.course != undefined" class="bread-crumb" :items="items.slice(0, 1).concat(' ')"/>
         </h4>
@@ -19,8 +19,7 @@ export default {
             items: [{
                 text: 'Courses',
                 to: {name: 'Home'}
-            },
-            {
+            }, {
                 text: this.course,
                 to: {
                     name: 'Course',
@@ -29,11 +28,21 @@ export default {
                         courseName: this.$route.params.courseName
                     }
                 }
-            },
-            {
+            }, {
                 text: this.assign,
                 to: {
                     name: 'Assignment',
+                    params: {
+                        course: this.$route.params.course,
+                        assign: this.$route.params.assign,
+                        courseName: this.$route.params.courseName,
+                        assignmentName: this.$route.params.assignmentName
+                    }
+                }
+            }, {
+                text: this.assign,
+                to: {
+                    name: 'Journal',
                     params: {
                         course: this.$route.params.course,
                         assign: this.$route.params.assign,

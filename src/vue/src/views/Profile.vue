@@ -1,23 +1,16 @@
 <template>
-    <b-row no-gutters>
-        <b-col lg="3" order="3" order-lg="1" class="left-content d-none d-lg-block"></b-col>
+    <content-columns>
+        <bread-crumb slot="main-content-column" :currentPage="'Settings'"></bread-crumb>
 
-        <b-col md="12" lg="6" order="2" class="main-content">
-            <bread-crumb :currentPage="'Settings'"></bread-crumb>
-
-            <profile-card :name="profile[0].name"
-                          :email="profile[0].email"
-                          :id="profile[0].id">
-            </profile-card>
-        </b-col>
-
-        <b-col md="12" lg="3" order="1" order-lg="3" class="right-content">
-            <router-link tag="button" :to='"/Home"'>Back</router-link>
-        </b-col>
-    </b-row>
+        <profile-card slot="main-content-column" :name="profile[0].name"
+                      :email="profile[0].email"
+                      :id="profile[0].id">
+        </profile-card>
+    </content-columns>
 </template>
 
 <script>
+import contentColumns from '@/components/ContentColumns.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import profileCard from '@/components/ProfileCard.vue'
 
@@ -34,11 +27,9 @@ export default {
         }
     },
     components: {
+        'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'profile-card': profileCard
     }
 }
 </script>
-
-<style>
-</style>
