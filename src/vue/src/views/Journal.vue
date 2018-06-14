@@ -46,7 +46,7 @@ export default {
                 textbox1: 'Add',
                 textbox2: 'something',
                 text: '+',
-                date: '',
+                date: new Date(),
                 id: 2
             }, {
                 type: 'progress',
