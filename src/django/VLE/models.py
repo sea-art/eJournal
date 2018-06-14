@@ -6,50 +6,23 @@ from django.contrib.auth.models import AbstractUser
 class User(AbstractUser):
     """
     User is an entity in the database with the following features:
-    - group: the group determines the permissions on the application.
     - email: email of the user.
-    - username: username of the username.
-    - passhash: the hash of the password of the user.
-    - education: the education institute of the userself.
+    - USERNAME_FIELD: username of the username.
+    - password: the hash of the password of the user.
     - lti_id: the DLO id of the user.
     """
-    SUPERUSER = 'SU'
-    EXAMINATOR = 'EX'
-    TEACHER = 'TE'
-    TEACHER_ASSISTANT = 'TA'
-    STUDENT = 'SD'
-    USER_TYPES = (
-        (SUPERUSER, 'Super User'),
-        (EXAMINATOR, 'Examintor'),
-        (TEACHER, 'Teacher'),
-        (TEACHER_ASSISTANT, 'Teacher Assistant'),
-        (STUDENT, 'Student'),
-    )
-    group = models.TextField(
-        max_length=2,
-        choices=USER_TYPES,
-        default=STUDENT,
-    )
     email = models.EmailField(
         null=True,
-        blank=True
-    )
-    education = models.TextField(
-        null=True,
+        blank=True,
+        unique=True,
     )
     lti_id = models.TextField(
         null=True,
+        unique=True,
     )
 
     def __str__(self):
         return self.username
-
-    class Meta:
-        """
-        A class for meta data.
-        - unique_together: username and education must be unique together.
-        """
-        unique_together = ('username', 'education',)
 
 
 class Course(models.Model):
@@ -61,13 +34,22 @@ class Course(models.Model):
     - startdate: the date that the course starts.
     """
     name = models.TextField()
-    authors = models.ManyToManyField(User, related_name="authors")
-    participants = models.ManyToManyField(User, related_name="participant")
-    TAs = models.ManyToManyField(User, related_name="TAs")
     abbreviation = models.TextField(
         max_length=4,
         default='XXXX',
     )
+    author = models.ForeignKey(
+        'User',
+        on_delete=models.SET_NULL,
+        null=True
+    )
+    participations = models.ManyToManyField(
+        User,
+        related_name='participations',
+        through='Participation',
+        through_fields=('course', 'user'),
+    )
+
     startdate = models.DateField(
         null=True,
     )
@@ -76,12 +58,44 @@ class Course(models.Model):
         return self.name
 
 
+class Role(models.Model):
+    """
+    A role defines the permissions of a user group within a course.
+    - name: name of the role
+    - list of permissions (can_...)
+    """
+    name = models.TextField()
+
+    can_edit_grades = models.BooleanField(default=False)
+    can_view_grades = models.BooleanField(default=False)
+    can_edit_assignment = models.BooleanField(default=False)
+    can_view_assignment = models.BooleanField(default=False)
+    can_submit_assignment = models.BooleanField(default=False)
+
+
+class Participation(models.Model):
+    """
+    A participation defines the way a user interacts within a certain course.
+    The user is now linked to the course, and has a set of permissions
+    associated with it's role.
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    role = models.ForeignKey(
+        Role,
+        null=True,
+        on_delete=models.SET_NULL,
+        related_name='role',
+    )
+
+
 class Assignment(models.Model):
     """
     An Assignment entity has the following features:
     - name: name of the assignment.
     - description: description for the assignment.
-    - course: a foreign key linked to a course.
+    - courses: a foreign key linked to the courses this assignment
+    is part of.
     """
     name = models.TextField()
     deadline = models.DateTimeField(
@@ -92,7 +106,7 @@ class Assignment(models.Model):
     )
     author = models.ForeignKey(
         'User',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True
     )
     courses = models.ManyToManyField(Course)
@@ -105,15 +119,15 @@ class Journal(models.Model):
     """
     A journal contains the following features:
     - assignment: a foreign key linked to an assignment.
-    - user: a foreign key linked to an user.
+    - user: a foreign key linked to a user.
     """
     assignment = models.ForeignKey(
         'Assignment',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
     user = models.ForeignKey(
         'User',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
 
     def __str__(self):
@@ -136,10 +150,10 @@ class Entry(models.Model):
     """
     journal = models.ForeignKey(
         'Journal',
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
     )
     datetime = models.DateTimeField(
-        auto_now_add=True
+        auto_now_add=True,
     )
     late = models.BooleanField(
         default=False
