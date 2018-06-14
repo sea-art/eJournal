@@ -12,7 +12,7 @@
                 . -->
                 <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[variable].textbox1"
                 :textbox2="nodes[variable].textbox2"
-                :deadline="nodes[variable].deadline"> </entry-template>
+                :date="nodes[variable].date">  </entry-template>
             </b-col>
             <b-col cols="3" class="right-content"></b-col>
         </b-row>
