@@ -6,3 +6,7 @@ install:
   - make setup
   - make migrate-back
 script: make test
+branches:
+  only:
+    - master
+    - develop

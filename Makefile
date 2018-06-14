@@ -7,6 +7,9 @@ test:
 fill-db:
 	bash -c 'source ./venv/bin/activate && cd ./src/django && echo "delete from sqlite_sequence where name like \"VLE_%\";" | sqlite3 VLE.db && python3.6 manage.py flush --no-input && python3.6 manage.py populate_db && python3.6 manage.py show_db && deactivate'
 
+show-db:
+	bash -c 'source ./venv/bin/activate && cd ./src/django && python3.6 manage.py show_db && deactivate'
+
 migrate-back:
 	bash -c "source ./venv/bin/activate && python3.6 ./src/django/manage.py makemigrations VLE && python3.6 ./src/django/manage.py migrate && deactivate"
 
