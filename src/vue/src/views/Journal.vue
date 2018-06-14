@@ -5,7 +5,7 @@
                   <edag @select-node="selectNode" :selected="variable" :nodes="nodes"></edag>
             </b-col>
             <b-col cols="6" class="main-content">
-                <h1>path enzo</h1>
+                <bread-crumb :currentPage="$route.params.student"></bread-crumb>
                 <!--
                     Fill in the template using the corresponding data
                     of the entry
@@ -22,6 +22,7 @@
 <script>
 import entryTemplate from '@/components/TemplateCard.vue'
 import edag from '@/components/Edag.vue'
+import breadCrumb from '@/components/BreadCrumb.vue'
 export default {
     name: 'Journal',
     data () {
@@ -85,6 +86,7 @@ export default {
     },
 
     components: {
+        'bread-crumb': breadCrumb,
         'entry-template': entryTemplate,
         'edag': edag
     }
