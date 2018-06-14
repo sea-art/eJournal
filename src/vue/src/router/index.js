@@ -30,7 +30,8 @@ export default new Router({
     }, {
         path: '/Home/:course',
         name: 'Course',
-        component: Course
+        component: Course,
+        props: {color: ''}
     }, {
         path: '/Home/:course/:assign',
         name: 'Assignment',

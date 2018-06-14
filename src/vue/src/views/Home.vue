@@ -5,7 +5,7 @@
             <bread-crumb :links="['test', 'test2']" :currentPage="'Courses'"></bread-crumb>
 
             <div v-for="(c, i) in courses" :key="c.cID">
-                <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID}}">
+                <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID, color: colors[i]}}">
                     <main-card :line1="c.name" :line2="c.date" :color="colors[i]">{{ c.cID }}</main-card>
                 </b-link>
             </div>
