@@ -35,10 +35,12 @@ export default new Router({
     }, {
         path: '/Home/:course/:assign',
         name: 'Assignment',
-        component: Assignment
+        component: Assignment,
+        props: {color: ''}
     }, {
         path: '/Home/:course/:assign/:student',
         name: 'journal',
-        component: Journal
+        component: Journal,
+        props: {color: ''}
     }]
 })
