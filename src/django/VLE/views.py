@@ -48,6 +48,7 @@ def get_course_assignments(request, cID):
         assignment_obj = {
             'name': str(assignment.name),
             'auth': str(assignment.author),
+            'description': str(assignment.description),
             'progress': str(0),
         }
         response['assignments'].append(assignment_obj)
