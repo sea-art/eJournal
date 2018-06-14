@@ -19,7 +19,7 @@ def get_user_courses(request):
     """
     user = request.user
 
-    if not request.user.is_authenticated:
+    if not user.is_authenticated:
         return JsonResponse({'error': '401 Authentication Error'}, status=401)
 
     response = {'result': 'success', 'courses': []}

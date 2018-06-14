@@ -2,7 +2,7 @@ from rest_framework.test import APIRequestFactory
 from django.test import TestCase
 from django.urls import reverse
 
-from VLE.models import *
+from VLE.models import User, Course, Participation, Role
 
 
 class RestTests(TestCase):
