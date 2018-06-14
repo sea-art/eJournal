@@ -11,7 +11,7 @@ show-db:
 	bash -c 'source ./venv/bin/activate && cd ./src/django && python3.6 manage.py show_db && deactivate'
 
 migrate-back:
-	bash -c "source ./venv/bin/activate && cd ./src/django && rm VLE.db && python3.6 manage.py makemigrations VLE && python3.6 manage.py migrate && deactivate"
+	bash -c "source ./venv/bin/activate && cd ./src/django && (rm VLE.db || echo "0") && python3.6 manage.py makemigrations VLE && python3.6 manage.py migrate && deactivate"
 
 run-front:
 	python -mwebbrowser http://localhost:8080
