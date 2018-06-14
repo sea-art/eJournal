@@ -2,10 +2,10 @@
     <b-row no-gutters>
         <b-col lg="3" order="3" order-lg="1" class="left-content d-none d-lg-block"></b-col>
         <b-col md="12" lg="6" order="2" class="main-content">
-            <bread-crumb :links="['test', 'test2']" :currentPage="'Courses'"></bread-crumb>
+            <bread-crumb :currentPage="'Courses'"></bread-crumb>
 
             <div v-for="c in courses" :key="c.cID">
-                <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID}}">
+                <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID, courseName: c.name}}">
                     <main-card :line1="c.name" :line2="c.date" :color="set_color()">{{ c.cID }}</main-card>
                 </b-link>
             </div>

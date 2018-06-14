@@ -6,7 +6,7 @@
     <b-row no-gutters>
         <b-col lg="3" order="3" order-lg="1" class="left-content d-none d-lg-block"></b-col>
         <b-col md="12" lg="6" order="2" class="main-content">
-            <bread-crumb :currentPage="$route.params.assign"></bread-crumb>
+            <bread-crumb :currentPage="$route.params.assignmentName" :course="$route.params.courseName" ></bread-crumb>
             <div v-for="journal in assignmentJournals" :key="journal.uid">
                 <b-link tag="b-button" :to="{ name: 'Journal', params: {course: journal.uid} }">
                     <student-card
