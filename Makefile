@@ -1,8 +1,13 @@
-test:
+
+test-back:
 	pep8 ./src/django --max-line-length=120 --exclude='./src/django/VLE/migrations'
+
+test-front:
 	bash -c "source ./venv/bin/activate && cd ./src/django/ && python3.6 manage.py test && deactivate"
 	npm run lint --prefix ./src/vue
 	npm run test --prefix ./src/vue
+
+test: test-back test-front
 
 fill-db: migrate-back
 	bash -c 'source ./venv/bin/activate && cd ./src/django && echo "delete from sqlite_sequence where name like \"VLE_%\";" | sqlite3 VLE.db && python3.6 manage.py flush --no-input && python3.6 manage.py populate_db && deactivate'
