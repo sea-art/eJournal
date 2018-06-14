@@ -60,19 +60,19 @@ export default {
 
     methods: {
         saveEdit: function () {
-            if (this.save == 'Save') {
-                this.save = "Edit"
+            if (this.save === 'Save') {
+                this.save = 'Edit'
                 this.tempProps = [this.tempbox1, this.tempbox2]
                 this.$emit('edit-data', this.tempProps)
             } else {
                 this.tempbox1 = this.textbox1
                 this.tempbox2 = this.textbox2
-                this.save = "Save"
+                this.save = 'Save'
             }
         },
 
         cancel: function () {
-            this.save = "Edit"
+            this.save = 'Edit'
         }
     }
 }
