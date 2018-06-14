@@ -4,7 +4,7 @@
         <b-col cols="6" class="main-content">
             <bread-crumb :currentPage="$route.params.course"></bread-crumb>
             <div v-for="(a, i) in assignments" :key="a.aID">
-                <b-link tag="b-button" :to="{name: 'Assignment', params: {course: $route.params.course, assign: a.aID}}">
+                <b-link tag="b-button" :to="{name: 'Assignment', params: {assign: a.aID}}" append>
                     <main-card :line1="a.name" :color="colors[i]">hoi</main-card>
                 </b-link>
             </div>
