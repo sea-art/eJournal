@@ -16,7 +16,7 @@ export default {
         },
         dateText () {
             // prettify date
-            return this.date
+            return this.date.toDateString()
         },
         styleObject () {
             return {

@@ -1,32 +1,86 @@
 <!-- Example of a simple template. -->
 <template>
-    <b-card class="entry-template">
+    <div class="entry-template">
         <b-row>
             <b-col id="main-card-left-column" cols="12">
-
-                <h3>Title: {{ textbox1 }}</h3><br>
-                <p>{{ textbox2 }}</p><br>
+                <div v-if="save == 'Save'">
+                    <b-card class="card main-card" :class="'pink-border'">
+                        <b-row>
+                            <b-col id="main-card-left-column" cols="9" lg-cols="12">
+                                Subject: <b-textarea v-model="tempbox1"></b-textarea><br>
+                                Deadline: {{ date }}
+                            </b-col>
+                            <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
+                                Needs grading
+                            </b-col>
+                        </b-row>
+                        <b-row>
+                            <b-col id="main-card-left-column" cols="12" lg-cols="12">
+                                <br>
+                                Description: <br>
+                                <b-textarea v-model="tempbox2"></b-textarea><br><br>
+                                <b-button @click="saveEdit">{{ save }} </b-button>
+                                <b-button @click="cancel">Cancel</b-button>
+                            </b-col>
+                        </b-row>
+                    </b-card>
+                </div>
+                <div v-else>
+                    <b-card class="card main-card" :class="'pink-border'">
+                        <b-row>
+                            <b-col id="main-card-left-column" cols="9" lg-cols="12">
+                                <h2>{{ textbox1 }}</h2>
+                                {{ textbox2 }}<br><br>
+                                <b-button @click="saveEdit">{{ save }} </b-button>
+                            </b-col>
+                            <b-col id="main-card-right-column" cols="3" lg-cols="12">
+                                Needs grading
+                            </b-col>
+                        </b-row>
+                    </b-card>
+                </div>
             </b-col>
         </b-row>
-    </b-card>
+    </div>
 </template>
 
 <script>
 export default {
     /* Variables that are needed to fill in the template. */
-    props: ['textbox1', 'textbox2', 'deadline']
+    props: ['textbox1', 'textbox2', 'date', 'color'],
+
+    data () {
+        return {
+            save: 'Edit',
+            tempbox1: this.textbox1,
+            tempbox2: this.textbox2,
+            tempProps: []
+        }
+    },
+
+    methods: {
+        saveEdit: function () {
+            if (this.save === 'Save') {
+                this.save = 'Edit'
+                this.tempProps = [this.tempbox1, this.tempbox2]
+                this.$emit('edit-data', this.tempProps)
+            } else {
+                this.tempbox1 = this.textbox1
+                this.tempbox2 = this.textbox2
+                this.save = 'Save'
+            }
+        },
+
+        cancel: function () {
+            this.save = 'Edit'
+        }
+    }
 }
 
 </script>
 
 <style>
-.entry-template {
-    margin-bottom: 8px;
-    text-align: left;
+.card:hover {
     background-color: var(--theme-light-grey);
-    border-width: 0px;
-    border-left-width: 20px;
-    border-left-color: red;
-    border-radius: 0px;
 }
 </style>
