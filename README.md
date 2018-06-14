@@ -44,6 +44,19 @@ Merge with the latest develop branch.
 Start a pull request (on github.com).  
 Wait for Travis to finish testing, and let a fellow developer review and approve your code.  
 
+For bugfixes, the same approach is used, but replace all `feature` with `bugfix`.
+
+If Git Flow does not work for whatever reason, default Git commands can be used instead (the Git Flow commands are shortcuts after all).
+
+Feature:  
+`git checkout -b feature/name`  
+Program the feature and test if everything works.  
+Add and commit.  
+Merge with the latest develop branch. (`git pull origin develop`)
+`git push origin feature/name`
+Start a pull request (on github.com).
+Wait for Travis to finish testing, and let a fellow developer review and approve your code.
+
 # Deployment
 Not yet implemented.
 
