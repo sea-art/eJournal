@@ -44,7 +44,7 @@ export default new Router({
         }
     }, {
         path: '/Home/:course/:assign/:student',
-        name: 'journal',
+        name: 'Journal',
         component: Journal,
         props: {
             courseName: '',
