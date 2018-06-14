@@ -43,7 +43,7 @@ export default {
     height: 5em;
 }
 
-.edag-node-circle.enc-add {
+/* .edag-node-circle.enc-add {
     width: 3em;
     height: 3em;
 }
@@ -51,7 +51,7 @@ export default {
 .edag-node-circle.enc-selected.enc-add {
     width: 4em;
     height: 4em;
-}
+} */
 
 .edag-node-circle.enc-entry {
     background-color: var(--theme-medium-grey)

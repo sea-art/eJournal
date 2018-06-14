@@ -66,7 +66,7 @@ export default {
         },
         selectNode ($event) {
             if (this.$refs['entry-template-card'].save === 'Save') {
-                if (!confirm('Are you sure you wish to leave? Progress will not be saved.')) {
+                if (!confirm('Oh no! Progress will not be saved if you leave. Do you wish to continue?')) {
                     return
                 }
             }
