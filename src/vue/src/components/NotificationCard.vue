@@ -19,8 +19,7 @@
 </template>
 
 <script>
-// import Switches from '../../node_modules/vue-switches/src/switches.vue';
-import Switch from '@/components/switchComponent.vue';
+import Switch from '@/components/switchComponent.vue'
 
 export default {
     components: {

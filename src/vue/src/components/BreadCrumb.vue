@@ -7,8 +7,6 @@
         </h4>
         <h1>
             {{ currentPage }}<br/>
-            <!-- {{ this.$route.params.course }} -->
-            <!-- {{ this.$route.params.courseName }} -->
         </h1>
     </div>
 </template>
@@ -20,7 +18,7 @@ export default {
         return {
             items: [{
                 text: 'Courses',
-                to: { name: 'Home'}
+                to: {name: 'Home'}
             },
             {
                 text: this.course,

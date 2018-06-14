@@ -13,14 +13,14 @@ export default {
     props: ['isActive'],
     data () {
         return {
-            isActive: ''    ,
+            Active: ''
         }
     },
     methods: {
         switchVariable () {
             this.isActive = !this.isActive
         }
-    },
+    }
 }
 </script>
 

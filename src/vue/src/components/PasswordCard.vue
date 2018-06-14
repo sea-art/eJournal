@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import PasswordField from '@/components/passwordComponent.vue';
+import PasswordField from '@/components/passwordComponent.vue'
 
 export default {
     components: {
