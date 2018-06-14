@@ -3,7 +3,7 @@
         <bread-crumb :links="['test', 'test2']" :currentPage="'Courses'" slot="main-content-column"></bread-crumb>
         <div v-for="(c, i) in courses" :key="c.cID" slot="main-content-column">
             <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID, color: colors[i]}}">
-                <main-card :line1="c.name" :line2="c.date" :color="colors[i]">{{ c.cID }}</main-card>
+                <main-card :line1="c.name" :line2="c.date" :color="colors[i]">hoi</main-card>
             </b-link>
         </div>
 
@@ -23,6 +23,7 @@ import mainCard from '@/components/MainCard.vue'
 import todoCard from '@/components/TodoCard.vue'
 import course from '@/api/course'
 import getColors from '@/javascripts/colors.js'
+/* import assignment from '@/api/assignment' */
 
 export default {
     name: 'Home',
@@ -62,6 +63,10 @@ export default {
             .then(response => { this.courses = response })
             .catch(_ => alert('Error while loading courses'))
             .then(_ => { this.colors = getColors(this.courses.length) })
+
+        /* assignment.get_upcoming_deadlines()
+           .then(response => { this.deadlines = response })
+           .catch(_ => alert('Error while loading deadlines')) */
     }
 }
 </script>

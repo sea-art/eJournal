@@ -60,15 +60,11 @@ class Command(BaseCommand):
             assignment = Assignment(name=a["name"])
             assignment.save()
             assignment.author = users[4]
+            assignment.deadline = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
             assignment.save()
             for course in a["courses"]:
                 assignment.courses.add(courses[course])
             assignments.append(assignment)
-
-        journals = []
-        for j in journal_examples:
-            journal = Journal(assignment=assignments[j["assigns"]], user=users[j["users"]])
-            journal.save()
 
     def gen_random_users(self, amount):
         """
@@ -134,6 +130,7 @@ class Command(BaseCommand):
             assignment = Assignment()
             assignment.save()
             assignment.name = faker.catch_phrase()
+            assignment.deadline = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
             assignment.author = User.objects.get(pk=1)
             assignment.description = faker.paragraph()
             courses = Course.objects.all()
@@ -149,13 +146,10 @@ class Command(BaseCommand):
         """
         Generate random journals.
         """
-        for _ in range(amount):
-            if Assignment.objects.all().count() == 0:
-                continue
-            journal = Journal()
-            journal.assignment = random.choice(Assignment.objects.all())
-            journal.user = random.choice(User.objects.all())
-            journal.save()
+        for assignment in Assignment.objects.all():
+            for user in User.objects.all():
+                journal = Journal(assignment=assignment, user=user)
+                journal.save()
 
     def gen_random_entries(self, amount):
         """

@@ -94,6 +94,7 @@ h5 {
 h6 {
     font-size: 20px;
     color: var(--theme-blue);
+    margin-bottom: 0px;
 }
 
 .button {
