@@ -6,13 +6,17 @@
     <content-columns>
         <bread-crumb :currentPage="$route.params.assignmentName" :course="$route.params.courseName" slot="main-content-column"></bread-crumb>
         <div v-for="journal in assignmentJournals" :key="journal.uid" slot="main-content-column">
-            <b-link tag="b-button" :to="{name: 'Journal', params: {student: journal.studentname,
-                                                          course: $route.params.course,
-                                                          assign: $route.params.assign,
-                                                          journal: journal.uid,
-                                                          courseName: $route.params.courseName,
-                                                          assignmentName: $route.params.assignmentName,
-                                                          journalName: journal.student}}">
+            <b-link tag="b-button" :to="{ name: 'Journal',
+                                          params: {
+                                              course: $route.params.course,
+                                              assign: $route.params.assign,
+                                              student: 'Rick',
+                                              color: $route.params.color,
+                                              courseName: $route.params.courseName,
+                                              assignmentName: $route.params.assignmentName,
+                                              journalName: journal.student
+                                          }
+                                        }">
                 <student-card
                     :student="journal.student"
                     :studentNumber="journal.studentNumber"
