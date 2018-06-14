@@ -3,9 +3,11 @@
         <b-col cols="3" class="left-content"></b-col>
         <b-col cols="6" class="main-content">
             <bread-crumb :currentPage="$route.params.course"></bread-crumb>
-            <b-link tag="b-button" :to="{ name: 'Assignment', params: {course: $route.params.course, assign: 1} }">
-                <main-card :line1="'Colloqiumlogboek'" :line2="'4/10'"></main-card>
-            </b-link>
+            <div v-for="(a, i) in assignments" :key="a.aID">
+                <b-link tag="b-button" :to="{name: 'Assignment', params: {course: a.aID[0], assign: a.aID}}">
+                    <main-card :line1="a.name" :color="colors[i]">hoi</main-card>
+                </b-link>
+            </div>
 
         </b-col>
         <b-col cols="3" class="right-content"></b-col>
@@ -16,12 +18,14 @@
 import breadCrumb from '@/components/BreadCrumb.vue'
 import mainCard from '@/components/MainCard.vue'
 import assignment from '@/api/assignment.js'
+import getColors from '@/javascripts/colors.js'
 
 export default {
     name: 'Course',
     data () {
         return {
-            assignments: []
+            assignments: [],
+            colors: []
         }
     },
     components: {
@@ -32,6 +36,7 @@ export default {
         assignment.get_course_assignments(this.$route.params.course)
             .then(response => { this.assignments = response })
             .catch(_ => alert('Error while loading assignments'))
+            .then(_ => {this.colors = getColors(this.assignments.length)})
     }
 }
 </script>

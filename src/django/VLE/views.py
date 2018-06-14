@@ -49,6 +49,7 @@ def get_course_assignments(request, cID):
             'name': str(assignment.name),
             'auth': str(assignment.author),
             'progress': str(0),
+            'aID': str(dec_to_hex(assignment.id))
         }
         response['assignments'].append(assignment_obj)
     return JsonResponse(response)
