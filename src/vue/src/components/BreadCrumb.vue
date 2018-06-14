@@ -6,25 +6,41 @@
             <b-breadcrumb v-else-if="$route.params.course != undefined" class="bread-crumb" :items="items.slice(0, 1).concat(' ')"/>
         </h4>
         <h1>
-            {{ currentPage }}
+            {{ currentPage }}<br/>
         </h1>
     </div>
 </template>
 
 <script>
 export default {
-    props: ['currentPage'],
+    props: ['currentPage', 'course'],
     data () {
         return {
             items: [{
                 text: 'Courses',
-                to: '/Home'
-            }, {
-                text: this.$route.params.course,
-                to: '/Home/' + this.$route.params.course
-            }, {
-                text: this.$route.params.assign,
-                to: '/Home/' + this.$route.params.course + '/' + this.$route.params.assign
+                to: {name: 'Home'}
+            },
+            {
+                text: this.course,
+                to: {
+                    name: 'Course',
+                    params: {
+                        course: this.$route.params.course,
+                        courseName: this.$route.params.courseName
+                    }
+                }
+            },
+            {
+                text: this.assign,
+                to: {
+                    name: 'Assignment',
+                    params: {
+                        course: this.$route.params.course,
+                        assign: this.$route.params.assign,
+                        courseName: this.$route.params.courseName,
+                        assignmentName: this.$route.params.assignmentName
+                    }
+                }
             }]
         }
     }

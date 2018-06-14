@@ -30,14 +30,27 @@ export default new Router({
     }, {
         path: '/Home/:course',
         name: 'Course',
-        component: Course
+        component: Course,
+        props: {
+            courseName: ''
+        }
     }, {
         path: '/Home/:course/:assign',
         name: 'Assignment',
-        component: Assignment
+        component: Assignment,
+        props: {
+            courseName: '',
+            assignmentName: ''
+        }
     }, {
         path: '/Home/:course/:assign/:student',
         name: 'journal',
-        component: Journal
+        component: Journal,
+        props: {
+            courseName: '',
+            assignmentName: '',
+            journalName: ''
+
+        }
     }]
 })

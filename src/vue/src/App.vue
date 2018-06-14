@@ -50,6 +50,16 @@ img {
     max-height: 100%;
 }
 
+#app {
+    overflow-x: hidden;
+    font-family: 'Roboto', sans-serif;
+    font-size: 20px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    padding-top: 70px;
+}
+
 h1 {
     font-weight: bold;
     font-size: 60px;
