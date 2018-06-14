@@ -41,12 +41,19 @@ export default {
                 date: new Date(),
                 id: 1
             }, {
+                type: 'add',
+                textbox1: 'Add',
+                textbox2: 'something',
+                text: '+',
+                date: '',
+                id: 2
+            }, {
                 type: 'progress',
                 textbox1: 'Jaar 1 Deadline',
                 textbox2: 'oh no',
                 text: '5',
                 date: new Date(),
-                id: 2
+                id: 3
             }]
         }
     },

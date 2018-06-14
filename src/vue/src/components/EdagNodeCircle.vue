@@ -4,8 +4,7 @@
 -->
 
 <template>
-    <div class="edag-node-circle d-flex align-items-center justify-content-center text-white" :class="classObject">
-        {{ this.text }}
+    <div class="edag-node-circle d-flex align-items-center justify-content-center text-white" :class="classObject" v-html="this.text">
     </div>
 </template>
 
@@ -17,6 +16,7 @@ export default {
             return {
                 'enc-entry': this.type === 'entry',
                 'enc-progress': this.type === 'progress',
+                'enc-add': this.type === 'add',
                 'enc-selected': this.selected
             }
         }
@@ -43,6 +43,16 @@ export default {
     height: 5em;
 }
 
+.edag-node-circle.enc-add {
+    width: 3em;
+    height: 3em;
+}
+
+.edag-node-circle.enc-selected.enc-add {
+    width: 4em;
+    height: 4em;
+}
+
 .edag-node-circle.enc-entry {
     background-color: var(--theme-medium-grey)
 }
@@ -65,5 +75,17 @@ export default {
 
 .edag-node-circle.enc-progress.enc-selected {
     background-color: var(--theme-red)
+}
+
+.edag-node-circle.enc-add {
+    background-color: lightGreen
+}
+
+.edag-node-circle.enc-add:hover {
+    background-color: green
+}
+
+.edag-node-circle.enc-add.enc-selected {
+    background-color: green
 }
 </style>
