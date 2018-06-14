@@ -1,8 +1,8 @@
 <template>
     <content-columns>
-        <bread-crumb :links="['test', 'test2']" :currentPage="'Courses'" slot="main-content-column"></bread-crumb>
+        <bread-crumb slot="main-content-column" :currentPage="'Courses'"></bread-crumb>
         <div v-for="(c, i) in courses" :key="c.cID" slot="main-content-column">
-            <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID, color: colors[i]}}">
+            <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID, courseName: c.name, color: colors[i]}}">
                 <main-card :line1="c.name" :line2="c.date" :color="colors[i]">hoi</main-card>
             </b-link>
         </div>

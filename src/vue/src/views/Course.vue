@@ -1,8 +1,16 @@
 <template>
     <content-columns>
-        <bread-crumb :currentPage="$route.params.course" slot="main-content-column"></bread-crumb>
+        {{  $route.params.courseName }}
+        <bread-crumb slot="main-content-column" :currentPage="$route.params.courseName"></bread-crumb>
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
-            <b-link tag="b-button" :to="{name: 'Assignment', params: {assign: a.aID}}" append>
+            <b-link tag="b-button" :to="{ name: 'Assignment',
+                                          params: {
+                                              course: $route.params.course,
+                                              assign: a.aID,
+                                              courseName: $route.params.courseName,
+                                              assignmentName: a.name
+                                          }
+                                        }">
                 <main-card :line1="a.name" :color="$route.params.color">
                     <b-progress :value="a.progress.acquired" :max="a.progress.total"/>
                 </main-card>
@@ -30,27 +38,9 @@ export default {
     name: 'Course',
     data () {
         return {
-            colors: [],
             assignments: [],
-            deadlines: [{
-                name: 'Individueel logboek',
-                course: 'WEDA',
-                cID: ['2017WDB'],
-                dID: '2017IL1',
-                datetime: '8-6-2018 13:00'
-            }, {
-                name: 'Logboek academia',
-                course: 'AVI2',
-                cID: ['2017AVI2'],
-                dID: '2017LA',
-                datetime: '8-6-2018 13:00'
-            }, {
-                name: 'Individueel logboek',
-                course: 'AVI1, AVI2',
-                cID: ['2017AVI1', '2017AVI2'],
-                dID: '2017IL2',
-                datetime: '8-6-2018 13:00'
-            }]
+            post: null,
+            error: null
         }
     },
     components: {

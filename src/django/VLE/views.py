@@ -44,6 +44,10 @@ def get_course_assignments(request, cID):
     if not request.user.is_authenticated:
         return JsonResponse({'error': '401 Authentication Error'}, status=401)
 
+    # TODO:
+    # TODO:
+    # TODO:
+    """
     if request.user.group == 'TE':
         response = {'result': 'success', 'assignments': []}
         # TODO: check permission
@@ -58,22 +62,23 @@ def get_course_assignments(request, cID):
             response['assignments'].append(assignment_obj)
         return JsonResponse(response)
     else:
-        response = {'result': 'success', 'assignments': []}
+    """
+    response = {'result': 'success', 'assignments': []}
 
-        course = Course.objects.get(pk=hex_to_dec(cID))
-        assignments = Assignment.objects.get_queryset().filter(courses=course)
-        for assignment in assignments:
-            journal = Journal.objects.get(assignment=assignment, user=request.user)
+    course = Course.objects.get(pk=hex_to_dec(cID))
+    assignments = Assignment.objects.get_queryset().filter(courses=course)
+    for assignment in assignments:
+        journal = Journal.objects.get(assignment=assignment, user=request.user)
 
-            journal_obj = {
-                'aID': dec_to_hex(assignment.pk),
-                'name': assignment.name,
-                'progress': {'acquired': 3, 'total': 10},
-                'stats': {'graded': 1, 'total': 1},
-                'jID': dec_to_hex(journal.id)
-            }
-            response['assignments'].append(journal_obj)
-        return JsonResponse(response)
+        journal_obj = {
+            'aID': dec_to_hex(assignment.pk),
+            'name': assignment.name,
+            'progress': {'acquired': 3, 'total': 10},
+            'stats': {'graded': 1, 'total': 1},
+            'jID': dec_to_hex(journal.id)
+        }
+        response['assignments'].append(journal_obj)
+    return JsonResponse(response)
 
 
 @api_view(['GET'])

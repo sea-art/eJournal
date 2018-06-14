@@ -31,16 +31,29 @@ export default new Router({
         path: '/Home/:course',
         name: 'Course',
         component: Course,
-        props: {color: ''}
+        props: {
+            courseName: '',
+            color: ''
+        }
     }, {
         path: '/Home/:course/:assign',
         name: 'Assignment',
         component: Assignment,
-        props: {color: ''}
+        props: {
+            color: '',
+            courseName: '',
+            assignmentName: ''
+        }
     }, {
         path: '/Home/:course/:assign/:student',
         name: 'journal',
         component: Journal,
-        props: {color: ''}
+        props: {
+            color: '',
+            courseName: '',
+            assignmentName: '',
+            journalName: ''
+
+        }
     }]
 })
