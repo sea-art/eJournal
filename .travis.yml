@@ -4,7 +4,6 @@ python:
 sudo: enabled
 install:
   - make setup
-  - make migrate-back
 script: make test
 branches:
   only:
