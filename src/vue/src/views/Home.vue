@@ -23,6 +23,7 @@ import mainCard from '@/components/MainCard.vue'
 import todoCard from '@/components/TodoCard.vue'
 import course from '@/api/course'
 import getColors from '@/javascripts/colors.js'
+import assignment from '@/api/assignment'
 
 export default {
     name: 'Home',
@@ -62,6 +63,10 @@ export default {
             .then(response => { this.courses = response })
             .catch(_ => alert('Error while loading courses'))
             .then(_ => {this.colors = getColors(this.courses.length)})
+            
+        assignment.get_upcoming_deadlines()
+            .then(response => { this.deadlines = response })
+            .catch(_ => alert('Error while loading deadlines'))
     }
 }
 </script>
