@@ -1,8 +1,9 @@
 <template>
     <b-row no-gutters>
-        <b-col cols="3" class="left-content"></b-col>
-        <b-col cols="6" class="main-content">
+        <b-col lg="3" order="3" order-lg="1" class="left-content d-none d-lg-block"></b-col>
+        <b-col md="12" lg="6" order="2" class="main-content">
             <bread-crumb :currentPage="$route.params.course"></bread-crumb>
+
             <div v-for="(a, i) in assignments" :key="a.aID">
                 <b-link tag="b-button" :to="{name: 'Assignment', params: {assign: a.aID}}" append>
                     <main-card :line1="a.name" :color="$route.params.color">
@@ -11,7 +12,16 @@
                 </b-link>
             </div>
         </b-col>
-        <b-col cols="3" class="right-content"></b-col>
+        <b-col md="12" lg="3" order="1" order-lg="3">
+            <div class="right-content">
+                <h3>Upcoming</h3>
+                <!-- <div v-for="(d, i) in deadlines" :key="d.dID">
+                    <b-link tag="b-button" :to="{name: 'Assignment', params: {course: d.cID[0], assign: d.dID}}">
+                        <todo-card :line0="d.datetime" :line1="d.name" :line2="d.course" :color="colors[i]">hoi</todo-card>
+                    </b-link>
+                </div> -->
+            </div>
+        </b-col>
     </b-row>
 </template>
 
