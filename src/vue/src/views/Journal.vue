@@ -2,7 +2,7 @@
     <div>
         <b-row>
             <b-col cols="3" class="left-content">
-                  <edag @select-node="variable = $event" :selected="variable" :nodes="nodes"></edag>
+                  <edag @select-node="selectNode" :selected="variable" :nodes="nodes"></edag>
             </b-col>
             <b-col cols="6" class="main-content">
                 <h1>path enzo</h1>
@@ -10,9 +10,9 @@
                     Fill in the template using the corresponding data
                     of the entry
                 . -->
-                <entry-template @edit-data="adaptData" :textbox1="nodes[variable].textbox1"
+                <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[variable].textbox1"
                 :textbox2="nodes[variable].textbox2"
-                :deadline="nodes[variable].deadline">  </entry-template>
+                :deadline="nodes[variable].deadline"> </entry-template>
             </b-col>
             <b-col cols="3" class="right-content"></b-col>
         </b-row>
@@ -62,6 +62,15 @@ export default {
         adaptData (editedData) {
             this.nodes[this.variable].textbox1 = editedData[0],
             this.nodes[this.variable].textbox2 = editedData[1]
+        },
+        selectNode ($event) {
+            if (this.$refs['entry-template-card'].save === 'Save') {
+                if (!confirm('Are you sure you wish to leave? Progress will not be saved.')) {
+                    return
+                }
+            }
+            this.$refs['entry-template-card'].cancel()
+            this.variable = $event
         }
     },
 
