@@ -60,6 +60,7 @@ def get_teacher_course_assignments(user, cID):
             'aID': dec_to_hex(assignment.id),
             'name': str(assignment),
             'auth': str(assignment.author),
+            'description': str(assignment.description),
             'progress': {'acquired': randint(0, 10), 'total': 10}  # TODO: Change random to real progress
         })
 
@@ -76,8 +77,6 @@ def get_student_course_assignments(user, cID):
     Returns a json string with the assignments for the requested user
     """
     # TODO: check permission
-
-    course = Course.objects.get(pk=hex_to_dec(cID))
     assignments = []
     for assignment in Assignment.objects.get_queryset().filter(courses=course):
         journal = Journal.objects.get(assignment=assignment, user=request.user)
@@ -86,6 +85,7 @@ def get_student_course_assignments(user, cID):
             'name': assignment.name,
             'progress': {'acquired': randint(0, 10), 'total': 10},  # TODO: Change random to real progress
             'stats': {'graded': 1, 'total': 1},
+            'description': str(assignment.description),
             'jID': dec_to_hex(journal.id)
         })
 
@@ -107,7 +107,10 @@ def get_course_assignments(request, cID):
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     # TODO: Chech which type is needs to get back
-    return JsonResponse({'result': 'success', 'assignments': get_teacher_course_assignments(user, cID)})
+    return JsonResponse({
+        'result': 'success',
+        'assignments': get_teacher_course_assignments(user, cID)
+    })
 
 
 @api_view(['GET'])
