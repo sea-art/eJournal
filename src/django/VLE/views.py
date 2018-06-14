@@ -32,7 +32,7 @@ def get_user_courses(request):
     courses = []
     for course in user.participations.all():
         courses.append({
-            'name': course.name,
+            'name': str(course),
             'auth': str(course.author),
             'date': course.startdate,
             'abbr': course.abbreviation,

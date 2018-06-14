@@ -22,8 +22,8 @@ class Command(BaseCommand):
             {"username": "Maarten", "type": "SU"}
         ]
         courses_examples = [
-            {"name": "Portofolio Academische Vaardigheden 1", "abbr": "PAV"},
-            {"name": "Portofolio Academische Vaardigheden 2", "abbr": "PAV"},
+            {"name": "Portfolio Academische Vaardigheden 1", "abbr": "PAV"},
+            {"name": "Portfolio Academische Vaardigheden 2", "abbr": "PAV"},
             {"name": "Beeldbewerken", "abbr": "BB"},
             {"name": "Automaten en Formele Talen", "abbr": "AFT"}
         ]
