@@ -138,7 +138,6 @@ def get_assignment_journals(request, aID):
             'uID': dec_to_hex(journal.id)
         })
 
-
     return JsonResponse({'result': 'success', 'journals': journals})
 
 
