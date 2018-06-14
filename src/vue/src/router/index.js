@@ -53,7 +53,6 @@ export default new Router({
             courseName: '',
             assignmentName: '',
             journalName: ''
-
         }
     }]
 })
