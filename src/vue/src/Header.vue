@@ -25,6 +25,9 @@
         <b-collapse v-else is-nav id="nav_collapse">
             <b-navbar-nav class="ml-auto">
                 <login-inline></login-inline>
+                <b-nav-item-dropdown no-caret right>
+                    <img id="nav-profile-image" slot="button-content" src="./assets/unknown-profile.png">
+                </b-nav-item-dropdown>
             </b-navbar-nav>
         </b-collapse>
 
@@ -50,12 +53,13 @@ export default {
 
 .brand-name {
     font-weight: bold;
-    font-size: 30px;
+    font-size: 25px;
 }
 
 #nav-profile-image{
-    width: 100%;
-    max-width: 60px;
+    width: 50px;
+    height: 50px;
     border-radius: 50% !important;
+    margin-left: 20px;
 }
 </style>
