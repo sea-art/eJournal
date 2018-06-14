@@ -21,7 +21,7 @@ export default {
     components: {
         'profile-data': profileData,
         'notification-card': notificationCard,
-        // 'password-card': passwordCard
+        'password-card': passwordCard
     }
 }
 </script>
@@ -48,8 +48,21 @@ h8 {
     font-weight: bold;
     margin-bottom: 0px;
 }
-p.profile {
-    font-size: 18px;
+p.profile-data {
+    font-size: 15px;
     line-height: 10px;
+    margin-bottom: 10px;
+}
+
+p.profile-notification {
+    font-size: 20px;
+    line-height: 15px;
+    margin-bottom: 28px;
+}
+
+p.profile-password {
+    font-size: 20px;
+    line-height: 15px;
+    margin-bottom: 28px;
 }
 </style>

@@ -2,8 +2,16 @@
     <b-row no-gutters>
         <b-col cols="3" class="left-content"></b-col>
         <b-col cols="6" class="main-content">
-            <bread-crumb :currentPage="$route.params.course"></bread-crumb>
-            <b-link tag="b-button" :to="{ name: 'Assignment', params: {course: $route.params.course, assign: 1} }">
+            <bread-crumb :currentPage="$route.params.courseName"></bread-crumb>
+            <!-- {{$route.params.courseName}} -->
+            <b-link tag="b-button" :to="{ name: 'Assignment',
+                                          params: {
+                                              course: $route.params.course,
+                                              assign: 1,
+                                              courseName: $route.params.courseName,
+                                              assignmentName: assignments[0].name
+                                          }
+                                        }">
                 <main-card :line1="'Colloqiumlogboek'" :line2="'4/10'"></main-card>
             </b-link>
 
@@ -21,7 +29,9 @@ export default {
     name: 'Course',
     data () {
         return {
-            assignments: []
+            assignments: [],
+            post: null,
+            error: null
         }
     },
     components: {
@@ -33,5 +43,23 @@ export default {
             .then(response => { this.assignments = response })
             .catch(_ => alert('Error while loading assignments'))
     }
+    // beforeRouteEnter (to, from, next) {
+    //     this.post = 'before'
+    // },
+    // // when route changes and this component is already rendered,
+    // // the logic will be slightly different.
+    // beforeRouteUpdate (to, from, next) {
+    //     this.post = null
+    //     this.post = 'update'
+    // },
+    // methods: {
+    //     setData (err, post) {
+    //         if (err) {
+    //             this.error = err.toString()
+    //         } else {
+    //             this.post = post
+    //         }
+    //     }
+    // }
 }
 </script>
