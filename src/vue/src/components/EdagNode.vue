@@ -16,7 +16,7 @@
                 <div style="width: 0.5em; height: 3em; background-color: var(--theme-light-grey)" :style="upperEdgeStyle"/> <!-- grey line -->
                 <div style="width: 0.5em; height: 3em; background-color: var(--theme-light-grey)" :style="lowerEdgeStyle"/> <!-- grey line -->
             </div>
-            <edag-node-circle @click.native="$emit('select-node', node.id)" style="position: absolute" :type="node.type" :text="node.text" :selected="selected"></edag-node-circle>
+            <edag-node-circle @click.native="$emit('select-node', index)" style="position: absolute" :type="node.type" :text="node.text" :selected="selected"></edag-node-circle>
         </b-col>
     </b-row>
 </template>
@@ -26,7 +26,7 @@ import edagNodeCircle from '@/components/EdagNodeCircle.vue'
 import edagNodeDate from '@/components/EdagNodeDate.vue'
 
 export default {
-    props: ['node', 'selected', 'upperEdgeStyle', 'lowerEdgeStyle'],
+    props: ['node', 'selected', 'upperEdgeStyle', 'lowerEdgeStyle', 'index'],
     components: {
         'edag-node-date': edagNodeDate,
         'edag-node-circle': edagNodeCircle

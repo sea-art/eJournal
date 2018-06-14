@@ -40,7 +40,7 @@
 <template>
     <div class="scrollbar-parent-div">
         <div id="edag-div" class="scrollbar-child-div" ref="scd" :style="styleObject">
-            <edag-node v-for="(node, index) in this.nodes" @select-node="$emit('select-node', $event)" :node="node" :selected="isSelected(node.id)" :key="node.id" :upperEdgeStyle="upperEdgeStyle(index)" :lowerEdgeStyle="lowerEdgeStyle(index)"/>
+            <edag-node v-for="(node, index) in this.nodes" @select-node="$emit('select-node', $event)" :index="index" :node="node" :selected="isSelected(index)" :key="node.id" :upperEdgeStyle="upperEdgeStyle(index)" :lowerEdgeStyle="lowerEdgeStyle(index)"/>
         </div>
     </div>
 </template>
