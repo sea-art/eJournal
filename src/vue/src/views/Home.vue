@@ -6,7 +6,7 @@
 
             <div v-for="c in courses" :key="c.cID">
                 <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID}}">
-                    <main-card :line1="c.name" :line2="c.date" :color="set_color()">{{ c.cID }}</main-card>
+                    <main-card :line1="c.name" :line2="'2018 - 2019'" :color="set_color()">{{ c.cID }}</main-card>
                 </b-link>
             </div>
         </b-col>
@@ -28,6 +28,7 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 import mainCard from '@/components/MainCard.vue'
 import todoCard from '@/components/TodoCard.vue'
 import course from '@/api/course'
+import assignment from '@/api/assignment'
 
 export default {
     name: 'Home',
@@ -37,25 +38,7 @@ export default {
             colors: ['pink-border', 'peach-border', 'blue-border'],
             color_idx: -1,
             courses: [],
-            deadlines: [{
-                name: 'Individueel logboek',
-                course: 'WEDA',
-                cID: ['2017WDB'],
-                dID: '2017IL1',
-                datetime: '8-6-2018 13:00'
-            }, {
-                name: 'Logboek academia',
-                course: 'AVI2',
-                cID: ['2017AVI2'],
-                dID: '2017LA',
-                datetime: '8-6-2018 13:00'
-            }, {
-                name: 'Individueel logboek',
-                course: 'AVI1, AVI2',
-                cID: ['2017AVI1', '2017AVI2'],
-                dID: '2017IL2',
-                datetime: '8-6-2018 13:00'
-            }]
+            deadlines: []
         }
     },
     methods: {
@@ -73,6 +56,9 @@ export default {
         course.get_user_courses()
             .then(response => { this.courses = response })
             .catch(_ => alert('Error while loading courses'))
+        assignment.get_upcoming_deadlines()
+            .then(response => { this.deadlines = response })
+            .catch(_ => alert('Error while loading deadlines'))
     }
 }
 </script>

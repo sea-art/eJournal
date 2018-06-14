@@ -84,6 +84,9 @@ class Assignment(models.Model):
     - course: a foreign key linked to a course.
     """
     name = models.TextField()
+    deadline = models.DateTimeField(
+        auto_now_add=True
+    )
     description = models.TextField(
         null=True,
     )
@@ -115,6 +118,13 @@ class Journal(models.Model):
 
     def __str__(self):
         return self.assignment.name + " from " + self.user.username
+
+    class Meta:
+        """
+        A class for meta data.
+        - unique_together: assignment and user must be unique together.
+        """
+        unique_together = ('assignment', 'user',)
 
 
 class Entry(models.Model):
