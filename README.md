@@ -53,7 +53,7 @@ Feature:
 Program the feature and test if everything works.  
 Add and commit.  
 Merge with the latest develop branch. (`git pull origin develop`)  
-`git push origin feature/name`
+`git push origin feature/name`  
 Start a pull request (on github.com).  
 Wait for Travis to finish testing, and let a fellow developer review and approve your code.
 
