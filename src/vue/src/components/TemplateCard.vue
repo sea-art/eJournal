@@ -7,7 +7,7 @@
                     <b-card class="card main-card" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
-                                Onderwerp: <input v-model="tempbox1"><br>
+                                Subject: <input v-model="tempbox1"><br>
                                 Deadline: {{ date }}
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12">
@@ -17,7 +17,7 @@
                         <b-row>
                             <br><br><br>
                             <b-col id="main-card-left-column" cols="12" lg-cols="12">
-                                Beschrijving: <br>
+                                Description: <br>
                                 <input v-model="tempbox2"><br>
                                 <button @click="saveEdit">{{ save }} </button>
                                 <button @click="cancel">Cancel</button>
