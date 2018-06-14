@@ -90,6 +90,7 @@ export default {
     width: 100%;
     height: 99%;
     overflow: auto;
+    overflow-x: hidden;
     padding-right: 0px; /* exact value is given in JavaScript code */
     box-sizing: content-box;
 }

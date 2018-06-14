@@ -7,20 +7,20 @@
                     <b-card class="card main-card" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
-                                Subject: <input v-model="tempbox1"><br>
+                                Subject: <b-textarea v-model="tempbox1"></b-textarea><br>
                                 Deadline: {{ date }}
                             </b-col>
-                            <b-col id="main-card-right-column" cols="3" lg-cols="12">
+                            <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
                                 Needs grading
                             </b-col>
                         </b-row>
                         <b-row>
-                            <br><br><br>
                             <b-col id="main-card-left-column" cols="12" lg-cols="12">
+                                <br>
                                 Description: <br>
-                                <input v-model="tempbox2"><br>
-                                <button @click="saveEdit">{{ save }} </button>
-                                <button @click="cancel">Cancel</button>
+                                <b-textarea v-model="tempbox2"></b-textarea><br><br>
+                                <b-button @click="saveEdit">{{ save }} </b-button>
+                                <b-button @click="cancel">Cancel</b-button>
                             </b-col>
                         </b-row>
                     </b-card>
@@ -30,8 +30,8 @@
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>{{ textbox1 }}</h2>
-                                {{ textbox2 }}<br>
-                                <button @click="saveEdit">{{ save }} </button>
+                                {{ textbox2 }}<br><br>
+                                <b-button @click="saveEdit">{{ save }} </b-button>
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12">
                                 Needs grading
@@ -81,6 +81,6 @@ export default {
 
 <style>
 .card:hover {
-    background-color: white;
+    background-color: var(--theme-light-grey);
 }
 </style>

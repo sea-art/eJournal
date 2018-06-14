@@ -1,7 +1,8 @@
 <template>
     <div>
         <h4>
-            <b-breadcrumb v-if="$route.params.assign != undefined" class="bread-crumb" :items="items.concat(' ')"/>
+            <b-breadcrumb v-if="$route.params.student != undefined" class="bread-crumb" :items="items.concat(' ')"/>
+            <b-breadcrumb v-else-if="$route.params.assign != undefined" class="bread-crumb" :items="items.slice(0, 2).concat(' ')"/>
             <b-breadcrumb v-else-if="$route.params.course != undefined" class="bread-crumb" :items="items.slice(0, 1).concat(' ')"/>
         </h4>
         <h1>
@@ -21,6 +22,9 @@ export default {
             }, {
                 text: this.$route.params.course,
                 to: '/Home/' + this.$route.params.course
+            }, {
+                text: this.$route.params.assign,
+                to: '/Home/' + this.$route.params.course + '/' + this.$route.params.assign
             }]
         }
     }
