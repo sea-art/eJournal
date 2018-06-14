@@ -58,7 +58,7 @@ def get_course_assignments(request, cID):
 @api_view(['GET'])
 def get_assignment_journals(request, aID):
     """
-    Get the journals of one assignment.
+    Get the journals of one assignment. (As teacher)
     """
     if not request.user.is_authenticated:
         return JsonResponse({'error': '401 Authentication Error'}, status=401)
@@ -74,6 +74,30 @@ def get_assignment_journals(request, aID):
             'studentPortraitPath': str('../assets/logo.png'),
             'entrieStats': {'graded': 1, 'total': 1},
             'uid': dec_to_hex(journal.id)
+        }
+        response['journals'].append(journal_obj)
+    return JsonResponse(response)
+
+@api_view(['GET'])
+def get_student_course_journals(request, cID):
+    """
+    Get the student's journals of a given course.
+    """
+    if not request.user.is_authenticated:
+       return JsonResponse({'error': '401 Authentication Error'}, status=401)
+
+    response = {'result': 'success', 'journals': []}
+
+    course = Course.objects.get(pk=hex_to_dec(cID))
+    assignments = Assignment.objects.find(course=course)
+    for assignment in assignments.all():
+        journal = Journal.objects.get(assignment=assignment, user=request.user)
+        journal_obj = {
+            'aID': dec_to_hex(assignment.pk)
+            'assignmentName': assignment.name
+            'progress': {'acquired': 10, 'total': 10},
+            'stats': {'graded': 1, 'total': 1},
+            'jID': dec_to_hex(journal.id)
         }
         response['journals'].append(journal_obj)
     return JsonResponse(response)
