@@ -1,5 +1,5 @@
 <template>
-    <div class="checkbox-slider">
+    <div class="checkgitbox-slider">
         <input type="checkbox" v-model="checked" @change="onChange" id="checkbox">
         <label for="checkbox" class="slider"></label>
         <label for="checkbox"><slot></slot></label>

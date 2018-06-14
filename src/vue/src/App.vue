@@ -29,6 +29,15 @@ export default {
     --theme-medium-grey: #DEDEDE;
 }
 
+#app {
+    overflow-x: hidden;
+    font-family: 'Roboto', sans-serif;
+    font-size: 20px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+}
+
 * {
     border-radius: 0px !important;
     text-decoration: none !important;
@@ -48,12 +57,8 @@ img {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
-}
-
-body {
     padding-top: 70px;
 }
-
 
 h1 {
     font-weight: bold;
@@ -85,11 +90,13 @@ h4 {
 
 h5 {
     font-size: 30px;
+    margin-bottom: 0px;
 }
 
 h6 {
     font-size: 20px;
     color: var(--theme-blue);
+    margin-bottom: 0px;
 }
 
 .button {
@@ -106,12 +113,29 @@ h6 {
 }
 
 .right-content {
-
+    padding-top: 30px;
+    padding-left: 30px;
+    padding-right: 30px;
 }
 
-.portrait-container {
-    height: 100px;
-    width: 100px;
+.card {
+    margin-bottom: 8px;
+    text-align: left;
+    background-color: var(--theme-light-grey);
+    border-width: 0px;
+    border-left-width: 20px;
+    border-radius: 0px;
+}
+
+.card-body {
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+}
+
+.card:hover {
+    background-color: var(--theme-dark-grey);
 }
 
 .card.pink-border {
@@ -126,11 +150,8 @@ h6 {
     border-left-color: var(--theme-blue);
 }
 
-.card:hover {
-    background-color: var(--theme-dark-grey);
-}
-
-.card:hover {
-    background-color: var(--theme-dark-grey);
+.portrait-container {
+    height: 100px;
+    width: 100px;
 }
 </style>

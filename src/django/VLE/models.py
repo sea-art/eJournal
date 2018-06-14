@@ -1,21 +1,9 @@
 # Database file
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.contrib.auth.models import AbstractUser
 
 
-class UserManager(BaseUserManager):
-    def create_user(self, username, password=None):
-        user = User(username=username)
-        user.set_password(password)
-        user.save()
-
-    def create_superuser(self, username, password):
-        user = User(username=username)
-        user.set_password(password)
-        user.save()
-
-
-class User(AbstractBaseUser):
+class User(AbstractUser):
     """
     User is an entity in the database with the following features:
     - group: the group determines the permissions on the application.
@@ -25,9 +13,6 @@ class User(AbstractBaseUser):
     - education: the education institute of the userself.
     - lti_id: the DLO id of the user.
     """
-    USERNAME_FIELD = 'username'
-    objects = UserManager()
-
     SUPERUSER = 'SU'
     EXAMINATOR = 'EX'
     TEACHER = 'TE'
@@ -45,12 +30,9 @@ class User(AbstractBaseUser):
         choices=USER_TYPES,
         default=STUDENT,
     )
-    email = models.TextField(
-        unique=True,
+    email = models.EmailField(
         null=True,
-    )
-    username = models.TextField(
-        unique=True,
+        blank=True
     )
     education = models.TextField(
         null=True,
@@ -80,6 +62,7 @@ class Course(models.Model):
     """
     name = models.TextField()
     authors = models.ManyToManyField(User, related_name="authors")
+    participants = models.ManyToManyField(User, related_name="participant")
     TAs = models.ManyToManyField(User, related_name="TAs")
     abbreviation = models.TextField(
         max_length=4,
@@ -103,6 +86,11 @@ class Assignment(models.Model):
     name = models.TextField()
     description = models.TextField(
         null=True,
+    )
+    author = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+        null=True
     )
     courses = models.ManyToManyField(Course)
 
@@ -143,7 +131,12 @@ class Entry(models.Model):
     datetime = models.DateTimeField(
         auto_now_add=True
     )
-    late = models.BooleanField()
+    late = models.BooleanField(
+        default=False
+    )
+    graded = models.BooleanField(
+        default=False
+    )
 
     def __str__(self):
         return str(self.pk)
