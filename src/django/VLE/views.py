@@ -17,14 +17,16 @@ def get_user_courses(request):
     """
     Returns the courses for an user.
     """
-    if not request.user.is_authenticated:
+    user = request.user
+
+    if not user.is_authenticated:
         return JsonResponse({'error': '401 Authentication Error'}, status=401)
 
     response = {'result': 'success', 'courses': []}
-    for course in request.user.participant.all():
+    for course in user.participations.all():
         course_obj = {
             'name': str(course.name),
-            'auth': str(course.authors),
+            'auth': str(course.author),
             'date': str(course.startdate),
             'abbr': str(course.abbreviation),
             'cID': str(dec_to_hex(course.id))

@@ -8,13 +8,13 @@ class DataBaseTests(TestCase):
         """
         Testing the foreign keys in de database.
         """
-        user_test = User(group='SD', email='lers@uva.nl', username='lers',
-                         password='lers123', education='uva', lti_id='1')
+        user_test = User(email='lers@uva.nl', username='lers',
+                         password='lers123', lti_id='a')
         course_test = Course(name='tname', abbreviation='XXXX',
                              startdate=datetime.date.today())
         user_test.save()
         course_test.save()
-        course_test.authors.add(user_test)
+        course_test.author = user_test
         ass_test = Assignment(name='tcolloq', description='description')
         ass_test.save()
         ass_test.courses.add(course_test)
@@ -27,4 +27,4 @@ class DataBaseTests(TestCase):
         self.assertEquals(entr_test.journal.pk, journ_test.pk)
         self.assertEquals(journ_test.user.pk, user_test.pk)
         self.assertEquals(journ_test.assignment.pk, ass_test.pk)
-        self.assertEquals(course_test.authors.all()[0].pk, user_test.pk)
+        self.assertEquals(course_test.author.pk, user_test.pk)
