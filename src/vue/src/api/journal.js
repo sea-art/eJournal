@@ -6,7 +6,7 @@ export default {
      * returns a list of all journals.
      */
     get_assignment_journals (cID) {
-        return auth.authenticated_get('/get_assignment_journals/' + cID + '/')
+        return auth.authenticatedGet('/get_assignment_journals/' + cID + '/')
             .then(response => response.data.journals)
             .catch(error => { throw error })
     }
