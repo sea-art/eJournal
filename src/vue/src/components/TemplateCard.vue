@@ -40,13 +40,13 @@ export default {
                 this.tempProps = [this.tempbox1, this.tempbox2]
                 this.$emit('edit-data', this.tempProps)
             } else {
+                this.tempbox1 = this.textbox1
+                this.tempbox2 = this.textbox2
                 this.save = "Save"
             }
         },
 
         cancel: function () {
-            this.tempbox1 = this.textbox1
-            this.tempbox2 = this.textbox2
             this.save = "Edit"
         }
     }
