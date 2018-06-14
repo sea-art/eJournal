@@ -10,9 +10,6 @@
                 <p class="profile-password">Repeat new password</p>
             </b-col>
             <b-col class="notification-body" cols="3">
-                <password-field></password-field>
-                <password-field></password-field>
-                <password-field></password-field>
             </b-col>
             <b-col cols="6"></b-col>
         </b-row>
@@ -20,12 +17,7 @@
 </template>
 
 <script>
-import PasswordField from '@/components/passwordComponent.vue'
-
 export default {
-    components: {
-        'password-field': PasswordField
-    },
     data () {
         return {
             checkbox: false

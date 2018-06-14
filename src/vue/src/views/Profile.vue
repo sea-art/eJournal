@@ -8,10 +8,6 @@
             <profile-card :name="profile[0].name"
                           :email="profile[0].email"
                           :id="profile[0].id">
-                          <!-- :image="'../assets/ohno.jpeg'"> -->
-                          <!-- :image="profile[0].image"> -->
-
-                <!-- <img src="../assets/ohno.jpeg"> -->
             </profile-card>
         </b-col>
 

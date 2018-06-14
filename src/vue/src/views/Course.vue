@@ -43,23 +43,5 @@ export default {
             .then(response => { this.assignments = response })
             .catch(_ => alert('Error while loading assignments'))
     }
-    // beforeRouteEnter (to, from, next) {
-    //     this.post = 'before'
-    // },
-    // // when route changes and this component is already rendered,
-    // // the logic will be slightly different.
-    // beforeRouteUpdate (to, from, next) {
-    //     this.post = null
-    //     this.post = 'update'
-    // },
-    // methods: {
-    //     setData (err, post) {
-    //         if (err) {
-    //             this.error = err.toString()
-    //         } else {
-    //             this.post = post
-    //         }
-    //     }
-    // }
 }
 </script>

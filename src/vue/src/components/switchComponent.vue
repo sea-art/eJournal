@@ -32,7 +32,9 @@ export default {
     height: 26px;
 }
 
-.switch input {display:none;}
+.switch input {
+    display:none;
+}
 
 .slider {
     position: absolute;
@@ -58,9 +60,13 @@ export default {
     transition: .4s;
 }
 
-input:checked + .slider {background-color: var(--theme-blue);}
+input:checked + .slider {
+    background-color: var(--theme-blue);
+}
 
-input:focus + .slider {box-shadow: 0 0 1px #2196F3;}
+input:focus + .slider {
+    box-shadow: 0 0 1px #2196F3;
+}
 
 input:checked + .slider:before {
     -webkit-transform: translateX(21px);

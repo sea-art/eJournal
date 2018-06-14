@@ -3,7 +3,6 @@
         <profile-data :name="name"
                       :email="email"
                       :id="id">
-                      <!-- :image="image"> -->
         </profile-data>
 
         <notification-card></notification-card>

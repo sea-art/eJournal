@@ -1,7 +1,6 @@
 <template>
     <b-row>
         <b-col cols="2">
-            <!-- <img src={{ image }}> -->
             <img src='../assets/ohno.jpeg'>
         </b-col>
         <b-col cols="5">
