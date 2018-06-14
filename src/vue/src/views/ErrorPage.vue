@@ -9,7 +9,6 @@
 <script>
 import contentColumns from '@/components/ContentColumns.vue'
 
-
 export default {
     name: 'Error',
     components: {
