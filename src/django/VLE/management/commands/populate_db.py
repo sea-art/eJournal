@@ -48,6 +48,9 @@ class Command(BaseCommand):
         for c in courses_examples:
             course = Course(name=c["name"], abbreviation=c["abbr"])
             course.save()
+            course.participants.add(users[0])
+            course.participants.add(users[1])
+            course.participants.add(users[2])
             course.authors.add(users[2])
             course.authors.add(users[3])
             courses.append(course)
