@@ -1,28 +1,53 @@
 <!-- Example of a simple template. -->
 <template>
-    <b-card class="entry-template">
+    <div class="entry-template">
         <b-row>
             <b-col id="main-card-left-column" cols="12">
                 <div v-if="save == 'Save'">
-                    edit modus<br>
-                    <input v-model="tempbox1"><br>
-                    <input v-model="tempbox2">
+                    <b-card class="card main-card" :class="'pink-border'">
+                        <b-row>
+                            <b-col id="main-card-left-column" cols="9" lg-cols="12">
+                                Onderwerp: <input v-model="tempbox1"><br>
+                                Deadline: {{ date }}
+                            </b-col>
+                            <b-col id="main-card-right-column" cols="3" lg-cols="12">
+                                Needs grading
+                            </b-col>
+                        </b-row>
+                        <b-row>
+                            <br><br><br>
+                            <b-col id="main-card-left-column" cols="12" lg-cols="12">
+                                Beschrijving: <br>
+                                <input v-model="tempbox2"><br>
+                                <button @click="saveEdit">{{ save }} </button>
+                                <button @click="cancel">Cancel</button>
+                            </b-col>
+                        </b-row>
+                    </b-card>
                 </div>
                 <div v-else>
-                    <h3>{{ textbox1 }}</h3>
-                    <p>{{ textbox2 }}</p><br>
+                    <b-card class="card main-card" :class="'pink-border'">
+                        <b-row>
+                            <b-col id="main-card-left-column" cols="9" lg-cols="12">
+                                <h2>{{ textbox1 }}</h2>
+                                {{ textbox2 }}<br>
+                                <button @click="saveEdit">{{ save }} </button>
+                            </b-col>
+                            <b-col id="main-card-right-column" cols="3" lg-cols="12">
+                                Needs grading
+                            </b-col>
+                        </b-row>
+                    </b-card>
                 </div>
-                <button @click="saveEdit">{{ save }} </button>
-                <button @click="cancel">Cancel</button>
             </b-col>
         </b-row>
-    </b-card>
+    </div>
 </template>
 
 <script>
 export default {
     /* Variables that are needed to fill in the template. */
-    props: ['textbox1', 'textbox2', 'date'],
+    props: ['textbox1', 'textbox2', 'date', 'color'],
 
     data () {
         return {
@@ -55,7 +80,7 @@ export default {
 </script>
 
 <style>
-.entry-template {
-    background-color: var(--theme-light-grey);
+.card:hover {
+    background-color: white;
 }
 </style>
