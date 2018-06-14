@@ -68,7 +68,7 @@ export default {
             if ($event === this.variable) {
                 return
             }
-            if (this.$refs['entry-template-card'].save === 'Save') {
+            if (this.$refs['entry-template-card'] && this.$refs['entry-template-card'].save === 'Save') {
                 if (!confirm('Oh no! Progress will not be saved if you leave. Do you wish to continue?')) {
                     return
                 }
