@@ -29,7 +29,7 @@ class Command(BaseCommand):
         ]
         assign_examples = [
             {"name": "Logboek", "courses": [0, 1, 2, 3]},
-            {"name": "colloquium", "courses": [0]},
+            {"name": "Colloquium", "courses": [0]},
             {"name": "Verslag", "courses": [0, 1]},
         ]
         journal_examples = [
@@ -54,6 +54,8 @@ class Command(BaseCommand):
             Participation(user=users[1], role=role, course=course).save()
             Participation(user=users[2], role=role, course=course).save()
             course.author = users[2]
+            course.startdate = faker.date_this_decade(before_today=True)
+            course.save()
             courses.append(course)
 
         assignments = []
