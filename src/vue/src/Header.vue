@@ -1,6 +1,5 @@
 <template>
     <b-navbar id="header" toggleable="md" type="dark" fixed=top>
-        <div class="container">
 
         <b-navbar-brand :to='"/Home"'>Edag</b-navbar-brand>
         <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
@@ -28,8 +27,6 @@
                 <login-inline></login-inline>
             </b-navbar-nav>
         </b-collapse>
-
-        </div>
 
     </b-navbar>
 </template>
