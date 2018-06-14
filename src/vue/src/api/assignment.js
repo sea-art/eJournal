@@ -8,5 +8,9 @@ export default {
     get_course_assignments (cID) {
         return auth.authenticatedGet('/get_course_assignments/' + cID + '/')
             .then(response => response.data.assignments)
+    },
+    get_upcoming_deadlines () {
+        return auth.authenticatedGet('/get_upcoming_deadlines/')
+            .then(response => response.data.deadlines)
     }
 }
