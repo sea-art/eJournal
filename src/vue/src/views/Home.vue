@@ -48,7 +48,7 @@ export default {
                 cID: ['2017AVI1', '2017AVI2'],
                 dID: '2017IL2',
                 datetime: '8-6-2018 13:00'
-            }],
+            }]
         }
     },
     components: {
@@ -61,7 +61,7 @@ export default {
         course.get_user_courses()
             .then(response => { this.courses = response })
             .catch(_ => alert('Error while loading courses'))
-            .then(_ => {this.colors = getColors(this.courses.length)})
+            .then(_ => { this.colors = getColors(this.courses.length) })
     }
 }
 </script>
