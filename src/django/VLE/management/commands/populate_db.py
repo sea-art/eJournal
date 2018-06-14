@@ -66,7 +66,6 @@ class Command(BaseCommand):
                 assignment.courses.add(courses[course])
             assignments.append(assignment)
 
-
     def gen_random_users(self, amount):
         """
         Generate random users.
