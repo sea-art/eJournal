@@ -6,12 +6,7 @@ export default {
      * returns a list of all courses.
      */
     get_user_courses () {
-        return auth.authenticated_get('/get_user_courses/')
-            .then(response => {
-                return response.data.courses
-            })
-            .catch(error => {
-                throw error
-            })
+        return auth.authenticatedGet('/get_user_courses/')
+            .then(response => response.data.courses)
     }
 }
