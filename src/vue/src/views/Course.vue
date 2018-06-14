@@ -1,29 +1,38 @@
 <template>
-    <b-row no-gutters>
-        <b-col cols="3" class="left-content"></b-col>
-        <b-col cols="6" class="main-content">
-            <bread-crumb :currentPage="$route.params.courseName"></bread-crumb>
-            <!-- {{$route.params.courseName}} -->
+    <content-columns>
+        {{  $route.params.courseName }}
+        <bread-crumb slot="main-content-column" :currentPage="$route.params.courseName"></bread-crumb>
+        <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
             <b-link tag="b-button" :to="{ name: 'Assignment',
                                           params: {
                                               course: $route.params.course,
-                                              assign: 1,
+                                              assign: a.aID,
                                               courseName: $route.params.courseName,
-                                              assignmentName: assignments[0].name
+                                              assignmentName: a.name
                                           }
                                         }">
-                <main-card :line1="'Colloqiumlogboek'" :line2="'4/10'"></main-card>
+                <main-card :line1="a.name" :color="$route.params.color">
+                    <b-progress :value="a.progress.acquired" :max="a.progress.total"/>
+                </main-card>
             </b-link>
+        </div>
 
-        </b-col>
-        <b-col cols="3" class="right-content"></b-col>
-    </b-row>
+        <h3 slot="right-content-column">Upcoming</h3>
+        <div slot="right-content-column" v-for="d in deadlines" :key="d.dID">
+            <b-link tag="b-button" :to="{name: 'Assignment', params: {course: d.cID[0], assign: d.dID}}">
+                <todo-card :line0="d.datetime" :line1="d.name" :line2="d.course" :color="$route.params.color"></todo-card>
+            </b-link>
+        </div>
+    </content-columns>
 </template>
 
 <script>
+import contentColumns from '@/components/ContentColumns.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import mainCard from '@/components/MainCard.vue'
+import todoCard from '@/components/TodoCard.vue'
 import assignment from '@/api/assignment.js'
+import getColors from '@/javascripts/colors.js'
 
 export default {
     name: 'Course',
@@ -35,13 +44,16 @@ export default {
         }
     },
     components: {
+        'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
-        'main-card': mainCard
+        'main-card': mainCard,
+        'todo-card': todoCard
     },
     created () {
         assignment.get_course_assignments(this.$route.params.course)
             .then(response => { this.assignments = response })
             .catch(_ => alert('Error while loading assignments'))
+            .then(_ => { this.colors = getColors(this.assignments.length) })
     }
 }
 </script>

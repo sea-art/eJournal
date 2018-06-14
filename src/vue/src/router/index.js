@@ -32,13 +32,15 @@ export default new Router({
         name: 'Course',
         component: Course,
         props: {
-            courseName: ''
+            courseName: '',
+            color: ''
         }
     }, {
         path: '/Home/:course/:assign',
         name: 'Assignment',
         component: Assignment,
         props: {
+            color: '',
             courseName: '',
             assignmentName: ''
         }
@@ -47,6 +49,7 @@ export default new Router({
         name: 'Journal',
         component: Journal,
         props: {
+            color: '',
             courseName: '',
             assignmentName: '',
             journalName: ''
