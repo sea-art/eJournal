@@ -53,8 +53,7 @@ class Command(BaseCommand):
             Participation(user=users[0], role=role, course=course).save()
             Participation(user=users[1], role=role, course=course).save()
             Participation(user=users[2], role=role, course=course).save()
-            course.authors.add(users[2])
-            course.authors.add(users[3])
+            course.author = users[2]
             courses.append(course)
 
         assignments = []
@@ -128,9 +127,8 @@ class Command(BaseCommand):
             course.name = faker.company()
 
             teachers = User.objects.all()
-            teacher_amount = random.randint(1, 3)
             if len(teachers) > 0:
-                course.authors.add(*(random.choices(teachers, k=teacher_amount)))
+                course.author = random.choice(teachers)
 
             course.abbrevation = random.choices(course.name, k=4)
             course.startdate = faker.date_this_decade(before_today=True)

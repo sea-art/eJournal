@@ -38,8 +38,11 @@ class Course(models.Model):
         max_length=4,
         default='XXXX',
     )
-
-    authors = models.ManyToManyField(User, related_name='authors')
+    author = models.ForeignKey(
+        'User',
+        on_delete=models.SET_NULL,
+        null=True
+    )
     participations = models.ManyToManyField(
         User,
         related_name='participations',
@@ -100,7 +103,7 @@ class Assignment(models.Model):
     )
     author = models.ForeignKey(
         'User',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         null=True
     )
     courses = models.ManyToManyField(Course)

@@ -14,7 +14,7 @@ class DataBaseTests(TestCase):
                              startdate=datetime.date.today())
         user_test.save()
         course_test.save()
-        course_test.authors.add(user_test)
+        course_test.author = user_test
         ass_test = Assignment(name='tcolloq', description='description')
         ass_test.save()
         ass_test.courses.add(course_test)
@@ -27,4 +27,4 @@ class DataBaseTests(TestCase):
         self.assertEquals(entr_test.journal.pk, journ_test.pk)
         self.assertEquals(journ_test.user.pk, user_test.pk)
         self.assertEquals(journ_test.assignment.pk, ass_test.pk)
-        self.assertEquals(course_test.authors.all()[0].pk, user_test.pk)
+        self.assertEquals(course_test.author.pk, user_test.pk)

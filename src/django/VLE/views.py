@@ -26,7 +26,7 @@ def get_user_courses(request):
     for course in user.participations.all():
         course_obj = {
             'name': str(course.name),
-            'auth': str(course.authors),
+            'auth': str(course.author),
             'date': str(course.startdate),
             'abbr': str(course.abbreviation),
             'cID': str(dec_to_hex(course.id))
