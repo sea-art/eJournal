@@ -102,11 +102,11 @@ export default {
     },
 
     components: {
+        'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'entry-template': entryTemplate,
         'add-card': addCard,
-        'edag': edag,
-        'content-columns': contentColumns,
+        'edag': edag
     }
 }
 </script>
