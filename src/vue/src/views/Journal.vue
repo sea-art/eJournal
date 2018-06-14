@@ -1,35 +1,31 @@
 <template>
-    <div>
-        <b-row>
-            <b-col cols="3" class="left-content">
-                  <edag @select-node="selectNode" :selected="variable" :nodes="nodes"></edag>
-            </b-col>
-            <b-col cols="6" class="main-content">
-                <bread-crumb :currentPage="$route.params.student"></bread-crumb>
-                <!--
-                    Fill in the template using the corresponding data
-                    of the entry
-                . -->
-                <div v-if="nodes[variable].type == 'entry'">
-                  <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[variable].textbox1"
-                  :textbox2="nodes[variable].textbox2"
-                  :date="nodes[variable].date">  </entry-template>
-                </div>
-                <div v-else-if="nodes[variable].type == 'add'">
-                    <add-card @add-template="addNode">bhjewk</add-card>
-                </div>
-                <div v-else-if="nodes[variable].type == 'progress'">
-                  <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[variable].textbox1"
-                  :textbox2="nodes[variable].textbox2"
-                  :date="nodes[variable].date">  </entry-template>
-                </div>
-            </b-col>
-            <b-col cols="3" class="right-content"></b-col>
-        </b-row>
-    </div>
+    <content-columns>
+        <edag slot="left-content-column" @select-node="selectNode" :selected="variable" :nodes="nodes"></edag>
+        <div slot="main-content-column">
+            <bread-crumb :currentPage="$route.params.student"></bread-crumb>
+            <!--
+                Fill in the template using the corresponding data
+                of the entry
+            . -->
+            <div v-if="nodes[variable].type == 'entry'">
+                <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[variable].textbox1"
+                    :textbox2="nodes[variable].textbox2"
+                    :date="nodes[variable].date"></entry-template>
+            </div>
+            <div v-else-if="nodes[variable].type == 'add'">
+                <add-card @add-template="addNode">bhjewk</add-card>
+            </div>
+            <div v-else-if="nodes[variable].type == 'progress'">
+                <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[variable].textbox1"
+                    :textbox2="nodes[variable].textbox2"
+                    :date="nodes[variable].date"></entry-template>
+            </div>
+        </div>
+    </content-columns>
 </template>
 
 <script>
+import contentColumns from '@/components/ContentColumns.vue'
 import entryTemplate from '@/components/TemplateCard.vue'
 import addCard from '@/components/AddCard.vue'
 import edag from '@/components/Edag.vue'
@@ -109,7 +105,8 @@ export default {
         'bread-crumb': breadCrumb,
         'entry-template': entryTemplate,
         'add-card': addCard,
-        'edag': edag
+        'edag': edag,
+        'content-columns': contentColumns,
     }
 }
 </script>

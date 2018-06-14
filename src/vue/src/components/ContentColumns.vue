@@ -20,6 +20,10 @@ export default {
 
 <style>
 .left-content {
+    flex: 0 0 auto;
+    padding-top: 30px !important;
+    padding-left: 30px !important;
+    padding-right: 30px !important;
 }
 
 .main-content {

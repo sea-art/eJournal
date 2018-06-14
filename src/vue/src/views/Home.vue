@@ -3,14 +3,14 @@
         <bread-crumb slot="main-content-column" :currentPage="'Courses'"></bread-crumb>
         <div v-for="(c, i) in courses" :key="c.cID" slot="main-content-column">
             <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID, courseName: c.name, color: colors[i]}}">
-                <main-card :line1="c.name" :line2="c.date" :color="colors[i]">hoi</main-card>
+                <main-card :line1="c.name" :line2="c.date" :color="colors[i]"></main-card>
             </b-link>
         </div>
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="(d, i) in deadlines" :key="d.dID" slot="right-content-column">
             <b-link tag="b-button" :to="{name: 'Assignment', params: {course: d.cID[0], assign: d.dID}}">
-                <todo-card :line0="d.datetime" :line1="d.name" :line2="d.course" :color="colors[i]">hoi</todo-card>
+                <todo-card :line0="d.datetime" :line1="d.name" :line2="d.course" :color="colors[i]"></todo-card>
             </b-link>
         </div>
     </content-columns>
