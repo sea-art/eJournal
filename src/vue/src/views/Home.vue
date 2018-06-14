@@ -1,29 +1,23 @@
 <template>
-    <b-row no-gutters>
-        <b-col lg="3" order="3" order-lg="1" class="left-content d-none d-lg-block"></b-col>
-        <b-col md="12" lg="6" order="2" class="main-content">
-            <bread-crumb :links="['test', 'test2']" :currentPage="'Courses'"></bread-crumb>
+    <content-columns>
+        <bread-crumb :links="['test', 'test2']" :currentPage="'Courses'" slot="main-content-column"></bread-crumb>
+        <div v-for="c in courses" :key="c.cID" slot="main-content-column">
+            <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID}}">
+                <main-card :line1="c.name" :line2="c.date" :color="set_color()">{{ c.cID }}</main-card>
+            </b-link>
+        </div>
 
-            <div v-for="c in courses" :key="c.cID">
-                <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID}}">
-                    <main-card :line1="c.name" :line2="c.date" :color="set_color()">{{ c.cID }}</main-card>
-                </b-link>
-            </div>
-        </b-col>
-        <b-col md="12" lg="3" order="1" order-lg="3">
-            <div class="right-content">
-                <h3>Upcoming</h3>
-                <div v-for="d in deadlines" :key="d.dID">
-                    <b-link tag="b-button" :to="{name: 'Assignment', params: {course: d.cID[0], assign: d.dID}}">
-                        <todo-card :line0="d.datetime" :line1="d.name" :line2="d.course" :color="set_color()">hoi</todo-card>
-                    </b-link>
-                </div>
-            </div>
-        </b-col>
-    </b-row>
+        <h3 slot="right-content-column">Upcoming</h3>
+        <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
+            <b-link tag="b-button" :to="{name: 'Assignment', params: {course: d.cID[0], assign: d.dID}}">
+                <todo-card :line0="d.datetime" :line1="d.name" :line2="d.course" :color="set_color()">hoi</todo-card>
+            </b-link>
+        </div>
+    </content-columns>
 </template>
 
 <script>
+import contentColumns from '@/components/ContentColumns.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import mainCard from '@/components/MainCard.vue'
 import todoCard from '@/components/TodoCard.vue'
@@ -65,6 +59,7 @@ export default {
         }
     },
     components: {
+        'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'main-card': mainCard,
         'todo-card': todoCard

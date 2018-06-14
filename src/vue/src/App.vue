@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <header-bar/>
-        <router-view style="height: 100%"/>
+        <router-view class="fit-height"/>
     </div>
 </template>
 
@@ -29,15 +29,6 @@ export default {
     --theme-medium-grey: #DEDEDE;
 }
 
-#app {
-    overflow-x: hidden;
-    font-family: 'Roboto', sans-serif;
-    font-size: 20px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-}
-
 * {
     border-radius: 0px !important;
     text-decoration: none !important;
@@ -48,6 +39,23 @@ export default {
 img {
     max-width: 100%;
     max-height: 100%;
+}
+
+.fit-height {
+    flex: 1 1 auto;
+    display: flex;
+}
+
+#app {
+    overflow-x: hidden;
+    font-family: 'Roboto', sans-serif;
+    font-size: 20px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    padding-top: 70px;
 }
 
 h1 {
@@ -86,26 +94,11 @@ h5 {
 h6 {
     font-size: 20px;
     color: var(--theme-blue);
-    margin-bottom: 0px;
 }
 
 .button {
     font-family: 'Roboto Condensed', sans-serif;
     font-size: 25px;
-}
-
-.left-content {
-}
-
-.main-content {
-    padding-top: 40px;
-    background-color: var(--theme-medium-grey);
-}
-
-.right-content {
-    padding-top: 30px;
-    padding-left: 30px;
-    padding-right: 30px;
 }
 
 .card {
