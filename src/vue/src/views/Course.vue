@@ -36,6 +36,7 @@ export default {
     name: 'Course',
     data () {
         return {
+            colors: [],
             assignment: [],
             deadlines: [{
                 name: 'Individueel logboek',
@@ -55,8 +56,7 @@ export default {
                 cID: ['2017AVI1', '2017AVI2'],
                 dID: '2017IL2',
                 datetime: '8-6-2018 13:00'
-            }],
-            colors: []
+            }]
         }
     },
     components: {
@@ -69,7 +69,6 @@ export default {
             .then(response => { this.assignments = response })
             .catch(_ => alert('Error while loading assignments'))
             .then(_ => {this.colors = getColors(this.assignments.length)})
-            .then(_ => {alert(assignment)})
     }
 }
 </script>

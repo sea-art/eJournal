@@ -63,10 +63,10 @@ export default {
             .then(response => { this.courses = response })
             .catch(_ => alert('Error while loading courses'))
             .then(_ => {this.colors = getColors(this.courses.length)})
-            
-        assignment.get_upcoming_deadlines()
-            .then(response => { this.deadlines = response })
-            .catch(_ => alert('Error while loading deadlines'))
+
+    /*    assignment.get_upcoming_deadlines()
+           .then(response => { this.deadlines = response })
+           .catch(_ => alert('Error while loading deadlines'))*/
     }
 }
 </script>
