@@ -1,8 +1,8 @@
 <template>
     <b-row no-gutters>
-        <bread-crumb :currentPage="$route.params.course"></bread-crumb>
         <b-col lg="3" order="3" order-lg="1" class="left-content d-none d-lg-block"></b-col>
         <b-col md="12" lg="6" order="2" class="main-content">
+            <bread-crumb :currentPage="$route.params.course"></bread-crumb>
 
             <div v-for="a in assignments" :key="a.aID">
                 <b-link tag="b-button" :to="{name: 'Assignment', params: {assign: a.aID}}" append>
@@ -37,7 +37,7 @@ export default {
     data () {
         return {
             colors: [],
-            assignment: [],
+            assignments: [],
             deadlines: [{
                 name: 'Individueel logboek',
                 course: 'WEDA',

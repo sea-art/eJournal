@@ -56,7 +56,7 @@ def get_course_assignments(request, cID):
             response['assignments'].append(assignment_obj)
         return JsonResponse(response)
     else:
-        response = {'result': 'success', 'journals': []}
+        response = {'result': 'success', 'assignments': []}
 
         course = Course.objects.get(pk=hex_to_dec(cID))
         assignments = Assignment.objects.get_queryset().filter(courses=course)
@@ -66,11 +66,11 @@ def get_course_assignments(request, cID):
             journal_obj = {
                 'aID': dec_to_hex(assignment.pk),
                 'name': assignment.name,
-                'progress': {'acquired': 10, 'total': 10},
+                'progress': {'acquired': 3, 'total': 10},
                 'stats': {'graded': 1, 'total': 1},
                 'jID': dec_to_hex(journal.id)
             }
-            response['journals'].append(journal_obj)
+            response['assignments'].append(journal_obj)
         return JsonResponse(response)
 
 
