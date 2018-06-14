@@ -126,6 +126,7 @@ class Journal(models.Model):
         """
         unique_together = ('assignment', 'user',)
 
+
 class Entry(models.Model):
     """
     An Entry has the following features:
