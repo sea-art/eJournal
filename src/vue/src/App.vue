@@ -48,9 +48,6 @@ img {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
-}
-
-body {
     padding-top: 70px;
 }
 
