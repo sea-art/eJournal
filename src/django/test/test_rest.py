@@ -38,7 +38,7 @@ class RestTests(TestCase):
         u3 = util.make_user("Lars", "pass")
         u4 = util.make_user("Jeroen", "pass")
 
-        c1 = util.make_course("Portofolio Academische Vaardigheden", "PAV")
+        c1 = util.make_course("Portfolio Academische Vaardigheden", "PAV")
         c2 = util.make_course("BeeldBewerken", "BB")
         c3 = util.make_course("Reflectie en Digitale Samenleving", "RDS")
 
