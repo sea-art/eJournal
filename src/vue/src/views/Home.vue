@@ -1,16 +1,16 @@
 <template>
     <content-columns>
         <bread-crumb :links="['test', 'test2']" :currentPage="'Courses'" slot="main-content-column"></bread-crumb>
-        <div v-for="c in courses" :key="c.cID" slot="main-content-column">
-            <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID}}">
-                <main-card :line1="c.name" :line2="c.date" :color="set_color()">{{ c.cID }}</main-card>
+        <div v-for="(c, i) in courses" :key="c.cID" slot="main-content-column">
+            <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID, color: colors[i]}}">
+                <main-card :line1="c.name" :line2="c.date" :color="colors[i]">{{ c.cID }}</main-card>
             </b-link>
         </div>
 
         <h3 slot="right-content-column">Upcoming</h3>
-        <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
+        <div v-for="(d, i) in deadlines" :key="d.dID" slot="right-content-column">
             <b-link tag="b-button" :to="{name: 'Assignment', params: {course: d.cID[0], assign: d.dID}}">
-                <todo-card :line0="d.datetime" :line1="d.name" :line2="d.course" :color="set_color()">hoi</todo-card>
+                <todo-card :line0="d.datetime" :line1="d.name" :line2="d.course" :color="colors[i]">hoi</todo-card>
             </b-link>
         </div>
     </content-columns>
@@ -22,14 +22,13 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 import mainCard from '@/components/MainCard.vue'
 import todoCard from '@/components/TodoCard.vue'
 import course from '@/api/course'
+import getColors from '@/javascripts/colors.js'
 
 export default {
     name: 'Home',
     data () {
         return {
-            /* Define the banner colors and set the index to -1 for first setup. */
-            colors: ['pink-border', 'peach-border', 'blue-border'],
-            color_idx: -1,
+            colors: [],
             courses: [],
             deadlines: [{
                 name: 'Individueel logboek',
@@ -49,13 +48,7 @@ export default {
                 cID: ['2017AVI1', '2017AVI2'],
                 dID: '2017IL2',
                 datetime: '8-6-2018 13:00'
-            }]
-        }
-    },
-    methods: {
-        set_color () {
-            this.color_idx + 1 === this.colors.length ? this.color_idx = 0 : this.color_idx++
-            return this.colors[this.color_idx]
+            }],
         }
     },
     components: {
@@ -68,6 +61,7 @@ export default {
         course.get_user_courses()
             .then(response => { this.courses = response })
             .catch(_ => alert('Error while loading courses'))
+            .then(_ => {this.colors = getColors(this.courses.length)})
     }
 }
 </script>

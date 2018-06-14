@@ -1,17 +1,22 @@
-test:
+
+test-back:
 	pep8 ./src/django --max-line-length=120 --exclude='./src/django/VLE/migrations'
+
+test-front:
 	bash -c "source ./venv/bin/activate && cd ./src/django/ && python3.6 manage.py test && deactivate"
 	npm run lint --prefix ./src/vue
 	npm run test --prefix ./src/vue
 
-fill-db:
-	bash -c 'source ./venv/bin/activate && cd ./src/django && echo "delete from sqlite_sequence where name like \"VLE_%\";" | sqlite3 VLE.db && python3.6 manage.py flush --no-input && python3.6 manage.py populate_db && python3.6 manage.py show_db && deactivate'
+test: test-back test-front
+
+fill-db: migrate-back
+	bash -c 'source ./venv/bin/activate && cd ./src/django && echo "delete from sqlite_sequence where name like \"VLE_%\";" | sqlite3 VLE.db && python3.6 manage.py flush --no-input && python3.6 manage.py populate_db && deactivate'
 
 show-db:
 	bash -c 'source ./venv/bin/activate && cd ./src/django && python3.6 manage.py show_db && deactivate'
 
 migrate-back:
-	bash -c "source ./venv/bin/activate && python3.6 ./src/django/manage.py makemigrations VLE && python3.6 ./src/django/manage.py migrate && deactivate"
+	bash -c "source ./venv/bin/activate && cd ./src/django && (rm VLE.db || echo "0") && python3.6 manage.py makemigrations VLE && python3.6 manage.py migrate && deactivate"
 
 run-front:
 	python -mwebbrowser http://localhost:8080
@@ -24,6 +29,7 @@ clean:
 	rm -rf ./venv
 	rm -rf ./src/vue/node_modules
 	rm -rf ./src/django/VLE/migrations
+	rm -rf ./src/django/VLE.db
 
 fixnpm:
 	npm cache clean -f
@@ -44,5 +50,8 @@ setup: clean
 	
 	#Update n & install nodejs dependencies.
 	npm install --prefix ./src/vue
+	
+	#Initialize the database
+	make fill-db
 	
 	@echo "DONE!"

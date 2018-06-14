@@ -59,6 +59,8 @@ class Command(BaseCommand):
         for a in assign_examples:
             assignment = Assignment(name=a["name"])
             assignment.save()
+            assignment.author = users[4]
+            assignment.save()
             for course in a["courses"]:
                 assignment.courses.add(courses[course])
             assignments.append(assignment)
@@ -132,6 +134,7 @@ class Command(BaseCommand):
             assignment = Assignment()
             assignment.save()
             assignment.name = faker.catch_phrase()
+            assignment.author = User.objects.get(pk=1)
             assignment.description = faker.paragraph()
             courses = Course.objects.all()
             for course in random.choices(courses, k=3):

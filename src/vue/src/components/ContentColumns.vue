@@ -30,8 +30,8 @@ export default {
 
 .right-content {
     flex: 0 0 auto;
-    padding-top: 30px;
-    padding-left: 30px;
-    padding-right: 30px;
+    padding-top: 30px !important;
+    padding-left: 30px !important;
+    padding-right: 30px !important;
 }
 </style>
