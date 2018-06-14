@@ -84,6 +84,9 @@ class Assignment(models.Model):
     - course: a foreign key linked to a course.
     """
     name = models.TextField()
+    deadline = models.DateTimeField(
+        auto_now_add=True
+    )
     description = models.TextField(
         null=True,
     )

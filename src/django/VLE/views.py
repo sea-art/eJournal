@@ -77,3 +77,22 @@ def get_assignment_journals(request, aID):
         }
         response['journals'].append(journal_obj)
     return JsonResponse(response)
+
+
+@api_view(['GET'])
+def get_upcomming_deadlines(request):
+    """
+    Get upcomming deadlines.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': '401 Authentication Error'}, status=401)
+
+    # TODO: Only take user specific upcomming enties
+    deadlines = [{
+        'name': assign.name,
+        'course': [c.abbreviation for c in assign.courses.all()],
+        'cID': [dec_to_hex(c.id) for c in assign.courses.all()],
+        'dID': dec_to_hex(assign.id),
+        'datetime': assign.deadline
+    } for assign in Assignment.objects.all()]
+    return JsonResponse({'result': 'success', 'deadlines': deadlines})

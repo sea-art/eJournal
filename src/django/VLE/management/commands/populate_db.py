@@ -60,6 +60,7 @@ class Command(BaseCommand):
             assignment = Assignment(name=a["name"])
             assignment.save()
             assignment.author = users[4]
+            assignment.deadline = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
             assignment.save()
             for course in a["courses"]:
                 assignment.courses.add(courses[course])
@@ -134,6 +135,7 @@ class Command(BaseCommand):
             assignment = Assignment()
             assignment.save()
             assignment.name = faker.catch_phrase()
+            assignment.deadline = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
             assignment.author = User.objects.get(pk=1)
             assignment.description = faker.paragraph()
             courses = Course.objects.all()
