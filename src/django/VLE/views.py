@@ -24,7 +24,7 @@ def get_user_courses(request):
     for course in request.user.participant.all():
         course_obj = {
             'name': str(course.name),
-            'auth': str(course.authors),
+            'auth': [str(u) for u in course.authors.all()],
             'date': str(course.startdate),
             'abbr': str(course.abbreviation),
             'cID': str(dec_to_hex(course.id))
@@ -48,7 +48,8 @@ def get_course_assignments(request, cID):
         assignment_obj = {
             'name': str(assignment.name),
             'auth': str(assignment.author),
-            'progress': str(0),
+            'progress': 0,
+            'aID': str(dec_to_hex(assignment.id))
         }
         response['assignments'].append(assignment_obj)
     return JsonResponse(response)

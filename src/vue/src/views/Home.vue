@@ -6,7 +6,7 @@
 
             <div v-for="c in courses" :key="c.cID">
                 <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID}}">
-                    <main-card :line1="c.name" :line2="c.date" :color="set_color()">{{ c.cID }}</main-card>
+                    <main-card :line1="c.name" :line2="c.auth" :color="set_color()">{{ c.cID }}</main-card>
                 </b-link>
             </div>
         </b-col>
