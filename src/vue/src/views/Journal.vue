@@ -65,6 +65,9 @@ export default {
             this.nodes[this.variable].textbox2 = editedData[1]
         },
         selectNode ($event) {
+            if ($event === this.variable) {
+                return
+            }
             if (this.$refs['entry-template-card'].save === 'Save') {
                 if (!confirm('Oh no! Progress will not be saved if you leave. Do you wish to continue?')) {
                     return
