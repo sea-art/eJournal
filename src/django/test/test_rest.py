@@ -2,8 +2,7 @@ from rest_framework.test import APIRequestFactory
 from django.test import TestCase
 from django.urls import reverse
 
-from VLE.models import User
-from VLE.models import Course
+from VLE.models import *
 
 
 class RestTests(TestCase):
@@ -21,10 +20,18 @@ class RestTests(TestCase):
         c2 = Course(name="BeeldBewerken", abbreviation="BB")
         c3 = Course(name="Reflectie en Digitale Samenleving",
                     abbreviation="RDS")
+        role = Role(name='TA')
+        role.save()
+
         cs = [c1, c2, c3]
         for c in cs:
             c.save()
-            c.participants.add(self.user)
+            p = Participation()
+            p.user = self.user
+            p.course = c
+            p.role = role
+            p.save()
+            c.participation_set.add(p)
             c.save()
 
     def test_get_user_courses(self):

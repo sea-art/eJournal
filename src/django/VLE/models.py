@@ -40,9 +40,9 @@ class Course(models.Model):
     )
 
     authors = models.ManyToManyField(User, related_name='authors')
-    participants = models.ManyToManyField(
+    participations = models.ManyToManyField(
         User,
-        related_name='participants',
+        related_name='participations',
         through='Participation',
         through_fields=('course', 'user'),
     )
@@ -63,18 +63,18 @@ class Role(models.Model):
     """
     name = models.TextField()
 
-    can_edit_grades = models.BooleanField()
-    can_view_grades = models.BooleanField()
-    can_edit_assignment = models.BooleanField()
-    can_view_assignment = models.BooleanField()
-    can_submit_assignment = models.BooleanField()
+    can_edit_grades = models.BooleanField(default=False)
+    can_view_grades = models.BooleanField(default=False)
+    can_edit_assignment = models.BooleanField(default=False)
+    can_view_assignment = models.BooleanField(default=False)
+    can_submit_assignment = models.BooleanField(default=False)
 
 
 class Participation(models.Model):
     """
     A participation defines the way a user interacts within a certain course.
     The user is now linked to the course, and has a set of permissions
-    associated with it.
+    associated with it's role.
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)

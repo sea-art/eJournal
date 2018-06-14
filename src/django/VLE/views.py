@@ -15,7 +15,7 @@ def get_user_courses(request):
         return JsonResponse({'error': '401 Authentication Error'}, status=401)
 
     response = {'result': 'success', 'courses': []}
-    for course in user.participant.all():
+    for course in user.participations.all():
         course_obj = {
             'name': str(course.name),
             'auth': str(course.authors),

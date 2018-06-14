@@ -8,8 +8,8 @@ class DataBaseTests(TestCase):
         """
         Testing the foreign keys in de database.
         """
-        user_test = User(group='SD', email='lers@uva.nl', username='lers',
-                         password='lers123', education='uva', lti_id='1')
+        user_test = User(email='lers@uva.nl', username='lers',
+                         password='lers123', lti_id='a')
         course_test = Course(name='tname', abbreviation='XXXX',
                              startdate=datetime.date.today())
         user_test.save()
