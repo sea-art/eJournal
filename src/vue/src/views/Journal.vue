@@ -60,7 +60,7 @@ export default {
 
     methods: {
         adaptData (editedData) {
-            this.nodes[this.variable].textbox1 = editedData[0],
+            this.nodes[this.variable].textbox1 = editedData[0]
             this.nodes[this.variable].textbox2 = editedData[1]
         },
         selectNode ($event) {
