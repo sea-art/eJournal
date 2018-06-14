@@ -71,6 +71,16 @@ export default {
             }
             this.$refs['entry-template-card'].cancel()
             this.variable = $event
+        },
+        addNode ($event) {
+            this.nodes.splice($event, 0, {
+                type: 'entry',
+                textbox1: '',
+                textbox2: '',
+                text: '',
+                date: new Date(),
+                id: this.node.length
+            })
         }
     },
 
