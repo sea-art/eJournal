@@ -39,13 +39,13 @@ export default {
             nodes: [{
                 type: 'entry',
                 textbox1: 'Awesome IT',
-                textbox2: 'het was leuk veel dingen enzo.',
+                textbox2: 'Waar ging dit ook al weer over?',
                 date: new Date(),
                 id: 0
             }, {
                 type: 'entry',
                 textbox1: 'Lezing NNS',
-                textbox2: 'Rob Belleman enzo',
+                textbox2: 'Rob Belleman was er ook.',
                 date: new Date(),
                 id: 1
             }, {

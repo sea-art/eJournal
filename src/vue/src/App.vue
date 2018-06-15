@@ -97,9 +97,26 @@ h6 {
     margin-bottom: 0px;
 }
 
-.button {
+.btn, .form-control {
     font-family: 'Roboto Condensed', sans-serif;
-    font-size: 25px;
+    font-size: 20px;
+    background-color: white;
+    color: var(--theme-dark-blue);
+    border: none;
+}
+
+.form-control {
+    border-left: 15px solid var(--theme-dark-grey);
+}
+
+.btn {
+    border-left: 15px solid var(--theme-blue);
+}
+
+.btn:hover {
+    background-color: var(--theme-dark-grey);
+    border-left: 15px solid var(--theme-blue);
+    color: white;
 }
 
 .card {
