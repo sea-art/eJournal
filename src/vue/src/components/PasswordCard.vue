@@ -1,17 +1,38 @@
 <template>
-    <b-container>
+    <b-container no-gutters>
         <b-row>
             <h8>Notification-emails</h8><br/>
         </b-row>
+
         <b-row>
-            <b-col cols="3">
-                <p class="profile-password">Old password</p>
-                <p class="profile-password">New password</p>
-                <p class="profile-password">Repeat new password</p>
+            <b-col class="profile-col" cols="4">
+                <p class="profile-password">Old password:</p>
             </b-col>
-            <b-col class="notification-body" cols="3">
+            <b-col cols="7">
+                <b-form-input class="passField" v-model="oldPass" type="password"></b-form-input><br/>
             </b-col>
-            <b-col cols="6"></b-col>
+        </b-row>
+
+        <b-row>
+            <b-col class="profile-col" cols="4">
+                <p class="profile-password">New password:</p>
+            </b-col>
+            <b-col cols="7">
+                <b-form-input class="passField" v-model="newPass" type="password"></b-form-input><br/>
+            </b-col>
+        </b-row>
+
+        <b-row>
+            <b-col class="profile-col" cols="4">
+                <p class="profile-password">Repeat new password:</p>
+            </b-col>
+            <b-col cols="7">
+                <b-form-input class="passField" v-model="newPassRepeat" type="password"></b-form-input>
+            </b-col>
+        </b-row>
+
+        <b-row>
+            <b-button @click="changePassword">Change password</b-button>
         </b-row>
     </b-container>
 </template>
@@ -20,7 +41,15 @@
 export default {
     data () {
         return {
-            checkbox: false
+            checkbox: false,
+            oldPass: '',
+            newPass: '',
+            newPassRepeat: ''
+        }
+    },
+    methods: {
+        changePassword: function () {
+            alert('I am a save button!')
         }
     }
 }
@@ -28,7 +57,7 @@ export default {
 </script>
 
 <style>
-.notifcatian {line-height: 10px;}
-
-.col-3 {padding-left: 0px;}
+.passField {
+    height: 30px;
+}
 </style>

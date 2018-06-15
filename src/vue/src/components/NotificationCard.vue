@@ -4,38 +4,53 @@
             <h8>Notification-emails</h8><br/>
         </b-row>
         <b-row>
-            <b-col cols="3">
+            <b-col class="profile-col" cols="4">
                 <p class="profile-notification">Grade updates</p>
-                <p class="profile-notification">comments</p>
             </b-col>
-            <b-col class="notification-body" cols="3">
-                <toggle-switch :isActive="gradeUpdate"></toggle-switch>
-                <toggle-switch></toggle-switch>
+            <b-col cols="6">
+                <toggle-switch :isActive="gradeUpdate"
+                               @parentActive="getGradeNotification">
+                </toggle-switch>
                 {{gradeUpdate}}
             </b-col>
-            <b-col cols="6"></b-col>
+        </b-row>
+        <b-row>
+            <b-col class="profile-col" cols="4">
+                <p class="profile-notification">Comments</p>
+            </b-col>
+            <b-col cols="6">
+                <toggle-switch :isActive="commentUpdate"
+                               @parentActive="getCommentNotification">
+                </toggle-switch>
+                {{commentUpdate}}
+            </b-col>
         </b-row>
     </b-container>
 </template>
 
 <script>
-import Switch from '@/components/switchComponent.vue'
+import Switch from '@/components/SwitchComponent.vue'
 
 export default {
     components: {
-        // 'switches': Switches,
         'toggle-switch': Switch
     },
     data () {
         return {
-            gradeUpdate: false
+            gradeUpdate: false,
+            commentUpdate: false
+        }
+    },
+    methods: {
+        getGradeNotification (isActive) {
+            this.gradeUpdate = isActive
+        },
+        getCommentNotification (isActive) {
+            this.commentUpdate = isActive
         }
     }
 }
 </script>
 
 <style>
-.notifcatian {line-height: 10px;}
-
-.col-3 {padding-left: 0px;}
 </style>

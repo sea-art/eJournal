@@ -7,6 +7,7 @@
 
         <notification-card></notification-card>
         <password-card></password-card>
+        <b-button :to="{name: 'Home'}">Back</b-button>
     </b-card>
 </template>
 
@@ -21,6 +22,11 @@ export default {
         'profile-data': profileData,
         'notification-card': notificationCard,
         'password-card': passwordCard
+    },
+    methods: {
+        back: function () {
+            alert('I am a back button!')
+        }
     }
 }
 </script>
@@ -36,8 +42,14 @@ export default {
     border-left-color: var(--theme-blue);
 }
 
+.profile-card:hover {
+    background-color: var(--theme-light-grey);
+
+}
+
 h7 {
     font-size: 30px;
+    line-height: 0px;
     font-weight: bold;
     margin-bottom: 0px;
 }
@@ -47,21 +59,26 @@ h8 {
     font-weight: bold;
     margin-bottom: 0px;
 }
+
 p.profile-data {
-    font-size: 15px;
-    line-height: 10px;
+    font-size: 18px;
+    line-height: 15px;
     margin-bottom: 10px;
 }
 
 p.profile-notification {
-    font-size: 20px;
+    font-size: 18px;
     line-height: 15px;
     margin-bottom: 28px;
 }
 
 p.profile-password {
-    font-size: 20px;
+    font-size: 18px;
     line-height: 15px;
     margin-bottom: 28px;
+}
+
+.profile-col {
+    padding-left: 0px;
 }
 </style>
