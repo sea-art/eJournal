@@ -141,9 +141,67 @@ class Journal(models.Model):
         unique_together = ('assignment', 'user',)
 
 
-class Entry(models.Model):
+class JournalFormat(models.Model):
+    """Format of a journal"""
+    templates = models.ManyToManyField(
+        EntryTemplate,
+    )
+
+    def __str__(self):
+        return str(self.pk)
+
+
+class Deadline(models.Model):
+    """Deadline"""
+    format = models.ForeignKey(
+        "JournalFormat",
+    )
+
+    def __str__(self):
+        return str(self.pk)
+
+
+class EntryTemplate(models.Model):
+    """Decides the template of an entry.
     """
-    An Entry has the following features:
+    name = models.TextField()
+
+    def __str__(self):
+        return self.name
+
+
+class Fields(models.Model):
+    """Defines the fields of an EntryTemplate
+    """
+    TEXT = 't'
+    IMG = 'i'
+    FILE = 'f'
+    TYPES = (
+        (TEXT, 'text'),
+        (IMG, 'img'),
+        (FILE, 'file'),
+    )
+    type = models.textField(
+        max_length=4,
+        choices=TYPES,
+        default=TEXT,
+    )
+    description = models.TextField(
+        required=True
+    )
+    location = models.TextField(
+        required=True
+    )
+    template = models.ForeignKey(
+        'EntryTemplate',
+    )
+
+    def __str__(self):
+        return self.template.name + " field: " + self.location
+
+
+class Entry(models.Model):
+    """An Entry has the following features:
     - journal: a foreign key linked to an Journal.
     - datetime: the date and time when the entry was posted.
     - late: if the entry was posted late or not.
@@ -152,15 +210,30 @@ class Entry(models.Model):
         'Journal',
         on_delete=models.CASCADE,
     )
+    template = models.ForeignKey(
+        'EntryTemplate',
+        on_delete=models.SET_NULL,
+    )
     datetime = models.DateTimeField(
         auto_now_add=True,
     )
-    late = models.BooleanField(
-        default=False
-    )
-    graded = models.BooleanField(
-        default=False
+    grade = models.BooleanField(
+        null=True
     )
 
     def __str__(self):
         return str(self.pk)
+
+    def is_graded(self):
+        return self.grade != None
+
+
+class Content(models.Model):
+    field = models.ForeignKey(
+        'Field',
+        on_delete=SET_NULL,
+    )
+    entry = models.ForeignKey(
+        'Entry',
+    )
+    data = models.TextField()

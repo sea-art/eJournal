@@ -4,7 +4,7 @@ from VLE.models import Assignment
 from VLE.models import Journal
 
 
-def make_user(username, password):
+def make_user(username, password, email=None, lti_id=None):
     user = User(username=username)
     user.save()
     user.set_password(password)
