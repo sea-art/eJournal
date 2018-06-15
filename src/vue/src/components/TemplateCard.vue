@@ -3,8 +3,8 @@
     <div class="entry-template">
         <b-row>
             <b-col id="main-card-left-column" cols="12">
-                <div v-if="save == 'Save'">
-                    <b-card class="card main-card" :class="'pink-border'">
+                <div v-if="saveEditMode == 'Save'">
+                    <b-card class="card main-card noHoverCard" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 Subject: <b-textarea v-model="tempbox1"></b-textarea><br>
@@ -19,19 +19,19 @@
                                 <br>
                                 Description: <br>
                                 <b-textarea v-model="tempbox2"></b-textarea><br><br>
-                                <b-button @click="saveEdit">{{ save }} </b-button>
+                                <b-button @click="saveEdit">{{ saveEditMode }} </b-button>
                                 <b-button @click="cancel">Cancel</b-button>
                             </b-col>
                         </b-row>
                     </b-card>
                 </div>
                 <div v-else>
-                    <b-card class="card main-card" :class="'pink-border'">
+                    <b-card class="card main-card noHover" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>{{ textbox1 }}</h2>
                                 {{ textbox2 }}<br><br>
-                                <b-button @click="saveEdit">{{ save }} </b-button>
+                                <b-button @click="saveEdit">{{ saveEditMode }} </b-button>
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12">
                                 Needs grading
@@ -51,7 +51,7 @@ export default {
 
     data () {
         return {
-            save: 'Edit',
+            saveEditMode: 'Edit',
             tempbox1: this.textbox1,
             tempbox2: this.textbox2,
             tempProps: []
@@ -60,27 +60,21 @@ export default {
 
     methods: {
         saveEdit: function () {
-            if (this.save === 'Save') {
-                this.save = 'Edit'
+            if (this.saveEditMode === 'Save') {
+                this.saveEditMode = 'Edit'
                 this.tempProps = [this.tempbox1, this.tempbox2]
                 this.$emit('edit-data', this.tempProps)
             } else {
                 this.tempbox1 = this.textbox1
                 this.tempbox2 = this.textbox2
-                this.save = 'Save'
+                this.saveEditMode = 'Save'
             }
         },
 
         cancel: function () {
-            this.save = 'Edit'
+            this.saveEditMode = 'Edit'
         }
     }
 }
 
 </script>
-
-<style>
-.card:hover {
-    background-color: var(--theme-light-grey);
-}
-</style>

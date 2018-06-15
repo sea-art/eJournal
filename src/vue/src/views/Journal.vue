@@ -2,7 +2,7 @@
     <div>
         <b-row>
             <b-col cols="3" class="left-content">
-                  <edag @select-node="selectNode" :selected="variable" :nodes="nodes"></edag>
+                  <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"></edag>
             </b-col>
             <b-col cols="6" class="main-content">
                 <bread-crumb :currentPage="$route.params.student"></bread-crumb>
@@ -10,18 +10,18 @@
                     Fill in the template using the corresponding data
                     of the entry
                 . -->
-                <div v-if="nodes[variable].type == 'entry'">
-                  <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[variable].textbox1"
-                  :textbox2="nodes[variable].textbox2"
-                  :date="nodes[variable].date">  </entry-template>
+                <div v-if="nodes[currentNode].type == 'entry'">
+                  <entry-template @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
+                  :textbox2="nodes[currentNode].textbox2"
+                  :date="nodes[currentNode].date">  </entry-template>
                 </div>
-                <div v-else-if="nodes[variable].type == 'add'">
+                <div v-else-if="nodes[currentNode].type == 'add'">
                     <add-card @add-template="addNode">bhjewk</add-card>
                 </div>
-                <div v-else-if="nodes[variable].type == 'progress'">
-                  <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[variable].textbox1"
-                  :textbox2="nodes[variable].textbox2"
-                  :date="nodes[variable].date">  </entry-template>
+                <div v-else-if="nodes[currentNode].type == 'progress'">
+                  <entry-template @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
+                  :textbox2="nodes[currentNode].textbox2"
+                  :date="nodes[currentNode].date">  </entry-template>
                 </div>
             </b-col>
             <b-col cols="3" class="right-content"></b-col>
@@ -38,7 +38,7 @@ export default {
     name: 'Journal',
     data () {
         return {
-            variable: 0,
+            currentNode: 0,
             editedData: ['', ''],
             nodes: [{
                 type: 'entry',
@@ -72,17 +72,17 @@ export default {
 
     methods: {
         adaptData (editedData) {
-            this.nodes[this.variable].textbox1 = editedData[0]
-            this.nodes[this.variable].textbox2 = editedData[1]
+            this.nodes[this.currentNode].textbox1 = editedData[0]
+            this.nodes[this.currentNode].textbox2 = editedData[1]
         },
         // TODO maak deze functies weer mooi en duidelijk
         selectNode ($event) {
-            if (this.nodes[this.variable].type !== 'entry') {
-                this.variable = $event
+            if (this.nodes[this.currentNode].type !== 'entry') {
+                this.currentNode = $event
                 return
             }
 
-            if ($event === this.variable) {
+            if ($event === this.currentNode) {
                 return
             }
             if (this.$refs['entry-template-card'].save && this.$refs['entry-template-card'].save === 'Save') {
@@ -91,10 +91,10 @@ export default {
                 }
             }
             this.$refs['entry-template-card'].cancel()
-            this.variable = $event
+            this.currentNode = $event
         },
         addNode () {
-            this.nodes.splice(this.variable, 0, {
+            this.nodes.splice(this.currentNode, 0, {
                 type: 'entry',
                 textbox1: '',
                 textbox2: '',
@@ -113,3 +113,9 @@ export default {
     }
 }
 </script>
+
+<style>
+.noHoverCard:hover {
+    background-color: var(--theme-light-grey);
+}
+</style>
