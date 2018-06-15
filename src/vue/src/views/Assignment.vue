@@ -5,7 +5,7 @@
 <template>
     <content-columns>
         <bread-crumb :currentPage="$route.params.assignmentName" :course="$route.params.courseName" slot="main-content-column"></bread-crumb>
-        <div v-for="journal in assignmentJournals" :key="journal.uid" slot="main-content-column">
+        <div v-for="j in assignJournals" :key="j.uid" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {
                                               course: $route.params.course,
@@ -14,15 +14,15 @@
                                               color: $route.params.color,
                                               courseName: $route.params.courseName,
                                               assignmentName: $route.params.assignmentName,
-                                              journalName: journal.student
+                                              journalName: j.student
                                           }
                                         }">
                 <student-card
-                    :student="journal.student"
-                    :studentNumber="journal.studentNumber"
-                    :studentPortraitPath="journal.studentPortraitPath"
-                    :progress="journal.progress"
-                    :entriesStats="journal.entriesStats">
+                    :student="j.student"
+                    :studentNumber="j.studentnumber"
+                    :studentPortraitPath="j.studentPortraitPath"
+                    :studentProgress="j.progress"
+                    :entryStats="j.entryStats">
                 </student-card>
             </b-link>
         </div>
@@ -39,7 +39,7 @@ export default {
     name: 'Assignment',
     data () {
         return {
-            assignmentJournals: []
+            assignJournals: []
         }
     },
     components: {
@@ -49,7 +49,7 @@ export default {
     },
     created () {
         journal.get_assignment_journals(this.$route.params.assign)
-            .then(response => { this.assignmentJournals = response })
+            .then(response => { this.assignJournals = response })
             .catch(_ => alert('Error while loading jounals'))
     }
 }

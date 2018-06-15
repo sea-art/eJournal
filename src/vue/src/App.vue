@@ -155,4 +155,9 @@ h6 {
     height: 100px;
     width: 100px;
 }
+
+.portrait-container-sm {
+    height: 50px;
+    width: 50px;
+}
 </style>
