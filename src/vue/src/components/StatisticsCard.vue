@@ -1,24 +1,24 @@
 <template>
-    <div class="todo-circle">
-        {{ num }}
-    </div>
+    <b-card class="card" style="">
+        <b>{{ subject }}</b><div class="point-square">{{ num }}</div>
+    </b-card>
 </template>
 
 <script>
 export default {
-    props: ['num']
+    props: ['subject', 'num']
 }
 </script>
 
 <style>
-.todo-circle {
+.point-square {
     float: right;
     text-align: center;
     color: white;
     font-family: 'Roboto Condensed', sans-serif;
     font-size: 18px;
     background-color: var(--theme-blue);
-    display:inline-block;
-    padding: 3px;
+    width: 45px;
+    height: 30px;
 }
 </style>
