@@ -53,6 +53,10 @@ class Course(models.Model):
     startdate = models.DateField(
         null=True,
     )
+    lti_id = models.TextField(
+        null=True, #TODO Change if all courses should be linked to a canvas course.
+        unique=True,
+    )
 
     def __str__(self):
         return self.name
