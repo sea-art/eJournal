@@ -1,11 +1,16 @@
 <template>
-    <div>
-        <h1>AssignmentsOverview Page</h1>
-    </div>
+    <content-columns>
+        <h1 slot="main-content-column">AssignmentsOverview Page</h1>
+    </content-columns>
 </template>
 
 <script>
+import contentColumns from '@/components/ContentColumns.vue'
+
 export default {
-    name: 'AssignmentsOverview'
+    name: 'AssignmentsOverview',
+    components: {
+        'content-columns': contentColumns
+    }
 }
 </script>

@@ -16,8 +16,11 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from VLE.views import get_user_courses
+from VLE.views import get_user_course
 from VLE.lti_launch import lti_launch
+from VLE.views import get_course_assignments
+from VLE.views import get_assignment_journals
+from VLE.views import get_upcoming_deadlines
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -32,4 +35,7 @@ urlpatterns = [
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('api/get_user_courses/', get_user_courses, name='get_user_courses'),
     path('api/lti/launch', lti_launch, name='lti_launch'),
+    path('api/get_course_assignments/<str:cID>/', get_course_assignments, name='get_course_assignments'),
+    path('api/get_assignment_journals/<str:aID>/', get_assignment_journals, name='get_assignment_journals'),
+    path('api/get_upcoming_deadlines/', get_upcoming_deadlines, name='get_upcoming_deadlines'),
 ]

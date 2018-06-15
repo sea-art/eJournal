@@ -4,7 +4,7 @@
           <b-input class="mb-2 mr-sm-2 mb-sm-0" id="inlineFormInputUsername" v-model="username" placeholder="Username"/>
 
           <label class="sr-only" for="inlineFormInputPassword">Password</label>
-          <b-input class="mb-2 mr-sm-2 mb-sm-0" id="inlineFormInputPassword" v-model="password" placeholder="Password" />
+          <b-input class="mb-2 mr-sm-2 mb-sm-0" id="inlineFormInputPassword" type="password" @keyup.enter="submit" v-model="password" placeholder="Password" />
 
          <b-button class="mb-2 mr-sm-2 mb-sm-0" @click="handleLogin()">Login</b-button>
     </b-form>
@@ -23,7 +23,8 @@ export default {
     methods: {
         handleLogin () {
             auth.login(this.username, this.password)
-                .then(this.$router.push('/Home'))
+                .then(_ => this.$router.push('/Home'))
+                .catch(_ => alert('Could not login'))
         }
     }
 }

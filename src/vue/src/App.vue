@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <header-bar/>
-        <router-view style="height: 100%"/>
+        <router-view class="fit-height"/>
     </div>
 </template>
 
@@ -41,13 +41,21 @@ img {
     max-height: 100%;
 }
 
+.fit-height {
+    flex: 1 1 auto;
+    display: flex;
+}
+
 #app {
     overflow-x: hidden;
     font-family: 'Roboto', sans-serif;
     font-size: 20px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-align: center;
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    padding-top: 70px;
 }
 
 h1 {
@@ -80,11 +88,13 @@ h4 {
 
 h5 {
     font-size: 30px;
+    margin-bottom: 0px;
 }
 
 h6 {
     font-size: 20px;
     color: var(--theme-blue);
+    margin-bottom: 0px;
 }
 
 .button {
@@ -92,21 +102,24 @@ h6 {
     font-size: 25px;
 }
 
-.left-content {
+.card {
+    margin-bottom: 8px;
+    text-align: left;
+    background-color: var(--theme-light-grey);
+    border-width: 0px;
+    border-left-width: 20px;
+    border-radius: 0px;
 }
 
-.main-content {
-    padding-top: 40px;
-    background-color: var(--theme-medium-grey);
+.card-body {
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 12px;
+    padding-bottom: 12px;
 }
 
-.right-content {
-
-}
-
-.portrait-container {
-    height: 100px;
-    width: 100px;
+.card:hover {
+    background-color: var(--theme-dark-grey);
 }
 
 .card.pink-border {
@@ -121,11 +134,8 @@ h6 {
     border-left-color: var(--theme-blue);
 }
 
-.card:hover {
-    background-color: var(--theme-dark-grey);
-}
-
-.card:hover {
-    background-color: var(--theme-dark-grey);
+.portrait-container {
+    height: 100px;
+    width: 100px;
 }
 </style>

@@ -31,11 +31,20 @@ export default new Router({
     }, {
         path: '/Home/:course',
         name: 'Course',
-        component: Course
+        component: Course,
+        props: {
+            courseName: '',
+            color: ''
+        }
     }, {
         path: '/Home/:course/:assign',
         name: 'Assignment',
-        component: Assignment
+        component: Assignment,
+        props: {
+            color: '',
+            courseName: '',
+            assignmentName: ''
+        }
     }, {
         path: '/Home/:course/:assign/:student',
         name: 'journal',
@@ -44,5 +53,14 @@ export default new Router({
         path: '/lti/launch',
         name: 'LtiLaunch',
         component: LtiLaunch
+    }, {
+        name: 'Journal',
+        component: Journal,
+        props: {
+            color: '',
+            courseName: '',
+            assignmentName: '',
+            journalName: ''
+        }
     }]
 })
