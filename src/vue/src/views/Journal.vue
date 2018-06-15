@@ -1,20 +1,20 @@
 <template>
         <content-columns>
-            <edag slot="left-content-column" @select-node="selectNode" :selected="selectedNode" :nodes="nodes"></edag>
+            <edag slot="left-content-column" @select-node="selectNode" :selected="currentNode" :nodes="nodes"></edag>
             <div slot="main-content-column">
                 <bread-crumb :currentPage="$route.params.assignmentName" :course="$route.params.courseName"></bread-crumb>
-                <div v-if="nodes[selectedNode].type == 'entry'">
-                    <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[selectedNode].textbox1"
-                        :textbox2="nodes[selectedNode].textbox2"
-                        :date="nodes[selectedNode].date"></entry-template>
+                <div v-if="nodes[currentNode].type == 'entry'">
+                    <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
+                        :textbox2="nodes[currentNode].textbox2"
+                        :date="nodes[currentNode].date"></entry-template>
                 </div>
-                <div v-else-if="nodes[selectedNode].type == 'add'">
+                <div v-else-if="nodes[currentNode].type == 'add'">
                     <add-card @add-template="addNode">bhjewk</add-card>
                 </div>
-                <div v-else-if="nodes[selectedNode].type == 'progress'">
-                    <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[selectedNode].textbox1"
-                        :textbox2="nodes[selectedNode].textbox2"
-                        :date="nodes[selectedNode].date"></entry-template>
+                <div v-else-if="nodes[currentNode].type == 'progress'">
+                    <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
+                        :textbox2="nodes[currentNode].textbox2"
+                        :date="nodes[currentNode].date"></entry-template>
                 </div>
             </div>
         </content-columns>
@@ -30,7 +30,7 @@ export default {
     name: 'Journal',
     data () {
         return {
-            selectedNode: 0,
+            currentNode: 0,
             editedData: ['', ''],
             nodes: [{
                 type: 'entry',
@@ -67,21 +67,22 @@ export default {
             this.nodes[this.currentNode].textbox1 = editedData[0]
             this.nodes[this.currentNode].textbox2 = editedData[1]
         },
-        // TODO maak deze functies weer mooi en duidelijk
         selectNode ($event) {
+            if ($event === this.currentNode) {
+                returncurrentNode
+            }
+
             if (this.nodes[this.currentNode].type !== 'entry') {
                 this.currentNode = $event
                 return
             }
 
-            if ($event === this.currentNode) {
-                return
-            }
-            if (this.$refs['entry-template-card'].save && this.$refs['entry-template-card'].save === 'Save') {
+            if (this.$refs['entry-template-card'].save === 'Save') {
                 if (!confirm('Oh no! Progress will not be saved if you leave. Do you wish to continue?')) {
                     return
                 }
             }
+
             this.$refs['entry-template-card'].cancel()
             this.currentNode = $event
         },
