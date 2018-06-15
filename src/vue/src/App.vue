@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <header-bar/>
-        <router-view style="height: 100%"/>
+        <router-view class="fit-height"/>
     </div>
 </template>
 
@@ -29,15 +29,6 @@ export default {
     --theme-medium-grey: #DEDEDE;
 }
 
-#app {
-    overflow-x: hidden;
-    font-family: 'Roboto', sans-serif;
-    font-size: 20px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-}
-
 * {
     border-radius: 0px !important;
     text-decoration: none !important;
@@ -50,13 +41,20 @@ img {
     max-height: 100%;
 }
 
+.fit-height {
+    flex: 1 1 auto;
+    display: flex;
+}
+
 #app {
     overflow-x: hidden;
     font-family: 'Roboto', sans-serif;
     font-size: 20px;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    text-align: center;
+    display: flex;
+    flex-flow: column;
+    height: 100%;
     padding-top: 70px;
 }
 
@@ -99,23 +97,26 @@ h6 {
     margin-bottom: 0px;
 }
 
-.button {
+.btn, .form-control {
     font-family: 'Roboto Condensed', sans-serif;
-    font-size: 25px;
+    font-size: 20px;
+    background-color: white;
+    color: var(--theme-dark-blue);
+    border: none;
 }
 
-.left-content {
+.form-control {
+    border-left: 15px solid var(--theme-dark-grey);
 }
 
-.main-content {
-    padding-top: 40px;
-    background-color: var(--theme-medium-grey);
+.btn {
+    border-left: 15px solid var(--theme-blue);
 }
 
-.right-content {
-    padding-top: 30px;
-    padding-left: 30px;
-    padding-right: 30px;
+.btn:hover {
+    background-color: var(--theme-dark-grey);
+    border-left: 15px solid var(--theme-blue);
+    color: white;
 }
 
 .card {

@@ -10,13 +10,11 @@ During the first and second years of the Bachelor Informatics at the University 
 git clone git@github.com:Rickyboy320/PSE_Hokkies.git
 cd PSE_Hokkies
 make setup
-make migrate-back
-make fill-db
 ```
 The first step downloads the full repository.
-`make setup` installs all required dependencies and sets up the virtual environment.
-`make migrate-back` sets up the database so that it can be properly used.
-`make fill-db` fills the database with random information so that we have something to show.
+`make setup` installs all required dependencies and sets up the virtual environment. This also runs
+- `make migrate-back` sets up the database so that it can be properly used.
+- `make fill-db` fills the database with random information so that we have something to show.
 
 # Development environment
 Frontend:  
@@ -30,7 +28,8 @@ To start the django-server type `make run-back` in the `PSE_Hokkies` folder.
 
 # Testing
 Tests are written in `src/vue/test` and `src/django/test` respectively.  
-To run the tests and linters, use `make test`. Make sure to run this before starting a Pull Request, else it is certain to fail.
+To run the tests and linters, use `make test`. Make sure to run this before starting a Pull Request, else it is certain to fail.  
+If you only want to test the frontend or backend, use `make test-front` and `make test-back` respectively.
 
 # Git Flow
 To initiate git flow, use `git flow init`. It will ask for settings, just press enter for all.

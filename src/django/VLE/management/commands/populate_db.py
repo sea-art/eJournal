@@ -22,14 +22,14 @@ class Command(BaseCommand):
             {"username": "Maarten", "type": "SU"}
         ]
         courses_examples = [
-            {"name": "Portofolio Academische Vaardigheden 1", "abbr": "PAV"},
-            {"name": "Portofolio Academische Vaardigheden 2", "abbr": "PAV"},
+            {"name": "Portfolio Academische Vaardigheden 1", "abbr": "PAV"},
+            {"name": "Portfolio Academische Vaardigheden 2", "abbr": "PAV"},
             {"name": "Beeldbewerken", "abbr": "BB"},
             {"name": "Automaten en Formele Talen", "abbr": "AFT"}
         ]
         assign_examples = [
             {"name": "Logboek", "courses": [0, 1, 2, 3]},
-            {"name": "colloquium", "courses": [0]},
+            {"name": "Colloquium", "courses": [0]},
             {"name": "Verslag", "courses": [0, 1]},
         ]
         journal_examples = [
@@ -54,20 +54,20 @@ class Command(BaseCommand):
             Participation(user=users[1], role=role, course=course).save()
             Participation(user=users[2], role=role, course=course).save()
             course.author = users[2]
+            course.startdate = faker.date_this_decade(before_today=True)
+            course.save()
             courses.append(course)
 
         assignments = []
         for a in assign_examples:
             assignment = Assignment(name=a["name"])
             assignment.save()
+            assignment.author = users[4]
+            assignment.deadline = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
+            assignment.save()
             for course in a["courses"]:
                 assignment.courses.add(courses[course])
             assignments.append(assignment)
-
-        journals = []
-        for j in journal_examples:
-            journal = Journal(assignment=assignments[j["assigns"]], user=users[j["users"]])
-            journal.save()
 
     def gen_random_users(self, amount):
         """
@@ -185,6 +185,8 @@ class Command(BaseCommand):
             assignment = Assignment()
             assignment.save()
             assignment.name = faker.catch_phrase()
+            assignment.deadline = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
+            assignment.author = User.objects.get(pk=1)
             assignment.description = faker.paragraph()
             courses = Course.objects.all()
             course_list = list()
@@ -202,16 +204,11 @@ class Command(BaseCommand):
         """
         Generate random journals.
         """
-        assignments = Assignment.objects.all()
-        users = User.objects.all()
-        journal_list = list()
-        for _ in range(amount):
-            if assignments.count() == 0:
-                continue
-            journal = Journal()
-            journal.assignment = random.choice(assignments)
-            journal.user = random.choice(users)
-            journal_list.append(journal)
+        journal_list = []
+        for assignment in Assignment.objects.all():
+            for user in User.objects.all():
+                journal = Journal(assignment=assignment, user=user)
+                journal_list.append(journal)
 
         # Using a bulk create speeds the process up.
         Journal.objects.bulk_create(journal_list)
