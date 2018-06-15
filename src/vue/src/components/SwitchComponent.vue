@@ -19,6 +19,7 @@ export default {
     methods: {
         switchVariable () {
             this.isActive = !this.isActive
+            this.$emit('parentActive', this.isActive)
         }
     }
 }
