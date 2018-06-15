@@ -69,7 +69,6 @@ export default {
             return this.edgeStyles[nodeIndex - 1]
         },
         lowerEdgeStyle (nodeIndex) {
-            console.log(nodeIndex)
             if (nodeIndex === this.nodes.length - 1) {
                 return {'background-color': 'white'}
             }
