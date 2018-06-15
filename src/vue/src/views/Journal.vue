@@ -71,21 +71,22 @@ export default {
             this.nodes[this.variable].textbox1 = editedData[0]
             this.nodes[this.variable].textbox2 = editedData[1]
         },
-        // TODO maak deze functies weer mooi en duidelijk
         selectNode ($event) {
+            if ($event === this.variable) {
+                return
+            }
+
             if (this.nodes[this.variable].type !== 'entry') {
                 this.variable = $event
                 return
             }
 
-            if ($event === this.variable) {
-                return
-            }
-            if (this.$refs['entry-template-card'].save && this.$refs['entry-template-card'].save === 'Save') {
+            if (this.$refs['entry-template-card'].save === 'Save') {
                 if (!confirm('Oh no! Progress will not be saved if you leave. Do you wish to continue?')) {
                     return
                 }
             }
+
             this.$refs['entry-template-card'].cancel()
             this.variable = $event
         },
