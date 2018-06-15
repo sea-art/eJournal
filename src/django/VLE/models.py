@@ -113,6 +113,14 @@ class Assignment(models.Model):
         on_delete=models.SET_NULL,
         null=True
     )
+    points_possible = models.IntegerField(
+        'points_possible',
+        null=True 
+    )
+    lti_id = models.TextField(
+        'lti_id',
+        null=True  # TODO Change if all assignments should be linked to a canvas course.
+    )
     courses = models.ManyToManyField(Course)
 
     def __str__(self):

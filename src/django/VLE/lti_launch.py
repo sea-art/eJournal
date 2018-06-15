@@ -6,9 +6,14 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from urllib.parse import quote
 import oauth2
 import json
-import pprint as pprint
+from datetime import datetime
 
-from .models import User
+from .models import User, Course, Assignment, Participation, Role, Journal
+
+
+def dec_to_hex(dec):
+    """Change int to hex value"""
+    return hex(dec).split('x')[-1]
 
 
 class OAuthRequestValidater(object):
@@ -68,17 +73,110 @@ def check_signature(key, secret, request):
     return validator.is_valid(request)
 
 
-def createNewUser(request):
-    user = User()
-    if "lis_person_contact_email_primary" in request.POST:
-        user.email = request.POST["lis_person_contact_email_primary"]
+def select_create_user(request):
+    lti_user_id = request["user_id"]
 
-    if "lis_person_sourcedid" in request.POST:
-        user.username = request.POST["lis_person_sourcedid"]
+    users = User.objects.filter(lti_id=lti_user_id)
+    if users.count() > 0:
+        user = users[0]
+    else:
+        user = User()
+        if "lis_person_contact_email_primary" in request:
+            user.email = request["lis_person_contact_email_primary"]
 
-    user.lti_id = lti_user_id
-    user.save()
+        if "lis_person_sourcedid" in request:
+            user.username = request["lis_person_sourcedid"]
+
+        user.lti_id = lti_user_id
+        user.save()
+
     return user
+
+
+def select_create_course(request, user):
+    """
+    Select or create a course requested.
+    """
+    course_id = request["context_id"]
+    courses = Course.objects.filter(lti_id=course_id)
+    roles = json.load(open('config.json'))
+
+    if courses.count() > 0:
+        # If course already exists, select it.
+        course = courses[0]
+
+        if user not in course.participations.all():
+            # If the user is not a participant, add a participation link with
+            # the correct role given by the lti request.
+            lti_roles = dict((roles[k], k) for k in roles)
+
+            # Add the logged in user to the course through participation.
+            # TODO Check if a teacher role already exists before adding it.
+            role = Role.objects.create(name=lti_roles[request["roles"]])
+            Participation.objects.create(user=user, course=course, role=role)
+    else:
+        if roles["teacher"] in request["roles"]:
+            course = Course()
+            course.name = request["context_title"]
+            course.abbreviation = request["context_label"]
+            course.lti_id = course_id
+            course.startdate = datetime.now()
+            course.save()
+
+            # Add the logged in user to the course through participation.
+            role = Role.objects.create(name='teacher')
+            Participation.objects.create(user=user, course=course, role=role)
+
+        else:
+            return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    return course
+
+
+def select_create_assignment(request, user, course):
+    """
+    Select or create a assignment requested.
+    """
+    assign_id = request["resource_link_id"]
+    assignments = Assignment.objects.filter(lti_id=assign_id)
+    roles = json.load(open('config.json'))
+    if assignments.count() > 0:
+        # If the assigment exists, select it and add the course if necessary.
+        assignment = assignments[0]
+        if course not in assignment.courses.all():
+            assignment.courses.add(course)
+
+    else:
+        # Try to create assignment.
+        if roles["teacher"] in request["roles"]:
+            # If user is a teacher, create the assignment.
+            assignment = Assignment()
+            assignment.name = request["resource_link_title"]
+            assignment.lti_id = assign_id
+            if "custom_canvas_assignment_points_possible" in request:
+                assignment.points_possible = request["custom_canvas_assignment_points_possible"]
+            assignment.save()
+            assignment.courses.add(course)
+        else:
+            return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    return assignment
+
+
+def select_create_journal(request, user, assignment):
+    roles = json.load(open('config.json'))
+    if roles["student"] in request["roles"]:
+        journals = Journal.objects.filter(user=user, assignment=assignment)
+        if journals.count() > 0:
+            journal = journals[0]
+        else:
+            journal = Journal()
+            journal.assignment = assignment
+            journal.user = user
+            journal.save()
+    else:
+        journal = None
+    return journal
 
 
 @csrf_exempt
@@ -97,62 +195,20 @@ def lti_launch(request):
         authicated, err = check_signature(key, secret, request)
 
         if authicated:
-            lti_user_id = request.POST["user_id"]
-
-            users = User.objects.filter(lti_id=lti_user_id)
-            if users.count() > 0:
-                user = users[0]
-            else:
-                user = createNewUser(request)
+            user = select_create_user(request.POST)
+            course = select_create_course(request.POST, user)
+            assignment = select_create_assignment(request.POST, user, course)
+            journal = select_create_journal(request.POST, user, assignment)
 
             token = TokenObtainPairSerializer.get_token(user)
             access = token.access_token
-            response = {'result': 'success'}
-            status = 200
-            return redirect('http://localhost:8080/#/lti/launch?jwt_refresh={0}&jwt_access={1}'.format(token, access))
 
+            student = dec_to_hex(user.pk) if journal else "undefined"
+            return redirect('http://localhost:8080/#/lti/launch?jwt_refresh={0}&jwt_access={1}&course={2}&assign={3}&student={4}'.format(token, access, dec_to_hex(course.pk), dec_to_hex(assignment.pk), student))
         else:
             response = {'error': '401 Authentication Error'}
             status = 401
             return HttpResponse("unsuccesfull auth, {0}".format(err))
-
-        # # Tutorial code not needed
-        # redir = False
-        # if redir:
-        #     # redirect with lti_errorlog
-        #     if "launch_presentation_return_url" in request.POST:
-        #         # Parameter to set start of parameters by checking if there are
-        #         # already parameters in string
-        #         startparam = "&" if "?" in request.POST["launch_presentation_return_url"] else "?"
-        #
-        #         # creates safe urls (& is not seen as new param)
-        #         param = "lti_errorlog="
-        #         param += quote("The floor's on fire... see... *&* the chair.", safe='')
-        #
-        #         return redirect(request.POST["launch_presentation_return_url"]+startparam+param)
-        #
-        #     # redirect with lti_errormsg
-        #     if "launch_presentation_return_url" in request.POST:
-        #         # Parameter to set start of parameters by checking if there are
-        #         # already parameters in string
-        #         startparam = "&" if "?" in request.POST["launch_presentation_return_url"] else "?"
-        #         return redirect(request.POST["launch_presentation_return_url"]+startparam+"lti_errormsg=Who's going to save you, Junior?!")
-        #
-        #
-        #     # redirect with lti_log
-        #     if "launch_presentation_return_url" in request.POST:
-        #         # Parameter to set start of parameters by checking if there are
-        #         # already parameters in string
-        #         startparam = "&" if "?" in request.POST["launch_presentation_return_url"] else "?"
-        #         return redirect(request.POST["launch_presentation_return_url"]+startparam+"lti_log=One ping only.")
-        #
-        #     # redirect with lti_msg
-        #     if "launch_presentation_return_url" in request.POST:
-        #         return redirect(request.POST["launch_presentation_return_url"]+"?lti_msg=Most things in here don't react well to bullets.")
-        #
-        #     # blank redirect
-        #     if "launch_presentation_return_url" in request.POST:
-        #         return redirect(request.POST["launch_presentation_return_url"])
 
         # Prints de post parameters als http page
         post = json.dumps(request.POST, separators=(',', ': '))
