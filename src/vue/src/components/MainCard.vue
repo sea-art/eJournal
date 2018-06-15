@@ -1,11 +1,11 @@
 <template>
     <b-card class="card" :class="color">
         <b-row align-h="between">
-            <b-col cols="6" lg-cols="6">
+            <b-col lg="6" sm="12">
                 <h2>{{ line1 }}</h2>
                 {{ line2 }}
             </b-col>
-            <b-col cols="2" lg-cols="2">
+            <b-col lg="6" sm="12">
                 <slot></slot>
             </b-col>
         </b-row>

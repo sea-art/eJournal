@@ -43,7 +43,7 @@ def get_user_courses(request):
     return JsonResponse({'result': 'success', 'courses': courses})
 
 
-def get_teacher_course_assignments(user, cID):
+def get_teacher_course_assignments(user, course):
     """Get the assignments from the course ID with extra information for the teacher
 
     Arguments:
@@ -54,7 +54,6 @@ def get_teacher_course_assignments(user, cID):
     """
     # TODO: check permission
 
-    course = Course.objects.get(pk=hex_to_dec(cID))
     assignments = []
     for assignment in course.assignment_set.all():
         assignments.append({
@@ -68,7 +67,7 @@ def get_teacher_course_assignments(user, cID):
     return assignments
 
 
-def get_student_course_assignments(user, cID):
+def get_student_course_assignments(user, course):
     """Get the assignments from the course ID with extra information for the student
 
     Arguments:
@@ -80,7 +79,11 @@ def get_student_course_assignments(user, cID):
     # TODO: check permission
     assignments = []
     for assignment in Assignment.objects.get_queryset().filter(courses=course):
-        journal = Journal.objects.get(assignment=assignment, user=request.user)
+        try:
+            journal = Journal.objects.get(assignment=assignment, user=user)
+        except Journal.DoesNotExist:
+            continue
+
         assignments.append({
             'aID': dec_to_hex(assignment.pk),
             'name': assignment.name,
@@ -107,11 +110,19 @@ def get_course_assignments(request, cID):
     if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    # TODO: Chech which type is needs to get back
-    return JsonResponse({
-        'result': 'success',
-        'assignments': get_teacher_course_assignments(user, cID)
-    })
+    course = Course.objects.get(pk=hex_to_dec(cID))
+    participation = Participation.objects.get(user=user, course=course)
+
+    if participation.role.can_view_assignment:
+        return JsonResponse({
+            'result': 'success',
+            'assignments': get_teacher_course_assignments(user, course)
+        })
+    else:
+        return JsonResponse({
+            'result': 'success',
+            'assignments': get_student_course_assignments(user, course)
+        })
 
 
 @api_view(['GET'])
@@ -128,7 +139,7 @@ def get_assignment_journals(request, aID):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    # TODO: Chech if the user has valid permissions to see get all the journals (teacher/ta)
+    # TODO: Check if the user has valid permissions to see get all the journals (teacher/ta)
     assignment = Assignment.objects.get(pk=hex_to_dec(aID))
     journals = []
 

@@ -69,7 +69,6 @@ export default {
                 this.save = 'Save'
             }
         },
-
         cancel: function () {
             this.save = 'Edit'
         }
