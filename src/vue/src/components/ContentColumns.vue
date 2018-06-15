@@ -38,4 +38,13 @@ export default {
     padding-left: 30px !important;
     padding-right: 30px !important;
 }
+
+@media(max-width:992px){
+    .right-content {
+        padding: 0px !important;
+    }
+}
+@media(min-width:768px){}
+@media(min-width:992px){}
+@media(min-width:1200px){}
 </style>

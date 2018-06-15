@@ -12,7 +12,7 @@
                                           }
                                         }">
                 <main-card :line1="a.name" :color="$route.params.color">
-                    <b-progress :value="a.progress.acquired" :max="a.progress.total"/>
+                    <progress-bar :currentPoints="a.progress.acquired" :totalPoints="a.progress.total"></progress-bar>
                 </main-card>
             </b-link>
         </div>
@@ -31,6 +31,7 @@ import contentColumns from '@/components/ContentColumns.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import mainCard from '@/components/MainCard.vue'
 import todoCard from '@/components/TodoCard.vue'
+import progressBar from '@/components/ProgressBar.vue'
 import assignment from '@/api/assignment.js'
 import getColors from '@/javascripts/colors.js'
 
@@ -47,7 +48,8 @@ export default {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'main-card': mainCard,
-        'todo-card': todoCard
+        'todo-card': todoCard,
+        'progress-bar': progressBar
     },
     created () {
         assignment.get_course_assignments(this.$route.params.course)
