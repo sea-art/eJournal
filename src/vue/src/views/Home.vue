@@ -3,9 +3,12 @@
         <bread-crumb slot="main-content-column" :currentPage="'Courses'"></bread-crumb>
         <div v-for="(c, i) in courses" :key="c.cID" slot="main-content-column">
             <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID, courseName: c.name, color: colors[i]}}">
-                <main-card :line1="c.name" :line2="c.date" :color="colors[i]"></main-card>
+                <main-card :line1="c.name" :line2="c.date" :color="colors[i]">
+                    <b-button @click.prevent.stop="deleteCourse(c.cID, c.name)"> Delete </b-button>
+                </main-card>
             </b-link>
         </div>
+        <main-card @click="test" slot="main-content-column" :line1="'+ Add course'"></main-card>
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="(d, i) in deadlines" :key="d.dID" slot="right-content-column">
@@ -67,6 +70,15 @@ export default {
         /* assignment.get_upcoming_deadlines()
            .then(response => { this.deadlines = response })
            .catch(_ => alert('Error while loading deadlines')) */
+    },
+    methods: {
+        deleteCourse (courseID, courseName) {
+            if (confirm('Are you sure you want to delete ' + courseName + '?'))
+            console.log('TODO Implement delete this course ID after privy check')
+        },
+        test () {
+            alert('test')
+        }
     }
 }
 </script>
