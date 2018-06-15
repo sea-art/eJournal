@@ -68,6 +68,18 @@ def check_signature(key, secret, request):
     return validator.is_valid(request)
 
 
+def createNewUser(request):
+    user = User()
+    if "lis_person_contact_email_primary" in request.POST:
+        user.email = request.POST["lis_person_contact_email_primary"]
+
+    if "lis_person_sourcedid" in request.POST:
+        user.username = request.POST["lis_person_sourcedid"]
+
+    user.lti_id = lti_user_id
+    user.save()
+    return user
+
 
 @csrf_exempt
 @xframe_options_exempt
@@ -91,16 +103,7 @@ def lti_launch(request):
             if users.count() > 0:
                 user = users[0]
             else:
-                user = User()
-                if "lis_person_contact_email_primary" in request.POST:
-                    user.email = request.POST["lis_person_contact_email_primary"]
-
-                if "lis_person_sourcedid" in request.POST:
-                    user.username = request.POST["lis_person_sourcedid"]
-
-                user.lti_id = lti_user_id
-                user.save()
-
+                user = createNewUser(request)
 
             token = TokenObtainPairSerializer.get_token(user)
             access = token.access_token
@@ -113,42 +116,43 @@ def lti_launch(request):
             status = 401
             return HttpResponse("unsuccesfull auth, {0}".format(err))
 
-        redir = False
-        if redir:
-            # redirect with lti_errorlog
-            if "launch_presentation_return_url" in request.POST:
-                # Parameter to set start of parameters by checking if there are
-                # already parameters in string
-                startparam = "&" if "?" in request.POST["launch_presentation_return_url"] else "?"
-
-                # creates safe urls (& is not seen as new param)
-                param = "lti_errorlog="
-                param += quote("The floor's on fire... see... *&* the chair.", safe='')
-
-                return redirect(request.POST["launch_presentation_return_url"]+startparam+param)
-
-            # redirect with lti_errormsg
-            if "launch_presentation_return_url" in request.POST:
-                # Parameter to set start of parameters by checking if there are
-                # already parameters in string
-                startparam = "&" if "?" in request.POST["launch_presentation_return_url"] else "?"
-                return redirect(request.POST["launch_presentation_return_url"]+startparam+"lti_errormsg=Who's going to save you, Junior?!")
-
-
-            # redirect with lti_log
-            if "launch_presentation_return_url" in request.POST:
-                # Parameter to set start of parameters by checking if there are
-                # already parameters in string
-                startparam = "&" if "?" in request.POST["launch_presentation_return_url"] else "?"
-                return redirect(request.POST["launch_presentation_return_url"]+startparam+"lti_log=One ping only.")
-
-            # redirect with lti_msg
-            if "launch_presentation_return_url" in request.POST:
-                return redirect(request.POST["launch_presentation_return_url"]+"?lti_msg=Most things in here don't react well to bullets.")
-
-            # blank redirect
-            if "launch_presentation_return_url" in request.POST:
-                return redirect(request.POST["launch_presentation_return_url"])
+        # # Tutorial code not needed
+        # redir = False
+        # if redir:
+        #     # redirect with lti_errorlog
+        #     if "launch_presentation_return_url" in request.POST:
+        #         # Parameter to set start of parameters by checking if there are
+        #         # already parameters in string
+        #         startparam = "&" if "?" in request.POST["launch_presentation_return_url"] else "?"
+        #
+        #         # creates safe urls (& is not seen as new param)
+        #         param = "lti_errorlog="
+        #         param += quote("The floor's on fire... see... *&* the chair.", safe='')
+        #
+        #         return redirect(request.POST["launch_presentation_return_url"]+startparam+param)
+        #
+        #     # redirect with lti_errormsg
+        #     if "launch_presentation_return_url" in request.POST:
+        #         # Parameter to set start of parameters by checking if there are
+        #         # already parameters in string
+        #         startparam = "&" if "?" in request.POST["launch_presentation_return_url"] else "?"
+        #         return redirect(request.POST["launch_presentation_return_url"]+startparam+"lti_errormsg=Who's going to save you, Junior?!")
+        #
+        #
+        #     # redirect with lti_log
+        #     if "launch_presentation_return_url" in request.POST:
+        #         # Parameter to set start of parameters by checking if there are
+        #         # already parameters in string
+        #         startparam = "&" if "?" in request.POST["launch_presentation_return_url"] else "?"
+        #         return redirect(request.POST["launch_presentation_return_url"]+startparam+"lti_log=One ping only.")
+        #
+        #     # redirect with lti_msg
+        #     if "launch_presentation_return_url" in request.POST:
+        #         return redirect(request.POST["launch_presentation_return_url"]+"?lti_msg=Most things in here don't react well to bullets.")
+        #
+        #     # blank redirect
+        #     if "launch_presentation_return_url" in request.POST:
+        #         return redirect(request.POST["launch_presentation_return_url"])
 
         # Prints de post parameters als http page
         post = json.dumps(request.POST, separators=(',', ': '))

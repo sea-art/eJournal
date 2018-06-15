@@ -16,7 +16,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from VLE.views import get_user_course
+from VLE.views import get_user_courses
 from VLE.lti_launch import lti_launch
 from VLE.views import get_course_assignments
 from VLE.views import get_assignment_journals

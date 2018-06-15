@@ -47,13 +47,6 @@ export default new Router({
         }
     }, {
         path: '/Home/:course/:assign/:student',
-        name: 'journal',
-        component: Journal
-    }, {
-        path: '/lti/launch',
-        name: 'LtiLaunch',
-        component: LtiLaunch
-    }, {
         name: 'Journal',
         component: Journal,
         props: {
@@ -62,5 +55,9 @@ export default new Router({
             assignmentName: '',
             journalName: ''
         }
+    }, {
+        path: '/lti/launch',
+        name: 'LtiLaunch',
+        component: LtiLaunch
     }]
 })

@@ -7,7 +7,6 @@
 </template>
 
 <script>
-import connection from '@/api/connection'
 export default {
     name: 'LtiLaunch',
     data () {
@@ -22,7 +21,6 @@ export default {
         this.msg = this.$route.query.jwt_access
         this.jwt_refresh = this.$route.query.jwt_refresh
         this.$router.push('/Home')
-
     }
 }
 </script>
