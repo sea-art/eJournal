@@ -9,7 +9,6 @@
                                 <b-button @click="$emit('add-template')">Add default template</b-button>
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12">
-                                Needs grading
                             </b-col>
                         </b-row>
                     </b-card>
