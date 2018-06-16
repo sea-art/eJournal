@@ -1,13 +1,20 @@
 <template>
-    <div>
-        <h4>
-            <b-breadcrumb v-if="$route.params.student != undefined" class="bread-crumb" :items="items.slice(0, 2).concat(' ')"/>
-            <b-breadcrumb v-else-if="$route.params.assign != undefined" class="bread-crumb" :items="items.slice(0, 2).concat(' ')"/>
-            <b-breadcrumb v-else-if="$route.params.course != undefined" class="bread-crumb" :items="items.slice(0, 1).concat(' ')"/>
-        </h4>
-        <h1>
-            {{ currentPage }}<br/>
-        </h1>
+    <div class="bread-crumb-container">
+        <b-row>
+            <b-col cols="12" md="10">
+                <h4>
+                    <b-breadcrumb v-if="$route.params.student != undefined" class="bread-crumb" :items="items.slice(0, 2).concat(' ')"/>
+                    <b-breadcrumb v-else-if="$route.params.assign != undefined" class="bread-crumb" :items="items.slice(0, 2).concat(' ')"/>
+                    <b-breadcrumb v-else-if="$route.params.course != undefined" class="bread-crumb" :items="items.slice(0, 1).concat(' ')"/>
+                </h4>
+                <h1 id="h1-current-page-breadcrumb">
+                    {{ currentPage }}<br/>
+                </h1>
+            </b-col>
+            <b-col>
+                <slot></slot>
+            </b-col>
+        </b-row>
     </div>
 </template>
 
@@ -57,9 +64,28 @@ export default {
 </script>
 
 <style>
+#h1-current-page-breadcrumb {
+    display: inline-block !important;
+    margin-bottom: 0px !important;
+}
+
+/* Most paddings/margins relate to full responive build, please take care.*/
 .bread-crumb {
     padding: 0px;
     background-color: var(--theme-medium-grey);
     margin-bottom: 0px;
+}
+
+.bread-crumb-container {
+    padding-right: 10px;
+    padding-bottom: 12px;
+    margin-bottom: -4px;
+}
+
+@media(max-width:992px) {
+    .bread-crumb-container  {
+        padding-top: 12px !important;
+        margin-top: -4px !important;
+    }
 }
 </style>

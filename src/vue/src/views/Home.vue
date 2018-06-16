@@ -1,10 +1,13 @@
 <template>
     <content-columns>
-        <bread-crumb slot="main-content-column" :currentPage="'Courses'"></bread-crumb>
+        <bread-crumb slot="main-content-column" :currentPage="'Courses'">
+            <b-button @click="customiseCourses()"> E </b-button>
+            <b-button class="float-right" @click="editCourses()"> Edit </b-button>
+        </bread-crumb>
         <div v-for="(c, i) in courses" :key="c.cID" slot="main-content-column">
             <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID, courseName: c.name, color: colors[i]}}">
                 <main-card :line1="c.name" :line2="c.date" :color="colors[i]">
-                    <b-button @click.prevent.stop="deleteCourse(c.cID, c.name)"> Delete </b-button>
+                    <b-button class="float-right" @click.prevent.stop="deleteCourse(c.cID, c.name)"> Delete </b-button>
                 </main-card>
             </b-link>
         </div>
@@ -76,8 +79,8 @@ export default {
             if (confirm('Are you sure you want to delete ' + courseName + '?'))
             console.log('TODO Implement delete this course ID after privy check')
         },
-        test () {
-            alert('test')
+        editCourses () {
+            alert('Go to edit courses panel')
         }
     }
 }
