@@ -1,7 +1,10 @@
 <template>
-    <content-columns>
-        <edag slot="left-content-column" @select-node="selectNode" :selected="variable" :nodes="nodes"></edag>
-        <div slot="main-content-column">
+    <b-row no-gutters>
+        {{ windowWidth }}
+        <b-col lg="3" order="3" order-lg="1" class="left-content d-none d-lg-block">
+            <edag @select-node="selectNode" :selected="variable" :nodes="nodes"></edag>
+        </b-col>
+        <b-col md="12" lg="6" order="2" class="main-content">
             <bread-crumb @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"></bread-crumb>
             <!--
                 Fill in the template using the corresponding data
@@ -20,8 +23,11 @@
                     :textbox2="nodes[variable].textbox2"
                     :date="nodes[variable].date"></entry-template>
             </div>
-        </div>
-    </content-columns>
+        </b-col>
+        <b-col md="12" lg="3" order="1" order-lg="3" class="right-content">
+            <slot name="right-content-column"></slot>
+        </b-col>
+    </b-row>
 </template>
 
 <script>
@@ -30,10 +36,12 @@ import entryTemplate from '@/components/TemplateCard.vue'
 import addCard from '@/components/AddCard.vue'
 import edag from '@/components/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
+
 export default {
     name: 'Journal',
     data () {
         return {
+            windowWidth: 0,
             variable: 0,
             editedData: ['', ''],
             nodes: [{
@@ -99,9 +107,26 @@ export default {
                 id: this.nodes.length
             })
         },
+        getWindowWidth (event) {
+            this.windowWidth = document.documentElement.clientWidth;
+        },
+        getWindowHeight (event) {
+            this.windowHeight = document.documentElement.clientHeight;
+        },
         customisePage () {
             alert('Wishlist: Customise page')
         }
+    },
+
+    mounted () {
+        this.$nextTick(function () {
+            window.addEventListener('resize', this.getWindowWidth)
+
+            this.getWindowWidth()
+        })
+    },
+    beforeDestroy () {
+        window.removeEventListener('resize', this.getWindowWidth);
     },
 
     components: {
