@@ -1,11 +1,14 @@
 <template>
     <b-row no-gutters>
-        {{ windowWidth }}
-        <b-col lg="3" order="3" order-lg="1" class="left-content d-none d-lg-block">
-            <edag @select-node="selectNode" :selected="variable" :nodes="nodes"></edag>
+        <b-col v-if="bootstrapLg()" cols="12">
+            <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
+            <edag @select-node="selectNode" :selected="variable" :nodes="nodes"/>
         </b-col>
-        <b-col md="12" lg="6" order="2" class="main-content">
-            <bread-crumb @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"></bread-crumb>
+        <b-col v-else xl="3" class="left-content">
+            <edag @select-node="selectNode" :selected="variable" :nodes="nodes"/>
+        </b-col>
+        <b-col lg="12" xl="6" order="2" class="main-content">
+            <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <!--
                 Fill in the template using the corresponding data
                 of the entry
@@ -24,9 +27,7 @@
                     :date="nodes[variable].date"></entry-template>
             </div>
         </b-col>
-        <b-col md="12" lg="3" order="1" order-lg="3" class="right-content">
-            <slot name="right-content-column"></slot>
-        </b-col>
+        <b-col cols="12" xl="3" order="3" class="right-content"/>
     </b-row>
 </template>
 
@@ -108,10 +109,16 @@ export default {
             })
         },
         getWindowWidth (event) {
-            this.windowWidth = document.documentElement.clientWidth;
+            this.windowWidth = document.documentElement.clientWidth
         },
         getWindowHeight (event) {
-            this.windowHeight = document.documentElement.clientHeight;
+            this.windowHeight = document.documentElement.clientHeight
+        },
+        bootstrapLg () {
+            return this.windowHeight < 1200
+        },
+        bootstrapMd () {
+            return this.windowHeight < 922
         },
         customisePage () {
             alert('Wishlist: Customise page')
@@ -126,7 +133,7 @@ export default {
         })
     },
     beforeDestroy () {
-        window.removeEventListener('resize', this.getWindowWidth);
+        window.removeEventListener('resize', this.getWindowWidth)
     },
 
     components: {
