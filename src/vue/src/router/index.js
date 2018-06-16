@@ -7,6 +7,7 @@ import Course from '@/views/Course'
 import Profile from '@/views/Profile'
 import Guest from '@/views/Guest'
 import Register from '@/views/Register'
+import CourseCreation from '@/views/CourseCreation'
 
 Vue.use(Router)
 
@@ -23,6 +24,10 @@ export default new Router({
         path: '/Home',
         name: 'Home',
         component: Home
+    }, {
+        path: '/CourseCreation',
+        name: 'CourseCreation',
+        component: CourseCreation
     }, {
         path: '/Profile',
         name: 'Profile',

@@ -38,6 +38,7 @@ import getColors from '@/javascripts/colors.js'
 
 export default {
     name: 'Course',
+    props: [],
     data () {
         return {
             assignments: [],
