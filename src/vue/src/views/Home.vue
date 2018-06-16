@@ -1,8 +1,7 @@
 <template>
     <content-columns>
-        <bread-crumb slot="main-content-column" :currentPage="'Courses'">
-            <b-button @click="customiseCourses()"> E </b-button>
-            <b-button class="float-right" @click="editCourses()"> Edit </b-button>
+        <bread-crumb @eye-click="customisePage" slot="main-content-column" :currentPage="'Courses'">
+            <!-- <b-button class="float-right" @click="editCourses()"> Edit </b-button> -->
         </bread-crumb>
         <div v-for="(c, i) in courses" :key="c.cID" slot="main-content-column">
             <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID, courseName: c.name, color: colors[i]}}">
@@ -11,7 +10,7 @@
                 </main-card>
             </b-link>
         </div>
-        <main-card @click="test" slot="main-content-column" :line1="'+ Add course'"></main-card>
+        <main-card slot="main-content-column" :line1="'+ Add course'"></main-card>
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="(d, i) in deadlines" :key="d.dID" slot="right-content-column">
@@ -81,6 +80,9 @@ export default {
         },
         editCourses () {
             alert('Go to edit courses panel')
+        },
+        customisePage () {
+            alert('Wishlist: Customise page')
         }
     }
 }

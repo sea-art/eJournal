@@ -2,7 +2,7 @@
     <content-columns>
         <edag slot="left-content-column" @select-node="selectNode" :selected="variable" :nodes="nodes"></edag>
         <div slot="main-content-column">
-            <bread-crumb :currentPage="$route.params.assignmentName" :course="$route.params.courseName"></bread-crumb>
+            <bread-crumb @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"></bread-crumb>
             <!--
                 Fill in the template using the corresponding data
                 of the entry
@@ -98,6 +98,9 @@ export default {
                 date: new Date(),
                 id: this.nodes.length
             })
+        },
+        customisePage () {
+            alert('Wishlist: Customise page')
         }
     },
 

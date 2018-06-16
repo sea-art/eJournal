@@ -1,26 +1,31 @@
 <template>
     <div class="bread-crumb-container">
         <b-row>
-            <b-col cols="12" md="10">
+            <b-col cols="12" md="12">
                 <h4>
                     <b-breadcrumb v-if="$route.params.student != undefined" class="bread-crumb" :items="items.slice(0, 2).concat(' ')"/>
                     <b-breadcrumb v-else-if="$route.params.assign != undefined" class="bread-crumb" :items="items.slice(0, 2).concat(' ')"/>
                     <b-breadcrumb v-else-if="$route.params.course != undefined" class="bread-crumb" :items="items.slice(0, 1).concat(' ')"/>
                 </h4>
                 <h1 id="h1-current-page-breadcrumb">
-                    {{ currentPage }}<br/>
+                    {{ currentPage }}
+                    <icon name="eye" @click.native="eyeClick" class="eye-icon" scale="1.75"></icon>
+                    <b-button class="float-right edit-button" @click="editCourses()"> Edit </b-button>
+                    <slot></slot>
                 </h1>
-            </b-col>
-            <b-col>
-                <slot></slot>
             </b-col>
         </b-row>
     </div>
 </template>
 
 <script>
+import icon from 'vue-awesome/components/Icon'
+
 export default {
     props: ['currentPage', 'course'],
+    components: {
+        icon
+    },
     data () {
         return {
             items: [{
@@ -59,13 +64,19 @@ export default {
                 }
             }]
         }
+    },
+    methods: {
+        eyeClick (e) {
+            this.$emit('eye-click')
+        }
     }
 }
 </script>
 
 <style>
 #h1-current-page-breadcrumb {
-    display: inline-block !important;
+    /*display: inline !important;*/
+    /*display: inline-block !important;*/
     margin-bottom: 0px !important;
 }
 
@@ -87,5 +98,13 @@ export default {
         padding-top: 12px !important;
         margin-top: -4px !important;
     }
+}
+
+.eye-icon {
+    color: var(--theme-light-grey);
+}
+
+.eye-icon:hover {
+    color: var(--theme-pink);
 }
 </style>
