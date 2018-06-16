@@ -1,7 +1,10 @@
 <template>
     <content-columns>
-        <bread-crumb @eye-click="customisePage" slot="main-content-column" :currentPage="'Courses'">
-            <!-- <b-button class="float-right" @click="editCourses()"> Edit </b-button> -->
+        <bread-crumb
+            @eye-click="customisePage()"
+            @edit-click="editCourses()"
+            slot="main-content-column"
+            :currentPage="'Courses'">
         </bread-crumb>
         <div v-for="(c, i) in courses" :key="c.cID" slot="main-content-column">
             <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID, courseName: c.name, color: colors[i]}}">

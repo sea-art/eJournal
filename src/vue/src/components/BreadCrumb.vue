@@ -9,8 +9,8 @@
                 </h4>
                 <h1 id="h1-current-page-breadcrumb">
                     {{ currentPage }}
-                    <icon name="eye" @click.native="eyeClick" class="eye-icon" scale="1.75"></icon>
-                    <b-button class="float-right edit-button" @click="editCourses()"> Edit </b-button>
+                    <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
+                    <b-button class="float-right edit-button" @click="editClick()"> Edit </b-button>
                     <slot></slot>
                 </h1>
             </b-col>
@@ -66,8 +66,11 @@ export default {
         }
     },
     methods: {
-        eyeClick (e) {
+        eyeClick () {
             this.$emit('eye-click')
+        },
+        editClick () {
+            this.$emit('edit-click')
         }
     }
 }
