@@ -79,8 +79,6 @@ export default {
 
 <style>
 #h1-current-page-breadcrumb {
-    /*display: inline !important;*/
-    /*display: inline-block !important;*/
     margin-bottom: 0px !important;
 }
 
