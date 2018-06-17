@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from VLE.models import *
+import VLE.edag as edag
 from faker import Faker
 import random
 faker = Faker()
@@ -60,7 +61,9 @@ class Command(BaseCommand):
 
         assignments = []
         for a in assign_examples:
-            assignment = Assignment(name=a["name"])
+            format = JournalFormat()
+            format.save()
+            assignment = Assignment(name=a["name"], format=format)
             assignment.save()
             assignment.author = users[4]
             assignment.deadline = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
@@ -182,7 +185,9 @@ class Command(BaseCommand):
         for _ in range(amount):
             if Course.objects.all().count() == 0:
                 continue
-            assignment = Assignment()
+            format = JournalFormat()
+            format.save()
+            assignment = Assignment(format=format)
             assignment.save()
             assignment.name = faker.catch_phrase()
             assignment.deadline = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
@@ -218,11 +223,14 @@ class Command(BaseCommand):
         Generate random entries.
         """
         journals = Journal.objects.all()
+        template = EntryTemplate(name="some_template")
+        template.save()
+
         entry_list = list()
         for _ in range(amount):
             if journals.count() == 0:
                 continue
-            entry = Entry()
+            entry = Entry(template=template)
             entry.journal = random.choice(journals)
             entry.datetime = faker.date_time_this_month(before_now=True)
             entry.late = faker.boolean()

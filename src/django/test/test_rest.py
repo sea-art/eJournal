@@ -10,6 +10,7 @@ from VLE.models import Assignment
 from VLE.models import Journal
 
 import VLE.util as util
+import VLE.edag as edag
 
 
 def logging_in(obj, username, password):

@@ -179,3 +179,19 @@ def get_upcoming_deadlines(request):
         })
 
     return JsonResponse({'result': 'success', 'deadlines': deadlines})
+
+
+@api_view(['GET'])
+def get_nodes(request, jID):
+    """Get all nodes contained within a journal.
+
+    Arguments:
+    request -- the request that was sent
+    jID     -- the journal id
+
+    Returns a json string containing all entry and deadline nodes.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    nodes = []

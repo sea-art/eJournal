@@ -15,16 +15,23 @@ class DataBaseTests(TestCase):
         user_test.save()
         course_test.save()
         course_test.author = user_test
-        ass_test = Assignment(name='tcolloq', description='description')
+
+        format = JournalFormat()
+        format.save()
+        ass_test = Assignment(name='tcolloq', description='description', format=format)
         ass_test.save()
         ass_test.courses.add(course_test)
         journ_test = Journal(user=user_test, assignment=ass_test)
         journ_test.save()
-        entr_test = Entry(journal=journ_test,
-                          datetime=datetime.datetime.today(), late=True)
+
+        template = EntryTemplate(name="some_template")
+        template.save()
+        entr_test = Entry(datetime=datetime.datetime.today(),
+                          late=True,
+                          template=template)
         entr_test.save()
 
-        self.assertEquals(entr_test.journal.pk, journ_test.pk)
+        self.assertEquals(entr_test.template.pk, template.pk)
         self.assertEquals(journ_test.user.pk, user_test.pk)
         self.assertEquals(journ_test.assignment.pk, ass_test.pk)
         self.assertEquals(course_test.author.pk, user_test.pk)
