@@ -61,8 +61,8 @@ export default {
         journal.get_assignment_journals(this.$route.params.assign)
             .then(response => {
                 this.assignJournals = response.journals
-                this.stats = response.stats})
-            .catch(_ => alert('Error while loading jounals'))
+                this.stats = response.stats
+            }).catch(_ => alert('Error while loading jounals'))
     }
 }
 </script>
