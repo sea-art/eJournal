@@ -12,16 +12,20 @@ from .models import User, Course, Assignment, Participation, Role, Journal
 
 
 def dec_to_hex(dec):
-    '''Change int to hex value'''
+    """Change int to hex value"""
     return hex(dec).split('x')[-1]
 
 
 class OAuthRequestValidater(object):
-    '''
-    OAuth request validater Django
-    '''
+    """
+    OAuth request validater class for Django Requests
+    """
 
     def __init__(self, key, secret):
+        """
+        Constructor die een server en consumer object aan maakt met de gegeven
+        key en secret
+        """
         super(OAuthRequestValidater, self).__init__()
         self.consumer_key = key
         self.consumer_secret = secret
@@ -34,6 +38,10 @@ class OAuthRequestValidater(object):
         )
 
     def parse_request(self, request):
+        """
+        Parses een django request om de method, url header en post data terug
+        te geven.
+        """
         headers = dict([(k, request.META[k])
                         for k in request.META if
                         k.upper().startswith('HTTP_') or
@@ -42,6 +50,10 @@ class OAuthRequestValidater(object):
         return request.method, request.build_absolute_uri(), headers, request.POST
 
     def is_valid(self, request):
+        """
+        Checks if the signature of the given request is valid based on the
+        consumers secret en key
+        """
         try:
             method, url, head, param = self.parse_request(request)
 
@@ -65,15 +77,19 @@ class OAuthRequestValidater(object):
 
 
 def check_signature(key, secret, request):
-    '''
+    """
     Validates OAuth request using the python-oauth2 library:
         https://github.com/simplegeo/python-oauth2.
-    '''
+    """
     validator = OAuthRequestValidater(key, secret)
     return validator.is_valid(request)
 
 
 def select_create_user(request):
+    """
+    Return the user of the lti_user_id in the request if it doesnt yet exist
+    the user is create in our database.
+    """
     lti_user_id = request['user_id']
 
     users = User.objects.filter(lti_id=lti_user_id)
@@ -94,9 +110,9 @@ def select_create_user(request):
 
 
 def select_create_course(request, user):
-    '''
+    """
     Select or create a course requested.
-    '''
+    """
     course_id = request['context_id']
     courses = Course.objects.filter(lti_id=course_id)
     roles = json.load(open('config.json'))
@@ -128,16 +144,16 @@ def select_create_course(request, user):
             Participation.objects.create(user=user, course=course, role=role)
 
         else:
-            return JsonResponse({'result': '401 Authentication Error'},
-                                status=401)
+            # TODO redirect to unauthorized page
+            return None
 
     return course
 
 
 def select_create_assignment(request, user, course):
-    '''
+    """
     Select or create a assignment requested.
-    '''
+    """
     assign_id = request['resource_link_id']
     assignments = Assignment.objects.filter(lti_id=assign_id)
     roles = json.load(open('config.json'))
@@ -160,13 +176,16 @@ def select_create_assignment(request, user, course):
             assignment.save()
             assignment.courses.add(course)
         else:
-            return JsonResponse({'result': '401 Authentication Error'},
-                                status=401)
+            # TODO redirect to unauthorized page
+            return None
 
     return assignment
 
 
 def select_create_journal(request, user, assignment):
+    """
+    Select or create the requested journal.
+    """
     roles = json.load(open('config.json'))
     if roles['student'] in request['roles']:
         journals = Journal.objects.filter(user=user, assignment=assignment)
@@ -185,14 +204,11 @@ def select_create_journal(request, user, assignment):
 @csrf_exempt
 @xframe_options_exempt
 def lti_launch(request):
+    """Django view for the lti post request."""
     if request.method == 'POST':
-        # canvas
+        # canvas TODO change to its own database based on the key in the request.
         secret = '4339900ae5861f3086861ea492772864'
         key = '0cd500938a8e7414ccd31899710c98ce'
-
-        # # tutorial
-        # secret = '85c6d62c8684f0ff4f3ad49166a4e387'
-        # key = 'b25d130af472a09c9d5897587b7f387f'
 
         print('key = postkey', key == request.POST['oauth_consumer_key'])
         authicated, err = check_signature(key, secret, request)
