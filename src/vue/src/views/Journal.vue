@@ -40,6 +40,7 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 
 export default {
     name: 'Journal',
+    props: ['id'],
     data () {
         return {
             windowWidth: 0,

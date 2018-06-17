@@ -8,6 +8,7 @@ import Profile from '@/views/Profile'
 import Guest from '@/views/Guest'
 import Register from '@/views/Register'
 import CourseCreation from '@/views/CourseCreation'
+import AssignmentsOverview from '@/views/AssignmentsOverview'
 
 Vue.use(Router)
 
@@ -17,13 +18,13 @@ export default new Router({
         name: 'Guest',
         component: Guest
     }, {
-        path: '/Register',
-        name: Register,
-        component: Register
-    }, {
         path: '/Home',
         name: 'Home',
         component: Home
+    }, {
+        path: '/Register',
+        name: Register,
+        component: Register
     }, {
         path: '/CourseCreation',
         name: 'CourseCreation',
@@ -33,31 +34,23 @@ export default new Router({
         name: 'Profile',
         component: Profile
     }, {
-        path: '/Home/:course',
+        path: '/AssignmentsOverview',
+        name: 'AssignmentsOverview',
+        component: AssignmentsOverview
+    }, {
+        path: '/Home/Course/:id',
         name: 'Course',
         component: Course,
-        props: {
-            courseName: '',
-            color: ''
-        }
+        props: true
     }, {
-        path: '/Home/:course/:assign',
+        path: '/Home/Course/Assignment/:id',
         name: 'Assignment',
         component: Assignment,
-        props: {
-            color: '',
-            courseName: '',
-            assignmentName: ''
-        }
+        props: true
     }, {
-        path: '/Home/:course/:assign/:student',
+        path: '/Home/Course/Assignment/Journal/:id',
         name: 'Journal',
         component: Journal,
-        props: {
-            color: '',
-            courseName: '',
-            assignmentName: '',
-            journalName: ''
-        }
+        props: true
     }]
 })

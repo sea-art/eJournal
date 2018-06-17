@@ -37,6 +37,7 @@ import journal from '@/api/journal.js'
 
 export default {
     name: 'Assignment',
+    props: ['id'],
     data () {
         return {
             assignmentJournals: []

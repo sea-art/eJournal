@@ -1,53 +1,79 @@
 <template>
     <b-navbar id="header" toggleable="md" type="dark" fixed=top>
+        <b-navbar-brand v-if="isGuest" :to="'/'" class="brand-name">Logboek</b-navbar-brand>
+        <b-navbar-brand v-else :to="'/Home'" class="brand-name">Logboek</b-navbar-brand>
 
-        <b-navbar-brand :to='"/Home"' class="brand-name">Logboek</b-navbar-brand>
         <b-navbar-toggle target="nav_collapse"></b-navbar-toggle>
 
-        <!-- TODO: State-based if statements for display logic. -->
-        <b-collapse v-if="$route.path != '/'" is-nav id="nav_collapse">
-            <b-navbar-nav>
-                <b-nav-item :to='"/Home"'>Courses</b-nav-item>
-                <b-nav-item :to='"/Home"'>Assignments</b-nav-item>
+        <b-collapse is-nav id="nav_collapse">
+            <b-navbar-nav v-if="!isGuest">
+                <b-nav-item :to="{ name : 'Home' }">Courses</b-nav-item>
+                <b-nav-item :to="{ name : 'AssignmentsOverview' }">Assignments</b-nav-item>
             </b-navbar-nav>
-
-            <!-- Right aligned nav items; ml-auto means margin-left:
-            auto which aligns an element to the right. -->
-            <b-navbar-nav class="ml-auto">
-                <b-nav-item-dropdown no-caret right no-body id="nav-dropdown-options">
-                    <img id="nav-profile-image" slot="button-content" src="./assets/ohno.jpeg">
-                    <router-link tag="b-dropdown-item" :to='"/Profile"' class="btn">Profile</router-link>
-                    <router-link tag="b-dropdown-item" :to='"/"' class="btn">Sign Out</router-link>
-                </b-nav-item-dropdown>
-            </b-navbar-nav>
+            <b-nav-dropdown v-if="!isGuest" class="ml-auto" right no-caret id="nav-dropdown-options">
+                <img id="nav-profile-image" slot="button-content" src="./assets/ohno.jpeg">
+                <router-link tag="b-dropdown-item" :to='"/Profile"' class="btn">Profile</router-link>
+                <b-button @click="handleLogout()">Sign out</b-button>
+            </b-nav-dropdown>
+            <b-nav-dropdown v-if="isGuest" class="ml-auto testt" right no-caret id="nav-dropdown-options-guest">
+                <img id="nav-profile-image" slot="button-content" src="~@/assets/unknown-profile.png">
+                <login-form @login-succes="handleLoginSucces()"/>
+            </b-nav-dropdown>
         </b-collapse>
-
-        <b-collapse v-else is-nav id="nav_collapse">
-            <b-navbar-nav class="ml-auto">
-                <login-inline></login-inline>
-                <img id="nav-profile-image" slot="button-content" src="./assets/unknown-profile.png">
-            </b-navbar-nav>
-        </b-collapse>
-
     </b-navbar>
 </template>
 
 <script>
-import LoginInline from '@/components/LoginInline.vue'
+import LoginForm from '@/components/LoginForm.vue'
 
 export default {
     components: {
-        'login-inline': LoginInline
+        'login-form': LoginForm
+    },
+    data () {
+        return {
+            // TODO Figure out why webpack messes this up
+            profileImg: '~@/assets/unknown-profile.png',
+            isGuest: true
+        }
+    },
+    methods: {
+        checkPermissions () {
+            this.isGuest = this.$router.currentRoute.path === '/'
+        },
+        handleLogout () {
+            alert('Handle logout')
+            this.isGuest = true
+            this.$router.push('/')
+        },
+        handleLoginSucces() {
+            this.isGuest = false
+            // this.$root.$emit('bv::toggle::collapse', 'nav_collapse')
+            this.show = false
+            this.$nextTick(() => { this.show = true })
+            this.$router.push('/Home')
+        }
+    },
+    created () {
+        this.checkPermissions()
     }
 }
 </script>
 
 <style>
+.testt {
+    background-color: var(--theme-dark-blue) !important;
+}
+
 #header {
     background-color: var(--theme-dark-blue);
     color: var(--theme-pink);
     font-family: 'Roboto Condensed', sans-serif;
     height: 70px;
+}
+
+#nav_collapse {
+    background-color: var(--theme-dark-blue);
 }
 
 #nav-dropdown-options a {
