@@ -1,5 +1,5 @@
 <template>
-    <b-card class="card container-fluid">
+    <b-card class="card container-fluid" :class="color">
         <b-row>
             <b-col cols="3">
                 <div class="portrait-container" fluid-grow>
@@ -27,7 +27,7 @@ import todoSquare from '@/components/TodoSquare.vue'
 
 export default {
     props: ['student', 'studentNumber', 'studentPortraitPath',
-            'studentProgress', 'entryStats'],
+            'studentProgress', 'entryStats', 'color'],
     components: {
         'progress-bar': progressBar,
         'todo-square': todoSquare

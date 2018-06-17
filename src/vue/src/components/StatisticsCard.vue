@@ -1,12 +1,12 @@
 <template>
-    <b-card class="card" style="">
+    <b-card class="card" :class="color" style="">
         <b>{{ subject }}</b><div class="point-square">{{ num }}</div>
     </b-card>
 </template>
 
 <script>
 export default {
-    props: ['subject', 'num']
+    props: ['subject', 'num', 'color']
 }
 </script>
 

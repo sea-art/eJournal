@@ -22,16 +22,17 @@
                     :studentNumber="j.studentnumber"
                     :studentPortraitPath="j.studentPortraitPath"
                     :studentProgress="j.progress"
-                    :entryStats="j.entryStats">
+                    :entryStats="j.entryStats"
+                    :color="cardColor">
                 </student-card>
             </b-link>
         </div>
         <div slot="right-content-column">
             <h3>Statistics</h3>
-            <statistics-card :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>
-            <statistics-card :subject="'Average points'" :num="stats.avgPoints"></statistics-card>
-            <statistics-card :subject="'Median points'" :num="stats.medianPoints"></statistics-card>
-            <statistics-card :subject="'Average entries'" :num="stats.avgEntries"></statistics-card>
+            <statistics-card :color="cardColor" :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>
+            <statistics-card :color="cardColor" :subject="'Average points'" :num="stats.avgPoints"></statistics-card>
+            <statistics-card :color="cardColor" :subject="'Median points'" :num="stats.medianPoints"></statistics-card>
+            <statistics-card :color="cardColor" :subject="'Average entries'" :num="stats.avgEntries"></statistics-card>
         </div>
     </content-columns>
 </template>
@@ -41,6 +42,7 @@ import contentColumns from '@/components/ContentColumns.vue'
 import studentCard from '@/components/StudentCard.vue'
 import statisticsCard from '@/components/StatisticsCard.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
+import * as color from '@/javascripts/colors.js'
 import journal from '@/api/journal.js'
 
 export default {
@@ -48,7 +50,8 @@ export default {
     data () {
         return {
             assignJournals: [],
-            stats: []
+            stats: [],
+            cardColor: ''
         }
     },
     components: {
@@ -62,7 +65,9 @@ export default {
             .then(response => {
                 this.assignJournals = response.journals
                 this.stats = response.stats
-            }).catch(_ => alert('Error while loading jounals'))
+            })
+            .catch(_ => alert('Error while loading jounals'))
+            .then(_ => { this.cardColor = color.pickColor(this.$route.params.assign)})
     }
 }
 </script>

@@ -22,7 +22,7 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 import mainCard from '@/components/MainCard.vue'
 import todoCard from '@/components/TodoCard.vue'
 import course from '@/api/course'
-import getColors from '@/javascripts/colors.js'
+import * as color from '@/javascripts/colors.js'
 /* import assignment from '@/api/assignment' */
 
 export default {
@@ -62,7 +62,7 @@ export default {
         course.get_user_courses()
             .then(response => { this.courses = response })
             .catch(_ => alert('Error while loading courses'))
-            .then(_ => { this.colors = getColors(this.courses.length) })
+            .then(_ => { this.colors = color.getColors(this.courses.length) })
 
         /* assignment.get_upcoming_deadlines()
            .then(response => { this.deadlines = response })
