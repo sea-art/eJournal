@@ -54,7 +54,8 @@ class Course(models.Model):
         null=True,
     )
     lti_id = models.TextField(
-        null=True, #TODO Change if all courses should be linked to a canvas course.
+        # TODO Change if all courses should be linked to a canvas course.
+        null=True,
         unique=True,
     )
 
@@ -115,11 +116,12 @@ class Assignment(models.Model):
     )
     points_possible = models.IntegerField(
         'points_possible',
-        null=True 
+        null=True
     )
     lti_id = models.TextField(
         'lti_id',
-        null=True  # TODO Change if all assignments should be linked to a canvas course.
+        # TODO Change if all assignments should be linked to a canvas course.
+        null=True
     )
     courses = models.ManyToManyField(Course)
 

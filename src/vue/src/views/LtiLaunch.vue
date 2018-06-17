@@ -23,10 +23,10 @@ export default {
         var student = this.$route.query.student
         var assign = this.$route.query.assign
         var course = this.$route.query.course
-        if (student === "undefined") {
-            this.$router.push({name:"Assignment", params: {course:course, assign:assign}})
+        if (student === 'undefined') {
+            this.$router.push({name: 'Assignment', params: {course: course, assign: assign}})
         } else {
-            this.$router.push({name:"Journal", params: {course:course, assign:assign, student:student}})
+            this.$router.push({name: 'Journal', params: {course: course, assign: assign, student: student}})
         }
     }
 }
