@@ -72,6 +72,9 @@ class Role(models.Model):
     can_view_assignment = models.BooleanField(default=False)
     can_submit_assignment = models.BooleanField(default=False)
 
+    def __str__(self):
+        return str(vars(self))
+
 
 class Participation(models.Model):
     """
@@ -87,6 +90,10 @@ class Participation(models.Model):
         on_delete=models.SET_NULL,
         related_name='role',
     )
+
+    # TODO: Unique, but fails in test script.
+    # class Meta:
+    #     unique_together = ('user', 'course',)
 
 
 class Assignment(models.Model):

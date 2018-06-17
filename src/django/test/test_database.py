@@ -1,6 +1,7 @@
 import datetime
 from django.test import TestCase
 from VLE.models import *
+from VLE.views import *
 
 
 class DataBaseTests(TestCase):
@@ -28,3 +29,59 @@ class DataBaseTests(TestCase):
         self.assertEquals(journ_test.user.pk, user_test.pk)
         self.assertEquals(journ_test.assignment.pk, ass_test.pk)
         self.assertEquals(course_test.author.pk, user_test.pk)
+
+    def test_emptyPermissions(self):
+        """Test a request that doesn't need permissions."""
+        usr = User(email='t@t.com', username='teun',
+                   password='1234', lti_id='a')
+        usr.save()
+        crs = Course(name='test course please ignore', abbreviation='XXXX',
+                     startdate=datetime.date.today())
+        crs.save()
+        role = Role(name="Student")
+        role.save()
+
+        # Connect a participation to a user, course and role.
+        participation = Participation(user=usr, role=role, course=crs)
+        participation.save()
+
+        self.assertTrue(check_permissions(usr, crs.id, []))
+
+    def test_permission(self):
+        """Test a request that needs a single permission."""
+        usr = User(email='t@t.com', username='teun',
+                   password='1234', lti_id='a')
+        usr.save()
+
+        crs = Course(name='test course please ignore', abbreviation='XXXX',
+                     startdate=datetime.date.today())
+        crs.save()
+
+        role = Role(name="Student", can_submit_assignment=True)
+        role.save()
+
+        participation = Participation(user=usr, role=role, course=crs)
+        participation.save()
+
+        self.assertTrue(check_permissions(usr, crs.id, ["can_submit_assignment"]))
+        self.assertFalse(check_permissions(usr, crs.id, ["can_edit_grades"]))
+
+    def test_permission_multiple(self):
+        """Test a request that needs multiple permissions."""
+        usr = User(email='t@t.com', username='teun',
+                   password='1234', lti_id='a')
+        usr.save()
+
+        crs = Course(name='test course please ignore', abbreviation='XXXX',
+                     startdate=datetime.date.today())
+        crs.save()
+
+        role = Role(name="TA", can_submit_assignment=True, can_view_grades=True, can_edit_assignment=True)
+        role.save()
+
+        participation = Participation(user=usr, role=role, course=crs)
+        participation.save()
+
+        self.assertTrue(check_permissions(usr, crs.id, ["can_submit_assignment", "can_view_grades"]))
+        self.assertFalse(check_permissions(usr, crs.id, ["can_submit_assignment", "can_edit_grades",
+                                                         "can_edit_assignment"]))
