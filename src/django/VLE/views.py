@@ -26,7 +26,7 @@ def user_to_obj(user):
     return {
         'name': str(user),
         'picture': user.profile_picture if user.profile_picture else '../assets/logo.png',
-        'number': dec_to_hex(user.id)
+        'uID': dec_to_hex(user.id)
     } if user else None
 
 
@@ -74,7 +74,7 @@ def get_teacher_course_assignments(user, course):
             'aID': dec_to_hex(assignment.id),
             'name': str(assignment),
             'auth': user_to_obj(assignment.author),
-            'description': str(assignment.description),
+            'description': assignment.description,
             'progress': {'acquired': randint(0, 10), 'total': 10}  # TODO: Change random to real progress
         })
 
@@ -162,7 +162,6 @@ def get_assignment_journals(request, aID):
             'student': user_to_obj(journal.user),
             'progress': {'acquired': 10, 'total': 10},  # TODO: Add real progress
             'stats': {'graded': 1, 'total': 1},  # TODO: Add real stats
-            'uID': dec_to_hex(journal.id)
         })
 
     return JsonResponse({'result': 'success', 'journals': journals})

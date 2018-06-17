@@ -19,7 +19,7 @@
                                         }">
                 <student-card
                     :student="journal.student.name"
-                    :studentNumber="journal.student.number"
+                    :studentNumber="journal.student.uID"
                     :studentPortraitPath="journal.student.picture"
                     :progress="journal.progress"
                     :entriesStats="journal.entriesStats">
