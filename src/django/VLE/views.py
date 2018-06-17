@@ -26,8 +26,8 @@ def user_to_obj(user):
     return {
         'name': str(user),
         'picture': user.profile_picture if user.profile_picture else '../assets/logo.png',
-        'number': user.id
-    }
+        'number': dec_to_hex(user.id)
+    } if user else None
 
 
 @api_view(['GET'])
@@ -47,11 +47,11 @@ def get_user_courses(request):
     courses = []
     for course in user.participations.all():
         courses.append({
+            'cID': dec_to_hex(course.id),
             'name': str(course),
-            'auth': str(course.author),
+            'auth': user_to_obj(course.author),
             'date': course.startdate,
-            'abbr': course.abbreviation,
-            'cID': dec_to_hex(course.id)
+            'abbr': course.abbreviation
         })
 
     return JsonResponse({'result': 'success', 'courses': courses})
@@ -73,7 +73,7 @@ def get_teacher_course_assignments(user, course):
         assignments.append({
             'aID': dec_to_hex(assignment.id),
             'name': str(assignment),
-            'auth': str(assignment.author),
+            'auth': user_to_obj(assignment.author),
             'description': str(assignment.description),
             'progress': {'acquired': randint(0, 10), 'total': 10}  # TODO: Change random to real progress
         })

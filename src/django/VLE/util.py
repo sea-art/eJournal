@@ -4,6 +4,7 @@ from VLE.models import Assignment
 from VLE.models import Journal
 import random
 
+
 def make_user(username, password, profile_picture=None):
     user = User(username=username)
     user.save()
