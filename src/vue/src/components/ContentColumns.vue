@@ -45,7 +45,7 @@ export default {
     padding-right: 30px !important;
 }
 
-/* Needed for full responsiveness, please double check before changing!. */
+/* Needed for full responsiveness, please double check before changing! */
 @media(max-width:992px){
     .right-content {
         padding: 0px !important;
