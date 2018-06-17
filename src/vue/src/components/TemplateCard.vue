@@ -7,7 +7,7 @@
                     <b-card class="card main-card" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
-                                Subject: <b-textarea v-model="tempbox1"></b-textarea><br>
+                                <h2>Subject:</h2> <b-textarea v-model="tempbox1"></b-textarea><br>
                                 Deadline: {{ date }}
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
@@ -17,7 +17,7 @@
                         <b-row>
                             <b-col id="main-card-left-column" cols="12" lg-cols="12">
                                 <br>
-                                Description: <br>
+                                <h2>Description:</h2>
                                 <b-textarea v-model="tempbox2"></b-textarea><br><br>
                                 <b-button @click="saveEdit">{{ save }} </b-button>
                                 <b-button @click="cancel">Cancel</b-button>
@@ -34,7 +34,6 @@
                                 <b-button @click="saveEdit">{{ save }} </b-button>
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12">
-                                Needs grading
                             </b-col>
                         </b-row>
                     </b-card>
@@ -70,7 +69,6 @@ export default {
                 this.save = 'Save'
             }
         },
-
         cancel: function () {
             this.save = 'Edit'
         }
