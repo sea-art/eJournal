@@ -40,9 +40,9 @@
                 </div>
             </b-col>
         </b-row>
-        <div v-for="item in comments">
+        <!-- <div v-for="item in comments">
             <comment-card @edit-comment="adaptComment" :comment="item.message"/>
-        </div>
+        </div> -->
         <!-- <comment-card @edit-comment="adaptComment" :comment="comment"/> -->
     </div>
 </template>
@@ -77,7 +77,7 @@ export default {
             this.comment = editedComment
         },
         addComment () {
-            comments.push({message: '', person: 'Load person here'})
+            this.comments.push({message: '', person: 'Load person here'})
         },
         saveEdit: function () {
             if (this.saveEditMode === 'Save') {
