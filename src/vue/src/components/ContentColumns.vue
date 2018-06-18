@@ -26,6 +26,12 @@ export default {
     padding-right: 30px !important;
 }
 
+@media(max-width:992px){
+    .main-content {
+        padding-top: 0px !important;
+    }
+}
+
 .main-content {
     padding-top: 40px;
     background-color: var(--theme-medium-grey);
@@ -38,4 +44,15 @@ export default {
     padding-left: 30px !important;
     padding-right: 30px !important;
 }
+
+/* Needed for full responsiveness, please double check before changing! */
+@media(max-width:992px){
+    .right-content {
+        padding: 0px !important;
+        margin-top: 8px;
+    }
+}
+@media(min-width:768px){}
+@media(min-width:992px){}
+@media(min-width:1200px){}
 </style>

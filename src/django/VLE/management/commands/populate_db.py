@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from VLE.models import *
+from VLE.util import *
 from faker import Faker
 import random
 faker = Faker()
@@ -39,10 +40,7 @@ class Command(BaseCommand):
 
         users = []
         for u in users_examples:
-            user = User(username=u["username"])
-            user.set_password('pass')
-            user.save()
-            users.append(user)
+            users.append(make_user(u['username'], 'pass'))
 
         courses = []
         for c in courses_examples:
@@ -79,7 +77,6 @@ class Command(BaseCommand):
 
         for _ in range(amount):
             user = User()
-            user.email = faker.ascii_safe_email()
             # Generate unique email or exit.
             user.email = faker.ascii_safe_email()
             counter = 0
@@ -101,6 +98,7 @@ class Command(BaseCommand):
                 exit()
 
             user.set_password(faker.password())
+            user.profile_picture = '/static/oh_no/{}.png'.format(random.randint(1, 10))
 
             # Generate unique lti_id.
             user.lti_id = faker.name()

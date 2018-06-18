@@ -1,15 +1,14 @@
 <template>
     <b-row>
-        <b-col cols="2">
+        <b-col cols="4">
             <img src='../assets/ohno.jpeg'>
         </b-col>
-        <b-col cols="5">
+        <b-col cols="8">
             <h7>{{ name }}</h7><br>
             <p class="profile-data">{{ email }}</p>
             <p class="profile-data">{{ id }}</p>
             <p class="profile-data">{{ courses[0].name }}</p>
         </b-col>
-        <b-col cols="5">TOP RIGHT</b-col>
     </b-row>
 </template>
 

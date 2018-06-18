@@ -1,11 +1,22 @@
 <template>
     <content-columns>
-        <bread-crumb slot="main-content-column" :currentPage="'Courses'"></bread-crumb>
+        <bread-crumb
+            @eye-click="customisePage()"
+            @edit-click="editCourses()"
+            slot="main-content-column"
+            :currentPage="'Courses'">
+        </bread-crumb>
         <div v-for="(c, i) in courses" :key="c.cID" slot="main-content-column">
-            <b-link tag="b-button" :to="{name: 'Course', params: {course: c.cID, courseName: c.name, color: colors[i]}}">
-                <main-card :line1="c.name" :line2="c.date" :color="colors[i]"></main-card>
+            <b-link :to="{name: 'Course', params: {course: c.cID, courseName: c.name, color: colors[i]}}">
+                <main-card :line1="c.name" :line2="c.date" :color="colors[i]">
+                    <b-button class="float-right" @click.prevent.stop="deleteCourse(c.cID, c.name)"> Delete </b-button>
+                </main-card>
             </b-link>
         </div>
+
+        <b-link slot="main-content-column" :to="{name: 'CourseCreation'}">
+            <main-card :line1="'+ Add course'"/>
+        </b-link>
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="(d, i) in deadlines" :key="d.dID" slot="right-content-column">
@@ -13,6 +24,22 @@
                 <todo-card :line0="d.datetime" :line1="d.name" :line2="d.course" :color="colors[i]"></todo-card>
             </b-link>
         </div>
+
+        <!-- TODO cleanup : move to component -->
+        <b-modal
+            slot="main-content-column"
+            ref="editModalRef"
+            title="Global changes"
+            @ok="handleEditConfirm()">
+            <form @submit.stop.prevent="handleEditConfirm">
+                <label for="input-institute-name">Institute name:</label>
+                <b-form-input id="input-institute-name"
+                    type="text"
+                    placeholder="Change your institutes name"
+                    v-model="intituteName">
+                </b-form-input>
+            </form>
+        </b-modal>
     </content-columns>
 </template>
 
@@ -29,6 +56,7 @@ export default {
     name: 'Home',
     data () {
         return {
+            intituteName: 'Universiteit van Amsterdam (UvA)',
             colors: [],
             courses: [],
             deadlines: [{
@@ -67,6 +95,26 @@ export default {
         /* assignment.get_upcoming_deadlines()
            .then(response => { this.deadlines = response })
            .catch(_ => alert('Error while loading deadlines')) */
+    },
+    methods: {
+        deleteCourse (courseID, courseName) {
+            if (confirm('Are you sure you want to delete ' + courseName + '?')) {
+                console.log('TODO Implement delete this course ID after privy check')
+            }
+        },
+        editCourses () {
+            this.$refs.editModalRef.show()
+        },
+        handleEditConfirm () {
+            alert('Edit confirm')
+            this.hideModal()
+        },
+        hideModal () {
+            this.$refs.editModalRef.hide()
+        },
+        customisePage () {
+            alert('Wishlist: Customise page')
+        }
     }
 }
 </script>

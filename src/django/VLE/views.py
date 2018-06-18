@@ -15,6 +15,21 @@ def dec_to_hex(dec):
     return hex(dec).split('x')[-1]
 
 
+def user_to_obj(user):
+    """Get a object of a single user
+
+    Arguments:
+    user -- user to create the object with
+
+    returns object of that user
+    """
+    return {
+        'name': str(user),
+        'picture': user.profile_picture if user.profile_picture else '../assets/logo.png',
+        'uID': dec_to_hex(user.id)
+    } if user else None
+
+
 @api_view(['GET'])
 def get_user_courses(request):
     """Get the courses that are linked to the user linked to the request
@@ -32,17 +47,17 @@ def get_user_courses(request):
     courses = []
     for course in user.participations.all():
         courses.append({
+            'cID': dec_to_hex(course.id),
             'name': str(course),
-            'auth': str(course.author),
+            'auth': user_to_obj(course.author),
             'date': course.startdate,
-            'abbr': course.abbreviation,
-            'cID': dec_to_hex(course.id)
+            'abbr': course.abbreviation
         })
 
     return JsonResponse({'result': 'success', 'courses': courses})
 
 
-def get_teacher_course_assignments(user, cID):
+def get_teacher_course_assignments(user, course):
     """Get the assignments from the course ID with extra information for the teacher
 
     Arguments:
@@ -53,21 +68,20 @@ def get_teacher_course_assignments(user, cID):
     """
     # TODO: check permission
 
-    course = Course.objects.get(pk=hex_to_dec(cID))
     assignments = []
     for assignment in course.assignment_set.all():
         assignments.append({
             'aID': dec_to_hex(assignment.id),
             'name': str(assignment),
-            'auth': str(assignment.author),
-            'description': str(assignment.description),
+            'auth': user_to_obj(assignment.author),
+            'description': assignment.description,
             'progress': {'acquired': randint(0, 10), 'total': 10}  # TODO: Change random to real progress
         })
 
     return assignments
 
 
-def get_student_course_assignments(user, cID):
+def get_student_course_assignments(user, course):
     """Get the assignments from the course ID with extra information for the student
 
     Arguments:
@@ -79,7 +93,11 @@ def get_student_course_assignments(user, cID):
     # TODO: check permission
     assignments = []
     for assignment in Assignment.objects.get_queryset().filter(courses=course):
-        journal = Journal.objects.get(assignment=assignment, user=request.user)
+        try:
+            journal = Journal.objects.get(assignment=assignment, user=user)
+        except Journal.DoesNotExist:
+            continue
+
         assignments.append({
             'aID': dec_to_hex(assignment.pk),
             'name': assignment.name,
@@ -106,11 +124,19 @@ def get_course_assignments(request, cID):
     if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    # TODO: Chech which type is needs to get back
-    return JsonResponse({
-        'result': 'success',
-        'assignments': get_teacher_course_assignments(user, cID)
-    })
+    course = Course.objects.get(pk=hex_to_dec(cID))
+    participation = Participation.objects.get(user=user, course=course)
+
+    if participation.role.can_view_assignment:
+        return JsonResponse({
+            'result': 'success',
+            'assignments': get_teacher_course_assignments(user, course)
+        })
+    else:
+        return JsonResponse({
+            'result': 'success',
+            'assignments': get_student_course_assignments(user, course)
+        })
 
 
 @api_view(['GET'])
@@ -127,18 +153,15 @@ def get_assignment_journals(request, aID):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    # TODO: Chech if the user has valid permissions to see get all the journals (teacher/ta)
+    # TODO: Check if the user has valid permissions to see get all the journals (teacher/ta)
     assignment = Assignment.objects.get(pk=hex_to_dec(aID))
     journals = []
     for journal in assignment.journal_set.all():
         journals.append({
             'jID': dec_to_hex(journal.id),
-            'student': str(journal.user),
-            'studentnumber': journal.user.id,
-            'progress': {'acquired': str(10), 'total': str(10)},
-            'studentPortraitPath': str('../assets/logo.png'),
-            'entryStats': {'graded': 1, 'total': 1},  # TODO: Add real stats
-            'uID': dec_to_hex(journal.id)
+            'student': user_to_obj(journal.user),
+            'progress': {'acquired': 10, 'total': 10},  # TODO: Add real progress
+            'stats': {'graded': 1, 'total': 1},  # TODO: Add real stats
         })
 
     return JsonResponse({'result': 'success', 'journals': journals})
@@ -160,11 +183,11 @@ def get_upcoming_deadlines(request):
     deadlines = []
     for assign in Assignment.objects.all():
         deadlines.append({
+            'dID': dec_to_hex(assign.id),
             'name': assign.name,
             'course': [c.abbreviation for c in assign.courses.all()],
-            'cID': [dec_to_hex(c.id) for c in assign.courses.all()],
-            'dID': dec_to_hex(assign.id),
-            'datetime': assign.deadline
+            'datetime': assign.deadline,
+            'cID': [dec_to_hex(c.id) for c in assign.courses.all()]
         })
 
     return JsonResponse({'result': 'success', 'deadlines': deadlines})
