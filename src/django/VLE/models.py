@@ -1,6 +1,7 @@
 # Database file
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+import django.utils.timezone as timezone
 
 
 class User(AbstractUser):
@@ -292,7 +293,7 @@ class Entry(models.Model):
         on_delete=models.CASCADE,
     )
     datetime = models.DateTimeField(
-        auto_now_add=True,
+        default=timezone.now,
     )
     late = models.BooleanField(
         default=False
@@ -341,3 +342,16 @@ class Fields(models.Model):
 
     def __str__(self):
         return self.template.name + " field: " + self.location
+
+
+class Content(models.Model):
+    """
+    Defines the content of an Entry
+    """
+    entry = models.ForeignKey(
+        'Entry',
+        on_delete=models.CASCADE
+    )
+
+    tag = models.TextField()
+    data = models.TextField()
