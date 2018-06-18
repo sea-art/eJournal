@@ -5,7 +5,7 @@
 <template>
     <content-columns>
         <bread-crumb @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName" slot="main-content-column"></bread-crumb>
-        <div v-for="j in assignmentJournals" :key="j.uid" slot="main-content-column">
+        <div v-for="j in assignJournals" :key="j.uid" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {
                                               course: $route.params.course,
@@ -20,9 +20,9 @@
                 <student-card
                     :student="j.student.name"
                     :studentNumber="j.student.uID"
-                    :studentPortraitPath="j.student.picture"
-                    :studentProgress="j.progress"
-                    :entryStats="j.entriesStats"
+                    :portraitPath="j.student.picture"
+                    :progress="j.progress"
+                    :stats="j.stats"
                     :color="cardColor">
                 </student-card>
             </b-link>

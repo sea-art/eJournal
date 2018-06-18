@@ -3,14 +3,15 @@
         <b-row>
             <b-col cols="3">
                 <div class="portrait-container" fluid-grow>
-                    <img :src="studentPortraitPath">
+                    <img :src="portraitPath">
                 </div>
             </b-col>
             <b-col cols="7">
-                <progress-bar></progress-bar>
+                <progress-bar :currentPoints="this.progress.acquired" :totalPoints="this.progress.total">
+                </progress-bar>
             </b-col>
             <b-col cols="2">
-                <todo-square :num="this.entryStats.total - this.entryStats.graded">
+                <todo-square :num="this.stats.total - this.stats.graded">
                 </todo-square>
             </b-col>
         </b-row>
@@ -26,8 +27,8 @@ import progressBar from '@/components/ProgressBar.vue'
 import todoSquare from '@/components/TodoSquare.vue'
 
 export default {
-    props: ['student', 'studentNumber', 'studentPortraitPath',
-        'studentProgress', 'entryStats', 'color'],
+    props: ['student', 'studentNumber', 'portraitPath', 'progress', 'stats',
+        'color'],
     components: {
         'progress-bar': progressBar,
         'todo-square': todoSquare
