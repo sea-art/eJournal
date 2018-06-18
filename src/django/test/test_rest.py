@@ -13,17 +13,17 @@ import VLE.util as util
 import VLE.edag as edag
 
 
-def logging_in(obj, username, password):
+def logging_in(obj, username, password, status=200):
     result = obj.client.post(reverse('token_obtain_pair'),
                              {'username': username, 'password': password}, format='json')
-    obj.assertEquals(result.status_code, 200)
+    obj.assertEquals(result.status_code, status)
     return result
 
 
-def api_get_call(obj, url, login):
+def api_get_call(obj, url, login, status=200):
     result = obj.client.get(url, {},
                             HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access']))
-    obj.assertEquals(result.status_code, 200)
+    obj.assertEquals(result.status_code, status)
     return result
 
 
@@ -40,7 +40,7 @@ class RestTests(TestCase):
         u3 = util.make_user("Lars", "pass")
         u4 = util.make_user("Jeroen", "pass")
 
-        c1 = util.make_course("Portofolio Academische Vaardigheden", "PAV")
+        c1 = util.make_course("Portfolio Academische Vaardigheden", "PAV")
         c2 = util.make_course("BeeldBewerken", "BB")
         c3 = util.make_course("Reflectie en Digitale Samenleving", "RDS")
 
@@ -91,9 +91,7 @@ class RestTests(TestCase):
         self.assertEquals(result.status_code, 401)
 
     def test_get_user_courses(self):
-        """
-        Testing get_user_courses.
-        """
+        """Testing get_user_courses"""
         login = logging_in(self, self.username, self.password)
 
         result = api_get_call(self, reverse('get_user_courses'), login)
@@ -104,8 +102,10 @@ class RestTests(TestCase):
         self.assertEquals(courses[2]['abbr'], 'RDS')
 
     def test_get_course_assignments(self):
-        """
-        Testing get_course_assignments
+        """Testing get_course_assignments
+
+        Tests:
+            -
         """
         login = logging_in(self, self.username, self.password)
         result = api_get_call(self, '/api/get_course_assignments/1/', login)
@@ -136,7 +136,7 @@ class RestTests(TestCase):
         result = api_get_call(self, '/api/get_assignment_journals/1/', login)
         journals = result.json()['journals']
         self.assertEquals(len(journals), 4)
-        self.assertEquals(journals[0]['student'], 'Student')
-        self.assertEquals(journals[1]['student'], 'Rick')
-        self.assertEquals(journals[2]['student'], 'Lars')
-        self.assertEquals(journals[3]['student'], 'Jeroen')
+        self.assertEquals(journals[0]['student']['name'], 'Student')
+        self.assertEquals(journals[1]['student']['name'], 'Rick')
+        self.assertEquals(journals[2]['student']['name'], 'Lars')
+        self.assertEquals(journals[3]['student']['name'], 'Jeroen')

@@ -98,6 +98,6 @@ def field_to_dict(field):
 
 def content_to_dict(content):
     return {
-        'tag': content.tag,
+        'field': content.field.pk,
         'data': content.data,
     }

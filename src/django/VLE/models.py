@@ -1,7 +1,7 @@
 # Database file
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-import django.utils.timezone as timezone
+from django.utils.timezone import now
 
 
 class User(AbstractUser):
@@ -20,6 +20,9 @@ class User(AbstractUser):
     lti_id = models.TextField(
         null=True,
         unique=True,
+    )
+    profile_picture = models.TextField(
+        null=True
     )
 
     def __str__(self):
@@ -272,7 +275,9 @@ class Deadline(models.Model):
     - points: optionally the amount of points required for this deadline.
     """
 
-    datetime = models.DateTimeField()
+    datetime = models.DateTimeField(
+        default=now
+    )
     points = models.IntegerField(
         null=True,
     )
@@ -290,16 +295,17 @@ class Entry(models.Model):
     """
     template = models.ForeignKey(
         'EntryTemplate',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True
     )
     datetime = models.DateTimeField(
-        default=timezone.now,
-    )
-    late = models.BooleanField(
-        default=False
+        default=now,
     )
     grade = models.IntegerField(
         default=0
+    )
+    late = models.BooleanField(
+        default=False
     )
 
     def __str__(self):
@@ -352,6 +358,9 @@ class Content(models.Model):
         'Entry',
         on_delete=models.CASCADE
     )
-
-    tag = models.TextField()
+    field = models.ForeignKey(
+        'Field',
+        on_delete=models.SET_NULL,
+        null=True
+    )
     data = models.TextField()
