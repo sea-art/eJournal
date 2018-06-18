@@ -1,9 +1,9 @@
 
 test-back:
 	pep8 ./src/django --max-line-length=120 --exclude='./src/django/VLE/migrations'
+	bash -c "source ./venv/bin/activate && cd ./src/django/ && python3.6 manage.py test && deactivate"
 
 test-front:
-	bash -c "source ./venv/bin/activate && cd ./src/django/ && python3.6 manage.py test && deactivate"
 	npm run lint --prefix ./src/vue
 	npm run test --prefix ./src/vue
 
@@ -46,7 +46,7 @@ setup: clean
 	#Install dependencies for python (django, etc).
 	sudo pip3 install virtualenv
 	virtualenv -p python3.6 venv
-	bash -c 'source ./venv/bin/activate && pip install -r requirements.txt && deactivate'
+	bash -c 'source ./venv/bin/activate && pip install git+https://github.com/joestump/python-oauth2.git && pip install -r requirements.txt && deactivate'
 
 	#Update n & install nodejs dependencies.
 	npm install --prefix ./src/vue

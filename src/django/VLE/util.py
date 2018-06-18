@@ -5,6 +5,8 @@ from VLE.models import Journal
 from VLE.models import Participation
 from VLE.models import Role
 
+import random
+
 
 def hex_to_dec(hex):
     """Change hex string to int"""
@@ -50,10 +52,11 @@ def get_role(user, cID):
     return role
 
 
-def make_user(username, password):
+def make_user(username, password, profile_picture=None):
     user = User(username=username)
     user.save()
     user.set_password(password)
+    user.profile_picture = profile_picture if profile_picture else '/static/oh_no/{}.png'.format(random.randint(1, 10))
     user.save()
     return user
 

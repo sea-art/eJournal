@@ -4,27 +4,31 @@
 
 <template>
     <content-columns>
-        <bread-crumb @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName" slot="main-content-column"></bread-crumb>
-        <div v-for="journal in assignmentJournals" :key="journal.uid" slot="main-content-column">
+        <bread-crumb @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder" slot="main-content-column"></bread-crumb>
+        <div v-for="j in assignmentJournals" :key="j.uid" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {
-                                              course: $route.params.course,
-                                              assign: $route.params.assign,
-                                              student: 'Rick',
-                                              color: $route.params.color,
-                                              courseName: $route.params.courseName,
-                                              assignmentName: $route.params.assignmentName,
-                                              journalName: journal.student
+                                              cID: cID,
+                                              aID: aID,
+                                              jID: j.uid
                                           }
                                         }">
                 <student-card
-                    :student="journal.student"
-                    :studentNumber="journal.studentNumber"
-                    :studentPortraitPath="journal.studentPortraitPath"
-                    :progress="journal.progress"
-                    :entriesStats="journal.entriesStats">
+                    :student="j.student.name"
+                    :studentNumber="j.student.uID"
+                    :portraitPath="j.student.picture"
+                    :progress="j.progress"
+                    :stats="j.stats"
+                    :color="$root.colors[j.uid % $root.colors.length]">
                 </student-card>
             </b-link>
+        </div>
+        <div slot="right-content-column">
+            <h3>Statistics</h3>
+            <statistics-card :color="cardColor" :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>
+            <statistics-card :color="cardColor" :subject="'Average points'" :num="stats.avgPoints"></statistics-card>
+            <statistics-card :color="cardColor" :subject="'Median points'" :num="stats.medianPoints"></statistics-card>
+            <statistics-card :color="cardColor" :subject="'Average entries'" :num="stats.avgEntries"></statistics-card>
         </div>
     </content-columns>
 </template>
@@ -32,24 +36,42 @@
 <script>
 import contentColumns from '@/components/ContentColumns.vue'
 import studentCard from '@/components/StudentCard.vue'
+import statisticsCard from '@/components/StatisticsCard.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import journal from '@/api/journal.js'
 
 export default {
     name: 'Assignment',
+    props: {
+        cID: {
+            type: String,
+            required: true
+        },
+        aID: {
+            type: String,
+            required: true
+        },
+        assignmentName: ''
+    },
     data () {
         return {
-            assignmentJournals: []
+            assignJournals: [],
+            stats: [],
+            cardColor: ''
         }
     },
     components: {
         'content-columns': contentColumns,
         'student-card': studentCard,
+        'statistics-card': statisticsCard,
         'bread-crumb': breadCrumb
     },
     created () {
-        journal.get_assignment_journals(this.$route.params.assign)
-            .then(response => { this.assignmentJournals = response })
+        journal.get_assignment_journals(this.aID)
+            .then(response => {
+                this.assignmentJournals = response.journals
+                this.stats = response.stats
+            })
             .catch(_ => alert('Error while loading jounals'))
     },
     methods: {
