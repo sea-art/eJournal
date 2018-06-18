@@ -1,5 +1,5 @@
 <template>
-    <content-columns>
+    <content-single-columns>
         <h1>Course creation</h1>
         <b-form slot="main-content-column" @submit="onSubmit" @reset="onReset">
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseName" placeholder="Course name"/>
@@ -8,11 +8,11 @@
             <b-button type="submit">Submit</b-button>
             <b-button type="reset">Reset</b-button>
         </b-form>
-    </content-columns>
+    </content-single-columns>
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
+import ContentSingleColumn from '@/components/ContentSingleColumn.vue'
 import courseApi from '@/api/course.js'
 
 export default {
@@ -28,7 +28,7 @@ export default {
         }
     },
     components: {
-        'content-columns': contentColumns
+        'content-single-columns': ContentSingleColumn
     },
     methods: {
         onSubmit (evt) {

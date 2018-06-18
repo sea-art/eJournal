@@ -18,7 +18,7 @@
         </div>
 
         <b-link slot="main-content-column" :to="{name: 'CourseCreation'}">
-            <main-card :line1="'+ Add course'"/>
+            <main-card :line1="'+ Add course'"/> <!-- TODO: Add to open modal on click! -->
         </b-link>
 
         <h3 slot="right-content-column">Upcoming</h3>
@@ -33,7 +33,6 @@
             </b-link>
         </div>
 
-        <!-- TODO cleanup : move to component -->
         <b-modal
             slot="main-content-column"
             ref="editModalRef"
@@ -48,6 +47,14 @@
                 </b-form-input>
             </form>
         </b-modal>
+
+        <b-modal
+            slot="main-content-column"
+            ref="editModalRef"
+            title="Global changes"
+            @ok="handleEditConfirm()">
+                <course-creation></course-creation>
+        </b-modal>
     </content-columns>
 </template>
 
@@ -56,6 +63,7 @@ import contentColumns from '@/components/ContentColumns.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import mainCard from '@/components/MainCard.vue'
 import todoCard from '@/components/TodoCard.vue'
+import courseCreation from '@/views/CourseCreation.vue'
 import course from '@/api/course'
 /* import assignment from '@/api/assignment' */
 
@@ -78,7 +86,8 @@ export default {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'main-card': mainCard,
-        'todo-card': todoCard
+        'todo-card': todoCard,
+        'course-creation': courseCreation
     },
     created () {
         course.get_user_courses()

@@ -10,6 +10,7 @@ import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
 import CourseCreation from '@/views/CourseCreation'
 import AssignmentsOverview from '@/views/AssignmentsOverview'
+import Error404 from '@/views/Errors/404.vue'
 
 Vue.use(Router)
 
@@ -57,5 +58,9 @@ export default new Router({
         path: '/lti/launch',
         name: 'LtiLaunch',
         component: LtiLaunch
+    }, {
+        path: '/404',
+        name: 'Error404',
+        component: Error404
     }]
 })
