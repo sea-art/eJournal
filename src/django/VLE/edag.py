@@ -4,8 +4,22 @@ from .models import *
 
 def get_nodes_dict(journal):
     nodes = get_sorted_nodes(journal)
-    node_dict = [node_to_dict(node) for node in nodes]
+    node_dict = []
+    for node in nodes:
+        if node.type == Node.PROGRESS:
+            if (node.preset.deadline.datetime - timezone.now()).total_seconds() > 0:
+                node_dict.append(add_node_dict(journal))
+        node_dict.append(node_to_dict(node))
     return node_dict
+
+
+def add_node_dict(journal):
+    print("YE BOY")
+    return {
+        'type': 'a',
+        'journal': journal.id,
+        'templates': [template_to_dict(template) for template in journal.assignment.format.available_templates.all()]
+    }
 
 
 def get_sorted_nodes(journal):
