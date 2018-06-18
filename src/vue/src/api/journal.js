@@ -7,7 +7,7 @@ export default {
      */
     get_assignment_journals (cID) {
         return auth.authenticatedGet('/get_assignment_journals/' + cID + '/')
-            .then(response => response.data.journals)
+            .then(response => response.data)
             .catch(error => { throw error })
     },
 

@@ -1,7 +1,7 @@
 <template>
     <b-row>
         <b-col cols="4">
-            <img src='../assets/ohno.jpeg'>
+            <img src='/static/oh_no/ohno.jpeg'>
         </b-col>
         <b-col cols="8">
             <h7>{{ name }}</h7><br>

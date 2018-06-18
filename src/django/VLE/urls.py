@@ -17,10 +17,13 @@ from django.contrib import admin
 from django.urls import path
 
 from VLE.views import get_user_courses
+from VLE.lti_launch import lti_launch
 from VLE.views import get_course_assignments
 from VLE.views import get_assignment_journals
 from VLE.views import get_upcoming_deadlines
 from VLE.views import get_nodes
+from VLE.views import create_new_course
+from VLE.views import create_new_assignment
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -34,8 +37,11 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     path('api/get_user_courses/', get_user_courses, name='get_user_courses'),
-    path('api/get_course_assignments/<str:cID>/', get_course_assignments, name='get_course_assignments'),
-    path('api/get_assignment_journals/<str:aID>/', get_assignment_journals, name='get_assignment_journals'),
+    path('api/lti/launch', lti_launch, name='lti_launch'),
+    path('api/get_course_assignments/<int:cID>/', get_course_assignments, name='get_course_assignments'),
+    path('api/get_assignment_journals/<int:aID>/', get_assignment_journals, name='get_assignment_journals'),
     path('api/get_upcoming_deadlines/', get_upcoming_deadlines, name='get_upcoming_deadlines'),
     path('api/get_nodes/<int:jID>/', get_nodes, name='get_nodes'),
+    path('api/create_new_course/', create_new_course, name='create_new_course'),
+    path('api/create_new_assignment/', create_new_assignment, name='create_new_assignment'),
 ]

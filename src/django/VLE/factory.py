@@ -8,13 +8,16 @@ def make_user(username, password, email=None, lti_id=None, profile_picture=None)
     user = User(username=username, email=email, lti_id=lti_id)
     user.save()
     user.set_password(password)
-    user.profile_picture = profile_picture if profile_picture else '/static/oh_no/{}.png'.format(random.randint(1, 10))
+    if profile_picture:
+        user.profile_picture = profile_picture
+    else:
+        user.profile_picture = '/static/oh_no/{}.png'.format(random.randint(1, 10))
     user.save()
     return user
 
 
-def make_course(name, abbrev, date=None):
-    course = Course(name=name, abbreviation=abbrev, startdate=date)
+def make_course(name, abbrev, startdate=None, author=None):
+    course = Course(name=name, abbreviation=abbrev, startdate=startdate, author=author)
     course.save()
     return course
 
