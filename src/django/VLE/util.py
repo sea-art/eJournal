@@ -14,8 +14,8 @@ def make_user(username, password, profile_picture=None):
     return user
 
 
-def make_course(name, abbrev):
-    course = Course(name=name, abbreviation=abbrev)
+def make_course(name, abbrev, startdate=None, author=None):
+    course = Course(name=name, abbreviation=abbrev, startdate=startdate, author=None)
     course.save()
     return course
 

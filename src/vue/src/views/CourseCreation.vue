@@ -2,10 +2,9 @@
     <content-columns>
         <h1>Course creation</h1>
         <b-form slot="main-content-column" @submit="onSubmit" @reset="onReset">
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseName" placeholder="Course name" required/>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseAbbreviation" maxlength="8" placeholder="Course Abbreviation (Max 8 letters)" required/>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseStartYear" type="number" maxlength="4" placeholder="Starting year of the course" required/>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseEndYear" type="number" maxlength="4" placeholder="Final year of the course" required/>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseName" placeholder="Course name"/>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseAbbreviation" maxlength="8" placeholder="Course Abbreviation (Max 10 letters)"/>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseStartdate" type="date" placeholder="Startdate of the year"/>
             <b-button type="submit">Submit</b-button>
             <b-button type="reset">Reset</b-button>
         </b-form>
@@ -14,6 +13,7 @@
 
 <script>
 import contentColumns from '@/components/ContentColumns.vue'
+import courseApi from '@/api/course.js'
 
 export default {
     name: 'CourseCreation',
@@ -32,14 +32,15 @@ export default {
     },
     methods: {
         onSubmit (evt) {
-            alert('Submit')
+            courseApi.create_new_course(this.form.courseName, this.form.courseAbbreviation, this.form.courseStartdate)
+                .then(response => { console.log(response) })
         },
         onReset (evt) {
             evt.preventDefault()
             /* Reset our form values */
             this.form.courseName = ''
             this.form.courseAbbreviation = ''
-            this.form.courseStartYear = ''
+            this.form.courseStartdate = ''
             this.form.courseEndYear = ''
             /* Trick to reset/clear native browser form validation state */
             this.show = false

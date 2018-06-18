@@ -2,17 +2,8 @@ from rest_framework.decorators import api_view
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.http import JsonResponse
 from VLE.serializers import *
+from VLE.util import make_course
 from random import randint
-
-
-def hex_to_dec(hex):
-    """Change hex string to int"""
-    return int(hex, 16)
-
-
-def dec_to_hex(dec):
-    """Change int to hex value"""
-    return hex(dec).split('x')[-1]
 
 
 def user_to_obj(user):
@@ -26,7 +17,7 @@ def user_to_obj(user):
     return {
         'name': str(user),
         'picture': user.profile_picture if user.profile_picture else '../assets/logo.png',
-        'uID': dec_to_hex(user.id)
+        'uID': user.id
     } if user else None
 
 
@@ -47,7 +38,16 @@ def get_user_courses(request):
     courses = []
     for course in user.participations.all():
         courses.append({
-            'cID': dec_to_hex(course.id),
+            'cID': course.id,
+            'name': str(course),
+            'auth': user_to_obj(course.author),
+            'date': course.startdate,
+            'abbr': course.abbreviation
+        })
+
+    for course in Course.objects.all().filter(author=user):
+        courses.append({
+            'cID': course.id,
             'name': str(course),
             'auth': user_to_obj(course.author),
             'date': course.startdate,
@@ -71,7 +71,7 @@ def get_teacher_course_assignments(user, course):
     assignments = []
     for assignment in course.assignment_set.all():
         assignments.append({
-            'aID': dec_to_hex(assignment.id),
+            'aID': assignment.id,
             'name': str(assignment),
             'auth': user_to_obj(assignment.author),
             'description': assignment.description,
@@ -99,12 +99,12 @@ def get_student_course_assignments(user, course):
             continue
 
         assignments.append({
-            'aID': dec_to_hex(assignment.pk),
+            'aID': assignment.pk,
             'name': assignment.name,
             'progress': {'acquired': randint(0, 10), 'total': 10},  # TODO: Change random to real progress
             'stats': {'graded': 1, 'total': 1},
             'description': str(assignment.description),
-            'jID': dec_to_hex(journal.id)
+            'jID': journal.id
         })
 
     return assignments
@@ -124,7 +124,7 @@ def get_course_assignments(request, cID):
     if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    course = Course.objects.get(pk=hex_to_dec(cID))
+    course = Course.objects.get(pk=cID)
     participation = Participation.objects.get(user=user, course=course)
 
     if participation.role.can_view_assignment:
@@ -154,11 +154,11 @@ def get_assignment_journals(request, aID):
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     # TODO: Check if the user has valid permissions to see get all the journals (teacher/ta)
-    assignment = Assignment.objects.get(pk=hex_to_dec(aID))
+    assignment = Assignment.objects.get(pk=aID)
     journals = []
     for journal in assignment.journal_set.all():
         journals.append({
-            'jID': dec_to_hex(journal.id),
+            'jID': journal.id,
             'student': user_to_obj(journal.user),
             'progress': {'acquired': 10, 'total': 10},  # TODO: Add real progress
             'stats': {'graded': 1, 'total': 1},  # TODO: Add real stats
@@ -183,11 +183,37 @@ def get_upcoming_deadlines(request):
     deadlines = []
     for assign in Assignment.objects.all():
         deadlines.append({
-            'dID': dec_to_hex(assign.id),
+            'dID': assign.id,
             'name': assign.name,
             'course': [c.abbreviation for c in assign.courses.all()],
             'datetime': assign.deadline,
-            'cID': [dec_to_hex(c.id) for c in assign.courses.all()]
+            'cID': [c.id for c in assign.courses.all()]
         })
 
     return JsonResponse({'result': 'success', 'deadlines': deadlines})
+
+
+@api_view(['POST'])
+def create_new_course(request):
+    """Create a new course
+
+    Arguments:
+    request -- the request that was send with
+    name -- name of the course
+    abbr -- abbreviation of the course
+    startdate -- date when the course starts
+
+    Returns a json string for if it is succesful or not.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    course = make_course(request.data["name"], request.data["abbr"], request.data["startdate"], request.user)
+
+    return JsonResponse({'result': 'success', 'course': {
+        'cID': course.id,
+        'name': str(course),
+        'auth': user_to_obj(course.author),
+        'date': course.startdate,
+        'abbr': course.abbreviation
+    }}, status=200)
