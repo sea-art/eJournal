@@ -15,6 +15,21 @@ def dec_to_hex(dec):
     return hex(dec).split('x')[-1]
 
 
+def user_to_obj(user):
+    """Get a object of a single user
+
+    Arguments:
+    user -- user to create the object with
+
+    returns object of that user
+    """
+    return {
+        'name': str(user),
+        'picture': user.profile_picture if user.profile_picture else '../assets/logo.png',
+        'uID': dec_to_hex(user.id)
+    } if user else None
+
+
 @api_view(['GET'])
 def get_user_courses(request):
     """Get the courses that are linked to the user linked to the request
@@ -32,11 +47,11 @@ def get_user_courses(request):
     courses = []
     for course in user.participations.all():
         courses.append({
+            'cID': dec_to_hex(course.id),
             'name': str(course),
-            'auth': str(course.author),
+            'auth': user_to_obj(course.author),
             'date': course.startdate,
-            'abbr': course.abbreviation,
-            'cID': dec_to_hex(course.id)
+            'abbr': course.abbreviation
         })
 
     return JsonResponse({'result': 'success', 'courses': courses})
@@ -58,8 +73,8 @@ def get_teacher_course_assignments(user, course):
         assignments.append({
             'aID': dec_to_hex(assignment.id),
             'name': str(assignment),
-            'auth': str(assignment.author),
-            'description': str(assignment.description),
+            'auth': user_to_obj(assignment.author),
+            'description': assignment.description,
             'progress': {'acquired': randint(0, 10), 'total': 10}  # TODO: Change random to real progress
         })
 
@@ -144,12 +159,9 @@ def get_assignment_journals(request, aID):
     for journal in assignment.journal_set.all():
         journals.append({
             'jID': dec_to_hex(journal.id),
-            'student': str(journal.user),
-            'studentnumber': journal.user.id,
-            'progress': {'acquired': str(10), 'total': str(10)},
-            'studentPortraitPath': str('../assets/logo.png'),
-            'entryStats': {'graded': 1, 'total': 1},  # TODO: Add real stats
-            'uID': dec_to_hex(journal.id)
+            'student': user_to_obj(journal.user),
+            'progress': {'acquired': 10, 'total': 10},  # TODO: Add real progress
+            'stats': {'graded': 1, 'total': 1},  # TODO: Add real stats
         })
 
     return JsonResponse({'result': 'success', 'journals': journals})
@@ -171,11 +183,11 @@ def get_upcoming_deadlines(request):
     deadlines = []
     for assign in Assignment.objects.all():
         deadlines.append({
+            'dID': dec_to_hex(assign.id),
             'name': assign.name,
             'course': [c.abbreviation for c in assign.courses.all()],
-            'cID': [dec_to_hex(c.id) for c in assign.courses.all()],
-            'dID': dec_to_hex(assign.id),
-            'datetime': assign.deadline
+            'datetime': assign.deadline,
+            'cID': [dec_to_hex(c.id) for c in assign.courses.all()]
         })
 
     return JsonResponse({'result': 'success', 'deadlines': deadlines})

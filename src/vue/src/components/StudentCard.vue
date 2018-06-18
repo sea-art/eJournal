@@ -3,13 +3,13 @@
         <b-row>
             <b-col id="student-card-portrait-column" order="1" cols="6" md="2">
                 <div class="portrait-container">
-                    <img src="../assets/logo.png">
+                    <img :src="studentPortraitPath">
                 </div>
             </b-col>
             <b-col id="student-card-main-content-column" order="3" order-md="2" cols="12" md="8">
                 <h>{{ student }}</h><br/>
                 <h>{{ studentNumber }}</h><br/>
-                <h>{{ studentPortraitPath }}</h><br/>
+                <h></h><br/>
                 <h>{{ progress }}</h><br/>
                 <h>{{ entriesStats }}</h>
             </b-col>

@@ -20,6 +20,9 @@ class User(AbstractUser):
         null=True,
         unique=True,
     )
+    profile_picture = models.TextField(
+        null=True
+    )
 
     def __str__(self):
         return self.username
