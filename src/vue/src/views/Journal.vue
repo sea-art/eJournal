@@ -8,15 +8,16 @@
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
         <b-col lg="12" xl="6" order="2" class="main-content">
-            <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder"/>
+            <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <!--
                 Fill in the template using the corresponding data
                 of the entry
             . -->
-            <div v-if="nodes[currentNode].type == 'entry'">
-                <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
+            <div v-if="nodes2[currentNode].type == 'e'">
+                <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes2[currentNode]"/>
+                <!-- <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
                     :textbox2="nodes[currentNode].textbox2"
-                    :date="nodes[currentNode].date"></entry-template>
+                    :date="nodes[currentNode].date"></entry-template> -->
             </div>
             <div v-else-if="nodes[currentNode].type == 'add'">
                 <add-card @add-template="addNode">bhjewk</add-card>
@@ -35,31 +36,20 @@
 <script>
 import contentColumns from '@/components/ContentColumns.vue'
 import entryTemplate from '@/components/TemplateCard.vue'
+import entryNode from '@/components/EntryNode.vue'
 import addCard from '@/components/AddCard.vue'
 import edag from '@/components/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
+import journal from '@/api/journal'
 
 export default {
     name: 'Journal',
-    props: {
-        cID: {
-            type: String,
-            required: true
-        },
-        aID: {
-            type: String,
-            required: true
-        },
-        jID: {
-            type: String,
-            required: true
-        }
-    },
     data () {
         return {
             windowWidth: 0,
             currentNode: 0,
             editedData: ['', ''],
+            nodes2: [],
             nodes: [{
                 type: 'entry',
                 textbox1: 'Awesome IT',
@@ -88,6 +78,12 @@ export default {
                 id: 3
             }]
         }
+    },
+
+    created () {
+        journal.get_nodes(0)
+            .then(response => { this.nodes2 = response })
+            .catch(_ => alert('Error while loading nodes.'))
     },
 
     methods: {
@@ -157,7 +153,8 @@ export default {
         'bread-crumb': breadCrumb,
         'entry-template': entryTemplate,
         'add-card': addCard,
-        'edag': edag
+        'edag': edag,
+        'entry-node': entryNode
     }
 }
 </script>

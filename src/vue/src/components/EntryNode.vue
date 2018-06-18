@@ -33,7 +33,7 @@
                                      als een template index matched met
                                      een entry tag overschrijf dit lege veld
                                 -->
-                                <div v-for="(field, i) in {{ entryNode.template }}">
+                                <div v-for="(field, i) in entryNode.template">
                                     <div v-if="field.title != ''">
                                         {{ field.title }}:<br>
                                     </div>
@@ -83,7 +83,7 @@
                                      de knop moet een grade knop worden als
                                      docent zijnde, anders moet er edit staan.
                                 -->
-                                <div v-for="(field, i) in {{ entryNode.template }}">
+                                <div v-for="(field, i) in entryNode.template">
                                     <div v-if="field.title != ''">
                                         {{ field.title }}:<br>
                                     </div>
@@ -119,8 +119,7 @@ export default {
             tempNode: this.entryNode,
             matchEntry: 0,
             completeContent: [],
-
-             //  TODO Werk commenteer functie uit.
+            //  TODO Werk commenteer functie uit.
             comment: 'hoi1000',
             editedComment: '',
             comments: [{
@@ -133,15 +132,33 @@ export default {
         }
     },
 
-    created: {
-        function setContent() {
+    created () {
+        this.setContent()
+    },
+
+    methods: {
+        saveEdit: function () {
+            if (this.saveEditMode === 'Save') {
+                this.saveEditMode = 'Edit'
+                this.tempNode.entry.content = this.completeContent
+                this.$emit('edit-node', this.tempNode)
+            } else {
+                this.tempbox1 = this.textbox1
+                this.tempbox2 = this.textbox2
+                this.saveEditMode = 'Save'
+            }
+        },
+        cancel: function () {
+            this.saveEditMode = 'Edit'
+        },
+        setContent: function () {
             var checkFound = false
 
-            for templateField in entryNode.entry.template.field {
+            for (var templateField in this.entryNode.entry.template.field) {
                 checkFound = false
 
-                for (var i = 0; i < this.entryNode.entry.content.length;  i++) {
-                    if (this.entryNode.entry.content[i].tag == templateField.tag) {
+                for (var i = 0; i < this.entryNode.entry.content.length; i++) {
+                    if (this.entryNode.entry.content[i].tag === templateField.tag) {
                         this.completeContent.push({
                             data: this.entryNode.entry.content[i].data,
                             tag: this.entryNode.entry.content[i].tag
@@ -154,28 +171,11 @@ export default {
 
                 if (!checkFound) {
                     this.completeContent.push({
-                        data: NULL,
+                        data: null,
                         tag: templateField.tag
                     })
                 }
             }
-        }
-    },
-
-    methods: {
-        saveEdit: function () {
-            if (this.saveEditMode === 'Save') {
-                this.saveEditMode = 'Edit'
-                this.tempNode.entry.content = completeContent
-                this.$emit('edit-node', this.tempNode)
-            } else {
-                this.tempbox1 = this.textbox1
-                this.tempbox2 = this.textbox2
-                this.saveEditMode = 'Save'
-            }
-        },
-        cancel: function () {
-            this.saveEditMode = 'Edit'
         }
     }
 }
