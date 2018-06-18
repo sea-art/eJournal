@@ -40,7 +40,10 @@
                 </div>
             </b-col>
         </b-row>
-        <comment-card :comment="comment"/>
+        <div v-for="item in comments">
+            <comment-card @edit-comment="adaptComment" :comment="item.message"/>
+        </div>
+        <!-- <comment-card @edit-comment="adaptComment" :comment="comment"/> -->
     </div>
 </template>
 
@@ -57,11 +60,25 @@ export default {
             tempbox1: this.textbox1,
             tempbox2: this.textbox2,
             tempProps: [],
-            comment: 'hoi1000'
+            comment: 'hoi1000',
+            editedComment: '',
+            comments: [{
+                message: 'Hoi het is super slecht, ga je schamen!',
+                person: 'Peter'
+            }, {
+                message: 'Hoi het is super goed!',
+                person: 'Ptheven'
+            }]
         }
     },
 
     methods: {
+        adaptComment (editedComment) {
+            this.comment = editedComment
+        },
+        addComment () {
+            comments.push({message: '', person: 'Load person here'})
+        },
         saveEdit: function () {
             if (this.saveEditMode === 'Save') {
                 this.saveEditMode = 'Edit'

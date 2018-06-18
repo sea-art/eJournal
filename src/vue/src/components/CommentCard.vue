@@ -7,11 +7,11 @@
             <b-card class="noHoverCard" :class="'pink-border'">
                 <div v-if="EditSaveMode == 'Save'">
                     <b-textarea v-model="tempComment"></b-textarea><br><br>
-                    <b-button @click="saveEdit">{{ EditSaveMode }} </b-button>
+                    <b-button @click="saveEdit">{{ EditSaveMode }}</b-button>
                     <b-button @click="cancel">Cancel</b-button>
                 </div>
                 <div v-else>
-                    {{ tempComment }}<br><br>
+                    {{ comment }}<br><br>
                     <b-button @click="saveEdit">{{ EditSaveMode }}</b-button>
                 </div>
             </b-card>
@@ -34,7 +34,7 @@ export default {
         saveEdit: function () {
             if (this.EditSaveMode === 'Save') {
                 this.EditSaveMode = 'Edit'
-                // this.$emit('edit-comment', this.tempComment)
+                this.$emit('edit-comment', this.tempComment)
             } else {
                 this.EditSaveMode = 'Save'
             }
@@ -42,6 +42,7 @@ export default {
 
         cancel: function () {
             this.EditSaveMode = 'Edit'
+            this.tempComment = this.comment
         }
     }
 }
