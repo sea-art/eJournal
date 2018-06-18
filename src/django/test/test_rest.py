@@ -32,6 +32,7 @@ class RestTests(TestCase):
         self.password = 'test123'
 
         self.user = util.make_user(self.username, self.password)
+        self.student = util.make_user('Student', 'pass')
 
         u1 = util.make_user("Zi-Long", "pass")
         u2 = util.make_user("Rick", "pass")
@@ -43,7 +44,11 @@ class RestTests(TestCase):
         c3 = util.make_course("Reflectie en Digitale Samenleving", "RDS")
 
         role = Role(name='TA')
+        role.can_view_assignment = True
         role.save()
+
+        studentRole = Role(name='SD')
+        studentRole.save()
 
         cs = [c1, c2, c3]
         for c in cs:
@@ -52,6 +57,14 @@ class RestTests(TestCase):
             p.user = self.user
             p.course = c
             p.role = role
+            p.save()
+            c.participation_set.add(p)
+            c.save()
+
+            p = Participation()
+            p.user = self.student
+            p.course = c
+            p.role = studentRole
             p.save()
             c.participation_set.add(p)
             c.save()
@@ -65,6 +78,8 @@ class RestTests(TestCase):
         j1 = util.make_journal(a1, u2)
         j2 = util.make_journal(a1, u3)
         j3 = util.make_journal(a1, u4)
+
+        util.make_journal(a1, self.student)
 
     def test_login(self):
         result = logging_in(self, self.username, self.password)
@@ -104,10 +119,23 @@ class RestTests(TestCase):
         self.assertEquals(assignments[0]['name'], 'Colloq')
         self.assertEquals(assignments[0]['description'], 'In de opdracht...1')
 
+    def test_student_get_course_assignments(self):
+        login = logging_in(self, 'Student', 'pass')
+        result = api_get_call(self, '/api/get_course_assignments/1/', login)
+        assignments = result.json()['assignments']
+
+        self.assertEquals(len(assignments), 1)
+        self.assertEquals(assignments[0]['name'], 'Colloq')
+
+        result = api_get_call(self, '/api/get_course_assignments/2/', login)
+        assignments = result.json()['assignments']
+
     def test_get_assignment_journals(self):
         login = logging_in(self, self.username, self.password)
         result = api_get_call(self, '/api/get_assignment_journals/1/', login)
         journals = result.json()['journals']
-        self.assertEquals(len(journals), 3)
-        self.assertEquals(journals[0]['student'], 'Rick')
-        self.assertEquals(journals[1]['student'], 'Lars')
+        self.assertEquals(len(journals), 4)
+        self.assertEquals(journals[0]['student']['name'], 'Student')
+        self.assertEquals(journals[1]['student']['name'], 'Rick')
+        self.assertEquals(journals[2]['student']['name'], 'Lars')
+        self.assertEquals(journals[3]['student']['name'], 'Jeroen')
