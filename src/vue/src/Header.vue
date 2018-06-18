@@ -12,8 +12,8 @@
             </b-navbar-nav>
             <b-nav-dropdown v-if="!isGuest" class="ml-auto" right no-caret id="nav-dropdown-options">
                 <img id="nav-profile-image" slot="button-content" src="./assets/ohno.jpeg">
-                <router-link tag="b-dropdown-item" :to='"/Profile"' class="btn">Profile</router-link>
-                <b-button @click="handleLogout()">Sign out</b-button>
+                <b-button @click="handleLogout()">Sign out</b-button><br/>
+                <b-button :to="{ name: 'Profile'}">Profile</b-button>
             </b-nav-dropdown>
             <b-nav-dropdown v-if="isGuest" class="ml-auto testt" right no-caret id="nav-dropdown-options-guest">
                 <img id="nav-profile-image" slot="button-content" src="~@/assets/unknown-profile.png">
@@ -46,7 +46,7 @@ export default {
             this.isGuest = true
             this.$router.push('/')
         },
-        handleLoginSucces() {
+        handleLoginSucces () {
             this.isGuest = false
             // this.$root.$emit('bv::toggle::collapse', 'nav_collapse')
             this.show = false

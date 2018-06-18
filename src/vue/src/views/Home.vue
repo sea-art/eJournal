@@ -6,8 +6,8 @@
             slot="main-content-column"
             :currentPage="'Courses'">
         </bread-crumb>
-        <div v-for="(c, i) in courses" :key="c.cID" slot="main-content-column">
-            <b-link :to="{name: 'Course', params: {id: c.cID}}">
+        <div v-for="c in courses" :key="c.cID" slot="main-content-column">
+            <b-link :to="{name: 'Course', params: {cID: c.cID, courseName: c.name}}">
                 <main-card
                     :line1="c.name"
                     :line2="'From - To (years eg: 2017 - 2018)'"
@@ -22,8 +22,8 @@
         </b-link>
 
         <h3 slot="right-content-column">Upcoming</h3>
-        <div v-for="(d, i) in deadlines" :key="d.dID" slot="right-content-column">
-            <b-link tag="b-button" :to="{name: 'Assignment', params: {id: d.dID}}">
+        <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
+            <b-link tag="b-button" :to="{name: 'Assignment', params: {cID: d.cIDs[0], dID: d.dID}}">
                 <todo-card
                     :line0="d.datetime"
                     :line1="d.name"
@@ -64,7 +64,6 @@ export default {
     data () {
         return {
             intituteName: 'Universiteit van Amsterdam (UvA)',
-            colors: [],
             courses: [],
             deadlines: [{
                 name: 'Individueel logboek',
@@ -85,7 +84,6 @@ export default {
         course.get_user_courses()
             .then(response => { this.courses = response })
             .catch(_ => alert('Error while loading courses'))
-            .then(_ => { this.colors = getColors(this.courses.length) })
 
         /* assignment.get_upcoming_deadlines()
            .then(response => { this.deadlines = response })

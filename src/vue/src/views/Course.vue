@@ -1,29 +1,27 @@
 <template>
     <content-columns>
-        <!-- <h2 slot="main-content-column"> {{ props }} </h2> -->
-        <bread-crumb @eye-click="customisePage" slot="main-content-column" :currentPage="$route.params.courseName">
+        <bread-crumb @eye-click="customisePage" slot="main-content-column" :currentPage="courseName">
         </bread-crumb>
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
             <b-link tag="b-button" :to="{ name: 'Assignment',
                                           params: {
-                                              course: $route.params.course,
-                                              assign: a.aID,
-                                              courseName: $route.params.courseName,
+                                              cID: cID,
+                                              aID: a.aID,
                                               assignmentName: a.name
-                                          }
+                                            }
                                         }">
-                <assignment-card :line1="a.name" :color="$route.params.color">
+                <assignment-card :line1="a.name" :color="$root.colors[a.aID % $root.colors.length]">
                     <progress-bar :currentPoints="a.progress.acquired" :totalPoints="a.progress.total"></progress-bar>
                 </assignment-card>
             </b-link>
         </div>
 
         <h3 slot="right-content-column">Upcoming</h3>
-        <div slot="right-content-column" v-for="d in deadlines" :key="d.dID">
+        <!-- <div slot="right-content-column" v-for="d in deadlines" :key="d.dID">
             <b-link tag="b-button" :to="{name: 'Assignment', params: {course: d.cID[0], assign: d.dID}}">
                 <todo-card :line0="d.datetime" :line1="d.name" :line2="d.course" :color="$route.params.color"></todo-card>
             </b-link>
-        </div>
+        </div> -->
     </content-columns>
 </template>
 
@@ -37,7 +35,13 @@ import assignment from '@/api/assignment.js'
 
 export default {
     name: 'Course',
-    props: ['id'],
+    props: {
+        cID: {
+            type: String,
+            required: true
+        },
+        courseName: String
+    },
     data () {
         return {
             assignments: [],
@@ -58,14 +62,9 @@ export default {
         }
     },
     created () {
-        assignment.get_course_assignments(this.$route.params.id)
+        assignment.get_course_assignments(this.cID)
             .then(response => { this.assignments = response })
             .catch(_ => alert('Error while loading assignments'))
-
-        console.log(this.$router.currentRoute)
-    },
-    mounted () {
-        console.log(this.id)
     }
 }
 </script>

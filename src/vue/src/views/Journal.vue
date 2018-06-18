@@ -1,14 +1,14 @@
 <template>
     <b-row no-gutters>
         <b-col v-if="bootstrapLg()" cols="12">
-            <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
+            <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder"/>
             <edag @select-node="selectNode" :selected="variable" :nodes="nodes"/>
         </b-col>
         <b-col v-else xl="3" class="left-content">
             <edag @select-node="selectNode" :selected="variable" :nodes="nodes"/>
         </b-col>
         <b-col lg="12" xl="6" order="2" class="main-content">
-            <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
+            <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder"/>
             <!--
                 Fill in the template using the corresponding data
                 of the entry
@@ -40,7 +40,20 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 
 export default {
     name: 'Journal',
-    props: ['id'],
+    props: {
+        cID: {
+            type: String,
+            required: true
+        },
+        aID: {
+            type: String,
+            required: true
+        },
+        jID: {
+            type: String,
+            required: true
+        }
+    },
     data () {
         return {
             windowWidth: 0,

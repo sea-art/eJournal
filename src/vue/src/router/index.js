@@ -38,17 +38,17 @@ export default new Router({
         name: 'AssignmentsOverview',
         component: AssignmentsOverview
     }, {
-        path: '/Home/Course/:id',
+        path: '/Home/Course/:cID',
         name: 'Course',
         component: Course,
         props: true
     }, {
-        path: '/Home/Course/Assignment/:id',
+        path: '/Home/Course/:cID/Assignment/:aID',
         name: 'Assignment',
         component: Assignment,
         props: true
     }, {
-        path: '/Home/Course/Assignment/Journal/:id',
+        path: '/Home/Course/:cID/Assignment:aID/Journal/:jID',
         name: 'Journal',
         component: Journal,
         props: true
