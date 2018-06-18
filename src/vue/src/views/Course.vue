@@ -8,7 +8,7 @@
                                               cID: cID,
                                               aID: a.aID,
                                               assignmentName: a.name
-                                            }
+                                          }
                                         }">
                 <assignment-card :line1="a.name" :color="$root.colors[a.aID % $root.colors.length]">
                     <progress-bar :currentPoints="a.progress.acquired" :totalPoints="a.progress.total"></progress-bar>

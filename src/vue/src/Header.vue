@@ -15,7 +15,7 @@
                 <b-button :to="{ name: 'Profile'}">Profile</b-button>
                 <b-button @click="handleLogout()">Sign out</b-button><br/>
             </b-nav-dropdown>
-            <b-nav-dropdown v-if="isGuest" class="ml-auto testt" right no-caret id="nav-dropdown-options-guest">
+            <b-nav-dropdown v-if="isGuest" class="ml-auto" right no-caret id="nav-dropdown-options-guest">
                 <img id="nav-profile-image" slot="button-content" src="~@/assets/unknown-profile.png">
                 <login-form @login-succes="handleLoginSucces()"/>
             </b-nav-dropdown>
@@ -61,10 +61,6 @@ export default {
 </script>
 
 <style>
-.testt {
-    background-color: var(--theme-dark-blue) !important;
-}
-
 #header {
     background-color: var(--theme-dark-blue);
     color: var(--theme-pink);
