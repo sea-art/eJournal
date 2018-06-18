@@ -135,6 +135,10 @@ h6 {
     padding-bottom: 12px;
 }
 
+.multi-form {
+    margin-bottom: 10px !important;
+}
+
 .card:hover {
     background-color: var(--theme-dark-grey);
 }

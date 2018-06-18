@@ -1,6 +1,6 @@
 <template>
     <content-columns>
-        <bread-crumb slot="main-content-column" :currentPage="'Settings'"></bread-crumb>
+        <bread-crumb @eye-click="customisePage" slot="main-content-column" :currentPage="'Settings'"></bread-crumb>
 
         <profile-card slot="main-content-column" :name="profile[0].name"
                       :email="profile[0].email"
@@ -30,6 +30,12 @@ export default {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'profile-card': profileCard
+    },
+    methods: {
+        customisePage () {
+            alert('Wishlist: Customise page')
+        }
     }
+
 }
 </script>

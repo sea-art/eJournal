@@ -4,8 +4,8 @@
 
 <template>
     <content-columns>
-        <bread-crumb :currentPage="$route.params.assignmentName" :course="$route.params.courseName" slot="main-content-column"></bread-crumb>
-        <div v-for="j in assignJournals" :key="j.uid" slot="main-content-column">
+        <bread-crumb @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName" slot="main-content-column"></bread-crumb>
+        <div v-for="j in assignmentJournals" :key="j.uid" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {
                                               course: $route.params.course,
@@ -68,6 +68,11 @@ export default {
             })
             .catch(_ => alert('Error while loading jounals'))
             .then(_ => { this.cardColor = color.pickColor(this.$route.params.assign)})
+    },
+    methods: {
+        customisePage () {
+            alert('Wishlist: Customise page')
+        }
     }
 }
 </script>
