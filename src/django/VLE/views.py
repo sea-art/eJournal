@@ -162,8 +162,8 @@ def get_assignment_journals(request, aID):
         journals.append({
             'jID': dec_to_hex(journal.id),
             'student': user_to_obj(journal.user),
-            'progress': {'acquired': randint(0,5), 'total': randint(5,10)},  # TODO: Add real progress
-            'stats': {'graded': randint(0,5), 'total': randint(5,10)},  # TODO: Add real stats
+            'progress': {'acquired': randint(0, 5), 'total': randint(5, 10)},  # TODO: Add real progress
+            'stats': {'graded': randint(0, 5), 'total': randint(5, 10)},  # TODO: Add real stats
         })
 
     # TODO: Misschien dit efficient maken voor minimal delay?
