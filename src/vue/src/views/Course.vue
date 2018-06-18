@@ -35,10 +35,11 @@ import todoCard from '@/components/TodoCard.vue'
 import progressBar from '@/components/ProgressBar.vue'
 import assignment from '@/api/assignment.js'
 import getColors from '@/javascripts/colors.js'
+import course from '@/api/course.js'
 
 export default {
     name: 'Course',
-    props: [],
+    props: ['permissionTable'],
     data () {
         return {
             assignments: [],
@@ -58,6 +59,7 @@ export default {
             .then(response => { this.assignments = response })
             .catch(_ => alert('Error while loading assignments'))
             .then(_ => { this.colors = getColors(this.assignments.length) })
+
     },
     methods: {
         customisePage () {

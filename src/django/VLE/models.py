@@ -66,6 +66,7 @@ class Role(models.Model):
     """
     name = models.TextField()
 
+    # TODO: fix crash when looking up user that is not in a course.
     can_edit_grades = models.BooleanField(default=False)
     can_view_grades = models.BooleanField(default=False)
     can_edit_assignment = models.BooleanField(default=False)

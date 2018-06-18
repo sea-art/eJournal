@@ -1,7 +1,7 @@
 import datetime
 from django.test import TestCase
 from VLE.models import *
-from VLE.views import *
+from VLE.util import *
 
 
 class DataBaseTests(TestCase):

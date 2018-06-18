@@ -3,50 +3,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.http import JsonResponse
 from VLE.serializers import *
 from random import randint
-
-
-def hex_to_dec(hex):
-    """Change hex string to int"""
-    return int(hex, 16)
-
-
-def dec_to_hex(dec):
-    """Change int to hex value"""
-    return hex(dec).split('x')[-1]
-
-
-def check_permissions(user, cID, permissionList):
-    """Check whether the user has the right permissions to access the given
-    course functionality.
-
-    Arguments:
-    user -- user that did the request.
-    cID -- course ID used to validate the request.
-    """
-    role = get_role(user, cID)
-
-    for permission in permissionList:
-        if not getattr(role, permission):
-            print("*Permission test message*: \tInsufficient user permissions!", permissionList)
-            return False
-
-    return True
-
-
-def get_role(user, cID):
-    """Get the role and permissions of the given user in the given course.
-
-    Arguments:
-    user -- user that did the request.
-    cID -- course ID used to validate the request.
-    """
-    assert not(user is None or cID is None)
-    # First get the role ID of the user participation.
-    roleID = Participation.objects.get(user=user, course=cID).id
-    # Now get the role and its corresponding permissions.
-    role = Role.objects.get(id=roleID)
-
-    return role
+from VLE.util import *
 
 
 @api_view(['GET'])
@@ -213,3 +170,14 @@ def get_upcoming_deadlines(request):
         })
 
     return JsonResponse({'result': 'success', 'deadlines': deadlines})
+
+
+@api_view(['GET'])
+def get_course_permissions(request, cID):
+    """TODO"""
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    roleDict = vars(get_role(request.user, cID))
+
+    return JsonResponse({'permissions': roleDict})
