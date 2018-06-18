@@ -37,7 +37,6 @@ export default {
     name: 'Course',
     props: {
         cID: {
-            type: Number,
             required: true
         },
         courseName: String
