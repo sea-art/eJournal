@@ -5,12 +5,12 @@
 <template>
     <content-columns>
         <bread-crumb @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder" slot="main-content-column"></bread-crumb>
-        <div v-for="j in assignmentJournals" :key="j.uid" slot="main-content-column">
+        <div v-for="journal in assignmentJournals" :key="journal.student.uID" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {
                                               cID: cID,
                                               aID: aID,
-                                              jID: j.uid
+                                              jID: journal.student.uID
                                           }
                                         }">
                 <student-card
@@ -44,11 +44,11 @@ export default {
     name: 'Assignment',
     props: {
         cID: {
-            type: String,
+            type: Number,
             required: true
         },
         aID: {
-            type: String,
+            type: Number,
             required: true
         },
         assignmentName: ''

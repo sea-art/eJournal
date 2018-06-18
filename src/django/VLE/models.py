@@ -21,7 +21,7 @@ class User(AbstractUser):
         unique=True,
     )
     profile_picture = models.TextField(
-        null=True
+        default='/static/oh_no/oh_no.jpeg'
     )
 
     def __str__(self):
