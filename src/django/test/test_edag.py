@@ -66,3 +66,9 @@ class EdagTests(TestCase):
         self.assertEquals(nodes[0].preset, self.deadlineentry)
         self.assertEquals(nodes[1], node)
         self.assertEquals(nodes[2].preset, self.progressnode)
+
+    def test_json(self):
+        entry = util.make_entry(self.template, [("tag", "this is some data")], datetime.date(2022, 1, 1))
+        node = util.make_node(self.j_rick_colloq, entry)
+
+        print(edag.get_nodes_dict(self.j_rick_colloq))

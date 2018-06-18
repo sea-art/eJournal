@@ -316,7 +316,7 @@ class EntryTemplate(models.Model):
         return self.name
 
 
-class Fields(models.Model):
+class Field(models.Model):
     """
     Defines the fields of an EntryTemplate
     """
@@ -333,8 +333,8 @@ class Fields(models.Model):
         choices=TYPES,
         default=TEXT,
     )
-    description = models.TextField()
-    location = models.TextField()
+    title = models.TextField()
+    location = models.IntegerField()
     template = models.ForeignKey(
         'EntryTemplate',
         on_delete=models.CASCADE
