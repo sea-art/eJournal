@@ -9,7 +9,7 @@ from VLE.models import Course
 from VLE.models import Assignment
 from VLE.models import Journal
 
-import VLE.util as util
+import VLE.factory as factory
 
 
 def logging_in(obj, username, password):
@@ -31,17 +31,17 @@ class RestTests(TestCase):
         self.username = 'test'
         self.password = 'test123'
 
-        self.user = util.make_user(self.username, self.password)
-        self.student = util.make_user('Student', 'pass')
+        self.user = factory.make_user(self.username, self.password)
+        self.student = factory.make_user('Student', 'pass')
 
-        u1 = util.make_user("Zi-Long", "pass")
-        u2 = util.make_user("Rick", "pass")
-        u3 = util.make_user("Lars", "pass")
-        u4 = util.make_user("Jeroen", "pass")
+        u1 = factory.make_user("Zi-Long", "pass")
+        u2 = factory.make_user("Rick", "pass")
+        u3 = factory.make_user("Lars", "pass")
+        u4 = factory.make_user("Jeroen", "pass")
 
-        c1 = util.make_course("Portofolio Academische Vaardigheden", "PAV")
-        c2 = util.make_course("BeeldBewerken", "BB")
-        c3 = util.make_course("Reflectie en Digitale Samenleving", "RDS")
+        c1 = factory.make_course("Portofolio Academische Vaardigheden", "PAV")
+        c2 = factory.make_course("BeeldBewerken", "BB")
+        c3 = factory.make_course("Reflectie en Digitale Samenleving", "RDS")
 
         role = Role(name='TA')
         role.can_view_assignment = True
@@ -69,17 +69,17 @@ class RestTests(TestCase):
             c.participation_set.add(p)
             c.save()
 
-        a1 = util.make_assignment("Colloq", "In de opdracht...1", u1)
-        a2 = util.make_assignment("Logboek", "In de opdracht...2", u1)
+        a1 = factory.make_assignment("Colloq", "In de opdracht...1", u1)
+        a2 = factory.make_assignment("Logboek", "In de opdracht...2", u1)
         a1.courses.add(c1)
         a1.courses.add(c2)
         a2.courses.add(c1)
 
-        j1 = util.make_journal(a1, u2)
-        j2 = util.make_journal(a1, u3)
-        j3 = util.make_journal(a1, u4)
+        j1 = factory.make_journal(a1, u2)
+        j2 = factory.make_journal(a1, u3)
+        j3 = factory.make_journal(a1, u4)
 
-        util.make_journal(a1, self.student)
+        factory.make_journal(a1, self.student)
 
     def test_login(self):
         result = logging_in(self, self.username, self.password)

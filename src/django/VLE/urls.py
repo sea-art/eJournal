@@ -22,6 +22,7 @@ from VLE.views import get_course_assignments
 from VLE.views import get_assignment_journals
 from VLE.views import get_upcoming_deadlines
 from VLE.views import create_new_course
+from VLE.views import create_new_assignment
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -40,4 +41,5 @@ urlpatterns = [
     path('api/get_assignment_journals/<str:aID>/', get_assignment_journals, name='get_assignment_journals'),
     path('api/get_upcoming_deadlines/', get_upcoming_deadlines, name='get_upcoming_deadlines'),
     path('api/create_new_course/', create_new_course, name='create_new_course'),
+    path('api/create_new_assignment/', create_new_assignment, name='create_new_assignment'),
 ]

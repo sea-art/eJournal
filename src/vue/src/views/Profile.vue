@@ -22,7 +22,7 @@ export default {
                 name: 'Engel Hamer',
                 email: 'e.hamer@uva.nl',
                 id: '11256443',
-                image: '../assets/ohno.jpeg'
+                image: '/static/oh_no/ohno.jpeg'
             }]
         }
     },
