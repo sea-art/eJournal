@@ -69,7 +69,6 @@ export default {
                 this.saveEditMode = 'Save'
             }
         },
-
         cancel: function () {
             this.saveEditMode = 'Edit'
         }

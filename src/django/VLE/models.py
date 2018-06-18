@@ -20,6 +20,9 @@ class User(AbstractUser):
         null=True,
         unique=True,
     )
+    profile_picture = models.TextField(
+        null=True
+    )
 
     def __str__(self):
         return self.username
@@ -52,6 +55,11 @@ class Course(models.Model):
 
     startdate = models.DateField(
         null=True,
+    )
+    lti_id = models.TextField(
+        # TODO Change if all courses should be linked to a canvas course.
+        null=True,
+        unique=True,
     )
 
     def __str__(self):
@@ -107,6 +115,15 @@ class Assignment(models.Model):
     author = models.ForeignKey(
         'User',
         on_delete=models.SET_NULL,
+        null=True
+    )
+    points_possible = models.IntegerField(
+        'points_possible',
+        null=True
+    )
+    lti_id = models.TextField(
+        'lti_id',
+        # TODO Change if all assignments should be linked to a canvas course.
         null=True
     )
     courses = models.ManyToManyField(Course)

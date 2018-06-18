@@ -1,23 +1,34 @@
 <template>
-        <content-columns>
-            <edag slot="left-content-column" @select-node="selectNode" :selected="currentNode" :nodes="nodes"></edag>
-            <div slot="main-content-column">
-                <bread-crumb :currentPage="$route.params.assignmentName" :course="$route.params.courseName"></bread-crumb>
-                <div v-if="nodes[currentNode].type == 'entry'">
-                    <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
-                        :textbox2="nodes[currentNode].textbox2"
-                        :date="nodes[currentNode].date"></entry-template>
-                </div>
-                <div v-else-if="nodes[currentNode].type == 'add'">
-                    <add-card @add-template="addNode">bhjewk</add-card>
-                </div>
-                <div v-else-if="nodes[currentNode].type == 'progress'">
-                    <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
-                        :textbox2="nodes[currentNode].textbox2"
-                        :date="nodes[currentNode].date"></entry-template>
-                </div>
+    <b-row no-gutters>
+        <b-col v-if="bootstrapLg()" cols="12">
+            <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
+            <edag @select-node="selectNode" :selected="variable" :nodes="nodes"/>
+        </b-col>
+        <b-col v-else xl="3" class="left-content">
+            <edag @select-node="selectNode" :selected="variable" :nodes="nodes"/>
+        </b-col>
+        <b-col lg="12" xl="6" order="2" class="main-content">
+            <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
+            <!--
+                Fill in the template using the corresponding data
+                of the entry
+            . -->
+            <div v-if="nodes[variable].type == 'entry'">
+                <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[variable].textbox1"
+                    :textbox2="nodes[variable].textbox2"
+                    :date="nodes[variable].date"></entry-template>
             </div>
-        </content-columns>
+            <div v-else-if="nodes[variable].type == 'add'">
+                <add-card @add-template="addNode">bhjewk</add-card>
+            </div>
+            <div v-else-if="nodes[variable].type == 'progress'">
+                <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[variable].textbox1"
+                    :textbox2="nodes[variable].textbox2"
+                    :date="nodes[variable].date"></entry-template>
+            </div>
+        </b-col>
+        <b-col cols="12" xl="3" order="3" class="right-content"/>
+    </b-row>
 </template>
 
 <script>
@@ -26,11 +37,13 @@ import entryTemplate from '@/components/TemplateCard.vue'
 import addCard from '@/components/AddCard.vue'
 import edag from '@/components/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
+
 export default {
     name: 'Journal',
     data () {
         return {
-            currentNode: 0,
+            windowWidth: 0,
+            variable: 0,
             editedData: ['', ''],
             nodes: [{
                 type: 'entry',
@@ -95,7 +108,33 @@ export default {
                 date: new Date(),
                 id: this.nodes.length
             })
+        },
+        getWindowWidth (event) {
+            this.windowWidth = document.documentElement.clientWidth
+        },
+        getWindowHeight (event) {
+            this.windowHeight = document.documentElement.clientHeight
+        },
+        bootstrapLg () {
+            return this.windowHeight < 1200
+        },
+        bootstrapMd () {
+            return this.windowHeight < 922
+        },
+        customisePage () {
+            alert('Wishlist: Customise page')
         }
+    },
+
+    mounted () {
+        this.$nextTick(function () {
+            window.addEventListener('resize', this.getWindowWidth)
+
+            this.getWindowWidth()
+        })
+    },
+    beforeDestroy () {
+        window.removeEventListener('resize', this.getWindowWidth)
     },
 
     components: {
