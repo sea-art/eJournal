@@ -2,6 +2,7 @@ from rest_framework.decorators import api_view
 from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.http import JsonResponse
 from VLE.serializers import *
+import VLE.edag as edag
 from random import randint
 
 
@@ -206,4 +207,6 @@ def get_nodes(request, jID):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    nodes = []
+    journal = Journal.objects.get(pk=jID)
+    return JsonResponse({'result': 'success',
+                         'nodes': edag.get_nodes(journal)})

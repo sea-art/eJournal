@@ -1,4 +1,5 @@
 from django.db.models import Case, When
+from django.utils import timezone
 from .models import *
 
 
@@ -14,7 +15,6 @@ def get_nodes_dict(journal):
 
 
 def add_node_dict(journal):
-    print("YE BOY")
     return {
         'type': 'a',
         'journal': journal.id,
@@ -53,7 +53,7 @@ def entry_deadline_to_dict(node):
         'type': node.type,
         'journal': node.journal.id,
         'entry': entry_to_dict(node.entry),
-        'deadline': node.preset.deadline.datetime
+        'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M')
     }
 
 
@@ -61,7 +61,7 @@ def progress_to_dict(node):
     return {
         'type': node.type,
         'journal': node.journal.id,
-        'deadline': node.preset.deadline.datetime,
+        'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
         'target': node.preset.deadline.points,
     }
 
@@ -73,7 +73,7 @@ def entry_to_dict(entry):
     return {
         'eID': entry.id,
         'template': template_to_dict(entry.template),
-        'createdate': entry.datetime,
+        'createdate': entry.datetime.strftime('%d-%m-%Y %H:%M'),
         'grade': entry.grade,
         'late': entry.late,
         'content': [content_to_dict(content) for content in entry.content_set.all()],
