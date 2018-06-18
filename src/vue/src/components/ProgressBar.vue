@@ -11,7 +11,7 @@ export default {
     props: ['currentPoints', 'totalPoints'],
     computed: {
         progressPercentage () {
-            return (this.currentPoints / this.totalPoints * 100).toFixed(1)
+            return (this.currentPoints / this.totalPoints * 100).toFixed(0)
         }
     }
 }
