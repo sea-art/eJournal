@@ -1,6 +1,5 @@
 <template>
     <content-columns>
-        {{  $route.params.courseName }}
         <bread-crumb slot="main-content-column" :currentPage="$route.params.courseName"></bread-crumb>
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
             <b-link tag="b-button" :to="{ name: 'Assignment',

@@ -1,7 +1,7 @@
 <template>
     <b-container no-gutters>
         <b-row>
-            <h8>Notification-emails</h8><br/>
+            <p class="profile-title">Change password</p><br/>
         </b-row>
 
         <b-row>
@@ -49,7 +49,7 @@ export default {
     },
     methods: {
         changePassword: function () {
-            alert('I am a save button!')
+            alert('I am a change password button!')
         }
     }
 }

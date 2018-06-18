@@ -8,7 +8,7 @@
         <b-collapse v-if="$route.path != '/'" is-nav id="nav_collapse">
             <b-navbar-nav>
                 <b-nav-item :to='"/Home"'>Courses</b-nav-item>
-                <b-nav-item :to='"/Home"'>Assignments</b-nav-item>
+                <b-nav-item :to='"/AssignmentsOverview"'>Assignments</b-nav-item>
             </b-navbar-nav>
 
             <!-- Right aligned nav items; ml-auto means margin-left:

@@ -1,7 +1,7 @@
 <template>
     <b-container>
         <b-row>
-            <h8>Notification-emails</h8><br/>
+            <p class="profile-title">Notification-emails</p><br/>
         </b-row>
         <b-row>
             <b-col class="profile-col" cols="4">
@@ -11,7 +11,7 @@
                 <toggle-switch :isActive="gradeUpdate"
                                @parentActive="getGradeNotification">
                 </toggle-switch>
-                {{gradeUpdate}}
+                <!-- {{gradeUpdate}} -->
             </b-col>
         </b-row>
         <b-row>
@@ -22,7 +22,7 @@
                 <toggle-switch :isActive="commentUpdate"
                                @parentActive="getCommentNotification">
                 </toggle-switch>
-                {{commentUpdate}}
+                <!-- {{commentUpdate}} -->
             </b-col>
         </b-row>
     </b-container>
@@ -37,7 +37,7 @@ export default {
     },
     data () {
         return {
-            gradeUpdate: false,
+            gradeUpdate: true,
             commentUpdate: false
         }
     },

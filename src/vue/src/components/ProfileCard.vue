@@ -47,14 +47,14 @@ export default {
 
 }
 
-h7 {
+p.profile-name {
     font-size: 30px;
-    line-height: 0px;
     font-weight: bold;
+    line-height: 35px;
     margin-bottom: 0px;
 }
 
-h8 {
+p.profile-title {
     font-size: 20px;
     font-weight: bold;
     margin-bottom: 0px;

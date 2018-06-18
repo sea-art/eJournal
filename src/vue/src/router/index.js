@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/views/Home'
+import AssignmentsOverview from '@/views/AssignmentsOverview'
 import Journal from '@/views/Journal'
 import Assignment from '@/views/Assignment'
 import Course from '@/views/Course'
@@ -23,6 +24,10 @@ export default new Router({
         path: '/Home',
         name: 'Home',
         component: Home
+    }, {
+        path: '/AssignmentsOverview',
+        name: 'AssignmentsOverview',
+        component: AssignmentsOverview
     }, {
         path: '/Profile',
         name: 'Profile',

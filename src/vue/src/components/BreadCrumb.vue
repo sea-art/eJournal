@@ -1,7 +1,7 @@
 <template>
     <div>
         <h4>
-            <b-breadcrumb v-if="$route.params.student != undefined" class="bread-crumb" :items="items.slice(0, 2).concat(' ')"/>
+            <b-breadcrumb v-if="$route.params.student != undefined" class="bread-crumb" :items="items.concat(' ')"/>
             <b-breadcrumb v-else-if="$route.params.assign != undefined" class="bread-crumb" :items="items.slice(0, 2).concat(' ')"/>
             <b-breadcrumb v-else-if="$route.params.course != undefined" class="bread-crumb" :items="items.slice(0, 1).concat(' ')"/>
         </h4>
@@ -13,7 +13,7 @@
 
 <script>
 export default {
-    props: ['currentPage', 'course'],
+    props: ['currentPage', 'course', 'assign'],
     data () {
         return {
             items: [{
@@ -39,17 +39,17 @@ export default {
                         assignmentName: this.$route.params.assignmentName
                     }
                 }
-            }, {
-                text: this.assign,
-                to: {
-                    name: 'Journal',
-                    params: {
-                        course: this.$route.params.course,
-                        assign: this.$route.params.assign,
-                        courseName: this.$route.params.courseName,
-                        assignmentName: this.$route.params.assignmentName
-                    }
-                }
+            // }, {
+            //     text: this.assign,
+            //     to: {
+            //         name: 'Journal',
+            //         params: {
+            //             course: this.$route.params.course,
+            //             assign: this.$route.params.assign,
+            //             courseName: this.$route.params.courseName,
+            //             assignmentName: this.$route.params.assignmentName
+            //         }
+            //     }
             }]
         }
     }
