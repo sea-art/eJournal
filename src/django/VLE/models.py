@@ -147,7 +147,7 @@ class Journal(models.Model):
 class JournalFormat(models.Model):
     """Format of a journal"""
     templates = models.ManyToManyField(
-        EntryTemplate,
+        'EntryTemplate',
     )
 
     def __str__(self):
@@ -158,6 +158,7 @@ class Deadline(models.Model):
     """Deadline"""
     format = models.ForeignKey(
         "JournalFormat",
+        on_delete=models.CASCADE
     )
 
     def __str__(self):
@@ -173,7 +174,7 @@ class EntryTemplate(models.Model):
         return self.name
 
 
-class Fields(models.Model):
+class Field(models.Model):
     """Defines the fields of an EntryTemplate
     """
     TEXT = 't'
@@ -184,19 +185,16 @@ class Fields(models.Model):
         (IMG, 'img'),
         (FILE, 'file'),
     )
-    type = models.textField(
+    type = models.TextField(
         max_length=4,
         choices=TYPES,
         default=TEXT,
     )
-    description = models.TextField(
-        required=True
-    )
-    location = models.TextField(
-        required=True
-    )
+    description = models.TextField()
+    location = models.TextField()
     template = models.ForeignKey(
         'EntryTemplate',
+        on_delete=models.CASCADE,
     )
 
     def __str__(self):
@@ -216,27 +214,33 @@ class Entry(models.Model):
     template = models.ForeignKey(
         'EntryTemplate',
         on_delete=models.SET_NULL,
+        null=True
     )
     datetime = models.DateTimeField(
         auto_now_add=True,
     )
     grade = models.BooleanField(
-        null=True
+        default=False
+    )
+    late = models.BooleanField(
+        default=False
     )
 
     def __str__(self):
         return str(self.pk)
 
     def is_graded(self):
-        return self.grade != None
+        return self.grade is not None
 
 
 class Content(models.Model):
     field = models.ForeignKey(
         'Field',
-        on_delete=SET_NULL,
+        on_delete=models.SET_NULL,
+        null=True
     )
     entry = models.ForeignKey(
         'Entry',
+        on_delete=models.CASCADE
     )
     data = models.TextField()

@@ -6,7 +6,7 @@ import random
 
 
 def make_user(username, password, email=None, lti_id=None, profile_picture=None):
-    user = User(username=username)
+    user = User(username=username, email=email, lti_id=lti_id)
     user.save()
     user.set_password(password)
     user.profile_picture = profile_picture if profile_picture else '/static/oh_no/{}.png'.format(random.randint(1, 10))
@@ -14,13 +14,13 @@ def make_user(username, password, email=None, lti_id=None, profile_picture=None)
     return user
 
 
-def make_course(name, abbrev):
-    course = Course(name=name, abbreviation=abbrev)
+def make_course(name, abbrev, date=None):
+    course = Course(name=name, abbreviation=abbrev, startdate=date)
     course.save()
     return course
 
 
-def make_assignment(name, description, author):
+def make_assignment(name, description, author=None):
     assign = Assignment(name=name, description=description, author=author)
     assign.save()
     return assign

@@ -1,4 +1,5 @@
 import datetime
+import VLE.util as util
 from django.test import TestCase
 from VLE.models import *
 
@@ -8,12 +9,8 @@ class DataBaseTests(TestCase):
         """
         Testing the foreign keys in de database.
         """
-        user_test = User(email='lers@uva.nl', username='lers',
-                         password='lers123', lti_id='a')
-        course_test = Course(name='tname', abbreviation='XXXX',
-                             startdate=datetime.date.today())
-        user_test.save()
-        course_test.save()
+        user_test = util.make_user('lers', 'lers123', 'lers@uva.nl', 'a')
+        course_test = util.make_course('tname', 'XXXX', datetime.date.today())
         course_test.author = user_test
         ass_test = Assignment(name='tcolloq', description='description')
         ass_test.save()
