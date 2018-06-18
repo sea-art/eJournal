@@ -14,9 +14,9 @@
                                           }
                                         }">
                 <student-card
-                    :student="journal.student"
-                    :studentNumber="journal.studentNumber"
-                    :studentPortraitPath="journal.studentPortraitPath"
+                    :student="journal.student.name"
+                    :studentNumber="journal.student.uID"
+                    :studentPortraitPath="journal.student.picture"
                     :progress="journal.progress"
                     :entriesStats="journal.entriesStats">
                 </student-card>

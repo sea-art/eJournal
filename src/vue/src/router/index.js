@@ -7,6 +7,7 @@ import Course from '@/views/Course'
 import Profile from '@/views/Profile'
 import Guest from '@/views/Guest'
 import Register from '@/views/Register'
+import LtiLaunch from '@/views/LtiLaunch'
 import CourseCreation from '@/views/CourseCreation'
 import AssignmentsOverview from '@/views/AssignmentsOverview'
 
@@ -52,5 +53,9 @@ export default new Router({
         name: 'Journal',
         component: Journal,
         props: true
+    }, {
+        path: '/lti/launch',
+        name: 'LtiLaunch',
+        component: LtiLaunch
     }]
 })

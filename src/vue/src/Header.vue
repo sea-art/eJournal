@@ -12,8 +12,8 @@
             </b-navbar-nav>
             <b-nav-dropdown v-if="!isGuest" class="ml-auto" right no-caret id="nav-dropdown-options">
                 <img id="nav-profile-image" slot="button-content" src="./assets/ohno.jpeg">
-                <b-button @click="handleLogout()">Sign out</b-button><br/>
                 <b-button :to="{ name: 'Profile'}">Profile</b-button>
+                <b-button @click="handleLogout()">Sign out</b-button><br/>
             </b-nav-dropdown>
             <b-nav-dropdown v-if="isGuest" class="ml-auto testt" right no-caret id="nav-dropdown-options-guest">
                 <img id="nav-profile-image" slot="button-content" src="~@/assets/unknown-profile.png">
