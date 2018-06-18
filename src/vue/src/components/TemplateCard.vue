@@ -40,7 +40,11 @@
                 </div>
             </b-col>
         </b-row>
-        <comment-card :comment="comment"></comment-card>
+        hoi
+        {{comment}}
+        hoi2
+        hoi3
+        <comment-card :comment="comment"/>
     </div>
 </template>
 
@@ -57,7 +61,7 @@ export default {
             tempbox1: this.textbox1,
             tempbox2: this.textbox2,
             tempProps: [],
-            comment: 'Hallooooo'
+            comment: 'ghalooo'
         }
     },
 
