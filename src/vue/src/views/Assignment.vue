@@ -4,17 +4,13 @@
 
 <template>
     <content-columns>
-        <bread-crumb @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName" slot="main-content-column"></bread-crumb>
+        <bread-crumb @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder" slot="main-content-column"></bread-crumb>
         <div v-for="journal in assignmentJournals" :key="journal.uid" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {
-                                              course: $route.params.course,
-                                              assign: $route.params.assign,
-                                              student: 'Rick',
-                                              color: $route.params.color,
-                                              courseName: $route.params.courseName,
-                                              assignmentName: $route.params.assignmentName,
-                                              journalName: journal.student
+                                              cID: cID,
+                                              aID: aID,
+                                              jID: journal.uid
                                           }
                                         }">
                 <student-card
@@ -37,6 +33,17 @@ import journal from '@/api/journal.js'
 
 export default {
     name: 'Assignment',
+    props: {
+        cID: {
+            type: String,
+            required: true
+        },
+        aID: {
+            type: String,
+            required: true
+        },
+        assignmentName: ''
+    },
     data () {
         return {
             assignmentJournals: []
@@ -48,7 +55,7 @@ export default {
         'bread-crumb': breadCrumb
     },
     created () {
-        journal.get_assignment_journals(this.$route.params.assign)
+        journal.get_assignment_journals(this.aID)
             .then(response => { this.assignmentJournals = response })
             .catch(_ => alert('Error while loading jounals'))
     },
