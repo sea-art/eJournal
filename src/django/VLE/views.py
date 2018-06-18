@@ -114,11 +114,11 @@ def get_assignment_journals(request, aID):
         journals.append(journal_to_dict(journal))
 
     # TODO: Misschien dit efficient maken voor minimal delay?
-    needsMarking = sum([x.get("stats").get("total") - x.get("stats").get("graded") for x in journals])
-    points = [x.get("progress").get("acquired") for x in journals]
+    needsMarking = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
+    points = [x['stats']['acquired_points'] for x in journals]
     avgPoints = round(st.mean(points), 2)
     medianPoints = st.median(points)
-    avgEntries = round(st.mean([x.get("stats").get("total") for x in journals]), 2)
+    avgEntries = round(st.mean([x['stats']['total_points'] for x in journals]), 2)
 
     stats = {
         'needsMarking': needsMarking,
