@@ -14,10 +14,10 @@
             <!-- Right aligned nav items; ml-auto means margin-left:
             auto which aligns an element to the right. -->
             <b-navbar-nav class="ml-auto">
-                <b-nav-item-dropdown no-caret right>
+                <b-nav-item-dropdown no-caret right no-body id="nav-dropdown-options">
                     <img id="nav-profile-image" slot="button-content" src="./assets/ohno.jpeg">
-                    <router-link tag="b-dropdown-item" :to='"/Profile"'>Profile</router-link>
-                    <router-link tag="b-dropdown-item" :to='"/"'>Sign Out</router-link>
+                    <router-link tag="b-dropdown-item" :to='"/Profile"' class="btn">Profile</router-link>
+                    <router-link tag="b-dropdown-item" :to='"/"' class="btn">Sign Out</router-link>
                 </b-nav-item-dropdown>
             </b-navbar-nav>
         </b-collapse>
@@ -25,9 +25,7 @@
         <b-collapse v-else is-nav id="nav_collapse">
             <b-navbar-nav class="ml-auto">
                 <login-inline></login-inline>
-                <b-nav-item-dropdown no-caret right>
-                    <img id="nav-profile-image" slot="button-content" src="./assets/unknown-profile.png">
-                </b-nav-item-dropdown>
+                <img id="nav-profile-image" slot="button-content" src="./assets/unknown-profile.png">
             </b-navbar-nav>
         </b-collapse>
 
@@ -49,6 +47,15 @@ export default {
     background-color: var(--theme-dark-blue);
     color: var(--theme-pink);
     font-family: 'Roboto Condensed', sans-serif;
+    height: 70px;
+}
+
+#nav-dropdown-options a {
+    padding: 0px !important;
+}
+
+.dropdown-menu {
+    background: none !important;
 }
 
 .brand-name {

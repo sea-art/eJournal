@@ -40,10 +40,6 @@
                 </div>
             </b-col>
         </b-row>
-        hoi
-        {{comment}}
-        hoi2
-        hoi3
         <comment-card :comment="comment"/>
     </div>
 </template>
@@ -61,7 +57,7 @@ export default {
             tempbox1: this.textbox1,
             tempbox2: this.textbox2,
             tempProps: [],
-            comment: 'ghalooo'
+            comment: 'hoi1000'
         }
     },
 
@@ -77,7 +73,6 @@ export default {
                 this.saveEditMode = 'Save'
             }
         },
-
         cancel: function () {
             this.saveEditMode = 'Edit'
         }
