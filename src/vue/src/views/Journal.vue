@@ -26,7 +26,6 @@ import entryTemplate from '@/components/TemplateCard.vue'
 import addCard from '@/components/AddCard.vue'
 import edag from '@/components/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
-
 export default {
     name: 'Journal',
     data () {

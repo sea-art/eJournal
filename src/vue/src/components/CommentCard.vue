@@ -2,20 +2,19 @@
     <b-row>
         <b-col cols="2">
             <img class="profilePic" id="nav-profile-image" slot="button-content" src="../assets/unknown-profile.png">
-
         </b-col>
         <b-col cols="10">
             <b-card>
-                <div v-if="saveEditMode == 'Save'">
+                <div v-if="EditSaveMode == 'Save'">
                     <b-textarea v-model="tempComment"></b-textarea><br><br>
-                    <b-button @click="saveEdit">{{ saveEditMode }} </b-button>
+                    <b-button @click="saveEdit">{{ EditSaveMode }} </b-button>
                     <b-button @click="cancel">Cancel</b-button>
                 </div>
                 <div v-else>
+                    derp
                     {{ tempComment }}
-                    <b-button @click="saveEdit">{{ saveEditMode }} </b-button>
+                    <b-button @click="saveEdit">{{ EditSaveMode }} </b-button>
                 </div>
-
             </b-card>
         </b-col>
     </b-row>
@@ -23,29 +22,27 @@
 
 <script>
 export default {
-    /* Variables that are needed to fill in the template. */
     props: ['comment'],
 
     data () {
         return {
-            saveEditMode: 'Edit',
+            EditSaveMode: 'Edit',
             tempComment: this.comment
         }
     },
 
     methods: {
         saveEdit: function () {
-            if (this.saveEditMode === 'Save') {
-                this.saveEditMode = 'Edit'
+            if (this.EditSaveMode === 'Save') {
+                this.EditSaveMode = 'Edit'
                 // this.$emit('edit-comment', this.tempComment)
             } else {
-                this.tempbox1 = this.tempComment
-                this.saveEditMode = 'Save'
+                this.EditSaveMode = 'Save'
             }
         },
 
         cancel: function () {
-            this.saveEditMode = 'Edit'
+            this.EditSaveMode = 'Edit'
         }
     }
 }

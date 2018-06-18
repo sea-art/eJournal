@@ -38,7 +38,7 @@
 -->
 
 <template>
-    <div id="edag-div" ref="scd" :style="styleObject">
+    <div id="edag-div" ref="scd">
         <edag-node v-for="(node, index) in this.nodes" @select-node="$emit('select-node', $event)" :index="index" :node="node" :selected="isSelected(index)" :key="node.id" :upperEdgeStyle="upperEdgeStyle(index)" :lowerEdgeStyle="lowerEdgeStyle(index)"/>
     </div>
 </template>
