@@ -1,6 +1,7 @@
 <template>
     <content-columns>
-        <bread-crumb slot="main-content-column" :currentPage="$route.params.courseName"></bread-crumb>
+        {{  $route.params.courseName }}
+        <bread-crumb @eye-click="customisePage" slot="main-content-column" :currentPage="$route.params.courseName"></bread-crumb>
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
             <b-link tag="b-button" :to="{ name: 'Assignment',
                                           params: {
@@ -10,9 +11,9 @@
                                               assignmentName: a.name
                                           }
                                         }">
-                <main-card :line1="a.name" :color="$route.params.color">
-                    <b-progress :value="a.progress.acquired" :max="a.progress.total"/>
-                </main-card>
+                <assignment-card :line1="a.name" :color="$route.params.color">
+                    <progress-bar :currentPoints="a.progress.acquired" :totalPoints="a.progress.total"></progress-bar>
+                </assignment-card>
             </b-link>
         </div>
 
@@ -28,13 +29,15 @@
 <script>
 import contentColumns from '@/components/ContentColumns.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
-import mainCard from '@/components/MainCard.vue'
+import assignmentCard from '@/components/AssignmentCard.vue'
 import todoCard from '@/components/TodoCard.vue'
+import progressBar from '@/components/ProgressBar.vue'
 import assignment from '@/api/assignment.js'
 import getColors from '@/javascripts/colors.js'
 
 export default {
     name: 'Course',
+    props: [],
     data () {
         return {
             assignments: [],
@@ -45,14 +48,20 @@ export default {
     components: {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
-        'main-card': mainCard,
-        'todo-card': todoCard
+        'assignment-card': assignmentCard,
+        'todo-card': todoCard,
+        'progress-bar': progressBar
     },
     created () {
         assignment.get_course_assignments(this.$route.params.course)
             .then(response => { this.assignments = response })
             .catch(_ => alert('Error while loading assignments'))
             .then(_ => { this.colors = getColors(this.assignments.length) })
+    },
+    methods: {
+        customisePage () {
+            alert('Wishlist: Customise page')
+        }
     }
 }
 </script>

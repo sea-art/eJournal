@@ -19,7 +19,7 @@ export default {
     props: ['name', 'email', 'id', 'image'],
     data () {
         return {
-            courses: [{name:'1'}],
+            courses: [{name: '1'}],
             test: 'hoi'
         }
     },

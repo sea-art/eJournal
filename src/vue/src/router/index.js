@@ -8,6 +8,8 @@ import Course from '@/views/Course'
 import Profile from '@/views/Profile'
 import Guest from '@/views/Guest'
 import Register from '@/views/Register'
+import LtiLaunch from '@/views/LtiLaunch'
+import CourseCreation from '@/views/CourseCreation'
 
 Vue.use(Router)
 
@@ -28,6 +30,10 @@ export default new Router({
         path: '/AssignmentsOverview',
         name: 'AssignmentsOverview',
         component: AssignmentsOverview
+    }, {
+        path: '/CourseCreation',
+        name: 'CourseCreation',
+        component: CourseCreation
     }, {
         path: '/Profile',
         name: 'Profile',
@@ -59,5 +65,9 @@ export default new Router({
             assignmentName: '',
             journalName: ''
         }
+    }, {
+        path: '/lti/launch',
+        name: 'LtiLaunch',
+        component: LtiLaunch
     }]
 })

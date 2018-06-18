@@ -1,8 +1,18 @@
 <template>
-    <content-columns>
-        <edag slot="left-content-column" @select-node="selectNode" :selected="variable" :nodes="nodes"></edag>
-        <div slot="main-content-column">
-            <bread-crumb :currentPage="$route.params.assignmentName + ' Journal'" :course="$route.params.courseName" :assign="$route.params.assignmentName"></bread-crumb>
+    <b-row no-gutters>
+        <b-col v-if="bootstrapLg()" cols="12">
+            <!-- <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName" :assign="$route.params.assignmentName"/> -->
+            <edag @select-node="selectNode" :selected="variable" :nodes="nodes"/>
+        </b-col>
+        <b-col v-else xl="3" class="left-content">
+            <edag @select-node="selectNode" :selected="variable" :nodes="nodes"/>
+        </b-col>
+
+        <b-col lg="12" xl="6" order="2" class="main-content">
+            <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName + ' Journal'"/>
+            <bread-crumb :currentPage="$route.params.assignmentName + ' Journal'"/>
+
+            <!-- <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
             <!--
                 Fill in the template using the corresponding data
                 of the entry
@@ -20,8 +30,9 @@
                     :textbox2="nodes[variable].textbox2"
                     :date="nodes[variable].date"></entry-template>
             </div>
-        </div>
-    </content-columns>
+        </b-col>
+        <b-col cols="12" xl="3" order="3" class="right-content"/>
+    </b-row>
 </template>
 
 <script>
@@ -30,10 +41,12 @@ import entryTemplate from '@/components/TemplateCard.vue'
 import addCard from '@/components/AddCard.vue'
 import edag from '@/components/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
+
 export default {
     name: 'Journal',
     data () {
         return {
+            windowWidth: 0,
             variable: 0,
             editedData: ['', ''],
             nodes: [{
@@ -98,7 +111,33 @@ export default {
                 date: new Date(),
                 id: this.nodes.length
             })
+        },
+        getWindowWidth (event) {
+            this.windowWidth = document.documentElement.clientWidth
+        },
+        getWindowHeight (event) {
+            this.windowHeight = document.documentElement.clientHeight
+        },
+        bootstrapLg () {
+            return this.windowHeight < 1200
+        },
+        bootstrapMd () {
+            return this.windowHeight < 922
+        },
+        customisePage () {
+            alert('Wishlist: Customise page')
         }
+    },
+
+    mounted () {
+        this.$nextTick(function () {
+            window.addEventListener('resize', this.getWindowWidth)
+
+            this.getWindowWidth()
+        })
+    },
+    beforeDestroy () {
+        window.removeEventListener('resize', this.getWindowWidth)
     },
 
     components: {
