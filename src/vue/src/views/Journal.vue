@@ -8,7 +8,7 @@
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
         <b-col lg="12" xl="6" order="2" class="main-content">
-            <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
+            <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder"/>
             <!--
                 Fill in the template using the corresponding data
                 of the entry
@@ -41,6 +41,20 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 
 export default {
     name: 'Journal',
+    props: {
+        cID: {
+            type: String,
+            required: true
+        },
+        aID: {
+            type: String,
+            required: true
+        },
+        jID: {
+            type: String,
+            required: true
+        }
+    },
     data () {
         return {
             windowWidth: 0,
