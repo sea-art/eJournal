@@ -18,11 +18,11 @@
                                           }
                                         }">
                 <student-card
-                    :student="j.student"
-                    :studentNumber="j.studentnumber"
-                    :studentPortraitPath="j.studentPortraitPath"
+                    :student="j.student.name"
+                    :studentNumber="j.student.uID"
+                    :studentPortraitPath="j.student.picture"
                     :studentProgress="j.progress"
-                    :entryStats="j.entryStats"
+                    :entryStats="j.entriesStats"
                     :color="cardColor">
                 </student-card>
             </b-link>

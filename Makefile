@@ -1,9 +1,9 @@
 
 test-back:
 	pep8 ./src/django --max-line-length=120 --exclude='./src/django/VLE/migrations'
+	bash -c "source ./venv/bin/activate && cd ./src/django/ && python3.6 manage.py test && deactivate"
 
 test-front:
-	bash -c "source ./venv/bin/activate && cd ./src/django/ && python3.6 manage.py test && deactivate"
 	npm run lint --prefix ./src/vue
 	npm run test --prefix ./src/vue
 
