@@ -3,6 +3,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.http import JsonResponse
 from VLE.serializers import *
 import VLE.factory as factory
+import statistics as st
 
 
 @api_view(['GET'])
@@ -108,10 +109,25 @@ def get_assignment_journals(request, aID):
     # TODO: Check if the user has valid permissions to see get all the journals (teacher/ta)
     assignment = Assignment.objects.get(pk=aID)
     journals = []
+
     for journal in assignment.journal_set.all():
         journals.append(journal_to_dict(journal))
 
-    return JsonResponse({'result': 'success', 'journals': journals})
+    # TODO: Misschien dit efficient maken voor minimal delay?
+    needsMarking = sum([x.get("stats").get("total") - x.get("stats").get("graded") for x in journals])
+    points = [x.get("progress").get("acquired") for x in journals]
+    avgPoints = round(st.mean(points), 2)
+    medianPoints = st.median(points)
+    avgEntries = round(st.mean([x.get("stats").get("total") for x in journals]), 2)
+
+    stats = {
+        'needsMarking': needsMarking,
+        'avgPoints': avgPoints,
+        'medianPoints': medianPoints,
+        'avgEntries': avgEntries
+    }
+
+    return JsonResponse({'result': 'success', 'stats': stats, 'journals': journals})
 
 
 @api_view(['GET'])
