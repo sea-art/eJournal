@@ -74,22 +74,17 @@ def make_journal(assignment, user):
     return journal
 
 
-def make_entry(template, content, posttime=timezone.now()):
+def make_entry(template, posttime=timezone.now()):
     """
     Creates a new entry in a journal.
     Posts it at the specified moment, or when unset, now.
     -journal is the journal to post the entry in.
-    -content is a list of tuples (tag, data) to attach to the entry.
     -posttime is the time of posting, defaults to current time.
     """
     # TODO: Too late logic.
-    if posttime:
-        entry = Entry(template=template, datetime=posttime, late=False)
-    entry.save()
 
-    for tag, data in content:
-        field = Content(entry=entry, tag=tag, data=data)
-        field.save()
+    entry = Entry(template=template, datetime=posttime, late=False)
+    entry.save()
     return entry
 
 
@@ -100,7 +95,7 @@ def make_entry_template(name):
 
 
 def make_field(descrip, loc, template, type='t'):
-    field = Field(type=type, description=descrip, location=loc, template=template)
+    field = Field(type=type, title=descrip, location=loc, template=template)
     field.save()
     return field
 
@@ -111,8 +106,8 @@ def make_content(entry, data, field=None):
     return content
 
 
-def make_deadline(format, datetime=datetime.datetime.now()):
-    deadline = Deadline(format=format, datetime=datetime)
+def make_deadline(datetime=datetime.datetime.now()):
+    deadline = Deadline(datetime=datetime)
     deadline.save()
     return deadline
 

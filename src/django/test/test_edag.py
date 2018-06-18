@@ -59,7 +59,7 @@ class EdagTests(TestCase):
         self.assertTrue(journal.node_set.get(preset__deadline=deadline))
 
     def test_sorted(self):
-        entry = util.make_entry(self.template, [("tag", "this is some data")], datetime.date(2022, 1, 1))
+        entry = util.make_entry(self.template, datetime.date(2022, 1, 1))
         node = util.make_node(self.j_rick_colloq, entry)
         nodes = edag.get_sorted_nodes(self.j_rick_colloq)
 
@@ -68,7 +68,7 @@ class EdagTests(TestCase):
         self.assertEquals(nodes[2].preset, self.progressnode)
 
     def test_json(self):
-        entry = util.make_entry(self.template, [("tag", "this is some data")], datetime.date(2022, 1, 1))
+        entry = util.make_entry(self.template, datetime.date(2022, 1, 1))
         node = util.make_node(self.j_rick_colloq, entry)
 
         print(edag.get_nodes_dict(self.j_rick_colloq))
