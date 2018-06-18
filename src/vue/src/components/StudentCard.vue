@@ -27,7 +27,7 @@ import todoSquare from '@/components/TodoSquare.vue'
 
 export default {
     props: ['student', 'studentNumber', 'studentPortraitPath',
-            'studentProgress', 'entryStats', 'color'],
+        'studentProgress', 'entryStats', 'color'],
     components: {
         'progress-bar': progressBar,
         'todo-square': todoSquare

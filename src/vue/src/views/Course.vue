@@ -77,7 +77,7 @@ export default {
         assignment.get_course_assignments(this.$route.params.course)
             .then(response => { this.assignments = response })
             .catch(_ => alert('Error while loading assignments'))
-            .then(_ => { this.cardColor = color.pickColor(this.$route.params.course)})
+            .then(_ => { this.cardColor = color.pickColor(this.$route.params.course) })
     },
     methods: {
         customisePage () {

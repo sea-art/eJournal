@@ -67,7 +67,7 @@ export default {
                 this.stats = response.stats
             })
             .catch(_ => alert('Error while loading jounals'))
-            .then(_ => { this.cardColor = color.pickColor(this.$route.params.assign)})
+            .then(_ => { this.cardColor = color.pickColor(this.$route.params.assign) })
     },
     methods: {
         customisePage () {
