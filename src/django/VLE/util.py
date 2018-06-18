@@ -5,11 +5,7 @@ from VLE.models import Journal
 import random
 
 
-<<<<<<< HEAD
-def make_user(username, password, email=None, lti_id=None):
-=======
-def make_user(username, password, profile_picture=None):
->>>>>>> 742e37dd714793d7a0aad514a7d688ab467c9de7
+def make_user(username, password, email=None, lti_id=None, profile_picture=None):
     user = User(username=username)
     user.save()
     user.set_password(password)
