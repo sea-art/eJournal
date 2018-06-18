@@ -3,7 +3,6 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.http import JsonResponse
 from VLE.serializers import *
 import VLE.factory as factory
-from random import randint
 
 
 @api_view(['GET'])

@@ -124,7 +124,7 @@ class RestTests(TestCase):
         result = api_get_call(self, '/api/get_course_assignments/1/', login)
         assignments = result.json()['assignments']
 
-        self.assertEquals(len(assignments), 1)
+        self.assertEquals(len(assignments), 2)
         self.assertEquals(assignments[0]['name'], 'Colloq')
 
         result = api_get_call(self, '/api/get_course_assignments/2/', login)

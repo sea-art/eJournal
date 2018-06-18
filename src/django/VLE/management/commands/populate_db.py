@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 from VLE.models import *
-from VLE.util import *
+from VLE.factory import *
 from faker import Faker
 import random
 faker = Faker()

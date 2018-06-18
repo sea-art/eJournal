@@ -2,6 +2,7 @@ from rest_framework import serializers
 from VLE.models import *
 from random import randint
 
+
 def user_to_dict(user):
     """Get a object of a single user
 
@@ -15,6 +16,7 @@ def user_to_dict(user):
         'picture': user.profile_picture,
         'uID': user.id
     } if user else None
+
 
 def course_to_dict(course):
     return {
@@ -48,6 +50,7 @@ def deadline_to_dict(assignment):
     assignment_dict['courses'] = [course_to_dict(course) for c in assignment.courses.all()]
 
     return assignment_dict
+
 
 def assignment_to_dict(assignment):
     return {
