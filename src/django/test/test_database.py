@@ -12,13 +12,25 @@ class DataBaseTests(TestCase):
         user_test = util.make_user('lers', 'lers123', 'lers@uva.nl', 'a')
         course_test = util.make_course('tname', 'XXXX', datetime.date.today())
         course_test.author = user_test
+        format = JournalFormat()
+        format.save()
         ass_test = util.make_assignment(name='tcolloq', description='description')
         ass_test.courses.add(course_test)
         journ_test = util.make_journal(user=user_test, assignment=ass_test)
         entr_test = util.make_entry(journal=journ_test, late=True)
+        ass_test = Assignment(name='tcolloq', description='description', format=format)
+        ass_test.courses.add(course_test)
+        journ_test = Journal(user=user_test, assignment=ass_test)
+        journ_test.save()
+
+        template = EntryTemplate(name="some_template")
+        template.save()
+        entr_test = Entry(datetime=datetime.datetime.today(),
+                          late=True,
+                          template=template)
         entr_test.save()
 
-        self.assertEquals(entr_test.journal.pk, journ_test.pk)
+        self.assertEquals(entr_test.template.pk, template.pk)
         self.assertEquals(journ_test.user.pk, user_test.pk)
         self.assertEquals(journ_test.assignment.pk, ass_test.pk)
         self.assertEquals(course_test.author.pk, user_test.pk)
@@ -27,7 +39,7 @@ class DataBaseTests(TestCase):
         """
         Testing the cascading relations in the database.
         """
-        u1 = make_user("Zi", "pass")
+        u1 = util.make_user("Zi", "pass")
         a1 = util.make_assignment('tcolloq', 'description')
         et1 = util.make_entry_template('temp1')
         et2 = util.make_entry_template('temp2')
