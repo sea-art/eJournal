@@ -1,6 +1,7 @@
 # Database file
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.utils.timezone import now
 
 
 class User(AbstractUser):
@@ -160,6 +161,9 @@ class Deadline(models.Model):
         "JournalFormat",
         on_delete=models.CASCADE
     )
+    datetime = models.DateTimeField(
+        default=now
+    )
 
     def __str__(self):
         return str(self.pk)
@@ -200,6 +204,13 @@ class Field(models.Model):
     def __str__(self):
         return self.template.name + " field: " + self.location
 
+    class Meta:
+        """
+        A class for meta data.
+        - unique_together: template and location must be unique together.
+        """
+        unique_together = ('template', 'location',)
+
 
 class Entry(models.Model):
     """An Entry has the following features:
@@ -219,8 +230,8 @@ class Entry(models.Model):
     datetime = models.DateTimeField(
         auto_now_add=True,
     )
-    grade = models.BooleanField(
-        default=False
+    grade = models.TextField(
+        null=True
     )
     late = models.BooleanField(
         default=False
