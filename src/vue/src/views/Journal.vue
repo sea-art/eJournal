@@ -26,6 +26,7 @@ import entryTemplate from '@/components/TemplateCard.vue'
 import addCard from '@/components/AddCard.vue'
 import edag from '@/components/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
+
 export default {
     name: 'Journal',
     data () {
@@ -69,7 +70,7 @@ export default {
         },
         selectNode ($event) {
             if ($event === this.currentNode) {
-                returncurrentNode
+                return this.currentNode
             }
 
             if (this.nodes[this.currentNode].type !== 'entry') {
@@ -77,7 +78,7 @@ export default {
                 return
             }
 
-            if (this.$refs['entry-template-card'].save === 'Save') {
+            if (this.$refs['entry-template-card'].saveEditMode === 'Save') {
                 if (!confirm('Oh no! Progress will not be saved if you leave. Do you wish to continue?')) {
                     return
                 }

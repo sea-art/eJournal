@@ -26,7 +26,7 @@
                     </b-card>
                 </div>
                 <div v-else>
-                    <b-card class="card main-card noHover" :class="'pink-border'">
+                    <b-card class="card main-card noHoverCard" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>{{ textbox1 }}</h2>
@@ -40,10 +40,13 @@
                 </div>
             </b-col>
         </b-row>
+        <comment-card :comment="'haaalp'"></comment-card>
     </div>
 </template>
 
 <script>
+import commentCard from '@/components/CommentCard.vue'
+
 export default {
     /* Variables that are needed to fill in the template. */
     props: ['textbox1', 'textbox2', 'date', 'color'],
@@ -73,6 +76,10 @@ export default {
         cancel: function () {
             this.saveEditMode = 'Edit'
         }
+    },
+
+    components: {
+        'comment-card': commentCard
     }
 }
 
