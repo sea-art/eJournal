@@ -30,6 +30,23 @@ class DataBaseTests(TestCase):
         self.assertEquals(journ_test.assignment.pk, ass_test.pk)
         self.assertEquals(course_test.author.pk, user_test.pk)
 
+    def test_getPermissions(self):
+        """Test a request that doesn't need permissions."""
+        usr = User(email='t@t.com', username='teun',
+                   password='1234', lti_id='a')
+        usr.save()
+        crs = Course(name='test course please ignore', abbreviation='XXXX',
+                     startdate=datetime.date.today())
+        crs.save()
+        role = Role(name="Student")
+        role.save()
+
+        # Connect a participation to a user, course and role.
+        participation = Participation(user=usr, role=role, course=crs)
+        participation.save()
+
+        print(get_permissions(usr, crs))
+
     def test_emptyPermissions(self):
         """Test a request that doesn't need permissions."""
         usr = User(email='t@t.com', username='teun',

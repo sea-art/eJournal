@@ -8,10 +8,10 @@ export default {
     get_user_courses () {
         return auth.authenticatedGet('/get_user_courses/')
             .then(response => response.data.courses)
-    }
+    },
 
     get_course_permissions (cID) {
         return auth.authenticatedGet('/get_course_permissions/' + cID + '/')
             .then(response => response.data.permissions)
-    },
+    }
 }

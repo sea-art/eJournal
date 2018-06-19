@@ -23,6 +23,7 @@ class User(AbstractUser):
     profile_picture = models.TextField(
         null=True
     )
+    is_admin = models.BooleanField(default=False)
 
     def __str__(self):
         return self.username
@@ -74,15 +75,16 @@ class Role(models.Model):
     """
     name = models.TextField()
 
-    # TODO: fix crash when looking up user that is not in a course.
     can_edit_grades = models.BooleanField(default=False)
     can_view_grades = models.BooleanField(default=False)
     can_edit_assignment = models.BooleanField(default=False)
     can_view_assignment = models.BooleanField(default=False)
-    can_submit_assignment = models.BooleanField(default=False)
+    can_submit_assign = models.BooleanField(default=False)
+    can_edit_course = models.BooleanField(default=False)
+    can_delete_course = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(vars(self))
+        return str(self.name)
 
 
 class Participation(models.Model):
@@ -103,6 +105,9 @@ class Participation(models.Model):
     # TODO: Unique, but fails in test script.
     # class Meta:
     #     unique_together = ('user', 'course',)
+
+    def __str__(self):
+        return "usr: " + str(self.user) + " crs: " + str(self.course) + " role: " + str(self.role)
 
 
 class Assignment(models.Model):

@@ -2,6 +2,7 @@
     <content-columns>
         <bread-crumb @eye-click="customisePage" slot="main-content-column" :currentPage="courseName">
         </bread-crumb>
+        <p slot="main-content-column">{{permissions}}</p>
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
             <b-link tag="b-button" :to="{ name: 'Assignment',
                                           params: {
@@ -32,6 +33,7 @@ import assignmentCard from '@/components/AssignmentCard.vue'
 import todoCard from '@/components/TodoCard.vue'
 import progressBar from '@/components/ProgressBar.vue'
 import assignment from '@/api/assignment.js'
+import courseApi from '@/api/course.js'
 
 export default {
     name: 'Course',
@@ -66,7 +68,8 @@ export default {
                 cID: ['2017AVI1', '2017AVI2'],
                 dID: '2017IL2',
                 datetime: '8-6-2018 13:00'
-            }]
+            }],
+            permissions: {}
         }
     },
     components: {
@@ -76,16 +79,6 @@ export default {
         'todo-card': todoCard,
         'progress-bar': progressBar
     },
-<<<<<<< HEAD
-    created () {
-        assignment.get_course_assignments(this.$route.params.course)
-            .then(response => { this.assignments = response })
-            .catch(_ => alert('Error while loading assignments'))
-            .then(_ => { this.colors = getColors(this.assignments.length) })
-
-    },
-=======
->>>>>>> 31ad5c47753ddd3671534a282a0faf0d81a2899a
     methods: {
         customisePage () {
             alert('Wishlist: Customise page')
@@ -95,6 +88,10 @@ export default {
         assignment.get_course_assignments(this.cID)
             .then(response => { this.assignments = response })
             .catch(_ => alert('Error while loading assignments'))
+
+        courseApi.get_course_permissions(10)
+            .then(response => { this.permissions = response })
+            .catch(_ => alert('Error while loading permissions'))
     }
 }
 </script>
