@@ -56,6 +56,8 @@ var router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
+    // TODO check if logged in
+    // TODO check if routing parameters
     console.log('hoi')
     // // console.log(to.params)
     router.app.permissions = 1
