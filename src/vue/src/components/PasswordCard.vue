@@ -51,17 +51,16 @@ export default {
     },
     methods: {
         changePassword: function () {
-            if (this.newPass.match("(.*[A-Z]).*") && this.newPass.length > 6) {
-
-                if (this.newPass == this.newPassRepeat) {
+            if (this.newPass.match('(.*[A-Z]).*') && this.newPass.length > 6) {
+                if (this.newPass === this.newPassRepeat) {
                     this.test = true
-                    alert("New password is: " + this.newPass)
+                    alert('New password is: ' + this.newPass)
                 } else {
                     this.test = false
-                    alert("Password is not matching")
+                    alert('Password is not matching')
                 }
             } else {
-                alert("Not a strong password")
+                alert('Not a strong password')
             }
         }
     }

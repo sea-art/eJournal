@@ -7,6 +7,24 @@ import VLE.factory as factory
 
 
 @api_view(['GET'])
+def get_course_data(request, cID):
+    """Get the data linked to a course id
+
+    Arguments:
+    request -- the request that was send with
+
+    Returns a json string with the course for the requested user
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    course = course_to_dict(Course.objects.get(pk=cID))
+
+    return JsonResponse({'result': 'success', 'course': course})
+
+
+@api_view(['GET'])
 def get_user_courses(request):
     """Get the courses that are linked to the user linked to the request
 

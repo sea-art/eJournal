@@ -1,7 +1,7 @@
 <template>
     <b-row>
         <b-col lg="4" md="12">
-            <img src='../assets/ohno.jpeg'>
+            <img src='../assets/unknown-profile.png'>
         </b-col>
         <b-col lg="8" md="12">
             <p class="profile-name">{{ name }}</p>

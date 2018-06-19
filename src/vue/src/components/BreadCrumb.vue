@@ -7,7 +7,7 @@
                     {{ currentPage }}
                     <slot>
                         <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
-                        <b-button v-if="this.$route.params.cID != undefined"class="float-right edit-button" :to="{name: 'CourseEdit', params: {cID: this.$route.params.cID, courseName: this.$route.params.courseName}}"> Edit </b-button>
+                        <b-button v-if="this.$route.params.cID != undefined" class="float-right edit-button" :to="{name: 'CourseEdit', params: {cID: this.$route.params.cID, courseName: this.$route.params.courseName}}"> Edit </b-button>
                     </slot>
                 </h1>
             </b-col>
