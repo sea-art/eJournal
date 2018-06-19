@@ -44,7 +44,6 @@ import LoginForm from '@/components/LoginForm.vue'
 import icon from 'vue-awesome/components/Icon'
 import loginAPI from '@/api/auth.js'
 
-
 export default {
     components: {
         'login-form': LoginForm,
