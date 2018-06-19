@@ -4,22 +4,22 @@
 
 <template>
     <content-columns>
-        <bread-crumb @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder" slot="main-content-column"></bread-crumb>
+        <!-- TODO: reopen bread-crumb when it is working again -->
+        <!-- <bread-crumb @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder" slot="main-content-column"></bread-crumb> -->
         <div v-for="journal in assignmentJournals" :key="journal.student.uID" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {
                                               cID: cID,
                                               aID: aID,
-                                              jID: journal.student.uID
+                                              jID: journal.jID
                                           }
                                         }">
                 <student-card
-                    :student="j.student.name"
-                    :studentNumber="j.student.uID"
-                    :portraitPath="j.student.picture"
-                    :progress="j.progress"
-                    :stats="j.stats"
-                    :color="$root.colors[j.uid % $root.colors.length]">
+                    :student="journal.student.name"
+                    :studentNumber="journal.student.uID"
+                    :portraitPath="journal.student.picture"
+                    :stats="journal.stats"
+                    :color="$root.colors[journal.uid % $root.colors.length]">
                 </student-card>
             </b-link>
         </div>
@@ -44,18 +44,16 @@ export default {
     name: 'Assignment',
     props: {
         cID: {
-            type: Number,
             required: true
         },
         aID: {
-            type: Number,
             required: true
         },
         assignmentName: ''
     },
     data () {
         return {
-            assignJournals: [],
+            assignmentJournals: [],
             stats: [],
             cardColor: ''
         }
