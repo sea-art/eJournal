@@ -12,8 +12,19 @@ from .models import Journal, Counter
 
 
 class GradePassBackRequest(object):
-    # TODO Docstring
+    """
+    Class to send Grade replace lti requests.
+    """
+
     def __init__(self, key, secret, journal):
+        """
+        Constructor that set the needed variables
+
+        Arguments:
+        key -- key for the oauth communication
+        secret -- secret for the oauth communication
+        journal -- journal database object
+        """
         self.key = key
         self.secret = secret
         self.url = None  # TODO database url
@@ -38,7 +49,12 @@ class GradePassBackRequest(object):
         return str(count)
 
     def create_xml(self):
-        # TODO Docstring
+        """
+        created the xml used as the body of the lti communication
+
+        returns xml as string
+        """
+
         root = ET.Element(
                 'imsx_POXEnvelopeRequest',
                 xmlns='http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0'
@@ -81,7 +97,11 @@ class GradePassBackRequest(object):
         return ET.tostring(root, encoding='utf-8')
 
     def send_post_request(self):
-        # TODO Docstring
+        """
+        Send the grade replace post request
+
+        returns response dictionary with status of request
+        """
         consumer = oauth2.Consumer(
             self.key, self.secret
         )
@@ -95,11 +115,18 @@ class GradePassBackRequest(object):
         )
         return self.parse_return_xml(content)
 
-    def parse_return_xml(self, content):
-        root = ET.fromstring(content)
+    def parse_return_xml(self, xml):
+        """
+        parses the xml returned by the lti instance.
+
+        Arguments:
+        xml -- response xml as byte literal
+
+        returns response dictionary with status of request
+        """
+        root = ET.fromstring(xml)
         namespace = root.tag.split('}')[0]+'}'
         head = root.find(namespace+'imsx_POXHeader')
-        print(list(head))
         imsx_head_info = head.find(namespace+'imsx_POXResponseHeaderInfo')
         imsx_status_info = imsx_head_info.find(namespace+'imsx_statusInfo')
         imsx_code_mayor = imsx_status_info.find(namespace+'imsx_codeMajor')
