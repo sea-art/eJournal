@@ -28,12 +28,11 @@
                         </b-row>
                         <b-row>
                             <b-col id="main-card-left-column" cols="12" lg-cols="12">
-
                                 <!-- TODO show hier alle data onder elkaar
                                      als een template index matched met
                                      een entry tag overschrijf dit lege veld
                                 -->
-                                <div v-for="(field, i) in entryNode.template">
+                                <div v-for="(field, i) in entryNode.template" :key="field.eID">
                                     <div v-if="field.title != ''">
                                         {{ field.title }}:<br>
                                     </div>
@@ -83,7 +82,7 @@
                                      de knop moet een grade knop worden als
                                      docent zijnde, anders moet er edit staan.
                                 -->
-                                <div v-for="(field, i) in entryNode.template">
+                                <div v-for="(field, i) in entryNode.template" :key="field.eID">
                                     <div v-if="field.title != ''">
                                         {{ field.title }}:<br>
                                     </div>
