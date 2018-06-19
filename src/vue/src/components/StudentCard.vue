@@ -1,14 +1,14 @@
 <template>
     <b-card :class="color">
         <b-row>
-            <b-col order="1" cols="5">
+            <b-col order="1" cols="4">
                 <!-- TODO switch src back to :src="portraitPath", square images only -->
                 <img class="img-fluid" src="../assets/logo.png">
             </b-col>
-            <b-col order="2" cols="7" order-lg="3" lg="2">
+            <b-col order="2" cols="8" order-md="3" md="2">
                 <todo-square :num="this.stats.submitted - this.stats.graded"/>
             </b-col>
-            <b-col order="3" cols="12" order-lg="2" lg="5">
+            <b-col order="3" cols="12" order-md="2" md="5">
                 {{ student}}
             </b-col>
         </b-row>
