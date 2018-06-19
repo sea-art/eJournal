@@ -27,16 +27,22 @@ export default {
 
         if (student) {
             /* If a student requests this. */
-            if (cID === 'undefined'){
+            if (cID === 'undefined' || aID === 'undefined') {
                 // TODO Push a 404.
-            }
-            if (jID === 'undefined'){
+            } else if (jID === 'undefined') {
                 this.$router.push({name: 'Assignment', params: {cID: cID, aID: aID}})
             } else {
                 this.$router.push({name: 'Journal', params: {cID: cID, aID: aID, jID: jID}})
             }
         } else {
-
+            /* If a non student requests this. */
+            if (cID === 'undefined') {
+                // TODO creation
+            } else if (aID === 'undefined') {
+                // TODO creatrion
+            } else {
+                this.$router.push({name: 'Assignment', params: {cID: cID, aID: aID}})
+            }
         }
     }
 }

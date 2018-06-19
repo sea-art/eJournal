@@ -226,17 +226,9 @@ def lti_grade_replace_result(request):
     grade_request.score = '0.5'
     grade_request.sourcedId = request.POST['lis_result_sourcedid']
     grade_request.url = request.POST['lis_outcome_service_url']
-    response, content = grade_request.send_post_request()
+    response = grade_request.send_post_request()
 
-    print(content.decode())
-
-    root = ET.fromstring(content)
-    head = root.find('imsx_POXHeader')
-    print(list(head))
-    head_info = head.find('imsx_POXResponseHeaderInfo')
-    status_info = head_info.find('imsx_statusInfo')
-
-    return HttpResponse('ok')
+    return JsonResponse(response)
 
 
 @api_view(['POST'])
@@ -281,10 +273,11 @@ def lti_launch(request):
 
             return redirect(link)
         else:
+            # TODO push vue 401
             return HttpResponse('unsuccesfull auth, {0}'.format(err))
 
         # Prints de post parameters als http page
-        # TODO Remove these 2 lines
+        # TODO Remove these 2 lines when we dont need to know params anymore
         post = json.dumps(request.POST, separators=(',', ': '))
         return HttpResponse(post.replace(',', ' <br> '))
 

@@ -87,10 +87,37 @@ class GradePassBackRequest(object):
         )
         client = oauth2.Client(consumer)
 
-        response, content = client.request(
+        _, content = client.request(
             self.url,
             'POST',
             body=self.create_xml(),
             headers={'Content-Type': 'application/xml'}
         )
-        return response, content
+        return self.parse_return_xml(content)
+
+    def parse_return_xml(self, content):
+        root = ET.fromstring(content)
+        namespace = root.tag.split('}')[0]+'}'
+        head = root.find(namespace+'imsx_POXHeader')
+        print(list(head))
+        imsx_head_info = head.find(namespace+'imsx_POXResponseHeaderInfo')
+        imsx_status_info = imsx_head_info.find(namespace+'imsx_statusInfo')
+        imsx_code_mayor = imsx_status_info.find(namespace+'imsx_codeMajor')
+        if imsx_code_mayor is not None:
+            code_mayor = imsx_code_mayor.text
+        else:
+            code_mayor = '???'
+
+        imsx_severity = imsx_status_info.find(namespace+'imsx_severity')
+        if imsx_severity is not None:
+            severity = imsx_severity.text
+        else:
+            severity = '???'
+
+        imsx_description = imsx_status_info.find(namespace+'imsx_description')
+        if imsx_description is not None and imsx_description.text is not None:
+            description = imsx_description.text
+        else:
+            description = 'not found'
+
+        return {'severity': severity, 'code_mayor': code_mayor, 'description': description}
