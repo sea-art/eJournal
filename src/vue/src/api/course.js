@@ -3,8 +3,8 @@ import auth from '@/api/auth'
 export default {
     /* Get data of a course specified with its ID. */
     get_course_data (cID) {
-        return auth.authenticatedGet('/get_course_data/' + cID + '/').
-            then(response => response.data.course)
+        return auth.authenticatedGet('/get_course_data/' + cID + '/')
+            .then(response => response.data.course)
     },
 
     /* Get user courses.

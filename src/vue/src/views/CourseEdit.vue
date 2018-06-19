@@ -39,9 +39,9 @@ export default {
     methods: {
         onSubmit (evt) {
             courseApi.update_course(this.$route.params.cID,
-                                    this.course.name,
-                                    this.course.abbr,
-                                    this.course.date)
+                this.course.name,
+                this.course.abbr,
+                this.course.date)
                 .then(response => {
                     this.course = response
                     this.pageName = this.course.name
