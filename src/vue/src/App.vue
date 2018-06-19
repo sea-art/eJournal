@@ -135,6 +135,10 @@ h6 {
     padding-bottom: 12px;
 }
 
+.hover {
+    cursor: pointer;
+}
+
 .multi-form {
     margin-bottom: 10px !important;
 }

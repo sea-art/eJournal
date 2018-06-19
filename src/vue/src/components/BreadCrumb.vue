@@ -6,7 +6,7 @@
                 <h1 id="h1-current-page-breadcrumb">
                     {{ currentPage }}
                     <slot>
-                        <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
+                        <icon name="eye" @click.native="eyeClick()" class="eye-icon hover" scale="1.75"></icon>
                         <b-button class="float-right edit-button" @click="editClick()"> Edit </b-button>
                     </slot>
                 </h1>
