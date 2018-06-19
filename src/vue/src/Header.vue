@@ -11,7 +11,7 @@
         </b-collapse>
         <b-navbar-nav class="ml-auto">
             <b-nav-item-dropdown class="ml-auto" no-caret right id="nav-dropdown-options">
-                <img id="nav-profile-image" slot="button-content" src="./assets/ohno.jpeg">
+                <img id="nav-profile-image" slot="button-content" src="/static/oh_no/ohno.jpeg">
                 <b-button :to="{ name: 'Profile'}">Profile</b-button>
                 <b-button @click="handleLogout()">Sign out</b-button><br/>
             </b-nav-item-dropdown>

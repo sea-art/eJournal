@@ -1,14 +1,16 @@
 <template>
     <b-row no-gutters>
+        <!-- TODO: reopen bread-crumb when it is working again -->
         <b-col v-if="bootstrapLg()" cols="12">
-            <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder"/>
+            <!-- <bread-crumb @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder"/> -->
             <edag @select-node="selectNode" :selected="variable" :nodes="nodes"/>
         </b-col>
         <b-col v-else xl="3" class="left-content">
             <edag @select-node="selectNode" :selected="variable" :nodes="nodes"/>
         </b-col>
         <b-col lg="12" xl="6" order="2" class="main-content">
-            <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder"/>
+            <!-- TODO: reopen bread-crumb when it is working again -->
+            <!-- <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder"/> -->
             <!--
                 Fill in the template using the corresponding data
                 of the entry
