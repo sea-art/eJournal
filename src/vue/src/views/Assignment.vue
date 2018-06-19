@@ -6,7 +6,7 @@
     <content-columns>
         <!-- TODO: reopen bread-crumb when it is working again -->
         <!-- <bread-crumb @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder" slot="main-content-column"></bread-crumb> -->
-        <div v-for="journal in assignmentJournals" :key="journal.student.uID" slot="main-content-column">
+        <div v-if="assignmentJournals.length > 0" v-for="journal in assignmentJournals" :key="journal.student.uID" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {
                                               cID: cID,
@@ -22,6 +22,9 @@
                     :color="$root.colors[journal.uid % $root.colors.length]">
                 </student-card>
             </b-link>
+        </div>
+        <div v-if="assignmentJournals.length === 0" slot="main-content-column">
+            <h1>No journals found</h1>
         </div>
         <div  v-if="stats" slot="right-content-column">
             <h3>Statistics</h3>
