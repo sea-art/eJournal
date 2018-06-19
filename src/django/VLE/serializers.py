@@ -24,8 +24,10 @@ def course_to_dict(course):
 def student_assignment_to_dict(assignment, user):
     if not assignment:
         return None
-
-    journal = Journal.objects.get(assignment=assignment, user=user)
+    try:
+        journal = Journal.objects.get(assignment=assignment, user=user)
+    except Journal.DoesNotExist:
+        journal = None
 
     assignment_dict = assignment_to_dict(assignment)
     assignment_dict['journal'] = journal_to_dict(journal) if journal else None
