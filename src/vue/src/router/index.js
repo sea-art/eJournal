@@ -55,4 +55,12 @@ var router = new Router({
     }]
 })
 
+router.beforeEach((to, from, next) => {
+    console.log('hoi')
+    // // console.log(to.params)
+    router.app.permissions = 1
+    console.log(router.app.permissions)
+    next()
+})
+
 export default router

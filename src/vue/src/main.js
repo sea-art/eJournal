@@ -18,7 +18,7 @@ var vm = new Vue({
     components: { App },
     data: {
         colors: ['pink-border', 'peach-border', 'blue-border'],
-        permissions: {}
+        permissions: {'a' : 'c'}
     },
     methods: {
         timeLeft (date) {
@@ -30,10 +30,4 @@ var vm = new Vue({
         }
     },
     template: '<App/>'
-})
-
-router.beforeEach((to, from, next) => {
-    vm.permissions = 1
-    console.log(vm.permissions)
-    next()
 })
