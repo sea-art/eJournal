@@ -24,6 +24,12 @@ class User(AbstractUser):
     profile_picture = models.TextField(
         default='/static/oh_no/oh_no.jpeg'
     )
+    grade_notifications = models.BooleanField(
+        default=False
+    )
+    comment_notifications = models.BooleanField(
+        default=False
+    )
 
     def __str__(self):
         return self.username

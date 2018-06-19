@@ -8,6 +8,25 @@ import VLE.factory as factory
 
 
 @api_view(['GET'])
+def get_own_user_data(request):
+    """Get the data linked to the logged in user
+
+    Arguments:
+    request -- the request that was send with
+
+    Returns a json string with user data
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    user_dict = user_to_dict(user)
+    user_dict['grade_notifications'] = user.grade_notifications
+    user_dict['comment_notifications'] = user.comment_notifications
+    return JsonResponse({'result': 'success', 'user': user_dict})
+
+
+@api_view(['GET'])
 def get_course_data(request, cID):
     """Get the data linked to a course id
 

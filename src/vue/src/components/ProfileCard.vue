@@ -1,11 +1,13 @@
 <template>
     <b-card class="profile-card">
         <profile-data :name="name"
-                      :email="email"
+                      :image="image"
                       :id="id">
         </profile-data>
 
-        <notification-card></notification-card>
+        <notification-card :gradeUpdate="gradeUpdate"
+                           :commentUpdate="commentUpdate"
+        ></notification-card>
         <password-card></password-card>
     </b-card>
 </template>
@@ -16,7 +18,7 @@ import notificationCard from '@/components/NotificationCard.vue'
 import passwordCard from '@/components/PasswordCard.vue'
 
 export default {
-    props: ['name', 'email', 'id', 'image'],
+    props: ['name', 'id', 'image', 'gradeUpdate', 'commentUpdate'],
     components: {
         'profile-data': profileData,
         'notification-card': notificationCard,
