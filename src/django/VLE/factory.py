@@ -9,7 +9,10 @@ def make_user(username, password, profile_picture=None):
     user = User(username=username)
     user.save()
     user.set_password(password)
-    user.profile_picture = profile_picture if profile_picture else '/static/oh_no/{}.png'.format(random.randint(1, 10))
+    if profile_picture:
+        user.profile_picture = profile_picture
+    else:
+        user.profile_picture = '/static/oh_no/{}.png'.format(random.randint(1, 10))
     user.save()
     return user
 
@@ -20,7 +23,7 @@ def make_course(name, abbrev, startdate=None, author=None):
     return course
 
 
-def make_assignment(name, description, author):
+def make_assignment(name, description, author=None):
     assign = Assignment(name=name, description=description, author=author)
     assign.save()
     return assign

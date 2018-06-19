@@ -3,7 +3,7 @@
         <h1>Course creation</h1>
         <b-form slot="main-content-column" @submit="onSubmit" @reset="onReset">
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseName" placeholder="Course name"/>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseAbbreviation" maxlength="8" placeholder="Course Abbreviation (Max 10 letters)"/>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseAbbreviation" maxlength="10" placeholder="Course Abbreviation (Max 10 letters)"/>
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseStartdate" type="date" placeholder="Startdate of the year"/>
             <b-button type="submit">Submit</b-button>
             <b-button type="reset">Reset</b-button>
