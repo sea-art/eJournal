@@ -23,7 +23,7 @@
                 </student-card>
             </b-link>
         </div>
-        <div slot="right-content-column">
+        <div  v-if="stats" slot="right-content-column">
             <h3>Statistics</h3>
             <statistics-card :color="cardColor" :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>
             <statistics-card :color="cardColor" :subject="'Average points'" :num="stats.avgPoints"></statistics-card>
