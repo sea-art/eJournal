@@ -141,10 +141,10 @@ def template_to_dict(template):
 
 def field_to_dict(field):
     return {
-        'tag': template.id,
-        'type': template.type,
-        'title': template.title,
-        'location': template.location,
+        'tag': field.id,
+        'type': field.type,
+        'title': field.title,
+        'location': field.location,
     }
 
 

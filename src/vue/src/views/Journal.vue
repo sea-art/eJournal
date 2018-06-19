@@ -14,19 +14,27 @@
                 Fill in the template using the corresponding data
                 of the entry
             . -->
-            <div v-if="nodes[currentNode].type == 'e'">
-                <!-- <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes2[currentNode]"/> -->
-                <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
+            <div v-if="nodes2.length > 0">
+                {{nodes2[0]}}<br>
+                {{nodes2[0].type}}
+                <div v-if="nodes2[0].type == 'e'">
+                    hooi
+                    <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes2[0]"/>
+                    <!-- <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
+                    :textbox2="nodes[currentNode].textbox2"
+                    :date="nodes[currentNode].date"></entry-template> -->
+                </div>
+                <div v-else-if="nodes[currentNode].type == 'add'">
+                    <add-card @add-template="addNode">bhjewk</add-card>
+                </div>
+                <div v-else-if="nodes[currentNode].type == 'progress'">
+                    <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
                     :textbox2="nodes[currentNode].textbox2"
                     :date="nodes[currentNode].date"></entry-template>
+                </div>
             </div>
-            <div v-else-if="nodes[currentNode].type == 'add'">
-                <add-card @add-template="addNode">bhjewk</add-card>
-            </div>
-            <div v-else-if="nodes[currentNode].type == 'progress'">
-                <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
-                    :textbox2="nodes[currentNode].textbox2"
-                    :date="nodes[currentNode].date"></entry-template>
+            <div v-else>
+                {{nodes2.length}}
             </div>
         </b-col>
         <b-col cols="12" xl="3" order="3" class="right-content"/>
@@ -82,7 +90,7 @@ export default {
     },
 
     created () {
-        journal.get_nodes(0)
+        journal.get_nodes(1)
             .then(response => { this.nodes2 = response })
             .catch(_ => alert('Error while loading nodes.'))
     },

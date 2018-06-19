@@ -9,16 +9,15 @@
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <!-- TODO laat hier de header van het template
-                                     zien.
-                                -->
-                                <h2>{{entryNode.entry.template.title}}</h2>
+                                     zien. -->
+
+                                <h2>{{entryNode.entry.template.name}}</h2>
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
                                 <!-- TODO Hier moet de locatie van het cijfer
                                     en of de mogelijkheid om het cijfer aan te
-                                    passen.
-                                -->
-                                <div v-if="entryNode.entry.grade" != 0>
+                                    passen. -->
+                                <div v-if="entryNode.entry.grade != 0">
                                     {{ entryNode.entry.grade }}
                                 </div>
                                 <div v-else>
@@ -30,9 +29,8 @@
                             <b-col id="main-card-left-column" cols="12" lg-cols="12">
                                 <!-- TODO show hier alle data onder elkaar
                                      als een template index matched met
-                                     een entry tag overschrijf dit lege veld
-                                -->
-                                <div v-for="(field, i) in entryNode.template" :key="field.eID">
+                                     een entry tag overschrijf dit lege veld -->
+                                <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
                                     <div v-if="field.title != ''">
                                         {{ field.title }}:<br>
                                     </div>
@@ -52,23 +50,23 @@
                     </b-card>
                 </div>
                 <div v-else>
-                    <!-- Dit is overview modus. -->
+                    Dit is overview modus.
+                    {{completeContent}}
                     <b-card class="card main-card noHoverCard" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <!-- TODO laat hier de header van het template
-                                     zien.
-                                -->
-                                <h2>{{entryNode.entry.template.title}}</h2>
+                                     zien. -->
+                                <h2>{{entryNode.entry.template.name}}</h2>
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
-                                <!-- TODO Hier moet de locatie van het cijfer
-                                -->
-                                <div v-if="entryNode.entry.grade" != 0>
+                                <!-- TODO Hier moet de locatie van het cijfer -->
+
+                                <div v-if="entryNode.entry.grade != 0">
                                     {{ entryNode.entry.grade }}
                                 </div>
                                 <div v-else>
-                                    To be grated
+                                    To be graded
                                 </div>
                             </b-col>
                         </b-row>
@@ -80,15 +78,14 @@
                                      dan.
 
                                      de knop moet een grade knop worden als
-                                     docent zijnde, anders moet er edit staan.
-                                -->
-                                <div v-for="(field, i) in entryNode.template" :key="field.eID">
+                                     docent zijnde, anders moet er edit staan. -->
+                                <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
                                     <div v-if="field.title != ''">
                                         {{ field.title }}:<br>
                                     </div>
 
                                     <div v-if="field.type=='t'">
-                                        {{ completeContent[i].data }}
+                                        {{ completeContent[i].data }}<br>
                                     </div>
                                     <div v-else-if="field.type=='i'">
                                     </div>
@@ -153,14 +150,15 @@ export default {
         setContent: function () {
             var checkFound = false
 
-            for (var templateField in this.entryNode.entry.template.field) {
+            for (var templateField of this.entryNode.entry.template.fields) {
                 checkFound = false
+                console.log(templateField)
 
-                for (var i = 0; i < this.entryNode.entry.content.length; i++) {
-                    if (this.entryNode.entry.content[i].tag === templateField.tag) {
+                for (var content of this.entryNode.entry.content) {
+                    if (content.tag === templateField.tag) {
                         this.completeContent.push({
-                            data: this.entryNode.entry.content[i].data,
-                            tag: this.entryNode.entry.content[i].tag
+                            data: content.data,
+                            tag: content.tag
                         })
 
                         checkFound = true
@@ -169,6 +167,7 @@ export default {
                 }
 
                 if (!checkFound) {
+                    console.log(templateField.tag)
                     this.completeContent.push({
                         data: null,
                         tag: templateField.tag

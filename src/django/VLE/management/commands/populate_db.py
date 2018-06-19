@@ -219,22 +219,33 @@ class Command(BaseCommand):
         """
         Generate random entries.
         """
-        journals = Journal.objects.all()
+        # journals = Journal.objects.all()
+        journal = Journal.objects.get(pk=1)
         template = EntryTemplate(name="some_template")
         template.save()
 
+        self.field1 = make_field('Title', 0, template)
+        self.field1.save()
+
+        self.field2 = make_field('Belevenisevenement', 0, template)
+        self.field2.save()
+
         entry_list = list()
         for _ in range(amount):
-            if journals.count() == 0:
-                continue
             entry = Entry(template=template)
-            entry.journal = random.choice(journals)
             entry.datetime = faker.date_time_this_month(before_now=True)
             entry.late = faker.boolean()
-            entry_list.append(entry)
+            entry.grade = random.randint(1, 10)
+            entry.save()
 
-        # Using a bulk create speeds the process up.
-        Entry.objects.bulk_create(entry_list)
+            node = Node(type=Node.ENTRY, entry=entry, journal=journal)
+            node.save()
+
+    def gen_random_content(self, amount):
+        entries = Entry.objects.all()
+        for i, entry in enumerate(entries):
+            content = make_content(entry, faker.catch_phrase(), self.field1)
+            content.save()
 
     def handle(self, *args, **options):
         """This function generates data to test and fill the database with.
@@ -259,4 +270,4 @@ class Command(BaseCommand):
         # Random journals
         self.gen_random_journals(amount*100)
         # Random entries
-        self.gen_random_entries(amount*1000)
+        self.gen_random_entries(amount)
