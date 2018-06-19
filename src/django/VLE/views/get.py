@@ -1,9 +1,10 @@
 from rest_framework.decorators import api_view
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.http import JsonResponse
-from VLE.serializers import *
-import VLE.factory as factory
 import statistics as st
+
+from VLE.serializers import *
+import VLE.edag as edag
+import VLE.factory as factory
 
 
 @api_view(['GET'])
@@ -150,61 +151,19 @@ def get_upcoming_deadlines(request):
     return JsonResponse({'result': 'success', 'deadlines': deadlines})
 
 
-@api_view(['POST'])
-def create_new_course(request):
-    """Create a new course
+@api_view(['GET'])
+def get_nodes(request, jID):
+    """Get all nodes contained within a journal.
 
     Arguments:
-    request -- the request that was send with
-    name -- name of the course
-    abbr -- abbreviation of the course
-    startdate -- date when the course starts
+    request -- the request that was sent
+    jID     -- the journal id
 
-    Returns a json string for if it is succesful or not.
+    Returns a json string containing all entry and deadline nodes.
     """
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    course = factory.make_course(request.data["name"], request.data["abbr"], request.data["startdate"], request.user)
-
-    return JsonResponse({'result': 'success', 'course': course_to_dict(course)})
-
-
-@api_view(['POST'])
-def create_new_course(request):
-    """Create a new course
-
-    Arguments:
-    request -- the request that was send with
-    name -- name of the course
-    abbr -- abbreviation of the course
-    startdate -- date when the course starts
-
-    Returns a json string for if it is succesful or not.
-    """
-    if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
-
-    course = make_course(request.data["name"], request.data["abbr"], request.data["startdate"], request.user)
-
-    return JsonResponse({'result': 'success', 'course': course_to_dict(course)}, status=200)
-
-
-@api_view(['POST'])
-def create_new_assignment(request):
-    """Create a new course
-
-    Arguments:
-    request -- the request that was send with
-    name -- name of the course
-    abbr -- abbreviation of the course
-    startdate -- date when the course starts
-
-    Returns a json string for if it is succesful or not.
-    """
-    if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
-
-    course = make_course(request.data['name'], request.data['description'], request.user)
-
-    return JsonResponse({'result': 'success', 'course': course_to_dict(course)}, status=200)
+    journal = Journal.objects.get(pk=jID)
+    return JsonResponse({'result': 'success',
+                         'nodes': edag.get_nodes_dict(journal)})

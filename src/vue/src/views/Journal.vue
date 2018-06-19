@@ -2,120 +2,93 @@
     <b-row no-gutters>
         <!-- TODO: reopen bread-crumb when it is working again -->
         <b-col v-if="bootstrapLg()" cols="12">
-            <!-- <bread-crumb @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder"/> -->
-            <edag @select-node="selectNode" :selected="variable" :nodes="nodes"/>
+            <!-- <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
+            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
         <b-col v-else xl="3" class="left-content">
-            <edag @select-node="selectNode" :selected="variable" :nodes="nodes"/>
+            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
         <b-col lg="12" xl="6" order="2" class="main-content">
-            <!-- TODO: reopen bread-crumb when it is working again -->
-            <!-- <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder"/> -->
+            <!-- <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
             <!--
                 Fill in the template using the corresponding data
                 of the entry
             . -->
-            <div v-if="nodes[variable].type == 'entry'">
-                <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[variable].textbox1"
-                    :textbox2="nodes[variable].textbox2"
-                    :date="nodes[variable].date"></entry-template>
-            </div>
-            <div v-else-if="nodes[variable].type == 'add'">
-                <add-card @add-template="addNode">bhjewk</add-card>
-            </div>
-            <div v-else-if="nodes[variable].type == 'progress'">
-                <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[variable].textbox1"
-                    :textbox2="nodes[variable].textbox2"
-                    :date="nodes[variable].date"></entry-template>
+            <div v-if="nodes.length > currentNode">
+                {{nodes[currentNode]}}<br>
+                {{nodes[0].type}}
+                <div v-if="nodes[currentNode].type == 'e'">
+                    <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
+                </div>
+                <div v-else-if="nodes[currentNode].type == 'a'">
+                    <add-card @add-template="addNode"></add-card>
+                </div>
+                <div v-else-if="nodes[currentNode].type == 'p'">
+                    <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
+                    :textbox2="nodes[currentNode].textbox2"
+                    :date="nodes[currentNode].date"></entry-template>
+                </div>
             </div>
         </b-col>
         <b-col cols="12" xl="3" order="3" class="right-content"/>
     </b-row>
+
 </template>
 
 <script>
 import contentColumns from '@/components/ContentColumns.vue'
 import entryTemplate from '@/components/TemplateCard.vue'
+import entryNode from '@/components/EntryNode.vue'
 import addCard from '@/components/AddCard.vue'
 import edag from '@/components/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
+import journal from '@/api/journal'
 
 export default {
     name: 'Journal',
-    props: {
-        cID: {
-            type: String,
-            required: true
-        },
-        aID: {
-            type: String,
-            required: true
-        },
-        jID: {
-            type: String,
-            required: true
-        }
-    },
+
+    props: ['cID', 'aID', 'jID'],
+
     data () {
         return {
             windowWidth: 0,
-            variable: 0,
+            currentNode: 0,
             editedData: ['', ''],
-            nodes: [{
-                type: 'entry',
-                textbox1: 'Awesome IT',
-                textbox2: 'Waar ging dit ook al weer over?',
-                date: new Date(),
-                id: 0
-            }, {
-                type: 'entry',
-                textbox1: 'Lezing NNS',
-                textbox2: 'Rob Belleman was er ook.',
-                date: new Date(),
-                id: 1
-            }, {
-                type: 'add',
-                textbox1: 'Add',
-                textbox2: 'something',
-                text: '+',
-                date: new Date(),
-                id: 2
-            }, {
-                type: 'progress',
-                textbox1: 'Jaar 1 Deadline',
-                textbox2: 'oh no',
-                text: '5',
-                date: new Date(),
-                id: 3
-            }]
+            nodes: []
         }
+    },
+
+    created () {
+        journal.get_nodes(this.jID)
+            .then(response => { this.nodes = response })
+            .catch(_ => alert('Error while loading nodes.'))
     },
 
     methods: {
         adaptData (editedData) {
-            this.nodes[this.variable].textbox1 = editedData[0]
-            this.nodes[this.variable].textbox2 = editedData[1]
+            this.nodes[this.currentNode] = editedData
         },
-        // TODO maak deze functies weer mooi en duidelijk
         selectNode ($event) {
-            if (this.nodes[this.variable].type !== 'entry') {
-                this.variable = $event
+            if ($event === this.currentNode) {
+                return this.currentNode
+            }
+
+            if (this.nodes[this.currentNode].type !== 'e') {
+                this.currentNode = $event
                 return
             }
 
-            if ($event === this.variable) {
-                return
-            }
-            if (this.$refs['entry-template-card'].save && this.$refs['entry-template-card'].save === 'Save') {
+            if (this.$refs['entry-template-card'].saveEditMode === 'Save') {
                 if (!confirm('Oh no! Progress will not be saved if you leave. Do you wish to continue?')) {
                     return
                 }
             }
+
             this.$refs['entry-template-card'].cancel()
-            this.variable = $event
+            this.currentNode = $event
         },
         addNode () {
-            this.nodes.splice(this.variable, 0, {
+            this.nodes.splice(this.currentNode, 0, {
                 type: 'entry',
                 textbox1: '',
                 textbox2: '',
@@ -157,7 +130,14 @@ export default {
         'bread-crumb': breadCrumb,
         'entry-template': entryTemplate,
         'add-card': addCard,
-        'edag': edag
+        'edag': edag,
+        'entry-node': entryNode
     }
 }
 </script>
+
+<style>
+.noHoverCard:hover {
+    background-color: var(--theme-light-grey);
+}
+</style>
