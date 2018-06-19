@@ -2,35 +2,36 @@
     <b-navbar v-if="!isGuest" id="header" toggleable="md" type="dark" fixed=top>
         <b-navbar-brand :to="'/Home'" class="brand-name">Logboek</b-navbar-brand>
 
-        <b-navbar-toggle class="mr-auto ml-auto" target="nav_collapse"></b-navbar-toggle>
-        <b-collapse is-nav id="nav_collapse" class="d-none">
+        <b-navbar-toggle class="ml-auto mr-auto" target="nav_collapse" aria-expanded="false" aria-controls="nav_collapse">
+            <span class="nav_collapse__icon nav_collapse__icon--open">
+                <icon class="collapse-icon" name="caret-down" scale="1.75"></icon>
+            </span>
+            <span class="nav_collapse__icon nav_collapse__icon--close">
+                <icon class="collapse-icon" name="caret-up" scale="1.75"></icon>
+            </span>
+        </b-navbar-toggle>
+        <b-collapse is-nav id="nav_collapse">
             <b-navbar-nav class="mr-auto">
                 <b-nav-item :to="{ name : 'Home' }">Courses</b-nav-item>
                 <b-nav-item :to="{ name : 'AssignmentsOverview' }">Assignments</b-nav-item>
             </b-navbar-nav>
         </b-collapse>
-        <b-navbar-nav class="ml-auto">
-            <b-nav-item-dropdown class="ml-auto" no-caret right id="nav-dropdown-options">
+        <b-navbar-nav class="float-right">
+            <b-nav-item-dropdown no-caret right id="nav-dropdown-options">
                 <img id="nav-profile-image" slot="button-content" src="/static/oh_no/ohno.jpeg">
-                <b-button :to="{ name: 'Profile'}">Profile</b-button>
-                <b-button @click="handleLogout()">Sign out</b-button><br/>
+                <b-nav-dropdown-item><b-button :to="{ name: 'Profile'}">Profile</b-button></b-nav-dropdown-item>
+                <b-nav-dropdown-item><b-button @click="handleLogout()">Sign out</b-button><br/></b-nav-dropdown-item>
             </b-nav-item-dropdown>
         </b-navbar-nav>
-        <b-collapse is-nav id="nav_collapse" class="d-inline">
-            <b-navbar-nav class="mr-auto">
-                <b-nav-item :to="{ name : 'Home' }">Courses</b-nav-item>
-                <b-nav-item :to="{ name : 'AssignmentsOverview' }">Assignments</b-nav-item>
-            </b-navbar-nav>
-        </b-collapse>
     </b-navbar>
 
     <b-navbar v-else id="header" toggleable="md" type="dark" fixed=top>
         <b-navbar-brand  :to="'/'" class="brand-name">Logboek</b-navbar-brand>
 
-        <b-navbar-nav class="ml-auto">
-            <b-nav-dropdown class="ml-auto" right no-caret id="nav-dropdown-options-guest">
+        <b-navbar-nav class="float-right">
+            <b-nav-dropdown right no-caret id="nav-dropdown-options">
                 <img id="nav-profile-image" slot="button-content" src="~@/assets/unknown-profile.png">
-                <login-form @login-succes="handleLoginSucces()"/>
+                <div><login-form @login-succes="handleLoginSucces()"/></div>
             </b-nav-dropdown>
         </b-navbar-nav>
     </b-navbar>
@@ -38,10 +39,12 @@
 
 <script>
 import LoginForm from '@/components/LoginForm.vue'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     components: {
-        'login-form': LoginForm
+        'login-form': LoginForm,
+        icon
     },
     data () {
         return {
@@ -81,17 +84,53 @@ export default {
     height: 70px;
 }
 
-#nav-dropdown-options-guest a, #nav-dropdown-options a {
+#nav-dropdown-options a {
     padding: 0px !important;
+}
+
+#nav-dropdown-options a.btn {
+    padding: 0.375rem 0.75rem !important;
 }
 
 #nav_collapse {
     background-color: var(--theme-dark-blue);
 }
 
-.dropdown-menu {
+.collapse-icon {
+    fill: white !important;
+    border-radius: 50% !important;
+}
+
+[aria-expanded="false"] .nav_collapse__icon--open {
+    display: block;
+}
+
+[aria-expanded="false"] .nav_collapse__icon--close {
+    display: none;
+}
+
+[aria-expanded="true"] .nav_collapse__icon--open {
+    display: none;
+}
+
+[aria-expanded="true"] .nav_collapse__icon--close {
+    display: block;
+}
+
+#login-form {
     background: none !important;
+}
+
+.dropdown-menu {
+    background: var(--theme-light-grey) !important;
     border: none !important;
+    padding: 5px;
+    margin-top: 10px;
+}
+
+.dropdown-menu .btn {
+    width: 100%;
+    text-align: left;
 }
 
 .brand-name {
@@ -103,6 +142,27 @@ export default {
     width: 50px;
     height: 50px;
     border-radius: 50% !important;
-    margin-left: 20px;
+}
+
+@media(max-width:992px){
+    #nav-dropdown-options {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: auto;
+        text-align: right !important;
+    }
+
+    #header {
+        min-height: 70px;
+        height: auto;
+    }
+
+    .navbar-toggler {
+        position: absolute;
+        left: 50%;
+        right: 50%;
+        top: 15px;
+    }
 }
 </style>
