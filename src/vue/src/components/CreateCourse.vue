@@ -14,7 +14,7 @@
 import courseApi from '@/api/course.js'
 
 export default {
-    name: 'CourseCreation',
+    name: 'CreateCourse',
     data () {
         return {
             form: {
@@ -35,7 +35,6 @@ export default {
             this.form.courseName = ''
             this.form.courseAbbreviation = ''
             this.form.courseStartdate = ''
-            // this.form.courseEndYear = ''
             /* Trick to reset/clear native browser form validation state */
             this.show = false
             this.$nextTick(() => { this.show = true })
@@ -43,6 +42,3 @@ export default {
     }
 }
 </script>
-
-<style>
-</style>

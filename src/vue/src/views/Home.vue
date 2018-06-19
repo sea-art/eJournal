@@ -35,15 +35,9 @@
             slot="main-content-column"
             ref="editCourseRef"
             title="Global changes"
-            @ok="handleConfirm('editCourseRef')">
-            <form @submit.stop.prevent="handleConfirm">
-                <label for="input-institute-name">Institute name:</label>
-                <b-form-input id="input-institute-name"
-                    type="text"
-                    placeholder="Change your institutes name"
-                    v-model="intituteName">
-                </b-form-input>
-            </form>
+            size="lg"
+            hide-footer=True>
+                <edit-home></edit-home>
         </b-modal>
 
         <b-modal
@@ -51,10 +45,9 @@
             ref="createCourseRef"
             title="Create Course"
             size="lg"
-            hide-footer="true">
+            hide-footer=True>
                 <create-course></create-course>
         </b-modal>
-        <!-- @ok="handleConfirm('createCourseRef')" -->
     </content-columns>
 </template>
 
@@ -64,6 +57,7 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 import mainCard from '@/components/MainCard.vue'
 import todoCard from '@/components/TodoCard.vue'
 import createCourse from '@/components/CreateCourse.vue'
+import editHome from '@/components/EditHome.vue'
 import course from '@/api/course'
 /* import assignment from '@/api/assignment' */
 
@@ -87,7 +81,8 @@ export default {
         'bread-crumb': breadCrumb,
         'main-card': mainCard,
         'todo-card': todoCard,
-        'create-course': createCourse
+        'create-course': createCourse,
+        'edit-home': editHome
     },
     created () {
         course.get_user_courses()
@@ -125,7 +120,3 @@ export default {
     }
 }
 </script>
-
-<style>
-
-</style>
