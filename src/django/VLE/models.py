@@ -110,7 +110,7 @@ class Assignment(models.Model):
     """
     name = models.TextField()
     deadline = models.DateTimeField(
-        auto_now_add=True
+        null=True,
     )
     description = models.TextField(
         null=True,
