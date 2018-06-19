@@ -7,7 +7,7 @@
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>Select a template a template</h2>
                                 <b-form-select v-model="selectedTemplate">
-                                    <div v-for="template in templates">
+                                    <div v-for="template in templates" :key=template.tID>
                                         <option value="template">{{template.name}}</option>
                                     </div>
                                 </b-form-select>
@@ -27,14 +27,16 @@
 </template>
 
 <script>
-import templatePreview from '@/components/templatePreview.vue'
+import templatePreview from '@/components/TemplatePreview.vue'
 
 export default {
     props: ['addNode'],
 
     data () {
-        templateNames: []
-        selectedTemplate: addNode.templates[0]
+        return {
+            templateNames: [],
+            selectedTemplate: this.addNode.templates[0]
+        }
     },
 
     created () {
