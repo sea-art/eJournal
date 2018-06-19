@@ -2,11 +2,7 @@
     <content-columns>
         <bread-crumb @eye-click="customisePage" slot="main-content-column" :currentPage="courseName">
         </bread-crumb>
-<<<<<<< HEAD
         <p slot="main-content-column">{{ permissions }}</p>
-=======
-
->>>>>>> 1f9214c01ddea33bbbe3399588b95f604ddc16c3
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
             <b-link tag="b-button" :to="{ name: 'Assignment',
                                           params: {

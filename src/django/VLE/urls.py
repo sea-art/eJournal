@@ -46,12 +46,8 @@ urlpatterns = [
     path('api/get_course_assignments/<int:cID>/', get_course_assignments, name='get_course_assignments'),
     path('api/get_assignment_journals/<int:aID>/', get_assignment_journals, name='get_assignment_journals'),
     path('api/get_upcoming_deadlines/', get_upcoming_deadlines, name='get_upcoming_deadlines'),
-<<<<<<< HEAD
     path('api/get_course_permissions/<int:cID>/', get_course_permissions, name='get_course_permissions'),
-=======
     path('api/get_nodes/<int:jID>/', get_nodes, name='get_nodes'),
-
->>>>>>> 1fa44192674d6444882e6757737f2fd71427ea04
     path('api/create_new_course/', create_new_course, name='create_new_course'),
     path('api/create_new_assignment/', create_new_assignment, name='create_new_assignment'),
     path('api/create_entry/', create_entry, name='create_entry'),
