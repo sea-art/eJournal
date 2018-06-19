@@ -36,8 +36,8 @@ class EdagTests(TestCase):
         self.progressnode = factory.make_progress_node(f_colloq, deadline_last_progress)
         f_log = factory.make_format()
 
-        a_colloq = factory.make_assignment("Colloq", "In de opdracht...1", self.u_rick, f_colloq)
-        a_log = factory.make_assignment("Logboek", "In de opdracht...2", self.u_rick, f_log)
+        a_colloq = factory.make_assignment("Colloq", "In de opdracht...1", author=self.u_rick, format=f_colloq)
+        a_log = factory.make_assignment("Logboek", "In de opdracht...2", author=self.u_rick, format=f_log)
 
         self.j_rick_colloq = factory.make_journal(a_colloq, self.u_rick)
         self.j_lars_colloq = factory.make_journal(a_colloq, self.u_lars)
@@ -53,7 +53,7 @@ class EdagTests(TestCase):
 
         self.assertEquals(deadline, preset.deadline)
 
-        assignment = factory.make_assignment("Portfolio", "Fixed deadlines", self.u_rick, format)
+        assignment = factory.make_assignment("Portfolio", "Fixed deadlines", author=self.u_rick, format=format)
         journal = factory.make_journal(assignment, self.u_rick)
 
         self.assertTrue(journal.node_set.get(preset__deadline=deadline))
@@ -76,7 +76,7 @@ class EdagTests(TestCase):
         self.assertEquals(len(nodes), 4)
 
         self.assertEquals(nodes[0]['type'], 'd')
-        self.assertEquals(nodes[0]['entry'], {})
+        self.assertEquals(nodes[0]['entry'], None)
         self.assertEquals(nodes[0]['deadline'], '01-01-2020 00:00')
 
         self.assertEquals(nodes[1]['type'], 'e')
