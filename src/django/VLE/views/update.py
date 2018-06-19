@@ -46,6 +46,10 @@ def update_password(request):
     if not user.is_authenticated or not user.check_password(request.data['old_password']):
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
+    # TODO: Add some real password validations
+    if len(request.data['new_password']) <= 3:
+        return JsonResponse({'result': '400 Bad request'}, status=400)
+
     user.set_password(request.data['new_password'])
     user.save()
     return JsonResponse({'result': 'success'})

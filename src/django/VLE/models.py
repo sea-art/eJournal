@@ -25,7 +25,7 @@ class User(AbstractUser):
         default='/static/oh_no/oh_no.jpeg'
     )
     grade_notifications = models.BooleanField(
-        default=False
+        default=True
     )
     comment_notifications = models.BooleanField(
         default=False

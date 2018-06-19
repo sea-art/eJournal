@@ -46,8 +46,7 @@ export default {
             checkbox: false,
             oldPass: '',
             newPass: '',
-            newPassRepeat: '',
-            test: false
+            newPassRepeat: ''
         }
     },
     methods: {
@@ -58,7 +57,7 @@ export default {
                     auth.changePassword(this.newPass, this.oldPass)
                 } else {
                     this.test = false
-                    alert('Password is not matching')
+                    alert('Password does not match')
                 }
             } else {
                 alert('Not a strong password')

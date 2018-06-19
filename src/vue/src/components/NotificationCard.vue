@@ -1,11 +1,11 @@
 <template>
     <b-container>
         <b-row>
-            <p class="profile-title">Notification-emails</p><br/>
+            <span class="profile-title">Notification-emails</span><br/>
         </b-row>
         <b-row>
             <b-col class="profile-col" cols="4">
-                <p class="profile-notification">Grade updates</p>
+                <span class="profile-notification">Grade updates</span>
             </b-col>
             <b-col cols="6">
                 <toggle-switch :isActive="gradeUpdate"
@@ -15,7 +15,7 @@
         </b-row>
         <b-row>
             <b-col class="profile-col" cols="4">
-                <p class="profile-notification">Comments</p>
+                <span class="profile-notification">Comments</span>
             </b-col>
             <b-col cols="6">
                 <toggle-switch :isActive="commentUpdate"
