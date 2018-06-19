@@ -14,7 +14,7 @@ class DataBaseTests(TestCase):
         format = factory.make_journal_format()
         template = factory.make_entry_template("some_template")
         entr_test = factory.make_entry(template)
-        field = factory.make_field("test1", "1", template)
+        field = factory.make_field(template, "test1", "1")
         content = factory.make_content(entr_test, "data", field)
         course_test.author = user_test
 
@@ -44,13 +44,13 @@ class DataBaseTests(TestCase):
         d1 = factory.make_deadline()
         d2 = factory.make_deadline()
 
-        f1 = factory.make_field("test1", "1", et1)
-        f2 = factory.make_field("test2", "2", et1)
-        f3 = factory.make_field("test3", "3", et1)
-        f4 = factory.make_field("test4", "4", et1)
-        f5 = factory.make_field("test1", "1", et2)
-        f6 = factory.make_field("test2", "2", et2)
-        f7 = factory.make_field("test3", "3", et2)
+        f1 = factory.make_field(et1, "test1", "1")
+        f2 = factory.make_field(et1, "test2", "2")
+        f3 = factory.make_field(et1, "test3", "3")
+        f4 = factory.make_field(et1, "test4", "4")
+        f5 = factory.make_field(et2, "test1", "1")
+        f6 = factory.make_field(et2, "test2", "2")
+        f7 = factory.make_field(et2, "test3", "3")
 
         j1 = factory.make_journal(a1, u1)
 
