@@ -77,7 +77,7 @@ class OAuthRequestValidater(object):
         Validates OAuth request using the python-oauth2 library:
             https://github.com/simplegeo/python-oauth2.
         """
-        validator = OAuthRequestValidater(key, secret)
+        validator = cls(key, secret)
         return validator.is_valid(request)
 
 

@@ -223,7 +223,7 @@ def lti_grade_replace_result(request):
     key = settings.LTI_KEY
 
     grade_request = GradePassBackRequest(key, secret, None)
-    grade_request.score = '0.5'
+    grade_request.score = '0.7'
     grade_request.sourcedId = request.POST['lis_result_sourcedid']
     grade_request.url = request.POST['lis_outcome_service_url']
     response = grade_request.send_post_request()
@@ -240,7 +240,7 @@ def lti_launch(request):
         key = settings.LTI_KEY
 
         print('key = postkey', key == request.POST['oauth_consumer_key'])
-        authicated, err = check_signature(key, secret, request)
+        authicated, err = OAuthRequestValidater.check_signature(key, secret, request)
 
         if authicated:
             # Select or create the user, course, assignment and journal.
