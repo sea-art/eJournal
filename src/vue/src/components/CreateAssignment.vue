@@ -1,5 +1,15 @@
 <template>
-    <content-single-columns>
+    <!-- TODO: Maak formats! -->
+    <div>
+        <b-form @submit="onSubmit" @reset="onReset">
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.assignmentName" placeholder="Course name"/>
+            <b-textarea class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.assignmentDescription" rows="6" placeholder="Description of the assignment"/>
+            <b-button class="float-right" type="reset">Reset</b-button>
+            <b-button class="float-right" type="submit">Submit</b-button>
+        </b-form>
+    </div>
+
+    <!-- <content-single-columns>
         <h1>Assignment creation</h1>
         <b-form slot="main-content-column" @submit="onSubmit" @reset="onReset">
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.assignmentName" placeholder="Assignment name"/>
@@ -7,7 +17,7 @@
             <b-button type="submit">Submit</b-button>
             <b-button type="reset">Reset</b-button>
         </b-form>
-    </content-single-columns>
+    </content-single-columns> -->
 </template>
 
 <script>
