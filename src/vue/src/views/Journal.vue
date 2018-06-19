@@ -20,10 +20,10 @@
                 <div v-if="nodes[currentNode].type == 'e'">
                     <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                 </div>
-                <div v-else-if="nodes[currentNode].type == 'add'">
+                <div v-else-if="nodes[currentNode].type == 'a'">
                     <add-card @add-template="addNode">bhjewk</add-card>
                 </div>
-                <div v-else-if="nodes[currentNode].type == 'progress'">
+                <div v-else-if="nodes[currentNode].type == 'p'">
                     <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
                     :textbox2="nodes[currentNode].textbox2"
                     :date="nodes[currentNode].date"></entry-template>
