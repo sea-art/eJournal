@@ -23,7 +23,7 @@ def make_course(name, abbrev, startdate=None, author=None):
         participation = Participation()
         participation.user = author
         participation.course = course
-        participation.role = Role.objects.get(name='student')
+        participation.role = Role.objects.get(name='teacher')
         participation.save()
     return course
 

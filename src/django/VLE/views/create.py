@@ -37,14 +37,14 @@ def create_new_assignment(request):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    course = factory.make_assignment(
+    assignment = factory.make_assignment(
         request.data['name'],
         request.data['description'],
-        request.data['courseID'],
+        request.data['assignmentID'],
         request.user
     )
 
-    return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(course)})
+    return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)})
 
 
 @api_view(['POST'])
