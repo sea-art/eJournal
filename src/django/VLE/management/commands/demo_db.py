@@ -9,93 +9,6 @@ faker = Faker()
 class Command(BaseCommand):
     help = 'Generates data for the database.'
 
-    def gen_prepared_data(self, ):
-        """Generate useful data to test with.
-
-        These are preselected users and are assigned to courses to run tests with.
-        """
-        users_examples = [
-            {"username": "Lars", "type": "SD"},
-            {"username": "Rick", "type": "SD"},
-            {"username": "Dennis", "type": "SD"},
-            {"username": "Zi", "type": "TA"},
-            {"username": "Jeroen", "type": "TE"},
-            {"username": "Maarten", "type": "SU"}
-        ]
-        courses_examples = [
-            {"name": "Portfolio Academische Vaardigheden 1", "abbr": "PAV"},
-            {"name": "Portfolio Academische Vaardigheden 2", "abbr": "PAV"},
-            {"name": "Beeldbewerken", "abbr": "BB"},
-            {"name": "Automaten en Formele Talen", "abbr": "AFT"}
-        ]
-        assign_examples = [
-            {"name": "Logboek", "courses": [0, 1, 2, 3]},
-            {"name": "Colloquium", "courses": [0]},
-            {"name": "Verslag", "courses": [0, 1]},
-        ]
-        journal_examples = [
-            {"assigns": 0, "users": 0},
-            {"assigns": 1, "users": 2},
-        ]
-
-        users = []
-        for u in users_examples:
-            users.append(make_user(u['username'], 'pass'))
-
-        courses = []
-        for c in courses_examples:
-            course = Course(name=c["name"], abbreviation=c["abbr"])
-            course.save()
-            role = Role(name='TA')
-            role.save()
-            Participation(user=users[0], role=role, course=course).save()
-            Participation(user=users[1], role=role, course=course).save()
-            Participation(user=users[2], role=role, course=course).save()
-            course.author = users[2]
-            course.startdate = faker.date_this_decade(before_today=True)
-            course.save()
-            courses.append(course)
-
-        assignments = []
-        for a in assign_examples:
-            format = JournalFormat()
-            format.save()
-            assignment = Assignment(name=a["name"], format=format)
-            assignment.save()
-            assignment.author = users[4]
-            assignment.deadline = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
-            assignment.save()
-            for course in a["courses"]:
-                assignment.courses.add(courses[course])
-            assignments.append(assignment)
-
-        journals = []
-        for a in assignments:
-            for u in users:
-                journal = Journal(assignment=a, user=u)
-                journal.save()
-                journals.append(journal)
-
-        for journal in journals:
-            random_amount = random.randint(1, 5)
-            for i in range(random_amount):
-                template = EntryTemplate(name=faker.catch_phrase())
-                template.save()
-
-                # Generate a random amount of fields for a template.
-                for i in range(random.randint(1, 8)):
-                    field = make_field(faker.catch_phrase(), i, template)
-                    field.save()
-
-                entry = Entry(template=template)
-                entry.datetime = faker.date_time_this_month(before_now=True)
-                entry.late = faker.boolean()
-                entry.grade = random.randint(1, 10)
-                entry.save()
-
-                node = Node(type=Node.ENTRY, entry=entry, journal=journal)
-                node.save()
-
     def gen_random_content(self):
         entries = Entry.objects.all()
         for i, entry in enumerate(entries):
@@ -249,20 +162,10 @@ class Command(BaseCommand):
             for user in User.objects.all():
                 if Journal.objects.filter(assignment=assignment, user=user).count() > 0:
                     continue
-                journal = Journal(assignment=assignment, user=user)
-                journal_list.append(journal)
-
-        # Using a bulk create speeds the process up.
-        Journal.objects.bulk_create(journal_list)
+                journal = make_journal(assignment, user)
 
     def handle(self, *args, **options):
-        """This function generates data to test and fill the database with.
-
-        It has both useful test data and randomly created data to create a more real life example.
-        """
-
-        # Preselected items
-        self.gen_prepared_data()
+        """This function generates randomly created data to create a more real life example."""
 
         amount = 4
         # Random users
