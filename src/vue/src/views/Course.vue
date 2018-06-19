@@ -12,7 +12,7 @@
                                           }
                                         }">
                 <assignment-card :line1="a.name" :color="$root.colors[a.aID % $root.colors.length]">
-                    <progress-bar :currentPoints="a.progress.acquired" :totalPoints="a.progress.total"></progress-bar>
+                    <progress-bar :currentPoints="a.journal.stats.acquired_points" :totalPoints="a.journal.stats.total_points"></progress-bar>
                 </assignment-card>
             </b-link>
         </div>
@@ -39,7 +39,6 @@ export default {
     name: 'Course',
     props: {
         cID: {
-            type: String,
             required: true
         },
         courseName: String

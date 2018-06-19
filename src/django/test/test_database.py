@@ -99,6 +99,6 @@ class DataBaseTests(TestCase):
         participation = Participation(user=usr, role=role, course=crs)
         participation.save()
 
-        self.assertTrue(check_permissions(usr, crs.id, ["can_submit_assignment", "can_view_grades"]))
-        self.assertFalse(check_permissions(usr, crs.id, ["can_submit_assignment", "can_edit_grades",
+        self.assertTrue(check_permissions(usr, crs.id, ["can_view_grades"]))
+        self.assertFalse(check_permissions(usr, crs.id, ["can_edit_grades",
                                                          "can_edit_assignment"]))

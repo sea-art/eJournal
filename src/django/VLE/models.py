@@ -21,7 +21,7 @@ class User(AbstractUser):
         unique=True,
     )
     profile_picture = models.TextField(
-        null=True
+        default='/static/oh_no/oh_no.jpeg'
     )
     is_admin = models.BooleanField(default=False)
 
@@ -79,7 +79,7 @@ class Role(models.Model):
     can_view_grades = models.BooleanField(default=False)
     can_edit_assignment = models.BooleanField(default=False)
     can_view_assignment = models.BooleanField(default=False)
-    can_submit_assign = models.BooleanField(default=False)
+    can_submit_assignment = models.BooleanField(default=False)
     can_edit_course = models.BooleanField(default=False)
     can_delete_course = models.BooleanField(default=False)
 
