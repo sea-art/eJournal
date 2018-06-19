@@ -46,6 +46,9 @@ import journal from '@/api/journal'
 
 export default {
     name: 'Journal',
+
+    props: ['cID', 'aID', 'jID'],
+
     data () {
         return {
             windowWidth: 0,
@@ -56,7 +59,7 @@ export default {
     },
 
     created () {
-        journal.get_nodes(1)
+        journal.get_nodes(this.jID)
             .then(response => { this.nodes = response })
             .catch(_ => alert('Error while loading nodes.'))
     },
