@@ -133,21 +133,16 @@ def get_assignment_journals(request, aID):
     for journal in assignment.journal_set.all():
         journals.append(journal_to_dict(journal))
 
-    # TODO: Misschien dit efficient maken voor minimal delay?
-    needsMarking = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
-    points = [x['stats']['acquired_points'] for x in journals]
-    avgPoints = round(st.mean(points), 2)
-    medianPoints = st.median(points)
-    avgEntries = round(st.mean([x['stats']['total_points'] for x in journals]), 2)
+    stats = {}
+    if journals:
+        # TODO: Misschien dit efficient maken voor minimal delay?
+        stats['needsMarking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
+        points = [x['stats']['acquired_points'] for x in journals]
+        stats['avgPoints'] = round(st.mean(points), 2)
+        stats['medianPoints'] = st.median(points)
+        stats['avgEntries'] = round(st.mean([x['stats']['total_points'] for x in journals]), 2)
 
-    stats = {
-        'needsMarking': needsMarking,
-        'avgPoints': avgPoints,
-        'medianPoints': medianPoints,
-        'avgEntries': avgEntries
-    }
-
-    return JsonResponse({'result': 'success', 'stats': stats, 'journals': journals})
+    return JsonResponse({'result': 'success', 'stats': stats if stats else None, 'journals': journals})
 
 
 @api_view(['GET'])
