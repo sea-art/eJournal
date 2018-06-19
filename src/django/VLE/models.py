@@ -24,9 +24,10 @@ class User(AbstractUser):
     profile_picture = models.TextField(
         default='/static/oh_no/oh_no.jpeg'
     )
+    is_admin = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.username
+        return str(self.id) + ") " + self.username
 
 
 class Course(models.Model):
@@ -64,7 +65,7 @@ class Course(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return str(self.id) + ") " + self.name
 
 
 class Role(models.Model):
@@ -80,6 +81,11 @@ class Role(models.Model):
     can_edit_assignment = models.BooleanField(default=False)
     can_view_assignment = models.BooleanField(default=False)
     can_submit_assignment = models.BooleanField(default=False)
+    can_edit_course = models.BooleanField(default=False)
+    can_delete_course = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.id) + ") " + str(self.name)
 
 
 class Participation(models.Model):
@@ -96,6 +102,13 @@ class Participation(models.Model):
         on_delete=models.SET_NULL,
         related_name='role',
     )
+
+    # TODO: Unique, but fails in test script.
+    # class Meta:
+    #     unique_together = ('user', 'course',)
+
+    def __str__(self):
+        return "usr: " + str(self.user) + " crs: " + str(self.course) + " role: " + str(self.role)
 
 
 class Assignment(models.Model):
@@ -137,7 +150,7 @@ class Assignment(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return str(self.id) + ") " + self.name
 
 
 class Journal(models.Model):

@@ -69,8 +69,8 @@ class RestTests(TestCase):
             c.participation_set.add(p)
             c.save()
 
-        a1 = factory.make_assignment("Colloq", "In de opdracht...1", u1)
-        a2 = factory.make_assignment("Logboek", "In de opdracht...2", u1)
+        a1 = factory.make_assignment("Colloq", "In de opdracht...1", author=u1)
+        a2 = factory.make_assignment("Logboek", "In de opdracht...2", author=u1)
         a1.courses.add(c1)
         a1.courses.add(c2)
         a2.courses.add(c1)
