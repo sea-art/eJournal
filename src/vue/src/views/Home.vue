@@ -35,8 +35,8 @@
             slot="main-content-column"
             ref="editCourseRef"
             title="Global changes"
-            @ok="handleEditConfirm('editCourseRef')">
-            <form @submit.stop.prevent="handleEditConfirm">
+            @ok="handleConfirm('editCourseRef')">
+            <form @submit.stop.prevent="handleConfirm">
                 <label for="input-institute-name">Institute name:</label>
                 <b-form-input id="input-institute-name"
                     type="text"
@@ -50,9 +50,11 @@
             slot="main-content-column"
             ref="createCourseRef"
             title="Create Course"
-            @ok="handleEditConfirm('createCourseRef')">
-                <creation-create></creation-create>
+            size="lg"
+            hide-footer="true">
+                <create-course></create-course>
         </b-modal>
+        <!-- @ok="handleConfirm('createCourseRef')" -->
     </content-columns>
 </template>
 
@@ -85,7 +87,7 @@ export default {
         'bread-crumb': breadCrumb,
         'main-card': mainCard,
         'todo-card': todoCard,
-        'creation-create': createCourse
+        'create-course': createCourse
     },
     created () {
         course.get_user_courses()
@@ -105,8 +107,13 @@ export default {
         showModal (ref) {
             this.$refs[ref].show()
         },
-        handleEditConfirm (ref) {
-            alert('Edit confirm')
+        handleConfirm (ref) {
+            if (ref == 'createCourseRef') {
+                alert("hai")
+            } else if ('editCourseRef') {
+                alert("doei")
+            }
+
             this.hideModal(ref)
         },
         hideModal (ref) {
@@ -118,3 +125,7 @@ export default {
     }
 }
 </script>
+
+<style>
+
+</style>

@@ -26,12 +26,6 @@ export default {
     padding-right: 30px !important;
 }
 
-@media(max-width:992px){
-    .main-content {
-        padding-top: 0px !important;
-    }
-}
-
 .main-content {
     padding-top: 40px;
     background-color: var(--theme-medium-grey);
@@ -50,6 +44,10 @@ export default {
     .right-content {
         padding: 0px !important;
         margin-top: 8px;
+    }
+
+    .main-content {
+        padding-top: 0px !important;
     }
 }
 @media(min-width:768px){}

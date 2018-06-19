@@ -1,18 +1,16 @@
 <template>
-    <content-single-columns>
-        <h1>Course creation</h1>
-        <b-form slot="main-content-column" @submit="onSubmit" @reset="onReset">
+    <div>
+        <b-form @submit="onSubmit" @reset="onReset">
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseName" placeholder="Course name"/>
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseAbbreviation" maxlength="10" placeholder="Course Abbreviation (Max 10 letters)"/>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseStartdate" type="date" placeholder="Startdate of the year"/>
-            <b-button type="submit">Submit</b-button>
-            <b-button type="reset">Reset</b-button>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseStartdate" type="date"/>
+            <b-button class="float-right" type="reset">Reset</b-button>
+            <b-button class="float-right" type="submit">Submit</b-button>
         </b-form>
-    </content-single-columns>
+    </div>
 </template>
 
 <script>
-import ContentSingleColumn from '@/components/ContentSingleColumn.vue'
 import courseApi from '@/api/course.js'
 
 export default {
@@ -22,13 +20,9 @@ export default {
             form: {
                 courseName: '',
                 courseAbbreviation: '',
-                courseStartYear: '',
-                courseEndYear: ''
+                courseStartdate: '',
             }
         }
-    },
-    components: {
-        'content-single-columns': ContentSingleColumn
     },
     methods: {
         onSubmit (evt) {
@@ -41,7 +35,7 @@ export default {
             this.form.courseName = ''
             this.form.courseAbbreviation = ''
             this.form.courseStartdate = ''
-            this.form.courseEndYear = ''
+            // this.form.courseEndYear = ''
             /* Trick to reset/clear native browser form validation state */
             this.show = false
             this.$nextTick(() => { this.show = true })
@@ -49,3 +43,6 @@ export default {
     }
 }
 </script>
+
+<style>
+</style>
