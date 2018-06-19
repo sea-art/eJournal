@@ -9,6 +9,7 @@ import Guest from '@/views/Guest'
 import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
 import AssignmentsOverview from '@/views/AssignmentsOverview'
+import courseApi from '@/api/course.js'
 
 Vue.use(Router)
 
@@ -56,12 +57,25 @@ var router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-    // TODO check if logged in
-    // TODO check if routing parameters
-    console.log('hoi')
-    // // console.log(to.params)
-    router.app.permissions = 1
-    console.log(router.app.permissions)
+    // TODO Check login here as well?
+    // TODO Handle errors properly
+
+    // if (to.matched.name != 'Home' && !loggedIn)
+
+    if (to.params.cID) {
+        courseApi.get_course_permissions(to.params.cID)
+            .then(response => {
+                router.app.permissions = response
+                    console.log(router.app.permissions)
+                next()
+            })
+            .catch(_ => {
+                alert('Error while loading permissions')
+                next({to: ''})
+            })
+    } else {
+        next()
+    }
     next()
 })
 

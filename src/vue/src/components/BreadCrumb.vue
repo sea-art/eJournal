@@ -7,7 +7,7 @@
                     {{ currentPage }}
                     <slot>
                         <icon name="eye" @click.native="eyeClick()" class="eye-icon hover" scale="1.75"></icon>
-                        <b-button class="float-right edit-button" @click="editClick()"> Edit </b-button>
+                        <b-button v-if="canEdit()" class="float-right edit-button" @click="editClick()"> Edit </b-button>
                     </slot>
                 </h1>
             </b-col>
@@ -37,6 +37,16 @@ export default {
         },
         splitPath () {
             this.$router.currentRoute.path.split('/').slice(1, -1)
+        },
+        canEdit () {
+            var pageName = this.$route.name
+
+            // TODO add proper check
+            if (pageName === 'Home') {
+                return true
+            } else if (pageName === 'Course' && this.$root.permissions.can_edit_course) {
+                return true
+            }
         }
     }
 }
