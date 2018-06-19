@@ -77,7 +77,7 @@ def journal_to_dict(journal):
 def add_node_dict(journal):
     return {
         'type': 'a',
-        'jID': journal.id,
+        'nID': -1,
         'templates': [template_to_dict(template) for template in journal.assignment.format.available_templates.all()]
     }
 
@@ -95,7 +95,7 @@ def node_to_dict(node):
 def entry_node_to_dict(node):
     return {
         'type': node.type,
-        'jID': node.journal.id,
+        'nID': node.id,
         'entry': entry_to_dict(node.entry),
     }
 
@@ -103,7 +103,7 @@ def entry_node_to_dict(node):
 def entry_deadline_to_dict(node):
     return {
         'type': node.type,
-        'jID': node.journal.id,
+        'nID': node.id,
         'entry': entry_to_dict(node.entry),
         'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M')
     }
@@ -112,7 +112,7 @@ def entry_deadline_to_dict(node):
 def progress_to_dict(node):
     return {
         'type': node.type,
-        'jID': node.journal.id,
+        'nID': node.id,
         'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
         'target': node.preset.deadline.points,
     }
@@ -150,6 +150,6 @@ def field_to_dict(field):
 
 def content_to_dict(content):
     return {
-        'field': content.field.pk,
+        'tag': content.field.pk,
         'data': content.data,
     }

@@ -221,17 +221,17 @@ class Command(BaseCommand):
         """
         # journals = Journal.objects.all()
         journal = Journal.objects.get(pk=1)
-        template = EntryTemplate(name="some_template")
-        template.save()
-
-        self.field1 = make_field('Title', 0, template)
-        self.field1.save()
-
-        self.field2 = make_field('Belevenisevenement', 0, template)
-        self.field2.save()
 
         entry_list = list()
         for _ in range(amount):
+            template = EntryTemplate(name=faker.catch_phrase())
+            template.save()
+
+            # Generate a random amount of fields for a template.
+            for i in range(random.randint(1, 8)):
+                field = make_field(faker.catch_phrase(), i, template)
+                field.save()
+
             entry = Entry(template=template)
             entry.datetime = faker.date_time_this_month(before_now=True)
             entry.late = faker.boolean()
@@ -241,12 +241,17 @@ class Command(BaseCommand):
             node = Node(type=Node.ENTRY, entry=entry, journal=journal)
             node.save()
 
-    def gen_random_content(self, amount):
+    def gen_random_content(self):
         entries = Entry.objects.all()
         for i, entry in enumerate(entries):
-            content = make_content(entry, faker.catch_phrase(), self.field1)
-            content.save()
-
+            for field in entry.template.field_set.all():
+                # Randomly miss content fields for testing.
+                if random.randint(0, 20) == 0:
+                    continue
+                
+                content = make_content(entry, faker.catch_phrase(), field)
+                content.save()
+            
     def handle(self, *args, **options):
         """This function generates data to test and fill the database with.
 
@@ -271,3 +276,5 @@ class Command(BaseCommand):
         self.gen_random_journals(amount*100)
         # Random entries
         self.gen_random_entries(amount)
+        # Random content
+        self.gen_random_content()
