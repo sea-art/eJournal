@@ -103,10 +103,10 @@ export default {
             this.$refs[ref].show()
         },
         handleConfirm (ref) {
-            if (ref == 'createCourseRef') {
-                alert("hai")
-            } else if ('editCourseRef') {
-                alert("doei")
+            if (ref === 'createCourseRef') {
+                alert('hai')
+            } else if (ref === 'editCourseRef') {
+                alert('doei')
             }
 
             this.hideModal(ref)
