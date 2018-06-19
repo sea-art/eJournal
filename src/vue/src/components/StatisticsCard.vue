@@ -1,5 +1,5 @@
 <template>
-    <b-card class="card" :class="color" style="">
+    <b-card class="card no-hover" :class="color" style="">
         <b>{{ subject }}</b><div class="point-square">{{ num }}</div>
     </b-card>
 </template>
@@ -20,5 +20,9 @@ export default {
     background-color: var(--theme-blue);
     width: 45px;
     height: 30px;
+}
+
+.no-hover:hover {
+    background-color: var(--theme-light-grey) !important;
 }
 </style>
