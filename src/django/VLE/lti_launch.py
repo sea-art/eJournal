@@ -109,13 +109,12 @@ def select_create_user(request):
     return user
 
 
-def select_create_course(request, user):
+def select_create_course(request, user, roles):
     """
     Select or create a course requested.
     """
     course_id = request['context_id']
     courses = Course.objects.filter(lti_id=course_id)
-    roles = json.load(open('config.json'))
 
     if courses.count() > 0:
         # If course already exists, select it.
@@ -150,13 +149,12 @@ def select_create_course(request, user):
     return course
 
 
-def select_create_assignment(request, user, course):
+def select_create_assignment(request, user, course, roles):
     """
     Select or create a assignment requested.
     """
     assign_id = request['resource_link_id']
     assignments = Assignment.objects.filter(lti_id=assign_id)
-    roles = json.load(open('config.json'))
     if assignments.count() > 0:
         # If the assigment exists, select it and add the course if necessary.
         assignment = assignments[0]
@@ -182,11 +180,10 @@ def select_create_assignment(request, user, course):
     return assignment
 
 
-def select_create_journal(request, user, assignment):
+def select_create_journal(request, user, assignment, roles):
     """
     Select or create the requested journal.
     """
-    roles = json.load(open('config.json'))
     if roles['student'] in request['roles']:
         journals = Journal.objects.filter(user=user, assignment=assignment)
         if journals.count() > 0:
@@ -214,28 +211,40 @@ def lti_launch(request):
         authicated, err = check_signature(key, secret, request)
 
         if authicated:
-            user = select_create_user(request.POST)
-            course = select_create_course(request.POST, user)
-            assignment = select_create_assignment(request.POST, user, course)
-            journal = select_create_journal(request.POST, user, assignment)
+            # Select or create the user, course, assignment and journal.
+            roles = json.load(open('config.json')), roles
+            user = select_create_user(request.POST, roles)
+            course = select_create_course(request.POST, user, roles)
+            assignment = select_create_assignment(request.POST, user, course, roles)
+            journal = select_create_journal(request.POST, user, assignment, roles)
+
+            # Check if the request comes from a student or not.
+            roles = json.load(open('config.json'))
+            student = request.POST['roles'] == roles['student']
 
             token = TokenObtainPairSerializer.get_token(user)
             access = token.access_token
 
-            student = dec_to_hex(user.pk) if journal else 'undefined'
+            # Set the ID's or if these do not exist set them to undefined.
+            cID = course.pk if course is not None else 'undefined'
+            aID = assignment.pk if assignment is not None else 'undefined'
+            jID = journal.pk if journal is not None else 'undefined'
+
+            # TODO Should not be localhost anymore at production.
             link = 'http://localhost:8080/#/lti/launch'
             link += '?jwt_refresh={0}'.format(token)
             link += '&jwt_access={0}'.format(access)
-            link += '&course={0}'.format(dec_to_hex(course.pk))
-            link += '&assign={0}'.format(dec_to_hex(assignment.pk))
+            link += '&cID={0}'.format(cID)
+            link += '&aID={0}'.format(aID)
+            link += '&jID={0}'.format(jID)
             link += '&student={0}'.format(student)
+
             return redirect(link)
         else:
-            response = {'error': '401 Authentication Error'}
-            status = 401
             return HttpResponse('unsuccesfull auth, {0}'.format(err))
 
         # Prints de post parameters als http page
+        # TODO Remove these 2 lines
         post = json.dumps(request.POST, separators=(',', ': '))
         return HttpResponse(post.replace(',', ' <br> '))
 
