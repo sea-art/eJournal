@@ -10,13 +10,15 @@
                 <icon class="collapse-icon" name="caret-up" scale="1.75"></icon>
             </span>
         </b-navbar-toggle>
+
         <b-collapse is-nav id="nav_collapse">
             <b-navbar-nav class="mr-auto">
                 <b-nav-item :to="{ name : 'Home' }">Courses</b-nav-item>
                 <b-nav-item :to="{ name : 'AssignmentsOverview' }">Assignments</b-nav-item>
             </b-navbar-nav>
         </b-collapse>
-        <b-navbar-nav class="float-right">
+
+        <b-navbar-nav class="ml-auto">
             <b-nav-item-dropdown no-caret right id="nav-dropdown-options">
                 <img id="nav-profile-image" slot="button-content" src="/static/oh_no/ohno.jpeg">
                 <b-nav-dropdown-item><b-button :to="{ name: 'Profile'}">Profile</b-button></b-nav-dropdown-item>
@@ -28,7 +30,7 @@
     <b-navbar v-else id="header" toggleable="md" type="dark" fixed=top>
         <b-navbar-brand  :to="'/'" class="brand-name">Logboek</b-navbar-brand>
 
-        <b-navbar-nav class="float-right">
+        <b-navbar-nav class="ml-auto">
             <b-nav-dropdown right no-caret id="nav-dropdown-options">
                 <img id="nav-profile-image" slot="button-content" src="~@/assets/unknown-profile.png">
                 <div><login-form @login-succes="handleLoginSucces()"/></div>
@@ -98,9 +100,9 @@ export default {
 
 .collapse-icon {
     fill: white !important;
-    border-radius: 50% !important;
 }
 
+/* Handles rotation of the arrow icon. */
 [aria-expanded="false"] .nav_collapse__icon--open {
     display: block;
 }
@@ -150,6 +152,9 @@ export default {
         top: 10px;
         right: 10px;
         width: auto;
+    }
+
+    #nav-dropdown-options a.nav-link {
         text-align: right !important;
     }
 
@@ -163,6 +168,7 @@ export default {
         left: 50%;
         right: 50%;
         top: 15px;
+        border-radius: 50% !important;
     }
 }
 </style>
