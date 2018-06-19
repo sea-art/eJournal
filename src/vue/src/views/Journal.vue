@@ -14,14 +14,11 @@
                 Fill in the template using the corresponding data
                 of the entry
             . -->
-            <div v-if="nodes2.length > 0">
-                {{nodes2[0]}}<br>
-                {{nodes2[0].type}}
-                <div v-if="nodes2[0].type == 'e'">
-                    <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes2[0]"/>
-                    <!-- <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
-                    :textbox2="nodes[currentNode].textbox2"
-                    :date="nodes[currentNode].date"></entry-template> -->
+            <div v-if="nodes.length > currentNode">
+                {{nodes[currentNode]}}<br>
+                {{nodes[0].type}}
+                <div v-if="nodes[currentNode].type == 'e'">
+                    <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'add'">
                     <add-card @add-template="addNode">bhjewk</add-card>
@@ -54,54 +51,26 @@ export default {
             windowWidth: 0,
             currentNode: 0,
             editedData: ['', ''],
-            nodes2: [],
-            nodes: [{
-                type: 'entry',
-                textbox1: 'Awesome IT',
-                textbox2: 'Waar ging dit ook al weer over?',
-                date: new Date(),
-                id: 0
-            }, {
-                type: 'entry',
-                textbox1: 'Lezing NNS',
-                textbox2: 'Rob Belleman was er ook.',
-                date: new Date(),
-                id: 1
-            }, {
-                type: 'add',
-                textbox1: 'Add',
-                textbox2: 'something',
-                text: '+',
-                date: new Date(),
-                id: 2
-            }, {
-                type: 'progress',
-                textbox1: 'Jaar 1 Deadline',
-                textbox2: 'oh no',
-                text: '5',
-                date: new Date(),
-                id: 3
-            }]
+            nodes: []
         }
     },
 
     created () {
         journal.get_nodes(1)
-            .then(response => { this.nodes2 = response })
+            .then(response => { this.nodes = response })
             .catch(_ => alert('Error while loading nodes.'))
     },
 
     methods: {
         adaptData (editedData) {
-            this.nodes[this.currentNode].textbox1 = editedData[0]
-            this.nodes[this.currentNode].textbox2 = editedData[1]
+            this.nodes[this.currentNode] = editedData
         },
         selectNode ($event) {
             if ($event === this.currentNode) {
                 return this.currentNode
             }
 
-            if (this.nodes[this.currentNode].type !== 'entry') {
+            if (this.nodes[this.currentNode].type !== 'e') {
                 this.currentNode = $event
                 return
             }
