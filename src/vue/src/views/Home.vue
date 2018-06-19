@@ -19,10 +19,6 @@
 
         <main-card slot="main-content-column" v-on:click.native="showModal('createCourseRef')" :line1="'+ Add course'"/>
 
-        <!-- <b-link slot="main-content-column" :to="{name: 'CourseCreation'}">
-            <main-card :line1="'+ Add course'"/>
-        </b-link> -->
-
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
             <b-link tag="b-button" :to="{name: 'Assignment', params: {cID: d.cIDs[0], dID: d.dID}}">
@@ -39,7 +35,7 @@
             slot="main-content-column"
             ref="editCourseRef"
             title="Global changes"
-            @ok="handleEditConfirm()">
+            @ok="handleEditConfirm('editCourseRef')">
             <form @submit.stop.prevent="handleEditConfirm">
                 <label for="input-institute-name">Institute name:</label>
                 <b-form-input id="input-institute-name"
@@ -53,8 +49,8 @@
         <b-modal
             slot="main-content-column"
             ref="createCourseRef"
-            title="Global changes"
-            @ok="handleEditConfirm()">
+            title="Create Course"
+            @ok="handleEditConfirm('createCourseRef')">
                 <creation-create></creation-create>
         </b-modal>
     </content-columns>
@@ -109,9 +105,9 @@ export default {
         showModal (ref) {
             this.$refs[ref].show()
         },
-        handleEditConfirm () {
+        handleEditConfirm (ref) {
             alert('Edit confirm')
-            this.hideModal()
+            this.hideModal(ref)
         },
         hideModal (ref) {
             this.$refs[ref].hide()
