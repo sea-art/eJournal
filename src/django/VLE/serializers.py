@@ -56,8 +56,8 @@ def assignment_to_dict(assignment):
     return {
         'aID': assignment.id,
         'name': assignment.name,
+        'description': assignment.description,
         'auth': user_to_dict(assignment.author),
-        'description': assignment.description
     } if assignment else None
 
 
@@ -96,6 +96,7 @@ def entry_node_to_dict(node):
     return {
         'type': node.type,
         'nID': node.id,
+        'jID': node.id,
         'entry': entry_to_dict(node.entry),
     }
 
@@ -104,8 +105,9 @@ def entry_deadline_to_dict(node):
     return {
         'type': node.type,
         'nID': node.id,
+        'jID': node.id,
+        'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
         'entry': entry_to_dict(node.entry),
-        'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M')
     }
 
 
@@ -113,6 +115,7 @@ def progress_to_dict(node):
     return {
         'type': node.type,
         'nID': node.id,
+        'jID': node.id,
         'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
         'target': node.preset.deadline.points,
     }
@@ -124,18 +127,19 @@ def entry_to_dict(entry):
 
     return {
         'eID': entry.id,
-        'template': template_to_dict(entry.template),
         'createdate': entry.datetime.strftime('%d-%m-%Y %H:%M'),
         'grade': entry.grade,
         'late': entry.late,
+        'template': template_to_dict(entry.template),
         'content': [content_to_dict(content) for content in entry.content_set.all()],
     }
 
 
 def template_to_dict(template):
     return {
-        'fields': [field_to_dict(field) for field in template.field_set.all()],
+        'tID': template.id,
         'name': template.name,
+        'fields': [field_to_dict(field) for field in template.field_set.all()],
     }
 
 

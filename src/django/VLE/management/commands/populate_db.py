@@ -69,6 +69,44 @@ class Command(BaseCommand):
                 assignment.courses.add(courses[course])
             assignments.append(assignment)
 
+        journals = []
+        for a in assignments:
+            for u in users:
+                journal = Journal(assignment=a, user=u)
+                journal.save()
+                journals.append(journal)
+
+        for journal in journals:
+            random_amount = random.randint(1, 5)
+            for i in range(random_amount):
+                template = EntryTemplate(name=faker.catch_phrase())
+                template.save()
+
+                # Generate a random amount of fields for a template.
+                for i in range(random.randint(1, 8)):
+                    field = make_field(faker.catch_phrase(), i, template)
+                    field.save()
+
+                entry = Entry(template=template)
+                entry.datetime = faker.date_time_this_month(before_now=True)
+                entry.late = faker.boolean()
+                entry.grade = random.randint(1, 10)
+                entry.save()
+
+                node = Node(type=Node.ENTRY, entry=entry, journal=journal)
+                node.save()
+
+    def gen_random_content(self):
+        entries = Entry.objects.all()
+        for i, entry in enumerate(entries):
+            for field in entry.template.field_set.all():
+                # Randomly miss content fields for testing.
+                if random.randint(0, 20) == 0:
+                    continue
+                
+                content = make_content(entry, faker.catch_phrase(), field)
+                content.save()
+
     def gen_random_users(self, amount):
         """
         Generate random users.
@@ -202,55 +240,20 @@ class Command(BaseCommand):
             assignment.courses.add(*(course_list))
             assignment.save()
 
-    def gen_random_journals(self, amount):
+    def gen_random_journals(self):
         """
         Generate random journals.
         """
         journal_list = []
         for assignment in Assignment.objects.all():
             for user in User.objects.all():
+                if Journal.objects.filter(assignment=assignment, user=user).count() > 0:
+                    continue
                 journal = Journal(assignment=assignment, user=user)
                 journal_list.append(journal)
 
         # Using a bulk create speeds the process up.
         Journal.objects.bulk_create(journal_list)
-
-    def gen_random_entries(self, amount):
-        """
-        Generate random entries.
-        """
-        # journals = Journal.objects.all()
-        journal = Journal.objects.get(pk=1)
-
-        entry_list = list()
-        for _ in range(amount):
-            template = EntryTemplate(name=faker.catch_phrase())
-            template.save()
-
-            # Generate a random amount of fields for a template.
-            for i in range(random.randint(1, 8)):
-                field = make_field(faker.catch_phrase(), i, template)
-                field.save()
-
-            entry = Entry(template=template)
-            entry.datetime = faker.date_time_this_month(before_now=True)
-            entry.late = faker.boolean()
-            entry.grade = random.randint(1, 10)
-            entry.save()
-
-            node = Node(type=Node.ENTRY, entry=entry, journal=journal)
-            node.save()
-
-    def gen_random_content(self):
-        entries = Entry.objects.all()
-        for i, entry in enumerate(entries):
-            for field in entry.template.field_set.all():
-                # Randomly miss content fields for testing.
-                if random.randint(0, 20) == 0:
-                    continue
-                
-                content = make_content(entry, faker.catch_phrase(), field)
-                content.save()
             
     def handle(self, *args, **options):
         """This function generates data to test and fill the database with.
@@ -261,9 +264,9 @@ class Command(BaseCommand):
         # Preselected items
         self.gen_prepared_data()
 
-        amount = 10
+        amount = 4
         # Random users
-        self.gen_random_users(amount*10)
+        self.gen_random_users(amount)
         # Random course
         self.gen_random_courses(amount)
         # Create the roles
@@ -271,10 +274,6 @@ class Command(BaseCommand):
         # Random participation
         self.gen_random_participation_for_each_user()
         # Random assignments
-        self.gen_random_assignments(amount*10)
+        self.gen_random_assignments(amount)
         # Random journals
-        self.gen_random_journals(amount*100)
-        # Random entries
-        self.gen_random_entries(amount)
-        # Random content
-        self.gen_random_content()
+        self.gen_random_journals()
