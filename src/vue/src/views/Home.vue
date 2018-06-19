@@ -53,7 +53,7 @@
         <b-modal
             slot="main-content-column"
             ref="createCourseRef"
-            title="Global changes"
+            title="Create course"
             @ok="handleEditConfirm()">
                 <creation-create></creation-create>
         </b-modal>

@@ -1,10 +1,9 @@
 <template>
     <content-single-columns>
-        <h1>Course creation</h1>
+        <h1>Assignment creation</h1>
         <b-form slot="main-content-column" @submit="onSubmit" @reset="onReset">
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseName" placeholder="Course name"/>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseAbbreviation" maxlength="10" placeholder="Course Abbreviation (Max 10 letters)"/>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseStartdate" type="date" placeholder="Startdate of the year"/>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.assignmentName" placeholder="Assignment name"/>
+            <b-textarea class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.assignmentDescription" rows="7" placeholder="Assignment description"/>
             <b-button type="submit">Submit</b-button>
             <b-button type="reset">Reset</b-button>
         </b-form>
@@ -13,17 +12,15 @@
 
 <script>
 import ContentSingleColumn from '@/components/ContentSingleColumn.vue'
-import courseApi from '@/api/course.js'
+import assignmentApi from '@/api/assignment.js'
 
 export default {
-    name: 'CourseCreation',
+    name: 'AssignmentCreation',
     data () {
         return {
             form: {
-                courseName: '',
-                courseAbbreviation: '',
-                courseStartYear: '',
-                courseEndYear: ''
+                assignmentName: '',
+                assignmentDescription: ''
             }
         }
     },
@@ -32,16 +29,14 @@ export default {
     },
     methods: {
         onSubmit (evt) {
-            courseApi.create_new_course(this.form.courseName, this.form.courseAbbreviation, this.form.courseStartdate)
+            assignmentApi.create_new_assignment(this.form.assignmentName, this.form.assignmentDescription, this.$route.params.cID)
                 .then(response => { console.log(response) })
         },
         onReset (evt) {
             evt.preventDefault()
             /* Reset our form values */
-            this.form.courseName = ''
-            this.form.courseAbbreviation = ''
-            this.form.courseStartdate = ''
-            this.form.courseEndYear = ''
+            this.form.assignmentName = ''
+            this.form.assignmentDescription = ''
             /* Trick to reset/clear native browser form validation state */
             this.show = false
             this.$nextTick(() => { this.show = true })

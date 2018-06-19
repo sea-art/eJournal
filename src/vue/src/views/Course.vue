@@ -2,6 +2,15 @@
     <content-columns>
         <bread-crumb @eye-click="customisePage" slot="main-content-column" :currentPage="courseName">
         </bread-crumb>
+
+        <b-modal
+            slot="main-content-column"
+            ref="createAssignmentRef"
+            title="Create assignment"
+            @ok="handleEditConfirm()">
+                <creation-assignment></creation-assignment>
+        </b-modal>
+
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
             <b-link tag="b-button" :to="{ name: 'Assignment',
                                           params: {
@@ -11,10 +20,12 @@
                                           }
                                         }">
                 <assignment-card :line1="a.name" :color="$root.colors[a.aID % $root.colors.length]">
-                    <progress-bar :currentPoints="a.journal.stats.acquired_points" :totalPoints="a.journal.stats.total_points"></progress-bar>
+                    <progress-bar v-if="a.journal" :currentPoints="a.journal.stats.acquired_points" :totalPoints="a.journal.stats.total_points"></progress-bar>
                 </assignment-card>
             </b-link>
         </div>
+
+        <main-card slot="main-content-column" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
         <!-- <div slot="right-content-column" v-for="d in deadlines" :key="d.dID">
@@ -32,6 +43,8 @@ import assignmentCard from '@/components/AssignmentCard.vue'
 import todoCard from '@/components/TodoCard.vue'
 import progressBar from '@/components/ProgressBar.vue'
 import assignment from '@/api/assignment.js'
+import mainCard from '@/components/MainCard.vue'
+import createAssignment from '@/components/CreateAssignment.vue'
 
 export default {
     name: 'Course',
@@ -73,11 +86,23 @@ export default {
         'bread-crumb': breadCrumb,
         'assignment-card': assignmentCard,
         'todo-card': todoCard,
-        'progress-bar': progressBar
+        'progress-bar': progressBar,
+        'main-card': mainCard,
+        'creation-assignment': createAssignment
     },
     methods: {
         customisePage () {
             alert('Wishlist: Customise page')
+        },
+        showModal (ref) {
+            this.$refs[ref].show()
+        },
+        handleEditConfirm () {
+            alert('Edit confirm')
+            this.hideModal()
+        },
+        hideModal (ref) {
+            this.$refs[ref].hide()
         }
     },
     created () {

@@ -4,13 +4,6 @@ from random import randint
 
 
 def user_to_dict(user):
-    """Get a object of a single user
-
-    Arguments:
-    user -- user to create the object with
-
-    returns dictionary of that user
-    """
     return {
         'name': user.username,
         'picture': user.profile_picture,
@@ -57,7 +50,8 @@ def assignment_to_dict(assignment):
         'aID': assignment.id,
         'name': assignment.name,
         'auth': user_to_dict(assignment.author),
-        'description': assignment.description
+        'description': assignment.description,
+        'courses': [course_to_dict(course) for course in assignment.courses.all()]
     } if assignment else None
 
 
@@ -79,7 +73,7 @@ def add_node_dict(journal):
         'type': 'a',
         'jID': journal.id,
         'templates': [template_to_dict(template) for template in journal.assignment.format.available_templates.all()]
-    }
+    } if journal else None
 
 
 def node_to_dict(node):
@@ -97,7 +91,7 @@ def entry_node_to_dict(node):
         'type': node.type,
         'jID': node.journal.id,
         'entry': entry_to_dict(node.entry),
-    }
+    } if node else None
 
 
 def entry_deadline_to_dict(node):
@@ -106,7 +100,7 @@ def entry_deadline_to_dict(node):
         'jID': node.journal.id,
         'entry': entry_to_dict(node.entry),
         'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M')
-    }
+    } if node else None
 
 
 def progress_to_dict(node):
@@ -115,13 +109,10 @@ def progress_to_dict(node):
         'jID': node.journal.id,
         'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
         'target': node.preset.deadline.points,
-    }
+    } if node else None
 
 
 def entry_to_dict(entry):
-    if entry is None:
-        return {}
-
     return {
         'eID': entry.id,
         'template': template_to_dict(entry.template),
@@ -129,27 +120,27 @@ def entry_to_dict(entry):
         'grade': entry.grade,
         'late': entry.late,
         'content': [content_to_dict(content) for content in entry.content_set.all()],
-    }
+    } if entry else None
 
 
 def template_to_dict(template):
     return {
         'fields': [field_to_dict(field) for field in template.field_set.all()],
         'name': template.name,
-    }
+    } if template else None
 
 
 def field_to_dict(field):
     return {
-        'tag': template.id,
-        'type': template.type,
-        'title': template.title,
-        'location': template.location,
-    }
+        'tag': field.id,
+        'type': field.type,
+        'title': field.title,
+        'location': field.location,
+    } if field else None
 
 
 def content_to_dict(content):
     return {
         'field': content.field.pk,
         'data': content.data,
-    }
+    } if content else None

@@ -11,9 +11,9 @@ def create_new_course(request):
 
     Arguments:
     request -- the request that was send with
-    name -- name of the course
-    abbr -- abbreviation of the course
-    startdate -- date when the course starts
+        name -- name of the course
+        abbr -- abbreviation of the course
+        startdate -- date when the course starts
 
     Returns a json string for if it is succesful or not.
     """
@@ -24,22 +24,22 @@ def create_new_course(request):
 
 @api_view(['POST'])
 def create_new_assignment(request):
-    """Create a new course
+    """Create a new assignment
 
     Arguments:
     request -- the request that was send with
-    name -- name of the course
-    abbr -- abbreviation of the course
-    startdate -- date when the course starts
+        name -- name of the assignment
+        description -- description of the assignment
+        courseID -- id of the course the assignment belongs to
 
     Returns a json string for if it is succesful or not.
     """
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    course = make_course(request.data['name'], request.data['description'], request.user)
+    course = factory.make_assignment(request.data['name'], request.data['description'], request.data['courseID'], request.user)
 
-    return JsonResponse({'result': 'success', 'course': course_to_dict(course)}, status=200)
+    return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(course)})
 
 
 @api_view(['GET'])
@@ -54,9 +54,9 @@ def create_journal(request, aID):
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     assignment = Assignment.objects.get(pk=aID)
-    journal = make_journal(assignment, request.user)
+    journal = factory.make_journal(assignment, request.user)
 
-    return JsonResponse({'result': 'success', 'journal': journal_to_dict(journal)}, status=200)
+    return JsonResponse({'result': 'success', 'journal': journal_to_dict(journal)})
 
 
 @api_view(['POST'])
@@ -72,4 +72,4 @@ def create_entry(request, jID):
 
     journal = Journal.objects.get(pk=jID)
 
-    return JsonResponse({'result': 'success', 'journal': journal_to_dict(journal)}, status=200)
+    return JsonResponse({'result': 'success', 'journal': journal_to_dict(journal)})
