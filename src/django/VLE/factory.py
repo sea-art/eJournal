@@ -23,7 +23,7 @@ def make_course(name, abbrev, startdate=None, author=None):
         participation = Participation()
         participation.user = author
         participation.course = course
-        participation.role = Role.objects.get(name='student')
+        participation.role = Role.objects.get(name='teacher')
         participation.save()
     return course
 
@@ -95,7 +95,7 @@ def make_entry(template, posttime=timezone.now()):
     """
     # TODO: Too late logic.
 
-    entry = Entry(template=template, datetime=posttime, late=False)
+    entry = Entry(template=template, createdate=posttime)
     entry.save()
     return entry
 

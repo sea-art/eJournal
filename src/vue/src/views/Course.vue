@@ -3,14 +3,6 @@
         <bread-crumb @eye-click="customisePage" slot="main-content-column" :currentPage="courseName">
         </bread-crumb>
 
-        <b-modal
-            slot="main-content-column"
-            ref="createAssignmentRef"
-            title="Create assignment"
-            @ok="handleEditConfirm()">
-                <creation-assignment></creation-assignment>
-        </b-modal>
-
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
             <b-link tag="b-button" :to="{ name: 'Assignment',
                                           params: {
@@ -25,14 +17,29 @@
             </b-link>
         </div>
 
-        <main-card slot="main-content-column" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
+        <main-card slot="main-content-column" class="hover" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
-        <!-- <div slot="right-content-column" v-for="d in deadlines" :key="d.dID">
-            <b-link tag="b-button" :to="{name: 'Assignment', params: {course: d.cID[0], assign: d.dID}}">
-                <todo-card :line0="d.datetime" :line1="d.name" :line2="d.course" :color="cardColor"></todo-card>
+        <!-- <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
+            <b-link tag="b-button" :to="{name: 'Assignment', params: {cID: d.cIDs[0], dID: d.dID}}">
+                <todo-card
+                    :line0="d.datetime"
+                    :line1="d.name"
+                    :line2="d.courseAbbrs.join(', ')"
+                    :color="$root.colors[d.cIDs[0] % $root.colors.length]">
+                </todo-card>
             </b-link>
         </div> -->
+
+        <b-modal
+            slot="main-content-column"
+            ref="createAssignmentRef"
+            title="Create assignment"
+            size="lg"
+            hide-footer=True>
+                <create-assignment></create-assignment>
+        </b-modal>
+
     </content-columns>
 </template>
 
@@ -88,21 +95,26 @@ export default {
         'todo-card': todoCard,
         'progress-bar': progressBar,
         'main-card': mainCard,
-        'creation-assignment': createAssignment
+        'create-assignment': createAssignment
     },
     methods: {
-        customisePage () {
-            alert('Wishlist: Customise page')
-        },
         showModal (ref) {
             this.$refs[ref].show()
         },
-        handleEditConfirm () {
-            alert('Edit confirm')
-            this.hideModal()
+        handleConfirm (ref) {
+            if (ref === 'createCourseRef') {
+                alert('hai')
+            } else if (ref === 'editCourseRef') {
+                alert('doei')
+            }
+
+            this.hideModal(ref)
         },
         hideModal (ref) {
             this.$refs[ref].hide()
+        },
+        customisePage () {
+            alert('Wishlist: Customise page')
         }
     },
     created () {

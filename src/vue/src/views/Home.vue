@@ -43,7 +43,7 @@
         <b-modal
             slot="main-content-column"
             ref="createCourseRef"
-            title="Create Course"
+            title="Create course"
             size="lg"
             hide-footer=True>
                 <create-course></create-course>

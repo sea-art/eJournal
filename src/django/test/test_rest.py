@@ -101,11 +101,6 @@ class RestTests(TestCase):
         self.assertEquals(courses[2]['abbr'], 'RDS')
 
     def test_get_course_assignments(self):
-        """Testing get_course_assignments
-
-        Tests:
-            -
-        """
         login = logging_in(self, self.username, self.password)
         result = api_get_call(self, '/api/get_course_assignments/1/', login)
         assignments = result.json()['assignments']

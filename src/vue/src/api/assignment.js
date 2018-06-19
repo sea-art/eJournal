@@ -15,11 +15,11 @@ export default {
             .then(response => response.data.deadlines)
     },
     /* Create a new assignment. */
-    create_new_assignment (name, description, cID) {
+    create_new_assignment (name, description, aID) {
         return auth.authenticatedPost('/create_new_assignment/', {
             name: name,
             description: description,
-            courseID: cID
+            assignmentID: aID
         }).then(response => response.data)
     }
 }

@@ -1,22 +1,30 @@
 <template>
-    <b-card class="card container-fluid" :class="color">
+    <b-card :class="color">
         <b-row>
-            <b-col cols="3">
-                <div class="portrait-container" fluid-grow>
-                    <img :src="portraitPath">
+            <b-col order="1" cols="4">
+                <img class="img-fluid" :src="portraitPath">
+            </b-col>
+            <b-col order="2" cols="8" class="d-none d-sm-inline">
+                    <todo-square :num="this.stats.submitted - this.stats.graded"/>
+                    {{ student }}<br/>
+                    <p>{{ studentNumber }}</p><br/>
+                <div class="progress-bar-container">
+                    <progress-bar class="progress-bar-comp" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
                 </div>
             </b-col>
-            <b-col cols="7">
-                <progress-bar v-if="this.stats" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points">
-                </progress-bar>
+
+            <b-col order="2" cols="8" order-sm="3" sm="3" class="d-sm-none">
+                <todo-square v-if="this.stats" :num="this.stats.submitted - this.stats.graded"/>
             </b-col>
-            <b-col cols="2">
-                <todo-square  v-if="this.stats" :num="this.stats.submitted - this.stats.graded">
-                </todo-square>
+
+            <b-col order="3" cols="12" order-sm="2" sm="5" class="d-sm-none">
+                {{ student }}<br/>
+                {{ studentNumber }}
             </b-col>
-        </b-row>
-        <b-row>
-            {{ studentNumber }}: {{ student }}
+
+            <b-col order="4" cols="12" sm="8" class="d-sm-none">
+                <progress-bar v-if="this.stats" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
+            </b-col>
         </b-row>
     </b-card>
 </template>
@@ -35,5 +43,11 @@ export default {
 </script>
 
 <style>
+.progress-bar-container {
+    height: 100%;
+}
 
+.progress-bar-comp {
+    /* flex-grow: 1; */
+}
 </style>
