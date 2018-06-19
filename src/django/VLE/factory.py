@@ -19,15 +19,24 @@ def make_user(username, password, email=None, lti_id=None, profile_picture=None)
 def make_course(name, abbrev, startdate=None, author=None):
     course = Course(name=name, abbreviation=abbrev, startdate=startdate, author=author)
     course.save()
+    if author:
+        participation = Participation()
+        participation.user = author
+        participation.course = course
+        participation.role = Role.objects.get(name='teacher')
+        participation.save()
     return course
 
 
-def make_assignment(name, description, author=None, format=None):
+def make_assignment(name, description, courseID=None, author=None, format=None):
     if format is None:
         format = JournalFormat()
         format.save()
     assign = Assignment(name=name, description=description, author=author, format=format)
     assign.save()
+    if courseID:
+        assign.courses.add(Course.objects.get(pk=courseID))
+        assign.save()
     return assign
 
 

@@ -1,16 +1,16 @@
 <template>
-    <content-columns>
+    <content-single-columns>
         <h1 slot="main-content-column">Placeholder for the Guest page (Landing page)</h1>
-    </content-columns>
+    </content-single-columns>
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
+import contentSingleColumn from '@/components/ContentSingleColumn.vue'
 
 export default {
     name: 'Guest',
     components: {
-        'content-columns': contentColumns
+        'content-single-columns': contentSingleColumn
     }
 }
 </script>

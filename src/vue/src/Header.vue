@@ -42,6 +42,8 @@
 <script>
 import LoginForm from '@/components/LoginForm.vue'
 import icon from 'vue-awesome/components/Icon'
+import loginAPI from '@/api/auth.js'
+
 
 export default {
     components: {
@@ -60,8 +62,8 @@ export default {
             this.isGuest = this.$router.currentRoute.path === '/'
         },
         handleLogout () {
-            alert('Handle logout')
             this.isGuest = true
+            loginAPI.logout()
             this.$router.push('/')
         },
         handleLoginSucces () {
