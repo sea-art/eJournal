@@ -2,7 +2,7 @@
     <content-columns>
         <bread-crumb
             @eye-click="customisePage()"
-            @edit-click="editCourses()"
+            @edit-click="showModal('editCourseRef')"
             slot="main-content-column"
             :currentPage="'Courses'">
         </bread-crumb>
@@ -17,9 +17,11 @@
             </b-link>
         </div>
 
-        <b-link slot="main-content-column" :to="{name: 'CourseCreation'}">
+        <main-card slot="main-content-column" v-on:click.native="showModal('createCourseRef')" :line1="'+ Add course'"/>
+
+        <!-- <b-link slot="main-content-column" :to="{name: 'CourseCreation'}">
             <main-card :line1="'+ Add course'"/>
-        </b-link>
+        </b-link> -->
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
@@ -33,10 +35,9 @@
             </b-link>
         </div>
 
-        <!-- TODO cleanup : move to component -->
         <b-modal
             slot="main-content-column"
-            ref="editModalRef"
+            ref="editCourseRef"
             title="Global changes"
             @ok="handleEditConfirm()">
             <form @submit.stop.prevent="handleEditConfirm">
@@ -48,6 +49,14 @@
                 </b-form-input>
             </form>
         </b-modal>
+
+        <b-modal
+            slot="main-content-column"
+            ref="createCourseRef"
+            title="Global changes"
+            @ok="handleEditConfirm()">
+                <creation-create></creation-create>
+        </b-modal>
     </content-columns>
 </template>
 
@@ -56,6 +65,7 @@ import contentColumns from '@/components/ContentColumns.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import mainCard from '@/components/MainCard.vue'
 import todoCard from '@/components/TodoCard.vue'
+import createCourse from '@/components/CreateCourse.vue'
 import course from '@/api/course'
 /* import assignment from '@/api/assignment' */
 
@@ -78,7 +88,8 @@ export default {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'main-card': mainCard,
-        'todo-card': todoCard
+        'todo-card': todoCard,
+        'creation-create': createCourse
     },
     created () {
         course.get_user_courses()
@@ -95,15 +106,15 @@ export default {
                 console.log('TODO Implement delete this course ID after privy check')
             }
         },
-        editCourses () {
-            this.$refs.editModalRef.show()
+        showModal (ref) {
+            this.$refs[ref].show()
         },
         handleEditConfirm () {
             alert('Edit confirm')
             this.hideModal()
         },
-        hideModal () {
-            this.$refs.editModalRef.hide()
+        hideModal (ref) {
+            this.$refs[ref].hide()
         },
         customisePage () {
             alert('Wishlist: Customise page')
