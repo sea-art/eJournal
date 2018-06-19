@@ -14,9 +14,9 @@ export default {
     computed: {
         classObject () {
             return {
-                'enc-entry': this.type === 'entry',
-                'enc-progress': this.type === 'progress',
-                'enc-add': this.type === 'add',
+                'enc-entry': this.type === 'e',
+                'enc-progress': this.type === 'p',
+                'enc-add': this.type === 'a',
                 'enc-selected': this.selected
             }
         }
@@ -43,7 +43,7 @@ export default {
     height: 5em;
 }
 
-/* .edag-node-circle.enc-add {
+.edag-node-circle.enc-add {
     width: 3em;
     height: 3em;
 }
@@ -51,7 +51,7 @@ export default {
 .edag-node-circle.enc-selected.enc-add {
     width: 4em;
     height: 4em;
-} */
+}
 
 .edag-node-circle.enc-entry {
     background-color: var(--theme-medium-grey)
@@ -78,14 +78,14 @@ export default {
 }
 
 .edag-node-circle.enc-add {
-    background-color: lightGreen
+    background-color: var(--theme-blue)
 }
 
 .edag-node-circle.enc-add:hover {
-    background-color: green
+    background-color: var(--theme-dark-blue)
 }
 
 .edag-node-circle.enc-add.enc-selected {
-    background-color: green
+    background-color: var(--theme-dark-blue)
 }
 </style>
