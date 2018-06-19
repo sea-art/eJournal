@@ -28,7 +28,7 @@ export default {
         'content-single-columns': ContentSingleColumn
     },
     methods: {
-        onSubmit (evt) {
+        onSubmit () {
             assignmentApi.create_new_assignment(this.form.assignmentName, this.form.assignmentDescription, this.$route.params.cID)
                 .then(response => { console.log(response) })
         },
