@@ -63,8 +63,10 @@ urlpatterns = [
     path('api/update_course/', update_course, name='update_course'),
     path('api/update_password/', update_password, name='update_password'),
     path('api/update_password/', update_password, name='update_password'),
-    path('api/update_grade_notification/<str:notified>/', update_grade_notification, name='update_grade_notification'),
-    path('api/update_comment_notification/<str:notified>/', update_comment_notification, name='update_comment_notification'),
+    path('api/update_grade_notification/<str:notified>/', update_grade_notification,
+         name='update_grade_notification'),
+    path('api/update_comment_notification/<str:notified>/', update_comment_notification,
+         name='update_comment_notification'),
 
     path('api/lti/launch', lti_launch, name='lti_launch'),
 ]

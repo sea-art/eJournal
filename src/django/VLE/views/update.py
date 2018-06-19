@@ -5,6 +5,7 @@ from VLE.serializers import *
 import VLE.factory as factory
 from VLE.views.get import get_own_user_data
 
+
 @api_view(['POST'])
 def update_course(request):
     """Updates an existing course
