@@ -16,6 +16,18 @@ def make_user(username, password, email=None, lti_id=None, profile_picture=None)
     return user
 
 
+def make_role(name):
+    role = Role(name=name)
+    role.save()
+    return role
+
+
+def make_participation(user, course, role):
+    participation = Participation(user=user, course=course, role=role)
+    participation.save()
+    return participation
+
+
 def make_course(name, abbrev, startdate=None, author=None):
     course = Course(name=name, abbreviation=abbrev, startdate=startdate, author=author)
     course.save()
@@ -23,16 +35,16 @@ def make_course(name, abbrev, startdate=None, author=None):
         participation = Participation()
         participation.user = author
         participation.course = course
-        participation.role = Role.objects.get(name='teacher')
+        participation.role = Role.objects.get(name='Teacher')
         participation.save()
     return course
 
 
-def make_assignment(name, description, courseID=None, author=None, format=None):
+def make_assignment(name, description, courseID=None, author=None, format=None, deadline=None):
     if format is None:
         format = JournalFormat()
         format.save()
-    assign = Assignment(name=name, description=description, author=author, format=format)
+    assign = Assignment(name=name, description=description, author=author, deadline=deadline, format=format)
     assign.save()
     if courseID:
         assign.courses.add(Course.objects.get(pk=courseID))
@@ -106,7 +118,7 @@ def make_entry_template(name):
     return entry_template
 
 
-def make_field(descrip, loc, template, type='t'):
+def make_field(template, descrip, loc, type=Field.TEXT):
     field = Field(type=type, title=descrip, location=loc, template=template)
     field.save()
     return field
@@ -118,8 +130,11 @@ def make_content(entry, data, field=None):
     return content
 
 
-def make_deadline(datetime=datetime.datetime.now()):
-    deadline = Deadline(datetime=datetime)
+def make_deadline(datetime=datetime.datetime.now(), points=None):
+    if points:
+        deadline = Deadline(datetime=datetime, points=points)
+    else:
+        deadline = Deadline(datetime=datetime)
     deadline.save()
     return deadline
 

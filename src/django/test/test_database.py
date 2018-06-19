@@ -7,22 +7,31 @@ from VLE.models import *
 class DataBaseTests(TestCase):
     def setUp(self):
         self.u1 = factory.make_user("Zi", "pass")
+
         self.a1 = factory.make_assignment('tcolloq', 'description')
+
         self.et1 = factory.make_entry_template('temp1')
         self.et2 = factory.make_entry_template('temp2')
+
         self.jf1 = factory.make_journal_format()
         self.jf2 = factory.make_journal_format()
+
         self.d1 = factory.make_deadline()
         self.d2 = factory.make_deadline()
-        self.f1 = factory.make_field("test0", "1", self.et1)
-        self.f2 = factory.make_field("test2", "2", self.et1)
-        self.f3 = factory.make_field("test1", "1", self.et2)
+
+        self.f1 = factory.make_field(self.et1, "test0", "1")
+        self.f2 = factory.make_field(self.et1, "test2", "2")
+        self.f3 = factory.make_field(self.et2, "test1", "1")
+
         self.j1 = factory.make_journal(self.a1, self.u1)
+
         self.e1 = factory.make_entry(self.et1)
         self.e2 = factory.make_entry(self.et2)
+
         self.c1 = factory.make_content(self.e1, "testcontent1", self.f1)
         self.c2 = factory.make_content(self.e1, "testcontent2", self.f2)
         self.c3 = factory.make_content(self.e2, "testcontent3", self.f3)
+
         self.jf1.available_templates.add()
         self.jf2.available_templates.add()
 
@@ -35,7 +44,7 @@ class DataBaseTests(TestCase):
         format = factory.make_journal_format()
         template = factory.make_entry_template("some_template")
         entr_test = factory.make_entry(template)
-        field = factory.make_field("test1", "1", template)
+        field = factory.make_field(template, "test1", "1")
         content = factory.make_content(entr_test, "data", field)
         course_test.author = user_test
 
