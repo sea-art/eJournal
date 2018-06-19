@@ -3,6 +3,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.http import JsonResponse
 from VLE.serializers import *
 from random import randint
+import statistics as st
 
 
 def hex_to_dec(hex):
@@ -156,15 +157,30 @@ def get_assignment_journals(request, aID):
     # TODO: Check if the user has valid permissions to see get all the journals (teacher/ta)
     assignment = Assignment.objects.get(pk=hex_to_dec(aID))
     journals = []
+
     for journal in assignment.journal_set.all():
         journals.append({
             'jID': dec_to_hex(journal.id),
             'student': user_to_obj(journal.user),
-            'progress': {'acquired': 10, 'total': 10},  # TODO: Add real progress
-            'stats': {'graded': 1, 'total': 1},  # TODO: Add real stats
+            'progress': {'acquired': randint(0,5), 'total': randint(5,10)},  # TODO: Add real progress
+            'stats': {'graded': randint(0,5), 'total': randint(5,10)},  # TODO: Add real stats
         })
 
-    return JsonResponse({'result': 'success', 'journals': journals})
+    # TODO: Misschien dit efficient maken voor minimal delay?
+    needsMarking = sum([x.get("stats").get("total") - x.get("stats").get("graded") for x in journals])
+    points = [x.get("progress").get("acquired") for x in journals]
+    avgPoints = round(st.mean(points), 2)
+    medianPoints = st.median(points)
+    avgEntries = round(st.mean([x.get("stats").get("total") for x in journals]), 2)
+
+    stats = {
+        'needsMarking': needsMarking,
+        'avgPoints': avgPoints,
+        'medianPoints': medianPoints,
+        'avgEntries': avgEntries
+    }
+
+    return JsonResponse({'result': 'success', 'stats': stats, 'journals': journals})
 
 
 @api_view(['GET'])

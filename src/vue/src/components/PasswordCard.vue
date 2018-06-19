@@ -33,6 +33,7 @@
 
         <b-row>
             <b-button @click="changePassword">Change password</b-button>
+            {{test}}
         </b-row>
     </b-container>
 </template>
@@ -44,12 +45,24 @@ export default {
             checkbox: false,
             oldPass: '',
             newPass: '',
-            newPassRepeat: ''
+            newPassRepeat: '',
+            test: false
         }
     },
     methods: {
         changePassword: function () {
-            alert('I am a change password button!')
+            if (this.newPass.match("(.*[A-Z]).*") && this.newPass.length > 6) {
+
+                if (this.newPass == this.newPassRepeat) {
+                    this.test = true
+                    alert("New password is: " + this.newPass)
+                } else {
+                    this.test = false
+                    alert("Password is not matching")
+                }
+            } else {
+                alert("Not a strong password")
+            }
         }
     }
 }

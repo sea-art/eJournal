@@ -2,16 +2,12 @@
     <div class="bread-crumb-container">
         <b-row>
             <b-col cols="12" md="12">
-                <h4>
-                    <b-breadcrumb v-if="$route.params.student != undefined" class="bread-crumb" :items="items.concat(' ')"/>
-                    <b-breadcrumb v-else-if="$route.params.assign != undefined" class="bread-crumb" :items="items.slice(0, 2).concat(' ')"/>
-                    <b-breadcrumb v-else-if="$route.params.course != undefined" class="bread-crumb" :items="items.slice(0, 1).concat(' ')"/>
-                </h4>
+                <h4></h4>
                 <h1 id="h1-current-page-breadcrumb">
                     {{ currentPage }}
                     <slot>
                         <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
-                        <!-- <b-button class="float-right edit-button" @click="editClick()"> Edit </b-button> -->
+                        <b-button v-if="this.$route.params.cID != undefined"class="float-right edit-button" :to="{name: 'CourseEdit', params: {cID: this.$route.params.cID, courseName: this.$route.params.courseName}}"> Edit </b-button>
                     </slot>
                 </h1>
             </b-col>
@@ -29,41 +25,7 @@ export default {
     },
     data () {
         return {
-            items: [{
-                text: 'Courses',
-                to: {name: 'Home'}
-            }, {
-                text: this.$route.params.courseName,
-                to: {
-                    name: 'Course',
-                    params: {
-                        course: this.$route.params.course,
-                        courseName: this.$route.params.courseName
-                    }
-                }
-            }, {
-                text: this.$route.params.assignmentName,
-                to: {
-                    name: 'Assignment',
-                    params: {
-                        course: this.$route.params.course,
-                        assign: this.$route.params.assign,
-                        courseName: this.$route.params.courseName,
-                        assignmentName: this.$route.params.assignmentName
-                    }
-                }
-            // }, {
-            //     text: this.assign,
-            //     to: {
-            //         name: 'Journal',
-            //         params: {
-            //             course: this.$route.params.course,
-            //             assign: this.$route.params.assign,
-            //             courseName: this.$route.params.courseName,
-            //             assignmentName: this.$route.params.assignmentName
-            //         }
-            //     }
-            }]
+            assignmentName: ''
         }
     },
     methods: {
@@ -72,6 +34,9 @@ export default {
         },
         editClick () {
             this.$emit('edit-click')
+        },
+        splitPath () {
+            this.$router.currentRoute.path.split('/').slice(1, -1)
         }
     }
 }

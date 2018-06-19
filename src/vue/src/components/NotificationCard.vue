@@ -11,7 +11,7 @@
                 <toggle-switch :isActive="gradeUpdate"
                                @parentActive="getGradeNotification">
                 </toggle-switch>
-                <!-- {{gradeUpdate}} -->
+                {{gradeUpdate}}
             </b-col>
         </b-row>
         <b-row>
@@ -22,7 +22,7 @@
                 <toggle-switch :isActive="commentUpdate"
                                @parentActive="getCommentNotification">
                 </toggle-switch>
-                <!-- {{commentUpdate}} -->
+                {{commentUpdate}}
             </b-col>
         </b-row>
     </b-container>

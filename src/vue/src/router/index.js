@@ -10,6 +10,7 @@ import Guest from '@/views/Guest'
 import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
 import CourseCreation from '@/views/CourseCreation'
+import CourseEdit from '@/views/CourseEdit'
 
 Vue.use(Router)
 
@@ -19,10 +20,6 @@ export default new Router({
         name: 'Guest',
         component: Guest
     }, {
-        path: '/Register',
-        name: Register,
-        component: Register
-    }, {
         path: '/Home',
         name: 'Home',
         component: Home
@@ -30,6 +27,10 @@ export default new Router({
         path: '/AssignmentsOverview',
         name: 'AssignmentsOverview',
         component: AssignmentsOverview
+    }, {
+        path: '/Register',
+        name: Register,
+        component: Register
     }, {
         path: '/CourseCreation',
         name: 'CourseCreation',
@@ -39,32 +40,29 @@ export default new Router({
         name: 'Profile',
         component: Profile
     }, {
-        path: '/Home/:course',
+        path: '/AssignmentsOverview',
+        name: 'AssignmentsOverview',
+        component: AssignmentsOverview
+    }, {
+        path: '/Home/Course/:cID',
         name: 'Course',
         component: Course,
-        props: {
-            courseName: '',
-            color: ''
-        }
+        props: true
     }, {
-        path: '/Home/:course/:assign',
+        path: '/Home/Course/:cID/CourseEdit',
+        name: 'CourseEdit',
+        component: CourseEdit,
+        props: true
+    }, {
+        path: '/Home/Course/:cID/Assignment/:aID',
         name: 'Assignment',
         component: Assignment,
-        props: {
-            color: '',
-            courseName: '',
-            assignmentName: ''
-        }
+        props: true
     }, {
-        path: '/Home/:course/:assign/:student',
+        path: '/Home/Course/:cID/Assignment:aID/Journal/:jID',
         name: 'Journal',
         component: Journal,
-        props: {
-            color: '',
-            courseName: '',
-            assignmentName: '',
-            journalName: ''
-        }
+        props: true
     }, {
         path: '/lti/launch',
         name: 'LtiLaunch',

@@ -5,7 +5,7 @@
           <!-- <input v-else type="checkbox" @click="switchVariable"> -->
           <span class="slider"></span>
         </label>
-        <!-- {{ isActive }} -->
+        {{ isActive }}
     </div>
 </template>
 
