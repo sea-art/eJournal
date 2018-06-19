@@ -67,14 +67,6 @@ def make_node(journal, entry):
 
 
 def make_journal(assignment, user):
-
-
-<< << << < HEAD
-    journal = Journal.objects.create(
-        assignment=assignment,
-        user=user
-    )
-== == == =
     """
     Creates a new journal.
     First creates all nodes defined by the format.
@@ -91,7 +83,6 @@ def make_journal(assignment, user):
              journal=journal,
              preset=preset_node).save()
 
->>>>>> > eb3535a6fd44cacd54621477cdda92ce144f10f4
     return journal
 
 

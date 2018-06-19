@@ -9,7 +9,7 @@ import oauth2
 import json
 from datetime import datetime
 
-from .models import User, Course, Assignment, Participation, Role, Journal
+from .models import User, Course, Assignment, Participation, Role, Journal, JournalFormat
 
 
 class OAuthRequestValidater(object):
@@ -21,10 +21,6 @@ class OAuthRequestValidater(object):
         """
         Constructor die een server en consumer object aan maakt met de gegeven
         key en secret
-
-        Arguments:
-        key -- key for the oauth communication
-        secret -- secret for the oauth communication
         """
         super(OAuthRequestValidater, self).__init__()
         self.consumer_key = key
@@ -41,9 +37,6 @@ class OAuthRequestValidater(object):
         """
         Parses een django request om de method, url header en post data terug
         te geven.
-
-        Arguments:
-        request -- django post request
         """
         headers = dict([(k, request.META[k])
                         for k in request.META if
@@ -56,11 +49,6 @@ class OAuthRequestValidater(object):
         """
         Checks if the signature of the given request is valid based on the
         consumers secret en key
-
-        Arguments:
-        key -- key for the oauth communication
-        secret -- secret for the oauth communication
-        journal -- journal database object
         """
         try:
             method, url, head, param = self.parse_request(request)
@@ -89,7 +77,7 @@ class OAuthRequestValidater(object):
         Validates OAuth request using the python-oauth2 library:
             https://github.com/simplegeo/python-oauth2.
         """
-        validator = cls(key, secret)
+        validator = OAuthRequestValidater(key, secret)
         return validator.is_valid(request)
 
 
@@ -97,9 +85,6 @@ def select_create_user(request):
     """
     Return the user of the lti_user_id in the request if it doesnt yet exist
     the user is create in our database.
-
-    Arguments:
-    request -- django request.POST
     """
     lti_user_id = request['user_id']
 
@@ -123,11 +108,6 @@ def select_create_user(request):
 def select_create_course(request, user, roles):
     """
     Select or create a course requested.
-
-    Arguments:
-    request -- django request.POST
-    user -- user database object
-    roles -- dict to translate roles to lti roles
     """
     course_id = request['context_id']
     courses = Course.objects.filter(lti_id=course_id)
@@ -168,12 +148,6 @@ def select_create_course(request, user, roles):
 def select_create_assignment(request, user, course, roles):
     """
     Select or create a assignment requested.
-
-    Arguments:
-    request -- django request.POST
-    user -- user database object
-    course -- course databse object
-    roles -- dict to translate roles to lti roles
     """
     assign_id = request['resource_link_id']
     assignments = Assignment.objects.filter(lti_id=assign_id)
@@ -190,6 +164,7 @@ def select_create_assignment(request, user, course, roles):
             assignment = Assignment()
             assignment.name = request['resource_link_title']
             assignment.lti_id = assign_id
+            assignment.format_id = JournalFormat.objects.create().pk
             if 'custom_canvas_assignment_points_possible' in request:
                 assignment.points_possible = request[
                     'custom_canvas_assignment_points_possible']
@@ -205,12 +180,6 @@ def select_create_assignment(request, user, course, roles):
 def select_create_journal(request, user, assignment, roles):
     """
     Select or create the requested journal.
-
-    Arguments:
-    request -- django request.POST
-    user -- user database object
-    assignment -- assignment databse object
-    roles -- dict to translate roles to lti roles
     """
     if roles['student'] in request['roles']:
         journals = Journal.objects.filter(user=user, assignment=assignment)

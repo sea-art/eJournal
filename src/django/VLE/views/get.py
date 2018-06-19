@@ -162,8 +162,6 @@ def get_nodes(request, jID):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-
-<< << << < HEAD: src/django/VLE/views.py
     course = make_course(request.data['name'], request.data['description'], request.user)
 
     return JsonResponse({'result': 'success', 'course': course_to_dict(course)}, status=200)
@@ -180,12 +178,20 @@ def lti_grade_replace_result(request):
     key = settings.LTI_KEY
 
     grade_request = GradePassBackRequest(key, secret, None)
-    grade_request.score = '0.7'
+    grade_request.score = '0.5'
     grade_request.sourcedId = request.POST['lis_result_sourcedid']
     grade_request.url = request.POST['lis_outcome_service_url']
-    response = grade_request.send_post_request()
+    response, content = grade_request.send_post_request()
 
-    return JsonResponse(response)
+    print(content.decode())
+
+    root = ET.fromstring(content)
+    head = root.find('imsx_POXHeader')
+    print(list(head))
+    head_info = head.find('imsx_POXResponseHeaderInfo')
+    status_info = head_info.find('imsx_statusInfo')
+
+    return HttpResponse('ok')
 
 
 @api_view(['POST'])
@@ -197,7 +203,7 @@ def lti_launch(request):
         key = settings.LTI_KEY
 
         print('key = postkey', key == request.POST['oauth_consumer_key'])
-        authicated, err = OAuthRequestValidater.check_signature(key, secret, request)
+        authicated, err = check_signature(key, secret, request)
 
         if authicated:
             # Select or create the user, course, assignment and journal.
@@ -230,19 +236,9 @@ def lti_launch(request):
 
             return redirect(link)
         else:
-            # TODO push vue 401
             return HttpResponse('unsuccesfull auth, {0}'.format(err))
 
         # Prints de post parameters als http page
-        # TODO Remove these 2 lines when we dont need to know params anymore
+        # TODO Remove these 2 lines
         post = json.dumps(request.POST, separators=(',', ': '))
         return HttpResponse(post.replace(',', ' <br> '))
-
-    return HttpResponse('Hello, world.')
-
-
-== == == =
-    journal = Journal.objects.get(pk=jID)
-    return JsonResponse({'result': 'success',
-                         'nodes': edag.get_nodes_dict(journal)})
->>>>>> > eb3535a6fd44cacd54621477cdda92ce144f10f4: src/django/VLE/views/get.py
