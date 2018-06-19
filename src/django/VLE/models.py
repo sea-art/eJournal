@@ -182,6 +182,7 @@ class Entry(models.Model):
     def __str__(self):
         return str(self.pk)
 
+
 class Counter(models.Model):
     """
     A single counter which is used as the message ID for LTI messages.

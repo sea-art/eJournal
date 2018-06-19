@@ -9,6 +9,7 @@ import xml.etree.cElementTree as ET
 
 from .models import Journal
 
+
 def get_message_id_and_increment():
     try:
         message_id_counter = Counter.objects.get(name='message_id')
@@ -20,7 +21,6 @@ def get_message_id_and_increment():
     message_id_counter.save()
 
     return count
-
 
 
 class GradePassBackRequest(object):
@@ -86,20 +86,3 @@ class GradePassBackRequest(object):
             body=self.create_xml(),
             headers={'Content-Type': 'application/xml'}
         )
-
-
-@api_view(['POST'])
-def lti_grade_repace_result(request):
-    """Django view for the lti post request."""
-    if request.method == 'POST':
-        secret = settings.LTI_SECRET
-        key = settings.LTI_KEY
-
-        grade_request = GradePassBackRequest(key, secret, None)
-        grade_request.score = '0.43'
-        grade_request.sourcedId = request.POST['lis_result_sourcedid']
-        grade_request.url = request.POST['lis_outcome_service_url']
-        grade_request.result_data = {'text': 'The law will judge you!', 'url': 'http://www.example.com/horcruxes/8'}
-        grade_request.send_post_request()
-
-    return HttpResponse("OH NO, We did mistake")
