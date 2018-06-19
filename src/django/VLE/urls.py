@@ -30,6 +30,7 @@ from VLE.views.create import create_new_assignment
 from VLE.views.create import create_entry
 
 from VLE.views.update import update_course
+from VLE.views.update import update_password
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -56,6 +57,7 @@ urlpatterns = [
     path('api/create_entry/', create_entry, name='create_entry'),
 
     path('api/update_course/', update_course, name='update_course'),
+    path('api/update_password/', update_password, name='update_password'),
 
     path('api/lti/launch', lti_launch, name='lti_launch'),
 ]

@@ -7,7 +7,6 @@
 
         <notification-card></notification-card>
         <password-card></password-card>
-        <b-button :to="{name: 'Home'}">Back</b-button>
     </b-card>
 </template>
 
@@ -22,11 +21,6 @@ export default {
         'profile-data': profileData,
         'notification-card': notificationCard,
         'password-card': passwordCard
-    },
-    methods: {
-        back: function () {
-            alert('I am a back button!')
-        }
     }
 }
 </script>

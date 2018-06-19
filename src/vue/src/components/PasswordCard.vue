@@ -33,12 +33,13 @@
 
         <b-row>
             <b-button @click="changePassword">Change password</b-button>
-            {{test}}
         </b-row>
     </b-container>
 </template>
 
 <script>
+import auth from '@/api/auth'
+
 export default {
     data () {
         return {
@@ -51,10 +52,10 @@ export default {
     },
     methods: {
         changePassword: function () {
-            if (this.newPass.match('(.*[A-Z]).*') && this.newPass.length > 6) {
+            if (this.newPass.match('(.*[A-Z]).*') && this.newPass.length > 3) {
                 if (this.newPass === this.newPassRepeat) {
                     this.test = true
-                    alert('New password is: ' + this.newPass)
+                    auth.changePassword(this.newPass, this.oldPass)
                 } else {
                     this.test = false
                     alert('Password is not matching')

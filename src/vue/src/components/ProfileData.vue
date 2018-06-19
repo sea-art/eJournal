@@ -13,8 +13,6 @@
 </template>
 
 <script>
-import course from '@/api/course'
-
 export default {
     props: ['name', 'email', 'id', 'image'],
     data () {
@@ -22,11 +20,6 @@ export default {
             courses: [{name: '1'}],
             test: 'hoi'
         }
-    },
-    created () {
-        course.get_user_courses()
-            .then(response => { this.courses = response })
-            .catch(_ => alert('Error while loading courses'))
     }
 }
 </script>
