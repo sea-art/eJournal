@@ -15,8 +15,6 @@
                 of the entry
             . -->
             <div v-if="nodes.length > currentNode">
-                <!-- {{nodes[currentNode]}}<br>
-                {{nodes[0].type}} -->
                 <div v-if="nodes[currentNode].type == 'e'">
                     <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                 </div>
