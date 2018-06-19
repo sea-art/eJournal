@@ -16,6 +16,10 @@ export default {
         },
         dateText () {
             // prettify date
+            if (!this.date) {
+                return ''
+            }
+
             return this.date.toDateString()
         },
         styleObject () {
