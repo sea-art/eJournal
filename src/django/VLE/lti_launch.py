@@ -3,17 +3,13 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.clickjacking import xframe_options_exempt
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.conf import settings
 from urllib.parse import quote
 import oauth2
 import json
 from datetime import datetime
 
 from .models import User, Course, Assignment, Participation, Role, Journal
-
-
-def dec_to_hex(dec):
-    """Change int to hex value"""
-    return hex(dec).split('x')[-1]
 
 
 class OAuthRequestValidater(object):
@@ -75,14 +71,14 @@ class OAuthRequestValidater(object):
         # Signature was valid
         return True, None
 
-
-def check_signature(key, secret, request):
-    """
-    Validates OAuth request using the python-oauth2 library:
-        https://github.com/simplegeo/python-oauth2.
-    """
-    validator = OAuthRequestValidater(key, secret)
-    return validator.is_valid(request)
+    @classmethod
+    def check_signature(cls, key, secret, request):
+        """
+        Validates OAuth request using the python-oauth2 library:
+            https://github.com/simplegeo/python-oauth2.
+        """
+        validator = OAuthRequestValidater(key, secret)
+        return validator.is_valid(request)
 
 
 def select_create_user(request):
@@ -196,56 +192,3 @@ def select_create_journal(request, user, assignment, roles):
     else:
         journal = None
     return journal
-
-
-@csrf_exempt
-@xframe_options_exempt
-def lti_launch(request):
-    """Django view for the lti post request."""
-    if request.method == 'POST':
-        # canvas TODO change to its own database based on the key in the request.
-        secret = '4339900ae5861f3086861ea492772864'
-        key = '0cd500938a8e7414ccd31899710c98ce'
-
-        print('key = postkey', key == request.POST['oauth_consumer_key'])
-        authicated, err = check_signature(key, secret, request)
-
-        if authicated:
-            # Select or create the user, course, assignment and journal.
-            roles = json.load(open('config.json'))
-            user = select_create_user(request.POST, roles)
-            course = select_create_course(request.POST, user, roles)
-            assignment = select_create_assignment(request.POST, user, course, roles)
-            journal = select_create_journal(request.POST, user, assignment, roles)
-
-            # Check if the request comes from a student or not.
-            roles = json.load(open('config.json'))
-            student = request.POST['roles'] == roles['student']
-
-            token = TokenObtainPairSerializer.get_token(user)
-            access = token.access_token
-
-            # Set the ID's or if these do not exist set them to undefined.
-            cID = course.pk if course is not None else 'undefined'
-            aID = assignment.pk if assignment is not None else 'undefined'
-            jID = journal.pk if journal is not None else 'undefined'
-
-            # TODO Should not be localhost anymore at production.
-            link = 'http://localhost:8080/#/lti/launch'
-            link += '?jwt_refresh={0}'.format(token)
-            link += '&jwt_access={0}'.format(access)
-            link += '&cID={0}'.format(cID)
-            link += '&aID={0}'.format(aID)
-            link += '&jID={0}'.format(jID)
-            link += '&student={0}'.format(student)
-
-            return redirect(link)
-        else:
-            return HttpResponse('unsuccesfull auth, {0}'.format(err))
-
-        # Prints de post parameters als http page
-        # TODO Remove these 2 lines
-        post = json.dumps(request.POST, separators=(',', ': '))
-        return HttpResponse(post.replace(',', ' <br> '))
-
-    return HttpResponse('Hello, world.')

@@ -4,6 +4,8 @@ from django.http import JsonResponse
 from VLE.serializers import *
 import VLE.factory as factory
 import statistics as st
+from VLE.lti_launch import *
+from VLE.lti_grade_passback import *
 
 
 @api_view(['GET'])
@@ -208,3 +210,82 @@ def create_new_assignment(request):
     course = make_course(request.data['name'], request.data['description'], request.user)
 
     return JsonResponse({'result': 'success', 'course': course_to_dict(course)}, status=200)
+
+
+@api_view(['POST'])
+def lti_grade_replace_result(request):
+    #TODO Extend the docstring with what is important in the request variable.
+    """
+    Replace a grade on the LTI instance based on the request.
+    """
+
+    secret = settings.LTI_SECRET
+    key = settings.LTI_KEY
+
+    grade_request = GradePassBackRequest(key, secret, None)
+    grade_request.score = '0.5'
+    grade_request.sourcedId = request.POST['lis_result_sourcedid']
+    grade_request.url = request.POST['lis_outcome_service_url']
+    response, content = grade_request.send_post_request()
+
+    print(content.decode())
+
+    root = ET.fromstring(content)
+    head = root.find('imsx_POXHeader')
+    print(list(head))
+    head_info = head.find('imsx_POXResponseHeaderInfo')
+    status_info = head_info.find('imsx_statusInfo')
+
+    return HttpResponse('ok')
+
+
+@api_view(['POST'])
+def lti_launch(request):
+    """Django view for the lti post request."""
+    if request.method == 'POST':
+        # canvas TODO change to its own database based on the key in the request.
+        secret = settings.LTI_SECRET
+        key = settings.LTI_KEY
+
+        print('key = postkey', key == request.POST['oauth_consumer_key'])
+        authicated, err = check_signature(key, secret, request)
+
+        if authicated:
+            # Select or create the user, course, assignment and journal.
+            roles = json.load(open('config.json'))
+            user = select_create_user(request.POST, roles)
+            course = select_create_course(request.POST, user, roles)
+            assignment = select_create_assignment(request.POST, user, course, roles)
+            journal = select_create_journal(request.POST, user, assignment, roles)
+
+            # Check if the request comes from a student or not.
+            roles = json.load(open('config.json'))
+            student = request.POST['roles'] == roles['student']
+
+            token = TokenObtainPairSerializer.get_token(user)
+            access = token.access_token
+
+            # Set the ID's or if these do not exist set them to undefined.
+            cID = course.pk if course is not None else 'undefined'
+            aID = assignment.pk if assignment is not None else 'undefined'
+            jID = journal.pk if journal is not None else 'undefined'
+
+            # TODO Should not be localhost anymore at production.
+            link = 'http://localhost:8080/#/lti/launch'
+            link += '?jwt_refresh={0}'.format(token)
+            link += '&jwt_access={0}'.format(access)
+            link += '&cID={0}'.format(cID)
+            link += '&aID={0}'.format(aID)
+            link += '&jID={0}'.format(jID)
+            link += '&student={0}'.format(student)
+
+            return redirect(link)
+        else:
+            return HttpResponse('unsuccesfull auth, {0}'.format(err))
+
+        # Prints de post parameters als http page
+        # TODO Remove these 2 lines
+        post = json.dumps(request.POST, separators=(',', ': '))
+        return HttpResponse(post.replace(',', ' <br> '))
+
+    return HttpResponse('Hello, world.')
