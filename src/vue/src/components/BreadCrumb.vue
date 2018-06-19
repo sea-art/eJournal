@@ -68,10 +68,11 @@ export default {
 }
 
 .eye-icon {
-    color: var(--theme-light-grey);
+    fill: var(--theme-light-grey) !important;
+    cursor: pointer;
 }
 
 .eye-icon:hover {
-    color: var(--theme-pink);
+    fill: var(--theme-pink) !important;
 }
 </style>
