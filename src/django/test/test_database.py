@@ -5,9 +5,39 @@ from VLE.models import *
 
 
 class DataBaseTests(TestCase):
+    def setUp(self):
+        self.u1 = factory.make_user("Zi", "pass")
+
+        self.a1 = factory.make_assignment('tcolloq', 'description')
+
+        self.et1 = factory.make_entry_template('temp1')
+        self.et2 = factory.make_entry_template('temp2')
+
+        self.jf1 = factory.make_journal_format()
+        self.jf2 = factory.make_journal_format()
+
+        self.d1 = factory.make_deadline()
+        self.d2 = factory.make_deadline()
+
+        self.f1 = factory.make_field(self.et1, "test0", "1")
+        self.f2 = factory.make_field(self.et1, "test2", "2")
+        self.f3 = factory.make_field(self.et2, "test1", "1")
+
+        self.j1 = factory.make_journal(self.a1, self.u1)
+
+        self.e1 = factory.make_entry(self.et1)
+        self.e2 = factory.make_entry(self.et2)
+
+        self.c1 = factory.make_content(self.e1, "testcontent1", self.f1)
+        self.c2 = factory.make_content(self.e1, "testcontent2", self.f2)
+        self.c3 = factory.make_content(self.e2, "testcontent3", self.f3)
+
+        self.jf1.available_templates.add()
+        self.jf2.available_templates.add()
+
     def test_foreignkeys(self):
         """
-        Testing the foreign keys in de database.
+        Testing the foreign keys in the database.
         """
         user_test = factory.make_user('lers', 'lers123', 'lers@uva.nl', 'a')
         course_test = factory.make_course('tname', 'XXXX', datetime.date.today())
@@ -27,37 +57,26 @@ class DataBaseTests(TestCase):
         self.assertEquals(journ_test.assignment.pk, ass_test.pk)
         self.assertEquals(course_test.author.pk, user_test.pk)
 
-    def test_cascade(self):
+    def test_on_delete(self):
         """
-        Testing the cascading relations in the database.
+        Testing the on_delete relations in the database.
         """
-        u1 = factory.make_user("Zi", "pass")
-        a1 = factory.make_assignment('tcolloq', 'description')
-        et1 = factory.make_entry_template('temp1')
-        et2 = factory.make_entry_template('temp2')
-        jf1 = factory.make_journal_format()
-        jf2 = factory.make_journal_format()
+        self.f1.delete()
+        self.assertEquals(Field.objects.filter(title='test0').count(), 0)
+        self.assertEquals(Content.objects.get(pk=1).field, None)
 
-        jf1.available_templates.add()
-        jf2.available_templates.add()
+        self.et1.delete()
+        self.et2.delete()
 
-        d1 = factory.make_deadline()
-        d2 = factory.make_deadline()
+        self.assertEquals(Field.objects.all().count(), 0)
 
-        f1 = factory.make_field(et1, "test1", "1")
-        f2 = factory.make_field(et1, "test2", "2")
-        f3 = factory.make_field(et1, "test3", "3")
-        f4 = factory.make_field(et1, "test4", "4")
-        f5 = factory.make_field(et2, "test1", "1")
-        f6 = factory.make_field(et2, "test2", "2")
-        f7 = factory.make_field(et2, "test3", "3")
+        self.e1.delete()
 
-        j1 = factory.make_journal(a1, u1)
+        self.assertEquals(Content.objects.filter(data='testcontent1').count(), 0)
+        self.assertEquals(Content.objects.filter(data='testcontent2').count(), 0)
 
-        e1 = factory.make_entry(et1)
-        e2 = factory.make_entry(et2)
+        self.u1.delete()
 
-        c1 = factory.make_content(e1, "hoi", f1)
-        c2 = factory.make_content(e1, "doei", f2)
-        c3 = factory.make_content(e2, "hoi", f5)
-        c4 = factory.make_content(e2, "doei", f6)
+        self.assertEquals(Content.objects.all().count(), 1)
+        self.assertEquals(Entry.objects.all().count(), 1)
+        self.assertEquals(Journal.objects.all().count(), 0)

@@ -9,8 +9,17 @@ export default {
         return auth.authenticatedGet('/get_course_assignments/' + cID + '/')
             .then(response => response.data.assignments)
     },
+    /* Get upcomming deadlines. */
     get_upcoming_deadlines () {
         return auth.authenticatedGet('/get_upcoming_deadlines/')
             .then(response => response.data.deadlines)
+    },
+    /* Create a new assignment. */
+    create_new_assignment (name, description, aID) {
+        return auth.authenticatedPost('/create_new_assignment/', {
+            name: name,
+            description: description,
+            assignmentID: aID
+        }).then(response => response.data)
     }
 }

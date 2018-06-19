@@ -6,7 +6,7 @@
         <b-col md="12" lg="6" order="2" class="main-content">
             <slot name="main-content-column"></slot>
         </b-col>
-        <b-col md="12" lg="3" order="1" order-lg="3" class="right-content">
+        <b-col md="12" lg="3" order="1" order-lg="3" class="right-content d-none d-lg-block">
             <slot name="right-content-column"></slot>
         </b-col>
     </b-row>
