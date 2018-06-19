@@ -103,7 +103,7 @@ class Command(BaseCommand):
                 # Randomly miss content fields for testing.
                 if random.randint(0, 20) == 0:
                     continue
-                
+
                 content = make_content(entry, faker.catch_phrase(), field)
                 content.save()
 
@@ -254,7 +254,7 @@ class Command(BaseCommand):
 
         # Using a bulk create speeds the process up.
         Journal.objects.bulk_create(journal_list)
-            
+
     def handle(self, *args, **options):
         """This function generates data to test and fill the database with.
 
