@@ -1,8 +1,10 @@
 <template>
     <b-row>
-        <b-col cols="6" lg-cols="6"><h5><b>{{ currentPoints }}</b> Points</h5></b-col>
-        <b-col cols="6" lg-cols="6"><h4 class="progress-percentage">{{ progressPercentage }}%</h4></b-col>
-        <b-col cols="12" lg-cols="12"><b-progress :value="currentPoints" color="blue" :max="totalPoints" class="progress-bar-box" animated></b-progress></b-col>
+        <b-col cols="12">
+            <h5 class="progress-percentage"><b>{{ currentPoints }}</b> Points</h5>
+            <h4 class="progress-percentage float-right">{{ progressPercentage }}%</h4>
+        </b-col>
+        <b-col cols="12"><b-progress :value="currentPoints" color="blue" :max="totalPoints" class="progress-bar-box" animated></b-progress></b-col>
     </b-row>
 </template>
 
@@ -19,8 +21,9 @@ export default {
 
 <style>
 .progress-percentage   {
+    display: inline;
     border: none;
-    padding: none;
+    padding: 0px !important;
     text-align: right;
 }
 
