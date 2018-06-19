@@ -3,6 +3,7 @@ from django.http import JsonResponse
 import statistics as st
 
 from VLE.serializers import *
+import VLE.edag as edag
 import VLE.factory as factory
 
 
@@ -160,4 +161,4 @@ def get_nodes(request, jID):
 
     journal = Journal.objects.get(pk=jID)
     return JsonResponse({'result': 'success',
-                         'nodes': edag.get_nodes(journal)})
+                         'nodes': edag.get_nodes_dict(journal)})

@@ -9,7 +9,7 @@
     <b-row>
         <b-col cols="4"/>
         <b-col cols="4" class="d-flex align-items-center justify-content-center">
-            <edag-node-date :date="node.date" :selected="selected"/>
+            <edag-node-date :date="node.deadline" :selected="selected"/>
         </b-col>
         <b-col cols="4" class="d-flex align-items-center justify-content-center">
             <div>

@@ -303,7 +303,7 @@ class Deadline(models.Model):
 class Entry(models.Model):
     """An Entry has the following features:
     - journal: a foreign key linked to an Journal.
-    - datetime: the date and time when the entry was posted.
+    - createdate: the date and time when the entry was posted.
     - late: if the entry was posted late or not.
     - TODO: edited_at
     """
@@ -312,14 +312,11 @@ class Entry(models.Model):
         on_delete=models.SET_NULL,
         null=True
     )
-    datetime = models.DateTimeField(
+    createdate = models.DateTimeField(
         default=now,
     )
     grade = models.IntegerField(
         default=0
-    )
-    late = models.BooleanField(
-        default=False
     )
 
     def __str__(self):

@@ -14,9 +14,9 @@ export default {
     computed: {
         classObject () {
             return {
-                'enc-entry': this.type === 'entry',
-                'enc-progress': this.type === 'progress',
-                'enc-add': this.type === 'add',
+                'enc-entry': this.type === 'e',
+                'enc-progress': this.type === 'p',
+                'enc-add': this.type === 'a',
                 'enc-selected': this.selected
             }
         }

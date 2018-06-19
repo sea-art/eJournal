@@ -49,9 +49,8 @@ def assignment_to_dict(assignment):
     return {
         'aID': assignment.id,
         'name': assignment.name,
-        'auth': user_to_dict(assignment.author),
         'description': assignment.description,
-        'courses': [course_to_dict(course) for course in assignment.courses.all()]
+        'auth': user_to_dict(assignment.author),
     } if assignment else None
 
 
@@ -71,7 +70,7 @@ def journal_to_dict(journal):
 def add_node_dict(journal):
     return {
         'type': 'a',
-        'jID': journal.id,
+        'nID': -1,
         'templates': [template_to_dict(template) for template in journal.assignment.format.available_templates.all()]
     } if journal else None
 
@@ -89,7 +88,8 @@ def node_to_dict(node):
 def entry_node_to_dict(node):
     return {
         'type': node.type,
-        'jID': node.journal.id,
+        'nID': node.id,
+        'jID': node.id,
         'entry': entry_to_dict(node.entry),
     } if node else None
 
@@ -97,16 +97,18 @@ def entry_node_to_dict(node):
 def entry_deadline_to_dict(node):
     return {
         'type': node.type,
-        'jID': node.journal.id,
+        'nID': node.id,
+        'jID': node.id,
+        'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
         'entry': entry_to_dict(node.entry),
-        'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M')
     } if node else None
 
 
 def progress_to_dict(node):
     return {
         'type': node.type,
-        'jID': node.journal.id,
+        'nID': node.id,
+        'jID': node.id,
         'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
         'target': node.preset.deadline.points,
     } if node else None
@@ -115,18 +117,19 @@ def progress_to_dict(node):
 def entry_to_dict(entry):
     return {
         'eID': entry.id,
-        'template': template_to_dict(entry.template),
-        'createdate': entry.datetime.strftime('%d-%m-%Y %H:%M'),
+        'createdate': entry.createdate.strftime('%d-%m-%Y %H:%M'),
         'grade': entry.grade,
-        'late': entry.late,
+        # 'late': TODO
+        'template': template_to_dict(entry.template),
         'content': [content_to_dict(content) for content in entry.content_set.all()],
     } if entry else None
 
 
 def template_to_dict(template):
     return {
-        'fields': [field_to_dict(field) for field in template.field_set.all()],
+        'tID': template.id,
         'name': template.name,
+        'fields': [field_to_dict(field) for field in template.field_set.all()],
     } if template else None
 
 
@@ -141,6 +144,6 @@ def field_to_dict(field):
 
 def content_to_dict(content):
     return {
-        'field': content.field.pk,
+        'tag': content.field.pk,
         'data': content.data,
     } if content else None

@@ -47,7 +47,7 @@ def create_new_assignment(request):
     return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(course)})
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 def create_journal(request, aID):
     """ Create a new journal
 
@@ -65,7 +65,7 @@ def create_journal(request, aID):
 
 
 @api_view(['POST'])
-def create_entry(request, jID):
+def create_entry(request):
     """ Create a new entry
     TODO: How to match new Entry (Deadline) with a pre-existing Node?
     Arguments:
@@ -75,6 +75,28 @@ def create_entry(request, jID):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    journal = Journal.objects.get(pk=jID)
+    try:
+        jID = request.data['jID']
+        journal = Journal.objects.get(pk=jID, user=request.user)
 
-    return JsonResponse({'result': 'success', 'journal': journal_to_dict(journal)})
+        tID = request.data['tID']
+        template = EntryTemplate.objects.get(pk=request.data['tID'])
+
+        # TODO: content.
+
+        # TODO: Check if node can still be created (deadline passed? graded?)
+        if 'nID' in request.data:
+            nID = request.data['nID']
+            node = Node.objects.get(pk=nID, journal=journal)
+            if node.type == Node.PROGRESS:
+                return JsonResponse({'result': '400 Bad Request'}, status=400)
+
+            node.entry = make_entry(template)
+
+        else:
+            entry = make_entry(template)
+            node = make_node(journal, entry)
+
+        return JsonResponse({'result': 'success', 'node': node_to_dict(node)}, status=200)
+    except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
+        return JsonResponse({'result': '400 Bad Request'}, status=400)
