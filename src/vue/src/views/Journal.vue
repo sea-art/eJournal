@@ -18,7 +18,6 @@
                 {{nodes2[0]}}<br>
                 {{nodes2[0].type}}
                 <div v-if="nodes2[0].type == 'e'">
-                    hooi
                     <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes2[0]"/>
                     <!-- <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
                     :textbox2="nodes[currentNode].textbox2"
@@ -32,9 +31,6 @@
                     :textbox2="nodes[currentNode].textbox2"
                     :date="nodes[currentNode].date"></entry-template>
                 </div>
-            </div>
-            <div v-else>
-                {{nodes2.length}}
             </div>
         </b-col>
         <b-col cols="12" xl="3" order="3" class="right-content"/>

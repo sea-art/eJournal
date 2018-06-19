@@ -32,7 +32,7 @@
                                      een entry tag overschrijf dit lege veld -->
                                 <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
                                     <div v-if="field.title != ''">
-                                        {{ field.title }}:<br>
+                                        <h4>{{ field.title }}</h4><br>
                                     </div>
 
                                     <div v-if="field.type=='t'">
@@ -81,7 +81,7 @@
                                      docent zijnde, anders moet er edit staan. -->
                                 <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
                                     <div v-if="field.title != ''">
-                                        {{ field.title }}:<br>
+                                        <h4>{{ field.title }}</h4>:<br>
                                     </div>
 
                                     <div v-if="field.type=='t'">
