@@ -27,7 +27,6 @@ import contentColumns from '@/components/ContentColumns.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import studentCard from '@/components/StudentCard.vue'
 import mainCard from '@/components/MainCard.vue'
-// import assignments from '@/api/assignmentsOverview.js'
 
 export default {
     name: 'AssignmentsOverview',
