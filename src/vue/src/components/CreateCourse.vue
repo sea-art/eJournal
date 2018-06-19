@@ -28,9 +28,7 @@ export default {
         onSubmit () {
             courseApi.create_new_course(this.form.courseName, this.form.courseAbbreviation, this.form.courseStartdate)
                 .then(response => { console.log(response) })
-                .then(_ => {
-                    this.$emit('handleAction')
-                })
+                .then(_ => { this.$emit('handleAction') })
         },
         onReset (evt) {
             evt.preventDefault()

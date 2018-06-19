@@ -37,7 +37,7 @@
             title="Create assignment"
             size="lg"
             hide-footer=True>
-                <create-assignment></create-assignment>
+                <create-assignment @handleAction="handleConfirm('createAssignmentRef')"></create-assignment>
         </b-modal>
 
     </content-columns>
@@ -97,14 +97,22 @@ export default {
         'main-card': mainCard,
         'create-assignment': createAssignment
     },
+    created () {
+        this.loadAssignments()
+    },
     methods: {
+        loadAssignments () {
+            assignment.get_course_assignments(this.cID)
+                .then(response => { this.assignments = response })
+                .catch(_ => alert('Error while loading assignments'))
+        },
         showModal (ref) {
             this.$refs[ref].show()
         },
         handleConfirm (ref) {
-            if (ref === 'createCourseRef') {
-                alert('hai')
-            } else if (ref === 'editCourseRef') {
+            if (ref === 'createAssignmentRef') {
+                this.loadAssignments()
+            } else if (ref === 'editAssignmentRef') {
                 alert('doei')
             }
 
@@ -116,11 +124,6 @@ export default {
         customisePage () {
             alert('Wishlist: Customise page')
         }
-    },
-    created () {
-        assignment.get_course_assignments(this.cID)
-            .then(response => { this.assignments = response })
-            .catch(_ => alert('Error while loading assignments'))
     }
 }
 </script>

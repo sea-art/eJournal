@@ -31,6 +31,7 @@ export default {
         onSubmit () {
             assignmentApi.create_new_assignment(this.form.assignmentName, this.form.assignmentDescription, this.$route.params.cID)
                 .then(response => { console.log(response) })
+                .then(_ => { this.$emit('handleAction') })
         },
         onReset (evt) {
             evt.preventDefault()
