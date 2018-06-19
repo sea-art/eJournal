@@ -70,25 +70,28 @@ def create_entry(request):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    jID = request.data['jID']
-    journal = Journal.objects.get(pk=jID, user=request.user)
+    try:
+        jID = request.data['jID']
+        journal = Journal.objects.get(pk=jID, user=request.user)
 
-    tID = request.data['tID']
-    template = EntryTemplate.objects.get(pk=request.data['tID'])
+        tID = request.data['tID']
+        template = EntryTemplate.objects.get(pk=request.data['tID'])
 
-    # TODO: content.
+        # TODO: content.
 
-    # TODO: Check if node can still be created (deadline passed? graded?)
-    if 'nID' in request.data:
-        nID = request.data['nID']
-        node = Node.objects.get(pk=nID, journal=journal)
-        if node.type == Node.PROGRESS:
-            return JsonResponse({'result': '400 Bad Request'}, status=400)
+        # TODO: Check if node can still be created (deadline passed? graded?)
+        if 'nID' in request.data:
+            nID = request.data['nID']
+            node = Node.objects.get(pk=nID, journal=journal)
+            if node.type == Node.PROGRESS:
+                return JsonResponse({'result': '400 Bad Request'}, status=400)
 
-        node.entry = make_entry(template)
+            node.entry = make_entry(template)
 
-    else:
-        entry = make_entry(template)
-        node = make_node(journal, entry)
+        else:
+            entry = make_entry(template)
+            node = make_node(journal, entry)
 
-    return JsonResponse({'result': 'success', 'node': node_to_dict(node)}, status=200)
+        return JsonResponse({'result': 'success', 'node': node_to_dict(node)}, status=200)
+    except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
+        return JsonResponse({'result': '400 Bad Request'}, status=400)

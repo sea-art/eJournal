@@ -139,10 +139,8 @@ export default {
                 this.$emit('edit-node', this.tempNode)
             } else {
                 this.saveEditMode = 'Save'
-                console.log(this.completeContent)
                 this.completeContent = []
                 this.setContent()
-                console.log(this.completeContent)
             }
         },
         cancel: function () {
@@ -169,7 +167,6 @@ export default {
                 }
 
                 if (!checkFound) {
-                    console.log(templateField.tag)
                     this.completeContent.push({
                         data: null,
                         tag: templateField.tag

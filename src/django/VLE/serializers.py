@@ -127,9 +127,9 @@ def entry_to_dict(entry):
 
     return {
         'eID': entry.id,
-        'createdate': entry.datetime.strftime('%d-%m-%Y %H:%M'),
+        'createdate': entry.createdate.strftime('%d-%m-%Y %H:%M'),
         'grade': entry.grade,
-        'late': entry.late,
+        # 'late': TODO
         'template': template_to_dict(entry.template),
         'content': [content_to_dict(content) for content in entry.content_set.all()],
     }

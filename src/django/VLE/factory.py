@@ -86,7 +86,7 @@ def make_entry(template, posttime=timezone.now()):
     """
     # TODO: Too late logic.
 
-    entry = Entry(template=template, datetime=posttime, late=False)
+    entry = Entry(template=template, createdate=posttime)
     entry.save()
     return entry
 

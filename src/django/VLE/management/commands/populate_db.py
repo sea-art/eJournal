@@ -268,7 +268,7 @@ class Command(BaseCommand):
         # Random users
         self.gen_random_users(amount)
         # Random course
-        self.gen_random_courses(amount)
+        self.gen_random_courses(amount * 10)
         # Create the roles
         self.gen_roles()
         # Random participation

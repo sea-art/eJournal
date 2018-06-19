@@ -21,7 +21,7 @@
                     <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'a'">
-                    <add-card @add-template="addNode">bhjewk</add-card>
+                    <add-card @add-template="addNode"></add-card>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'p'">
                     <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
