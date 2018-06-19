@@ -10,23 +10,6 @@ import xml.etree.cElementTree as ET
 
 from .models import Journal, Counter
 
-
-def get_message_id_and_increment():
-    """
-    Get the counter for message id for LTI and increment it.
-    """
-    try:
-        message_id_counter = Counter.objects.get(name='message_id')
-    except Counter.DoesNotExist:
-        message_id_counter = Counters.objects.create(name='message_id', count=1)
-
-    count = message_id_counter.count
-    message_id_counter.count += 1
-    message_id_counter.save()
-
-    return count
-
-
 class GradePassBackRequest(object):
     # TODO Docstring
     def __init__(self, key, secret, journal):
