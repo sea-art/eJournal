@@ -13,7 +13,7 @@ import AssignmentsOverview from '@/views/AssignmentsOverview'
 
 Vue.use(Router)
 
-export default new Router({
+var router = new Router({
     routes: [{
         path: '/',
         name: 'Guest',
@@ -59,3 +59,5 @@ export default new Router({
         component: LtiLaunch
     }]
 })
+
+export default router

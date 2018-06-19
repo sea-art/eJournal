@@ -10,12 +10,13 @@ Vue.config.productionTip = false
 Vue.use(BootstrapVue)
 
 /* eslint-disable no-new */
-new Vue({
+var vm = new Vue({
     el: '#app',
     router,
     components: { App },
     data: {
-        colors: ['pink-border', 'peach-border', 'blue-border']
+        colors: ['pink-border', 'peach-border', 'blue-border'],
+        permissions: {}
     },
     methods: {
         timeLeft (date) {
@@ -27,4 +28,10 @@ new Vue({
         }
     },
     template: '<App/>'
+})
+
+router.beforeEach((to, from, next) => {
+    vm.permissions = 1
+    console.log(vm.permissions)
+    next()
 })
