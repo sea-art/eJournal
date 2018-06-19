@@ -7,11 +7,11 @@
                 </div>
             </b-col>
             <b-col cols="7">
-                <progress-bar :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points">
+                <progress-bar v-if="this.stats" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points">
                 </progress-bar>
             </b-col>
             <b-col cols="2">
-                <todo-square :num="this.stats.submitted - this.stats.graded">
+                <todo-square  v-if="this.stats" :num="this.stats.submitted - this.stats.graded">
                 </todo-square>
             </b-col>
         </b-row>
