@@ -14,6 +14,7 @@ export default {
     get_course_permissions (cID) {
         return auth.authenticatedGet('/get_course_permissions/' + cID + '/')
             .then(response => response.data.permissions)
+    },
 
     /* Create a new course. */
     create_new_course (name, abbr, startdate) {

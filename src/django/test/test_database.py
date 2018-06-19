@@ -45,7 +45,9 @@ class DataBaseTests(TestCase):
         participation = Participation(user=usr, role=role, course=crs)
         participation.save()
 
-        print(get_permissions(usr, crs))
+        perm = get_permissions(usr, crs)
+
+        self.assertFalse(perm['can_delete_course'])
 
     def test_emptyPermissions(self):
         """Test a request that doesn't need permissions."""

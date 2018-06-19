@@ -4,6 +4,7 @@ from VLE.models import Assignment
 from VLE.models import Journal
 from VLE.models import Participation
 from VLE.models import Role
+from django.forms.models import model_to_dict
 
 import random
 
@@ -30,7 +31,6 @@ def check_permissions(user, cID, permissionList):
 
     for permission in permissionList:
         if not getattr(role, permission):
-            print("*Permission test message*: \tInsufficient user permissions!", permissionList)
             return False
 
     return True
@@ -61,11 +61,11 @@ def get_permissions(user, cID):
     """
     assert not(user is None or cID is None)
     # First get the role ID of the user participation.
-    roleID = Participation.objects.get(user=user, course=cID).id
-    # Now get the role and its corresponding permissions.
-    role = Role.objects.get(id=roleID)
+    role = Participation.objects.get(user=user, course=cID).role
 
-    return vars(role)
+    roleDict = model_to_dict(role)
+
+    return roleDict
 
 
 def is_admin(user):
@@ -79,30 +79,3 @@ def is_admin(user):
     is_admin = User.objects.get(user=user).is_admin
 
     return is_admin
-
-
-def make_user(username, password, profile_picture=None):
-    user = User(username=username)
-    user.save()
-    user.set_password(password)
-    user.profile_picture = profile_picture if profile_picture else '/static/oh_no/{}.png'.format(random.randint(1, 10))
-    user.save()
-    return user
-
-
-def make_course(name, abbrev):
-    course = Course(name=name, abbreviation=abbrev)
-    course.save()
-    return course
-
-
-def make_assignment(name, description, author):
-    assign = Assignment(name=name, description=description, author=author)
-    assign.save()
-    return assign
-
-
-def make_journal(assignment, user):
-    journal = Journal(assignment=assignment, user=user)
-    journal.save()
-    return journal

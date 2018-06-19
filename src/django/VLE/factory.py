@@ -30,7 +30,6 @@ def check_permissions(user, cID, permissionList):
 
     for permission in permissionList:
         if not getattr(role, permission):
-            print("*Permission test message*: \tInsufficient user permissions!", permissionList)
             return False
 
     return True

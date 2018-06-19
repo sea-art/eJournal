@@ -26,7 +26,7 @@ class User(AbstractUser):
     is_admin = models.BooleanField(default=False)
 
     def __str__(self):
-        return self.username
+        return str(self.id) + ") " + self.username
 
 
 class Course(models.Model):
@@ -64,7 +64,7 @@ class Course(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return str(self.id) + ") " + self.name
 
 
 class Role(models.Model):
@@ -84,7 +84,7 @@ class Role(models.Model):
     can_delete_course = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(self.name)
+        return str(self.id) + ") " + str(self.name)
 
 
 class Participation(models.Model):
@@ -142,7 +142,7 @@ class Assignment(models.Model):
     courses = models.ManyToManyField(Course)
 
     def __str__(self):
-        return self.name
+        return str(self.id) + ") " + self.name
 
 
 class Journal(models.Model):

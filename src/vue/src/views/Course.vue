@@ -2,7 +2,7 @@
     <content-columns>
         <bread-crumb @eye-click="customisePage" slot="main-content-column" :currentPage="courseName">
         </bread-crumb>
-        <p slot="main-content-column">{{permissions}}</p>
+        <p slot="main-content-column">{{ permissions }}</p>
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
             <b-link tag="b-button" :to="{ name: 'Assignment',
                                           params: {
@@ -88,7 +88,7 @@ export default {
             .then(response => { this.assignments = response })
             .catch(_ => alert('Error while loading assignments'))
 
-        courseApi.get_course_permissions(10)
+        courseApi.get_course_permissions(this.cID)
             .then(response => { this.permissions = response })
             .catch(_ => alert('Error while loading permissions'))
     }

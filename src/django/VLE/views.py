@@ -175,7 +175,7 @@ def get_course_permissions(request, cID):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    roleDict = vars(get_role(request.user, cID))
+    roleDict = get_permissions(request.user, cID)
 
     return JsonResponse({'permissions': roleDict})
 
