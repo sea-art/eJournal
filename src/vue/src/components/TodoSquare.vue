@@ -9,7 +9,3 @@ export default {
     props: ['num']
 }
 </script>
-
-<style>
-
-</style>

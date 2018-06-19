@@ -11,7 +11,7 @@
                 <b-nav-item :to="{ name : 'AssignmentsOverview' }">Assignments</b-nav-item>
             </b-navbar-nav>
             <b-nav-dropdown v-if="!isGuest" class="ml-auto" right no-caret id="nav-dropdown-options">
-                <img id="nav-profile-image" slot="button-content" src="./assets/ohno.jpeg">
+                <img id="nav-profile-image" slot="button-content" src="/static/oh_no/ohno.jpeg">
                 <b-button :to="{ name: 'Profile'}">Profile</b-button>
                 <b-button @click="handleLogout()">Sign out</b-button><br/>
             </b-nav-dropdown>
@@ -25,6 +25,7 @@
 
 <script>
 import LoginForm from '@/components/LoginForm.vue'
+import loginAPI from '@/api/auth.js'
 
 export default {
     components: {
@@ -42,8 +43,8 @@ export default {
             this.isGuest = this.$router.currentRoute.path === '/'
         },
         handleLogout () {
-            alert('Handle logout')
             this.isGuest = true
+            loginAPI.logout()
             this.$router.push('/')
         },
         handleLoginSucces () {

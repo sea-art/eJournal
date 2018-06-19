@@ -41,23 +41,6 @@ img {
     max-height: 100%;
 }
 
-.fit-height {
-    flex: 1 1 auto;
-    display: flex;
-}
-
-#app {
-    overflow-x: hidden;
-    font-family: 'Roboto', sans-serif;
-    font-size: 20px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    display: flex;
-    flex-flow: column;
-    height: 100%;
-    padding-top: 70px;
-}
-
 h1 {
     font-weight: bold;
     font-size: 60px;
@@ -97,12 +80,29 @@ h6 {
     margin-bottom: 0px;
 }
 
+#app {
+    overflow-x: hidden;
+    font-family: 'Roboto', sans-serif;
+    font-size: 20px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    padding-top: 70px;
+}
+
 .btn, .form-control {
     font-family: 'Roboto Condensed', sans-serif;
     font-size: 20px;
     background-color: white;
     color: var(--theme-dark-blue);
     border: none;
+}
+
+.fit-height {
+    flex: 1 1 auto;
+    display: flex;
 }
 
 .form-control {
@@ -133,6 +133,10 @@ h6 {
     padding-right: 10px;
     padding-top: 12px;
     padding-bottom: 12px;
+}
+
+.hover {
+    cursor: pointer;
 }
 
 .multi-form {

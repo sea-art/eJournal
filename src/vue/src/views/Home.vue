@@ -2,7 +2,7 @@
     <content-columns>
         <bread-crumb
             @eye-click="customisePage()"
-            @edit-click="editCourses()"
+            @edit-click="showModal('editCourseRef')"
             slot="main-content-column"
             :currentPage="'Courses'">
         </bread-crumb>
@@ -17,9 +17,7 @@
             </b-link>
         </div>
 
-        <b-link slot="main-content-column" :to="{name: 'CourseCreation'}">
-            <main-card :line1="'+ Add course'"/>
-        </b-link>
+        <main-card slot="main-content-column" class="hover" v-on:click.native="showModal('createCourseRef')" :line1="'+ Add course'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
@@ -33,20 +31,22 @@
             </b-link>
         </div>
 
-        <!-- TODO cleanup : move to component -->
         <b-modal
             slot="main-content-column"
-            ref="editModalRef"
+            ref="editCourseRef"
             title="Global changes"
-            @ok="handleEditConfirm()">
-            <form @submit.stop.prevent="handleEditConfirm">
-                <label for="input-institute-name">Institute name:</label>
-                <b-form-input id="input-institute-name"
-                    type="text"
-                    placeholder="Change your institutes name"
-                    v-model="intituteName">
-                </b-form-input>
-            </form>
+            size="lg"
+            hide-footer=True>
+                <edit-home></edit-home>
+        </b-modal>
+
+        <b-modal
+            slot="main-content-column"
+            ref="createCourseRef"
+            title="Create Course"
+            size="lg"
+            hide-footer=True>
+                <create-course></create-course>
         </b-modal>
     </content-columns>
 </template>
@@ -56,6 +56,8 @@ import contentColumns from '@/components/ContentColumns.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import mainCard from '@/components/MainCard.vue'
 import todoCard from '@/components/TodoCard.vue'
+import createCourse from '@/components/CreateCourse.vue'
+import editHome from '@/components/EditHome.vue'
 import course from '@/api/course'
 /* import assignment from '@/api/assignment' */
 
@@ -78,7 +80,9 @@ export default {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'main-card': mainCard,
-        'todo-card': todoCard
+        'todo-card': todoCard,
+        'create-course': createCourse,
+        'edit-home': editHome
     },
     created () {
         course.get_user_courses()
@@ -95,15 +99,20 @@ export default {
                 console.log('TODO Implement delete this course ID after privy check')
             }
         },
-        editCourses () {
-            this.$refs.editModalRef.show()
+        showModal (ref) {
+            this.$refs[ref].show()
         },
-        handleEditConfirm () {
-            alert('Edit confirm')
-            this.hideModal()
+        handleConfirm (ref) {
+            if (ref === 'createCourseRef') {
+                alert('hai')
+            } else if (ref === 'editCourseRef') {
+                alert('doei')
+            }
+
+            this.hideModal(ref)
         },
-        hideModal () {
-            this.$refs.editModalRef.hide()
+        hideModal (ref) {
+            this.$refs[ref].hide()
         },
         customisePage () {
             alert('Wishlist: Customise page')

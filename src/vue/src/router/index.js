@@ -9,7 +9,6 @@ import Profile from '@/views/Profile'
 import Guest from '@/views/Guest'
 import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
-import CourseCreation from '@/views/CourseCreation'
 import CourseEdit from '@/views/CourseEdit'
 
 Vue.use(Router)
@@ -31,10 +30,6 @@ export default new Router({
         path: '/Register',
         name: Register,
         component: Register
-    }, {
-        path: '/CourseCreation',
-        name: 'CourseCreation',
-        component: CourseCreation
     }, {
         path: '/Profile',
         name: 'Profile',

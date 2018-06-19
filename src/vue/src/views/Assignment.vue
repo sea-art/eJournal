@@ -4,26 +4,29 @@
 
 <template>
     <content-columns>
-        <bread-crumb @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder" slot="main-content-column"></bread-crumb>
-        <div v-for="j in assignmentJournals" :key="j.uid" slot="main-content-column">
+        <!-- TODO: reopen bread-crumb when it is working again -->
+        <!-- <bread-crumb @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder" slot="main-content-column"></bread-crumb> -->
+        <div v-if="assignmentJournals.length > 0" v-for="journal in assignmentJournals" :key="journal.student.uID" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {
                                               cID: cID,
                                               aID: aID,
-                                              jID: j.uid
+                                              jID: journal.jID
                                           }
                                         }">
                 <student-card
-                    :student="j.student.name"
-                    :studentNumber="j.student.uID"
-                    :portraitPath="j.student.picture"
-                    :progress="j.progress"
-                    :stats="j.stats"
-                    :color="$root.colors[j.uid % $root.colors.length]">
+                    :student="journal.student.name"
+                    :studentNumber="journal.student.uID"
+                    :portraitPath="journal.student.picture"
+                    :stats="journal.stats"
+                    :color="$root.colors[journal.uid % $root.colors.length]">
                 </student-card>
             </b-link>
         </div>
-        <div slot="right-content-column">
+        <div v-if="assignmentJournals.length === 0" slot="main-content-column">
+            <h1>No journals found</h1>
+        </div>
+        <div  v-if="stats" slot="right-content-column">
             <h3>Statistics</h3>
             <statistics-card :color="cardColor" :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>
             <statistics-card :color="cardColor" :subject="'Average points'" :num="stats.avgPoints"></statistics-card>
@@ -44,18 +47,16 @@ export default {
     name: 'Assignment',
     props: {
         cID: {
-            type: String,
             required: true
         },
         aID: {
-            type: String,
             required: true
         },
         assignmentName: ''
     },
     data () {
         return {
-            assignJournals: [],
+            assignmentJournals: [],
             stats: [],
             cardColor: ''
         }

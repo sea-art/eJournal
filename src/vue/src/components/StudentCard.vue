@@ -7,17 +7,16 @@
                 </div>
             </b-col>
             <b-col cols="7">
-                <progress-bar :currentPoints="this.progress.acquired" :totalPoints="this.progress.total">
+                <progress-bar v-if="this.stats" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points">
                 </progress-bar>
             </b-col>
             <b-col cols="2">
-                <todo-square :num="this.stats.total - this.stats.graded">
+                <todo-square  v-if="this.stats" :num="this.stats.submitted - this.stats.graded">
                 </todo-square>
             </b-col>
         </b-row>
         <b-row>
-            {{ student }}<br>
-            {{ studentNumber }}
+            {{ studentNumber }}: {{ student }}
         </b-row>
     </b-card>
 </template>
@@ -27,8 +26,7 @@ import progressBar from '@/components/ProgressBar.vue'
 import todoSquare from '@/components/TodoSquare.vue'
 
 export default {
-    props: ['student', 'studentNumber', 'portraitPath', 'progress', 'stats',
-        'color'],
+    props: ['student', 'studentNumber', 'portraitPath', 'stats', 'color'],
     components: {
         'progress-bar': progressBar,
         'todo-square': todoSquare
