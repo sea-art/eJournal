@@ -17,6 +17,7 @@ from django.contrib import admin
 from django.urls import path
 
 from VLE.views.get import lti_launch
+from VLE.views.get import lti_grade_replace_result
 
 from VLE.views.get import get_user_courses
 from VLE.views.get import get_course_assignments
@@ -51,5 +52,5 @@ urlpatterns = [
     path('api/create_new_assignment/', create_new_assignment, name='create_new_assignment'),
     path('api/create_entry/', create_entry, name='create_entry'),
 
-    path('api/lti/launch', lti_launch, name='lti_launch'),
+    path('api/lti/launch', lti_grade_replace_result, name='lti_launch'),
 ]

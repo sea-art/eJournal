@@ -181,7 +181,7 @@ def select_create_journal(request, user, assignment, roles):
     """
     Select or create the requested journal.
     """
-    if roles['student'] in request['roles']:
+    if roles['student'] in request['roles'] and assignment is not None:
         journals = Journal.objects.filter(user=user, assignment=assignment)
         if journals.count() > 0:
             journal = journals[0]

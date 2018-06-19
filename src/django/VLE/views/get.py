@@ -181,17 +181,9 @@ def lti_grade_replace_result(request):
     grade_request.score = '0.5'
     grade_request.sourcedId = request.POST['lis_result_sourcedid']
     grade_request.url = request.POST['lis_outcome_service_url']
-    response, content = grade_request.send_post_request()
+    response = grade_request.send_post_request()
 
-    print(content.decode())
-
-    root = ET.fromstring(content)
-    head = root.find('imsx_POXHeader')
-    print(list(head))
-    head_info = head.find('imsx_POXResponseHeaderInfo')
-    status_info = head_info.find('imsx_statusInfo')
-
-    return HttpResponse('ok')
+    return JsonResponse(response)
 
 
 @api_view(['POST'])
@@ -203,12 +195,12 @@ def lti_launch(request):
         key = settings.LTI_KEY
 
         print('key = postkey', key == request.POST['oauth_consumer_key'])
-        authicated, err = check_signature(key, secret, request)
+        authicated, err = OAuthRequestValidater.check_signature(key, secret, request)
 
         if authicated:
             # Select or create the user, course, assignment and journal.
             roles = json.load(open('config.json'))
-            user = select_create_user(request.POST, roles)
+            user = select_create_user(request.POST)
             course = select_create_course(request.POST, user, roles)
             assignment = select_create_assignment(request.POST, user, course, roles)
             journal = select_create_journal(request.POST, user, assignment, roles)
