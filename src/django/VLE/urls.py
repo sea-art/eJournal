@@ -42,7 +42,7 @@ urlpatterns = [
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
     path('api/get_user_courses/', get_user_courses, name='get_user_courses'),
-    path('api/lti/launch', lti_grade_replace_result, name='lti_launch'),
+    path('api/lti/launch', lti_launch, name='lti_launch'),
     path('api/get_course_assignments/<int:cID>/', get_course_assignments, name='get_course_assignments'),
     path('api/get_assignment_journals/<int:aID>/', get_assignment_journals, name='get_assignment_journals'),
     path('api/get_upcoming_deadlines/', get_upcoming_deadlines, name='get_upcoming_deadlines'),
