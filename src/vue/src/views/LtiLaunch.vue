@@ -20,13 +20,23 @@ export default {
         localStorage.setItem('jwt_refresh', this.$route.query.jwt_refresh)
         this.msg = this.$route.query.jwt_access
         this.jwt_refresh = this.$route.query.jwt_refresh
+        var jID = this.$route.query.jID
+        var aID = this.$route.query.aID
+        var cID = this.$route.query.cID
         var student = this.$route.query.student
-        var assign = this.$route.query.assign
-        var course = this.$route.query.course
-        if (student === 'undefined') {
-            this.$router.push({name: 'Assignment', params: {course: course, assign: assign}})
+
+        if (student) {
+            /* If a student requests this. */
+            if (cID === 'undefined'){
+                // TODO Push a 404.
+            }
+            if (jID === 'undefined'){
+                this.$router.push({name: 'Assignment', params: {cID: cID, aID: aID}})
+            } else {
+                this.$router.push({name: 'Journal', params: {cID: cID, aID: aID, jID: jID}})
+            }
         } else {
-            this.$router.push({name: 'Journal', params: {course: course, assign: assign, student: student}})
+
         }
     }
 }

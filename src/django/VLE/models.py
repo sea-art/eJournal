@@ -21,7 +21,7 @@ class User(AbstractUser):
         unique=True,
     )
     profile_picture = models.TextField(
-        default='/static/oh_no/oh_no.jpeg'
+        null=True
     )
 
     def __str__(self):
@@ -181,3 +181,12 @@ class Entry(models.Model):
 
     def __str__(self):
         return str(self.pk)
+
+class Counter(models.Model):
+    """
+    A single counter which is used as the message ID for LTI messages.
+    """
+    name = models.TextField(
+        null=False
+    )
+    count = models.IntegerField()
