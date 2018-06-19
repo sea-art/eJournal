@@ -18,18 +18,27 @@ def make_user(username, password, profile_picture=None):
 
 
 def make_course(name, abbrev, startdate=None, author=None):
-    course = Course(name=name, abbreviation=abbrev, startdate=startdate, author=author)
-    course.save()
+    course = Course.objects.create(
+        name=name,
+        abbreviation=abbrev,
+        startdate=startdate,
+        author=author
+    )
     return course
 
 
 def make_assignment(name, description, author=None):
-    assign = Assignment(name=name, description=description, author=author)
-    assign.save()
+    assign = Assignment.objects.create(
+        name=name,
+        description=description,
+        author=author
+    )
     return assign
 
 
 def make_journal(assignment, user):
-    journal = Journal(assignment=assignment, user=user)
-    journal.save()
+    journal = Journal.objects.create(
+        assignment=assignment,
+        user=user
+    )
     return journal

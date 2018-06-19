@@ -10,6 +10,7 @@ import xml.etree.cElementTree as ET
 
 from .models import Journal, Counter
 
+
 class GradePassBackRequest(object):
     # TODO Docstring
     def __init__(self, key, secret, journal):
@@ -39,9 +40,9 @@ class GradePassBackRequest(object):
     def create_xml(self):
         # TODO Docstring
         root = ET.Element(
-                'imsx_POXEnvelopeRequest',
-                xmlns='http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0'
-            )
+            'imsx_POXEnvelopeRequest',
+            xmlns='http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0'
+        )
         head = ET.SubElement(root, 'imsx_POXHeader')
         head_info = ET.SubElement(head, 'imsx_POXRequestHeaderInfo')
         imsx_version = ET.SubElement(head_info, 'imsx_version')
@@ -92,7 +93,5 @@ class GradePassBackRequest(object):
             body=self.create_xml(),
             headers={'Content-Type': 'application/xml'}
         )
-<<<<<<< HEAD
-=======
+
         return response, content
->>>>>>> 82804771b66c5477ffb24fcd45b74596fa83d8ec

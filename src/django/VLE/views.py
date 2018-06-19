@@ -214,7 +214,7 @@ def create_new_assignment(request):
 
 @api_view(['POST'])
 def lti_grade_replace_result(request):
-    #TODO Extend the docstring with what is important in the request variable.
+    # TODO Extend the docstring with what is important in the request variable.
     """
     Replace a grade on the LTI instance based on the request.
     """
