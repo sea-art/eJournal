@@ -1,9 +1,9 @@
 from rest_framework.decorators import api_view
-from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.http import JsonResponse
+import statistics as st
+
 from VLE.serializers import *
 import VLE.factory as factory
-import statistics as st
 
 
 @api_view(['GET'])
@@ -166,40 +166,3 @@ def get_nodes(request, jID):
     journal = Journal.objects.get(pk=jID)
     return JsonResponse({'result': 'success',
                          'nodes': edag.get_nodes(journal)})
-
-
-@api_view(['POST'])
-def create_new_course(request):
-    """Create a new course
-
-    Arguments:
-    request -- the request that was send with
-    name -- name of the course
-    abbr -- abbreviation of the course
-    startdate -- date when the course starts
-
-    Returns a json string for if it is succesful or not.
-    """
-    course = factory.make_course(request.data["name"], request.data["abbr"], request.data["startdate"], request.user)
-
-    return JsonResponse({'result': 'success', 'course': course_to_dict(course)})
-
-
-@api_view(['POST'])
-def create_new_assignment(request):
-    """Create a new course
-
-    Arguments:
-    request -- the request that was send with
-    name -- name of the course
-    abbr -- abbreviation of the course
-    startdate -- date when the course starts
-
-    Returns a json string for if it is succesful or not.
-    """
-    if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
-
-    course = make_course(request.data['name'], request.data['description'], request.user)
-
-    return JsonResponse({'result': 'success', 'course': course_to_dict(course)}, status=200)
