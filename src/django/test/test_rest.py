@@ -12,17 +12,17 @@ from VLE.models import Journal
 import VLE.factory as factory
 
 
-def logging_in(obj, username, password):
+def logging_in(obj, username, password, status=200):
     result = obj.client.post(reverse('token_obtain_pair'),
                              {'username': username, 'password': password}, format='json')
-    obj.assertEquals(result.status_code, 200)
+    obj.assertEquals(result.status_code, status)
     return result
 
 
-def api_get_call(obj, url, login):
+def api_get_call(obj, url, login, status=200):
     result = obj.client.get(url, {},
                             HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access']))
-    obj.assertEquals(result.status_code, 200)
+    obj.assertEquals(result.status_code, status)
     return result
 
 
@@ -39,7 +39,7 @@ class RestTests(TestCase):
         u3 = factory.make_user("Lars", "pass")
         u4 = factory.make_user("Jeroen", "pass")
 
-        c1 = factory.make_course("Portofolio Academische Vaardigheden", "PAV")
+        c1 = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
         c2 = factory.make_course("BeeldBewerken", "BB")
         c3 = factory.make_course("Reflectie en Digitale Samenleving", "RDS")
 
@@ -69,8 +69,8 @@ class RestTests(TestCase):
             c.participation_set.add(p)
             c.save()
 
-        a1 = factory.make_assignment("Colloq", "In de opdracht...1", u1)
-        a2 = factory.make_assignment("Logboek", "In de opdracht...2", u1)
+        a1 = factory.make_assignment("Colloq", "In de opdracht...1", author=u1)
+        a2 = factory.make_assignment("Logboek", "In de opdracht...2", author=u1)
         a1.courses.add(c1)
         a1.courses.add(c2)
         a2.courses.add(c1)
@@ -90,9 +90,7 @@ class RestTests(TestCase):
         self.assertEquals(result.status_code, 401)
 
     def test_get_user_courses(self):
-        """
-        Testing get_user_courses.
-        """
+        """Testing get_user_courses"""
         login = logging_in(self, self.username, self.password)
 
         result = api_get_call(self, reverse('get_user_courses'), login)
@@ -103,9 +101,6 @@ class RestTests(TestCase):
         self.assertEquals(courses[2]['abbr'], 'RDS')
 
     def test_get_course_assignments(self):
-        """
-        Testing get_course_assignments
-        """
         login = logging_in(self, self.username, self.password)
         result = api_get_call(self, '/api/get_course_assignments/1/', login)
         assignments = result.json()['assignments']

@@ -4,13 +4,6 @@ from random import randint
 
 
 def user_to_dict(user):
-    """Get a object of a single user
-
-    Arguments:
-    user -- user to create the object with
-
-    returns dictionary of that user
-    """
     return {
         'name': user.username,
         'picture': user.profile_picture,
@@ -56,8 +49,8 @@ def assignment_to_dict(assignment):
     return {
         'aID': assignment.id,
         'name': assignment.name,
+        'description': assignment.description,
         'auth': user_to_dict(assignment.author),
-        'description': assignment.description
     } if assignment else None
 
 
@@ -72,3 +65,85 @@ def journal_to_dict(journal):
             'total_points': 10
         }  # TODO: Change random to real stats
     } if journal else None
+
+
+def add_node_dict(journal):
+    return {
+        'type': 'a',
+        'nID': -1,
+        'templates': [template_to_dict(template) for template in journal.assignment.format.available_templates.all()]
+    } if journal else None
+
+
+def node_to_dict(node):
+    if node.type == Node.ENTRY:
+        return entry_node_to_dict(node)
+    elif node.type == Node.ENTRYDEADLINE:
+        return entry_deadline_to_dict(node)
+    elif node.type == Node.PROGRESS:
+        return progress_to_dict(node)
+    return None
+
+
+def entry_node_to_dict(node):
+    return {
+        'type': node.type,
+        'nID': node.id,
+        'jID': node.id,
+        'entry': entry_to_dict(node.entry),
+    } if node else None
+
+
+def entry_deadline_to_dict(node):
+    return {
+        'type': node.type,
+        'nID': node.id,
+        'jID': node.id,
+        'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
+        'entry': entry_to_dict(node.entry),
+    } if node else None
+
+
+def progress_to_dict(node):
+    return {
+        'type': node.type,
+        'nID': node.id,
+        'jID': node.id,
+        'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
+        'target': node.preset.deadline.points,
+    } if node else None
+
+
+def entry_to_dict(entry):
+    return {
+        'eID': entry.id,
+        'createdate': entry.createdate.strftime('%d-%m-%Y %H:%M'),
+        'grade': entry.grade,
+        # 'late': TODO
+        'template': template_to_dict(entry.template),
+        'content': [content_to_dict(content) for content in entry.content_set.all()],
+    } if entry else None
+
+
+def template_to_dict(template):
+    return {
+        'tID': template.id,
+        'name': template.name,
+        'fields': [field_to_dict(field) for field in template.field_set.all()],
+    } if template else None
+
+
+def field_to_dict(field):
+    return {
+        'tag': field.id,
+        'type': field.type,
+        'title': field.title,
+        'location': field.location,
+    } if field else None
+
+
+def content_to_dict(content):
+    return {
+        'tag': content.field.pk,
+        'data': content.data,
+    } if content else None
