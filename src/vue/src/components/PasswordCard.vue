@@ -1,12 +1,12 @@
 <template>
     <b-container no-gutters>
         <b-row>
-            <p class="profile-title">Change password</p><br/>
+            <span class="profile-title">Change password</span><br/>
         </b-row>
 
         <b-row>
             <b-col class="profile-col" cols="4">
-                <p class="profile-password">Old password:</p>
+                <span class="profile-password">Old password:</span>
             </b-col>
             <b-col cols="7">
                 <b-form-input class="passField" v-model="oldPass" type="password"></b-form-input><br/>
@@ -15,7 +15,7 @@
 
         <b-row>
             <b-col class="profile-col" cols="4">
-                <p class="profile-password">New password:</p>
+                <span class="profile-password">New password:</span>
             </b-col>
             <b-col cols="7">
                 <b-form-input class="passField" v-model="newPass" type="password"></b-form-input><br/>
@@ -24,7 +24,7 @@
 
         <b-row>
             <b-col class="profile-col" cols="4">
-                <p class="profile-password">Repeat new password:</p>
+                <span class="profile-password">Repeat new password:</span>
             </b-col>
             <b-col cols="7">
                 <b-form-input class="passField" v-model="newPassRepeat" type="password"></b-form-input>
