@@ -212,7 +212,7 @@ def lti_launch(request):
 
         if authicated:
             # Select or create the user, course, assignment and journal.
-            roles = json.load(open('config.json')), roles
+            roles = json.load(open('config.json'))
             user = select_create_user(request.POST, roles)
             course = select_create_course(request.POST, user, roles)
             assignment = select_create_assignment(request.POST, user, course, roles)
