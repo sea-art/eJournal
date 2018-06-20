@@ -1,3 +1,5 @@
+from django.http import JsonResponse
+
 def get_required_post_params(post, *keys):
     """
     Gets required post parameters, throwing
