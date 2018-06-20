@@ -115,9 +115,6 @@ class Assignment(models.Model):
     holds. The format determines how a students' journal is structured.
     """
     name = models.TextField()
-    deadline = models.DateTimeField(
-        null=True,
-    )
     description = models.TextField(
         null=True,
     )
@@ -245,6 +242,20 @@ class JournalFormat(models.Model):
     - available_templates are those available in 'Entry' nodes.
       'Entrydeadline' nodes hold their own forced template.
     """
+    PERCENTAGE = 'PE'
+    GRADE = 'GR'
+    TYPES = (
+        (PERCENTAGE, 'percentage'),
+        (GRADE, 'from 0 to 10'),
+    )
+    grade_type = models.TextField(
+        max_length=2,
+        choices=TYPES,
+        default=PERCENTAGE,
+    )
+    max_points = models.IntegerField(
+        default=10
+    )
     available_templates = models.ManyToManyField(
         'EntryTemplate',
     )
@@ -324,9 +335,12 @@ class Entry(models.Model):
     grade = models.IntegerField(
         default=0
     )
+    graded = models.BooleanField(
+        default=False
+    )
 
     def __str__(self):
-        return str(self.pk)
+        return str(self.pk) + " " + str(self.grade)
 
 
 class Counter(models.Model):
@@ -350,6 +364,9 @@ class EntryTemplate(models.Model):
     A template for an Entry.
     """
     name = models.TextField()
+    max_grade = models.IntegerField(
+        default=1,
+    )
 
     def __str__(self):
         return self.name
