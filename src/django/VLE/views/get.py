@@ -212,7 +212,7 @@ def get_course_permissions(request, cID):
 
     return JsonResponse({'permissions': roleDict})
 
-
+    
 @api_view(['GET'])
 def get_nodes(request, jID):
     """Get all nodes contained within a journal.
