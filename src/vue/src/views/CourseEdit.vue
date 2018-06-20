@@ -2,10 +2,22 @@
     <content-columns>
         <b-form slot="main-content-column" @submit="onSubmit">
             <h1>{{pageName}}</h1>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="course.name" placeholder="Course name" required/>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="course.abbr" maxlength="8" placeholder="Course Abbreviation (Max 10 letters)" required/>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="course.date" type="date" required/>
-            <b-button type="submit">Update Settings</b-button>
+
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
+                     v-model="course.name"
+                     placeholder="Course name"
+                     required/>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
+                     v-model="course.abbr"
+                     maxlength="10"
+                     placeholder="Course Abbreviation (Max 10 letters)"
+                     required/>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
+                     v-model="course.date"
+                     type="date"
+                     required/>
+
+            <b-button type="submit">Update Course</b-button>
             <b-button :to="{name: 'Course', params: {cID: this.$route.params.cID, courseName: pageName}}">Back</b-button>
         <br/>
     </b-form>

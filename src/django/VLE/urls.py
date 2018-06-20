@@ -21,6 +21,8 @@ from VLE.views.get import lti_grade_replace_result
 
 from VLE.views.get import get_own_user_data
 from VLE.views.get import get_course_data
+from VLE.views.get import get_assignment_data
+
 from VLE.views.get import get_user_courses
 from VLE.views.get import get_course_assignments
 from VLE.views.get import get_assignment_journals
@@ -33,6 +35,7 @@ from VLE.views.create import create_new_assignment
 from VLE.views.create import create_entry
 
 from VLE.views.update import update_course
+from VLE.views.update import update_assignment
 from VLE.views.update import update_password
 from VLE.views.update import update_grade_notification
 from VLE.views.update import update_comment_notification
@@ -52,6 +55,8 @@ urlpatterns = [
 
     path('api/get_own_user_data/', get_own_user_data, name='get_own_user_data'),
     path('api/get_course_data/<int:cID>/', get_course_data, name='get_course_data'),
+    path('api/get_assignment_data/<int:cID>/<int:aID>/', get_assignment_data, name='get_assignment_data'),
+
     path('api/get_user_courses/', get_user_courses, name='get_user_courses'),
     path('api/get_course_assignments/<int:cID>/', get_course_assignments, name='get_course_assignments'),
     path('api/get_assignment_journals/<int:aID>/', get_assignment_journals, name='get_assignment_journals'),
@@ -63,6 +68,7 @@ urlpatterns = [
     path('api/create_entry/', create_entry, name='create_entry'),
 
     path('api/update_course/', update_course, name='update_course'),
+    path('api/update_assignment/', update_assignment, name='update_assignment'),
     path('api/update_password/', update_password, name='update_password'),
     path('api/update_grade_notification/<str:notified>/', update_grade_notification,
          name='update_grade_notification'),
