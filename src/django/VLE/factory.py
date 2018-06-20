@@ -28,8 +28,8 @@ def make_participation(user, course, role):
     return participation
 
 
-def make_course(name, abbrev, startdate=None, author=None):
-    course = Course(name=name, abbreviation=abbrev, startdate=startdate, author=author)
+def make_course(name, abbrev, startdate=None, author=None, lti_id=None):
+    course = Course(name=name, abbreviation=abbrev, startdate=startdate, author=author, lti_id=lti_id)
     course.save()
     if author:
         participation = Participation()
