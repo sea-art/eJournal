@@ -90,14 +90,12 @@ def create_entry(request):
 
         # TODO: Check if node can still be created (deadline passed? graded?)
         if 'nID' in request.data:
-            print('OOPS')
             nID = request.data['nID']
             node = Node.objects.get(pk=nID, journal=journal)
             if node.type == Node.PROGRESS:
-                print('PROGRESS')
                 return JsonResponse({'result': '400 Bad Request'}, status=400)
 
-            node.entry = make_entry(template)    
+            node.entry = make_entry(template)
 
         else:
             entry = make_entry(template)
@@ -111,5 +109,4 @@ def create_entry(request):
 
         return JsonResponse({'result': 'success', 'node': node_to_dict(node)}, status=200)
     except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
-        print('DOES NOT EXIST')
         return JsonResponse({'result': '400 Bad Request'}, status=400)
