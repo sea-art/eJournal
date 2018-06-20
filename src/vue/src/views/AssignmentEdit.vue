@@ -8,9 +8,6 @@
                      v-model="assignment.name"
                      placeholder="Assignment name"
                      required/>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
-                     type="date"
-                     required/>
             <b-form-textarea class="descriptionTextArea"
                              :rows="3"
                              :max-rows="6"
@@ -46,7 +43,6 @@ export default {
             .then(response => {
                 this.assignment = response
                 this.pageName = this.assignment.name
-                // this.assignment.deadline = new date(this.assignment.deadline)
             })
             .catch(_ => alert('Error while loading assignment data'))
     },
