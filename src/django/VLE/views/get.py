@@ -9,12 +9,13 @@ import VLE.factory as factory
 
 @api_view(['GET'])
 def get_course_data(request, cID):
-    """Get the data linked to a course id
+    """Get the data linked to a course ID
 
     Arguments:
     request -- the request that was send with
+    cID -- course ID given with the request
 
-    Returns a json string with the course for the requested user
+    Returns a json string with the course data for the requested user
     """
     user = request.user
     if not user.is_authenticated:
@@ -108,6 +109,37 @@ def get_course_assignments(request, cID):
         return JsonResponse({
             'result': 'success',
             'assignments': get_student_course_assignments(user, course)
+        })
+
+
+@api_view(['GET'])
+def get_assignment_data(request, cID, aID):
+    """Get the data linked to an assignemnt ID
+
+    Arguments:
+    request -- the request that was send with
+    cID -- course ID given with the request
+    aID -- assignemnt ID given with the request
+
+    Returns a json string with the assignemnt data for the requested user
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    course = Course.objects.get(pk=cID)
+    assignment = Assignment.objects.get(pk=aID)
+    participation = Participation.objects.get(user=user, course=course)
+
+    if participation.role.can_view_assignment:
+        return JsonResponse({
+            'result': 'success',
+            'assignment': student_assignment_to_dict(assignment)
+        })
+    else:
+        return JsonResponse({
+            'result': 'success',
+            'assignment': assignment_to_dict(assignment)
         })
 
 

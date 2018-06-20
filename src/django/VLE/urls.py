@@ -19,6 +19,8 @@ from django.urls import path
 from VLE.lti_launch import lti_launch
 
 from VLE.views.get import get_course_data
+from VLE.views.get import get_assignment_data
+
 from VLE.views.get import get_user_courses
 from VLE.views.get import get_course_assignments
 from VLE.views.get import get_assignment_journals
@@ -45,6 +47,8 @@ urlpatterns = [
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
     path('api/get_course_data/<int:cID>/', get_course_data, name='get_course_data'),
+    path('api/get_assignment_data/<int:cID>/<int:aID>/', get_assignment_data, name='get_assignment_data'),
+     
     path('api/get_user_courses/', get_user_courses, name='get_user_courses'),
     path('api/get_course_assignments/<int:cID>/', get_course_assignments, name='get_course_assignments'),
     path('api/get_assignment_journals/<int:aID>/', get_assignment_journals, name='get_assignment_journals'),
