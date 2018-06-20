@@ -56,7 +56,7 @@ def get_permissions(user, cID):
             can_delete_course: True,
             is_admin: True
         }
-    else:
+    elif cID == -1:
         # First get the role ID of the user participation.
         role = Participation.objects.get(user=user, course=cID).role
 
