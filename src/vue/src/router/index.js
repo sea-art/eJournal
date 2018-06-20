@@ -10,6 +10,7 @@ import Guest from '@/views/Guest'
 import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
 import CourseEdit from '@/views/CourseEdit'
+import ErrorPage from '@/views/ErrorPage'
 
 Vue.use(Router)
 
@@ -31,9 +32,17 @@ export default new Router({
         name: 'Profile',
         component: Profile
     }, {
+        path: '/lti/launch',
+        name: 'LtiLaunch',
+        component: LtiLaunch
+    }, {
         path: '/AssignmentsOverview',
         name: 'AssignmentsOverview',
         component: AssignmentsOverview
+    }, {
+        path: '/ErrorPage',
+        name: 'ErrorPage',
+        component: ErrorPage
     }, {
         path: '/Home/Course/:cID',
         name: 'Course',
@@ -54,9 +63,5 @@ export default new Router({
         name: 'Journal',
         component: Journal,
         props: true
-    }, {
-        path: '/lti/launch',
-        name: 'LtiLaunch',
-        component: LtiLaunch
     }]
 })

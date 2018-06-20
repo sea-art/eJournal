@@ -1,6 +1,7 @@
 <template>
     <div>
-        <b-form @submit="onSubmit" @reset="onReset">
+        {{ this.form.courseStartdate }}
+        <b-form @submit="onSubmit" @reset="onReset" :v-model="form.ltiCourseID">
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseName" placeholder="Course name" required/>
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseAbbreviation" maxlength="10" placeholder="Course Abbreviation (Max 10 letters)" required/>
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseStartdate" type="date" required/>
@@ -20,13 +21,14 @@ export default {
             form: {
                 courseName: '',
                 courseAbbreviation: '',
-                courseStartdate: ''
+                courseStartdate: '',
+                ltiCourseID: ''
             }
         }
     },
     methods: {
         onSubmit () {
-            courseApi.create_new_course(this.form.courseName, this.form.courseAbbreviation, this.form.courseStartdate)
+            courseApi.create_new_course(this.form.courseName, this.form.courseAbbreviation, this.form.courseStartdate, this.form.ltiCourseID)
                 .then(_ => { this.$emit('handleAction') })
         },
         onReset (evt) {
