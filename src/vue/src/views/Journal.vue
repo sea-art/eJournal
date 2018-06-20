@@ -8,6 +8,7 @@
         <b-col v-else xl="3" class="left-content">
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
+
         <b-col lg="12" xl="6" order="2" class="main-content">
             <!-- <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
             <!--

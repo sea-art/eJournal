@@ -1,13 +1,14 @@
 <template>
     <b-card class="profile-card">
         <profile-data :name="name"
-                      :email="email"
+                      :image="image"
                       :id="id">
         </profile-data>
 
-        <notification-card></notification-card>
+        <notification-card :gradeUpdate="gradeUpdate"
+                           :commentUpdate="commentUpdate"
+        ></notification-card>
         <password-card></password-card>
-        <b-button :to="{name: 'Home'}">Back</b-button>
     </b-card>
 </template>
 
@@ -17,16 +18,11 @@ import notificationCard from '@/components/NotificationCard.vue'
 import passwordCard from '@/components/PasswordCard.vue'
 
 export default {
-    props: ['name', 'email', 'id', 'image'],
+    props: ['name', 'id', 'image', 'gradeUpdate', 'commentUpdate'],
     components: {
         'profile-data': profileData,
         'notification-card': notificationCard,
         'password-card': passwordCard
-    },
-    methods: {
-        back: function () {
-            alert('I am a back button!')
-        }
     }
 }
 </script>
@@ -47,14 +43,14 @@ export default {
 
 }
 
-h7 {
+p.profile-name {
     font-size: 30px;
-    line-height: 0px;
     font-weight: bold;
+    line-height: 35px;
     margin-bottom: 0px;
 }
 
-h8 {
+p.profile-title {
     font-size: 20px;
     font-weight: bold;
     margin-bottom: 0px;

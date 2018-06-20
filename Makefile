@@ -10,7 +10,10 @@ test-front:
 test: test-back test-front
 
 fill-db: migrate-back
-	bash -c 'source ./venv/bin/activate && cd ./src/django && echo "delete from sqlite_sequence where name like \"VLE_%\";" | sqlite3 VLE.db && python3.6 manage.py flush --no-input && python3.6 manage.py populate_db && deactivate'
+	bash -c 'source ./venv/bin/activate && cd ./src/django && echo "delete from sqlite_sequence where name like \"VLE_%\";" | sqlite3 VLE.db && python3.6 manage.py flush --no-input && python3.6 manage.py preset_db && deactivate'
+
+demo-db: fill-db
+	bash -c 'source ./venv/bin/activate && cd ./src/django && python3.6 manage.py demo_db && deactivate'
 
 show-db:
 	bash -c 'source ./venv/bin/activate && cd ./src/django && python3.6 manage.py show_db && deactivate'
@@ -41,7 +44,7 @@ fixnpm:
 setup: clean
 	#Install apt dependencies and ppa's.
 	(sudo apt-cache show python3.6 | grep "Package: python3.6") || (sudo add-apt-repository ppa:deadsnakes/ppa -y; sudo apt update) || echo "0"
-	sudo apt install npm nodejs git-flow python3.6 python3-pip python3.6-dev pep8 sqlite3 -y
+	sudo apt install npm nodejs git-flow python3.6 python3-pip pep8 sqlite3 -y
 
 	#Install dependencies for python (django, etc).
 	sudo pip3 install virtualenv

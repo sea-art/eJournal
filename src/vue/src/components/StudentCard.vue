@@ -14,7 +14,7 @@
             </b-col>
 
             <b-col order="2" cols="8" order-sm="3" sm="3" class="d-sm-none">
-                <todo-square :num="this.stats.submitted - this.stats.graded"/>
+                <todo-square v-if="this.stats" :num="this.stats.submitted - this.stats.graded"/>
             </b-col>
 
             <b-col order="3" cols="12" order-sm="2" sm="5" class="d-sm-none">
@@ -23,7 +23,7 @@
             </b-col>
 
             <b-col order="4" cols="12" sm="8" class="d-sm-none">
-                <progress-bar :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
+                <progress-bar v-if="this.stats" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
             </b-col>
         </b-row>
     </b-card>
