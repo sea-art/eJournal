@@ -40,7 +40,7 @@ class GradePassBackRequest(object):
         try:
             message_id_counter = Counter.objects.get(name='message_id')
         except Counter.DoesNotExist:
-            message_id_counter = Counter.objects.create(name='message_id', count=1)
+            message_id_counter = Counter.objects.create(name='message_id')
 
         count = message_id_counter.count
         message_id_counter.count += 1
@@ -133,13 +133,13 @@ class GradePassBackRequest(object):
         if imsx_code_mayor is not None:
             code_mayor = imsx_code_mayor.text
         else:
-            code_mayor = '???'
+            code_mayor = None
 
         imsx_severity = imsx_status_info.find(namespace+'imsx_severity')
         if imsx_severity is not None:
             severity = imsx_severity.text
         else:
-            severity = '???'
+            severity = None
 
         imsx_description = imsx_status_info.find(namespace+'imsx_description')
         if imsx_description is not None and imsx_description.text is not None:

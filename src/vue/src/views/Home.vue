@@ -37,7 +37,7 @@
             title="Global changes"
             size="lg"
             hide-footer=True>
-                <edit-home></edit-home>
+                <edit-home @handleAction="handleConfirm('editCourseRef')"></edit-home>
         </b-modal>
 
         <b-modal
@@ -46,7 +46,7 @@
             title="Create course"
             size="lg"
             hide-footer=True>
-                <create-course></create-course>
+                <create-course @handleAction="handleConfirm('createCourseRef')"></create-course>
         </b-modal>
     </content-columns>
 </template>
@@ -85,15 +85,18 @@ export default {
         'edit-home': editHome
     },
     created () {
-        course.get_user_courses()
-            .then(response => { this.courses = response })
-            .catch(_ => alert('Error while loading courses'))
+        this.loadCourses()
 
         /* assignment.get_upcoming_deadlines()
            .then(response => { this.deadlines = response })
            .catch(_ => alert('Error while loading deadlines')) */
     },
     methods: {
+        loadCourses () {
+            course.get_user_courses()
+                .then(response => { this.courses = response })
+                .catch(_ => alert('Error while loading courses'))
+        },
         deleteCourse (courseID, courseName) {
             if (confirm('Are you sure you want to delete ' + courseName + '?')) {
                 console.log('TODO Implement delete this course ID after privy check')
@@ -104,9 +107,9 @@ export default {
         },
         handleConfirm (ref) {
             if (ref === 'createCourseRef') {
-                alert('hai')
+                this.loadCourses()
             } else if (ref === 'editCourseRef') {
-                alert('doei')
+                // TODO: Handle edit assignment
             }
 
             this.hideModal(ref)

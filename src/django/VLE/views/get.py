@@ -11,6 +11,43 @@ from VLE.lti_grade_passback import *
 
 
 @api_view(['GET'])
+def get_own_user_data(request):
+    """Get the data linked to the logged in user
+
+    Arguments:
+    request -- the request that was send with
+
+    Returns a json string with user data
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    user_dict = user_to_dict(user)
+    user_dict['grade_notifications'] = user.grade_notifications
+    user_dict['comment_notifications'] = user.comment_notifications
+    return JsonResponse({'result': 'success', 'user': user_dict})
+
+
+@api_view(['GET'])
+def get_course_data(request, cID):
+    """Get the data linked to a course id
+
+    Arguments:
+    request -- the request that was send with
+
+    Returns a json string with the course for the requested user
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    course = course_to_dict(Course.objects.get(pk=cID))
+
+    return JsonResponse({'result': 'success', 'course': course})
+
+
+@api_view(['GET'])
 def get_user_courses(request):
     """Get the courses that are linked to the user linked to the request
 
@@ -162,9 +199,9 @@ def get_nodes(request, jID):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    course = make_course(request.data['name'], request.data['description'], request.user)
-
-    return JsonResponse({'result': 'success', 'course': course_to_dict(course)}, status=200)
+    journal = Journal.objects.get(pk=jID)
+    return JsonResponse({'result': 'success',
+                         'nodes': edag.get_nodes_dict(journal)})
 
 
 @api_view(['POST'])
@@ -195,9 +232,9 @@ def lti_launch(request):
         key = settings.LTI_KEY
 
         print('key = postkey', key == request.POST['oauth_consumer_key'])
-        authicated, err = OAuthRequestValidater.check_signature(key, secret, request)
+        authenticated, err = OAuthRequestValidater.check_signature(key, secret, request)
 
-        if authicated:
+        if authenticated:
             # Select or create the user, course, assignment and journal.
             roles = json.load(open('config.json'))
             user = select_create_user(request.POST)
@@ -229,8 +266,3 @@ def lti_launch(request):
             return redirect(link)
         else:
             return HttpResponse('unsuccesfull auth, {0}'.format(err))
-
-        # Prints de post parameters als http page
-        # TODO Remove these 2 lines
-        post = json.dumps(request.POST, separators=(',', ': '))
-        return HttpResponse(post.replace(',', ' <br> '))

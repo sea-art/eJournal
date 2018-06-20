@@ -1,10 +1,9 @@
 <template>
     <div>
         <label class="switch">
-          <input type="checkbox" @click="switchVariable">
+          <input type="checkbox" @click="switchVariable" v-bind:checked="isActive">
           <span class="slider"></span>
         </label>
-        {{ isActive }}
     </div>
 </template>
 

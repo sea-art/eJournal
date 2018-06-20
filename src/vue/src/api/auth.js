@@ -46,6 +46,11 @@ export default {
         localStorage.removeItem('jwt_refresh')
     },
 
+    /* Change password. */
+    changePassword (newPassword, oldPassword) {
+        return this.authenticatedPost('/update_password/', {new_password: newPassword, old_password: oldPassword})
+    },
+
     /* Run an authenticated post request.
      * This sets the JWT token to the Authorization headers of the request, so that it can access
      * protected resources. If the access JWT token is outdated, it refreshes and tries again.

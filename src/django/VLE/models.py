@@ -24,6 +24,12 @@ class User(AbstractUser):
     profile_picture = models.TextField(
         null=True
     )
+    grade_notifications = models.BooleanField(
+        default=True
+    )
+    comment_notifications = models.BooleanField(
+        default=False
+    )
 
     def __str__(self):
         return self.username
@@ -325,12 +331,18 @@ class Entry(models.Model):
 
 class Counter(models.Model):
     """
-    A single counter which is used as the message ID for LTI messages.
+    A single counter class which can be used to keep track of incremental values
+    which do not belong to another object like the message ID for LTI messages.
     """
     name = models.TextField(
         null=False
     )
-    count = models.IntegerField()
+    count = models.IntegerField(
+        default=0
+    )
+
+    def __str__(self):
+        return self.name + " is on " + self.count
 
 
 class EntryTemplate(models.Model):
