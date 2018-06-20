@@ -52,7 +52,6 @@ def assignment_to_dict(assignment):
         'name': assignment.name,
         'description': assignment.description,
         'auth': user_to_dict(assignment.author),
-        'deadlne': assignment.deadline
     } if assignment else None
 
 

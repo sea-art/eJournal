@@ -115,9 +115,6 @@ class Assignment(models.Model):
     holds. The format determines how a students' journal is structured.
     """
     name = models.TextField()
-    deadline = models.DateTimeField(
-        null=True,
-    )
     description = models.TextField(
         null=True,
     )
