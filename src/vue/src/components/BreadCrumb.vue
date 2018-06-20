@@ -42,11 +42,11 @@ export default {
             var pageName = this.$route.name
 
             // TODO add proper check
-            if (pageName === 'Home') {
-                return true
-            } else if (pageName === 'Course' && this.$root.permissions.can_edit_course) {
-                return true
-            }
+            if ((pageName === 'Home') ||
+               (pageName === 'Course' && this.$root.permissions.can_edit_course) ||
+               (pageName === 'Assignment' && this.$root.permissions.can_edit_assignment)) {
+                   return true
+               }
         }
     }
 }

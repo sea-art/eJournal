@@ -56,6 +56,7 @@ var router = new Router({
     }]
 })
 
+
 router.beforeEach((to, from, next) => {
     // TODO Check login here as well?
     // TODO Handle errors properly
@@ -70,8 +71,10 @@ router.beforeEach((to, from, next) => {
                 next()
             })
             .catch(_ => {
-                alert('Error while loading permissions')
-                next({to: '/'})
+                console.log('Error while loading permissions, does the redirect work?')
+                next(vm => {
+                    vm.$router.push({name: 'ErrorPage', params: {errorMessage: 'Error while loading permissions', errorCode: '???'}})
+                })
             })
     } else {
         next()
