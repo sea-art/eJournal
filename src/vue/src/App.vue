@@ -139,6 +139,10 @@ h6 {
     cursor: pointer;
 }
 
+.no-hover:hover {
+    background-color: var(--theme-light-grey) !important;
+}
+
 .multi-form {
     margin-bottom: 10px !important;
 }

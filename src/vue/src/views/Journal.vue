@@ -136,7 +136,4 @@ export default {
 </script>
 
 <style>
-.no-hover:hover {
-    background-color: var(--theme-light-grey);
-}
 </style>
