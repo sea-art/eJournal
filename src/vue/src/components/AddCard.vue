@@ -7,13 +7,16 @@
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>Select a template a template</h2>
                                 <b-form-select v-model="selectedTemplate">
-                                    <div v-for="template in templates" :key=template.tID>
-                                        <option value="template">{{template.name}}</option>
-                                    </div>
+                                    <option :value="null" disabled>Please select a template</option>
+                                    <option v-for="template in addNode.templates" :key="template.tID" :value="template">
+                                        {{template.name}}
+                                    </option>
                                 </b-form-select>
-                                <br>
-                                <h3>Preview</h3>
-                                <template-preview :template="addNode.templates[0]"/>
+                                <br><br>
+                                <div v-if="selectedTemplate !== null">
+                                    <h3>Preview</h3>
+                                    <template-preview :template="selectedTemplate"/>
+                                </div>
                                 <br>
                                 <b-button @click="addTemplate">Add template</b-button>
                             </b-col>
@@ -35,7 +38,7 @@ export default {
     data () {
         return {
             templateNames: [],
-            selectedTemplate: this.addNode.templates[0]
+            selectedTemplate: null
         }
     },
 

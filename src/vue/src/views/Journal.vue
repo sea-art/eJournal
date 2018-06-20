@@ -20,13 +20,14 @@
                     <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'a'">
-                    {{nodes[currentNode]}}
-                    <add-card @add-template="addNode"></add-card>
+                    <add-card @add-template="addNode" :addNode="nodes[currentNode]"></add-card>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'p'">
-                    <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
-                    :textbox2="nodes[currentNode].textbox2"
-                    :date="nodes[currentNode].date"></entry-template>
+                    <b-card class="card main-card noHoverCard" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        You have {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        needed points before {{nodes[currentNode].deadline}}.
+                    </b-card>
                 </div>
             </div>
         </b-col>
@@ -54,7 +55,8 @@ export default {
             windowWidth: 0,
             currentNode: 0,
             editedData: ['', ''],
-            nodes: []
+            nodes: [],
+            progressNodes: {}
         }
     },
 
@@ -84,6 +86,10 @@ export default {
                 }
             }
 
+            if (this.nodes[$event].type === 'p') {
+                this.progressPoints(this.nodes[$event])
+            }
+
             this.$refs['entry-template-card'].cancel()
             this.currentNode = $event
         },
@@ -96,6 +102,21 @@ export default {
                 date: new Date(),
                 id: this.nodes.length
             })
+        },
+        progressPoints (progressNode) {
+            var tempProgress = 0
+
+            for (var node of this.nodes) {
+                if (node.nID === progressNode.nID) {
+                    break
+                }
+
+                if (node.type === 'e' || node.type === 'd') {
+                    tempProgress += node.entry.grade
+                }
+            }
+
+            this.progressNodes[progressNode.nID] = tempProgress
         },
         getWindowWidth (event) {
             this.windowWidth = document.documentElement.clientWidth
