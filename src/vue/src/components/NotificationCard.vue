@@ -1,28 +1,26 @@
 <template>
     <b-container>
         <b-row>
-            <h8>Notification-emails</h8><br/>
+            <span class="profile-title">Notification-emails</span><br/>
         </b-row>
         <b-row>
             <b-col class="profile-col" cols="4">
-                <p class="profile-notification">Grade updates</p>
+                <span class="profile-notification">Grade updates</span>
             </b-col>
             <b-col cols="6">
                 <toggle-switch :isActive="gradeUpdate"
                                @parentActive="getGradeNotification">
                 </toggle-switch>
-                {{gradeUpdate}}
             </b-col>
         </b-row>
         <b-row>
             <b-col class="profile-col" cols="4">
-                <p class="profile-notification">Comments</p>
+                <span class="profile-notification">Comments</span>
             </b-col>
             <b-col cols="6">
                 <toggle-switch :isActive="commentUpdate"
                                @parentActive="getCommentNotification">
                 </toggle-switch>
-                {{commentUpdate}}
             </b-col>
         </b-row>
     </b-container>
@@ -30,23 +28,21 @@
 
 <script>
 import Switch from '@/components/SwitchComponent.vue'
+import userAPI from '@/api/user.js'
 
 export default {
+    props: ['gradeUpdate', 'commentUpdate'],
     components: {
         'toggle-switch': Switch
     },
-    data () {
-        return {
-            gradeUpdate: false,
-            commentUpdate: false
-        }
-    },
     methods: {
         getGradeNotification (isActive) {
-            this.gradeUpdate = isActive
+            userAPI.update_grade_notification(isActive)
+                .then(isActive => { this.gradeUpdate = isActive })
         },
         getCommentNotification (isActive) {
-            this.commentUpdate = isActive
+            userAPI.update_grade_notification(isActive)
+                .then(isActive => { this.commentUpdate = isActive })
         }
     }
 }
