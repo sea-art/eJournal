@@ -145,7 +145,7 @@ class lti_launch_test(TestCase):
     def test_create_journal(self):
         """Hopefully create a journal."""
         self.created_journal.delete()
-        selected_journal = se lect_create_journal({
+        selected_journal = select_create_journal({
             'roles': self.roles['student'],
         },
             user=self.created_user,
