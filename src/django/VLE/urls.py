@@ -39,6 +39,9 @@ from VLE.views.update import update_password
 from VLE.views.update import update_grade_notification
 from VLE.views.update import update_comment_notification
 
+from VLE.views.delete import delete_course
+from VLE.views.delete import delete_assignment
+
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -73,6 +76,9 @@ urlpatterns = [
          name='update_grade_notification'),
     path('api/update_comment_notification/<str:notified>/', update_comment_notification,
          name='update_comment_notification'),
+
+    path('api/delete_course/', delete_course, name='delete_course'),
+    path('api/delete_assignment/', delete_assignment, name='delete_assignment'),
 
     path('api/lti/launch', lti_launch, name='lti_launch'),
 ]

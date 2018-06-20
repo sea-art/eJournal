@@ -19,6 +19,7 @@
                      required/>
 
             <b-button type="submit">Update Course</b-button>
+            <b-button @click.prevent.stop="deleteCourse()">Delete Course</b-button>
             <b-button :to="{name: 'Course', params: {cID: this.$route.params.cID, courseName: pageName}}">Back</b-button>
         <br/>
     </b-form>
@@ -50,7 +51,7 @@ export default {
             .catch(_ => alert('Error while loading course data'))
     },
     methods: {
-        onSubmit (evt) {
+        onSubmit () {
             courseApi.update_course(this.$route.params.cID,
                 this.course.name,
                 this.course.abbr,
@@ -59,6 +60,15 @@ export default {
                     this.course = response
                     this.pageName = this.course.name
                 })
+        },
+        deleteCourse () {
+            if (confirm('Are you sure you want to delete ' + this.course.name + '?')) {
+                courseApi.delete_course(this.$route.params.cID)
+                .then(response => {
+                    console.log(response)
+                    this.$router.push({name: 'Home'});
+                })
+            }
         }
     }
 }

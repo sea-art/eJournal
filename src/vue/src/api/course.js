@@ -33,5 +33,12 @@ export default {
             abbr: abbr,
             startdate: startdate
         }).then(response => response.data.course)
+    },
+
+    /* Deletes an existing course. */
+    delete_course (cID) {
+        return auth.authenticatedPost('/delete_course/', {
+            cID: cID
+        }).then(response => response.data.result)
     }
 }

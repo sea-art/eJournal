@@ -15,6 +15,7 @@
                              required/>
 
             <b-button type="submit">Update Assignment</b-button>
+            <b-button @click.prevent.stop="deleteAssignment()">Delete Assignment</b-button>
             <b-button :to="{name: 'Assignment', params: {cID: this.$route.params.cID, courseName: pageName}}">Back</b-button>
         <br/>
     </b-form>
@@ -38,7 +39,7 @@ export default {
         'content-columns': contentColumns
     },
     created () {
-        assignmentApi.get_assignemnt_data(this.$route.params.cID, this.$route.params.cID)
+        assignmentApi.get_assignemnt_data(this.$route.params.cID, this.$route.params.aID)
             .then(response => {
                 this.assignment = response
                 this.pageName = this.assignment.name
@@ -54,10 +55,22 @@ export default {
                     this.assignments = response
                     this.pageName = this.assignment.name
                 })
+        },
+        deleteAssignment () {
+            if (confirm('Are you sure you want to delete ' + this.assignment.name + '?')) {
+                assignmentApi.delete_assignment(this.$route.params.aID)
+                .then(response => {
+                    console.log(response)
+                    this.$router.push({name: 'Home'});
+                })
+            }
         }
     }
 }
 </script>
 
 <style>
+.descriptionTextArea {
+    margin-bottom: 10px;
+}
 </style>
