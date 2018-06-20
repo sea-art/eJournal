@@ -19,7 +19,7 @@
         <main-card slot="main-content-column" class="hover" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
-        <!-- <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
+        <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
             <b-link tag="b-button" :to="{name: 'Assignment', params: {cID: d.cIDs[0], dID: d.dID}}">
                 <todo-card
                     :line0="d.datetime"
@@ -28,7 +28,7 @@
                     :color="$root.colors[d.cIDs[0] % $root.colors.length]">
                 </todo-card>
             </b-link>
-        </div> -->
+        </div>
 
         <b-modal
             slot="main-content-column"
@@ -36,7 +36,7 @@
             title="Create assignment"
             size="lg"
             hide-footer=True>
-                <create-assignment></create-assignment>
+                <create-assignment @handleAction="handleConfirm('createAssignmentRef')"></create-assignment>
         </b-modal>
 
     </content-columns>
@@ -69,24 +69,11 @@ export default {
             error: null,
             deadlines: [{
                 name: 'Individueel logboek',
-                course: 'WEDA',
-                cID: ['2017WDB'],
+                cIDs: ['1', '2'],
+                courseAbbrs: ['WEDA', 'PALSIE8'],
                 dID: '2017IL1',
                 datetime: '8-6-2018 13:00'
-            }, {
-                name: 'Logboek academia',
-                course: 'AVI2',
-                cID: ['2017AVI2'],
-                dID: '2017LA',
-                datetime: '8-6-2018 13:00'
-            }, {
-                name: 'Individueel logboek',
-                course: 'AVI1, AVI2',
-                cID: ['2017AVI1', '2017AVI2'],
-                dID: '2017IL2',
-                datetime: '8-6-2018 13:00'
-            }],
-            permissions: {}
+            }]
         }
     },
     components: {
@@ -98,15 +85,23 @@ export default {
         'main-card': mainCard,
         'create-assignment': createAssignment
     },
+    created () {
+        this.loadAssignments()
+    },
     methods: {
+        loadAssignments () {
+            assignment.get_course_assignments(this.cID)
+                .then(response => { this.assignments = response })
+                .catch(_ => alert('Error while loading assignments'))
+        },
         showModal (ref) {
             this.$refs[ref].show()
         },
         handleConfirm (ref) {
-            if (ref === 'createCourseRef') {
-                alert('hai')
-            } else if (ref === 'editCourseRef') {
-                alert('doei')
+            if (ref === 'createAssignmentRef') {
+                this.loadAssignments()
+            } else if (ref === 'editAssignmentRef') {
+                // TODO: handle edit assignment
             }
 
             this.hideModal(ref)
@@ -117,11 +112,6 @@ export default {
         customisePage () {
             alert('Wishlist: Customise page')
         }
-    },
-    created () {
-        assignment.get_course_assignments(this.cID)
-            .then(response => { this.assignments = response })
-            .catch(_ => alert('Error while loading assignments'))
     }
 }
 </script>

@@ -25,6 +25,12 @@ class User(AbstractUser):
         default='/static/oh_no/oh_no.jpeg'
     )
     is_admin = models.BooleanField(default=False)
+    grade_notifications = models.BooleanField(
+        default=True
+    )
+    comment_notifications = models.BooleanField(
+        default=False
+    )
 
     def __str__(self):
         return str(self.id) + ") " + self.username
@@ -123,7 +129,7 @@ class Assignment(models.Model):
     """
     name = models.TextField()
     deadline = models.DateTimeField(
-        auto_now_add=True
+        null=True,
     )
     description = models.TextField(
         null=True,
