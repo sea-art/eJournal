@@ -39,10 +39,10 @@ export default {
             chooseAction: '',
 
             /* Variables for checking the state of the lti launch. */
-            s_new_course: 0,
-            s_new_assignment: 1,
-            s_finish: 2,
-            s_finish_student: 3
+            s_new_course: '0',
+            s_new_assignment: '1',
+            s_finish: '2',
+            s_finish_student: '3'
         }
     },
     methods: {
@@ -59,14 +59,16 @@ export default {
             if (ref === 'chooseActionRef') {
 
             }
-        },
+        }
     },
     mounted () {
-        if (localStorage.getItem('jwt_access') === null)
+        if (localStorage.getItem('jwt_access') === null) {
             localStorage.setItem('jwt_access', this.$route.query.jwt_access)
+        }
 
-        if (localStorage.getItem('jwt_refresh') === null)
+        if (localStorage.getItem('jwt_refresh') === null) {
             localStorage.setItem('jwt_refresh', this.$route.query.jwt_refresh)
+        }
 
         this.msg = this.$route.query.jwt_access
         this.jwt_refresh = this.$route.query.jwt_refresh
@@ -82,31 +84,56 @@ export default {
         var ltiAssignID = this.$route.query.lti_aID
         var ltiPointsPossible = this.$route.query.lti_points_possible
 
-        if (role === 'teacher') {
+        var cID = this.$route.query.cID
+        var aID = this.$route.query.aID
+        var jID = this.$route.query.jID
+
+        alert(state === this.s_new_course)
+
+        if (role === 'ta' || role === 'teacher') {
             if (state === this.s_new_course) {
+                // TODO Create or koppel assignement
                 this.showModal('chooseActionRef')
+            } else if (state === this.s_new_assignment) {
+                // TODO Create or koppel assignement
+            } else if (state === this.s_finish) {
+                this.$router.push({
+                    name: 'Assignment',
+                    params: {
+                        cID: cID,
+                        aID: aID
+                    }
+                })
+            } else {
+                // TODO Something went wrong -> 404 // should not be possible
+                this.$router.push({
+                    name: 'ErrorPage'
+                })
+            }
+        } else if (role === 'student') {
+            if (state === this.s_finish_student) {
+                this.$router.push({
+                    name: 'Journal',
+                    params: {
+                        cID: cID,
+                        aID: aID,
+                        jID: jID
+                    }
+                })
+            } else if (state === this.s_new_course) {
+                // TODO 404 course not found
+                this.$router.push({
+                    name: 'ErrorPage'
+                })
+            } else if (state === this.s_new_assignment) {
+                // TODO 404 assignment not found
+                this.$router.push({
+                    name: 'ErrorPage'
+                })
+            } else {
+                // TODO should not be possible
             }
         }
-
-    //     if (student) {
-    //         /* If a student requests this. */
-    //         if (cID === 'undefined' || aID === 'undefined') {
-    //             // TODO Push a 404.
-    //         } else if (jID === 'undefined') {
-    //             // this.$router.push({name: 'Assignment', params: {cID: cID, aID: aID}})
-    //         } else {
-    //             // this.$router.push({name: 'Journal', params: {cID: cID, aID: aID, jID: jID}})
-    //         }
-    //     } else {
-    //         /* If a non student requests this. */
-    //         if (cID === 'undefined') {
-    //             // TODO creation
-    //         } else if (aID === 'undefined') {
-    //             // TODO creation
-    //         } else {
-    //             // this.$router.push({name: 'Assignment', params: {cID: cID, aID: aID}})
-    //         }
-    //     }
     }
 }
 </script>

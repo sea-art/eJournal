@@ -251,12 +251,6 @@ def lti_launch(request):
         token = TokenObtainPairSerializer.get_token(user)
         access = token.access_token
 
-        link = settings.LTI_BASELINK
-        link += '?jwt_refresh={0}'.format(token)
-        link += '&jwt_access={0}'.format(access)
-
-        course = check_course_lti(request.POST, user)
-
         course_names = ['lti_cName', 'lti_abbr', 'role', 'lti_cID']
         course_values = [request.POST['context_title'], request.POST['context_label'],
                          lti_roles[request.POST['roles']], request.POST['context_id']]
@@ -264,6 +258,7 @@ def lti_launch(request):
         assignment_values = [request.POST['resource_link_title'], request.POST['resource_link_id'],
                              request.POST['custom_canvas_assignment_points_possible']]
 
+        course = check_course_lti(request.POST, user)
         if course is None:
             query_names = ['jwt_refresh', 'jwt_access', 'state']
             query_names += course_names
