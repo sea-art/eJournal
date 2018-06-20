@@ -36,7 +36,7 @@ export default {
         return auth.authenticatedPost('/update_assignment/', {
             aID: aID,
             name: name,
-            description: description,
+            description: description
         }).then(response => response.data.assignment)
     }
 }
