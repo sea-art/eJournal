@@ -3,7 +3,7 @@ from django.conf import settings
 from django.test import TestCase
 from VLE.factory import make_user, make_course, make_assignment, make_journal
 import json
-from VLE.models import Participation
+from VLE.models import Participation, User, Course, Assignment, Journal
 
 
 class lti_launch_test(TestCase):
@@ -47,11 +47,12 @@ class lti_launch_test(TestCase):
 
     def test_create_user(self):
         """Hopefully create a user."""
-        select_create_user({
+        selected_user = select_create_user({
             'user_id': 99999,
             'lis_person_contact_email_primary': 'test@mail.com',
             'lis_person_sourcedid': 'TestUsername'
         })
+        self.assertIsInstance(selected_user, User)
 
     def test_select_course(self):
         """Hopefully select a course."""
@@ -75,6 +76,7 @@ class lti_launch_test(TestCase):
             user=self.created_user,
             roles=self.roles
         )
+        self.assertIsInstance(selected_course, Course)
 
     def test_create_course_unauthorized(self):
         """
@@ -113,6 +115,7 @@ class lti_launch_test(TestCase):
             course=self.created_course,
             roles=self.roles
         )
+        self.assertIsInstance(selected_assignment, Assignment)
 
     def test_create_assignment_unauthorized(self):
         """
@@ -149,6 +152,7 @@ class lti_launch_test(TestCase):
             assignment=self.created_assignment,
             roles=self.roles
         )
+        self.assertIsInstance(selected_journal, Journal)
 
     def test_create_journal_unauthorized(self):
         """

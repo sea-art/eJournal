@@ -9,7 +9,7 @@ import oauth2
 import json
 from datetime import datetime
 
-from .models import User, Course, Assignment, Participation, Role, Journal, JournalFormat
+from VLE.models import User, Course, Assignment, Participation, Role, Journal, JournalFormat
 
 
 class OAuthRequestValidater(object):

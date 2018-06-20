@@ -40,7 +40,7 @@ export default {
             if (cID === 'undefined') {
                 // TODO creation
             } else if (aID === 'undefined') {
-                // TODO creatrion
+                // TODO creation
             } else {
                 this.$router.push({name: 'Assignment', params: {cID: cID, aID: aID}})
             }
