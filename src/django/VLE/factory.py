@@ -100,8 +100,8 @@ def make_participation(user, course, role):
     return participation
 
 
-def make_course(name, abbrev, startdate=None, author=None):
-    course = Course(name=name, abbreviation=abbrev, startdate=startdate, author=author)
+def make_course(name, abbrev, startdate=None, author=None, lti_id=None):
+    course = Course(name=name, abbreviation=abbrev, startdate=startdate, author=author, lti_id=lti_id)
     course.save()
     if author:
         participation = Participation()
@@ -112,20 +112,17 @@ def make_course(name, abbrev, startdate=None, author=None):
     return course
 
 
-def make_assignment(name, description, courseID=None, author=None, format=None, deadline=None):
+def make_assignment(name, description, author=None, format=None):
     if format is None:
         format = JournalFormat()
         format.save()
-    assign = Assignment(name=name, description=description, author=author, deadline=deadline, format=format)
+    assign = Assignment(name=name, description=description, author=author, format=format)
     assign.save()
-    if courseID:
-        assign.courses.add(Course.objects.get(pk=courseID))
-        assign.save()
     return assign
 
 
-def make_format(templates=[]):
-    format = JournalFormat()
+def make_format(templates=[], max_points=10):
+    format = JournalFormat(max_points=max_points)
     format.save()
     format.available_templates.add(*templates)
     return format
@@ -166,7 +163,6 @@ def make_journal(assignment, user):
         Node(type=preset_node.type,
              journal=journal,
              preset=preset_node).save()
-
     return journal
 
 
