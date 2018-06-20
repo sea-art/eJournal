@@ -12,6 +12,7 @@
                                @parentActive="getGradeNotification">
                 </toggle-switch>
             </b-col>
+            {{gradeUpdate}}
         </b-row>
         <b-row>
             <b-col class="profile-col" cols="4">
@@ -22,6 +23,7 @@
                                @parentActive="getCommentNotification">
                 </toggle-switch>
             </b-col>
+            <!-- {{commentUpdate}} -->
         </b-row>
     </b-container>
 </template>
@@ -31,9 +33,23 @@ import Switch from '@/components/SwitchComponent.vue'
 import userAPI from '@/api/user.js'
 
 export default {
-    props: ['gradeUpdate', 'commentUpdate'],
+    // props: ['gradeUpdate', 'commentUpdate'],
     components: {
         'toggle-switch': Switch
+    },
+    data () {
+        return {
+            'profile': {},
+            'gradeUpdate': null,
+            'commentUpdate': null
+        }
+    },
+    created () {
+        userAPI.get_own_user_data().then(user => {
+            this.profile = user
+            this.gradeUpdate = this.profile.grade_notifications
+            this.commentUpdate = this.profile.comment_notifications
+        })
     },
     methods: {
         getGradeNotification (isActive) {

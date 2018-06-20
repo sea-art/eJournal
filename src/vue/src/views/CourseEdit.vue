@@ -2,6 +2,7 @@
     <content-columns>
         <b-form slot="main-content-column" @submit="onSubmit">
             <h1>{{pageName}}</h1>
+            {{course}}
 
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
                      v-model="course.name"
