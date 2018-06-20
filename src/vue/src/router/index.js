@@ -10,7 +10,7 @@ import Guest from '@/views/Guest'
 import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
 import CourseEdit from '@/views/CourseEdit'
-import AssignmentEdit from '@/views/AssignmentEdit'
+import FormatEdit from '@/views/FormatEdit'
 
 Vue.use(Router)
 
@@ -51,11 +51,6 @@ export default new Router({
         component: Assignment,
         props: true
     }, {
-        path: '/Home/Course/:cID/Assignment/:aID/AssignmentEdit',
-        name: 'AssignmentEdit',
-        component: AssignmentEdit,
-        props: true
-    }, {
         path: '/Home/Course/:cID/Assignment:aID/Journal/:jID',
         name: 'Journal',
         component: Journal,
@@ -64,5 +59,9 @@ export default new Router({
         path: '/lti/launch',
         name: 'LtiLaunch',
         component: LtiLaunch
+    }, {
+        path: '/Format',
+        name: 'Format',
+        component: FormatEdit
     }]
 })
