@@ -29,5 +29,14 @@ export default {
             description: description,
             assignmentID: aID
         }).then(response => response.data)
+    },
+
+    /* Updates an existing assignment. */
+    update_assignment (aID, name, description) {
+        return auth.authenticatedPost('/update_assignment/', {
+            aID: aID,
+            name: name,
+            description: description,
+        }).then(response => response.data.assignment)
     }
 }
