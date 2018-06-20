@@ -29,7 +29,8 @@ new Vue({
             return '1M 9D 9H'
         },
         /* Admin has all permissions, including the ones listed below plus:
-         * Creating a course */
+         * Creating a course
+         * Editing institute wide settings */
         isAdmin () {
             return this.permissions.is_admin
         },
