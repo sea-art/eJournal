@@ -20,7 +20,7 @@
                     <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'a'">
-                    <add-card @add-template="addNode" :addNode="nodes[currentNode]"></add-card>
+                    <add-card @info-entry="addNode" :addNode="nodes[currentNode]"></add-card>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'p'">
                     <b-card class="card main-card noHoverCard" :class="'pink-border'">
@@ -93,8 +93,12 @@ export default {
             this.$refs['entry-template-card'].cancel()
             this.currentNode = $event
         },
-        addNode (template) {
-            console.log(template)
+        addNode (infoEntry) {
+            // console.log(infoEntry)
+            journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
+            journal.get_nodes(this.jID)
+                .then(response => { this.nodes = response.nodes })
+                .catch(_ => alert('Error while loading nodes.'))
         },
         progressPoints (progressNode) {
             var tempProgress = 0

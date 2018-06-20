@@ -14,11 +14,9 @@
                                 </b-form-select>
                                 <br><br>
                                 <div v-if="selectedTemplate !== null">
-                                    <h3>Preview</h3>
-                                    <template-preview :template="selectedTemplate"/>
+                                    <h3>Fill in your entry</h3>
+                                    <entry-preview @content-template="createEntry" :template="selectedTemplate"/>
                                 </div>
-                                <br>
-                                <b-button @click="addTemplate">Add template</b-button>
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12">
                             </b-col>
@@ -31,34 +29,27 @@
 
 <script>
 import templatePreview from '@/components/TemplatePreview.vue'
+import entryPreview from '@/components/EntryPreview.vue'
 
 export default {
     props: ['addNode'],
 
     data () {
         return {
-            templateNames: [],
-            selectedTemplate: null
+            selectedTemplate: null,
+            infoEntry: null
         }
     },
 
-    created () {
-        this.fillTemplateNames()
-    },
-
     methods: {
-        fillTemplateNames: function () {
-            for (var template of this.addNode.templates) {
-                this.templateNames.push(template.name)
-            }
-        },
-        addTemplate: function () {
-            this.$emit('add-template', this.selectedTemplate)
+        createEntry: function (content) {
+            this.$emit('info-entry', [this.selectedTemplate, content])
         }
     },
 
     components: {
-        'template-preview': templatePreview
+        'template-preview': templatePreview,
+        'entry-preview': entryPreview
     }
 }
 </script>
