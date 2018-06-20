@@ -9,21 +9,10 @@ from random import randint
 import statistics as st
 
 import VLE.edag as edag
-
-
-def user_to_obj(user):
-    """Get a object of a single user
-
-    Arguments:
-    user -- user to create the object with
-
-    returns object of that user
-    """
-    return {
-        'name': str(user),
-        'picture': user.profile_picture if user.profile_picture else '../assets/logo.png',
-        'uID': dec_to_hex(user.id)
-    } if user else None
+import VLE.factory as factory
+import statistics as st
+from VLE.lti_launch import *
+from VLE.lti_grade_passback import *
 
 
 @api_view(['GET'])
@@ -212,7 +201,7 @@ def get_course_permissions(request, cID):
 
     return JsonResponse({'permissions': roleDict})
 
-    
+
 @api_view(['GET'])
 def get_nodes(request, jID):
     """Get all nodes contained within a journal.
@@ -228,3 +217,67 @@ def get_nodes(request, jID):
     journal = Journal.objects.get(pk=jID)
     return JsonResponse({'result': 'success',
                          'nodes': edag.get_nodes_dict(journal)})
+
+
+@api_view(['POST'])
+def lti_grade_replace_result(request):
+    # TODO Extend the docstring with what is important in the request variable.
+    """
+    Replace a grade on the LTI instance based on the request.
+    """
+
+    secret = settings.LTI_SECRET
+    key = settings.LTI_KEY
+
+    grade_request = GradePassBackRequest(key, secret, None)
+    grade_request.score = '0.5'
+    grade_request.sourcedId = request.POST['lis_result_sourcedid']
+    grade_request.url = request.POST['lis_outcome_service_url']
+    response = grade_request.send_post_request()
+
+    return JsonResponse(response)
+
+
+@api_view(['POST'])
+def lti_launch(request):
+    """Django view for the lti post request."""
+    if request.method == 'POST':
+        # canvas TODO change to its own database based on the key in the request.
+        secret = settings.LTI_SECRET
+        key = settings.LTI_KEY
+
+        print('key = postkey', key == request.POST['oauth_consumer_key'])
+        authenticated, err = OAuthRequestValidater.check_signature(key, secret, request)
+
+        if authenticated:
+            # Select or create the user, course, assignment and journal.
+            roles = json.load(open('config.json'))
+            user = select_create_user(request.POST)
+            course = select_create_course(request.POST, user, roles)
+            assignment = select_create_assignment(request.POST, user, course, roles)
+            journal = select_create_journal(request.POST, user, assignment, roles)
+
+            # Check if the request comes from a student or not.
+            roles = json.load(open('config.json'))
+            student = request.POST['roles'] == roles['student']
+
+            token = TokenObtainPairSerializer.get_token(user)
+            access = token.access_token
+
+            # Set the ID's or if these do not exist set them to undefined.
+            cID = course.pk if course is not None else 'undefined'
+            aID = assignment.pk if assignment is not None else 'undefined'
+            jID = journal.pk if journal is not None else 'undefined'
+
+            # TODO Should not be localhost anymore at production.
+            link = 'http://localhost:8080/#/lti/launch'
+            link += '?jwt_refresh={0}'.format(token)
+            link += '&jwt_access={0}'.format(access)
+            link += '&cID={0}'.format(cID)
+            link += '&aID={0}'.format(aID)
+            link += '&jID={0}'.format(jID)
+            link += '&student={0}'.format(student)
+
+            return redirect(link)
+        else:
+            return HttpResponse('unsuccesfull auth, {0}'.format(err))

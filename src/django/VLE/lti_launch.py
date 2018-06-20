@@ -3,17 +3,13 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.clickjacking import xframe_options_exempt
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.conf import settings
 from urllib.parse import quote
 import oauth2
 import json
 from datetime import datetime
 
-from .models import User, Course, Assignment, Participation, Role, Journal
-
-
-def dec_to_hex(dec):
-    """Change int to hex value"""
-    return hex(dec).split('x')[-1]
+from VLE.models import User, Course, Assignment, Participation, Role, Journal, JournalFormat
 
 
 class OAuthRequestValidater(object):
@@ -75,14 +71,14 @@ class OAuthRequestValidater(object):
         # Signature was valid
         return True, None
 
-
-def check_signature(key, secret, request):
-    """
-    Validates OAuth request using the python-oauth2 library:
-        https://github.com/simplegeo/python-oauth2.
-    """
-    validator = OAuthRequestValidater(key, secret)
-    return validator.is_valid(request)
+    @classmethod
+    def check_signature(cls, key, secret, request):
+        """
+        Validates OAuth request using the python-oauth2 library:
+            https://github.com/simplegeo/python-oauth2.
+        """
+        validator = OAuthRequestValidater(key, secret)
+        return validator.is_valid(request)
 
 
 def select_create_user(request):
@@ -109,13 +105,12 @@ def select_create_user(request):
     return user
 
 
-def select_create_course(request, user):
+def select_create_course(request, user, roles):
     """
     Select or create a course requested.
     """
     course_id = request['context_id']
     courses = Course.objects.filter(lti_id=course_id)
-    roles = json.load(open('config.json'))
 
     if courses.count() > 0:
         # If course already exists, select it.
@@ -150,13 +145,12 @@ def select_create_course(request, user):
     return course
 
 
-def select_create_assignment(request, user, course):
+def select_create_assignment(request, user, course, roles):
     """
     Select or create a assignment requested.
     """
     assign_id = request['resource_link_id']
     assignments = Assignment.objects.filter(lti_id=assign_id)
-    roles = json.load(open('config.json'))
     if assignments.count() > 0:
         # If the assigment exists, select it and add the course if necessary.
         assignment = assignments[0]
@@ -170,6 +164,7 @@ def select_create_assignment(request, user, course):
             assignment = Assignment()
             assignment.name = request['resource_link_title']
             assignment.lti_id = assign_id
+            assignment.format_id = JournalFormat.objects.create().pk
             if 'custom_canvas_assignment_points_possible' in request:
                 assignment.points_possible = request[
                     'custom_canvas_assignment_points_possible']
@@ -182,12 +177,11 @@ def select_create_assignment(request, user, course):
     return assignment
 
 
-def select_create_journal(request, user, assignment):
+def select_create_journal(request, user, assignment, roles):
     """
     Select or create the requested journal.
     """
-    roles = json.load(open('config.json'))
-    if roles['student'] in request['roles']:
+    if roles['student'] in request['roles'] and assignment is not None:
         journals = Journal.objects.filter(user=user, assignment=assignment)
         if journals.count() > 0:
             journal = journals[0]
@@ -199,44 +193,3 @@ def select_create_journal(request, user, assignment):
     else:
         journal = None
     return journal
-
-
-@csrf_exempt
-@xframe_options_exempt
-def lti_launch(request):
-    """Django view for the lti post request."""
-    if request.method == 'POST':
-        # canvas TODO change to its own database based on the key in the request.
-        secret = '4339900ae5861f3086861ea492772864'
-        key = '0cd500938a8e7414ccd31899710c98ce'
-
-        print('key = postkey', key == request.POST['oauth_consumer_key'])
-        authicated, err = check_signature(key, secret, request)
-
-        if authicated:
-            user = select_create_user(request.POST)
-            course = select_create_course(request.POST, user)
-            assignment = select_create_assignment(request.POST, user, course)
-            journal = select_create_journal(request.POST, user, assignment)
-
-            token = TokenObtainPairSerializer.get_token(user)
-            access = token.access_token
-
-            student = dec_to_hex(user.pk) if journal else 'undefined'
-            link = 'http://localhost:8080/#/lti/launch'
-            link += '?jwt_refresh={0}'.format(token)
-            link += '&jwt_access={0}'.format(access)
-            link += '&course={0}'.format(dec_to_hex(course.pk))
-            link += '&assign={0}'.format(dec_to_hex(assignment.pk))
-            link += '&student={0}'.format(student)
-            return redirect(link)
-        else:
-            response = {'error': '401 Authentication Error'}
-            status = 401
-            return HttpResponse('unsuccesfull auth, {0}'.format(err))
-
-        # Prints de post parameters als http page
-        post = json.dumps(request.POST, separators=(',', ': '))
-        return HttpResponse(post.replace(',', ' <br> '))
-
-    return HttpResponse('Hello, world.')
