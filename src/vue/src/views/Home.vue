@@ -23,6 +23,7 @@
         </div>
 
         <main-card
+            v-if="this.$root.isAdmin()"
             slot="main-content-column"
             class="hover"
             @click.native="showModal('createCourseRef')"
