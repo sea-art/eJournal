@@ -31,8 +31,8 @@ def make_assignment(name, description, author=None, format=None):
     return assign
 
 
-def make_format(templates=[]):
-    format = JournalFormat()
+def make_format(templates=[], max_points=10):
+    format = JournalFormat(max_points=max_points)
     format.save()
     format.available_templates.add(*templates)
     return format
