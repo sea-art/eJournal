@@ -10,6 +10,12 @@ from VLE.lti_launch import *
 from VLE.lti_grade_passback import *
 
 
+NEW_COURSE = 0
+NEW_ASSIGNMENT = 1
+FINISH_TEACHER = 2
+FINISH_STUDENT = 3
+
+
 @api_view(['GET'])
 def get_own_user_data(request):
     """Get the data linked to the logged in user
@@ -157,11 +163,13 @@ def get_assignment_journals(request, aID):
     stats = {}
     if journals:
         # TODO: Misschien dit efficient maken voor minimal delay?
-        stats['needsMarking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
+        stats['needsMarking'] = sum(
+            [x['stats']['submitted'] - x['stats']['graded'] for x in journals])
         points = [x['stats']['acquired_points'] for x in journals]
         stats['avgPoints'] = round(st.mean(points), 2)
         stats['medianPoints'] = st.median(points)
-        stats['avgEntries'] = round(st.mean([x['stats']['total_points'] for x in journals]), 2)
+        stats['avgEntries'] = round(
+            st.mean([x['stats']['total_points'] for x in journals]), 2)
 
     return JsonResponse({'result': 'success', 'stats': stats if stats else None, 'journals': journals})
 
@@ -226,43 +234,88 @@ def lti_grade_replace_result(request):
 @api_view(['POST'])
 def lti_launch(request):
     """Django view for the lti post request."""
-    if request.method == 'POST':
-        # canvas TODO change to its own database based on the key in the request.
-        secret = settings.LTI_SECRET
-        key = settings.LTI_KEY
+    secret = settings.LTI_SECRET
+    key = settings.LTI_KEY
 
-        print('key = postkey', key == request.POST['oauth_consumer_key'])
-        authenticated, err = OAuthRequestValidater.check_signature(key, secret, request)
+    print('key = postkey', key == request.POST['oauth_consumer_key'])
+    authenticated, err = OAuthRequestValidater.check_signature(
+        key, secret, request)
 
-        if authenticated:
-            # Select or create the user, course, assignment and journal.
-            roles = json.load(open('config.json'))
-            user = select_create_user(request.POST)
-            course = select_create_course(request.POST, user, roles)
-            assignment = select_create_assignment(request.POST, user, course, roles)
-            journal = select_create_journal(request.POST, user, assignment, roles)
+    if authenticated:
+        # Select or create the user, course, assignment and journal.
+        roles = json.load(open('config.json'))
+        lti_roles = dict((roles[k], k) for k in roles)
 
-            # Check if the request comes from a student or not.
-            roles = json.load(open('config.json'))
-            student = request.POST['roles'] == roles['student']
+        user = select_create_user(request.POST)
 
-            token = TokenObtainPairSerializer.get_token(user)
-            access = token.access_token
+        token = TokenObtainPairSerializer.get_token(user)
+        access = token.access_token
 
-            # Set the ID's or if these do not exist set them to undefined.
-            cID = course.pk if course is not None else 'undefined'
-            aID = assignment.pk if assignment is not None else 'undefined'
-            jID = journal.pk if journal is not None else 'undefined'
+        link = settings.LTI_BASELINK
+        link += '?jwt_refresh={0}'.format(token)
+        link += '&jwt_access={0}'.format(access)
 
-            # TODO Should not be localhost anymore at production.
-            link = 'http://localhost:8080/#/lti/launch'
-            link += '?jwt_refresh={0}'.format(token)
-            link += '&jwt_access={0}'.format(access)
-            link += '&cID={0}'.format(cID)
-            link += '&aID={0}'.format(aID)
-            link += '&jID={0}'.format(jID)
-            link += '&student={0}'.format(student)
+        course = check_course_lti(request.POST, user)
 
-            return redirect(link)
-        else:
-            return HttpResponse('unsuccesfull auth, {0}'.format(err))
+        course_names = ['lti_cName', 'lti_abbr', 'role', 'lti_cID']
+        course_values = [request.POST['context_title'], request.POST['context_label'],
+                         lti_roles[request.POST['roles']], request.POST['context_id']]
+        assignment_names = ['lti_aName', 'lti_aID', 'lti_points_possible']
+        assignment_values = [request.POST['resource_link_title'], request.POST['resource_link_id'],
+                             request.POST['custom_canvas_assignment_points_possible']]
+
+        if course is None:
+            query_names = ['jwt_refresh', 'jwt_access', 'state']
+            query_names += course_names
+            query_names += assignment_names
+            query_values = [token, access, NEW_COURSE]
+            query_values += course_values
+            query_values += assignment_values
+            return redirect(create_lti_query_link(query_names, query_values))
+
+        assignment = check_course_lti(request.POST, user)
+        if assignment is None:
+            query_names = ['jwt_refresh', 'jwt_access', 'state', 'cID']
+            query_names += assignment_names
+            query_values = [token, access, NEW_ASSIGNMENT, course.pk]
+            query_values += assignment_values
+            return redirect(create_lti_query_link(query_names, query_values))
+
+        journal = select_create_journal(request.POST, user, assignment, roles)
+        jID = journal.pk if journal is not None else None
+        query_names = ['jwt_refresh', 'jwt_access',
+                       'state', 'cID', 'aID', 'jID']
+        query_values = [token, access,
+                        FINISH_TEACHER if jID is None else FINISH_STUDENT, course.pk, assignment.pk, jID]
+        return redirect(create_lti_query_link(query_names, query_values))
+
+        # course = select_create_course(request.POST, user, roles)
+        # assignment = select_create_assignment(
+        #     request.POST, user, course, roles)
+        # journal = select_create_journal(request.POST, user, assignment, roles)
+        #
+        # # Check if the request comes from a student or not.
+        # roles = json.load(open('config.json'))
+        # student = request.POST['roles'] == roles['student']
+        #
+        # token = TokenObtainPairSerializer.get_token(user)
+        # access = token.access_token
+        #
+        # # Set the ID's or if these do not exist set them to undefined.
+        # cID = course.pk if course is not None else 'undefined'
+        # aID = assignment.pk if assignment is not None else 'undefined'
+        # jID = journal.pk if journal is not None else 'undefined'
+        #
+        #
+        # link = settings.LTI_BASELINK
+        # link += '?jwt_refresh={0}'.format(token)
+        # link += '&jwt_access={0}'.format(access)
+        # link += '&cID={0}'.format(cID)
+        # link += '&aID={0}'.format(aID)
+        # link += '&jID={0}'.format(jID)
+        # link += '&student={0}'.format(student)
+        #
+        # return redirect(link)
+
+    return redirect(settings.BASELINK + '/ErrorPage')
+    # return redirect(401_site) not 404

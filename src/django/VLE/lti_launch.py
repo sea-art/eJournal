@@ -105,76 +105,40 @@ def select_create_user(request):
     return user
 
 
-def select_create_course(request, user, roles):
+def create_lti_query_link(names, values):
     """
-    Select or create a course requested.
+    Creates link to lti page with the given parameters
+
+    Arguments
+    -- names -> names of the query variables
+    -- values -> values correnspanding to the names
+
+    returns the link
     """
+    link = settings.BASELINK
+    link += '/lti/launch'
+    start = '?'
+    for i, name in enumerate(names):
+        link += start + name + '={0}'.format(values[i])
+        start = '&'
+    return link
+
+
+def check_course_lti(request, user):
     course_id = request['context_id']
     courses = Course.objects.filter(lti_id=course_id)
 
     if courses.count() > 0:
-        # If course already exists, select it.
-        course = courses[0]
-
-        if user not in course.participations.all():
-            # If the user is not a participant, add a participation link with
-            # the correct role given by the lti request.
-            lti_roles = dict((roles[k], k) for k in roles)
-
-            # Add the logged in user to the course through participation.
-            # TODO Check if a teacher role already exists before adding it.
-            role = Role.objects.create(name=lti_roles[request['roles']])
-            Participation.objects.create(user=user, course=course, role=role)
-    else:
-        if roles['teacher'] in request['roles']:
-            course = Course()
-            course.name = request['context_title']
-            course.abbreviation = request['context_label']
-            course.lti_id = course_id
-            course.startdate = datetime.now()
-            course.save()
-
-            # Add the logged in user to the course through participation.
-            role = Role.objects.create(name='teacher')
-            Participation.objects.create(user=user, course=course, role=role)
-
-        else:
-            # TODO redirect to unauthorized page
-            return None
-
-    return course
+        return courses[0]
+    return None
 
 
-def select_create_assignment(request, user, course, roles):
-    """
-    Select or create a assignment requested.
-    """
+def check_assignment_lti(request, user):
     assign_id = request['resource_link_id']
     assignments = Assignment.objects.filter(lti_id=assign_id)
     if assignments.count() > 0:
-        # If the assigment exists, select it and add the course if necessary.
-        assignment = assignments[0]
-        if course not in assignment.courses.all():
-            assignment.courses.add(course)
-
-    else:
-        # Try to create assignment.
-        if roles['teacher'] in request['roles']:
-            # If user is a teacher, create the assignment.
-            assignment = Assignment()
-            assignment.name = request['resource_link_title']
-            assignment.lti_id = assign_id
-            assignment.format_id = JournalFormat.objects.create().pk
-            if 'custom_canvas_assignment_points_possible' in request:
-                assignment.points_possible = request[
-                    'custom_canvas_assignment_points_possible']
-            assignment.save()
-            assignment.courses.add(course)
-        else:
-            # TODO redirect to unauthorized page
-            return None
-
-    return assignment
+        return assignments[0]
+    return None
 
 
 def select_create_journal(request, user, assignment, roles):
@@ -193,3 +157,75 @@ def select_create_journal(request, user, assignment, roles):
     else:
         journal = None
     return journal
+
+
+# def select_create_course(request, user, roles):
+#     """
+#     Select or create a course requested.
+#     """
+#     course_id = request['context_id']
+#     courses = Course.objects.filter(lti_id=course_id)
+#
+#     if courses.count() > 0:
+#         # If course already exists, select it.
+#         course = courses[0]
+#
+#         if user not in course.participations.all():
+#             # If the user is not a participant, add a participation link with
+#             # the correct role given by the lti request.
+#             lti_roles = dict((roles[k], k) for k in roles)
+#
+#             # Add the logged in user to the course through participation.
+#             # TODO Check if a teacher role already exists before adding it.
+#             role = Role.objects.create(name=lti_roles[request['roles']])
+#             Participation.objects.create(user=user, course=course, role=role)
+#     else:
+#         if roles['teacher'] in request['roles']:
+#             course = Course()
+#             course.name = request['context_title']
+#             course.abbreviation = request['context_label']
+#             course.lti_id = course_id
+#             course.startdate = datetime.now()
+#             course.save()
+#
+#             # Add the logged in user to the course through participation.
+#             role = Role.objects.create(name='teacher')
+#             Participation.objects.create(user=user, course=course, role=role)
+#
+#         else:
+#             # TODO redirect to unauthorized page
+#             return None
+#
+#     return course
+#
+#
+# def select_create_assignment(request, user, course, roles):
+#     """
+#     Select or create a assignment requested.
+#     """
+#     assign_id = request['resource_link_id']
+#     assignments = Assignment.objects.filter(lti_id=assign_id)
+#     if assignments.count() > 0:
+#         # If the assigment exists, select it and add the course if necessary.
+#         assignment = assignments[0]
+#         if course not in assignment.courses.all():
+#             assignment.courses.add(course)
+#
+#     else:
+#         # Try to create assignment.
+#         if roles['teacher'] in request['roles']:
+#             # If user is a teacher, create the assignment.
+#             assignment = Assignment()
+#             assignment.name = request['resource_link_title']
+#             assignment.lti_id = assign_id
+#             assignment.format_id = JournalFormat.objects.create().pk
+#             if 'custom_canvas_assignment_points_possible' in request:
+#                 assignment.points_possible = request[
+#                     'custom_canvas_assignment_points_possible']
+#             assignment.save()
+#             assignment.courses.add(course)
+#         else:
+#             # TODO redirect to unauthorized page
+#             return None
+#
+#     return assignment
