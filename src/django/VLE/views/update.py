@@ -18,7 +18,6 @@ def update_course(request):
 
     Returns a json string for if it is succesful or not.
     """
-
     user = request.user
     if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
@@ -29,6 +28,30 @@ def update_course(request):
     course.date = request.data['startdate']
     course.save()
     return JsonResponse({'result': 'success', 'course': course_to_dict(course)})
+
+
+@api_view(['POST'])
+def update_assignment(request):
+    """Updates an existing assignment
+
+    Arguments:
+    request -- the update request that was send with
+        name -- name of the assignment
+        description -- description of the assignment
+        deadline -- deadline of the assignment
+
+    Returns a json string for if it is succesful or not.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    assignment = Assignment.objects.get(pk=request.data['aID'])
+    assignment.name = request.data['name']
+    assignment.description = request.data['description']
+    assignment.save()
+
+    return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)})
 
 
 @api_view(['POST'])

@@ -11,6 +11,8 @@ import LtiLaunch from '@/views/LtiLaunch'
 import AssignmentsOverview from '@/views/AssignmentsOverview'
 import permissionsApi from '@/api/permissions.js'
 import ErrorPage from '@/views/ErrorPage'
+import CourseEdit from '@/views/CourseEdit'
+import AssignmentEdit from '@/views/AssignmentEdit'
 
 Vue.use(Router)
 
@@ -48,6 +50,11 @@ var router = new Router({
         path: '/Home/Course/:cID/Assignment/:aID',
         name: 'Assignment',
         component: Assignment,
+        props: true
+    }, {
+        path: '/Home/Course/:cID/Assignment/:aID/AssignmentEdit',
+        name: 'AssignmentEdit',
+        component: AssignmentEdit,
         props: true
     }, {
         path: '/Home/Course/:cID/Assignment:aID/Journal/:jID',
