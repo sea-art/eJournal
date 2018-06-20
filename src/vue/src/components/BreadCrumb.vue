@@ -43,8 +43,8 @@ export default {
 
             // TODO add proper check to Home edit
             if ((pageName === 'Home') ||
-               (pageName === 'Course' && this.$root.permissions.can_edit_course) ||
-               (pageName === 'Assignment' && this.$root.permissions.can_edit_assignment)) {
+               (pageName === 'Course' && this.$root.canEditCourse()) ||
+               (pageName === 'Assignment' && this.$root.canEditAssignment())) {
                 return true
             }
         }

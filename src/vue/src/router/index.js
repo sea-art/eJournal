@@ -69,14 +69,14 @@ var router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-    // TODO Check login here as well?
+    // TODO Client side login check
     // TODO Handle errors properly
 
     var params
     if (to.params.cID) {
-        /* Admin role check */
         params = to.params.cID
     } else {
+        /* The -1 paramater queries if the user has admin priveleges */
         params = -1
     }
 

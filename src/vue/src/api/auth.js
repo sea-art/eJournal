@@ -1,4 +1,6 @@
 import connection from '@/api/connection'
+import router from '@/router'
+
 
 /* Utility function to get the Authorization header with
  * the JWT token.
@@ -34,7 +36,7 @@ export default {
             .then(response => {
                 localStorage.setItem('jwt_access', response.data.access)
                 localStorage.setItem('jwt_refresh', response.data.refresh)
-                // TODO login true
+                router.app.validToken = true
             })
     },
 
@@ -45,6 +47,8 @@ export default {
     logout () {
         localStorage.removeItem('jwt_access')
         localStorage.removeItem('jwt_refresh')
+        router.app.validToken = false
+        // TODO rerout here?
     },
 
     /* Change password. */
@@ -65,8 +69,8 @@ export default {
                         .then(_ => connection.conn.post(url, data, getAuthorizationHeader()))
                         .catch(error => {
                             if (error.response.data.code === 'token_not_valid') {
-                                // TODO loggedIn = false
-                                // TODO reroute...
+                                router.app.validToken = false
+                                // TODO reroute... use logout?
                             }
                             throw error
                         })
@@ -89,7 +93,7 @@ export default {
                         .then(_ => connection.conn.get(url, getAuthorizationHeader()))
                         .catch(error => {
                             if (error.response.data.code === 'token_not_valid') {
-                                // TODO loggedIn = false
+                                router.app.validToken = false
                                 // TODO reroute...
                             }
                             throw error
