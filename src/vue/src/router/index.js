@@ -74,9 +74,9 @@ router.beforeEach((to, from, next) => {
 
     var params
     if (to.params.cID) {
-        /* Admin role check */
         params = to.params.cID
     } else {
+        /* The -1 paramater queries if the user has admin priveleges */
         params = -1
     }
 

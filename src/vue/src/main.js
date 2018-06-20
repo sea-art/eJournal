@@ -18,7 +18,8 @@ new Vue({
     components: { App },
     data: {
         colors: ['pink-border', 'peach-border', 'blue-border'],
-        permissions: {}
+        permissions: {},
+        validToken: false
     },
     methods: {
         timeLeft (date) {
