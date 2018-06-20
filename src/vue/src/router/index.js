@@ -72,13 +72,15 @@ router.beforeEach((to, from, next) => {
     // TODO Check login here as well?
     // TODO Handle errors properly
 
-    var params = to.params.cID
-    if (!params) {
+    var params
+    if (to.params.cID) {
         /* Admin role check */
+        params = to.params.cID
+    } else {
         params = -1
     }
 
-    permissionsApi.get_course_permissions(to.params.cID)
+    permissionsApi.get_course_permissions(params)
         .then(response => {
             router.app.permissions = response
             console.log(router.app.permissions)
