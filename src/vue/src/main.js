@@ -7,6 +7,7 @@ import '../node_modules/bootstrap-vue/dist/bootstrap-vue.css'
 import 'vue-awesome/icons/eye'
 import 'vue-awesome/icons/caret-up'
 import 'vue-awesome/icons/caret-down'
+import 'vue-awesome/icons/arrows'
 
 Vue.config.productionTip = false
 Vue.use(BootstrapVue)
