@@ -101,7 +101,7 @@ export default {
             if (ref === 'createAssignmentRef') {
                 this.loadAssignments()
             } else if (ref === 'editAssignmentRef') {
-                alert('doei')
+                // TODO: handle edit assignment
             }
 
             this.hideModal(ref)

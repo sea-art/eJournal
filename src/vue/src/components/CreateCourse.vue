@@ -5,7 +5,7 @@
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseAbbreviation" maxlength="10" placeholder="Course Abbreviation (Max 10 letters)" required/>
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseStartdate" type="date" required/>
             <b-button class="float-right" type="reset">Reset</b-button>
-            <b-button class="float-right" type="submit">Submit</b-button>
+            <b-button class="float-right" type="submit">Create</b-button>
         </b-form>
     </div>
 </template>
@@ -27,7 +27,6 @@ export default {
     methods: {
         onSubmit () {
             courseApi.create_new_course(this.form.courseName, this.form.courseAbbreviation, this.form.courseStartdate)
-                .then(response => { console.log(response) })
                 .then(_ => { this.$emit('handleAction') })
         },
         onReset (evt) {

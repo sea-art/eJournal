@@ -109,7 +109,7 @@ export default {
             if (ref === 'createCourseRef') {
                 this.loadCourses()
             } else if (ref === 'editCourseRef') {
-                alert('doei')
+                // TODO: Handle edit assignment
             }
 
             this.hideModal(ref)
