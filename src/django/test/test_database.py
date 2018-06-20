@@ -73,7 +73,7 @@ class DataBaseTests(TestCase):
         participation = Participation(user=usr, role=role, course=crs)
         participation.save()
 
-        perm = get_permissions(usr, crs)
+        perm = get_permissions(usr, crs.id)
 
         self.assertFalse(perm['can_delete_course'])
 
@@ -132,6 +132,24 @@ class DataBaseTests(TestCase):
         self.assertTrue(check_permissions(usr, crs.id, ["can_view_grades"]))
         self.assertFalse(check_permissions(usr, crs.id, ["can_edit_grades",
                                                          "can_edit_assignment"]))
+
+    def test_get_permissions(self):
+        """Test a request that returns a dictionary of permissions."""
+        usr = User(email='t@t.com', username='teun',
+                   password='1234', lti_id='a')
+        usr.save()
+
+        crs = Course(name='test course please ignore', abbreviation='XXXX',
+                     startdate=datetime.date.today())
+        crs.save()
+
+        role = Role(name="TA", can_submit_assignment=True, can_view_grades=True, can_edit_assignment=True)
+        role.save()
+
+        participation = Participation(user=usr, role=role, course=crs)
+        participation.save()
+
+        perm = get_permissions(usr, crs.id)
 
     def test_on_delete(self):
         """

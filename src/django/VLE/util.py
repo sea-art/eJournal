@@ -15,7 +15,7 @@ def check_permissions(user, cID, permissionList):
 
     Arguments:
     user -- user that did the request.
-    cID -- course ID used to validate the request.
+    cID -- course ID used to validate the request. (string)
     """
     role = get_role(user, cID)
 
@@ -31,9 +31,10 @@ def get_role(user, cID):
 
     Arguments:
     user -- user that did the request.
-    cID -- course ID used to validate the request.
+    cID -- course ID used to validate the request. (string)
     """
-    assert not(user is None or cID is None)
+    cID = int(cID)
+
     # First get the role ID of the user participation.
     roleID = Participation.objects.get(user=user, course=cID).id
     # Now get the role and its corresponding permissions.
@@ -43,15 +44,16 @@ def get_role(user, cID):
 
 
 def get_permissions(user, cID):
-    """Get the permissions of the given user in the given course.
+    """Get the permissions of the given user in the given course. The
+    permissions are returned in dictionary format.
 
     Arguments:
     user -- user that did the request.
-    cID -- course ID used to validate the request.
+    cID -- course ID used to validate the request. (string)
     """
-    assert not(user is None or cID is None)
-
     cID = int(cID)
+
+    roleDict = {}
 
     if user.is_admin:
         # The call is made for system wide permissions and not course specific.
@@ -76,7 +78,7 @@ def get_permissions(user, cID):
             "can_delete_course": False,
             "is_admin": False
         }
-    elif cID == -1:
+    else:
         # First get the role ID of the user participation.
         role = Participation.objects.get(user=user, course=cID).role
 
@@ -84,16 +86,3 @@ def get_permissions(user, cID):
         roleDict['is_admin'] = False
 
     return roleDict
-
-
-def is_admin(user):
-    """Check whether the user is an administrator.
-
-    Arguments:
-    user -- user that did the request.
-    """
-    assert not(user is None)
-
-    is_admin = User.objects.get(user=user).is_admin
-
-    return is_admin
