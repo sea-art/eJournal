@@ -16,7 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from VLE.lti_launch import lti_launch
+from VLE.views.get import lti_launch
+from VLE.views.get import lti_grade_replace_result
 
 from VLE.views.get import get_own_user_data
 from VLE.views.get import get_course_data

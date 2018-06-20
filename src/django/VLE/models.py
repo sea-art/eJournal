@@ -22,7 +22,7 @@ class User(AbstractUser):
         unique=True,
     )
     profile_picture = models.TextField(
-        default='/static/oh_no/oh_no.jpeg'
+        null=True
     )
     grade_notifications = models.BooleanField(
         default=True
@@ -327,6 +327,22 @@ class Entry(models.Model):
 
     def __str__(self):
         return str(self.pk)
+
+
+class Counter(models.Model):
+    """
+    A single counter class which can be used to keep track of incremental values
+    which do not belong to another object like the message ID for LTI messages.
+    """
+    name = models.TextField(
+        null=False
+    )
+    count = models.IntegerField(
+        default=0
+    )
+
+    def __str__(self):
+        return self.name + " is on " + self.count
 
 
 class EntryTemplate(models.Model):
