@@ -9,7 +9,7 @@ import Guest from '@/views/Guest'
 import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
 import AssignmentsOverview from '@/views/AssignmentsOverview'
-import courseApi from '@/api/course.js'
+import permissionsApi from '@/api/permissions.js'
 
 Vue.use(Router)
 
@@ -63,7 +63,7 @@ router.beforeEach((to, from, next) => {
     // if (to.matched.name != 'Home' && !loggedIn)
 
     if (to.params.cID) {
-        courseApi.get_course_permissions(to.params.cID)
+        permissionsApi.get_course_permissions(to.params.cID)
             .then(response => {
                 router.app.permissions = response
                     console.log(router.app.permissions)
