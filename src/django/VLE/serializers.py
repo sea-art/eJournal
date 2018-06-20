@@ -5,13 +5,6 @@ import VLE.utils as utils
 
 
 def user_to_dict(user):
-    """Get a object of a single user
-
-    Arguments:
-    user -- user to create the object with
-
-    returns dictionary of that user
-    """
     return {
         'name': user.username,
         'picture': user.profile_picture,
@@ -59,6 +52,7 @@ def assignment_to_dict(assignment):
         'name': assignment.name,
         'description': assignment.description,
         'auth': user_to_dict(assignment.author),
+        'deadlne': assignment.deadline
     } if assignment else None
 
 
@@ -81,7 +75,7 @@ def add_node_dict(journal):
         'type': 'a',
         'nID': -1,
         'templates': [template_to_dict(template) for template in journal.assignment.format.available_templates.all()]
-    }
+    } if journal else None
 
 
 def node_to_dict(node):
@@ -100,7 +94,7 @@ def entry_node_to_dict(node):
         'nID': node.id,
         'jID': node.id,
         'entry': entry_to_dict(node.entry),
-    }
+    } if node else None
 
 
 def entry_deadline_to_dict(node):
@@ -110,7 +104,7 @@ def entry_deadline_to_dict(node):
         'jID': node.id,
         'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
         'entry': entry_to_dict(node.entry),
-    }
+    } if node else None
 
 
 def progress_to_dict(node):
@@ -120,13 +114,10 @@ def progress_to_dict(node):
         'jID': node.id,
         'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
         'target': node.preset.deadline.points,
-    }
+    } if node else None
 
 
 def entry_to_dict(entry):
-    if entry is None:
-        return {}
-
     return {
         'eID': entry.id,
         'createdate': entry.createdate.strftime('%d-%m-%Y %H:%M'),
@@ -134,7 +125,7 @@ def entry_to_dict(entry):
         # 'late': TODO
         'template': template_to_dict(entry.template),
         'content': [content_to_dict(content) for content in entry.content_set.all()],
-    }
+    } if entry else None
 
 
 def template_to_dict(template):
@@ -142,7 +133,7 @@ def template_to_dict(template):
         'tID': template.id,
         'name': template.name,
         'fields': [field_to_dict(field) for field in template.field_set.all()],
-    }
+    } if template else None
 
 
 def field_to_dict(field):
@@ -151,11 +142,11 @@ def field_to_dict(field):
         'type': field.type,
         'title': field.title,
         'location': field.location,
-    }
+    } if field else None
 
 
 def content_to_dict(content):
     return {
         'tag': content.field.pk,
         'data': content.data,
-    }
+    } if content else None

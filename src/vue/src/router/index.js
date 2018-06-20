@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/views/Home'
+import AssignmentsOverview from '@/views/AssignmentsOverview'
 import Journal from '@/views/Journal'
 import Assignment from '@/views/Assignment'
 import Course from '@/views/Course'
@@ -8,8 +9,8 @@ import Profile from '@/views/Profile'
 import Guest from '@/views/Guest'
 import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
-import CourseCreation from '@/views/CourseCreation'
-import AssignmentsOverview from '@/views/AssignmentsOverview'
+import CourseEdit from '@/views/CourseEdit'
+import AssignmentEdit from '@/views/AssignmentEdit'
 
 Vue.use(Router)
 
@@ -27,10 +28,6 @@ export default new Router({
         name: Register,
         component: Register
     }, {
-        path: '/CourseCreation',
-        name: 'CourseCreation',
-        component: CourseCreation
-    }, {
         path: '/Profile',
         name: 'Profile',
         component: Profile
@@ -44,9 +41,19 @@ export default new Router({
         component: Course,
         props: true
     }, {
+        path: '/Home/Course/:cID/CourseEdit',
+        name: 'CourseEdit',
+        component: CourseEdit,
+        props: true
+    }, {
         path: '/Home/Course/:cID/Assignment/:aID',
         name: 'Assignment',
         component: Assignment,
+        props: true
+    }, {
+        path: '/Home/Course/:cID/Assignment/:aID/AssignmentEdit',
+        name: 'AssignmentEdit',
+        component: AssignmentEdit,
         props: true
     }, {
         path: '/Home/Course/:cID/Assignment:aID/Journal/:jID',
