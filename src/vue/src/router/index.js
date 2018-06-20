@@ -11,7 +11,7 @@ import LtiLaunch from '@/views/LtiLaunch'
 import AssignmentsOverview from '@/views/AssignmentsOverview'
 import permissionsApi from '@/api/permissions.js'
 import ErrorPage from '@/views/ErrorPage'
-import CourseEdit from '@/views/CourseEdit'
+// import CourseEdit from '@/views/CourseEdit'
 import AssignmentEdit from '@/views/AssignmentEdit'
 
 Vue.use(Router)
