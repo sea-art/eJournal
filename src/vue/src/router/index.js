@@ -71,7 +71,7 @@ router.beforeEach((to, from, next) => {
             })
             .catch(_ => {
                 alert('Error while loading permissions')
-                next({to: ''})
+                next({to: '/'})
             })
     } else {
         next()
