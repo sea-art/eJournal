@@ -141,13 +141,13 @@ export default {
     font-size: 25px;
 }
 
-#nav-profile-image{
+#nav-profile-image {
     width: 50px;
     height: 50px;
     border-radius: 50% !important;
 }
 
-@media(max-width:992px){
+@media(max-width:992px) {
     #nav-dropdown-options {
         position: absolute;
         top: 10px;

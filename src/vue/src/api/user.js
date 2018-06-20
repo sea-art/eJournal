@@ -7,6 +7,12 @@ export default {
             .then(response => response.data.user)
     },
 
+    /* Update user data. */
+    update_user_data (username, picture) {
+        return auth.authenticatedPost('/update-user-data/', { username: username, picture: picture })
+            .then(response => response.user)
+    },
+
     /* Change whether the user gets grade notification or not.
      * if getsNotified is "true" the users gets notified by mail when a grade changes.
      * if getsNotified is "false" the users WONT  get notified by mail when a grade changes.
