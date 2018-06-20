@@ -19,7 +19,7 @@ export default {
         return auth.authenticatedPost('/create_new_assignment/', {
             name: name,
             description: description,
-            assignmentID: aID
+            aID: aID
         }).then(response => response.data)
     }
 }
