@@ -50,7 +50,7 @@ class GradePassBackRequest(object):
 
     def create_xml(self):
         """
-        created the xml used as the body of the lti communication
+        Created the xml used as the body of the lti communication
 
         returns xml as string
         """
@@ -117,7 +117,7 @@ class GradePassBackRequest(object):
 
     def parse_return_xml(self, xml):
         """
-        parses the xml returned by the lti instance.
+        Parses the xml returned by the lti instance.
 
         Arguments:
         xml -- response xml as byte literal
