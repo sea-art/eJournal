@@ -249,7 +249,7 @@ class JournalFormat(models.Model):
     GRADE = 'GR'
     TYPES = (
         (PERCENTAGE, 'percentage'),
-        (GRADE, 'from 1 to 10'),
+        (GRADE, 'from 0 to 10'),
     )
     grade_type = models.TextField(
         max_length=2,
