@@ -1,12 +1,12 @@
 <template>
     <b-container no-gutters>
         <b-row>
-            <p class="profile-title">Change password</p><br/>
+            <span class="profile-title">Change password</span><br/>
         </b-row>
 
         <b-row>
             <b-col class="profile-col" cols="4">
-                <p class="profile-password">Old password:</p>
+                <span class="profile-password">Old password:</span>
             </b-col>
             <b-col cols="7">
                 <b-form-input class="passField" v-model="oldPass" type="password"></b-form-input><br/>
@@ -15,7 +15,7 @@
 
         <b-row>
             <b-col class="profile-col" cols="4">
-                <p class="profile-password">New password:</p>
+                <span class="profile-password">New password:</span>
             </b-col>
             <b-col cols="7">
                 <b-form-input class="passField" v-model="newPass" type="password"></b-form-input><br/>
@@ -24,7 +24,7 @@
 
         <b-row>
             <b-col class="profile-col" cols="4">
-                <p class="profile-password">Repeat new password:</p>
+                <span class="profile-password">Repeat new password:</span>
             </b-col>
             <b-col cols="7">
                 <b-form-input class="passField" v-model="newPassRepeat" type="password"></b-form-input>
@@ -33,31 +33,31 @@
 
         <b-row>
             <b-button @click="changePassword">Change password</b-button>
-            {{test}}
         </b-row>
     </b-container>
 </template>
 
 <script>
+import auth from '@/api/auth'
+
 export default {
     data () {
         return {
             checkbox: false,
             oldPass: '',
             newPass: '',
-            newPassRepeat: '',
-            test: false
+            newPassRepeat: ''
         }
     },
     methods: {
         changePassword: function () {
-            if (this.newPass.match('(.*[A-Z]).*') && this.newPass.length > 6) {
+            if (this.newPass.match('(.*[A-Z]).*') && this.newPass.length > 3) {
                 if (this.newPass === this.newPassRepeat) {
                     this.test = true
-                    alert('New password is: ' + this.newPass)
+                    auth.changePassword(this.newPass, this.oldPass)
                 } else {
                     this.test = false
-                    alert('Password is not matching')
+                    alert('Password does not match')
                 }
             } else {
                 alert('Not a strong password')

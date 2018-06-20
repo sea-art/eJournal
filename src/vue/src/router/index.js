@@ -24,10 +24,6 @@ export default new Router({
         name: 'Home',
         component: Home
     }, {
-        path: '/AssignmentsOverview',
-        name: 'AssignmentsOverview',
-        component: AssignmentsOverview
-    }, {
         path: '/Register',
         name: Register,
         component: Register

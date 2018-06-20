@@ -18,6 +18,7 @@ from django.urls import path
 
 from VLE.lti_launch import lti_launch
 
+from VLE.views.get import get_own_user_data
 from VLE.views.get import get_course_data
 from VLE.views.get import get_assignment_data
 
@@ -33,6 +34,9 @@ from VLE.views.create import create_entry
 
 from VLE.views.update import update_course
 from VLE.views.update import update_assignment
+from VLE.views.update import update_password
+from VLE.views.update import update_grade_notification
+from VLE.views.update import update_comment_notification
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -47,6 +51,7 @@ urlpatterns = [
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
+    path('api/get_own_user_data/', get_own_user_data, name='get_own_user_data'),
     path('api/get_course_data/<int:cID>/', get_course_data, name='get_course_data'),
     path('api/get_assignment_data/<int:cID>/<int:aID>/', get_assignment_data, name='get_assignment_data'),
 
@@ -62,6 +67,11 @@ urlpatterns = [
 
     path('api/update_course/', update_course, name='update_course'),
     path('api/update_assignment/', update_assignment, name='update_assignment'),
+    path('api/update_password/', update_password, name='update_password'),
+    path('api/update_grade_notification/<str:notified>/', update_grade_notification,
+         name='update_grade_notification'),
+    path('api/update_comment_notification/<str:notified>/', update_comment_notification,
+         name='update_comment_notification'),
 
     path('api/lti/launch', lti_launch, name='lti_launch'),
 ]

@@ -11,7 +11,7 @@
                                               color: 'pink-border',
                                               courseName: a.courseName,
                                               assignmentName: a.assignmentName,
-                                              journalName: 'rick'
+                                              journalName: 'brick'
                                           }
                                         }">
                 <main-card :line1="a.courseName">
@@ -27,7 +27,6 @@ import contentColumns from '@/components/ContentColumns.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import studentCard from '@/components/StudentCard.vue'
 import mainCard from '@/components/MainCard.vue'
-// import assignments from '@/api/assignmentsOverview.js'
 
 export default {
     name: 'AssignmentsOverview',
@@ -55,13 +54,5 @@ export default {
         'main-card': mainCard,
         'student-card': studentCard
     }
-    // created () {
-    //     // course.get_user_courses()
-    //     //     .then(response => { this.courses = response })
-    //     //     .catch(_ => alert('Error while loading courses')),
-    //     assignments.get_all_assignments()
-    //         .then(response => { this.assignments = response })
-    //         .catch(_ => alert('Error while loading courses'))
-    // }
 }
 </script>
