@@ -10,6 +10,7 @@ import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
 import AssignmentsOverview from '@/views/AssignmentsOverview'
 import permissionsApi from '@/api/permissions.js'
+import ErrorPage from '@/views/ErrorPage'
 
 Vue.use(Router)
 
@@ -35,6 +36,10 @@ var router = new Router({
         name: 'AssignmentsOverview',
         component: AssignmentsOverview
     }, {
+        path: '/ErrorPage',
+        name: 'ErrorPage',
+        component: ErrorPage
+    }, {
         path: '/Home/Course/:cID',
         name: 'Course',
         component: Course,
@@ -56,29 +61,29 @@ var router = new Router({
     }]
 })
 
-
 router.beforeEach((to, from, next) => {
     // TODO Check login here as well?
     // TODO Handle errors properly
 
-    // if (to.matched.name != 'Home' && !loggedIn)
-
-    if (to.params.cID) {
-        permissionsApi.get_course_permissions(to.params.cID)
-            .then(response => {
-                router.app.permissions = response
-                    console.log(router.app.permissions)
-                next()
-            })
-            .catch(_ => {
-                console.log('Error while loading permissions, does the redirect work?')
-                next(vm => {
-                    vm.$router.push({name: 'ErrorPage', params: {errorMessage: 'Error while loading permissions', errorCode: '???'}})
-                })
-            })
-    } else {
-        next()
+    var params = to.params.cID
+    if (!params) {
+        /* Admin role check */
+        params = -1
     }
+
+    permissionsApi.get_course_permissions(to.params.cID)
+        .then(response => {
+            router.app.permissions = response
+            console.log(router.app.permissions)
+            next()
+        })
+        .catch(_ => {
+            console.log('Error while loading permissions, does the redirect work?')
+            next(vm => {
+                vm.$router.push({name: 'ErrorPage', params: {errorMessage: 'Error while loading permissions', errorCode: '???'}})
+            })
+        })
+
     next()
 })
 
