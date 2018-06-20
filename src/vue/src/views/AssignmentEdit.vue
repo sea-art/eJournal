@@ -2,7 +2,6 @@
     <content-columns>
         <b-form slot="main-content-column" @submit="onSubmit">
             <h1>{{pageName}}</h1>
-            {{assignment}}
 
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
                      v-model="assignment.name"
@@ -15,7 +14,7 @@
                              placeholder="Description"
                              required/>
 
-            <b-button type="submit">Update Settings</b-button>
+            <b-button type="submit">Update Assignment</b-button>
             <b-button :to="{name: 'Assignment', params: {cID: this.$route.params.cID, courseName: pageName}}">Back</b-button>
         <br/>
     </b-form>

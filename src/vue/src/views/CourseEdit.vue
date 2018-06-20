@@ -9,7 +9,7 @@
                      required/>
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
                      v-model="course.abbr"
-                     maxlength="8"
+                     maxlength="10"
                      placeholder="Course Abbreviation (Max 10 letters)"
                      required/>
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
@@ -17,7 +17,7 @@
                      type="date"
                      required/>
 
-            <b-button type="submit">Update Settings</b-button>
+            <b-button type="submit">Update Course</b-button>
             <b-button :to="{name: 'Course', params: {cID: this.$route.params.cID, courseName: pageName}}">Back</b-button>
         <br/>
     </b-form>

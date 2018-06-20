@@ -48,7 +48,6 @@ def update_assignment(request):
 
     assignment = Assignment.objects.get(pk=request.data['aID'])
     assignment.name = request.data['name']
-    # assignment.deadline = request.data['deadline']
     assignment.description = request.data['description']
     assignment.save()
 
