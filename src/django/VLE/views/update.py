@@ -78,7 +78,7 @@ def update_password(request):
     return JsonResponse({'result': 'success'})
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 def update_grade_notification(request, notified):
     """Updates whether the user gets notified when a grade changes/new grade
 
@@ -102,7 +102,7 @@ def update_grade_notification(request, notified):
     return JsonResponse({'result': 'success', 'new_value': user.grade_notifications})
 
 
-@api_view(['GET'])
+@api_view(['POST'])
 def update_comment_notification(request, notified):
     """Updates whether the user gets notified when a comment changes/new comment
 
@@ -124,3 +124,21 @@ def update_comment_notification(request, notified):
 
     user.save()
     return JsonResponse({'result': 'success', 'new_value': user.comment_notifications})
+
+
+@api_view(['POST'])
+def update_grade_entry(request, eID):
+    """Updates the entry grade
+
+    Arguments:
+    request -- the request that was send with
+
+    Returns a json string if it was sucessful or not.
+    """
+    if not user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    entry = Entry.objects.get(pk=eID)
+    entry.grade = request.data['grade']
+    entry.save()
+    return JsonResponse({'result': 'success', 'new_grade': request.date['grade']})
