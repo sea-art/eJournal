@@ -13,6 +13,11 @@ export default {
 
     get_nodes (jID) {
         return auth.authenticatedGet('/get_nodes/' + jID + '/')
-            .then(response => response.data.nodes)
+            .then(response => response.data)
+    },
+
+    get_format (aID) {
+        return auth.authenticatedGet('/get_format/' + aID + '/')
+            .then(response => response.data)
     }
 }

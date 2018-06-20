@@ -148,3 +148,18 @@ def content_to_dict(content):
         'tag': content.field.pk,
         'data': content.data,
     } if content else None
+
+
+def format_to_dict(format):
+    return {
+        'templates': [template_to_dict(template) for template in format.available_templates.all()],
+        'presets': [preset_to_dict(preset) for preset in format.preset_set.all()],
+    } if format else None
+
+
+def preset_to_dict(preset):
+    return {
+        'type': preset.type,
+        'deadline': deadline_to_dict(preset.deadline),
+        'template': template_to_dict(preset.forced_template),
+    } if preset else None

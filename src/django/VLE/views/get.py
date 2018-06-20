@@ -6,6 +6,7 @@ from VLE.serializers import *
 import VLE.edag as edag
 import VLE.factory as factory
 import statistics as st
+import VLE.utils as utils
 from VLE.lti_launch import *
 from VLE.lti_grade_passback import *
 
@@ -234,6 +235,67 @@ def get_nodes(request, jID):
     journal = Journal.objects.get(pk=jID)
     return JsonResponse({'result': 'success',
                          'nodes': edag.get_nodes_dict(journal)})
+
+
+@api_view(['GET'])
+def get_format(request, aID):
+    """Get the format attached to an assignment.
+
+    Arguments:
+    request -- the request that was sent
+    aID     -- the assignment id
+
+    Returns a json string containing the format.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        assignment = Assignment.objects.get(pk=aID)
+    except Assignment.NotFound:
+        return JsonResponse({'result': '400 Bad Request',
+                             'description': 'Assignment does not exist.'}, status=400)
+
+    return JsonResponse({'result': 'success',
+                         'nodes': get_format_dict(assignment.format)})
+
+
+@api_view(['POST'])
+def get_names(request):
+    """Get the format attached to an assignment.
+
+    Arguments:
+    request -- the request that was sent
+    cID -- optionally the course id
+    aID -- optionally the assignment id
+    jID -- optionally the journal id
+
+    Returns a json string containing the names of the set fields.
+    cID populates 'course', aID populates 'assignment' and jID populates
+    'journal' with the users' name.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    cID, aID, jID = utils.get_optional_post_params(request.data, "cID", "aID", "jID")
+    result = JsonResponse({'result': 'success'})
+
+    try:
+        if cID:
+            course = Course.objects.get(pk=cID)
+            result.course = course.name
+        if aID:
+            assignment = Assignment.objects.get(pk=aID)
+            result.assignment = assignment.name
+        if jID:
+            journal = Journal.objects.get(pk=jID)
+            result.journal = journal.user.name
+
+    except (Course.NotFound, Assignment.NotFound, Journal.NotFound):
+        return JsonResponse({'result': '400 Bad Request',
+                             'description': 'Course, Assignment or Journal does not exist.'}, status=400)
+
+    return result
 
 
 @api_view(['POST'])
