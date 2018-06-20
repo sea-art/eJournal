@@ -11,12 +11,17 @@
                                           }
                                         }">
                 <assignment-card :line1="a.name" :color="$root.colors[a.aID % $root.colors.length]">
-                    <progress-bar v-if="a.journal && a.journal.stats" :currentPoints="a.journal.stats.acquired_points" :totalPoints="a.journal.stats.total_points"></progress-bar>
+                    <progress-bar v-if="a.journal && a.journal.stats"
+                        :currentPoints="a.journal.stats.acquired_points"
+                        :totalPoints="a.journal.stats.total_points"/>
                 </assignment-card>
             </b-link>
         </div>
 
-        <main-card slot="main-content-column" class="hover" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
+        <main-card v-if="this.$root.isAdmin()"
+            slot="main-content-column" class="hover"
+            v-on:click.native="showModal('createAssignmentRef')"
+            :line1="'+ Add assignment'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
@@ -49,7 +54,6 @@ import assignmentCard from '@/components/AssignmentCard.vue'
 import todoCard from '@/components/TodoCard.vue'
 import progressBar from '@/components/ProgressBar.vue'
 import assignment from '@/api/assignment.js'
-import courseApi from '@/api/course.js'
 import mainCard from '@/components/MainCard.vue'
 import createAssignment from '@/components/CreateAssignment.vue'
 

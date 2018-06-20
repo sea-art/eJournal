@@ -41,12 +41,12 @@ export default {
         canEdit () {
             var pageName = this.$route.name
 
-            // TODO add proper check
+            // TODO add proper check to Home edit
             if ((pageName === 'Home') ||
                (pageName === 'Course' && this.$root.permissions.can_edit_course) ||
                (pageName === 'Assignment' && this.$root.permissions.can_edit_assignment)) {
-                   return true
-               }
+                return true
+            }
         }
     }
 }

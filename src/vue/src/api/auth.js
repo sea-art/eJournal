@@ -1,6 +1,4 @@
 import connection from '@/api/connection'
-import router from '@/router'
-
 
 /* Utility function to get the Authorization header with
  * the JWT token.

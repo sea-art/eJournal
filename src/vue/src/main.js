@@ -27,6 +27,9 @@ new Vue({
              * If the time left is negative returns Expired
              * TODO implement (will most likely require a lib) */
             return '1M 9D 9H'
+        },
+        isAdmin () {
+            return permissions.is_admin
         }
     },
     template: '<App/>'
