@@ -1,13 +1,11 @@
 <template>
     <content-columns>
-        <bread-crumb @eye-click="customisePage" slot="main-content-column" :currentPage="courseName">
-        </bread-crumb>
+        <bread-crumb @eye-click="customisePage" slot="main-content-column"/>
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
             <b-link tag="b-button" :to="{ name: 'Assignment',
                                           params: {
                                               cID: cID,
                                               aID: a.aID,
-                                              assignmentName: a.name
                                           }
                                         }">
                 <assignment-card :line1="a.name" :color="$root.colors[a.aID % $root.colors.length]">
@@ -41,7 +39,7 @@
             title="Create assignment"
             size="lg"
             hide-footer=True>
-                <create-assignment @handleAction="handleConfirm('createAssignmentRef')"></create-assignment>
+                <create-assignment @handleAction="handleConfirm('createAssignmentRef')"/>
         </b-modal>
 
     </content-columns>
@@ -62,8 +60,7 @@ export default {
     props: {
         cID: {
             required: true
-        },
-        courseName: String
+        }
     },
     data () {
         return {
@@ -101,6 +98,9 @@ export default {
         showModal (ref) {
             this.$refs[ref].show()
         },
+        hideModal (ref) {
+            this.$refs[ref].hide()
+        },
         handleConfirm (ref) {
             if (ref === 'createAssignmentRef') {
                 this.loadAssignments()
@@ -109,9 +109,6 @@ export default {
             }
 
             this.hideModal(ref)
-        },
-        hideModal (ref) {
-            this.$refs[ref].hide()
         },
         customisePage () {
             alert('Wishlist: Customise page')

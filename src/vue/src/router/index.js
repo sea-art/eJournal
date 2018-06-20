@@ -69,7 +69,7 @@ var router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-    // TODO Check login here as well?
+    // TODO Client side login check
     // TODO Handle errors properly
 
     var params

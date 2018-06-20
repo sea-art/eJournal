@@ -12,12 +12,21 @@
                     :line1="c.name"
                     :line2="'From - To (years eg: 2017 - 2018)'"
                     :color="$root.colors[c.cID % $root.colors.length]">
-                    <b-button v-if="canDeleteCourse()" class="float-right" @click.prevent.stop="deleteCourse(c.cID, c.name)"> Delete </b-button>
+                    <b-button
+                        v-if="canDeleteCourse()"
+                        class="float-right"
+                        @click.prevent.stop="deleteCourse(c.cID, c.name)">
+                        Delete
+                    </b-button>
                 </main-card>
             </b-link>
         </div>
 
-        <main-card slot="main-content-column" class="hover" v-on:click.native="showModal('createCourseRef')" :line1="'+ Add course'"/>
+        <main-card
+            slot="main-content-column"
+            class="hover"
+            @click.native="showModal('createCourseRef')"
+            :line1="'+ Add course'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
@@ -59,7 +68,6 @@ import todoCard from '@/components/TodoCard.vue'
 import createCourse from '@/components/CreateCourse.vue'
 import editHome from '@/components/EditHome.vue'
 import course from '@/api/course'
-/* import assignment from '@/api/assignment' */
 
 export default {
     name: 'Home',
