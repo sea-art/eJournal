@@ -3,7 +3,7 @@
         <b-row>
             <b-col cols="12" md="12">
                 <h4>
-                    <span  v-for="crumb in crumbsUpper">
+                    <span v-for="crumb in crumbsUpper" :key="crumb.key">
                         <b-link tag="b-button" :to="crumb.route">{{ crumb.string }}</b-link> /
                     </span>
                 </h4>
@@ -69,8 +69,9 @@ export default {
             var crumbs = []
             for (var crumb of this.internalList.slice(0, -1)) {
                 crumbs.push({ route: { name: crumb.segment.split('/')[0],
-                                       params: this.$route.params },
-                              string: crumb.string })
+                    params: this.$route.params },
+                string: crumb.string,
+                key: crumb.segment })
             }
             return crumbs
         },
