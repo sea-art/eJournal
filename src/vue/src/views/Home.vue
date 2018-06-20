@@ -12,7 +12,7 @@
                     :line1="c.name"
                     :line2="'From - To (years eg: 2017 - 2018)'"
                     :color="$root.colors[c.cID % $root.colors.length]">
-                    <b-button class="float-right" @click.prevent.stop="deleteCourse(c.cID, c.name)"> Delete </b-button>
+                    <b-button v-if="canDeleteCourse()" class="float-right" @click.prevent.stop="deleteCourse(c.cID, c.name)"> Delete </b-button>
                 </main-card>
             </b-link>
         </div>
@@ -119,6 +119,9 @@ export default {
         },
         customisePage () {
             alert('Wishlist: Customise page')
+        },
+        canDeleteCourse () {
+            return this.$root.permissions.can_delete_course
         }
     }
 }
