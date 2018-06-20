@@ -6,8 +6,8 @@
                 <h1 id="h1-current-page-breadcrumb">
                     {{ currentPage }}
                     <slot>
-                        <icon name="eye" @click.native="eyeClick()" class="eye-icon hover" scale="1.75"></icon>
-                        <b-button class="float-right edit-button" @click="editClick()"> Edit </b-button>
+                        <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
+                        <b-button v-if="this.$route.params.cID != undefined" class="float-right edit-button" :to="{name: 'CourseEdit', params: {cID: this.$route.params.cID, courseName: this.$route.params.courseName}}"> Edit </b-button>
                     </slot>
                 </h1>
             </b-col>

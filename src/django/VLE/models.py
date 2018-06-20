@@ -24,6 +24,12 @@ class User(AbstractUser):
     profile_picture = models.TextField(
         null=True
     )
+    grade_notifications = models.BooleanField(
+        default=True
+    )
+    comment_notifications = models.BooleanField(
+        default=False
+    )
 
     def __str__(self):
         return self.username

@@ -2,9 +2,12 @@
     <content-columns>
         <bread-crumb @eye-click="customisePage" slot="main-content-column" :currentPage="'Settings'"></bread-crumb>
 
-        <profile-card slot="main-content-column" :name="profile[0].name"
-                      :email="profile[0].email"
-                      :id="profile[0].id">
+        <profile-card slot="main-content-column"
+                      :name="profile.name"
+                      :image="profile.picture"
+                      :id="profile.uID"
+                      :gradeUpdate="profile.grade_notifications"
+                      :commentUpdate="profile.comment_notifications">
         </profile-card>
     </content-columns>
 </template>
@@ -13,17 +16,13 @@
 import contentColumns from '@/components/ContentColumns.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import profileCard from '@/components/ProfileCard.vue'
+import userAPI from '@/api/user.js'
 
 export default {
     name: 'Profile',
     data () {
         return {
-            profile: [{
-                name: 'Engel Hamer',
-                email: 'e.hamer@uva.nl',
-                id: '11256443',
-                image: '/static/oh_no/ohno.jpeg'
-            }]
+            profile: {}
         }
     },
     components: {
@@ -35,7 +34,9 @@ export default {
         customisePage () {
             alert('Wishlist: Customise page')
         }
+    },
+    created () {
+        userAPI.get_own_user_data().then(user => { this.profile = user })
     }
-
 }
 </script>
