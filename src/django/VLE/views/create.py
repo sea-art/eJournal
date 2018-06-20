@@ -50,10 +50,10 @@ def create_new_assignment(request):
 
     try:
         name, description, cID = utils.get_required_post_params(request.data, "name", "description", "cID")
-        assignment = factory.make_assignment(name, description, cID, request.user)
     except KeyError:
         return utils.keyerror_json("name", "description", "cID")
 
+    assignment = factory.make_assignment(name, description, cID, request.user)
     return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)})
 
 

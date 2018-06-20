@@ -23,11 +23,11 @@ export default {
     },
 
     /* Create a new assignment. */
-    create_new_assignment (name, description, aID) {
+    create_new_assignment (name, description, cID) {
         return auth.authenticatedPost('/create_new_assignment/', {
             name: name,
             description: description,
-            aID: aID
+            cID: cID
         }).then(response => response.data)
     },
 
