@@ -93,15 +93,8 @@ export default {
             this.$refs['entry-template-card'].cancel()
             this.currentNode = $event
         },
-        addNode () {
-            this.nodes.splice(this.currentNode, 0, {
-                type: 'entry',
-                textbox1: '',
-                textbox2: '',
-                text: '',
-                date: new Date(),
-                id: this.nodes.length
-            })
+        addNode (template) {
+            console.log(template)
         },
         progressPoints (progressNode) {
             var tempProgress = 0

@@ -5,7 +5,7 @@
                     <b-card class="card main-card noHoverCard" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
-                                <h2>Select a template a template</h2>
+                                <h2>Select a template</h2>
                                 <b-form-select v-model="selectedTemplate">
                                     <option :value="null" disabled>Please select a template</option>
                                     <option v-for="template in addNode.templates" :key="template.tID" :value="template">
@@ -53,7 +53,7 @@ export default {
             }
         },
         addTemplate: function () {
-            this.$emit('edit-data', this.selectedTemplate)
+            this.$emit('add-template', this.selectedTemplate)
         }
     },
 
