@@ -20,6 +20,7 @@
                     <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'a'">
+                    {{nodes[currentNode]}}
                     <add-card @add-template="addNode"></add-card>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'p'">
