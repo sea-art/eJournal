@@ -26,9 +26,7 @@ def create_new_course(request):
         name, abbr = utils.get_required_post_params(request.data, "name", "abbr")
         startdate, lti_id = utils.get_optional_post_params(request.data, "startdate", "lti_id")
     except KeyError:
-        return JsonResponse({'result': '400 Bad Request',
-                             'description': 'Fields "name" and "abbr" are required but one or more are missing.'},
-                            status=400)
+        return utils.keyerror_json("name", "abbr")
 
     course = factory.make_course(name, abbr, startdate, request.user, lti_id)
 
@@ -54,7 +52,7 @@ def create_new_assignment(request):
         name, description, cID = utils.get_required_post_params(request.data, "name", "description", "cID")
         assignment = factory.make_assignment(name, description, cID, request.user)
     except KeyError:
-        utils.keyerror_json("name", "description", "cID")
+        return utils.keyerror_json("name", "description", "cID")
 
     return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)})
 
@@ -73,7 +71,7 @@ def create_journal(request):
     try:
         aID = utils.get_required_post_params(request.data, "aID")
     except KeyError:
-        utils.keyerror_json("aID")
+        return utils.keyerror_json("aID")
 
     assignment = Assignment.objects.get(pk=aID)
     journal = factory.make_journal(assignment, request.user)
@@ -96,7 +94,7 @@ def create_entry(request):
         jID, tID = utils.get_required_post_params(request.data, "jID", "tID")
         nID = utils.get_optional_post_params(request.data, "nID")
     except KeyError:
-        utils.keyerror_json("jID", "tID")
+        return utils.keyerror_json("jID", "tID")
 
     try:
         journal = Journal.objects.get(pk=jID, user=request.user)
