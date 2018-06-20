@@ -9,16 +9,6 @@ from django.forms.models import model_to_dict
 import random
 
 
-def hex_to_dec(hex):
-    """Change hex string to int"""
-    return int(hex, 16)
-
-
-def dec_to_hex(dec):
-    """Change int to hex value"""
-    return hex(dec).split('x')[-1]
-
-
 def check_permissions(user, cID, permissionList):
     """Check whether the user has the right permissions to access the given
     course functionality.
@@ -44,9 +34,23 @@ def get_permissions(user, cID):
     cID -- course ID used to validate the request.
     """
     assert not(user is None or cID is None)
-    # First get the role ID of the user participation.
-    role = Participation.objects.get(user=user, course=cID).role
+    if user.is_admin:
+        # The call is made for system wide permissions and not course specific.
+        role = {
+            can_edit_grades: True,
+            can_view_grades: True,
+            can_edit_assignment: True,
+            can_view_assignment: True,
+            can_submit_assignment: True,
+            can_edit_course: True,
+            can_delete_course: True,
+            is_admin: True
+        }
+    else:
+        # First get the role ID of the user participation.
+        role = Participation.objects.get(user=user, course=cID).role
 
-    roleDict = model_to_dict(role)
+        roleDict = model_to_dict(role)
+        roleDict['is_admin'] = False
 
     return roleDict

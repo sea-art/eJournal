@@ -7,7 +7,7 @@
                     {{ currentPage }}
                     <slot>
                         <icon name="eye" @click.native="eyeClick()" class="eye-icon hover" scale="1.75"></icon>
-                        <b-button class="float-right edit-button" @click="editClick()"> Edit </b-button>
+                        <b-button v-if="canEdit() && this.$route.params.cID != undefined" class="float-right edit-button" :to="{name: 'CourseEdit', params: {cID: this.$route.params.cID, courseName: this.$route.params.courseName}}"> Edit </b-button>
                     </slot>
                 </h1>
             </b-col>
@@ -37,6 +37,16 @@ export default {
         },
         splitPath () {
             this.$router.currentRoute.path.split('/').slice(1, -1)
+        },
+        canEdit () {
+            var pageName = this.$route.name
+
+            // TODO add proper check
+            if ((pageName === 'Home') ||
+               (pageName === 'Course' && this.$root.permissions.can_edit_course) ||
+               (pageName === 'Assignment' && this.$root.permissions.can_edit_assignment)) {
+                   return true
+               }
         }
     }
 }
@@ -68,10 +78,11 @@ export default {
 }
 
 .eye-icon {
-    color: var(--theme-light-grey);
+    fill: var(--theme-light-grey) !important;
+    cursor: pointer;
 }
 
 .eye-icon:hover {
-    color: var(--theme-pink);
+    fill: var(--theme-pink) !important;
 }
 </style>

@@ -1,4 +1,6 @@
 import connection from '@/api/connection'
+import router from '@/router'
+
 
 /* Utility function to get the Authorization header with
  * the JWT token.
@@ -34,6 +36,7 @@ export default {
             .then(response => {
                 localStorage.setItem('jwt_access', response.data.access)
                 localStorage.setItem('jwt_refresh', response.data.refresh)
+                // TODO login true
             })
     },
 
@@ -46,6 +49,11 @@ export default {
         localStorage.removeItem('jwt_refresh')
     },
 
+    /* Change password. */
+    changePassword (newPassword, oldPassword) {
+        return this.authenticatedPost('/update_password/', {new_password: newPassword, old_password: oldPassword})
+    },
+
     /* Run an authenticated post request.
      * This sets the JWT token to the Authorization headers of the request, so that it can access
      * protected resources. If the access JWT token is outdated, it refreshes and tries again.
@@ -55,7 +63,15 @@ export default {
         return connection.conn.post(url, data, getAuthorizationHeader())
             .catch(error => {
                 if (error.response.data.code === 'token_not_valid') {
-                    return refresh().then(_ => connection.conn.post(url, data, getAuthorizationHeader()))
+                    return refresh()
+                        .then(_ => connection.conn.post(url, data, getAuthorizationHeader()))
+                        .catch(error => {
+                            if (error.response.data.code === 'token_not_valid') {
+                                // TODO loggedIn = false
+                                // TODO reroute...
+                            }
+                            throw error
+                        })
                 } else {
                     throw error
                 }
@@ -71,7 +87,15 @@ export default {
         return connection.conn.get(url, getAuthorizationHeader())
             .catch(error => {
                 if (error.response.data.code === 'token_not_valid') {
-                    return refresh().then(_ => connection.conn.get(url, getAuthorizationHeader()))
+                    return refresh()
+                        .then(_ => connection.conn.get(url, getAuthorizationHeader()))
+                        .catch(error => {
+                            if (error.response.data.code === 'token_not_valid') {
+                                // TODO loggedIn = false
+                                // TODO reroute...
+                            }
+                            throw error
+                        })
                 } else {
                     throw error
                 }

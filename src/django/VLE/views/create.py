@@ -17,6 +17,9 @@ def create_new_course(request):
 
     Returns a json string for if it is succesful or not.
     """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
     course = factory.make_course(request.data["name"], request.data["abbr"], request.data["startdate"], request.user)
 
     return JsonResponse({'result': 'success', 'course': course_to_dict(course)})

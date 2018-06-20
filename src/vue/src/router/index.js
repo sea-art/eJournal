@@ -9,10 +9,13 @@ import Guest from '@/views/Guest'
 import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
 import AssignmentsOverview from '@/views/AssignmentsOverview'
+import permissionsApi from '@/api/permissions.js'
+import CourseEdit from '@/views/CourseEdit'
+import AssignmentEdit from '@/views/AssignmentEdit'
 
 Vue.use(Router)
 
-export default new Router({
+var router = new Router({
     routes: [{
         path: '/',
         name: 'Guest',
@@ -44,6 +47,11 @@ export default new Router({
         component: Assignment,
         props: true
     }, {
+        path: '/Home/Course/:cID/Assignment/:aID/AssignmentEdit',
+        name: 'AssignmentEdit',
+        component: AssignmentEdit,
+        props: true
+    }, {
         path: '/Home/Course/:cID/Assignment:aID/Journal/:jID',
         name: 'Journal',
         component: Journal,
@@ -54,3 +62,31 @@ export default new Router({
         component: LtiLaunch
     }]
 })
+
+
+router.beforeEach((to, from, next) => {
+    // TODO Check login here as well?
+    // TODO Handle errors properly
+
+    // if (to.matched.name != 'Home' && !loggedIn)
+
+    if (to.params.cID) {
+        permissionsApi.get_course_permissions(to.params.cID)
+            .then(response => {
+                router.app.permissions = response
+                    console.log(router.app.permissions)
+                next()
+            })
+            .catch(_ => {
+                console.log('Error while loading permissions, does the redirect work?')
+                next(vm => {
+                    vm.$router.push({name: 'ErrorPage', params: {errorMessage: 'Error while loading permissions', errorCode: '???'}})
+                })
+            })
+    } else {
+        next()
+    }
+    next()
+})
+
+export default router
