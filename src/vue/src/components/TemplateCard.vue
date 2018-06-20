@@ -4,7 +4,7 @@
         <b-row>
             <b-col id="main-card-left-column" cols="12">
                 <div v-if="saveEditMode == 'Save'">
-                    <b-card class="card main-card noHoverCard" :class="'pink-border'">
+                    <b-card class="card main-card no-hover" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>Subject:</h2> <b-textarea v-model="tempbox1"></b-textarea><br>
@@ -26,7 +26,7 @@
                     </b-card>
                 </div>
                 <div v-else>
-                    <b-card class="card main-card noHoverCard" :class="'pink-border'">
+                    <b-card class="card main-card no-hover" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>{{ textbox1 }}</h2>

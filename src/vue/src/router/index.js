@@ -10,6 +10,7 @@ import Guest from '@/views/Guest'
 import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
 import CourseEdit from '@/views/CourseEdit'
+import TemplateEdit from '@/views/TemplateEdit'
 
 Vue.use(Router)
 
@@ -48,6 +49,11 @@ export default new Router({
         path: '/Home/Course/:cID/Assignment/:aID',
         name: 'Assignment',
         component: Assignment,
+        props: true
+    }, {
+        path: '/Home/Course/:cID/Assignment/:aID/Format/TemplateEdit/:tID',
+        name: 'TemplateEdit',
+        component: TemplateEdit,
         props: true
     }, {
         path: '/Home/Course/:cID/Assignment:aID/Journal/:jID',

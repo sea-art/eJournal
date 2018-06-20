@@ -5,7 +5,7 @@
             <b-col id="main-card-left-column" cols="12">
                 <div v-if="saveEditMode == 'Save'">
                     <!-- Dit is edit modus. -->
-                    <b-card class="card main-card noHoverCard" :class="'pink-border'">
+                    <b-card class="card main-card no-hover" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <!-- TODO laat hier de header van het template
@@ -51,7 +51,7 @@
                 </div>
                 <div v-else>
                     <!-- Dit is overview modus. -->
-                    <b-card class="card main-card noHoverCard" :class="'pink-border'">
+                    <b-card class="card main-card no-hover" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <!-- TODO laat hier de header van het template
