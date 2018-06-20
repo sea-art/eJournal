@@ -1,6 +1,6 @@
 <template>
     <content-columns>
-        <bread-crumb @eye-click="customisePage" slot="main-content-column" :currentPage="courseName">
+        <bread-crumb @eye-click="customisePage" slot="main-content-column">
         </bread-crumb>
 
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
