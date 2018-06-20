@@ -59,8 +59,12 @@ export default {
 
     created () {
         journal.get_nodes(this.jID)
-            .then(response => { this.nodes = response })
+            .then(response => { this.nodes = response.nodes })
             .catch(_ => alert('Error while loading nodes.'))
+
+        journal.create_entry(1, 1, {tag: 1, data: "HI"})
+            .then(response => console.log(response))
+            .catch(error => console.log(error))
     },
 
     methods: {
