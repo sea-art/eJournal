@@ -82,7 +82,6 @@ export default {
                 this.handleChoice = true
                 // TODO Create or koppel assignement
 
-
                 // this.showModal('chooseActionRef')
             } else if (state <= this.s_new_assignment) {
                 // TODO Create or koppel assignement
