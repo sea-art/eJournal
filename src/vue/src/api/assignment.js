@@ -38,5 +38,13 @@ export default {
             name: name,
             description: description
         }).then(response => response.data.assignment)
+    },
+
+    /* Deletes an existing assignment. */
+    delete_assignment (aID) {
+        return auth.authenticatedPost('/delete_assignment/', {
+            aID: aID
+        }).then(response => response.data.result)
     }
+
 }
