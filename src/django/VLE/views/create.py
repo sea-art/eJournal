@@ -135,7 +135,6 @@ def create_entrycomment(request):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-
     comment = make_entrycomment(request['entryID'], request['authorID'], request['text'])
     # Check if the comment has actually been made properly.
     if comment:
