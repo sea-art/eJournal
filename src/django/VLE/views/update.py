@@ -135,7 +135,7 @@ def update_user_role_course(request):
     participation.save()
     return JsonResponse({'result': 'success', 'new_role': participation.role.name})
 
-    
+
 def update_grade_entry(request, eID):
     """Updates the entry grade
 
