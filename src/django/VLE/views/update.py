@@ -130,17 +130,18 @@ def update_grade_entry(request, eID):
 
     Arguments:
     request -- the request that was send with
+    eID -- the entry id
 
     Returns a json string if it was sucessful or not.
     """
-    if not user.is_authenticated:
+    if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     entry = Entry.objects.get(pk=eID)
     entry.grade = request.data['grade']
-    entry.published = request.data['publish']
+    entry.published = request.data['published']
     entry.save()
-    return JsonResponse({'result': 'success', 'new_grade': entry.grade})
+    return JsonResponse({'result': 'success', 'new_grade': entry.grade, 'new_published': entry.published})
 
 
 @api_view(['POST'])
@@ -149,14 +150,51 @@ def update_publish_grade_entry(request, eID):
 
     Arguments:
     request -- the request that was send with
+    eID -- the entry id
 
     Returns a json string if it was sucessful or not.
     """
-    if not user.is_authenticated:
+    if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    publish = request.data['publish']
+    publish = request.data['published']
     entry = Entry.objects.get(pk=eID)
     entry.published = publish
     entry.save()
-    return JsonResponse({'result': 'success', 'new_publish': entry.published})
+    return JsonResponse({'result': 'success', 'new_published': entry.published})
+
+
+@api_view(['POST'])
+def update_publish_grades_assignment(request, aID):
+    """Updates the grade publish status for whole assignment
+
+    Arguments:
+    request -- the request that was send with
+    aID -- assignment ID
+
+    Returns a json string if it was sucessful or not.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    assign = Assignment.objects.get(pk=aID)
+    utils.publish_all_assignment_grades(assign, request.data['published'])
+    return JsonResponse({'result': 'success', 'new_published': request.data['published']})
+
+
+@api_view(['POST'])
+def update_publish_grades_journal(request, jID):
+    """Updates the grade publish status for a journal
+
+    Arguments:
+    request -- the request that was send with
+    jID -- journal ID
+
+    Returns a json string if it was sucessful or not.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    journ = Journal.objects.get(pk=jID)
+    utils.publish_all_journal_grades(journ, request.data['published'])
+    return JsonResponse({'result': 'success', 'new_published': request.data['published']})

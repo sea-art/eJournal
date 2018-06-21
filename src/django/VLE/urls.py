@@ -42,6 +42,11 @@ from VLE.views.update import update_password
 from VLE.views.update import update_grade_notification
 from VLE.views.update import update_comment_notification
 
+from VLE.views.update import update_grade_entry
+from VLE.views.update import update_publish_grade_entry
+from VLE.views.update import update_publish_grades_assignment
+from VLE.views.update import update_publish_grades_journal
+
 from VLE.views.delete import delete_course
 from VLE.views.delete import delete_assignment
 
@@ -82,6 +87,13 @@ urlpatterns = [
          name='update_grade_notification'),
     path('api/update_comment_notification/', update_comment_notification,
          name='update_comment_notification'),
+
+    path('api/update_grade_entry/<int:eID>/', update_grade_entry, name='update_grade_entry'),
+    path('api/update_publish_grade_entry/<int:eID>/', update_publish_grade_entry, name='update_grade_entry'),
+    path('api/update_publish_grades_assignment/<int:aID>/', update_publish_grades_assignment,
+         name='update_publish_grades_assignment'),
+    path('api/update_publish_grades_journal/<int:jID>/', update_publish_grades_journal,
+         name='update_publish_grades_journal'),
 
     path('api/delete_course/', delete_course, name='delete_course'),
     path('api/delete_assignment/', delete_assignment, name='delete_assignment'),
