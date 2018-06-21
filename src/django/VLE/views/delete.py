@@ -8,7 +8,7 @@ from VLE.views.get import get_own_user_data
 
 @api_view(['POST'])
 def delete_course(request):
-    """Deletes an existing course
+    """Deletes an existing course.
 
     Arguments:
     request -- the update request that was send with
@@ -28,7 +28,7 @@ def delete_course(request):
 
 @api_view(['POST'])
 def delete_assignment(request):
-    """Deletes an existing assignment
+    """Deletes an existing assignment.
 
     Arguments:
     request -- the update request that was send with
