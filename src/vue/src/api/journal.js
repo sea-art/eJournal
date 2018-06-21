@@ -49,5 +49,5 @@ export default {
     update_publish_grades_journal (jID) {
         return auth.authenticatedGet('/api/update_publish_grades_journal/' + jID + '/')
             .then(response => response.data)
-    },
+    }
 }

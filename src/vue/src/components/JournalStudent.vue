@@ -1,5 +1,6 @@
 <template>
     <b-row no-gutters>
+        {{nodes.length}}<br>
         <!-- TODO: reopen bread-crumb when it is working again -->
         <b-col v-if="bootstrapLg()" cols="12">
             <!-- <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
@@ -94,10 +95,9 @@ export default {
             this.currentNode = $event
         },
         addNode (infoEntry) {
-            journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
-            journal.get_nodes(this.jID)
+            journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1]).then(journal.get_nodes(this.jID)
                 .then(response => { this.nodes = response.nodes })
-                .catch(_ => alert('Error while loading nodes.'))
+                .catch(_ => alert('Error while loading nodes.')))
         },
         fillDeadline (data) {
             journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data)
