@@ -10,7 +10,7 @@
                     <option :selected="role === 'ta'" value="ta">Teaching Assistant (TA)</option>
                     <option :selected="role === 't'" value="t">Teacher</option>
                  </b-form-select>
-                <b-button @click.prevent.stop="removeFromCourse()" class="delete">Remove</b-button>
+                <b-button @click.prevent.stop="removeFromCourse()" class="delete-button">Remove</b-button>
             </b-col>
             <b-col cols="12" order-sm="2" sm="6">
                 {{ name }} <br/>
@@ -46,9 +46,9 @@ export default {
         }
     },
     methods: {
-        removeFromCourse() {
+        removeFromCourse () {
             if (confirm('Are you sure you want to remove ' + name + '?')) {
-                // TODO
+                // TODO plugin API
             }
         }
     },
