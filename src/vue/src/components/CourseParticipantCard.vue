@@ -2,13 +2,13 @@
     <b-card :class="$root.colors[uID % $root.colors.length]">
         <b-row>
             <b-col cols="4" sm="2">
-                <img class="img-fluid portrait" src="@/assets/logo.png">
+                <img class="img-fluid portrait" :src="portraitPath">
             </b-col>
             <b-col cols="8" order-sm="3" sm="4">
                  <b-form-select v-model="selectedRole" class="mb-3" :select-size="1">
-                    <option :selected="role === 's'" value="s">Student</option>
-                    <option :selected="role === 'ta'" value="ta">Teaching Assistant (TA)</option>
-                    <option :selected="role === 't'" value="t">Teacher</option>
+                    <option :selected="role === 'Student'" value="Student">Student</option>
+                    <option :selected="role === 'TA'" value="TA">Teaching Assistant (TA)</option>
+                    <option :selected="role === 'Teacher'" value="Teacher">Teacher</option>
                  </b-form-select>
                 <b-button @click.prevent.stop="removeFromCourse()" class="delete-button full-width">Remove</b-button>
             </b-col>

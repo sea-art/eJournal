@@ -1,16 +1,11 @@
-<!--TODO Check teacher permission;
-    TODO Display student cards of those enrolled
-    TODO Add deck of work to be checked for this assignment -->
-
 <template>
     <content-columns>
-        <div slot="left-content-column">
-            <b-button class="float-right edit-button" :to="{name: 'AssignmentEdit',
-                                                            params: {cID: this.$route.params.cID,
-                                                                     courseName: this.$route.params.courseName,
-                                                                     aID: this.$route.params.aID,
-                                                                     assignmentName: this.$route.params.assignmentName
-                                                            }}"> Edit </b-button>
+        <div slot="main-content-column">
+            <b-button class="float-right edit-button" :to="{ name: 'AssignmentEdit',
+                                                             params: { cID: cID,
+                                                                       aID: aID}}">
+                Edit
+            </b-button> 
         </div>
         <!-- TODO: reopen bread-crumb when it is working again -->
         <!-- <bread-crumb @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder" slot="main-content-column"></bread-crumb> -->

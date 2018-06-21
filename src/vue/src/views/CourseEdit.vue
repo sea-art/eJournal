@@ -1,6 +1,9 @@
 <template>
     <content-single-column>
         <h1>Placeholder for breadcrum</h1>
+        <div v-for="p in participants">
+            {{ p }}
+        </div>
         <!-- <bread-crumb @eye-click="customisePage"/> -->
         <b-card class="no-hover">
             <b-form @submit="onSubmit">
@@ -24,11 +27,12 @@
             </b-form>
         </b-card>
 
+        <!-- TODO PROVIDE FULL NAME AND STUDENTNUMBER DATABASE BOYS -->
         <course-participant-card v-for="p in participants" :key="p.uID"
             :uID="p.uID"
             :studentNumber="p.studentNumber"
             :name="p.name"
-            :portraitPath="p.portraitPath"
+            :portraitPath="p.picture"
             :role="p.role"/>
     </content-single-column>
 </template>
@@ -50,13 +54,7 @@ export default {
         return {
             course: {},
             form: {},
-            participants: [{
-                uID: 99,
-                studentNumber: 6066364,
-                name: 'Maarten Jochem van Keulen',
-                portraitPath: '@/assets/logo.png',
-                role: 'ta'
-            }]
+            participants: []
         }
     },
     created () {
@@ -65,6 +63,12 @@ export default {
                 this.course = response
             })
             .catch(_ => alert('Error while loading course data'))
+
+        courseApi.get_users(this.cID)
+            .then(response => {
+                this.participants = response.users
+            })
+            .catch(_ => alert('Error while loading course users'))
     },
     methods: {
         onSubmit () {
