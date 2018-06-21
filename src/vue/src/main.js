@@ -48,7 +48,7 @@ new Vue({
         },
 
         /* Assignment permissions. */
-        canViewAssigment () {
+        canViewAssignment () {
             return this.permissions.can_view_assignment
         },
         canSubmitAssignment () {

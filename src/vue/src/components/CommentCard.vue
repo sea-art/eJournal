@@ -1,48 +1,56 @@
 <template>
-    <b-row>
-        <b-col cols="2">
-            <img class="profilePic" id="nav-profile-image" slot="button-content" src="../assets/unknown-profile.png">
-        </b-col>
-        <b-col cols="10">
-            <b-card class="noHoverCard" :class="'pink-border'">
-                <div v-if="EditSaveMode == 'Save'">
-                    <b-textarea v-model="tempComment"></b-textarea><br><br>
-                    <b-button @click="saveEdit">{{ EditSaveMode }}</b-button>
-                    <b-button @click="cancel">Cancel</b-button>
-                </div>
-                <div v-else>
-                    {{ comment }}<br><br>
-                    <b-button @click="saveEdit">{{ EditSaveMode }}</b-button>
-                </div>
-            </b-card>
-        </b-col>
-    </b-row>
+    <div>
+        <div v-for="(comment, index) in comments" :key="index">
+            <b-row>
+                <b-col cols="2">
+                    <img class="profilePic" id="nav-profile-image" slot="button-content" src="../assets/unknown-profile.png">
+                    {{ comment.person }}
+                </b-col>
+                <b-col cols="10">
+                    <b-card class="noHoverCard" :class="'pink-border'">
+                        {{ comment.message }}
+                    </b-card>
+                </b-col>
+            </b-row>
+        </div>
+        <b-row>
+            <b-col cols="2">
+            </b-col>
+            <b-col cols="10">
+                <b-textarea v-model="tempComment" placeholder="Add your beautiful comment here"></b-textarea><br>
+                <b-button @click="addComment">Add your comment</b-button>
+            </b-col>
+        </b-row>
+    </div>
 </template>
 
 <script>
 export default {
-    props: ['comment'],
+    props: ['comments', 'person', 'eID'],
 
     data () {
         return {
-            EditSaveMode: 'Edit',
-            tempComment: this.comment
+            newComments: this.comments,
+            tempComment: ''
+        }
+    },
+    watch: {
+        eID: function () {
+            this.newComments = this.comments
+            this.tempComment = ''
         }
     },
 
     methods: {
-        saveEdit: function () {
-            if (this.EditSaveMode === 'Save') {
-                this.EditSaveMode = 'Edit'
-                this.$emit('edit-comment', this.tempComment)
-            } else {
-                this.EditSaveMode = 'Save'
+        addComment: function () {
+            if (this.tempComment !== '') {
+                this.newComments.push({
+                    message: this.tempComment,
+                    person: this.person
+                })
+                this.$emit('new-comments', this.newComments)
+                this.tempComment = ''
             }
-        },
-
-        cancel: function () {
-            this.EditSaveMode = 'Edit'
-            this.tempComment = this.comment
         }
     }
 }

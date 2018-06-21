@@ -1,12 +1,11 @@
 <!-- Loads a preview of a template. -->
 <template>
-    <b-card class="card main-card noHoverCard" :class="'pink-border'">
+    <b-card class="card main-card noHoverCard" :class="'dark-border'">
         <b-row>
             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                 <h2>{{template.name}}</h2>
             </b-col>
             <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
-                To be graded
             </b-col>
         </b-row>
         <b-row>
@@ -14,6 +13,7 @@
                 <div v-for="field in template.fields" :key="field.eID">
                     <div v-if="field.title != ''">
                         <h4>{{ field.title }}</h4>
+                        <br>
                     </div>
                 </div>
             </b-col>

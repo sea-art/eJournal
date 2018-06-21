@@ -109,6 +109,7 @@ def entry_deadline_to_dict(node):
         'nID': node.id,
         'jID': node.id,
         'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
+        'template': template_to_dict(node.preset.forced_template),
         'entry': entry_to_dict(node.entry),
     } if node else None
 
