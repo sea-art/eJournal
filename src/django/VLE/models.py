@@ -338,7 +338,7 @@ class Entry(models.Model):
     grade = models.IntegerField(
         default=0
     )
-    graded = models.BooleanField(
+    published = models.BooleanField(
         default=False
     )
 
