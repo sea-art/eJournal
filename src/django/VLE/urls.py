@@ -76,7 +76,6 @@ urlpatterns = [
          name='update_comment_notification'),
     path('api/update_entrycomment/', update_entrycomment, name='update_entrycomment'),
 
-
     path('api/delete_course/', delete_course, name='delete_course'),
     path('api/delete_assignment/', delete_assignment, name='delete_assignment'),
 
