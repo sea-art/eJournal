@@ -39,7 +39,7 @@ export default {
         'content-columns': contentColumns
     },
     created () {
-        assignmentApi.get_assignemnt_data(this.$route.params.cID, this.$route.params.aID)
+        assignmentApi.get_assignment_data(this.$route.params.cID, this.$route.params.aID)
             .then(response => {
                 this.assignment = response
                 this.pageName = this.assignment.name

@@ -3,6 +3,7 @@ from django.http import JsonResponse
 
 from VLE.serializers import *
 import VLE.factory as factory
+import VLE.utils as utils
 from VLE.views.get import get_own_user_data
 
 
