@@ -61,9 +61,13 @@ def delete_user_from_course(request):
     if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    user = User.objects.get(pk=request.data['uID'])
-    course = Course.objects.get(pk=request.data['cID'])
-    participation = Participation.objects.get(user=user, course=course)
-    participation.delete()
+    try:
+        user = User.objects.get(pk=request.data['uID'])
+        course = Course.objects.get(pk=request.data['cID'])
+        participation = Participation.objects.get(user=user, course=course)
+    except (User.DoesNotExist, Course.DoesNotExist, Participation.DoesNotExist):
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'User, Course or Participation does not exist.'}, status=404)
 
+    participation.delete()
     return JsonResponse({'result': 'Succesfully deleted student from course'}, status=202)

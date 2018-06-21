@@ -13,7 +13,6 @@ from VLE.models import Entry
 
 import VLE.factory as factory
 import VLE.utils as utils
-import json
 
 
 def logging_in(obj, username, password, status=200):

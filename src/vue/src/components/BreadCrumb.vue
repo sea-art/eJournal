@@ -68,10 +68,14 @@ export default {
         crumbsUpper () {
             var crumbs = []
             for (var crumb of this.internalList.slice(0, -1)) {
-                crumbs.push({ route: { name: crumb.segment.split('/')[0],
-                    params: this.$route.params },
-                string: crumb.string,
-                key: crumb.segment })
+                crumbs.push({
+                    route: {
+                        name: crumb.segment.split('/')[0],
+                        params: this.$route.params
+                    },
+                    string: crumb.string,
+                    key: crumb.segment
+                })
             }
             return crumbs
         },

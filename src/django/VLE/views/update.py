@@ -130,10 +130,20 @@ def update_user_role_course(request):
 
     Returns a json string for if it is succesful or not.
     """
-    participation = Participation.objects.get(user=request.data['uID'], course=request.data['cID'])
-    participation.role = Role.objects.get(name=request.data['role'])
+    try:
+        uID, cID = utils.get_required_post_params(request.data, "uID", "cID")
+    except KeyError:
+        return utils.keyerror_json("uID", "cID")
+
+    try:
+        participation = Participation.objects.get(user=request.data['uID'], course=request.data['cID'])
+        participation.role = Role.objects.get(name=request.data['role'])
+    except (Participation.DoesNotExist, Role.DoesNotExist):
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Participation or Role does not exist.'}, status=404)
+
     participation.save()
-    return JsonResponse({'result': 'success', 'new_role': participation.role.name})
+    return JsonResponse({'result': 'success', 'new_role': participation.role.name}, status=200)
 
 
 @api_view(['POST'])
@@ -229,9 +239,9 @@ def update_entrycomment(request):
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     try:
-        entrycommentID, text = utils.get_required_post_params("entrycommentID", "text")
+        entrycommentID, text = utils.get_required_post_params(request.data, "entrycommentID", "text")
     except KeyError:
-        utils.keyerror_json("entrycommentID")
+        return utils.keyerror_json("entrycommentID")
 
     try:
         comment = EntryComment.objects.get(pk=entrycommentID)

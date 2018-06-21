@@ -69,7 +69,8 @@ def get_course_users(request, cID):
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
-        return utils.does_not_exist("cID")
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Course does not exist.'}, status=404)
 
     participations = course.participation_set.all()
     return JsonResponse({'result': 'success',
@@ -214,7 +215,8 @@ def get_assignment_journals(request, aID):
         course = assignment.courses.first()
         participation = Participation.objects.get(user=request.user, course=course)
     except (Participation.DoesNotExist, Assignment.DoesNotExist):
-        return JsonResponse({'result': '404 Not Found'}, status=404)
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Assignment or Participation does not exist.'}, status=404)
 
     if not participation.role.can_view_assignment:
         return JsonResponse({'result': '403 Forbidden'}, status=403)
@@ -364,9 +366,9 @@ def get_entrycomments(request):
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     try:
-        entryID = utils.get_required_post_params("entryID")
+        entryID = utils.get_required_post_params(request.data, "entryID")
     except KeyError:
-        utils.keyerror_json("entryID")
+        return utils.keyerror_json("entryID")
 
     entrycomments = EntryComment.objects.filter(entry=entryID)
     return JsonResponse({'result': 'success',
