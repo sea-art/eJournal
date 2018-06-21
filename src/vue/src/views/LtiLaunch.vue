@@ -46,11 +46,11 @@ export default {
         }
     },
     mounted () {
-        if (localStorage.getItem('jwt_access') === null) {
+        if (this.$route.query.jwt_access !== null) {
             localStorage.setItem('jwt_access', this.$route.query.jwt_access)
         }
 
-        if (localStorage.getItem('jwt_refresh') === null) {
+        if (this.$route.query.jwt_refresh !== null) {
             localStorage.setItem('jwt_refresh', this.$route.query.jwt_refresh)
         }
 
