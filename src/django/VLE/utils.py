@@ -11,6 +11,8 @@ def get_required_post_params(post, *keys):
     """
     result = []
     for key in keys:
+        print(key)
+        print(post[key])
         result.append(post[key])
     return result
 
@@ -72,11 +74,11 @@ def get_acquired_grade(entries, journal):
         for entry in entries:
             if entry.published:
                 count_graded += 1
-                total_grade += entry.grade
+                total_grade += entry.grade if entry.grade is not None else 0
         return total_gradee
     else:
         for entry in entries:
-            total_grade += entry.grade
+            total_grade += entry.grade if entry.grade is not None else 0
         return total_grade
 
 

@@ -1,6 +1,7 @@
 from rest_framework.decorators import api_view, parser_classes, renderer_classes
 from rest_framework.parsers import JSONParser
 from django.http import JsonResponse
+import json
 
 from VLE.serializers import *
 import VLE.factory as factory
@@ -81,7 +82,7 @@ def create_journal(request):
 
 
 @api_view(['POST'])
-@parser_classes((JSONParser,))
+@parser_classes([JSONParser])
 def create_entry(request):
     """ Create a new entry
     Arguments:
@@ -95,17 +96,15 @@ def create_entry(request):
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     try:
-        jID, tID = utils.get_required_post_params(request.data, "jID", "tID")
-        nID = utils.get_optional_post_params(request.data, "nID")
+        jID, tID, content_list = utils.get_required_post_params(request.data, "jID", "tID", "content")
+        nID, = utils.get_optional_post_params(request.data, "nID")
     except KeyError:
-        return utils.keyerror_json("jID", "tID")
+        return utils.keyerror_json("jID", "tID", "content")
 
     try:
         journal = Journal.objects.get(pk=jID, user=request.user)
 
-        template = EntryTemplate.objects.get(pk=request.data['tID'])
-
-        content_list = request.data['content']
+        template = EntryTemplate.objects.get(pk=tID)
 
         # TODO: Check if node can still be created (deadline passed? graded?)
         if nID:
@@ -115,17 +114,17 @@ def create_entry(request):
                                      'description': 'Passed node is a Progress node.'},
                                     status=400)
 
-            node.entry = make_entry(template)
+            node.entry = factory.make_entry(template)
 
         else:
-            entry = make_entry(template)
-            node = make_node(journal, entry)
+            entry = factory.make_entry(template)
+            node = factory.make_node(journal, entry)
 
         for content in content_list:
             data = content['data']
             tag = content['tag']
             field = Field.objects.get(pk=tag)
-            make_content(node.entry, data, field)
+            factory.make_content(node.entry, data, field)
 
         return JsonResponse({'result': 'success', 'node': node_to_dict(node)}, status=200)
     except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
