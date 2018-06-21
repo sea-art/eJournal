@@ -18,14 +18,11 @@
                 <div v-else-if="nodes[currentNode].type == 'd'">
                     <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                 </div>
-                <div v-else-if="nodes[currentNode].type == 'a'">
-                    <add-card @info-entry="addNode" :addNode="nodes[currentNode]"></add-card>
-                </div>
                 <div v-else-if="nodes[currentNode].type == 'p'">
                     <b-card class="card main-card noHoverCard" :class="'pink-border'">
                         <h2>Needed progress</h2>
-                        You have {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
-                        needed points before {{nodes[currentNode].deadline}}.
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
                     </b-card>
                 </div>
             </div>
@@ -53,9 +50,19 @@ export default {
         }
     },
     created () {
+        var tempNodes = []
+
         journal.get_nodes(this.jID)
             .then(response => { this.nodes = response.nodes })
             .catch(_ => alert('Error while loading nodes.'))
+        console.log(this.nodes)
+        for (var node in this.nodes) {
+            if (node.type !== 'a') {
+                tempNodes.push(node)
+            }
+        }
+        console.log(tempNodes)
+        this.nodes = tempNodes
     },
     watch: {
         currentNode: function () {
