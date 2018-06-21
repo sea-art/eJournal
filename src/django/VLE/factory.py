@@ -157,3 +157,20 @@ def make_journal_format():
     journal_format = JournalFormat()
     journal_format.save()
     return journal_format
+
+
+def make_role(name, can_edit_grades=False, can_view_grades=False, can_edit_assignment=False,
+              can_view_assignment=False, can_submit_assignment=False, can_edit_course=False,
+              can_delete_course=False):
+    role = Role(
+        name=name,
+        can_edit_grades=can_edit_grades,
+        can_view_grades=can_view_grades,
+        can_edit_assignment=can_edit_assignment,
+        can_view_assignment=can_view_assignment,
+        can_submit_assignment=can_submit_assignment,
+        can_edit_course=can_edit_course,
+        can_delete_course=can_delete_course
+    )
+    role.save()
+    return role

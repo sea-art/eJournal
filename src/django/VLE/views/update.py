@@ -125,3 +125,22 @@ def update_comment_notification(request, notified):
 
     user.save()
     return JsonResponse({'result': 'success', 'new_value': user.comment_notifications})
+
+
+@api_view(['POST'])
+def update_user_role_course(request):
+    """Update user role in a course.
+
+    Arguments:
+    request -- the request that was send with
+
+    Returns a json string for if it is succesful or not.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    participation = Participation.objects.get(user=request.data['uID'], course=request.data['cID'])
+    participation.role = Role.objects.get(name=request.data['role'])
+    participation.save()
+    return JsonResponse({'result': 'success', 'new_role': participation.role.name})

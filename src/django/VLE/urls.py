@@ -42,6 +42,7 @@ from VLE.views.update import update_assignment
 from VLE.views.update import update_password
 from VLE.views.update import update_grade_notification
 from VLE.views.update import update_comment_notification
+from VLE.views.update import update_user_role_course
 
 from VLE.views.delete import delete_course
 from VLE.views.delete import delete_assignment
@@ -84,6 +85,8 @@ urlpatterns = [
          name='update_grade_notification'),
     path('api/update_comment_notification/<str:notified>/', update_comment_notification,
          name='update_comment_notification'),
+
+    path('api/update_user_role_course/', update_user_role_course, name='update_user_role_course'),
 
     path('api/delete_course/', delete_course, name='delete_course'),
     path('api/delete_assignment/', delete_assignment, name='delete_assignment'),
