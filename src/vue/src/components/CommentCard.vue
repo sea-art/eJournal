@@ -27,7 +27,6 @@
 <script>
 export default {
     props: ['comments', 'person'],
-
     data () {
         return {
             EditSaveMode: 'Edit',
@@ -35,7 +34,6 @@ export default {
             tempComment: ''
         }
     },
-
     methods: {
         addComment: function () {
             if (this.tempComment !== '') {

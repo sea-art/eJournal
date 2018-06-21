@@ -34,7 +34,6 @@ export default {
             alert('Wishlist: Customise page')
         }
     },
-
     mounted () {
         this.$nextTick(function () {
             window.addEventListener('resize', this.getWindowWidth)
@@ -45,7 +44,6 @@ export default {
     beforeDestroy () {
         window.removeEventListener('resize', this.getWindowWidth)
     },
-
     components: {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,

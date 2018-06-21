@@ -90,7 +90,6 @@ export default {
             this.currentNode = $event
         },
         addNode (infoEntry) {
-            // console.log(infoEntry)
             journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
             journal.get_nodes(this.jID)
                 .then(response => { this.nodes = response.nodes })
