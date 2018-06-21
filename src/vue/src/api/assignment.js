@@ -2,7 +2,7 @@ import auth from '@/api/auth'
 
 export default {
     /* Get data of a cassignment specified with its ID. */
-    get_assignemnt_data (cID, aID) {
+    get_assignment_data (cID, aID) {
         return auth.authenticatedGet('/get_assignment_data/' + cID + '/' + aID + '/')
             .then(response => response.data.assignment)
     },
@@ -23,11 +23,11 @@ export default {
     },
 
     /* Create a new assignment. */
-    create_new_assignment (name, description, aID) {
+    create_new_assignment (name, description, cID) {
         return auth.authenticatedPost('/create_new_assignment/', {
             name: name,
             description: description,
-            assignmentID: aID
+            cID: cID
         }).then(response => response.data)
     },
 
