@@ -10,20 +10,24 @@
                                           params: {
                                               cID: cID,
                                               aID: a.aID,
-                                              courseName: $route.params.courseName,
-                                              assignmentName: a.name
                                           }
                                         }">
                 <assignment-card :line1="a.name" :color="$root.colors[a.aID % $root.colors.length]">
-                    <progress-bar v-if="a.journal && a.journal.stats" :currentPoints="a.journal.stats.acquired_points" :totalPoints="a.journal.stats.total_points"></progress-bar>
+                    <progress-bar v-if="a.journal && a.journal.stats"
+                        :currentPoints="a.journal.stats.acquired_points"
+                        :totalPoints="a.journal.stats.total_points"/>
                 </assignment-card>
             </b-link>
         </div>
 
-        <main-card slot="main-content-column" class="hover" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
+        <main-card v-if="this.$root.isAdmin()"
+            slot="main-content-column" class="hover"
+            v-on:click.native="showModal('createAssignmentRef')"
+            :line1="'+ Add assignment'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
+            <!-- TODO should a deadline link be to the assignment? Not a journal? Fix paramaters on link -->
             <b-link tag="b-button" :to="{name: 'Assignment', params: {cID: d.cIDs[0], dID: d.dID}}">
                 <todo-card
                     :line0="d.datetime"
@@ -40,7 +44,7 @@
             title="Create assignment"
             size="lg"
             hide-footer=True>
-                <create-assignment @handleAction="handleConfirm('createAssignmentRef')"></create-assignment>
+                <create-assignment @handleAction="handleConfirm('createAssignmentRef')"/>
         </b-modal>
 
     </content-columns>
@@ -61,8 +65,7 @@ export default {
     props: {
         cID: {
             required: true
-        },
-        courseName: String
+        }
     },
     data () {
         return {
@@ -100,6 +103,9 @@ export default {
         showModal (ref) {
             this.$refs[ref].show()
         },
+        hideModal (ref) {
+            this.$refs[ref].hide()
+        },
         handleConfirm (ref) {
             if (ref === 'createAssignmentRef') {
                 this.loadAssignments()
@@ -108,9 +114,6 @@ export default {
             }
 
             this.hideModal(ref)
-        },
-        hideModal (ref) {
-            this.$refs[ref].hide()
         },
         customisePage () {
             alert('Wishlist: Customise page')
