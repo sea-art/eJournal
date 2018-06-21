@@ -40,13 +40,10 @@
 <script>
 import breadCrumb from '@/components/BreadCrumb.vue'
 import createCourse from '@/components/CreateCourse.vue'
-import connectCourse from '@/components/connectCourse.vue'
+import connectCourse from '@/components/ConnectCourse.vue'
 
 export default {
     name: 'LtiCreateConnect',
-    props: {
-        subject: ''
-    },
     components: {
         'bread-crumb': breadCrumb,
         'create-course': createCourse,
@@ -64,11 +61,7 @@ export default {
         },
         handleConfirm (ref) {
             this.hideModal(ref)
-            if (ref === 'createCourseRef') {
-                signal('courseCreated')
-            } else if (ref === 'connectCourseRef') {
-                signal('courseConnected')
-            }
+            this.signal('courseIntegrated')
         }
     }
 }

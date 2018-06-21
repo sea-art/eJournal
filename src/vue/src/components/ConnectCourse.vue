@@ -1,6 +1,5 @@
 <template>
     <div>
-        {{ this.form.courseStartdate }}
         <b-form @submit="onSubmit" @reset="onReset" :v-model="form.ltiCourseID">
             <!-- TODO: Laad alle courses in en maak single selectable! -->
             <b-button class="float-right" type="reset">Reset</b-button>

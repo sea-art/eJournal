@@ -1,24 +1,23 @@
 <template>
     <content-single-columns>
-        <lti-create-connect v-if="handleChoice" slot="main-content-column" :subject="choiceSubject" @handleAction="handleCourse"/>
+        <lti-create-connect-course v-if="handleChoice" slot="main-content-column" @handleAction="handleActions"/>
     </content-single-columns>
 </template>
 
 <script>
 import contentSingleColumn from '@/components/ContentSingleColumn.vue'
-import ltiCreateConnect from '@/components/LtiCreateConnect.vue'
+import ltiCreateConnectCourse from '@/components/LtiCreateConnectCourse.vue'
 
 export default {
     name: 'LtiLaunch',
     components: {
         'content-single-columns': contentSingleColumn,
-        'lti-create-connect': ltiCreateConnect
+        'lti-create-connect-course': ltiCreateConnectCourse
     },
     data () {
         return {
             msg: 'unsuccesfull',
             jwt_refresh: ':(',
-            choiceSubject: '',
 
             /* Variables for loading the right component. */
             handleChoice: false,
@@ -35,11 +34,11 @@ export default {
         }
     },
     methods: {
-        handleCourse (msg) {
+        handleActions (msg) {
             this.handleChoice = false
 
-            if (msg === 'courseCreated') {
-                alert('Course Created!')
+            if (msg === 'courseIntegrated') {
+                alert('Course Integrated!')
             } else {
                 alert('Iets anders gebeurd!')
             }
