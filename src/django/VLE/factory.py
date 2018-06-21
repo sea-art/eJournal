@@ -174,3 +174,15 @@ def make_role(name, can_edit_grades=False, can_view_grades=False, can_edit_assig
     )
     role.save()
     return role
+
+
+def make_entrycomment(entryID, author, text):
+    """
+    Make an Entry Comment for an entry based on its ID.
+    With the author and the given text.
+    """
+    return EntryComment.objects.create(
+        entry=entryID,
+        author=author,
+        text=text
+    )

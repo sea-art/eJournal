@@ -22,12 +22,16 @@ from VLE.views.get import get_own_user_data, get_course_data, get_assignment_dat
 
 from VLE.views.get import get_user_courses, get_course_assignments, \
     get_assignment_journals, get_upcoming_deadlines, get_course_permissions, \
-    get_nodes, get_format, get_names, get_course_users
+    get_nodes, get_format, get_names, get_course_users, get_entrycomments
 
-from VLE.views.create import create_new_course, create_new_assignment, create_entry
+from VLE.views.create import create_new_course, create_new_assignment, create_entry, \
+    create_entrycomment
 
 from VLE.views.update import update_user_data, update_course, update_assignment, \
-    update_password, update_grade_notification, update_comment_notification, update_user_role_course
+    update_password, update_grade_notification, update_comment_notification,
+    update_password, update_grade_notification, update_comment_notification, \
+    update_grade_entry, update_publish_grade_entry, update_publish_grades_assignment, \
+    update_publish_grades_journal, update_entrycomment, update_user_role_course
 
 from VLE.views.delete import delete_course, delete_assignment, delete_user_from_course
 
@@ -56,20 +60,30 @@ urlpatterns = [
     path('api/get_nodes/<int:jID>/', get_nodes, name='get_nodes'),
     path('api/get_format/<int:aID>/', get_format, name='get_format'),
     path('api/get_names/', get_names, name='get_names'),
+    path('api/get_entrycomments/<int:entryID/', get_entrycomments, name='get_entrycomments'),
     path('api/get_course_users/<int:cID>/', get_course_users, name='get_course_users'),
 
     path('api/create_new_course/', create_new_course, name='create_new_course'),
     path('api/create_new_assignment/', create_new_assignment, name='create_new_assignment'),
     path('api/create_entry/', create_entry, name='create_entry'),
+    path('api/create_entrycomment/', create_entrycomment, name='create_entrycomment'),
 
     path('api/update_user_data/', update_user_data, name='update_user_data'),
     path('api/update_course/', update_course, name='update_course'),
     path('api/update_assignment/', update_assignment, name='update_assignment'),
     path('api/update_password/', update_password, name='update_password'),
-    path('api/update_grade_notification/<str:notified>/', update_grade_notification,
+    path('api/update_grade_notification/', update_grade_notification,
          name='update_grade_notification'),
-    path('api/update_comment_notification/<str:notified>/', update_comment_notification,
+    path('api/update_comment_notification/', update_comment_notification,
          name='update_comment_notification'),
+    path('api/update_entrycomment/', update_entrycomment, name='update_entrycomment'),
+
+    path('api/update_grade_entry/<int:eID>/', update_grade_entry, name='update_grade_entry'),
+    path('api/update_publish_grade_entry/<int:eID>/', update_publish_grade_entry, name='update_grade_entry'),
+    path('api/update_publish_grades_assignment/<int:aID>/', update_publish_grades_assignment,
+         name='update_publish_grades_assignment'),
+    path('api/update_publish_grades_journal/<int:jID>/', update_publish_grades_journal,
+         name='update_publish_grades_journal'),
 
     path('api/update_user_role_course/', update_user_role_course, name='update_user_role_course'),
 

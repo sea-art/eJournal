@@ -1,6 +1,7 @@
 from rest_framework.test import APIRequestFactory
 from django.test import TestCase
 from django.urls import reverse
+import json
 
 from VLE.models import User
 from VLE.models import Participation
@@ -8,6 +9,7 @@ from VLE.models import Role
 from VLE.models import Course
 from VLE.models import Assignment
 from VLE.models import Journal
+from VLE.models import Entry
 
 import VLE.factory as factory
 import VLE.utils as utils
@@ -16,7 +18,8 @@ import json
 
 def logging_in(obj, username, password, status=200):
     result = obj.client.post(reverse('token_obtain_pair'),
-                             {'username': username, 'password': password}, format='json')
+                             {'username': username, 'password': password},
+                             format='json')
     obj.assertEquals(result.status_code, status)
     return result
 
@@ -29,12 +32,8 @@ def api_get_call(obj, url, login, status=200):
 
 
 def api_post_call(obj, url, params, login, status=200):
-    result = obj.client.post(
-        url,
-        json.dumps(params),
-        content_type='application/json',
-        HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access'])
-    )
+    result = obj.client.post(url, json.dumps(params), content_type='application/json',
+                             HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access']))
     obj.assertEquals(result.status_code, status)
     return result
 
@@ -92,17 +91,19 @@ class RestTests(TestCase):
         a1.courses.add(c2)
         a2.courses.add(c1)
 
-        j1 = factory.make_journal(a1, u2)
         j2 = factory.make_journal(a1, u3)
         j3 = factory.make_journal(a1, u4)
 
         j = factory.make_journal(a1, self.student)
+        jj = factory.make_journal(a1, u2)
         e1 = factory.make_entry(t)
         e2 = factory.make_entry(t)
         e3 = factory.make_entry(t)
+        e4 = factory.make_entry(t)
         n1 = factory.make_node(j, e1)
         n2 = factory.make_node(j, e2)
         n3 = factory.make_node(j, e3)
+        n4 = factory.make_node(jj, e4)
 
     def test_login(self):
         """
@@ -186,7 +187,7 @@ class RestTests(TestCase):
         for i in range(len(entries)):
             if i > 0:
                 entries[i].grade = 1
-                entries[i].graded = True
+                entries[i].published = True
                 entries[i].save()
         self.assertEquals(utils.get_acquired_grade(entries, journal), 2)
         self.assertEquals(utils.get_max_points(journal), 5)
@@ -209,3 +210,31 @@ class RestTests(TestCase):
             )
         user_role = Participation.objects.get(user=self.user_role, course=1).role.name
         self.assertEquals(user_role, 'SD')
+
+    def test_grade_publish(self):
+        """
+        Tests the grade publish api functions.
+        """
+        login = logging_in(self, self.username, self.password)
+        result = api_post_call(self, '/api/update_grade_entry/1/', {'grade': 1, 'published': 0}, login)
+        self.assertEquals(Entry.objects.get(pk=1).grade, int(result.json()['new_grade']))
+
+        result = api_post_call(self, '/api/update_grade_entry/1/', {'grade': 2, 'published': 1}, login)
+        self.assertEquals(Entry.objects.get(pk=1).grade, int(result.json()['new_grade']))
+        self.assertEquals(Entry.objects.get(pk=1).published, int(result.json()['new_published']))
+
+        result = api_post_call(self, '/api/update_publish_grade_entry/1/', {'published': 0}, login)
+        self.assertEquals(Entry.objects.get(pk=1).published, int(result.json()['new_published']))
+
+        api_post_call(self, '/api/update_grade_entry/2/', {'grade': 1, 'published': 0}, login)
+        api_post_call(self, '/api/update_grade_entry/4/', {'grade': 1, 'published': 0}, login)
+        result = api_post_call(self, '/api/update_publish_grades_assignment/1/', {'published': 1}, login)
+        self.assertEquals(Entry.objects.get(pk=1).published, int(result.json()['new_published']))
+        self.assertEquals(Entry.objects.get(pk=2).published, int(result.json()['new_published']))
+        self.assertEquals(Entry.objects.get(pk=3).published, 0)
+        self.assertEquals(Entry.objects.get(pk=4).published, int(result.json()['new_published']))
+
+        result = api_post_call(self, '/api/update_publish_grades_journal/3/', {'published': 0}, login)
+        self.assertEquals(Entry.objects.get(pk=1).published, int(result.json()['new_published']))
+        self.assertEquals(Entry.objects.get(pk=2).published, int(result.json()['new_published']))
+        self.assertEquals(Entry.objects.get(pk=3).published, 0)

@@ -82,7 +82,7 @@ export default {
                 cIDs: ['1', '2'],
                 aIDs: ['2', '3'],
                 courseAbbrs: ['WEDA', 'PALSIE8'],
-                dID: '2017IL1',
+                aID: '1',
                 datetime: '8-6-2018 13:00'
             }]
         }
@@ -110,7 +110,7 @@ export default {
         },
         deleteCourse (courseID, courseName) {
             if (confirm('Are you sure you want to delete ' + courseName + '?')) {
-                console.log('TODO Implement delete this course ID after privy check')
+                // TODO: Implement delete this course ID after privy check
             }
         },
         showModal (ref) {
