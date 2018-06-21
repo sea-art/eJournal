@@ -44,7 +44,7 @@
                     </b-card>
                 </div>
                 <div v-else>
-                    <!-- Overvieuw mode. -->
+                    <!-- Overview mode. -->
                     <b-card class="card main-card noHoverCard" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
@@ -61,7 +61,7 @@
                         </b-row>
                         <b-row>
                             <b-col id="main-card-left-column" cols="12" lg-cols="12">
-                                <!-- Gives a vieuw of every templatefield and
+                                <!-- Gives a view of every templatefield and
                                     if possible the already filled in entry.
                                 -->
                                 <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
