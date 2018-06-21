@@ -40,7 +40,7 @@ def make_course(name, abbrev, startdate=None, author=None, lti_id=None):
     return course
 
 
-def make_assignment(name, description, author=None, format=None):
+def make_assignment(name, description, author=None, format=None, cIDs=None, courses=None):
     """Makes a new assignment
 
     Arguments:
@@ -159,16 +159,13 @@ def make_journal_format():
     return journal_format
 
 
-def make_entrycomment(entryID, authorID, text):
+def make_entrycomment(entryID, author, text):
     """
     Make an Entry Comment for an entry based on its ID.
     With the author and the given text.
     """
-    try:
-        return EntryComment.objects.create(
-            entry=entryID,
-            author=authorID,
-            text=text
-        )
-    except:
-        return None
+    return EntryComment.objects.create(
+        entry=entryID,
+        author=author,
+        text=text
+    )

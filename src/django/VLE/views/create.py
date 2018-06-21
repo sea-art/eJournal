@@ -136,9 +136,12 @@ def create_entrycomment(request):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    comment = make_entrycomment(request['entryID'], request['authorID'], request['text'])
-    # Check if the comment has actually been made properly.
-    if comment:
-        return JsonResponse({'result': 'success'})
-    else:
-        return JsonResponse({'result': '500 Internal Server Error'}, status=500)
+    try:
+        entryID, authorID, text = utils.get_required_post_params("entryID", "authorID", "text")
+    except KeyError:
+        utils.keyerror_json("entryID", "authorID", "text")
+
+    author = User.objects.get(pk=authorID)
+    comment = make_entrycomment(entryID, author, text)
+
+    return JsonResponse({'result': 'success'})

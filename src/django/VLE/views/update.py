@@ -142,12 +142,19 @@ def update_entrycomment(request):
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     try:
-        comment = EntryComment.objects.get(pk=request['entrycommentID'])
-        comment.text = request['text']
-        comment.save()
-        return JsonResponse({'result': 'success'})
-    except:
-        return JsonResponse({'result': '500 Internal Server Error'}, status=500)
+        entrycommentID, text = utils.get_required_post_params("entrycommentID", "text")
+    except KeyError:
+        utils.keyerror_json("entrycommentID")
+
+    try:
+        comment = EntryComment.objects.get(pk=entrycommentID)
+    except EntryComment.NotFound:
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Entrycomment does not exist.'},
+                            status=404)
+    comment.text = text
+    comment.save()
+    return JsonResponse({'result': 'success'})
 
 
 @api_view(['POST'])
