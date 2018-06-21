@@ -9,9 +9,7 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 
 export default {
     name: 'Journal',
-
     props: ['cID', 'aID', 'jID'],
-
     data () {
         return {
             windowWidth: 0
