@@ -1,7 +1,7 @@
 <template>
     <div>
         <label class="switch">
-          <input type="checkbox" @click="switchVariable" v-bind:checked="isActive">
+          <input type="checkbox" v-model="active">
           <span class="slider"></span>
         </label>
     </div>
@@ -10,15 +10,14 @@
 <script>
 export default {
     props: ['isActive'],
-    data () {
-        return {
-            Active: ''
-        }
-    },
-    methods: {
-        switchVariable () {
-            this.isActive = !this.isActive
-            this.$emit('parentActive', this.isActive)
+    computed: {
+        active: {
+            get: function () {
+                return this.isActive
+            },
+            set: function (value) {
+                this.$emit('parentActive', value)
+            }
         }
     }
 }
