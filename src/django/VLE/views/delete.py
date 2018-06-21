@@ -23,7 +23,7 @@ def delete_course(request):
     course = Course.objects.get(pk=request.data['cID'])
     course.delete()
 
-    return JsonResponse({'result': 'successfully deleted course'})
+    return JsonResponse({'result': 'Succesfully deleted course'}, status=202)
 
 
 @api_view(['POST'])
@@ -44,4 +44,4 @@ def delete_assignment(request):
     print(assignment)
     assignment.delete()
 
-    return JsonResponse({'result': 'successfully deleted assignemnt'})
+    return JsonResponse({'result': 'Succesfully deleted assignment'}, status=202)
