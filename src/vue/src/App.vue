@@ -21,7 +21,7 @@ export default {
 :root {
     --theme-dark-blue: #252C39;
     --theme-peach: #E9A480;
-    --theme-dark-peach: #de8f3f;
+    --theme-dark-peach: #dE8F3F;
     --theme-light-grey: #EEEEEE;
     --theme-dark-grey: #BBBBBB;
     --theme-pink: #E64769;
