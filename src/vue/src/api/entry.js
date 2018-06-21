@@ -7,5 +7,10 @@ export default {
         return auth.authenticatedGet('/get_assignment_journals/' + entryID + '/')
             .then(response => response.data)
             .catch(error => { throw error })
+    },
+    create_entrycomments (entryID) {
+        return auth.authenticatedGet('/create_entrycomments/' + entryID + '/')
+            .then(response => response.data)
+            .catch(error => { throw error })
     }
 }

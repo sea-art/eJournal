@@ -139,3 +139,14 @@ def make_journal_format():
     journal_format = JournalFormat()
     journal_format.save()
     return journal_format
+
+
+def make_entrycomment(entryID, authorID, text):
+    try:
+        return EntryComment.objects.create(
+            entry = entryID,
+            author = authorID,
+            text = text
+        )
+    except:
+        return None

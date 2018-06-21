@@ -35,6 +35,7 @@ from VLE.views.get import get_entrycomments
 from VLE.views.create import create_new_course
 from VLE.views.create import create_new_assignment
 from VLE.views.create import create_entry
+from VLE.views.create import create_entrycomment
 
 from VLE.views.update import update_course
 from VLE.views.update import update_assignment
@@ -71,6 +72,7 @@ urlpatterns = [
     path('api/create_new_course/', create_new_course, name='create_new_course'),
     path('api/create_new_assignment/', create_new_assignment, name='create_new_assignment'),
     path('api/create_entry/', create_entry, name='create_entry'),
+    path('api/create_entrycomment/', create_entrycomment, name='create_entrycomment'),
 
     path('api/update_course/', update_course, name='update_course'),
     path('api/update_assignment/', update_assignment, name='update_assignment'),
