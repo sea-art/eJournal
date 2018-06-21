@@ -41,3 +41,6 @@ class ApiTests(TestCase):
 
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(response.json()['users']), 2)
+
+    def test_update_format(self):
+        pass

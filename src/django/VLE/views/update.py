@@ -1,4 +1,5 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes, renderer_classes
+from rest_framework.parsers import JSONParser
 from django.http import JsonResponse
 
 from VLE.serializers import *
@@ -125,3 +126,66 @@ def update_comment_notification(request, notified):
 
     user.save()
     return JsonResponse({'result': 'success', 'new_value': user.comment_notifications})
+
+
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def update_format(request):
+    """ Update a format
+    Arguments:
+    request -- the request that was send with
+    fID -- the format to update
+    templates -- the list of templates to bind to the format
+    presets -- the list of presets to bind to the format
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        fID, templates, presets = utils.get_required_post_params(request.data, "fID", "templates", "presets")
+    except KeyError:
+        return utils.keyerror_json("fID", "templates", "preset")
+
+    try:
+        format = JournalFormat.objects.get(pk=fID)
+    except JournalFormat.NotFound:
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Format does not exist.'},
+                            status=404)
+
+    for template_field in templates:
+        tID = template_field['tID']
+        try:
+            format.available_templates.add(EntryTemplate.objects.get(pk=tID))
+        except EntryTemplate.NotFound:
+            return JsonResponse({'result': '404 Not Found',
+                                 'description': 'Template does not exist.'},
+                                status=404)
+    for preset in presets:
+        type = preset['type']
+        date = preset['deadline']
+        if type == Node.PROGRESS:
+            target = preset['target']
+            deadline = factory.make_deadline(date, target)
+            factory.make_progress_node(format, deadline)
+
+        elif type == Node.ENTRYDEADLINE:
+            tID = preset['template']['tID']
+            try:
+                template = EntryTemplate.objects.get(pk=tID)
+            except EntryTemplate.NotFound:
+                return JsonResponse({'result': '404 Not Found',
+                                     'description': 'Template does not exist.'},
+                                    status=404)
+            deadline = factory.make_deadline(date)
+            factory.make_entrydeadline_node(format, deadline, template)
+
+        tID = template_field['tID']
+        try:
+            format.available_templates.add(EntryTemplate.objects.get(pk=tID))
+        except EntryTemplate.NotFound:
+            return JsonResponse({'result': '404 Not Found',
+                                 'description': 'Template does not exist.'},
+                                status=404)
+
+    return JsonResponse({'result': 'success', 'node': format_to_dict(format)}, status=200)
