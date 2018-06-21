@@ -1,10 +1,12 @@
 <template>
     <journal-student :cID="cID" :aID="aID" :jID="jID"/>
+    <!-- <journal-non-student :cID="cID" :aID="aID" :jID="jID"/> -->
 </template>
 
 <script>
 import contentColumns from '@/components/ContentColumns.vue'
 import journalStudent from '@/components/JournalStudent.vue'
+import journalNonStudent from '@/components/JournalNonStudent.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 
 export default {
@@ -45,7 +47,8 @@ export default {
     components: {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
-        'journal-student': journalStudent
+        'journal-student': journalStudent,
+        'journal-non-student': journalNonStudent
     }
 }
 </script>

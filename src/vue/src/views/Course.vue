@@ -116,7 +116,7 @@ export default {
             alert('Wishlist: Customise page')
         },
         assignmentRoute (cID, aID, name, jID) {
-            if (this.$root.canEditAssignment()) {
+            if (true) {
                 return {
                     name: 'Assignment',
                     params: {
