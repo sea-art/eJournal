@@ -1,6 +1,7 @@
 <template>
     <content-single-columns>
         <lti-create-connect-course v-if="handleChoice" slot="main-content-column" @handleAction="handleActions"/>
+        <lti-create-connect-assignment v-if="handleChoice" slot="main-content-column" @handleAction="handleActions"/>
     </content-single-columns>
 </template>
 
