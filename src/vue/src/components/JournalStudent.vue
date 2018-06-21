@@ -37,7 +37,6 @@
 
 <script>
 import contentColumns from '@/components/ContentColumns.vue'
-import entryTemplate from '@/components/TemplateCard.vue'
 import entryNode from '@/components/EntryNode.vue'
 import addCard from '@/components/AddCard.vue'
 import edag from '@/components/Edag.vue'
@@ -120,7 +119,6 @@ export default {
     components: {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
-        'entry-template': entryTemplate,
         'add-card': addCard,
         'edag': edag,
         'entry-node': entryNode
