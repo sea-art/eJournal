@@ -7,7 +7,7 @@
             <h3>User data</h3>
             <b-form-input v-model="uname" type="text"></b-form-input>
             <span class="profile-data">Change profile picture</span>
-            <b-form-file class="fileinput form-control" v-model="new_picture" :state="Boolean(file)" placeholder="Upload profile picture..."></b-form-file>
+            <b-form-file ref="file" v-on:change="updateProfilePicture" class="fileinput form-control" v-model="file" :state="Boolean(file)" placeholder="Upload profile picture..."></b-form-file>
             <b-button @click="saveUserdata">Save</b-button>
         </b-col>
     </b-row>
@@ -20,13 +20,16 @@ export default {
     data () {
         return {
             file: null,
-            new_picture: '',
             username: ''
         }
     },
     methods: {
         saveUserdata () {
-            userAPI.updateUserData(this.uname, this.new_picture)
+            userAPI.updateUserData(this.uname)
+        },
+        updateProfilePicture () {
+            console.log(this.$refs.file)
+            userAPI.updateProfilePicture(this.$refs.file)
         }
     },
     created () {

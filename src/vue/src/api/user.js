@@ -8,8 +8,13 @@ export default {
     },
 
     /* Update user data. */
-    updateUserData (username, picture) {
-        return auth.authenticatedPost('/update_user_data/', {username: username, picture: picture})
+    updateUserData (username) {
+        return auth.authenticatedPost('/update_user_data/', {username: username})
+    },
+
+    /* Update profile picture. */
+    updateProfilePicture (file) {
+        return auth.authenticatedFilePost('/update_user_data/', {picture: file})
     },
 
     /* Change whether the user gets grade notification or not.
