@@ -15,7 +15,7 @@
                                     <div class="handle">
                                         <icon class="move-icon" name="arrows" scale="1.75"></icon>
                                     </div>
-                                    <div class="trash-box" @click="deleteField">
+                                    <div class="trash-box" @click="removeField(field.location)">
                                         <icon class="trash-icon" name="trash" scale="1.75"></icon>
                                     </div>
                                 </div>
@@ -27,7 +27,6 @@
             </draggable>
             <b-card class="hover" @click="addField">+ Add field</b-card>
             <b-button @click="onSubmit" :to="{name: 'Course', params: {cID: 1}}">Save</b-button>
-            {{ fields }}
         </b-card>
 
     </content-single-column>
@@ -54,27 +53,27 @@ export default {
     },
     data () {
         return {
-            name: 'Template name',
+            name: 'Default template',
             fields: [{
                 'tag': 0,
                 'type': 't',
-                'title': 'Evenementnaam',
+                'title': 'Description',
                 'location': 0
-            }, {
-                'tag': 1,
-                'type': 't',
-                'title': 'Naam spreker',
-                'location': 1
-            }, {
-                'tag': 2,
-                'type': 't',
-                'title': 'Aantal punten',
-                'location': 2
-            }, {
-                'tag': 3,
-                'type': 'i',
-                'title': 'Bewijs van deelname',
-                'location': 3
+            // }, {
+            //     'tag': 1,
+            //     'type': 't',
+            //     'title': 'Naam spreker',
+            //     'location': 1
+            // }, {
+            //     'tag': 2,
+            //     'type': 't',
+            //     'title': 'Aantal punten',
+            //     'location': 2
+            // }, {
+            //     'tag': 3,
+            //     'type': 'i',
+            //     'title': 'Bewijs van deelname',
+            //     'location': 3
             }],
             fieldTypes: {
                 'i': 'Image',
@@ -90,20 +89,21 @@ export default {
     },
     methods: {
         onSubmit () {
-            console.log('submit')
+            // #TODO Handle saving the template.
         },
         addField () {
-            var type = 't'
-            var title = 'Field title'
-            var location = this.fields.length
-
             var newField = {
-                'type': type,
-                'title': title,
-                'location': location
+                'type': 't',
+                'title': '',
+                'location': this.fields.length
             }
 
             this.fields.push(newField)
+        },
+        removeField( location ) {
+            if (confirm('Are you sure you want to remove \'' + this.fields[location].title + '\'?')) {
+                this.fields.splice(location, 1)
+            }
         },
         onUpdate () {
             for (var i = 0; i < this.fields.length; i++) {
