@@ -20,7 +20,7 @@ export default {
                 return ''
             }
 
-            return this.date.toDateString()
+            return this.date
         },
         styleObject () {
             return {

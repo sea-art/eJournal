@@ -4,19 +4,13 @@
         <b-row>
             <b-col id="main-card-left-column" cols="12">
                 <div v-if="saveEditMode == 'Save'">
-                    <!-- Dit is edit modus. -->
+                    <!-- Edit mode. -->
                     <b-card class="card main-card noHoverCard" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
-                                <!-- TODO laat hier de header van het template
-                                     zien. -->
-
                                 <h2>{{entryNode.entry.template.name}}</h2>
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
-                                <!-- TODO Hier moet de locatie van het cijfer
-                                    en of de mogelijkheid om het cijfer aan te
-                                    passen. -->
                                 <div v-if="entryNode.entry.grade != 0">
                                     {{ entryNode.entry.grade }}
                                 </div>
@@ -27,9 +21,9 @@
                         </b-row>
                         <b-row>
                             <b-col id="main-card-left-column" cols="12" lg-cols="12">
-                                <!-- TODO show hier alle data onder elkaar
-                                     als een template index matched met
-                                     een entry tag overschrijf dit lege veld -->
+                                <!-- Shows every field description and
+                                    a corresponding form.
+                                -->
                                 <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
                                     <div v-if="field.title != ''">
                                         <h4>{{ field.title }}</h4>
@@ -50,17 +44,13 @@
                     </b-card>
                 </div>
                 <div v-else>
-                    <!-- Dit is overview modus. -->
+                    <!-- Overvieuw mode. -->
                     <b-card class="card main-card noHoverCard" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
-                                <!-- TODO laat hier de header van het template
-                                     zien. -->
                                 <h2>{{entryNode.entry.template.name}}</h2>
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
-                                <!-- TODO Hier moet de locatie van het cijfer -->
-
                                 <div v-if="entryNode.entry.grade != 0">
                                     {{ entryNode.entry.grade }}
                                 </div>
@@ -71,18 +61,13 @@
                         </b-row>
                         <b-row>
                             <b-col id="main-card-left-column" cols="12" lg-cols="12">
-                                <!-- TODO show hier alle data onder elkaar
-                                     als een template index matched met
-                                     een entry tag en overschrijf dit lege veld
-                                     dan.
-
-                                     de knop moet een grade knop worden als
-                                     docent zijnde, anders moet er edit staan. -->
+                                <!-- Gives a vieuw of every templatefield and
+                                    if possible the already filled in entry.
+                                -->
                                 <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
                                     <div v-if="field.title != ''">
                                         <h4>{{ field.title }}</h4>
                                     </div>
-
                                     <div v-if="field.type=='t'">
                                         {{ completeContent[i].data }}<br><br>
                                     </div>
@@ -99,24 +84,22 @@
             </b-col>
         </b-row>
 
-        <!-- TODO Laad comments hier in. -->
+        <comment-card @new-comments="addComment" :comments="comments" :person="'Henk'"/>
     </div>
 </template>
 
 <script>
-export default {
-    /* Variables that are needed to fill in the template. */
-    props: ['entryNode'],
+import commentCard from '@/components/CommentCard.vue'
 
+export default {
+    props: ['entryNode'],
     data () {
         return {
             saveEditMode: 'Edit',
             tempNode: this.entryNode,
             matchEntry: 0,
             completeContent: [],
-            //  TODO Werk commenteer functie uit.
-            comment: 'hoi1000',
-            editedComment: '',
+
             comments: [{
                 message: 'Hoi het is super slecht, ga je schamen!',
                 person: 'Peter'
@@ -126,11 +109,15 @@ export default {
             }]
         }
     },
-
+    watch: {
+        entryNode: function () {
+            this.completeContent = []
+            this.setContent()
+        }
+    },
     created () {
         this.setContent()
     },
-
     methods: {
         saveEdit: function () {
             if (this.saveEditMode === 'Save') {
@@ -150,7 +137,6 @@ export default {
         },
         setContent: function () {
             var checkFound = false
-
             for (var templateField of this.entryNode.entry.template.fields) {
                 checkFound = false
 
@@ -173,7 +159,13 @@ export default {
                     })
                 }
             }
+        },
+        addComment: function (newComments) {
+            this.comments = newComments
         }
+    },
+    components: {
+        'comment-card': commentCard
     }
 }
 

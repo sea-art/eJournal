@@ -19,13 +19,19 @@
                 <div v-if="nodes[currentNode].type == 'e'">
                     <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                 </div>
+                <div v-else-if="nodes[currentNode].type == 'd'">
+                    {{nodes[currentNode]}}
+                    <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
+                </div>
                 <div v-else-if="nodes[currentNode].type == 'a'">
-                    <add-card @add-template="addNode"></add-card>
+                    <add-card @info-entry="addNode" :addNode="nodes[currentNode]"></add-card>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'p'">
-                    <entry-template ref="entry-template-card" @edit-data="adaptData" :textbox1="nodes[currentNode].textbox1"
-                    :textbox2="nodes[currentNode].textbox2"
-                    :date="nodes[currentNode].date"></entry-template>
+                    <b-card class="card main-card noHoverCard" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        You have {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        needed points before {{nodes[currentNode].deadline}}.
+                    </b-card>
                 </div>
             </div>
         </b-col>
@@ -53,13 +59,14 @@ export default {
             windowWidth: 0,
             currentNode: 0,
             editedData: ['', ''],
-            nodes: []
+            nodes: [],
+            progressNodes: {}
         }
     },
 
     created () {
         journal.get_nodes(this.jID)
-            .then(response => { this.nodes = response })
+            .then(response => { this.nodes = response.nodes })
             .catch(_ => alert('Error while loading nodes.'))
     },
 
@@ -72,7 +79,7 @@ export default {
                 return this.currentNode
             }
 
-            if (this.nodes[this.currentNode].type !== 'e') {
+            if (this.nodes[this.currentNode].type !== 'e' || this.nodes[this.currentNode].type !== 'd') {
                 this.currentNode = $event
                 return
             }
@@ -83,18 +90,34 @@ export default {
                 }
             }
 
+            if (this.nodes[$event].type === 'p') {
+                this.progressPoints(this.nodes[$event])
+            }
+
             this.$refs['entry-template-card'].cancel()
             this.currentNode = $event
         },
-        addNode () {
-            this.nodes.splice(this.currentNode, 0, {
-                type: 'entry',
-                textbox1: '',
-                textbox2: '',
-                text: '',
-                date: new Date(),
-                id: this.nodes.length
-            })
+        addNode (infoEntry) {
+            // console.log(infoEntry)
+            journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
+            journal.get_nodes(this.jID)
+                .then(response => { this.nodes = response.nodes })
+                .catch(_ => alert('Error while loading nodes.'))
+        },
+        progressPoints (progressNode) {
+            var tempProgress = 0
+
+            for (var node of this.nodes) {
+                if (node.nID === progressNode.nID) {
+                    break
+                }
+
+                if (node.type === 'e' || node.type === 'd') {
+                    tempProgress += node.entry.grade
+                }
+            }
+
+            this.progressNodes[progressNode.nID] = tempProgress
         },
         getWindowWidth (event) {
             this.windowWidth = document.documentElement.clientWidth

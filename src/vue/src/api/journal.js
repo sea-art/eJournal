@@ -13,6 +13,16 @@ export default {
 
     get_nodes (jID) {
         return auth.authenticatedGet('/get_nodes/' + jID + '/')
-            .then(response => response.data.nodes)
+            .then(response => response.data)
+    },
+
+    create_entry (jID, tID, content, nID = undefined) {
+        var data = {tID: tID, jID: jID, content: content}
+        if (nID) {
+            data.nID = nID
+        }
+
+        return auth.authenticatedPost('/create_entry/', data)
+            .then(response => response.data)
     }
 }
