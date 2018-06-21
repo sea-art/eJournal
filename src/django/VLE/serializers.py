@@ -12,6 +12,13 @@ def user_to_dict(user):
     } if user else None
 
 
+def participation_to_dict(participation):
+    role_dict = {'role': participation.role.name}
+    user_dict = user_to_dict(participation.user)
+
+    return {**role_dict, **user_dict} if participation else None
+
+
 def course_to_dict(course):
     return {
         'cID': course.id,
@@ -159,8 +166,17 @@ def format_to_dict(format):
 
 
 def preset_to_dict(preset):
-    return {
+    if not preset:
+        return None
+
+    base = {
         'type': preset.type,
-        'deadline': deadline_to_dict(preset.deadline),
-        'template': template_to_dict(preset.forced_template),
-    } if preset else None
+        'deadline': preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
+    }
+
+    if preset.type == Node.PROGRESS:
+        result = {**base, **{'target': preset.deadline.target}}
+    elif preset.type == Node.ENTRYDEADLINE:
+        result = {**base, **{'template': template_to_dict(preset.forced_template)}}
+
+    return result
