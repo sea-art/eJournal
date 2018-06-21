@@ -18,8 +18,8 @@ import json
 
 def logging_in(obj, username, password, status=200):
     result = obj.client.post(reverse('token_obtain_pair'),
-                             {'username': username, 'password': password},
-                             format='json')
+                             json.dumps({'username': username, 'password': password}),
+                             content_type='application/json')
     obj.assertEquals(result.status_code, status)
     return result
 
