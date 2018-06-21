@@ -90,6 +90,19 @@ export default {
         fetchDBName (crumb) {
             // --TODO: add api link
             crumb.string = crumb.segment.split('/')[0]
+        },
+        splitPath () {
+            this.$router.currentRoute.path.split('/').slice(1, -1)
+        },
+        canEdit () {
+            var pageName = this.$route.name
+
+            // TODO add proper check to Home edit
+            if ((pageName === 'Home') ||
+               (pageName === 'Course' && this.$root.canEditCourse()) ||
+               (pageName === 'Assignment' && this.$root.canEditAssignment())) {
+                return true
+            }
         }
     }
 }
