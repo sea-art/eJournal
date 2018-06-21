@@ -321,8 +321,8 @@ def get_names(request):
             result.template = template.name
 
     except (Course.NotFound, Assignment.NotFound, Journal.NotFound, EntryTemplate.NotFound):
-        return JsonResponse({'result': '400 Bad Request',
-                             'description': 'Course, Assignment, Journal or Template does not exist.'}, status=400)
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Course, Assignment, Journal or Template does not exist.'}, status=404)
 
     return result
 
