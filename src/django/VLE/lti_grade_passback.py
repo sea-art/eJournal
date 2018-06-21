@@ -1,24 +1,17 @@
-from django.shortcuts import redirect
-from django.http import JsonResponse, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.clickjacking import xframe_options_exempt
-from rest_framework.decorators import api_view
-from django.conf import settings
 import oauth2
-import json
+"""Package for oauth authentication in python"""
+
 import xml.etree.cElementTree as ET
 
-from .models import Journal, Counter
+from VLE.models import Counter
 
 
 class GradePassBackRequest(object):
-    """
-    Class to send Grade replace lti requests.
-    """
+    """Class to send Grade replace lti requests."""
 
     def __init__(self, key, secret, journal):
         """
-        Constructor that set the needed variables
+        Create the instancie to set the needed variables.
 
         Arguments:
         key -- key for the oauth communication
@@ -27,16 +20,14 @@ class GradePassBackRequest(object):
         """
         self.key = key
         self.secret = secret
-        self.url = None  # TODO database url
-        self.sourcedId = None  # TODO database sourcedId
+        self.url = journal.grade_url
+        self.sourcedId = journal.sourced_id
         self.score = None  # TODO database
         self.result_data = None
 
     @classmethod
     def get_message_id_and_increment(cls):
-        """
-        Get the current count for message_id and increment this count.
-        """
+        """Get the current count for message_id and increment this count."""
         try:
             message_id_counter = Counter.objects.get(name='message_id')
         except Counter.DoesNotExist:
@@ -49,12 +40,7 @@ class GradePassBackRequest(object):
         return str(count)
 
     def create_xml(self):
-        """
-        Created the xml used as the body of the lti communication
-
-        returns xml as string
-        """
-
+        """Create the xml used as the body of the lti communication."""
         root = ET.Element(
             'imsx_POXEnvelopeRequest',
             xmlns='http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0'
@@ -98,26 +84,30 @@ class GradePassBackRequest(object):
 
     def send_post_request(self):
         """
-        Send the grade replace post request
+        Send the grade replace post request.
 
         returns response dictionary with status of request
         """
-        consumer = oauth2.Consumer(
-            self.key, self.secret
-        )
-        client = oauth2.Client(consumer)
+        if self.url is not None and self.sourcedId is not None:
+            consumer = oauth2.Consumer(
+                self.key, self.secret
+            )
+            client = oauth2.Client(consumer)
 
-        _, content = client.request(
-            self.url,
-            'POST',
-            body=self.create_xml(),
-            headers={'Content-Type': 'application/xml'}
-        )
-        return self.parse_return_xml(content)
+            _, content = client.request(
+                self.url,
+                'POST',
+                body=self.create_xml(),
+                headers={'Content-Type': 'application/xml'}
+            )
+            return self.parse_return_xml(content)
+        return {'severity': 'status',
+                'code_mayor': 'No grade passback url set',
+                'description': 'not found'}
 
     def parse_return_xml(self, xml):
         """
-        Parses the xml returned by the lti instance.
+        Parse the xml returned by the lti instance.
 
         Arguments:
         xml -- response xml as byte literal
@@ -125,26 +115,28 @@ class GradePassBackRequest(object):
         returns response dictionary with status of request
         """
         root = ET.fromstring(xml)
-        namespace = root.tag.split('}')[0]+'}'
-        head = root.find(namespace+'imsx_POXHeader')
-        imsx_head_info = head.find(namespace+'imsx_POXResponseHeaderInfo')
-        imsx_status_info = imsx_head_info.find(namespace+'imsx_statusInfo')
-        imsx_code_mayor = imsx_status_info.find(namespace+'imsx_codeMajor')
+        namespace = root.tag.split('}')[0] + '}'
+        head = root.find(namespace + 'imsx_POXHeader')
+        imsx_head_info = head.find(namespace + 'imsx_POXResponseHeaderInfo')
+        imsx_status_info = imsx_head_info.find(namespace + 'imsx_statusInfo')
+        imsx_code_mayor = imsx_status_info.find(namespace + 'imsx_codeMajor')
         if imsx_code_mayor is not None:
             code_mayor = imsx_code_mayor.text
         else:
             code_mayor = None
 
-        imsx_severity = imsx_status_info.find(namespace+'imsx_severity')
+        imsx_severity = imsx_status_info.find(namespace + 'imsx_severity')
         if imsx_severity is not None:
             severity = imsx_severity.text
         else:
             severity = None
 
-        imsx_description = imsx_status_info.find(namespace+'imsx_description')
+        imsx_description = imsx_status_info.find(
+            namespace + 'imsx_description')
         if imsx_description is not None and imsx_description.text is not None:
             description = imsx_description.text
         else:
             description = 'not found'
 
-        return {'severity': severity, 'code_mayor': code_mayor, 'description': description}
+        return {'severity': severity, 'code_mayor': code_mayor,
+                'description': description}

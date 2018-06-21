@@ -163,6 +163,16 @@ class Journal(models.Model):
         on_delete=models.CASCADE,
     )
 
+    sourcedId = models.TextField(
+        'sourcedId',
+        null=True
+    )
+
+    grade_url = models.TextField(
+        'grade_url',
+        null=True
+    )
+
     def __str__(self):
         return self.assignment.name + " from " + self.user.username
 
