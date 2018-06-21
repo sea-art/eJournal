@@ -22,12 +22,16 @@
             </b-link>
         </div>
 
+<<<<<<< HEAD
         <main-card
             v-if="this.$root.isAdmin()"
             slot="main-content-column"
             class="hover"
             @click.native="showModal('createCourseRef')"
             :line1="'+ Add course'"/>
+=======
+        <main-card slot="main-content-column" class="hover add-button" v-on:click.native="showModal('createCourseRef')" :line1="'+ Add course'"/>
+>>>>>>> 86772b510c4034821f1d42c9ef54f3d65c1c4664
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
