@@ -31,7 +31,7 @@
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
-            <b-link tag="b-button" :to="{name: 'Assignment', params: {cID: d.cIDs[0], dID: d.dID}}">
+            <b-link tag="b-button" :to="{name: 'Assignment', params: {cID: d.cIDs[0], aID: d.aID}}">
                 <todo-card
                     :line0="d.datetime"
                     :line1="d.name"
@@ -80,7 +80,7 @@ export default {
                 name: 'Individueel logboek',
                 cIDs: ['1', '2'],
                 courseAbbrs: ['WEDA', 'PALSIE8'],
-                dID: '2017IL1',
+                aID: '1',
                 datetime: '8-6-2018 13:00'
             }]
         }
@@ -108,7 +108,7 @@ export default {
         },
         deleteCourse (courseID, courseName) {
             if (confirm('Are you sure you want to delete ' + courseName + '?')) {
-                console.log('TODO Implement delete this course ID after privy check')
+                // TODO: Implement delete this course ID after privy check
             }
         },
         showModal (ref) {

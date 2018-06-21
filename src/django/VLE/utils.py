@@ -81,7 +81,6 @@ def get_acquired_grade(entries, journal):
 
 def get_submitted_count(entries):
     """Counts the number of submitted entries.
-    # nodes
 
     - entries: the entries to count with.
 

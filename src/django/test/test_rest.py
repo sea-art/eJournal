@@ -38,17 +38,6 @@ def api_get_call(obj, url, login, status=200):
 def api_post_call(obj, url, params, login, status=200):
     result = obj.client.post(
                              url,
-                             params,
-                             format='json',
-                             HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access'])
-                             )
-    obj.assertEquals(result.status_code, status)
-    return result
-
-
-def api_post_call(obj, url, params, login, status=200):
-    result = obj.client.post(
-                             url,
                              json.dumps(params),
                              content_type='application/json',
                              HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access'])
