@@ -29,14 +29,17 @@ new Vue({
              * TODO implement (will most likely require a lib) */
             return '1M 9D 9H'
         },
-        /* Admin has all permissions, including the ones listed below plus:
-         * Creating a course
-         * Editing institute wide settings */
+        /* The admin has all permissions. Extra, site-wide permissions:
+         * Creating a course on the home page
+         * Editing institution-wide settings
+         * Editing all assignments */
         isAdmin () {
             return this.permissions.is_admin
         },
 
-        /* Course level based permissions. */
+        /* Course level based permissions. These permissions are enabled and
+        used per course. */
+        /* Course permissions. */
         canEditCourse () {
             return this.permissions.can_edit_course
         },
@@ -44,7 +47,7 @@ new Vue({
             return this.permissions.can_delete_course
         },
 
-        /* Assigment level base permissions. */
+        /* Assignment permissions. */
         canViewAssigment () {
             return this.permissions.can_view_assignment
         },
@@ -58,7 +61,7 @@ new Vue({
             return this.permissions.can_delete_assignment
         },
 
-        /* Grade based permissions. */
+        /* Grade permissions. */
         canViewGrades () {
             return this.permissions.can_view_grades
         },

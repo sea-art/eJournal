@@ -226,11 +226,16 @@ def get_upcoming_deadlines(request):
 
 @api_view(['GET'])
 def get_course_permissions(request, cID):
-    """TODO"""
+    """Get the permissions of a course.
+    Arguments:
+    request -- the request that was sent
+    cID     -- the course id
+
+    """
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    roleDict = get_permissions(request.user, cID)
+    roleDict = get_permissions(request.user, int(cID))
 
     return JsonResponse({'permissions': roleDict})
 
