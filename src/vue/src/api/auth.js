@@ -60,6 +60,27 @@ export default {
      * protected resources. If the access JWT token is outdated, it refreshes and tries again.
      * Returns a Promise to handle the request.
      */
+    authenticatedFilePost (url, data) {
+        var headers = getAuthorizationHeader()
+        headers.headers['Content-Type'] = 'multipart/form-data'
+        console.log(headers)
+        return connection.conn.post(url, data, headers)
+            .catch(error => {
+                if (error.response.data.code === 'token_not_valid') {
+                    var headers = getAuthorizationHeader()
+                    headers.headers['Content-Type'] = 'multipart/form-data'
+                    return refresh().then(_ => connection.conn.post(url, data, headers))
+                } else {
+                    throw error
+                }
+            })
+    },
+
+    /* Run an authenticated post request.
+     * This sets the JWT token to the Authorization headers of the request, so that it can access
+     * protected resources. If the access JWT token is outdated, it refreshes and tries again.
+     * Returns a Promise to handle the request.
+     */
     authenticatedPost (url, data) {
         return connection.conn.post(url, data, getAuthorizationHeader())
             .catch(error => {

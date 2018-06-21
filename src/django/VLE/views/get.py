@@ -425,11 +425,9 @@ def lti_grade_replace_result(request):
 @api_view(['POST'])
 def lti_launch(request):
     """Django view for the lti post request."""
-    # canvas TODO change to its own database based on the key in the request.
     secret = settings.LTI_SECRET
     key = settings.LTI_KEY
 
-    print('key = postkey', key == request.POST['oauth_consumer_key'])
     authenticated, err = OAuthRequestValidater.check_signature(
         key, secret, request)
 

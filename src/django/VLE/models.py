@@ -20,6 +20,7 @@ class User(AbstractUser):
     lti_id = models.TextField(
         null=True,
         unique=True,
+        blank=True,
     )
     profile_picture = models.TextField(
         null=True
