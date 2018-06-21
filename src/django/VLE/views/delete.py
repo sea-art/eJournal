@@ -63,7 +63,7 @@ def delete_user_from_course(request):
 
     user = User.objects.get(pk=request.data['uID'])
     course = Course.objects.get(pk=request.data['cID'])
-    participation = Participation.objects.get(user=user, course=course)
-    participation.delete()
+    # participation = Participation.objects.get(user=user, course=course)
+    # participation.delete()
 
     return JsonResponse({'result': 'Succesfully deleted student from course'}, status=202)

@@ -60,7 +60,7 @@ export default {
                     this.uID,
                     this.cID)
                     .then(response => {
-                        alert('deleted user')
+                        alert(response)
                     })
                     .catch(_ => alert('Error while deleting user from course'))
             }
@@ -72,13 +72,11 @@ export default {
                 this.init = false
             } else {
                 this.selectedRole = val
-                console.log(val)
-                // courseApi.update_user_role_course(
-                //     this.uID,
-                //     this.cID,
-                //     this.selectedRole)
-                //     .then(response => {
-                //     })
+                courseApi.update_user_role_course(
+                    this.uID,
+                    this.cID,
+                    this.selectedRole)
+                    .then(response => {})
             }
         }
     },
@@ -87,6 +85,3 @@ export default {
     }
 }
 </script>
-
-<style>
-</style>
