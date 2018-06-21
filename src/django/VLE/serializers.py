@@ -167,7 +167,7 @@ def format_to_dict(format):
 
 def preset_to_dict(preset):
     if not preset:
-        return NOne
+        return None
 
     base = {
         'type': preset.type,
