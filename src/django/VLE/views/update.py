@@ -200,6 +200,36 @@ def update_publish_grades_journal(request, jID):
 
 
 @api_view(['POST'])
+def update_entrycomment(request):
+    """
+    Update a comment to an entry.
+
+    Arguments:
+    request -- the request that was send with
+        entrycommentID -- The ID of the entrycomment.
+        text -- The updated text.
+    Returns a json string for if it is succesful or not.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        entrycommentID, text = utils.get_required_post_params("entrycommentID", "text")
+    except KeyError:
+        utils.keyerror_json("entrycommentID")
+
+    try:
+        comment = EntryComment.objects.get(pk=entrycommentID)
+    except EntryComment.NotFound:
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Entrycomment does not exist.'},
+                            status=404)
+    comment.text = text
+    comment.save()
+    return JsonResponse({'result': 'success'})
+
+
+@api_view(['POST'])
 def update_user_data(request):
     """Updates user data.
 

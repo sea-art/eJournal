@@ -430,3 +430,20 @@ class Content(models.Model):
         null=True
     )
     data = models.TextField()
+
+
+class EntryComment(models.Model):
+    """
+    EntryComments contain the comments given to the entries.
+    It is linked to a single entry with a single author and the comment text.
+    """
+    entry = models.ForeignKey(
+        'Entry',
+        on_delete=models.CASCADE
+    )
+    author = models.ForeignKey(
+        'User',
+        on_delete=models.SET_NULL,
+        null=True
+    )
+    text = models.TextField()

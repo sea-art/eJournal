@@ -181,3 +181,11 @@ def preset_to_dict(preset):
         result = {**base, **{'template': template_to_dict(preset.forced_template)}}
 
     return result
+
+
+def entrycomment_to_dict(entrycomment):
+    return {
+        'entry': entrycomment.entry,
+        'author': entrycomment.author,
+        'text': entrycomment.text,
+    } if entrycomment else None

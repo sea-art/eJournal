@@ -157,3 +157,15 @@ def make_journal_format():
     journal_format = JournalFormat()
     journal_format.save()
     return journal_format
+
+
+def make_entrycomment(entryID, author, text):
+    """
+    Make an Entry Comment for an entry based on its ID.
+    With the author and the given text.
+    """
+    return EntryComment.objects.create(
+        entry=entryID,
+        author=author,
+        text=text
+    )

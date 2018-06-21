@@ -131,3 +131,26 @@ def create_entry(request):
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Journal, Template or Node does not exist.'},
                             status=404)
+
+
+@api_view(['POST'])
+def create_entrycomment(request):
+    """Create a new entrycomment
+    Arguments:
+    request -- the request that was send with
+        entryID -- the entry id
+        authorID -- the author id
+        text -- the comment
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        entryID, authorID, text = utils.get_required_post_params("entryID", "authorID", "text")
+    except KeyError:
+        utils.keyerror_json("entryID", "authorID", "text")
+
+    author = User.objects.get(pk=authorID)
+    comment = make_entrycomment(entryID, author, text)
+
+    return JsonResponse({'result': 'success'})
