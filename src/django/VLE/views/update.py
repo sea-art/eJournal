@@ -147,4 +147,4 @@ def update_entrycomment(request):
         comment.save()
         return JsonResponse({'result': 'success'})
     except:
-        return JsonResponse({'result': 'false'}, status=500)
+        return JsonResponse({'result': '500 Internal Server Error'}, status=500)

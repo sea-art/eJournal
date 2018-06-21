@@ -121,7 +121,7 @@ def create_entry(request):
     except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Journal, Template or Node does not exist.'},
-                            status=400)
+                            status=404)
 
 
 @api_view(['POST'])
@@ -141,4 +141,4 @@ def create_entrycomment(request):
     if comment:
         return JsonResponse({'result': 'success'})
     else:
-        return JsonResponse({'result': 'false'}, status=500)
+        return JsonResponse({'result': '500 Internal Server Error'}, status=500)
