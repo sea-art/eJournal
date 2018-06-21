@@ -144,9 +144,9 @@ def make_journal_format():
 def make_entrycomment(entryID, authorID, text):
     try:
         return EntryComment.objects.create(
-            entry = entryID,
-            author = authorID,
-            text = text
+            entry=entryID,
+            author=authorID,
+            text=text
         )
     except:
         return None

@@ -297,6 +297,7 @@ def get_names(request):
 
     return result
 
+
 @api_view(['POST'])
 def get_entrycomments(request):
     """
@@ -306,7 +307,7 @@ def get_entrycomments(request):
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     entrycomments = EntryComment.objects.filter(entry=request['entryID'])
-    return JsonResponse({'result': 'success'
+    return JsonResponse({'result': 'success',
                          'entrycomments': entrycomments_to_dict(entrycomments)})
 
 

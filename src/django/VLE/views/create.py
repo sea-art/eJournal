@@ -123,6 +123,7 @@ def create_entry(request):
                              'description': 'Journal, Template or Node does not exist.'},
                             status=400)
 
+
 @api_view(['POST'])
 def create_entrycomment(request):
     """Create a new entrycomment

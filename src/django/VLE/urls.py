@@ -68,7 +68,7 @@ urlpatterns = [
     path('api/get_nodes/<int:jID>/', get_nodes, name='get_nodes'),
     path('api/get_format/<int:aID>/', get_format, name='get_format'),
     path('api/get_names', get_names, name='get_names'),
-    path('api/get_entrycomments/<int:entryID', get_entrycomments, name='get_entrycomments')
+    path('api/get_entrycomments/<int:entryID', get_entrycomments, name='get_entrycomments'),
 
     path('api/create_new_course/', create_new_course, name='create_new_course'),
     path('api/create_new_assignment/', create_new_assignment, name='create_new_assignment'),
