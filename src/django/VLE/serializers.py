@@ -164,3 +164,10 @@ def preset_to_dict(preset):
         'deadline': deadline_to_dict(preset.deadline),
         'template': template_to_dict(preset.forced_template),
     } if preset else None
+
+def entrycomment_to_dict(entrycomment):
+    return {
+        'entry': entrycomment.entry,
+        'author': entrycomment.author,
+        'text': entrycomment.text,
+    } if entrycomment else None

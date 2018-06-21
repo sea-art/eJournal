@@ -297,6 +297,18 @@ def get_names(request):
 
     return result
 
+@api_view(['POST'])
+def get_entrycomments(request):
+    """
+    Get the comments belonging to the specified entry based on its entryID.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    entrycomments = EntryComment.objects.filter(entry=request['entryID'])
+    return JsonResponse({'result': 'success'
+                         'entrycomments': entrycomments_to_dict(entrycomments)})
+
 
 @api_view(['POST'])
 def lti_grade_replace_result(request):
