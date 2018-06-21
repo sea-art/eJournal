@@ -11,10 +11,6 @@
 
         <b-col lg="12" xl="6" order="2" class="main-content">
             <!-- <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
-            <!--
-                Fill in the template using the corresponding data
-                of the entry
-            . -->
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
                     <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
