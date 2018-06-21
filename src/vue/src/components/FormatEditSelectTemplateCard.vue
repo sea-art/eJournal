@@ -6,7 +6,9 @@
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>Preset Deadline</h2>
-                                <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="currentPreset.deadline" type="date"/>
+                                <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="deadlineDate" type="date"/>
+                                <br/>
+                                <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="deadlineTime" type="time"/>
                                 <br/>
 
                                 <h2>Preset Type</h2>
@@ -20,6 +22,7 @@
                                 <div v-if="currentPreset.type === 'd'">
                                     <h2>Preset Template</h2>
                                     <b-form-select v-model="currentPreset.template">
+                                        <option disabled value="">Please select a template</option>
                                         <option v-for="template in templates" :key="template.t.tID" :value="template.t">
                                             {{template.t.name}}
                                         </option>
@@ -53,6 +56,17 @@ export default {
     data () {
         return {
             templateNames: []
+        }
+    },
+
+    computed: {
+        deadlineDate: {
+            get: function () { return this.currentPreset.deadline.split(' ')[0] },
+            set: function (val) { this.currentPreset.deadline = val + ' ' + this.currentPreset.deadline.split(' ')[1] }
+        },
+        deadlineTime: {
+            get: function () { return this.currentPreset.deadline.split(' ')[1] },
+            set: function (val) { this.currentPreset.deadline = this.currentPreset.deadline.split(' ')[0] + ' ' + val }
         }
     },
 

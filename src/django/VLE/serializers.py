@@ -126,7 +126,7 @@ def progress_to_dict(node):
 def entry_to_dict(entry):
     return {
         'eID': entry.id,
-        'createdate': entry.createdate.strftime('%d-%m-%Y %H:%M'),
+        'createdate': entry.createdate.strftime('%Y-%m-%d %H:%M'),
         'grade': entry.grade,
         # 'late': TODO
         'template': template_to_dict(entry.template),
@@ -171,7 +171,7 @@ def preset_to_dict(preset):
 
     base = {
         'type': preset.type,
-        'deadline': preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
+        'deadline': preset.deadline.datetime.strftime('%Y-%m-%d %H:%M'),
     }
 
     if preset.type == Node.PROGRESS:

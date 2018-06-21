@@ -29,10 +29,14 @@
         </b-col>
         <b-col cols="12" xl="3" order="3" class="right-content">
             <h3>Template Pool</h3>
-            <template-todo-card v-for="template in templatePool" :template="template" :key="template.t.tID" :color="'pink-border'"/>
-            <b-card class="card hover" :class="'grey-border'" style="">
-                <b>+ Add Template</b>
-            </b-card>
+            <b-link v-for="template in templatePool" :to="{ name: 'TemplateEdit', params: { aID: aID, tID: template.t.tID } }">
+                <template-todo-card :template="template" :key="template.t.tID" :color="'pink-border'"/>
+            </b-link>
+            <b-link :to="{ name: 'TemplateEdit', params: { aID: aID, tID: 1 } }">
+                <b-card class="card hover" :class="'grey-border'" style="">
+                    <b>+ Add Template</b>
+                </b-card>
+            </b-link>
         </b-col>
     </b-row>
 
@@ -57,6 +61,7 @@ export default {
             windowWidth: 0,
             currentNode: 0,
 
+            fID: null,
             templates: [],
             presets: [],
 
@@ -66,12 +71,12 @@ export default {
     },
 
     created () {
-        journalAPI.get_format(1).then(data => { this.templates = data.nodes.templates; this.presets = data.nodes.presets })
+        journalAPI.get_format(1).then(data => { this.fID = data.fID; this.templates = data.nodes.templates; this.presets = data.nodes.presets })
     },
 
     watch: {
         presets: {
-            handler: function () { this.convertFromDB() },
+            handler: function () { this.convertFromDB() }
         }
     },
 
@@ -83,10 +88,13 @@ export default {
 
             this.currentNode = $event
         },
+        newDate () {
+            return new Date().toISOString().split('T')[0].slice(0, 10) + ' ' + new Date().toISOString().split('T')[1].slice(0, 5)
+        },
         addNode () {
             this.nodes.push({
                 'type': 'd',
-                'deadline': '',
+                'deadline': this.newDate(),
                 'template': (this.templatePool) ? this.templatePool[0].t : null
             })
         },
@@ -139,19 +147,22 @@ export default {
         // Utility func to translate from db format to internal
         convertFromDB () {
             var idInPool = []
+            var tempTemplatePool = []
 
             for (var template of this.templates) {
                 idInPool.push(template.tID)
-                this.templatePool.push({ t: template, a: true })
+                tempTemplatePool.push({ t: template, a: true })
             }
             for (var preset of this.presets) {
                 if (preset.type === 'd' && !idInPool.includes(preset.template.tID)) {
                     idInPool.push(preset.template.tID)
-                    this.templatePool.push({ t: preset.template, a: false })
+                    tempTemplatePool.push({ t: preset.template, a: false })
                 }
             }
 
-            this.templatePool.sort((a, b) => { return a.t.tID - b.t.tID })
+            tempTemplatePool.sort((a, b) => { return a.t.tID - b.t.tID })
+
+            this.templatePool = tempTemplatePool
 
             this.nodes = this.presets.slice()
         },
