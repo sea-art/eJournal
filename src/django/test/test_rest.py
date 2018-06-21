@@ -175,7 +175,7 @@ class RestTests(TestCase):
         for i in range(len(entries)):
             if i > 0:
                 entries[i].grade = 1
-                entries[i].graded = True
+                entries[i].published = True
                 entries[i].save()
         self.assertEquals(utils.get_acquired_grade(entries, journal), 2)
         self.assertEquals(utils.get_max_points(journal), 5)
