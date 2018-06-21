@@ -16,7 +16,12 @@
                     <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'd'">
-                    <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
+                    <div v-if="nodes[currentNode].entry !== null">
+                        <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
+                    </div>
+                    <div v-else>
+                        <entry-preview ref="entry-template-card" @edit-node="fillDeadline" :template="nodes[currentNode].template"/>
+                    </div>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'a'">
                     <add-card @info-entry="addNode" :addNode="nodes[currentNode]"></add-card>
@@ -41,6 +46,7 @@ import addCard from '@/components/AddCard.vue'
 import edag from '@/components/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import journal from '@/api/journal'
+import entryPreview from '@/components/EntryPreview.vue'
 
 export default {
     props: ['cID', 'aID', 'jID'],
@@ -93,6 +99,9 @@ export default {
                 .then(response => { this.nodes = response.nodes })
                 .catch(_ => alert('Error while loading nodes.'))
         },
+        fillDeadline (data) {
+            journal.create_entry(this.jID, this.nodes[this.currentNode].tID, data)
+        },
         progressPoints (progressNode) {
             var tempProgress = 0
 
@@ -120,7 +129,8 @@ export default {
         'bread-crumb': breadCrumb,
         'add-card': addCard,
         'edag': edag,
-        'entry-node': entryNode
+        'entry-node': entryNode,
+        'entry-preview': entryPreview
     }
 }
 </script>

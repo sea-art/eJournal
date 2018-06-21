@@ -88,9 +88,11 @@ export default {
         },
         addNode (infoEntry) {
             journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
+            console.log(this.nodes)
             journal.get_nodes(this.jID)
                 .then(response => { this.nodes = response.nodes })
                 .catch(_ => alert('Error while loading nodes.'))
+            console.log(this.nodes)
         },
         progressPoints (progressNode) {
             var tempProgress = 0

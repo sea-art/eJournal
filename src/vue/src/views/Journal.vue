@@ -1,6 +1,6 @@
 <template>
-    <!-- <journal-student :cID="cID" :aID="aID" :jID="jID"/> -->
-    <journal-non-student :cID="cID" :aID="aID" :jID="jID"/>
+    <journal-student :cID="cID" :aID="aID" :jID="jID"/>
+    <!-- <journal-non-student :cID="cID" :aID="aID" :jID="jID"/> -->
 </template>
 
 <script>
