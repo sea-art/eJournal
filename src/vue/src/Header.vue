@@ -21,9 +21,8 @@
         <b-navbar-nav class="ml-auto">
             <b-nav-item-dropdown no-caret right id="nav-dropdown-options">
                 <img id="nav-profile-image" slot="button-content" src="/static/oh_no/ohno.jpeg">
-                <b-nav-dropdown-item name="a"><b-button :to="'/Profile'">Profile</b-button></b-nav-dropdown-item>
-                <b-nav-dropdown-item name="a"><b-button :to="'/Profile'">Profile</b-button></b-nav-dropdown-item>
-                <b-nav-dropdown-item name="a"><b-button @click="handleLogout()">Sign out</b-button><br/></b-nav-dropdown-item>
+                <b-dropdown-item><b-button :to="{ name: 'Profile'}">Profile</b-button></b-dropdown-item>
+                <b-dropdown-item><b-button @click="handleLogout()">Sign out</b-button><br/></b-dropdown-item>
             </b-nav-item-dropdown>
         </b-navbar-nav>
     </b-navbar>
