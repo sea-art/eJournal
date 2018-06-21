@@ -57,7 +57,7 @@ def update_assignment(request):
 
 @api_view(['POST'])
 def update_password(request):
-    """Updates a password
+    """Updates a password.
 
     Arguments:
     request -- the update request that was send with
@@ -82,7 +82,6 @@ def update_password(request):
 @api_view(['POST'])
 def update_grade_notification(request):
     """Updates whether the user gets notified when a grade changes/new grade
-
     Arguments:
     request -- the request that was send with
 
@@ -105,7 +104,6 @@ def update_grade_notification(request):
 @api_view(['POST'])
 def update_comment_notification(request):
     """Updates whether the user gets notified when a comment changes/new comment
-
     Arguments:
     request -- the request that was send with
 
@@ -200,3 +198,27 @@ def update_publish_grades_journal(request, jID):
     journ = Journal.objects.get(pk=jID)
     utils.publish_all_journal_grades(journ, request.data['published'])
     return JsonResponse({'result': 'success', 'new_published': request.data['published']})
+
+@api_view(['POST'])
+def update_user_data(request):
+    """Updates user data.
+
+    Arguments:
+    request -- the update request that was send with
+        username -- new password of the user
+        picture -- current password of the user
+
+    Returns a json string for if it is succesful or not.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    print(request.data)
+    if 'username' in request.data:
+        user.username = request.data['username']
+    if 'picture' in request.data:
+        user.profile_picture = request.data['picture']
+
+    user.save()
+    return JsonResponse({'result': 'success', 'user': user_to_dict(user)})

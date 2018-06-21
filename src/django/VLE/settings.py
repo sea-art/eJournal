@@ -53,8 +53,8 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = "VLE.User"
 
 SIMPLE_JWT = {
-    'USER_ID_FIELD': 'username',
-    'USER_ID_CLAIM': 'username',
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'id',
 }
 
 MIDDLEWARE = [

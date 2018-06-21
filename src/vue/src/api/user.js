@@ -2,9 +2,19 @@ import auth from '@/api/auth'
 
 export default {
     /* Get own user data. */
-    get_own_user_data () {
+    getOwnUserData () {
         return auth.authenticatedGet('/get_own_user_data/')
             .then(response => response.data.user)
+    },
+
+    /* Update user data. */
+    updateUserData (username) {
+        return auth.authenticatedPost('/update_user_data/', {username: username})
+    },
+
+    /* Update profile picture. */
+    updateProfilePicture (file) {
+        return auth.authenticatedFilePost('/update_user_data/', {picture: file})
     },
 
     /* Change whether the user gets grade notification or not.
