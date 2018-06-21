@@ -13,7 +13,7 @@ export default {
      * else nothing changes (invalid argument).
      */
     update_grade_notification (getsNotified) {
-        return auth.authenticatedGet('/update_grade_notification/' + getsNotified + '/').then(r => r.new_value)
+        return auth.authenticatedPost('/update_grade_notification/', {new_value: getsNotified}).then(r => r.data.new_value)
     },
 
     /* Change whether the user gets comment notification or not.
@@ -22,6 +22,6 @@ export default {
      * else nothing changes (invalid argument).
      */
     update_comment_notification (getsNotified) {
-        return auth.authenticatedGet('/update_comment_notification/' + getsNotified + '/').then(r => r.new_value)
+        return auth.authenticatedPost('/update_comment_notification/', {new_value: getsNotified}).then(r => r.data.new_value)
     }
 }

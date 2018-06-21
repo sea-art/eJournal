@@ -7,7 +7,7 @@ from django.http import JsonResponse
 def get_required_post_params(post, *keys):
     """
     Gets required post parameters, throwing
-    KeyError if not peesent.
+    KeyError if not present.
     """
     result = []
     for key in keys:

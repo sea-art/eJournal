@@ -4,13 +4,7 @@
         </bread-crumb>
 
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
-            <b-link tag="b-button" :to="{ name: 'Assignment',
-                                          params: {
-                                              cID: cID,
-                                              aID: a.aID,
-                                              assignmentName: a.name
-                                          }
-                                        }">
+            <b-link tag="b-button" :to="assignmentRoute(cID, a.aID, a.name, a.journal.jID)">
                 <assignment-card :line1="a.name" :color="$root.colors[a.aID % $root.colors.length]">
                     <progress-bar v-if="a.journal && a.journal.stats" :currentPoints="a.journal.stats.acquired_points" :totalPoints="a.journal.stats.total_points"></progress-bar>
                 </assignment-card>
@@ -91,7 +85,12 @@ export default {
     methods: {
         loadAssignments () {
             assignment.get_course_assignments(this.cID)
-                .then(response => { this.assignments = response })
+                .then(response => {
+                    this.assignments = response
+                    this.assignments.forEach(function (elem) {
+                        console.log(elem.journal)
+                    })
+                })
                 .catch(_ => alert('Error while loading assignments'))
         },
         showModal (ref) {
@@ -111,6 +110,28 @@ export default {
         },
         customisePage () {
             alert('Wishlist: Customise page')
+        },
+        assignmentRoute (cID, aID, name, jID) {
+            if (this.$root.canEditAssignment()) {
+                return {
+                    name: 'Assignment',
+                    params: {
+                        cID: cID,
+                        aID: aID,
+                        assignmentName: name
+                    }
+                }
+            } else {
+                return {
+                    name: 'Journal',
+                    params: {
+                        cID: cID,
+                        aID: aID,
+                        jID: jID,
+                        assignmentName: name
+                    }
+                }
+            }
         }
     }
 }
