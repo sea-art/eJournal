@@ -121,7 +121,10 @@ class Command(BaseCommand):
                 participation.user = user
                 participation.course = courses[random.randint(0, len(courses) - 1)]
                 participation.role = random.choice(Role.objects.all())
-                participation_list.append(participation)
+                try:
+                    Participation.objects.get(course=participation.course, user=participation.user)
+                except Exception:
+                    participation_list.append(participation)
 
         # Using a bulk create speeds the process up.
         Participation.objects.bulk_create(participation_list)
