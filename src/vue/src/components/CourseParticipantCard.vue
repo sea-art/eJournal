@@ -2,7 +2,7 @@
     <b-card :class="$root.colors[uID % $root.colors.length]">
         <b-row>
             <b-col cols="4" sm="2">
-                <img class="img-fluid portrait" :src="portraitPath">
+                <img class="img-fluid" :src="portraitPath">
             </b-col>
             <b-col cols="8" order-sm="3" sm="4">
                  <b-form-select v-model="selectedRole" class="mb-3" :select-size="1">
@@ -34,6 +34,9 @@ export default {
         uID: {
             required: true
         },
+        index: {
+            required: true
+        },
         studentNumber: {
             required: true
         },
@@ -56,10 +59,9 @@ export default {
     methods: {
         removeFromCourse () {
             if (confirm('Are you sure you want to remove ' + name + '?')) {
-                courseApi.delete_user_from_course(
-                    this.uID,
-                    this.cID)
+                courseApi.delete_user_from_course(this.uID, this.cID)
                     .then(response => {
+                        this.$emit('delete-participant', this.uID)
                         alert(response)
                     })
                     .catch(_ => alert('Error while deleting user from course'))

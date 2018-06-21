@@ -4,9 +4,6 @@
             slot="main-content-column"
             @eye-click="customisePage"
             @edit-click="handleEdit()"/>
-        <div slot="left-content-column">
-        <b-button class="float-right edit-button" :to="{name: 'CourseEdit', params: {cID: this.$route.params.cID, courseName: this.$route.params.courseName}}"> Edit </b-button>
-        </div>
 
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
             <b-link tag="b-button" :to="{ name: 'Assignment',
