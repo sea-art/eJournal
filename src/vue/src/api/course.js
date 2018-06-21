@@ -22,11 +22,12 @@ export default {
     },
 
     /* Create a new course. */
-    create_new_course (name, abbr, startdate) {
+    create_new_course (name, abbr, startdate, lti_id = null) {
         return auth.authenticatedPost('/create_new_course/', {
             name: name,
             abbr: abbr,
-            startdate: startdate
+            startdate: startdate,
+            lti_id: lti_id
         }).then(response => response.data)
     },
 

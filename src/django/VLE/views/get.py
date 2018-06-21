@@ -452,7 +452,8 @@ def lti_launch(request):
                              request.POST[
                                 'custom_canvas_assignment_points_possible']]
 
-        course = check_course_lti(request.POST, user)
+        course = check_course_lti(request.POST, user, lti_roles[request.POST[
+                                                                    'roles']])
         if course is None:
             query_names = ['jwt_refresh', 'jwt_access', 'state']
             query_names += course_names
