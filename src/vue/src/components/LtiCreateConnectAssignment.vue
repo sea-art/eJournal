@@ -46,7 +46,7 @@ export default {
     name: 'LtiCreateConnect',
     components: {
         'bread-crumb': breadCrumb,
-        'create-assignment': createAssignment,
+        'create-assignment': createAssignment
         // 'connect-assignment': connectAssignment
     },
     methods: {

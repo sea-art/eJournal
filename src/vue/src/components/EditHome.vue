@@ -11,9 +11,7 @@ export default {
     name: 'EditHome',
     data () {
         return {
-            form: {
-                institueName: ''
-            }
+            institueName: ''
         }
     },
     methods: {

@@ -309,13 +309,13 @@ def get_course_permissions(request, cID):
     """Get the permissions of a course.
     Arguments:
     request -- the request that was sent
-    cID     -- the course id
+    cID     -- the course id (string)
 
     """
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    roleDict = get_permissions(request.user, cID)
+    roleDict = get_permissions(request.user, int(cID))
 
     return JsonResponse({'result': 'success',
                          'permissions': roleDict})

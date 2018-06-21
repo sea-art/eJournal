@@ -1,6 +1,7 @@
 <template>
     <content-single-columns>
-        <lti-create-connect-course v-if="handleChoice" slot="main-content-column" @handleAction="handleActions"/>
+        <lti-create-connect-course v-if="handleCourseChoice" slot="main-content-column" @handleAction="handleActions"/>
+        <lti-create-connect-assignment v-if="handleAssignmentChoice" slot="main-content-column" @handleAction="handleActions"/>
     </content-single-columns>
 </template>
 
@@ -22,7 +23,8 @@ export default {
             jwt_refresh: ':(',
 
             /* Variables for loading the right component. */
-            handleChoice: false,
+            handleCourseChoice: false,
+            handleAssignmentChoice: false,
             createCourse: false,
             connectCourse: false,
             createAssignment: false,
@@ -47,16 +49,13 @@ export default {
         }
     },
     mounted () {
-        if (this.$route.query.jwt_access !== null) {
+        if (this.$route.query.jwt_access !== undefined) {
             localStorage.setItem('jwt_access', this.$route.query.jwt_access)
         }
 
-        if (this.$route.query.jwt_refresh !== null) {
+        if (this.$route.query.jwt_refresh !== undefined) {
             localStorage.setItem('jwt_refresh', this.$route.query.jwt_refresh)
         }
-
-        this.msg = this.$route.query.jwt_access
-        this.jwt_refresh = this.$route.query.jwt_refresh
 
         /* Get the IDs of the objects out of the query. */
         var ltiCourseID = this.$route.query.lti_cID
@@ -75,12 +74,13 @@ export default {
 
         // alert(state === this.s_new_course)
         state = '0'
-        role = 'ta'
+        role = 'TA'
         alert('State: ' + state + '\nRole: ' + role)
 
-        if (role === 'ta' || role === 'teacher') {
+        if (role === 'TA' || role === 'Teacher') {
             if (state === this.s_new_course) {
-                this.handleChoice = true
+                alert('hi')
+                this.handleCourseChoice = true
                 // TODO Create or koppel assignement
 
                 // this.showModal('chooseActionRef')
@@ -100,7 +100,7 @@ export default {
                     name: 'ErrorPage'
                 })
             }
-        } else if (role === 'student') {
+        } else if (role === 'Student') {
             if (state === this.s_finish_student) {
                 this.$router.push({
                     name: 'Journal',

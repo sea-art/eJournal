@@ -63,7 +63,7 @@ def get_permissions(user, cID=-1):
             "can_delete_course": True,
             "is_admin": True
         }
-    elif cID is -1:
+    elif cID == -1:
         # No course ID was given. The user has no permissions.
         roleDict = {
             "can_edit_grades": False,
