@@ -22,7 +22,7 @@ export default {
     },
 
     /* Create a new course. */
-    create_new_course (name, abbr, startdate, lti_id = null) {
+    create_new_course (name, abbr, startdate, lti_id) {
         return auth.authenticatedPost('/create_new_course/', {
             name: name,
             abbr: abbr,
