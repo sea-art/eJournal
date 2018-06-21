@@ -1,29 +1,29 @@
 <template>
-    <content-columns>
-        <b-form slot="main-content-column" @submit="onSubmit">
-            <h1>{{pageName}}</h1>
+    <content-single-column>
+        <bread-crumb @eye-click="customisePage">&nbsp</bread-crumb>
+        <b-card class="no-hover">
+            <b-form @submit="onSubmit">
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
+                         v-model="assignment.name"
+                         placeholder="Assignment name"
+                         required/>
+                <b-form-textarea class="descriptionTextArea"
+                                 :rows="3"
+                                 :max-rows="6"
+                                 v-model="assignment.description"
+                                 placeholder="Description"
+                                 required/>
 
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
-                     v-model="assignment.name"
-                     placeholder="Assignment name"
-                     required/>
-            <b-form-textarea class="descriptionTextArea"
-                             :rows="3"
-                             :max-rows="6"
-                             v-model="assignment.description"
-                             placeholder="Description"
-                             required/>
-
-            <b-button type="submit">Update Assignment</b-button>
-            <b-button @click.prevent.stop="deleteAssignment()">Delete Assignment</b-button>
-            <b-button :to="{name: 'Assignment', params: {cID: cID, courseName: pageName}}">Back</b-button>
-        <br/>
-    </b-form>
-    </content-columns>
+                <b-button type="submit">Update Assignment</b-button>
+                <b-button @click.prevent.stop="deleteAssignment()">Delete Assignment</b-button>
+            </b-form>
+        </b-card>
+    </content-single-column>
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
+import contentSingleColumn from '@/components/ContentSingleColumn.vue'
+import breadCrumb from '@/components/BreadCrumb.vue'
 import assignmentApi from '@/api/assignment.js'
 
 export default {
@@ -43,9 +43,6 @@ export default {
             assignment: {},
             form: {}
         }
-    },
-    components: {
-        'content-columns': contentColumns
     },
     created () {
         assignmentApi.get_assignment_data(this.cID, this.aID)
@@ -77,6 +74,10 @@ export default {
                     })
             }
         }
+    },
+    components: {
+        'content-single-column': contentSingleColumn,
+        'bread-crumb': breadCrumb
     }
 }
 </script>

@@ -1,10 +1,6 @@
 <template>
     <content-single-column>
-        <h1>Placeholder for breadcrum</h1>
-        <div v-for="p in participants">
-            {{ p }}
-        </div>
-        <!-- <bread-crumb @eye-click="customisePage"/> -->
+        <bread-crumb @eye-click="customisePage">&nbsp</bread-crumb>
         <b-card class="no-hover">
             <b-form @submit="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
@@ -23,7 +19,6 @@
 
                 <b-button class="add-button" type="submit">Update Course</b-button>
                 <b-button @click.prevent.stop="deleteCourse()" class="delete-button">Delete Course</b-button>
-                <b-button :to="{name: 'Course', params: {cID: cID, courseName: pageName}}">Back</b-button>
             </b-form>
         </b-card>
 

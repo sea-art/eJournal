@@ -2,7 +2,7 @@
     <b-card :class="color">
         <b-row>
             <b-col order="1" cols="4">
-                <img class="img-fluid" :src="portraitPath">
+                <img class="img-fluid portrait" :src="portraitPath">
             </b-col>
             <b-col order="2" cols="8" class="d-none d-sm-inline">
                     <todo-square :num="this.stats.submitted - this.stats.graded"/>
@@ -45,9 +45,5 @@ export default {
 <style>
 .progress-bar-container {
     height: 100%;
-}
-
-.progress-bar-comp {
-    /* flex-grow: 1; */
 }
 </style>

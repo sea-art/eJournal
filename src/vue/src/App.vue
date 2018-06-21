@@ -192,6 +192,10 @@ h6 {
     background-color: red;
 }
 
+.portrait {
+    max-width: 175px;
+}
+
 .full-width {
     width: 100%;
 }

@@ -1,13 +1,6 @@
 <template>
     <content-columns>
-        <div slot="main-content-column">
-            <b-button class="float-right edit-button" :to="{ name: 'AssignmentEdit',
-                                                             params: { cID: cID,
-                                                                       aID: aID}}">
-                Edit
-            </b-button>
-        </div>
-        <bread-crumb slot="main-content-column" @eye-click="customisePage"/>
+        <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
         <div v-if="assignmentJournals.length > 0" v-for="journal in assignmentJournals" :key="journal.student.uID" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {
@@ -80,6 +73,15 @@ export default {
     methods: {
         customisePage () {
             alert('Wishlist: Customise page')
+        },
+        handleEdit () {
+            this.$router.push({
+                name: 'AssignmentEdit',
+                params: {
+                    cID: this.cID,
+                    aID: this.aID
+                }
+            })
         }
     }
 }

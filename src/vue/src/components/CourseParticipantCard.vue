@@ -68,7 +68,4 @@ export default {
 </script>
 
 <style>
-.portrait {
-    max-height: 100px;
-}
 </style>

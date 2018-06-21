@@ -11,6 +11,7 @@
                     {{ crumbsLower }}
                     <slot>
                         <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
+                        <b-button @click="editClick()" class="float-right edit-button"> Edit</b-button>
                     </slot>
                 </h1>
             </b-col>
