@@ -59,10 +59,13 @@ export default {
         deleteAssignment () {
             if (confirm('Are you sure you want to delete ' + this.assignment.name + '?')) {
                 assignmentApi.delete_assignment(this.$route.params.aID)
-                .then(response => {
-                    console.log(response)
-                    this.$router.push({name: 'Home'});
-                })
+                    .then(response => {
+                        this.$router.push({name: 'Course',
+                            params: {
+                                cID: this.$route.params.cID,
+                                courseName: this.$route.params.courseName
+                            }})
+                    })
             }
         }
     }

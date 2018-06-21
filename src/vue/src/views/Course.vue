@@ -8,6 +8,7 @@
                                           params: {
                                               cID: cID,
                                               aID: a.aID,
+                                              courseName: $route.params.courseName,
                                               assignmentName: a.name
                                           }
                                         }">

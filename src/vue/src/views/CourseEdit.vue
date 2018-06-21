@@ -2,7 +2,6 @@
     <content-columns>
         <b-form slot="main-content-column" @submit="onSubmit">
             <h1>{{pageName}}</h1>
-            {{course}}
 
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
                      v-model="course.name"
@@ -64,10 +63,9 @@ export default {
         deleteCourse () {
             if (confirm('Are you sure you want to delete ' + this.course.name + '?')) {
                 courseApi.delete_course(this.$route.params.cID)
-                .then(response => {
-                    console.log(response)
-                    this.$router.push({name: 'Home'});
-                })
+                    .then(response => {
+                        this.$router.push({name: 'Home'})
+                    })
             }
         }
     }
