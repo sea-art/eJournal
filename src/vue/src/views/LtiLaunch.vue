@@ -1,40 +1,17 @@
 <template>
     <content-single-columns>
-        <lti-create-connect v-if="handleChoice" slot="main-content-column" :subject="choiceSubject"/>
-        <create-course v-if="createCourse" slot="main-content-column"/>
+        <lti-create-connect v-if="handleChoice" slot="main-content-column" :subject="choiceSubject" @handleAction="handleCourse"/>
     </content-single-columns>
-
-    <!--
-        <b-modal
-            slot="main-content-column"
-            ref="chooseActionRef"
-            title="Connect Course"
-            size="lg"
-            hide-footer>
-                <lti-create-connect @handleAction="handleConfirm('chooseActionRef')"></lti-create-connect>
-        </b-modal>
-
-        <b-modal
-            slot="main-content-column"
-            ref="createCourseRef"
-            title="Create course"
-            size="lg"
-            hide-footer>
-                <create-course @handleAction="handleConfirm('createCourseRef')"></create-course>
-        </b-modal>
-    -->
 </template>
 
 <script>
 import contentSingleColumn from '@/components/ContentSingleColumn.vue'
 import ltiCreateConnect from '@/components/LtiCreateConnect.vue'
-import createCourse from '@/components/CreateCourse.vue'
 
 export default {
     name: 'LtiLaunch',
     components: {
         'content-single-columns': contentSingleColumn,
-        'create-course': createCourse,
         'lti-create-connect': ltiCreateConnect
     },
     data () {
@@ -50,7 +27,6 @@ export default {
             createAssignment: false,
             connectAssignment: false,
 
-
             /* Variables for checking the state of the lti launch. */
             s_new_course: '0',
             s_new_assignment: '1',
@@ -59,18 +35,13 @@ export default {
         }
     },
     methods: {
-        showModal (ref) {
-            this.$refs[ref].show()
-        },
-        hideModal (ref) {
-            this.$refs[ref].hide()
-        },
-        handleConfirm (ref, m) {
-            this.hideModal(ref)
-            alert(m)
+        handleCourse (msg) {
+            this.handleChoice = false
 
-            if (ref === 'chooseActionRef') {
-
+            if (msg === 'courseCreated') {
+                alert('Course Created!')
+            } else {
+                alert('Iets anders gebeurd!')
             }
         }
     },
