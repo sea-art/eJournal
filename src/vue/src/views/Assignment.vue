@@ -5,10 +5,9 @@
                                                              params: { cID: cID,
                                                                        aID: aID}}">
                 Edit
-            </b-button> 
+            </b-button>
         </div>
-        <!-- TODO: reopen bread-crumb when it is working again -->
-        <!-- <bread-crumb @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder" slot="main-content-column"></bread-crumb> -->
+        <bread-crumb slot="main-content-column" @eye-click="customisePage"/>
         <div v-if="assignmentJournals.length > 0" v-for="journal in assignmentJournals" :key="journal.student.uID" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {

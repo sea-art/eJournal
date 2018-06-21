@@ -4,8 +4,7 @@
         <b-button class="float-right edit-button" :to="{name: 'CourseEdit', params: {cID: this.$route.params.cID, courseName: this.$route.params.courseName}}"> Edit </b-button>
         </div>
 
-        <bread-crumb @eye-click="customisePage" slot="main-content-column" :currentPage="courseName">
-        </bread-crumb>
+        <bread-crumb slot="main-content-column" @eye-click="customisePage"/>
 
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
             <b-link tag="b-button" :to="{ name: 'Assignment',

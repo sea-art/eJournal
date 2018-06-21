@@ -62,7 +62,7 @@ export default new Router({
         component: AssignmentEdit,
         props: true
     }, {
-        path: '/Home/Course/:cID/Assignment:aID/Journal/:jID',
+        path: '/Home/Course/:cID/Assignment/:aID/Journal/:jID',
         name: 'Journal',
         component: Journal,
         props: true
