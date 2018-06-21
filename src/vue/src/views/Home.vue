@@ -17,7 +17,7 @@
             </b-link>
         </div>
 
-        <main-card slot="main-content-column" class="hover" v-on:click.native="showModal('createCourseRef')" :line1="'+ Add course'"/>
+        <main-card slot="main-content-column" class="hover add-button" v-on:click.native="showModal('createCourseRef')" :line1="'+ Add course'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
