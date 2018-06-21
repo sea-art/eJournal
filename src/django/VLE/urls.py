@@ -42,6 +42,7 @@ from VLE.views.update import update_assignment
 from VLE.views.update import update_password
 from VLE.views.update import update_grade_notification
 from VLE.views.update import update_comment_notification
+from VLE.views.update import update_entrycomment
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -81,6 +82,8 @@ urlpatterns = [
          name='update_grade_notification'),
     path('api/update_comment_notification/<str:notified>/', update_comment_notification,
          name='update_comment_notification'),
+    path('api/update_entrycomment/', update_entrycomment, name='update_entrycomment'),
+
 
     path('api/lti/launch', lti_launch, name='lti_launch'),
 ]

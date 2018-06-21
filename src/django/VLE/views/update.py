@@ -125,3 +125,26 @@ def update_comment_notification(request, notified):
 
     user.save()
     return JsonResponse({'result': 'success', 'new_value': user.comment_notifications})
+
+
+@api_view(['POST'])
+def update_entrycomment(request):
+    """
+    Update a comment to an entry.
+
+    Arguments:
+    request -- the request that was send with
+        entrycommentID -- The ID of the entrycomment.
+        text -- The updated text.
+    Returns a json string for if it is succesful or not.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        comment = EntryComment.objects.get(pk=request['entrycommentID'])
+        comment.text = request['text']
+        comment.save()
+        return JsonResponse({'result': 'success'})
+    except:
+        return JsonResponse({'result': 'false'}, status=500)        
