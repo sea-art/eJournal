@@ -1,4 +1,5 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes, renderer_classes
+from rest_framework.parsers import JSONParser
 from django.http import JsonResponse
 
 from VLE.serializers import *
@@ -158,8 +159,8 @@ def update_format(request):
             format.available_templates.add(EntryTemplate.objects.get(pk=tID))
         except EntryTemplate.NotFound:
             return JsonResponse({'result': '404 Not Found',
-                             'description': 'Template does not exist.'},
-                            status=404)
+                                 'description': 'Template does not exist.'},
+                                status=404)
     for preset in presets:
         type = preset['type']
         date = preset['deadline']
@@ -174,8 +175,8 @@ def update_format(request):
                 template = EntryTemplate.objects.get(pk=tID)
             except EntryTemplate.NotFound:
                 return JsonResponse({'result': '404 Not Found',
-                             'description': 'Template does not exist.'},
-                            status=404)
+                                     'description': 'Template does not exist.'},
+                                    status=404)
             deadline = factory.make_deadline(date)
             factory.make_entrydeadline_node(format, deadline, template)
 
@@ -184,7 +185,7 @@ def update_format(request):
             format.available_templates.add(EntryTemplate.objects.get(pk=tID))
         except EntryTemplate.NotFound:
             return JsonResponse({'result': '404 Not Found',
-                             'description': 'Template does not exist.'},
-                            status=404)
+                                 'description': 'Template does not exist.'},
+                                status=404)
 
     return JsonResponse({'result': 'success', 'node': format_to_dict(format)}, status=200)
