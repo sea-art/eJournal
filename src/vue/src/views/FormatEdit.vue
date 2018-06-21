@@ -66,17 +66,22 @@ export default {
             presets: [],
 
             templatePool: [],
-            nodes: []
+            nodes: [],
+
+            isChanged: false
         }
     },
 
     created () {
-        journalAPI.get_format(1).then(data => { this.fID = data.fID; this.templates = data.nodes.templates; this.presets = data.nodes.presets })
+        journalAPI.get_format(this.aID).then(data => { this.fID = data.fID; this.templates = data.nodes.templates; this.presets = data.nodes.presets; this.convertFromDB(); this.isChanged = false })
     },
 
     watch: {
-        presets: {
-            handler: function () { this.convertFromDB() }
+        templatePool: {
+            handler: function () { this.isChanged = true }
+        },
+        nodes: {
+            handler: function () { this.isChanged = true }
         }
     },
 
@@ -213,7 +218,7 @@ export default {
         if (to.name === 'TemplateEdit') {
             store.setFormat(this.templatePool, this.nodes)
         } else {
-            if (isChanged && !confirm('Oh no! Unsaved changes will be lost if you leave. Do you wish to continue?')) {
+            if (this.isChanged && !confirm('Oh no! Unsaved changes will be lost if you leave. Do you wish to continue?')) {
                 next(false)
             } else {
                 store.clearFormat()
