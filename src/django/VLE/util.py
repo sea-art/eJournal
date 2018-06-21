@@ -15,7 +15,7 @@ def check_permissions(user, cID, permissionList):
 
     Arguments:
     user -- user that did the request.
-    cID -- course ID used to validate the request. (string)
+    cID -- course ID used to validate the request.
     """
     role = get_role(user, cID)
 
@@ -31,10 +31,8 @@ def get_role(user, cID):
 
     Arguments:
     user -- user that did the request.
-    cID -- course ID used to validate the request. (string)
+    cID -- course ID used to validate the request.
     """
-    cID = int(cID)
-
     # First get the role ID of the user participation.
     roleID = Participation.objects.get(user=user, course=cID).id
     # Now get the role and its corresponding permissions.
@@ -49,17 +47,16 @@ def get_permissions(user, cID):
 
     Arguments:
     user -- user that did the request.
-    cID -- course ID used to validate the request. (string)
+    cID -- course ID used to validate the request.
     """
-    cID = int(cID)
-
     roleDict = {}
 
     if user.is_admin:
         # The call is made for system wide permissions and not course specific.
+        # Administrators should not be able to view grades.
         roleDict = {
-            "can_edit_grades": True,
-            "can_view_grades": True,
+            "can_edit_grades": False,
+            "can_view_grades": False,
             "can_edit_assignment": True,
             "can_view_assignment": True,
             "can_submit_assignment": True,
@@ -68,6 +65,7 @@ def get_permissions(user, cID):
             "is_admin": True
         }
     elif cID == -1:
+        # No course ID was given. The user has no permissions.
         roleDict = {
             "can_edit_grades": False,
             "can_view_grades": False,
@@ -79,7 +77,7 @@ def get_permissions(user, cID):
             "is_admin": False
         }
     else:
-        # First get the role ID of the user participation.
+        # The course ID was given. Return the permissions of the user as dictionary.
         role = Participation.objects.get(user=user, course=cID).role
 
         roleDict = model_to_dict(role)

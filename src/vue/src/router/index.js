@@ -71,13 +71,14 @@ var router = new Router({
 router.beforeEach((to, from, next) => {
     // TODO Possible redirect if token invalid?
     // TODO Handle errors properly
-    // TODO Caching for permisisons, how to handle permission changes when role is altered by teacher
+    // TODO Caching for permissions, how to handle permission changes when role is altered by teacher
 
     var params
     if (to.params.cID) {
         params = to.params.cID
     } else {
-        /* The -1 paramater queries if the user has admin priveleges */
+        /* -1 is used to indicate that the course ID (cID) is not known. This
+        is used for sitewide permissions. */
         params = -1
     }
 
