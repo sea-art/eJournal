@@ -23,6 +23,7 @@
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
+            <!-- TODO should a deadline link be to the assignment? Not a journal? Fix paramaters on link -->
             <b-link tag="b-button" :to="{name: 'Assignment', params: {cID: d.cIDs[0], dID: d.dID}}">
                 <todo-card
                     :line0="d.datetime"
@@ -112,6 +113,9 @@ export default {
         },
         customisePage () {
             alert('Wishlist: Customise page')
+            this.assignments.forEach(function (entry) {
+                console.log(entry.aID)
+            })
         }
     }
 }

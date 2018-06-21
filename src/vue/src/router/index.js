@@ -69,8 +69,9 @@ var router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-    // TODO Client side login check
+    // TODO Possible redirect if token invalid?
     // TODO Handle errors properly
+    // TODO Caching for permisisons, how to handle permission changes when role is altered by teacher
 
     var params
     if (to.params.cID) {
@@ -83,10 +84,10 @@ router.beforeEach((to, from, next) => {
     permissionsApi.get_course_permissions(params)
         .then(response => {
             router.app.permissions = response
-            console.log(router.app.permissions)
             next()
         })
         .catch(_ => {
+            // TODO Check if this catch works as expected
             console.log('Error while loading permissions, does the redirect work?')
             next(vm => {
                 vm.$router.push({name: 'ErrorPage', params: {errorMessage: 'Error while loading permissions', errorCode: '???'}})

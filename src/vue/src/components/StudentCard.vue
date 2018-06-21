@@ -47,7 +47,7 @@ export default {
     height: 100%;
 }
 
-/* TODO Not the most clean solution for xl, works for less. */
+/* TODO Not the most clean solution for xl. */
 .portrait-max-height {
     max-height: 173px;
 }
