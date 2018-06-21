@@ -136,7 +136,4 @@ export default {
 </script>
 
 <style>
-.noHoverCard:hover {
-    background-color: var(--theme-light-grey);
-}
 </style>

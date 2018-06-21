@@ -4,7 +4,7 @@
             <img class="profilePic" id="nav-profile-image" slot="button-content" src="../assets/unknown-profile.png">
         </b-col>
         <b-col cols="10">
-            <b-card class="noHoverCard" :class="'pink-border'">
+            <b-card class="no-hover" :class="'pink-border'">
                 <div v-if="EditSaveMode == 'Save'">
                     <b-textarea v-model="tempComment"></b-textarea><br><br>
                     <b-button @click="saveEdit">{{ EditSaveMode }}</b-button>
