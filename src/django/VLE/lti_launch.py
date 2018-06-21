@@ -97,6 +97,10 @@ def select_create_user(request):
         user.lti_id = lti_user_id
         user.save()
 
+    if 'user_image' in request:
+        user.profile_picture = request['user_image']
+        user.save()
+
     return user
 
 
