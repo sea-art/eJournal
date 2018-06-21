@@ -1,7 +1,7 @@
 <template>
-    <b-container>
+    <b-container no-gutters>
         <b-row>
-            <span class="profile-title">Notification-emails</span><br/>
+            <h3 class="profile-title">Email notification</h3><br/>
         </b-row>
         <b-row>
             <b-col class="profile-col" cols="4">
@@ -37,11 +37,11 @@ export default {
     },
     methods: {
         getGradeNotification (isActive) {
-            userAPI.update_grade_notification(isActive)
+            userAPI.updateGradeNotification(isActive)
                 .then(isActive => { this.gradeUpdate = isActive })
         },
         getCommentNotification (isActive) {
-            userAPI.update_grade_notification(isActive)
+            userAPI.updateCommentNotification(isActive)
                 .then(isActive => { this.commentUpdate = isActive })
         }
     }

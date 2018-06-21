@@ -3,7 +3,7 @@
         <bread-crumb @eye-click="customisePage" slot="main-content-column" :currentPage="'Settings'"></bread-crumb>
 
         <profile-card slot="main-content-column"
-                      :name="profile.name"
+                      :uname="profile.name"
                       :image="profile.picture"
                       :id="profile.uID"
                       :gradeUpdate="profile.grade_notifications"
@@ -36,7 +36,7 @@ export default {
         }
     },
     created () {
-        userAPI.get_own_user_data().then(user => { this.profile = user })
+        userAPI.getOwnUserData().then(user => { this.profile = user })
     }
 }
 </script>
