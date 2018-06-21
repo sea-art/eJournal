@@ -50,6 +50,31 @@ def get_course_data(request, cID):
 
 
 @api_view(['GET'])
+def get_course_users(request, cID):
+    """Get all users for a given course, including their
+    role for this course.
+
+    Arguments:
+    request -- the request
+    cID -- the course ID
+
+    Returns a json string with a list of participants.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.NotFound:
+        return utils.does_not_exist("cID")
+
+    participations = course.participation_set.all()
+    return JsonResponse({'result': 'success',
+                         'users': [participation_to_dict(participation)
+                                   for participation in participations]})
+
+
+@api_view(['GET'])
 def get_user_courses(request):
     """Get the courses that are linked to the user linked to the request
 

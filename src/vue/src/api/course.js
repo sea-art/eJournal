@@ -16,6 +16,11 @@ export default {
             .then(response => response.data.courses)
     },
 
+    get_users (cID) {
+        return auth.authenticatedGet('/get_course_users/' + cID)
+            .then(response => response.data)
+    },
+
     /* Create a new course. */
     create_new_course (name, abbr, startdate) {
         return auth.authenticatedPost('/create_new_course/', {

@@ -12,6 +12,13 @@ def user_to_dict(user):
     } if user else None
 
 
+def participation_to_dict(participation):
+    role_dict = {'role': participation.role.name}
+    user_dict = user_to_dict(participation.user)
+
+    return {**role_dict, **user_dict} if participation else None
+
+
 def course_to_dict(course):
     return {
         'cID': course.id,
