@@ -4,8 +4,8 @@ import datetime
 import django.utils.timezone as timezone
 
 
-def make_user(username, password, email=None, lti_id=None, profile_picture=None):
-    user = User(username=username, email=email, lti_id=lti_id)
+def make_user(username, password, email=None, lti_id=None, profile_picture=None, is_admin=False):
+    user = User(username=username, email=email, lti_id=lti_id, is_admin=is_admin)
     user.save()
     user.set_password(password)
     if profile_picture:

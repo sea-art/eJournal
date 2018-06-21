@@ -11,17 +11,20 @@ class Command(BaseCommand):
 
     def gen_users(self):
         users_examples = [
-            {"username": "Lars", "pass": "pass"},
-            {"username": "Rick", "pass": "pass"},
-            {"username": "Dennis", "pass": "pass"},
-            {"username": "Zi", "pass": "pass"},
-            {"username": "Jeroen", "pass": "pass"},
-            {"username": "Maarten", "pass": "pass"}
+            {"username": "Lars", "pass": "pass", "is_admin": False},
+            {"username": "Rick", "pass": "pass", "is_admin": False},
+            {"username": "Dennis", "pass": "pass", "is_admin": False},
+            {"username": "Zi", "pass": "pass", "is_admin": True},
+            {"username": "Jeroen", "pass": "pass", "is_admin": False},
+            {"username": "Maarten", "pass": "pass", "is_admin": False}
         ]
 
         self.users = []
         for u in users_examples:
-            self.users.append(make_user(u['username'], u['pass']))
+            is_admin = False
+            if u['is_admin']:
+                is_admin = True
+            self.users.append(make_user(u['username'], u['pass'], is_admin=is_admin))
 
     def gen_roles(self):
         role_examples = [

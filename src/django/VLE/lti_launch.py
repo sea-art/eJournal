@@ -9,7 +9,7 @@ class OAuthRequestValidater(object):
     """
     OAuth request validater class for Django Requests
     """
-    
+
     def __init__(self, key, secret):
         """
         Constructor die een server en consumer object aan maakt met de gegeven
