@@ -17,7 +17,7 @@ export default {
     },
 
     get_users (cID) {
-        return auth.authenticatedGet('/get_course_users/' + cID)
+        return auth.authenticatedGet('/get_course_users/' + cID + '/')
             .then(response => response.data)
     },
 
