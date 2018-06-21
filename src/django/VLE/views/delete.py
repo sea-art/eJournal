@@ -45,6 +45,7 @@ def delete_assignment(request):
 
     return JsonResponse({'result': 'Succesfully deleted assignment'}, status=202)
 
+
 @api_view(['POST'])
 def delete_user_from_course(request):
     """Deletes a student from course.

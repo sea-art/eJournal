@@ -64,5 +64,4 @@ export default {
         }).then(response => response.data.result)
     }
 
-
 }

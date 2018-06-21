@@ -25,7 +25,6 @@
 
 <script>
 import courseApi from '@/api/course.js'
-import userApi from '@/api/user.js'
 
 export default {
     props: {
@@ -51,8 +50,7 @@ export default {
     data () {
         return {
             selectedRole: '',
-            init: true,
-            uID: ''
+            init: true
         }
     },
     methods: {
@@ -62,7 +60,7 @@ export default {
                     this.uID,
                     this.cID)
                     .then(response => {
-                        alert("deleted user")
+                        alert('deleted user')
                     })
                     .catch(_ => alert('Error while deleting user from course'))
             }
