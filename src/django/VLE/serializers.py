@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from VLE.models import *
 from random import randint
+import VLE.utils as utils
 
 
 def user_to_dict(user):
@@ -55,15 +56,16 @@ def assignment_to_dict(assignment):
 
 
 def journal_to_dict(journal):
+    entries = utils.get_journal_entries(journal)
     return {
         'jID': journal.id,
         'student': user_to_dict(journal.user),
         'stats': {
-            'acquired_points': randint(0, 10),
-            'graded': 1,
-            'submitted': 1,
-            'total_points': 10
-        }  # TODO: Change random to real stats
+            'acquired_points': utils.get_acquired_grade(entries, journal),
+            'graded': utils.get_graded_count(entries),
+            'submitted': utils.get_submitted_count(entries),
+            'total_points': utils.get_max_points(journal),
+        }
     } if journal else None
 
 
@@ -147,3 +149,18 @@ def content_to_dict(content):
         'tag': content.field.pk,
         'data': content.data,
     } if content else None
+
+
+def format_to_dict(format):
+    return {
+        'templates': [template_to_dict(template) for template in format.available_templates.all()],
+        'presets': [preset_to_dict(preset) for preset in format.preset_set.all()],
+    } if format else None
+
+
+def preset_to_dict(preset):
+    return {
+        'type': preset.type,
+        'deadline': deadline_to_dict(preset.deadline),
+        'template': template_to_dict(preset.forced_template),
+    } if preset else None

@@ -185,7 +185,7 @@ class Command(BaseCommand):
             author = self.users[a["author"]]
             format = self.formats[a["format"]]
             deadline = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
-            assignment = make_assignment(a["name"], a["description"], None, author, format, deadline)
+            assignment = make_assignment(a["name"], a["description"], author, format)
 
             for course in a["courses"]:
                 assignment.courses.add(self.courses[course])

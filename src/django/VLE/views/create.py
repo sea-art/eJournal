@@ -4,6 +4,7 @@ from django.http import JsonResponse
 
 from VLE.serializers import *
 import VLE.factory as factory
+import VLE.utils as utils
 
 
 @api_view(['POST'])
@@ -14,11 +15,21 @@ def create_new_course(request):
     request -- the request that was send with
         name -- name of the course
         abbr -- abbreviation of the course
-        startdate -- date when the course starts
+        startdate -- optional date when the course starts
+        lti_id -- optional lti_id to link the course to
 
-    Returns a json string for if it is succesful or not.
+    On success, returns a json string containing the course.
     """
-    course = factory.make_course(request.data["name"], request.data["abbr"], request.data["startdate"], request.user)
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        name, abbr = utils.get_required_post_params(request.data, "name", "abbr")
+        startdate, lti_id = utils.get_optional_post_params(request.data, "startdate", "lti_id")
+    except KeyError:
+        return utils.keyerror_json("name", "abbr")
+
+    course = factory.make_course(name, abbr, startdate, request.user, lti_id)
 
     return JsonResponse({'result': 'success', 'course': course_to_dict(course)})
 
@@ -31,26 +42,25 @@ def create_new_assignment(request):
     request -- the request that was send with
         name -- name of the assignment
         description -- description of the assignment
-        courseID -- id of the course the assignment belongs to
+        cID -- id of the course the assignment belongs to
 
-    Returns a json string for if it is succesful or not.
+    On success, returns a json string containing the assignment.
     """
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    assignment = factory.make_assignment(
-        request.data['name'],
-        request.data['description'],
-        request.data['assignmentID'],
-        request.user
-    )
+    try:
+        name, description, cID = utils.get_required_post_params(request.data, "name", "description", "cID")
+    except KeyError:
+        return utils.keyerror_json("name", "description", "cID")
 
+    assignment = factory.make_assignment(name, description, cID, request.user)
     return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)})
 
 
 @api_view(['POST'])
-def create_journal(request, aID):
-    """ Create a new journal
+def create_journal(request):
+    """Create a new journal
 
     Arguments:
     request -- the request that was send with
@@ -58,6 +68,11 @@ def create_journal(request, aID):
     """
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        aID = utils.get_required_post_params(request.data, "aID")
+    except KeyError:
+        return utils.keyerror_json("aID")
 
     assignment = Assignment.objects.get(pk=aID)
     journal = factory.make_journal(assignment, request.user)
@@ -80,20 +95,25 @@ def create_entry(request):
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     try:
-        jID = request.data['jID']
+        jID, tID = utils.get_required_post_params(request.data, "jID", "tID")
+        nID = utils.get_optional_post_params(request.data, "nID")
+    except KeyError:
+        return utils.keyerror_json("jID", "tID")
+
+    try:
         journal = Journal.objects.get(pk=jID, user=request.user)
 
-        tID = request.data['tID']
         template = EntryTemplate.objects.get(pk=request.data['tID'])
 
         content_list = request.data['content']
 
         # TODO: Check if node can still be created (deadline passed? graded?)
-        if 'nID' in request.data:
-            nID = request.data['nID']
+        if nID:
             node = Node.objects.get(pk=nID, journal=journal)
             if node.type == Node.PROGRESS:
-                return JsonResponse({'result': '400 Bad Request'}, status=400)
+                return JsonResponse({'result': '400 Bad Request',
+                                     'description': 'Passed node is a Progress node.'},
+                                    status=400)
 
             node.entry = make_entry(template)
 
@@ -109,4 +129,6 @@ def create_entry(request):
 
         return JsonResponse({'result': 'success', 'node': node_to_dict(node)}, status=200)
     except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
-        return JsonResponse({'result': '400 Bad Request'}, status=400)
+        return JsonResponse({'result': '400 Bad Request',
+                             'description': 'Journal, Template or Node does not exist.'},
+                            status=400)

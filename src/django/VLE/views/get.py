@@ -5,6 +5,10 @@ import statistics as st
 from VLE.serializers import *
 import VLE.edag as edag
 import VLE.factory as factory
+import statistics as st
+import VLE.utils as utils
+from VLE.lti_launch import *
+from VLE.lti_grade_passback import *
 
 
 @api_view(['GET'])
@@ -28,12 +32,13 @@ def get_own_user_data(request):
 
 @api_view(['GET'])
 def get_course_data(request, cID):
-    """Get the data linked to a course id
+    """Get the data linked to a course ID
 
     Arguments:
     request -- the request that was send with
+    cID -- course ID given with the request
 
-    Returns a json string with the course for the requested user
+    Returns a json string with the course data for the requested user
     """
     user = request.user
     if not user.is_authenticated:
@@ -131,6 +136,37 @@ def get_course_assignments(request, cID):
 
 
 @api_view(['GET'])
+def get_assignment_data(request, cID, aID):
+    """Get the data linked to an assignemnt ID
+
+    Arguments:
+    request -- the request that was send with
+    cID -- course ID given with the request
+    aID -- assignemnt ID given with the request
+
+    Returns a json string with the assignemnt data for the requested user
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    course = Course.objects.get(pk=cID)
+    assignment = Assignment.objects.get(pk=aID)
+    participation = Participation.objects.get(user=user, course=course)
+
+    if participation.role.can_view_assignment:
+        return JsonResponse({
+            'result': 'success',
+            'assignment': student_assignment_to_dict(assignment)
+        })
+    else:
+        return JsonResponse({
+            'result': 'success',
+            'assignment': assignment_to_dict(assignment)
+        })
+
+
+@api_view(['GET'])
 def get_assignment_journals(request, aID):
     """Get the student submitted journals of one assignment
 
@@ -199,3 +235,127 @@ def get_nodes(request, jID):
     journal = Journal.objects.get(pk=jID)
     return JsonResponse({'result': 'success',
                          'nodes': edag.get_nodes_dict(journal)})
+
+
+@api_view(['GET'])
+def get_format(request, aID):
+    """Get the format attached to an assignment.
+
+    Arguments:
+    request -- the request that was sent
+    aID     -- the assignment id
+
+    Returns a json string containing the format.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        assignment = Assignment.objects.get(pk=aID)
+    except Assignment.NotFound:
+        return JsonResponse({'result': '400 Bad Request',
+                             'description': 'Assignment does not exist.'}, status=400)
+
+    return JsonResponse({'result': 'success',
+                         'nodes': get_format_dict(assignment.format)})
+
+
+@api_view(['POST'])
+def get_names(request):
+    """Get the format attached to an assignment.
+
+    Arguments:
+    request -- the request that was sent
+    cID -- optionally the course id
+    aID -- optionally the assignment id
+    jID -- optionally the journal id
+
+    Returns a json string containing the names of the set fields.
+    cID populates 'course', aID populates 'assignment' and jID populates
+    'journal' with the users' name.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    cID, aID, jID = utils.get_optional_post_params(request.data, "cID", "aID", "jID")
+    result = JsonResponse({'result': 'success'})
+
+    try:
+        if cID:
+            course = Course.objects.get(pk=cID)
+            result.course = course.name
+        if aID:
+            assignment = Assignment.objects.get(pk=aID)
+            result.assignment = assignment.name
+        if jID:
+            journal = Journal.objects.get(pk=jID)
+            result.journal = journal.user.name
+
+    except (Course.NotFound, Assignment.NotFound, Journal.NotFound):
+        return JsonResponse({'result': '400 Bad Request',
+                             'description': 'Course, Assignment or Journal does not exist.'}, status=400)
+
+    return result
+
+
+@api_view(['POST'])
+def lti_grade_replace_result(request):
+    # TODO Extend the docstring with what is important in the request variable.
+    """
+    Replace a grade on the LTI instance based on the request.
+    """
+
+    secret = settings.LTI_SECRET
+    key = settings.LTI_KEY
+
+    grade_request = GradePassBackRequest(key, secret, None)
+    grade_request.score = '0.5'
+    grade_request.sourcedId = request.POST['lis_result_sourcedid']
+    grade_request.url = request.POST['lis_outcome_service_url']
+    response = grade_request.send_post_request()
+
+    return JsonResponse(response)
+
+
+@api_view(['POST'])
+def lti_launch(request):
+    """Django view for the lti post request."""
+    # canvas TODO change to its own database based on the key in the request.
+    secret = settings.LTI_SECRET
+    key = settings.LTI_KEY
+
+    print('key = postkey', key == request.POST['oauth_consumer_key'])
+    valid, err = OAuthRequestValidater.check_signature(key, secret, request)
+
+    if not valid:
+        return HttpResponse('unsuccesfull auth, {0}'.format(err))
+
+    # Select or create the user, course, assignment and journal.
+    roles = json.load(open('config.json'))
+    user = select_create_user(request.POST)
+    course = select_create_course(request.POST, user, roles)
+    assignment = select_create_assignment(request.POST, user, course, roles)
+    journal = select_create_journal(request.POST, user, assignment, roles)
+
+    # Check if the request comes from a student or not.
+    roles = json.load(open('config.json'))
+    student = request.POST['roles'] == roles['student']
+
+    token = TokenObtainPairSerializer.get_token(user)
+    access = token.access_token
+
+    # Set the ID's or if these do not exist set them to undefined.
+    cID = course.pk if course is not None else 'undefined'
+    aID = assignment.pk if assignment is not None else 'undefined'
+    jID = journal.pk if journal is not None else 'undefined'
+
+    # TODO Should not be localhost anymore at production.
+    link = 'http://localhost:8080/#/lti/launch'
+    link += '?jwt_refresh={0}'.format(token)
+    link += '&jwt_access={0}'.format(access)
+    link += '&cID={0}'.format(cID)
+    link += '&aID={0}'.format(aID)
+    link += '&jID={0}'.format(jID)
+    link += '&student={0}'.format(student)
+
+    return redirect(link)

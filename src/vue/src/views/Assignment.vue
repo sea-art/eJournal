@@ -27,6 +27,12 @@
             <h1>No journals found</h1>
         </div>
         <div  v-if="stats" slot="right-content-column">
+            <b-button class="float-right edit-button" :to="{name: 'AssignmentEdit',
+                                                            params: {cID: this.$route.params.cID,
+                                                                     courseName: this.$route.params.courseName,
+                                                                     aID: this.$route.params.aID,
+                                                                     assignmentName: this.$route.params.assignmentName
+                                                            }}"> Edit </b-button>
             <h3>Statistics</h3>
             <statistics-card :color="cardColor" :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>
             <statistics-card :color="cardColor" :subject="'Average points'" :num="stats.avgPoints"></statistics-card>
