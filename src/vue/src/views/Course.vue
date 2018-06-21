@@ -24,7 +24,7 @@
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
-            <b-link tag="b-button" :to="{name: 'Assignment', params: {cID: d.cIDs[0], dID: d.dID}}">
+            <b-link tag="b-button" :to="{name: 'Assignment', params: {cID: d.cIDs[0], aID: d.aIDs[0], dID: d.dID}}">
                 <todo-card
                     :line0="d.datetime"
                     :line1="d.name"
@@ -70,9 +70,11 @@ export default {
             cardColor: '',
             post: null,
             error: null,
+            // TODO real deadlines with API, can a deadline be bound > 1 course and assignment?
             deadlines: [{
                 name: 'Individueel logboek',
                 cIDs: ['1', '2'],
+                aIDs: ['2', '3'],
                 courseAbbrs: ['WEDA', 'PALSIE8'],
                 dID: '2017IL1',
                 datetime: '8-6-2018 13:00'

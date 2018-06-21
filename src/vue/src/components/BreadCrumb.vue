@@ -11,7 +11,7 @@
                     {{ crumbsLower }}
                     <slot>
                         <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
-                        <b-button @click="editClick()" class="float-right edit-button"> Edit</b-button>
+                        <b-button v-if="canEdit()" @click="editClick()" class="float-right edit-button"> Edit</b-button>
                     </slot>
                 </h1>
             </b-col>
@@ -97,8 +97,7 @@ export default {
         canEdit () {
             var pageName = this.$route.name
 
-            // TODO add proper check to Home edit
-            if ((pageName === 'Home') ||
+            if ((pageName === 'Home' && this.$root.isAdmin()) ||
                (pageName === 'Course' && this.$root.canEditCourse()) ||
                (pageName === 'Assignment' && this.$root.canEditAssignment())) {
                 return true
