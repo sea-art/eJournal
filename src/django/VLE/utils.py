@@ -49,8 +49,7 @@ def get_journal_entries(journal):
 
     Returns a QuerySet of entries from a journal.
     """
-    nodes = journal.node_set.all().exclude(type=Node.PROGRESS)
-    return Entry.objects.filter(node__in=nodes)
+    return Entry.objects.filter(node__journal=journal)
 
 
 def get_max_points(journal):
@@ -82,6 +81,7 @@ def get_acquired_grade(entries, journal):
 
 def get_submitted_count(entries):
     """Counts the number of submitted entries.
+    # nodes
 
     - entries: the entries to count with.
 
@@ -99,3 +99,23 @@ def get_graded_count(entries):
     """
     return entries.filter(published=True).count()
 # END journal stat functions
+
+
+# START grading functions
+def publish_all_assignment_grades(assignment, published):
+    """Sets published all not None grades from an assignment.
+
+    - assignment: the assignment in question
+    - published: either True or False. If True show the grade to student.
+    """
+    Entry.objects.filter(node__journal__assignment=assignment).exclude(grade=None).update(published=published)
+
+
+def publish_all_journal_grades(journal, published):
+    """Sets published all not None grades from a journal.
+
+    - journal: the journal in question
+    - published: either True or False. If True show the grade to student.
+    """
+    Entry.objects.filter(node__journal=journal).exclude(grade=None).update(published=published)
+# END grading functions

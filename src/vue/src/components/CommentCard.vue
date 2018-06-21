@@ -26,13 +26,18 @@
 
 <script>
 export default {
-    props: ['comments', 'person'],
+    props: ['comments', 'person', 'eID'],
 
     data () {
         return {
-            EditSaveMode: 'Edit',
             newComments: this.comments,
             tempComment: ''
+        }
+    },
+    watch: {
+        eID: function () {
+            this.newComments = this.comments
+            this.tempComment = ''
         }
     },
 

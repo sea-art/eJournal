@@ -84,7 +84,7 @@
             </b-col>
         </b-row>
 
-        <comment-card @new-comments="addComment" :comments="comments" :person="'Henk'"/>
+        <comment-card @new-comments="addComment" :comments="comments" :person="'Henk'" :eID="entryNode.entry.eID"/>
     </div>
 </template>
 
