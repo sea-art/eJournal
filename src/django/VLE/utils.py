@@ -11,8 +11,6 @@ def get_required_post_params(post, *keys):
     """
     result = []
     for key in keys:
-        print(key)
-        print(post[key])
         result.append(post[key])
     return result
 
