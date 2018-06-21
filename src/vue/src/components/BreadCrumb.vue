@@ -10,8 +10,8 @@
                 <h1 id="h1-current-page-breadcrumb">
                     {{ crumbsLower }}
                     <slot>
-                        <icon name="eye" @click.native="eyeClick()" class="eye-icon hover" scale="1.75"></icon>
-                        <b-button v-if="canEdit() && this.$route.params.cID != undefined" class="float-right edit-button" :to="{name: 'CourseEdit', params: {cID: this.$route.params.cID, courseName: this.$route.params.courseName}}"> Edit </b-button>
+                        <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
+                        <b-button @click="editClick()" class="float-right edit-button"> Edit</b-button>
                     </slot>
                 </h1>
             </b-col>

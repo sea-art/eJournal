@@ -1,6 +1,6 @@
 <template>
     <content-single-column>
-        <bread-crumb @eye-click="customisePage">&nbsp</bread-crumb>
+        <bread-crumb @eye-click="customisePage">&nbsp;</bread-crumb>
         <b-card class="no-hover">
             <b-form @submit="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
@@ -24,6 +24,7 @@
 
         <!-- TODO PROVIDE FULL NAME AND STUDENTNUMBER DATABASE BOYS -->
         <course-participant-card v-for="p in participants" :key="p.uID"
+            :cID="cID"
             :uID="p.uID"
             :studentNumber="p.studentNumber"
             :name="p.name"
