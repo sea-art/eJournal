@@ -2,6 +2,7 @@ import datetime
 import VLE.factory as factory
 from django.test import TestCase
 from VLE.models import *
+from VLE.views import get
 from VLE.permissions import *
 
 
@@ -42,6 +43,15 @@ class DataBaseTests(TestCase):
         self.crs = Course(name='test course please ignore', abbreviation='XXXX',
                           startdate=datetime.date.today())
         self.crs.save()
+
+    # def test_get_linkable_courses_user(self):
+    #     role = Role(name="Student")
+    #     role.save()
+    #
+    #     participation = Participation(user=self.usr, role=role, course=self.crs)
+    #     participation.save()
+    #
+    #     get.get_linkable_courses_user(NULL)
 
     def test_foreignkeys(self):
         """
