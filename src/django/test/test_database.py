@@ -2,6 +2,8 @@ import datetime
 import VLE.factory as factory
 from django.test import TestCase
 from VLE.models import *
+from VLE.views import get
+from VLE.permissions import *
 
 
 class DataBaseTests(TestCase):
@@ -35,11 +37,27 @@ class DataBaseTests(TestCase):
         self.jf1.available_templates.add()
         self.jf2.available_templates.add()
 
+        self.usr = User(email='t@t.com', username='teun',
+                        password='1234', lti_id='a')
+        self.usr.save()
+        self.crs = Course(name='test course please ignore', abbreviation='XXXX',
+                          startdate=datetime.date.today())
+        self.crs.save()
+
+    # def test_get_linkable_courses_user(self):
+    #     role = Role(name="Student")
+    #     role.save()
+    #
+    #     participation = Participation(user=self.usr, role=role, course=self.crs)
+    #     participation.save()
+    #
+    #     get.get_linkable_courses_user(NULL)
+
     def test_foreignkeys(self):
         """
         Testing the foreign keys in the database.
         """
-        user_test = factory.make_user('lers', 'lers123', 'lers@uva.nl', 'a')
+        user_test = factory.make_user('lers', 'lers123', 'lers@uva.nl', '123456')
         course_test = factory.make_course('tname', 'XXXX', datetime.date.today())
         format = factory.make_journal_format()
         template = factory.make_entry_template("some_template")
@@ -56,6 +74,82 @@ class DataBaseTests(TestCase):
         self.assertEquals(journ_test.user.pk, user_test.pk)
         self.assertEquals(journ_test.assignment.pk, ass_test.pk)
         self.assertEquals(course_test.author.pk, user_test.pk)
+
+    def test_get_permissions(self):
+        """Test a request that doesn't need permissions."""
+        role = Role(name="Student")
+        role.save()
+
+        # Connect a participation to a user, course and role.
+        participation = Participation(user=self.usr, role=role, course=self.crs)
+        participation.save()
+
+        perm = get_permissions(self.usr, self.crs.id)
+
+        self.assertFalse(perm['can_delete_course'])
+
+    def test_emptyPermissions(self):
+        """Test a request that doesn't need permissions."""
+        role = Role(name="Student")
+        role.save()
+
+        # Connect a participation to a user, course and role.
+        participation = Participation(user=self.usr, role=role, course=self.crs)
+        participation.save()
+
+        self.assertTrue(check_permissions(self.usr, self.crs.id, []))
+
+    def test_permission(self):
+        """Test a request that needs a single permission."""
+        role = Role(name="Student", can_submit_assignment=True)
+        role.save()
+
+        participation = Participation(user=self.usr, role=role, course=self.crs)
+        participation.save()
+
+        self.assertTrue(check_permissions(self.usr, self.crs.id, ["can_submit_assignment"]))
+        self.assertFalse(check_permissions(self.usr, self.crs.id, ["can_edit_grades"]))
+
+    def test_permission_multiple(self):
+        """Test a request that needs multiple permissions."""
+        role = Role(name="TA", can_submit_assignment=True, can_view_grades=True, can_edit_assignment=True)
+        role.save()
+
+        participation = Participation(user=self.usr, role=role, course=self.crs)
+        participation.save()
+
+        self.assertTrue(check_permissions(self.usr, self.crs.id, ["can_view_grades"]))
+        self.assertFalse(check_permissions(self.usr, self.crs.id, ["can_edit_grades",
+                                                                   "can_edit_assignment"]))
+
+    def test_get_permissions_admin(self):
+        """Test a request that returns a dictionary of permissions. The created
+        user should be provided with the admin permission."""
+        usr = User(email='some@other', username='teun2',
+                   password='1234', lti_id='abcde', is_admin=True)
+        usr.save()
+        role = Role(name="TA", can_submit_assignment=True, can_view_grades=True, can_edit_assignment=True)
+        role.save()
+
+        participation = Participation(user=usr, role=role, course=self.crs)
+        participation.save()
+
+        perm = get_permissions(usr, self.crs.id)
+
+        self.assertTrue(perm["is_admin"])
+
+    def test_get_permissions_no_admin(self):
+        """Test a request that returns a dictionary of permissions. The created
+        user should NOT be provided with the admin permission."""
+        role = Role(name="TA", can_submit_assignment=True, can_view_grades=True, can_edit_assignment=True)
+        role.save()
+
+        participation = Participation(user=self.usr, role=role, course=self.crs)
+        participation.save()
+
+        perm = get_permissions(self.usr, self.crs.id)
+
+        self.assertFalse(perm["is_admin"])
 
     def test_on_delete(self):
         """

@@ -3,7 +3,7 @@ from django.conf import settings
 from django.test import TestCase
 from VLE.factory import make_user, make_course, make_assignment, make_journal
 import json
-from VLE.models import Participation, User, Course, Assignment, Journal
+from VLE.models import *
 
 
 class lti_launch_test(TestCase):

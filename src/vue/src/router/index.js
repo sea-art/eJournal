@@ -1,7 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/views/Home'
-import AssignmentsOverview from '@/views/AssignmentsOverview'
 import Journal from '@/views/Journal'
 import Assignment from '@/views/Assignment'
 import Course from '@/views/Course'
@@ -9,12 +8,16 @@ import Profile from '@/views/Profile'
 import Guest from '@/views/Guest'
 import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
-import CourseEdit from '@/views/CourseEdit'
+import AssignmentsOverview from '@/views/AssignmentsOverview'
+import permissionsApi from '@/api/permissions.js'
 import ErrorPage from '@/views/ErrorPage'
+import CourseEdit from '@/views/CourseEdit'
+import CourseUserManagement from '@/views/CourseUserManagement'
+import AssignmentEdit from '@/views/AssignmentEdit'
 
 Vue.use(Router)
 
-export default new Router({
+var router = new Router({
     routes: [{
         path: '/',
         name: 'Guest',
@@ -54,9 +57,19 @@ export default new Router({
         component: CourseEdit,
         props: true
     }, {
+        path: '/Home/Course/:cID/CourseUserManagement',
+        name: 'CourseUserManagement',
+        component: CourseUserManagement,
+        props: true
+    }, {
         path: '/Home/Course/:cID/Assignment/:aID',
         name: 'Assignment',
         component: Assignment,
+        props: true
+    }, {
+        path: '/Home/Course/:cID/Assignment/:aID/AssignmentEdit',
+        name: 'AssignmentEdit',
+        component: AssignmentEdit,
         props: true
     }, {
         path: '/Home/Course/:cID/Assignment:aID/Journal/:jID',
@@ -65,3 +78,35 @@ export default new Router({
         props: true
     }]
 })
+
+router.beforeEach((to, from, next) => {
+    // TODO Possible redirect if token invalid?
+    // TODO Handle errors properly
+    // TODO Caching for permissions, how to handle permission changes when role is altered by teacher
+
+    var params
+    if (to.params.cID) {
+        params = to.params.cID
+    } else {
+        /* -1 is used to indicate that the course ID (cID) is not known. This
+        is used for sitewide permissions. */
+        params = -1
+    }
+
+    permissionsApi.get_course_permissions(params)
+        .then(response => {
+            router.app.permissions = response
+            next()
+        })
+        .catch(_ => {
+            // TODO Check if this catch works as expected
+            console.log('Error while loading permissions, does the redirect work?')
+            next(vm => {
+                vm.$router.push({name: 'ErrorPage', params: {errorMessage: 'Error while loading permissions', errorCode: '401'}})
+            })
+        })
+
+    next()
+})
+
+export default router

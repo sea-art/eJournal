@@ -4,6 +4,14 @@
 
 <template>
     <content-columns>
+        <div slot="left-content-column">
+            <b-button class="float-right edit-button" :to="{name: 'AssignmentEdit',
+                                                            params: {cID: this.$route.params.cID,
+                                                                     courseName: this.$route.params.courseName,
+                                                                     aID: this.$route.params.aID,
+                                                                     assignmentName: this.$route.params.assignmentName
+                                                            }}"> Edit </b-button>
+        </div>
         <!-- TODO: reopen bread-crumb when it is working again -->
         <!-- <bread-crumb @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder" slot="main-content-column"></bread-crumb> -->
         <div v-if="assignmentJournals.length > 0" v-for="journal in assignmentJournals" :key="journal.student.uID" slot="main-content-column">

@@ -6,9 +6,11 @@ import json
 from django.conf import settings
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-from VLE.serializers import *
-import VLE.edag as edag
 import VLE.factory as factory
+import VLE.edag as edag
+import VLE.utils as utils
+from VLE.serializers import *
+from VLE.permissions import *
 from VLE.lti_launch import OAuthRequestValidater, select_create_user, \
     create_lti_query_link, check_course_lti, check_assignment_lti, \
     select_create_journal
@@ -44,13 +46,13 @@ def get_own_user_data(request):
 
 @api_view(['GET'])
 def get_course_data(request, cID):
-    """
-    Get the data linked to a course id.
+    """Get the data linked to a course ID.
 
     Arguments:
     request -- the request that was send with
+    cID -- course ID given with the request
 
-    Returns a json string with the course for the requested user
+    Returns a json string with the course data for the requested user
     """
     user = request.user
     if not user.is_authenticated:
@@ -59,6 +61,31 @@ def get_course_data(request, cID):
     course = course_to_dict(Course.objects.get(pk=cID))
 
     return JsonResponse({'result': 'success', 'course': course})
+
+
+@api_view(['GET'])
+def get_course_users(request, cID):
+    """Get all users for a given course, including their
+    role for this course.
+
+    Arguments:
+    request -- the request
+    cID -- the course ID
+
+    Returns a json string with a list of participants.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.NotFound:
+        return utils.does_not_exist("cID")
+
+    participations = course.participation_set.all()
+    return JsonResponse({'result': 'success',
+                         'users': [participation_to_dict(participation)
+                                   for participation in participations]})
 
 
 @api_view(['GET'])
@@ -81,6 +108,49 @@ def get_user_courses(request):
         courses.append(course_to_dict(course))
 
     return JsonResponse({'result': 'success', 'courses': courses})
+
+
+def get_linkable_courses(request):
+    """Get all courses that the current user is connected with as sufficiently
+    authenticated user. The lti_id should be equal to NULL. A user can then link
+    this course to Canvas.
+
+    Arguments:
+    request -- contains the user that requested the linkable courses
+
+    Returns all of the courses."""
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    courses = get_linkable_courses_user(user)
+
+    return JsonResponse({'result': 'success', 'courses': courses})
+
+
+def get_linkable_courses_user(user):
+    """Get all courses that the current user is connected with as sufficiently
+    authenticated user. The lti_id should be equal to NULL. A user can then link
+    this course to Canvas.
+
+    Arguments:
+    user -- the user that requested the linkable courses.
+
+    Returns all of the courses."""
+    courses = []
+    addedCourses = []
+    participations = Participation.objects.filter(user=user.pk)
+
+    for participation in participations:
+        if participation.role.can_edit_course:
+            course = participation.course
+
+            if course.pk not in addedCourses:
+                # Add all courses which the teacher can edit.
+                courses.append(course_to_dict(course))
+                addedCourses.append(course.pk)
+
+    return courses
 
 
 def get_teacher_course_assignments(user, course):
@@ -149,6 +219,37 @@ def get_course_assignments(request, cID):
 
 
 @api_view(['GET'])
+def get_assignment_data(request, cID, aID):
+    """Get the data linked to an assignemnt ID
+
+    Arguments:
+    request -- the request that was send with
+    cID -- course ID given with the request
+    aID -- assignemnt ID given with the request
+
+    Returns a json string with the assignemnt data for the requested user
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    course = Course.objects.get(pk=cID)
+    assignment = Assignment.objects.get(pk=aID)
+    participation = Participation.objects.get(user=user, course=course)
+
+    if participation.role.can_view_assignment:
+        return JsonResponse({
+            'result': 'success',
+            'assignment': student_assignment_to_dict(assignment)
+        })
+    else:
+        return JsonResponse({
+            'result': 'success',
+            'assignment': assignment_to_dict(assignment)
+        })
+
+
+@api_view(['GET'])
 def get_assignment_journals(request, aID):
     """Get the student submitted journals of one assignment
 
@@ -204,9 +305,25 @@ def get_upcoming_deadlines(request):
 
 
 @api_view(['GET'])
+def get_course_permissions(request, cID):
+    """Get the permissions of a course.
+    Arguments:
+    request -- the request that was sent
+    cID     -- the course id
+
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    roleDict = get_permissions(request.user, cID)
+
+    return JsonResponse({'result': 'success',
+                         'permissions': roleDict})
+
+
+@api_view(['GET'])
 def get_nodes(request, jID):
     """Get all nodes contained within a journal.
-
     Arguments:
     request -- the request that was sent
     jID     -- the journal id
@@ -219,6 +336,71 @@ def get_nodes(request, jID):
     journal = Journal.objects.get(pk=jID)
     return JsonResponse({'result': 'success',
                          'nodes': edag.get_nodes_dict(journal)})
+
+
+@api_view(['GET'])
+def get_format(request, aID):
+    """Get the format attached to an assignment.
+
+    Arguments:
+    request -- the request that was sent
+    aID     -- the assignment id
+
+    Returns a json string containing the format.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        assignment = Assignment.objects.get(pk=aID)
+    except Assignment.NotFound:
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Assignment does not exist.'}, status=404)
+
+    return JsonResponse({'result': 'success',
+                         'nodes': get_format_dict(assignment.format)})
+
+
+@api_view(['POST'])
+def get_names(request):
+    """Get the format attached to an assignment.
+
+    Arguments:
+    request -- the request that was sent
+    cID -- optionally the course id
+    aID -- optionally the assignment id
+    jID -- optionally the journal id
+    tID -- optionally the template id
+
+    Returns a json string containing the names of the set fields.
+    cID populates 'course', aID populates 'assignment', tID populates
+    'template' and jID populates 'journal' with the users' name.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    cID, aID, jID, tID = utils.get_optional_post_params(request.data, "cID", "aID", "jID", "tID")
+    result = JsonResponse({'result': 'success'})
+
+    try:
+        if cID:
+            course = Course.objects.get(pk=cID)
+            result.course = course.name
+        if aID:
+            assignment = Assignment.objects.get(pk=aID)
+            result.assignment = assignment.name
+        if jID:
+            journal = Journal.objects.get(pk=jID)
+            result.journal = journal.user.name
+        if tID:
+            template = EntryTemplate.objects.get(pk=tID)
+            result.template = template.name
+
+    except (Course.NotFound, Assignment.NotFound, Journal.NotFound, EntryTemplate.NotFound):
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Course, Assignment, Journal or Template does not exist.'}, status=404)
+
+    return result
 
 
 @api_view(['POST'])
@@ -246,7 +428,6 @@ def lti_launch(request):
     secret = settings.LTI_SECRET
     key = settings.LTI_KEY
 
-    print('key = postkey', key == request.POST['oauth_consumer_key'])
     authenticated, err = OAuthRequestValidater.check_signature(
         key, secret, request)
 

@@ -9,7 +9,7 @@ class OAuthRequestValidater(object):
     """
     OAuth request validater class for Django Requests
     """
-
+    
     def __init__(self, key, secret):
         """
         Constructor die een server en consumer object aan maakt met de gegeven
@@ -94,7 +94,17 @@ def select_create_user(request):
         if 'lis_person_sourcedid' in request:
             user.username = request['lis_person_sourcedid']
 
+        if 'lis_person_name_full' in request:
+            fullname = request['lis_person_name_full']
+            splitname = fullname.split(' ')
+            user.first_name = splitname[0]
+            user.last_name = fullname[len(splitname[0])+1:]
+
         user.lti_id = lti_user_id
+        user.save()
+
+    if 'user_image' in request:
+        user.profile_picture = request['user_image']
         user.save()
 
     return user

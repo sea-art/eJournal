@@ -3,12 +3,13 @@ from django.http import JsonResponse
 
 from VLE.serializers import *
 import VLE.factory as factory
+import VLE.utils as utils
 from VLE.views.get import get_own_user_data
 
 
 @api_view(['POST'])
 def update_course(request):
-    """Updates an existing course
+    """Updates an existing course.
 
     Arguments:
     request -- the update request that was send with
@@ -18,7 +19,6 @@ def update_course(request):
 
     Returns a json string for if it is succesful or not.
     """
-
     user = request.user
     if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
@@ -26,14 +26,38 @@ def update_course(request):
     course = Course.objects.get(pk=request.data['cID'])
     course.name = request.data['name']
     course.abbr = request.data['abbr']
-    course.date = request.data['startdate']
+    course.startdate = request.data['startDate']
     course.save()
     return JsonResponse({'result': 'success', 'course': course_to_dict(course)})
 
 
 @api_view(['POST'])
+def update_assignment(request):
+    """Updates an existing assignment.
+
+    Arguments:
+    request -- the update request that was send with
+        name -- name of the assignment
+        description -- description of the assignment
+        deadline -- deadline of the assignment
+
+    Returns a json string for if it is succesful or not.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    assignment = Assignment.objects.get(pk=request.data['aID'])
+    assignment.name = request.data['name']
+    assignment.description = request.data['description']
+    assignment.save()
+
+    return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)})
+
+
+@api_view(['POST'])
 def update_password(request):
-    """Updates a password
+    """Updates a password.
 
     Arguments:
     request -- the update request that was send with
@@ -57,7 +81,7 @@ def update_password(request):
 
 @api_view(['GET'])
 def update_grade_notification(request, notified):
-    """Updates whether the user gets notified when a grade changes/new grade
+    """Updates whether the user gets notified when a grade changes/new grade.
 
     Arguments:
     request -- the request that was send with
@@ -81,7 +105,7 @@ def update_grade_notification(request, notified):
 
 @api_view(['GET'])
 def update_comment_notification(request, notified):
-    """Updates whether the user gets notified when a comment changes/new comment
+    """Updates whether the user gets notified when a comment changes/new comment.
 
     Arguments:
     request -- the request that was send with
@@ -101,3 +125,28 @@ def update_comment_notification(request, notified):
 
     user.save()
     return JsonResponse({'result': 'success', 'new_value': user.comment_notifications})
+
+
+@api_view(['POST'])
+def update_user_data(request):
+    """Updates user data.
+
+    Arguments:
+    request -- the update request that was send with
+        username -- new password of the user
+        picture -- current password of the user
+
+    Returns a json string for if it is succesful or not.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    print(request.data)
+    if 'username' in request.data:
+        user.username = request.data['username']
+    if 'picture' in request.data:
+        user.profile_picture = request.data['picture']
+
+    user.save()
+    return JsonResponse({'result': 'success', 'user': user_to_dict(user)})
