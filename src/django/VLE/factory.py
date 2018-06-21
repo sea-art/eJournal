@@ -40,12 +40,30 @@ def make_course(name, abbrev, startdate=None, author=None, lti_id=None):
     return course
 
 
-def make_assignment(name, description, author=None, format=None):
+def make_assignment(name, description, author=None, format=None, cIDs=None, courses=None):
+    """Makes a new assignment
+
+    Arguments:
+    name -- name of assignment
+    description -- description of the assignment
+    author -- author of assignment
+    format -- format of assignment
+    courseIDs -- ID of the courses the assignment belongs to
+    courses -- courses it belongs to
+
+    On success, returns a new assignment.
+    """
     if format is None:
         format = JournalFormat()
         format.save()
     assign = Assignment(name=name, description=description, author=author, format=format)
     assign.save()
+    if cIDs:
+        for cID in cIDs:
+            assign.courses.add(Course.objects.get(pk=cID))
+    if courses:
+        for course in courses:
+            assign.courses.add(course)
     return assign
 
 

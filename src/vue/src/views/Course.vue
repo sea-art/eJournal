@@ -1,5 +1,9 @@
 <template>
     <content-columns>
+        <div slot="left-content-column">
+        <b-button class="float-right edit-button" :to="{name: 'CourseEdit', params: {cID: this.$route.params.cID, courseName: this.$route.params.courseName}}"> Edit </b-button>
+        </div>
+
         <bread-crumb @eye-click="customisePage" slot="main-content-column" :currentPage="courseName">
         </bread-crumb>
 
@@ -8,6 +12,7 @@
                                           params: {
                                               cID: cID,
                                               aID: a.aID,
+                                              courseName: $route.params.courseName,
                                               assignmentName: a.name
                                           }
                                         }">
