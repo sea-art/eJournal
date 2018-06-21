@@ -7,12 +7,14 @@
 <script>
 import contentSingleColumn from '@/components/ContentSingleColumn.vue'
 import ltiCreateConnectCourse from '@/components/LtiCreateConnectCourse.vue'
+import ltiCreateConnectAssignment from '@/components/LtiCreateConnectAssignment.vue'
 
 export default {
     name: 'LtiLaunch',
     components: {
         'content-single-columns': contentSingleColumn,
-        'lti-create-connect-course': ltiCreateConnectCourse
+        'lti-create-connect-course': ltiCreateConnectCourse,
+        'lti-create-connect-assignment': ltiCreateConnectAssignment
     },
     data () {
         return {

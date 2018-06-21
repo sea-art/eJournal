@@ -24,6 +24,9 @@ export default {
         }
     },
     methods: {
+        loadCourses() {
+            // TODO: Laad alle courses die gekoppeld zouden kunnen worden. 
+        },
         onSubmit () {
             courseApi.create_new_course(this.form.courseName, this.form.courseAbbreviation, this.form.courseStartdate, this.form.ltiCourseID)
                 .then(_ => { this.$emit('handleAction') })
