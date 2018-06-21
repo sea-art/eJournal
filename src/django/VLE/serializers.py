@@ -161,7 +161,7 @@ def content_to_dict(content):
 def format_to_dict(format):
     return {
         'templates': [template_to_dict(template) for template in format.available_templates.all()],
-        'presets': [preset_to_dict(preset) for preset in format.preset_set.all()],
+        'presets': [preset_to_dict(preset) for preset in format.presetnode_set.all()],
     } if format else None
 
 
@@ -175,7 +175,7 @@ def preset_to_dict(preset):
     }
 
     if preset.type == Node.PROGRESS:
-        result = {**base, **{'target': preset.deadline.target}}
+        result = {**base, **{'target': preset.deadline.points}}
     elif preset.type == Node.ENTRYDEADLINE:
         result = {**base, **{'template': template_to_dict(preset.forced_template)}}
 

@@ -11,7 +11,8 @@ import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
 import CourseEdit from '@/views/CourseEdit'
 import CourseUserManagement from '@/views/CourseUserManagement'
-import AssignmentEdit from '@/views/AssignmentEdit'
+// import AssignmentEdit from '@/views/AssignmentEdit'
+import FormatEdit from '@/views/FormatEdit'
 
 Vue.use(Router)
 
@@ -55,6 +56,11 @@ export default new Router({
         path: '/Home/Course/:cID/Assignment/:aID',
         name: 'Assignment',
         component: Assignment,
+        props: true
+    }, {
+        path: '/Home/Course/:cID/Assignment/:aID/Format',
+        name: 'FormatEdit',
+        component: FormatEdit,
         props: true
     }, {
         path: '/Home/Course/:cID/Assignment:aID/Journal/:jID',

@@ -14,26 +14,31 @@
         </div>
         <!-- TODO: reopen bread-crumb when it is working again -->
         <!-- <bread-crumb @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder" slot="main-content-column"></bread-crumb> -->
-        <div v-if="assignmentJournals.length > 0" v-for="journal in assignmentJournals" :key="journal.student.uID" slot="main-content-column">
-            <b-link tag="b-button" :to="{ name: 'Journal',
-                                          params: {
-                                              cID: cID,
-                                              aID: aID,
-                                              jID: journal.jID
-                                          }
-                                        }">
-                <student-card
-                    :student="journal.student.name"
-                    :studentNumber="journal.student.uID"
-                    :portraitPath="journal.student.picture"
-                    :stats="journal.stats"
-                    :color="$root.colors[journal.uid % $root.colors.length]">
-                </student-card>
-            </b-link>
+        <div slot="main-content-column">
+            <b-button :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">Edit Assignment Format</b-button>
+
+            <div v-if="assignmentJournals.length > 0" v-for="journal in assignmentJournals" :key="journal.student.uID">
+                <b-link tag="b-button" :to="{ name: 'Journal',
+                                              params: {
+                                                  cID: cID,
+                                                  aID: aID,
+                                                  jID: journal.jID
+                                              }
+                                            }">
+                    <student-card
+                        :student="journal.student.name"
+                        :studentNumber="journal.student.uID"
+                        :portraitPath="journal.student.picture"
+                        :stats="journal.stats"
+                        :color="$root.colors[journal.uid % $root.colors.length]">
+                    </student-card>
+                </b-link>
+            </div>
+            <div v-if="assignmentJournals.length === 0">
+                <h1>No journals found</h1>
+            </div>
         </div>
-        <div v-if="assignmentJournals.length === 0" slot="main-content-column">
-            <h1>No journals found</h1>
-        </div>
+
         <div  v-if="stats" slot="right-content-column">
             <h3>Statistics</h3>
             <statistics-card :color="cardColor" :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>

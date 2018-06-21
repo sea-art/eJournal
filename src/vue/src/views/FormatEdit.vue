@@ -21,7 +21,7 @@
             <b-button @click.prevent.stop="saveFormat"> Save </b-button>
 
             <div v-if="nodes.length > 0">
-                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @edit-data="nodes[currentNode].template=$event"/>
+                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool"/>
             </div>
             <div v-else>
                 <p>No presets yet</p>
@@ -57,7 +57,8 @@ export default {
             windowWidth: 0,
             currentNode: 0,
 
-            dbformat: { templates: [], presets: [] },
+            templates: [],
+            presets: [],
 
             templatePool: [],
             nodes: []
@@ -65,7 +66,13 @@ export default {
     },
 
     created () {
-        journalAPI.get_format(1).then(data => console.log(data))
+        journalAPI.get_format(1).then(data => { this.templates = data.nodes.templates; this.presets = data.nodes.presets })
+    },
+
+    watch: {
+        presets: {
+            handler: function () { this.convertFromDB() },
+        }
     },
 
     methods: {
@@ -133,11 +140,11 @@ export default {
         convertFromDB () {
             var idInPool = []
 
-            for (var template of this.dbformat.templates) {
+            for (var template of this.templates) {
                 idInPool.push(template.tID)
                 this.templatePool.push({ t: template, a: true })
             }
-            for (var preset of this.dbformat.presets) {
+            for (var preset of this.presets) {
                 if (preset.type === 'd' && !idInPool.includes(preset.template.tID)) {
                     idInPool.push(preset.template.tID)
                     this.templatePool.push({ t: preset.template, a: false })
@@ -146,17 +153,17 @@ export default {
 
             this.templatePool.sort((a, b) => { return a.t.tID - b.t.tID })
 
-            this.nodes = this.dbformat.presets.slice()
+            this.nodes = this.presets.slice()
         },
         // Utility func to translate from internal format to db
         convertToDB () {
-            this.dbformat.presets = this.nodes.slice()
+            this.presets = this.nodes.slice()
 
-            this.dbformat.templates = []
+            this.templates = []
 
             for (var template of this.templatePool) {
                 if (template.a) {
-                    this.dbformat.templates.push(template.t)
+                    this.templates.push(template.t)
                 }
             }
         }
@@ -188,13 +195,14 @@ export default {
                 vm.nodes = store.state.format.nodes
             })
         }
+        next()
     },
 
     beforeRouteLeave (to, from, next) {
         if (to.name === 'TemplateEdit') {
             store.setFormat(this.templatePool, this.nodes)
         } else {
-            if (!confirm('Oh no! Unsaved changes will be lost if you leave. Do you wish to continue?')) {
+            if (isChanged && !confirm('Oh no! Unsaved changes will be lost if you leave. Do you wish to continue?')) {
                 next(false)
             } else {
                 store.clearFormat()
