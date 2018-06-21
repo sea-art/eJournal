@@ -27,7 +27,9 @@ from VLE.views.get import get_user_courses, get_course_assignments, \
 from VLE.views.create import create_new_course, create_new_assignment, create_entry
 
 from VLE.views.update import update_user_data, update_course, update_assignment, \
-    update_password, update_grade_notification, update_comment_notification
+    update_password, update_grade_notification, update_comment_notification, \
+    update_grade_entry, update_publish_grade_entry, update_publish_grades_assignment, \
+    update_publish_grades_journal
 
 from VLE.views.delete import delete_course, delete_assignment
 

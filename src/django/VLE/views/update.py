@@ -199,6 +199,7 @@ def update_publish_grades_journal(request, jID):
     utils.publish_all_journal_grades(journ, request.data['published'])
     return JsonResponse({'result': 'success', 'new_published': request.data['published']})
 
+
 @api_view(['POST'])
 def update_user_data(request):
     """Updates user data.
