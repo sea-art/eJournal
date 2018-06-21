@@ -41,7 +41,7 @@
             ref="createAssignmentRef"
             title="Create assignment"
             size="lg"
-            hide-footer=True>
+            hide-footer>
                 <create-assignment @handleAction="handleConfirm('createAssignmentRef')"></create-assignment>
         </b-modal>
 
