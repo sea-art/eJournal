@@ -95,7 +95,6 @@ def select_create_user(request):
             user.username = request['lis_person_sourcedid']
 
         if 'lis_person_name_full' in request:
-            print('\n\n\n\\n\n\\n\n\n\\n\n\n')
             fullname = request['lis_person_name_full']
             splitname = fullname.split(' ')
             user.first_name = splitname[0]
