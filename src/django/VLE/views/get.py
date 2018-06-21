@@ -1,12 +1,15 @@
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
+
 import statistics as st
 
-from VLE.serializers import *
-import VLE.edag as edag
 import VLE.factory as factory
-import statistics as st
+import VLE.edag as edag
 import VLE.utils as utils
+
+from VLE.serializers import *
+from VLE.permissions import *
+
 from VLE.lti_launch import *
 from VLE.lti_grade_passback import *
 
@@ -245,9 +248,25 @@ def get_upcoming_deadlines(request):
 
 
 @api_view(['GET'])
+def get_course_permissions(request, cID):
+    """Get the permissions of a course.
+    Arguments:
+    request -- the request that was sent
+    cID     -- the course id
+
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    roleDict = get_permissions(request.user, cID)
+
+    return JsonResponse({'result': 'success',
+                         'permissions': roleDict})
+
+
+@api_view(['GET'])
 def get_nodes(request, jID):
     """Get all nodes contained within a journal.
-
     Arguments:
     request -- the request that was sent
     jID     -- the journal id

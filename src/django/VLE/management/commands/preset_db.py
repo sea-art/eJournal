@@ -51,7 +51,7 @@ class Command(BaseCommand):
             {
                 "name": "Beeldbewerken",
                 "abbr": "BB",
-                "students": [0, 1, 2, 3, 4, 5],
+                "students": [1, 2, 3, 4, 5],
                 "teachers": [0],
             },
             {
