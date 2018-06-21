@@ -2,7 +2,7 @@
     <b-card :class="color">
         <b-row>
             <b-col order="1" cols="4">
-                <img class="img-fluid" :src="portraitPath">
+                <img class="img-fluid portrait-max-height" :src="portraitPath">
             </b-col>
             <b-col order="2" cols="8" class="d-none d-sm-inline">
                     <todo-square :num="this.stats.submitted - this.stats.graded"/>
@@ -47,7 +47,8 @@ export default {
     height: 100%;
 }
 
-.progress-bar-comp {
-    /* flex-grow: 1; */
+/* TODO Not the most clean solution for xl. */
+.portrait-max-height {
+    max-height: 173px;
 }
 </style>

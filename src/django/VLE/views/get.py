@@ -1,12 +1,15 @@
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
+
 import statistics as st
 
-from VLE.serializers import *
-import VLE.edag as edag
 import VLE.factory as factory
-import statistics as st
+import VLE.edag as edag
 import VLE.utils as utils
+
+from VLE.serializers import *
+from VLE.permissions import *
+
 from VLE.lti_launch import *
 from VLE.lti_grade_passback import *
 
@@ -47,6 +50,31 @@ def get_course_data(request, cID):
     course = course_to_dict(Course.objects.get(pk=cID))
 
     return JsonResponse({'result': 'success', 'course': course})
+
+
+@api_view(['GET'])
+def get_course_users(request, cID):
+    """Get all users for a given course, including their
+    role for this course.
+
+    Arguments:
+    request -- the request
+    cID -- the course ID
+
+    Returns a json string with a list of participants.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.NotFound:
+        return utils.does_not_exist("cID")
+
+    participations = course.participation_set.all()
+    return JsonResponse({'result': 'success',
+                         'users': [participation_to_dict(participation)
+                                   for participation in participations]})
 
 
 @api_view(['GET'])
@@ -220,9 +248,25 @@ def get_upcoming_deadlines(request):
 
 
 @api_view(['GET'])
+def get_course_permissions(request, cID):
+    """Get the permissions of a course.
+    Arguments:
+    request -- the request that was sent
+    cID     -- the course id
+
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    roleDict = get_permissions(request.user, cID)
+
+    return JsonResponse({'result': 'success',
+                         'permissions': roleDict})
+
+
+@api_view(['GET'])
 def get_nodes(request, jID):
     """Get all nodes contained within a journal.
-
     Arguments:
     request -- the request that was sent
     jID     -- the journal id
@@ -253,8 +297,8 @@ def get_format(request, aID):
     try:
         assignment = Assignment.objects.get(pk=aID)
     except Assignment.NotFound:
-        return JsonResponse({'result': '400 Bad Request',
-                             'description': 'Assignment does not exist.'}, status=400)
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Assignment does not exist.'}, status=404)
 
     return JsonResponse({'result': 'success',
                          'nodes': get_format_dict(assignment.format)})
@@ -269,15 +313,16 @@ def get_names(request):
     cID -- optionally the course id
     aID -- optionally the assignment id
     jID -- optionally the journal id
+    tID -- optionally the template id
 
     Returns a json string containing the names of the set fields.
-    cID populates 'course', aID populates 'assignment' and jID populates
-    'journal' with the users' name.
+    cID populates 'course', aID populates 'assignment', tID populates
+    'template' and jID populates 'journal' with the users' name.
     """
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    cID, aID, jID = utils.get_optional_post_params(request.data, "cID", "aID", "jID")
+    cID, aID, jID, tID = utils.get_optional_post_params(request.data, "cID", "aID", "jID", "tID")
     result = JsonResponse({'result': 'success'})
 
     try:
@@ -290,10 +335,13 @@ def get_names(request):
         if jID:
             journal = Journal.objects.get(pk=jID)
             result.journal = journal.user.name
+        if tID:
+            template = EntryTemplate.objects.get(pk=tID)
+            result.template = template.name
 
-    except (Course.NotFound, Assignment.NotFound, Journal.NotFound):
-        return JsonResponse({'result': '400 Bad Request',
-                             'description': 'Course, Assignment or Journal does not exist.'}, status=400)
+    except (Course.NotFound, Assignment.NotFound, Journal.NotFound, EntryTemplate.NotFound):
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Course, Assignment, Journal or Template does not exist.'}, status=404)
 
     return result
 
