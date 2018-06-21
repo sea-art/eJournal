@@ -2,15 +2,14 @@ import auth from '@/api/auth'
 
 export default {
     /* Get own user data. */
-    get_own_user_data () {
+    getOwnUserData () {
         return auth.authenticatedGet('/get_own_user_data/')
             .then(response => response.data.user)
     },
 
     /* Update user data. */
-    update_user_data (username, picture) {
-        return auth.authenticatedPost('/update-user-data/', { username: username, picture: picture })
-            .then(response => response.user)
+    updateUserData (username, picture) {
+        return auth.authenticatedPost('/update_user_data/', {username: username, picture: picture})
     },
 
     /* Change whether the user gets grade notification or not.
@@ -18,8 +17,9 @@ export default {
      * if getsNotified is "false" the users WONT  get notified by mail when a grade changes.
      * else nothing changes (invalid argument).
      */
-    update_grade_notification (getsNotified) {
-        return auth.authenticatedGet('/update_grade_notification/' + getsNotified + '/').then(r => r.new_value)
+    updateGradeNotification (getsNotified) {
+        return auth.authenticatedGet('/update_grade_notification/' + getsNotified + '/')
+            .then(r => r.new_value)
     },
 
     /* Change whether the user gets comment notification or not.
@@ -27,7 +27,8 @@ export default {
      * if getsNotified is "false" the users WONT  get notified by mail when a there is a new comment.
      * else nothing changes (invalid argument).
      */
-    update_comment_notification (getsNotified) {
-        return auth.authenticatedGet('/update_comment_notification/' + getsNotified + '/').then(r => r.new_value)
+    updateCommentNotification (getsNotified) {
+        return auth.authenticatedGet('/update_comment_notification/' + getsNotified + '/')
+            .then(r => r.new_value)
     }
 }

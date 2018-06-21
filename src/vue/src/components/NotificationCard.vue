@@ -37,11 +37,11 @@ export default {
     },
     methods: {
         getGradeNotification (isActive) {
-            userAPI.update_grade_notification(isActive)
+            userAPI.updateGradeNotification(isActive)
                 .then(isActive => { this.gradeUpdate = isActive })
         },
         getCommentNotification (isActive) {
-            userAPI.update_grade_notification(isActive)
+            userAPI.updateCommentNotification(isActive)
                 .then(isActive => { this.commentUpdate = isActive })
         }
     }

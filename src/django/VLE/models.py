@@ -42,17 +42,20 @@ class Course(models.Model):
     - author: the creator of the course.
     - abbrevation: a max three letter abbrevation of the course name.
     - startdate: the date that the course starts.
+    - lti_id: the id of the course linked over LTI.
     """
     name = models.TextField()
     abbreviation = models.TextField(
         max_length=4,
         default='XXXX',
     )
+
     author = models.ForeignKey(
         'User',
         on_delete=models.SET_NULL,
         null=True
     )
+
     participations = models.ManyToManyField(
         User,
         related_name='participations',
@@ -63,8 +66,8 @@ class Course(models.Model):
     startdate = models.DateField(
         null=True,
     )
+
     lti_id = models.TextField(
-        # TODO Change if all courses should be linked to a canvas course.
         null=True,
         unique=True,
     )
@@ -113,11 +116,9 @@ class Assignment(models.Model):
     is part of.
     - format: a one-to-one key linked to the format this assignment
     holds. The format determines how a students' journal is structured.
+    - lti_id: The lti id of the assignment linked over lti.
     """
     name = models.TextField()
-    deadline = models.DateTimeField(
-        null=True,
-    )
     description = models.TextField(
         null=True,
     )
@@ -132,7 +133,6 @@ class Assignment(models.Model):
     )
     lti_id = models.TextField(
         'lti_id',
-        # TODO Change if all assignments should be linked to a canvas course.
         null=True
     )
     courses = models.ManyToManyField(Course)
@@ -245,6 +245,20 @@ class JournalFormat(models.Model):
     - available_templates are those available in 'Entry' nodes.
       'Entrydeadline' nodes hold their own forced template.
     """
+    PERCENTAGE = 'PE'
+    GRADE = 'GR'
+    TYPES = (
+        (PERCENTAGE, 'percentage'),
+        (GRADE, 'from 0 to 10'),
+    )
+    grade_type = models.TextField(
+        max_length=2,
+        choices=TYPES,
+        default=PERCENTAGE,
+    )
+    max_points = models.IntegerField(
+        default=10
+    )
     available_templates = models.ManyToManyField(
         'EntryTemplate',
     )
@@ -324,9 +338,12 @@ class Entry(models.Model):
     grade = models.IntegerField(
         default=0
     )
+    graded = models.BooleanField(
+        default=False
+    )
 
     def __str__(self):
-        return str(self.pk)
+        return str(self.pk) + " " + str(self.grade)
 
 
 class Counter(models.Model):
@@ -350,6 +367,9 @@ class EntryTemplate(models.Model):
     A template for an Entry.
     """
     name = models.TextField()
+    max_grade = models.IntegerField(
+        default=1,
+    )
 
     def __str__(self):
         return self.name

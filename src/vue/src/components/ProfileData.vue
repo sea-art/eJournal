@@ -5,9 +5,9 @@
         </b-col>
         <b-col lg="8" md="12">
             <h3>User data</h3>
-            <b-form-input v-model="name" type="text"></b-form-input>
+            <b-form-input v-model="uname" type="text"></b-form-input>
             <span class="profile-data">Change profile picture</span>
-            <b-form-file class="fileinput form-control" v-model="file" :state="Boolean(file)" placeholder="Upload profile picture..."></b-form-file>
+            <b-form-file class="fileinput form-control" v-model="new_picture" :state="Boolean(file)" placeholder="Upload profile picture..."></b-form-file>
             <b-button @click="saveUserdata">Save</b-button>
         </b-col>
     </b-row>
@@ -16,14 +16,21 @@
 <script>
 import userAPI from '@/api/user.js'
 export default {
-    props: ['name', 'id', 'image'],
+    props: ['uname', 'id', 'image'],
     data () {
         return {
             file: null,
-            saveUserdata () {
-
-            }
+            new_picture: '',
+            username: ''
         }
+    },
+    methods: {
+        saveUserdata () {
+            userAPI.updateUserData(this.uname, this.new_picture)
+        }
+    },
+    created () {
+        this.username = this.uname
     }
 }
 </script>
