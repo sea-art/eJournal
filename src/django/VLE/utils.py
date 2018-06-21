@@ -23,7 +23,10 @@ def get_optional_post_params(post, *keys):
     result = []
     for key in keys:
         if key in post:
-            result.append(post[key])
+            if post[key] == '':
+                result.append(None)
+            else:
+                result.append(post[key])
         else:
             result.append(None)
     return result

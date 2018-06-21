@@ -2,7 +2,7 @@ from django.conf import settings
 import oauth2
 """Package for oauth authentication in python"""
 
-from VLE.models import User, Course, Assignment, Journal
+from VLE.models import User, Course, Assignment, Journal, Participation, Role
 
 
 class OAuthRequestValidater(object):
@@ -129,12 +129,18 @@ def create_lti_query_link(names, values):
     return link
 
 
-def check_course_lti(request, user):
+def check_course_lti(request, user, role):
     course_id = request['context_id']
     courses = Course.objects.filter(lti_id=course_id)
 
     if courses.count() > 0:
-        return courses[0]
+        course = courses[0]
+        participation = Participation()
+        participation.user = user
+        participation.course = course
+        participation.role = Role.objects.get(name=role)
+        participation.save()
+        return
     return None
 
 
@@ -150,7 +156,7 @@ def select_create_journal(request, user, assignment, roles):
     """
     Select or create the requested journal.
     """
-    if roles['student'] in request['roles'] and assignment is not None:
+    if roles['Student'] in request['roles'] and assignment is not None:
         journals = Journal.objects.filter(user=user, assignment=assignment)
         if journals.count() > 0:
             journal = journals[0]
