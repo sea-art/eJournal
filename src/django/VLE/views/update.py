@@ -235,7 +235,7 @@ def update_entrycomment(request):
 
     try:
         comment = EntryComment.objects.get(pk=entrycommentID)
-    except EntryComment.NotFound:
+    except EntryComment.DoesNotExist:
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Entrycomment does not exist.'},
                             status=404)

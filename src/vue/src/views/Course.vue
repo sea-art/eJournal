@@ -6,14 +6,14 @@
             @edit-click="handleEdit()"/>
 
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
-            <b-link tag="b-button" :to="assignmentRoute(cID, a.aID, a.name, a.journal.jID)">
+            <b-link tag="b-button" :to="assignmentRoute(cID, a.aID, a.name, a.journal)">
                 <assignment-card :line1="a.name" :color="$root.colors[a.aID % $root.colors.length]">
                     <progress-bar v-if="a.journal && a.journal.stats" :currentPoints="a.journal.stats.acquired_points" :totalPoints="a.journal.stats.total_points"></progress-bar>
                 </assignment-card>
             </b-link>
         </div>
 
-        <main-card slot="main-content-column" class="hover" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
+        <main-card slot="main-content-column" v-if="$root.canSubmitAssignment()" class="hover" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
@@ -67,7 +67,7 @@ export default {
             deadlines: [{
                 name: 'Individueel logboek',
                 cIDs: ['1', '2'],
-                aIDs: ['2', '3'],
+                aIDs: ['1', '3'],
                 courseAbbrs: ['WEDA', 'PALSIE8'],
                 aID: '1',
                 datetime: '8-6-2018 13:00'
@@ -120,7 +120,7 @@ export default {
                 }
             })
         },
-        assignmentRoute (cID, aID, name, jID) {
+        assignmentRoute (cID, aID, name, journal) {
             if (this.$root.canViewAssignment()) {
                 return {
                     name: 'Assignment',
@@ -136,7 +136,7 @@ export default {
                     params: {
                         cID: cID,
                         aID: aID,
-                        jID: jID,
+                        jID: journal.jID,
                         assignmentName: name
                     }
                 }

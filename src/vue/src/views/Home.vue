@@ -80,7 +80,7 @@ export default {
             deadlines: [{
                 name: 'Individueel logboek',
                 cIDs: ['1', '2'],
-                aIDs: ['2', '3'],
+                aIDs: ['1', '3'],
                 courseAbbrs: ['WEDA', 'PALSIE8'],
                 aID: '1',
                 datetime: '8-6-2018 13:00'
