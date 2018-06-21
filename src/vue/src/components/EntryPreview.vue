@@ -35,24 +35,20 @@
 <script>
 export default {
     props: ['template'],
-
     data () {
         return {
             completeContent: []
         }
     },
-
     watch: {
         template: function () {
             this.completeContent = []
             this.setContent()
         }
     },
-
     created () {
         this.setContent()
     },
-
     methods: {
         setContent: function () {
             for (var field of this.template.fields) {
@@ -62,7 +58,6 @@ export default {
                 })
             }
         },
-
         save: function () {
             this.$emit('content-template', this.completeContent)
         }

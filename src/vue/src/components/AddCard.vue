@@ -33,20 +33,17 @@ import entryPreview from '@/components/EntryPreview.vue'
 
 export default {
     props: ['addNode'],
-
     data () {
         return {
             selectedTemplate: null,
             infoEntry: null
         }
     },
-
     methods: {
         createEntry: function (content) {
             this.$emit('info-entry', [this.selectedTemplate, content])
         }
     },
-
     components: {
         'template-preview': templatePreview,
         'entry-preview': entryPreview

@@ -84,23 +84,22 @@
             </b-col>
         </b-row>
 
-        <!-- TODO Laad comments hier in. -->
+        <comment-card @new-comments="addComment" :comments="comments" :person="'Henk'"/>
     </div>
 </template>
 
 <script>
+import commentCard from '@/components/CommentCard.vue'
+
 export default {
     props: ['entryNode'],
-
     data () {
         return {
             saveEditMode: 'Edit',
             tempNode: this.entryNode,
             matchEntry: 0,
             completeContent: [],
-            //  TODO Werk commenteer functie uit.
-            comment: 'hoi1000',
-            editedComment: '',
+
             comments: [{
                 message: 'Hoi het is super slecht, ga je schamen!',
                 person: 'Peter'
@@ -110,18 +109,15 @@ export default {
             }]
         }
     },
-
     watch: {
         entryNode: function () {
             this.completeContent = []
             this.setContent()
         }
     },
-
     created () {
         this.setContent()
     },
-
     methods: {
         saveEdit: function () {
             if (this.saveEditMode === 'Save') {
@@ -163,7 +159,13 @@ export default {
                     })
                 }
             }
+        },
+        addComment: function (newComments) {
+            this.comments = newComments
         }
+    },
+    components: {
+        'comment-card': commentCard
     }
 }
 

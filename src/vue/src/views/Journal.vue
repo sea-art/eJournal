@@ -19,6 +19,10 @@
                 <div v-if="nodes[currentNode].type == 'e'">
                     <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                 </div>
+                <div v-else-if="nodes[currentNode].type == 'd'">
+                    {{nodes[currentNode]}}
+                    <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
+                </div>
                 <div v-else-if="nodes[currentNode].type == 'a'">
                     <add-card @info-entry="addNode" :addNode="nodes[currentNode]"></add-card>
                 </div>
@@ -75,7 +79,7 @@ export default {
                 return this.currentNode
             }
 
-            if (this.nodes[this.currentNode].type !== 'e') {
+            if (this.nodes[this.currentNode].type !== 'e' || this.nodes[this.currentNode].type !== 'd') {
                 this.currentNode = $event
                 return
             }
