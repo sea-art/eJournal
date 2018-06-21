@@ -1,15 +1,8 @@
-from django.shortcuts import redirect
-from django.http import JsonResponse, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.clickjacking import xframe_options_exempt
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.conf import settings
-from urllib.parse import quote
 import oauth2
-import json
-from datetime import datetime
+"""Package for oauth authentication in python"""
 
-from VLE.models import User, Course, Assignment, Participation, Role, Journal, JournalFormat
+from VLE.models import User, Course, Assignment, Journal
 
 
 class OAuthRequestValidater(object):
@@ -43,7 +36,8 @@ class OAuthRequestValidater(object):
                         k.upper().startswith('HTTP_') or
                         k.upper().startswith('CONTENT_')])
 
-        return request.method, request.build_absolute_uri(), headers, request.POST
+        return request.method, request.build_absolute_uri(), headers, \
+            request.POST
 
     def is_valid(self, request):
         """
@@ -65,7 +59,8 @@ class OAuthRequestValidater(object):
 
         except (oauth2.Error, ValueError) as err:
             print(oauth_request['oauth_signature'])
-            oauth_request.sign_request(oauth2.SignatureMethod_HMAC_SHA1(), self.oauth_consumer, {})
+            oauth_request.sign_request(oauth2.SignatureMethod_HMAC_SHA1(),
+                                       self.oauth_consumer, {})
             print(oauth_request['oauth_signature'])
             return False, err
         # Signature was valid
@@ -154,78 +149,12 @@ def select_create_journal(request, user, assignment, roles):
             journal.assignment = assignment
             journal.user = user
             journal.save()
+        if journal.grade_url is None:
+            journal.grade_url = request['lis_outcome_service_url']
+            journal.save()
+        if journal.sourcedId is None:
+            journal.sourcedId = request['lis_result_sourcedid']
+            journal.save()
     else:
         journal = None
     return journal
-
-
-# def select_create_course(request, user, roles):
-#     """
-#     Select or create a course requested.
-#     """
-#     course_id = request['context_id']
-#     courses = Course.objects.filter(lti_id=course_id)
-#
-#     if courses.count() > 0:
-#         # If course already exists, select it.
-#         course = courses[0]
-#
-#         if user not in course.participations.all():
-#             # If the user is not a participant, add a participation link with
-#             # the correct role given by the lti request.
-#             lti_roles = dict((roles[k], k) for k in roles)
-#
-#             # Add the logged in user to the course through participation.
-#             # TODO Check if a teacher role already exists before adding it.
-#             role = Role.objects.create(name=lti_roles[request['roles']])
-#             Participation.objects.create(user=user, course=course, role=role)
-#     else:
-#         if roles['teacher'] in request['roles']:
-#             course = Course()
-#             course.name = request['context_title']
-#             course.abbreviation = request['context_label']
-#             course.lti_id = course_id
-#             course.startdate = datetime.now()
-#             course.save()
-#
-#             # Add the logged in user to the course through participation.
-#             role = Role.objects.create(name='teacher')
-#             Participation.objects.create(user=user, course=course, role=role)
-#
-#         else:
-#             # TODO redirect to unauthorized page
-#             return None
-#
-#     return course
-#
-#
-# def select_create_assignment(request, user, course, roles):
-#     """
-#     Select or create a assignment requested.
-#     """
-#     assign_id = request['resource_link_id']
-#     assignments = Assignment.objects.filter(lti_id=assign_id)
-#     if assignments.count() > 0:
-#         # If the assigment exists, select it and add the course if necessary.
-#         assignment = assignments[0]
-#         if course not in assignment.courses.all():
-#             assignment.courses.add(course)
-#
-#     else:
-#         # Try to create assignment.
-#         if roles['teacher'] in request['roles']:
-#             # If user is a teacher, create the assignment.
-#             assignment = Assignment()
-#             assignment.name = request['resource_link_title']
-#             assignment.lti_id = assign_id
-#             assignment.format_id = JournalFormat.objects.create().pk
-#             if 'custom_canvas_assignment_points_possible' in request:
-#                 assignment.points_possible = request[
-#                     'custom_canvas_assignment_points_possible']
-#             assignment.save()
-#             assignment.courses.add(course)
-#         else:
-#             # TODO redirect to unauthorized page
-#             return None
-#
-#     return assignment

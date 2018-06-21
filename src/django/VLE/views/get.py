@@ -1,13 +1,19 @@
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
+from django.shortcuts import redirect
 import statistics as st
+import json
+from django.conf import settings
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from VLE.serializers import *
 import VLE.edag as edag
 import VLE.factory as factory
-import statistics as st
-from VLE.lti_launch import *
-from VLE.lti_grade_passback import *
+from VLE.lti_launch import OAuthRequestValidater, select_create_user, \
+    create_lti_query_link, check_course_lti, check_assignment_lti, \
+    select_create_journal
+from VLE.lti_grade_passback import GradePassBackRequest
+from VLE.models import Journal
 
 
 NEW_COURSE = 0
@@ -18,7 +24,8 @@ FINISH_STUDENT = 3
 
 @api_view(['GET'])
 def get_own_user_data(request):
-    """Get the data linked to the logged in user
+    """
+    Get the data linked to the logged in user.
 
     Arguments:
     request -- the request that was send with
@@ -37,7 +44,8 @@ def get_own_user_data(request):
 
 @api_view(['GET'])
 def get_course_data(request, cID):
-    """Get the data linked to a course id
+    """
+    Get the data linked to a course id.
 
     Arguments:
     request -- the request that was send with
@@ -112,7 +120,8 @@ def get_student_course_assignments(user, course):
 
 @api_view(['GET'])
 def get_course_assignments(request, cID):
-    """Get the assignments from the course ID with extra information for the requested user
+    """Get the assignments from the course ID with extra information for the
+    requested user.
 
     Arguments:
     request -- the request that was send with
@@ -252,11 +261,15 @@ def lti_launch(request):
         access = token.access_token
 
         course_names = ['lti_cName', 'lti_abbr', 'role', 'lti_cID']
-        course_values = [request.POST['context_title'], request.POST['context_label'],
-                         lti_roles[request.POST['roles']], request.POST['context_id']]
+        course_values = [request.POST['context_title'],
+                         request.POST['context_label'],
+                         lti_roles[request.POST['roles']],
+                         request.POST['context_id']]
         assignment_names = ['lti_aName', 'lti_aID', 'lti_points_possible']
-        assignment_values = [request.POST['resource_link_title'], request.POST['resource_link_id'],
-                             request.POST['custom_canvas_assignment_points_possible']]
+        assignment_values = [request.POST['resource_link_title'],
+                             request.POST['resource_link_id'],
+                             request.POST[
+                                'custom_canvas_assignment_points_possible']]
 
         course = check_course_lti(request.POST, user)
         if course is None:
@@ -268,7 +281,7 @@ def lti_launch(request):
             query_values += assignment_values
             return redirect(create_lti_query_link(query_names, query_values))
 
-        assignment = check_course_lti(request.POST, user)
+        assignment = check_assignment_lti(request.POST, user)
         if assignment is None:
             query_names = ['jwt_refresh', 'jwt_access', 'state', 'cID']
             query_names += assignment_names
@@ -281,36 +294,9 @@ def lti_launch(request):
         query_names = ['jwt_refresh', 'jwt_access',
                        'state', 'cID', 'aID', 'jID']
         query_values = [token, access,
-                        FINISH_TEACHER if jID is None else FINISH_STUDENT, course.pk, assignment.pk, jID]
+                        FINISH_TEACHER if jID is None else FINISH_STUDENT,
+                        course.pk, assignment.pk, jID]
         return redirect(create_lti_query_link(query_names, query_values))
-
-        # course = select_create_course(request.POST, user, roles)
-        # assignment = select_create_assignment(
-        #     request.POST, user, course, roles)
-        # journal = select_create_journal(request.POST, user, assignment, roles)
-        #
-        # # Check if the request comes from a student or not.
-        # roles = json.load(open('config.json'))
-        # student = request.POST['roles'] == roles['student']
-        #
-        # token = TokenObtainPairSerializer.get_token(user)
-        # access = token.access_token
-        #
-        # # Set the ID's or if these do not exist set them to undefined.
-        # cID = course.pk if course is not None else 'undefined'
-        # aID = assignment.pk if assignment is not None else 'undefined'
-        # jID = journal.pk if journal is not None else 'undefined'
-        #
-        #
-        # link = settings.LTI_BASELINK
-        # link += '?jwt_refresh={0}'.format(token)
-        # link += '&jwt_access={0}'.format(access)
-        # link += '&cID={0}'.format(cID)
-        # link += '&aID={0}'.format(aID)
-        # link += '&jID={0}'.format(jID)
-        # link += '&student={0}'.format(student)
-        #
-        # return redirect(link)
 
     return redirect(settings.BASELINK + '/ErrorPage')
     # return redirect(401_site) not 404
