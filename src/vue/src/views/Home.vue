@@ -46,7 +46,7 @@
             ref="editCourseRef"
             title="Global changes"
             size="lg"
-            hide-footer=True>
+            hide-footer>
                 <edit-home @handleAction="handleConfirm('editCourseRef')"></edit-home>
         </b-modal>
 
@@ -55,7 +55,7 @@
             ref="createCourseRef"
             title="Create course"
             size="lg"
-            hide-footer=True>
+            hide-footer>
                 <create-course @handleAction="handleConfirm('createCourseRef')"></create-course>
         </b-modal>
     </content-columns>
