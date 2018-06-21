@@ -65,9 +65,5 @@ export default new Router({
         path: '/lti/launch',
         name: 'LtiLaunch',
         component: LtiLaunch
-    }, {
-        path: '/Format',
-        name: 'Format',
-        component: FormatEdit
     }]
 })

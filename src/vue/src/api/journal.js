@@ -23,11 +23,11 @@ export default {
         }
 
         return auth.authenticatedPost('/create_entry/', data)
-        .then(response => response.data)
+            .then(response => response.data)
     },
 
     get_format (aID) {
         return auth.authenticatedGet('/get_format/' + aID + '/')
-        .then(response => response.data)
+            .then(response => response.data)
     }
 }

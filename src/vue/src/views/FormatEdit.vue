@@ -1,4 +1,4 @@
-<!-- TODO: add loading and saving apis, add links to template editor, add navigation guards to cache format on template edit and to confirm navigation away when unsaved, add client side checks for improper formats upon saving -->
+<!-- TODO: add loading and saving apis, add links to template editor-->
 
 <template>
     <b-row no-gutters>
@@ -20,8 +20,11 @@
             . -->
             <b-button @click.prevent.stop="saveFormat"> Save </b-button>
 
-            <div>
+            <div v-if="nodes.length > 0">
                 <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @edit-data="nodes[currentNode].template=$event"/>
+            </div>
+            <div v-else>
+                <p>No presets yet</p>
             </div>
         </b-col>
         <b-col cols="12" xl="3" order="3" class="right-content">
@@ -41,6 +44,8 @@ import edag from '@/components/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import formatEditAvailableTemplateCard from '@/components/FormatEditAvailableTemplateCard.vue'
 import formatEditSelectTemplateCard from '@/components/FormatEditSelectTemplateCard.vue'
+import journalAPI from '@/api/journal.js'
+import store from '@/Store.vue'
 
 export default {
     name: 'FormatEdit',
@@ -52,37 +57,7 @@ export default {
             windowWidth: 0,
             currentNode: 0,
 
-            templates: [{
-                'tID': 1,
-                'name': 'Template 2',
-                'fields': [{ 'title': 'Field 1', 'eID': '0' }]
-            }, {
-                'tID': 0,
-                'name': 'Template 1',
-                'fields': [{ 'title': 'Field 1', 'eID': '0' }, { 'title': 'Field 2', 'eID': '1' }]
-            }],
-
-            presets: [{
-                'type': 'd',
-                'deadline': 'some string',
-                'template': {
-                    'tID': 0,
-                    'name': 'Template 1',
-                    'fields': [{ 'title': 'Field 1', 'eID': '0' }, { 'title': 'Field 2', 'eID': '1' }]
-                }
-            }, {
-                'type': 'd',
-                'deadline': 'some string',
-                'template': {
-                    'tID': 2,
-                    'name': 'Template 3',
-                    'fields': [{ 'title': 'Field 1', 'eID': '0' }, { 'title': 'Field 2', 'eID': '1' }]
-                }
-            }, {
-                'type': 'p',
-                'deadline': 'some string',
-                'target': 5
-            }],
+            dbformat: { templates: [], presets: [] },
 
             templatePool: [],
             nodes: []
@@ -90,7 +65,7 @@ export default {
     },
 
     created () {
-        this.convertFromDB()
+        journalAPI.get_format(1).then(data => console.log(data))
     },
 
     methods: {
@@ -158,11 +133,11 @@ export default {
         convertFromDB () {
             var idInPool = []
 
-            for (var template of this.templates) {
+            for (var template of this.dbformat.templates) {
                 idInPool.push(template.tID)
                 this.templatePool.push({ t: template, a: true })
             }
-            for (var preset of this.presets) {
+            for (var preset of this.dbformat.presets) {
                 if (preset.type === 'd' && !idInPool.includes(preset.template.tID)) {
                     idInPool.push(preset.template.tID)
                     this.templatePool.push({ t: preset.template, a: false })
@@ -171,17 +146,17 @@ export default {
 
             this.templatePool.sort((a, b) => { return a.t.tID - b.t.tID })
 
-            this.nodes = this.presets.slice()
+            this.nodes = this.dbformat.presets.slice()
         },
         // Utility func to translate from internal format to db
         convertToDB () {
-            this.presets = this.nodes.slice()
+            this.dbformat.presets = this.nodes.slice()
 
-            this.templates = []
+            this.dbformat.templates = []
 
             for (var template of this.templatePool) {
                 if (template.a) {
-                    this.templates.push(template.t)
+                    this.dbformat.templates.push(template.t)
                 }
             }
         }
@@ -204,6 +179,29 @@ export default {
         'edag': edag,
         'template-todo-card': formatEditAvailableTemplateCard,
         'selected-node-card': formatEditSelectTemplateCard
+    },
+
+    beforeRouteEnter (to, from, next) {
+        if (from.name === 'TemplateEdit') {
+            next(vm => {
+                vm.templatePool = store.state.format.templatePool
+                vm.nodes = store.state.format.nodes
+            })
+        }
+    },
+
+    beforeRouteLeave (to, from, next) {
+        if (to.name === 'TemplateEdit') {
+            store.setFormat(this.templatePool, this.nodes)
+        } else {
+            if (!confirm('Oh no! Unsaved changes will be lost if you leave. Do you wish to continue?')) {
+                next(false)
+            } else {
+                store.clearFormat()
+            }
+        }
+
+        next()
     }
 }
 </script>
