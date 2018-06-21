@@ -74,10 +74,10 @@ export default {
 
         // alert(state === this.s_new_course)
         state = '0'
-        role = 'ta'
+        role = 'TA'
         alert('State: ' + state + '\nRole: ' + role)
 
-        if (role === 'ta' || role === 'teacher') {
+        if (role === 'TA' || role === 'Teacher') {
             if (state === this.s_new_course) {
                 alert('hi')
                 this.handleCourseChoice = true
@@ -100,7 +100,7 @@ export default {
                     name: 'ErrorPage'
                 })
             }
-        } else if (role === 'student') {
+        } else if (role === 'Student') {
             if (state === this.s_finish_student) {
                 this.$router.push({
                     name: 'Journal',
