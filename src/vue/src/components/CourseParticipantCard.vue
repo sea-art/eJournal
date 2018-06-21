@@ -15,14 +15,23 @@
             <b-col cols="12" order-sm="2" sm="6">
                 {{ name }} <br/>
                 {{ studentNumber }}
+                courseID: {{cID}}<br/>
+                userID: {{uID}}
+                role: {{selectedRole}}
             </b-col>
         </b-row>
     </b-card>
 </template>
 
 <script>
+import courseApi from '@/api/course.js'
+import userApi from '@/api/user.js'
+
 export default {
     props: {
+        cID: {
+            required: true
+        },
         uID: {
             required: true
         },
@@ -42,13 +51,20 @@ export default {
     data () {
         return {
             selectedRole: '',
-            init: true
+            init: true,
+            uID: ''
         }
     },
     methods: {
         removeFromCourse () {
             if (confirm('Are you sure you want to remove ' + name + '?')) {
-                // TODO plugin API
+                courseApi.delete_user_from_course(
+                    this.uID,
+                    this.cID)
+                    .then(response => {
+                        alert("deleted user")
+                    })
+                    .catch(_ => alert('Error while deleting user from course'))
             }
         }
     },
@@ -57,7 +73,14 @@ export default {
             if (this.init) {
                 this.init = false
             } else {
+                this.selectedRole = val
                 console.log(val)
+                // courseApi.update_user_role_course(
+                //     this.uID,
+                //     this.cID,
+                //     this.selectedRole)
+                //     .then(response => {
+                //     })
             }
         }
     },

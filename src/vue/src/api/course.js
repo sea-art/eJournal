@@ -45,5 +45,24 @@ export default {
         return auth.authenticatedPost('/delete_course/', {
             cID: cID
         }).then(response => response.data.result)
+    },
+
+    /* Updates the role of a student linked to a course. */
+    update_user_role_course (uID, cID, role) {
+        return auth.authenticatedPost('/update_user_role_course/', {
+            uID: uID,
+            cID: cID,
+            role: role
+        }).then(response => response.data.result)
+    },
+
+    /* Updates the role of a student linked to a course. */
+    delete_user_from_course (uID, cID) {
+        return auth.authenticatedPost('/delete_user_from_course/', {
+            uID: uID,
+            cID: cID
+        }).then(response => response.data.result)
     }
+
+
 }

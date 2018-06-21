@@ -45,6 +45,7 @@ from VLE.views.update import update_comment_notification
 
 from VLE.views.delete import delete_course
 from VLE.views.delete import delete_assignment
+from VLE.views.delete import delete_user_from_course
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -87,6 +88,7 @@ urlpatterns = [
 
     path('api/delete_course/', delete_course, name='delete_course'),
     path('api/delete_assignment/', delete_assignment, name='delete_assignment'),
+    path('api/delete_user_from_course/', delete_user_from_course, name='delete_user_from_course'),
 
     path('api/lti/launch', lti_launch, name='lti_launch'),
 ]

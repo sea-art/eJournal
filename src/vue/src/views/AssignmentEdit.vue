@@ -1,6 +1,6 @@
 <template>
     <content-single-column>
-        <bread-crumb @eye-click="customisePage">&nbsp</bread-crumb>
+        <bread-crumb @eye-click="customisePage">&nbsp;</bread-crumb>
         <b-card class="no-hover">
             <b-form @submit="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
@@ -38,7 +38,6 @@ export default {
     },
     data () {
         return {
-
             pageName: '',
             assignment: {},
             form: {}
