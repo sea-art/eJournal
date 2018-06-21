@@ -49,6 +49,7 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 import formatEditAvailableTemplateCard from '@/components/FormatEditAvailableTemplateCard.vue'
 import formatEditSelectTemplateCard from '@/components/FormatEditSelectTemplateCard.vue'
 import journalAPI from '@/api/journal.js'
+import formatAPI from '@/api/format.js'
 import store from '@/Store.vue'
 
 export default {
@@ -73,7 +74,7 @@ export default {
     },
 
     created () {
-        journalAPI.get_format(this.aID).then(data => { this.fID = data.fID; this.templates = data.nodes.templates; this.presets = data.nodes.presets; this.convertFromDB(); this.isChanged = false })
+        journalAPI.get_format(this.aID).then(data => { this.fID = data.nodes.fID; this.templates = data.nodes.templates; this.presets = data.nodes.presets; this.convertFromDB(); this.isChanged = false })
     },
 
     watch: {
@@ -133,6 +134,10 @@ export default {
             }
 
             this.convertToDB()
+
+            console.log(this.fID, this.templates, this.presets)
+
+            formatAPI.update_format(this.fID, this.templates, this.presets).then(data => console.log(data))
         },
         getWindowWidth (event) {
             this.windowWidth = document.documentElement.clientWidth

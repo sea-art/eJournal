@@ -144,7 +144,7 @@ def update_format(request):
     try:
         fID, templates, presets = utils.get_required_post_params(request.data, "fID", "templates", "presets")
     except KeyError:
-        return utils.keyerror_json("fID", "templates", "preset")
+        return utils.keyerror_json("fID", "templates", "presets")
 
     try:
         format = JournalFormat.objects.get(pk=fID)
