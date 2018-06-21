@@ -90,7 +90,6 @@ def update_grade_notification(request):
     user = request.user
     if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
-    print(request.data)
 
     try:
         user.grade_notifications = request.data['new_value']
