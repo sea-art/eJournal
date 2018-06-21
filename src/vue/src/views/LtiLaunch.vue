@@ -1,7 +1,7 @@
 <template>
     <content-single-columns>
-        <lti-create-connect-course v-if="handleCourseChoice" slot="main-content-column" @handleAction="handleActions"/>
-        <lti-create-connect-assignment v-if="handleAssignmentChoice" slot="main-content-column" @handleAction="handleActions"/>
+        <lti-create-connect-course v-if="handleCourseChoice" @handleAction="handleActions"/>
+        <lti-create-connect-assignment v-if="handleAssignmentChoice" @handleAction="handleActions"/>
     </content-single-columns>
 </template>
 
@@ -39,11 +39,12 @@ export default {
     },
     methods: {
         handleActions (msg) {
-            this.handleChoice = false
 
             if (msg === 'courseIntegrated') {
+                this.handleCourseChoice = false
                 alert('Course Integrated!')
             } else {
+                this.handleAssignmentChoice = false
                 alert('Iets anders gebeurd!')
             }
         }
@@ -72,14 +73,11 @@ export default {
         var aID = this.$route.query.aID
         var jID = this.$route.query.jID
 
-        // alert(state === this.s_new_course)
         state = '0'
         role = 'TA'
-        alert('State: ' + state + '\nRole: ' + role)
 
         if (role === 'TA' || role === 'Teacher') {
             if (state === this.s_new_course) {
-                alert('hi')
                 this.handleCourseChoice = true
                 // TODO Create or koppel assignement
 

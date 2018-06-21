@@ -40,14 +40,14 @@
 <script>
 import breadCrumb from '@/components/BreadCrumb.vue'
 import createCourse from '@/components/CreateCourse.vue'
-import connectCourse from '@/components/ConnectCourse.vue'
+// import connectCourse from '@/components/ConnectCourse.vue'
 
 export default {
     name: 'LtiCreateConnect',
     components: {
         'bread-crumb': breadCrumb,
         'create-course': createCourse,
-        'connect-course': connectCourse
+        // 'connect-course': connectCourse
     },
     methods: {
         signal (msg) {
