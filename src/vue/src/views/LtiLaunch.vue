@@ -1,9 +1,14 @@
 <template>
     <content-single-columns>
+        <lti-create-connect v-if="handleChoice" slot="main-content-column" :subject="choiceSubject"/>
+        <create-course v-if="createCourse" slot="main-content-column"/>
+    </content-single-columns>
+
+    <!--
         <b-modal
             slot="main-content-column"
             ref="chooseActionRef"
-            title="Choose LTI integration method"
+            title="Connect Course"
             size="lg"
             hide-footer>
                 <lti-create-connect @handleAction="handleConfirm('chooseActionRef')"></lti-create-connect>
@@ -17,13 +22,13 @@
             hide-footer>
                 <create-course @handleAction="handleConfirm('createCourseRef')"></create-course>
         </b-modal>
-    </content-single-columns>
+    -->
 </template>
 
 <script>
 import contentSingleColumn from '@/components/ContentSingleColumn.vue'
-import createCourse from '@/components/CreateCourse.vue'
 import ltiCreateConnect from '@/components/LtiCreateConnect.vue'
+import createCourse from '@/components/CreateCourse.vue'
 
 export default {
     name: 'LtiLaunch',
@@ -36,7 +41,15 @@ export default {
         return {
             msg: 'unsuccesfull',
             jwt_refresh: ':(',
-            chooseAction: '',
+            choiceSubject: '',
+
+            /* Variables for loading the right component. */
+            handleChoice: false,
+            createCourse: false,
+            connectCourse: false,
+            createAssignment: false,
+            connectAssignment: false,
+
 
             /* Variables for checking the state of the lti launch. */
             s_new_course: '0',
@@ -88,13 +101,19 @@ export default {
         var aID = this.$route.query.aID
         var jID = this.$route.query.jID
 
-        alert(state === this.s_new_course)
+        // alert(state === this.s_new_course)
+        state = '0'
+        role = 'ta'
+        alert('State: ' + state + '\nRole: ' + role)
 
         if (role === 'ta' || role === 'teacher') {
             if (state === this.s_new_course) {
+                this.handleChoice = true
                 // TODO Create or koppel assignement
-                this.showModal('chooseActionRef')
-            } else if (state === this.s_new_assignment) {
+
+
+                // this.showModal('chooseActionRef')
+            } else if (state <= this.s_new_assignment) {
                 // TODO Create or koppel assignement
             } else if (state === this.s_finish) {
                 this.$router.push({

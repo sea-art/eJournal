@@ -116,7 +116,7 @@ def create_lti_query_link(names, values):
     returns the link
     """
     link = settings.BASELINK
-    link += '/lti/launch'
+    link += '/LtiLaunch'
     start = '?'
     for i, name in enumerate(names):
         link += start + name + '={0}'.format(values[i])

@@ -32,7 +32,7 @@ export default new Router({
         name: 'Profile',
         component: Profile
     }, {
-        path: '/lti/launch',
+        path: '/LtiLaunch',
         name: 'LtiLaunch',
         component: LtiLaunch
     }, {
