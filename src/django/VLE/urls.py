@@ -16,36 +16,20 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from VLE.views.get import lti_launch
-from VLE.views.get import lti_grade_replace_result
+from VLE.views.get import lti_launch, lti_grade_replace_result
 
-from VLE.views.get import get_own_user_data
-from VLE.views.get import get_course_data
-from VLE.views.get import get_assignment_data
+from VLE.views.get import get_own_user_data, get_course_data, get_assignment_data
 
-from VLE.views.get import get_user_courses
-from VLE.views.get import get_course_assignments
-from VLE.views.get import get_assignment_journals
-from VLE.views.get import get_upcoming_deadlines
-from VLE.views.get import get_course_permissions
-from VLE.views.get import get_nodes
-from VLE.views.get import get_format
-from VLE.views.get import get_names
-from VLE.views.get import get_course_users
+from VLE.views.get import get_user_courses, get_course_assignments, \
+    get_assignment_journals, get_upcoming_deadlines, get_course_permissions, \
+    get_nodes, get_format, get_names, get_course_users
 
-from VLE.views.create import create_new_course
-from VLE.views.create import create_new_assignment
-from VLE.views.create import create_entry
+from VLE.views.create import create_new_course, create_new_assignment, create_entry
 
-from VLE.views.update import update_user_data
-from VLE.views.update import update_course
-from VLE.views.update import update_assignment
-from VLE.views.update import update_password
-from VLE.views.update import update_grade_notification
-from VLE.views.update import update_comment_notification
+from VLE.views.update import update_user_data, update_course, update_assignment, \
+    update_password, update_grade_notification, update_comment_notification
 
-from VLE.views.delete import delete_course
-from VLE.views.delete import delete_assignment
+from VLE.views.delete import delete_course, delete_assignment
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,

@@ -57,7 +57,7 @@ def update_assignment(request):
 
 @api_view(['POST'])
 def update_password(request):
-    """Updates a password
+    """Updates a password.
 
     Arguments:
     request -- the update request that was send with
@@ -81,7 +81,7 @@ def update_password(request):
 
 @api_view(['GET'])
 def update_grade_notification(request, notified):
-    """Updates whether the user gets notified when a grade changes/new grade
+    """Updates whether the user gets notified when a grade changes/new grade.
 
     Arguments:
     request -- the request that was send with
@@ -105,7 +105,7 @@ def update_grade_notification(request, notified):
 
 @api_view(['GET'])
 def update_comment_notification(request, notified):
-    """Updates whether the user gets notified when a comment changes/new comment
+    """Updates whether the user gets notified when a comment changes/new comment.
 
     Arguments:
     request -- the request that was send with
@@ -129,7 +129,7 @@ def update_comment_notification(request, notified):
 
 @api_view(['POST'])
 def update_user_data(request):
-    """Updates user data
+    """Updates user data.
 
     Arguments:
     request -- the update request that was send with
