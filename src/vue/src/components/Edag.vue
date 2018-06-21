@@ -9,9 +9,9 @@
             selected: 2,
             nodes: [
                 {
-                    type: 'entry',
+                    type: 'e',
                     text: '',
-                    id: 0,
+                    nID: 0,
                     date: new Date()
                 },
                 {
@@ -38,8 +38,8 @@
 -->
 
 <template>
-    <div id="edag-div" ref="scd" :style="styleObject">
-        <edag-node v-for="(node, index) in this.nodes" @select-node="$emit('select-node', $event)" :index="index" :node="node" :selected="isSelected(index)" :key="node.id" :upperEdgeStyle="upperEdgeStyle(index)" :lowerEdgeStyle="lowerEdgeStyle(index)"/>
+    <div id="edag-div" ref="scd">
+        <edag-node v-for="(node, index) in this.nodes" @select-node="$emit('select-node', $event)" :index="index" :node="node" :selected="isSelected(index)" :key="node.nID" :upperEdgeStyle="upperEdgeStyle(index)" :lowerEdgeStyle="lowerEdgeStyle(index)"/>
     </div>
 </template>
 

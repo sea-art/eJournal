@@ -1,37 +1,53 @@
 <template>
-    <b-card class="card student-card">
+    <b-card :class="color">
         <b-row>
-            <b-col id="student-card-portrait-column" order="1" cols="6" md="2">
-                <div class="portrait-container">
-                    <img :src="studentPortraitPath">
+            <b-col order="1" cols="4">
+                <img class="img-fluid" :src="portraitPath">
+            </b-col>
+            <b-col order="2" cols="8" class="d-none d-sm-inline">
+                    <todo-square :num="this.stats.submitted - this.stats.graded"/>
+                    {{ student }}<br/>
+                    <p>{{ studentNumber }}</p><br/>
+                <div class="progress-bar-container">
+                    <progress-bar class="progress-bar-comp" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
                 </div>
             </b-col>
-            <b-col id="student-card-main-content-column" order="3" order-md="2" cols="12" md="8">
-                <h>{{ student }}</h><br/>
-                <h>{{ studentNumber }}</h><br/>
-                <h></h><br/>
-                <h>{{ progress }}</h><br/>
-                <h>{{ entriesStats }}</h>
+
+            <b-col order="2" cols="8" order-sm="3" sm="3" class="d-sm-none">
+                <todo-square v-if="this.stats" :num="this.stats.submitted - this.stats.graded"/>
             </b-col>
-            <b-col id="main-card-right-column" order="2" order-md="3" cols="6" md="2">GRADED<br/>1MSG</b-col>
+
+            <b-col order="3" cols="12" order-sm="2" sm="5" class="d-sm-none">
+                {{ student }}<br/>
+                {{ studentNumber }}
+            </b-col>
+
+            <b-col order="4" cols="12" sm="8" class="d-sm-none">
+                <progress-bar v-if="this.stats" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
+            </b-col>
         </b-row>
     </b-card>
 </template>
 
 <script>
+import progressBar from '@/components/ProgressBar.vue'
+import todoSquare from '@/components/TodoSquare.vue'
+
 export default {
-    props: ['student', 'studentNumber', 'studentPortraitPath', 'progress', 'entriesStats']
+    props: ['student', 'studentNumber', 'portraitPath', 'stats', 'color'],
+    components: {
+        'progress-bar': progressBar,
+        'todo-square': todoSquare
+    }
 }
 </script>
 
 <style>
-.student-card {
-    margin-bottom: 8px;
-    text-align: left;
-    background-color: var(--theme-light-grey);
-    border-width: 0px;
-    border-left-width: 20px;
-    border-left-color: red;
-    border-radius: 0px;
+.progress-bar-container {
+    height: 100%;
+}
+
+.progress-bar-comp {
+    /* flex-grow: 1; */
 }
 </style>

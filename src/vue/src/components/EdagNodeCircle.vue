@@ -14,9 +14,10 @@ export default {
     computed: {
         classObject () {
             return {
-                'enc-entry': this.type === 'entry',
-                'enc-progress': this.type === 'progress',
-                'enc-add': this.type === 'add',
+                'enc-entry': this.type === 'e',
+                'enc-deadline': this.type === 'd',
+                'enc-progress': this.type === 'p',
+                'enc-add': this.type === 'a',
                 'enc-selected': this.selected
             }
         }
@@ -63,6 +64,18 @@ export default {
 
 .edag-node-circle.enc-entry.enc-selected {
     background-color: var(--theme-dark-grey)
+}
+
+.edag-node-circle.enc-deadline {
+    background-color: var(--theme-peach)
+}
+
+.edag-node-circle.enc-deadline:hover {
+    background-color: var(--theme-dark-peach)
+}
+
+.edag-node-circle.enc-deadline.enc-selected {
+    background-color: var(--theme-dark-peach)
 }
 
 .edag-node-circle.enc-progress {

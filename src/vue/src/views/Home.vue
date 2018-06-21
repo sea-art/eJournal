@@ -2,43 +2,51 @@
     <content-columns>
         <bread-crumb
             @eye-click="customisePage()"
-            @edit-click="editCourses()"
+            @edit-click="showModal('editCourseRef')"
             slot="main-content-column"
             :currentPage="'Courses'">
         </bread-crumb>
-        <div v-for="(c, i) in courses" :key="c.cID" slot="main-content-column">
-            <b-link :to="{name: 'Course', params: {course: c.cID, courseName: c.name, color: colors[i]}}">
-                <main-card :line1="c.name" :line2="c.date" :color="colors[i]">
+        <div v-for="c in courses" :key="c.cID" slot="main-content-column">
+            <b-link :to="{name: 'Course', params: {cID: c.cID, courseName: c.name}}">
+                <main-card
+                    :line1="c.name"
+                    :line2="'From - To (years eg: 2017 - 2018)'"
+                    :color="$root.colors[c.cID % $root.colors.length]">
                     <b-button class="float-right" @click.prevent.stop="deleteCourse(c.cID, c.name)"> Delete </b-button>
                 </main-card>
             </b-link>
         </div>
 
-        <b-link slot="main-content-column" :to="{name: 'CourseCreation'}">
-            <main-card :line1="'+ Add course'"/>
-        </b-link>
+        <main-card slot="main-content-column" class="hover" v-on:click.native="showModal('createCourseRef')" :line1="'+ Add course'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
-        <div v-for="(d, i) in deadlines" :key="d.dID" slot="right-content-column">
-            <b-link tag="b-button" :to="{name: 'Assignment', params: {course: d.cID[0], assign: d.dID}}">
-                <todo-card :line0="d.datetime" :line1="d.name" :line2="d.course" :color="colors[i]"></todo-card>
+        <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
+            <b-link tag="b-button" :to="{name: 'Assignment', params: {cID: d.cIDs[0], dID: d.dID}}">
+                <todo-card
+                    :line0="d.datetime"
+                    :line1="d.name"
+                    :line2="d.courseAbbrs.join(', ')"
+                    :color="$root.colors[d.cIDs[0] % $root.colors.length]">
+                </todo-card>
             </b-link>
         </div>
 
-        <!-- TODO cleanup : move to component -->
         <b-modal
             slot="main-content-column"
-            ref="editModalRef"
+            ref="editCourseRef"
             title="Global changes"
-            @ok="handleEditConfirm()">
-            <form @submit.stop.prevent="handleEditConfirm">
-                <label for="input-institute-name">Institute name:</label>
-                <b-form-input id="input-institute-name"
-                    type="text"
-                    placeholder="Change your institutes name"
-                    v-model="intituteName">
-                </b-form-input>
-            </form>
+            size="lg"
+            hide-footer=True>
+                <edit-home @handleAction="handleConfirm('editCourseRef')"></edit-home>
+        </b-modal>
+
+        <b-modal
+            slot="main-content-column"
+            ref="createCourseRef"
+            title="Create course"
+            size="lg"
+            hide-footer=True>
+                <create-course @handleAction="handleConfirm('createCourseRef')"></create-course>
         </b-modal>
     </content-columns>
 </template>
@@ -48,8 +56,9 @@ import contentColumns from '@/components/ContentColumns.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import mainCard from '@/components/MainCard.vue'
 import todoCard from '@/components/TodoCard.vue'
+import createCourse from '@/components/CreateCourse.vue'
+import editHome from '@/components/EditHome.vue'
 import course from '@/api/course'
-import getColors from '@/javascripts/colors.js'
 /* import assignment from '@/api/assignment' */
 
 export default {
@@ -57,25 +66,12 @@ export default {
     data () {
         return {
             intituteName: 'Universiteit van Amsterdam (UvA)',
-            colors: [],
             courses: [],
             deadlines: [{
                 name: 'Individueel logboek',
-                course: 'WEDA',
-                cID: ['2017WDB'],
+                cIDs: ['1', '2'],
+                courseAbbrs: ['WEDA', 'PALSIE8'],
                 dID: '2017IL1',
-                datetime: '8-6-2018 13:00'
-            }, {
-                name: 'Logboek academia',
-                course: 'AVI2',
-                cID: ['2017AVI2'],
-                dID: '2017LA',
-                datetime: '8-6-2018 13:00'
-            }, {
-                name: 'Individueel logboek',
-                course: 'AVI1, AVI2',
-                cID: ['2017AVI1', '2017AVI2'],
-                dID: '2017IL2',
                 datetime: '8-6-2018 13:00'
             }]
         }
@@ -84,33 +80,42 @@ export default {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'main-card': mainCard,
-        'todo-card': todoCard
+        'todo-card': todoCard,
+        'create-course': createCourse,
+        'edit-home': editHome
     },
     created () {
-        course.get_user_courses()
-            .then(response => { this.courses = response })
-            .catch(_ => alert('Error while loading courses'))
-            .then(_ => { this.colors = getColors(this.courses.length) })
+        this.loadCourses()
 
         /* assignment.get_upcoming_deadlines()
            .then(response => { this.deadlines = response })
            .catch(_ => alert('Error while loading deadlines')) */
     },
     methods: {
+        loadCourses () {
+            course.get_user_courses()
+                .then(response => { this.courses = response })
+                .catch(_ => alert('Error while loading courses'))
+        },
         deleteCourse (courseID, courseName) {
             if (confirm('Are you sure you want to delete ' + courseName + '?')) {
                 console.log('TODO Implement delete this course ID after privy check')
             }
         },
-        editCourses () {
-            this.$refs.editModalRef.show()
+        showModal (ref) {
+            this.$refs[ref].show()
         },
-        handleEditConfirm () {
-            alert('Edit confirm')
-            this.hideModal()
+        handleConfirm (ref) {
+            if (ref === 'createCourseRef') {
+                this.loadCourses()
+            } else if (ref === 'editCourseRef') {
+                // TODO: Handle edit assignment
+            }
+
+            this.hideModal(ref)
         },
-        hideModal () {
-            this.$refs.editModalRef.hide()
+        hideModal (ref) {
+            this.$refs[ref].hide()
         },
         customisePage () {
             alert('Wishlist: Customise page')

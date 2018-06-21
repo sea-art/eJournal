@@ -6,7 +6,7 @@
             <b-input class="mb-2 mr-sm-2 mb-sm-0" id="registerFormInputPassword" v-model="form.password" placeholder="Password"/>
             <b-input class="mb-2 mr-sm-2 mb-sm-0" id="registerFormInputEmail" v-model="form.email" placeholder="Email"/>
             <b-form-select id="registerFormSelectInstitute" :options="instutes" v-model="selected" required></b-form-select>
-            <b-button type="submit" variant="primary">Submit</b-button>
+            <b-button type="submit" variant="primary">Register</b-button>
             <b-button type="reset" variant="danger">Reset</b-button>
         </b-form>
     </content-columns>
@@ -49,6 +49,11 @@ export default {
             /* Trick to reset/clear native browser form validation state */
             this.show = false
             this.$nextTick(() => { this.show = true })
+        },
+        validEmail (email) {
+            /* TODO prevent linter from going nuts on the regex, possibly switch to input handing module. */
+            // var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+            // return re.test(email)
         }
     }
 }

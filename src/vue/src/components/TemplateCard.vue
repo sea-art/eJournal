@@ -26,7 +26,7 @@
                     </b-card>
                 </div>
                 <div v-else>
-                    <b-card class="card main-card noHover" :class="'pink-border'">
+                    <b-card class="card main-card noHoverCard" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>{{ textbox1 }}</h2>
@@ -40,10 +40,16 @@
                 </div>
             </b-col>
         </b-row>
+        <!-- <div v-for="item in comments">
+            <comment-card @edit-comment="adaptComment" :comment="item.message"/>
+        </div> -->
+        <!-- <comment-card @edit-comment="adaptComment" :comment="comment"/> -->
     </div>
 </template>
 
 <script>
+import commentCard from '@/components/CommentCard.vue'
+
 export default {
     /* Variables that are needed to fill in the template. */
     props: ['textbox1', 'textbox2', 'date', 'color'],
@@ -53,11 +59,26 @@ export default {
             saveEditMode: 'Edit',
             tempbox1: this.textbox1,
             tempbox2: this.textbox2,
-            tempProps: []
+            tempProps: [],
+            comment: 'hoi1000',
+            editedComment: '',
+            comments: [{
+                message: 'Hoi het is super slecht, ga je schamen!',
+                person: 'Peter'
+            }, {
+                message: 'Hoi het is super goed!',
+                person: 'Ptheven'
+            }]
         }
     },
 
     methods: {
+        adaptComment (editedComment) {
+            this.comment = editedComment
+        },
+        addComment () {
+            this.comments.push({message: '', person: 'Load person here'})
+        },
         saveEdit: function () {
             if (this.saveEditMode === 'Save') {
                 this.saveEditMode = 'Edit'
@@ -72,6 +93,10 @@ export default {
         cancel: function () {
             this.saveEditMode = 'Edit'
         }
+    },
+
+    components: {
+        'comment-card': commentCard
     }
 }
 

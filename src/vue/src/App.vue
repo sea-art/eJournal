@@ -21,6 +21,7 @@ export default {
 :root {
     --theme-dark-blue: #252C39;
     --theme-peach: #E9A480;
+    --theme-dark-peach: #de8f3f;
     --theme-light-grey: #EEEEEE;
     --theme-dark-grey: #BBBBBB;
     --theme-pink: #E64769;
@@ -39,23 +40,6 @@ export default {
 img {
     max-width: 100%;
     max-height: 100%;
-}
-
-.fit-height {
-    flex: 1 1 auto;
-    display: flex;
-}
-
-#app {
-    overflow-x: hidden;
-    font-family: 'Roboto', sans-serif;
-    font-size: 20px;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    display: flex;
-    flex-flow: column;
-    height: 100%;
-    padding-top: 70px;
 }
 
 h1 {
@@ -97,12 +81,29 @@ h6 {
     margin-bottom: 0px;
 }
 
+#app {
+    overflow-x: hidden;
+    font-family: 'Roboto', sans-serif;
+    font-size: 20px;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+    padding-top: 70px;
+}
+
 .btn, .form-control {
     font-family: 'Roboto Condensed', sans-serif;
     font-size: 20px;
     background-color: white;
     color: var(--theme-dark-blue);
     border: none;
+}
+
+.fit-height {
+    flex: 1 1 auto;
+    display: flex;
 }
 
 .form-control {
@@ -135,6 +136,10 @@ h6 {
     padding-bottom: 12px;
 }
 
+.hover {
+    cursor: pointer;
+}
+
 .multi-form {
     margin-bottom: 10px !important;
 }
@@ -158,5 +163,10 @@ h6 {
 .portrait-container {
     height: 100px;
     width: 100px;
+}
+
+.portrait-container-sm {
+    height: 50px;
+    width: 50px;
 }
 </style>
