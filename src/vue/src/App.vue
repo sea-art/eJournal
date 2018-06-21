@@ -27,6 +27,8 @@ export default {
     --theme-blue: #22648A;
     --theme-red: #c83b4b;
     --theme-medium-grey: #DEDEDE;
+    --theme-add-unselected: #99ff99;
+    --theme-add-selected: #1aff1a;
 }
 
 * {
@@ -167,5 +169,28 @@ h6 {
 .portrait-container-sm {
     height: 50px;
     width: 50px;
+}
+
+.add-button {
+    width: 100%;
+    border-color: var(--theme-blue);
+    background-color: var(--theme-add-unselected);
+}
+
+.add-button:hover {
+    border-color: var(--theme-blue);
+    background-color: var(--theme-add-selected);
+    color: black !important;
+}
+
+.delete-button {
+    width: 100%;
+    border-color: var(--theme-blue);
+    background-color: var(--theme-pink);
+}
+
+.delete-button:hover {
+    border-color: var(--theme-dark-blue);
+    background-color: red;
 }
 </style>

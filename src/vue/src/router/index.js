@@ -10,6 +10,7 @@ import Guest from '@/views/Guest'
 import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
 import CourseEdit from '@/views/CourseEdit'
+import CourseUserManagement from '@/views/CourseUserManagement'
 import AssignmentEdit from '@/views/AssignmentEdit'
 
 Vue.use(Router)
@@ -44,6 +45,11 @@ export default new Router({
         path: '/Home/Course/:cID/CourseEdit',
         name: 'CourseEdit',
         component: CourseEdit,
+        props: true
+    }, {
+        path: '/Home/Course/:cID/CourseUserManagement',
+        name: 'CourseUserManagement',
+        component: CourseUserManagement,
         props: true
     }, {
         path: '/Home/Course/:cID/Assignment/:aID',
