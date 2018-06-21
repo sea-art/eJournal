@@ -3,12 +3,13 @@ from django.http import JsonResponse
 
 from VLE.serializers import *
 import VLE.factory as factory
+import VLE.utils as utils
 from VLE.views.get import get_own_user_data
 
 
 @api_view(['POST'])
 def update_course(request):
-    """Updates an existing course
+    """Updates an existing course.
 
     Arguments:
     request -- the update request that was send with
@@ -25,14 +26,14 @@ def update_course(request):
     course = Course.objects.get(pk=request.data['cID'])
     course.name = request.data['name']
     course.abbr = request.data['abbr']
-    course.date = request.data['startdate']
+    course.startdate = request.data['startDate']
     course.save()
     return JsonResponse({'result': 'success', 'course': course_to_dict(course)})
 
 
 @api_view(['POST'])
 def update_assignment(request):
-    """Updates an existing assignment
+    """Updates an existing assignment.
 
     Arguments:
     request -- the update request that was send with

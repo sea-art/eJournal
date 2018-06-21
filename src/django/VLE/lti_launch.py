@@ -116,7 +116,7 @@ def select_create_course(request, user, roles):
         # If course already exists, select it.
         course = courses[0]
 
-        if user not in course.participations.all():
+        if user not in course.users.all():
             # If the user is not a participant, add a participation link with
             # the correct role given by the lti request.
             lti_roles = dict((roles[k], k) for k in roles)

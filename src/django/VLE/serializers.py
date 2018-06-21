@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from VLE.models import *
 from random import randint
+import VLE.utils as utils
 
 
 def user_to_dict(user):
@@ -9,6 +10,13 @@ def user_to_dict(user):
         'picture': user.profile_picture,
         'uID': user.id
     } if user else None
+
+
+def participation_to_dict(participation):
+    role_dict = {'role': participation.role.name}
+    user_dict = user_to_dict(participation.user)
+
+    return {**role_dict, **user_dict} if participation else None
 
 
 def course_to_dict(course):
@@ -51,20 +59,20 @@ def assignment_to_dict(assignment):
         'name': assignment.name,
         'description': assignment.description,
         'auth': user_to_dict(assignment.author),
-        'deadlne': assignment.deadline
     } if assignment else None
 
 
 def journal_to_dict(journal):
+    entries = utils.get_journal_entries(journal)
     return {
         'jID': journal.id,
         'student': user_to_dict(journal.user),
         'stats': {
-            'acquired_points': randint(0, 10),
-            'graded': 1,
-            'submitted': 1,
-            'total_points': 10
-        }  # TODO: Change random to real stats
+            'acquired_points': utils.get_acquired_grade(entries, journal),
+            'graded': utils.get_graded_count(entries),
+            'submitted': utils.get_submitted_count(entries),
+            'total_points': utils.get_max_points(journal),
+        }
     } if journal else None
 
 
@@ -148,3 +156,27 @@ def content_to_dict(content):
         'tag': content.field.pk,
         'data': content.data,
     } if content else None
+
+
+def format_to_dict(format):
+    return {
+        'templates': [template_to_dict(template) for template in format.available_templates.all()],
+        'presets': [preset_to_dict(preset) for preset in format.preset_set.all()],
+    } if format else None
+
+
+def preset_to_dict(preset):
+    if not preset:
+        return None
+
+    base = {
+        'type': preset.type,
+        'deadline': preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
+    }
+
+    if preset.type == Node.PROGRESS:
+        result = {**base, **{'target': preset.deadline.target}}
+    elif preset.type == Node.ENTRYDEADLINE:
+        result = {**base, **{'template': template_to_dict(preset.forced_template)}}
+
+    return result

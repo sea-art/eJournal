@@ -28,6 +28,9 @@ from VLE.views.get import get_course_assignments
 from VLE.views.get import get_assignment_journals
 from VLE.views.get import get_upcoming_deadlines
 from VLE.views.get import get_nodes
+from VLE.views.get import get_format
+from VLE.views.get import get_names
+from VLE.views.get import get_course_users
 
 from VLE.views.create import create_new_course
 from VLE.views.create import create_new_assignment
@@ -38,6 +41,9 @@ from VLE.views.update import update_assignment
 from VLE.views.update import update_password
 from VLE.views.update import update_grade_notification
 from VLE.views.update import update_comment_notification
+
+from VLE.views.delete import delete_course
+from VLE.views.delete import delete_assignment
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -61,6 +67,9 @@ urlpatterns = [
     path('api/get_assignment_journals/<int:aID>/', get_assignment_journals, name='get_assignment_journals'),
     path('api/get_upcoming_deadlines/', get_upcoming_deadlines, name='get_upcoming_deadlines'),
     path('api/get_nodes/<int:jID>/', get_nodes, name='get_nodes'),
+    path('api/get_format/<int:aID>/', get_format, name='get_format'),
+    path('api/get_names/', get_names, name='get_names'),
+    path('api/get_course_users/<int:cID>/', get_course_users, name='get_course_users'),
 
     path('api/create_new_course/', create_new_course, name='create_new_course'),
     path('api/create_new_assignment/', create_new_assignment, name='create_new_assignment'),
@@ -73,6 +82,9 @@ urlpatterns = [
          name='update_grade_notification'),
     path('api/update_comment_notification/<str:notified>/', update_comment_notification,
          name='update_comment_notification'),
+
+    path('api/delete_course/', delete_course, name='delete_course'),
+    path('api/delete_assignment/', delete_assignment, name='delete_assignment'),
 
     path('api/lti/launch', lti_launch, name='lti_launch'),
 ]
