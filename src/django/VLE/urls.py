@@ -24,7 +24,7 @@ from VLE.views.get import get_user_courses, get_course_assignments, \
     get_assignment_journals, get_upcoming_deadlines, get_course_permissions, \
     get_nodes, get_format, get_names, get_course_users, get_entrycomments
 
-from VLE.views.create import create_new_course, create_new_assignment, create_entry \
+from VLE.views.create import create_new_course, create_new_assignment, create_entry, \
     create_entrycomment
 
 from VLE.views.update import update_user_data, update_course, update_assignment, \
