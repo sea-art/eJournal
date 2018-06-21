@@ -130,6 +130,8 @@ def update_grade_entry(request, eID):
 
     Arguments:
     request -- the request that was send with
+        grade -- the grade
+        published -- published
     eID -- the entry id
 
     Returns a json string if it was sucessful or not.

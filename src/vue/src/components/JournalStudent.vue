@@ -20,7 +20,7 @@
                         <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                     </div>
                     <div v-else>
-                        <entry-preview ref="entry-template-card" @edit-node="fillDeadline" :template="nodes[currentNode].template"/>
+                        <entry-preview ref="entry-template-card" @content-template="fillDeadline" :template="nodes[currentNode].template"/>
                     </div>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'a'">
@@ -100,7 +100,7 @@ export default {
                 .catch(_ => alert('Error while loading nodes.'))
         },
         fillDeadline (data) {
-            journal.create_entry(this.jID, this.nodes[this.currentNode].tID, data)
+            journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data)
         },
         progressPoints (progressNode) {
             var tempProgress = 0

@@ -29,5 +29,25 @@ export default {
     get_format (aID) {
         return auth.authenticatedGet('/get_format/' + aID + '/')
             .then(response => response.data)
-    }
+    },
+
+    update_grade_entry (eID, grade, published) {
+        return auth.authenticatedPost('/update_grade_entry/' + eID + '/', {grade: grade, published: published})
+            .then(response => response.data)
+    },
+
+    update_publish_grade_entry (eID, published) {
+        return auth.authenticatedPost('/update_publish_grade_entry/' + eID + '/', {published: published})
+            .then(response => response.data)
+    },
+
+    update_publish_grades_assignment (aID) {
+        return auth.authenticatedGet('/update_publish_grades_assignment/' + aID + '/')
+            .then(response => response.data)
+    },
+
+    update_publish_grades_journal (jID) {
+        return auth.authenticatedGet('/api/update_publish_grades_journal/' + jID + '/')
+            .then(response => response.data)
+    },
 }

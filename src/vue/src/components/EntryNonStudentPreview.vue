@@ -1,6 +1,6 @@
 <!-- Loads a preview of a template. -->
 <template>
-    <div>
+    <div v-if="entryNode.entry !== null">
         <b-card class="card main-card noHoverCard" :class="'dark-border'">
             <b-row>
                 <b-col id="main-card-left-column" cols="9" lg-cols="12">
@@ -40,6 +40,7 @@
 
 <script>
 import commentCard from '@/components/CommentCard.vue'
+import journalApi from '@/api/journal.js'
 
 export default {
     props: ['entryNode'],
@@ -63,8 +64,14 @@ export default {
         entryNode: function () {
             this.completeContent = []
             this.setContent()
-            this.grade = null
-            this.status = 1
+
+            if (this.entryNode.entry !== null) {
+                this.grade = this.entryNode.entry.grade
+                this.status = this.entryNode.entry.published
+            } else {
+                this.grade = null
+                this.status = 1
+            }
         }
     },
     created () {
@@ -73,26 +80,29 @@ export default {
     methods: {
         setContent: function () {
             var checkFound = false
-            for (var templateField of this.entryNode.entry.template.fields) {
-                checkFound = false
 
-                for (var content of this.entryNode.entry.content) {
-                    if (content.tag === templateField.tag) {
-                        this.completeContent.push({
-                            data: content.data,
-                            tag: content.tag
-                        })
+            if (this.entryNode.entry !== null) {
+                for (var templateField of this.entryNode.entry.template.fields) {
+                    checkFound = false
 
-                        checkFound = true
-                        break
+                    for (var content of this.entryNode.entry.content) {
+                        if (content.tag === templateField.tag) {
+                            this.completeContent.push({
+                                data: content.data,
+                                tag: content.tag
+                            })
+
+                            checkFound = true
+                            break
+                        }
                     }
-                }
 
-                if (!checkFound) {
-                    this.completeContent.push({
-                        data: null,
-                        tag: templateField.tag
-                    })
+                    if (!checkFound) {
+                        this.completeContent.push({
+                            data: null,
+                            tag: templateField.tag
+                        })
+                    }
                 }
             }
         },
@@ -100,7 +110,10 @@ export default {
             this.comments = newComments
         },
         commitGrade: function () {
-            console.log('derp')
+            if (this.grade !== null) {
+                journalApi.update_grade_entry(this.entryNode.entry.eID, this.grade, this.status)
+                confirm('Oh yeah! grade updated')
+            }
         }
     },
     components: {
