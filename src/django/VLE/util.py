@@ -43,11 +43,13 @@ def get_role(user, cID):
 
 def get_permissions(user, cID):
     """Get the permissions of the given user in the given course. The
-    permissions are returned in dictionary format.
+    permissions are returned in dictionary format. For site-wide permissions
+    when the user is not within a course, use cID == -1.
 
     Arguments:
     user -- user that did the request.
-    cID -- course ID used to validate the request.
+    cID -- course ID used to retrieve the permissions. -1 for permissions
+    outside of a course.
     """
     roleDict = {}
 
