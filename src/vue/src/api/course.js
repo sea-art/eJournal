@@ -26,12 +26,12 @@ export default {
     },
 
     /* Updates an existing course. */
-    update_course (cID, name, abbr, startdate) {
+    update_course (cID, name, abbr, startDate) {
         return auth.authenticatedPost('/update_course/', {
             cID: cID,
             name: name,
             abbr: abbr,
-            startdate: startdate
+            startDate: startDate
         }).then(response => response.data.course)
     },
 

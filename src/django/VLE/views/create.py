@@ -53,7 +53,7 @@ def create_new_assignment(request):
     except KeyError:
         return utils.keyerror_json("name", "description", "cID")
 
-    assignment = factory.make_assignment(name, description, courseIDs=[cID], author=request.user)
+    assignment = factory.make_assignment(name, description, cIDs=[cID], author=request.user)
     return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)})
 
 

@@ -35,20 +35,6 @@ export default {
     components: {
         'toggle-switch': Switch
     },
-    data () {
-        return {
-            'profile': {},
-            'gradeUpdate': null,
-            'commentUpdate': null
-        }
-    },
-    created () {
-        userAPI.get_own_user_data().then(user => {
-            this.profile = user
-            this.gradeUpdate = this.profile.grade_notifications
-            this.commentUpdate = this.profile.comment_notifications
-        })
-    },
     methods: {
         getGradeNotification (isActive) {
             userAPI.update_grade_notification(isActive)
