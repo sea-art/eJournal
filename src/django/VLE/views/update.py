@@ -80,7 +80,7 @@ def update_password(request):
 
 
 @api_view(['POST'])
-def update_grade_notification(request, notified):
+def update_grade_notification(request):
     """Updates whether the user gets notified when a grade changes/new grade
 
     Arguments:
@@ -91,12 +91,11 @@ def update_grade_notification(request, notified):
     user = request.user
     if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
+    print(request.data)
 
-    if notified == 'true':
-        user.grade_notifications = True
-    elif notified == 'false':
-        user.grade_notifications = False
-    else:
+    try:
+        user.grade_notifications = request.data['new_value']
+    except:
         return JsonResponse({'result': '400 Bad Request'}, status=400)
 
     user.save()
@@ -104,7 +103,7 @@ def update_grade_notification(request, notified):
 
 
 @api_view(['POST'])
-def update_comment_notification(request, notified):
+def update_comment_notification(request):
     """Updates whether the user gets notified when a comment changes/new comment
 
     Arguments:
@@ -116,11 +115,9 @@ def update_comment_notification(request, notified):
     if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    if notified == 'true':
-        user.comment_notifications = True
-    elif notified == 'false':
-        user.comment_notifications = False
-    else:
+    try:
+        user.comment_notifications = request.data['new_value']
+    except:
         return JsonResponse({'result': '400 Bad Request'}, status=400)
 
     user.save()
@@ -141,5 +138,25 @@ def update_grade_entry(request, eID):
 
     entry = Entry.objects.get(pk=eID)
     entry.grade = request.data['grade']
+    entry.published = request.data['publish']
     entry.save()
-    return JsonResponse({'result': 'success', 'new_grade': request.date['grade']})
+    return JsonResponse({'result': 'success', 'new_grade': entry.grade})
+
+
+@api_view(['POST'])
+def update_publish_grade_entry(request, eID):
+    """Updates the grade publish status for one entry
+
+    Arguments:
+    request -- the request that was send with
+
+    Returns a json string if it was sucessful or not.
+    """
+    if not user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    publish = request.data['publish']
+    entry = Entry.objects.get(pk=eID)
+    entry.published = publish
+    entry.save()
+    return JsonResponse({'result': 'success', 'new_publish': entry.published})
