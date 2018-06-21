@@ -27,8 +27,8 @@ from VLE.views.get import get_user_courses
 from VLE.views.get import get_course_assignments
 from VLE.views.get import get_assignment_journals
 from VLE.views.get import get_upcoming_deadlines
-from VLE.views.get import get_nodes
 from VLE.views.get import get_course_permissions
+from VLE.views.get import get_nodes
 from VLE.views.get import get_format
 from VLE.views.get import get_names
 
@@ -63,7 +63,7 @@ urlpatterns = [
     path('api/get_course_assignments/<int:cID>/', get_course_assignments, name='get_course_assignments'),
     path('api/get_assignment_journals/<int:aID>/', get_assignment_journals, name='get_assignment_journals'),
     path('api/get_upcoming_deadlines/', get_upcoming_deadlines, name='get_upcoming_deadlines'),
-    path('api/get_course_permissions/<str:cID>/', get_course_permissions, name='get_course_permissions'),
+    path('api/get_course_permissions/<int:cID>/', get_course_permissions, name='get_course_permissions'),
     path('api/get_nodes/<int:jID>/', get_nodes, name='get_nodes'),
     path('api/get_format/<int:aID>/', get_format, name='get_format'),
     path('api/get_names', get_names, name='get_names'),

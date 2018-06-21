@@ -33,7 +33,7 @@ class User(AbstractUser):
     )
 
     def __str__(self):
-        return str(self.id) + ") " + self.username
+        return self.username + " (" + str(self.id) + ")"
 
 
 class Course(models.Model):
@@ -74,7 +74,7 @@ class Course(models.Model):
     )
 
     def __str__(self):
-        return str(self.id) + ") " + self.name
+        return self.name + " (" + str(self.id) + ")"
 
 
 class Role(models.Model):
@@ -94,7 +94,7 @@ class Role(models.Model):
     can_delete_course = models.BooleanField(default=False)
 
     def __str__(self):
-        return str(self.id) + ") " + str(self.name)
+        return str(self.name) + " (" + str(self.id) + ")"
 
 
 class Participation(models.Model):
@@ -112,9 +112,8 @@ class Participation(models.Model):
         related_name='role',
     )
 
-    # TODO: Unique, but fails in test script.
-    # class Meta:
-    #     unique_together = ('user', 'course',)
+    class Meta:
+        unique_together = ('user', 'course',)
 
     def __str__(self):
         return "usr: " + str(self.user) + " crs: " + str(self.course) + " role: " + str(self.role)
@@ -156,7 +155,7 @@ class Assignment(models.Model):
     )
 
     def __str__(self):
-        return str(self.id) + ") " + self.name
+        return self.name + " (" + str(self.id) + ")"
 
 
 class Journal(models.Model):

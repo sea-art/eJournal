@@ -1,17 +1,15 @@
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
 
-import VLE.factory as factory
-from VLE.serializers import *
-from VLE.util import *
-
-from random import randint
 import statistics as st
 
+import VLE.factory as factory
 import VLE.edag as edag
-import VLE.factory as factory
-import statistics as st
 import VLE.utils as utils
+
+from VLE.serializers import *
+from VLE.permissions import *
+
 from VLE.lti_launch import *
 from VLE.lti_grade_passback import *
 
@@ -235,9 +233,10 @@ def get_course_permissions(request, cID):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    roleDict = get_permissions(request.user, int(cID))
+    roleDict = get_permissions(request.user, cID)
 
-    return JsonResponse({'permissions': roleDict})
+    return JsonResponse({'result': 'success',
+                         'permissions': roleDict})
 
 
 @api_view(['GET'])

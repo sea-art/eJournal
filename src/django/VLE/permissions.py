@@ -4,9 +4,8 @@ from VLE.models import Assignment
 from VLE.models import Journal
 from VLE.models import Participation
 from VLE.models import Role
-from django.forms.models import model_to_dict
 
-import random
+from django.forms.models import model_to_dict
 
 
 def check_permissions(user, cID, permissionList):
@@ -36,12 +35,10 @@ def get_role(user, cID):
     # First get the role ID of the user participation.
     roleID = Participation.objects.get(user=user, course=cID).id
     # Now get the role and its corresponding permissions.
-    role = Role.objects.get(id=roleID)
-
-    return role
+    return Role.objects.get(id=roleID)
 
 
-def get_permissions(user, cID):
+def get_permissions(user, cID=-1):
     """Get the permissions of the given user in the given course. The
     permissions are returned in dictionary format. For site-wide permissions
     when the user is not within a course, use cID == -1.
@@ -66,7 +63,7 @@ def get_permissions(user, cID):
             "can_delete_course": True,
             "is_admin": True
         }
-    elif cID == -1:
+    elif cID is -1:
         # No course ID was given. The user has no permissions.
         roleDict = {
             "can_edit_grades": False,
