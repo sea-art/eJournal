@@ -8,6 +8,7 @@ import 'vue-awesome/icons/eye'
 import 'vue-awesome/icons/caret-up'
 import 'vue-awesome/icons/caret-down'
 import 'vue-awesome/icons/arrows'
+import 'vue-awesome/icons/trash'
 
 Vue.config.productionTip = false
 Vue.use(BootstrapVue)

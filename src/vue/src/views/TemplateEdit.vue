@@ -1,25 +1,33 @@
 <template>
     <content-single-column>
         <b-card slot="main-content-column" class="no-hover">
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" id="templateName" v-model="name" placeholder="name" required/>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" id="templateName" v-model="name" placeholder="Template name" required/>
             <draggable v-model="fields" @start="drag=true" @end="drag=false" @update="onUpdate" :options="{ handle:'.handle' }">
-                <div v-for="field in fields" :key="field.tag">
+                <div v-for="field in fields" :key="field.location">
                     <b-card class="field-card">
-                        <b-row align-h="between">
+                        <b-row align-h="between" no-gutters>
                             <b-col cols="12" md="11">
-                                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="field.title" placeholder="title" required/>
-                                <b-select :options="fieldTypes"></b-select>
+                                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="field.title" placeholder="Field title" required/>
+                                <b-select :options="fieldTypes" v-model="field.type"></b-select>
                             </b-col>
-                            <b-col cols="12" md="1" class="handle">
-                                <icon class="move-icon" name="arrows" scale="1.75"></icon>
+                            <b-col cols="12" md="1">
+                                <div class="icon-box">
+                                    <div class="handle">
+                                        <icon class="move-icon" name="arrows" scale="1.75"></icon>
+                                    </div>
+                                    <div class="trash-box" @click="deleteField">
+                                        <icon class="trash-icon" name="trash" scale="1.75"></icon>
+                                    </div>
+                                </div>
                             </b-col>
                         </b-row>
                     </b-card>
                 </div>
+                <div style="visibility: hidden;"></div>
             </draggable>
             <b-card class="hover" @click="addField">+ Add field</b-card>
             <b-button @click="onSubmit" :to="{name: 'Course', params: {cID: 1}}">Save</b-button>
-            <!-- {{ fields }} -->
+            {{ fields }}
         </b-card>
 
     </content-single-column>
@@ -46,7 +54,7 @@ export default {
     },
     data () {
         return {
-            name: 'Template title',
+            name: 'Template name',
             fields: [{
                 'tag': 0,
                 'type': 't',
@@ -62,6 +70,11 @@ export default {
                 'type': 't',
                 'title': 'Aantal punten',
                 'location': 2
+            }, {
+                'tag': 3,
+                'type': 'i',
+                'title': 'Bewijs van deelname',
+                'location': 3
             }],
             fieldTypes: {
                 'i': 'Image',
@@ -80,14 +93,11 @@ export default {
             console.log('submit')
         },
         addField () {
-            console.log('addField')
-            var tag = this.fields[this.fields.length - 1].tag + 1
             var type = 't'
             var title = 'Field title'
             var location = this.fields.length
 
             var newField = {
-                'tag': tag,
                 'type': type,
                 'title': title,
                 'location': location
@@ -96,7 +106,9 @@ export default {
             this.fields.push(newField)
         },
         onUpdate () {
-            console.log('hihih')
+            for (var i = 0; i < this.fields.length; i++) {
+                this.fields[i].location = i
+            }
         }
     }
 }
@@ -126,17 +138,46 @@ export default {
     visibility: visible;
 }
 
-.handle {
-    cursor: grab;
+.icon-box {
     text-align: center;
-    padding: 20px 0px 0px 0px;
 }
 
-.move-icon {
+.handle, .trash-box {
+    text-align: center;
+    padding: 10px 0px 10px 10px;
+}
+
+.handle {
+    cursor: grab;
+}
+
+.trash-box {
+    cursor: pointer;
+}
+
+.move-icon, .trash-icon {
     fill: var(--theme-dark-grey)
 }
 
-.field-card:hover .move-icon {
+.field-card:hover .move-icon, .field-card:hover .trash-icon {
     fill: var(--theme-dark-blue);
+}
+
+.trash-box:hover .trash-icon {
+    fill: var(--theme-red);
+}
+
+.handle:hover .move-icon {
+    fill: var(--theme-blue);
+}
+
+@media(max-width:768px){
+    .icon-box {
+        margin-top: 10px;
+    }
+
+    .handle, .trash-box {
+        display: inline;
+    }
 }
 </style>
