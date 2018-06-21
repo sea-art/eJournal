@@ -1,4 +1,5 @@
 from rest_framework.test import APIRequestFactory
+from django.contrib import auth
 from django.test import TestCase
 from django.urls import reverse
 
@@ -18,7 +19,6 @@ class JWTTests(TestCase):
         """
         Testing simple authentication with JWT keys.
         """
-
         result = self.client.post(reverse('token_obtain_pair'),
                                   {'username': self.username,
                                    'password': self.password}, format='json')
@@ -31,7 +31,6 @@ class JWTTests(TestCase):
         """
         Testing simple anonymous access.
         """
-
         result = self.client.get(reverse('get_user_courses'), {}, format='json')
 
         self.assertEquals(result.status_code, 401)
@@ -50,3 +49,10 @@ class JWTTests(TestCase):
         self.assertEquals(result.status_code, 200)
         self.assertEquals(result.json()['result'], 'success')
         self.assertEquals(result.json()['courses'], [])
+
+    def test_auth_without_password(self):
+        user = User(username='john')
+        user.save()
+
+        authenticated = auth.authenticate(username='john', password='')
+        self.assertEquals(authenticated, None)
