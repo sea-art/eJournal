@@ -278,8 +278,8 @@ def get_format(request, aID):
     try:
         assignment = Assignment.objects.get(pk=aID)
     except Assignment.NotFound:
-        return JsonResponse({'result': '400 Bad Request',
-                             'description': 'Assignment does not exist.'}, status=400)
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Assignment does not exist.'}, status=404)
 
     return JsonResponse({'result': 'success',
                          'nodes': get_format_dict(assignment.format)})
@@ -303,7 +303,7 @@ def get_names(request):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    cID, aID, jID = utils.get_optional_post_params(request.data, "cID", "aID", "jID", "tID")
+    cID, aID, jID, tID = utils.get_optional_post_params(request.data, "cID", "aID", "jID", "tID")
     result = JsonResponse({'result': 'success'})
 
     try:
