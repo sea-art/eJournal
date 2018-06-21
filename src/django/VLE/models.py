@@ -56,8 +56,8 @@ class Course(models.Model):
         null=True
     )
 
-    participations = models.ManyToManyField(
-        User,
+    users = models.ManyToManyField(
+        'User',
         related_name='participations',
         through='Participation',
         through_fields=('course', 'user'),

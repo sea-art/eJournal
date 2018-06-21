@@ -119,6 +119,6 @@ def create_entry(request):
 
         return JsonResponse({'result': 'success', 'node': node_to_dict(node)}, status=200)
     except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
-        return JsonResponse({'result': '400 Bad Request',
+        return JsonResponse({'result': '404 Not Found',
                              'description': 'Journal, Template or Node does not exist.'},
-                            status=400)
+                            status=404)
