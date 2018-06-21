@@ -1,6 +1,6 @@
 <template>
     <b-row no-gutters>
-        <!-- TODO: reopen bread-crumb when it is working again -->
+    <!-- TODO: reopen bread-crumb when it is working again -->
         <b-col v-if="bootstrapLg()" cols="12">
             <!-- <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
@@ -13,10 +13,10 @@
             <!-- <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
-                    <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
+                    <entry-non-student-preview ref="entry-template-card" :entryNode="nodes[currentNode]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'd'">
-                    <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
+                    <entry-non-student-preview ref="entry-template-card" :entryNode="nodes[currentNode]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'p'">
                     <b-card class="card main-card noHoverCard" :class="'pink-border'">
@@ -34,6 +34,7 @@
 <script>
 import contentColumns from '@/components/ContentColumns.vue'
 import entryNode from '@/components/EntryNode.vue'
+import entryNonStudentPreview from '@/components/EntryNonStudentPreview.vue'
 import addCard from '@/components/AddCard.vue'
 import edag from '@/components/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
@@ -46,23 +47,14 @@ export default {
             currentNode: 0,
             editedData: ['', ''],
             nodes: [],
+            newNodes: [],
             progressNodes: {}
         }
     },
     created () {
-        var tempNodes = []
-
         journal.get_nodes(this.jID)
             .then(response => { this.nodes = response.nodes })
             .catch(_ => alert('Error while loading nodes.'))
-        console.log(this.nodes)
-        for (var node in this.nodes) {
-            if (node.type !== 'a') {
-                tempNodes.push(node)
-            }
-        }
-        console.log(tempNodes)
-        this.nodes = tempNodes
     },
     watch: {
         currentNode: function () {
@@ -123,6 +115,7 @@ export default {
         }
     },
     components: {
+        'entry-non-student-preview': entryNonStudentPreview,
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'add-card': addCard,
