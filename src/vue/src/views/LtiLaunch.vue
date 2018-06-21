@@ -1,6 +1,6 @@
 <template>
     <content-single-columns>
-        <lti-create-connect-course v-if="handleCourseChoice" @handleAction="handleActions"/>
+        <lti-create-connect-course v-if="handleCourseChoice" @handleAction="handleActions" :lti="lti"/>
         <lti-create-connect-assignment v-if="handleAssignmentChoice" @handleAction="handleActions"/>
     </content-single-columns>
 </template>
@@ -34,7 +34,14 @@ export default {
             s_new_course: '0',
             s_new_assignment: '1',
             s_finish: '2',
-            s_finish_student: '3'
+            s_finish_student: '3',
+
+            /* Set a dictionary with the needed lti variables. */
+            lti: {
+                ltiCourseID: '',
+                ltiCourseName: '',
+                ltiCourseAbbr: ''
+            }
         }
     },
     methods: {
@@ -59,9 +66,9 @@ export default {
         }
 
         /* Get the IDs of the objects out of the query. */
-        var ltiCourseID = this.$route.query.lti_cID
-        var ltiCourseName = this.$route.query.lti_cName
-        var ltiCourseAbbr = this.$route.query.lti_abbr
+        this.ltiCourseID = this.$route.query.lti_cID
+        this.ltiCourseName = this.$route.query.lti_cName
+        this.ltiCourseAbbr = this.$route.query.lti_abbr
         var role = this.$route.query.role
         var state = this.$route.query.state
 
@@ -76,7 +83,7 @@ export default {
         state = '0'
         role = 'TA'
 
-        if (role === 'TA' || role === 'Teacher') {
+        if (role === 'Teacher') {
             if (state === this.s_new_course) {
                 this.handleCourseChoice = true
                 // TODO Create or koppel assignement

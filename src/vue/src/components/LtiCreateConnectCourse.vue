@@ -23,7 +23,7 @@
             title="Create course"
             size="lg"
             hide-footer>
-                <create-course @handleAction="handleConfirm('createCourseRef')"></create-course>
+                <create-course @handleAction="handleConfirm('createCourseRef')" :lti="lti"></create-course>
         </b-modal>
 
         <b-modal
@@ -44,6 +44,7 @@ import createCourse from '@/components/CreateCourse.vue'
 
 export default {
     name: 'LtiCreateConnect',
+    props: ['lti'],
     components: {
         'bread-crumb': breadCrumb,
         'create-course': createCourse,

@@ -15,6 +15,7 @@ import courseApi from '@/api/course.js'
 
 export default {
     name: 'CreateCourse',
+    props: ['lti'],
     data () {
         return {
             form: {
