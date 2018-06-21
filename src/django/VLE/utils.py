@@ -70,7 +70,7 @@ def get_acquired_grade(entries, journal):
     if format.grade_type == 'GR':
         count_graded = 0
         for entry in entries:
-            if entry.graded:
+            if entry.published:
                 count_graded += 1
                 total_grade += entry.grade
         return total_gradee
@@ -97,5 +97,5 @@ def get_graded_count(entries):
 
     Returns the graded entry count.
     """
-    return entries.filter(graded=True).count()
+    return entries.filter(published=True).count()
 # END journal stat functions

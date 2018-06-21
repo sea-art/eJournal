@@ -33,7 +33,6 @@
         </b-col>
         <b-col cols="12" xl="3" order="3" class="right-content"/>
     </b-row>
-
 </template>
 
 <script>
