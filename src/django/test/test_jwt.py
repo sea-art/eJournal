@@ -18,7 +18,6 @@ class JWTTests(TestCase):
         """
         Testing simple authentication with JWT keys.
         """
-
         result = self.client.post(reverse('token_obtain_pair'),
                                   {'username': self.username,
                                    'password': self.password}, format='json')
@@ -31,12 +30,9 @@ class JWTTests(TestCase):
         """
         Testing simple anonymous access.
         """
+        result = self.client.get(reverse('get_user_courses'), {}, format='json')
 
-        result = self.client.get(reverse('test'), {}, format='json')
-
-        self.assertEquals(result.status_code, 200)
-        self.assertEquals(result.json()['result'], 'success')
-        self.assertEquals(result.json()['user'], '')
+        self.assertEquals(result.status_code, 401)
 
     def test_user(self):
         """
@@ -46,8 +42,9 @@ class JWTTests(TestCase):
                                   {'username': self.username,
                                    'password': self.password}, format='json')
 
-        result = self.client.get(reverse('test'), {}, HTTP_AUTHORIZATION='Bearer {0}'.format(result.json()['access']))
+        result = self.client.get(reverse('get_user_courses'), {},
+                                 HTTP_AUTHORIZATION='Bearer {0}'.format(result.json()['access']))
 
         self.assertEquals(result.status_code, 200)
         self.assertEquals(result.json()['result'], 'success')
-        self.assertEquals(result.json()['user'], self.username)
+        self.assertEquals(result.json()['courses'], [])
