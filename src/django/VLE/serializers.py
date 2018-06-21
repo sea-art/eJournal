@@ -166,8 +166,17 @@ def format_to_dict(format):
 
 
 def preset_to_dict(preset):
-    return {
+    if not preset:
+        return NOne
+
+    base = {
         'type': preset.type,
-        'deadline': deadline_to_dict(preset.deadline),
-        'template': template_to_dict(preset.forced_template),
-    } if preset else None
+        'deadline': preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
+    }
+
+    if preset.type == Node.PROGRESS:
+        result = {**base, **{'target': preset.deadline.target}}
+    elif preset.type == Node.ENTRYDEADLINE:
+        result = {**base, **{'template': template_to_dict(preset.forced_template)}}
+
+    return result
