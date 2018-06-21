@@ -142,4 +142,3 @@ def create_entrycomment(request):
         return JsonResponse({'result': 'success'})
     else:
         return JsonResponse({'result': 'false'}, status=500)
-                            status=404)

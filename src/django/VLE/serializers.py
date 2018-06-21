@@ -181,6 +181,7 @@ def preset_to_dict(preset):
 
     return result
 
+
 def entrycomment_to_dict(entrycomment):
     return {
         'entry': entrycomment.entry,

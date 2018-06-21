@@ -31,11 +31,8 @@ from VLE.views.get import get_course_permissions
 from VLE.views.get import get_nodes
 from VLE.views.get import get_format
 from VLE.views.get import get_names
-<<<<<<< HEAD
 from VLE.views.get import get_entrycomments
-=======
 from VLE.views.get import get_course_users
->>>>>>> 789761b854f581c255ac899fecbeff16b6ac4845
 
 from VLE.views.create import create_new_course
 from VLE.views.create import create_new_assignment
