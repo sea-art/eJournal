@@ -1,5 +1,7 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes, renderer_classes
+from rest_framework.parsers import JSONParser
 from django.http import JsonResponse
+import json
 
 from VLE.serializers import *
 import VLE.factory as factory
@@ -80,28 +82,29 @@ def create_journal(request):
 
 
 @api_view(['POST'])
+@parser_classes([JSONParser])
 def create_entry(request):
-    """Create a new entry
-    TODO: How to match new Entry (Deadline) with a pre-existing Node?
+    """ Create a new entry
     Arguments:
     request -- the request that was send with
     jID -- the journal id
+    tID -- the template id to create the entry with
+    nID -- optional: the node to bind the entry to (only for entrydeadlines)
+    content -- the list of {tag, data} tuples to bind data to a template field.
     """
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     try:
-        jID, tID = utils.get_required_post_params(request.data, "jID", "tID")
-        nID = utils.get_optional_post_params(request.data, "nID")
+        jID, tID, content_list = utils.get_required_post_params(request.data, "jID", "tID", "content")
+        nID, = utils.get_optional_post_params(request.data, "nID")
     except KeyError:
-        return utils.keyerror_json("jID", "tID")
+        return utils.keyerror_json("jID", "tID", "content")
 
     try:
         journal = Journal.objects.get(pk=jID, user=request.user)
 
-        template = EntryTemplate.objects.get(pk=request.data['tID'])
-
-        # TODO: content.
+        template = EntryTemplate.objects.get(pk=tID)
 
         # TODO: Check if node can still be created (deadline passed? graded?)
         if nID:
@@ -111,14 +114,43 @@ def create_entry(request):
                                      'description': 'Passed node is a Progress node.'},
                                     status=400)
 
-            node.entry = make_entry(template)
+            node.entry = factory.make_entry(template)
 
         else:
-            entry = make_entry(template)
-            node = make_node(journal, entry)
+            entry = factory.make_entry(template)
+            node = factory.make_node(journal, entry)
+
+        for content in content_list:
+            data = content['data']
+            tag = content['tag']
+            field = Field.objects.get(pk=tag)
+            factory.make_content(node.entry, data, field)
 
         return JsonResponse({'result': 'success', 'node': node_to_dict(node)}, status=200)
     except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Journal, Template or Node does not exist.'},
                             status=404)
+
+
+@api_view(['POST'])
+def create_entrycomment(request):
+    """Create a new entrycomment
+    Arguments:
+    request -- the request that was send with
+        entryID -- the entry id
+        authorID -- the author id
+        text -- the comment
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        entryID, authorID, text = utils.get_required_post_params(request.data, "entryID", "authorID", "text")
+    except KeyError:
+        return utils.keyerror_json("entryID", "authorID", "text")
+
+    author = User.objects.get(pk=authorID)
+    comment = make_entrycomment(entryID, author, text)
+
+    return JsonResponse({'result': 'success'})

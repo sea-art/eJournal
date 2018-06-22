@@ -1,6 +1,6 @@
 <template>
     <content-single-columns>
-        <h1 slot="main-content-column">Placeholder for the Guest page (Landing page)</h1>
+        <h1>Placeholder for the Guest page (Landing page)</h1>
     </content-single-columns>
 </template>
 
