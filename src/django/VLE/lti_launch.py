@@ -6,14 +6,12 @@ from VLE.models import User, Course, Assignment, Journal, Participation, Role
 
 
 class OAuthRequestValidater(object):
-    """
-    OAuth request validater class for Django Requests
-    """
+    """OAuth request validater class for Django Requests"""
 
     def __init__(self, key, secret):
         """
-        Constructor die een server en consumer object aan maakt met de gegeven
-        key en secret
+        Constructor die een server en consumer object aanmaakt met de
+        gegeven key en secret.
         """
         super(OAuthRequestValidater, self).__init__()
         self.consumer_key = key
