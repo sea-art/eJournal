@@ -22,7 +22,7 @@ from VLE.views.get import get_own_user_data, get_course_data, get_assignment_dat
 
 from VLE.views.get import get_user_courses, get_course_assignments, \
     get_assignment_journals, get_upcoming_deadlines, get_course_permissions, \
-    get_nodes, get_format, get_names, get_course_users, get_entrycomments
+    get_nodes, get_format, get_names, get_course_users, get_entrycomments, get_user_teacher_courses \
 
 from VLE.views.create import create_new_course, create_new_assignment, create_entry, \
     create_entrycomment
@@ -62,6 +62,7 @@ urlpatterns = [
     path('api/get_names/', get_names, name='get_names'),
     path('api/get_entrycomments/<int:entryID/', get_entrycomments, name='get_entrycomments'),
     path('api/get_course_users/<int:cID>/', get_course_users, name='get_course_users'),
+    path('api/get_user_teacher_courses/', get_user_teacher_courses, name='get_user_teacher_courses'),
 
     path('api/create_new_course/', create_new_course, name='create_new_course'),
     path('api/create_new_assignment/', create_new_assignment, name='create_new_assignment'),

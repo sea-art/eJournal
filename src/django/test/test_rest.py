@@ -47,6 +47,9 @@ class RestTests(TestCase):
 
         self.user = factory.make_user(self.username, self.password)
         self.student = factory.make_user('Student', 'pass')
+        self.teacher = factory.make_user('teacher', 'pass')
+        self.teacher_user = 'teacher'
+        self.teacher_pass = 'pass'
 
         u1 = factory.make_user("Zi-Long", "pass")
         u2 = factory.make_user("Rick", "pass")
@@ -56,9 +59,11 @@ class RestTests(TestCase):
         c1 = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
         c2 = factory.make_course("BeeldBewerken", "BB")
         c3 = factory.make_course("Reflectie en Digitale Samenleving", "RDS")
+        c4 = factory.make_course("Statistisch Redeneren", "SR")
 
         self.user_role = factory.make_user("test123", "test")
         role = factory.make_role(name='TA', can_view_assignment=True)
+        teacher_role = factory.make_role(name='Teacher', can_edit_course=True)
         studentRole = factory.make_role(name='SD')
 
         factory.make_participation(self.user_role, c1, role)
@@ -81,6 +86,8 @@ class RestTests(TestCase):
             p.save()
             c.participation_set.add(p)
             c.save()
+
+            factory.make_participation(self.teacher, c, teacher_role)
 
         t = factory.make_entry_template('template_test')
         f = factory.make_format([t], 5)
@@ -237,3 +244,11 @@ class RestTests(TestCase):
         self.assertEquals(Entry.objects.get(pk=1).published, int(result.json()['new_published']))
         self.assertEquals(Entry.objects.get(pk=2).published, int(result.json()['new_published']))
         self.assertEquals(Entry.objects.get(pk=3).published, 0)
+
+    def test_get_user_teacher_courses(self):
+        """
+        Tests the get user teacher courses function.
+        """
+        login = logging_in(self, self.teacher_user, self.teacher_pass)
+        result = api_get_call(self, reverse('get_user_teacher_courses'), login)
+        self.assertEquals(len(result.json()['courses']), 3)
