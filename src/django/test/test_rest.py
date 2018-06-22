@@ -8,9 +8,7 @@ from django.test import TestCase
 from django.urls import reverse
 import json
 
-from VLE.models import Participation
-from VLE.models import Journal
-from VLE.models import Entry
+from VLE.models import Participation, Assignment, Journal, Entry
 
 import VLE.factory as factory
 import VLE.utils as utils
@@ -238,7 +236,6 @@ class RestTests(TestCase):
         self.assertEquals(Entry.objects.get(pk=2).published, int(result.json()['new_published']))
         self.assertEquals(Entry.objects.get(pk=3).published, 0)
 
-<<<<<<< HEAD
     def test_get_course_users(self):
         """Test the get courses api call."""
         login = logging_in(self, self.username, self.password)
@@ -278,15 +275,14 @@ class RestTests(TestCase):
 
         response = api_post_call(self, '/api/create_entry/', some_dict, login)
         self.assertEquals(response.status_code, 200)
-=======
+
     def test_delete_assignment(self):
         """
         Tests the delete assignment
         """
         login = logging_in(self, self.username, self.password)
-        result = api_post_call(self, '/api/delete_assignment/', {'cID': 1, 'aID': 1}, login)
+        api_post_call(self, '/api/delete_assignment/', {'cID': 1, 'aID': 1}, login)
         assignment = Assignment.objects.get(pk=1)
         self.assertEquals(assignment.courses.count(), 1)
-        result = api_post_call(self, '/api/delete_assignment/', {'cID': 2, 'aID': 1}, login)
+        api_post_call(self, '/api/delete_assignment/', {'cID': 2, 'aID': 1}, login)
         self.assertEquals(Assignment.objects.filter(pk=1).count(), 0)
->>>>>>> db9f20be1621267d8de80380cb397b5626b4f0bb
