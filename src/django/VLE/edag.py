@@ -12,9 +12,9 @@ def get_sorted_nodes(journal):
     ).order_by('sort_deadline')
 
 
-def get_nodes_dict(journal, requester=None):
+def get_nodes_dict(journal, requester):
     is_own_journal = False
-    if requester and journal.user is requester:
+    if requester and journal.user == requester:
         is_own_journal = True
 
     nodes = get_sorted_nodes(journal)
