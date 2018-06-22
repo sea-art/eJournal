@@ -17,8 +17,21 @@
                          type="date"
                          required/>
 
-                <b-button class="add-button" type="submit">Update Course</b-button>
-                <b-button @click.prevent.stop="deleteCourse()" class="delete-button">Delete Course</b-button>
+                <b-row>
+                    <b-col lg="2" md="5">
+                        <b-button class="add-button" type="submit">Update Course</b-button>
+                    </b-col>
+                    <b-col lg="2" md="5">
+                        <b-button @click.prevent.stop="deleteCourse()" class="delete-button">Delete Course</b-button>
+                    </b-col>
+                    <b-col lg="3" md="3">
+                        <b-form-select v-model="selectedSortOption" :select-size="1">
+                           <option :value="null">Sort on ...</option>
+                           <option value="sortName">Sort on name</option>
+                           <option value="sortID">Sort on ID</option>
+                        </b-form-select>
+                    </b-col>
+                </b-row>
             </b-form>
         </b-card>
 
@@ -50,7 +63,8 @@ export default {
         return {
             course: {},
             form: {},
-            participants: []
+            participants: [],
+            selectedSortOption: null
         }
     },
     created () {
@@ -84,6 +98,21 @@ export default {
                     .then(response => {
                         this.$router.push({name: 'Home'})
                     })
+            }
+        }
+    },
+    watch: {
+        selectedSortOption: function (val) {
+            if (this.init) {
+                this.init = false
+            } else {
+                this.selectedSortOption = val
+                if (val === 'sortName') {
+                    this.participants = this.participants.sort((a, b) => a.name > b.name)
+                } else if (val === 'sortID') {
+                    this.participants = this.participants.sort((a, b) => a.uID > b.uID)
+                }
+                console.log(this.participants)
             }
         }
     },
