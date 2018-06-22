@@ -15,7 +15,6 @@ import CourseEdit from '@/views/CourseEdit'
 import TemplateEdit from '@/views/TemplateEdit'
 import AssignmentEdit from '@/views/AssignmentEdit'
 
-
 Vue.use(Router)
 
 var router = new Router({

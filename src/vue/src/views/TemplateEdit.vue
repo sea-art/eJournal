@@ -100,7 +100,7 @@ export default {
 
             this.fields.push(newField)
         },
-        removeField( location ) {
+        removeField (location) {
             if (confirm('Are you sure you want to remove \'' + this.fields[location].title + '\'?')) {
                 this.fields.splice(location, 1)
             }

@@ -83,6 +83,10 @@ h6 {
     margin-bottom: 0px;
 }
 
+h4 a {
+    color: var(--theme-blue) !important;
+}
+
 #app {
     overflow-x: hidden;
     font-family: 'Roboto', sans-serif;
