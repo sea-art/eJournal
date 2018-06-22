@@ -12,6 +12,7 @@ import contentSingleColumn from '@/components/ContentSingleColumn.vue'
 import ltiCreateConnectCourse from '@/components/LtiCreateConnectCourse.vue'
 import ltiCreateConnectAssignment from '@/components/LtiCreateConnectAssignment.vue'
 import ltiCreateAssignment from '@/components/LtiCreateAssignment.vue'
+import assignApi from '@/api/assignment.js'
 
 export default {
     name: 'LtiLaunch',
@@ -50,7 +51,17 @@ export default {
             lti: {
                 ltiCourseID: '',
                 ltiCourseName: '',
-                ltiCourseAbbr: ''
+                ltiCourseAbbr: '',
+                ltiAssignName: '',
+                ltiAssignID: '',
+                ltiPointsPossible: ''
+            },
+
+            /* Set a dictionary with the variables of the linked page. */
+            page: {
+                cID: '',
+                aID: '',
+                jID: ''
             }
         }
     },
@@ -90,18 +101,18 @@ export default {
                     break;
                 case this.s_check_assign:
                     // TODO: Check if assignment already exists
+                    assignApi.get_assignment_by_lti_id(this.lti.ltiAssignID)
+                        .then(response => { alert(response) })
                     break;
             }
         }
     },
     mounted () {
-        if (this.$route.query.jwt_access !== undefined) {
+        if (this.$route.query.jwt_access !== undefined)
             localStorage.setItem('jwt_access', this.$route.query.jwt_access)
-        }
 
-        if (this.$route.query.jwt_refresh !== undefined) {
+        if (this.$route.query.jwt_refresh !== undefined)
             localStorage.setItem('jwt_refresh', this.$route.query.jwt_refresh)
-        }
 
         /* Get the IDs of the objects out of the query. */
         this.lti.ltiCourseID = this.$route.query.lti_cID
@@ -109,13 +120,13 @@ export default {
         this.lti.ltiCourseAbbr = this.$route.query.lti_abbr
         this.state = this.$route.query.state
 
-        var ltiAssignName = this.$route.query.lti_aName
-        var ltiAssignID = this.$route.query.lti_aID
-        var ltiPointsPossible = this.$route.query.lti_points_possible
+        this.lti.ltiAssignName = this.$route.query.lti_aName
+        this.lti.ltiAssignID = this.$route.query.lti_aID
+        this.lti.ltiPointsPossible = this.$route.query.lti_points_possible
 
-        var cID = this.$route.query.cID
-        var aID = this.$route.query.aID
-        var jID = this.$route.query.jID
+        this.page.cID = this.$route.query.cID
+        this.page.aID = this.$route.query.aID
+        this.page.jID = this.$route.query.jID
 
         this.state = '5'
 
