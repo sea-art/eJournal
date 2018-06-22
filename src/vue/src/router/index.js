@@ -13,6 +13,8 @@ import permissionsApi from '@/api/permissions.js'
 import ErrorPage from '@/views/ErrorPage'
 import CourseEdit from '@/views/CourseEdit'
 import FormatEdit from '@/views/FormatEdit'
+import TemplateEdit from '@/views/TemplateEdit'
+import AssignmentEdit from '@/views/AssignmentEdit'
 
 Vue.use(Router)
 
@@ -60,6 +62,11 @@ var router = new Router({
         path: '/Home/Course/:cID/Assignment/:aID/Format',
         name: 'FormatEdit',
         component: FormatEdit,
+        props: true
+    }, {
+        path: '/Home/Course/:cID/Assignment/:aID/Format/TemplateEdit/:tID',
+        name: 'TemplateEdit',
+        component: TemplateEdit,
         props: true
     }, {
         path: '/Home/Course/:cID/Assignment/:aID/Journal/:jID',

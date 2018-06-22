@@ -4,7 +4,7 @@
             <b-row>
                 <b-col cols="2">
                     <img class="profilePic" id="nav-profile-image" slot="button-content" src="../assets/unknown-profile.png">
-                    {{ comment.person }}
+                    <br><b>{{ comment.person }}</b>
                 </b-col>
                 <b-col cols="10">
                     <b-card class="no-hover" :class="'pink-border'">

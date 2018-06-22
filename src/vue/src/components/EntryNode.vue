@@ -26,7 +26,7 @@
                                 -->
                                 <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
                                     <div v-if="field.title != ''">
-                                        <h4>{{ field.title }}</h4>
+                                        <b>{{ field.title }}</b>
                                     </div>
 
                                     <div v-if="field.type=='t'">
@@ -66,7 +66,7 @@
                                 -->
                                 <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
                                     <div v-if="field.title != ''">
-                                        <h4>{{ field.title }}</h4>
+                                        <b>{{ field.title }}</b>
                                     </div>
                                     <div v-if="field.type=='t'">
                                         {{ completeContent[i].data }}<br><br>
@@ -84,7 +84,7 @@
             </b-col>
         </b-row>
 
-        <comment-card @new-comments="addComment" :comments="comments" :person="'Henk'" :eID="entryNode.entry.eID"/>
+        <comment-card @new-comments="addComment" :comments="comments" :person="'Student'" :eID="entryNode.entry.eID"/>
     </div>
 </template>
 
@@ -101,11 +101,11 @@ export default {
             completeContent: [],
 
             comments: [{
-                message: 'Hoi het is super slecht, ga je schamen!',
+                message: 'I have seen you do better.',
                 person: 'Peter'
             }, {
-                message: 'Hoi het is super goed!',
-                person: 'Ptheven'
+                message: 'This is awesome!',
+                person: 'Stephen'
             }]
         }
     },
