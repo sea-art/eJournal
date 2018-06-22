@@ -14,6 +14,7 @@ import ErrorPage from '@/views/ErrorPage'
 import CourseEdit from '@/views/CourseEdit'
 import TemplateEdit from '@/views/TemplateEdit'
 import AssignmentEdit from '@/views/AssignmentEdit'
+import UserRoleConfiguration from '@/views/UserRoleConfiguration'
 
 Vue.use(Router)
 
@@ -51,6 +52,11 @@ var router = new Router({
         path: '/Home/Course/:cID/CourseEdit',
         name: 'CourseEdit',
         component: CourseEdit,
+        props: true
+    }, {
+        path: '/Home/Course/:cID/CourseEdit/UserRoleConfiguration',
+        name: 'UserRoleConfiguration',
+        component: UserRoleConfiguration,
         props: true
     }, {
         path: '/Home/Course/:cID/Assignment/:aID',
