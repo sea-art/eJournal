@@ -1,4 +1,5 @@
 <!-- TODO: add loading and saving apis, add links to template editor-->
+<!-- TODO: check newtemplate undef tID, make sure editedtemplates is unique -->
 
 <template>
     <b-row no-gutters>
@@ -118,7 +119,7 @@ export default {
             return {
                 t: {
                     'fields': [],
-                    'name': '',
+                    'name': 'ha',
                     'tID': this.wipTemplateId--
                 },
                 a: false
@@ -183,6 +184,7 @@ export default {
             this.convertToDB()
 
             for (var editedTemplate of this.templatesEdited) {
+                console.log(editedTemplate)
                 if (editedTemplate.tID < 0) {
                     journalAPI.create_template(editedTemplate.name, editedTemplate.fields).then(data => { editedTemplate.tID = data.tID })
                 } else {

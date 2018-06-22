@@ -143,7 +143,7 @@ def update_format(request):
     try:
         assignment = Assignment.objects.get(pk=aID)
         format = assignment.format
-    except Assignment.NotFound:
+    except Assignment.DoesNotExist:
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Format does not exist.'},
                             status=404)
@@ -152,7 +152,7 @@ def update_format(request):
         tID = template_field['tID']
         try:
             format.available_templates.add(EntryTemplate.objects.get(pk=tID))
-        except EntryTemplate.NotFound:
+        except EntryTemplate.DoesNotExist:
             return JsonResponse({'result': '404 Not Found',
                                  'description': 'Template does not exist.'},
                                 status=404)
@@ -172,7 +172,7 @@ def update_format(request):
             tID = preset['template']['tID']
             try:
                 template = EntryTemplate.objects.get(pk=tID)
-            except EntryTemplate.NotFound:
+            except EntryTemplate.DoesNotExist:
                 return JsonResponse({'result': '404 Not Found',
                                      'description': 'Template does not exist.'},
                                     status=404)
@@ -364,7 +364,7 @@ def update_template(request):
             template.name = name
         else:
             template = factory.make_entry_template(name)
-    except EntryTemplate.NotFound:
+    except EntryTemplate.DoesNotExist:
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Template does not exist.'},
                             status=404)
@@ -379,4 +379,4 @@ def update_template(request):
         factory.make_field(template, title, location, type)
 
     template.save()
-    return JsonResponse({'result': 'success', 'template': template_to_dict(templa
+    return JsonResponse({'result': 'success', 'template': template_to_dict(template)}, status=200)
