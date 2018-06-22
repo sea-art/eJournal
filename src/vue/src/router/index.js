@@ -63,7 +63,7 @@ var router = new Router({
         component: AssignmentEdit,
         props: true
     }, {
-        path: '/Home/Course/:cID/Assignment/:aID/Format/TemplateEdit/tID',
+        path: '/Home/Course/:cID/Assignment/:aID/Format/TemplateEdit/:tID',
         name: 'TemplateEdit',
         component: TemplateEdit,
         props: true

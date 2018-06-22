@@ -1,6 +1,6 @@
 <template>
     <content-single-column>
-        <b-card slot="main-content-column" class="no-hover">
+        <b-card class="no-hover">
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" id="templateName" v-model="name" placeholder="Template name" required/>
             <draggable v-model="fields" @start="drag=true" @end="drag=false" @update="onUpdate" :options="{ handle:'.handle' }">
                 <div v-for="field in fields" :key="field.location">
@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import contentSingleColumn from '@/components/ContentSingleColumn.vue'
+import ContentSingleColumn from '@/components/ContentSingleColumn.vue'
 import icon from 'vue-awesome/components/Icon'
 import courseApi from '@/api/course.js'
 import draggable from 'vuedraggable'
@@ -83,7 +83,7 @@ export default {
         }
     },
     components: {
-        'content-single-column': contentSingleColumn,
+        'content-single-column': ContentSingleColumn,
         'icon': icon,
         'draggable': draggable
     },
