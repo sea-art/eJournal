@@ -53,7 +53,6 @@ new Vue({
             return true
         },
 
-
         /* Course level based permissions. These permissions are enabled and
         used per course. */
         /* Course permissions. */
@@ -79,7 +78,7 @@ new Vue({
         },
 
         /* Assignment permissions. */
-        canViewCourseParticipants () {
+        canViewAssignmentParticipants () {
             // TODO Change backend confusing name
             return this.permissions.can_view_assignment
         },
