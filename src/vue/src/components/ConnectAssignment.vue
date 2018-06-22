@@ -9,17 +9,17 @@
 </template>
 
 <script>
-import courseApi from '@/api/course.js'
+import assignApi from '@/api/assignment.js'
 
 export default {
     name: 'ConnectCourse',
     data () {
         return {
             form: {
-                courseName: '',
-                courseAbbreviation: '',
-                courseStartdate: '',
-                ltiCourseID: ''
+                assignName: '',
+                assignAbbreviation: '',
+                assignStartdate: '',
+                ltiAssignID: ''
             }
         }
     },
@@ -28,15 +28,15 @@ export default {
             // TODO: Laad alle courses die gekoppeld zouden kunnen worden.
         },
         onSubmit () {
-            courseApi.connect_course(this.form.courseName, this.form.courseAbbreviation, this.form.courseStartdate, this.form.ltiCourseID)
+            assignApi.connect_assignment(this.form.assignName, this.form.assignAbbreviation, this.form.assignStartdate, this.form.ltiAssignID)
                 .then(_ => { this.$emit('handleAction') })
         },
         onReset (evt) {
             evt.preventDefault()
             /* Reset our form values */
-            this.form.courseName = ''
-            this.form.courseAbbreviation = ''
-            this.form.courseStartdate = ''
+            this.form.assignName = ''
+            this.form.assignAbbreviation = ''
+            this.form.assignStartdate = ''
 
             /* Trick to reset/clear native browser form validation state */
             this.show = false

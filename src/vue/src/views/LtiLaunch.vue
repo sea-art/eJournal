@@ -2,7 +2,8 @@
     <content-single-columns>
         <h1 class="title-container">{{ currentPage }}</h1>
         <lti-create-connect-course v-if="handleCourseChoice" @handleAction="handleActions" :lti="lti"/>
-        <lti-create-connect-assignment v-if="handleAssignmentChoice" @handleAction="handleActions"/>
+        <lti-create-connect-assignment v-else-if="handleAssignmentChoice" @handleAction="handleActions"/>
+        <lti-create-assignment v-else-if="createAssignment" @handleAction="handleActions"/>
     </content-single-columns>
 </template>
 
@@ -10,13 +11,15 @@
 import contentSingleColumn from '@/components/ContentSingleColumn.vue'
 import ltiCreateConnectCourse from '@/components/LtiCreateConnectCourse.vue'
 import ltiCreateConnectAssignment from '@/components/LtiCreateConnectAssignment.vue'
+import ltiCreateAssignment from '@/components/LtiCreateAssignment.vue'
 
 export default {
     name: 'LtiLaunch',
     components: {
         'content-single-columns': contentSingleColumn,
         'lti-create-connect-course': ltiCreateConnectCourse,
-        'lti-create-connect-assignment': ltiCreateConnectAssignment
+        'lti-create-connect-assignment': ltiCreateConnectAssignment,
+        'lti-create-assignment': ltiCreateAssignment
     },
     data () {
         return {
@@ -27,10 +30,10 @@ export default {
             /* Variables for loading the right component. */
             handleCourseChoice: false,
             handleAssignmentChoice: false,
-            createCourse: false,
-            connectCourse: false,
-            createAssignment: false,
-            connectAssignment: false,
+            // createCourse: false,
+            // connectCourse: false,
+            createAssignment: true,
+            // connectAssignment: false,
 
             /* Extern variables for checking the state of the lti launch. */
             state: '',
@@ -68,6 +71,8 @@ export default {
                 this.handleAssignmentChoice = false
                 this.state = this.s_finish_t
                 alert('Assignment Integrated!')
+            } else if (msg === 'assignmentCreated') {
+
             }
         },
         updateState (state) {
@@ -121,6 +126,7 @@ export default {
         } else {
             while (this.state !== this.s_finish_s || this.state !== this.s_finish_t)  {
                 this.state = this.updateState(this.state)
+                this.state = '5'
             }
         }
 
