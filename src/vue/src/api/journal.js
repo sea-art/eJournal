@@ -31,6 +31,11 @@ export default {
             .then(response => response.data)
     },
 
+    update_format (fID, templates, presets) {
+        return auth.authenticatedPost('/update_format/', {fID: fID, templates: templates, presets: presets})
+            .then(response => response.data)
+    },
+
     update_grade_entry (eID, grade, published) {
         return auth.authenticatedPost('/update_grade_entry/' + eID + '/', {grade: grade, published: published})
             .then(response => response.data)
