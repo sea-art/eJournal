@@ -13,7 +13,7 @@
                 <b-col id="main-card-left-column" cols="12" lg-cols="12">
                     <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
                         <div v-if="field.title != ''">
-                            <h4>{{ field.title }}</h4>
+                            <b>{{ field.title }}</b>
                         </div>
                         <div v-if="field.type=='t'">
                             {{ completeContent[i].data }}<br><br>
@@ -34,7 +34,7 @@
             </b-row>
         </b-card>
 
-        <comment-card @new-comments="addComment" :comments="comments" :person="'Henk'" :eID="entryNode.entry.eID"/>
+        <comment-card @new-comments="addComment" :comments="comments" :person="'Teacher'" :eID="entryNode.entry.eID"/>
     </div>
 </template>
 
@@ -52,11 +52,11 @@ export default {
             status: 1,
 
             comments: [{
-                message: 'Hoi het is super slecht, ga je schamen!',
+                message: 'I have seen you do better.',
                 person: 'Peter'
             }, {
-                message: 'Hoi het is super goed!',
-                person: 'Ptheven'
+                message: 'This is awesome!',
+                person: 'Stephen'
             }]
         }
     },
