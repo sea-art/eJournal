@@ -1,5 +1,6 @@
 <template>
     <content-single-columns>
+        <h1 class="title-container">{{ currentPage }}</h1>
         <lti-create-connect-course v-if="handleCourseChoice" @handleAction="handleActions" :lti="lti"/>
         <lti-create-connect-assignment v-if="handleAssignmentChoice" @handleAction="handleActions"/>
     </content-single-columns>
@@ -21,6 +22,7 @@ export default {
         return {
             msg: 'unsuccesfull',
             jwt_refresh: ':(',
+            currentPage: 'LtiLaunch',
 
             /* Variables for loading the right component. */
             handleCourseChoice: false,
@@ -81,11 +83,12 @@ export default {
         var jID = this.$route.query.jID
 
         state = '0'
-        role = 'TA'
+        role = 'Teacher'
 
         if (role === 'Teacher') {
             if (state === this.s_new_course) {
                 this.handleCourseChoice = true
+                this.currentPage = 'Course Integration'
                 // TODO Create or koppel assignement
 
                 // this.showModal('chooseActionRef')
@@ -132,3 +135,18 @@ export default {
     }
 }
 </script>
+
+<style>
+.title-container {
+    padding-right: 10px;
+    padding-bottom: 12px;
+    margin-bottom: -4px;
+}
+
+@media(max-width:992px) {
+    .title-container  {
+        padding-top: 12px !important;
+        margin-top: -4px !important;
+    }
+}
+</style>

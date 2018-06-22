@@ -1,8 +1,5 @@
 <template>
     <div slot="main-content-column">
-        <bread-crumb
-            :currentPage="'Course Integration'">
-        </bread-crumb>
             <p class="intro-text">You came here from canvas with an unknown
                 course. Do you want to create a new course on Logboek,
                 or connect to an existing one?</p>
