@@ -77,7 +77,6 @@ export default {
                 this.course.date)
                 .then(response => {
                     this.course = response
-                    console.log(this.course.date)
                     this.pageName = this.course.name
                 })
         },
@@ -90,7 +89,6 @@ export default {
             }
         },
         deleteParticipantLocally (uID) {
-            console.log(uID)
             this.participants = this.participants.filter(function (item) {
                 return uID !== item.uID
             })
