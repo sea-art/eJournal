@@ -258,7 +258,7 @@ def get_course_permissions(request, cID):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    roleDict = get_permissions(request.user, cID)
+    roleDict = get_permissions(request.user, int(cID))
 
     return JsonResponse({'result': 'success',
                          'permissions': roleDict})
@@ -344,6 +344,24 @@ def get_names(request):
                              'description': 'Course, Assignment, Journal or Template does not exist.'}, status=404)
 
     return result
+
+
+@api_view(['POST'])
+def get_entrycomments(request, entryID):
+    """
+    Get the comments belonging to the specified entry based on its entryID.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    # try:
+    #     entryID = utils.get_required_post_params("entryID")
+    # except KeyError:
+    #     utils.keyerror_json("entryID")
+
+    entrycomments = EntryComment.objects.filter(entry=entryID)
+    return JsonResponse({'result': 'success',
+                         'entrycomments': [entrycomment_to_dict(comment) for comment in entrycomments]})
 
 
 @api_view(['POST'])

@@ -1,6 +1,7 @@
 <!-- Example of a simple template. -->
 <template>
     <div class="entry-template">
+        hoi {{dataComments}}
         <b-row>
             <b-col id="main-card-left-column" cols="12">
                 <div v-if="saveEditMode == 'Save'">
@@ -90,6 +91,7 @@
 
 <script>
 import commentCard from '@/components/CommentCard.vue'
+import entryApi from '@/api/entry.js'
 
 export default {
     props: ['entryNode'],
@@ -99,7 +101,7 @@ export default {
             tempNode: this.entryNode,
             matchEntry: 0,
             completeContent: [],
-
+            dataComments: [],
             comments: [{
                 message: 'Hoi het is super slecht, ga je schamen!',
                 person: 'Peter'
@@ -116,6 +118,7 @@ export default {
         }
     },
     created () {
+        this.loadComments()
         this.setContent()
     },
     methods: {
@@ -160,8 +163,12 @@ export default {
                 }
             }
         },
-        addComment: function (newComments) {
-            this.comments = newComments
+        loadComments: function () {
+            entryApi.get_entrycomments(this.entryNode.entry.eID).then(response => { this.dataComments = response })
+        },
+        addComment: function (newComment) {
+            this.comments.push(newComment)
+            entryApi.create_entrycomments(this.entryNode.entry.eID, 'Rein', newComment)
         }
     },
     components: {

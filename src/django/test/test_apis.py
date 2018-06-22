@@ -50,10 +50,13 @@ class ApiTests(TestCase):
         template = factory.make_entry_template("some_template")
         field = factory.make_field(template, 'Some field', 0)
 
-        some_dict = {'jID': journal.id,
-                     'tID': template.id,
-                     'content': [
-                        {'tag': field.pk, 'data': "This is some data"},
-                     ]}
+        some_dict = {
+            'jID': journal.id,
+            'tID': template.id,
+            'content': [{
+                'tag': field.pk,
+                'data': "This is some data"
+                }]
+            }
 
         response = test.api_post_call(self, '/api/create_entry/', some_dict, login)

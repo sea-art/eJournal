@@ -90,7 +90,6 @@ def update_grade_notification(request):
     user = request.user
     if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
-    print(request.data)
 
     try:
         user.grade_notifications = request.data['new_value']
@@ -128,8 +127,8 @@ def update_grade_entry(request, eID):
 
     Arguments:
     request -- the request that was send with
-        grade -- the grade
-        published -- published
+    grade -- the grade
+    published -- published
     eID -- the entry id
 
     Returns a json string if it was sucessful or not.
@@ -198,6 +197,37 @@ def update_publish_grades_journal(request, jID):
     journ = Journal.objects.get(pk=jID)
     utils.publish_all_journal_grades(journ, request.data['published'])
     return JsonResponse({'result': 'success', 'new_published': request.data['published']})
+
+
+@api_view(['POST'])
+def update_entrycomment(request):
+    """
+    Update a comment to an entry.
+
+    Arguments:
+    request -- the request that was send with
+        entrycommentID -- The ID of the entrycomment.
+        text -- The updated text.
+    Returns a json string for if it is succesful or not.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        entrycommentID, text = utils.get_required_post_params("entrycommentID", "text")
+    except KeyError:
+        utils.keyerror_json("entrycommentID")
+
+    try:
+        comment = EntryComment.objects.get(pk=entrycommentID)
+    except EntryComment.NotFound:
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Entrycomment does not exist.'},
+                            status=404)
+    comment.text = text
+    comment.save()
+    return JsonResponse({'result': 'success'})
+
 
 @api_view(['POST'])
 def update_user_data(request):
