@@ -194,7 +194,7 @@ def make_deadline(datetime=datetime.datetime.now(), points=None):
 
 
 def make_journal_format():
-    """"Make a journal format."""
+    """Make a journal format."""
     journal_format = JournalFormat()
     journal_format.save()
     return journal_format
