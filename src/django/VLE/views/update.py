@@ -52,6 +52,31 @@ def update_course(request):
 
 
 @api_view(['POST'])
+def connect_assignment_lti(request):
+    """Connects an existing assignment to an lti assignment.
+
+    Arguments:
+    request -- the update request that was send with
+        lti_id -- lti_id that needs to be added to the assignment
+        points_possible -- points_possible in lti assignment
+
+    Returns a json string for if it is succesful or not.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    assignment = Assignment.objects.get(pk=request.data['aID'])
+    assignment.lti_id = request.data['lti_id']
+    if assignment.points_possible is None and \
+       request.data['points_possible'] is not '':
+        assignment.points_possible = request.data['points_possible']
+    assignment.save()
+
+    return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)})
+
+
+@api_view(['POST'])
 def update_assignment(request):
     """Updates an existing assignment.
 
