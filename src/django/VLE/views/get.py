@@ -63,7 +63,7 @@ def get_course_data(request, cID):
 
     course = course_to_dict(Course.objects.get(pk=cID))
 
-    return JsonResponse({'result': 'success', 'course': course})
+    return JsonResponse({'result': 'success', 'course': course}, status=200)
 
 
 @api_view(['GET'])
@@ -89,7 +89,7 @@ def get_course_users(request, cID):
     participations = course.participation_set.all()
     return JsonResponse({'result': 'success',
                          'users': [participation_to_dict(participation)
-                                   for participation in participations]})
+                                   for participation in participations]}, status=200)
 
 
 @api_view(['GET'])
@@ -373,6 +373,26 @@ def get_format(request, aID):
 
     return JsonResponse({'result': 'success',
                          'nodes': get_format_dict(assignment.format)})
+
+
+@api_view(['GET'])
+def get_user_teacher_courses(request):
+    """Gets all the courses where the user is a teacher.
+
+    Arguments:
+    request -- the request that was sent
+
+    Returns a json string containing the format.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    q_courses = Course.objects.filter(participation__user=request.user.id,
+                                      participation__role__can_edit_course=True)
+    courses = []
+    for course in q_courses:
+        courses.append(course_to_dict(course))
+    return JsonResponse({'result': 'success', 'courses': courses}, status=200)
 
 
 @api_view(['POST'])

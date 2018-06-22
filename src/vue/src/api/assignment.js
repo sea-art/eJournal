@@ -32,7 +32,7 @@ export default {
     },
 
     /* Create a new assignment. */
-    create_new_assignment (name, description, cID, ltiID, pointsPossible) {
+    create_new_assignment (name, description, cID, ltiID=null, pointsPossible=null) {
         return auth.authenticatedPost('/create_new_assignment/', {
             name: name,
             description: description,
