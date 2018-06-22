@@ -12,7 +12,7 @@
             <b-col id="main-card-left-column" cols="12" lg-cols="12">
                 <div v-for="field in template.fields" :key="field.eID">
                     <div v-if="field.title != ''">
-                        <h4>{{ field.title }}</h4>
+                        <b>{{ field.title }}</b>
                         <br>
                     </div>
                 </div>

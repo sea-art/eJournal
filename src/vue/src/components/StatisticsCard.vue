@@ -21,8 +21,4 @@ export default {
     width: 45px;
     height: 30px;
 }
-
-.no-hover:hover {
-    background-color: var(--theme-light-grey) !important;
-}
 </style>

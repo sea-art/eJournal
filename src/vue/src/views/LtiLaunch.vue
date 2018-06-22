@@ -115,9 +115,9 @@ export default {
     },
     watch: {
         state: function (val) {
-            if (val !== this.s_finish_s && val !== this.s_finish_t)
+            if (val !== this.s_finish_s && val !== this.s_finish_t) {
                 this.updateState(this.state)
-            else if (val === this.s_finish_s) {
+            } else if (val === this.s_finish_s) {
                 this.$router.push({
                     name: 'Journal',
                     params: {
@@ -138,11 +138,13 @@ export default {
         }
     },
     mounted () {
-        if (this.$route.query.jwt_access !== undefined)
+        if (this.$route.query.jwt_access !== undefined) {
             localStorage.setItem('jwt_access', this.$route.query.jwt_access)
+        }
 
-        if (this.$route.query.jwt_refresh !== undefined)
+        if (this.$route.query.jwt_refresh !== undefined) {
             localStorage.setItem('jwt_refresh', this.$route.query.jwt_refresh)
+        }
 
         /* Get the lti information from the query. */
         this.lti.ltiCourseID = this.$route.query.lti_cID
