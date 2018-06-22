@@ -31,17 +31,28 @@ new Vue({
              * TODO implement (will most likely require a lib) */
             return '1M 9D 9H'
         },
-        /* The admin has all permissions. Extra, site-wide permissions:
-         * Creating a course on the home page
-         * Editing institution-wide settings
-         * Editing all assignments */
+        /* Front-end interface for all possible permissions.
+        /* Site-wide permissions */
         isAdmin () {
             return this.permissions.is_admin
+        },
+        canEditInstitute () {
+            return this.permissions.can_edit_institute
         },
 
         /* Course level based permissions. These permissions are enabled and
         used per course. */
+
         /* Course permissions. */
+        canEditCourseRoles () {
+            return this.permissions.can_edit_course_roles
+        },
+        canAddCourse () {
+            return this.permissions.can_add_course
+        },
+        canViewCourseParticipants () {
+            return this.permissions.can_view_course_participants
+        },
         canEditCourse () {
             return this.permissions.can_edit_course
         },
@@ -50,26 +61,33 @@ new Vue({
         },
 
         /* Assignment permissions. */
-        canViewAssignment () {
-            return this.permissions.can_view_assignment
+        canAddAssignment () {
+            return this.permissions.can_add_assignment
         },
-        canSubmitAssignment () {
-            return this.permissions.can_submit_assignment
-        },
-        canEditAssignment () {
-            return this.permissions.can_edit_assignment
+        canViewAssignmentParticipants () {
+            return this.permissions.can_view_assignment_participants
         },
         canDeleteAssignment () {
             return this.permissions.can_delete_assignment
         },
+        canPublishAssignmentGrades () {
+            return this.permissions.can_publish_assignment_grades
+        },
 
         /* Grade permissions. */
-        canViewGrades () {
-            return this.permissions.can_view_grades
+        canGradeJournal () {
+            return this.permissions.can_grade_journal
         },
-        canEditGrades () {
-            return this.permissions.can_edit_grades
+        canPublishJournalGrades () {
+            return this.permissions.can_publish_journal_grades
+        },
+        canEditJournal () {
+            return this.permissions.can_publish_journal_grades
+        },
+        canCommentJournal () {
+            return this.permissions.can_publish_journal_grades
         }
+
     },
     template: '<App/>'
 })

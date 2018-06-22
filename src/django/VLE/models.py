@@ -85,13 +85,27 @@ class Role(models.Model):
     """
     name = models.TextField()
 
-    can_edit_grades = models.BooleanField(default=False)
-    can_view_grades = models.BooleanField(default=False)
-    can_edit_assignment = models.BooleanField(default=False)
-    can_view_assignment = models.BooleanField(default=False)
-    can_submit_assignment = models.BooleanField(default=False)
+    # GLOBAL: is_admin
+    # GLOBAL: can_edit_institute
+
+    # Course permissions.
+    can_edit_course_roles = models.BooleanField(default=False)
+    can_add_course = models.BooleanField(default=False)
+    can_view_course_participants = models.BooleanField(default=False)
     can_edit_course = models.BooleanField(default=False)
     can_delete_course = models.BooleanField(default=False)
+
+    # Assignment permissions
+    # GLOBAL: can_add_assignment
+    can_view_assigment_participants = models.BooleanField(default=False)
+    can_delete_assignment = models.BooleanField(default=False)
+    can_publish_assigment_grades = models.BooleanField(default=False)
+
+    # Journal permissions.
+    can_grade_journal = models.BooleanField(default=False)
+    can_publish_journal_grades = models.BooleanField(default=False)
+    can_edit_journal = models.BooleanField(default=False)
+    can_comment_journal = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.name) + " (" + str(self.id) + ")"
