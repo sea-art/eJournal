@@ -40,6 +40,14 @@ export default {
         }).then(response => response.data.course)
     },
 
+    /* Updates the role of a student linked to a course. */
+    update_course_with_studentID (uID, cID) {
+        return auth.authenticatedPost('/update_course_with_studentID/', {
+            uID: uID,
+            cID: cID
+        }).then(response => response.data.result)
+    },
+
     /* Deletes an existing course. */
     delete_course (cID) {
         return auth.authenticatedPost('/delete_course/', {
@@ -63,5 +71,4 @@ export default {
             cID: cID
         }).then(response => response.data.result)
     }
-
 }
