@@ -4,8 +4,10 @@ get.py.
 API functions that handle the get requests.
 """
 from rest_framework.decorators import api_view
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.conf import settings
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.shortcuts import redirect
 
 import json
 import statistics as st
