@@ -4,8 +4,8 @@ import datetime
 import django.utils.timezone as timezone
 
 
-def make_user(username, password, email=None, lti_id=None, profile_picture=None):
-    user = User(username=username, email=email, lti_id=lti_id)
+def make_user(username, password, email=None, lti_id=None, profile_picture=None, is_admin=False):
+    user = User(username=username, email=email, lti_id=lti_id, is_admin=is_admin)
     user.save()
     user.set_password(password)
     if profile_picture:
@@ -14,12 +14,6 @@ def make_user(username, password, email=None, lti_id=None, profile_picture=None)
         user.profile_picture = '/static/oh_no/{}.png'.format(random.randint(1, 10))
     user.save()
     return user
-
-
-def make_role(name):
-    role = Role(name=name)
-    role.save()
-    return role
 
 
 def make_participation(user, course, role):
@@ -174,3 +168,15 @@ def make_role(name, can_edit_grades=False, can_view_grades=False, can_edit_assig
     )
     role.save()
     return role
+
+
+def make_entrycomment(entryID, author, text):
+    """
+    Make an Entry Comment for an entry based on its ID.
+    With the author and the given text.
+    """
+    return EntryComment.objects.create(
+        entry=entryID,
+        author=author,
+        text=text
+    )

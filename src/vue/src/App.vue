@@ -21,6 +21,7 @@ export default {
 :root {
     --theme-dark-blue: #252C39;
     --theme-peach: #E9A480;
+    --theme-dark-peach: #dE8F3F;
     --theme-light-grey: #EEEEEE;
     --theme-dark-grey: #BBBBBB;
     --theme-pink: #E64769;
@@ -82,6 +83,10 @@ h6 {
     margin-bottom: 0px;
 }
 
+h4 a {
+    color: var(--theme-blue) !important;
+}
+
 #app {
     overflow-x: hidden;
     font-family: 'Roboto', sans-serif;
@@ -97,8 +102,8 @@ h6 {
 .btn, .form-control {
     font-family: 'Roboto Condensed', sans-serif;
     font-size: 20px;
-    background-color: white;
-    color: var(--theme-dark-blue);
+    background-color: white !important;
+    color: var(--theme-dark-blue) !important;
     border: none;
 }
 
@@ -108,16 +113,16 @@ h6 {
 }
 
 .form-control {
-    border-left: 15px solid var(--theme-dark-grey);
+    border-left: 15px solid var(--theme-dark-grey) !important;
 }
 
 .btn {
-    border-left: 15px solid var(--theme-blue);
+    border-left: 15px solid var(--theme-blue) !important;
 }
 
 .btn:hover {
-    background-color: var(--theme-dark-grey);
-    border-left: 15px solid var(--theme-blue);
+    background-color: var(--theme-dark-grey) !important;
+    border-left: 15px solid var(--theme-blue) !important;
     color: white;
 }
 
@@ -139,6 +144,10 @@ h6 {
 
 .hover {
     cursor: pointer;
+}
+
+.no-hover:hover {
+    background-color: var(--theme-light-grey) !important;
 }
 
 .multi-form {

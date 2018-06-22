@@ -1,6 +1,6 @@
 <template>
     <content-single-column>
-        <bread-crumb @eye-click="customisePage">&nbsp;</bread-crumb>
+        <bread-crumb>&nbsp;</bread-crumb>
         <b-card class="no-hover">
             <b-form @submit="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
@@ -36,9 +36,11 @@
         </b-card>
 
         <!-- TODO PROVIDE FULL NAME AND STUDENTNUMBER DATABASE BOYS -->
-        <course-participant-card v-for="p in participants" :key="p.uID"
+        <course-participant-card @delete-participant="deleteParticipantLocally" v-for="(p, i) in participants"
+            :key="p.uID"
             :cID="cID"
             :uID="p.uID"
+            :index="i"
             :studentNumber="p.studentNumber"
             :name="p.name"
             :portraitPath="p.picture"
@@ -80,6 +82,7 @@ export default {
             })
             .catch(_ => alert('Error while loading course users'))
     },
+    // TODO Added actual API
     methods: {
         onSubmit () {
             courseApi.update_course(this.cID,
@@ -99,6 +102,12 @@ export default {
                         this.$router.push({name: 'Home'})
                     })
             }
+        },
+        deleteParticipantLocally (uID) {
+            console.log(uID)
+            this.participants = this.participants.filter(function (item) {
+                return uID !== item.uID
+            })
         }
     },
     watch: {

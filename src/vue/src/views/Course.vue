@@ -4,30 +4,20 @@
             slot="main-content-column"
             @eye-click="customisePage"
             @edit-click="handleEdit()"/>
-        <div slot="left-content-column">
-        <b-button class="float-right edit-button" :to="{name: 'CourseEdit', params: {cID: this.$route.params.cID, courseName: this.$route.params.courseName}}"> Edit </b-button>
-        </div>
 
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
-            <b-link tag="b-button" :to="{ name: 'Assignment',
-                                          params: {
-                                              cID: cID,
-                                              aID: a.aID,
-                                              courseName: $route.params.courseName,
-                                              assignmentName: a.name
-                                          }
-                                        }">
+            <b-link tag="b-button" :to="assignmentRoute(cID, a.aID, a.name, a.journal)">
                 <assignment-card :line1="a.name" :color="$root.colors[a.aID % $root.colors.length]">
                     <progress-bar v-if="a.journal && a.journal.stats" :currentPoints="a.journal.stats.acquired_points" :totalPoints="a.journal.stats.total_points"></progress-bar>
                 </assignment-card>
             </b-link>
         </div>
 
-        <main-card slot="main-content-column" class="hover" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
+        <main-card slot="main-content-column" v-if="$root.canSubmitAssignment()" class="hover" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
-            <b-link tag="b-button" :to="{name: 'Assignment', params: {cID: d.cIDs[0], dID: d.dID}}">
+            <b-link tag="b-button" :to="{name: 'Assignment', params: {cID: d.cIDs[0], aID: d.aIDs[0], dID: d.dID}}">
                 <todo-card
                     :line0="d.datetime"
                     :line1="d.name"
@@ -73,11 +63,13 @@ export default {
             cardColor: '',
             post: null,
             error: null,
+            // TODO real deadlines with API, can a deadline be bound > 1 course and assignment?
             deadlines: [{
                 name: 'Individueel logboek',
                 cIDs: ['1', '2'],
+                aIDs: ['1', '3'],
                 courseAbbrs: ['WEDA', 'PALSIE8'],
-                dID: '2017IL1',
+                aID: '1',
                 datetime: '8-6-2018 13:00'
             }]
         }
@@ -97,7 +89,9 @@ export default {
     methods: {
         loadAssignments () {
             assignment.get_course_assignments(this.cID)
-                .then(response => { this.assignments = response })
+                .then(response => {
+                    this.assignments = response
+                })
                 .catch(_ => alert('Error while loading assignments'))
         },
         showModal (ref) {
@@ -125,6 +119,28 @@ export default {
                     cID: this.cID
                 }
             })
+        },
+        assignmentRoute (cID, aID, name, journal) {
+            if (this.$root.canViewAssignment()) {
+                return {
+                    name: 'Assignment',
+                    params: {
+                        cID: cID,
+                        aID: aID,
+                        assignmentName: name
+                    }
+                }
+            } else {
+                return {
+                    name: 'Journal',
+                    params: {
+                        cID: cID,
+                        aID: aID,
+                        jID: journal.jID,
+                        assignmentName: name
+                    }
+                }
+            }
         }
     }
 }

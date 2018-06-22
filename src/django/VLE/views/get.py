@@ -68,8 +68,9 @@ def get_course_users(request, cID):
 
     try:
         course = Course.objects.get(pk=cID)
-    except Course.NotFound:
-        return utils.does_not_exist("cID")
+    except Course.DoesNotExist:
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Course does not exist.'}, status=404)
 
     participations = course.participation_set.all()
     return JsonResponse({'result': 'success',
@@ -128,7 +129,7 @@ def get_student_course_assignments(user, course):
     """
     # TODO: check permission
     assignments = []
-    for assignment in Assignment.objects.get_queryset().filter(courses=course):
+    for assignment in Assignment.objects.get_queryset().filter(courses=course, journal__user=user):
         assignments.append(student_assignment_to_dict(assignment, user))
 
     return assignments
@@ -185,12 +186,12 @@ def get_assignment_data(request, cID, aID):
     if participation.role.can_view_assignment:
         return JsonResponse({
             'result': 'success',
-            'assignment': student_assignment_to_dict(assignment)
+            'assignment': assignment_to_dict(assignment)
         })
     else:
         return JsonResponse({
             'result': 'success',
-            'assignment': assignment_to_dict(assignment)
+            'assignment': student_assignment_to_dict(assignment, request.user)
         })
 
 
@@ -208,8 +209,18 @@ def get_assignment_journals(request, aID):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    # TODO: Check if the user has valid permissions to see get all the journals (teacher/ta)
-    assignment = Assignment.objects.get(pk=aID)
+    try:
+        assignment = Assignment.objects.get(pk=aID)
+        # TODO: Not first, for demo.
+        course = assignment.courses.first()
+        participation = Participation.objects.get(user=request.user, course=course)
+    except (Participation.DoesNotExist, Assignment.DoesNotExist):
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Assignment or Participation does not exist.'}, status=404)
+
+    if not participation.role.can_view_assignment:
+        return JsonResponse({'result': '403 Forbidden'}, status=403)
+
     journals = []
 
     for journal in assignment.journal_set.all():
@@ -258,7 +269,7 @@ def get_course_permissions(request, cID):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    roleDict = get_permissions(request.user, cID)
+    roleDict = get_permissions(request.user, int(cID))
 
     return JsonResponse({'result': 'success',
                          'permissions': roleDict})
@@ -296,7 +307,7 @@ def get_format(request, aID):
 
     try:
         assignment = Assignment.objects.get(pk=aID)
-    except Assignment.NotFound:
+    except Assignment.DoesNotExist:
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Assignment does not exist.'}, status=404)
 
@@ -339,11 +350,29 @@ def get_names(request):
             template = EntryTemplate.objects.get(pk=tID)
             result.template = template.name
 
-    except (Course.NotFound, Assignment.NotFound, Journal.NotFound, EntryTemplate.NotFound):
+    except (Course.DoesNotExist, Assignment.DoesNotExist, Journal.DoesNotExist, EntryTemplate.DoesNotExist):
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Course, Assignment, Journal or Template does not exist.'}, status=404)
 
     return result
+
+
+@api_view(['POST'])
+def get_entrycomments(request):
+    """
+    Get the comments belonging to the specified entry based on its entryID.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        entryID = utils.get_required_post_params(request.data, "entryID")
+    except KeyError:
+        return utils.keyerror_json("entryID")
+
+    entrycomments = EntryComment.objects.filter(entry=entryID)
+    return JsonResponse({'result': 'success',
+                         'entrycomments': [entrycomment_to_dict(comment) for comment in entrycomments]})
 
 
 @api_view(['POST'])

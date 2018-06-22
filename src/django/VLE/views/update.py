@@ -25,7 +25,7 @@ def update_course(request):
 
     course = Course.objects.get(pk=request.data['cID'])
     course.name = request.data['name']
-    course.abbr = request.data['abbr']
+    course.abbreviation = request.data['abbr']
     course.startdate = request.data['startDate']
     course.save()
     return JsonResponse({'result': 'success', 'course': course_to_dict(course)})
@@ -79,10 +79,9 @@ def update_password(request):
     return JsonResponse({'result': 'success'})
 
 
-@api_view(['GET'])
-def update_grade_notification(request, notified):
-    """Updates whether the user gets notified when a grade changes/new grade.
-
+@api_view(['POST'])
+def update_grade_notification(request):
+    """Updates whether the user gets notified when a grade changes/new grade
     Arguments:
     request -- the request that was send with
 
@@ -92,21 +91,18 @@ def update_grade_notification(request, notified):
     if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    if notified == 'true':
-        user.grade_notifications = True
-    elif notified == 'false':
-        user.grade_notifications = False
-    else:
+    try:
+        user.grade_notifications = request.data['new_value']
+    except Exception:
         return JsonResponse({'result': '400 Bad Request'}, status=400)
 
     user.save()
     return JsonResponse({'result': 'success', 'new_value': user.grade_notifications})
 
 
-@api_view(['GET'])
-def update_comment_notification(request, notified):
-    """Updates whether the user gets notified when a comment changes/new comment.
-
+@api_view(['POST'])
+def update_comment_notification(request):
+    """Updates whether the user gets notified when a comment changes/new comment
     Arguments:
     request -- the request that was send with
 
@@ -116,11 +112,9 @@ def update_comment_notification(request, notified):
     if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    if notified == 'true':
-        user.comment_notifications = True
-    elif notified == 'false':
-        user.comment_notifications = False
-    else:
+    try:
+        user.comment_notifications = request.data['new_value']
+    except Exception:
         return JsonResponse({'result': '400 Bad Request'}, status=400)
 
     user.save()
@@ -136,10 +130,128 @@ def update_user_role_course(request):
 
     Returns a json string for if it is succesful or not.
     """
-    participation = Participation.objects.get(user=request.data['uID'], course=request.data['cID'])
-    participation.role = Role.objects.get(name=request.data['role'])
+    try:
+        uID, cID = utils.get_required_post_params(request.data, "uID", "cID")
+    except KeyError:
+        return utils.keyerror_json("uID", "cID")
+
+    try:
+        participation = Participation.objects.get(user=request.data['uID'], course=request.data['cID'])
+        participation.role = Role.objects.get(name=request.data['role'])
+    except (Participation.DoesNotExist, Role.DoesNotExist):
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Participation or Role does not exist.'}, status=404)
+
     participation.save()
-    return JsonResponse({'result': 'success', 'new_role': participation.role.name})
+    return JsonResponse({'result': 'success', 'new_role': participation.role.name}, status=200)
+
+
+@api_view(['POST'])
+def update_grade_entry(request, eID):
+    """Updates the entry grade
+
+    Arguments:
+    request -- the request that was send with
+    grade -- the grade
+    published -- published
+    eID -- the entry id
+
+    Returns a json string if it was sucessful or not.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    entry = Entry.objects.get(pk=eID)
+    entry.grade = request.data['grade']
+    entry.published = request.data['published']
+    entry.save()
+    return JsonResponse({'result': 'success', 'new_grade': entry.grade, 'new_published': entry.published})
+
+
+@api_view(['POST'])
+def update_publish_grade_entry(request, eID):
+    """Updates the grade publish status for one entry
+
+    Arguments:
+    request -- the request that was send with
+    eID -- the entry id
+
+    Returns a json string if it was sucessful or not.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    publish = request.data['published']
+    entry = Entry.objects.get(pk=eID)
+    entry.published = publish
+    entry.save()
+    return JsonResponse({'result': 'success', 'new_published': entry.published})
+
+
+@api_view(['POST'])
+def update_publish_grades_assignment(request, aID):
+    """Updates the grade publish status for whole assignment
+
+    Arguments:
+    request -- the request that was send with
+    aID -- assignment ID
+
+    Returns a json string if it was sucessful or not.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    assign = Assignment.objects.get(pk=aID)
+    utils.publish_all_assignment_grades(assign, request.data['published'])
+    return JsonResponse({'result': 'success', 'new_published': request.data['published']})
+
+
+@api_view(['POST'])
+def update_publish_grades_journal(request, jID):
+    """Updates the grade publish status for a journal
+
+    Arguments:
+    request -- the request that was send with
+    jID -- journal ID
+
+    Returns a json string if it was sucessful or not.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    journ = Journal.objects.get(pk=jID)
+    utils.publish_all_journal_grades(journ, request.data['published'])
+    return JsonResponse({'result': 'success', 'new_published': request.data['published']})
+
+
+@api_view(['POST'])
+def update_entrycomment(request):
+    """
+    Update a comment to an entry.
+
+    Arguments:
+    request -- the request that was send with
+        entrycommentID -- The ID of the entrycomment.
+        text -- The updated text.
+    Returns a json string for if it is succesful or not.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        entrycommentID, text = utils.get_required_post_params(request.data, "entrycommentID", "text")
+    except KeyError:
+        return utils.keyerror_json("entrycommentID")
+
+    try:
+        comment = EntryComment.objects.get(pk=entrycommentID)
+    except EntryComment.DoesNotExist:
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Entrycomment does not exist.'},
+                            status=404)
+    comment.text = text
+    comment.save()
+    return JsonResponse({'result': 'success'})
 
 
 @api_view(['POST'])

@@ -11,7 +11,7 @@
                     {{ crumbsLower }}
                     <slot>
                         <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
-                        <b-button @click="editClick()" class="float-right edit-button"> Edit</b-button>
+                        <b-button v-if="canEdit()" @click="editClick()" class="float-right edit-button"> Edit</b-button>
                     </slot>
                 </h1>
             </b-col>
@@ -68,10 +68,14 @@ export default {
         crumbsUpper () {
             var crumbs = []
             for (var crumb of this.internalList.slice(0, -1)) {
-                crumbs.push({ route: { name: crumb.segment.split('/')[0],
-                    params: this.$route.params },
-                string: crumb.string,
-                key: crumb.segment })
+                crumbs.push({
+                    route: {
+                        name: crumb.segment.split('/')[0],
+                        params: this.$route.params
+                    },
+                    string: crumb.string,
+                    key: crumb.segment
+                })
             }
             return crumbs
         },
@@ -97,8 +101,7 @@ export default {
         canEdit () {
             var pageName = this.$route.name
 
-            // TODO add proper check to Home edit
-            if ((pageName === 'Home') ||
+            if ((pageName === 'Home' && this.$root.isAdmin()) ||
                (pageName === 'Course' && this.$root.canEditCourse()) ||
                (pageName === 'Assignment' && this.$root.canEditAssignment())) {
                 return true
