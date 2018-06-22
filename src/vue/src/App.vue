@@ -16,7 +16,7 @@ export default {
 </script>
 
 <style>
-/* @import url('https://fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700'); */
+@import url('https://fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700');
 
 :root {
     --theme-dark-blue: #252C39;
@@ -99,7 +99,7 @@ h4 a {
     padding-top: 70px;
 }
 
-.btn, .form-control {
+.btn, .form-control, input {
     font-family: 'Roboto Condensed', sans-serif;
     font-size: 20px;
     background-color: white !important;
@@ -112,8 +112,12 @@ h4 a {
     display: flex;
 }
 
-.form-control {
+.form-control, input {
     border-left: 15px solid var(--theme-dark-grey) !important;
+}
+
+input, select {
+    padding: 0.375rem 0.75rem !important;
 }
 
 .btn {

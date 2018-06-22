@@ -26,27 +26,36 @@ def delete_course(request):
     course = Course.objects.get(pk=request.data['cID'])
     course.delete()
 
-    return JsonResponse({'result': 'Succesfully deleted course'}, status=202)
+    return JsonResponse({'result': 'Succesfully deleted course'}, status=200)
 
 
 @api_view(['POST'])
 def delete_assignment(request):
-    """Delete an existing assignment.
+    """Delete an existing assignment from a course.
+
+    If an assignment is not attached to any course it will be deleted.
 
     Arguments:
     request -- the update request that was send with
         aID -- assignment ID given with the request
+        cID -- course ID given with the request
 
     Returns a json string for if it is succesful or not.
     """
-    user = request.user
-    if not user.is_authenticated:
+    if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
+    response = {'result': 'Succesfully deleted assignment', 'removed_completely': False}
+    course = Course.objects.get(pk=request.data['cID'])
     assignment = Assignment.objects.get(pk=request.data['aID'])
-    assignment.delete()
+    assignment.courses.remove(course)
+    assignment.save()
+    response['removed_from_course'] = True
+    if (assignment.courses.count() == 0):
+        assignment.delete()
+        response['removed_completely'] = True
 
-    return JsonResponse({'result': 'Succesfully deleted assignment'}, status=202)
+    return JsonResponse(response, status=200)
 
 
 @api_view(['POST'])
@@ -73,4 +82,4 @@ def delete_user_from_course(request):
                              'description': 'User, Course or Participation does not exist.'}, status=404)
 
     participation.delete()
-    return JsonResponse({'result': 'Succesfully deleted student from course'}, status=202)
+    return JsonResponse({'result': 'Succesfully deleted student from course'}, status=200)

@@ -36,7 +36,7 @@ def get_own_user_data(request):
     user_dict = serialize.user_to_dict(user)
     user_dict['grade_notifications'] = user.grade_notifications
     user_dict['comment_notifications'] = user.comment_notifications
-    return JsonResponse({'result': 'success', 'user': user_dict})
+    return JsonResponse({'result': 'success', 'user': user_dict}, status=200)
 
 
 @api_view(['GET'])
@@ -55,7 +55,7 @@ def get_course_data(request, cID):
 
     course = serialize.course_to_dict(Course.objects.get(pk=cID))
 
-    return JsonResponse({'result': 'success', 'course': course})
+    return JsonResponse({'result': 'success', 'course': course}, status=200)
 
 
 @api_view(['GET'])
@@ -79,8 +79,8 @@ def get_course_users(request, cID):
 
     participations = course.participation_set.all()
     return JsonResponse({'result': 'success',
-                         'users': [serialize.participation_to_dict(participation)
-                                   for participation in participations]})
+                         'users': [participation_to_dict(participation)
+                                   for participation in participations]}, status=200)
 
 
 @api_view(['GET'])
@@ -102,7 +102,7 @@ def get_user_courses(request):
     for course in user.participations.all():
         courses.append(serialize.course_to_dict(course))
 
-    return JsonResponse({'result': 'success', 'courses': courses})
+    return JsonResponse({'result': 'success', 'courses': courses}, status=200)
 
 
 def get_teacher_course_assignments(user, course):
@@ -161,12 +161,12 @@ def get_course_assignments(request, cID):
         return JsonResponse({
             'result': 'success',
             'assignments': get_teacher_course_assignments(user, course)
-        })
+        }, status=200)
     else:
         return JsonResponse({
             'result': 'success',
             'assignments': get_student_course_assignments(user, course)
-        })
+        }, status=200)
 
 
 @api_view(['GET'])
@@ -191,13 +191,13 @@ def get_assignment_data(request, cID, aID):
     if participation.role.can_view_assignment:
         return JsonResponse({
             'result': 'success',
-            'assignment': serialize.assignment_to_dict(assignment)
-        })
+            'assignment': assignment_to_dict(assignment)
+        }, status=200)
     else:
         return JsonResponse({
             'result': 'success',
-            'assignment': serialize.student_assignment_to_dict(assignment, request.user)
-        })
+            'assignment': student_assignment_to_dict(assignment, request.user),
+        }, status=200)
 
 
 @api_view(['GET'])
@@ -240,7 +240,7 @@ def get_assignment_journals(request, aID):
         stats['medianPoints'] = st.median(points)
         stats['avgEntries'] = round(st.mean([x['stats']['total_points'] for x in journals]), 2)
 
-    return JsonResponse({'result': 'success', 'stats': stats if stats else None, 'journals': journals})
+    return JsonResponse({'result': 'success', 'stats': stats if stats else None, 'journals': journals}, status=200)
 
 
 @api_view(['GET'])
@@ -260,7 +260,7 @@ def get_upcoming_deadlines(request):
     for assign in Assignment.objects.all():
         deadlines.append(serialize.deadline_to_dict(assign))
 
-    return JsonResponse({'result': 'success', 'deadlines': deadlines})
+    return JsonResponse({'result': 'success', 'deadlines': deadlines}, status=200)
 
 
 @api_view(['GET'])
@@ -277,7 +277,7 @@ def get_course_permissions(request, cID):
     roleDict = permission.get_permissions(request.user, int(cID))
 
     return JsonResponse({'result': 'success',
-                         'permissions': roleDict})
+                         'permissions': roleDict}, status=200)
 
 
 @api_view(['GET'])
@@ -295,7 +295,7 @@ def get_nodes(request, jID):
 
     journal = Journal.objects.get(pk=jID)
     return JsonResponse({'result': 'success',
-                         'nodes': edag.get_nodes_dict(journal)})
+                         'nodes': edag.get_nodes_dict(journal)}, status=200)
 
 
 @api_view(['GET'])
@@ -318,7 +318,7 @@ def get_format(request, aID):
                              'description': 'Assignment does not exist.'}, status=404)
 
     return JsonResponse({'result': 'success',
-                         'nodes': serialize.format_to_dict(assignment.format)})
+                         'nodes': get_format_dict(assignment.format)}, status=200)
 
 
 @api_view(['POST'])
@@ -340,7 +340,7 @@ def get_names(request):
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     cID, aID, jID, tID = utils.get_optional_post_params(request.data, "cID", "aID", "jID", "tID")
-    result = JsonResponse({'result': 'success'})
+    result = JsonResponse({'result': 'success'}, status=200)
 
     try:
         if cID:
@@ -376,7 +376,7 @@ def get_entrycomments(request):
 
     entrycomments = EntryComment.objects.filter(entry=entryID)
     return JsonResponse({'result': 'success',
-                         'entrycomments': [serialize.entrycomment_to_dict(comment) for comment in entrycomments]})
+                         'entrycomments': [entrycomment_to_dict(comment) for comment in entrycomments]}, status=200)
 
 
 @api_view(['POST'])

@@ -1,5 +1,5 @@
 <template>
-    <journal-non-student v-if="$root.canViewAssignment()" :cID="cID" :aID="aID" :jID="jID"/>
+    <journal-non-student v-if="$root.canViewCourseParticipants()" :cID="cID" :aID="aID" :jID="jID"/>
     <journal-student v-else :cID="cID" :aID="aID" :jID="jID"/>
 </template>
 
