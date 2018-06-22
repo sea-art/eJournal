@@ -289,7 +289,7 @@ def get_nodes(request, jID):
 
     journal = Journal.objects.get(pk=jID)
     return JsonResponse({'result': 'success',
-                         'nodes': edag.get_nodes_dict(journal)})
+                         'nodes': edag.get_nodes_dict(journal, request.user)})
 
 
 @api_view(['GET'])
