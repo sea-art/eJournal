@@ -3,7 +3,7 @@
         <h1 class="title-container">{{ currentPage }}</h1>
         <lti-create-connect-course v-if="handleCourseChoice" @handleAction="handleActions" :lti="lti"/>
         <lti-create-connect-assignment v-else-if="handleAssignmentChoice" @handleAction="handleActions"/>
-        <lti-create-assignment v-else-if="createAssignment" @handleAction="handleActions"/>
+        <lti-create-assignment v-else-if="createAssignment" @handleAction="handleActions" :lti="lti"/>
     </content-single-columns>
 </template>
 

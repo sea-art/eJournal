@@ -16,11 +16,14 @@ import assignmentApi from '@/api/assignment.js'
 
 export default {
     name: 'AssignmentCreation',
+    props: ['lti'],
     data () {
         return {
             form: {
                 assignmentName: '',
-                assignmentDescription: ''
+                assignmentDescription: '',
+                ltiAssignID: '',
+                pointsPossible: ''
             }
         }
     },
@@ -41,6 +44,11 @@ export default {
             /* Trick to reset/clear native browser form validation state */
             this.show = false
             this.$nextTick(() => { this.show = true })
+        },
+        mounted () {
+            this.form.assignmentName = this.lti.ltiCourseName
+            this.form.ltiAssignID = this.lti.ltiAssignID
+            this.form.pointsPossible = this.lti.ltiPointsPossible
         }
     }
 }
