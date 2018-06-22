@@ -47,7 +47,7 @@ new Vue({
         isAdmin () {
             return this.permissions.is_admin
         },
-        /* Insitutue wide settings, think institute name/abbreviation logo. */
+        /* Institute wide settings, think institute name/abbreviation logo. */
         canEditInstitute () {
             // TODO API
             return true
