@@ -1,6 +1,9 @@
 /venv
 VLE.db
 npm-debug.log
+
+.vscode/*
+
 # Created by https://www.gitignore.io/api/intellij
 
 ### Intellij ###
