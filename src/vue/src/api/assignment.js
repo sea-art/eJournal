@@ -16,6 +16,15 @@ export default {
             .then(response => response.data.assignments)
     },
 
+    /* Get course assignments.
+     * Requests all the course assignments.
+     * returns a list of all assignments.
+     */
+    get_assignment_by_lti_id (lti_id) {
+        return auth.authenticatedGet('/get_assignment_by_lti_id/' + lti_id + '/')
+            .then(response => response.data.assignment)
+    },
+
     /* Get upcomming deadlines. */
     get_upcoming_deadlines () {
         return auth.authenticatedGet('/get_upcoming_deadlines/')
