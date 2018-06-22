@@ -312,7 +312,30 @@ def get_format(request, aID):
                              'description': 'Assignment does not exist.'}, status=404)
 
     return JsonResponse({'result': 'success',
-                         'nodes': get_format_dict(assignment.format)})
+                         'nodes': format_to_dict(assignment.format)})
+
+
+@api_view(['GET'])
+def get_template(request, tID):
+    """Get a template.
+
+    Arguments:
+    request -- the request that was sent
+    tID     -- the template id
+
+    Returns a json string containing the format.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        template = EntryTemplate.objects.get(pk=tID)
+    except EntryTemplate.DoesNotExist:
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Template does not exist.'}, status=404)
+
+    return JsonResponse({'result': 'success',
+                         'template': template_to_dict(template)})
 
 
 @api_view(['POST'])

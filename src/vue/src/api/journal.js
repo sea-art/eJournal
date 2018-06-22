@@ -26,6 +26,11 @@ export default {
             .then(response => response.data)
     },
 
+    get_template (tID) {
+        return auth.authenticatedGet('/get_template/' + tID + '/')
+            .then(response => response.data)
+    },
+
     get_format (aID) {
         return auth.authenticatedGet('/get_format/' + aID + '/')
             .then(response => response.data)
