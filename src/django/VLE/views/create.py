@@ -126,7 +126,7 @@ def create_entry(request):
             field = Field.objects.get(pk=tag)
             factory.make_content(node.entry, data, field)
 
-        return JsonResponse({'result': 'success', 'node': node_to_dict(node)}, status=200)
+        return JsonResponse({'result': 'success', 'nodes': edag.get_nodes_dict(journal)}, status=200)
     except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Journal, Template or Node does not exist.'},
