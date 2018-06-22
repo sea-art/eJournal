@@ -157,14 +157,12 @@ def select_create_journal(request, user, assignment, roles):
         if journals.count() > 0:
             journal = journals[0]
         else:
-            journal = Journal()
-            journal.assignment = assignment
-            journal.user = user
-            journal.save()
-        if journal.grade_url is None:
+            journal = factory.make_journal(assignment, user)
+
+        if 'lis_outcome_service_url' in request:
             journal.grade_url = request['lis_outcome_service_url']
             journal.save()
-        if journal.sourcedId is None:
+        if 'lis_result_sourcedid' in request:
             journal.sourcedId = request['lis_result_sourcedid']
             journal.save()
     else:
