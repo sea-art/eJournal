@@ -46,7 +46,7 @@ export default {
         }
     },
     mounted () {
-        showModal('createAssignmentRef')
+        this.showModal('createAssignmentRef')
     }
 }
 </script>

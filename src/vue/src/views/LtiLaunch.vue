@@ -30,10 +30,7 @@ export default {
             /* Variables for loading the right component. */
             handleCourseChoice: false,
             handleAssignmentChoice: false,
-            // createCourse: false,
-            // connectCourse: false,
-            createAssignment: true,
-            // connectAssignment: false,
+            createAssignment: false,
 
             /* Extern variables for checking the state of the lti launch. */
             state: '',
@@ -72,7 +69,9 @@ export default {
                 this.state = this.s_finish_t
                 alert('Assignment Integrated!')
             } else if (msg === 'assignmentCreated') {
-
+                this.createAssignment = false
+                this.state = this.s_finish_t
+                alert('Assignment Created!')
             }
         },
         updateState (state) {
@@ -86,7 +85,8 @@ export default {
                     this.handleAssignmentChoice = true
                     break;
                 case this.s_create_assign:
-                    // TODO: Maak nieuwe assignement aan
+                    this.currentPage = 'Assigment Integration'
+                    this.createAssignment = true
                     break;
                 case this.s_check_assign:
                     // TODO: Check if assignment already exists
@@ -104,9 +104,9 @@ export default {
         }
 
         /* Get the IDs of the objects out of the query. */
-        this.ltiCourseID = this.$route.query.lti_cID
-        this.ltiCourseName = this.$route.query.lti_cName
-        this.ltiCourseAbbr = this.$route.query.lti_abbr
+        this.lti.ltiCourseID = this.$route.query.lti_cID
+        this.lti.ltiCourseName = this.$route.query.lti_cName
+        this.lti.ltiCourseAbbr = this.$route.query.lti_abbr
         this.state = this.$route.query.state
 
         var ltiAssignName = this.$route.query.lti_aName
@@ -117,27 +117,37 @@ export default {
         var aID = this.$route.query.aID
         var jID = this.$route.query.jID
 
-        this.state = '0'
+        this.state = '5'
 
         if (this.state === this.s_bad_auth) {
-            // TODO: There was a bad LTI request. Give correct error.
-        } else if (this.state === this.s_no_course || this.state === this.s_no_course) {
-            // TODO: There is no course/assignment availible. Give correct error.
+            this.$router.push({
+                name: 'ErrorPage',
+                params: {
+                    errorCode: '511',
+                    errorMessage: 'Network authorization required'
+                }
+            })
+        } else if (this.state === this.s_no_course) {
+            this.$router.push({
+                name: 'ErrorPage',
+                params: {
+                    errorCode: '404',
+                    errorMessage: 'No course found with given ID'
+                }
+            })
+        } else if (this.state === this.s_no_assign) {
+            this.$router.push({
+                name: 'ErrorPage',
+                params: {
+                    errorCode: '404',
+                    errorMessage: 'No assignment found with given ID'
+                }
+            })
         } else {
-            while (this.state !== this.s_finish_s || this.state !== this.s_finish_t)  {
+            while (this.state !== this.s_finish_s && this.state !== this.s_finish_t)  {
                 this.state = this.updateState(this.state)
-                this.state = '5'
             }
         }
-
-        //         this.$router.push({
-        //             name: 'Journal',
-        //             params: {
-        //                 cID: cID,
-        //                 aID: aID,
-        //                 jID: jID
-        //             }
-        //         })
     }
 }
 </script>

@@ -34,7 +34,7 @@ def make_course(name, abbrev, startdate=None, author=None, lti_id=None):
     return course
 
 
-def make_assignment(name, description, author=None, format=None, cIDs=None, courses=None):
+def make_assignment(name, description, author=None, format=None, lti_id=None, points_possible=None, cIDs=None, courses=None):
     """Makes a new assignment
 
     Arguments:

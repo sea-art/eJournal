@@ -52,10 +52,11 @@ def create_new_assignment(request):
 
     try:
         name, description, cID = utils.get_required_post_params(request.data, "name", "description", "cID")
+        points_possible, lti_id = utils.get_required_post_params(request.data, "points_possible", "lti_id")
     except KeyError:
         return utils.keyerror_json("name", "description", "cID")
 
-    assignment = factory.make_assignment(name, description, cIDs=[cID], author=request.user)
+    assignment = factory.make_assignment(name, description, cIDs=[cID], author=request.user, lti_id=lti_id, points_possible=points_possible)
     return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)})
 
 
