@@ -1,15 +1,22 @@
+"""
+Print the database.
+
+Print the user, course, assignment and journal table.
+"""
 from django.core.management.base import BaseCommand
 import sqlite3
 
 
 class Command(BaseCommand):
+    """Show the user, course, assignment and journal table."""
+
     help = 'Show the user, course, assignment and journal table.'
 
     def create_connection(self, db_file):
         """Create connection between the db_file and python."""
         try:
             return sqlite3.connect(db_file)
-        except Error as e:
+        except Exception as e:
             print(e)
         return None
 

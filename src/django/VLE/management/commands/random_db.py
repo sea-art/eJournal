@@ -1,15 +1,23 @@
+"""
+Generate test data.
+
+Generate an extensive set of data and save it to the database.
+"""
 from django.core.management.base import BaseCommand
-from VLE.models import *
-from VLE.factory import *
+from VLE.models import Entry, User, Role, Course, Participation, JournalFormat, Assignment, Journal
+from VLE.factory import make_content, make_journal
 from faker import Faker
 import random
 faker = Faker()
 
 
 class Command(BaseCommand):
+    """Generates data for the database."""
+
     help = 'Generates data for the database.'
 
     def gen_random_content(self):
+        """Generate random content."""
         entries = Entry.objects.all()
         for i, entry in enumerate(entries):
             for field in entry.template.field_set.all():
@@ -21,9 +29,7 @@ class Command(BaseCommand):
                 content.save()
 
     def gen_random_users(self, amount):
-        """
-        Generate random users.
-        """
+        """Generate random users."""
         used_email = [email['email'] for email in User.objects.all().values('email')]
         used_names = [email['username'] for email in User.objects.all().values('username')]
         used_lti = [email['lti_id'] for email in User.objects.all().values('lti_id')]
@@ -69,9 +75,7 @@ class Command(BaseCommand):
             used_lti.append(user.lti_id)
 
     def gen_random_courses(self, amount):
-        """
-        Generate random courses.
-        """
+        """Generate random courses."""
         for _ in range(amount):
             course = Course()
             course.save()
@@ -86,9 +90,7 @@ class Command(BaseCommand):
             course.save()
 
     def gen_roles(self):
-        """
-        Generate roles for participation in courses.
-        """
+        """Generate roles for participation in courses."""
         ta = Role()
         ta.name = "TA"
 
@@ -110,9 +112,7 @@ class Command(BaseCommand):
         student.save()
 
     def gen_random_participation_for_each_user(self):
-        """
-        Generate participants to link students to courses with a role.
-        """
+        """Generate participants to link students to courses with a role."""
         courses = Course.objects.all()
         participation_list = list()
         if courses.count() > 0:
@@ -130,9 +130,7 @@ class Command(BaseCommand):
         Participation.objects.bulk_create(participation_list)
 
     def gen_random_assignments(self, amount):
-        """
-        Generate random assignments.
-        """
+        """Generate random assignments."""
         for _ in range(amount):
             if Course.objects.all().count() == 0:
                 continue
@@ -157,19 +155,15 @@ class Command(BaseCommand):
             assignment.save()
 
     def gen_random_journals(self):
-        """
-        Generate random journals.
-        """
-        journal_list = []
+        """Generate random journals."""
         for assignment in Assignment.objects.all():
             for user in User.objects.all():
                 if Journal.objects.filter(assignment=assignment, user=user).count() > 0:
                     continue
-                journal = make_journal(assignment, user)
+                make_journal(assignment, user)
 
     def handle(self, *args, **options):
-        """This function generates randomly created data to create a more real life example."""
-
+        """Generate randomly created data to create a more real life example."""
         amount = 4
         # Random users
         self.gen_random_users(amount)
