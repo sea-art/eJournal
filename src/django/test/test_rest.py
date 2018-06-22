@@ -73,7 +73,7 @@ class RestTests(TestCase):
     """
 
     def setUp(self):
-        """Setup the test file."""
+        """Set up the test file."""
         self.username = 'test'
         self.password = 'test123'
 
