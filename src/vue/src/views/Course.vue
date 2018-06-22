@@ -13,7 +13,7 @@
             </b-link>
         </div>
 
-        <main-card slot="main-content-column" v-if="$root.canSubmitAssignment()" class="hover" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
+        <main-card slot="main-content-column" v-if="$root.canAddAssignment()" class="hover" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
@@ -121,7 +121,7 @@ export default {
             })
         },
         assignmentRoute (cID, aID, name, journal) {
-            if (this.$root.canViewAssignment()) {
+            if (this.$root.canViewCourseParticipants()) {
                 return {
                     name: 'Assignment',
                     params: {
