@@ -31,12 +31,15 @@
                            <option value="sortID">Sort on ID</option>
                         </b-form-select>
                     </b-col>
+                    <b-col lg="3" md="3">
+                        <input type="text" v-model="nameSearch" placeholder="Search name.."/>
+                    </b-col>
                 </b-row>
             </b-form>
         </b-card>
 
         <!-- TODO PROVIDE FULL NAME AND STUDENTNUMBER DATABASE BOYS -->
-        <course-participant-card @delete-participant="deleteParticipantLocally" v-for="(p, i) in participants"
+        <course-participant-card @delete-participant="deleteParticipantLocally" v-for="(p, i) in filteredUsers"
             :key="p.uID"
             :cID="cID"
             :uID="p.uID"
@@ -66,7 +69,8 @@ export default {
             course: {},
             form: {},
             participants: [],
-            selectedSortOption: null
+            selectedSortOption: null,
+            nameSearch: ''
         }
     },
     created () {
@@ -82,7 +86,6 @@ export default {
             })
             .catch(_ => alert('Error while loading course users'))
     },
-    // TODO Added actual API
     methods: {
         onSubmit () {
             courseApi.update_course(this.cID,
@@ -104,24 +107,37 @@ export default {
             }
         },
         deleteParticipantLocally (uID) {
-            console.log(uID)
             this.participants = this.participants.filter(function (item) {
                 return uID !== item.uID
             })
         }
     },
-    watch: {
-        selectedSortOption: function (val) {
-            if (this.init) {
-                this.init = false
+    computed: {
+        filteredUsers: function () {
+            let self = this
+
+            function compareName (a, b) {
+                if (a.name < b.name) { return -1 }
+                if (a.name > b.name) { return 1 }
+                return 0
+            }
+
+            function compareID (a, b) {
+                if (a.uID < b.uID) { return -1 }
+                if (a.uID > b.uID) { return 1 }
+                return 0
+            }
+
+            function checkName (user) {
+                return user.name.toLowerCase().includes(self.nameSearch.toLowerCase())
+            }
+
+            if (this.selectedSortOption === 'sortName') {
+                return this.participants.filter(checkName).sort(compareName)
+            } else if (this.selectedSortOption === 'sortID') {
+                return this.participants.filter(checkName).sort(compareID)
             } else {
-                this.selectedSortOption = val
-                if (val === 'sortName') {
-                    this.participants = this.participants.sort((a, b) => a.name > b.name)
-                } else if (val === 'sortID') {
-                    this.participants = this.participants.sort((a, b) => a.uID > b.uID)
-                }
-                console.log(this.participants)
+                return this.participants.filter(checkName)
             }
         }
     },
