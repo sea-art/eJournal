@@ -5,3 +5,7 @@ sudo: enabled
 install:
   - make setup
 script: make test
+branches:
+  only:
+    - master
+    - develop
