@@ -1,59 +1,63 @@
 <template>
-    <b-row v-if="windowWidth > 750" no-gutters>
+    <b-row no-gutters>
         <b-col cols="12" lg="6" offset-lg="3" class="table-content">
             <bread-crumb>&nbsp;</bread-crumb>
-            <div class="light-text">
-                <table class="table table-bordered table-hover">
-                    <thead >
-                        <tr>
-                            <th/>
-                            <th v-for="role in roles" :key="'th-' + role">{{ role }}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="permission in permissions" :key="permission">
-                            <td>{{ permission }}</td>
-                            <td v-for="role in roles" :key="role + '-' + permission">
-                                <custom-checkbox
-                                @checkbox-toggle="updateRole"
-                                :role="role"
-                                :permission="permission"
-                                :receivedState="false"/>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </b-col>
-    </b-row>
-    <b-row v-else no-gutters>
-        <b-col cols="12" lg="6" offset-lg="3" class="table-content">
-            <bread-crumb>&nbsp;</bread-crumb>
-            <div class="light-text">
-                <table class="table table-bordered table-hover">
-                    <thead >
-                        <tr>
-                            <th/>
-                            <b-form-select
-                                class="select-center mb-3"
-                                v-model="selectedRole"
-                                :options="selectRoles"/>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="permission in permissions" :key="permission">
-                            <td>{{ permission }}</td>
-                            <td>
-                                <custom-checkbox
-                                @checkbox-toggle="updateRole"
-                                :role="selectedRole"
-                                :permission="permission"
-                                :receivedState="false"/>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+            <table class="table table-bordered table-hover">
+                <thead >
+                    <tr v-if="windowWidth > 750">
+                        <th/>
+                        <th v-for="role in roles" :key="'th-' + role">{{ role }}</th>
+                        <th><icon name="plus-square" @click.native="modalShow = !modalShow" class="eye-icon" scale="1.75"></icon></th>
+                    </tr>
+                    <tr v-else>
+                        <th/>
+                        <b-form-select
+                            class="select-center mb-3"
+                            v-model="selectedRole"
+                            :options="selectRoles"/>
+                        <th><icon name="plus-square" @click.native="modalShow = !modalShow" class="eye-icon" scale="1.75"></icon></th>
+                    </tr>
+                </thead>
+                <tbody v-if="windowWidth > 750">
+                    <tr v-for="permission in permissions" :key="permission">
+                        <td>{{ permission }}</td>
+                        <td v-for="role in roles" :key="role + '-' + permission">
+                            <custom-checkbox
+                            @checkbox-toggle="updateRole"
+                            :role="role"
+                            :permission="permission"
+                            :receivedState="false"/>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody v-else>
+                    <tr v-for="permission in permissions" :key="permission">
+                        <td>{{ permission }}</td>
+                        <td>
+                            <custom-checkbox
+                            @checkbox-toggle="updateRole"
+                            :role="selectedRole"
+                            :permission="permission"
+                            :receivedState="false"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <b-modal
+                @shown="focusRoleNameInput"
+                title="Role creation"
+                size="lg"
+                v-model="modalShow"
+                hide-footer>
+                <b-form-input
+                    v-model="newRole"
+                    class="multi-form"
+                    ref="roleNameInput"
+                    required placeholder="Role name"/>
+                <b-button @click="addRole" class="add-button">Create role</b-button>
+                <b-button @click="modalShow = false" class="delete-button">Cancel</b-button>
+            </b-modal>
         </b-col>
     </b-row>
 </template>
@@ -62,6 +66,7 @@
 import breadCrumb from '@/components/BreadCrumb.vue'
 import contentSingleColumn from '@/components/ContentSingleColumn.vue'
 import customCheckbox from '@/components/CustomCheckbox.vue'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     name: 'UserRoleConfiguration',
@@ -89,6 +94,8 @@ export default {
             ],
             permissions: ['Can edit course', 'Can add course'],
             selectedRole: null,
+            modalShow: false,
+            newRole: '',
             windowWidth: 550
         }
     },
@@ -98,6 +105,14 @@ export default {
         },
         updateRole (list) {
             console.log(list)
+        },
+        addRole () {
+            this.modalShow = false
+            this.roles.push(this.newRole)
+            this.newRole = ''
+        },
+        focusRoleNameInput () {
+            this.$refs.roleNameInput.focus()
         }
     },
     mounted () {
@@ -113,7 +128,8 @@ export default {
     components: {
         'content-single-column': contentSingleColumn,
         'bread-crumb': breadCrumb,
-        'custom-checkbox': customCheckbox
+        'custom-checkbox': customCheckbox,
+        icon
     }
 }
 </script>
@@ -130,7 +146,6 @@ export default {
 .table td {
     text-align: center; /* center checkbox horizontally */
     align-items: center;
-    width: 16.666667%;
 }
 
 .table-content {
