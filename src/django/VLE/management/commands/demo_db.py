@@ -7,179 +7,163 @@ faker = Faker()
 
 
 class Command(BaseCommand):
-    help = 'Generates data for the database.'
+    help = 'Generates useful data for the database.'
 
-    def gen_random_content(self):
-        entries = Entry.objects.all()
-        for i, entry in enumerate(entries):
-            for field in entry.template.field_set.all():
-                # Randomly miss content fields for testing.
-                if random.randint(0, 20) == 0:
-                    continue
+    def gen_users(self):
+        users_examples = [
+            {"username": "Student", "pass": "pass", "is_admin": False},
+            {"username": "Teacher", "pass": "pass", "is_admin": True},
+        ]
 
-                content = make_content(entry, faker.catch_phrase(), field)
-                content.save()
-
-    def gen_random_users(self, amount):
-        """
-        Generate random users.
-        """
-        used_email = [email['email'] for email in User.objects.all().values('email')]
-        used_names = [email['username'] for email in User.objects.all().values('username')]
-        used_lti = [email['lti_id'] for email in User.objects.all().values('lti_id')]
-
-        for _ in range(amount):
-            user = User()
-            # Generate unique email or exit.
-            user.email = faker.ascii_safe_email()
-            counter = 0
-            while(user.email in used_email and counter < 10000):
-                user.email = faker.ascii_safe_email()
-                counter += 1
-            if counter == 10000:
-                print("Could not find unique email")
-                exit()
-
-            # Generate unique name or exit.
-            user.username = faker.name()
-            counter = 0
-            while(user.username in used_names and counter < 10000):
-                user.username = faker.name()
-                counter += 1
-            if counter == 10000:
-                print("Could not find unique username")
-                exit()
-
-            user.set_password(faker.password())
-            user.profile_picture = '/static/oh_no/{}.png'.format(random.randint(1, 10))
-
-            # Generate unique lti_id.
-            user.lti_id = faker.name()
-            counter = 0
-            while(user.lti_id in used_lti and counter < 10000):
-                user.lti_id = faker.name()
-                counter += 1
-            if counter == 10000:
-                print("Could not find unique lti_id")
-                exit()
-
-            user.save()
-            used_email.append(user.email)
-            used_names.append(user.username)
-            used_lti.append(user.lti_id)
-
-    def gen_random_courses(self, amount):
-        """
-        Generate random courses.
-        """
-        for _ in range(amount):
-            course = Course()
-            course.save()
-            course.name = faker.company()
-
-            teachers = User.objects.all()
-            if len(teachers) > 0:
-                course.author = random.choice(teachers)
-
-            course.abbrevation = random.choices(course.name, k=4)
-            course.startdate = faker.date_this_decade(before_today=True)
-            course.save()
+        self.users = []
+        for u in users_examples:
+            self.users.append(make_user(u['username'], u['pass'], is_admin=u['is_admin']))
 
     def gen_roles(self):
-        """
-        Generate roles for participation in courses.
-        """
-        ta = Role()
-        ta.name = "TA"
+        self.roles = []
+        self.roles.append(make_role("Student"))
+        self.roles.append(make_role("Teacher",
+                                    can_edit_grades=True,
+                                    can_view_grades=True,
+                                    can_edit_assignment=True,
+                                    can_view_assignment=True,
+                                    can_submit_assignment=True,
+                                    can_edit_course=True,
+                                    can_delete_course=True))
 
-        ta.can_edit_grades = True
-        ta.can_view_grades = True
-        ta.can_edit_assignment = True
-        ta.can_view_assignment = True
-        ta.can_submit_assignment = True
-        ta.save()
+    def gen_courses(self):
+        courses_examples = [
+            {
+                "name": "Portfolio Academische Vaardigheden 1",
+                "abbr": "PAV",
+                "students": [0],
+                "teachers": [1],
+            },
+            {
+                "name": "Beeldbewerken",
+                "abbr": "BB",
+                "students": [0],
+                "teachers": [1],
+            }
+        ]
 
-        student = Role()
-        student.name = "student"
+        self.courses = []
+        for c in courses_examples:
+            startdate = faker.date_this_decade(before_today=True)
+            course = make_course(c["name"], c["abbr"], startdate, self.users[random.choice(c["teachers"])])
 
-        student.can_edit_grades = False
-        student.can_view_grades = False
-        student.can_edit_assignment = False
-        student.can_view_assignment = True
-        student.can_submit_assignment = True
-        student.save()
+            for sid in c["students"]:
+                student = self.users[sid]
+                make_participation(student, course, self.roles[0])
 
-    def gen_random_participation_for_each_user(self):
-        """
-        Generate participants to link students to courses with a role.
-        """
-        courses = Course.objects.all()
-        participation_list = list()
-        if courses.count() > 0:
-            for user in User.objects.all():
-                participation = Participation()
-                participation.user = user
-                participation.course = courses[random.randint(0, len(courses) - 1)]
-                participation.role = random.choice(Role.objects.all())
-                try:
-                    Participation.objects.get(course=participation.course, user=participation.user)
-                except Exception:
-                    participation_list.append(participation)
+            self.courses.append(course)
 
-        # Using a bulk create speeds the process up.
-        Participation.objects.bulk_create(participation_list)
+    def gen_templates(self):
+        template_examples = [
+            {
+                "name": "Colloquium",
+                "fields": [
+                    {"title": "Title", "location": 0, "type": Field.TEXT},
+                    {"title": "Summary", "location": 1, "type": Field.TEXT},
+                    {"title": "Experience", "location": 2, "type": Field.TEXT},
+                    {"title": "Requested Points", "location": 3, "type": Field.TEXT},
+                ]
+            },
+            {
+                "name": "Beeldbewerken Cijfers",
+                "fields": [
+                    {"title": "Text", "location": 0, "type": Field.TEXT},
+                ]
+            },
+        ]
 
-    def gen_random_assignments(self, amount):
-        """
-        Generate random assignments.
-        """
-        for _ in range(amount):
-            if Course.objects.all().count() == 0:
-                continue
-            format = JournalFormat()
-            format.save()
-            assignment = Assignment(format=format)
-            assignment.save()
-            assignment.name = faker.catch_phrase()
-            assignment.deadline = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
-            assignment.author = User.objects.get(pk=1)
-            assignment.description = faker.paragraph()
-            courses = Course.objects.all()
-            course_list = list()
-            for course in random.choices(courses, k=3):
-                if assignment.courses.count():
-                    course_list.append(course)
-                else:
-                    if random.randint(1, 101) > 70:
-                        course_list.append(course)
+        self.templates = []
+        for t in template_examples:
+            template = make_entry_template(t["name"])
+            for f in t["fields"]:
+                make_field(template, f["title"], f["location"], f["type"])
 
-            assignment.courses.add(*(course_list))
-            assignment.save()
+            self.templates.append(template)
 
-    def gen_random_journals(self):
-        """
-        Generate random journals.
-        """
-        journal_list = []
-        for assignment in Assignment.objects.all():
-            for user in User.objects.all():
-                if Journal.objects.filter(assignment=assignment, user=user).count() > 0:
-                    continue
-                journal = make_journal(assignment, user)
+    def gen_format(self):
+        format_examples = [
+            {
+                "templates": [1],
+                "presets": [
+                    {"type": Node.PROGRESS, "points": 5}
+                ]
+            },
+            {
+                "templates": [0],
+                "presets": [
+                    {"type": Node.PROGRESS, "points": 5},
+                    {"type": Node.PROGRESS, "points": 10},
+                ]
+            },
+        ]
+
+        self.formats = []
+        for f in format_examples:
+            templates = [self.templates[template] for template in f["templates"]]
+            format = make_format(templates)
+
+            for p in f["presets"]:
+                deadline_date = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
+
+                if p["type"] == Node.PROGRESS:
+                    deadline = make_deadline(deadline_date, p["points"])
+                    preset = make_progress_node(format, deadline)
+                elif p["type"] == Node.ENTRYDEADLINE:
+                    deadline = make_deadline(deadline_date)
+                    preset = make_entrydeadline_node(format, deadline, self.templates[p["template"]])
+
+            self.formats.append(format)
+
+    def gen_assignments(self):
+        assign_examples = [
+            {
+                "name": "Colloquium",
+                "description": "This is the best colloquium logbook in the world",
+                "courses": [0],
+                "format": 1,
+                "author": 1,
+            },
+            {
+                "name": "Verslag",
+                "description": "Verslag your verslag",
+                "courses": [1],
+                "format": 0,
+                "author": 1,
+            },
+        ]
+
+        self.assignments = []
+        for a in assign_examples:
+            author = self.users[a["author"]]
+            format = self.formats[a["format"]]
+            deadline = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
+            assignment = make_assignment(a["name"], a["description"], author, format)
+
+            for course in a["courses"]:
+                assignment.courses.add(self.courses[course])
+            self.assignments.append(assignment)
+
+    def gen_journals(self):
+        self.journals = []
+        for a in self.assignments:
+            for u in self.users:
+                journal = make_journal(a, u)
+                self.journals.append(journal)
 
     def handle(self, *args, **options):
-        """This function generates randomly created data to create a more real life example."""
-
-        amount = 4
-        # Random users
-        self.gen_random_users(amount)
-        # Random course
-        self.gen_random_courses(amount * 10)
-        # Create the roles
+        """
+        This function generates data to test and fill the database with.
+        This only contains the 'useful data'. For random data, execute demo_db as well.
+        """
+        self.gen_users()
         self.gen_roles()
-        # Random participation
-        self.gen_random_participation_for_each_user()
-        # Random assignments
-        self.gen_random_assignments(amount)
-        # Random journals
-        self.gen_random_journals()
+        self.gen_courses()
+        self.gen_templates()
+        self.gen_format()
+        self.gen_assignments()
+        self.gen_journals()

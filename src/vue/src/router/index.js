@@ -12,7 +12,6 @@ import AssignmentsOverview from '@/views/AssignmentsOverview'
 import permissionsApi from '@/api/permissions.js'
 import ErrorPage from '@/views/ErrorPage'
 import CourseEdit from '@/views/CourseEdit'
-import CourseUserManagement from '@/views/CourseUserManagement'
 import AssignmentEdit from '@/views/AssignmentEdit'
 
 Vue.use(Router)
@@ -57,11 +56,6 @@ var router = new Router({
         component: CourseEdit,
         props: true
     }, {
-        path: '/Home/Course/:cID/CourseUserManagement',
-        name: 'CourseUserManagement',
-        component: CourseUserManagement,
-        props: true
-    }, {
         path: '/Home/Course/:cID/Assignment/:aID',
         name: 'Assignment',
         component: Assignment,
@@ -72,7 +66,7 @@ var router = new Router({
         component: AssignmentEdit,
         props: true
     }, {
-        path: '/Home/Course/:cID/Assignment:aID/Journal/:jID',
+        path: '/Home/Course/:cID/Assignment/:aID/Journal/:jID',
         name: 'Journal',
         component: Journal,
         props: true

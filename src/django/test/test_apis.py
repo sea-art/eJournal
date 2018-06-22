@@ -13,6 +13,7 @@ import VLE.factory as factory
 import VLE.utils as utils
 
 import test.test_rest as test
+import json as json
 
 
 class ApiTests(TestCase):
@@ -23,7 +24,6 @@ class ApiTests(TestCase):
         self.user = factory.make_user(self.username, self.password)
 
     def test_get_course_users(self):
-
         login = test.logging_in(self, self.username, self.password)
 
         course = factory.make_course("Beeldbewerken", "BB")
@@ -41,3 +41,22 @@ class ApiTests(TestCase):
 
         self.assertEquals(response.status_code, 200)
         self.assertEquals(len(response.json()['users']), 2)
+
+    def test_create_entry(self):
+        login = test.logging_in(self, self.username, self.password)
+
+        assignment = factory.make_assignment("Assignment", "Your favorite assignment")
+        journal = factory.make_journal(assignment, self.user)
+        template = factory.make_entry_template("some_template")
+        field = factory.make_field(template, 'Some field', 0)
+
+        some_dict = {
+            'jID': journal.id,
+            'tID': template.id,
+            'content': [{
+                'tag': field.pk,
+                'data': "This is some data"
+                }]
+            }
+
+        response = test.api_post_call(self, '/api/create_entry/', some_dict, login)

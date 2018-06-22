@@ -22,9 +22,8 @@ export default {
      * if getsNotified is "false" the users WONT  get notified by mail when a grade changes.
      * else nothing changes (invalid argument).
      */
-    updateGradeNotification (getsNotified) {
-        return auth.authenticatedGet('/update_grade_notification/' + getsNotified + '/')
-            .then(r => r.new_value)
+    update_grade_notification (getsNotified) {
+        return auth.authenticatedPost('/update_grade_notification/', {new_value: getsNotified}).then(r => r.data.new_value)
     },
 
     /* Change whether the user gets comment notification or not.
@@ -32,8 +31,7 @@ export default {
      * if getsNotified is "false" the users WONT  get notified by mail when a there is a new comment.
      * else nothing changes (invalid argument).
      */
-    updateCommentNotification (getsNotified) {
-        return auth.authenticatedGet('/update_comment_notification/' + getsNotified + '/')
-            .then(r => r.new_value)
+    update_comment_notification (getsNotified) {
+        return auth.authenticatedPost('/update_comment_notification/', {new_value: getsNotified}).then(r => r.data.new_value)
     }
 }
