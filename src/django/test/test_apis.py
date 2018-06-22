@@ -59,4 +59,4 @@ class ApiTests(TestCase):
                 }]
             }
 
-        response = test.api_post_call(self, '/api/create_entry/', some_dict, login)
+        response = test.api_post_call(self, '/api/create_entry/', some_dict, login, 201)
