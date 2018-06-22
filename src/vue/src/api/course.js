@@ -11,7 +11,7 @@ export default {
     get_user_teacher_courses () {
         return auth.authenticatedGet('/get_user_teacher_courses/')
             .then(response => response.data.courses)
-    }
+    },
 
     /* Get user courses.
      * Requests all the users courses.
