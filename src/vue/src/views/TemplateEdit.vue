@@ -35,7 +35,6 @@
 <script>
 import ContentSingleColumn from '@/components/ContentSingleColumn.vue'
 import icon from 'vue-awesome/components/Icon'
-import courseApi from '@/api/course.js'
 import draggable from 'vuedraggable'
 
 export default {
