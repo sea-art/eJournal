@@ -15,7 +15,7 @@ from VLE.lti_launch import OAuthRequestValidater, select_create_user, \
     create_lti_query_link, check_course_lti, check_assignment_lti, \
     select_create_journal
 from VLE.lti_grade_passback import GradePassBackRequest
-from VLE.models import Journal
+from VLE.models import Journal, Assignment
 
 # VUE ENTRY STATE
 BAD_AUTH = '-1'
@@ -381,10 +381,10 @@ def get_names(request):
 
     Arguments:
     request -- the request that was sent
-    cID -- optionally the course id
-    aID -- optionally the assignment id
-    jID -- optionally the journal id
-    tID -- optionally the template id
+        cID -- optionally the course id
+        aID -- optionally the assignment id
+        jID -- optionally the journal id
+        tID -- optionally the template id
 
     Returns a json string containing the names of the set fields.
     cID populates 'course', aID populates 'assignment', tID populates
@@ -434,6 +434,23 @@ def get_entrycomments(request):
     entrycomments = EntryComment.objects.filter(entry=entryID)
     return JsonResponse({'result': 'success',
                          'entrycomments': [entrycomment_to_dict(comment) for comment in entrycomments]})
+
+
+@api_view(['GET'])
+def get_assignment_by_lti_id(request, lti_id):
+    """Get an assignment if it exists.
+
+    Arguments:
+    request -- the request that was sent
+    lti_id -- lti_id of the assignment
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+    try:
+        assignment = Assignment.objects.get(lti_id=lti_id)
+        return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)}, status=200)
+    except Assignment.DoesNotExist:
+        return JsonResponse({'result': '204 No content'}, status=204)
 
 
 @api_view(['POST'])
