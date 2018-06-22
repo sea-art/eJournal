@@ -31,11 +31,20 @@ new Vue({
              * TODO implement (will most likely require a lib) */
             return '1M 9D 9H'
         },
-        /* Front-end interface for all possible permissions.
+
+        /* #############################################################
+         *              Permissions,
+         * Front-end interface for all possible permissions.
+         * For an overview see: https://docs.google.com/spreadsheets/d/1M7KnEKL3cG9PMWfQi9HIpRJ5xUMou4Y2plnRgke--Tk/edit?usp=sharing
+         *
+         * ##############################################################
+         */
+
         /* Site-wide permissions */
         isAdmin () {
             return this.permissions.is_admin
         },
+        /* Institute wide settings, think institute name/abbreviation logo. */
         canEditInstitute () {
             return this.permissions.can_edit_institute
         },
@@ -82,10 +91,10 @@ new Vue({
             return this.permissions.can_publish_journal_grades
         },
         canEditJournal () {
-            return this.permissions.can_publish_journal_grades
+            return this.permissions.can_edit_journal
         },
         canCommentJournal () {
-            return this.permissions.can_publish_journal_grades
+            return this.permissions.can_comment_journal
         }
 
     },
