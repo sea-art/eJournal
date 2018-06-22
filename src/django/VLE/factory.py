@@ -4,8 +4,8 @@ import datetime
 import django.utils.timezone as timezone
 
 
-def make_user(username, password, email=None, lti_id=None, profile_picture=None):
-    user = User(username=username, email=email, lti_id=lti_id)
+def make_user(username, password, email=None, lti_id=None, profile_picture=None, is_admin=False):
+    user = User(username=username, email=email, lti_id=lti_id, is_admin=is_admin)
     user.save()
     user.set_password(password)
     if profile_picture:
@@ -16,20 +16,14 @@ def make_user(username, password, email=None, lti_id=None, profile_picture=None)
     return user
 
 
-def make_role(name):
-    role = Role(name=name)
-    role.save()
-    return role
-
-
 def make_participation(user, course, role):
     participation = Participation(user=user, course=course, role=role)
     participation.save()
     return participation
 
 
-def make_course(name, abbrev, startdate=None, author=None):
-    course = Course(name=name, abbreviation=abbrev, startdate=startdate, author=author)
+def make_course(name, abbrev, startdate=None, author=None, lti_id=None):
+    course = Course(name=name, abbreviation=abbrev, startdate=startdate, author=author, lti_id=lti_id)
     course.save()
     if author:
         participation = Participation()
@@ -40,20 +34,35 @@ def make_course(name, abbrev, startdate=None, author=None):
     return course
 
 
-def make_assignment(name, description, courseID=None, author=None, format=None, deadline=None):
+def make_assignment(name, description, author=None, format=None, cIDs=None, courses=None):
+    """Makes a new assignment
+
+    Arguments:
+    name -- name of assignment
+    description -- description of the assignment
+    author -- author of assignment
+    format -- format of assignment
+    courseIDs -- ID of the courses the assignment belongs to
+    courses -- courses it belongs to
+
+    On success, returns a new assignment.
+    """
     if format is None:
         format = JournalFormat()
         format.save()
-    assign = Assignment(name=name, description=description, author=author, deadline=deadline, format=format)
+    assign = Assignment(name=name, description=description, author=author, format=format)
     assign.save()
-    if courseID:
-        assign.courses.add(Course.objects.get(pk=courseID))
-        assign.save()
+    if cIDs:
+        for cID in cIDs:
+            assign.courses.add(Course.objects.get(pk=cID))
+    if courses:
+        for course in courses:
+            assign.courses.add(course)
     return assign
 
 
-def make_format(templates=[]):
-    format = JournalFormat()
+def make_format(templates=[], max_points=10):
+    format = JournalFormat(max_points=max_points)
     format.save()
     format.available_templates.add(*templates)
     return format
@@ -94,7 +103,6 @@ def make_journal(assignment, user):
         Node(type=preset_node.type,
              journal=journal,
              preset=preset_node).save()
-
     return journal
 
 
@@ -143,3 +151,32 @@ def make_journal_format():
     journal_format = JournalFormat()
     journal_format.save()
     return journal_format
+
+
+def make_role(name, can_edit_grades=False, can_view_grades=False, can_edit_assignment=False,
+              can_view_assignment=False, can_submit_assignment=False, can_edit_course=False,
+              can_delete_course=False):
+    role = Role(
+        name=name,
+        can_edit_grades=can_edit_grades,
+        can_view_grades=can_view_grades,
+        can_edit_assignment=can_edit_assignment,
+        can_view_assignment=can_view_assignment,
+        can_submit_assignment=can_submit_assignment,
+        can_edit_course=can_edit_course,
+        can_delete_course=can_delete_course
+    )
+    role.save()
+    return role
+
+
+def make_entrycomment(entryID, author, text):
+    """
+    Make an Entry Comment for an entry based on its ID.
+    With the author and the given text.
+    """
+    return EntryComment.objects.create(
+        entry=entryID,
+        author=author,
+        text=text
+    )

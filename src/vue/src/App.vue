@@ -21,12 +21,15 @@ export default {
 :root {
     --theme-dark-blue: #252C39;
     --theme-peach: #E9A480;
+    --theme-dark-peach: #dE8F3F;
     --theme-light-grey: #EEEEEE;
     --theme-dark-grey: #BBBBBB;
     --theme-pink: #E64769;
     --theme-blue: #22648A;
     --theme-red: #c83b4b;
     --theme-medium-grey: #DEDEDE;
+    --theme-add-unselected: #99ff99;
+    --theme-add-selected: #1aff1a;
 }
 
 * {
@@ -171,5 +174,38 @@ h6 {
 .portrait-container-sm {
     height: 50px;
     width: 50px;
+}
+
+.add-button {
+    border-color: var(--theme-blue);
+    background-color: var(--theme-add-unselected);
+}
+
+.add-button:hover {
+    border-color: var(--theme-blue);
+    background-color: var(--theme-add-selected);
+    color: black !important;
+}
+
+.delete-button {
+    border-color: var(--theme-blue);
+    background-color: var(--theme-pink);
+}
+
+.delete-button:hover {
+    border-color: var(--theme-dark-blue);
+    background-color: red;
+}
+
+.portrait {
+    max-width: 175px;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.no-hover:hover {
+    background-color: var(--theme-light-grey);
 }
 </style>

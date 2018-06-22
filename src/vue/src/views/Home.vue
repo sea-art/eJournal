@@ -12,16 +12,26 @@
                     :line1="c.name"
                     :line2="'From - To (years eg: 2017 - 2018)'"
                     :color="$root.colors[c.cID % $root.colors.length]">
-                    <b-button class="float-right" @click.prevent.stop="deleteCourse(c.cID, c.name)"> Delete </b-button>
+                    <b-button
+                        v-if="canDeleteCourse()"
+                        class="float-right"
+                        @click.prevent.stop="deleteCourse(c.cID, c.name)">
+                        Delete
+                    </b-button>
                 </main-card>
             </b-link>
         </div>
 
-        <main-card slot="main-content-column" class="hover" v-on:click.native="showModal('createCourseRef')" :line1="'+ Add course'"/>
+        <main-card
+            v-if="this.$root.isAdmin()"
+            slot="main-content-column"
+            class="hover"
+            @click.native="showModal('createCourseRef')"
+            :line1="'+ Add course'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
-            <b-link tag="b-button" :to="{name: 'Assignment', params: {cID: d.cIDs[0], dID: d.dID}}">
+            <b-link tag="b-button" :to="{name: 'Assignment', params: {cID: d.cIDs[0], aID: d.aIDs[0], dID: d.dID}}">
                 <todo-card
                     :line0="d.datetime"
                     :line1="d.name"
@@ -36,7 +46,7 @@
             ref="editCourseRef"
             title="Global changes"
             size="lg"
-            hide-footer=True>
+            hide-footer>
                 <edit-home @handleAction="handleConfirm('editCourseRef')"></edit-home>
         </b-modal>
 
@@ -45,7 +55,7 @@
             ref="createCourseRef"
             title="Create course"
             size="lg"
-            hide-footer=True>
+            hide-footer>
                 <create-course @handleAction="handleConfirm('createCourseRef')"></create-course>
         </b-modal>
     </content-columns>
@@ -59,7 +69,6 @@ import todoCard from '@/components/TodoCard.vue'
 import createCourse from '@/components/CreateCourse.vue'
 import editHome from '@/components/EditHome.vue'
 import course from '@/api/course'
-/* import assignment from '@/api/assignment' */
 
 export default {
     name: 'Home',
@@ -67,11 +76,13 @@ export default {
         return {
             intituteName: 'Universiteit van Amsterdam (UvA)',
             courses: [],
+            // TODO real deadlines with API, can a deadline be bound > 1 course and assignment?
             deadlines: [{
                 name: 'Individueel logboek',
                 cIDs: ['1', '2'],
+                aIDs: ['1', '3'],
                 courseAbbrs: ['WEDA', 'PALSIE8'],
-                dID: '2017IL1',
+                aID: '1',
                 datetime: '8-6-2018 13:00'
             }]
         }
@@ -99,7 +110,7 @@ export default {
         },
         deleteCourse (courseID, courseName) {
             if (confirm('Are you sure you want to delete ' + courseName + '?')) {
-                console.log('TODO Implement delete this course ID after privy check')
+                // TODO: Implement delete this course ID after privy check
             }
         },
         showModal (ref) {
@@ -119,6 +130,9 @@ export default {
         },
         customisePage () {
             alert('Wishlist: Customise page')
+        },
+        canDeleteCourse () {
+            return this.$root.permissions.can_delete_course
         }
     }
 }

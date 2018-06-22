@@ -1,11 +1,6 @@
-<!--TODO Check teacher permission;
-    TODO Display student cards of those enrolled
-    TODO Add deck of work to be checked for this assignment -->
-
 <template>
     <content-columns>
-        <!-- TODO: reopen bread-crumb when it is working again -->
-        <!-- <bread-crumb @eye-click="customisePage" :currentPage="Placeholder" :course="Placeholder" slot="main-content-column"></bread-crumb> -->
+        <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
         <div v-if="assignmentJournals.length > 0" v-for="journal in assignmentJournals" :key="journal.student.uID" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {
@@ -42,6 +37,8 @@ import studentCard from '@/components/StudentCard.vue'
 import statisticsCard from '@/components/StatisticsCard.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import journal from '@/api/journal.js'
+// TODO: temp
+import assignment from '@/api/assignment.js'
 
 export default {
     name: 'Assignment',
@@ -68,6 +65,22 @@ export default {
         'bread-crumb': breadCrumb
     },
     created () {
+        // TODO: Remove... just for demo
+        if (!this.$root.canViewAssignment()) {
+            assignment.get_assignment_data(this.cID, this.aID)
+                .then(data => {
+                    this.$router.push({
+                        name: 'Journal',
+                        params: {
+                            cID: this.cID,
+                            aID: this.aID,
+                            jID: data.journal.jID,
+                            assignmentName: data.name
+                        }})
+                })
+            return
+        }
+
         journal.get_assignment_journals(this.aID)
             .then(response => {
                 this.assignmentJournals = response.journals
@@ -78,6 +91,15 @@ export default {
     methods: {
         customisePage () {
             alert('Wishlist: Customise page')
+        },
+        handleEdit () {
+            this.$router.push({
+                name: 'AssignmentEdit',
+                params: {
+                    cID: this.cID,
+                    aID: this.aID
+                }
+            })
         }
     }
 }

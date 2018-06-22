@@ -22,8 +22,9 @@ class User(AbstractUser):
         unique=True,
     )
     profile_picture = models.TextField(
-        default='/static/oh_no/oh_no.jpeg'
+        null=True
     )
+    is_admin = models.BooleanField(default=False)
     grade_notifications = models.BooleanField(
         default=True
     )
@@ -32,7 +33,7 @@ class User(AbstractUser):
     )
 
     def __str__(self):
-        return self.username
+        return self.username + " (" + str(self.id) + ")"
 
 
 class Course(models.Model):
@@ -42,19 +43,22 @@ class Course(models.Model):
     - author: the creator of the course.
     - abbrevation: a max three letter abbrevation of the course name.
     - startdate: the date that the course starts.
+    - lti_id: the id of the course linked over LTI.
     """
     name = models.TextField()
     abbreviation = models.TextField(
         max_length=4,
         default='XXXX',
     )
+
     author = models.ForeignKey(
         'User',
         on_delete=models.SET_NULL,
         null=True
     )
-    participations = models.ManyToManyField(
-        User,
+
+    users = models.ManyToManyField(
+        'User',
         related_name='participations',
         through='Participation',
         through_fields=('course', 'user'),
@@ -63,14 +67,14 @@ class Course(models.Model):
     startdate = models.DateField(
         null=True,
     )
+
     lti_id = models.TextField(
-        # TODO Change if all courses should be linked to a canvas course.
         null=True,
         unique=True,
     )
 
     def __str__(self):
-        return self.name
+        return self.name + " (" + str(self.id) + ")"
 
 
 class Role(models.Model):
@@ -86,6 +90,11 @@ class Role(models.Model):
     can_edit_assignment = models.BooleanField(default=False)
     can_view_assignment = models.BooleanField(default=False)
     can_submit_assignment = models.BooleanField(default=False)
+    can_edit_course = models.BooleanField(default=False)
+    can_delete_course = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.name) + " (" + str(self.id) + ")"
 
 
 class Participation(models.Model):
@@ -103,6 +112,12 @@ class Participation(models.Model):
         related_name='role',
     )
 
+    class Meta:
+        unique_together = ('user', 'course',)
+
+    def __str__(self):
+        return "usr: " + str(self.user) + " crs: " + str(self.course) + " role: " + str(self.role)
+
 
 class Assignment(models.Model):
     """
@@ -113,11 +128,9 @@ class Assignment(models.Model):
     is part of.
     - format: a one-to-one key linked to the format this assignment
     holds. The format determines how a students' journal is structured.
+    - lti_id: The lti id of the assignment linked over lti.
     """
     name = models.TextField()
-    deadline = models.DateTimeField(
-        null=True,
-    )
     description = models.TextField(
         null=True,
     )
@@ -132,7 +145,6 @@ class Assignment(models.Model):
     )
     lti_id = models.TextField(
         'lti_id',
-        # TODO Change if all assignments should be linked to a canvas course.
         null=True
     )
     courses = models.ManyToManyField(Course)
@@ -143,7 +155,7 @@ class Assignment(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return self.name + " (" + str(self.id) + ")"
 
 
 class Journal(models.Model):
@@ -245,6 +257,20 @@ class JournalFormat(models.Model):
     - available_templates are those available in 'Entry' nodes.
       'Entrydeadline' nodes hold their own forced template.
     """
+    PERCENTAGE = 'PE'
+    GRADE = 'GR'
+    TYPES = (
+        (PERCENTAGE, 'percentage'),
+        (GRADE, 'from 0 to 10'),
+    )
+    grade_type = models.TextField(
+        max_length=2,
+        choices=TYPES,
+        default=PERCENTAGE,
+    )
+    max_points = models.IntegerField(
+        default=10
+    )
     available_templates = models.ManyToManyField(
         'EntryTemplate',
     )
@@ -322,11 +348,31 @@ class Entry(models.Model):
         default=now,
     )
     grade = models.IntegerField(
+        default=None,
+        null=True,
+    )
+    published = models.BooleanField(
+        default=False
+    )
+
+    def __str__(self):
+        return str(self.pk) + " " + str(self.grade)
+
+
+class Counter(models.Model):
+    """
+    A single counter class which can be used to keep track of incremental values
+    which do not belong to another object like the message ID for LTI messages.
+    """
+    name = models.TextField(
+        null=False
+    )
+    count = models.IntegerField(
         default=0
     )
 
     def __str__(self):
-        return str(self.pk)
+        return self.name + " is on " + self.count
 
 
 class EntryTemplate(models.Model):
@@ -334,6 +380,9 @@ class EntryTemplate(models.Model):
     A template for an Entry.
     """
     name = models.TextField()
+    max_grade = models.IntegerField(
+        default=1,
+    )
 
     def __str__(self):
         return self.name
@@ -381,3 +430,20 @@ class Content(models.Model):
         null=True
     )
     data = models.TextField()
+
+
+class EntryComment(models.Model):
+    """
+    EntryComments contain the comments given to the entries.
+    It is linked to a single entry with a single author and the comment text.
+    """
+    entry = models.ForeignKey(
+        'Entry',
+        on_delete=models.CASCADE
+    )
+    author = models.ForeignKey(
+        'User',
+        on_delete=models.SET_NULL,
+        null=True
+    )
+    text = models.TextField()

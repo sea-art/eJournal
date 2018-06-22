@@ -51,7 +51,7 @@ class Command(BaseCommand):
             {
                 "name": "Beeldbewerken",
                 "abbr": "BB",
-                "students": [0, 1, 2, 3, 4, 5],
+                "students": [1, 2, 3, 4, 5],
                 "teachers": [0],
             },
             {
@@ -81,7 +81,8 @@ class Command(BaseCommand):
                     {"title": "Title", "location": 0, "type": Field.TEXT},
                     {"title": "Summary", "location": 1, "type": Field.TEXT},
                     {"title": "Experience", "location": 2, "type": Field.TEXT},
-                    {"title": "Proof", "location": 3, "type": Field.IMG},
+                    {"title": "Requested Points", "location": 3, "type": Field.TEXT},
+                    {"title": "Proof", "location": 4, "type": Field.IMG},
                 ]
             },
             {
@@ -184,7 +185,7 @@ class Command(BaseCommand):
             author = self.users[a["author"]]
             format = self.formats[a["format"]]
             deadline = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
-            assignment = make_assignment(a["name"], a["description"], None, author, format, deadline)
+            assignment = make_assignment(a["name"], a["description"], author, format)
 
             for course in a["courses"]:
                 assignment.courses.add(self.courses[course])

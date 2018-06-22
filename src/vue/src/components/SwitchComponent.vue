@@ -12,8 +12,11 @@ export default {
     props: ['isActive'],
     data () {
         return {
-            Active: ''
+            active: ''
         }
+    },
+    created () {
+        this.active = this.isActive
     },
     methods: {
         switchVariable () {
