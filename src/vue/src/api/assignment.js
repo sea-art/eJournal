@@ -60,7 +60,6 @@ export default {
         }).then(response => response.data.course)
     },
 
-
     /* Deletes an existing assignment. */
     delete_assignment (aID) {
         return auth.authenticatedPost('/delete_assignment/', {
