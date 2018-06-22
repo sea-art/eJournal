@@ -1,9 +1,9 @@
 <template>
-    <content-single-column>
+    <div>
         <b-card class="no-hover">
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" id="templateName" v-model="name" placeholder="Template name" required/>
-            <draggable v-model="fields" @start="drag=true" @end="drag=false" @update="onUpdate" :options="{ handle:'.handle' }">
-                <div v-for="field in fields" :key="field.location">
+            <draggable v-model="this.template.fields" @start="drag=true" @end="drag=false" @update="onUpdate" :options="{ handle:'.handle' }">
+                <div v-for="field in this.template.fields" :key="field.location">
                     <b-card class="field-card">
                         <b-row align-h="between" no-gutters>
                             <b-col cols="12" md="11">
@@ -28,8 +28,7 @@
             <b-card class="hover" @click="addField">+ Add field</b-card>
             <b-button @click="onSubmit" :to="{name: 'Course', params: {cID: 1}}">Save</b-button>
         </b-card>
-
-    </content-single-column>
+    </div>
 </template>
 
 <script>
@@ -41,40 +40,12 @@ import draggable from 'vuedraggable'
 export default {
     name: 'TemplateEdit',
     props: {
-        cID: {
-            required: true
-        },
-        aID: {
-            required: true
-        },
-        tID: {
+        template: {
             required: true
         }
     },
     data () {
         return {
-            name: 'Default template',
-            fields: [{
-                'tag': 0,
-                'type': 't',
-                'title': 'Description',
-                'location': 0
-            // }, {
-            //     'tag': 1,
-            //     'type': 't',
-            //     'title': 'Naam spreker',
-            //     'location': 1
-            // }, {
-            //     'tag': 2,
-            //     'type': 't',
-            //     'title': 'Aantal punten',
-            //     'location': 2
-            // }, {
-            //     'tag': 3,
-            //     'type': 'i',
-            //     'title': 'Bewijs van deelname',
-            //     'location': 3
-            }],
             fieldTypes: {
                 'i': 'Image',
                 't': 'Text',
@@ -95,19 +66,19 @@ export default {
             var newField = {
                 'type': 't',
                 'title': '',
-                'location': this.fields.length
+                'location': this.template.fields.length
             }
 
-            this.fields.push(newField)
+            this.template.fields.push(newField)
         },
         removeField (location) {
-            if (confirm('Are you sure you want to remove \'' + this.fields[location].title + '\'?')) {
-                this.fields.splice(location, 1)
+            if (confirm('Are you sure you want to remove \'' + this.template.fields[location].title + '\'?')) {
+                this.template.fields.splice(location, 1)
             }
         },
         onUpdate () {
-            for (var i = 0; i < this.fields.length; i++) {
-                this.fields[i].location = i
+            for (var i = 0; i < this.template.fields.length; i++) {
+                this.template.fields[i].location = i
             }
         }
     }
