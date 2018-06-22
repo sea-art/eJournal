@@ -216,13 +216,6 @@ def preset_to_dict(preset):
     return result
 
 
-def format_to_dict(format):
-    return {
-        'grade_type': format.grade_type,
-        'max_points': format.max_points,
-    } if format else None
-
-
 def entrycomment_to_dict(entrycomment):
     """Convert entrycomment to dictionary."""
     return {
