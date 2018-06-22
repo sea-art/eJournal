@@ -32,6 +32,37 @@ def update_course(request):
 
 
 @api_view(['POST'])
+def update_course_with_studentID(request):
+    """Updates an existing course with a student.
+
+    Arguments:
+    request -- the update request that was send with
+        uID -- student ID given with the request
+        cID -- course ID given with the request
+
+    Returns a json string for if it is succesful or not.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        user = User.objects.get(pk=request.data['uID'])
+        course = Course.objects.get(pk=request.data['cID'])
+
+    except (User.DoesNotExist, Course.DoesNotExist, Participation.DoesNotExist):
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'User, Course or Participation does not exist.'}, status=404)
+
+    #  TODO use roles from course
+    role = Role.objects.get(name="Student")
+    participation = factory.make_participation(user, course, role)
+
+    participation.save()
+    return JsonResponse({'result': 'Succesfully added student to course'}, status=200)
+
+
+@api_view(['POST'])
 def update_assignment(request):
     """Updates an existing assignment.
 
