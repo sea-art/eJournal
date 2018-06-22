@@ -140,7 +140,7 @@ export default {
                 name: 'ErrorPage',
                 params: {
                     errorCode: '404',
-                    errorMessage: 'No course found with given ID'
+                    errorMessage: 'No assignment found with given ID'
                 }
             })
         } else {
