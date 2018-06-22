@@ -51,7 +51,7 @@ def delete_assignment(request):
     assignment.courses.remove(course)
     assignment.save()
     response['removed_from_course'] = True
-    if (assignment.courses.count() == 0):
+    if assignment.courses.count() == 0:
         assignment.delete()
         response['removed_completely'] = True
 
