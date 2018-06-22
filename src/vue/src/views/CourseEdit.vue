@@ -17,13 +17,29 @@
                          type="date"
                          required/>
 
-                <b-button class="add-button" type="submit">Update Course</b-button>
-                <b-button @click.prevent.stop="deleteCourse" class="delete-button">Delete Course</b-button>
+                <b-row>
+                    <b-col lg="2" md="5">
+                        <b-button class="add-button" type="submit">Update Course</b-button>
+                    </b-col>
+                    <b-col lg="2" md="5">
+                        <b-button @click.prevent.stop="deleteCourse()" class="delete-button">Delete Course</b-button>
+                    </b-col>
+                    <b-col lg="3" md="3">
+                        <b-form-select v-model="selectedSortOption" :select-size="1">
+                           <option :value="null">Sort on ...</option>
+                           <option value="sortName">Sort on name</option>
+                           <option value="sortID">Sort on ID</option>
+                        </b-form-select>
+                    </b-col>
+                    <b-col lg="3" md="3">
+                        <input type="text" v-model="nameSearch" placeholder="Search name.."/>
+                    </b-col>
+                </b-row>
             </b-form>
         </b-card>
 
         <!-- TODO PROVIDE FULL NAME AND STUDENTNUMBER DATABASE BOYS -->
-        <course-participant-card @delete-participant="deleteParticipantLocally" v-for="(p, i) in participants"
+        <course-participant-card @delete-participant="deleteParticipantLocally" v-for="(p, i) in filteredUsers"
             :key="p.uID"
             :cID="cID"
             :uID="p.uID"
@@ -52,7 +68,9 @@ export default {
         return {
             course: {},
             form: {},
-            participants: []
+            participants: [],
+            selectedSortOption: null,
+            nameSearch: ''
         }
     },
     created () {
@@ -68,7 +86,6 @@ export default {
             })
             .catch(_ => alert('Error while loading course users'))
     },
-    // TODO Added actual API
     methods: {
         onSubmit () {
             courseApi.update_course(this.cID,
@@ -90,10 +107,38 @@ export default {
             }
         },
         deleteParticipantLocally (uID) {
-            console.log(uID)
             this.participants = this.participants.filter(function (item) {
                 return uID !== item.uID
             })
+        }
+    },
+    computed: {
+        filteredUsers: function () {
+            let self = this
+
+            function compareName (a, b) {
+                if (a.name < b.name) { return -1 }
+                if (a.name > b.name) { return 1 }
+                return 0
+            }
+
+            function compareID (a, b) {
+                if (a.uID < b.uID) { return -1 }
+                if (a.uID > b.uID) { return 1 }
+                return 0
+            }
+
+            function checkName (user) {
+                return user.name.toLowerCase().includes(self.nameSearch.toLowerCase())
+            }
+
+            if (this.selectedSortOption === 'sortName') {
+                return this.participants.filter(checkName).sort(compareName)
+            } else if (this.selectedSortOption === 'sortID') {
+                return this.participants.filter(checkName).sort(compareID)
+            } else {
+                return this.participants.filter(checkName)
+            }
         }
     },
     components: {
