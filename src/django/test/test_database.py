@@ -48,9 +48,7 @@ class DataBaseTests(TestCase):
         self.jf2.available_templates.add()
 
         self.usr = factory.make_user('teun', '1234', email='t@t.com', lti_id='a')
-        self.usr.save()
         self.crs = factory.make_course('test course please ignore', 'XXXX', startdate=datetime.date.today())
-        self.crs.save()
 
     def test_foreignkeys(self):
         """Test the foreign keys in the database."""
@@ -75,11 +73,9 @@ class DataBaseTests(TestCase):
     def test_get_permissions(self):
         """Test a request that doesn't need permissions."""
         role = factory.make_role(name="Student")
-        role.save()
 
         # Connect a participation to a user, course and role.
-        participation = factory.make_participation(self.usr, role, self.crs)
-        participation.save()
+        factory.make_participation(self.usr, self.crs, role)
 
         perm = permissions.get_permissions(self.usr, self.crs.id)
 
@@ -88,21 +84,17 @@ class DataBaseTests(TestCase):
     def test_emptyPermissions(self):
         """Test a request that doesn't need permissions."""
         role = factory.make_role("Student")
-        role.save()
 
         # Connect a participation to a user, course and role.
-        participation = factory.make_participation(self.usr, role, self.crs)
-        participation.save()
+        factory.make_participation(self.usr, self.crs, role)
 
         self.assertTrue(permissions.check_permissions(self.usr, self.crs.id, []))
 
     def test_permission(self):
         """Test a request that needs a single permission."""
         role = factory.make_role("Student", can_submit_assignment=True)
-        role.save()
 
-        participation = factory.make_participation(self.usr, role, self.crs)
-        participation.save()
+        factory.make_participation(self.usr, self.crs, role)
 
         self.assertTrue(permissions.check_permissions(self.usr, self.crs.id, ["can_submit_assignment"]))
         self.assertFalse(permissions.check_permissions(self.usr, self.crs.id, ["can_edit_grades"]))
@@ -110,27 +102,20 @@ class DataBaseTests(TestCase):
     def test_permission_multiple(self):
         """Test a request that needs multiple permissions."""
         role = factory.make_role("TA", can_submit_assignment=True, can_view_grades=True, can_edit_assignment=True)
-        role.save()
 
-        participation = factory.make_participation(self.usr, role, self.crs)
-        participation.save()
+        factory.make_participation(self.usr, self.crs, role)
 
         self.assertTrue(permissions.check_permissions(self.usr, self.crs.id, ["can_view_grades"]))
         self.assertFalse(permissions.check_permissions(self.usr, self.crs.id,
                                                        ["can_edit_grades", "can_edit_assignment"]))
 
     def test_get_permissions_admin(self):
-        """Test a request that returns a dictionary of permissions.
-
-        The created user should be provided with the admin permission.
-        """
+        """Test if the admin had the right permissions."""
         usr = factory.make_user(email='some@other', username='teun2', password='1234', lti_id='abcde', is_admin=True)
         usr.save()
         role = factory.make_role("TA", can_submit_assignment=True, can_view_grades=True, can_edit_assignment=True)
-        role.save()
 
-        participation = factory.make_participation(usr, role, self.crs)
-        participation.save()
+        factory.make_participation(self.usr, self.crs, role)
 
         perm = permissions.get_permissions(usr, self.crs.id)
 
@@ -142,10 +127,8 @@ class DataBaseTests(TestCase):
         The created user should NOT be provided with the admin permission.
         """
         role = factory.make_role("TA", can_submit_assignment=True, can_view_grades=True, can_edit_assignment=True)
-        role.save()
 
-        participation = factory.make_participation(self.usr, role, self.crs)
-        participation.save()
+        factory.make_participation(self.usr, self.crs, role)
 
         perm = permissions.get_permissions(self.usr, self.crs.id)
 

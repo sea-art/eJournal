@@ -1,4 +1,8 @@
-from rest_framework.test import APIRequestFactory
+"""
+test_jwt.py.
+
+Test if the JWT token system works.
+"""
 from django.contrib import auth
 from django.test import TestCase
 from django.urls import reverse
@@ -7,7 +11,13 @@ from VLE.models import User
 
 
 class JWTTests(TestCase):
+    """Test JWT.
+
+    Test if the JWT token system works.
+    """
+
     def setUp(self):
+        """Setup."""
         self.username = 'test'
         self.password = 'test123'
 
@@ -16,9 +26,7 @@ class JWTTests(TestCase):
         self.user.save()
 
     def test_get_auth(self):
-        """
-        Testing simple authentication with JWT keys.
-        """
+        """Test simple authentication with JWT keys."""
         result = self.client.post(reverse('token_obtain_pair'),
                                   {'username': self.username,
                                    'password': self.password}, format='json')
@@ -28,17 +36,13 @@ class JWTTests(TestCase):
         self.assertTrue(result.json()['refresh'])
 
     def test_anonymous(self):
-        """
-        Testing simple anonymous access.
-        """
+        """Test simple anonymous access."""
         result = self.client.get(reverse('get_user_courses'), {}, format='json')
 
         self.assertEquals(result.status_code, 401)
 
     def test_user(self):
-        """
-        Testing authenticated access.
-        """
+        """Test authenticated access."""
         result = self.client.post(reverse('token_obtain_pair'),
                                   {'username': self.username,
                                    'password': self.password}, format='json')
@@ -51,6 +55,7 @@ class JWTTests(TestCase):
         self.assertEquals(result.json()['courses'], [])
 
     def test_auth_without_password(self):
+        """Test authentication without password."""
         user = User(username='john')
         user.save()
 
