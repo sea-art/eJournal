@@ -155,9 +155,13 @@ def update_format(request):
             return JsonResponse({'result': '404 Not Found',
                                  'description': 'Template does not exist.'},
                                 status=404)
+
+    format.presetnode_set.all().delete()
+
     for preset in presets:
         type = preset['type']
         date = preset['deadline']
+
         if type == Node.PROGRESS:
             target = preset['target']
             deadline = factory.make_deadline(date, target)
