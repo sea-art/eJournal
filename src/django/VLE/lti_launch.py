@@ -1,4 +1,5 @@
 from django.conf import settings
+import VLE.factory as factory
 import oauth2
 """Package for oauth authentication in python"""
 
@@ -134,11 +135,7 @@ def check_course_lti(request, user, role):
     if courses.count() > 0:
         course = courses[0]
         if user not in course.users.all():
-            participation = Participation()
-            participation.user = user
-            participation.course = course
-            participation.role = Role.objects.get(name=role)
-            participation.save()
+            factory.make_participation(user, course, Role.objects.get(name=role))
         return course
     return None
 
