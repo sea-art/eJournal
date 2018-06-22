@@ -20,8 +20,8 @@ export default {
      * Requests all the course assignments.
      * returns a list of all assignments.
      */
-    get_assignment_by_lti_id (lti_id) {
-        return auth.authenticatedGet('/get_assignment_by_lti_id/' + lti_id + '/')
+    get_assignment_by_lti_id (ltiId) {
+        return auth.authenticatedGet('/get_assignment_by_lti_id/' + ltiId + '/')
             .then(response => response.data.assignment)
     },
 
@@ -32,7 +32,7 @@ export default {
     },
 
     /* Create a new assignment. */
-    create_new_assignment (name, description, cID, ltiID=null, pointsPossible=null) {
+    create_new_assignment (name, description, cID, ltiID = null, pointsPossible = null) {
         return auth.authenticatedPost('/create_new_assignment/', {
             name: name,
             description: description,

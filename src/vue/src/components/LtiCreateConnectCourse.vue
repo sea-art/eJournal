@@ -60,10 +60,11 @@ export default {
         handleConfirm (ref) {
             this.hideModal(ref)
 
-            if (ref === 'createCourseRef')
+            if (ref === 'createCourseRef') {
                 this.signal('courseCreated')
-            else
+            } else {
                 this.signal('courseConnected')
+            }
         }
     }
 }
