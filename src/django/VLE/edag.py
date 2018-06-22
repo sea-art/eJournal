@@ -22,14 +22,24 @@ def get_sorted_nodes(journal):
     ).order_by('sort_deadline')
 
 
-def get_nodes_dict(journal):
-    """Get all the nodes in a dictionary."""
+def get_nodes_dict(journal, requester):
+    """Convert a journal to a list of node dictionaries.
+
+    First sorts the nodes on date, then attempts to add an
+    add-node if the requester is the owner of the journal, the subsequent
+    progress node is in the future and maximally one.
+    """
+    is_own_journal = False
+    if requester and journal.user == requester:
+        is_own_journal = True
+
     nodes = get_sorted_nodes(journal)
     node_dict = []
     added_add_node = False
     for node in nodes:
         if node.type == Node.PROGRESS:
-            if (not added_add_node and (node.preset.deadline.datetime - timezone.now()).total_seconds() > 0):
+            is_future = (node.preset.deadline.datetime - timezone.now()).total_seconds() > 0
+            if is_own_journal and not added_add_node and is_future:
                 node_dict.append(serializers.add_node_dict(journal))
                 added_add_node = True
         node_dict.append(serializers.node_to_dict(node))

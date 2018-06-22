@@ -72,7 +72,7 @@ class EdagTests(TestCase):
         entry = factory.make_entry(self.template, datetime.date(2022, 1, 1))
         factory.make_node(self.j_rick_colloq, entry)
 
-        nodes = edag.get_nodes_dict(self.j_rick_colloq)
+        nodes = edag.get_nodes_dict(self.j_rick_colloq, self.u_rick)
 
         self.assertEquals(len(nodes), 4)
 

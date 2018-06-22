@@ -10,7 +10,8 @@ from django.http import JsonResponse
 import VLE.serializers as serialize
 import VLE.factory as factory
 import VLE.utils as utils
-from VLE.models import User, Journal, EntryTemplate, Node, Assignment, Field
+from VLE.models import User, Journal, EntryTemplate, Node, Assignment, Field, Entry, Content
+import VLE.edag as edag
 
 
 @api_view(['POST'])
@@ -120,8 +121,12 @@ def create_entry(request):
                                      'description': 'Passed node is a Progress node.'},
                                     status=400)
 
-            node.entry = factory.make_entry(template)
-
+            if node.entry:
+                Content.objects.filter(entry=node.entry).all().delete()
+                node.entry.template = template
+                node.save()
+            else:
+                node.entry = factory.make_entry(template)
         else:
             entry = factory.make_entry(template)
             node = factory.make_node(journal, entry)
@@ -130,9 +135,20 @@ def create_entry(request):
             data = content['data']
             tag = content['tag']
             field = Field.objects.get(pk=tag)
+
             factory.make_content(node.entry, data, field)
 
-        return JsonResponse({'result': 'success', 'node': serialize.node_to_dict(node)}, status=201)
+        result = edag.get_nodes_dict(journal, request.user)
+        added = -1
+        for i, result_node in enumerate(result):
+            if result_node['nID'] == node.id:
+                added = i
+                break
+
+        return JsonResponse({'result': 'success',
+                             'added': added,
+                             'nodes': edag.get_nodes_dict(journal, request.user)},
+                            status=201)
     except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Journal, Template or Node does not exist.'},
@@ -157,7 +173,14 @@ def create_entrycomment(request):
     except KeyError:
         return utils.keyerror_json("entryID", "authorID", "text")
 
-    author = User.objects.get(pk=authorID)
-    serialize.make_entrycomment(entryID, author, text)
+    try:
+        author = User.objects.get(pk=authorID)
+        entry = Entry.objects.get(pk=entryID)
+    except (User.DoesNotExist, Entry.DoesNotExist):
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'User or Entry does not exist.'},
+                            status=404)
+
+    factory.make_entrycomment(entry, author, text)
 
     return JsonResponse({'result': 'success'}, status=201)
