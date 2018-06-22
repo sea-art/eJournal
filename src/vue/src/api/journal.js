@@ -31,6 +31,16 @@ export default {
             .then(response => response.data)
     },
 
+    create_template(name, fields) {
+        return auth.authenticatedPost('/update_template/', {name: name, fields: fields})
+            .then(response => response.data)
+    },
+
+    update_template (tID, name, fields) {
+        return auth.authenticatedPost('/update_template/', {tID: tID, name: name, fields: fields})
+            .then(response => response.data)
+    },
+
     get_format (aID) {
         return auth.authenticatedGet('/get_format/' + aID + '/')
             .then(response => response.data)
