@@ -273,8 +273,8 @@ class RestTests(TestCase):
                 }]
             }
 
-        response = api_post_call(self, '/api/create_entry/', some_dict, login)
-        self.assertEquals(response.status_code, 200)
+        response = api_post_call(self, '/api/create_entry/', some_dict, login, status=201)
+        self.assertEquals(response.status_code, 201)
 
     def test_delete_assignment(self):
         """

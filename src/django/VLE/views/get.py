@@ -13,9 +13,10 @@ import json
 import statistics as st
 
 import VLE.lti_launch as lti
+from VLE.lti_grade_passback import GradePassBackRequest
 import VLE.edag as edag
 import VLE.utils as utils
-from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment, GradePassBackRequest
+from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment
 import VLE.serializers as serialize
 import VLE.permissions as permission
 
