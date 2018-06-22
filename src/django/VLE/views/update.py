@@ -336,7 +336,7 @@ def update_user_data(request):
         user.profile_picture = request.data['picture']
 
     user.save()
-    return JsonResponse({'result': 'success', 'user': user_to_dict(user)})
+    return JsonResponse({'result': 'success', 'user': user_to_dict(user)}, status=200)
 
 
 @api_view(['POST'])
@@ -379,4 +379,4 @@ def update_template(request):
         factory.make_field(template, title, location, type)
 
     template.save()
-    return JsonResponse({'result': 'success', 'template': template_to_dict(template)}, status=200)
+    return JsonResponse({'result': 'success', 'template': template_to_dict(templa
