@@ -289,7 +289,7 @@ def get_nodes(request, jID):
 
     journal = Journal.objects.get(pk=jID)
     return JsonResponse({'result': 'success',
-                         'nodes': edag.get_nodes_dict(journal)}, status=200)
+                         'nodes': edag.get_nodes_dict(journal, request.user)}, status=200)
 
 
 @api_view(['GET'])
@@ -357,18 +357,13 @@ def get_names(request):
     return result
 
 
-@api_view(['POST'])
-def get_entrycomments(request):
+@api_view(['GET'])
+def get_entrycomments(request, entryID):
     """
     Get the comments belonging to the specified entry based on its entryID.
     """
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
-
-    try:
-        entryID = utils.get_required_post_params(request.data, "entryID")
-    except KeyError:
-        return utils.keyerror_json("entryID")
 
     entrycomments = EntryComment.objects.filter(entry=entryID)
     return JsonResponse({'result': 'success',
