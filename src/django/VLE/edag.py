@@ -6,7 +6,7 @@ Usefull edag functions.
 from django.db.models import Case, When
 from django.utils import timezone
 from VLE.models import Node
-import VLE.serializers as serializers
+import VLE.serializers as serialize
 
 
 def get_sorted_nodes(journal):
@@ -40,7 +40,7 @@ def get_nodes_dict(journal, requester):
         if node.type == Node.PROGRESS:
             is_future = (node.preset.deadline.datetime - timezone.now()).total_seconds() > 0
             if is_own_journal and not added_add_node and is_future:
-                node_dict.append(serializers.add_node_dict(journal))
+                node_dict.append(serialize.add_node_dict(journal))
                 added_add_node = True
-        node_dict.append(serializers.node_to_dict(node))
+        node_dict.append(serialize.node_to_dict(node))
     return node_dict

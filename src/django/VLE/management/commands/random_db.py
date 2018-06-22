@@ -5,7 +5,7 @@ Generate an extensive set of data and save it to the database.
 """
 from django.core.management.base import BaseCommand
 from VLE.models import Entry, User, Role, Course, Participation, JournalFormat, Assignment, Journal
-from VLE.factory import make_content, make_journal
+import VLE.factory as factory
 from faker import Faker
 import random
 faker = Faker()
@@ -25,7 +25,7 @@ class Command(BaseCommand):
                 if random.randint(0, 20) == 0:
                     continue
 
-                content = make_content(entry, faker.catch_phrase(), field)
+                content = factory.make_content(entry, faker.catch_phrase(), field)
                 content.save()
 
     def gen_random_users(self, amount):
@@ -160,7 +160,7 @@ class Command(BaseCommand):
             for user in User.objects.all():
                 if Journal.objects.filter(assignment=assignment, user=user).count() > 0:
                     continue
-                make_journal(assignment, user)
+                factory.make_journal(assignment, user)
 
     def handle(self, *args, **options):
         """Generate randomly created data to create a more real life example."""

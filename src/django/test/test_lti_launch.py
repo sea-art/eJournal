@@ -5,7 +5,7 @@ Test lti launch.
 """
 import VLE.lti_launch as lti
 from django.test import TestCase
-from VLE.factory import make_user, make_course, make_assignment, make_journal
+import VLE.factory as factory
 import json
 from VLE.models import Participation, User, Course, Assignment, Journal, Role
 
@@ -20,11 +20,11 @@ class lti_launch_test(TestCase):
         """Setup."""
         self.roles = json.load(open('../../config.json'))
 
-        self.created_user = make_user('TestUser', 'Pass')
+        self.created_user = factory.make_user('TestUser', 'Pass')
         self.created_user.lti_id = 'awefd'
         self.created_user.save()
 
-        self.created_course = make_course('TestCourse', 'aaaa')
+        self.created_course = factory.make_course('TestCourse', 'aaaa')
         self.created_course.lti_id = 'asdf'
         self.created_course.save()
 
@@ -35,12 +35,12 @@ class lti_launch_test(TestCase):
             role=role
         )
 
-        self.created_assignment = make_assignment("TestAss", "TestDescr")
+        self.created_assignment = factory.make_assignment("TestAss", "TestDescr")
         self.created_assignment.lti_id = 'bughh'
         self.created_assignment.user = self.created_user
         self.created_assignment.save()
 
-        self.created_journal = make_journal(self.created_assignment, self.created_user)
+        self.created_journal = factory.make_journal(self.created_assignment, self.created_user)
 
     def test_select_user(self):
         """Hopefully select a user."""

@@ -6,7 +6,7 @@ API functions that handle the update requests.
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
 
-from VLE.serializers import course_to_dict, assignment_to_dict, user_to_dict
+import VLE.serializers as serialize
 import VLE.utils as utils
 from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, Journal
 
@@ -32,7 +32,7 @@ def update_course(request):
     course.abbreviation = request.data['abbr']
     course.startdate = request.data['startDate']
     course.save()
-    return JsonResponse({'result': 'success', 'course': course_to_dict(course)}, status=200)
+    return JsonResponse({'result': 'success', 'course': serialize.course_to_dict(course)}, status=200)
 
 
 @api_view(['POST'])
@@ -56,7 +56,8 @@ def update_assignment(request):
     assignment.description = request.data['description']
     assignment.save()
 
-    return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)}, status=200)
+    return JsonResponse({'result': 'success', 'assignment': serialize.assignment_to_dict(assignment)},
+                        status=200)
 
 
 @api_view(['POST'])
@@ -282,4 +283,4 @@ def update_user_data(request):
         user.profile_picture = request.data['picture']
 
     user.save()
-    return JsonResponse({'result': 'success', 'user': user_to_dict(user)}, status=200)
+    return JsonResponse({'result': 'success', 'user': serialize.user_to_dict(user)}, status=200)
