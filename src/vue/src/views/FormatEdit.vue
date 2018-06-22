@@ -8,7 +8,6 @@
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
         <b-col v-else xl="3" class="left-content">
-            <b-button @click.prevent.stop="addNode"> Add Preset </b-button>
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
 
@@ -18,7 +17,6 @@
                 Fill in the template using the corresponding data
                 of the entry
             . -->
-            <b-button @click.prevent.stop="saveFormat"> Save </b-button>
 
             <div v-if="nodes.length > 0">
                 <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool"/>
@@ -28,8 +26,13 @@
             </div>
         </b-col>
         <b-col cols="12" xl="3" order="3" class="right-content">
+            <h3>Format</h3>
+            <b-button @click.prevent.stop="addNode"> Add Preset </b-button>
+            <b-button @click.prevent.stop="saveFormat"> Save </b-button>
+            <br/>
+
             <h3>Template Pool</h3>
-            <b-link v-for="template in templatePool" :key=template.tID :to="{ name: 'TemplateEdit', params: { aID: aID, tID: template.t.tID } }">
+            <b-link v-for="template in templatePool" :to="{ name: 'TemplateEdit', params: { aID: aID, tID: template.t.tID } }">
                 <template-todo-card :template="template" :key="template.t.tID" :color="'pink-border'"/>
             </b-link>
             <b-link :to="{ name: 'TemplateEdit', params: { aID: aID, tID: 1 } }">
@@ -110,16 +113,16 @@ export default {
             var invalidTemplate = false
             var invalidTarget = false
 
-            var templatePoolts = []
+            var templatePoolIds = []
             for (var template of this.templatePool) {
-                templatePoolts.push(template.t)
+                templatePoolIds.push(template.t.tID)
             }
             for (var node of this.nodes) {
                 if (!invalidDate && isNaN(Date.parse(node.deadline))) {
                     invalidDate = true
                     alert('One or more presets has an invalid deadline. Please check the format and try again.')
                 }
-                if (!invalidTemplate && node.type === 'd' && !templatePoolts.includes(node.template)) {
+                if (!invalidTemplate && node.type === 'd' && !templatePoolIds.includes(node.template.tID)) {
                     invalidTemplate = true
                     alert('One or more presets has an invalid template. Please check the format and try again.')
                 }
@@ -134,8 +137,6 @@ export default {
             }
 
             this.convertToDB()
-
-            console.log(this.fID, this.templates, this.presets)
 
             formatAPI.update_format(this.fID, this.templates, this.presets).then(data => console.log(data))
         },
