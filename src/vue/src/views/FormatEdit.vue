@@ -5,10 +5,10 @@
         <!-- TODO: reopen bread-crumb when it is working again -->
         <b-col v-if="bootstrapLg()" cols="12">
             <!-- <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
-            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodesSorted"/>
+            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
         <b-col v-else xl="3" class="left-content">
-            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodesSorted"/>
+            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
 
         <b-col lg="12" xl="6" order="2" class="main-content">
@@ -19,7 +19,7 @@
             . -->
 
             <div v-if="nodes.length > 0">
-                <selected-node-card ref="entry-template-card" :currentPreset="nodesSorted[currentNode]" :templates="templatePool"/>
+                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool"/>
             </div>
             <div v-else>
                 <p>No presets yet</p>
@@ -45,12 +45,10 @@
             <br/>
 
             <h3>Template Pool</h3>
-            <template-todo-card v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template.t)" :template="template" :color="'pink-border'"/>
-            <b-link :to="{ name: 'TemplateEdit', params: { aID: aID, tID: 1 } }">
-                <b-card class="card hover" :class="'grey-border'" style="">
-                    <b>+ Add Template</b>
-                </b-card>
-            </b-link>
+            <template-todo-card v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" :color="'pink-border'"/>
+            <b-card @click="showModal(newTemplate())" class="card hover" :class="'grey-border'" style="">
+                <b>+ Add Template</b>
+            </b-card>
         </b-col>
     </b-row>
 
@@ -63,7 +61,6 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 import formatEditAvailableTemplateCard from '@/components/FormatEditAvailableTemplateCard.vue'
 import formatEditSelectTemplateCard from '@/components/FormatEditSelectTemplateCard.vue'
 import journalAPI from '@/api/journal.js'
-import store from '@/Store.vue'
 import templateEdit from '@/components/TemplateEdit.vue'
 
 export default {
@@ -81,16 +78,16 @@ export default {
 
             templatePool: [],
             nodes: [],
-            templateMap: {},
 
             isChanged: false,
 
             templateBeingEdited: {
-                'type': 'd',
-                'deadline': this.newDate(),
-                'template': (this.templatePool) ? this.templatePool[0].t : null
+                'fields': [],
+                'name': '',
+                'tID': -1
             },
-            templatesEdited: []
+            templatesEdited: [],
+            wipTemplateId: -1
         }
     },
 
@@ -102,7 +99,7 @@ export default {
     },
 
     created () {
-
+        journalAPI.get_format(this.aID).then(data => { this.templates = data.format.templates; this.presets = data.format.presets; this.convertFromDB(); this.isChanged = false })
     },
 
     watch: {
@@ -115,8 +112,21 @@ export default {
     },
 
     methods: {
+        newTemplate () {
+            return {
+                t: {
+                    'fields': [],
+                    'name': '',
+                    'tID': this.wipTemplateId--
+                },
+                a: false
+            }
+        },
         showModal (template) {
-            this.templateBeingEdited = template
+            if (!this.templatePool.includes(template)) {
+                this.templatePool.push(template)
+            }
+            this.templateBeingEdited = template.t
             this.$refs['modal'].show()
         },
         hideModal () {
@@ -171,7 +181,11 @@ export default {
             this.convertToDB()
 
             for (var editedTemplate of this.templatesEdited) {
-                // journalAPI.update_template().then(data => { editedTemplate.tID = data.tID })
+                if (editedTemplate.tID < 0) {
+                    journalAPI.create_template(editedTemplate.name, editedTemplate.fields).then(data => { editedTemplate.tID = data.tID })
+                } else {
+                    journalAPI.update_template(editedTemplate.tID, editedTemplate.name, editedTemplate.fields)
+                }
             }
 
             journalAPI.update_format(this.aID, this.templates, this.presets)
@@ -194,22 +208,24 @@ export default {
         // Utility func to translate from db format to internal
         convertFromDB () {
             var idInPool = []
-            var tempTemplatePool = []
+            var tempTemplatePool = {}
 
             for (var template of this.templates) {
                 idInPool.push(template.tID)
-                tempTemplatePool.push({ t: template, a: true })
+                tempTemplatePool[template.tID] = { t: template, a: true }
             }
             for (var preset of this.presets) {
-                if (preset.type === 'd' && !idInPool.includes(preset.template.tID)) {
-                    idInPool.push(preset.template.tID)
-                    tempTemplatePool.push({ t: preset.template, a: false })
+                if (preset.type === 'd') {
+                    if (!idInPool.includes(preset.template.tID)) {
+                        idInPool.push(preset.template.tID)
+                        tempTemplatePool[preset.template.tID] = { t: preset.template, a: false }
+                    } else {
+                        preset.template = tempTemplatePool[preset.template.tID].t
+                    }
                 }
             }
 
-            tempTemplatePool.sort((a, b) => { return a.t.tID - b.t.tID })
-
-            this.templatePool = tempTemplatePool
+            this.templatePool = Object.values(tempTemplatePool).sort((a, b) => { return a.t.tID - b.t.tID })
 
             this.nodes = this.presets.slice()
         },
@@ -247,30 +263,10 @@ export default {
         'template-editor': templateEdit
     },
 
-    beforeRouteEnter (to, from, next) {
-        if (from.name === 'TemplateEdit') {
-            next(vm => {
-                vm.templatePool = store.state.format.templatePool
-                vm.nodes = store.state.format.nodes
-            })
-        } else {
-            next(vm => {
-                journalAPI.get_format(vm.aID).then(data => { vm.templates = data.format.templates; vm.presets = data.format.presets; vm.convertFromDB(); vm.isChanged = false })
-            })
-        }
-        next()
-    },
-
     beforeRouteLeave (to, from, next) {
-        if (to.name === 'TemplateEdit') {
-            store.setFormat(this.templatePool, this.nodes)
-        } else {
-            if (this.isChanged && !confirm('Oh no! Unsaved changes will be lost if you leave. Do you wish to continue?')) {
-                next(false)
-                return
-            } else {
-                store.clearFormat()
-            }
+        if (this.isChanged && !confirm('Oh no! Unsaved changes will be lost if you leave. Do you wish to continue?')) {
+            next(false)
+            return
         }
 
         next()

@@ -69,7 +69,6 @@ export default {
             set: function (val) { this.currentPreset.deadline = this.currentPreset.deadline.split(' ')[0] + ' ' + val }
         }
     },
-
     methods: {
         onChangePresetType (value) {
             if (value !== 'p') {
