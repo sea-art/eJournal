@@ -41,6 +41,14 @@ export default {
         }).then(response => response.data.course)
     },
 
+    /* Connect an existing course to lti course. */
+    connect_course_lti (cID, ltiID) {
+        return auth.authenticatedPost('/connect_course_lti/', {
+            cID: cID,
+            lti_id: ltiID
+        }).then(response => response.data.course)
+    },
+
     /* Deletes an existing course. */
     delete_course (cID) {
         return auth.authenticatedPost('/delete_course/', {

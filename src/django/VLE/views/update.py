@@ -8,6 +8,26 @@ from VLE.views.get import get_own_user_data
 
 
 @api_view(['POST'])
+def connect_course_lti(request):
+    """Connects an existing course to an lti course.
+
+    Arguments:
+    request -- the update request that was send with
+        lti_id -- lti_id that needs to be added to the course
+
+    Returns a json string for if it is succesful or not.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    course = Course.objects.get(pk=request.data['cID'])
+    course.lti_id = request.data['lti_id']
+    course.save()
+    return JsonResponse({'result': 'success', 'course': course_to_dict(course)})
+
+
+@api_view(['POST'])
 def update_course(request):
     """Updates an existing course.
 

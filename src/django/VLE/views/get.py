@@ -17,11 +17,14 @@ from VLE.lti_launch import OAuthRequestValidater, select_create_user, \
 from VLE.lti_grade_passback import GradePassBackRequest
 from VLE.models import Journal
 
-
-NEW_COURSE = 0
-NEW_ASSIGNMENT = 1
-FINISH_TEACHER = 2
-FINISH_STUDENT = 3
+# VUE ENTRY STATE
+BAD_AUTH = '-1'
+NO_COURSE = '0'
+NO_ASSIGN = '1'
+NEW_COURSE = '2'
+NEW_ASSIGN = '3'
+FINISH_T = '4'
+FINISH_S = '5'
 
 
 @api_view(['GET'])
@@ -390,7 +393,8 @@ def get_names(request):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    cID, aID, jID, tID = utils.get_optional_post_params(request.data, "cID", "aID", "jID", "tID")
+    cID, aID, jID, tID = utils.get_optional_post_params(
+        request.data, "cID", "aID", "jID", "tID")
     result = JsonResponse({'result': 'success'})
 
     try:
@@ -466,48 +470,59 @@ def lti_launch(request):
         lti_roles = dict((roles[k], k) for k in roles)
 
         user = select_create_user(request.POST)
+        role = lti_roles[request.POST['roles']]
 
         token = TokenObtainPairSerializer.get_token(user)
         access = token.access_token
 
-        course_names = ['lti_cName', 'lti_abbr', 'role', 'lti_cID']
+        course_names = ['lti_cName', 'lti_abbr', 'lti_cID']
         course_values = [request.POST['context_title'],
                          request.POST['context_label'],
-                         lti_roles[request.POST['roles']],
                          request.POST['context_id']]
-        assignment_names = ['lti_aName', 'lti_aID', 'lti_points_possible']
+        assignment_names = ['lti_aName', 'lti_aID']
         assignment_values = [request.POST['resource_link_title'],
-                             request.POST['resource_link_id'],
-                             request.POST[
-                                'custom_canvas_assignment_points_possible']]
+                             request.POST['resource_link_id']]
+        if 'custom_canvas_assignment_points_possible' in request.POST:
+            assignment_names.append('lti_points_possible')
+            assignment_values.append(
+                request.POST['custom_canvas_assignment_points_possible'])
 
         course = check_course_lti(request.POST, user, lti_roles[request.POST[
-                                                                    'roles']])
+            'roles']])
         if course is None:
-            query_names = ['jwt_refresh', 'jwt_access', 'state']
-            query_names += course_names
-            query_names += assignment_names
-            query_values = [token, access, NEW_COURSE]
-            query_values += course_values
-            query_values += assignment_values
-            return redirect(create_lti_query_link(query_names, query_values))
+            if role == 'Teacher':
+                q_names = ['jwt_refresh', 'jwt_access', 'state']
+                q_names += course_names
+                q_names += assignment_names
+                q_values = [token, access, NEW_COURSE]
+                q_values += course_values
+                q_values += assignment_values
+                return redirect(create_lti_query_link(q_names, q_values))
+            else:
+                q_names = ['jwt_refresh', 'jwt_access', 'state']
+                q_values = [token, access, NO_COURSE]
+                return redirect(create_lti_query_link(q_names, q_values))
 
         assignment = check_assignment_lti(request.POST, user)
         if assignment is None:
-            query_names = ['jwt_refresh', 'jwt_access', 'state', 'cID']
-            query_names += assignment_names
-            query_values = [token, access, NEW_ASSIGNMENT, course.pk]
-            query_values += assignment_values
-            return redirect(create_lti_query_link(query_names, query_values))
+            if role == 'Teacher':
+                q_names = ['jwt_refresh', 'jwt_access', 'state', 'cID']
+                q_names += assignment_names
+                q_values = [token, access, NEW_ASSIGN, course.pk]
+                q_values += assignment_values
+                return redirect(create_lti_query_link(q_names, q_values))
+            else:
+                q_names = ['jwt_refresh', 'jwt_access', 'state']
+                q_values = [token, access, NO_ASSIGN]
+                return redirect(create_lti_query_link(q_names, q_values))
 
         journal = select_create_journal(request.POST, user, assignment, roles)
         jID = journal.pk if journal is not None else None
-        query_names = ['jwt_refresh', 'jwt_access',
-                       'state', 'cID', 'aID', 'jID']
-        query_values = [token, access,
-                        FINISH_TEACHER if jID is None else FINISH_STUDENT,
-                        course.pk, assignment.pk, jID]
-        return redirect(create_lti_query_link(query_names, query_values))
+        q_names = ['jwt_refresh', 'jwt_access',
+                   'state', 'cID', 'aID', 'jID']
+        q_values = [token, access,
+                    FINISH_T if jID is None else FINISH_S,
+                    course.pk, assignment.pk, jID]
+        return redirect(create_lti_query_link(q_names, q_values))
 
-    return redirect(settings.BASELINK + '/ErrorPage')
-    # return redirect(401_site) not 404
+    return redirect(create_lti_query_link(['state'], ['BAD_AUTH']))
