@@ -79,7 +79,7 @@ def get_course_users(request, cID):
 
     participations = course.participation_set.all()
     return JsonResponse({'result': 'success',
-                         'users': [participation_to_dict(participation)
+                         'users': [serialize.participation_to_dict(participation)
                                    for participation in participations]}, status=200)
 
 
@@ -191,12 +191,12 @@ def get_assignment_data(request, cID, aID):
     if participation.role.can_view_assignment:
         return JsonResponse({
             'result': 'success',
-            'assignment': assignment_to_dict(assignment)
+            'assignment': serialize.assignment_to_dict(assignment)
         }, status=200)
     else:
         return JsonResponse({
             'result': 'success',
-            'assignment': student_assignment_to_dict(assignment, request.user),
+            'assignment': serialize.student_assignment_to_dict(assignment, request.user),
         }, status=200)
 
 
@@ -318,7 +318,7 @@ def get_format(request, aID):
                              'description': 'Assignment does not exist.'}, status=404)
 
     return JsonResponse({'result': 'success',
-                         'nodes': get_format_dict(assignment.format)}, status=200)
+                         'nodes': serialize.get_format_dict(assignment.format)}, status=200)
 
 
 @api_view(['POST'])
@@ -376,7 +376,8 @@ def get_entrycomments(request):
 
     entrycomments = EntryComment.objects.filter(entry=entryID)
     return JsonResponse({'result': 'success',
-                         'entrycomments': [entrycomment_to_dict(comment) for comment in entrycomments]}, status=200)
+                         'entrycomments': [serialize.entrycomment_to_dict(comment) for comment in entrycomments]},
+                        status=200)
 
 
 @api_view(['POST'])
