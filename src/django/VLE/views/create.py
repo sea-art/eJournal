@@ -151,7 +151,14 @@ def create_entrycomment(request):
     except KeyError:
         return utils.keyerror_json("entryID", "authorID", "text")
 
-    author = User.objects.get(pk=authorID)
-    comment = make_entrycomment(entryID, author, text)
+    try:
+        author = User.objects.get(pk=authorID)
+        entry = Entry.objects.get(pk=entryID)
+    except (User.DoesNotExist, Entry.DoesNotExist):
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'User or Entry does not exist.'},
+                            status=404)
+
+    comment = factory.make_entrycomment(entry, author, text)
 
     return JsonResponse({'result': 'success'})

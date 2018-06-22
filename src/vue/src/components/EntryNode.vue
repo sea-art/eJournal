@@ -1,7 +1,6 @@
 <!-- Example of a simple template. -->
 <template>
     <div class="entry-template">
-        hoi {{dataComments}}
         <b-row>
             <b-col id="main-card-left-column" cols="12">
                 <div v-if="saveEditMode == 'Save'">
@@ -85,13 +84,12 @@
             </b-col>
         </b-row>
 
-        <comment-card @new-comments="addComment" :comments="comments" :person="'Henk'" :eID="entryNode.entry.eID"/>
+        <comment-card :eID="entryNode.entry.eID"/>
     </div>
 </template>
 
 <script>
 import commentCard from '@/components/CommentCard.vue'
-import entryApi from '@/api/entry.js'
 
 export default {
     props: ['entryNode'],
@@ -100,15 +98,7 @@ export default {
             saveEditMode: 'Edit',
             tempNode: this.entryNode,
             matchEntry: 0,
-            completeContent: [],
-            dataComments: [],
-            comments: [{
-                message: 'Hoi het is super slecht, ga je schamen!',
-                person: 'Peter'
-            }, {
-                message: 'Hoi het is super goed!',
-                person: 'Ptheven'
-            }]
+            completeContent: []
         }
     },
     watch: {
@@ -118,7 +108,6 @@ export default {
         }
     },
     created () {
-        this.loadComments()
         this.setContent()
     },
     methods: {
@@ -162,13 +151,6 @@ export default {
                     })
                 }
             }
-        },
-        loadComments: function () {
-            entryApi.get_entrycomments(this.entryNode.entry.eID).then(response => { this.dataComments = response })
-        },
-        addComment: function (newComment) {
-            this.comments.push(newComment)
-            entryApi.create_entrycomments(this.entryNode.entry.eID, 'Rein', newComment)
         }
     },
     components: {

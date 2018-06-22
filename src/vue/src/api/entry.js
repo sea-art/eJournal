@@ -7,8 +7,8 @@ export default {
             .then(response => response.data)
     },
     /* Create Entry Comment with given text, author and entry. */
-    create_entrycomments (entryID, authorID, text) {
-        return auth.authenticatedGet('/create_entrycomments/', {
+    create_entrycomment (entryID, authorID, text) {
+        return auth.authenticatedPost('/create_entrycomment/', {
             entryID: entryID,
             authorID: authorID,
             text: text
