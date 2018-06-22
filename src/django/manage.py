@@ -1,4 +1,9 @@
 #!/usr/bin/env python
+"""
+The manager for django.
+
+Managa file to run manager commands through.
+"""
 import os
 import sys
 
