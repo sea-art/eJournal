@@ -1,10 +1,20 @@
+"""
+edag.py.
+
+Usefull edag functions.
+"""
 from django.db.models import Case, When
 from django.utils import timezone
-from .models import *
+from VLE.models import Node
 import VLE.serializers as serializers
 
 
 def get_sorted_nodes(journal):
+    """Get sorted nodes.
+
+    Get all the nodes of a journal in sorted order.
+    Order is default by deadline.
+    """
     return journal.node_set.annotate(
         sort_deadline=Case(
             When(type=Node.ENTRY, then='entry__createdate'),
@@ -13,6 +23,7 @@ def get_sorted_nodes(journal):
 
 
 def get_nodes_dict(journal):
+    """Get all the nodes in a dictionary."""
     nodes = get_sorted_nodes(journal)
     node_dict = []
     added_add_node = False
