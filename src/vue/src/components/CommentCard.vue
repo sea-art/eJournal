@@ -1,15 +1,15 @@
 <template>
     <div>
-        <div v-if="commentObject2 !== null">
-            <div v-for="(commentObject, index) in commentObject2.entrycomments" :key="index">
+        <div v-if="commentObject !== null">
+            <div v-for="(comments, index) in commentObject.entrycomments" :key="index">
                 <b-row>
                     <b-col cols="2">
-                        <img class="profilePic" id="nav-profile-image" slot="button-content" :src="commentObject.author.picture">
-                        {{ commentObject.author.name }}
+                        <img class="profilePic" id="nav-profile-image" slot="button-content" :src="comments.author.picture">
+                        <br><b>{{ comments.author.name }}</b>
                     </b-col>
                     <b-col cols="10">
                         <b-card class="no-hover" :class="'pink-border'">
-                            {{ commentObject.text }}
+                            {{ comments.text }}
                         </b-card>
                     </b-col>
                 </b-row>
@@ -18,6 +18,7 @@
         <b-row>
             <b-col cols="2">
                 <img class="profilePic" id="nav-profile-image" slot="button-content" :src="userData.picture">
+                <br><b>{{userData.name}}</b>
             </b-col>
             <b-col cols="10">
                 <b-textarea v-model="tempComment" placeholder="Add your beautiful comment here"></b-textarea><br>
@@ -38,14 +39,13 @@ export default {
         return {
             tempComment: '',
             userData: '',
-            commentObject2: null
+            commentObject: null
         }
     },
     watch: {
         eID: function () {
-            this.newCommentObject = this.commentObject
             this.tempComment = ''
-            entryApi.get_entrycomments(this.eID).then(response => { this.commentObject2 = response })
+            entryApi.get_entrycomments(this.eID).then(response => { this.commentObject = response })
         }
     },
     created () {
@@ -59,18 +59,20 @@ export default {
                 .then(response => { this.userData = response })
         },
         get_entrycomments: function () {
-            entryApi.get_entrycomments(this.eID).then(response => { this.commentObject2 = response })
+            entryApi.get_entrycomments(this.eID).then(response => { this.commentObject = response })
         },
         addComment: function () {
             if (this.tempComment !== '') {
                 entryApi.create_entrycomment(this.eID, this.userData.uID, this.tempComment)
-                this.commentObject2.entrycomments.push({
+                this.commentObject.entrycomments.push({
                     entrtyID: this.eID,
-                    authour: this.userData.name,
+                    author: {
+                        name: this.userData.name,
+                        picture: this.userData.picture
+                    },
                     text: this.tempComment
                 })
                 this.tempComment = ''
-                console.log('derp')
             }
         }
     }

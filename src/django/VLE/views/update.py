@@ -93,7 +93,7 @@ def update_grade_notification(request):
 
     try:
         user.grade_notifications = request.data['new_value']
-    except:
+    except Exception:
         return JsonResponse({'result': '400 Bad Request'}, status=400)
 
     user.save()
@@ -114,7 +114,7 @@ def update_comment_notification(request):
 
     try:
         user.comment_notifications = request.data['new_value']
-    except:
+    except Exception:
         return JsonResponse({'result': '400 Bad Request'}, status=400)
 
     user.save()
