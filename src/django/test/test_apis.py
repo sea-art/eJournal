@@ -8,6 +8,7 @@ from VLE.models import Role
 from VLE.models import Course
 from VLE.models import Assignment
 from VLE.models import Journal
+from VLE.models import Field
 
 import VLE.factory as factory
 import VLE.utils as utils
@@ -39,11 +40,38 @@ class ApiTests(TestCase):
 
         response = test.api_get_call(self, '/api/get_course_users/' + str(course.pk) + '/', login)
 
-        self.assertEquals(response.status_code, 200)
         self.assertEquals(len(response.json()['users']), 2)
 
     def test_update_format(self):
         pass
+
+    def test_get_template(self):
+        login = test.logging_in(self, self.username, self.password)
+
+        template = factory.make_entry_template("template")
+        field = factory.make_field(template, "Some Field", 0)
+        field2 = factory.make_field(template, "Some other Field", 1)
+
+        response = test.api_get_call(self, '/api/get_template/' + str(template.pk) + '/', login)
+
+        self.assertEquals(response.json()['template']['tID'], template.pk)
+        self.assertEquals(response.json()['template']['name'], "template")
+        self.assertEquals(len(response.json()['template']['fields']), 2)
+
+    def test_create_template(self):
+        login = test.logging_in(self, self.username, self.password)
+
+        data = {
+            "name": "template",
+            "fields": [
+                {"type": Field.TEXT, "title": "Some Field", "location": 0},
+                {"type": Field.TEXT, "title": "Some Other Field", "location": 1},
+            ]
+        }
+        response = test.api_post_call(self, '/api/update_template/', data, login)
+
+        self.assertEquals(response.json()['template']['name'], "template")
+        self.assertEquals(len(response.json()['template']['fields']), 2)
 
     def test_create_entry(self):
         login = test.logging_in(self, self.username, self.password)

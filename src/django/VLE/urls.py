@@ -22,7 +22,8 @@ from VLE.views.get import get_own_user_data, get_course_data, get_assignment_dat
 
 from VLE.views.get import get_user_courses, get_course_assignments, \
     get_assignment_journals, get_upcoming_deadlines, get_course_permissions, \
-    get_nodes, get_format, get_names, get_course_users, get_entrycomments
+    get_nodes, get_format, get_names, get_course_users, get_entrycomments, \
+    get_template
 
 from VLE.views.create import create_new_course, create_new_assignment, create_entry, \
     create_entrycomment
@@ -31,7 +32,7 @@ from VLE.views.update import update_user_data, update_course, update_assignment,
     update_password, update_grade_notification, update_comment_notification, \
     update_grade_entry, update_publish_grade_entry, update_publish_grades_assignment, \
     update_publish_grades_journal, update_entrycomment, update_user_role_course, \
-    update_format
+    update_format, update_template
 
 from VLE.views.delete import delete_course, delete_assignment, delete_user_from_course
 
@@ -60,6 +61,7 @@ urlpatterns = [
     path('api/get_nodes/<int:jID>/', get_nodes, name='get_nodes'),
     path('api/get_format/<int:aID>/', get_format, name='get_format'),
     path('api/get_names/', get_names, name='get_names'),
+    path('api/get_template/<int:tID>/', get_template, name='get_template'),
     path('api/get_entrycomments/<int:entryID/', get_entrycomments, name='get_entrycomments'),
     path('api/get_course_users/<int:cID>/', get_course_users, name='get_course_users'),
 
@@ -85,6 +87,7 @@ urlpatterns = [
          name='update_publish_grades_assignment'),
     path('api/update_publish_grades_journal/<int:jID>/', update_publish_grades_journal,
          name='update_publish_grades_journal'),
+    path('api/update_template/', update_template, name='update_template'),
 
     path('api/update_user_role_course/', update_user_role_course, name='update_user_role_course'),
 
