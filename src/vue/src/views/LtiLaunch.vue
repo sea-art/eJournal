@@ -107,6 +107,30 @@ export default {
             }
         }
     },
+    watch: {
+        state: function (val) {
+            if (val !== this.s_finish_s && val !== this.s_finish_t)
+                this.updateState(this.state)
+            else if (val === this.s_finish_s) {
+                this.$router.push({
+                    name: 'Journal',
+                    params: {
+                        cID: this.page.cID,
+                        aID: this.page.aID,
+                        jID: this.page.jID
+                    }
+                })
+            } else if (val === this.s_finish_t) {
+                this.$router.push({
+                    name: 'Assignment',
+                    params: {
+                        cID: this.page.cID,
+                        aID: this.page.aID
+                    }
+                })
+            }
+        }
+    },
     mounted () {
         if (this.$route.query.jwt_access !== undefined)
             localStorage.setItem('jwt_access', this.$route.query.jwt_access)
@@ -128,7 +152,7 @@ export default {
         this.page.aID = this.$route.query.aID
         this.page.jID = this.$route.query.jID
 
-        this.state = '5'
+        this.state = '2'
 
         if (this.state === this.s_bad_auth) {
             this.$router.push({
@@ -155,9 +179,7 @@ export default {
                 }
             })
         } else {
-            while (this.state !== this.s_finish_s && this.state !== this.s_finish_t)  {
-                this.state = this.updateState(this.state)
-            }
+            this.updateState(this.state)
         }
     }
 }
