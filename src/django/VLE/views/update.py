@@ -128,7 +128,7 @@ def update_format(request):
     """ Update a format
     Arguments:
     request -- the request that was send with
-    fID -- the format to update
+    aID -- the assignments' format to update
     templates -- the list of templates to bind to the format
     presets -- the list of presets to bind to the format
     """
@@ -136,13 +136,14 @@ def update_format(request):
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     try:
-                fID, templates, presets = utils.get_required_post_params(request.data, "fID", "templates", "presets")
+        aID, templates, presets = utils.get_required_post_params(request.data, "aID", "templates", "presets")
     except KeyError:
         return utils.keyerror_json("fID", "templates", "presets")
 
     try:
-        format = JournalFormat.objects.get(pk=fID)
-    except JournalFormat.NotFound:
+        assignment = Assignment.objects.get(pk=aID)
+        format = assignment.format
+    except Assignment.NotFound:
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Format does not exist.'},
                             status=404)
