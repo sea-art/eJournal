@@ -1,4 +1,9 @@
 <!-- TODO: add loading and saving apis, add links to template editor-->
+<!-- modal edits template -> fine
+     on edit add to list
+     on save update from list
+     save new templates to db and update ids locally
+     save format-->
 
 <template>
     <b-row no-gutters>
@@ -56,7 +61,6 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 import formatEditAvailableTemplateCard from '@/components/FormatEditAvailableTemplateCard.vue'
 import formatEditSelectTemplateCard from '@/components/FormatEditSelectTemplateCard.vue'
 import journalAPI from '@/api/journal.js'
-import formatAPI from '@/api/format.js'
 import store from '@/Store.vue'
 
 export default {
@@ -141,7 +145,7 @@ export default {
 
             this.convertToDB()
 
-            formatAPI.update_format(this.aID, this.templates, this.presets).then(data => console.log(data))
+            journalAPI.update_format(this.aID, this.templates, this.presets).then(data => console.log(data))
         },
         getWindowWidth (event) {
             this.windowWidth = document.documentElement.clientWidth
@@ -221,7 +225,7 @@ export default {
             })
         } else {
             next(vm => {
-                journalAPI.get_format(vm.aID).then(data => { vm.templates = data.nodes.templates; vm.presets = data.nodes.presets; vm.convertFromDB(); vm.isChanged = false })
+                journalAPI.get_format(vm.aID).then(data => { vm.templates = data.format.templates; vm.presets = data.format.presets; vm.convertFromDB(); vm.isChanged = false })
             })
         }
         next()

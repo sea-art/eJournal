@@ -312,7 +312,7 @@ def get_format(request, aID):
                              'description': 'Assignment does not exist.'}, status=404)
 
     return JsonResponse({'result': 'success',
-                         'nodes': format_to_dict(assignment.format)})
+                         'format': format_to_dict(assignment.format)})
 
 
 @api_view(['POST'])
