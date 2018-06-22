@@ -7,6 +7,12 @@ export default {
             .then(response => response.data.course)
     },
 
+    /* Get the courses where the logged in user is the teacher. */
+    get_user_teacher_courses () {
+        return auth.authenticatedGet('/get_user_teacher_courses/')
+            .then(response => response.data.courses)
+    }
+
     /* Get user courses.
      * Requests all the users courses.
      * returns a list of all courses.
