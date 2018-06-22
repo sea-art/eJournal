@@ -1,19 +1,14 @@
 <!-- TODO: add loading and saving apis, add links to template editor-->
-<!-- modal edits template -> fine
-     on edit add to list
-     on save update from list
-     save new templates to db and update ids locally
-     save format-->
 
 <template>
     <b-row no-gutters>
         <!-- TODO: reopen bread-crumb when it is working again -->
         <b-col v-if="bootstrapLg()" cols="12">
             <!-- <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
-            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
+            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodesSorted"/>
         </b-col>
         <b-col v-else xl="3" class="left-content">
-            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
+            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodesSorted"/>
         </b-col>
 
         <b-col lg="12" xl="6" order="2" class="main-content">
@@ -24,7 +19,7 @@
             . -->
 
             <div v-if="nodes.length > 0">
-                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool"/>
+                <selected-node-card ref="entry-template-card" :currentPreset="nodesSorted[currentNode]" :templates="templatePool"/>
             </div>
             <div v-else>
                 <p>No presets yet</p>
@@ -41,7 +36,7 @@
             <br/>
 
             <h3>Template Pool</h3>
-            <b-link v-for="template in templatePool" :to="{ name: 'TemplateEdit', params: { aID: aID, tID: template.t.tID } }">
+            <b-link v-for="template in templatePool" :key="template.t.tID" :to="{ name: 'TemplateEdit', params: { aID: aID, tID: template.t.tID } }">
                 <template-todo-card :template="template" :key="template.t.tID" :color="'pink-border'"/>
             </b-link>
             <b-link :to="{ name: 'TemplateEdit', params: { aID: aID, tID: 1 } }">
@@ -79,7 +74,18 @@ export default {
             templatePool: [],
             nodes: [],
 
-            isChanged: false
+            isChanged: false,
+
+            modalIsShown: false,
+            templateBeingEdited: null,
+            templatesEdited: []
+        }
+    },
+
+    computed: {
+        nodesSorted () {
+            // return this.nodes.sort((a, b) => { return new Date(a.deadline) - new Date(b.deadline) })
+            return this.nodes
         }
     },
 
@@ -145,7 +151,11 @@ export default {
 
             this.convertToDB()
 
-            journalAPI.update_format(this.aID, this.templates, this.presets).then(data => console.log(data))
+            for (var editedTemplate of this.templatesEdited) {
+                // journalAPI.update_template().then(data => { editedTemplate.tID = data.tID })
+            }
+
+            journalAPI.update_format(this.aID, this.templates, this.presets)
         },
         getWindowWidth (event) {
             this.windowWidth = document.documentElement.clientWidth
