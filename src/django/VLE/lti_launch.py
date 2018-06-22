@@ -133,12 +133,13 @@ def check_course_lti(request, user, role):
 
     if courses.count() > 0:
         course = courses[0]
-        participation = Participation()
-        participation.user = user
-        participation.course = course
-        participation.role = Role.objects.get(name=role)
-        participation.save()
-        return
+        if user not in course.users.all():
+            participation = Participation()
+            participation.user = user
+            participation.course = course
+            participation.role = Role.objects.get(name=role)
+            participation.save()
+        return course
     return None
 
 
