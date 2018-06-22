@@ -26,7 +26,6 @@
                 <div style="visibility: hidden;"></div>
             </draggable>
             <b-card class="hover" @click="addField">+ Add field</b-card>
-            <b-button>Back</b-button>
         </b-card>
     </div>
 </template>

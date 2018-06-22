@@ -28,10 +28,12 @@
             <b-modal
                 ref="modal"
                 title="test"
-                hide-footer
+                ok-only
                 hide-header
                 @hidden="hideModal">
-                    <template-editor :template="templateBeingEdited"></template-editor>
+                    <span slot="modal-ok">Back</span>
+                    <template-editor :template="templateBeingEdited">
+                    </template-editor>
             </b-modal>
         </b-col>
         <b-col cols="12" xl="3" order="3" class="right-content">
@@ -45,8 +47,8 @@
             <br/>
 
             <h3>Template Pool</h3>
-            <template-todo-card v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" :color="'pink-border'"/>
-            <b-card @click="showModal(newTemplate())" class="card hover" :class="'grey-border'" style="">
+            <template-todo-card class="hover" v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" :color="'pink-border'"/>
+            <b-card @click="showModal(newTemplate())" class="hover" :class="'grey-border'" style="">
                 <b>+ Add Template</b>
             </b-card>
         </b-col>
@@ -275,7 +277,7 @@ export default {
 </script>
 
 <style>
-.noHoverCard:hover {
-    background-color: var(--theme-light-grey);
+.template-card:hover {
+    background-color: var(--theme-dark-grey) !important;
 }
 </style>
