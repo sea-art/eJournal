@@ -178,14 +178,6 @@ def update_format(request):
             deadline = factory.make_deadline(date)
             factory.make_entrydeadline_node(format, deadline, template)
 
-        tID = template_field['tID']
-        try:
-            format.available_templates.add(EntryTemplate.objects.get(pk=tID))
-        except EntryTemplate.NotFound:
-            return JsonResponse({'result': '404 Not Found',
-                                 'description': 'Template does not exist.'},
-                                status=404)
-
     return JsonResponse({'result': 'success', 'node': format_to_dict(format)}, status=200)
 
 
