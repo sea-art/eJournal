@@ -1,9 +1,9 @@
 <template>
     <div>
         <b-card class="no-hover">
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" id="templateName" v-model="name" placeholder="Template name" required/>
-            <draggable v-model="this.template.fields" @start="drag=true" @end="drag=false" @update="onUpdate" :options="{ handle:'.handle' }">
-                <div v-for="field in this.template.fields" :key="field.location">
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" id="templateName" v-model="template.name" placeholder="Template name" required/>
+            <draggable v-model="template.fields" @start="drag=true" @end="drag=false" @update="onUpdate" :options="{ handle:'.handle' }">
+                <div v-for="field in template.fields" :key="field.location">
                     <b-card class="field-card">
                         <b-row align-h="between" no-gutters>
                             <b-col cols="12" md="11">
@@ -26,7 +26,7 @@
                 <div style="visibility: hidden;"></div>
             </draggable>
             <b-card class="hover" @click="addField">+ Add field</b-card>
-            <b-button @click="onSubmit" :to="{name: 'Course', params: {cID: 1}}">Save</b-button>
+            <b-button>Back</b-button>
         </b-card>
     </div>
 </template>
@@ -37,7 +37,6 @@ import icon from 'vue-awesome/components/Icon'
 import draggable from 'vuedraggable'
 
 export default {
-    name: 'TemplateEdit',
     props: {
         template: {
             required: true

@@ -24,6 +24,15 @@
             <div v-else>
                 <p>No presets yet</p>
             </div>
+
+            <b-modal
+                ref="modal"
+                title="test"
+                hide-footer
+                hide-header
+                @hidden="hideModal">
+                    <template-editor :template="templateBeingEdited"></template-editor>
+            </b-modal>
         </b-col>
         <b-col cols="12" xl="3" order="3" class="right-content">
             <h3>Format</h3>
@@ -36,9 +45,7 @@
             <br/>
 
             <h3>Template Pool</h3>
-            <b-link v-for="template in templatePool" :key="template.t.tID" :to="{ name: 'TemplateEdit', params: { aID: aID, tID: template.t.tID } }">
-                <template-todo-card :template="template" :key="template.t.tID" :color="'pink-border'"/>
-            </b-link>
+            <template-todo-card v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template.t)" :template="template" :color="'pink-border'"/>
             <b-link :to="{ name: 'TemplateEdit', params: { aID: aID, tID: 1 } }">
                 <b-card class="card hover" :class="'grey-border'" style="">
                     <b>+ Add Template</b>
@@ -57,6 +64,7 @@ import formatEditAvailableTemplateCard from '@/components/FormatEditAvailableTem
 import formatEditSelectTemplateCard from '@/components/FormatEditSelectTemplateCard.vue'
 import journalAPI from '@/api/journal.js'
 import store from '@/Store.vue'
+import templateEdit from '@/components/TemplateEdit.vue'
 
 export default {
     name: 'FormatEdit',
@@ -73,11 +81,15 @@ export default {
 
             templatePool: [],
             nodes: [],
+            templateMap: {},
 
             isChanged: false,
 
-            modalIsShown: false,
-            templateBeingEdited: null,
+            templateBeingEdited: {
+                'type': 'd',
+                'deadline': this.newDate(),
+                'template': (this.templatePool) ? this.templatePool[0].t : null
+            },
             templatesEdited: []
         }
     },
@@ -103,6 +115,13 @@ export default {
     },
 
     methods: {
+        showModal (template) {
+            this.templateBeingEdited = template
+            this.$refs['modal'].show()
+        },
+        hideModal () {
+            this.templatesEdited.push(this.templateBeingEdited)
+        },
         selectNode ($event) {
             if ($event === this.currentNode) {
                 return
@@ -224,7 +243,8 @@ export default {
         'bread-crumb': breadCrumb,
         'edag': edag,
         'template-todo-card': formatEditAvailableTemplateCard,
-        'selected-node-card': formatEditSelectTemplateCard
+        'selected-node-card': formatEditSelectTemplateCard,
+        'template-editor': templateEdit
     },
 
     beforeRouteEnter (to, from, next) {
