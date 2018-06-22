@@ -94,7 +94,6 @@ export default {
                 this.course.date)
                 .then(response => {
                     this.course = response
-                    console.log(this.course.date)
                     this.pageName = this.course.name
                 })
         },
