@@ -59,28 +59,14 @@ class RestTests(TestCase):
 
         self.user_role = factory.make_user("test123", "test")
         role = factory.make_role(name='TA', can_view_assignment=True)
-        studentRole = factory.make_role(name='SD')
+        student_role = factory.make_role(name='SD')
 
         factory.make_participation(self.user_role, c1, role)
 
         cs = [c1, c2, c3]
         for c in cs:
-            c.save()
-            p = Participation()
-            p.user = self.user
-            p.course = c
-            p.role = role
-            p.save()
-            c.participation_set.add(p)
-            c.save()
-
-            p = Participation()
-            p.user = self.student
-            p.course = c
-            p.role = studentRole
-            p.save()
-            c.participation_set.add(p)
-            c.save()
+            factory.make_participation(self.user, c, role)
+            factory.make_participation(self.student, c, student_role)
 
         t = factory.make_entry_template('template_test')
         f = factory.make_format([t], 5)
@@ -237,3 +223,14 @@ class RestTests(TestCase):
         self.assertEquals(Entry.objects.get(pk=1).published, int(result.json()['new_published']))
         self.assertEquals(Entry.objects.get(pk=2).published, int(result.json()['new_published']))
         self.assertEquals(Entry.objects.get(pk=3).published, 0)
+
+    def test_delete_assignment(self):
+        """
+        Tests the delete assignment
+        """
+        login = logging_in(self, self.username, self.password)
+        result = api_post_call(self, '/api/delete_assignment/', {'cID': 1, 'aID': 1}, login)
+        assignment = Assignment.objects.get(pk=1)
+        self.assertEquals(assignment.courses.count(), 1)
+        result = api_post_call(self, '/api/delete_assignment/', {'cID': 2, 'aID': 1}, login)
+        self.assertEquals(Assignment.objects.filter(pk=1).count(), 0)

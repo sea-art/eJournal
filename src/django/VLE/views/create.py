@@ -33,7 +33,7 @@ def create_new_course(request):
 
     course = factory.make_course(name, abbr, startdate, request.user, lti_id)
 
-    return JsonResponse({'result': 'success', 'course': course_to_dict(course)})
+    return JsonResponse({'result': 'success', 'course': course_to_dict(course)}, status=201)
 
 
 @api_view(['POST'])
@@ -57,7 +57,7 @@ def create_new_assignment(request):
         return utils.keyerror_json("name", "description", "cID")
 
     assignment = factory.make_assignment(name, description, cIDs=[cID], author=request.user)
-    return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)})
+    return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)}, status=201)
 
 
 @api_view(['POST'])
@@ -79,7 +79,7 @@ def create_journal(request):
     assignment = Assignment.objects.get(pk=aID)
     journal = factory.make_journal(assignment, request.user)
 
-    return JsonResponse({'result': 'success', 'journal': journal_to_dict(journal)})
+    return JsonResponse({'result': 'success', 'journal': journal_to_dict(journal)}, status=201)
 
 
 @api_view(['POST'])
@@ -127,7 +127,7 @@ def create_entry(request):
             field = Field.objects.get(pk=tag)
             factory.make_content(node.entry, data, field)
 
-        return JsonResponse({'result': 'success', 'nodes': edag.get_nodes_dict(journal, request.user)}, status=200)
+        return JsonResponse({'result': 'success', 'nodes': edag.get_nodes_dict(journal, request.user)}, status=201)
     except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Journal, Template or Node does not exist.'},
@@ -161,4 +161,4 @@ def create_entrycomment(request):
 
     comment = factory.make_entrycomment(entry, author, text)
 
-    return JsonResponse({'result': 'success'})
+    return JsonResponse({'result': 'success'}, status=201)
