@@ -142,7 +142,7 @@ def create_entry(request):
         return JsonResponse({'result': 'success',
                              'added': added,
                              'nodes': edag.get_nodes_dict(journal, request.user)},
-                             status=201)
+                            status=201)
     except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Journal, Template or Node does not exist.'},
