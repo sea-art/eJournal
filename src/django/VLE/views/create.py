@@ -6,6 +6,7 @@ import json
 from VLE.serializers import *
 import VLE.factory as factory
 import VLE.utils as utils
+import VLE.edag as edag
 
 
 @api_view(['POST'])
@@ -126,7 +127,7 @@ def create_entry(request):
             field = Field.objects.get(pk=tag)
             factory.make_content(node.entry, data, field)
 
-        return JsonResponse({'result': 'success', 'nodes': edag.get_nodes_dict(journal)}, status=200)
+        return JsonResponse({'result': 'success', 'nodes': edag.get_nodes_dict(journal, request.user)}, status=200)
     except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Journal, Template or Node does not exist.'},
