@@ -26,7 +26,7 @@
                                 -->
                                 <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
                                     <div v-if="field.title != ''">
-                                        <span id="field-title">{{ field.title }}</span>
+                                        <b>{{ field.title }}</b>
                                     </div>
 
                                     <div v-if="field.type=='t'">
@@ -66,7 +66,7 @@
                                 -->
                                 <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
                                     <div v-if="field.title != ''">
-                                        <span id="field-title">{{ field.title }}</span>
+                                        <b>{{ field.title }}</b>
                                     </div>
                                     <div v-if="field.type=='t'">
                                         {{ completeContent[i].data }}<br><br>
@@ -170,9 +170,3 @@ export default {
 }
 
 </script>
-
-<style>
-#field-title {
-    font-weight: bold;
-}
-</style>
