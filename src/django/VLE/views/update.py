@@ -45,10 +45,10 @@ def update_course(request):
 
     course = Course.objects.get(pk=request.data['cID'])
     course.name = request.data['name']
-    course.abbr = request.data['abbr']
+    course.abbreviation = request.data['abbr']
     course.startdate = request.data['startDate']
     course.save()
-    return JsonResponse({'result': 'success', 'course': course_to_dict(course)})
+    return JsonResponse({'result': 'success', 'course': course_to_dict(course)}, status=200)
 
 
 @api_view(['POST'])
@@ -97,7 +97,7 @@ def update_assignment(request):
     assignment.description = request.data['description']
     assignment.save()
 
-    return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)})
+    return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)}, status=200)
 
 
 @api_view(['POST'])
@@ -121,7 +121,7 @@ def update_password(request):
 
     user.set_password(request.data['new_password'])
     user.save()
-    return JsonResponse({'result': 'success'})
+    return JsonResponse({'result': 'success'}, status=200)
 
 
 @api_view(['POST'])
@@ -142,7 +142,7 @@ def update_grade_notification(request):
         return JsonResponse({'result': '400 Bad Request'}, status=400)
 
     user.save()
-    return JsonResponse({'result': 'success', 'new_value': user.grade_notifications})
+    return JsonResponse({'result': 'success', 'new_value': user.grade_notifications}, status=200)
 
 
 @api_view(['POST'])
@@ -163,7 +163,7 @@ def update_comment_notification(request):
         return JsonResponse({'result': '400 Bad Request'}, status=400)
 
     user.save()
-    return JsonResponse({'result': 'success', 'new_value': user.comment_notifications})
+    return JsonResponse({'result': 'success', 'new_value': user.comment_notifications}, status=200)
 
 
 @api_view(['POST'])
@@ -210,7 +210,7 @@ def update_grade_entry(request, eID):
     entry.grade = request.data['grade']
     entry.published = request.data['published']
     entry.save()
-    return JsonResponse({'result': 'success', 'new_grade': entry.grade, 'new_published': entry.published})
+    return JsonResponse({'result': 'success', 'new_grade': entry.grade, 'new_published': entry.published}, status=200)
 
 
 @api_view(['POST'])
@@ -230,7 +230,7 @@ def update_publish_grade_entry(request, eID):
     entry = Entry.objects.get(pk=eID)
     entry.published = publish
     entry.save()
-    return JsonResponse({'result': 'success', 'new_published': entry.published})
+    return JsonResponse({'result': 'success', 'new_published': entry.published}, status=200)
 
 
 @api_view(['POST'])
@@ -248,7 +248,7 @@ def update_publish_grades_assignment(request, aID):
 
     assign = Assignment.objects.get(pk=aID)
     utils.publish_all_assignment_grades(assign, request.data['published'])
-    return JsonResponse({'result': 'success', 'new_published': request.data['published']})
+    return JsonResponse({'result': 'success', 'new_published': request.data['published']}, status=200)
 
 
 @api_view(['POST'])
@@ -257,6 +257,7 @@ def update_publish_grades_journal(request, jID):
 
     Arguments:
     request -- the request that was send with
+        published -- publish state of grade
     jID -- journal ID
 
     Returns a json string if it was sucessful or not.
@@ -266,7 +267,7 @@ def update_publish_grades_journal(request, jID):
 
     journ = Journal.objects.get(pk=jID)
     utils.publish_all_journal_grades(journ, request.data['published'])
-    return JsonResponse({'result': 'success', 'new_published': request.data['published']})
+    return JsonResponse({'result': 'success', 'new_published': request.data['published']}, status=200)
 
 
 @api_view(['POST'])
@@ -296,7 +297,7 @@ def update_entrycomment(request):
                             status=404)
     comment.text = text
     comment.save()
-    return JsonResponse({'result': 'success'})
+    return JsonResponse({'result': 'success'}, status=200)
 
 
 @api_view(['POST'])
@@ -320,4 +321,4 @@ def update_user_data(request):
         user.profile_picture = request.data['picture']
 
     user.save()
-    return JsonResponse({'result': 'success', 'user': user_to_dict(user)})
+    return JsonResponse({'result': 'success', 'user': user_to_dict(user)}, status=200)

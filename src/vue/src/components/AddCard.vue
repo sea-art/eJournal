@@ -14,7 +14,7 @@
                                 </b-form-select>
                                 <br><br>
                                 <div v-if="selectedTemplate !== null">
-                                    <h3>Fill in your entry</h3>
+                                    <h2>Fill in your entry</h2>
                                     <entry-preview @content-template="createEntry" :template="selectedTemplate"/>
                                 </div>
                             </b-col>

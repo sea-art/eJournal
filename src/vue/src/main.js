@@ -7,6 +7,8 @@ import '../node_modules/bootstrap-vue/dist/bootstrap-vue.css'
 import 'vue-awesome/icons/eye'
 import 'vue-awesome/icons/caret-up'
 import 'vue-awesome/icons/caret-down'
+import 'vue-awesome/icons/arrows'
+import 'vue-awesome/icons/trash'
 
 Vue.config.productionTip = false
 Vue.use(BootstrapVue)
@@ -29,29 +31,59 @@ new Vue({
              * TODO implement (will most likely require a lib) */
             return '1M 9D 9H'
         },
+
+        /* #############################################################
+         *              Permissions, for overview see:
+         *
+         * https://docs.google.com/spreadsheets/d/1M7KnEKL3cG9PMWfQi9HIpRJ5xUMou4Y2plnRgke--Tk/edit?usp=sharing
+         *
+         * ##############################################################
+         */
+
         /* The admin has all permissions. Extra, site-wide permissions:
          * Creating a course on the home page
          * Editing institution-wide settings
-         * Editing all assignments */
+         * Editing someone else profile (picture) */
         isAdmin () {
             return this.permissions.is_admin
+        },
+        /* Institute wide settings, think institute name/abbreviation logo. */
+        canEditInstitute () {
+            // TODO API
+            return true
         },
 
         /* Course level based permissions. These permissions are enabled and
         used per course. */
         /* Course permissions. */
+        canViewCourseParticipants () {
+            // TODO API
+            return true
+        },
+        /* Note that teachers can add courses as well, no cID available yet.
+         * Required for LTI integration. */
+        canAddCourse () {
+            // TODO API
+            return true
+        },
         canEditCourse () {
             return this.permissions.can_edit_course
+        },
+        canEditCourseRoles () {
+            // TODO API
+            return true
         },
         canDeleteCourse () {
             return this.permissions.can_delete_course
         },
 
         /* Assignment permissions. */
-        canViewAssignment () {
+        canViewAssignmentParticipants () {
+            // TODO Change backend confusing name
             return this.permissions.can_view_assignment
         },
-        canSubmitAssignment () {
+        canAddAssignment () {
+            // TODO Streamline backend name
             return this.permissions.can_submit_assignment
         },
         canEditAssignment () {
@@ -60,13 +92,27 @@ new Vue({
         canDeleteAssignment () {
             return this.permissions.can_delete_assignment
         },
-
-        /* Grade permissions. */
-        canViewGrades () {
-            return this.permissions.can_view_grades
+        canPublishAssignmentGrades () {
+            // TODO API
+            return true
         },
-        canEditGrades () {
-            return this.permissions.can_edit_grades
+
+        /* Journal level permissions */
+        canGradeJournal () {
+            // TODO API
+            return true
+        },
+        canPublishJournalGrades () {
+            // TODO API
+            return true
+        },
+        canEditJournal () {
+            // TODO API
+            return true
+        },
+        canCommentJournal () {
+            // TODO API
+            return true
         }
     },
     template: '<App/>'
