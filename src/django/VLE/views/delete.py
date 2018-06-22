@@ -1,14 +1,17 @@
+"""
+delete.py.
+
+API functions that handle the delete requests.
+"""
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
 
-from VLE.serializers import *
-import VLE.factory as factory
-from VLE.views.get import get_own_user_data
+from VLE.models import Assignment, Course, Participation, User
 
 
 @api_view(['POST'])
 def delete_course(request):
-    """Deletes an existing course.
+    """Delete an existing course.
 
     Arguments:
     request -- the update request that was send with
@@ -28,7 +31,7 @@ def delete_course(request):
 
 @api_view(['POST'])
 def delete_assignment(request):
-    """Deletes an existing assignment.
+    """Delete an existing assignment.
 
     Arguments:
     request -- the update request that was send with
@@ -48,7 +51,7 @@ def delete_assignment(request):
 
 @api_view(['POST'])
 def delete_user_from_course(request):
-    """Deletes a student from course.
+    """Delete a student from course.
 
     Arguments:
     request -- the update request that was send with
