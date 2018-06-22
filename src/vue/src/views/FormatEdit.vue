@@ -77,7 +77,7 @@ export default {
     },
 
     created () {
-        journalAPI.get_format(this.aID).then(data => { this.fID = data.nodes.fID; this.templates = data.nodes.templates; this.presets = data.nodes.presets; this.convertFromDB(); this.isChanged = false })
+
     },
 
     watch: {
@@ -216,6 +216,10 @@ export default {
                 vm.templatePool = store.state.format.templatePool
                 vm.nodes = store.state.format.nodes
             })
+        } else {
+            next(vm => {
+                journalAPI.get_format(vm.aID).then(data => { vm.fID = data.nodes.fID; vm.templates = data.nodes.templates; vm.presets = data.nodes.presets; vm.convertFromDB(); vm.isChanged = false })
+            })
         }
         next()
     },
@@ -226,6 +230,7 @@ export default {
         } else {
             if (this.isChanged && !confirm('Oh no! Unsaved changes will be lost if you leave. Do you wish to continue?')) {
                 next(false)
+                return
             } else {
                 store.clearFormat()
             }
