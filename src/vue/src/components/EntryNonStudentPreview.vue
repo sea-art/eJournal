@@ -34,7 +34,7 @@
             </b-row>
         </b-card>
 
-        <comment-card @new-comments="addComment" :comments="comments" :person="'Henk'" :eID="entryNode.entry.eID"/>
+        <comment-card @new-comments="addComment" :comments="comments" :person="'Teacher'" :eID="entryNode.entry.eID"/>
     </div>
 </template>
 
