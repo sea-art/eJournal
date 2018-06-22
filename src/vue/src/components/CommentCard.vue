@@ -1,5 +1,6 @@
 <template>
     <div>
+        {{authorID}}
         <div v-for="(comment, index) in comments" :key="index">
             <b-row>
                 <b-col cols="2">
@@ -25,13 +26,16 @@
 </template>
 
 <script>
+import userApi from '@/api/user.js'
+
 export default {
     props: ['comments', 'person', 'eID'],
 
     data () {
         return {
             newComments: this.comments,
-            tempComment: ''
+            tempComment: '',
+            authorID: ''
         }
     },
     watch: {
@@ -40,8 +44,15 @@ export default {
             this.tempComment = ''
         }
     },
-
+    created () {
+        this.getAuthorID()
+    },
     methods: {
+        getAuthorID: function () {
+            userApi.getOwnUserData()
+                .catch(_ => alert('Error while loading in user data.'))
+                .then(response => { this.authorID = response })
+        },
         addComment: function () {
             if (this.tempComment !== '') {
                 this.newComments.push({
