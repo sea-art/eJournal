@@ -128,6 +128,8 @@ class Participation(models.Model):
     )
 
     class Meta:
+        """Meta data for the model: unique_together."""
+
         unique_together = ('user', 'course',)
 
     def __str__(self):
