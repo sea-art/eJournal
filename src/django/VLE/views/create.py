@@ -174,6 +174,6 @@ def create_entrycomment(request):
                              'description': 'User or Entry does not exist.'},
                             status=404)
 
-    comment = factory.make_entrycomment(entry, author, text)
+    factory.make_entrycomment(entry, author, text)
 
     return JsonResponse({'result': 'success'}, status=201)

@@ -13,6 +13,12 @@ def get_sorted_nodes(journal):
 
 
 def get_nodes_dict(journal, requester):
+    """Convert a journal to a list of node dictionaries.
+
+    First sorts the nodes on date, then attempts to add an
+    add-node if the requester is the owner of the journal, the subsequent
+    progress node is in the future and maximally one.
+    """
     is_own_journal = False
     if requester and journal.user == requester:
         is_own_journal = True

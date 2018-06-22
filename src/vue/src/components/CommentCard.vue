@@ -45,12 +45,12 @@ export default {
     watch: {
         eID: function () {
             this.tempComment = ''
-            entryApi.get_entrycomments(this.eID).then(response => { this.commentObject = response })
+            entryApi.getEntryComments(this.eID).then(response => { this.commentObject = response })
         }
     },
     created () {
         this.getAuthorID()
-        this.get_entrycomments()
+        this.getEntryComments()
     },
     methods: {
         getAuthorID: function () {
@@ -58,12 +58,12 @@ export default {
                 .catch(_ => alert('Error while loading in user data.'))
                 .then(response => { this.userData = response })
         },
-        get_entrycomments: function () {
-            entryApi.get_entrycomments(this.eID).then(response => { this.commentObject = response })
+        getEntryComments: function () {
+            entryApi.getEntryComments(this.eID).then(response => { this.commentObject = response })
         },
         addComment: function () {
             if (this.tempComment !== '') {
-                entryApi.create_entrycomment(this.eID, this.userData.uID, this.tempComment)
+                entryApi.createEntryComment(this.eID, this.userData.uID, this.tempComment)
                 this.commentObject.entrycomments.push({
                     entrtyID: this.eID,
                     author: {
