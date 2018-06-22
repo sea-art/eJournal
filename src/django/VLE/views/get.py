@@ -365,11 +365,6 @@ def get_entrycomments(request, entryID):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    # try:
-    #     entryID = utils.get_required_post_params(request.data, "entryID")
-    # except KeyError:
-    #     return utils.keyerror_json("entryID")
-
     entrycomments = EntryComment.objects.filter(entry=entryID)
     return JsonResponse({'result': 'success',
                          'entrycomments': [entrycomment_to_dict(comment) for comment in entrycomments]})

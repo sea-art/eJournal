@@ -97,9 +97,9 @@ export default {
         addNode (infoEntry) {
             journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
                 .catch(_ => alert('Error while creating the entry.'))
-                .then(journal.get_nodes(this.jID)
-                .catch(_ => alert('Error while loading nodes.')))
                 .then(response => { this.nodes = response.nodes })
+                // .catch(_ => alert('Error while loading nodes.')))
+                // .then(response => { this.nodes = response.nodes })
         },
         fillDeadline (data) {
             journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data)
