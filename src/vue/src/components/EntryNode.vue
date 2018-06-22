@@ -33,8 +33,10 @@
                                         <b-textarea v-model="completeContent[i].data"></b-textarea><br><br>
                                     </div>
                                     <div v-else-if="field.type=='i'">
+                                        <b-form-file v-model="completeContent[i].data" :state="Boolean(file)" placeholder="Choose a file..."></b-form-file><br><br>
                                     </div>
                                     <div v-else-if="field.type=='f'">
+                                        <b-form-file v-model="completeContent[i].data" :state="Boolean(file)" placeholder="Choose a file..."></b-form-file><br><br>
                                     </div>
                                 </div>
                                 <b-button @click="saveEdit">{{ saveEditMode }} </b-button>
@@ -72,8 +74,10 @@
                                         {{ completeContent[i].data }}<br><br>
                                     </div>
                                     <div v-else-if="field.type=='i'">
+                                        {{ completeContent[i].data }}<br><br>
                                     </div>
                                     <div v-else-if="field.type=='f'">
+                                        {{ completeContent[i].data }}<br><br>
                                     </div>
                                 </div>
                                 <b-button @click="saveEdit">{{ saveEditMode }} </b-button>
@@ -104,6 +108,7 @@ export default {
     watch: {
         entryNode: function () {
             this.completeContent = []
+            this.tempNode = this.entryNode
             this.setContent()
         }
     },

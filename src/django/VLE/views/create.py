@@ -115,8 +115,12 @@ def create_entry(request):
                                      'description': 'Passed node is a Progress node.'},
                                     status=400)
 
-            node.entry = factory.make_entry(template)
-
+            if node.entry:
+                Content.objects.filter(entry=node.entry).all().delete()
+                node.entry.template = template
+                node.save()
+            else:
+                node.entry = make_entry(template)
         else:
             entry = factory.make_entry(template)
             node = factory.make_node(journal, entry)
@@ -125,9 +129,20 @@ def create_entry(request):
             data = content['data']
             tag = content['tag']
             field = Field.objects.get(pk=tag)
+
             factory.make_content(node.entry, data, field)
 
-        return JsonResponse({'result': 'success', 'nodes': edag.get_nodes_dict(journal, request.user)}, status=201)
+        result = edag.get_nodes_dict(journal, request.user)
+        added = -1
+        for i, result_node in enumerate(result):
+            if result_node['nID'] == node.id:
+                added = i
+                break
+
+        return JsonResponse({'result': 'success',
+                             'added': added,
+                             'nodes': edag.get_nodes_dict(journal, request.user)},
+                             status=201)
     except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Journal, Template or Node does not exist.'},
