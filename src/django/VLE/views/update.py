@@ -25,7 +25,7 @@ def update_course(request):
 
     course = Course.objects.get(pk=request.data['cID'])
     course.name = request.data['name']
-    course.abbr = request.data['abbr']
+    course.abbreviation = request.data['abbr']
     course.startdate = request.data['startDate']
     course.save()
     return JsonResponse({'result': 'success', 'course': course_to_dict(course)})
