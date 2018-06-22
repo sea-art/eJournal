@@ -15,9 +15,11 @@ def get_sorted_nodes(journal):
 def get_nodes_dict(journal):
     nodes = get_sorted_nodes(journal)
     node_dict = []
+    added_add_node = False
     for node in nodes:
         if node.type == Node.PROGRESS:
-            if (node.preset.deadline.datetime - timezone.now()).total_seconds() > 0:
+            if (not added_add_node and (node.preset.deadline.datetime - timezone.now()).total_seconds() > 0):
                 node_dict.append(serializers.add_node_dict(journal))
+                added_add_node = True
         node_dict.append(serializers.node_to_dict(node))
     return node_dict

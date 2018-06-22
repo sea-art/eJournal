@@ -108,7 +108,8 @@ def entry_deadline_to_dict(node):
         'type': node.type,
         'nID': node.id,
         'jID': node.id,
-        'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
+        'deadline': node.preset.deadline.datetime.strftime('%Y-%m-%d %H:%M'),
+        'template': template_to_dict(node.preset.forced_template),
         'entry': entry_to_dict(node.entry),
     } if node else None
 
@@ -118,7 +119,7 @@ def progress_to_dict(node):
         'type': node.type,
         'nID': node.id,
         'jID': node.id,
-        'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
+        'deadline': node.preset.deadline.datetime.strftime('%Y-%m-%d %H:%M'),
         'target': node.preset.deadline.points,
     } if node else None
 
@@ -181,3 +182,11 @@ def preset_to_dict(preset):
         result = {**base, **{'template': template_to_dict(preset.forced_template)}}
 
     return result
+
+
+def entrycomment_to_dict(entrycomment):
+    return {
+        'entry': entrycomment.entry,
+        'author': entrycomment.author,
+        'text': entrycomment.text,
+    } if entrycomment else None

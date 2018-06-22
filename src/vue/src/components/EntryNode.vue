@@ -5,7 +5,7 @@
             <b-col id="main-card-left-column" cols="12">
                 <div v-if="saveEditMode == 'Save'">
                     <!-- Edit mode. -->
-                    <b-card class="card main-card noHoverCard" :class="'pink-border'">
+                    <b-card class="card main-card no-hover" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>{{entryNode.entry.template.name}}</h2>
@@ -44,8 +44,8 @@
                     </b-card>
                 </div>
                 <div v-else>
-                    <!-- Overvieuw mode. -->
-                    <b-card class="card main-card noHoverCard" :class="'pink-border'">
+                    <!-- Overview mode. -->
+                    <b-card class="card main-card no-hover" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>{{entryNode.entry.template.name}}</h2>
@@ -61,7 +61,7 @@
                         </b-row>
                         <b-row>
                             <b-col id="main-card-left-column" cols="12" lg-cols="12">
-                                <!-- Gives a vieuw of every templatefield and
+                                <!-- Gives a view of every templatefield and
                                     if possible the already filled in entry.
                                 -->
                                 <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
@@ -84,7 +84,7 @@
             </b-col>
         </b-row>
 
-        <comment-card @new-comments="addComment" :comments="comments" :person="'Henk'"/>
+        <comment-card @new-comments="addComment" :comments="comments" :person="'Henk'" :eID="entryNode.entry.eID"/>
     </div>
 </template>
 

@@ -29,7 +29,7 @@
         </b-col>
         <b-col cols="12" xl="3" order="3" class="right-content">
             <h3>Template Pool</h3>
-            <b-link v-for="template in templatePool" :to="{ name: 'TemplateEdit', params: { aID: aID, tID: template.t.tID } }">
+            <b-link v-for="template in templatePool" :key=template.tID :to="{ name: 'TemplateEdit', params: { aID: aID, tID: template.t.tID } }">
                 <template-todo-card :template="template" :key="template.t.tID" :color="'pink-border'"/>
             </b-link>
             <b-link :to="{ name: 'TemplateEdit', params: { aID: aID, tID: 1 } }">

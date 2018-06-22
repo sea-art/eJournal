@@ -77,13 +77,13 @@ class EdagTests(TestCase):
 
         self.assertEquals(nodes[0]['type'], 'd')
         self.assertEquals(nodes[0]['entry'], None)
-        self.assertEquals(nodes[0]['deadline'], '01-01-2020 00:00')
+        self.assertEquals(nodes[0]['deadline'], '2020-01-01 00:00')
 
         self.assertEquals(nodes[1]['type'], 'e')
-        self.assertEquals(nodes[1]['entry']['createdate'], '01-01-2022 00:00')
+        self.assertEquals(nodes[1]['entry']['createdate'], '2022-01-01 00:00')
 
         self.assertEquals(nodes[2]['type'], 'a')
 
         self.assertEquals(nodes[3]['type'], 'p')
-        self.assertEquals(nodes[3]['deadline'], '01-01-2024 00:00')
+        self.assertEquals(nodes[3]['deadline'], '2024-01-01 00:00')
         self.assertEquals(nodes[3]['target'], 10)

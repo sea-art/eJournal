@@ -3,10 +3,16 @@ from django.test import TestCase
 
 
 class CommandsTestCase(TestCase):
-    def test_mycommand(self):
-        " Test my preset_db and demo_db command."
+    def setUp(self):
+        self.args = []
+        self.opts = {}
 
-        args = []
-        opts = {}
-        call_command('preset_db', *args, **opts)
-        call_command('demo_db', *args, **opts)
+    def test_presetdb(self):
+        " Test preset_db, demo_db and random_db command."
+        call_command('preset_db', *self.args, **self.opts)
+
+    def test_demodb(self):
+        call_command('demo_db', *self.args, **self.opts)
+
+    def test_reandomdb(self):
+        call_command('random_db', *self.args, **self.opts)

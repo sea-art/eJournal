@@ -24,6 +24,7 @@ class User(AbstractUser):
     profile_picture = models.TextField(
         null=True
     )
+    is_admin = models.BooleanField(default=False)
     grade_notifications = models.BooleanField(
         default=True
     )
@@ -32,7 +33,7 @@ class User(AbstractUser):
     )
 
     def __str__(self):
-        return self.username
+        return self.username + " (" + str(self.id) + ")"
 
 
 class Course(models.Model):
@@ -73,7 +74,7 @@ class Course(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return self.name + " (" + str(self.id) + ")"
 
 
 class Role(models.Model):
@@ -89,6 +90,11 @@ class Role(models.Model):
     can_edit_assignment = models.BooleanField(default=False)
     can_view_assignment = models.BooleanField(default=False)
     can_submit_assignment = models.BooleanField(default=False)
+    can_edit_course = models.BooleanField(default=False)
+    can_delete_course = models.BooleanField(default=False)
+
+    def __str__(self):
+        return str(self.name) + " (" + str(self.id) + ")"
 
 
 class Participation(models.Model):
@@ -105,6 +111,12 @@ class Participation(models.Model):
         on_delete=models.SET_NULL,
         related_name='role',
     )
+
+    class Meta:
+        unique_together = ('user', 'course',)
+
+    def __str__(self):
+        return "usr: " + str(self.user) + " crs: " + str(self.course) + " role: " + str(self.role)
 
 
 class Assignment(models.Model):
@@ -143,7 +155,7 @@ class Assignment(models.Model):
     )
 
     def __str__(self):
-        return self.name
+        return self.name + " (" + str(self.id) + ")"
 
 
 class Journal(models.Model):
@@ -336,9 +348,10 @@ class Entry(models.Model):
         default=now,
     )
     grade = models.IntegerField(
-        default=0
+        default=None,
+        null=True,
     )
-    graded = models.BooleanField(
+    published = models.BooleanField(
         default=False
     )
 
@@ -417,3 +430,20 @@ class Content(models.Model):
         null=True
     )
     data = models.TextField()
+
+
+class EntryComment(models.Model):
+    """
+    EntryComments contain the comments given to the entries.
+    It is linked to a single entry with a single author and the comment text.
+    """
+    entry = models.ForeignKey(
+        'Entry',
+        on_delete=models.CASCADE
+    )
+    author = models.ForeignKey(
+        'User',
+        on_delete=models.SET_NULL,
+        null=True
+    )
+    text = models.TextField()

@@ -1,7 +1,7 @@
 <template>
     <b-container no-gutters>
         <b-row>
-            <span class="profile-title">Change password</span><br/>
+            <h3 class="profile-title">Change password</h3><br/>
         </b-row>
 
         <b-row>

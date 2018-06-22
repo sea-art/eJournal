@@ -7,7 +7,7 @@
                     {{ comment.person }}
                 </b-col>
                 <b-col cols="10">
-                    <b-card class="noHoverCard" :class="'pink-border'">
+                    <b-card class="no-hover" :class="'pink-border'">
                         {{ comment.message }}
                     </b-card>
                 </b-col>
@@ -17,7 +17,7 @@
             <b-col cols="2">
             </b-col>
             <b-col cols="10">
-                <b-textarea v-model="tempComment" placeholder="Add your beautifull comment here"></b-textarea><br>
+                <b-textarea v-model="tempComment" placeholder="Add your beautiful comment here"></b-textarea><br>
                 <b-button @click="addComment">Add your comment</b-button>
             </b-col>
         </b-row>
@@ -26,13 +26,18 @@
 
 <script>
 export default {
-    props: ['comments', 'person'],
+    props: ['comments', 'person', 'eID'],
 
     data () {
         return {
-            EditSaveMode: 'Edit',
             newComments: this.comments,
             tempComment: ''
+        }
+    },
+    watch: {
+        eID: function () {
+            this.newComments = this.comments
+            this.tempComment = ''
         }
     },
 
