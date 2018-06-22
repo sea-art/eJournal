@@ -27,8 +27,12 @@
         </b-col>
         <b-col cols="12" xl="3" order="3" class="right-content">
             <h3>Format</h3>
-            <b-button @click.prevent.stop="addNode"> Add Preset </b-button>
-            <b-button @click.prevent.stop="saveFormat"> Save </b-button>
+            <b-card @click.prevent.stop="addNode" class="card hover" :class="'grey-border'" style="">
+                <b>Add Preset</b>
+            </b-card>
+            <b-card @click.prevent.stop="saveFormat" class="card hover" :class="'grey-border'" style="">
+                <b>Save Format</b>
+            </b-card>
             <br/>
 
             <h3>Template Pool</h3>
@@ -58,14 +62,13 @@ import store from '@/Store.vue'
 export default {
     name: 'FormatEdit',
 
-    props: ['cID', 'aID'],
+    props: ['cID', 'aID', 'editedTemplate'],
 
     data () {
         return {
             windowWidth: 0,
             currentNode: 0,
 
-            fID: null,
             templates: [],
             presets: [],
 
@@ -138,7 +141,7 @@ export default {
 
             this.convertToDB()
 
-            formatAPI.update_format(this.fID, this.templates, this.presets).then(data => console.log(data))
+            formatAPI.update_format(this.aID, this.templates, this.presets).then(data => console.log(data))
         },
         getWindowWidth (event) {
             this.windowWidth = document.documentElement.clientWidth
@@ -218,7 +221,7 @@ export default {
             })
         } else {
             next(vm => {
-                journalAPI.get_format(vm.aID).then(data => { vm.fID = data.nodes.fID; vm.templates = data.nodes.templates; vm.presets = data.nodes.presets; vm.convertFromDB(); vm.isChanged = false })
+                journalAPI.get_format(vm.aID).then(data => { vm.templates = data.nodes.templates; vm.presets = data.nodes.presets; vm.convertFromDB(); vm.isChanged = false })
             })
         }
         next()

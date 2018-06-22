@@ -75,6 +75,9 @@ export default {
             if (value !== 'p') {
                 this.currentPreset.target = ''
             }
+            if (value === 'd') {
+                this.currentPreset.template = (this.templates[0]) ? this.templates[0].t : {}
+            }
         }
     },
 
