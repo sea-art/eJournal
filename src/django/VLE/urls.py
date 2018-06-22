@@ -30,9 +30,9 @@ from VLE.views.create import create_new_course, create_new_assignment, create_en
 from VLE.views.update import update_user_data, update_course, update_assignment, \
     update_password, update_grade_notification, update_comment_notification, \
     update_grade_entry, update_publish_grade_entry, update_publish_grades_assignment, \
-    update_publish_grades_journal, update_entrycomment
+    update_publish_grades_journal, update_entrycomment, update_user_role_course
 
-from VLE.views.delete import delete_course, delete_assignment
+from VLE.views.delete import delete_course, delete_assignment, delete_user_from_course
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -84,8 +84,11 @@ urlpatterns = [
     path('api/update_publish_grades_journal/<int:jID>/', update_publish_grades_journal,
          name='update_publish_grades_journal'),
 
+    path('api/update_user_role_course/', update_user_role_course, name='update_user_role_course'),
+
     path('api/delete_course/', delete_course, name='delete_course'),
     path('api/delete_assignment/', delete_assignment, name='delete_assignment'),
+    path('api/delete_user_from_course/', delete_user_from_course, name='delete_user_from_course'),
 
     path('api/lti/launch', lti_launch, name='lti_launch'),
 ]

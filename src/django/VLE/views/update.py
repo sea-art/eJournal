@@ -122,6 +122,31 @@ def update_comment_notification(request):
 
 
 @api_view(['POST'])
+def update_user_role_course(request):
+    """Update user role in a course.
+
+    Arguments:
+    request -- the request that was send with
+
+    Returns a json string for if it is succesful or not.
+    """
+    try:
+        uID, cID = utils.get_required_post_params(request.data, "uID", "cID")
+    except KeyError:
+        return utils.keyerror_json("uID", "cID")
+
+    try:
+        participation = Participation.objects.get(user=request.data['uID'], course=request.data['cID'])
+        participation.role = Role.objects.get(name=request.data['role'])
+    except (Participation.DoesNotExist, Role.DoesNotExist):
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Participation or Role does not exist.'}, status=404)
+
+    participation.save()
+    return JsonResponse({'result': 'success', 'new_role': participation.role.name}, status=200)
+
+
+@api_view(['POST'])
 def update_grade_entry(request, eID):
     """Updates the entry grade
 
@@ -214,13 +239,13 @@ def update_entrycomment(request):
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     try:
-        entrycommentID, text = utils.get_required_post_params("entrycommentID", "text")
+        entrycommentID, text = utils.get_required_post_params(request.data, "entrycommentID", "text")
     except KeyError:
-        utils.keyerror_json("entrycommentID")
+        return utils.keyerror_json("entrycommentID")
 
     try:
         comment = EntryComment.objects.get(pk=entrycommentID)
-    except EntryComment.NotFound:
+    except EntryComment.DoesNotExist:
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Entrycomment does not exist.'},
                             status=404)
@@ -244,7 +269,6 @@ def update_user_data(request):
     if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    print(request.data)
     if 'username' in request.data:
         user.username = request.data['username']
     if 'picture' in request.data:

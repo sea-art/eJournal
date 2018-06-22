@@ -1,7 +1,7 @@
 <!-- Loads a preview of a template. -->
 <template>
     <div v-if="entryNode.entry !== null">
-        <b-card class="card main-card noHoverCard" :class="'dark-border'">
+        <b-card class="card main-card no-hover" :class="'dark-border'">
             <b-row>
                 <b-col id="main-card-left-column" cols="9" lg-cols="12">
                     <h2>{{entryNode.entry.template.name}}</h2>

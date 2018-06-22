@@ -7,7 +7,7 @@
                     {{ comment.person }}
                 </b-col>
                 <b-col cols="10">
-                    <b-card class="noHoverCard" :class="'pink-border'">
+                    <b-card class="no-hover" :class="'pink-border'">
                         {{ comment.message }}
                     </b-card>
                 </b-col>
