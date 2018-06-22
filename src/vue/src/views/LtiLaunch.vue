@@ -100,9 +100,15 @@ export default {
                     this.createAssignment = true
                     break;
                 case this.s_check_assign:
-                    // TODO: Check if assignment already exists
                     assignApi.get_assignment_by_lti_id(this.lti.ltiAssignID)
-                        .then(response => { alert(response) })
+                        .then(response => {
+                            if (response === undefined)
+                                this.state = this.s_new_assign
+                            else {
+                                this.page.aID = response.aID
+                                this.state = this.s_finish_t
+                            }
+                        })
                     break;
             }
         }
