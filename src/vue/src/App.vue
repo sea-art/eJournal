@@ -173,7 +173,6 @@ h6 {
 }
 
 .add-button {
-    width: 100%;
     border-color: var(--theme-blue);
     background-color: var(--theme-add-unselected);
 }
@@ -185,7 +184,6 @@ h6 {
 }
 
 .delete-button {
-    width: 100%;
     border-color: var(--theme-blue);
     background-color: var(--theme-pink);
 }
@@ -193,5 +191,17 @@ h6 {
 .delete-button:hover {
     border-color: var(--theme-dark-blue);
     background-color: red;
+}
+
+.portrait {
+    max-width: 175px;
+}
+
+.full-width {
+    width: 100%;
+}
+
+.no-hover:hover {
+    background-color: var(--theme-light-grey);
 }
 </style>

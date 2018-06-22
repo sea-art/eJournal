@@ -2,7 +2,7 @@
     <div class="entry-template">
         <b-row>
             <b-col id="main-card-left-column" cols="12">
-                    <b-card class="card main-card noHoverCard" :class="'pink-border'">
+                    <b-card class="card main-card no-hover" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>Select a template</h2>

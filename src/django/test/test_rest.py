@@ -17,8 +17,8 @@ import VLE.utils as utils
 
 def logging_in(obj, username, password, status=200):
     result = obj.client.post(reverse('token_obtain_pair'),
-                             {'username': username, 'password': password},
-                             format='json')
+                             json.dumps({'username': username, 'password': password}),
+                             content_type='application/json')
     obj.assertEquals(result.status_code, status)
     return result
 
@@ -57,12 +57,11 @@ class RestTests(TestCase):
         c2 = factory.make_course("BeeldBewerken", "BB")
         c3 = factory.make_course("Reflectie en Digitale Samenleving", "RDS")
 
-        role = Role(name='TA')
-        role.can_view_assignment = True
-        role.save()
+        self.user_role = factory.make_user("test123", "test")
+        role = factory.make_role(name='TA', can_view_assignment=True)
+        studentRole = factory.make_role(name='SD')
 
-        studentRole = Role(name='SD')
-        studentRole.save()
+        factory.make_participation(self.user_role, c1, role)
 
         cs = [c1, c2, c3]
         for c in cs:
@@ -157,7 +156,7 @@ class RestTests(TestCase):
         result = api_get_call(self, '/api/get_course_assignments/1/', login)
         assignments = result.json()['assignments']
 
-        self.assertEquals(len(assignments), 2)
+        self.assertEquals(len(assignments), 1)
         self.assertEquals(assignments[0]['name'], 'Colloq')
 
         result = api_get_call(self, '/api/get_course_assignments/2/', login)
@@ -193,6 +192,23 @@ class RestTests(TestCase):
         self.assertEquals(utils.get_max_points(journal), 5)
         self.assertEquals(utils.get_submitted_count(entries), 3)
         self.assertEquals(utils.get_graded_count(entries), 2)
+
+    def test_update_user_role_course(self):
+        """
+        Tests user role update in a course.
+        """
+        user_role = Participation.objects.get(user=self.user_role, course=1).role.name
+        self.assertEquals(user_role, 'TA')
+
+        login = logging_in(self, self.username, self.password)
+        result = api_post_call(
+            self,
+            '/api/update_user_role_course/',
+            {'cID': 1, 'uID': self.user_role.pk, 'role': 'SD'},
+            login
+            )
+        user_role = Participation.objects.get(user=self.user_role, course=1).role.name
+        self.assertEquals(user_role, 'SD')
 
     def test_grade_publish(self):
         """

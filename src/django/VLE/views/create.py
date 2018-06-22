@@ -146,9 +146,9 @@ def create_entrycomment(request):
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     try:
-        entryID, authorID, text = utils.get_required_post_params("entryID", "authorID", "text")
+        entryID, authorID, text = utils.get_required_post_params(request.data, "entryID", "authorID", "text")
     except KeyError:
-        utils.keyerror_json("entryID", "authorID", "text")
+        return utils.keyerror_json("entryID", "authorID", "text")
 
     author = User.objects.get(pk=authorID)
     comment = make_entrycomment(entryID, author, text)

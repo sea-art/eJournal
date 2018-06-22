@@ -28,7 +28,7 @@
                     <add-card @info-entry="addNode" :addNode="nodes[currentNode]"></add-card>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'p'">
-                    <b-card class="card main-card noHoverCard" :class="'pink-border'">
+                    <b-card class="card main-card no-hover" :class="'pink-border'">
                         <h2>Needed progress</h2>
                         You have {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
                         needed points before {{nodes[currentNode].deadline}}.
@@ -95,9 +95,11 @@ export default {
             this.currentNode = $event
         },
         addNode (infoEntry) {
-            journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1]).then(journal.get_nodes(this.jID)
-                .then(response => { this.nodes = response.nodes })
+            journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
+                .catch(_ => alert('Error while creating the entry.'))
+                .then(journal.get_nodes(this.jID)
                 .catch(_ => alert('Error while loading nodes.')))
+                .then(response => { this.nodes = response.nodes })
         },
         fillDeadline (data) {
             journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data)

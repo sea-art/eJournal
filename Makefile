@@ -12,8 +12,11 @@ test: test-back test-front
 fill-db: migrate-back
 	bash -c 'source ./venv/bin/activate && cd ./src/django && echo "delete from sqlite_sequence where name like \"VLE_%\";" | sqlite3 VLE.db && python3.6 manage.py flush --no-input && python3.6 manage.py preset_db && deactivate'
 
-demo-db: fill-db
-	bash -c 'source ./venv/bin/activate && cd ./src/django && python3.6 manage.py demo_db && deactivate'
+demo-db: migrate-back
+	bash -c 'source ./venv/bin/activate && cd ./src/django && echo "delete from sqlite_sequence where name like \"VLE_%\";" | sqlite3 VLE.db && python3.6 manage.py flush --no-input && python3.6 manage.py demo_db && deactivate'
+
+random-db: fill-db
+	bash -c 'source ./venv/bin/activate && cd ./src/django && python3.6 manage.py random_db && deactivate'
 
 show-db:
 	bash -c 'source ./venv/bin/activate && cd ./src/django && python3.6 manage.py show_db && deactivate'

@@ -6,7 +6,7 @@
             <b-col id="main-card-left-column" cols="12">
                 <div v-if="saveEditMode == 'Save'">
                     <!-- Edit mode. -->
-                    <b-card class="card main-card noHoverCard" :class="'pink-border'">
+                    <b-card class="card main-card no-hover" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>{{entryNode.entry.template.name}}</h2>
@@ -46,7 +46,7 @@
                 </div>
                 <div v-else>
                     <!-- Overview mode. -->
-                    <b-card class="card main-card noHoverCard" :class="'pink-border'">
+                    <b-card class="card main-card no-hover" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>{{entryNode.entry.template.name}}</h2>
