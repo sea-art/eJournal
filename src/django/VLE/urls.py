@@ -1,4 +1,5 @@
-"""VLE URL Configuration
+"""
+VLE URL Configuration.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/2.0/topics/http/urls/
@@ -16,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 
-from VLE.views.get import lti_launch, lti_grade_replace_result
+from VLE.views.get import lti_launch
 
 from VLE.views.get import get_own_user_data, get_course_data, get_assignment_data
 

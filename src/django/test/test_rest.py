@@ -258,8 +258,8 @@ class RestTests(TestCase):
 
         course = factory.make_course("Beeldbewerken", "BB")
 
-        rein = factory.make_user("Rein", "123")
-        lars = factory.make_user("Lars", "123")
+        rein = factory.make_user("Rein!!", "123")
+        lars = factory.make_user("Lars!!", "123")
 
         TA = factory.make_role("TA")
         SD = factory.make_role("SD")
