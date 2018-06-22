@@ -1,4 +1,5 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import JSONParser
 from django.http import JsonResponse
 
 from VLE.serializers import *
@@ -276,3 +277,46 @@ def update_user_data(request):
 
     user.save()
     return JsonResponse({'result': 'success', 'user': user_to_dict(user)})
+
+
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def update_template(request):
+    """ Update a template
+    Arguments:
+    request -- the request that was send with
+    tID -- optionally the template to update
+    fields -- the list of fields of the new template
+    name -- the (new) name of the template
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    tID, = utils.get_optional_post_params(request.data, "tID")
+    try:
+        fields, name = utils.get_required_post_params(request.data, "fields", "name")
+    except KeyError:
+        return utils.keyerror_json("fields", "name")
+
+    try:
+        if tID:
+            template = EntryTemplate.objects.get(pk=tID)
+            template.name = name
+        else:
+            template = factory.make_entry_template(name)
+    except EntryTemplate.NotFound:
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Template does not exist.'},
+                            status=404)
+
+    template.field_set.all().delete()
+
+    for field in fields:
+        type = field['type']
+        title = field['title']
+        location = field['location']
+
+        factory.make_field(template, title, location, type)
+
+    template.save()
+    return JsonResponse({'result': 'success', 'template': template_to_dict(template)}, status=200)

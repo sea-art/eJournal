@@ -31,7 +31,8 @@ from VLE.views.create import create_new_course, create_new_assignment, create_en
 from VLE.views.update import update_user_data, update_course, update_assignment, \
     update_password, update_grade_notification, update_comment_notification, \
     update_grade_entry, update_publish_grade_entry, update_publish_grades_assignment, \
-    update_publish_grades_journal, update_entrycomment, update_user_role_course
+    update_publish_grades_journal, update_entrycomment, update_user_role_course, \
+    update_template
 
 from VLE.views.delete import delete_course, delete_assignment, delete_user_from_course
 
@@ -85,6 +86,7 @@ urlpatterns = [
          name='update_publish_grades_assignment'),
     path('api/update_publish_grades_journal/<int:jID>/', update_publish_grades_journal,
          name='update_publish_grades_journal'),
+    path('api/update_template/', update_template, name='update_template'),
 
     path('api/update_user_role_course/', update_user_role_course, name='update_user_role_course'),
 
