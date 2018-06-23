@@ -34,7 +34,7 @@
             </b-row>
         </b-card>
 
-        <comment-card @new-comments="addComment" :comments="comments" :person="'Teacher'" :eID="entryNode.entry.eID"/>
+        <comment-card :eID="entryNode.entry.eID"/>
     </div>
 </template>
 
@@ -49,15 +49,7 @@ export default {
             tempNode: this.entryNode,
             completeContent: [],
             grade: null,
-            status: 1,
-
-            comments: [{
-                message: 'I have seen you do better.',
-                person: 'Peter'
-            }, {
-                message: 'This is awesome!',
-                person: 'Stephen'
-            }]
+            status: 1
         }
     },
     watch: {
@@ -105,9 +97,6 @@ export default {
                     }
                 }
             }
-        },
-        addComment: function (newComments) {
-            this.comments = newComments
         },
         commitGrade: function () {
             if (this.grade !== null) {

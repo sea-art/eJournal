@@ -1,17 +1,17 @@
-from VLE.models import User
-from VLE.models import Course
-from VLE.models import Assignment
-from VLE.models import Journal
-from VLE.models import Participation
-from VLE.models import Role
+"""
+permissions.py.
+
+All the permission functions.
+"""
+from VLE.models import Participation, Role
 
 from django.forms.models import model_to_dict
 
 
 def check_permissions(user, cID, permissionList):
-    """Check whether the user has the right permissions to access the given
-    course functionality.
+    """Check if the user has the needed permissions.
 
+    Check whether the user has the right permissions to access the given course functionality.
     Arguments:
     user -- user that did the request.
     cID -- course ID used to validate the request.
@@ -39,7 +39,9 @@ def get_role(user, cID):
 
 
 def get_permissions(user, cID=-1):
-    """Get the permissions of the given user in the given course. The
+    """Get permissions given a user.
+
+    Get the permissions of the given user in the given course. The
     permissions are returned in dictionary format. For site-wide permissions
     when the user is not within a course, use cID == -1.
 
