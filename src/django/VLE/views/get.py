@@ -378,7 +378,7 @@ def get_entrycomments(request, entryID):
 
 @api_view(['POST'])
 def lti_grade_replace_result(request):
-    """i_grade_replace_result.
+    """lti_grade_replace_result.
 
     Replace a grade on the LTI instance based on the request.
     """

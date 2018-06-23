@@ -1,7 +1,7 @@
 """
 edag.py.
 
-Usefull edag functions.
+Useful edag functions.
 """
 from django.db.models import Case, When
 from django.utils import timezone

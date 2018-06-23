@@ -12,7 +12,16 @@ import django.utils.timezone as timezone
 
 
 def make_user(username, password, email=None, lti_id=None, profile_picture=None, is_admin=False):
-    """Create a user."""
+    """Create a user.
+
+    Arguments:
+    username -- username (is the user came from the UvA canvas, this will be its studentID)
+    password -- password of the user to login
+    email -- mail of the user (default: none)
+    lti_id -- to link the user to canvas (default: none)
+    profile_picture -- profile picture of the user (default: none)
+    is_admin -- if the user needs all permissions, set this true (default: False)
+    """
     user = User(username=username, email=email, lti_id=lti_id, is_admin=is_admin)
     user.save()
     user.set_password(password)
@@ -25,14 +34,28 @@ def make_user(username, password, email=None, lti_id=None, profile_picture=None,
 
 
 def make_participation(user=None, course=None, role=None):
-    """Create a participation."""
+    """Create a participation.
+
+    Arguments:
+    user -- user that participates
+    course -- course the user participates in
+    role -- role the user has on the course
+    """
     participation = Participation(user=user, course=course, role=role)
     participation.save()
     return participation
 
 
 def make_course(name, abbrev, startdate=None, author=None, lti_id=None):
-    """Create a course."""
+    """Create a course.
+
+    Arguments:
+    name -- name of the course
+    abbrev -- abbreviation of the course
+    startdate -- startdate of the course
+    author -- author of the course, this will also get the teacher role as participation
+    lti_id -- potential lti_id, this is to link the canvas course to the VLE course.
+    """
     course = Course(name=name, abbreviation=abbrev, startdate=startdate, author=author, lti_id=lti_id)
     course.save()
     if author:
@@ -147,8 +170,9 @@ def make_entry(template, posttime=timezone.now()):
     """Create a new entry in a journal.
 
     Posts it at the specified moment, or when unset, now.
-    -journal is the journal to post the entry in.
-    -posttime is the time of posting, defaults to current time.
+    Arguments:
+    journal -- is the journal to post the entry in.
+    posttime -- is the time of posting (defaults: now).
     """
     # TODO: Too late logic.
 
@@ -179,7 +203,7 @@ def make_content(entry, data, field=None):
 
 
 def make_deadline(datetime=datetime.datetime.now(), points=None):
-    """Make dealdine/points.
+    """Make deadline (with possible points).
 
     Arguments:
     datetime -- time the deadline ends (default: now)
@@ -203,7 +227,18 @@ def make_journal_format():
 def make_role(name, can_edit_grades=False, can_view_grades=False, can_edit_assignment=False,
               can_view_assignment=False, can_submit_assignment=False, can_edit_course=False,
               can_delete_course=False):
-    """Make a role."""
+    """Make a role.
+
+    Arguments:
+    name -- name of the role (needs to be unique)
+    can_edit_grades -- Can edit grades
+    can_view_grades -- Can view grades
+    can_edit_assignment -- Can edit assignment
+    can_view_assignment -- Can view assignment
+    can_submit_assignment -- Can submit assignment
+    can_edit_course -- Can edit course
+    can_delete_course -- Can delete course
+    """
     role = Role(
         name=name,
         can_edit_grades=can_edit_grades,
@@ -218,14 +253,18 @@ def make_role(name, can_edit_grades=False, can_view_grades=False, can_edit_assig
     return role
 
 
-def make_entrycomment(entryID, author, text):
+def make_entrycomment(entry, author, text):
     """Make an Entry Comment.
 
     Make an Entry Comment for an entry based on its ID.
     With the author and the given text.
+    Arguments:
+    entry -- entry where the comment belongs to
+    author -- author of the comment
+    text -- content of the comment
     """
     return EntryComment.objects.create(
-        entry=entryID,
+        entry=entry,
         author=author,
         text=text
     )
