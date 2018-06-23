@@ -184,6 +184,15 @@ input, select {
     width: 50px;
 }
 
+.add-icon {
+    fill: var(--theme-light-grey) !important;
+    cursor: pointer;
+}
+
+.add-icon:hover {
+    fill: var(--theme-add-selected) !important;
+}
+
 .add-button {
     border-color: var(--theme-blue);
     background-color: var(--theme-add-unselected);

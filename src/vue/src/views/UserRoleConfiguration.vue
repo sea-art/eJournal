@@ -7,7 +7,7 @@
                     <tr v-if="windowWidth > 750">
                         <th/>
                         <th v-for="role in roles" :key="'th-' + role">{{ role }}</th>
-                        <th><icon name="plus-square" @click.native="modalShow = !modalShow" class="eye-icon" scale="1.75"></icon></th>
+                        <th><icon name="plus-square" @click.native="modalShow = !modalShow" class="add-icon" scale="1.75"></icon></th>
                     </tr>
                     <tr v-else>
                         <th/>
@@ -15,7 +15,7 @@
                             class="select-center mb-3"
                             v-model="selectedRole"
                             :options="selectRoles"/>
-                        <th><icon name="plus-square" @click.native="modalShow = !modalShow" class="eye-icon" scale="1.75"></icon></th>
+                        <th><icon name="plus-square" @click.native="modalShow = !modalShow" class="add-icon" scale="1.75"></icon></th>
                     </tr>
                 </thead>
                 <tbody v-if="windowWidth > 750">
@@ -51,6 +51,7 @@
                 v-model="modalShow"
                 hide-footer>
                 <b-form-input
+                    @keyup.enter.native="addRole"
                     v-model="newRole"
                     class="multi-form"
                     ref="roleNameInput"
