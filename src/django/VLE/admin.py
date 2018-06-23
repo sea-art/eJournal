@@ -1,5 +1,10 @@
+"""
+admin.py.
+
+Give admin rights to edit the VLE models.
+"""
 from django.contrib import admin
-from .models import *
+from VLE.models import User, Course, Assignment, Journal, Entry, Participation, Role
 
 admin.site.register(User)
 admin.site.register(Course)
