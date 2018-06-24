@@ -130,7 +130,7 @@ class Participation(models.Model):
         unique_together = ('user', 'course',)
 
     def __str__(self):
-        return "usr: " + str(self.user) + " crs: " + str(self.course) + " role: " + str(self.role)
+        return "usr: " + str(self.user) + ", crs: " + str(self.course) + ", role: " + str(self.role)
 
 
 class Assignment(models.Model):
