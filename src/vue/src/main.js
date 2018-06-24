@@ -35,7 +35,8 @@ new Vue({
         /* #############################################################
          *              Permissions,
          * Front-end interface for all possible permissions.
-         * For an overview see: https://docs.google.com/spreadsheets/d/1M7KnEKL3cG9PMWfQi9HIpRJ5xUMou4Y2plnRgke--Tk/edit?usp=sharing
+         * For an overview see:
+         * https://docs.google.com/spreadsheets/d/1M7KnEKL3cG9PMWfQi9HIpRJ5xUMou4Y2plnRgke--Tk
          *
          * ##############################################################
          */

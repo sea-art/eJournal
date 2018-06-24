@@ -1,17 +1,23 @@
-# Database file
+"""
+models.py.
+
+Database file
+"""
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
 
 
 class User(AbstractUser):
-    """
+    """User.
+
     User is an entity in the database with the following features:
     - email: email of the user.
     - USERNAME_FIELD: username of the username.
     - password: the hash of the password of the user.
     - lti_id: the DLO id of the user.
     """
+
     email = models.EmailField(
         null=True,
         blank=True,
@@ -33,11 +39,13 @@ class User(AbstractUser):
     )
 
     def __str__(self):
+        """toString."""
         return self.username + " (" + str(self.id) + ")"
 
 
 class Course(models.Model):
-    """
+    """Course.
+
     A Course entity has the following features:
     - name: name of the course.
     - author: the creator of the course.
@@ -45,6 +53,7 @@ class Course(models.Model):
     - startdate: the date that the course starts.
     - lti_id: the id of the course linked over LTI.
     """
+
     name = models.TextField()
     abbreviation = models.TextField(
         max_length=4,
@@ -74,11 +83,16 @@ class Course(models.Model):
     )
 
     def __str__(self):
+        """toString."""
         return self.name + " (" + str(self.id) + ")"
 
 
 class Role(models.Model):
-    """
+    """Role.
+
+    A complete overview of the role requirements can be found here:
+    https://docs.google.com/spreadsheets/d/1M7KnEKL3cG9PMWfQi9HIpRJ5xUMou4Y2plnRgke--Tk
+
     A role defines the permissions of a user group within a course.
     - name: name of the role
     - list of permissions (can_...)
@@ -90,13 +104,13 @@ class Role(models.Model):
 
     # Course permissions.
     can_edit_course_roles = models.BooleanField(default=False)
-    can_add_course = models.BooleanField(default=False)
+    # GLOBAL: can_add_course
     can_view_course_participants = models.BooleanField(default=False)
     can_edit_course = models.BooleanField(default=False)
     can_delete_course = models.BooleanField(default=False)
 
     # Assignment permissions
-    # GLOBAL: can_add_assignment
+    can_add_assignment = models.BooleanField(default=False)
     can_view_assigment_participants = models.BooleanField(default=False)
     can_delete_assignment = models.BooleanField(default=False)
     can_publish_assigment_grades = models.BooleanField(default=False)
@@ -108,14 +122,16 @@ class Role(models.Model):
     can_comment_journal = models.BooleanField(default=False)
 
     def __str__(self):
+        """toString."""
         return str(self.name) + " (" + str(self.id) + ")"
 
 
 class Participation(models.Model):
-    """
+    """Participation.
+
     A participation defines the way a user interacts within a certain course.
     The user is now linked to the course, and has a set of permissions
-    associated with it's role.
+    associated with its role.
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
@@ -127,14 +143,18 @@ class Participation(models.Model):
     )
 
     class Meta:
+        """Meta data for the model: unique_together."""
+
         unique_together = ('user', 'course',)
 
     def __str__(self):
+        """toString."""
         return "usr: " + str(self.user) + ", crs: " + str(self.course) + ", role: " + str(self.role)
 
 
 class Assignment(models.Model):
-    """
+    """Assignemnt.
+
     An Assignment entity has the following features:
     - name: name of the assignment.
     - description: description for the assignment.
@@ -144,6 +164,7 @@ class Assignment(models.Model):
     holds. The format determines how a students' journal is structured.
     - lti_id: The lti id of the assignment linked over lti.
     """
+
     name = models.TextField()
     description = models.TextField(
         null=True,
@@ -169,16 +190,19 @@ class Assignment(models.Model):
     )
 
     def __str__(self):
+        """toString."""
         return self.name + " (" + str(self.id) + ")"
 
 
 class Journal(models.Model):
-    """
+    """Journal.
+
     A journal is a collection of Nodes that holds the student's
     entries, deadlines and more. It contains the following:
     - assignment: a foreign key linked to an assignment.
     - user: a foreign key linked to a user.
     """
+
     assignment = models.ForeignKey(
         'Assignment',
         on_delete=models.CASCADE,
@@ -190,18 +214,21 @@ class Journal(models.Model):
     )
 
     def __str__(self):
+        """toString."""
         return self.assignment.name + " from " + self.user.username
 
     class Meta:
-        """
-        A class for meta data.
+        """A class for meta data.
+
         - unique_together: assignment and user must be unique together.
         """
+
         unique_together = ('assignment', 'user',)
 
 
 class Node(models.Model):
-    """
+    """Node.
+
     The Node is an EDAG component.
     It can represent many things.
     There are three types of nodes:
@@ -231,6 +258,7 @@ class Node(models.Model):
         the Format. In the Format it is assigned a
         deadline and a 'forced template'.
     """
+
     PROGRESS = 'p'
     ENTRY = 'e'
     ENTRYDEADLINE = 'd'
@@ -248,7 +276,7 @@ class Node(models.Model):
     entry = models.OneToOneField(
         'Entry',
         null=True,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
     )
 
     journal = models.ForeignKey(
@@ -264,13 +292,15 @@ class Node(models.Model):
 
 
 class JournalFormat(models.Model):
-    """
+    """JournalFormat.
+
     Format of a journal.
     The format determines how a students' journal is structured.
     See PresetNodes for attached 'default' nodes.
     - available_templates are those available in 'Entry' nodes.
       'Entrydeadline' nodes hold their own forced template.
     """
+
     PERCENTAGE = 'PE'
     GRADE = 'GR'
     TYPES = (
@@ -290,11 +320,13 @@ class JournalFormat(models.Model):
     )
 
     def __str__(self):
+        """toString."""
         return str(self.pk)
 
 
 class PresetNode(models.Model):
-    """
+    """PresetNode.
+
     A preset node is a node that has been pre-defined by the teacher.
     It contains the following features:
     - type: the type of the preset node (progress or entrydeadline node).
@@ -302,6 +334,7 @@ class PresetNode(models.Model):
     - forced_template: the template for this preset node - null if PROGRESS node.
     - format: a foreign key linked to a format.
     """
+
     TYPES = (
         (Node.PROGRESS, 'progress'),
         (Node.ENTRYDEADLINE, 'entrydeadline'),
@@ -330,7 +363,9 @@ class PresetNode(models.Model):
 
 
 class Deadline(models.Model):
-    """A Deadline has the following features:
+    """Deadline.
+
+    A Deadline has the following features:
     - datetime: the date where the deadline closes
     - points: optionally the amount of points required for this deadline.
     """
@@ -343,16 +378,20 @@ class Deadline(models.Model):
     )
 
     def __str__(self):
+        """toString."""
         return str(self.pk)
 
 
 class Entry(models.Model):
-    """An Entry has the following features:
+    """Entry.
+
+    An Entry has the following features:
     - journal: a foreign key linked to an Journal.
     - createdate: the date and time when the entry was posted.
     - late: if the entry was posted late or not.
     - TODO: edited_at
     """
+
     template = models.ForeignKey(
         'EntryTemplate',
         on_delete=models.SET_NULL,
@@ -370,14 +409,17 @@ class Entry(models.Model):
     )
 
     def __str__(self):
+        """toString."""
         return str(self.pk) + " " + str(self.grade)
 
 
 class Counter(models.Model):
-    """
+    """Counter.
+
     A single counter class which can be used to keep track of incremental values
     which do not belong to another object like the message ID for LTI messages.
     """
+
     name = models.TextField(
         null=False
     )
@@ -386,26 +428,32 @@ class Counter(models.Model):
     )
 
     def __str__(self):
+        """toString."""
         return self.name + " is on " + self.count
 
 
 class EntryTemplate(models.Model):
-    """
+    """EntryTemplate.
+
     A template for an Entry.
     """
+
     name = models.TextField()
     max_grade = models.IntegerField(
         default=1,
     )
 
     def __str__(self):
+        """toString."""
         return self.name
 
 
 class Field(models.Model):
-    """
+    """Field.
+
     Defines the fields of an EntryTemplate
     """
+
     TEXT = 't'
     IMG = 'i'
     FILE = 'f'
@@ -427,13 +475,16 @@ class Field(models.Model):
     )
 
     def __str__(self):
+        """toString."""
         return self.template.name + " field: " + self.location
 
 
 class Content(models.Model):
-    """
+    """Content.
+
     Defines the content of an Entry
     """
+
     entry = models.ForeignKey(
         'Entry',
         on_delete=models.CASCADE
@@ -447,10 +498,12 @@ class Content(models.Model):
 
 
 class EntryComment(models.Model):
-    """
+    """EntryComment.
+
     EntryComments contain the comments given to the entries.
     It is linked to a single entry with a single author and the comment text.
     """
+
     entry = models.ForeignKey(
         'Entry',
         on_delete=models.CASCADE

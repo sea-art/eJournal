@@ -1,22 +1,29 @@
-from rest_framework.decorators import api_view
-from django.http import JsonResponse
+"""
+get.py.
 
+API functions that handle the get requests.
+"""
+from rest_framework.decorators import api_view
+from django.http import JsonResponse, HttpResponse
+from django.conf import settings
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.shortcuts import redirect
+
+import json
 import statistics as st
 
-import VLE.factory as factory
+import VLE.lti_launch as lti
+from VLE.lti_grade_passback import GradePassBackRequest
 import VLE.edag as edag
 import VLE.utils as utils
-
-from VLE.serializers import *
-from VLE.permissions import *
-
-from VLE.lti_launch import *
-from VLE.lti_grade_passback import *
+from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment
+import VLE.serializers as serialize
+import VLE.permissions as permission
 
 
 @api_view(['GET'])
 def get_own_user_data(request):
-    """Get the data linked to the logged in user
+    """Get the data linked to the logged in user.
 
     Arguments:
     request -- the request that was send with
@@ -27,7 +34,7 @@ def get_own_user_data(request):
     if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    user_dict = user_to_dict(user)
+    user_dict = serialize.user_to_dict(user)
     user_dict['grade_notifications'] = user.grade_notifications
     user_dict['comment_notifications'] = user.comment_notifications
     return JsonResponse({'result': 'success', 'user': user_dict}, status=200)
@@ -35,7 +42,7 @@ def get_own_user_data(request):
 
 @api_view(['GET'])
 def get_course_data(request, cID):
-    """Get the data linked to a course ID
+    """Get the data linked to a course ID.
 
     Arguments:
     request -- the request that was send with
@@ -47,15 +54,14 @@ def get_course_data(request, cID):
     if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    course = course_to_dict(Course.objects.get(pk=cID))
+    course = serialize.course_to_dict(Course.objects.get(pk=cID))
 
     return JsonResponse({'result': 'success', 'course': course}, status=200)
 
 
 @api_view(['GET'])
 def get_course_users(request, cID):
-    """Get all users for a given course, including their
-    role for this course.
+    """Get all users for a given course, including their role for this course.
 
     Arguments:
     request -- the request
@@ -74,13 +80,13 @@ def get_course_users(request, cID):
 
     participations = course.participation_set.all()
     return JsonResponse({'result': 'success',
-                         'users': [participation_to_dict(participation)
+                         'users': [serialize.participation_to_dict(participation)
                                    for participation in participations]}, status=200)
 
 
 @api_view(['GET'])
 def get_user_courses(request):
-    """Get the courses that are linked to the user linked to the request
+    """Get the courses that are linked to the user linked to the request.
 
     Arguments:
     request -- the request that was send with
@@ -95,13 +101,13 @@ def get_user_courses(request):
     courses = []
 
     for course in user.participations.all():
-        courses.append(course_to_dict(course))
+        courses.append(serialize.course_to_dict(course))
 
     return JsonResponse({'result': 'success', 'courses': courses}, status=200)
 
 
 def get_teacher_course_assignments(user, course):
-    """Get the assignments from the course ID with extra information for the teacher
+    """Get the assignments from the course ID with extra information for the teacher.
 
     Arguments:
     user -- user that requested the assignments, this is to validate the request
@@ -113,13 +119,13 @@ def get_teacher_course_assignments(user, course):
 
     assignments = []
     for assignment in course.assignment_set.all():
-        assignments.append(assignment_to_dict(assignment))
+        assignments.append(serialize.assignment_to_dict(assignment))
 
     return assignments
 
 
 def get_student_course_assignments(user, course):
-    """Get the assignments from the course ID with extra information for the student
+    """Get the assignments from the course ID with extra information for the student.
 
     Arguments:
     user -- user that requested the assignments, this is to validate the request
@@ -130,14 +136,14 @@ def get_student_course_assignments(user, course):
     # TODO: check permission
     assignments = []
     for assignment in Assignment.objects.get_queryset().filter(courses=course, journal__user=user):
-        assignments.append(student_assignment_to_dict(assignment, user))
+        assignments.append(serialize.student_assignment_to_dict(assignment, user))
 
     return assignments
 
 
 @api_view(['GET'])
 def get_course_assignments(request, cID):
-    """Get the assignments from the course ID with extra information for the requested user
+    """Get the assignments from the course ID with extra information for the requested user.
 
     Arguments:
     request -- the request that was send with
@@ -152,7 +158,8 @@ def get_course_assignments(request, cID):
     course = Course.objects.get(pk=cID)
     participation = Participation.objects.get(user=user, course=course)
 
-    if participation.role.can_view_assignment:
+    # Check whether the user can edit the course.
+    if participation.role.can_grade_journal:
         return JsonResponse({
             'result': 'success',
             'assignments': get_teacher_course_assignments(user, course)
@@ -164,16 +171,19 @@ def get_course_assignments(request, cID):
         }, status=200)
 
 
+# TODO: is het commentaar correct?
 @api_view(['GET'])
 def get_assignment_data(request, cID, aID):
-    """Get the data linked to an assignemnt ID
+    """Get the data linked to an assignemnt ID.
 
     Arguments:
     request -- the request that was send with
     cID -- course ID given with the request
     aID -- assignemnt ID given with the request
 
-    Returns a json string with the assignemnt data for the requested user
+    Returns a json string with the assignment data for the requested user.
+    Depending on the permissions, return the assignment or the student's
+    journal.
     """
     user = request.user
     if not user.is_authenticated:
@@ -183,21 +193,24 @@ def get_assignment_data(request, cID, aID):
     assignment = Assignment.objects.get(pk=aID)
     participation = Participation.objects.get(user=user, course=course)
 
-    if participation.role.can_view_assignment:
+    # TODO navragen: is de permissie juist?
+    if participation.role.can_grade_journal:
+        # Return the assignment.
         return JsonResponse({
             'result': 'success',
-            'assignment': assignment_to_dict(assignment)
+            'assignment': serialize.assignment_to_dict(assignment)
         }, status=200)
     else:
+        # Return the student's journal.
         return JsonResponse({
             'result': 'success',
-            'assignment': student_assignment_to_dict(assignment, request.user),
+            'assignment': serialize.student_assignment_to_dict(assignment, request.user),
         }, status=200)
 
 
 @api_view(['GET'])
 def get_assignment_journals(request, aID):
-    """Get the student submitted journals of one assignment
+    """Get the student submitted journals of one assignment.
 
     Arguments:
     request -- the request that was send with
@@ -206,25 +219,25 @@ def get_assignment_journals(request, aID):
     Returns a json string with the journals
     """
     user = request.user
-    if not request.user.is_authenticated:
+    if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     try:
         assignment = Assignment.objects.get(pk=aID)
         # TODO: Not first, for demo.
         course = assignment.courses.first()
-        participation = Participation.objects.get(user=request.user, course=course)
+        participation = Participation.objects.get(user=user, course=course)
     except (Participation.DoesNotExist, Assignment.DoesNotExist):
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Assignment or Participation does not exist.'}, status=404)
 
-    if not participation.role.can_view_assignment:
+    if not participation.role.can_grade_journal:
         return JsonResponse({'result': '403 Forbidden'}, status=403)
 
     journals = []
 
     for journal in assignment.journal_set.all():
-        journals.append(journal_to_dict(journal))
+        journals.append(serialize.journal_to_dict(journal))
 
     stats = {}
     if journals:
@@ -253,7 +266,7 @@ def get_upcoming_deadlines(request):
     # TODO: Only take user specific upcoming enties
     deadlines = []
     for assign in Assignment.objects.all():
-        deadlines.append(deadline_to_dict(assignment))
+        deadlines.append(serialize.deadline_to_dict(assign))
 
     return JsonResponse({'result': 'success', 'deadlines': deadlines}, status=200)
 
@@ -261,15 +274,15 @@ def get_upcoming_deadlines(request):
 @api_view(['GET'])
 def get_course_permissions(request, cID):
     """Get the permissions of a course.
+
     Arguments:
     request -- the request that was sent
     cID     -- the course id
-
     """
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    roleDict = get_permissions(request.user, int(cID))
+    roleDict = permission.get_permissions(request.user, int(cID))
 
     return JsonResponse({'result': 'success',
                          'permissions': roleDict}, status=200)
@@ -278,6 +291,7 @@ def get_course_permissions(request, cID):
 @api_view(['GET'])
 def get_nodes(request, jID):
     """Get all nodes contained within a journal.
+
     Arguments:
     request -- the request that was sent
     jID     -- the journal id
@@ -289,7 +303,7 @@ def get_nodes(request, jID):
 
     journal = Journal.objects.get(pk=jID)
     return JsonResponse({'result': 'success',
-                         'nodes': edag.get_nodes_dict(journal)}, status=200)
+                         'nodes': edag.get_nodes_dict(journal, request.user)}, status=200)
 
 
 @api_view(['GET'])
@@ -312,7 +326,7 @@ def get_format(request, aID):
                              'description': 'Assignment does not exist.'}, status=404)
 
     return JsonResponse({'result': 'success',
-                         'nodes': get_format_dict(assignment.format)}, status=200)
+                         'nodes': serialize.get_format_dict(assignment.format)}, status=200)
 
 
 @api_view(['POST'])
@@ -357,30 +371,25 @@ def get_names(request):
     return result
 
 
-@api_view(['POST'])
-def get_entrycomments(request):
-    """
-    Get the comments belonging to the specified entry based on its entryID.
-    """
+@api_view(['GET'])
+def get_entrycomments(request, entryID):
+    """Get the comments belonging to the specified entry based on its entryID."""
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    try:
-        entryID = utils.get_required_post_params(request.data, "entryID")
-    except KeyError:
-        return utils.keyerror_json("entryID")
-
     entrycomments = EntryComment.objects.filter(entry=entryID)
     return JsonResponse({'result': 'success',
-                         'entrycomments': [entrycomment_to_dict(comment) for comment in entrycomments]}, status=200)
+                         'entrycomments': [serialize.entrycomment_to_dict(comment) for comment in entrycomments]},
+                        status=200)
 
 
 @api_view(['POST'])
 def lti_grade_replace_result(request):
-    # TODO Extend the docstring with what is important in the request variable.
-    """
+    """lti_grade_replace_result.
+
     Replace a grade on the LTI instance based on the request.
     """
+    # TODO Extend the docstring with what is important in the request variable.
 
     secret = settings.LTI_SECRET
     key = settings.LTI_KEY
@@ -402,17 +411,17 @@ def lti_launch(request):
     key = settings.LTI_KEY
 
     print('key = postkey', key == request.POST['oauth_consumer_key'])
-    valid, err = OAuthRequestValidater.check_signature(key, secret, request)
+    valid, err = lti.OAuthRequestValidater.check_signature(key, secret, request)
 
     if not valid:
         return HttpResponse('unsuccesfull auth, {0}'.format(err))
 
     # Select or create the user, course, assignment and journal.
     roles = json.load(open('config.json'))
-    user = select_create_user(request.POST)
-    course = select_create_course(request.POST, user, roles)
-    assignment = select_create_assignment(request.POST, user, course, roles)
-    journal = select_create_journal(request.POST, user, assignment, roles)
+    user = lti.select_create_user(request.POST)
+    course = lti.select_create_course(request.POST, user, roles)
+    assignment = lti.select_create_assignment(request.POST, user, course, roles)
+    journal = lti.select_create_journal(request.POST, user, assignment, roles)
 
     # Check if the request comes from a student or not.
     roles = json.load(open('config.json'))
