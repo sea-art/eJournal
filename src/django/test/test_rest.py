@@ -89,7 +89,7 @@ class RestTests(TestCase):
         c1 = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
         c2 = factory.make_course("BeeldBewerken", "BB")
         c3 = factory.make_course("Reflectie en Digitale Samenleving", "RDS")
-        c4 = factory.make_course("Statistisch Redeneren", "SR")
+        factory.make_course("Statistisch Redeneren", "SR")
 
         self.user_role = factory.make_user("test123", "test")
         role = factory.make_role(name='TA', can_view_assignment=True)

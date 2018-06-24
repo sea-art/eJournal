@@ -28,7 +28,7 @@ def connect_course_lti(request):
     course = Course.objects.get(pk=request.data['cID'])
     course.lti_id = request.data['lti_id']
     course.save()
-    return JsonResponse({'result': 'success', 'course': course_to_dict(course)})
+    return JsonResponse({'result': 'success', 'course': serialize.course_to_dict(course)})
 
 
 @api_view(['POST'])
@@ -77,7 +77,7 @@ def connect_assignment_lti(request):
         assignment.points_possible = request.data['points_possible']
     assignment.save()
 
-    return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)})
+    return JsonResponse({'result': 'success', 'assignment': serialize.assignment_to_dict(assignment)})
 
 
 @api_view(['POST'])

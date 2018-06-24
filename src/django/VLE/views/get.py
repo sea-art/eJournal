@@ -4,15 +4,13 @@ get.py.
 API functions that handle the get requests.
 """
 from rest_framework.decorators import api_view
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.conf import settings
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.shortcuts import redirect
 
 import statistics as st
 import json
-from django.conf import settings
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 import VLE.lti_launch as lti
 from VLE.lti_grade_passback import GradePassBackRequest
@@ -21,8 +19,6 @@ import VLE.utils as utils
 from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment
 import VLE.serializers as serialize
 import VLE.permissions as permission
-import VLE.lti_launch as lti
-from VLE.lti_grade_passback import GradePassBackRequest
 
 # VUE ENTRY STATE
 BAD_AUTH = '-1'
@@ -156,7 +152,7 @@ def get_linkable_courses_user(user):
 
             if course.pk not in addedCourses:
                 # Add all courses which the teacher can edit.
-                courses.append(course_to_dict(course))
+                courses.append(serialize.course_to_dict(course))
                 addedCourses.append(course.pk)
 
     return courses
@@ -397,7 +393,7 @@ def get_user_teacher_courses(request):
                                       participation__role__can_edit_course=True)
     courses = []
     for course in q_courses:
-        courses.append(course_to_dict(course))
+        courses.append(serialize.course_to_dict(course))
     return JsonResponse({'result': 'success', 'courses': courses}, status=200)
 
 
@@ -467,7 +463,7 @@ def get_assignment_by_lti_id(request, lti_id):
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
     try:
         assignment = Assignment.objects.get(lti_id=lti_id)
-        return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)}, status=200)
+        return JsonResponse({'result': 'success', 'assignment': serialize.assignment_to_dict(assignment)}, status=200)
     except Assignment.DoesNotExist:
         return JsonResponse({'result': '204 No content'}, status=204)
 
@@ -540,7 +536,7 @@ def lti_launch(request):
                 q_values = [token, access, NO_COURSE]
                 return redirect(lti.create_lti_query_link(q_names, q_values))
 
-        assignment = check_assignment_lti(request.POST, user)
+        assignment = serialize.check_assignment_lti(request.POST, user)
         if assignment is None:
             if role == 'Teacher':
                 q_names = ['jwt_refresh', 'jwt_access', 'state', 'cID']
