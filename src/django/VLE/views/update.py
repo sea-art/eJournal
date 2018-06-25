@@ -160,8 +160,8 @@ def update_format(request):
                              'description': 'Format does not exist.'},
                             status=404)
 
-    format.available_templates.all().delete()
-    format.unused_templates.all().delete()
+    # format.available_templates.all().delete()
+    # format.unused_templates.all().delete()
 
     for template_field in templates:
         tID = template_field['tID']
