@@ -16,7 +16,7 @@ import VLE.lti_launch as lti
 from VLE.lti_grade_passback import GradePassBackRequest
 import VLE.edag as edag
 import VLE.utils as utils
-from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment, Role, User
+from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment, Role
 import VLE.serializers as serialize
 import VLE.permissions as permission
 
@@ -338,7 +338,7 @@ def get_course_roles(request, cID):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    request_user_role = Participation.objects.get(user=request.user.id,course=cID).role
+    request_user_role = Participation.objects.get(user=request.user.id, course=cID).role
 
     if not request_user_role.can_edit_course_roles:
         return JsonResponse({'result': '403 Forbidden'}, status=403)

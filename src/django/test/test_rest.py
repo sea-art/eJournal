@@ -77,6 +77,7 @@ class RestTests(TestCase):
 
         self.user = factory.make_user(self.username, self.password)
         self.student = factory.make_user('Student', 'pass')
+        self.teacher = factory.make_user('Teacher', 'pass')
 
         u1 = factory.make_user("Zi-Long", "pass")
         u2 = factory.make_user("Rick", "pass")
@@ -88,15 +89,17 @@ class RestTests(TestCase):
         c3 = factory.make_course("Reflectie en Digitale Samenleving", "RDS")
 
         self.user_role = factory.make_user("test123", "test")
-        role = factory.make_role('TA', c1, can_grade_journal=True, can_view_assignment_participants=True)
-        student_role = factory.make_role('SD', c1)
-
-        factory.make_participation(self.user_role, c1, role)
+        role_test = factory.make_role('TA2', c1, can_grade_journal=True, can_view_assignment_participants=True)
+        factory.make_participation(self.user_role, c1, role_test)
 
         cs = [c1, c2, c3]
         for c in cs:
+            role = factory.make_role('TA', c, can_grade_journal=True, can_view_assignment_participants=True)
+            teacher_role = factory.make_role_all_permissions('TE', c)
+            student_role = factory.make_role('SD', c)
             factory.make_participation(self.user, c, role)
             factory.make_participation(self.student, c, student_role)
+            factory.make_participation(self.teacher, c, teacher_role)
 
         t = factory.make_entry_template('template_test')
         f = factory.make_format([t], 5)
@@ -198,7 +201,7 @@ class RestTests(TestCase):
     def test_update_user_role_course(self):
         """Test user role update in a course."""
         user_role = Participation.objects.get(user=self.user_role, course=1).role.name
-        self.assertEquals(user_role, 'TA')
+        self.assertEquals(user_role, 'TA2')
 
         login = logging_in(self, self.username, self.password)
         api_post_call(
@@ -286,3 +289,11 @@ class RestTests(TestCase):
         self.assertEquals(assignment.courses.count(), 1)
         api_post_call(self, '/api/delete_assignment/', {'cID': 2, 'aID': 1}, login)
         self.assertEquals(Assignment.objects.filter(pk=1).count(), 0)
+
+    def test_get_course_roles(self):
+        """
+        Test the get delete assignment function.
+        """
+        login = logging_in(self, 'Teacher', 'pass')
+        result = api_get_call(self, '/api/get_course_roles/1/', login)
+        self.assertEquals(len(result.json()['roles']), 4)
