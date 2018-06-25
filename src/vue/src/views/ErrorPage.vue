@@ -5,10 +5,11 @@
         </b-col>
         <b-col cols="12">
             Unfortunately the page you are looking for is not here.<br/>
-            You might want to try going back to the homepage or report a problem.
+            You might want to try going back to the homepage or report the problem.
         </b-col>
         <b-col cols="12">
             <b-button :to='"/Home"'>Home</b-button>
+            <!-- TODO: Add mailto or similar. -->
             <b-button :to='"/Home"'>Contact</b-button>
         </b-col>
     </b-row>
