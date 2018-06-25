@@ -90,20 +90,36 @@ class Course(models.Model):
 class Role(models.Model):
     """Role.
 
+    A complete overview of the role requirements can be found here:
+    https://docs.google.com/spreadsheets/d/1M7KnEKL3cG9PMWfQi9HIpRJ5xUMou4Y2plnRgke--Tk
+
     A role defines the permissions of a user group within a course.
     - name: name of the role
     - list of permissions (can_...)
     """
-
     name = models.TextField()
 
-    can_edit_grades = models.BooleanField(default=False)
-    can_view_grades = models.BooleanField(default=False)
-    can_edit_assignment = models.BooleanField(default=False)
-    can_view_assignment = models.BooleanField(default=False)
-    can_submit_assignment = models.BooleanField(default=False)
+    # GLOBAL: is_admin
+    # GLOBAL: can_edit_institute
+
+    # Course permissions.
+    can_edit_course_roles = models.BooleanField(default=False)
+    # GLOBAL: can_add_course
+    can_view_course_participants = models.BooleanField(default=False)
     can_edit_course = models.BooleanField(default=False)
     can_delete_course = models.BooleanField(default=False)
+
+    # Assignment permissions
+    can_add_assignment = models.BooleanField(default=False)
+    can_view_assignment_participants = models.BooleanField(default=False)
+    can_delete_assignment = models.BooleanField(default=False)
+    can_publish_assigment_grades = models.BooleanField(default=False)
+
+    # Journal permissions.
+    can_grade_journal = models.BooleanField(default=False)
+    can_publish_journal_grades = models.BooleanField(default=False)
+    can_edit_journal = models.BooleanField(default=False)
+    can_comment_journal = models.BooleanField(default=False)
 
     def __str__(self):
         """toString."""
@@ -115,9 +131,8 @@ class Participation(models.Model):
 
     A participation defines the way a user interacts within a certain course.
     The user is now linked to the course, and has a set of permissions
-    associated with it's role.
+    associated with its role.
     """
-
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     role = models.ForeignKey(
@@ -134,7 +149,7 @@ class Participation(models.Model):
 
     def __str__(self):
         """toString."""
-        return "usr: " + str(self.user) + " crs: " + str(self.course) + " role: " + str(self.role)
+        return "usr: " + str(self.user) + ", crs: " + str(self.course) + ", role: " + str(self.role)
 
 
 class Assignment(models.Model):

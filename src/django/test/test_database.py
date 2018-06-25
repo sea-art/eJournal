@@ -92,28 +92,28 @@ class DataBaseTests(TestCase):
 
     def test_permission(self):
         """Test a request that needs a single permission."""
-        role = factory.make_role("Student", can_submit_assignment=True)
+        role = factory.make_role("Student", can_delete_assignment=True)
 
         factory.make_participation(self.usr, self.crs, role)
 
-        self.assertTrue(permissions.check_permissions(self.usr, self.crs.id, ["can_submit_assignment"]))
-        self.assertFalse(permissions.check_permissions(self.usr, self.crs.id, ["can_edit_grades"]))
+        self.assertTrue(permissions.check_permissions(self.usr, self.crs.id, ["can_delete_assignment"]))
+        self.assertFalse(permissions.check_permissions(self.usr, self.crs.id, ["can_grade_journal"]))
 
     def test_permission_multiple(self):
         """Test a request that needs multiple permissions."""
-        role = factory.make_role("TA", can_submit_assignment=True, can_view_grades=True, can_edit_assignment=True)
+        role = factory.make_role("TA", can_delete_assignment=True, can_grade_journal=True, can_add_assignment=True)
 
         factory.make_participation(self.usr, self.crs, role)
 
-        self.assertTrue(permissions.check_permissions(self.usr, self.crs.id, ["can_view_grades"]))
+        self.assertTrue(permissions.check_permissions(self.usr, self.crs.id, ["can_grade_journal"]))
         self.assertFalse(permissions.check_permissions(self.usr, self.crs.id,
-                                                       ["can_edit_grades", "can_edit_assignment"]))
+                                                       ["can_grade_journal", "can_edit_journal"]))
 
     def test_get_permissions_admin(self):
         """Test if the admin had the right permissions."""
         usr = factory.make_user(email='some@other', username='teun2', password='1234', lti_id='abcde', is_admin=True)
         usr.save()
-        role = factory.make_role("TA", can_submit_assignment=True, can_view_grades=True, can_edit_assignment=True)
+        role = factory.make_role("TA", can_delete_assignment=True, can_grade_journal=True, can_add_assignment=True)
 
         factory.make_participation(self.usr, self.crs, role)
 
@@ -126,7 +126,7 @@ class DataBaseTests(TestCase):
 
         The created user should NOT be provided with the admin permission.
         """
-        role = factory.make_role("TA", can_submit_assignment=True, can_view_grades=True, can_edit_assignment=True)
+        role = factory.make_role("TA", can_delete_assignment=True, can_grade_journal=True, can_add_assignment=True)
 
         factory.make_participation(self.usr, self.crs, role)
 
