@@ -21,6 +21,11 @@ export default {
             .then(response => response.data)
     },
 
+    get_unenrolled_users (cID) {
+        return auth.authenticatedGet('/get_unenrolled_users/' + cID + '/')
+            .then(response => response.data.users)
+    },
+
     /* Create a new course. */
     create_new_course (name, abbr, startdate) {
         return auth.authenticatedPost('/create_new_course/', {
@@ -38,6 +43,14 @@ export default {
             abbr: abbr,
             startDate: startDate
         }).then(response => response.data.course)
+    },
+
+    /* Updates the role of a student linked to a course. */
+    update_course_with_studentID (uID, cID) {
+        return auth.authenticatedPost('/update_course_with_studentID/', {
+            uID: uID,
+            cID: cID
+        }).then(response => response.data.result)
     },
 
     /* Deletes an existing course. */
@@ -63,5 +76,4 @@ export default {
             cID: cID
         }).then(response => response.data.result)
     }
-
 }

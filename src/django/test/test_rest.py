@@ -88,7 +88,7 @@ class RestTests(TestCase):
         c3 = factory.make_course("Reflectie en Digitale Samenleving", "RDS")
 
         self.user_role = factory.make_user("test123", "test")
-        role = factory.make_role(name='TA', can_view_assignment=True)
+        role = factory.make_role(name='TA', can_grade_journal=True, can_view_assignment_participants=True)
         student_role = factory.make_role(name='SD')
 
         factory.make_participation(self.user_role, c1, role)

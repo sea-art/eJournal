@@ -1,4 +1,4 @@
-<!-- Loads a preview of a template. -->
+<!-- Loads a preview of an entry. -->
 <template>
     <div v-if="entryNode.entry !== null">
         <b-card class="card main-card no-hover" :class="'dark-border'">
@@ -16,20 +16,31 @@
                             <b>{{ field.title }}</b>
                         </div>
                         <div v-if="field.type=='t'">
-                            {{ completeContent[i].data }}<br><br>
+                            <span class="showEnters">{{ completeContent[i].data }}</span><br><br>
                         </div>
                         <div v-else-if="field.type=='i'">
                         </div>
                         <div v-else-if="field.type=='f'">
                         </div>
                     </div>
-                    <br>
-                    Fill in the grade:<br>
-                    <b-form-input type="number" v-model="grade" placeholder="Grade"></b-form-input>
-                    <b-form-checkbox v-model="status" value=1 unchecked-value=0>
-                        Show grade to student
-                    </b-form-checkbox><br>
-                    <b-button @click="commitGrade">Grade</b-button>
+
+                    <div v-if="$root.canGradeJournal()">
+                        <br>
+                        Fill in the grade:<br>
+                        <b-form-input type="number" v-model="grade" placeholder="Grade"></b-form-input>
+                        <b-form-checkbox v-model="status" value=1 unchecked-value=0>
+                            Show grade to student
+                        </b-form-checkbox><br>
+                        <b-button @click="commitGrade">Grade</b-button>
+                    </div>
+                    <div v-else>
+                        <div v-if="entryNode.entry.published">
+                            {{ entryNode.entry.grade }}
+                        </div>
+                        <div v-else>
+                            To be graded
+                        </div>
+                    </div>
                 </b-col>
             </b-row>
         </b-card>

@@ -2,7 +2,7 @@
     <b-row no-gutters>
         <!-- TODO: reopen bread-crumb when it is working again -->
         <b-col v-if="bootstrapLg()" cols="12">
-            <!-- <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
+            <bread-crumb v-if="bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
         <b-col v-else xl="3" class="left-content">
@@ -10,7 +10,7 @@
         </b-col>
 
         <b-col lg="12" xl="6" order="2" class="main-content">
-            <!-- <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
+            <bread-crumb v-if="!bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
                     <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
@@ -49,7 +49,7 @@ import journal from '@/api/journal'
 import entryPreview from '@/components/EntryPreview.vue'
 
 export default {
-    props: ['cID', 'aID', 'jID'],
+    props: ['jID'],
     data () {
         return {
             currentNode: 0,
@@ -110,7 +110,13 @@ export default {
                 // .then(response => { this.nodes = response.nodes })
         },
         fillDeadline (data) {
-            journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data)
+            journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data, this.nodes[this.currentNode].nID)
+                .catch(_ => alert('Error while creating the entry.'))
+                .then(response => {
+                    this.nodes = response.nodes
+                    this.currentNode = response.added
+                })
+            // journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data)
         },
         progressPoints (progressNode) {
             var tempProgress = 0

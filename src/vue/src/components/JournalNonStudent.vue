@@ -41,7 +41,7 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 import journal from '@/api/journal'
 
 export default {
-    props: ['cID', 'aID', 'jID'],
+    props: ['jID'],
     data () {
         return {
             currentNode: 0,
