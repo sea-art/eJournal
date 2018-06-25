@@ -26,7 +26,7 @@
         <b-modal
             slot="main-content-column"
             ref="connectCourseRef"
-            title="Connect Course"
+            title="Connect course"
             size="lg"
             hide-footer>
                 <connect-course @handleAction="handleConfirm('connectCourseRef')"/>
@@ -40,7 +40,7 @@ import createCourse from '@/components/CreateCourse.vue'
 import connectCourse from '@/components/ConnectCourse.vue'
 
 export default {
-    name: 'LtiCreateConnect',
+    name: 'LtiCreateConnectCourse',
     props: ['lti'],
     components: {
         'bread-crumb': breadCrumb,

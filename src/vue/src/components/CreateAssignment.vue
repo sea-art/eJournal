@@ -15,7 +15,7 @@ import ContentSingleColumn from '@/components/ContentSingleColumn.vue'
 import assignmentApi from '@/api/assignment.js'
 
 export default {
-    name: 'AssignmentCreation',
+    name: 'CreateAssignment',
     props: ['lti'],
     data () {
         return {
@@ -32,7 +32,8 @@ export default {
     },
     methods: {
         onSubmit () {
-            assignmentApi.create_new_assignment(this.form.assignmentName, this.form.assignmentDescription, this.$route.params.cID)
+            assignmentApi.create_new_assignment(this.form.assignmentName,
+                this.form.assignmentDescription, this.$route.params.cID)
                 .then(_ => { this.$emit('handleAction') })
         },
         onReset (evt) {
@@ -45,11 +46,11 @@ export default {
             this.show = false
             this.$nextTick(() => { this.show = true })
         },
-        mounted () {
-            this.form.assignmentName = this.lti.ltiCourseName
-            this.form.ltiAssignID = this.lti.ltiAssignID
-            this.form.pointsPossible = this.lti.ltiPointsPossible
-        }
+    },
+    mounted () {
+        this.form.assignmentName = this.lti.ltiAssignName
+        this.form.ltiAssignID = this.lti.ltiAssignID
+        this.form.pointsPossible = this.lti.ltiPointsPossible
     }
 }
 </script>
