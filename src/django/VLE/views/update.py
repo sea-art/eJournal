@@ -1,15 +1,19 @@
+"""
+update.py.
+
+API functions that handle the update requests.
+"""
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
 
-from VLE.serializers import *
-import VLE.factory as factory
+import VLE.serializers as serialize
 import VLE.utils as utils
-from VLE.views.get import get_own_user_data
+from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, Journal
 
 
 @api_view(['POST'])
 def update_course(request):
-    """Updates an existing course.
+    """Update an existing course.
 
     Arguments:
     request -- the update request that was send with
@@ -28,7 +32,7 @@ def update_course(request):
     course.abbreviation = request.data['abbr']
     course.startdate = request.data['startDate']
     course.save()
-    return JsonResponse({'result': 'success', 'course': course_to_dict(course)}, status=200)
+    return JsonResponse({'result': 'success', 'course': serialize.course_to_dict(course)}, status=200)
 
 
 @api_view(['POST'])
@@ -64,7 +68,7 @@ def update_course_with_studentID(request):
 
 @api_view(['POST'])
 def update_assignment(request):
-    """Updates an existing assignment.
+    """Update an existing assignment.
 
     Arguments:
     request -- the update request that was send with
@@ -83,12 +87,13 @@ def update_assignment(request):
     assignment.description = request.data['description']
     assignment.save()
 
-    return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)}, status=200)
+    return JsonResponse({'result': 'success', 'assignment': serialize.assignment_to_dict(assignment)},
+                        status=200)
 
 
 @api_view(['POST'])
 def update_password(request):
-    """Updates a password.
+    """Update a password.
 
     Arguments:
     request -- the update request that was send with
@@ -112,7 +117,8 @@ def update_password(request):
 
 @api_view(['POST'])
 def update_grade_notification(request):
-    """Updates whether the user gets notified when a grade changes/new grade
+    """Update whether the user gets notified when a grade changes/new grade.
+
     Arguments:
     request -- the request that was send with
 
@@ -133,7 +139,8 @@ def update_grade_notification(request):
 
 @api_view(['POST'])
 def update_comment_notification(request):
-    """Updates whether the user gets notified when a comment changes/new comment
+    """Update whether the user gets notified when a comment changes/new comment.
+
     Arguments:
     request -- the request that was send with
 
@@ -179,7 +186,7 @@ def update_user_role_course(request):
 
 @api_view(['POST'])
 def update_grade_entry(request, eID):
-    """Updates the entry grade
+    """Update the entry grade.
 
     Arguments:
     request -- the request that was send with
@@ -201,7 +208,7 @@ def update_grade_entry(request, eID):
 
 @api_view(['POST'])
 def update_publish_grade_entry(request, eID):
-    """Updates the grade publish status for one entry
+    """Update the grade publish status for one entry.
 
     Arguments:
     request -- the request that was send with
@@ -221,7 +228,7 @@ def update_publish_grade_entry(request, eID):
 
 @api_view(['POST'])
 def update_publish_grades_assignment(request, aID):
-    """Updates the grade publish status for whole assignment
+    """Update the grade publish status for whole assignment.
 
     Arguments:
     request -- the request that was send with
@@ -239,7 +246,7 @@ def update_publish_grades_assignment(request, aID):
 
 @api_view(['POST'])
 def update_publish_grades_journal(request, jID):
-    """Updates the grade publish status for a journal
+    """Update the grade publish status for a journal.
 
     Arguments:
     request -- the request that was send with
@@ -288,7 +295,7 @@ def update_entrycomment(request):
 
 @api_view(['POST'])
 def update_user_data(request):
-    """Updates user data.
+    """Update user data.
 
     Arguments:
     request -- the update request that was send with
@@ -307,4 +314,4 @@ def update_user_data(request):
         user.profile_picture = request.data['picture']
 
     user.save()
-    return JsonResponse({'result': 'success', 'user': user_to_dict(user)}, status=200)
+    return JsonResponse({'result': 'success', 'user': serialize.user_to_dict(user)}, status=200)

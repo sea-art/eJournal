@@ -1,21 +1,29 @@
-from rest_framework.test import APIRequestFactory
+"""
+test_rest.py.
+
+Test all the API calls.
+"""
+
 from django.test import TestCase
 from django.urls import reverse
 import json
 
-from VLE.models import User
-from VLE.models import Participation
-from VLE.models import Role
-from VLE.models import Course
-from VLE.models import Assignment
-from VLE.models import Journal
-from VLE.models import Entry
+from VLE.models import Participation, Assignment, Journal, Entry
 
 import VLE.factory as factory
 import VLE.utils as utils
 
 
 def logging_in(obj, username, password, status=200):
+    """Login using username and password.
+
+    Arguments:
+    username -- username
+    password -- password
+    status -- status it checks for after login (default 200)
+
+    returns the loggin in user.
+    """
     result = obj.client.post(reverse('token_obtain_pair'),
                              json.dumps({'username': username, 'password': password}),
                              content_type='application/json')
@@ -24,6 +32,15 @@ def logging_in(obj, username, password, status=200):
 
 
 def api_get_call(obj, url, login, status=200):
+    """Send an get api call.
+
+    Arguments:
+    url -- url to send the call to
+    login -- credentials of the logged in user
+    status -- status it checks for after login (default 200)
+
+    returns the whatever the api call returns
+    """
     result = obj.client.get(url, {},
                             HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access']))
     obj.assertEquals(result.status_code, status)
@@ -31,6 +48,16 @@ def api_get_call(obj, url, login, status=200):
 
 
 def api_post_call(obj, url, params, login, status=200):
+    """Send an get api call.
+
+    Arguments:
+    url -- url to send the call to
+    params -- extra parameters that the api needs
+    login -- credentials of the logged in user
+    status -- status it checks for after login (default 200)
+
+    returns the whatever the api call returns
+    """
     result = obj.client.post(url, json.dumps(params), content_type='application/json',
                              HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access']))
     obj.assertEquals(result.status_code, status)
@@ -38,10 +65,13 @@ def api_post_call(obj, url, params, login, status=200):
 
 
 class RestTests(TestCase):
+    """Test django rest api calls.
+
+    Test the api calls
     """
-    Test django rest api calls
-    """
+
     def setUp(self):
+        """Set up the test file."""
         self.username = 'test'
         self.password = 'test123'
 
@@ -58,7 +88,7 @@ class RestTests(TestCase):
         c3 = factory.make_course("Reflectie en Digitale Samenleving", "RDS")
 
         self.user_role = factory.make_user("test123", "test")
-        role = factory.make_role(name='TA', can_view_assignment=True)
+        role = factory.make_role(name='TA', can_grade_journal=True, can_view_assignment_participants=True)
         student_role = factory.make_role(name='SD')
 
         factory.make_participation(self.user_role, c1, role)
@@ -76,8 +106,8 @@ class RestTests(TestCase):
         a1.courses.add(c2)
         a2.courses.add(c1)
 
-        j2 = factory.make_journal(a1, u3)
-        j3 = factory.make_journal(a1, u4)
+        factory.make_journal(a1, u3)
+        factory.make_journal(a1, u4)
 
         j = factory.make_journal(a1, self.student)
         jj = factory.make_journal(a1, u2)
@@ -85,29 +115,23 @@ class RestTests(TestCase):
         e2 = factory.make_entry(t)
         e3 = factory.make_entry(t)
         e4 = factory.make_entry(t)
-        n1 = factory.make_node(j, e1)
-        n2 = factory.make_node(j, e2)
-        n3 = factory.make_node(j, e3)
-        n4 = factory.make_node(jj, e4)
+        factory.make_node(j, e1)
+        factory.make_node(j, e2)
+        factory.make_node(j, e3)
+        factory.make_node(jj, e4)
 
     def test_login(self):
-        """
-        Tests if the login is successful.
-        """
+        """Test if the login is successful."""
         result = logging_in(self, self.username, self.password)
         self.assertEquals(result.status_code, 200)
 
     def test_not_logged_in(self):
-        """
-        Tests error for api request call for non-authenticated user.
-        """
+        """Test error for api request call for non-authenticated user."""
         result = self.client.get(reverse('get_user_courses'), {}, format='json')
         self.assertEquals(result.status_code, 401)
 
     def test_get_user_courses(self):
-        """
-        Tests get_user_courses
-        """
+        """Test get_user_courses."""
         login = logging_in(self, self.username, self.password)
 
         result = api_get_call(self, reverse('get_user_courses'), login)
@@ -118,9 +142,7 @@ class RestTests(TestCase):
         self.assertEquals(courses[2]['abbr'], 'RDS')
 
     def test_get_course_assignments(self):
-        """
-        Tests get_course_assignments
-        """
+        """Test get_course_assignments."""
         login = logging_in(self, self.username, self.password)
         result = api_get_call(self, '/api/get_course_assignments/1/', login)
         assignments = result.json()['assignments']
@@ -135,9 +157,7 @@ class RestTests(TestCase):
         self.assertEquals(assignments[0]['description'], 'In de opdracht...1')
 
     def test_student_get_course_assignments(self):
-        """
-        Tests get_course_assignments for student.
-        """
+        """Test get_course_assignments for student."""
         login = logging_in(self, 'Student', 'pass')
         result = api_get_call(self, '/api/get_course_assignments/1/', login)
         assignments = result.json()['assignments']
@@ -151,9 +171,7 @@ class RestTests(TestCase):
         self.assertEquals(len(assignments), 1)
 
     def test_get_assignment_journals(self):
-        """
-        Tests get_assignment_journals
-        """
+        """Test get_assignment_journals."""
         login = logging_in(self, self.username, self.password)
         result = api_get_call(self, '/api/get_assignment_journals/1/', login)
         journals = result.json()['journals']
@@ -164,9 +182,7 @@ class RestTests(TestCase):
         self.assertEquals(journals[3]['student']['name'], 'Jeroen')
 
     def test_journal_stats(self):
-        """
-        Tests the journal stats functions in the serializer.
-        """
+        """Test the journal stats functions in the serializer."""
         journal = Journal.objects.get(user=self.student)
         entries = utils.get_journal_entries(journal)
         for i in range(len(entries)):
@@ -180,26 +196,22 @@ class RestTests(TestCase):
         self.assertEquals(utils.get_graded_count(entries), 2)
 
     def test_update_user_role_course(self):
-        """
-        Tests user role update in a course.
-        """
+        """Test user role update in a course."""
         user_role = Participation.objects.get(user=self.user_role, course=1).role.name
         self.assertEquals(user_role, 'TA')
 
         login = logging_in(self, self.username, self.password)
-        result = api_post_call(
+        api_post_call(
             self,
             '/api/update_user_role_course/',
             {'cID': 1, 'uID': self.user_role.pk, 'role': 'SD'},
             login
-            )
+        )
         user_role = Participation.objects.get(user=self.user_role, course=1).role.name
         self.assertEquals(user_role, 'SD')
 
     def test_grade_publish(self):
-        """
-        Tests the grade publish api functions.
-        """
+        """Test the grade publish api functions."""
         login = logging_in(self, self.username, self.password)
         result = api_post_call(self, '/api/update_grade_entry/1/', {'grade': 1, 'published': 0}, login)
         self.assertEquals(Entry.objects.get(pk=1).grade, int(result.json()['new_grade']))
@@ -224,13 +236,53 @@ class RestTests(TestCase):
         self.assertEquals(Entry.objects.get(pk=2).published, int(result.json()['new_published']))
         self.assertEquals(Entry.objects.get(pk=3).published, 0)
 
+    def test_get_course_users(self):
+        """Test the get courses api call."""
+        login = logging_in(self, self.username, self.password)
+
+        course = factory.make_course("Beeldbewerken", "BB")
+
+        rein = factory.make_user("Rein!!", "123")
+        lars = factory.make_user("Lars!!", "123")
+
+        TA = factory.make_role("TA")
+        SD = factory.make_role("SD")
+        factory.make_participation(rein, course, TA)
+        factory.make_participation(lars, course, SD)
+
+        response = api_get_call(self, '/api/get_course_users/' + str(course.pk) + '/', login)
+
+        self.assertEquals(response.status_code, 200)
+        self.assertEquals(len(response.json()['users']), 2)
+
+    def test_create_entry(self):
+        """Test the create entry api call."""
+        login = logging_in(self, self.username, self.password)
+
+        assignment = factory.make_assignment("Assignment", "Your favorite assignment")
+        journal = factory.make_journal(assignment, self.user)
+        template = factory.make_entry_template("some_template")
+        field = factory.make_field(template, 'Some field', 0)
+
+        some_dict = {
+            'jID': journal.id,
+            'tID': template.id,
+            'content': [{
+                'tag': field.pk,
+                'data': "This is some data"
+                }]
+            }
+
+        response = api_post_call(self, '/api/create_entry/', some_dict, login, status=201)
+        self.assertEquals(response.status_code, 201)
+
     def test_delete_assignment(self):
         """
         Tests the delete assignment
         """
         login = logging_in(self, self.username, self.password)
-        result = api_post_call(self, '/api/delete_assignment/', {'cID': 1, 'aID': 1}, login)
+        api_post_call(self, '/api/delete_assignment/', {'cID': 1, 'aID': 1}, login)
         assignment = Assignment.objects.get(pk=1)
         self.assertEquals(assignment.courses.count(), 1)
-        result = api_post_call(self, '/api/delete_assignment/', {'cID': 2, 'aID': 1}, login)
+        api_post_call(self, '/api/delete_assignment/', {'cID': 2, 'aID': 1}, login)
         self.assertEquals(Assignment.objects.filter(pk=1).count(), 0)
