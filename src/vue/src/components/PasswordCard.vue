@@ -3,7 +3,9 @@
         <b-row>
             <h3 class="profile-title">Change password</h3><br/>
         </b-row>
-
+        <b-row>
+            <alert-box v-if="response" :type="response.type" :description="response.description"/>
+        </b-row>
         <b-row>
             <b-col class="profile-col" cols="4">
                 <span class="profile-password">Old password:</span>
@@ -39,28 +41,37 @@
 
 <script>
 import auth from '@/api/auth'
+import alert from '@/components/Alert.vue'
 
 export default {
+    components: {
+        'alert-box': alert
+    },
     data () {
         return {
             checkbox: false,
             oldPass: '',
             newPass: '',
-            newPassRepeat: ''
+            newPassRepeat: '',
+            response: null
         }
     },
     methods: {
         changePassword: function () {
-            if (this.newPass.match('(.*[A-Z]).*') && this.newPass.length > 3) {
-                if (this.newPass === this.newPassRepeat) {
-                    this.test = true
-                    auth.changePassword(this.newPass, this.oldPass)
-                } else {
-                    this.test = false
-                    alert('Password does not match')
-                }
+            if (this.newPass === this.newPassRepeat) {
+                this.test = true
+                auth.changePassword(this.newPass, this.oldPass)
+                    .then(response => {
+                        this.response = response.data
+                        this.response['type'] = 'success'
+                    })
+                    .catch(response => {
+                        this.response = response.response.data
+                        this.response['type'] = 'danger'
+                    })
             } else {
-                alert('Not a strong password')
+                this.test = false
+                alert('Passwords do not match')
             }
         }
     }

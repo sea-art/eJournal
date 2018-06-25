@@ -1,5 +1,5 @@
 <template>
-    <b-row no-gutters>
+    <b-row class="outer-container" no-gutters>
     <!-- TODO: reopen bread-crumb when it is working again -->
         <b-col v-if="bootstrapLg()" cols="12">
             <!-- <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
@@ -129,22 +129,12 @@ export default {
 
 <style>
 .left-content {
-    flex: 0 0 auto;
-    padding-top: 30px !important;
-    padding-left: 30px !important;
-    padding-right: 30px !important;
+    height: 100%;
+    overflow: hidden;
 }
 
-.main-content {
-    padding-top: 40px;
-    background-color: var(--theme-medium-grey);
-    flex: 1 1 auto;
-}
-
-.right-content {
-    flex: 0 0 auto;
-    padding-top: 30px !important;
-    padding-left: 30px !important;
-    padding-right: 30px !important;
+.outer-container {
+    height: 100%;
+    overflow: hidden;
 }
 </style>
