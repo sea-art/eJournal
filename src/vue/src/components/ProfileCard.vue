@@ -1,5 +1,5 @@
 <template>
-    <b-card class="settings-card">
+    <b-card class="settings-card no-hover">
         <profile-data :uname="uname"
                       :image="image"
                       :id="id">
@@ -28,11 +28,6 @@ export default {
 </script>
 
 <style>
-.profile-card:hover {
-    background-color: var(--theme-light-grey);
-
-}
-
 p.profile-name {
     font-size: 30px;
     font-weight: bold;
