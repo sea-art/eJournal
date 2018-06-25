@@ -73,6 +73,12 @@ export default {
     methods: {
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData
+            journal.create_entry(this.jID, this.nodes[this.currentNode].entry.template.tID, editedData.entry.content, this.nodes[this.currentNode].nID)
+                .catch(_ => alert('Error while creating the entry.'))
+                .then(response => {
+                    this.nodes = response.nodes
+                    this.currentNode = response.added
+                })
         },
         selectNode ($event) {
             if ($event === this.currentNode) {
@@ -95,9 +101,13 @@ export default {
         },
         addNode (infoEntry) {
             journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
-            journal.get_nodes(this.jID)
-                .then(response => { this.nodes = response.nodes })
-                .catch(_ => alert('Error while loading nodes.'))
+                .catch(_ => alert('Error while creating the entry.'))
+                .then(response => {
+                    this.nodes = response.nodes
+                    this.currentNode = response.added
+                })
+                // .catch(_ => alert('Error while loading nodes.')))
+                // .then(response => { this.nodes = response.nodes })
         },
         fillDeadline (data) {
             journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data)
