@@ -3,13 +3,15 @@ import oauth2
 
 import xml.etree.cElementTree as ET
 
+import VLE.utils as utils
+from django.conf import settings
 from VLE.models import Counter
 
 
 class GradePassBackRequest(object):
     """Class to send Grade replace lti requests."""
 
-    def __init__(self, key, secret, journal):
+    def __init__(self, key, secret, journal, send_score=False, result_data=None):
         """
         Create the instancie to set the needed variables.
 
@@ -22,8 +24,12 @@ class GradePassBackRequest(object):
         self.secret = secret
         self.url = None if journal is None else journal.grade_url
         self.sourcedId = None if journal is None else journal.sourced_id
-        self.score = None  # TODO database
-        self.result_data = None
+        if send_score:
+            entries = utils.get_journal_entries(journal)
+            self.score = utils.get_acquired_grade(entries, journal)
+        else:
+            self.score = None
+        self.result_data = result_data
 
     @classmethod
     def get_message_id_and_increment(cls):
@@ -140,3 +146,34 @@ class GradePassBackRequest(object):
 
         return {'severity': severity, 'code_mayor': code_mayor,
                 'description': description}
+
+
+def needs_grading(journal):
+    """Give the teacher a needs grading notification in lti instancie."""
+    secret = settings.LTI_SECRET
+    key = settings.LTI_KEY
+
+    journal = None
+    # TODO create custom link for submission
+    result_data = {'url': settings.BASELINK+'/api/lti/launch?journal='+journal.pk}
+
+    grade_request = GradePassBackRequest(key, secret, journal, result_data=result_data)
+    response = grade_request.send_post_request()
+
+    return response
+
+
+def replace_result(journal):
+    """lti_grade_replace_result.
+
+    Replace a grade on the LTI instance based on the request.
+    """
+    # TODO Extend the docstring with what is important in the request variable.
+
+    secret = settings.LTI_SECRET
+    key = settings.LTI_KEY
+
+    grade_request = GradePassBackRequest(key, secret, journal, send_score=True)
+    response = grade_request.send_post_request()
+
+    return response

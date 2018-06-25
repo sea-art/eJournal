@@ -12,6 +12,7 @@ import VLE.factory as factory
 import VLE.utils as utils
 from VLE.models import User, Journal, EntryTemplate, Node, Assignment, Field, Entry, Content
 import VLE.edag as edag
+import VLE.lti_grade_passback as lti_grade
 
 
 @api_view(['POST'])
@@ -113,6 +114,8 @@ def create_entry(request):
 
     try:
         journal = Journal.objects.get(pk=jID, user=request.user)
+
+        lti_grade.needs_grading(journal)
 
         template = EntryTemplate.objects.get(pk=tID)
 
