@@ -10,7 +10,7 @@ from django.http import JsonResponse
 import VLE.serializers as serialize
 import VLE.utils as utils
 import VLE.factory as factory
-from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, Journal, EntryTemplate
+from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, Journal, EntryTemplate, Node
 
 
 @api_view(['POST'])
@@ -187,7 +187,7 @@ def update_format(request):
             deadline = factory.make_deadline(date)
             factory.make_entrydeadline_node(format, deadline, template)
 
-    return JsonResponse({'result': 'success', 'node': format_to_dict(format)}, status=200)
+    return JsonResponse({'result': 'success', 'node': serialize.format_to_dict(format)}, status=200)
 
 
 @api_view(['POST'])

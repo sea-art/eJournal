@@ -1,5 +1,4 @@
-<!-- TODO: add loading and saving apis, add links to template editor-->
-<!-- TODO: check newtemplate undef tID, make sure editedtemplates is unique -->
+<!-- TODO: unused, preview bug, css bug, delete template knop, unsaved changes bug, date sorting, tID = undef -->
 
 <template>
     <b-row no-gutters>
@@ -119,7 +118,7 @@ export default {
             return {
                 t: {
                     'fields': [],
-                    'name': 'ha',
+                    'name': '',
                     'tID': this.wipTemplateId--
                 },
                 a: false
@@ -183,16 +182,16 @@ export default {
 
             this.convertToDB()
 
+            var promise = new Promise((resolve, reject) => resolve())
             for (var editedTemplate of this.templatesEdited) {
-                console.log(editedTemplate)
                 if (editedTemplate.tID < 0) {
-                    journalAPI.create_template(editedTemplate.name, editedTemplate.fields).then(data => { editedTemplate.tID = data.tID })
+                    promise = promise.then(_ => journalAPI.create_template(editedTemplate.name, editedTemplate.fields).then(data => { editedTemplate.tID = data.template.tID }))
                 } else {
-                    journalAPI.update_template(editedTemplate.tID, editedTemplate.name, editedTemplate.fields)
+                    promise = promise.then(_ => journalAPI.update_template(editedTemplate.tID, editedTemplate.name, editedTemplate.fields))
                 }
             }
 
-            journalAPI.update_format(this.aID, this.templates, this.presets)
+            promise.then(_ => journalAPI.update_format(this.aID, this.templates, this.presets))
         },
         getWindowWidth (event) {
             this.windowWidth = document.documentElement.clientWidth

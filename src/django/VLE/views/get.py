@@ -319,7 +319,7 @@ def get_format(request, aID):
                              'description': 'Assignment does not exist.'}, status=404)
 
     return JsonResponse({'result': 'success',
-                         'format': format_to_dict(assignment.format)},
+                         'format': serialize.format_to_dict(assignment.format)},
                         status=200)
 
 
