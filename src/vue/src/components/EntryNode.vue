@@ -11,11 +11,11 @@
                                 <h2>{{entryNode.entry.template.name}}</h2>
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
-                                <div v-if="entryNode.entry.grade != 0">
+                                <div v-if="$entryNode.entry.published">
                                     {{ entryNode.entry.grade }}
                                 </div>
                                 <div v-else>
-                                    To be grated
+                                    To be graded
                                 </div>
                             </b-col>
                         </b-row>
@@ -53,7 +53,7 @@
                                 <h2>{{entryNode.entry.template.name}}</h2>
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
-                                <div v-if="entryNode.entry.grade != 0">
+                                <div v-if="entryNode.entry.published">
                                     {{ entryNode.entry.grade }}
                                 </div>
                                 <div v-else>
@@ -71,7 +71,7 @@
                                         <b>{{ field.title }}</b>
                                     </div>
                                     <div v-if="field.type=='t'">
-                                        {{ completeContent[i].data }}<br><br>
+                                        <span style="white-space: pre;">{{ completeContent[i].data }}</span><br><br>
                                     </div>
                                     <div v-else-if="field.type=='i'">
                                         {{ completeContent[i].data }}<br><br>

@@ -121,7 +121,8 @@ export default {
             })
         },
         assignmentRoute (cID, aID, name, journal) {
-            if (this.$root.canViewCourseParticipants()) {
+            if (this.$root.canViewAssignmentParticipants()) {
+                console.log('derp')
                 return {
                     name: 'Assignment',
                     params: {

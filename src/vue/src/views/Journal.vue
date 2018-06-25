@@ -1,6 +1,6 @@
 <template>
-    <journal-non-student v-if="$root.canViewCourseParticipants()" :cID="cID" :aID="aID" :jID="jID"/>
-    <journal-student v-else :cID="cID" :aID="aID" :jID="jID"/>
+    <journal-non-student v-if="$root.canEditJournal()" :jID="this.$route.params.jID"/>
+    <journal-student v-else :jID="this.$route.params.jID"/>
 </template>
 
 <script>
@@ -11,7 +11,6 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 
 export default {
     name: 'Journal',
-    props: ['cID', 'aID', 'jID'],
     data () {
         return {
             windowWidth: 0
