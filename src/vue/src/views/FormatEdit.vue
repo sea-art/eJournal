@@ -1,4 +1,4 @@
-<!-- TODO: delete template knop -->
+<!-- TODO: delete template button -->
 
 <template>
     <b-row no-gutters>
