@@ -1,5 +1,4 @@
-<!-- TODO: add loading and saving apis, add links to template editor-->
-<!-- TODO: check newtemplate undef tID, make sure editedtemplates is unique -->
+<!-- TODO: preview bug, css bug, delete template knop, unsaved changes bug, date sorting -->
 
 <template>
     <b-row no-gutters>
@@ -31,8 +30,7 @@
                 title="test"
                 size="lg"
                 ok-only
-                hide-header
-                @hidden="hideModal">
+                hide-header>
                     <span slot="modal-ok">Back</span>
                     <template-editor :template="templateBeingEdited">
                     </template-editor>
@@ -79,6 +77,7 @@ export default {
 
             templates: [],
             presets: [],
+            unused_templates: [],
 
             templatePool: [],
             nodes: [],
@@ -103,7 +102,7 @@ export default {
     },
 
     created () {
-        journalAPI.get_format(this.aID).then(data => { this.templates = data.format.templates; this.presets = data.format.presets; this.convertFromDB(); this.isChanged = false })
+        journalAPI.get_format(this.aID).then(data => { this.templates = data.format.templates; this.presets = data.format.presets; this.unused_templates = data.format.unused_templates; this.convertFromDB(); this.isChanged = false })
     },
 
     watch: {
@@ -120,7 +119,7 @@ export default {
             return {
                 t: {
                     'fields': [],
-                    'name': 'ha',
+                    'name': '',
                     'tID': this.wipTemplateId--
                 },
                 a: false
@@ -130,11 +129,8 @@ export default {
             if (!this.templatePool.includes(template)) {
                 this.templatePool.push(template)
             }
-            this.templateBeingEdited = template.t
+            template.updated = true
             this.$refs['modal'].show()
-        },
-        hideModal () {
-            this.templatesEdited.push(this.templateBeingEdited)
         },
         selectNode ($event) {
             if ($event === this.currentNode) {
@@ -150,7 +146,7 @@ export default {
             this.nodes.push({
                 'type': 'd',
                 'deadline': this.newDate(),
-                'template': (this.templatePool) ? this.templatePool[0].t : null
+                'template': (this.templatePool[0]) ? this.templatePool[0].t : null
             })
         },
         // Do client side validation and save to DB
@@ -184,16 +180,18 @@ export default {
 
             this.convertToDB()
 
-            for (var editedTemplate of this.templatesEdited) {
-                console.log(editedTemplate)
-                if (editedTemplate.tID < 0) {
-                    journalAPI.create_template(editedTemplate.name, editedTemplate.fields).then(data => { editedTemplate.tID = data.tID })
-                } else {
-                    journalAPI.update_template(editedTemplate.tID, editedTemplate.name, editedTemplate.fields)
+            var promise = new Promise((resolve, reject) => resolve())
+            for (var editedTemplate of this.templatePool) {
+                if (editedTemplate.updated) {
+                    if (editedTemplate.t.tID < 0) {
+                        promise = promise.then(_ => journalAPI.create_template(editedTemplate.t.name, editedTemplate.t.fields).then(data => { editedTemplate.t.tID = data.template.tID }))
+                    } else {
+                        promise = promise.then(_ => journalAPI.update_template(editedTemplate.t.tID, editedTemplate.t.name, editedTemplate.t.fields))
+                    }
                 }
             }
 
-            journalAPI.update_format(this.aID, this.templates, this.presets)
+            promise.then(_ => journalAPI.update_format(this.aID, this.templates, this.presets, this.unusedTemplates))
         },
         getWindowWidth (event) {
             this.windowWidth = document.documentElement.clientWidth
@@ -229,6 +227,10 @@ export default {
                     }
                 }
             }
+            for (var unusedTemplate of this.unused_templates) {
+                idInPool.push(unusedTemplate.tID)
+                tempTemplatePool[unusedTemplate.tID] = { t: unusedTemplate, a: false }
+            }
 
             this.templatePool = Object.values(tempTemplatePool).sort((a, b) => { return a.t.tID - b.t.tID })
 
@@ -239,10 +241,13 @@ export default {
             this.presets = this.nodes.slice()
 
             this.templates = []
+            this.unused_templates = []
 
             for (var template of this.templatePool) {
                 if (template.a) {
                     this.templates.push(template.t)
+                } else {
+                    this.unused_templates.push(template.t)
                 }
             }
         }

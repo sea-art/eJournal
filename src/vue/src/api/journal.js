@@ -46,8 +46,8 @@ export default {
             .then(response => response.data)
     },
 
-    update_format (aID, templates, presets) {
-        return auth.authenticatedPost('/update_format/', {aID: aID, templates: templates, presets: presets})
+    update_format (aID, templates, presets, unusedTemplates) {
+        return auth.authenticatedPost('/update_format/', {aID: aID, templates: templates, presets: presets, unusedTemplates: unusedTemplates})
             .then(response => response.data)
     },
 
