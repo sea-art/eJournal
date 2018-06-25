@@ -19,13 +19,18 @@
                         <b-textarea v-model="completeContent[i].data"></b-textarea><br><br>
                     </div>
                     <div v-else-if="field.type=='i'">
-                        Insert input for image
+                        <br>
+                        <b-form-file v-model="completeContent[i].data" :state="Boolean(file)" placeholder="Choose a file..."></b-form-file><br><br>
                     </div>
                     <div v-else-if="field.type=='f'">
-                        Insert input for file
+                        <b-form-file v-model="completeContent[i].data" :state="Boolean(file)" placeholder="Choose a file..."></b-form-file><br><br>
                     </div>
                 </div>
 
+                <b-alert :show="dismissCountDown" dismissible variant="secondary"
+                    @dismissed="dismissCountDown=0">
+                    Please fill in every field.
+                </b-alert>
                 <b-button @click="save">Post Entry</b-button>
             </b-col>
         </b-row>
@@ -37,7 +42,10 @@ export default {
     props: ['template'],
     data () {
         return {
-            completeContent: []
+            completeContent: [],
+            dismissSecs: 3,
+            dismissCountDown: 0,
+            showDismissibleAlert: false
         }
     },
     watch: {
@@ -58,8 +66,21 @@ export default {
                 })
             }
         },
+        checkFilled: function () {
+            for (var content of this.completeContent) {
+                if (content.data === null) {
+                    return false
+                }
+            }
+
+            return true
+        },
         save: function () {
-            this.$emit('content-template', this.completeContent)
+            if (this.checkFilled()) {
+                this.$emit('content-template', this.completeContent)
+            } else {
+                this.dismissCountDown = this.dismissSecs
+            }
         }
     }
 }

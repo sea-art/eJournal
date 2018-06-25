@@ -1,12 +1,4 @@
-from django.shortcuts import redirect
-from django.http import JsonResponse, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.clickjacking import xframe_options_exempt
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.conf import settings
-from urllib.parse import quote
 import oauth2
-import json
 from datetime import datetime
 
 from VLE.models import User, Course, Assignment, Participation, Role, Journal, JournalFormat

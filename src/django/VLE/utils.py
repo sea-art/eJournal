@@ -1,14 +1,15 @@
-from VLE.models import Node
+"""
+Utilities.
+
+A library with useful functions.
+"""
 from VLE.models import Entry
 from django.http import JsonResponse
 
 
 # START: API-POST functions
 def get_required_post_params(post, *keys):
-    """
-    Gets required post parameters, throwing
-    KeyError if not present.
-    """
+    """Get required post parameters, throwing KeyError if not present."""
     result = []
     for key in keys:
         result.append(post[key])
@@ -16,10 +17,7 @@ def get_required_post_params(post, *keys):
 
 
 def get_optional_post_params(post, *keys):
-    """
-    Gets optional post parameters, filling
-    them as None if not present.
-    """
+    """Get optional post parameters, filling them as None if not present."""
     result = []
     for key in keys:
         if key in post:
@@ -30,6 +28,7 @@ def get_optional_post_params(post, *keys):
 
 
 def keyerror_json(*keys):
+    """Generate a JsonResponse when the JSON has keyerror(s)."""
     if len(keys) == 1:
         return JsonResponse({'result': '400 Bad Request',
                              'description': 'Field {0} is required but is missing.'.format(keys)},
@@ -43,7 +42,7 @@ def keyerror_json(*keys):
 
 # START: journal stat functions
 def get_journal_entries(journal):
-    """Gets the journal entries from a journal.
+    """Get the journal entries from a journal.
 
     - journal: the journal in question.
 
@@ -53,11 +52,12 @@ def get_journal_entries(journal):
 
 
 def get_max_points(journal):
+    """Get the maximum amount of points for an assignment."""
     return journal.assignment.format.max_points
 
 
 def get_acquired_grade(entries, journal):
-    """Gets the number of acquired points in an journal.
+    """Get the number of acquired points in an journal.
 
     - journal: the journal in question.
 
@@ -72,7 +72,7 @@ def get_acquired_grade(entries, journal):
             if entry.published:
                 count_graded += 1
                 total_grade += entry.grade if entry.grade is not None else 0
-        return total_gradee
+        return total_grade
     else:
         for entry in entries:
             total_grade += entry.grade if entry.grade is not None else 0
@@ -80,7 +80,7 @@ def get_acquired_grade(entries, journal):
 
 
 def get_submitted_count(entries):
-    """Counts the number of submitted entries.
+    """Count the number of submitted entries.
 
     - entries: the entries to count with.
 
@@ -90,7 +90,7 @@ def get_submitted_count(entries):
 
 
 def get_graded_count(entries):
-    """Counts the number of graded entries.
+    """Count the number of graded entries.
 
     - entries: the entries to count with.
 
@@ -102,7 +102,7 @@ def get_graded_count(entries):
 
 # START grading functions
 def publish_all_assignment_grades(assignment, published):
-    """Sets published all not None grades from an assignment.
+    """Set published all not None grades from an assignment.
 
     - assignment: the assignment in question
     - published: either True or False. If True show the grade to student.
@@ -111,7 +111,7 @@ def publish_all_assignment_grades(assignment, published):
 
 
 def publish_all_journal_grades(journal, published):
-    """Sets published all not None grades from a journal.
+    """Set published all not None grades from a journal.
 
     - journal: the journal in question
     - published: either True or False. If True show the grade to student.
