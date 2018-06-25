@@ -133,6 +133,7 @@ def create_entry(request):
                 node.save()
             else:
                 node.entry = factory.make_entry(template)
+                node.save()
         else:
             entry = factory.make_entry(template)
             node = factory.make_node(journal, entry)

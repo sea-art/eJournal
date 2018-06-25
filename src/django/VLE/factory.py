@@ -234,33 +234,51 @@ def make_journal_format():
     return journal_format
 
 
-def make_role(name, can_edit_grades=False, can_view_grades=False, can_edit_assignment=False,
-              can_view_assignment=False, can_submit_assignment=False, can_edit_course=False,
-              can_delete_course=False):
-    """Make a role.
+def make_role(name, can_edit_course_roles=False, can_view_course_participants=False,
+              can_edit_course=False, can_delete_course=False,
+              can_add_assignment=False, can_view_assignment_participants=False,
+              can_delete_assignment=False, can_publish_assigment_grades=False,
+              can_grade_journal=False, can_publish_journal_grades=False,
+              can_edit_journal=False, can_comment_journal=False):
+    """Make a role using the given permissions.
+
+    A complete overview of the role requirements can be found here:
+    https://docs.google.com/spreadsheets/d/1M7KnEKL3cG9PMWfQi9HIpRJ5xUMou4Y2plnRgke--Tk
 
     Arguments:
     name -- name of the role (needs to be unique)
-    can_edit_grades -- Can edit grades
-    can_view_grades -- Can view grades
-    can_edit_assignment -- Can edit assignment
-    can_view_assignment -- Can view assignment
-    can_submit_assignment -- Can submit assignment
-    can_edit_course -- Can edit course
-    can_delete_course -- Can delete course
+    can_... -- permission
     """
     role = Role(
         name=name,
-        can_edit_grades=can_edit_grades,
-        can_view_grades=can_view_grades,
-        can_edit_assignment=can_edit_assignment,
-        can_view_assignment=can_view_assignment,
-        can_submit_assignment=can_submit_assignment,
+
+        can_edit_course_roles=can_edit_course_roles,
+        can_view_course_participants=can_view_course_participants,
         can_edit_course=can_edit_course,
-        can_delete_course=can_delete_course
+        can_delete_course=can_delete_course,
+
+        can_add_assignment=can_add_assignment,
+        can_view_assignment_participants=can_view_assignment_participants,
+        can_delete_assignment=can_delete_assignment,
+        can_publish_assigment_grades=can_publish_assigment_grades,
+
+        can_grade_journal=can_grade_journal,
+        can_publish_journal_grades=can_publish_journal_grades,
+        can_edit_journal=can_edit_journal,
+        can_comment_journal=can_comment_journal
     )
     role.save()
     return role
+
+
+def make_role_all_permissions(name):
+    """Make a role with all permissions enabled.
+
+    This enables a participant of the course to do everything within that course.
+    This should not be confused with the global roles: these also have effect
+    outside of the course."""
+    make_role(name, True, True, True, True, True, True,
+              True, True, True, True, True, True)
 
 
 def make_entrycomment(entry, author, text):

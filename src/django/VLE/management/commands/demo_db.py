@@ -22,7 +22,8 @@ class Command(BaseCommand):
         """Generate a student and teacher."""
         users_examples = [
             {"username": "Student", "pass": "pass", "is_admin": False},
-            {"username": "Teacher", "pass": "pass", "is_admin": True},
+            {"username": "Teacher", "pass": "pass", "is_admin": False},
+            {"username": "Admin", "pass": "pass", "is_admin": True},
         ]
 
         self.users = []
@@ -36,14 +37,7 @@ class Command(BaseCommand):
         """
         self.roles = []
         self.roles.append(factory.make_role("Student"))
-        self.roles.append(factory.make_role("Teacher",
-                          can_edit_grades=True,
-                          can_view_grades=True,
-                          can_edit_assignment=True,
-                          can_view_assignment=True,
-                          can_submit_assignment=True,
-                          can_edit_course=True,
-                          can_delete_course=True))
+        self.roles.append(factory.make_role_all_permissions("Teacher"))
 
     def gen_courses(self):
         """Generate the courses PAV and Beeldbewerken."""
