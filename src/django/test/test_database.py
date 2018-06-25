@@ -113,7 +113,6 @@ class DataBaseTests(TestCase):
     def test_get_permissions_admin(self):
         """Test if the admin had the right permissions."""
         user = factory.make_user(email='some@other', username='teun2', password='1234', lti_id='abcde', is_admin=True)
-        usr.save()
         role = factory.make_role("TA", self.crs, can_delete_assignment=True,
                                  can_grade_journal=True, can_add_assignment=True)
 

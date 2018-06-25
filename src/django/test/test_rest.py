@@ -89,7 +89,7 @@ class RestTests(TestCase):
 
         self.user_role = factory.make_user("test123", "test")
         role = factory.make_role('TA', c1, can_grade_journal=True, can_view_assignment_participants=True)
-        student_role = factory.make_role(name='SD', c1)
+        student_role = factory.make_role('SD', c1)
 
         factory.make_participation(self.user_role, c1, role)
 
