@@ -25,7 +25,7 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 import createAssignment from '@/components/CreateAssignment.vue'
 
 export default {
-    name: 'LtiCreateConnect',
+    name: 'LtiCreateAssignment',
     props: ['lti'],
     components: {
         'bread-crumb': breadCrumb,
@@ -47,6 +47,7 @@ export default {
         }
     },
     mounted () {
+        alert(this.lti.ltiAssignName)
         this.showModal('createAssignmentRef')
     }
 }

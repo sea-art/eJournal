@@ -10,41 +10,42 @@
         </b-row>
         <b-row  align-h="center">
             <b-button class="lti-button-option" @click="showModal('connectAssignmentRef')">
-                <h2 class="lti-button-text">Connect to existing assignment</h2>
+                <h2 class="lti-button-text">Connect to existing <br/> assignment</h2>
             </b-button>
         </b-row>
 
         <b-modal
             slot="main-content-column"
             ref="createAssignmentRef"
-            title="Create course"
+            title="Create assignment"
             size="lg"
             hide-footer>
-                <create-assignment @handleAction="handleConfirm('createAssignmentRef')"/>
+                <create-assignment @handleAction="handleConfirm('createAssignmentRef')" :lti="lti"/>
         </b-modal>
 
-        <!-- <b-modal
+        <b-modal
             slot="main-content-column"
             ref="connectAssignmentRef"
-            title="Connect Course"
+            title="Connect assignment"
             size="lg"
             hide-footer>
-                <connect-assignment @handleAction="handleConfirm('connectAssignmentRef')"/>
-        </b-modal> -->
+                <connect-assignment @handleAction="handleConfirm('connectAssignmentRef')" :lti="lti"/>
+        </b-modal>
     </div>
 </template>
 
 <script>
 import breadCrumb from '@/components/BreadCrumb.vue'
 import createAssignment from '@/components/CreateAssignment.vue'
-// import connectAssignment from '@/components/ConnectAssignment.vue'
+import connectAssignment from '@/components/ConnectAssignment.vue'
 
 export default {
-    name: 'LtiCreateConnect',
+    name: 'LtiCreateConnectAssignment',
+    props: ['lti'],
     components: {
         'bread-crumb': breadCrumb,
-        'create-assignment': createAssignment
-        // 'connect-assignment': connectAssignment
+        'create-assignment': createAssignment,
+        'connect-assignment': connectAssignment
     },
     methods: {
         signal (msg) {
