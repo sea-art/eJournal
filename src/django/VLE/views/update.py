@@ -413,7 +413,7 @@ def update_publish_grades_assignment(request, aID):
 
     assign = Assignment.objects.get(pk=aID)
     utils.publish_all_assignment_grades(assign, request.data['published'])
-    return JsonResponse({'result': 'success', 'new_published': request.data['published']})
+    return JsonResponse({'result': 'success', 'new_published': request.data['published']}, status=200)
 
 
 @api_view(['POST'])
