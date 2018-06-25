@@ -23,7 +23,7 @@ class GradePassBackRequest(object):
         self.key = key
         self.secret = secret
         self.url = None if journal is None else journal.grade_url
-        self.sourcedId = None if journal is None else journal.sourced_id
+        self.sourcedid = None if journal is None else journal.sourcedid
         if send_score:
             entries = utils.get_journal_entries(journal)
             self.score = utils.get_acquired_grade(entries, journal)
@@ -62,7 +62,7 @@ class GradePassBackRequest(object):
         result_record = ET.SubElement(request, 'resultRecord')
         sourced_guid = ET.SubElement(result_record, 'sourcedGUID')
         sourced_id = ET.SubElement(sourced_guid, "sourcedId")
-        sourced_id.text = self.sourcedId
+        sourced_id.text = self.sourcedid
 
         if self.score is not None or self.result_data:
             result = ET.SubElement(result_record, 'result')
@@ -94,7 +94,7 @@ class GradePassBackRequest(object):
 
         returns response dictionary with status of request
         """
-        if self.url is not None and self.sourcedId is not None:
+        if self.url is not None and self.sourcedid is not None:
             consumer = oauth2.Consumer(
                 self.key, self.secret
             )
@@ -153,9 +153,12 @@ def needs_grading(journal):
     secret = settings.LTI_SECRET
     key = settings.LTI_KEY
 
-    journal = None
+    jID = str(journal.pk)
+    aID = str(journal.assignment.pk)
+    cID = str(journal.assignment.course.pk)
+
     # TODO create custom link for submission
-    result_data = {'url': settings.BASELINK+'/api/lti/launch?journal='+journal.pk}
+    result_data = {'url': settings.BASELINK+'/Home/Course/' + cID + '/Assignment/' + aID + '/Journal/' + jID}
 
     grade_request = GradePassBackRequest(key, secret, journal, result_data=result_data)
     response = grade_request.send_post_request()

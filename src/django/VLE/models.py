@@ -214,8 +214,8 @@ class Journal(models.Model):
         on_delete=models.CASCADE,
     )
 
-    sourcedId = models.TextField(
-        'sourcedId',
+    sourcedid = models.TextField(
+        'sourcedid',
         null=True
     )
 

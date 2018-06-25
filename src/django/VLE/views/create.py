@@ -115,7 +115,9 @@ def create_entry(request):
     try:
         journal = Journal.objects.get(pk=jID, user=request.user)
 
+        print('send request')
         lti_grade.needs_grading(journal)
+        print('done request')
 
         template = EntryTemplate.objects.get(pk=tID)
 

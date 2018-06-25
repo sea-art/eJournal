@@ -50,7 +50,7 @@ export default {
         }
     },
     mounted () {
-        alert(this.lti)
+        // alert(this.lti)
         if (this.lti !== undefined) {
             this.form.assignmentName = this.lti.ltiAssignName
             this.form.ltiAssignID = this.lti.ltiAssignID
