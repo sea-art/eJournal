@@ -20,7 +20,7 @@
             title="Create assignment"
             size="lg"
             hide-footer>
-                <create-assignment @handleAction="handleConfirm('createAssignmentRef')" :lti="lti" :page="page"/>
+                <create-assignment @handleAction="handleCreated" :lti="lti" :page="page"/>
         </b-modal>
 
         <b-modal
@@ -29,7 +29,7 @@
             title="Connect assignment"
             size="lg"
             hide-footer>
-                <connect-assignment @handleAction="handleConfirm('connectAssignmentRef')" :lti="lti"/>
+                <connect-assignment @handleAction="handleConnected" :lti="lti"/>
         </b-modal>
     </div>
 </template>
@@ -57,9 +57,13 @@ export default {
         hideModal (ref) {
             this.$refs[ref].hide()
         },
-        handleConfirm (ref) {
-            this.hideModal(ref)
-            this.signal('assignmentIntegrated')
+        handleCreated (aID) {
+            this.hideModal('createAssignmentRef')
+            this.signal(['assignmentIntegrated', aID])
+        },
+        handleConnected (aID) {
+            this.hideModal('connectAssignmentRef')
+            this.signal(['assignmentIntegrated', aID])
         }
     }
 }

@@ -15,7 +15,7 @@
             title="Create assignment"
             size="lg"
             hide-footer>
-                <create-assignment @handleAction="handleCreation" :lti="lti" :page="page"/>
+                <create-assignment @handleAction="handleCreated" :lti="lti" :page="page"/>
         </b-modal>
     </div>
 </template>
@@ -41,7 +41,7 @@ export default {
         hideModal (ref) {
             this.$refs[ref].hide()
         },
-        handleCreation (aID) {
+        handleCreated (aID) {
             this.hideModal('createAssignmentRef')
             this.signal(['assignmentCreated', aID])
         }
