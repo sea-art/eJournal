@@ -33,10 +33,10 @@
                                         <b-textarea v-model="completeContent[i].data"></b-textarea><br><br>
                                     </div>
                                     <div v-else-if="field.type=='i'">
-                                        <b-form-file v-model="completeContent[i].data" :state="Boolean(file)" placeholder="Choose a file..."></b-form-file><br><br>
+                                        <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
                                     </div>
                                     <div v-else-if="field.type=='f'">
-                                        <b-form-file v-model="completeContent[i].data" :state="Boolean(file)" placeholder="Choose a file..."></b-form-file><br><br>
+                                        <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
                                     </div>
                                 </div>
                                 <b-button @click="saveEdit">{{ saveEditMode }} </b-button>
