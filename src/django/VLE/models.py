@@ -84,7 +84,10 @@ class Role(models.Model):
     - list of permissions (can_...)
     """
     name = models.TextField()
-
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE
+    )
     can_edit_grades = models.BooleanField(default=False)
     can_view_grades = models.BooleanField(default=False)
     can_edit_assignment = models.BooleanField(default=False)

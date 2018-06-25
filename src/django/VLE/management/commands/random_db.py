@@ -74,8 +74,8 @@ class Command(BaseCommand):
         """
         for _ in range(amount):
             course = Course()
-            course.save()
             course.name = faker.company()
+            course.save()
 
             teachers = User.objects.all()
             if len(teachers) > 0:
@@ -89,6 +89,7 @@ class Command(BaseCommand):
         """
         Generate roles for participation in courses.
         """
+        course = factory.make_course(faker.company(), 'TEST', faker.date_this_decade(before_today=True))
         ta = Role()
         ta.name = "TA"
 

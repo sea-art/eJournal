@@ -23,17 +23,6 @@ class Command(BaseCommand):
         for u in users_examples:
             self.users.append(make_user(u['username'], u['pass']))
 
-    def gen_roles(self):
-        role_examples = [
-            {"name": "Student"},
-            {"name": "TA"},
-            {"name": "Teacher"}
-        ]
-
-        self.roles = []
-        for r in role_examples:
-            self.roles.append(make_role(r["name"]))
-
     def gen_courses(self):
         courses_examples = [
             {
@@ -72,6 +61,18 @@ class Command(BaseCommand):
                 make_participation(student, course, self.roles[0])
 
             self.courses.append(course)
+
+    def gen_roles(self):
+        role_examples = [
+            {"name": "Student"},
+            {"name": "TA"},
+            {"name": "Teacher"}
+        ]
+
+        self.roles = []
+        for course in self.courses
+            for r in role_examples:
+                self.roles.append(make_role(r["name"], course))
 
     def gen_templates(self):
         template_examples = [
@@ -246,8 +247,8 @@ class Command(BaseCommand):
         This only contains the 'useful data'. For random data, execute demo_db as well.
         """
         self.gen_users()
-        self.gen_roles()
         self.gen_courses()
+        self.gen_roles()
         self.gen_templates()
         self.gen_format()
         self.gen_assignments()

@@ -36,12 +36,10 @@ class DataBaseTests(TestCase):
         self.jf1.available_templates.add()
         self.jf2.available_templates.add()
 
-        self.usr = User(email='t@t.com', username='teun',
-                        password='1234', lti_id='a')
-        self.usr.save()
-        self.crs = Course(name='test course please ignore', abbreviation='XXXX',
-                          startdate=datetime.date.today())
-        self.crs.save()
+        self.usr = factory.make_user(email='t@t.com', username='teun',
+                                     password='1234', lti_id='a')
+        self.crs = factory.make_course(name='test course please ignore', abbreviation='XXXX',
+                                       startdate=datetime.date.today())
 
     def test_foreignkeys(self):
         """
@@ -67,12 +65,10 @@ class DataBaseTests(TestCase):
 
     def test_get_permissions(self):
         """Test a request that doesn't need permissions."""
-        role = Role(name="Student")
-        role.save()
+        role = factory.make_role('Student', self.crs)
 
         # Connect a participation to a user, course and role.
-        participation = Participation(user=self.usr, role=role, course=self.crs)
-        participation.save()
+        participation = factory.make_participation(user=self.usr, role=role, course=self.crs)
 
         perm = get_permissions(self.usr, self.crs.id)
 
@@ -80,33 +76,28 @@ class DataBaseTests(TestCase):
 
     def test_emptyPermissions(self):
         """Test a request that doesn't need permissions."""
-        role = Role(name="Student")
-        role.save()
+        role = factory.make_role('Student', self.crs)
 
         # Connect a participation to a user, course and role.
-        participation = Participation(user=self.usr, role=role, course=self.crs)
-        participation.save()
+        participation = factory.make_participation(user=self.usr, role=role, course=self.crs)
 
         self.assertTrue(check_permissions(self.usr, self.crs.id, []))
 
     def test_permission(self):
         """Test a request that needs a single permission."""
-        role = Role(name="Student", can_submit_assignment=True)
-        role.save()
+        role = factory.make_role(name="Student", course=self.crs, can_submit_assignment=True)
 
-        participation = Participation(user=self.usr, role=role, course=self.crs)
-        participation.save()
+        participation = factory.make_participation(user=self.usr, role=role, course=self.crs)
 
         self.assertTrue(check_permissions(self.usr, self.crs.id, ["can_submit_assignment"]))
         self.assertFalse(check_permissions(self.usr, self.crs.id, ["can_edit_grades"]))
 
     def test_permission_multiple(self):
         """Test a request that needs multiple permissions."""
-        role = Role(name="TA", can_submit_assignment=True, can_view_grades=True, can_edit_assignment=True)
-        role.save()
+        role = factory.make_user(name="TA", can_submit_assignment=True, course=self.crs
+                                 can_view_grades=True, can_edit_assignment=True)
 
-        participation = Participation(user=self.usr, role=role, course=self.crs)
-        participation.save()
+        participation = factory.make_participation(user=self.usr, role=role, course=self.crs)
 
         self.assertTrue(check_permissions(self.usr, self.crs.id, ["can_view_grades"]))
         self.assertFalse(check_permissions(self.usr, self.crs.id, ["can_edit_grades",
@@ -115,27 +106,25 @@ class DataBaseTests(TestCase):
     def test_get_permissions_admin(self):
         """Test a request that returns a dictionary of permissions. The created
         user should be provided with the admin permission."""
-        usr = User(email='some@other', username='teun2',
-                   password='1234', lti_id='abcde', is_admin=True)
-        usr.save()
-        role = Role(name="TA", can_submit_assignment=True, can_view_grades=True, can_edit_assignment=True)
-        role.save()
+        user = factory.make_user(email='some@other', username='teun2',
+                                 password='1234', lti_id='abcde', is_admin=True)
+        role = factory.make_role(name="TA", course=self.crs, can_submit_assignment=True,
+                                 can_view_grades=True, can_edit_assignment=True)
 
-        participation = Participation(user=usr, role=role, course=self.crs)
+        participation = Participation(user=user, role=role, course=self.crs)
         participation.save()
 
-        perm = get_permissions(usr, self.crs.id)
+        perm = get_permissions(user, self.crs.id)
 
         self.assertTrue(perm["is_admin"])
 
     def test_get_permissions_no_admin(self):
         """Test a request that returns a dictionary of permissions. The created
         user should NOT be provided with the admin permission."""
-        role = Role(name="TA", can_submit_assignment=True, can_view_grades=True, can_edit_assignment=True)
-        role.save()
+        role = factory.make_role(name="TA", course=self.crs, can_submit_assignment=True,
+                                 can_view_grades=True, can_edit_assignment=True)
 
-        participation = Participation(user=self.usr, role=role, course=self.crs)
-        participation.save()
+        participation = factory.make_participation(user=self.usr, role=role, course=self.crs)
 
         perm = get_permissions(self.usr, self.crs.id)
 

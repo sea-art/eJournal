@@ -315,6 +315,18 @@ def get_format(request, aID):
                          'nodes': get_format_dict(assignment.format)}, status=200)
 
 
+@api_view(['GET'])
+def get_course_roles(request, cID):
+    """Get course roles.
+
+    Arguments:
+    request -- the request that was sent.
+    cID     -- the course id
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+
 @api_view(['POST'])
 def get_names(request):
     """Get the format attached to an assignment.

@@ -19,18 +19,6 @@ class Command(BaseCommand):
         for u in users_examples:
             self.users.append(make_user(u['username'], u['pass'], is_admin=u['is_admin']))
 
-    def gen_roles(self):
-        self.roles = []
-        self.roles.append(make_role("Student"))
-        self.roles.append(make_role("Teacher",
-                                    can_edit_grades=True,
-                                    can_view_grades=True,
-                                    can_edit_assignment=True,
-                                    can_view_assignment=True,
-                                    can_submit_assignment=True,
-                                    can_edit_course=True,
-                                    can_delete_course=True))
-
     def gen_courses(self):
         courses_examples = [
             {
@@ -57,6 +45,19 @@ class Command(BaseCommand):
                 make_participation(student, course, self.roles[0])
 
             self.courses.append(course)
+
+    def gen_roles(self):
+        self.roles = []
+        for course in self.courses:
+            self.roles.append(make_role("Student", course))
+            self.roles.append(make_role("Teacher", course,
+            can_edit_grades=True,
+            can_view_grades=True,
+            can_edit_assignment=True,
+            can_view_assignment=True,
+            can_submit_assignment=True,
+            can_edit_course=True,
+            can_delete_course=True))
 
     def gen_templates(self):
         template_examples = [
@@ -161,8 +162,8 @@ class Command(BaseCommand):
         This only contains the 'useful data'. For random data, execute demo_db as well.
         """
         self.gen_users()
-        self.gen_roles()
         self.gen_courses()
+        self.gen_roles()
         self.gen_templates()
         self.gen_format()
         self.gen_assignments()
