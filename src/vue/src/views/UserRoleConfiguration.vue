@@ -2,6 +2,11 @@
     <b-row no-gutters>
         <b-col cols="12" lg="6" offset-lg="3" class="table-content">
             <bread-crumb>&nbsp;</bread-crumb>
+
+
+            <b-button class="multi-form float-right add-button ml-2"> Update </b-button>
+            <b-button class="multi-form float-right delete-button"> Reset </b-button>
+
             <table class="table table-bordered table-hover">
                 <thead >
                     <tr v-if="windowWidth > 750">
@@ -59,6 +64,7 @@
                 <b-button @click="addRole" class="add-button">Create role</b-button>
                 <b-button @click="modalShow = false" class="delete-button">Cancel</b-button>
             </b-modal>
+
         </b-col>
     </b-row>
 </template>
@@ -85,6 +91,8 @@ export default {
                 'Admin',
                 'Observer'
             ],
+            defaultRoles: [],
+            defaultPermissions: [],
             selectRoles: [
                 {value: null, text: 'Please select a role'},
                 {value: 'Student', text: 'Student'},
