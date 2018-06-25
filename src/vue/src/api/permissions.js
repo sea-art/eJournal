@@ -18,5 +18,13 @@ export default {
             roles: roles
         })
             .then(response => response.data)
+    },
+
+    delete_course_role (cID, name) {
+        return auth.authenticatedPost('/update_course_roles/', {
+            cID: cID,
+            name: name
+        })
+            .then(response => response.data)
     }
 }

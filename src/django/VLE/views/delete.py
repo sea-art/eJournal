@@ -94,3 +94,6 @@ def delete_role_from_course(request):
 
     if not permission.can_edit_course_roles:
         return JsonResponse({'result': '403 Forbidden'}, status=403)
+
+    Role.objects.get(name=request.data['name'], course=request.data['cID']).delete()
+    return JsonResponse({'result': 'Succesfully deleted role from course'}, status=200)
