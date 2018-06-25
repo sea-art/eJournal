@@ -336,10 +336,11 @@ class PresetNode(models.Model):
         choices=TYPES,
     )
 
-    deadline = models.OneToOneField(
-        'Deadline',
-        on_delete=models.CASCADE,
+    target = models.IntegerField(
+        null=True,
     )
+
+    deadline = models.DateTimeField()
 
     forced_template = models.ForeignKey(
         'EntryTemplate',
@@ -353,26 +354,6 @@ class PresetNode(models.Model):
     )
 
 
-class Deadline(models.Model):
-    """Deadline.
-
-    A Deadline has the following features:
-    - datetime: the date where the deadline closes
-    - points: optionally the amount of points required for this deadline.
-    """
-
-    datetime = models.DateTimeField(
-        default=now
-    )
-    points = models.IntegerField(
-        null=True,
-    )
-
-    def __str__(self):
-        """toString."""
-        return str(self.pk)
-
-
 class Entry(models.Model):
     """Entry.
 
@@ -383,10 +364,9 @@ class Entry(models.Model):
     - TODO: edited_at
     """
 
-    template = models.ForeignKey(
+    template = models.OneToOneField(
         'EntryTemplate',
-        on_delete=models.SET_NULL,
-        null=True
+        on_delete=models.CASCADE,
     )
     createdate = models.DateTimeField(
         default=now,

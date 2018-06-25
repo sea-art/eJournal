@@ -5,7 +5,7 @@ The facory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
 from VLE.models import User, Participation, Course, Assignment, Role, JournalFormat, PresetNode, Node, EntryComment, \
-    Entry, EntryTemplate, Field, Content, Deadline, Journal
+    Entry, EntryTemplate, Field, Content, Journal
 import random
 import datetime
 import django.utils.timezone as timezone
@@ -109,14 +109,14 @@ def make_format(templates=[], max_points=10):
     return format
 
 
-def make_progress_node(format, deadline):
+def make_progress_node(format, deadline, target):
     """Make a progress node.
 
     Arguments:
     format -- format the node belongs to.
     deadline -- deadline of the node.
     """
-    node = PresetNode(type=Node.PROGRESS, deadline=deadline, format=format)
+    node = PresetNode(type=Node.PROGRESS, deadline=deadline, target=target, format=format)
     node.save()
     return node
 
@@ -132,6 +132,7 @@ def make_entrydeadline_node(format, deadline, template):
     node = PresetNode(type=Node.ENTRYDEADLINE, deadline=deadline,
                       forced_template=template, format=format)
     node.save()
+
     return node
 
 
@@ -166,6 +167,13 @@ def make_journal(assignment, user):
     return journal
 
 
+def clone_template(template):
+    template = EntryTemplate.objects.get(pk=template.id)
+    template.pk = None
+    template.save()
+    return template
+
+
 def make_entry(template, posttime=timezone.now()):
     """Create a new entry in a journal.
 
@@ -176,6 +184,7 @@ def make_entry(template, posttime=timezone.now()):
     """
     # TODO: Too late logic.
 
+    template = clone_template(template)
     entry = Entry(template=template, createdate=posttime)
     entry.save()
     return entry
@@ -200,21 +209,6 @@ def make_content(entry, data, field=None):
     content = Content(field=field, entry=entry, data=data)
     content.save()
     return content
-
-
-def make_deadline(datetime=datetime.datetime.now(), points=None):
-    """Make deadline (with possible points).
-
-    Arguments:
-    datetime -- time the deadline ends (default: now)
-    points -- points that have to be aquired to pass the deadline.
-    """
-    if points:
-        deadline = Deadline(datetime=datetime, points=points)
-    else:
-        deadline = Deadline(datetime=datetime)
-    deadline.save()
-    return deadline
 
 
 def make_journal_format():

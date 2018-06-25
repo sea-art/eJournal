@@ -28,9 +28,6 @@ class DataBaseTests(TestCase):
         self.jf1 = factory.make_journal_format()
         self.jf2 = factory.make_journal_format()
 
-        self.d1 = factory.make_deadline()
-        self.d2 = factory.make_deadline()
-
         self.f1 = factory.make_field(self.et1, "test0", "1")
         self.f2 = factory.make_field(self.et1, "test2", "2")
         self.f3 = factory.make_field(self.et2, "test1", "1")
@@ -65,7 +62,7 @@ class DataBaseTests(TestCase):
         ass_test.courses.add(course_test)
         journ_test = factory.make_journal(user=user_test, assignment=ass_test)
 
-        self.assertEquals(entr_test.template.pk, template.pk)
+        self.assertNotEquals(entr_test.template.pk, template.pk)
         self.assertEquals(journ_test.user.pk, user_test.pk)
         self.assertEquals(journ_test.assignment.pk, ass_test.pk)
         self.assertEquals(course_test.author.pk, user_test.pk)

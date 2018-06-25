@@ -134,7 +134,7 @@ def entry_deadline_to_dict(node):
         'type': node.type,
         'nID': node.id,
         'jID': node.id,
-        'deadline': node.preset.deadline.datetime.strftime('%Y-%m-%d %H:%M'),
+        'deadline': node.preset.deadline.strftime('%Y-%m-%d %H:%M'),
         'template': template_to_dict(node.preset.forced_template),
         'entry': entry_to_dict(node.entry),
     } if node else None
@@ -146,8 +146,8 @@ def progress_to_dict(node):
         'type': node.type,
         'nID': node.id,
         'jID': node.id,
-        'deadline': node.preset.deadline.datetime.strftime('%Y-%m-%d %H:%M'),
-        'target': node.preset.deadline.points,
+        'deadline': node.preset.deadline.strftime('%Y-%m-%d %H:%M'),
+        'target': node.preset.target,
     } if node else None
 
 
@@ -205,12 +205,13 @@ def preset_to_dict(preset):
         return None
 
     base = {
+        'pID': preset.id,
         'type': preset.type,
-        'deadline': preset.deadline.datetime.strftime('%Y-%m-%d %H:%M'),
+        'deadline': preset.deadline.strftime('%Y-%m-%d %H:%M'),
     }
 
     if preset.type == Node.PROGRESS:
-        result = {**base, **{'target': preset.deadline.points}}
+        result = {**base, **{'target': preset.target}}
     elif preset.type == Node.ENTRYDEADLINE:
         result = {**base, **{'template': template_to_dict(preset.forced_template)}}
 
