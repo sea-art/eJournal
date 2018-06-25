@@ -3,22 +3,30 @@
         <b-col cols="12" lg="6" offset-lg="3" class="table-content">
             <bread-crumb>&nbsp;</bread-crumb>
 
-            {{ permissions }} <br/> <br/>
-            {{ originalRoleConfig[0] }} <br/> <br/>
-            {{ roleConfig[0] }} <br/> <br/>
+            {{ defaultRoles }} <br/> <br/>
+            {{ defaultPermissions }} <br/> <br/>
+            {{ originalResponse }}
 
             <b-button class="multi-form float-right add-button ml-2"> Update </b-button>
-            <b-button @click="reset()" class="multi-form float-right delete-button"> Reset </b-button>
+            <b-button class="multi-form float-right delete-button"> Reset </b-button>
 
-            <table class="table responsive table-bordered table-hover">
+            <table class="table table-bordered table-hover">
                 <thead >
-                    <tr>
+                    <tr v-if="windowWidth > 750">
                         <th/>
                         <th v-for="role in roles" :key="'th-' + role">{{ role }}</th>
                         <th><icon name="plus-square" @click.native="modalShow = !modalShow" class="add-icon" scale="1.75"></icon></th>
                     </tr>
+                    <tr v-else>
+                        <th/>
+                        <b-form-select
+                            class="select-center mb-3"
+                            v-model="selectedRole"
+                            :options="selectRoles"/>
+                        <th><icon name="plus-square" @click.native="modalShow = !modalShow" class="add-icon" scale="1.75"></icon></th>
+                    </tr>
                 </thead>
-                <tbody>
+                <tbody v-if="windowWidth > 750">
                     <tr v-for="permission in permissions" :key="permission">
                         <td>{{ permission }}</td>
                         <td v-for="role in roles" :key="role + '-' + permission">
@@ -26,7 +34,19 @@
                             @checkbox-toggle="updateRole"
                             :role="role"
                             :permission="permission"
-                            :receivedState="setState(role, permission)"/>
+                            :receivedState="false"/>
+                        </td>
+                    </tr>
+                </tbody>
+                <tbody v-else>
+                        <tr v-for="permission in permissions" :key="permission">
+                        <td>{{ permission }}</td>
+                        <td>
+                            <custom-checkbox
+                            @checkbox-toggle="updateRole"
+                            :role="selectedRole"
+                            :permission="permission"
+                            :receivedState="false"/>
                         </td>
                     </tr>
                 </tbody>
@@ -70,10 +90,9 @@ export default {
         return {
             roles: [],
             permissions: [],
-            roleConfig: [],
-            originalRoleConfig: [],
-            defauls: {},
+            originalResponse: [],
             defaultRoles: [],
+            defaultPermissions: [],
             selectRoles: [
                 {value: null, text: 'Please select a role'},
                 {value: 'Student', text: 'Student'},
@@ -93,59 +112,29 @@ export default {
             this.windowWidth = document.documentElement.clientWidth
         },
         updateRole (list) {
-            var role = list[0]
-            var permission = list[1]
-            var state = list[2]
-
-            var i = this.roleConfig.findIndex(p => p.name === role)
-
-            this.roleConfig[i].permissions[permission] = (state ? 1 : 0)
-
-            console.log(this.originalRoleConfig[i].permissions[permission])
-            console.log(this.roleConfig[i].permissions[permission])
+            console.log(list)
         },
         addRole () {
             this.modalShow = false
-
-            var newPermissions = {}
-            for (var i = 0; i < this.permissions.length; i++) {
-                newPermissions[this.permissions[i]] = 0
-            }
-            var newRole = { name: this.newRole, cID: this.cID, permissions: newPermissions }
-
-            this.roleConfig.push(newRole)
             this.roles.push(this.newRole)
-
             this.newRole = ''
         },
         focusRoleNameInput () {
             this.$refs.roleNameInput.focus()
-        },
-        setState (role, permission) {
-            var correctRole = (this.roleConfig.filter(arg => { return arg.name === role }))[0]
-            return correctRole.permissions[permission] === 1
-        },
-        reset () {
-
         }
     },
     created () {
         permissions.get_course_roles(this.cID)
             .then(response => {
-                this.roleConfig = response
-
+                this.originalResponse = response
                 response.forEach(role => {
                     this.defaultRoles.push(role.name)
                 })
                 this.roles = this.defaultRoles
 
                 this.permissions = Object.keys(response[0].permissions)
+                console.log(this.permissions[0])
             })
-            .catch(_ => alert('Error while loading course roles'))
-
-        // TODO How to deepcopy in shitty javascript
-        permissions.get_course_roles(this.cID)
-            .then(response => { this.originalRoleConfig = response })
             .catch(_ => alert('Error while loading course roles'))
     },
     mounted () {
