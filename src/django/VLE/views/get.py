@@ -171,7 +171,6 @@ def get_course_assignments(request, cID):
         }, status=200)
 
 
-# TODO: Did I comment this correctly?
 @api_view(['GET'])
 def get_assignment_data(request, cID, aID):
     """Get the data linked to an assignemnt ID.
@@ -182,8 +181,8 @@ def get_assignment_data(request, cID, aID):
     aID -- assignemnt ID given with the request
 
     Returns a json string with the assignment data for the requested user.
-    Depending on the permissions, return the assignment or the student's
-    journal.
+    Depending on the permissions, return all student journals or a specific
+    student's journal.
     """
     user = request.user
     if not user.is_authenticated:
@@ -193,7 +192,6 @@ def get_assignment_data(request, cID, aID):
     assignment = Assignment.objects.get(pk=aID)
     participation = Participation.objects.get(user=user, course=course)
 
-    # TODO ask: is this the correct permission?
     if participation.role.can_grade_journal:
         # Return the assignment.
         return JsonResponse({
@@ -231,8 +229,7 @@ def get_assignment_journals(request, aID):
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Assignment or Participation does not exist.'}, status=404)
 
-    # TODO: permission correct?
-    if not participation.role.can_grade_journal:
+    if not participation.role.can_view_assignment_participants:
         return JsonResponse({'result': '403 Forbidden'}, status=403)
 
     journals = []
