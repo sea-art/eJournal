@@ -179,7 +179,7 @@ def update_format(request):
                                 status=404)
 
     for preset in presets:
-        if preset.haskey('pID'):
+        if 'pID' in preset:
             try:
                 presetNode = PresetNode.objects.get(pk=preset['pID'])
             except EntryTemplate.DoesNotExist:
