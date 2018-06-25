@@ -13,6 +13,8 @@ import VLE.utils as utils
 from VLE.models import User, Journal, EntryTemplate, Node, Assignment, Field, Entry, Content
 import VLE.edag as edag
 
+import VLE.views.responses as responses
+
 
 @api_view(['POST'])
 def create_new_course(request):
@@ -28,7 +30,7 @@ def create_new_course(request):
     On success, returns a json string containing the course.
     """
     if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     try:
         name, abbr = utils.get_required_post_params(request.data, "name", "abbr")
@@ -38,7 +40,7 @@ def create_new_course(request):
 
     course = factory.make_course(name, abbr, startdate, request.user, lti_id)
 
-    return JsonResponse({'result': 'success', 'course': serialize.course_to_dict(course)}, status=201)
+    return responses.created(payload={'course': serialize.course_to_dict(course)})
 
 
 @api_view(['POST'])
@@ -54,7 +56,7 @@ def create_new_assignment(request):
     On success, returns a json string containing the assignment.
     """
     if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     try:
         name, description, cID = utils.get_required_post_params(request.data, "name", "description", "cID")
@@ -62,7 +64,8 @@ def create_new_assignment(request):
         return utils.keyerror_json("name", "description", "cID")
 
     assignment = factory.make_assignment(name, description, cIDs=[cID], author=request.user)
-    return JsonResponse({'result': 'success', 'assignment': serialize.assignment_to_dict(assignment)}, status=201)
+
+    return responses.created(payload={'assignment': serialize.assignment_to_dict(assignment)})
 
 
 @api_view(['POST'])
@@ -74,7 +77,7 @@ def create_journal(request):
     aID -- the assignment id
     """
     if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     try:
         aID = utils.get_required_post_params(request.data, "aID")
@@ -84,7 +87,7 @@ def create_journal(request):
     assignment = Assignment.objects.get(pk=aID)
     journal = factory.make_journal(assignment, request.user)
 
-    return JsonResponse({'result': 'success', 'journal': serialize.journal_to_dict(journal)}, status=201)
+    return responses.created(payload={'journal': serialize.journal_to_dict(journal)})
 
 
 @api_view(['POST'])
@@ -100,7 +103,7 @@ def create_entry(request):
     content -- the list of {tag, data} tuples to bind data to a template field.
     """
     if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     try:
         jID, tID, content_list = utils.get_required_post_params(request.data, "jID", "tID", "content")
@@ -117,9 +120,7 @@ def create_entry(request):
         if nID:
             node = Node.objects.get(pk=nID, journal=journal)
             if node.type == Node.PROGRESS:
-                return JsonResponse({'result': '400 Bad Request',
-                                     'description': 'Passed node is a Progress node.'},
-                                    status=400)
+                return responses.bad_request('Passed node is a Progress node.')
 
             if node.entry:
                 Content.objects.filter(entry=node.entry).all().delete()
@@ -145,14 +146,10 @@ def create_entry(request):
                 added = i
                 break
 
-        return JsonResponse({'result': 'success',
-                             'added': added,
-                             'nodes': edag.get_nodes_dict(journal, request.user)},
-                            status=201)
+        return responses.created(payload={'added': added,
+                                 'nodes': edag.get_nodes_dict(journal, request.user)})
     except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
-        return JsonResponse({'result': '404 Not Found',
-                             'description': 'Journal, Template or Node does not exist.'},
-                            status=404)
+        return responses.not_found('Journal, Template or Node does not exist.')
 
 
 @api_view(['POST'])
@@ -166,7 +163,7 @@ def create_entrycomment(request):
         text -- the comment
     """
     if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     try:
         entryID, authorID, text = utils.get_required_post_params(request.data, "entryID", "authorID", "text")
@@ -177,10 +174,8 @@ def create_entrycomment(request):
         author = User.objects.get(pk=authorID)
         entry = Entry.objects.get(pk=entryID)
     except (User.DoesNotExist, Entry.DoesNotExist):
-        return JsonResponse({'result': '404 Not Found',
-                             'description': 'User or Entry does not exist.'},
-                            status=404)
+        return responses.not_found('User or Entry does not exist.')
 
     factory.make_entrycomment(entry, author, text)
 
-    return JsonResponse({'result': 'success'}, status=201)
+    return responses.success()

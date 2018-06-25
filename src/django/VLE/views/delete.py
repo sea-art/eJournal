@@ -8,6 +8,8 @@ from django.http import JsonResponse
 
 from VLE.models import Assignment, Course, Participation, User
 
+import VLE.views.responses as responses
+
 
 @api_view(['POST'])
 def delete_course(request):
@@ -21,12 +23,12 @@ def delete_course(request):
     """
     user = request.user
     if not user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     course = Course.objects.get(pk=request.data['cID'])
     course.delete()
 
-    return JsonResponse({'result': 'Succesfully deleted course'}, status=200)
+    return responses.response(200, 'Succesfully deleted course')
 
 
 @api_view(['POST'])
@@ -43,9 +45,9 @@ def delete_assignment(request):
     Returns a json string for if it is succesful or not.
     """
     if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
-    response = {'result': 'Succesfully deleted assignment', 'removed_completely': False}
+    response = {'removed_completely': False}
     course = Course.objects.get(pk=request.data['cID'])
     assignment = Assignment.objects.get(pk=request.data['aID'])
     assignment.courses.remove(course)
@@ -55,7 +57,7 @@ def delete_assignment(request):
         assignment.delete()
         response['removed_completely'] = True
 
-    return JsonResponse(response, status=200)
+    return responses.response(200, 'Succesfully deleted assignment', payload=response)
 
 
 @api_view(['POST'])
@@ -71,15 +73,15 @@ def delete_user_from_course(request):
     """
     user = request.user
     if not user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     try:
         user = User.objects.get(pk=request.data['uID'])
         course = Course.objects.get(pk=request.data['cID'])
         participation = Participation.objects.get(user=user, course=course)
     except (User.DoesNotExist, Course.DoesNotExist, Participation.DoesNotExist):
-        return JsonResponse({'result': '404 Not Found',
-                             'description': 'User, Course or Participation does not exist.'}, status=404)
+        return responses.not_found(description='User, Course or Participation does not exist.')
 
     participation.delete()
-    return JsonResponse({'result': 'Succesfully deleted student from course'}, status=200)
+
+    return responses.response(200, 'Succesfully deleted student from course')
