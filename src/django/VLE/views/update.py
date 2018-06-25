@@ -162,6 +162,25 @@ def update_comment_notification(request):
     return JsonResponse({'result': 'success', 'new_value': user.comment_notifications})
 
 
+def update_templates(result_list, templates):
+    for template_field in templates:
+        if 'updated' in template_field and template_field['updated']:
+            # Create the new template and add it to the format.
+            new_template = create_template(template_field)
+            print(new_template.id)
+            result_list.add(new_template)
+
+            # Update presets to use the new template.
+            if 'tID' in template_field:
+                template = EntryTemplate.objects.get(pk=template_field['tID'])
+                presets = PresetNode.objects.filter(forced_template=template).all()
+                for preset in presets:
+                    preset.forced_template = new_template
+                    preset.save()
+
+                result_list.remove(template)
+
+
 def create_template(template_dict):
     name = template_dict['name']
     fields = template_dict['fields']
@@ -209,16 +228,8 @@ def update_format(request):
                              'description': 'Format does not exist.'},
                             status=404)
 
-    format.available_templates.clear()
-    format.unused_templates.clear()
-
-    for template_field in templates:
-        format.available_templates.add(create_template(template_field))
-
-    for template_field in unused_templates:
-        format.unused_templates.add(create_template(template_field))
-
     for preset in presets:
+        # If pID is set, update an already existing preset, else create new.
         if 'pID' in preset:
             try:
                 preset_node = PresetNode.objects.get(pk=preset['pID'])
@@ -235,21 +246,23 @@ def update_format(request):
         if preset_node.type == Node.PROGRESS:
             preset_node.target = preset['target']
         elif preset_node.type == Node.ENTRYDEADLINE:
-            tID = preset['template']['tID']
-            try:
-                template = EntryTemplate.objects.get(pk=tID)
-            except EntryTemplate.DoesNotExist:
-                return JsonResponse({'result': '404 Not Found',
-                                     'description': 'Template does not exist.'},
-                                    status=404)
-            preset_node.forced_template = template
+            template_field = preset['template']
+            # If tID is valid, use a pre-existing template, else create new.
+            if 'tID' in template_field and template_field['tID'] > 0:
+                preset_node.forced_template = EntryTemplate.objects.get(pk=template_field['tID'])
+            else:
+                preset_node.forced_template = create_template(template_field)
         preset_node.save()
 
+        # Create this preset for already existing journals.
         if 'pID' not in preset:
             for journal in assignment.journal_set.all():
                 Node(type=preset_node.type,
                      journal=journal,
                      preset=preset_node).save()
+
+    update_templates(format.available_templates, templates)
+    update_templates(format.unused_templates, unused_templates)
 
     return JsonResponse({'result': 'success', 'format': serialize.format_to_dict(format)}, status=200)
 

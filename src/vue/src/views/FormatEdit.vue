@@ -239,6 +239,7 @@ export default {
             this.unused_templates = []
 
             for (var template of this.templatePool) {
+                template.t.updated = template.updated
                 if (template.a) {
                     this.templates.push(template.t)
                 } else {
