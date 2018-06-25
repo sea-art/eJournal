@@ -99,6 +99,7 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
         assign.lti_id = lti_id
     if points_possible is not None:
         assign.points_possible = points_possible
+    assign.save()
 
     return assign
 
