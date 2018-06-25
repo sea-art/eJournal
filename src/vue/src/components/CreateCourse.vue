@@ -31,10 +31,16 @@ export default {
             courseApi.create_new_course(this.form.courseName,
                 this.form.courseAbbr, this.form.courseStartdate,
                 this.form.ltiCourseID)
-                .then(response => { this.$emit('handleAction', response.course.cID) })
+                .then(response => {
+                    this.$emit('handleAction', response.course.cID)
+                    this.onReset(undefined)
+                })
         },
         onReset (evt) {
-            evt.preventDefault()
+            if (evt !== undefined) {
+                evt.preventDefault()
+            }
+
             /* Reset our form values */
             this.form.courseName = ''
             this.form.courseAbbr = ''

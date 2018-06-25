@@ -36,10 +36,15 @@ export default {
             assignmentApi.create_new_assignment(this.form.assignmentName,
                 this.form.assignmentDescription, this.form.courseID,
                 this.form.ltiAssignID, this.form.pointsPossible)
-                .then(response => { this.$emit('handleAction', response.assignment.aID) })
+                .then(response => {
+                    this.$emit('handleAction', response.assignment.aID)
+                    this.onReset(undefined)
+                })
         },
         onReset (evt) {
-            evt.preventDefault()
+            if (evt !== undefined) {
+                evt.preventDefault()
+            }
             /* Reset our form values */
             this.form.assignmentName = ''
             this.form.assignmentDescription = ''
@@ -50,7 +55,6 @@ export default {
         }
     },
     mounted () {
-        // alert(this.lti)
         if (this.lti !== undefined) {
             this.form.assignmentName = this.lti.ltiAssignName
             this.form.ltiAssignID = this.lti.ltiAssignID

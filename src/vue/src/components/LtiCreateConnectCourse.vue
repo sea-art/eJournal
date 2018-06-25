@@ -29,7 +29,7 @@
             title="Connect course"
             size="lg"
             hide-footer>
-                <connect-course @handleAction="handleConnected"/>
+                <connect-course @handleAction="handleConnected" :lti="lti"/>
         </b-modal>
     </div>
 </template>

@@ -236,4 +236,14 @@ input, select {
 .no-hover:hover {
     background-color: var(--theme-light-grey);
 }
+
+.settings-card {
+    margin-top: 12px;
+    text-align: left;
+    background-color: var(--theme-light-grey);
+    border-width: 0px;
+    border-left-width: 20px;
+    border-radius: 0px;
+    border-left-color: var(--theme-blue);
+}
 </style>

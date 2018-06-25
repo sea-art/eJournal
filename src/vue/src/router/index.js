@@ -43,7 +43,7 @@ var router = new Router({
         name: 'AssignmentsOverview',
         component: AssignmentsOverview
     }, {
-        path: '/ErrorPage',
+        path: '/Error',
         name: 'ErrorPage',
         component: ErrorPage
     }, {

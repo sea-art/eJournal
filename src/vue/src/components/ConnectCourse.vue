@@ -1,47 +1,44 @@
 <template>
     <div>
-        <b-form @submit="onSubmit" @reset="onReset" :v-model="form.ltiCourseID">
-            <!-- TODO: Laad alle courses in en maak single selectable! -->
-            <b-button class="float-right" type="reset">Reset</b-button>
-            <b-button class="float-right" type="submit">Create</b-button>
-        </b-form>
+        <div v-for="c in courses" :key="c.cID">
+            <main-card
+                @click.native="connectCourse(c.cID)"
+                :line1="c.name"
+                :line2="'From - To (years eg: 2017 - 2018)'"
+                :color="$root.colors[c.cID % $root.colors.length]">
+            </main-card>
+        </div>
     </div>
 </template>
 
 <script>
+import mainCard from '@/components/MainCard.vue'
 import courseApi from '@/api/course.js'
 
 export default {
     name: 'ConnectCourse',
+    props: ['lti'],
+    components: {
+        'main-card': mainCard
+    },
     data () {
         return {
-            form: {
-                courseName: '',
-                courseAbbreviation: '',
-                courseStartdate: '',
-                ltiCourseID: ''
-            }
+            courses: [],
         }
     },
     methods: {
         loadCourses () {
-            // TODO: Laad alle courses die gekoppeld zouden kunnen worden.
+            courseApi.get_user_teacher_courses()
+                .then(response => { this.courses = response })
+                .catch(_ => alert('Error while loading courses'))
         },
-        onSubmit () {
-            courseApi.connect_course(this.form.courseName, this.form.courseAbbreviation, this.form.courseStartdate, this.form.ltiCourseID)
-                .then(_ => { this.$emit('handleAction') })
-        },
-        onReset (evt) {
-            evt.preventDefault()
-            /* Reset our form values */
-            this.form.courseName = ''
-            this.form.courseAbbreviation = ''
-            this.form.courseStartdate = ''
-
-            /* Trick to reset/clear native browser form validation state */
-            this.show = false
-            this.$nextTick(() => { this.show = true })
+        connectCourse (cID) {
+            courseApi.connect_course_lti(cID, this.lti.ltiCourseID)
+                .then(response => { this.$emit('handleAction', response.cID) })
         }
+    },
+    created () {
+        this.loadCourses()
     }
 }
 </script>

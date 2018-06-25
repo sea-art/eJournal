@@ -108,6 +108,7 @@ export default {
             case this.s_check_assign:
                 assignApi.get_assignment_by_lti_id(this.lti.ltiAssignID)
                     .then(response => {
+                        alert(response)
                         if (response === undefined) {
                             this.state = this.s_new_assign
                         } else {
@@ -131,9 +132,7 @@ export default {
     },
     watch: {
         state: function (val) {
-            if (val !== this.s_finish_s && val !== this.s_finish_t) {
-                this.updateState(this.state)
-            } else if (val === this.s_finish_s) {
+            if (val === this.s_finish_s) {
                 this.$router.push({
                     name: 'Journal',
                     params: {
@@ -150,6 +149,8 @@ export default {
                         aID: this.page.aID
                     }
                 })
+            } else {
+                this.updateState(this.state)
             }
         }
     },
