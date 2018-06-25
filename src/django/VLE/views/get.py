@@ -317,14 +317,8 @@ def get_assignment_journals(request, aID):
 
     stats = {}
     if journals:
-<<<<<<< HEAD
-        # TODO: Misschien dit efficient maken voor minimal delay?
-        stats['needsMarking'] = sum(
-            [x['stats']['submitted'] - x['stats']['graded'] for x in journals])
-=======
         # TODO: Maybe make this efficient for minimal delay?
         stats['needsMarking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
->>>>>>> 23b994e2cc5f15159e55a69935a48c435910b518
         points = [x['stats']['acquired_points'] for x in journals]
         stats['avgPoints'] = round(st.mean(points), 2)
         stats['medianPoints'] = st.median(points)
@@ -415,7 +409,7 @@ def get_format(request, aID):
 
 @api_view(['GET'])
 def get_user_teacher_courses(request):
-    """Gets all the courses where the user is a teacher.
+    """Get all the courses where the user is a teacher.
 
     Arguments:
     request -- the request that was sent

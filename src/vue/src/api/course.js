@@ -58,6 +58,7 @@ export default {
             cID: cID,
             lti_id: ltiID
         }).then(response => response.data.course)
+    },
 
 
     /* Updates the role of a student linked to a course. */
@@ -66,7 +67,6 @@ export default {
             uID: uID,
             cID: cID
         }).then(response => response.data.result)
-
     },
 
     /* Deletes an existing course. */
