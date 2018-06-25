@@ -87,3 +87,29 @@ def check_permissions(user, cID, permissionList):
             return False
 
     return True
+
+
+def edit_permissions(role, can_edit_course_roles=False, can_view_course_participants=False,
+                     can_edit_course=False, can_delete_course=False,
+                     can_add_assignment=False, can_view_assignment_participants=False,
+                     can_delete_assignment=False, can_publish_assigment_grades=False,
+                     can_grade_journal=False, can_publish_journal_grades=False,
+                     can_edit_journal=False, can_comment_journal=False):
+    """Edits an existing role."""
+    role.can_edit_course_roles = can_edit_course_roles
+    role.can_view_course_participants = can_view_course_participants
+    role.can_edit_course = can_edit_course
+    role.can_delete_course = can_delete_course
+
+    role.can_add_assignment = can_add_assignment
+    role.can_view_assignment_participants = can_view_assignment_participants
+    role.can_delete_assignment = can_delete_assignment
+    role.can_publish_assigment_grades = can_publish_assigment_grades
+
+    role.can_grade_journal = can_grade_journal
+    role.can_publish_journal_grades = can_publish_journal_grades
+    role.can_edit_journal = can_edit_journal
+    role.can_comment_journal = can_comment_journal
+
+    role.save()
+    return role

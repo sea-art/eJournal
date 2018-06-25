@@ -6,7 +6,7 @@ API functions that handle the delete requests.
 from rest_framework.decorators import api_view
 from django.http import JsonResponse
 
-from VLE.models import Assignment, Course, Participation, User
+from VLE.models import Assignment, Course, Participation, User, Role
 
 
 @api_view(['POST'])
@@ -83,3 +83,14 @@ def delete_user_from_course(request):
 
     participation.delete()
     return JsonResponse({'result': 'Succesfully deleted student from course'}, status=200)
+
+
+@api_view(['POST'])
+def delete_role_from_course(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    permission = Role.objects.get(participation__user=request.user, participation__course=request.data['cID'])
+
+    if not permission.can_edit_course_roles:
+        return JsonResponse({'result': '403 Forbidden'}, status=403)
