@@ -22,7 +22,8 @@ class Command(BaseCommand):
         """Generate a student and teacher."""
         users_examples = [
             {"username": "Student", "pass": "pass", "is_admin": False},
-            {"username": "Teacher", "pass": "pass", "is_admin": True},
+            {"username": "Teacher", "pass": "pass", "is_admin": False},
+            {"username": "Admin", "pass": "pass", "is_admin": True},
         ]
 
         self.users = []
