@@ -86,4 +86,5 @@ urlpatterns = [
     path('api/delete_user_from_course/', delete.delete_user_from_course, name='delete_user_from_course'),
 
     path('api/lti/launch', get.lti_launch, name='lti_launch'),
+    # path('api/lti/launch', get.lti_grade_replace_result, name='lti_launch'),
 ]

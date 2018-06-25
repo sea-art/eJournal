@@ -20,8 +20,8 @@ class GradePassBackRequest(object):
         """
         self.key = key
         self.secret = secret
-        self.url = journal.grade_url
-        self.sourcedId = journal.sourced_id
+        self.url = None if journal is None else journal.grade_url
+        self.sourcedId = None if journal is None else journal.sourced_id
         self.score = None  # TODO database
         self.result_data = None
 

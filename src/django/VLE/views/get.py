@@ -480,7 +480,9 @@ def lti_grade_replace_result(request):
     key = settings.LTI_KEY
 
     grade_request = GradePassBackRequest(key, secret, None)
-    grade_request.score = '0.5'
+    # grade_request.score = '0.5'
+    # TODO create custom link for submission
+    grade_request.result_data = {'url': 'http://127.0.0.1:8000/api/lti/launch'}
     grade_request.sourcedId = request.POST['lis_result_sourcedid']
     grade_request.url = request.POST['lis_outcome_service_url']
     response = grade_request.send_post_request()
@@ -520,8 +522,8 @@ def lti_launch(request):
             assignment_values.append(
                 request.POST['custom_canvas_assignment_points_possible'])
 
-        course = lti.check_course_lti(request.POST, user, lti_roles[request.POST[
-            'roles']])
+        course = lti.check_course_lti(request.POST, user, lti_roles[
+            request.POST['roles']])
         if course is None:
             if role == 'Teacher':
                 q_names = ['jwt_refresh', 'jwt_access', 'state']
