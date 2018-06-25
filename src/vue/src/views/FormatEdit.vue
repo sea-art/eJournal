@@ -1,4 +1,4 @@
-<!-- TODO: preview bug, css bug, delete template knop, unsaved changes bug, date sorting -->
+<!-- TODO: delete template knop, unsaved changes bug, date sorting -->
 
 <template>
     <b-row no-gutters>
@@ -126,10 +126,11 @@ export default {
             }
         },
         showModal (template) {
+            template.updated = true
             if (!this.templatePool.includes(template)) {
                 this.templatePool.push(template)
             }
-            template.updated = true
+            this.templateBeingEdited = template.t
             this.$refs['modal'].show()
         },
         selectNode ($event) {
