@@ -2,6 +2,7 @@ import oauth2
 from datetime import datetime
 
 from VLE.models import User, Course, Assignment, Participation, Role, Journal, JournalFormat
+import VLE.factory as factory
 
 
 class OAuthRequestValidater(object):
@@ -115,7 +116,7 @@ def select_create_course(request, user, roles):
 
             # Add the logged in user to the course through participation.
             # TODO Check if a teacher role already exists before adding it.
-            role = Role.objects.create(name=lti_roles[request['roles']])
+            role = factory.make_role(lti_roles[request['roles']], course)
             Participation.objects.create(user=user, course=course, role=role)
     else:
         if roles['teacher'] in request['roles']:
@@ -127,8 +128,8 @@ def select_create_course(request, user, roles):
             course.save()
 
             # Add the logged in user to the course through participation.
-            role = Role.objects.create(name='teacher')
-            Participation.objects.create(user=user, course=course, role=role)
+            role = factory.make_role('teacher', course)
+            factory.make_participation(user=user, course=course, role=role)
 
         else:
             # TODO redirect to unauthorized page

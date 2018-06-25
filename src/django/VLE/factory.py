@@ -59,11 +59,18 @@ def make_course(name, abbrev, startdate=None, author=None, lti_id=None):
     course = Course(name=name, abbreviation=abbrev, startdate=startdate, author=author, lti_id=lti_id)
     course.save()
     if author:
-        participation = Participation()
-        participation.user = author
-        participation.course = course
-        participation.role = Role.objects.get(name='Teacher')
-        participation.save()
+        role = make_role(
+            "Teacher",
+            course,
+            can_edit_grades=True,
+            can_view_grades=True,
+            can_edit_assignment=True,
+            can_view_assignment=True,
+            can_submit_assignment=True,
+            can_edit_course=True,
+            can_delete_course=True
+        )
+        make_participation(author, course, role)
     return course
 
 

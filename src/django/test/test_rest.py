@@ -245,8 +245,8 @@ class RestTests(TestCase):
         rein = factory.make_user("Rein!!", "123")
         lars = factory.make_user("Lars!!", "123")
 
-        TA = factory.make_role("TA")
-        SD = factory.make_role("SD")
+        TA = factory.make_role("TA", course)
+        SD = factory.make_role("SD", course)
         factory.make_participation(rein, course, TA)
         factory.make_participation(lars, course, SD)
 

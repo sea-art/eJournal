@@ -101,7 +101,7 @@ class DataBaseTests(TestCase):
 
     def test_permission_multiple(self):
         """Test a request that needs multiple permissions."""
-        role = factory.make_user(name="TA", can_submit_assignment=True, course=self.crs
+        role = factory.make_role(name="TA", can_submit_assignment=True, course=self.crs,
                                  can_view_grades=True, can_edit_assignment=True)
 
         factory.make_participation(self.usr, self.crs, role)
@@ -120,7 +120,7 @@ class DataBaseTests(TestCase):
 
         factory.make_participation(user, self.crs, role)
 
-        perm = get_permissions(user, self.crs.id)
+        perm = permissions.get_permissions(user, self.crs.id)
 
         self.assertTrue(perm["is_admin"])
 

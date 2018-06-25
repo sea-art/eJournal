@@ -28,7 +28,7 @@ class lti_launch_test(TestCase):
         self.created_course.lti_id = 'asdf'
         self.created_course.save()
 
-        role = Role.objects.create(name='role')
+        role = Role.objects.create(name='role', course=self.created_course)
         Participation.objects.create(
             user=self.created_user,
             course=self.created_course,

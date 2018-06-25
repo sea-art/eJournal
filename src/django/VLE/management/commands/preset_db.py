@@ -60,29 +60,24 @@ class Command(BaseCommand):
                 "teachers": [0, 1, 2, 3, 4, 5],
             }
         ]
-
-        self.courses = []
-        for c in courses_examples:
-            startdate = faker.date_this_decade(before_today=True)
-            course = factory.make_course(c["name"], c["abbr"], startdate, self.users[random.choice(c["teachers"])])
-
-            for sid in c["students"]:
-                student = self.users[sid]
-                factory.make_participation(student, course, self.roles[0])
-
-            self.courses.append(course)
-
-    def gen_roles(self):
         role_examples = [
             {"name": "Student"},
             {"name": "TA"},
             {"name": "Teacher"}
         ]
 
+        self.courses = []
         self.roles = []
-        for course in self.courses
+        for c in courses_examples:
+            startdate = faker.date_this_decade(before_today=True)
+            course = factory.make_course(c["name"], c["abbr"], startdate, self.users[random.choice(c["teachers"])])
             for r in role_examples:
-                self.roles.append(make_role(r["name"], course))
+                self.roles.append(factory.make_role(r["name"], course))
+            for sid in c["students"]:
+                student = self.users[sid]
+                factory.make_participation(student, course, self.roles[0])
+
+            self.courses.append(course)
 
     def gen_templates(self):
         """Generate templates.
@@ -264,7 +259,6 @@ class Command(BaseCommand):
         """
         self.gen_users()
         self.gen_courses()
-        self.gen_roles()
         self.gen_templates()
         self.gen_format()
         self.gen_assignments()
