@@ -157,6 +157,7 @@ def entry_to_dict(entry):
         'eID': entry.id,
         'createdate': entry.createdate.strftime('%Y-%m-%d %H:%M'),
         'grade': entry.grade,
+        'published': entry.published,
         # 'late': TODO
         'template': template_to_dict(entry.template),
         'content': [content_to_dict(content) for content in entry.content_set.all()],

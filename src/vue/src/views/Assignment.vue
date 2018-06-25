@@ -1,28 +1,41 @@
 <template>
     <content-columns>
-        <div slot="main-content-column">
-            <bread-crumb @eye-click="customisePage" @edit-click="handleEdit()"/>
-            <b-button :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">Edit Assignment Format</b-button>
-            <div v-if="assignmentJournals.length > 0" v-for="journal in assignmentJournals" :key="journal.student.uID">
-                <b-link tag="b-button" :to="{ name: 'Journal',
-                                              params: {
-                                                  cID: cID,
-                                                  aID: aID,
-                                                  jID: journal.jID
-                                              }
-                                            }">
-                    <student-card
-                        :student="journal.student.name"
-                        :studentNumber="journal.student.uID"
-                        :portraitPath="journal.student.picture"
-                        :stats="journal.stats"
-                        :color="$root.colors[journal.uid % $root.colors.length]">
-                    </student-card>
-                </b-link>
-            </div>
-            <div v-if="assignmentJournals.length === 0">
-                <h1>No journals found</h1>
-            </div>
+        <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
+        <b-button :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">Edit Assignment Format</b-button>
+        <b-card slot="main-content-column" class="settings-card no-hover">
+            <b-row>
+                <b-col lg="3" md="3">
+                    <b-form-select v-model="selectedSortOption" :select-size="1">
+                       <option :value="null">Sort by ...</option>
+                       <option value="sortName">Sort on name</option>
+                       <option value="sortID">Sort on ID</option>
+                    </b-form-select>
+                </b-col>
+                <b-col lg="3" md="3">
+                    <input type="text" v-model="searchVariable" placeholder="Search .."/>
+                </b-col>
+            </b-row>
+        </b-card>
+
+        <div v-if="assignmentJournals.length > 0" v-for="journal in filteredJournals" :key="journal.student.uID" slot="main-content-column">
+            <b-link tag="b-button" :to="{ name: 'Journal',
+                                          params: {
+                                              cID: cID,
+                                              aID: aID,
+                                              jID: journal.jID
+                                          }
+                                        }">
+                <student-card
+                    :student="journal.student.name"
+                    :studentNumber="journal.student.uID"
+                    :portraitPath="journal.student.picture"
+                    :stats="journal.stats"
+                    :color="$root.colors[journal.uid % $root.colors.length]">
+                </student-card>
+            </b-link>
+        </div>
+        <div v-if="assignmentJournals.length === 0" slot="main-content-column">
+            <h1>No journals found</h1>
         </div>
 
         <div  v-if="stats" slot="right-content-column">
@@ -59,7 +72,9 @@ export default {
         return {
             assignmentJournals: [],
             stats: [],
-            cardColor: ''
+            cardColor: '',
+            selectedSortOption: null,
+            searchVariable: ''
         }
     },
     components: {
@@ -104,6 +119,44 @@ export default {
                     aID: this.aID
                 }
             })
+        }
+    },
+    computed: {
+        filteredJournals: function () {
+            let self = this
+
+            function compareName (a, b) {
+                if (a.student.name < b.student.name) { return -1 }
+                if (a.student.name > b.student.name) { return 1 }
+                return 0
+            }
+
+            function compareID (a, b) {
+                if (a.student.uID < b.student.uID) { return -1 }
+                if (a.student.uID > b.student.uID) { return 1 }
+                return 0
+            }
+
+            function checkFilter (user) {
+                var userName = user.student.name.toLowerCase()
+                var userID = String(user.student.uID).toLowerCase()
+
+                if (userName.includes(self.searchVariable.toLowerCase()) ||
+                userID.includes(self.searchVariable)) {
+                    return true
+                } else {
+                    return false
+                }
+            }
+
+            /* Filter list based on search input. */
+            if (this.selectedSortOption === 'sortName') {
+                return this.assignmentJournals.filter(checkFilter).sort(compareName)
+            } else if (this.selectedSortOption === 'sortID') {
+                return this.assignmentJournals.filter(checkFilter).sort(compareID)
+            } else {
+                return this.assignmentJournals.filter(checkFilter)
+            }
         }
     }
 }

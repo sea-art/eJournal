@@ -103,7 +103,7 @@ export default {
 
             if ((pageName === 'Home' && this.$root.isAdmin()) ||
                (pageName === 'Course' && this.$root.canEditCourse()) ||
-               (pageName === 'Assignment' && this.$root.canEditAssignment())) {
+               (pageName === 'Assignment' && this.$root.canEditCourse())) {
                 return true
             }
         }
