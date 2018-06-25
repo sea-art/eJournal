@@ -38,8 +38,10 @@
 -->
 
 <template>
-    <div id="edag-div" ref="scd">
-        <edag-node v-for="(node, index) in this.nodes" @select-node="$emit('select-node', $event)" :index="index" :node="node" :selected="isSelected(index)" :key="node.nID" :upperEdgeStyle="upperEdgeStyle(index)" :lowerEdgeStyle="lowerEdgeStyle(index)"/>
+    <div id="edag-outer">
+        <div id="edag-inner" ref="scd">
+            <edag-node v-for="(node, index) in this.nodes" @select-node="$emit('select-node', $event)" :index="index" :node="node" :selected="isSelected(index)" :key="node.nID" :upperEdgeStyle="upperEdgeStyle(index)" :lowerEdgeStyle="lowerEdgeStyle(index)"/>
+        </div>
     </div>
 </template>
 
@@ -78,10 +80,16 @@ export default {
 </script>
 
 <style>
-#edag-div {
+#edag-outer {
+    overflow: hidden;
     height: 100%;
-    overflow: scroll;
+}
+#edag-inner {
+    height: 100%;
+    overflow-y: scroll;
     overflow-x: hidden;
+    padding-right: 25px;
+    margin-right: -20px; /* Increase/decrease this value for cross-browser compatibility */
 }
 
 #edag-div::-webkit-scrollbar {
