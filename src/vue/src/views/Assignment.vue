@@ -131,8 +131,8 @@ export default {
             }
 
             function compareID (a, b) {
-                if (a.studnet.uID < b.studnet.uID) { return -1 }
-                if (a.studnet.uID > b.studnet.uID) { return 1 }
+                if (a.student.uID < b.student.uID) { return -1 }
+                if (a.student.uID > b.student.uID) { return 1 }
                 return 0
             }
 
