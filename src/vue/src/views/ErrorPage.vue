@@ -34,7 +34,6 @@ export default {
 }
 
 #error-heading, #error-message {
-    font-size: 100px;
     border: none;
     padding: 0px;
 }
