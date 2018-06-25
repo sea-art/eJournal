@@ -16,7 +16,7 @@ import VLE.lti_launch as lti
 from VLE.lti_grade_passback import GradePassBackRequest
 import VLE.edag as edag
 import VLE.utils as utils
-from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment
+from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment, User
 import VLE.serializers as serialize
 import VLE.permissions as permission
 
@@ -82,6 +82,32 @@ def get_course_users(request, cID):
     return JsonResponse({'result': 'success',
                          'users': [serialize.participation_to_dict(participation)
                                    for participation in participations]}, status=200)
+
+
+@api_view(['GET'])
+def get_unenrolled_users(request, cID):
+    """Get all users not connected to a given course.
+
+    Arguments:
+    request -- the request
+    cID -- the course ID
+
+    Returns a json string with a list of participants.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Course does not exist.'}, status=404)
+
+    ids_in_course = course.participation_set.all().values('user__id')
+    result = User.objects.all().exclude(id__in=ids_in_course)
+
+    return JsonResponse({'result': 'success',
+                         'users': [serialize.user_to_dict(user) for user in result]}, status=200)
 
 
 @api_view(['GET'])
