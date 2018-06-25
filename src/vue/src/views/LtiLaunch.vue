@@ -160,7 +160,7 @@ export default {
         this.page.aID = this.$route.query.aID
         this.page.jID = this.$route.query.jID
 
-        this.state = '2'
+        // this.state = '2'
 
         if (this.state === this.s_bad_auth) {
             this.$router.push({
