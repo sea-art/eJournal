@@ -8,7 +8,8 @@ from django.http import JsonResponse
 
 import VLE.serializers as serialize
 import VLE.utils as utils
-from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, Journal
+import VLE.factory as factory
+from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, Journal, User
 
 
 @api_view(['POST'])
