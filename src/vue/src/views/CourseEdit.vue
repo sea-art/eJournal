@@ -1,7 +1,7 @@
 <template>
     <content-single-column>
         <bread-crumb>&nbsp;</bread-crumb>
-        <b-card class="no-hover">
+        <b-card class="no-hover settings-card">
             <b-form @submit="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
                          v-model="course.name"
