@@ -47,9 +47,9 @@ def update_course_roles(request):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    permission = Role.objects.get(participation__user=request.user, participation__course=request.data['cID'])
+    request_user_role = Participation.objects.get(user=request.user.id, course=request.data['cID']).role
 
-    if not permission.can_edit_course_roles:
+    if not request_user_role.can_edit_course_roles:
         return JsonResponse({'result': '403 Forbidden'}, status=403)
 
     for role in request.data['roles']:
@@ -172,7 +172,7 @@ def update_user_role_course(request):
 
     try:
         participation = Participation.objects.get(user=request.data['uID'], course=request.data['cID'])
-        participation.role = Role.objects.get(name=request.data['role'])
+        participation.role = Role.objects.get(name=request.data['role'], course=request.data['cID'])
     except (Participation.DoesNotExist, Role.DoesNotExist):
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Participation or Role does not exist.'}, status=404)

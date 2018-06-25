@@ -90,9 +90,9 @@ def delete_role_from_course(request):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    permission = Role.objects.get(participation__user=request.user, participation__course=request.data['cID'])
+    request_user_role = Participation.objects.get(user=request.user.id, course=request.data['cID']).role
 
-    if not permission.can_edit_course_roles:
+    if not request_user_role.can_edit_course_roles:
         return JsonResponse({'result': '403 Forbidden'}, status=403)
 
     Role.objects.get(name=request.data['name'], course=request.data['cID']).delete()
