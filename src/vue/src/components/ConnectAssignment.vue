@@ -28,7 +28,9 @@ export default {
             // TODO: Laad alle courses die gekoppeld zouden kunnen worden.
         },
         onSubmit () {
-            assignApi.connect_assignment_lti(this.form.assignName, this.form.assignAbbreviation, this.form.assignStartdate, this.form.ltiAssignID)
+            assignApi.connect_assignment_lti(this.form.assignName,
+                this.form.assignAbbreviation, this.form.assignStartdate,
+                this.form.ltiAssignID)
                 .then(_ => { this.$emit('handleAction') })
         },
         onReset (evt) {
