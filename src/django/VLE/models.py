@@ -300,8 +300,14 @@ class JournalFormat(models.Model):
     max_points = models.IntegerField(
         default=10
     )
+    unused_templates = models.ManyToManyField(
+        'EntryTemplate',
+        related_name='unused_templates',
+    )
+
     available_templates = models.ManyToManyField(
         'EntryTemplate',
+        related_name='available_templates',
     )
 
     def __str__(self):
