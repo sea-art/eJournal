@@ -60,7 +60,6 @@ export default {
         }).then(response => response.data.course)
     },
 
-
     /* Updates the role of a student linked to a course. */
     update_course_with_studentID (uID, cID) {
         return auth.authenticatedPost('/update_course_with_studentID/', {
