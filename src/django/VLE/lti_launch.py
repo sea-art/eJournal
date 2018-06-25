@@ -87,6 +87,7 @@ def select_create_user(request):
         user = users[0]
     else:
         user = User()
+        user.set_password('pass')
         if 'lis_person_contact_email_primary' in request:
             user.email = request['lis_person_contact_email_primary']
 
