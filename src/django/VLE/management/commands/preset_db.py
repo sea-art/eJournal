@@ -62,8 +62,7 @@ class Command(BaseCommand):
         ]
         role_examples = [
             {"name": "Student"},
-            {"name": "TA"},
-            {"name": "Teacher"}
+            {"name": "TA"}
         ]
 
         self.courses = []

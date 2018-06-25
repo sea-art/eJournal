@@ -45,7 +45,6 @@ class Command(BaseCommand):
                 "teachers": [1],
             }
         ]
-
         self.courses = []
         for c in courses_examples:
             startdate = faker.date_this_decade(before_today=True)

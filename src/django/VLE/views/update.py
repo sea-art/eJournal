@@ -35,6 +35,29 @@ def update_course(request):
     return JsonResponse({'result': 'success', 'course': serialize.course_to_dict(course)}, status=200)
 
 
+@api_view(['GET'])
+def update_course_roles(request, cID):
+    """Get course roles.
+
+    Arguments:
+    request -- the request that was sent.
+    cID     -- the course id
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    permission = Role.objects.get(participation__user=request.user, participation__course=cID)
+
+    if not permission.can_edit_course_roles:
+        return JsonResponse({'result': '403 Forbidden'}, status=403)
+
+    roles = []
+
+    for role in Role.objects.get(course=cID):
+        roles.append(serialize.role_to_dict(role))
+    return JsonResponse({'result': 'success'}, status=200)
+
+
 @api_view(['POST'])
 def update_assignment(request):
     """Update an existing assignment.

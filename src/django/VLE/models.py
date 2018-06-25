@@ -128,6 +128,10 @@ class Role(models.Model):
         """toString."""
         return str(self.name) + " (" + str(self.id) + ")"
 
+    class Meta:
+        """Meta data for the model: unique_together."""
+        unique_together = ('name', 'course',)
+
 
 class Participation(models.Model):
     """Participation.
