@@ -126,3 +126,25 @@ export default {
     }
 }
 </script>
+
+<style>
+.left-content {
+    flex: 0 0 auto;
+    padding-top: 30px !important;
+    padding-left: 30px !important;
+    padding-right: 30px !important;
+}
+
+.main-content {
+    padding-top: 40px;
+    background-color: var(--theme-medium-grey);
+    flex: 1 1 auto;
+}
+
+.right-content {
+    flex: 0 0 auto;
+    padding-top: 30px !important;
+    padding-left: 30px !important;
+    padding-right: 30px !important;
+}
+</style>
