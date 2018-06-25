@@ -433,7 +433,7 @@ def get_user_data(request, uID):
         # Select the nodes of this journal but only the ones with entries.
         nodes_of_journal_with_entries = Node.objects.filter(journal=journal).exclude(entry__isnull=True)
         # Serialize all entries and put them into the entries dictionary with the assignment name key.
-        entries_of_journal = [serialize.entry_to_dict_better(node.entry) for node in nodes_of_journal_with_entries]
+        entries_of_journal = [serialize.entry_to_dict(node.entry) for node in nodes_of_journal_with_entries]
         journal_dict.update({journal.assignment.name: entries_of_journal})
 
     return JsonResponse({'result': 'success',

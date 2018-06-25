@@ -158,19 +158,6 @@ def progress_to_dict(node):
 
 def entry_to_dict(entry):
     """Convert entry to dictionary."""
-    return {
-        'eID': entry.id,
-        'createdate': entry.createdate.strftime('%d-%m-%Y %H:%M'),
-        'grade': entry.grade,
-        'published': entry.published,
-        # 'late': TODO
-        'template': template_to_dict(entry.template),
-        'content': [content_to_dict(content) for content in entry.content_set.all()],
-    } if entry else None
-
-
-def entry_to_dict_better(entry):
-    """Convert entry to dictionary."""
     if not entry:
         return None
 
@@ -178,8 +165,12 @@ def entry_to_dict_better(entry):
         'createdate': entry.createdate.strftime('%d-%m-%Y %H:%M'),
         'grade': entry.grade
     }
+
+    # Add the field-content combinations.
     for field, content in zip(entry.template.field_set.all(), entry.content_set.all()):
         data.update({field.title: content.data})
+
+    # Add the comments.
     comments = [{entrycomment.author.username: entrycomment.text}
                 for entrycomment in EntryComment.objects.filter(entry=entry)]
     data.update({'comments': comments})
