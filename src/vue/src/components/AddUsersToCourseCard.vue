@@ -1,5 +1,5 @@
 <template>
-    <b-card :class="$root.colors[uID % $root.colors.length]">
+    <b-card :class="$root.colors[uID % $root.colors.length]" class="no-hover">
         <b-row>
             <b-col cols="4" order-sm="2" sm="4">
                 StudentID: {{ uID }}

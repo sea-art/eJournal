@@ -1,5 +1,5 @@
 <template>
-    <b-card :class="$root.colors[uID % $root.colors.length]">
+    <b-card :class="$root.colors[uID % $root.colors.length]" class="no-hover">
         <b-row>
             <b-col cols="4" sm="2">
                 <img class="img-fluid" :src="portraitPath">
