@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.urls import reverse
 import json
 
-from VLE.models import Participation, Assignment, Journal, Entry
+from VLE.models import Participation, Assignment, Journal, Entry, User
 
 import VLE.factory as factory
 import VLE.utils as utils
@@ -119,6 +119,8 @@ class RestTests(TestCase):
         factory.make_node(j, e2)
         factory.make_node(j, e3)
         factory.make_node(jj, e4)
+
+        self.a1 = a1
 
     def test_login(self):
         """Test if the login is successful."""
@@ -277,12 +279,17 @@ class RestTests(TestCase):
         self.assertEquals(response.status_code, 201)
 
     def test_delete_assignment(self):
-        """
-        Tests the delete assignment
-        """
+        """Test the delete assignment."""
         login = logging_in(self, self.username, self.password)
         api_post_call(self, '/api/delete_assignment/', {'cID': 1, 'aID': 1}, login)
         assignment = Assignment.objects.get(pk=1)
         self.assertEquals(assignment.courses.count(), 1)
         api_post_call(self, '/api/delete_assignment/', {'cID': 2, 'aID': 1}, login)
         self.assertEquals(Assignment.objects.filter(pk=1).count(), 0)
+
+    def test_get_user_data(self):
+        """Test the get_user_data function which responses with all the user data of a given user."""
+        login = logging_in(self, 'Lars', 'pass')
+        Lars = User.objects.get(username='Lars')
+        result = api_get_call(self, '/api/get_user_data/' + str(Lars.pk) + '/', login)
+        self.assertIn(self.a1.name, result.json()['journals'])
