@@ -203,6 +203,7 @@ def update_format(request):
                                      'description': 'Template does not exist.'},
                                     status=404)
             presetNode.forced_template = template
+        presetNode.save()
 
     return JsonResponse({'result': 'success', 'node': serialize.format_to_dict(format)}, status=200)
 
