@@ -4,13 +4,18 @@ Serializers.
 Functions to convert certain data to other formats.
 """
 import VLE.utils as utils
-from VLE.models import Journal, Node
+from VLE.models import Journal, Node, EntryComment
 
 
 def user_to_dict(user):
     """Convert user object to dictionary."""
     return {
         'name': user.username,
+        'email': user.email,
+        'lti_id': user.lti_id,
+        'is_admin': user.is_admin,
+        'grade_notifications': user.grade_notifications,
+        'comment_notifications': user.comment_notifications,
         'picture': user.profile_picture,
         'uID': user.id
     } if user else None
@@ -153,14 +158,24 @@ def progress_to_dict(node):
 
 def entry_to_dict(entry):
     """Convert entry to dictionary."""
-    return {
-        'eID': entry.id,
+    if not entry:
+        return None
+
+    data = {
         'createdate': entry.createdate.strftime('%d-%m-%Y %H:%M'),
-        'grade': entry.grade,
-        # 'late': TODO
-        'template': template_to_dict(entry.template),
-        'content': [content_to_dict(content) for content in entry.content_set.all()],
-    } if entry else None
+        'grade': entry.grade
+    }
+
+    # Add the field-content combinations.
+    for field, content in zip(entry.template.field_set.all(), entry.content_set.all()):
+        data.update({field.title: content.data})
+
+    # Add the comments.
+    comments = [{entrycomment.author.username: entrycomment.text}
+                for entrycomment in EntryComment.objects.filter(entry=entry)]
+    data.update({'comments': comments})
+
+    return data
 
 
 def template_to_dict(template):

@@ -6,6 +6,13 @@ export default {
         return auth.authenticatedGet('/get_own_user_data/')
             .then(response => response.data.user)
     },
+    /* Get user data.
+     * Get all the profile data and all the data like entries etc.
+     */
+    getUserData (uID) {
+        return auth.authenticatedGet('/get_user_data/' + uID + '/')
+            .then(response => response.data)
+    },
 
     /* Update user data. */
     updateUserData (username) {

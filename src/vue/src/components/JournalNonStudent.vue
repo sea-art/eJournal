@@ -1,5 +1,5 @@
 <template>
-    <b-row no-gutters>
+    <b-row class="outer-container" no-gutters>
     <!-- TODO: reopen bread-crumb when it is working again -->
         <b-col v-if="bootstrapLg()" cols="12">
             <!-- <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
@@ -41,7 +41,7 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 import journal from '@/api/journal'
 
 export default {
-    props: ['cID', 'aID', 'jID'],
+    props: ['jID'],
     data () {
         return {
             currentNode: 0,
@@ -126,3 +126,15 @@ export default {
     }
 }
 </script>
+
+<style>
+.left-content {
+    height: 100%;
+    overflow: hidden;
+}
+
+.outer-container {
+    height: 100%;
+    overflow: hidden;
+}
+</style>

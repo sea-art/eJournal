@@ -16,7 +16,7 @@ import VLE.lti_launch as lti
 from VLE.lti_grade_passback import GradePassBackRequest
 import VLE.edag as edag
 import VLE.utils as utils
-from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment
+from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment, User, Node
 import VLE.serializers as serialize
 import VLE.permissions as permission
 
@@ -84,6 +84,32 @@ def get_course_users(request, cID):
     return JsonResponse({'result': 'success',
                          'users': [serialize.participation_to_dict(participation)
                                    for participation in participations]}, status=200)
+
+
+@api_view(['GET'])
+def get_unenrolled_users(request, cID):
+    """Get all users not connected to a given course.
+
+    Arguments:
+    request -- the request
+    cID -- the course ID
+
+    Returns a json string with a list of participants.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Course does not exist.'}, status=404)
+
+    ids_in_course = course.participation_set.all().values('user__id')
+    result = User.objects.all().exclude(id__in=ids_in_course)
+
+    return JsonResponse({'result': 'success',
+                         'users': [serialize.user_to_dict(user) for user in result]}, status=200)
 
 
 @api_view(['GET'])
@@ -380,6 +406,41 @@ def get_entrycomments(request, entryID):
     entrycomments = EntryComment.objects.filter(entry=entryID)
     return JsonResponse({'result': 'success',
                          'entrycomments': [serialize.entrycomment_to_dict(comment) for comment in entrycomments]},
+                        status=200)
+
+
+@api_view(['GET'])
+def get_user_data(request, uID):
+    """Get the user data of the given user.
+
+    Get his/her profile data and posted entries with the titles of the journals of the user based on the uID.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    user = User.objects.get(pk=uID)
+
+    # Check the right permissions to get this users data, either be the user of the data or be an admin.
+    permissions = permission.get_permissions(user, cID=-1)
+    if not (permissions['is_admin'] or request.user.id == uID):
+        return JsonResponse({'result': '403 Forbidden Error'}, status=403)
+
+    profile = serialize.user_to_dict(user)
+    # Don't send the user id with it.
+    del profile['uID']
+
+    journals = Journal.objects.filter(user=uID)
+    journal_dict = {}
+    for journal in journals:
+        # Select the nodes of this journal but only the ones with entries.
+        nodes_of_journal_with_entries = Node.objects.filter(journal=journal).exclude(entry__isnull=True)
+        # Serialize all entries and put them into the entries dictionary with the assignment name key.
+        entries_of_journal = [serialize.entry_to_dict(node.entry) for node in nodes_of_journal_with_entries]
+        journal_dict.update({journal.assignment.name: entries_of_journal})
+
+    return JsonResponse({'result': 'success',
+                         'profile': profile,
+                         'journals': journal_dict},
                         status=200)
 
 

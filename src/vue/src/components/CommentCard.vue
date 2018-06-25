@@ -15,16 +15,18 @@
                 </b-row>
             </div>
         </div>
-        <b-row>
-            <b-col cols="2">
-                <img class="profilePic" id="nav-profile-image" slot="button-content" :src="userData.picture">
-                <br><b>{{userData.name}}</b>
-            </b-col>
-            <b-col cols="10">
-                <b-textarea v-model="tempComment" placeholder="Add your beautiful comment here"></b-textarea><br>
-                <b-button @click="addComment">Add your comment</b-button>
-            </b-col>
-        </b-row>
+        <div v-if="$root.canCommentJournal()">
+            <b-row>
+                <b-col cols="2">
+                    <img class="profilePic" id="nav-profile-image" slot="button-content" :src="userData.picture">
+                    <br><b>{{userData.name}}</b>
+                </b-col>
+                <b-col cols="10">
+                    <b-textarea v-model="tempComment" placeholder="Add your beautiful comment here"></b-textarea><br>
+                    <b-button @click="addComment">Add your comment</b-button>
+                </b-col>
+            </b-row>
+        </div>
     </div>
 </template>
 
