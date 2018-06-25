@@ -231,7 +231,8 @@ def get_assignment_journals(request, aID):
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Assignment or Participation does not exist.'}, status=404)
 
-    if not participation.role.can_view_assignment_participants:
+    # TODO: permission correct?
+    if not participation.role.can_grade_journal:
         return JsonResponse({'result': '403 Forbidden'}, status=403)
 
     journals = []

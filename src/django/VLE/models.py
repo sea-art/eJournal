@@ -111,7 +111,7 @@ class Role(models.Model):
 
     # Assignment permissions
     can_add_assignment = models.BooleanField(default=False)
-    can_view_assigment_participants = models.BooleanField(default=False)
+    can_view_assignment_participants = models.BooleanField(default=False)
     can_delete_assignment = models.BooleanField(default=False)
     can_publish_assigment_grades = models.BooleanField(default=False)
 

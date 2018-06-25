@@ -226,7 +226,7 @@ def make_journal_format():
 
 def make_role(name, can_edit_course_roles=False, can_view_course_participants=False,
               can_edit_course=False, can_delete_course=False,
-              can_add_assignment=False, can_view_assigment_participants=False,
+              can_add_assignment=False, can_view_assignment_participants=False,
               can_delete_assignment=False, can_publish_assigment_grades=False,
               can_grade_journal=False, can_publish_journal_grades=False,
               can_edit_journal=False, can_comment_journal=False):
@@ -248,7 +248,7 @@ def make_role(name, can_edit_course_roles=False, can_view_course_participants=Fa
         can_delete_course=can_delete_course,
 
         can_add_assignment=can_add_assignment,
-        can_view_assigment_participants=can_view_assigment_participants,
+        can_view_assignment_participants=can_view_assignment_participants,
         can_delete_assignment=can_delete_assignment,
         can_publish_assigment_grades=can_publish_assigment_grades,
 
