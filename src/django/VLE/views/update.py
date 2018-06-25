@@ -111,11 +111,20 @@ def update_password(request):
 
     password = request.data['new_password']
     if len(password) < 8:
-        return JsonResponse({'result': '400 Bad request', 'description': 'Password needs to contain at least 8 characters'}, status=400)
+        return JsonResponse({
+            'result': '400 Bad request',
+            'description': 'Password needs to contain at least 8 characters'
+        }, status=400)
     if password == password.lower():
-        return JsonResponse({'result': '400 Bad request', 'description': 'Password needs to contain at least 1 capital letter'}, status=400)
+        return JsonResponse({
+            'result': '400 Bad request',
+            'description': 'Password needs to contain at least 1 capital lett
+        er'}, status=400)
     if re.match(r'^\w+$', password):
-        return JsonResponse({'result': '400 Bad request', 'description': 'Password needs to contain a special character'}, status=400)
+        return JsonResponse({
+            'result': '400 Bad request',
+            'description': 'Password needs to contain a special character'}, stat
+        us=400)
 
     user.set_password(password)
     user.save()
