@@ -1,49 +1,41 @@
 <template>
     <div>
-        <b-form @submit="onSubmit" @reset="onReset" :v-model="form.ltiCourseID">
-            <!-- TODO: Laad alle courses in en maak single selectable! -->
-            <b-button class="float-right" type="reset">Reset</b-button>
-            <b-button class="float-right" type="submit">Create</b-button>
-        </b-form>
+        <div v-for="a in assignments" :key="a.aID">
+            <assignment-card @click.native="connectAssignment(a.aID)" :line1="a.name" :color="$root.colors[a.aID % $root.colors.length]">
+                <progress-bar v-if="a.journal && a.journal.stats" :currentPoints="a.journal.stats.acquired_points" :totalPoints="a.journal.stats.total_points"></progress-bar>
+            </assignment-card>
+        </div>
     </div>
 </template>
 
 <script>
+import mainCard from '@/components/MainCard.vue'
 import assignApi from '@/api/assignment.js'
 
 export default {
     name: 'ConnectAssignment',
+    props: ['lti', 'page'],
+    components: {
+        'main-card': mainCard
+    },
     data () {
         return {
-            form: {
-                assignName: '',
-                assignAbbreviation: '',
-                assignStartdate: '',
-                ltiAssignID: ''
-            }
+            assignments: []
         }
     },
     methods: {
-        loadCourses () {
-            // TODO: Laad alle courses die gekoppeld zouden kunnen worden.
+        loadAssignments () {
+            assignApi.get_course_assignments(this.page.cID)
+                .then(response => { this.assignments = response })
+                .catch(_ => alert('Error while loading assignments'))
         },
-        onSubmit () {
-            assignApi.connect_assignment_lti(this.form.assignName,
-                this.form.assignAbbreviation, this.form.assignStartdate,
-                this.form.ltiAssignID)
-                .then(_ => { this.$emit('handleAction') })
-        },
-        onReset (evt) {
-            evt.preventDefault()
-            /* Reset our form values */
-            this.form.assignName = ''
-            this.form.assignAbbreviation = ''
-            this.form.assignStartdate = ''
-
-            /* Trick to reset/clear native browser form validation state */
-            this.show = false
-            this.$nextTick(() => { this.show = true })
+        connectAssignment (aID) {
+            courseApi.connect_assignment_lti(aID, this.lti.ltiAssignID, this.lti.pointsPossible)
+                .then(response => { this.$emit('handleAction', response.aID) })
         }
+    },
+    created () {
+        this.loadAssignments()
     }
 }
 </script>

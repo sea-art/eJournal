@@ -35,7 +35,6 @@ export default {
         connectCourse (cID) {
             courseApi.connect_course_lti(cID, this.lti.ltiCourseID)
                 .then(response => { this.$emit('handleAction', response.cID) })
-
         }
     },
     created () {

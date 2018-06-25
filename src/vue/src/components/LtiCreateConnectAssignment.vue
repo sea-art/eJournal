@@ -29,7 +29,7 @@
             title="Connect assignment"
             size="lg"
             hide-footer>
-                <connect-assignment @handleAction="handleConnected" :lti="lti"/>
+                <connect-assignment @handleAction="handleConnected" :lti="lti" :page="page"/>
         </b-modal>
     </div>
 </template>
