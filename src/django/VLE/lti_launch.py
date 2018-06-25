@@ -68,17 +68,16 @@ class OAuthRequestValidater(object):
 
     @classmethod
     def check_signature(cls, key, secret, request):
-        """
-        Validates OAuth request using the python-oauth2 library:
-            https://github.com/simplegeo/python-oauth2.
+        """Validate OAuth request using the python-oauth2 library.
+
+        https://github.com/simplegeo/python-oauth2.
         """
         validator = OAuthRequestValidater(key, secret)
         return validator.is_valid(request)
 
 
 def select_create_user(request):
-    """
-    Return the user of the lti_user_id in the request if it doesnt yet exist
+    """Return the user of the lti_user_id in the request if it doesnt yet exist
     the user is create in our database.
     """
     lti_user_id = request['user_id']

@@ -13,7 +13,6 @@ import statistics as st
 import json
 
 import VLE.lti_launch as lti
-from VLE.lti_grade_passback import GradePassBackRequest
 import VLE.edag as edag
 import VLE.utils as utils
 from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment
@@ -28,6 +27,7 @@ NEW_COURSE = '2'
 NEW_ASSIGN = '3'
 FINISH_T = '4'
 FINISH_S = '5'
+GRADE_CENTER = '6'
 
 
 @api_view(['GET'])
@@ -469,28 +469,6 @@ def get_assignment_by_lti_id(request, lti_id):
 
 
 @api_view(['POST'])
-def lti_grade_replace_result(request):
-    """lti_grade_replace_result.
-
-    Replace a grade on the LTI instance based on the request.
-    """
-    # TODO Extend the docstring with what is important in the request variable.
-
-    secret = settings.LTI_SECRET
-    key = settings.LTI_KEY
-
-    grade_request = GradePassBackRequest(key, secret, None)
-    # grade_request.score = '0.5'
-    # TODO create custom link for submission
-    grade_request.result_data = {'url': 'http://127.0.0.1:8000/api/lti/launch'}
-    grade_request.sourcedId = request.POST['lis_result_sourcedid']
-    grade_request.url = request.POST['lis_outcome_service_url']
-    response = grade_request.send_post_request()
-
-    return JsonResponse(response)
-
-
-@api_view(['POST'])
 def lti_launch(request):
     """Django view for the lti post request."""
     secret = settings.LTI_SECRET
@@ -498,6 +476,11 @@ def lti_launch(request):
 
     authenticated, err = lti.OAuthRequestValidater.check_signature(
         key, secret, request)
+
+    # # Prints de post parameters als http page
+    # from django.http import HttpResponse
+    # post = json.dumps(request.POST, separators=(',', ': '))
+    # return HttpResponse(post.replace(",", " <br> "))
 
     if authenticated:
         # Select or create the user, course, assignment and journal.
@@ -553,10 +536,16 @@ def lti_launch(request):
 
         journal = lti.select_create_journal(request.POST, user, assignment, roles)
         jID = journal.pk if journal is not None else None
+        state = FINISH_T if jID is None else FINISH_S
+
+        # TODO Test if work
+        if journal in request.POST:
+            jID = int(request.POST['journal'])
+            state = GRADE_CENTER
+
         q_names = ['jwt_refresh', 'jwt_access',
                    'state', 'cID', 'aID', 'jID']
-        q_values = [token, access,
-                    FINISH_T if jID is None else FINISH_S,
+        q_values = [token, access, state,
                     course.pk, assignment.pk, jID]
         return redirect(lti.create_lti_query_link(q_names, q_values))
 
