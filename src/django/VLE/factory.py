@@ -264,7 +264,9 @@ def make_role(name, can_edit_course_roles=False, can_view_course_participants=Fa
 def make_role_all_permissions(name):
     """Make a role with all permissions enabled.
 
-    This should not be confused with the global roles."""
+    This enables a participant of the course to do everything within that course.
+    This should not be confused with the global roles: these also have effect
+    outside of the course."""
     make_role(name, True, True, True, True, True, True,
               True, True, True, True, True, True)
 

@@ -171,7 +171,7 @@ def get_course_assignments(request, cID):
         }, status=200)
 
 
-# TODO: is het commentaar correct?
+# TODO: Did I comment this correctly?
 @api_view(['GET'])
 def get_assignment_data(request, cID, aID):
     """Get the data linked to an assignemnt ID.
@@ -193,7 +193,7 @@ def get_assignment_data(request, cID, aID):
     assignment = Assignment.objects.get(pk=aID)
     participation = Participation.objects.get(user=user, course=course)
 
-    # TODO navragen: is de permissie juist?
+    # TODO ask: is this the correct permission?
     if participation.role.can_grade_journal:
         # Return the assignment.
         return JsonResponse({
@@ -231,7 +231,7 @@ def get_assignment_journals(request, aID):
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Assignment or Participation does not exist.'}, status=404)
 
-    if not participation.role.can_grade_journal:
+    if not participation.role.can_view_assignment_participants:
         return JsonResponse({'result': '403 Forbidden'}, status=403)
 
     journals = []
@@ -241,7 +241,7 @@ def get_assignment_journals(request, aID):
 
     stats = {}
     if journals:
-        # TODO: Misschien dit efficient maken voor minimal delay?
+        # TODO: Maybe make this efficient for minimal delay?
         stats['needsMarking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
         points = [x['stats']['acquired_points'] for x in journals]
         stats['avgPoints'] = round(st.mean(points), 2)
