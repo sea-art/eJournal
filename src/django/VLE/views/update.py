@@ -144,9 +144,13 @@ def update_format(request):
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     try:
-        aID, templates, presets = utils.get_required_post_params(request.data, "aID", "templates", "presets")
+        aID, templates, presets, unused_templates = utils.get_required_post_params(request.data,
+                                                                                   "aID",
+                                                                                   "templates",
+                                                                                   "presets",
+                                                                                   "unused_templates")
     except KeyError:
-        return utils.keyerror_json("fID", "templates", "presets")
+        return utils.keyerror_json("fID", "templates", "presets", "unused_templates")
 
     try:
         assignment = Assignment.objects.get(pk=aID)
@@ -156,10 +160,22 @@ def update_format(request):
                              'description': 'Format does not exist.'},
                             status=404)
 
+    format.available_templates.all().delete()
+    format.unused_templates.all().delete()
+
     for template_field in templates:
         tID = template_field['tID']
         try:
             format.available_templates.add(EntryTemplate.objects.get(pk=tID))
+        except EntryTemplate.DoesNotExist:
+            return JsonResponse({'result': '404 Not Found',
+                                 'description': 'Template does not exist.'},
+                                status=404)
+
+    for template_field in unused_templates:
+        tID = template_field['tID']
+        try:
+            format.unused_templates.add(EntryTemplate.objects.get(pk=tID))
         except EntryTemplate.DoesNotExist:
             return JsonResponse({'result': '404 Not Found',
                                  'description': 'Template does not exist.'},
