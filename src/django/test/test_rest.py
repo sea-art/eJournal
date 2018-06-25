@@ -292,5 +292,4 @@ class RestTests(TestCase):
         login = logging_in(self, 'Lars', 'pass')
         Lars = User.objects.get(username='Lars')
         result = api_get_call(self, '/api/get_user_data/' + str(Lars.pk) + '/', login)
-        result = result.json()
-        self.assertIn(self.a1.name, result['journals'])
+        self.assertIn(self.a1.name, result.json()['journals'])

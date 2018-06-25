@@ -411,7 +411,7 @@ def get_entrycomments(request, entryID):
 def get_user_data(request, uID):
     """Get the user data of the given user.
 
-    Get his/her profile data and posted entries with the titles of the journals.
+    Get his/her profile data and posted entries with the titles of the journals of the user based on the uID.
     """
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
