@@ -174,6 +174,10 @@ input, select {
     border-left-color: var(--theme-blue);
 }
 
+.showEnters {
+    white-space: pre;
+}
+
 .portrait-container {
     height: 100px;
     width: 100px;

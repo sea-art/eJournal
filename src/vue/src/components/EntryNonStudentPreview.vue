@@ -16,7 +16,7 @@
                             <b>{{ field.title }}</b>
                         </div>
                         <div v-if="field.type=='t'">
-                            <span style="white-space: pre;">{{ completeContent[i].data }}</span><br><br>
+                            <span class="showEnters">{{ completeContent[i].data }}</span><br><br>
                         </div>
                         <div v-else-if="field.type=='i'">
                         </div>
