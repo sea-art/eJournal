@@ -1,4 +1,4 @@
-<!-- TODO: delete template knop, unsaved changes bug, date sorting -->
+<!-- TODO: delete template knop -->
 
 <template>
     <b-row no-gutters>
@@ -19,7 +19,7 @@
             . -->
 
             <div v-if="nodes.length > 0">
-                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool"/>
+                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @deadline-changed="sortList"/>
             </div>
             <div v-else>
                 <p>No presets yet</p>
@@ -89,32 +89,36 @@ export default {
                 'name': '',
                 'tID': -1
             },
-            templatesEdited: [],
             wipTemplateId: -1
         }
     },
 
-    computed: {
-        nodesSorted () {
-            // return this.nodes.sort((a, b) => { return new Date(a.deadline) - new Date(b.deadline) })
-            return this.nodes
-        }
-    },
-
     created () {
-        journalAPI.get_format(this.aID).then(data => { this.templates = data.format.templates; this.presets = data.format.presets; this.unused_templates = data.format.unused_templates; this.convertFromDB(); this.isChanged = false })
+        journalAPI.get_format(this.aID).then(data => { this.templates = data.format.templates; this.presets = data.format.presets; this.unused_templates = data.format.unused_templates; this.convertFromDB() }).then(_ => { this.isChanged = false })
     },
 
     watch: {
         templatePool: {
-            handler: function () { this.isChanged = true }
+            handler: function () { this.isChanged = true },
+            deep: true
         },
         nodes: {
-            handler: function () { this.isChanged = true }
+            handler: function () { this.isChanged = true },
+            deep: true
         }
     },
 
     methods: {
+        sortList () {
+            var temp = this.nodes[this.currentNode]
+            this.nodes.sort((a, b) => { return new Date(a.deadline) - new Date(b.deadline) })
+            for (var i = 0; i < this.nodes.length; i++) {
+                if (this.nodes[i] === temp) {
+                    this.currentNode = i
+                    break
+                }
+            }
+        },
         newTemplate () {
             return {
                 t: {
@@ -165,7 +169,7 @@ export default {
                     invalidDate = true
                     alert('One or more presets has an invalid deadline. Please check the format and try again.')
                 }
-                if (!invalidTemplate && node.type === 'd' && !templatePoolIds.includes(node.template.tID)) {
+                if (!invalidTemplate && node.type === 'd' && node.template.tID && !templatePoolIds.includes(node.template.tID)) {
                     invalidTemplate = true
                     alert('One or more presets has an invalid template. Please check the format and try again.')
                 }
@@ -236,6 +240,7 @@ export default {
             this.templatePool = Object.values(tempTemplatePool).sort((a, b) => { return a.t.tID - b.t.tID })
 
             this.nodes = this.presets.slice()
+            this.nodes.sort((a, b) => { return new Date(a.deadline) - new Date(b.deadline) })
         },
         // Utility func to translate from internal format to db
         convertToDB () {

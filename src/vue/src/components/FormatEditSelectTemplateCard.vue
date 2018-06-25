@@ -2,7 +2,7 @@
     <div class="entry-template">
         <b-row>
             <b-col id="main-card-left-column" cols="12">
-                    <b-card class="card main-card noHoverCard" :class="'pink-border'">
+                    <b-card class="card main-card no-hover" :class="'pink-border'">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>Preset Deadline</h2>
@@ -62,11 +62,11 @@ export default {
     computed: {
         deadlineDate: {
             get: function () { return this.currentPreset.deadline.split(' ')[0] },
-            set: function (val) { this.currentPreset.deadline = val + ' ' + this.currentPreset.deadline.split(' ')[1] }
+            set: function (val) { this.currentPreset.deadline = val + ' ' + this.currentPreset.deadline.split(' ')[1]; this.$emit('deadline-changed') }
         },
         deadlineTime: {
             get: function () { return this.currentPreset.deadline.split(' ')[1] },
-            set: function (val) { this.currentPreset.deadline = this.currentPreset.deadline.split(' ')[0] + ' ' + val }
+            set: function (val) { this.currentPreset.deadline = this.currentPreset.deadline.split(' ')[0] + ' ' + val; this.$emit('deadline-changed') }
         }
     },
     methods: {
@@ -75,7 +75,11 @@ export default {
                 this.currentPreset.target = ''
             }
             if (value === 'd') {
-                this.currentPreset.template = (this.templates[0]) ? this.templates[0].t : {}
+                if (this.templates[0]) {
+                    this.$set(this.currentPreset, 'template', this.templates[0].t)
+                } else {
+                    this.$set(this.currentPreset, 'template', {})
+                }
             }
         }
     },
