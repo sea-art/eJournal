@@ -5,7 +5,7 @@ Generate preset data and save it to the database.
 """
 
 from django.core.management.base import BaseCommand
-from VLE.models import Field, Node
+from VLE.models import Field, Node, Role
 import VLE.factory as factory
 from faker import Faker
 import random
@@ -69,12 +69,19 @@ class Command(BaseCommand):
         self.roles = []
         for c in courses_examples:
             startdate = faker.date_this_decade(before_today=True)
-            course = factory.make_course(c["name"], c["abbr"], startdate, self.users[random.choice(c["teachers"])])
+            author = self.users[random.choice(c["teachers"])]
+            course = factory.make_course(c["name"], c["abbr"], startdate, author)
+            role_teacher = Role.objects.get(name='Teacher', course=course)
             for r in role_examples:
                 self.roles.append(factory.make_role(r["name"], course))
             for sid in c["students"]:
                 student = self.users[sid]
                 factory.make_participation(student, course, self.roles[0])
+            for cid in c["teachers"]:
+                if self.users[cid] == author:
+                    continue
+                teacher = self.users[cid]
+                factory.make_participation(teacher, course, role_teacher)
 
             self.courses.append(course)
 
