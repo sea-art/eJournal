@@ -158,7 +158,8 @@ def get_course_assignments(request, cID):
     course = Course.objects.get(pk=cID)
     participation = Participation.objects.get(user=user, course=course)
 
-    if participation.role.can_view_assignment:
+    # Check whether the user can edit the course.
+    if participation.role.can_grade_journal:
         return JsonResponse({
             'result': 'success',
             'assignments': get_teacher_course_assignments(user, course)
@@ -179,7 +180,9 @@ def get_assignment_data(request, cID, aID):
     cID -- course ID given with the request
     aID -- assignemnt ID given with the request
 
-    Returns a json string with the assignemnt data for the requested user
+    Returns a json string with the assignment data for the requested user.
+    Depending on the permissions, return all student journals or a specific
+    student's journal.
     """
     user = request.user
     if not user.is_authenticated:
@@ -189,12 +192,14 @@ def get_assignment_data(request, cID, aID):
     assignment = Assignment.objects.get(pk=aID)
     participation = Participation.objects.get(user=user, course=course)
 
-    if participation.role.can_view_assignment:
+    if participation.role.can_grade_journal:
+        # Return the assignment.
         return JsonResponse({
             'result': 'success',
             'assignment': serialize.assignment_to_dict(assignment)
         }, status=200)
     else:
+        # Return the student's journal.
         return JsonResponse({
             'result': 'success',
             'assignment': serialize.student_assignment_to_dict(assignment, request.user),
@@ -224,7 +229,7 @@ def get_assignment_journals(request, aID):
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Assignment or Participation does not exist.'}, status=404)
 
-    if not participation.role.can_view_assignment:
+    if not participation.role.can_view_assignment_participants:
         return JsonResponse({'result': '403 Forbidden'}, status=403)
 
     journals = []
@@ -234,7 +239,7 @@ def get_assignment_journals(request, aID):
 
     stats = {}
     if journals:
-        # TODO: Misschien dit efficient maken voor minimal delay?
+        # TODO: Maybe make this efficient for minimal delay?
         stats['needsMarking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
         points = [x['stats']['acquired_points'] for x in journals]
         stats['avgPoints'] = round(st.mean(points), 2)

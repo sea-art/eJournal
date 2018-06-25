@@ -34,87 +34,71 @@ new Vue({
         },
 
         /* #############################################################
-         *              Permissions, for overview see:
-         *
-         * https://docs.google.com/spreadsheets/d/1M7KnEKL3cG9PMWfQi9HIpRJ5xUMou4Y2plnRgke--Tk/edit?usp=sharing
+         *              Permissions,
+         * Front-end interface for all possible permissions.
+         * For an overview see:
+         * https://docs.google.com/spreadsheets/d/1M7KnEKL3cG9PMWfQi9HIpRJ5xUMou4Y2plnRgke--Tk
          *
          * ##############################################################
          */
 
-        /* The admin has all permissions. Extra, site-wide permissions:
-         * Creating a course on the home page
-         * Editing institution-wide settings
-         * Editing someone else profile (picture) */
+        /* Site-wide permissions */
         isAdmin () {
             return this.permissions.is_admin
         },
         /* Institute wide settings, think institute name/abbreviation logo. */
         canEditInstitute () {
-            // TODO API
-            return true
+            return this.permissions.can_edit_institute
         },
 
         /* Course level based permissions. These permissions are enabled and
         used per course. */
+
         /* Course permissions. */
-        canViewCourseParticipants () {
-            // TODO API
-            return true
+        canEditCourseRoles () {
+            return this.permissions.can_edit_course_roles
         },
-        /* Note that teachers can add courses as well, no cID available yet.
-         * Required for LTI integration. */
         canAddCourse () {
-            // TODO API
-            return true
+            return this.permissions.can_add_course
+        },
+        canViewCourseParticipants () {
+            return this.permissions.can_view_course_participants
         },
         canEditCourse () {
             return this.permissions.can_edit_course
-        },
-        canEditCourseRoles () {
-            // TODO API
-            return true
         },
         canDeleteCourse () {
             return this.permissions.can_delete_course
         },
 
         /* Assignment permissions. */
-        canViewAssignmentParticipants () {
-            // TODO Change backend confusing name
-            return this.permissions.can_view_assignment
-        },
         canAddAssignment () {
-            // TODO Streamline backend name
-            return this.permissions.can_submit_assignment
+            return this.permissions.can_add_assignment
         },
-        canEditAssignment () {
-            return this.permissions.can_edit_assignment
+        canViewAssignmentParticipants () {
+            return this.permissions.can_view_assignment_participants
         },
         canDeleteAssignment () {
             return this.permissions.can_delete_assignment
         },
         canPublishAssignmentGrades () {
-            // TODO API
-            return true
+            return this.permissions.can_publish_assignment_grades
         },
 
-        /* Journal level permissions */
+        /* Grade permissions. */
         canGradeJournal () {
-            // TODO API
-            return true
+            return this.permissions.can_grade_journal
         },
         canPublishJournalGrades () {
-            // TODO API
-            return true
+            return this.permissions.can_publish_journal_grades
         },
         canEditJournal () {
-            // TODO API
-            return true
+            return this.permissions.can_edit_journal
         },
         canCommentJournal () {
-            // TODO API
-            return true
+            return this.permissions.can_comment_journal
         }
+
     },
     template: '<App/>'
 })

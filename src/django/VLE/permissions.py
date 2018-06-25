@@ -8,23 +8,6 @@ from VLE.models import Participation, Role
 from django.forms.models import model_to_dict
 
 
-def check_permissions(user, cID, permissionList):
-    """Check if the user has the needed permissions.
-
-    Check whether the user has the right permissions to access the given course functionality.
-    Arguments:
-    user -- user that did the request.
-    cID -- course ID used to validate the request.
-    """
-    role = get_role(user, cID)
-
-    for permission in permissionList:
-        if not getattr(role, permission):
-            return False
-
-    return True
-
-
 def get_role(user, cID):
     """Get the role (with permissions) of the given user in the given course.
 
@@ -85,3 +68,22 @@ def get_permissions(user, cID=-1):
         roleDict['is_admin'] = False
 
     return roleDict
+
+
+def check_permissions(user, cID, permissionList):
+    """Check if the user has the needed permissions.
+
+    Do this by checking every permission, and returning False once a permission
+    is insufficient.
+
+    Arguments:
+    user -- user that did the request.
+    cID -- course ID used to validate the request.
+    """
+    role = get_role(user, cID)
+
+    for permission in permissionList:
+        if not getattr(role, permission):
+            return False
+
+    return True
