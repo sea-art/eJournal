@@ -1,12 +1,23 @@
+"""
+test_database.py.
+
+Test the database tables.
+"""
 import datetime
 import VLE.factory as factory
+import VLE.permissions as permissions
 from django.test import TestCase
-from VLE.models import *
-from VLE.permissions import *
+from VLE.models import Field, Content, Entry, Journal
 
 
 class DataBaseTests(TestCase):
+    """Test the database.
+
+    Test all the tables in the database.
+    """
+
     def setUp(self):
+        """Setup."""
         self.u1 = factory.make_user("Zi", "pass")
 
         self.a1 = factory.make_assignment('tcolloq', 'description')
@@ -36,22 +47,18 @@ class DataBaseTests(TestCase):
         self.jf1.available_templates.add()
         self.jf2.available_templates.add()
 
-        self.usr = factory.make_user(email='t@t.com', username='teun',
-                                     password='1234', lti_id='a')
-        self.crs = factory.make_course(name='test course please ignore', abbreviation='XXXX',
-                                       startdate=datetime.date.today())
+        self.usr = factory.make_user('teun', '1234', email='t@t.com', lti_id='a')
+        self.crs = factory.make_course('test course please ignore', 'XXXX', startdate=datetime.date.today())
 
     def test_foreignkeys(self):
-        """
-        Testing the foreign keys in the database.
-        """
+        """Test the foreign keys in the database."""
         user_test = factory.make_user('lers', 'lers123', 'lers@uva.nl', '123456')
         course_test = factory.make_course('tname', 'XXXX', datetime.date.today())
-        format = factory.make_journal_format()
+        factory.make_journal_format()
         template = factory.make_entry_template("some_template")
         entr_test = factory.make_entry(template)
         field = factory.make_field(template, "test1", "1")
-        content = factory.make_content(entr_test, "data", field)
+        factory.make_content(entr_test, "data", field)
         course_test.author = user_test
 
         ass_test = factory.make_assignment(name='tcolloq', description='description')
@@ -68,9 +75,9 @@ class DataBaseTests(TestCase):
         role = factory.make_role('Student', self.crs)
 
         # Connect a participation to a user, course and role.
-        participation = factory.make_participation(user=self.usr, role=role, course=self.crs)
+        factory.make_participation(self.usr, self.crs, role)
 
-        perm = get_permissions(self.usr, self.crs.id)
+        perm = permissions.get_permissions(self.usr, self.crs.id)
 
         self.assertFalse(perm['can_delete_course'])
 
@@ -79,29 +86,29 @@ class DataBaseTests(TestCase):
         role = factory.make_role('Student', self.crs)
 
         # Connect a participation to a user, course and role.
-        participation = factory.make_participation(user=self.usr, role=role, course=self.crs)
+        factory.make_participation(self.usr, self.crs, role)
 
-        self.assertTrue(check_permissions(self.usr, self.crs.id, []))
+        self.assertTrue(permissions.check_permissions(self.usr, self.crs.id, []))
 
     def test_permission(self):
         """Test a request that needs a single permission."""
         role = factory.make_role(name="Student", course=self.crs, can_submit_assignment=True)
 
-        participation = factory.make_participation(user=self.usr, role=role, course=self.crs)
+        factory.make_participation(self.usr, self.crs, role)
 
-        self.assertTrue(check_permissions(self.usr, self.crs.id, ["can_submit_assignment"]))
-        self.assertFalse(check_permissions(self.usr, self.crs.id, ["can_edit_grades"]))
+        self.assertTrue(permissions.check_permissions(self.usr, self.crs.id, ["can_submit_assignment"]))
+        self.assertFalse(permissions.check_permissions(self.usr, self.crs.id, ["can_edit_grades"]))
 
     def test_permission_multiple(self):
         """Test a request that needs multiple permissions."""
         role = factory.make_user(name="TA", can_submit_assignment=True, course=self.crs
                                  can_view_grades=True, can_edit_assignment=True)
 
-        participation = factory.make_participation(user=self.usr, role=role, course=self.crs)
+        factory.make_participation(self.usr, self.crs, role)
 
-        self.assertTrue(check_permissions(self.usr, self.crs.id, ["can_view_grades"]))
-        self.assertFalse(check_permissions(self.usr, self.crs.id, ["can_edit_grades",
-                                                                   "can_edit_assignment"]))
+        self.assertTrue(permissions.check_permissions(self.usr, self.crs.id, ["can_view_grades"]))
+        self.assertFalse(permissions.check_permissions(self.usr, self.crs.id,
+                                                       ["can_edit_grades", "can_edit_assignment"]))
 
     def test_get_permissions_admin(self):
         """Test a request that returns a dictionary of permissions. The created
@@ -111,29 +118,28 @@ class DataBaseTests(TestCase):
         role = factory.make_role(name="TA", course=self.crs, can_submit_assignment=True,
                                  can_view_grades=True, can_edit_assignment=True)
 
-        participation = Participation(user=user, role=role, course=self.crs)
-        participation.save()
+        factory.make_participation(user, self.crs, role)
 
         perm = get_permissions(user, self.crs.id)
 
         self.assertTrue(perm["is_admin"])
 
     def test_get_permissions_no_admin(self):
-        """Test a request that returns a dictionary of permissions. The created
-        user should NOT be provided with the admin permission."""
+        """Test a request that returns a dictionary of permissions.
+
+        The created user should NOT be provided with the admin permission.
+        """
         role = factory.make_role(name="TA", course=self.crs, can_submit_assignment=True,
                                  can_view_grades=True, can_edit_assignment=True)
 
-        participation = factory.make_participation(user=self.usr, role=role, course=self.crs)
+        factory.make_participation(self.usr, self.crs, role)
 
-        perm = get_permissions(self.usr, self.crs.id)
+        perm = permissions.get_permissions(self.usr, self.crs.id)
 
         self.assertFalse(perm["is_admin"])
 
     def test_on_delete(self):
-        """
-        Testing the on_delete relations in the database.
-        """
+        """Test the on_delete relations in the database."""
         self.f1.delete()
         self.assertEquals(Field.objects.filter(title='test0').count(), 0)
         self.assertEquals(Content.objects.get(pk=1).field, None)

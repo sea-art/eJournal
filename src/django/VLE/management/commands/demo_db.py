@@ -1,15 +1,25 @@
+"""
+Demo generate script.
+
+A script that generates demo data.
+It generates a teacher and student account. The teacher has permissions.
+"""
+
 from django.core.management.base import BaseCommand
-from VLE.models import *
-from VLE.factory import *
+from VLE.models import Field, Node
+import VLE.factory as factory
 from faker import Faker
 import random
 faker = Faker()
 
 
 class Command(BaseCommand):
+    """Generates data for the database for the demo."""
+
     help = 'Generates useful data for the database.'
 
     def gen_users(self):
+        """Generate a student and teacher."""
         users_examples = [
             {"username": "Student", "pass": "pass", "is_admin": False},
             {"username": "Teacher", "pass": "pass", "is_admin": True},
@@ -17,9 +27,10 @@ class Command(BaseCommand):
 
         self.users = []
         for u in users_examples:
-            self.users.append(make_user(u['username'], u['pass'], is_admin=u['is_admin']))
+            self.users.append(factory.make_user(u['username'], u['pass'], is_admin=u['is_admin']))
 
     def gen_courses(self):
+        """Generate the courses PAV and Beeldbewerken."""
         courses_examples = [
             {
                 "name": "Portfolio Academische Vaardigheden 1",
@@ -38,11 +49,11 @@ class Command(BaseCommand):
         self.courses = []
         for c in courses_examples:
             startdate = faker.date_this_decade(before_today=True)
-            course = make_course(c["name"], c["abbr"], startdate, self.users[random.choice(c["teachers"])])
+            course = factory.make_course(c["name"], c["abbr"], startdate, self.users[random.choice(c["teachers"])])
 
             for sid in c["students"]:
                 student = self.users[sid]
-                make_participation(student, course, self.roles[0])
+                factory.make_participation(student, course, self.roles[0])
 
             self.courses.append(course)
 
@@ -60,6 +71,11 @@ class Command(BaseCommand):
             can_delete_course=True))
 
     def gen_templates(self):
+        """Generate templates.
+
+        One with title, summary, experience and requested points.
+        One with only a title.
+        """
         template_examples = [
             {
                 "name": "Colloquium",
@@ -80,13 +96,14 @@ class Command(BaseCommand):
 
         self.templates = []
         for t in template_examples:
-            template = make_entry_template(t["name"])
+            template = factory.make_entry_template(t["name"])
             for f in t["fields"]:
-                make_field(template, f["title"], f["location"], f["type"])
+                factory.make_field(template, f["title"], f["location"], f["type"])
 
             self.templates.append(template)
 
     def gen_format(self):
+        """Generate a assignment format."""
         format_examples = [
             {
                 "templates": [1],
@@ -106,21 +123,22 @@ class Command(BaseCommand):
         self.formats = []
         for f in format_examples:
             templates = [self.templates[template] for template in f["templates"]]
-            format = make_format(templates)
+            format = factory.make_format(templates)
 
             for p in f["presets"]:
                 deadline_date = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
 
                 if p["type"] == Node.PROGRESS:
-                    deadline = make_deadline(deadline_date, p["points"])
-                    preset = make_progress_node(format, deadline)
+                    deadline = factory.make_deadline(deadline_date, p["points"])
+                    factory.make_progress_node(format, deadline)
                 elif p["type"] == Node.ENTRYDEADLINE:
-                    deadline = make_deadline(deadline_date)
-                    preset = make_entrydeadline_node(format, deadline, self.templates[p["template"]])
+                    deadline = factory.make_deadline(deadline_date)
+                    factory.make_entrydeadline_node(format, deadline, self.templates[p["template"]])
 
             self.formats.append(format)
 
     def gen_assignments(self):
+        """Generate assignments."""
         assign_examples = [
             {
                 "name": "Colloquium",
@@ -142,23 +160,24 @@ class Command(BaseCommand):
         for a in assign_examples:
             author = self.users[a["author"]]
             format = self.formats[a["format"]]
-            deadline = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
-            assignment = make_assignment(a["name"], a["description"], author, format)
+            faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
+            assignment = factory.make_assignment(a["name"], a["description"], author, format)
 
             for course in a["courses"]:
                 assignment.courses.add(self.courses[course])
             self.assignments.append(assignment)
 
     def gen_journals(self):
+        """Generate journals."""
         self.journals = []
         for a in self.assignments:
             for u in self.users:
-                journal = make_journal(a, u)
+                journal = factory.make_journal(a, u)
                 self.journals.append(journal)
 
     def handle(self, *args, **options):
-        """
-        This function generates data to test and fill the database with.
+        """Generate data to test and fill the database with.
+
         This only contains the 'useful data'. For random data, execute demo_db as well.
         """
         self.gen_users()
