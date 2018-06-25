@@ -12,7 +12,7 @@ export default {
     props: ['template', 'color'],
     data () {
         return {
-            isActive: this.template.a
+            isActive: this.template.available
         }
     },
     components: {

@@ -2,9 +2,8 @@
 
 <template>
     <b-row no-gutters>
-        <!-- TODO: reopen bread-crumb when it is working again -->
         <b-col v-if="bootstrapLg()" cols="12">
-            <!-- <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
+            <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
         <b-col v-else xl="3" class="left-content">
@@ -12,7 +11,7 @@
         </b-col>
 
         <b-col lg="12" xl="6" order="2" class="main-content">
-            <!-- <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
+            <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <!--
                 Fill in the template using the corresponding data
                 of the entry
@@ -27,7 +26,6 @@
 
             <b-modal
                 ref="modal"
-                title="test"
                 size="lg"
                 ok-only
                 hide-header>
@@ -126,7 +124,7 @@ export default {
                     'name': '',
                     'tID': this.wipTemplateId--
                 },
-                a: false
+                available: false
             }
         },
         showModal (template) {
@@ -209,13 +207,13 @@ export default {
 
             for (var template of this.templates) {
                 idInPool.push(template.tID)
-                tempTemplatePool[template.tID] = { t: template, a: true }
+                tempTemplatePool[template.tID] = { t: template, available: true }
             }
             for (var preset of this.presets) {
                 if (preset.type === 'd') {
                     if (!idInPool.includes(preset.template.tID)) {
                         idInPool.push(preset.template.tID)
-                        tempTemplatePool[preset.template.tID] = { t: preset.template, a: false }
+                        tempTemplatePool[preset.template.tID] = { t: preset.template, available: false }
                     } else {
                         preset.template = tempTemplatePool[preset.template.tID].t
                     }
@@ -223,7 +221,7 @@ export default {
             }
             for (var unusedTemplate of this.unused_templates) {
                 idInPool.push(unusedTemplate.tID)
-                tempTemplatePool[unusedTemplate.tID] = { t: unusedTemplate, a: false }
+                tempTemplatePool[unusedTemplate.tID] = { t: unusedTemplate, available: false }
             }
 
             this.templatePool = Object.values(tempTemplatePool).sort((a, b) => { return a.t.tID - b.t.tID })
@@ -240,7 +238,7 @@ export default {
 
             for (var template of this.templatePool) {
                 template.t.updated = template.updated
-                if (template.a) {
+                if (template.available) {
                     this.templates.push(template.t)
                 } else {
                     this.unused_templates.push(template.t)
