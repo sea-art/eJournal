@@ -191,7 +191,7 @@ export default {
                 }
             }
 
-            promise.then(_ => journalAPI.update_format(this.aID, this.templates, this.presets, this.unusedTemplates))
+            promise.then(_ => journalAPI.update_format(this.aID, this.templates, this.presets, this.unused_templates))
         },
         getWindowWidth (event) {
             this.windowWidth = document.documentElement.clientWidth
