@@ -279,7 +279,7 @@ class RestTests(TestCase):
         self.assertEquals(response.status_code, 201)
 
     def test_delete_assignment(self):
-        """Tests the delete assignment."""
+        """Test the delete assignment."""
         login = logging_in(self, self.username, self.password)
         api_post_call(self, '/api/delete_assignment/', {'cID': 1, 'aID': 1}, login)
         assignment = Assignment.objects.get(pk=1)
