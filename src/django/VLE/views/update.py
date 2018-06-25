@@ -10,7 +10,7 @@ from django.http import JsonResponse
 import VLE.serializers as serialize
 import VLE.utils as utils
 import VLE.factory as factory
-from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, Journal, EntryTemplate
+from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, Journal, EntryTemplate, PresetNode
 
 
 @api_view(['POST'])
@@ -150,7 +150,7 @@ def update_format(request):
                                                                                    "presets",
                                                                                    "unused_templates")
     except KeyError:
-        return utils.keyerror_json("fID", "templates", "presets", "unused_templates")
+        return utils.keyerror_json("aID", "templates", "presets", "unused_templates")
 
     try:
         assignment = Assignment.objects.get(pk=aID)
@@ -159,9 +159,6 @@ def update_format(request):
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Format does not exist.'},
                             status=404)
-
-    format.available_templates.all().delete()
-    format.unused_templates.all().delete()
 
     for template_field in templates:
         tID = template_field['tID']
@@ -181,17 +178,22 @@ def update_format(request):
                                  'description': 'Template does not exist.'},
                                 status=404)
 
-    format.presetnode_set.all().delete()
-
     for preset in presets:
-        type = preset['type']
-        date = preset['deadline']
+        if preset.haskey('pID'):
+            try:
+                presetNode = PresetNode.objects.get(pk=preset['pID'])
+            except EntryTemplate.DoesNotExist:
+                return JsonResponse({'result': '404 Not Found',
+                                     'description': 'Preset does not exist.'},
+                                    status=404)
+        else:
+            presetNode = PresetNode(format=format)
 
-        if type == Node.PROGRESS:
-            target = preset['target']
-            deadline = factory.make_deadline(date, target)
-            factory.make_progress_node(format, deadline)
+        presetNode.type = preset['type']
+        presetNode.deadline = preset['deadline']
 
+        if presetNode.type == Node.PROGRESS:
+            presetNode.target = preset['target']
         elif type == Node.ENTRYDEADLINE:
             tID = preset['template']['tID']
             try:
@@ -200,8 +202,7 @@ def update_format(request):
                 return JsonResponse({'result': '404 Not Found',
                                      'description': 'Template does not exist.'},
                                     status=404)
-            deadline = factory.make_deadline(date)
-            factory.make_entrydeadline_node(format, deadline, template)
+            presetNode.forced_template = template
 
     return JsonResponse({'result': 'success', 'node': format_to_dict(format)}, status=200)
 
