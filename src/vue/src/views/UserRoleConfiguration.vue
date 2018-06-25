@@ -3,7 +3,6 @@
         <b-col cols="12" lg="6" offset-lg="3" class="table-content">
             <bread-crumb>&nbsp;</bread-crumb>
 
-
             <b-button class="multi-form float-right add-button ml-2"> Update </b-button>
             <b-button class="multi-form float-right delete-button"> Reset </b-button>
 
@@ -36,7 +35,7 @@
                     </tr>
                 </tbody>
                 <tbody v-else>
-                    <tr v-for="permission in permissions" :key="permission">
+                        <tr v-for="permission in permissions" :key="permission">
                         <td>{{ permission }}</td>
                         <td>
                             <custom-checkbox
@@ -74,6 +73,7 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 import contentSingleColumn from '@/components/ContentSingleColumn.vue'
 import customCheckbox from '@/components/CustomCheckbox.vue'
 import icon from 'vue-awesome/components/Icon'
+import permissions from '@/api/permissions.js'
 
 export default {
     name: 'UserRoleConfiguration',
@@ -123,6 +123,15 @@ export default {
         focusRoleNameInput () {
             this.$refs.roleNameInput.focus()
         }
+    },
+    created () {
+        permissions.get_course_roles(this.cID)
+            .then(response => {
+                this.defaultRoles = response
+                console.log('hoi')
+                console.log(response)
+            })
+            .catch(_ => alert('Error while loading course roles'))
     },
     mounted () {
         this.$nextTick(function () {

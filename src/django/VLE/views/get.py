@@ -338,7 +338,7 @@ def get_course_roles(request, cID):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    permission = Role.objects.get(participation__user=request.user, participation__course=cID)
+    permission = Role.objects.get(user__participation_user=request.user.id, course__participation_course=cID)
 
     if not permission.can_edit_course_roles:
         return JsonResponse({'result': '403 Forbidden'}, status=403)
