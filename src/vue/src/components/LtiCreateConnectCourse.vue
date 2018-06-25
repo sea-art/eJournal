@@ -20,7 +20,7 @@
             title="Create course"
             size="lg"
             hide-footer>
-                <create-course @handleAction="handleConfirm('createCourseRef')" :lti="lti"/>
+                <create-course @handleAction="handleCreation" :lti="lti"/>
         </b-modal>
 
         <b-modal
@@ -29,7 +29,7 @@
             title="Connect course"
             size="lg"
             hide-footer>
-                <connect-course @handleAction="handleConfirm('connectCourseRef')"/>
+                <connect-course @handleAction="handleConnected"/>
         </b-modal>
     </div>
 </template>
@@ -57,14 +57,13 @@ export default {
         hideModal (ref) {
             this.$refs[ref].hide()
         },
-        handleConfirm (ref) {
-            this.hideModal(ref)
-
-            if (ref === 'createCourseRef') {
-                this.signal('courseCreated')
-            } else {
-                this.signal('courseConnected')
-            }
+        handleCreation (cID) {
+            this.hideModal('createCourseRef')
+            this.signal(['courseCreated', cID])
+        },
+        handleConnected (cID) {
+            this.hideModal('connectCourseRef')
+            this.signal(['courseConnected', cID])
         }
     }
 }

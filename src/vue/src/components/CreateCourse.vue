@@ -28,8 +28,10 @@ export default {
     },
     methods: {
         onSubmit () {
-            courseApi.create_new_course(this.form.courseName, this.form.courseAbbr, this.form.courseStartdate, this.form.ltiCourseID)
-                .then(_ => { this.$emit('handleAction') })
+            courseApi.create_new_course(this.form.courseName,
+                this.form.courseAbbr, this.form.courseStartdate,
+                this.form.ltiCourseID)
+                .then(response => { this.$emit('handleAction', response.course.cID) })
         },
         onReset (evt) {
             evt.preventDefault()
@@ -44,9 +46,11 @@ export default {
         }
     },
     mounted () {
-        this.form.courseName = this.lti.ltiCourseName
-        this.form.courseAbbr = this.lti.ltiCourseAbbr
-        this.form.ltiCourseID = this.lti.ltiCourseID
+        if (this.lti !== undefined) {
+            this.form.courseName = this.lti.ltiCourseName
+            this.form.courseAbbr = this.lti.ltiCourseAbbr
+            this.form.ltiCourseID = this.lti.ltiCourseID
+        }
     }
 }
 </script>

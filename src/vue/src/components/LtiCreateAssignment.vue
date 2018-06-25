@@ -15,7 +15,7 @@
             title="Create assignment"
             size="lg"
             hide-footer>
-                <create-assignment @handleAction="handleConfirm('createAssignmentRef')" :lti="lti"/>
+                <create-assignment @handleAction="handleCreation" :lti="lti" :page="page"/>
         </b-modal>
     </div>
 </template>
@@ -26,7 +26,7 @@ import createAssignment from '@/components/CreateAssignment.vue'
 
 export default {
     name: 'LtiCreateAssignment',
-    props: ['lti'],
+    props: ['lti', 'page'],
     components: {
         'bread-crumb': breadCrumb,
         'create-assignment': createAssignment
@@ -41,13 +41,12 @@ export default {
         hideModal (ref) {
             this.$refs[ref].hide()
         },
-        handleConfirm (ref) {
-            this.hideModal(ref)
-            this.signal('assignementCreated')
+        handleCreation (aID) {
+            this.hideModal('createAssignmentRef')
+            this.signal(['assignmentCreated', aID])
         }
     },
     mounted () {
-        alert(this.lti.ltiAssignName)
         this.showModal('createAssignmentRef')
     }
 }

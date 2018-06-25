@@ -2,8 +2,8 @@
     <content-single-columns>
         <h1 class="title-container">{{ currentPage }}</h1>
         <lti-create-connect-course v-if="handleCourseChoice" @handleAction="handleActions" :lti="lti"/>
-        <lti-create-connect-assignment v-else-if="handleAssignmentChoice" @handleAction="handleActions" :lti="lti"/>
-        <lti-create-assignment v-else-if="createAssignment" @handleAction="handleActions" :lti="lti"/>
+        <lti-create-connect-assignment v-else-if="handleAssignmentChoice" @handleAction="handleActions" :lti="lti" :page="page"/>
+        <lti-create-assignment v-else-if="createAssignment" @handleAction="handleActions" :lti="lti" :page="page"/>
     </content-single-columns>
 </template>
 
@@ -42,10 +42,11 @@ export default {
             s_new_assign: '3',
             s_finish_t: '4',
             s_finish_s: '5',
+            s_grade_center: '6',
 
             /* Intern variables for checking the state of the lti launch. */
-            s_create_assign: '6',
-            s_check_assign: '7',
+            s_create_assign: '7',
+            s_check_assign: '8',
 
             /* Set a dictionary with the needed lti variables. */
             lti: {
@@ -66,21 +67,26 @@ export default {
         }
     },
     methods: {
-        handleActions (msg) {
+        handleActions (args) {
+            var msg = args[0]
+
             if (msg === 'courseCreated') {
                 this.handleCourseChoice = false
+                this.page.cID = args[1]
                 this.state = this.s_create_assign
                 alert('Course Created!')
             } else if (msg === 'courseConnected') {
                 this.handleCourseChoice = false
+                this.page.cID = args[1]
                 this.state = this.s_check_assign
                 alert('Course Connected!')
-            } else if (msg === 'assignementIntegrated') {
+            } else if (msg === 'assignmentIntegrated') {
                 this.handleAssignmentChoice = false
                 this.state = this.s_finish_t
                 alert('Assignment Integrated!')
             } else if (msg === 'assignmentCreated') {
                 this.createAssignment = false
+                this.page.aID = args[1]
                 this.state = this.s_finish_t
                 alert('Assignment Created!')
             }
@@ -109,6 +115,16 @@ export default {
                             this.state = this.s_finish_t
                         }
                     })
+                break
+            case this.s_grade_center:
+                this.$router.push({
+                    name: 'Journal',
+                    params: {
+                        cID: this.page.cID,
+                        aID: this.page.aID,
+                        jID: this.page.jID
+                    }
+                })
                 break
             }
         }
@@ -159,8 +175,6 @@ export default {
         this.page.cID = this.$route.query.cID
         this.page.aID = this.$route.query.aID
         this.page.jID = this.$route.query.jID
-
-        // this.state = '2'
 
         if (this.state === this.s_bad_auth) {
             this.$router.push({

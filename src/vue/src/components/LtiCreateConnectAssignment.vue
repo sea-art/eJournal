@@ -20,7 +20,7 @@
             title="Create assignment"
             size="lg"
             hide-footer>
-                <create-assignment @handleAction="handleConfirm('createAssignmentRef')" :lti="lti"/>
+                <create-assignment @handleAction="handleConfirm('createAssignmentRef')" :lti="lti" :page="page"/>
         </b-modal>
 
         <b-modal
@@ -41,7 +41,7 @@ import connectAssignment from '@/components/ConnectAssignment.vue'
 
 export default {
     name: 'LtiCreateConnectAssignment',
-    props: ['lti'],
+    props: ['lti', 'page'],
     components: {
         'bread-crumb': breadCrumb,
         'create-assignment': createAssignment,
@@ -59,7 +59,7 @@ export default {
         },
         handleConfirm (ref) {
             this.hideModal(ref)
-            this.signal('assignementIntegrated')
+            this.signal('assignmentIntegrated')
         }
     }
 }
