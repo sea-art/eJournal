@@ -70,7 +70,7 @@ export default {
     },
     created () {
         // TODO: Remove... just for demo
-        if (!this.$root.canViewCourseParticipants()) {
+        if (!this.$root.canViewAssignmentParticipants()) {
             assignment.get_assignment_data(this.cID, this.aID)
                 .then(data => {
                     this.$router.push({

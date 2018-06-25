@@ -7,6 +7,9 @@ test-front:
 	npm run lint --prefix ./src/vue
 	npm run test --prefix ./src/vue
 
+test-flake:
+	flake8 --max-line-length=120 src/django --exclude="src/django/migrations/*"
+
 test: test-back test-front
 
 fill-db: migrate-back

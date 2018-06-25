@@ -1,24 +1,22 @@
-from rest_framework.test import APIRequestFactory
+"""
+test_edag.py.
+
+Test all about the edag.
+"""
 from django.test import TestCase
-from django.urls import reverse
 import datetime
 
-from VLE.models import User
-from VLE.models import Participation
-from VLE.models import Role
-from VLE.models import Course
-from VLE.models import Assignment
-from VLE.models import Journal
-from VLE.models import Deadline
-from VLE.models import EntryTemplate
-from VLE.models import Content
+from VLE.models import Deadline, EntryTemplate
 
 import VLE.factory as factory
 import VLE.edag as edag
 
 
 class EdagTests(TestCase):
+    """Test the edag."""
+
     def setUp(self):
+        """Setup."""
         self.u_rick = factory.make_user("Rick", "pass")
         self.u_lars = factory.make_user("Lars", "pass")
 
@@ -44,6 +42,7 @@ class EdagTests(TestCase):
         self.j_rick_log = factory.make_journal(a_log, self.u_rick)
 
     def test_deadline_format(self):
+        """Test if the deadline is correctly formatted."""
         deadline = Deadline(datetime=datetime.date.today())
         deadline.save()
 
@@ -59,6 +58,7 @@ class EdagTests(TestCase):
         self.assertTrue(journal.node_set.get(preset__deadline=deadline))
 
     def test_sorted(self):
+        """Test is the sort function works."""
         entry = factory.make_entry(self.template, datetime.date(2022, 1, 1))
         node = factory.make_node(self.j_rick_colloq, entry)
         nodes = edag.get_sorted_nodes(self.j_rick_colloq)
@@ -68,10 +68,11 @@ class EdagTests(TestCase):
         self.assertEquals(nodes[2].preset, self.progressnode)
 
     def test_json(self):
+        """Test is the to dict function works correctly."""
         entry = factory.make_entry(self.template, datetime.date(2022, 1, 1))
-        node = factory.make_node(self.j_rick_colloq, entry)
+        factory.make_node(self.j_rick_colloq, entry)
 
-        nodes = edag.get_nodes_dict(self.j_rick_colloq)
+        nodes = edag.get_nodes_dict(self.j_rick_colloq, self.u_rick)
 
         self.assertEquals(len(nodes), 4)
 

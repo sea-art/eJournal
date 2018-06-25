@@ -1,16 +1,22 @@
-from rest_framework.decorators import api_view, parser_classes, renderer_classes
+"""
+create.py.
+
+API functions that handle the create requests.
+"""
+from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import JSONParser
 from django.http import JsonResponse
-import json
 
-from VLE.serializers import *
+import VLE.serializers as serialize
 import VLE.factory as factory
 import VLE.utils as utils
+from VLE.models import User, Journal, EntryTemplate, Node, Assignment, Field, Entry, Content
+import VLE.edag as edag
 
 
 @api_view(['POST'])
 def create_new_course(request):
-    """Create a new course
+    """Create a new course.
 
     Arguments:
     request -- the request that was send with
@@ -32,12 +38,12 @@ def create_new_course(request):
 
     course = factory.make_course(name, abbr, startdate, request.user, lti_id)
 
-    return JsonResponse({'result': 'success', 'course': course_to_dict(course)}, status=201)
+    return JsonResponse({'result': 'success', 'course': serialize.course_to_dict(course)}, status=201)
 
 
 @api_view(['POST'])
 def create_new_assignment(request):
-    """Create a new assignment
+    """Create a new assignment.
 
     Arguments:
     request -- the request that was send with
@@ -56,12 +62,12 @@ def create_new_assignment(request):
         return utils.keyerror_json("name", "description", "cID")
 
     assignment = factory.make_assignment(name, description, cIDs=[cID], author=request.user)
-    return JsonResponse({'result': 'success', 'assignment': assignment_to_dict(assignment)}, status=201)
+    return JsonResponse({'result': 'success', 'assignment': serialize.assignment_to_dict(assignment)}, status=201)
 
 
 @api_view(['POST'])
 def create_journal(request):
-    """Create a new journal
+    """Create a new journal.
 
     Arguments:
     request -- the request that was send with
@@ -78,13 +84,14 @@ def create_journal(request):
     assignment = Assignment.objects.get(pk=aID)
     journal = factory.make_journal(assignment, request.user)
 
-    return JsonResponse({'result': 'success', 'journal': journal_to_dict(journal)}, status=201)
+    return JsonResponse({'result': 'success', 'journal': serialize.journal_to_dict(journal)}, status=201)
 
 
 @api_view(['POST'])
 @parser_classes([JSONParser])
 def create_entry(request):
-    """ Create a new entry
+    """Create a new entry.
+
     Arguments:
     request -- the request that was send with
     jID -- the journal id
@@ -114,8 +121,12 @@ def create_entry(request):
                                      'description': 'Passed node is a Progress node.'},
                                     status=400)
 
-            node.entry = factory.make_entry(template)
-
+            if node.entry:
+                Content.objects.filter(entry=node.entry).all().delete()
+                node.entry.template = template
+                node.save()
+            else:
+                node.entry = factory.make_entry(template)
         else:
             entry = factory.make_entry(template)
             node = factory.make_node(journal, entry)
@@ -124,9 +135,20 @@ def create_entry(request):
             data = content['data']
             tag = content['tag']
             field = Field.objects.get(pk=tag)
+
             factory.make_content(node.entry, data, field)
 
-        return JsonResponse({'result': 'success', 'node': node_to_dict(node)}, status=201)
+        result = edag.get_nodes_dict(journal, request.user)
+        added = -1
+        for i, result_node in enumerate(result):
+            if result_node['nID'] == node.id:
+                added = i
+                break
+
+        return JsonResponse({'result': 'success',
+                             'added': added,
+                             'nodes': edag.get_nodes_dict(journal, request.user)},
+                            status=201)
     except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
         return JsonResponse({'result': '404 Not Found',
                              'description': 'Journal, Template or Node does not exist.'},
@@ -135,7 +157,8 @@ def create_entry(request):
 
 @api_view(['POST'])
 def create_entrycomment(request):
-    """Create a new entrycomment
+    """Create a new entrycomment.
+
     Arguments:
     request -- the request that was send with
         entryID -- the entry id
@@ -150,7 +173,14 @@ def create_entrycomment(request):
     except KeyError:
         return utils.keyerror_json("entryID", "authorID", "text")
 
-    author = User.objects.get(pk=authorID)
-    comment = make_entrycomment(entryID, author, text)
+    try:
+        author = User.objects.get(pk=authorID)
+        entry = Entry.objects.get(pk=entryID)
+    except (User.DoesNotExist, Entry.DoesNotExist):
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'User or Entry does not exist.'},
+                            status=404)
+
+    factory.make_entrycomment(entry, author, text)
 
     return JsonResponse({'result': 'success'}, status=201)

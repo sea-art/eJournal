@@ -1,10 +1,14 @@
-from rest_framework import serializers
-from VLE.models import *
-from random import randint
+"""
+Serializers.
+
+Functions to convert certain data to other formats.
+"""
 import VLE.utils as utils
+from VLE.models import Journal, Node
 
 
 def user_to_dict(user):
+    """Convert user object to dictionary."""
     return {
         'name': user.username,
         'picture': user.profile_picture,
@@ -13,6 +17,19 @@ def user_to_dict(user):
 
 
 def participation_to_dict(participation):
+    """Convert participation to a dictionary.
+
+    Parameters
+    ----------
+    participation : Participation
+        The participation to convert.
+
+    Returns
+    -------
+    dictionary
+        Dictionary of the role and user dictionaries.
+
+    """
     role_dict = {'role': participation.role.name}
     user_dict = user_to_dict(participation.user)
 
@@ -20,6 +37,7 @@ def participation_to_dict(participation):
 
 
 def course_to_dict(course):
+    """Convert course to a dictionary."""
     return {
         'cID': course.id,
         'name': course.name,
@@ -30,6 +48,7 @@ def course_to_dict(course):
 
 
 def student_assignment_to_dict(assignment, user):
+    """Convert a student assignment to a dictionary."""
     if not assignment:
         return None
     try:
@@ -44,16 +63,18 @@ def student_assignment_to_dict(assignment, user):
 
 
 def deadline_to_dict(assignment):
+    """Convert deadline to dictionary."""
     if not assignment:
         return None
 
     assignment_dict = assignment_to_dict(assignment)
-    assignment_dict['courses'] = [course_to_dict(course) for c in assignment.courses.all()]
+    assignment_dict['courses'] = [course_to_dict(c) for c in assignment.courses.all()]
 
     return assignment_dict
 
 
 def assignment_to_dict(assignment):
+    """Convert assignment to dictionary."""
     return {
         'aID': assignment.id,
         'name': assignment.name,
@@ -63,6 +84,7 @@ def assignment_to_dict(assignment):
 
 
 def journal_to_dict(journal):
+    """Convert a journal to a dictionary."""
     entries = utils.get_journal_entries(journal)
     return {
         'jID': journal.id,
@@ -77,6 +99,7 @@ def journal_to_dict(journal):
 
 
 def add_node_dict(journal):
+    """Convert a add_node to a dictionary."""
     return {
         'type': 'a',
         'nID': -1,
@@ -85,6 +108,7 @@ def add_node_dict(journal):
 
 
 def node_to_dict(node):
+    """Convert a node to a dictionary."""
     if node.type == Node.ENTRY:
         return entry_node_to_dict(node)
     elif node.type == Node.ENTRYDEADLINE:
@@ -95,6 +119,7 @@ def node_to_dict(node):
 
 
 def entry_node_to_dict(node):
+    """Convert an entrynode to a dictionary."""
     return {
         'type': node.type,
         'nID': node.id,
@@ -104,6 +129,7 @@ def entry_node_to_dict(node):
 
 
 def entry_deadline_to_dict(node):
+    """Convert entrydeadline to a dictionary."""
     return {
         'type': node.type,
         'nID': node.id,
@@ -115,6 +141,7 @@ def entry_deadline_to_dict(node):
 
 
 def progress_to_dict(node):
+    """Convert progress node to dictionary."""
     return {
         'type': node.type,
         'nID': node.id,
@@ -125,6 +152,7 @@ def progress_to_dict(node):
 
 
 def entry_to_dict(entry):
+    """Convert entry to dictionary."""
     return {
         'eID': entry.id,
         'createdate': entry.createdate.strftime('%Y-%m-%d %H:%M'),
@@ -136,6 +164,7 @@ def entry_to_dict(entry):
 
 
 def template_to_dict(template):
+    """Convert template to dictionary."""
     return {
         'tID': template.id,
         'name': template.name,
@@ -144,6 +173,7 @@ def template_to_dict(template):
 
 
 def field_to_dict(field):
+    """Convert field to dictionary."""
     return {
         'tag': field.id,
         'type': field.type,
@@ -153,6 +183,7 @@ def field_to_dict(field):
 
 
 def content_to_dict(content):
+    """Convert content to dictionary."""
     return {
         'tag': content.field.pk,
         'data': content.data,
@@ -160,6 +191,7 @@ def content_to_dict(content):
 
 
 def format_to_dict(format):
+    """Convert format to dictionary."""
     return {
         'templates': [template_to_dict(template) for template in format.available_templates.all()],
         'presets': [preset_to_dict(preset) for preset in format.presetnode_set.all()],
@@ -167,6 +199,7 @@ def format_to_dict(format):
 
 
 def preset_to_dict(preset):
+    """Convert preset node to dictionary."""
     if not preset:
         return None
 
@@ -184,8 +217,9 @@ def preset_to_dict(preset):
 
 
 def entrycomment_to_dict(entrycomment):
+    """Convert entrycomment to dictionary."""
     return {
-        'entry': entrycomment.entry,
-        'author': entrycomment.author,
+        'eID': entrycomment.entry.id,
+        'author': user_to_dict(entrycomment.author),
         'text': entrycomment.text,
     } if entrycomment else None

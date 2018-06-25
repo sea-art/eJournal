@@ -1,14 +1,7 @@
-from django.shortcuts import redirect
-from django.http import JsonResponse, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.clickjacking import xframe_options_exempt
-from rest_framework.decorators import api_view
-from django.conf import settings
 import oauth2
-import json
 import xml.etree.cElementTree as ET
 
-from .models import Journal, Counter
+from VLE.models import Counter
 
 
 class GradePassBackRequest(object):
