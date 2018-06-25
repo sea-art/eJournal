@@ -164,7 +164,7 @@ def select_create_journal(request, user, assignment, roles):
             journal.grade_url = request['lis_outcome_service_url']
             journal.save()
         if 'lis_result_sourcedid' in request:
-            journal.sourcedId = request['lis_result_sourcedid']
+            journal.sourcedid = request['lis_result_sourcedid']
             journal.save()
     else:
         journal = None
