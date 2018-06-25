@@ -55,6 +55,7 @@ urlpatterns = [
     path('api/get_names/', get.get_names, name='get_names'),
     path('api/get_entrycomments/<int:entryID>/', get.get_entrycomments, name='get_entrycomments'),
     path('api/get_course_users/<int:cID>/', get.get_course_users, name='get_course_users'),
+    path('api/get_unenrolled_users/<int:cID>/', get.get_unenrolled_users, name='get_unenrolled_users'),
 
     path('api/create_new_course/', create.create_new_course, name='create_new_course'),
     path('api/create_new_assignment/', create.create_new_assignment, name='create_new_assignment'),
@@ -79,6 +80,8 @@ urlpatterns = [
          name='update_publish_grades_journal'),
 
     path('api/update_user_role_course/', update.update_user_role_course, name='update_user_role_course'),
+    path('api/update_course_with_studentID/', update.update_course_with_studentID, name='update_course_with_studentID'),
+
 
     path('api/delete_course/', delete.delete_course, name='delete_course'),
     path('api/delete_assignment/', delete.delete_assignment, name='delete_assignment'),
