@@ -4,7 +4,6 @@ delete.py.
 API functions that handle the delete requests.
 """
 from rest_framework.decorators import api_view
-from django.http import JsonResponse
 
 from VLE.models import Assignment, Course, Participation, User
 

@@ -5,7 +5,6 @@ API functions that handle the create requests.
 """
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import JSONParser
-from django.http import JsonResponse
 
 import VLE.serializers as serialize
 import VLE.factory as factory

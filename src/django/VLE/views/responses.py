@@ -2,8 +2,7 @@
 responses.py
 
 """
-from django.http import JsonResponse, HttpResponse
-import json
+from django.http import JsonResponse
 
 
 def success(payload={}):
