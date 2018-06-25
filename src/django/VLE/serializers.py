@@ -195,7 +195,7 @@ def format_to_dict(format):
     return {
         'unused_templates': [template_to_dict(template) for template in format.unused_templates.all()],
         'templates': [template_to_dict(template) for template in format.available_templates.all()],
-        'presets': [preset_to_dict(preset) for preset in format.presetnode_set.all()],
+        'presets': [preset_to_dict(preset) for preset in format.presetnode_set.all().order_by('deadline')],
     } if format else None
 
 

@@ -167,13 +167,6 @@ def make_journal(assignment, user):
     return journal
 
 
-def clone_template(template):
-    template = EntryTemplate.objects.get(pk=template.id)
-    template.pk = None
-    template.save()
-    return template
-
-
 def make_entry(template, posttime=timezone.now()):
     """Create a new entry in a journal.
 
@@ -184,7 +177,6 @@ def make_entry(template, posttime=timezone.now()):
     """
     # TODO: Too late logic.
 
-    template = clone_template(template)
     entry = Entry(template=template, createdate=posttime)
     entry.save()
     return entry

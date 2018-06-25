@@ -364,9 +364,10 @@ class Entry(models.Model):
     - TODO: edited_at
     """
 
-    template = models.OneToOneField(
+    template = models.ForeignKey(
         'EntryTemplate',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
     )
     createdate = models.DateTimeField(
         default=now,
@@ -447,7 +448,7 @@ class Field(models.Model):
 
     def __str__(self):
         """toString."""
-        return self.template.name + " field: " + self.location
+        return self.template.name + " field: " + str(self.location)
 
 
 class Content(models.Model):
