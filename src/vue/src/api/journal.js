@@ -32,12 +32,7 @@ export default {
     },
 
     create_template (name, fields) {
-        return auth.authenticatedPost('/update_template/', {name: name, fields: fields})
-            .then(response => response.data)
-    },
-
-    update_template (tID, name, fields) {
-        return auth.authenticatedPost('/update_template/', {tID: tID, name: name, fields: fields})
+        return auth.authenticatedPost('/create_template/', {name: name, fields: fields})
             .then(response => response.data)
     },
 

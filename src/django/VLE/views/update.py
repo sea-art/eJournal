@@ -10,7 +10,8 @@ from django.http import JsonResponse
 import VLE.serializers as serialize
 import VLE.utils as utils
 import VLE.factory as factory
-from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, Journal, EntryTemplate, Node, PresetNode
+from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, \
+    Journal, EntryTemplate, Node, PresetNode
 
 
 @api_view(['POST'])
@@ -130,6 +131,23 @@ def update_comment_notification(request):
     return JsonResponse({'result': 'success', 'new_value': user.comment_notifications})
 
 
+def create_template(template_dict):
+    name = template_dict['name']
+    fields = template_dict['fields']
+
+    template = factory.make_entry_template(name)
+
+    for field in fields:
+        type = field['type']
+        title = field['title']
+        location = field['location']
+
+        factory.make_field(template, title, location, type)
+
+    template.save()
+    return template
+
+
 @api_view(['POST'])
 @parser_classes([JSONParser])
 def update_format(request):
@@ -160,41 +178,32 @@ def update_format(request):
                              'description': 'Format does not exist.'},
                             status=404)
 
+    format.available_templates.clear()
+    format.unused_templates.clear()
+
     for template_field in templates:
-        tID = template_field['tID']
-        try:
-            format.available_templates.add(EntryTemplate.objects.get(pk=tID))
-        except EntryTemplate.DoesNotExist:
-            return JsonResponse({'result': '404 Not Found',
-                                 'description': 'Template does not exist.'},
-                                status=404)
+        format.available_templates.add(create_template(template_field))
 
     for template_field in unused_templates:
-        tID = template_field['tID']
-        try:
-            format.unused_templates.add(EntryTemplate.objects.get(pk=tID))
-        except EntryTemplate.DoesNotExist:
-            return JsonResponse({'result': '404 Not Found',
-                                 'description': 'Template does not exist.'},
-                                status=404)
+        format.unused_templates.add(create_template(template_field))
 
     for preset in presets:
         if 'pID' in preset:
             try:
-                presetNode = PresetNode.objects.get(pk=preset['pID'])
+                preset_node = PresetNode.objects.get(pk=preset['pID'])
             except EntryTemplate.DoesNotExist:
                 return JsonResponse({'result': '404 Not Found',
                                      'description': 'Preset does not exist.'},
                                     status=404)
         else:
-            presetNode = PresetNode(format=format)
+            preset_node = PresetNode(format=format)
 
-        presetNode.type = preset['type']
-        presetNode.deadline = preset['deadline']
+        preset_node.type = preset['type']
+        preset_node.deadline = preset['deadline']
 
-        if presetNode.type == Node.PROGRESS:
-            presetNode.target = preset['target']
-        elif presetNode.type == Node.ENTRYDEADLINE:
+        if preset_node.type == Node.PROGRESS:
+            preset_node.target = preset['target']
+        elif preset_node.type == Node.ENTRYDEADLINE:
             tID = preset['template']['tID']
             try:
                 template = EntryTemplate.objects.get(pk=tID)
@@ -202,10 +211,16 @@ def update_format(request):
                 return JsonResponse({'result': '404 Not Found',
                                      'description': 'Template does not exist.'},
                                     status=404)
-            presetNode.forced_template = template
-        presetNode.save()
+            preset_node.forced_template = template
+        preset_node.save()
 
-    return JsonResponse({'result': 'success', 'node': serialize.format_to_dict(format)}, status=200)
+        if 'pID' not in preset:
+            for journal in assignment.journal_set.all():
+                Node(type=preset_node.type,
+                     journal=journal,
+                     preset=preset_node).save()
+
+    return JsonResponse({'result': 'success', 'format': serialize.format_to_dict(format)}, status=200)
 
 
 @api_view(['POST'])
@@ -363,46 +378,3 @@ def update_user_data(request):
 
     user.save()
     return JsonResponse({'result': 'success', 'user': serialize.user_to_dict(user)}, status=200)
-
-
-@api_view(['POST'])
-@parser_classes([JSONParser])
-def update_template(request):
-    """ Update a template
-    Arguments:
-    request -- the request that was send with
-    tID -- optionally the template to update
-    fields -- the list of fields of the new template
-    name -- the (new) name of the template
-    """
-    if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
-
-    tID, = utils.get_optional_post_params(request.data, "tID")
-    try:
-        fields, name = utils.get_required_post_params(request.data, "fields", "name")
-    except KeyError:
-        return utils.keyerror_json("fields", "name")
-
-    try:
-        if tID:
-            template = EntryTemplate.objects.get(pk=tID)
-            template.name = name
-        else:
-            template = factory.make_entry_template(name)
-    except EntryTemplate.DoesNotExist:
-        return JsonResponse({'result': '404 Not Found',
-                             'description': 'Template does not exist.'},
-                            status=404)
-
-    template.field_set.all().delete()
-
-    for field in fields:
-        type = field['type']
-        title = field['title']
-        location = field['location']
-
-        factory.make_field(template, title, location, type)
-
-    template.save()
-    return JsonResponse({'result': 'success', 'template': serialize.template_to_dict(template)}, status=200)

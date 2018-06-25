@@ -62,7 +62,7 @@ class DataBaseTests(TestCase):
         ass_test.courses.add(course_test)
         journ_test = factory.make_journal(user=user_test, assignment=ass_test)
 
-        self.assertNotEquals(entr_test.template.pk, template.pk)
+        self.assertEquals(entr_test.template.pk, template.pk)
         self.assertEquals(journ_test.user.pk, user_test.pk)
         self.assertEquals(journ_test.assignment.pk, ass_test.pk)
         self.assertEquals(course_test.author.pk, user_test.pk)

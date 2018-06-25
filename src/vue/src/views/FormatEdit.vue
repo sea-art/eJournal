@@ -180,19 +180,8 @@ export default {
             }
 
             this.convertToDB()
-
-            var promise = new Promise((resolve, reject) => resolve())
-            for (var editedTemplate of this.templatePool) {
-                if (editedTemplate.updated) {
-                    if (editedTemplate.t.tID < 0) {
-                        promise = promise.then(_ => journalAPI.create_template(editedTemplate.t.name, editedTemplate.t.fields).then(data => { editedTemplate.t.tID = data.template.tID }))
-                    } else {
-                        promise = promise.then(_ => journalAPI.update_template(editedTemplate.t.tID, editedTemplate.t.name, editedTemplate.t.fields))
-                    }
-                }
-            }
-
-            promise.then(_ => journalAPI.update_format(this.aID, this.templates, this.presets, this.unused_templates))
+            journalAPI.update_format(this.aID, this.templates, this.presets, this.unused_templates)
+                .then(data => { this.templates = data.format.templates; this.presets = data.format.presets; this.unused_templates = data.format.unused_templates; this.convertFromDB(); this.isChanged = false })
         },
         getWindowWidth (event) {
             this.windowWidth = document.documentElement.clientWidth

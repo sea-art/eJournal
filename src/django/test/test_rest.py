@@ -299,18 +299,3 @@ class RestTests(TestCase):
         self.assertEquals(response.json()['template']['tID'], template.pk)
         self.assertEquals(response.json()['template']['name'], "template")
         self.assertEquals(len(response.json()['template']['fields']), 2)
-
-    def test_create_template(self):
-        login = logging_in(self, self.username, self.password)
-
-        data = {
-            "name": "template",
-            "fields": [
-                {"type": Field.TEXT, "title": "Some Field", "location": 0},
-                {"type": Field.TEXT, "title": "Some Other Field", "location": 1},
-            ]
-        }
-        response = api_post_call(self, '/api/update_template/', data, login)
-
-        self.assertEquals(response.json()['template']['name'], "template")
-        self.assertEquals(len(response.json()['template']['fields']), 2)
