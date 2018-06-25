@@ -8,7 +8,7 @@ test-front:
 	npm run test --prefix ./src/vue
 
 test-flake:
-	flake8 --max-line-length=120 src/django --exclude="src/django/migrations/*"
+	bash -c 'source ./venv/bin/activate && python -m flake8 --max-line-length=120 src/django --exclude="src/django/VLE/migrations/*" && deactivate'
 
 test: test-back test-front
 

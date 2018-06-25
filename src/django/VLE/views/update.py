@@ -163,6 +163,14 @@ def update_comment_notification(request):
 
 
 def update_templates(result_list, templates):
+    """ Create new templates for those which have changed,
+    and removes the old one.
+
+    Entries have to keep their original template, so that the content
+    does not change after a template update, therefore when a template
+    is updated, the template is recreated from scratch and bound to
+    all nodes that use the previous template, if there were any.
+    """
     for template_field in templates:
         if 'updated' in template_field and template_field['updated']:
             # Create the new template and add it to the format.
@@ -181,6 +189,7 @@ def update_templates(result_list, templates):
 
 
 def create_template(template_dict):
+    """ Create a new template according to the passed JSON-serialized template. """
     name = template_dict['name']
     fields = template_dict['fields']
 
@@ -197,13 +206,66 @@ def create_template(template_dict):
     return template
 
 
-# Swap templates from the fromlist to targetlist. if they are present in goal list.
 def swap_templates(from_list, goal_list, target_list):
+    """ Swap templates from from_list to target_list if they are present in goal_list. """
     for template in goal_list:
         if from_list.filter(pk=template['tID']).count() > 0:
             template = from_list.get(pk=template['tID'])
             from_list.remove(template)
             target_list.add(template)
+
+
+def update_presets(assignment, presets):
+    """ Update preset nodes in the assignment according to the passed list.
+
+    Arguments:
+    assignment -- the assignment to update the presets in.
+    presets -- a list of JSON-serialized presets.
+    """
+    format = assignment.format
+    for preset in presets:
+        # If pID is set, update an already existing preset, else create new.
+        if 'pID' in preset:
+            try:
+                preset_node = PresetNode.objects.get(pk=preset['pID'])
+            except EntryTemplate.DoesNotExist:
+                return JsonResponse({'result': '404 Not Found',
+                                     'description': 'Preset does not exist.'},
+                                    status=404)
+        else:
+            preset_node = PresetNode(format=format)
+
+        preset_node.type = preset['type']
+        preset_node.deadline = preset['deadline']
+
+        if preset_node.type == Node.PROGRESS:
+            preset_node.target = preset['target']
+        elif preset_node.type == Node.ENTRYDEADLINE:
+            template_field = preset['template']
+
+            # If tID is valid, use a pre-existing template, else create new.
+            if 'tID' in template_field and template_field['tID'] > 0:
+                preset_node.forced_template = EntryTemplate.objects.get(pk=template_field['tID'])
+            else:
+                preset_node.forced_template = create_template(template_field)
+
+        preset_node.save()
+
+        # If the preset is new, create it for already existing journals.
+        if 'pID' not in preset:
+            for journal in assignment.journal_set.all():
+                Node(type=preset_node.type,
+                     journal=journal,
+                     preset=preset_node).save()
+
+        # If the preset is not new, update existing the existing nodes
+        # that have this preset to adapt to the change.
+        else:
+            for journal in assignment.journal_set.all():
+                if journal.node_set.filter(preset=preset_node).count() > 0:
+                    node = journal.node_set.get(preset=preset_node)
+                    node.type = preset_node.type
+                    node.save()
 
 
 @api_view(['POST'])
@@ -212,9 +274,11 @@ def update_format(request):
     """ Update a format
     Arguments:
     request -- the request that was send with
-    aID -- the assignments' format to update
-    templates -- the list of templates to bind to the format
-    presets -- the list of presets to bind to the format
+        aID -- the assignments' format to update
+        templates -- the list of templates to bind to the format
+        presets -- the list of presets to bind to the format
+        unused_templates -- the list of templates that are bound to the template
+                            deck, but are not used in presets nor the entry templates.
     """
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
@@ -236,42 +300,16 @@ def update_format(request):
                              'description': 'Format does not exist.'},
                             status=404)
 
-    for preset in presets:
-        # If pID is set, update an already existing preset, else create new.
-        if 'pID' in preset:
-            try:
-                preset_node = PresetNode.objects.get(pk=preset['pID'])
-            except EntryTemplate.DoesNotExist:
-                return JsonResponse({'result': '404 Not Found',
-                                     'description': 'Preset does not exist.'},
-                                    status=404)
-        else:
-            preset_node = PresetNode(format=format)
+    # Update the presets in the assignment according to the passed presets.
+    update_presets(assignment, presets)
 
-        preset_node.type = preset['type']
-        preset_node.deadline = preset['deadline']
-
-        if preset_node.type == Node.PROGRESS:
-            preset_node.target = preset['target']
-        elif preset_node.type == Node.ENTRYDEADLINE:
-            template_field = preset['template']
-            # If tID is valid, use a pre-existing template, else create new.
-            if 'tID' in template_field and template_field['tID'] > 0:
-                preset_node.forced_template = EntryTemplate.objects.get(pk=template_field['tID'])
-            else:
-                preset_node.forced_template = create_template(template_field)
-        preset_node.save()
-
-        # Create this preset for already existing journals.
-        if 'pID' not in preset:
-            for journal in assignment.journal_set.all():
-                Node(type=preset_node.type,
-                     journal=journal,
-                     preset=preset_node).save()
-
+    # Update the templates in both lists according to the passed templates.
     update_templates(format.available_templates, templates)
     update_templates(format.unused_templates, unused_templates)
 
+    # Swap templates from lists if they occur in the other:
+    # If a template was previously unused, but is now used, swap it to
+    # available templates, and vice versa.
     swap_templates(format.available_templates, unused_templates, format.unused_templates)
     swap_templates(format.unused_templates, templates, format.available_templates)
 

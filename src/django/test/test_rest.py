@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.urls import reverse
 import json
 
-from VLE.models import Participation, Assignment, Journal, Entry, Field
+from VLE.models import Participation, Assignment, Journal, Entry
 
 import VLE.factory as factory
 import VLE.utils as utils
@@ -291,8 +291,8 @@ class RestTests(TestCase):
         login = logging_in(self, self.username, self.password)
 
         template = factory.make_entry_template("template")
-        field = factory.make_field(template, "Some Field", 0)
-        field2 = factory.make_field(template, "Some other Field", 1)
+        factory.make_field(template, "Some Field", 0)
+        factory.make_field(template, "Some other Field", 1)
 
         response = api_get_call(self, '/api/get_template/' + str(template.pk) + '/', login)
 

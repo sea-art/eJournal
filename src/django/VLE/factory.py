@@ -7,7 +7,6 @@ Sometimes this also supports extra functionallity like adding courses to assignm
 from VLE.models import User, Participation, Course, Assignment, Role, JournalFormat, PresetNode, Node, EntryComment, \
     Entry, EntryTemplate, Field, Content, Journal
 import random
-import datetime
 import django.utils.timezone as timezone
 
 
