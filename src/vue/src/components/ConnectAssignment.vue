@@ -30,7 +30,7 @@ export default {
                 .catch(_ => alert('Error while loading assignments'))
         },
         connectAssignment (aID) {
-            courseApi.connect_assignment_lti(aID, this.lti.ltiAssignID, this.lti.pointsPossible)
+            assignApi.connect_assignment_lti(aID, this.lti.ltiAssignID, this.lti.pointsPossible)
                 .then(response => { this.$emit('handleAction', response.aID) })
         }
     },
