@@ -120,6 +120,8 @@ class RestTests(TestCase):
         factory.make_node(j, e3)
         factory.make_node(jj, e4)
 
+        self.a1 = a1
+
     def test_login(self):
         """Test if the login is successful."""
         result = logging_in(self, self.username, self.password)
@@ -289,4 +291,6 @@ class RestTests(TestCase):
         """Test the get_user_data function which responses with all the user data of a given user."""
         login = logging_in(self, 'Lars', 'pass')
         Lars = User.objects.get(username='Lars')
-        api_get_call(self, '/api/get_user_data/' + str(Lars.pk) + '/', login)
+        result = api_get_call(self, '/api/get_user_data/' + str(Lars.pk) + '/', login)
+        result = result.json()
+        self.assertIn(self.a1.name, result['journals'])
