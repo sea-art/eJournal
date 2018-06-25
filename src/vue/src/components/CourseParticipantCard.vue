@@ -14,7 +14,7 @@
             </b-col>
             <b-col cols="12" order-sm="2" sm="6">
                 Name: {{ name }} <br/>
-                StudentID: {{ studentNumber }} <br />
+                uID: {{ uID }} <br />
                 Role: {{selectedRole}}
             </b-col>
         </b-row>
@@ -59,7 +59,10 @@ export default {
             if (confirm('Are you sure you want to remove ' + name + '?')) {
                 courseApi.delete_user_from_course(this.uID, this.cID)
                     .then(response => {
-                        this.$emit('delete-participant', this.uID)
+                        this.$emit('delete-participant', this.role,
+                            this.name,
+                            this.portraitPath,
+                            this.uID)
                     })
                     .catch(_ => alert('Error while deleting user from course'))
             }

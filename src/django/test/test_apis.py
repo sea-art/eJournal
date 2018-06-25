@@ -30,7 +30,6 @@ class ApiTests(TestCase):
 
         rein = factory.make_user("Rein", "123")
         lars = factory.make_user("Lars", "123")
-        zi = factory.make_user("Zi", "123")
 
         TA = factory.make_role("TA")
         SD = factory.make_role("SD")
@@ -39,8 +38,12 @@ class ApiTests(TestCase):
 
         response = test.api_get_call(self, '/api/get_course_users/' + str(course.pk) + '/', login)
 
-        self.assertEquals(response.status_code, 200)
         self.assertEquals(len(response.json()['users']), 2)
+
+        response = test.api_get_call(self, '/api/get_unenrolled_users/' + str(course.pk) + '/', login)
+
+        self.assertEquals(len(response.json()['users']), 1)
+        self.assertEquals(response.json()['users'][0]['name'], self.username)
 
     def test_create_entry(self):
         login = test.logging_in(self, self.username, self.password)

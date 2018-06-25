@@ -21,6 +21,11 @@ export default {
             .then(response => response.data)
     },
 
+    get_unenrolled_users (cID) {
+        return auth.authenticatedGet('/get_unenrolled_users/' + cID + '/')
+            .then(response => response.data.users)
+    },
+
     /* Create a new course. */
     create_new_course (name, abbr, startdate) {
         return auth.authenticatedPost('/create_new_course/', {
