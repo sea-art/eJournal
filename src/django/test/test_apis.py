@@ -1,29 +1,30 @@
-from rest_framework.test import APIRequestFactory
-from django.test import TestCase
-from django.urls import reverse
+"""
+test_apis.py.
 
-from VLE.models import User
-from VLE.models import Participation
-from VLE.models import Role
-from VLE.models import Course
-from VLE.models import Assignment
-from VLE.models import Journal
+Test API calls.
+"""
+from django.test import TestCase
 
 import VLE.factory as factory
-import VLE.utils as utils
 
 import test.test_rest as test
-import json as json
 
 
 class ApiTests(TestCase):
+    """Api tests.
+
+    Test api calls.
+    """
+
     def setUp(self):
+        """Setup."""
         self.username = 'test'
         self.password = 'test123'
 
         self.user = factory.make_user(self.username, self.password)
 
     def test_get_course_users(self):
+        """Test get courses of user."""
         login = test.logging_in(self, self.username, self.password)
 
         course = factory.make_course("Beeldbewerken", "BB")
@@ -46,6 +47,7 @@ class ApiTests(TestCase):
         self.assertEquals(response.json()['users'][0]['name'], self.username)
 
     def test_create_entry(self):
+        """"Test create entry."""
         login = test.logging_in(self, self.username, self.password)
 
         assignment = factory.make_assignment("Assignment", "Your favorite assignment")
@@ -62,4 +64,4 @@ class ApiTests(TestCase):
                 }]
             }
 
-        response = test.api_post_call(self, '/api/create_entry/', some_dict, login, 201)
+        test.api_post_call(self, '/api/create_entry/', some_dict, login, 201)
