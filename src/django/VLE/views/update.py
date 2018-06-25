@@ -194,7 +194,7 @@ def update_format(request):
 
         if presetNode.type == Node.PROGRESS:
             presetNode.target = preset['target']
-        elif type == Node.ENTRYDEADLINE:
+        elif presetNode.type == Node.ENTRYDEADLINE:
             tID = preset['template']['tID']
             try:
                 template = EntryTemplate.objects.get(pk=tID)
