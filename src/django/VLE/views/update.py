@@ -167,11 +167,10 @@ def update_templates(result_list, templates):
         if 'updated' in template_field and template_field['updated']:
             # Create the new template and add it to the format.
             new_template = create_template(template_field)
-            print(new_template.id)
             result_list.add(new_template)
 
             # Update presets to use the new template.
-            if 'tID' in template_field:
+            if 'tID' in template_field and template_field['tID'] > 0:
                 template = EntryTemplate.objects.get(pk=template_field['tID'])
                 presets = PresetNode.objects.filter(forced_template=template).all()
                 for preset in presets:
@@ -196,6 +195,15 @@ def create_template(template_dict):
 
     template.save()
     return template
+
+
+# Swap templates from the fromlist to targetlist. if they are present in goal list.
+def swap_templates(from_list, goal_list, target_list):
+    for template in goal_list:
+        if from_list.filter(pk=template['tID']).count() > 0:
+            template = from_list.get(pk=template['tID'])
+            from_list.remove(template)
+            target_list.add(template)
 
 
 @api_view(['POST'])
@@ -263,6 +271,9 @@ def update_format(request):
 
     update_templates(format.available_templates, templates)
     update_templates(format.unused_templates, unused_templates)
+
+    swap_templates(format.available_templates, unused_templates, format.unused_templates)
+    swap_templates(format.unused_templates, templates, format.available_templates)
 
     return JsonResponse({'result': 'success', 'format': serialize.format_to_dict(format)}, status=200)
 
