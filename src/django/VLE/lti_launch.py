@@ -77,8 +77,8 @@ class OAuthRequestValidater(object):
 
 
 def select_create_user(request, roles):
-    """Return the user of the lti_user_id in the request if it doesnt yet exist
-    the user is create in our database.
+    """Returns the user of the lti_user_id in the request. If the user does not
+    exist it will create one in our database.
     """
     lti_user_id = request['user_id']
 
