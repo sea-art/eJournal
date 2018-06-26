@@ -77,9 +77,9 @@ class RestTests(TestCase):
 
         self.user = factory.make_user(self.username, self.password)
         self.student = factory.make_user('Student', 'pass')
-        self.teacher = factory.make_user('teacher', 'pass')
-        self.teacher_user = 'teacher'
+        self.teacher_user = 'Teacher'
         self.teacher_pass = 'pass'
+        self.teacher = factory.make_user(self.teacher_user, self.teacher_pass)
 
         u1 = factory.make_user("Zi-Long", "pass")
         u2 = factory.make_user("Rick", "pass")
@@ -92,19 +92,14 @@ class RestTests(TestCase):
         factory.make_course("Statistisch Redeneren", "SR")
 
         self.user_role = factory.make_user("test123", "test")
-        role = factory.make_role(name='TA', can_grade_journal=True, can_view_assignment_participants=True)
-        student_role = factory.make_role(name='SD', can_edit_journal=True, can_comment_journal=True)
-        teacher_role = factory.make_role(name='Teacher', can_edit_course_roles=True, can_view_course_participants=True,
-                                         can_edit_course=True, can_delete_course=True,
-                                         can_add_assignment=True, can_view_assignment_participants=True,
-                                         can_delete_assignment=True, can_publish_assigment_grades=True,
-                                         can_grade_journal=True, can_publish_journal_grades=True,
-                                         can_comment_journal=True)
-
-        factory.make_participation(self.user_role, c1, role)
+        role_test = factory.make_role('TA2', c1, can_grade_journal=True, can_view_assignment_participants=True)
+        factory.make_participation(self.user_role, c1, role_test)
 
         cs = [c1, c2, c3]
         for c in cs:
+            role = factory.make_role('TA', c, can_grade_journal=True, can_view_assignment_participants=True)
+            teacher_role = factory.make_role_all_permissions('TE', c)
+            student_role = factory.make_role('SD', c)
             factory.make_participation(self.user, c, role)
             factory.make_participation(self.student, c, student_role)
             factory.make_participation(self.teacher, c, teacher_role)

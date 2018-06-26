@@ -261,3 +261,25 @@ def entrycomment_to_dict(entrycomment):
         'author': user_to_dict(entrycomment.author),
         'text': entrycomment.text,
     } if entrycomment else None
+
+
+def role_to_dict(role):
+    """Convert role to dictionary."""
+    return {
+        'name': role.name,
+        'cID': role.course.pk,
+        'permissions': {
+            'can_edit_course_roles': int(role.can_edit_course_roles),
+            'can_view_course_participants': int(role.can_view_course_participants),
+            'can_edit_course': int(role.can_edit_course),
+            'can_delete_course': int(role.can_delete_course),
+            'can_add_assignment': int(role.can_add_assignment),
+            'can_view_assignment_participants': int(role.can_view_assignment_participants),
+            'can_delete_assignment': int(role.can_delete_assignment),
+            'can_publish_assigment_grades': int(role.can_publish_assigment_grades),
+            'can_grade_journal': int(role.can_grade_journal),
+            'can_publish_journal_grades': int(role.can_publish_journal_grades),
+            'can_edit_journal': int(role.can_edit_journal),
+            'can_comment_journal': int(role.can_comment_journal)
+        }
+    } if role else None

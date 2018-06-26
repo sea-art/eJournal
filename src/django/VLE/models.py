@@ -100,7 +100,10 @@ class Role(models.Model):
     - list of permissions (can_...)
     """
     name = models.TextField()
-
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE
+    )
     # GLOBAL: is_admin
     # GLOBAL: can_edit_institute
 
@@ -127,6 +130,10 @@ class Role(models.Model):
         """toString."""
         return str(self.name) + " (" + str(self.id) + ")"
 
+    class Meta:
+        """Meta data for the model: unique_together."""
+        unique_together = ('name', 'course',)
+
 
 class Participation(models.Model):
     """Participation.
@@ -140,7 +147,7 @@ class Participation(models.Model):
     role = models.ForeignKey(
         Role,
         null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name='role',
     )
 
