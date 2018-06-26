@@ -1,6 +1,8 @@
 from django.test import TestCase
 from django.urls import reverse
 
+from VLE.models import User
+
 import VLE.factory as factory
 import test.test_rest as test
 
@@ -20,6 +22,22 @@ class GetApiTests(TestCase):
         response = test.api_get_call(self, '/api/get_own_user_data/', login)
 
         self.assertEquals(response.json()['user']['name'], self.username)
+
+    def test_get_user_data(self):
+        """Test the get_user_data function which responses with all the user data of a given user."""
+        lars = factory.make_user("Lars", "pass")
+        login = test.logging_in(self, 'Lars', 'pass')
+
+        # course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
+        assign = factory.make_assignment("Colloq", "In de opdracht...1", self.user)
+        # factory.make_participation(self.user, course)
+        # factory.make_participation(lars, course)
+        # assign.courses.add(course)
+        factory.make_journal(assign, lars)
+
+        Lars = User.objects.get(username='Lars')
+        result = test.api_get_call(self, '/api/get_user_data/' + str(Lars.pk) + '/', login)
+        self.assertIn(assign.name, result.json()['journals'])
 
     def test_course_data(self):
         """Test get_course_data"""
@@ -52,6 +70,28 @@ class GetApiTests(TestCase):
         self.assertEquals(courses[0]['abbr'], 'PAV')
         self.assertEquals(courses[1]['abbr'], 'BB')
         self.assertEquals(courses[2]['abbr'], 'RDS')
+
+    def test_get_user_teacher_courses(self):
+        """Test the get user teacher courses function."""
+        login = test.logging_in(self, self.username, self.password)
+
+        teacher_role = factory.make_role(name='Teacher', can_edit_course_roles=True, can_view_course_participants=True,
+                                         can_edit_course=True, can_delete_course=True,
+                                         can_add_assignment=True, can_view_assignment_participants=True,
+                                         can_delete_assignment=True, can_publish_assigment_grades=True,
+                                         can_grade_journal=True, can_publish_journal_grades=True,
+                                         can_comment_journal=True)
+
+        course1 = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
+        course2 = factory.make_course("BeeldBewerken", "BB")
+        course3 = factory.make_course("Reflectie en Digitale Samenleving", "RDS")
+
+        factory.make_participation(self.user, course1, teacher_role)
+        factory.make_participation(self.user, course2, teacher_role)
+        factory.make_participation(self.user, course3, teacher_role)
+
+        result = test.api_get_call(self, reverse('get_user_teacher_courses'), login)
+        self.assertEquals(len(result.json()['courses']), 3)
 
     def test_get_course_users(self):
         """Test get_course_users"""
@@ -187,3 +227,16 @@ class GetApiTests(TestCase):
 
         self.assertEquals(len(response.json()['users']), 1)
         self.assertEquals(response.json()['users'][0]['name'], self.username)
+
+    def test_get_template(self):
+        login = test.logging_in(self, self.username, self.password)
+
+        template = factory.make_entry_template("template")
+        factory.make_field(template, "Some Field", 0)
+        factory.make_field(template, "Some other Field", 1)
+
+        response = test.api_get_call(self, '/api/get_template/' + str(template.pk) + '/', login)
+
+        self.assertEquals(response.json()['template']['tID'], template.pk)
+        self.assertEquals(response.json()['template']['name'], "template")
+        self.assertEquals(len(response.json()['template']['fields']), 2)
