@@ -48,15 +48,6 @@ class DataBaseTests(TestCase):
         self.usr = factory.make_user('teun', '1234', email='t@t.com', lti_id='a')
         self.crs = factory.make_course('test course please ignore', 'XXXX', startdate=datetime.date.today())
 
-    # def test_get_linkable_courses_user(self):
-    #     role = Role(name="Student")
-    #     role.save()
-    #
-    #     participation = Participation(user=self.usr, role=role, course=self.crs)
-    #     participation.save()
-    #
-    #     get.get_linkable_courses_user(NULL)
-
     def test_foreignkeys(self):
         """Test the foreign keys in the database."""
         user_test = factory.make_user('lers', 'lers123', 'lers@uva.nl', '123456')
