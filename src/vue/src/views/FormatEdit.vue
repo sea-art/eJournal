@@ -208,7 +208,7 @@ export default {
 
             this.convertToDB()
             journalAPI.update_format(this.aID, this.templates, this.presets, this.unused_templates, this.deletedTemplates, this.deletedPresets)
-                .then(data => { this.templates = data.format.templates; this.presets = data.format.presets; this.unused_templates = data.format.unused_templates; this.deletedTemplates = []; this.deletedTemplates = []; this.convertFromDB(); this.isChanged = false })
+                .then(data => { this.templates = data.format.templates; this.presets = data.format.presets; this.unused_templates = data.format.unused_templates; this.deletedTemplates = []; this.deletedTemplates = []; this.convertFromDB() }).then(_ => { this.isChanged = false; alert('New format saved') })
         },
         getWindowWidth (event) {
             this.windowWidth = document.documentElement.clientWidth
