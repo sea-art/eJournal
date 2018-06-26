@@ -83,4 +83,4 @@ def delete_user_from_course(request):
 
     participation.delete()
 
-    return responses.success(messsage='Succesfully deleted student from course')
+    return responses.success(message='Succesfully deleted student from course')

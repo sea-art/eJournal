@@ -189,24 +189,24 @@ input, select {
 }
 
 .add-button {
-    border-color: var(--theme-blue);
-    background-color: var(--theme-add-unselected);
+    border-color: var(--theme-blue) !important;
+    background-color: var(--theme-add-unselected) !important;
 }
 
 .add-button:hover {
-    border-color: var(--theme-blue);
-    background-color: var(--theme-add-selected);
+    border-color: var(--theme-blue) !important;
+    background-color: var(--theme-add-selected) !important;
     color: black !important;
 }
 
 .delete-button {
-    border-color: var(--theme-blue);
-    background-color: var(--theme-pink);
+    border-color: var(--theme-blue) !important;
+    background-color: var(--theme-pink) !important;
 }
 
 .delete-button:hover {
-    border-color: var(--theme-dark-blue);
-    background-color: red;
+    border-color: var(--theme-dark-blue) !important;
+    background-color: red !important;
 }
 
 .lti-button-option {
