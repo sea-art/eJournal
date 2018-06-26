@@ -66,7 +66,8 @@ def make_course(name, abbrev, startdate=None, author=None, lti_id=None):
     return course
 
 
-def make_assignment(name, description, author=None, format=None, cIDs=None, courses=None):
+def make_assignment(name, description, author=None, format=None, lti_id=None,
+                    points_possible=None, cIDs=None, courses=None):
     """Make a new assignment.
 
     Arguments:
@@ -90,6 +91,12 @@ def make_assignment(name, description, author=None, format=None, cIDs=None, cour
     if courses:
         for course in courses:
             assign.courses.add(course)
+    if lti_id is not None:
+        assign.lti_id = lti_id
+    if points_possible is not None:
+        assign.points_possible = points_possible
+    assign.save()
+
     return assign
 
 
@@ -251,7 +258,8 @@ def make_role_all_permissions(name):
 
     This enables a participant of the course to do everything within that course.
     This should not be confused with the global roles: these also have effect
-    outside of the course."""
+    outside of the course.
+    """
     make_role(name, True, True, True, True, True, True,
               True, True, True, True, True, True)
 
