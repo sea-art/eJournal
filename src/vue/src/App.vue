@@ -105,6 +105,7 @@ h4 a {
     background-color: white !important;
     color: var(--theme-dark-blue) !important;
     border: none;
+    margin-bottom: 10px;
 }
 
 .fit-height {
