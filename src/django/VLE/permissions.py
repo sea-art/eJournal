@@ -95,6 +95,19 @@ def get_permissions(user, cID=-1):
     return roleDict
 
 
+def get_assignment_permissions(user, assignment):
+    """ Merge permissions from all courses that are linked to the assignment.
+
+    If the user has the permission in any of the courses, it will have the permission
+    for this assignment.
+    """
+    result = {}
+    for course in assignment.courses.all():
+        result = {key: value or (result[key] if key in result else False)
+                  for key, value in get_permissions(user, course.pk).items()}
+    return result
+
+
 def check_permissions(user, cID, permissionList):
     """Check if the user has the needed permissions.
 
@@ -112,3 +125,16 @@ def check_permissions(user, cID, permissionList):
             return False
 
     return True
+
+
+def has_permission(user, assignment, permission):
+    """Check if the user has the assignment permission.
+
+    Arguments:
+    user -- user that did the request.
+    assignment -- the assignment used to validate the request.
+    permission -- the permissions to check.
+    """
+
+    permissions = get_assignment_permissions(user, assignment)
+    return permission in permissions and permissions[permission]

@@ -4,6 +4,7 @@ Serializers.
 Functions to convert certain data to other formats.
 """
 import VLE.utils as utils
+import VLE.permissions as permissions
 from VLE.models import Journal, Node, EntryComment
 
 
@@ -112,28 +113,28 @@ def add_node_dict(journal):
     } if journal else None
 
 
-def node_to_dict(node):
+def node_to_dict(node, user):
     """Convert a node to a dictionary."""
     if node.type == Node.ENTRY:
-        return entry_node_to_dict(node)
+        return entry_node_to_dict(node, user)
     elif node.type == Node.ENTRYDEADLINE:
-        return entry_deadline_to_dict(node)
+        return entry_deadline_to_dict(node, user)
     elif node.type == Node.PROGRESS:
         return progress_to_dict(node)
     return None
 
 
-def entry_node_to_dict(node):
+def entry_node_to_dict(node, user):
     """Convert an entrynode to a dictionary."""
     return {
         'type': node.type,
         'nID': node.id,
         'jID': node.id,
-        'entry': entry_to_dict(node.entry),
+        'entry': entry_to_dict(node.entry, user),
     } if node else None
 
 
-def entry_deadline_to_dict(node):
+def entry_deadline_to_dict(node, user):
     """Convert entrydeadline to a dictionary."""
     return {
         'type': node.type,
@@ -141,7 +142,7 @@ def entry_deadline_to_dict(node):
         'jID': node.id,
         'deadline': node.preset.deadline.strftime('%Y-%m-%d %H:%M'),
         'template': template_to_dict(node.preset.forced_template),
-        'entry': entry_to_dict(node.entry),
+        'entry': entry_to_dict(node.entry, user),
     } if node else None
 
 
@@ -156,17 +157,24 @@ def progress_to_dict(node):
     } if node else None
 
 
-def entry_to_dict(entry):
+def entry_to_dict(entry, user):
     """Convert entry to dictionary."""
-    return {
+    if not entry:
+        return None
+
+    data = {
         'eID': entry.id,
         'createdate': entry.createdate.strftime('%Y-%m-%d %H:%M'),
-        'grade': entry.grade,
         'published': entry.published,
-        # 'late': TODO
         'template': template_to_dict(entry.template),
         'content': [content_to_dict(content) for content in entry.content_set.all()],
-    } if entry else None
+    }
+
+    assignment = entry.node.journal.assignment
+    if permissions.has_permission(user, assignment, 'can_grade_journal') or entry.published:
+        data['grade'] = entry.grade
+
+    return data
 
 
 def export_entry_to_dict(entry):
