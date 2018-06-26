@@ -3,13 +3,15 @@ update.py.
 
 API functions that handle the update requests.
 """
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, parser_classes
+from rest_framework.parsers import JSONParser
 from django.http import JsonResponse
 
 import VLE.serializers as serialize
 import VLE.utils as utils
 import VLE.factory as factory
-from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, Journal, User
+from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, \
+    User, Journal, EntryTemplate, Node, PresetNode
 
 import re
 
@@ -173,6 +175,159 @@ def update_comment_notification(request):
 
     user.save()
     return JsonResponse({'result': 'success', 'new_value': user.comment_notifications}, status=200)
+
+
+def update_templates(result_list, templates):
+    """ Create new templates for those which have changed,
+    and removes the old one.
+
+    Entries have to keep their original template, so that the content
+    does not change after a template update, therefore when a template
+    is updated, the template is recreated from scratch and bound to
+    all nodes that use the previous template, if there were any.
+    """
+    for template_field in templates:
+        if 'updated' in template_field and template_field['updated']:
+            # Create the new template and add it to the format.
+            new_template = parse_template(template_field)
+            result_list.add(new_template)
+
+            # Update presets to use the new template.
+            if 'tID' in template_field and template_field['tID'] > 0:
+                template = EntryTemplate.objects.get(pk=template_field['tID'])
+                presets = PresetNode.objects.filter(forced_template=template).all()
+                for preset in presets:
+                    preset.forced_template = new_template
+                    preset.save()
+
+                result_list.remove(template)
+
+
+def parse_template(template_dict):
+    """ Parse a new template according to the passed JSON-serialized template. """
+    name = template_dict['name']
+    fields = template_dict['fields']
+
+    template = factory.make_entry_template(name)
+
+    for field in fields:
+        type = field['type']
+        title = field['title']
+        location = field['location']
+
+        factory.make_field(template, title, location, type)
+
+    template.save()
+    return template
+
+
+def swap_templates(from_list, goal_list, target_list):
+    """ Swap templates from from_list to target_list if they are present in goal_list. """
+    for template in goal_list:
+        if from_list.filter(pk=template['tID']).count() > 0:
+            template = from_list.get(pk=template['tID'])
+            from_list.remove(template)
+            target_list.add(template)
+
+
+def update_journals(journals, preset, created):
+    """ Create or update the preset node in all relevant journals.
+
+    Arguments:
+    journals -- the journals to update.
+    preset -- the preset node to update the journals with.
+    created -- whether the preset node was newly created.
+    """
+    if created:
+        for journal in journals:
+            factory.make_node(journal, None, preset.type, preset)
+    else:
+        for journal in journals:
+            journal.node_set.filter(preset=preset).update(type=preset.type)
+
+
+def update_presets(assignment, presets):
+    """ Update preset nodes in the assignment according to the passed list.
+
+    Arguments:
+    assignment -- the assignment to update the presets in.
+    presets -- a list of JSON-serialized presets.
+    """
+    format = assignment.format
+    for preset in presets:
+        exists = 'pID' in preset
+
+        if exists:
+            try:
+                preset_node = PresetNode.objects.get(pk=preset['pID'])
+            except EntryTemplate.DoesNotExist:
+                return JsonResponse({'result': '404 Not Found',
+                                     'description': 'Preset does not exist.'},
+                                    status=404)
+        else:
+            preset_node = PresetNode(format=format)
+
+        type_changed = preset_node.type != preset['type']
+        preset_node.type = preset['type']
+        preset_node.deadline = preset['deadline']
+
+        if preset_node.type == Node.PROGRESS:
+            preset_node.target = preset['target']
+        elif preset_node.type == Node.ENTRYDEADLINE:
+            template_field = preset['template']
+
+            if 'tID' in template_field and template_field['tID'] > 0:
+                preset_node.forced_template = EntryTemplate.objects.get(pk=template_field['tID'])
+            else:
+                preset_node.forced_template = parse_template(template_field)
+
+        preset_node.save()
+        if type_changed:
+            update_journals(assignment.journal_set.all(), preset_node, not exists)
+
+
+@api_view(['POST'])
+@parser_classes([JSONParser])
+def update_format(request):
+    """ Update a format
+    Arguments:
+    request -- the request that was send with
+        aID -- the assignments' format to update
+        templates -- the list of templates to bind to the format
+        presets -- the list of presets to bind to the format
+        unused_templates -- the list of templates that are bound to the template
+                            deck, but are not used in presets nor the entry templates.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        aID, templates, presets, unused_templates = utils.get_required_post_params(request.data,
+                                                                                   "aID",
+                                                                                   "templates",
+                                                                                   "presets",
+                                                                                   "unused_templates")
+    except KeyError:
+        return utils.keyerror_json("aID", "templates", "presets", "unused_templates")
+
+    try:
+        assignment = Assignment.objects.get(pk=aID)
+        format = assignment.format
+    except Assignment.DoesNotExist:
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Format does not exist.'},
+                            status=404)
+
+    update_presets(assignment, presets)
+    update_templates(format.available_templates, templates)
+    update_templates(format.unused_templates, unused_templates)
+
+    # Swap templates from lists if they occur in the other:
+    # If a template was previously unused, but is now used, swap it to available templates, and vice versa.
+    swap_templates(format.available_templates, unused_templates, format.unused_templates)
+    swap_templates(format.unused_templates, templates, format.available_templates)
+
+    return JsonResponse({'result': 'success', 'format': serialize.format_to_dict(format)}, status=200)
 
 
 @api_view(['POST'])
