@@ -35,7 +35,6 @@
 </template>
 
 <script>
-import breadCrumb from '@/components/BreadCrumb.vue'
 import createAssignment from '@/components/CreateAssignment.vue'
 import connectAssignment from '@/components/ConnectAssignment.vue'
 
@@ -43,7 +42,6 @@ export default {
     name: 'LtiCreateConnectAssignment',
     props: ['lti', 'page'],
     components: {
-        'bread-crumb': breadCrumb,
         'create-assignment': createAssignment,
         'connect-assignment': connectAssignment
     },

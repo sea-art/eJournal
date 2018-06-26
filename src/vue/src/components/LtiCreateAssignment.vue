@@ -21,14 +21,12 @@
 </template>
 
 <script>
-import breadCrumb from '@/components/BreadCrumb.vue'
 import createAssignment from '@/components/CreateAssignment.vue'
 
 export default {
     name: 'LtiCreateAssignment',
     props: ['lti', 'page'],
     components: {
-        'bread-crumb': breadCrumb,
         'create-assignment': createAssignment
     },
     methods: {
