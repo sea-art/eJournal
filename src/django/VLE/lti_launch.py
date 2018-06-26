@@ -12,8 +12,8 @@ class OAuthRequestValidater(object):
 
     def __init__(self, key, secret):
         """
-        Constructor die een server en consumer object aanmaakt met de
-        gegeven key en secret.
+        Constructor which creates a consumer object with the given key and
+        secret.
         """
         super(OAuthRequestValidater, self).__init__()
         self.consumer_key = key
@@ -77,7 +77,8 @@ class OAuthRequestValidater(object):
 
 
 def select_create_user(request, roles):
-    """Returns the user of the lti_user_id in the request. If the user does not
+    """
+    Returns the user of the lti_user_id in the request. If the user does not
     exist it will create one in our database.
     """
     lti_user_id = request['user_id']
