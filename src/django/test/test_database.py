@@ -131,6 +131,15 @@ class DataBaseTests(TestCase):
 
         self.assertTrue(perm["is_admin"])
 
+    def test_get_permissions_teacher(self):
+        """Test if the admin had the right permissions."""
+        usr = factory.make_user(email='some@other', username='teun2', password='1234', lti_id='abcde', is_teacher=True)
+        usr.save()
+
+        perm = permissions.get_permissions(usr)
+
+        self.assertTrue(perm["can_add_course"])
+
     def test_get_permissions_no_admin(self):
         """Test a request that returns a dictionary of permissions.
 

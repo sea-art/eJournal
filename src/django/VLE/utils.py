@@ -4,7 +4,8 @@ Utilities.
 A library with useful functions.
 """
 from VLE.models import Entry
-from django.http import JsonResponse
+
+import VLE.views.responses as responses
 
 
 # START: API-POST functions
@@ -33,13 +34,9 @@ def get_optional_post_params(post, *keys):
 def keyerror_json(*keys):
     """Generate a JsonResponse when the JSON has keyerror(s)."""
     if len(keys) == 1:
-        return JsonResponse({'result': '400 Bad Request',
-                             'description': 'Field {0} is required but is missing.'.format(keys)},
-                            status=400)
+        return responses.bad_request('Field {0} is required but is missing.'.format(keys))
     else:
-        return JsonResponse({'result': '400 Bad Request',
-                             'description': 'Fields {0} are required but one or more are missing.'.format(keys)},
-                            status=400)
+        return responses.bad_request('Fields {0} are required but one or more are missing.'.format(keys))
 # END: API-POST functions
 
 

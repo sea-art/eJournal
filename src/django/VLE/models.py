@@ -32,6 +32,7 @@ class User(AbstractUser):
         null=True
     )
     is_admin = models.BooleanField(default=False)
+    is_teacher = models.BooleanField(default=False)
     grade_notifications = models.BooleanField(
         default=True
     )
