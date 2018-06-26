@@ -64,6 +64,7 @@ urlpatterns = [
     path('api/create_new_assignment/', create.create_new_assignment, name='create_new_assignment'),
     path('api/create_entry/', create.create_entry, name='create_entry'),
     path('api/create_entrycomment/', create.create_entrycomment, name='create_entrycomment'),
+    path('api/create_journal/', create.create_journal, name='create_journal'),
 
     path('api/update_user_data/', update.update_user_data, name='update_user_data'),
     path('api/update_course/', update.update_course, name='update_course'),
