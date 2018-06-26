@@ -6,9 +6,9 @@
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>Preset Deadline</h2>
-                                <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="deadlineDate" type="date"/>
+                                <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="deadlineDate" type="date" @change="$emit('changed')"/>
                                 <br/>
-                                <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="deadlineTime" type="time"/>
+                                <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="deadlineTime" type="time" @change="$emit('changed')"/>
                                 <br/>
 
                                 <h2>Preset Type</h2>
@@ -21,7 +21,7 @@
 
                                 <div v-if="currentPreset.type === 'd'">
                                     <h2>Preset Template</h2>
-                                    <b-form-select v-model="currentPreset.template">
+                                    <b-form-select v-model="currentPreset.template" @change="$emit('changed')">
                                         <option disabled value="">Please select a template</option>
                                         <option v-for="template in templates" :key="template.t.tID" :value="template.t">
                                             {{template.t.name}}
@@ -35,7 +35,7 @@
                                 </div>
                                 <div v-else-if="currentPreset.type === 'p'">
                                     <h2>Point Target</h2>
-                                    <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="currentPreset.target" placeholder="Amount of points"/>
+                                    <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="currentPreset.target" placeholder="Amount of points" @change="$emit('changed')"/>
                                 </div>
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12">
@@ -73,11 +73,13 @@ export default {
 
     methods: {
         emitDeletePreset () {
+            this.$emit('changed')
             if (confirm('Are you sure you wish to delete this preset?')) {
                 this.$emit('delete-preset')
             }
         },
         onChangePresetType (value) {
+            this.$emit('changed')
             if (value !== 'p') {
                 this.currentPreset.target = ''
             }

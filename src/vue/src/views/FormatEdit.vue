@@ -16,7 +16,7 @@
             . -->
 
             <div v-if="nodes.length > 0">
-                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @deadline-changed="sortList" @delete-preset="deletePreset"/>
+                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @deadline-changed="sortList" @delete-preset="deletePreset" @changed="isChanged = true"/>
             </div>
             <div v-else>
                 <p>No presets yet</p>
@@ -98,10 +98,6 @@ export default {
 
     watch: {
         templatePool: {
-            handler: function () { this.isChanged = true },
-            deep: true
-        },
-        nodes: {
             handler: function () { this.isChanged = true },
             deep: true
         }
