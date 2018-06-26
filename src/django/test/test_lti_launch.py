@@ -7,7 +7,7 @@ import VLE.lti_launch as lti
 from django.test import TestCase
 import VLE.factory as factory
 import json
-from VLE.models import Participation, User, Course, Assignment, Journal, Role
+from VLE.models import Participation, User, Journal, Role
 
 
 class lti_launch_test(TestCase):
@@ -71,67 +71,12 @@ class lti_launch_test(TestCase):
         )
         self.assertEquals(selected_course, self.created_course)
 
-    def test_create_course(self):
-        """Hopefully create a course."""
-        selected_course = lti.select_create_course({
-            'context_id': self.created_course.pk + 1,
-            'roles': self.roles['teacher'],
-            'context_title': 'TestName',
-            'context_label': 'bbbb'
-        },
-            user=self.created_user,
-            roles=self.roles
-        )
-        self.assertIsInstance(selected_course, Course)
-
-    def test_create_course_unauthorized(self):
-        """Only a teacher should be able to create course if non can be selected."""
-        selected_course = lti.select_create_course({
-            'context_id': self.created_course.pk + 1,
-            'roles': self.roles['ta'],
-        },
-            user=self.created_user,
-            roles=self.roles
-        )
-        self.assertEquals(None, selected_course)
-
     def test_select_assignment(self):
         """Hopefully select a assignment."""
-        selected_assignment = lti.select_create_assignment({
+        selected_assignment = lti.check_assignment_lti({
             'resource_link_id': self.created_assignment.lti_id,
-            'roles': self.roles['teacher'],
-        },
-            user=self.created_user,
-            course=self.created_course,
-            roles=self.roles
-        )
+        })
         self.assertEquals(selected_assignment, self.created_assignment)
-
-    def test_create_assignment(self):
-        """Hopefully create a assignment."""
-        selected_assignment = lti.select_create_assignment({
-            'resource_link_id': self.created_course.pk + 1,
-            'roles': self.roles['teacher'],
-            'resource_link_title': 'TestName',
-            'custom_canvas_assignment_points_possible': 7
-        },
-            user=self.created_user,
-            course=self.created_course,
-            roles=self.roles
-        )
-        self.assertIsInstance(selected_assignment, Assignment)
-
-    def test_create_assignment_unauthorized(self):
-        """Only a teacher should be able to create assignment if non can be selected."""
-        selected_assignment = lti.select_create_assignment({
-            'resource_link_id': self.created_course.pk + 1,
-            'roles': self.roles['ta'],
-        },
-            user=self.created_user,
-            course=self.created_course,
-            roles=self.roles
-        )
-        self.assertEquals(None, selected_assignment)
 
     def test_select_journal(self):
         """Hopefully select a journal."""
@@ -148,7 +93,7 @@ class lti_launch_test(TestCase):
         """Hopefully create a journal."""
         self.created_journal.delete()
         selected_journal = lti.select_create_journal({
-            'roles': self.roles['student'],
+            'roles': self.roles['Student'],
         },
             user=self.created_user,
             assignment=self.created_assignment,
@@ -159,7 +104,7 @@ class lti_launch_test(TestCase):
     def test_create_journal_unauthorized(self):
         """Only a teacher should be able to create journal if non can be selected."""
         selected_journal = lti.select_create_journal({
-            'roles': self.roles['ta'],
+            'roles': self.roles['TA'],
         },
             user=self.created_user,
             assignment=self.created_assignment,

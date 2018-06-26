@@ -606,7 +606,7 @@ def lti_launch(request):
                 q_values = [token, access, NO_COURSE]
                 return redirect(lti.create_lti_query_link(q_names, q_values))
 
-        assignment = lti.check_assignment_lti(request.POST, user)
+        assignment = lti.check_assignment_lti(request.POST)
         if assignment is None:
             if role == 'Teacher':
                 q_names = ['jwt_refresh', 'jwt_access', 'state', 'cID']

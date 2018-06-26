@@ -145,7 +145,7 @@ def check_course_lti(request, user, role):
     return None
 
 
-def check_assignment_lti(request, user):
+def check_assignment_lti(request):
     assign_id = request['resource_link_id']
     assignments = Assignment.objects.filter(lti_id=assign_id)
     if assignments.count() > 0:
