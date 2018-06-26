@@ -35,15 +35,21 @@ export default {
         downloadUserData () {
             userAPI.getUserData(this.id).then(data => {
                 /* This is a way to download data. */
+                /* Stringify the data and create a data blob of it. */
                 data = JSON.stringify(data)
                 const blob = new Blob([data], {type: 'text/plain'})
-                const e = document.createEvent('MouseEvents')
-                var a = document.createElement('a')
-                a.download = 'test.json'
-                a.href = window.URL.createObjectURL(blob)
-                a.dataset.downloadurl = ['text/json', a.download, a.href].join(':')
-                e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
-                a.dispatchEvent(e)
+
+                /* Create a link to download the data and bind the data to it. */
+                var downloadElement = document.createElement('a')
+                downloadElement.download = 'userdata_of_' + this.uname + '.json'
+                downloadElement.href = window.URL.createObjectURL(blob)
+                downloadElement.dataset.downloadurl = ['text/json',
+                    downloadElement.download, downloadElement.href].join(':')
+
+                /* Create a click event and click on the download link to download the code. */
+                const clickEvent = document.createEvent('MouseEvents')
+                clickEvent.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
+                downloadElement.dispatchEvent(clickEvent)
             })
         }
     },
