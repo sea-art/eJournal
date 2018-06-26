@@ -23,7 +23,7 @@ export default {
     },
     data () {
         return {
-            courses: [],
+            courses: []
         }
     },
     methods: {
