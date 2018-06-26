@@ -166,7 +166,6 @@ def has_assignment_permissions(user, assignment, permission_list):
     return True
 
 
-<<<<<<< HEAD
 def edit_permissions(role, can_edit_course_roles=False, can_view_course_participants=False,
                      can_edit_course=False, can_delete_course=False,
                      can_add_assignment=False, can_view_assignment_participants=False,
@@ -204,5 +203,3 @@ def has_assignment_permission(user, assignment, permission):
 
     permissions = get_assignment_permissions(user, assignment)
     return permission in permissions and permissions[permission]
-=======
->>>>>>> 171841cb081c2d1c84779a743e8109f81abd12bf
