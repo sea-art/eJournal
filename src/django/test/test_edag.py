@@ -6,7 +6,7 @@ Test all about the edag.
 from django.test import TestCase
 import datetime
 
-from VLE.models import Deadline, EntryTemplate
+from VLE.models import EntryTemplate
 
 import VLE.factory as factory
 import VLE.edag as edag
@@ -23,15 +23,9 @@ class EdagTests(TestCase):
         self.template = EntryTemplate(name="some_template")
         self.template.save()
 
-        deadline_first = Deadline(datetime=datetime.date(2020, 1, 1))
-        deadline_first.save()
-
-        deadline_last_progress = Deadline(datetime=datetime.date(2024, 1, 1), points=10)
-        deadline_last_progress.save()
-
         f_colloq = factory.make_format()
-        self.deadlineentry = factory.make_entrydeadline_node(f_colloq, deadline_first, self.template)
-        self.progressnode = factory.make_progress_node(f_colloq, deadline_last_progress)
+        self.deadlineentry = factory.make_entrydeadline_node(f_colloq, datetime.date(2020, 1, 1), self.template)
+        self.progressnode = factory.make_progress_node(f_colloq, datetime.date(2024, 1, 1), 10)
         f_log = factory.make_format()
 
         a_colloq = factory.make_assignment("Colloq", "In de opdracht...1", author=self.u_rick, format=f_colloq)
@@ -43,8 +37,7 @@ class EdagTests(TestCase):
 
     def test_deadline_format(self):
         """Test if the deadline is correctly formatted."""
-        deadline = Deadline(datetime=datetime.date.today())
-        deadline.save()
+        deadline = datetime.date.today()
 
         format = factory.make_format()
         format.save()
@@ -78,13 +71,13 @@ class EdagTests(TestCase):
 
         self.assertEquals(nodes[0]['type'], 'd')
         self.assertEquals(nodes[0]['entry'], None)
-        self.assertEquals(nodes[0]['deadline'], '01-01-2020 00:00')
+        self.assertEquals(nodes[0]['deadline'], '2020-01-01 00:00')
 
         self.assertEquals(nodes[1]['type'], 'e')
-        self.assertEquals(nodes[1]['entry']['createdate'], '01-01-2022 00:00')
+        self.assertEquals(nodes[1]['entry']['createdate'], '2022-01-01 00:00')
 
         self.assertEquals(nodes[2]['type'], 'a')
 
         self.assertEquals(nodes[3]['type'], 'p')
-        self.assertEquals(nodes[3]['deadline'], '01-01-2024 00:00')
+        self.assertEquals(nodes[3]['deadline'], '2024-01-01 00:00')
         self.assertEquals(nodes[3]['target'], 10)

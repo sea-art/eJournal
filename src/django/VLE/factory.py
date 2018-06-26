@@ -5,13 +5,12 @@ The facory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
 from VLE.models import User, Participation, Course, Assignment, Role, JournalFormat, PresetNode, Node, EntryComment, \
-    Entry, EntryTemplate, Field, Content, Deadline, Journal
+    Entry, EntryTemplate, Field, Content, Journal
 import random
-import datetime
 import django.utils.timezone as timezone
 
 
-def make_user(username, password, email=None, lti_id=None, profile_picture=None, is_admin=False):
+def make_user(username, password, email=None, lti_id=None, profile_picture=None, is_admin=False, is_teacher=False):
     """Create a user.
 
     Arguments:
@@ -22,7 +21,7 @@ def make_user(username, password, email=None, lti_id=None, profile_picture=None,
     profile_picture -- profile picture of the user (default: none)
     is_admin -- if the user needs all permissions, set this true (default: False)
     """
-    user = User(username=username, email=email, lti_id=lti_id, is_admin=is_admin)
+    user = User(username=username, email=email, lti_id=lti_id, is_admin=is_admin, is_teacher=is_teacher)
     user.save()
     user.set_password(password)
     if profile_picture:
@@ -109,14 +108,14 @@ def make_format(templates=[], max_points=10):
     return format
 
 
-def make_progress_node(format, deadline):
+def make_progress_node(format, deadline, target):
     """Make a progress node.
 
     Arguments:
     format -- format the node belongs to.
     deadline -- deadline of the node.
     """
-    node = PresetNode(type=Node.PROGRESS, deadline=deadline, format=format)
+    node = PresetNode(type=Node.PROGRESS, deadline=deadline, target=target, format=format)
     node.save()
     return node
 
@@ -132,17 +131,18 @@ def make_entrydeadline_node(format, deadline, template):
     node = PresetNode(type=Node.ENTRYDEADLINE, deadline=deadline,
                       forced_template=template, format=format)
     node.save()
+
     return node
 
 
-def make_node(journal, entry):
+def make_node(journal, entry=None, type=Node.ENTRY, preset=None):
     """Make a node.
 
     Arguments:
     journal -- journal the node belongs to.
     entry -- entry the node belongs to.
     """
-    node = Node(type=Node.ENTRY, entry=entry, journal=journal)
+    node = Node(type=type, entry=entry, preset=preset, journal=journal)
     node.save()
     return node
 
@@ -200,21 +200,6 @@ def make_content(entry, data, field=None):
     content = Content(field=field, entry=entry, data=data)
     content.save()
     return content
-
-
-def make_deadline(datetime=datetime.datetime.now(), points=None):
-    """Make deadline (with possible points).
-
-    Arguments:
-    datetime -- time the deadline ends (default: now)
-    points -- points that have to be aquired to pass the deadline.
-    """
-    if points:
-        deadline = Deadline(datetime=datetime, points=points)
-    else:
-        deadline = Deadline(datetime=datetime)
-    deadline.save()
-    return deadline
 
 
 def make_journal_format():
