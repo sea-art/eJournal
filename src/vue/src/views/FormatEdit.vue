@@ -157,6 +157,7 @@ export default {
                 'template': (this.templatePool[0]) ? this.templatePool[0].t : null
             })
             this.sortList()
+            this.isChanged = true
         },
         // Do client side validation and save to DB
         saveFormat () {
