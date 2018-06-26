@@ -294,14 +294,13 @@ class RestTests(TestCase):
         self.assertEquals(Assignment.objects.filter(pk=1).count(), 0)
 
     def test_get_course_roles(self):
-        """
-        Test the get delete assignment function.
-        """
+        """Test the get delete assignment function."""
         login = logging_in(self, self.teacher_user, self.teacher_pass)
         result = api_get_call(self, '/api/get_course_roles/1/', login)
         self.assertEquals(len(result.json()['roles']), 4)
 
     def test_update_course_roles(self):
+        """Test update course roles"""
         login = logging_in(self, self.teacher_user, self.teacher_pass)
         result = api_get_call(self, '/api/get_course_roles/1/', login)
         roles = result.json()['roles']
@@ -312,15 +311,19 @@ class RestTests(TestCase):
         roles.append(serializers.role_to_dict(factory.make_role('test_role', course)))
         api_post_call(self, '/api/update_course_roles/', {'cID': 1, 'roles': roles}, login)
         role_test = Role.objects.get(name='TA2', course=course)
+
         self.assertTrue(role_test.can_grade_journal)
         self.assertEquals(Role.objects.filter(name='test_role', course=course).count(), 1)
 
     def test_delete_course_role(self):
+        """Test delete course roles"""
         login = logging_in(self, self.teacher_user, self.teacher_pass)
         api_post_call(self, '/api/delete_course_role/', {'cID': 1, 'name': 'TA2'}, login)
+
         self.assertEquals(Role.objects.filter(name='TA2', course=Course.objects.get(pk=1)).count(), 0)
 
     def test_get_template(self):
+        """Test get templates"""
         login = logging_in(self, self.username, self.password)
 
         template = factory.make_entry_template("template")
@@ -338,4 +341,5 @@ class RestTests(TestCase):
         login = logging_in(self, 'Lars', 'pass')
         Lars = User.objects.get(username='Lars')
         result = api_get_call(self, '/api/get_user_data/' + str(Lars.pk) + '/', login)
+
         self.assertIn(self.a1.name, result.json()['journals'])
