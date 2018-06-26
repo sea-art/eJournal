@@ -169,11 +169,9 @@ class Command(BaseCommand):
                 deadline_date = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
 
                 if p["type"] == Node.PROGRESS:
-                    deadline = factory.make_deadline(deadline_date, p["points"])
-                    factory.make_progress_node(format, deadline)
+                    factory.make_progress_node(format, deadline_date, p["points"])
                 elif p["type"] == Node.ENTRYDEADLINE:
-                    deadline = factory.make_deadline(deadline_date)
-                    factory.make_entrydeadline_node(format, deadline, self.templates[p["template"]])
+                    factory.make_entrydeadline_node(format, deadline_date, self.templates[p["template"]])
 
             self.formats.append(format)
 

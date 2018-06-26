@@ -9,14 +9,14 @@
 </template>
 
 <script>
-import mainCard from '@/components/MainCard.vue'
+import assignmentCard from '@/components/AssignmentCard.vue'
 import assignApi from '@/api/assignment.js'
 
 export default {
     name: 'ConnectAssignment',
     props: ['lti', 'page'],
     components: {
-        'main-card': mainCard
+        'assignment-card': assignmentCard
     },
     data () {
         return {
@@ -30,7 +30,8 @@ export default {
                 .catch(_ => alert('Error while loading assignments'))
         },
         connectAssignment (aID) {
-            assignApi.connect_assignment_lti(aID, this.lti.ltiAssignID, this.lti.pointsPossible)
+            assignApi.connect_assignment_lti(aID, this.lti.ltiAssignID,
+                this.lti.ltiPointsPossible)
                 .then(response => { this.$emit('handleAction', response.aID) })
         }
     },
