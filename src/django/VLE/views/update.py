@@ -43,6 +43,7 @@ def update_course(request):
 
     Arguments:
     request -- the update request that was send with
+        cID -- ID of the course
         name -- name of the course
         abbr -- abbreviation of the course
         startdate -- date when the course starts
