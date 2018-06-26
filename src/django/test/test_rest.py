@@ -8,10 +8,11 @@ from django.test import TestCase
 from django.urls import reverse
 import json
 
-from VLE.models import Participation, Assignment, Journal, Entry
+from VLE.models import Participation, Assignment, Journal, Entry, Course, Role
 
 import VLE.factory as factory
 import VLE.utils as utils
+import VLE.serializers as serializers
 
 
 def logging_in(obj, username, password, status=200):
@@ -77,7 +78,9 @@ class RestTests(TestCase):
 
         self.user = factory.make_user(self.username, self.password)
         self.student = factory.make_user('Student', 'pass')
-        self.teacher = factory.make_user('Teacher', 'pass')
+        self.teacher_user = 'Teacher'
+        self.teacher_pass = 'pass'
+        self.teacher = factory.make_user(self.teacher_user, self.teacher_pass)
 
         u1 = factory.make_user("Zi-Long", "pass")
         u2 = factory.make_user("Rick", "pass")
@@ -294,6 +297,20 @@ class RestTests(TestCase):
         """
         Test the get delete assignment function.
         """
-        login = logging_in(self, 'Teacher', 'pass')
+        login = logging_in(self, self.teacher_user, self.teacher_pass)
         result = api_get_call(self, '/api/get_course_roles/1/', login)
         self.assertEquals(len(result.json()['roles']), 4)
+
+    def test_update_course_roles(self):
+        login = logging_in(self, self.teacher_user, self.teacher_pass)
+        result = api_get_call(self, '/api/get_course_roles/1/', login)
+        roles = result.json()['roles']
+        course = Course.objects.get(pk=1)
+        for role in roles:
+            if role['name'] == 'TA2':
+                role['permissions']['can_grade_journal'] = 1
+        roles.append(serializers.role_to_dict(factory.make_role('test_role', course)))
+        api_post_call(self, '/api/update_course_roles/', roles, login)
+        role_test = Role.objects.get(name='TA2', course=course)
+        self.assertTrue(role_test.can_grade_journal)
+        self.assertEquals(Role.objects.filter(name='test_role', course=course).count(), 1)

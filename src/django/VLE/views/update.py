@@ -8,6 +8,7 @@ from django.http import JsonResponse
 
 import VLE.serializers as serialize
 import VLE.utils as utils
+import VLE.permissions as permissions
 import VLE.factory as factory
 from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, Journal
 
@@ -46,20 +47,18 @@ def update_course_roles(request):
     """
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
-
-    request_user_role = Participation.objects.get(user=request.user.id, course=request.data['cID']).role
+    cID = request.data[0]['cID']
+    request_user_role = Participation.objects.get(user=request.user.id, course=cID).role
 
     if not request_user_role.can_edit_course_roles:
         return JsonResponse({'result': '403 Forbidden'}, status=403)
 
-    for role in request.data['roles']:
+    for role in request.data:
         db_role = Role.objects.filter(name=role['name'])
         if not db_role:
-            db_role = factory.make_role(
-                name=role['name'],
-                course=Course.objects.get(pk=role['cID'])
-            )
-        utils.edit_permissions(db_role)
+            factory.make_role(role['name'], Course.objects.get(pk=cID), **role['permissions'])
+        else:
+            permissions.edit_permissions(db_role[0], **role['permissions'])
     return JsonResponse({'result': 'success'}, status=200)
 
 
