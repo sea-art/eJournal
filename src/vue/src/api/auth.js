@@ -127,7 +127,6 @@ export default {
         console.log(response)
         response = response.response
 
-
         throw response
     }
 }
