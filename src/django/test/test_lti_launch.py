@@ -57,17 +57,16 @@ class lti_launch_test(TestCase):
             'user_id': 99999,
             'lis_person_contact_email_primary': 'test@mail.com',
             'lis_person_sourcedid': 'TestUsername'
-        })
+        }, self.roles)
         self.assertIsInstance(selected_user, User)
 
     def test_select_course(self):
         """Hopefully select a course."""
-        selected_course = lti.select_create_course({
+        selected_course = lti.check_course_lti({
             'context_id': self.created_course.lti_id,
-            'roles': self.roles['teacher'],
         },
             user=self.created_user,
-            roles=self.roles
+            role=self.roles['Teacher']
         )
         self.assertEquals(selected_course, self.created_course)
 
