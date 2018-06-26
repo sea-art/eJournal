@@ -16,7 +16,7 @@
             . -->
 
             <div v-if="nodes.length > 0">
-                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @deadline-changed="sortList" @delete-preset="deletePreset" @changed="isChanged = true"/>
+                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @deadline-changed="sortList" @delete-preset="deletePreset" @changed="isChanged = true" :color="$root.colors[aID % $root.colors.length]"/>
             </div>
             <div v-else>
                 <p>No presets yet</p>
@@ -43,7 +43,7 @@
             <br/>
 
             <h3>Template Pool</h3>
-            <template-todo-card class="hover" v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" :color="'pink-border'" @delete-template="deleteTemplate"/>
+            <template-todo-card class="hover" v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate" :color="$root.colors[aID % $root.colors.length]"/>
             <b-card @click="showModal(newTemplate())" class="hover" :class="'grey-border'" style="">
                 <b>+ Add Template</b>
             </b-card>

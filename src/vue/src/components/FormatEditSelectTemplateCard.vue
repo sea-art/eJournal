@@ -2,47 +2,47 @@
     <div class="entry-template">
         <b-row>
             <b-col id="main-card-left-column" cols="12">
-                    <b-card class="card main-card no-hover" :class="'pink-border'">
-                        <b-row>
-                            <b-col id="main-card-left-column" cols="9" lg-cols="12">
-                                <h2>Preset Deadline</h2>
-                                <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="deadlineDate" type="date" @change="$emit('changed')"/>
-                                <br/>
-                                <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="deadlineTime" type="time" @change="$emit('changed')"/>
-                                <br/>
+                <b-card class="card main-card no-hover" :class="color">
+                    <b-row>
+                        <b-col id="main-card-left-column" cols="9" lg-cols="12">
+                            <h2>Preset Deadline</h2>
+                            <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="deadlineDate" type="date" @change="$emit('changed')"/>
+                            <br/>
+                            <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="deadlineTime" type="time" @change="$emit('changed')"/>
+                            <br/>
 
-                                <h2>Preset Type</h2>
-                                <b-form-select v-model="currentPreset.type" @change="onChangePresetType">
-                                    <option :value="'d'">Entry</option>
-                                    <option :value="'p'">Progress Check</option>
+                            <h2>Preset Type</h2>
+                            <b-form-select v-model="currentPreset.type" @change="onChangePresetType">
+                                <option :value="'d'">Entry</option>
+                                <option :value="'p'">Progress Check</option>
+                            </b-form-select>
+                            <br/>
+                            <br/>
+
+                            <div v-if="currentPreset.type === 'd'">
+                                <h2>Preset Template</h2>
+                                <b-form-select v-model="currentPreset.template" @change="$emit('changed')">
+                                    <option disabled value="">Please select a template</option>
+                                    <option v-for="template in templates" :key="template.t.tID" :value="template.t">
+                                        {{template.t.name}}
+                                    </option>
                                 </b-form-select>
-                                <br/>
-                                <br/>
-
-                                <div v-if="currentPreset.type === 'd'">
-                                    <h2>Preset Template</h2>
-                                    <b-form-select v-model="currentPreset.template" @change="$emit('changed')">
-                                        <option disabled value="">Please select a template</option>
-                                        <option v-for="template in templates" :key="template.t.tID" :value="template.t">
-                                            {{template.t.name}}
-                                        </option>
-                                    </b-form-select>
-                                    <br><br>
-                                    <div v-if="currentPreset !== null">
-                                        <h3>Preview</h3>
-                                        <template-preview :template="currentPreset.template"/>
-                                    </div>
+                                <br><br>
+                                <div v-if="currentPreset !== null">
+                                    <h3>Preview</h3>
+                                    <template-preview :template="currentPreset.template"/>
                                 </div>
-                                <div v-else-if="currentPreset.type === 'p'">
-                                    <h2>Point Target</h2>
-                                    <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="currentPreset.target" placeholder="Amount of points" @change="$emit('changed')"/>
-                                </div>
-                            </b-col>
-                            <b-col id="main-card-right-column" cols="3" lg-cols="12">
-                                <b-button @click.prevent="emitDeletePreset" class="delete-button">Delete Preset</b-button>
-                            </b-col>
-                        </b-row>
-                    </b-card>
+                            </div>
+                            <div v-else-if="currentPreset.type === 'p'">
+                                <h2>Point Target</h2>
+                                <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="currentPreset.target" placeholder="Amount of points" @change="$emit('changed')"/>
+                            </div>
+                        </b-col>
+                        <b-col id="main-card-right-column" cols="3" lg-cols="12">
+                            <b-button @click.prevent="emitDeletePreset" class="delete-preset-button">Delete Preset</b-button>
+                        </b-col>
+                    </b-row>
+                </b-card>
             </b-col>
         </b-row>
     </div>
@@ -52,7 +52,7 @@
 import templatePreview from '@/components/TemplatePreview.vue'
 
 export default {
-    props: ['currentPreset', 'templates'],
+    props: ['currentPreset', 'templates', 'color'],
 
     data () {
         return {
@@ -98,3 +98,10 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+.delete-preset-button:hover {
+    border-color: var(--theme-dark-blue) !important;
+    background-color: var(--theme-red) !important;
+}
+</style>
