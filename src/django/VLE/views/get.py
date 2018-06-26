@@ -544,6 +544,7 @@ def get_user_data(request, uID):
 @api_view(['GET'])
 def get_assignment_by_lti_id(request, lti_id):
     """Get an assignment if it exists.
+
     Arguments:
     request -- the request that was sent
     lti_id -- lti_id of the assignment
@@ -565,11 +566,6 @@ def lti_launch(request):
 
     authenticated, err = lti.OAuthRequestValidater.check_signature(
         key, secret, request)
-
-    # # Prints de post parameters als http page
-    # from django.http import HttpResponse
-    # post = json.dumps(request.POST, separators=(',', ': '))
-    # return HttpResponse(post.replace(",", " <br> "))
 
     if authenticated:
         # Select or create the user, course, assignment and journal.
@@ -626,11 +622,6 @@ def lti_launch(request):
         journal = lti.select_create_journal(request.POST, user, assignment, roles)
         jID = journal.pk if journal is not None else None
         state = FINISH_T if jID is None else FINISH_S
-
-        # TODO Test if work
-        if journal in request.POST:
-            jID = int(request.POST['journal'])
-            state = GRADE_CENTER
 
         q_names = ['jwt_refresh', 'jwt_access',
                    'state', 'cID', 'aID', 'jID']

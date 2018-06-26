@@ -1,7 +1,6 @@
+import xml.etree.cElementTree as ET
 import oauth2
 """Package for oauth authentication in python"""
-
-import xml.etree.cElementTree as ET
 
 import VLE.utils as utils
 from django.conf import settings
