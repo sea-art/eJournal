@@ -1,3 +1,9 @@
+<!--
+    Editor for the currently selected preset in the format editor.
+    Edits the preset prop directly.
+    Various (many!) elements emit a changed event to track whether unsaved changes exist.
+-->
+
 <template>
     <div class="entry-template">
         <b-row>
@@ -60,6 +66,7 @@ export default {
         }
     },
 
+    // Get/set for the preset deadline.
     computed: {
         deadlineDate: {
             get: function () { return this.currentPreset.deadline.split(' ')[0] },
@@ -78,6 +85,7 @@ export default {
                 this.$emit('delete-preset')
             }
         },
+        // Type-specific fields should be set or deleted
         onChangePresetType (value) {
             this.$emit('changed')
             if (value !== 'p') {
@@ -99,7 +107,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .delete-preset-button:hover {
     border-color: var(--theme-dark-blue) !important;
     background-color: var(--theme-red) !important;
