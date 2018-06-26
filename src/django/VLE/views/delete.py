@@ -27,7 +27,7 @@ def delete_course(request):
     course = Course.objects.get(pk=request.data['cID'])
     course.delete()
 
-    return responses.response(200, 'Succesfully deleted course')
+    return responses.success(message='Succesfully deleted course')
 
 
 @api_view(['POST'])
@@ -56,7 +56,7 @@ def delete_assignment(request):
         assignment.delete()
         response['removed_completely'] = True
 
-    return responses.response(200, 'Succesfully deleted assignment', payload=response)
+    return responses.success(message='Succesfully deleted assignment', payload=response)
 
 
 @api_view(['POST'])
@@ -83,4 +83,4 @@ def delete_user_from_course(request):
 
     participation.delete()
 
-    return responses.response(200, 'Succesfully deleted student from course')
+    return responses.success(messsage='Succesfully deleted student from course')

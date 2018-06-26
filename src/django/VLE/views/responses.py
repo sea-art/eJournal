@@ -5,22 +5,22 @@ responses.py
 from django.http import JsonResponse
 
 
-def success(payload={}):
+def success(message='success', payload={}):
     """Return a success response header.
 
     Arguments:
     payload -- payload to deliver on success
     """
-    return response(200, 'success', payload=payload)
+    return response(200, message, payload=payload)
 
 
-def created(payload={}):
+def created(message='success', payload={}):
     """Return a created response header.
 
     Arguments:
     payload -- payload to deliver after creation
     """
-    return response(201, 'success', payload=payload)
+    return response(201, message, payload=payload)
 
 
 def bad_request(description=''):
