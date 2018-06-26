@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.urls import reverse
 import json
 
-from VLE.models import Participation, Assignment, Journal, Entry, User
+from VLE.models import Participation, Journal, Entry, User
 
 import VLE.factory as factory
 import VLE.utils as utils
@@ -132,46 +132,6 @@ class RestTests(TestCase):
         result = self.client.get(reverse('get_user_courses'), {}, format='json')
         self.assertEquals(result.status_code, 401)
 
-    def test_get_user_courses(self):
-        """Test get_user_courses."""
-        login = logging_in(self, self.username, self.password)
-
-        result = api_get_call(self, reverse('get_user_courses'), login)
-        courses = result.json()['courses']
-        self.assertEquals(len(courses), 3)
-        self.assertEquals(courses[0]['abbr'], 'PAV')
-        self.assertEquals(courses[1]['abbr'], 'BB')
-        self.assertEquals(courses[2]['abbr'], 'RDS')
-
-    def test_get_course_assignments(self):
-        """Test get_course_assignments."""
-        login = logging_in(self, self.username, self.password)
-        result = api_get_call(self, '/api/get_course_assignments/1/', login)
-        assignments = result.json()['assignments']
-        self.assertEquals(len(assignments), 2)
-        self.assertEquals(assignments[0]['name'], 'Colloq')
-        self.assertEquals(assignments[1]['name'], 'Logboek')
-
-        result = api_get_call(self, '/api/get_course_assignments/2/', login)
-        assignments = result.json()['assignments']
-
-        self.assertEquals(assignments[0]['name'], 'Colloq')
-        self.assertEquals(assignments[0]['description'], 'In de opdracht...1')
-
-    def test_student_get_course_assignments(self):
-        """Test get_course_assignments for student."""
-        login = logging_in(self, 'Student', 'pass')
-        result = api_get_call(self, '/api/get_course_assignments/1/', login)
-        assignments = result.json()['assignments']
-
-        self.assertEquals(len(assignments), 1)
-        self.assertEquals(assignments[0]['name'], 'Colloq')
-
-        result = api_get_call(self, '/api/get_course_assignments/2/', login)
-        assignments = result.json()['assignments']
-
-        self.assertEquals(len(assignments), 1)
-
     def test_get_assignment_journals(self):
         """Test get_assignment_journals."""
         login = logging_in(self, self.username, self.password)
@@ -277,15 +237,6 @@ class RestTests(TestCase):
 
         response = api_post_call(self, '/api/create_entry/', some_dict, login, status=201)
         self.assertEquals(response.status_code, 201)
-
-    def test_delete_assignment(self):
-        """Test the delete assignment."""
-        login = logging_in(self, self.username, self.password)
-        api_post_call(self, '/api/delete_assignment/', {'cID': 1, 'aID': 1}, login)
-        assignment = Assignment.objects.get(pk=1)
-        self.assertEquals(assignment.courses.count(), 1)
-        api_post_call(self, '/api/delete_assignment/', {'cID': 2, 'aID': 1}, login)
-        self.assertEquals(Assignment.objects.filter(pk=1).count(), 0)
 
     def test_get_template(self):
         login = logging_in(self, self.username, self.password)
