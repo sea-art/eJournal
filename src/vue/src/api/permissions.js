@@ -21,7 +21,7 @@ export default {
     },
 
     delete_course_role (cID, name) {
-        return auth.authenticatedPost('/update_course_roles/', {
+        return auth.authenticatedPost('/delete_course_role/', {
             cID: cID,
             name: name
         })

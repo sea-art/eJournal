@@ -167,6 +167,8 @@ export default {
             })
         },
         update () {
+            console.log(this.roleConfig)
+            console.log(this.originalRoleConfig)
             permissions.update_course_roles(this.cID, this.roleConfig)
                 .then(response => {
                     // TODO Update default roles, config etc
@@ -179,7 +181,7 @@ export default {
             var temp = str.split('_').join(' ')
             return temp[0].toUpperCase() + temp.slice(1)
         },
-        deleteRole(role) {
+        deleteRole (role) {
             if (confirm('Are you sure you want to delete role: ' + role + 'entirely?')) {
                 if (this.defaultRoles.includes(role)) {
                     // handle server update
@@ -197,16 +199,16 @@ export default {
                 }
             }
         },
-        deleteRoleLocalConfig(role) {
+        deleteRoleLocalConfig (role) {
             var i = this.roleConfig.findIndex(p => p.name === role)
             this.roleConfig.splice(i, 1)
-            var i = this.roles.findIndex(p => p === role)
+            i = this.roles.findIndex(p => p === role)
             this.roles.splice(i, 1)
         },
-        deleteRoleServerLoadedConfig(role) {
+        deleteRoleServerLoadedConfig (role) {
             var i = this.originalRoleConfig.findIndex(p => p.name === role)
             this.originalRoleConfig.splice(i, 1)
-            var i = this.defaultRoles.findIndex(p => p === role)
+            i = this.defaultRoles.findIndex(p => p === role)
             this.defaultRoles.splice(i, 1)
         }
     },
