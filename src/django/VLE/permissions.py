@@ -3,7 +3,7 @@ permissions.py.
 
 All the permission functions.
 """
-from VLE.models import Participation, Role
+from VLE.models import Participation
 
 from django.forms.models import model_to_dict
 
@@ -16,9 +16,10 @@ def get_role(user, cID):
     cID -- course ID used to validate the request.
     """
     # First get the role ID of the user participation.
-    roleID = Participation.objects.get(user=user, course=cID).id
-    # Now get the role and its corresponding permissions.
-    return Role.objects.get(id=roleID)
+    try:
+        return Participation.objects.get(user=user, course=cID).role
+    except Participation.DoesNotExist:
+        return None
 
 
 def get_permissions(user, cID=-1):
@@ -87,7 +88,9 @@ def get_permissions(user, cID=-1):
             roleDict["can_add_course"] = True
     else:
         # The course ID was given. Return the permissions of the user as dictionary.
-        role = Participation.objects.get(user=user, course=cID).role
+        role = get_role(user, cID)
+        if not role:
+            return {}
 
         roleDict = model_to_dict(role)
         roleDict['is_admin'] = False
@@ -127,7 +130,7 @@ def check_permissions(user, cID, permissionList):
     return True
 
 
-def has_permission(user, assignment, permission):
+def has_assignment_permission(user, assignment, permission):
     """Check if the user has the assignment permission.
 
     Arguments:

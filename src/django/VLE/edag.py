@@ -30,7 +30,8 @@ def get_nodes_dict(journal, user):
     add-node if the user can add to the journal, the subsequent
     progress node is in the future and maximally one.
     """
-    can_add = journal.user == user and permissions.has_permission(user, journal.assignment, 'can_edit_journal')
+    can_add = journal.user == user
+    can_add = can_add and permissions.has_assignment_permission(user, journal.assignment, 'can_edit_journal')
 
     nodes = get_sorted_nodes(journal)
     node_dict = []

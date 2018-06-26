@@ -189,10 +189,8 @@ class RestTests(TestCase):
         result = api_get_call(self, '/api/get_assignment_journals/1/', login)
         journals = result.json()['journals']
         self.assertEquals(len(journals), 4)
-        self.assertEquals(journals[0]['student']['name'], 'Student')
-        self.assertEquals(journals[1]['student']['name'], 'Rick')
-        self.assertEquals(journals[2]['student']['name'], 'Lars')
-        self.assertEquals(journals[3]['student']['name'], 'Jeroen')
+        for i in range(4):
+            self.assertTrue(journals[i]['student']['name'] in ['Student', 'Rick', 'Lars', 'Jeroen'])
 
     def test_journal_stats(self):
         """Test the journal stats functions in the serializer."""

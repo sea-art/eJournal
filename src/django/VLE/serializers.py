@@ -171,7 +171,7 @@ def entry_to_dict(entry, user):
     }
 
     assignment = entry.node.journal.assignment
-    if permissions.has_permission(user, assignment, 'can_grade_journal') or entry.published:
+    if permissions.has_assignment_permission(user, assignment, 'can_grade_journal') or entry.published:
         data['grade'] = entry.grade
 
     return data
