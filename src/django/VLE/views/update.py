@@ -577,4 +577,4 @@ def update_lti_id_to_user(request):
     if is_teacher:
         user.is_teacher = is_teacher
     user.lti_id = user_id
-    return responses.success()
+    return responses.success(payload={'user': serialize.user_to_dict(user)})
