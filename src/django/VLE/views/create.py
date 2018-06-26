@@ -117,9 +117,8 @@ def create_entry(request):
     try:
         journal = Journal.objects.get(pk=jID, user=request.user)
 
-        print('send request')
-        lti_grade.needs_grading(journal)
-        print('done request')
+        if journal.sourcedid is not None and journal.grade_url is not None:
+            lti_grade.needs_grading(journal)
 
         template = EntryTemplate.objects.get(pk=tID)
 
