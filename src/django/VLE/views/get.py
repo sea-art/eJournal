@@ -18,7 +18,7 @@ import VLE.utils as utils
 from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment, User, Node, \
     Role
 import VLE.serializers as serialize
-import VLE.permissions as permission
+import VLE.permissions as permissions
 import VLE.views.responses as responses
 
 # VUE ENTRY STATE
@@ -185,7 +185,7 @@ def get_teacher_course_assignments(user, course):
 
     Returns a json string with the assignments for the requested user
     """
-    # TODO: check permission
+    # TODO: check permissions
 
     assignments = []
     for assignment in course.assignment_set.all():
@@ -203,7 +203,7 @@ def get_student_course_assignments(user, course):
 
     Returns a json string with the assignments for the requested user
     """
-    # TODO: check permission
+    # TODO: check permissions
     assignments = []
     for assignment in Assignment.objects.get_queryset().filter(courses=course, journal__user=user):
         assignments.append(serialize.student_assignment_to_dict(assignment, user))
@@ -337,7 +337,7 @@ def get_course_permissions(request, cID):
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
-    roleDict = permission.get_permissions(request.user, int(cID))
+    roleDict = permissions.get_permissions(request.user, int(cID))
 
     return responses.success(payload={'permissions': roleDict})
 
@@ -505,8 +505,8 @@ def get_user_data(request, uID):
     user = User.objects.get(pk=uID)
 
     # Check the right permissions to get this users data, either be the user of the data or be an admin.
-    permissions = permission.get_permissions(user, cID=-1)
-    if not (permissions['is_admin'] or request.user.id == uID):
+    permission = permissions.get_permissions(user, cID=-1)
+    if not (permission['is_admin'] or request.user.id == uID):
         return responses.forbidden('You cannot view this users data.')
 
     profile = serialize.user_to_dict(user)
