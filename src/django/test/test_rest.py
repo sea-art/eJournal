@@ -310,7 +310,7 @@ class RestTests(TestCase):
             if role['name'] == 'TA2':
                 role['permissions']['can_grade_journal'] = 1
         roles.append(serializers.role_to_dict(factory.make_role('test_role', course)))
-        api_post_call(self, '/api/update_course_roles/', roles, login)
+        api_post_call(self, '/api/update_course_roles/', {'cID': 1, 'roles': roles}, login)
         role_test = Role.objects.get(name='TA2', course=course)
         self.assertTrue(role_test.can_grade_journal)
         self.assertEquals(Role.objects.filter(name='test_role', course=course).count(), 1)

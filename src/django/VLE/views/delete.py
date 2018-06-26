@@ -86,7 +86,7 @@ def delete_user_from_course(request):
 
 
 @api_view(['POST'])
-def delete_role_from_course(request):
+def delete_course_role(request):
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 

@@ -85,7 +85,7 @@ urlpatterns = [
     path('api/delete_course/', delete.delete_course, name='delete_course'),
     path('api/delete_assignment/', delete.delete_assignment, name='delete_assignment'),
     path('api/delete_user_from_course/', delete.delete_user_from_course, name='delete_user_from_course'),
-    path('api/delete_role_from_course/', delete.delete_role_from_course, name='delete_role_from_course'),
+    path('api/delete_course_role/', delete.delete_course_role, name='delete_course_role'),
 
     path('api/lti/launch', get.lti_launch, name='lti_launch'),
 ]
