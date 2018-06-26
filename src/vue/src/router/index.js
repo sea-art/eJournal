@@ -34,6 +34,10 @@ var router = new Router({
         name: 'Profile',
         component: Profile
     }, {
+        path: '/LtiLaunch',
+        name: 'LtiLaunch',
+        component: LtiLaunch
+    }, {
         path: '/AssignmentsOverview',
         name: 'AssignmentsOverview',
         component: AssignmentsOverview
@@ -66,10 +70,6 @@ var router = new Router({
         name: 'Journal',
         component: Journal,
         props: true
-    }, {
-        path: '/lti/launch',
-        name: 'LtiLaunch',
-        component: LtiLaunch
     }]
 })
 

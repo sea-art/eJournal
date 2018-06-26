@@ -89,9 +89,7 @@ export default {
     methods: {
         loadAssignments () {
             assignment.get_course_assignments(this.cID)
-                .then(response => {
-                    this.assignments = response
-                })
+                .then(response => { this.assignments = response })
                 .catch(_ => alert('Error while loading assignments'))
         },
         showModal (ref) {

@@ -1,4 +1,7 @@
 
+superuser:
+	bash -c 'source ./venv/bin/activate && python3.6 src/django/manage.py createsuperuser && deactivate'
+
 test-back:
 	pep8 ./src/django --max-line-length=120 --exclude='./src/django/VLE/migrations'
 	make test-flake

@@ -23,6 +23,16 @@ def created(message='success', payload={}):
     return response(201, message, payload=payload)
 
 
+def no_content(description=''):
+    """Return a no content header.
+
+    Arguments:
+    description -- header description (usable for example in the front end)
+    """
+
+    return response(204, '204 No content', description=description)
+
+
 def bad_request(description=''):
     """Return a bad request response header.
 
@@ -69,3 +79,11 @@ def response(status, message, description='', payload={}):
     payload -- payload to deliver
     """
     return JsonResponse({'result': message, 'description': description, **payload}, status=status)
+
+
+def keyerror(*keys):
+    """Generate a JsonResponse when the JSON has keyerror(s)."""
+    if len(keys) == 1:
+        return bad_request('Field {0} is required but is missing.'.format(keys))
+    else:
+        return bad_request('Fields {0} are required but one or more are missing.'.format(keys))
