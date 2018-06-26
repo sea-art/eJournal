@@ -2,15 +2,12 @@ from django.test import TestCase
 
 import VLE.factory as factory
 
-import test.test_rest as test
+import test.test_utils as test
 
 
 class GetApiTests(TestCase):
     def setUp(self):
-        self.username = 'test'
-        self.password = 'test123'
-
-        self.user = factory.make_user(self.username, self.password)
+        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123')
 
         self.course = factory.make_course("Beeldbewerken", "BB")
 

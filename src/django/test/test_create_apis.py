@@ -6,16 +6,13 @@ Test API calls.
 from django.test import TestCase
 
 import VLE.factory as factory
-import test.test_rest as test
+import test.test_utils as test
 
 
 class CreateApiTests(TestCase):
     def setUp(self):
         """Setup."""
-        self.username = 'test'
-        self.password = 'test123'
-
-        self.user = factory.make_user(self.username, self.password)
+        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123')
 
     def test_get_course_users(self):
         """Test get courses of user."""
