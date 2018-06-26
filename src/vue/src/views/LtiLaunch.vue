@@ -13,6 +13,7 @@ import ltiCreateConnectCourse from '@/components/LtiCreateConnectCourse.vue'
 import ltiCreateConnectAssignment from '@/components/LtiCreateConnectAssignment.vue'
 import ltiCreateAssignment from '@/components/LtiCreateAssignment.vue'
 import assignApi from '@/api/assignment.js'
+import router from '@/router'
 
 export default {
     name: 'LtiLaunch',
@@ -162,6 +163,8 @@ export default {
         if (this.$route.query.jwt_refresh !== undefined) {
             localStorage.setItem('jwt_refresh', this.$route.query.jwt_refresh)
         }
+
+        router.app.validToken = true
 
         /* Get the lti information from the query. */
         this.lti.ltiCourseID = this.$route.query.lti_cID

@@ -119,7 +119,8 @@ export default {
             })
         },
         assignmentRoute (cID, aID, name, journal) {
-            if (this.$root.canViewAssignmentParticipants()) {
+            // if (this.$root.canViewAssignmentParticipants()) {
+            if (true) {
                 return {
                     name: 'Assignment',
                     params: {
