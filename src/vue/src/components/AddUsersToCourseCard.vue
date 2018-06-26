@@ -8,7 +8,11 @@
                 Name: {{ name }}
             </b-col>
             <b-col cols="4" order-sm="3" sm="4">
-                <b-button @click.prevent.stop="addUserToCourse()" class="add-button full-width">Add to course</b-button>
+                <b-button v-if="this.$root.canEditCourse"
+                          @click.prevent.stop="addUserToCourse()"
+                          class="add-button full-width">
+                    Add to course
+                </b-button>
             </b-col>
         </b-row>
     </b-card></template>
