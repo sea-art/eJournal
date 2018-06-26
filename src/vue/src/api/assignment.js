@@ -16,6 +16,14 @@ export default {
             .then(response => response.data.assignments)
     },
 
+    /* Get an assignments by filtering on the lti_id.
+     * returns one assignment or none.
+     */
+    get_assignment_by_lti_id (ltiId) {
+        return auth.authenticatedGet('/get_assignment_by_lti_id/' + ltiId + '/')
+            .then(response => response.data.assignment)
+    },
+
     /* Get upcomming deadlines. */
     get_upcoming_deadlines () {
         return auth.authenticatedGet('/get_upcoming_deadlines/')
@@ -23,11 +31,13 @@ export default {
     },
 
     /* Create a new assignment. */
-    create_new_assignment (name, description, cID) {
+    create_new_assignment (name, description, cID, ltiID = null, pointsPossible = null) {
         return auth.authenticatedPost('/create_new_assignment/', {
             name: name,
             description: description,
-            cID: cID
+            cID: cID,
+            lti_id: ltiID,
+            points_possible: pointsPossible
         }).then(response => response.data)
     },
 
@@ -37,6 +47,16 @@ export default {
             aID: aID,
             name: name,
             description: description
+        }).then(response => response.data.assignment)
+    },
+
+    /* Connect an existing course to lti course. */
+    connect_assignment_lti (aID, ltiID, pointsPossible) {
+        alert(pointsPossible)
+        return auth.authenticatedPost('/connect_assignment_lti/', {
+            aID: aID,
+            lti_id: ltiID,
+            points_possible: pointsPossible
         }).then(response => response.data.assignment)
     },
 

@@ -17,6 +17,27 @@ import re
 
 
 @api_view(['POST'])
+def connect_course_lti(request):
+    """Connect an existing course to an lti course.
+
+    Arguments:
+    request -- the update request that was send with
+        lti_id -- lti_id that needs to be added to the course
+
+    Returns a json string for if it is succesful or not.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    course = Course.objects.get(pk=request.data['cID'])
+    course.lti_id = request.data['lti_id']
+    course.save()
+
+    return responses.succes(payload={'course': serialize.course_to_dict(course)})
+
+
+@api_view(['POST'])
 def update_course(request):
     """Update an existing course.
 
@@ -38,6 +59,30 @@ def update_course(request):
     course.startdate = request.data['startDate']
     course.save()
     return responses.success(payload={'course': serialize.course_to_dict(course)})
+
+
+@api_view(['POST'])
+def connect_assignment_lti(request):
+    """Connect an existing assignment to an lti assignment.
+
+    Arguments:
+    request -- the update request that was send with
+        lti_id -- lti_id that needs to be added to the assignment
+        points_possible -- points_possible in lti assignment
+
+    Returns a json string for if it is succesful or not.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    assignment = Assignment.objects.get(pk=request.data['aID'])
+    assignment.lti_id = request.data['lti_id']
+    if assignment.points_possible is None and request.data['points_possible'] is not '':
+        assignment.points_possible = request.data['points_possible']
+    assignment.save()
+
+    return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
 
 
 @api_view(['POST'])

@@ -15,12 +15,16 @@ import ContentSingleColumn from '@/components/ContentSingleColumn.vue'
 import assignmentApi from '@/api/assignment.js'
 
 export default {
-    name: 'AssignmentCreation',
+    name: 'CreateAssignment',
+    props: ['lti', 'page'],
     data () {
         return {
             form: {
                 assignmentName: '',
-                assignmentDescription: ''
+                assignmentDescription: '',
+                courseID: '',
+                ltiAssignID: null,
+                pointsPossible: null
             }
         }
     },
@@ -29,11 +33,18 @@ export default {
     },
     methods: {
         onSubmit () {
-            assignmentApi.create_new_assignment(this.form.assignmentName, this.form.assignmentDescription, this.$route.params.cID)
-                .then(_ => { this.$emit('handleAction') })
+            assignmentApi.create_new_assignment(this.form.assignmentName,
+                this.form.assignmentDescription, this.form.courseID,
+                this.form.ltiAssignID, this.form.pointsPossible)
+                .then(response => {
+                    this.$emit('handleAction', response.assignment.aID)
+                    this.onReset(undefined)
+                })
         },
         onReset (evt) {
-            evt.preventDefault()
+            if (evt !== undefined) {
+                evt.preventDefault()
+            }
             /* Reset our form values */
             this.form.assignmentName = ''
             this.form.assignmentDescription = ''
@@ -41,6 +52,16 @@ export default {
             /* Trick to reset/clear native browser form validation state */
             this.show = false
             this.$nextTick(() => { this.show = true })
+        }
+    },
+    mounted () {
+        if (this.lti !== undefined) {
+            this.form.assignmentName = this.lti.ltiAssignName
+            this.form.ltiAssignID = this.lti.ltiAssignID
+            this.form.pointsPossible = this.lti.ltiPointsPossible
+            this.form.courseID = this.page.cID
+        } else {
+            this.form.courseID = this.$route.params.cID
         }
     }
 }
