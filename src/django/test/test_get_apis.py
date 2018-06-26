@@ -28,11 +28,7 @@ class GetApiTests(TestCase):
         lars = factory.make_user("Lars", "pass")
         login = test.logging_in(self, 'Lars', 'pass')
 
-        # course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
         assign = factory.make_assignment("Colloq", "In de opdracht...1", self.user)
-        # factory.make_participation(self.user, course)
-        # factory.make_participation(lars, course)
-        # assign.courses.add(course)
         factory.make_journal(assign, lars)
 
         Lars = User.objects.get(username='Lars')
