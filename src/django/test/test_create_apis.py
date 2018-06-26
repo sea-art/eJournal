@@ -6,7 +6,6 @@ Test API calls.
 from django.test import TestCase
 
 import VLE.factory as factory
-
 import test.test_rest as test
 
 
