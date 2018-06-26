@@ -119,7 +119,6 @@ export default {
     [aria-expanded="false"] .edag-outer__icon--open {
         display: block;
         text-align: center;
-
     }
 
     [aria-expanded="false"] .edag-outer__icon--close {
