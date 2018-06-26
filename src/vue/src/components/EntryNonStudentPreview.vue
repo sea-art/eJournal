@@ -34,8 +34,8 @@
                         <b-button @click="commitGrade">Grade</b-button>
                     </div>
                     <div v-else>
-                        <div v-if="entryNode.entry.published">
-                            {{ entryNode.entry.grade }}
+                        <div v-if="tempNode.entry.published">
+                            {{ tempNode.entry.grade }}
                         </div>
                         <div v-else>
                             To be graded
@@ -59,8 +59,8 @@ export default {
         return {
             tempNode: this.entryNode,
             completeContent: [],
-            grade: null,
-            status: 1
+            grade: this.entryNode.entry.grade,
+            status: this.entryNode.entry.published
         }
     },
     watch: {
@@ -111,8 +111,14 @@ export default {
         },
         commitGrade: function () {
             if (this.grade !== null) {
-                journalApi.update_grade_entry(this.entryNode.entry.eID, this.grade, this.status)
-                confirm('Oh yeah! grade updated')
+                alert('Oh yeah! grade updated')
+                this.tempNode.entry.grade = this.grade
+                this.tempNode.entry.published = this.status
+                journalApi.update_grade_entry(this.entryNode.entry.eID,
+                    this.grade,
+                    this.status)
+                // console.log(this.entryNode)
+                this.$emit('check-grade', this.tempNode)
             }
         }
     },

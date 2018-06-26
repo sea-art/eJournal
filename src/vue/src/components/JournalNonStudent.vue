@@ -16,7 +16,7 @@
                     <entry-non-student-preview ref="entry-template-card" :entryNode="nodes[currentNode]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'd'">
-                    <entry-non-student-preview ref="entry-template-card" :entryNode="nodes[currentNode]"/>
+                    <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'p'">
                     <b-card class="card main-card no-hover" :class="'pink-border'">
@@ -88,11 +88,9 @@ export default {
         },
         addNode (infoEntry) {
             journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
-            console.log(this.nodes)
             journal.get_nodes(this.jID)
                 .then(response => { this.nodes = response.nodes })
                 .catch(_ => alert('Error while loading nodes.'))
-            console.log(this.nodes)
         },
         progressPoints (progressNode) {
             var tempProgress = 0
@@ -103,11 +101,21 @@ export default {
                 }
 
                 if (node.type === 'e' || node.type === 'd') {
-                    tempProgress += node.entry.grade
+                    if (node.entry.published && node.entry.published !== '0') {
+                        tempProgress += parseInt(node.entry.grade)
+                    }
                 }
             }
 
-            this.progressNodes[progressNode.nID] = tempProgress
+            this.progressNodes[progressNode.nID] = tempProgress.toString()
+        },
+        updatedGrade (newNode) {
+            this.nodes[this.currentNode] = newNode
+            for (var node of this.nodes) {
+                if (node.type === 'p') {
+                    this.progressPoints(node)
+                }
+            }
         },
         bootstrapLg () {
             return this.windowHeight < 1200
