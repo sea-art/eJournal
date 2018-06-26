@@ -2,6 +2,7 @@
     <content-single-column>
         <bread-crumb>&nbsp;</bread-crumb>
         <b-card class="no-hover settings-card">
+            <h3>Manage course data</h3>
             <b-form @submit="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
                          v-model="course.name"
@@ -18,32 +19,47 @@
                          required/>
 
                 <b-row>
-                    <b-col lg="2" md="5">
-                        <b-button class="add-button" type="submit">Update Course</b-button>
+                    <b-col lg="3" md="6">
+                        <b-button class="add-button"
+                                  type="submit"
+                                  v-if="this.$root.canEditCourse()"
+                            >Update Course
+                        </b-button>
                     </b-col>
-                    <b-col lg="2" md="5">
-                        <b-button @click.prevent.stop="deleteCourse()" class="delete-button">Delete Course</b-button>
+                    <b-col lg="3" md="6">
+                        <b-button v-if="this.$root.canDeleteCourse()"
+                                  @click.prevent.stop="deleteCourse()"
+                                  class="delete-button">
+                            Delete Course
+                        </b-button>
                     </b-col>
-                    <b-col lg="2" md="3">
+                </b-row>
+            </b-form>
+        </b-card>
+
+        <b-card class="no-hover settings-card">
+            <h3>Manage course students</h3>
+                <b-row>
+                    <b-col lg="3" md="6">
                         <b-form-select v-model="selectedSortOption" :select-size="1">
                            <option :value="null">Sort by ...</option>
                            <option value="sortName">Sort on name</option>
                            <option value="sortID">Sort on ID</option>
                         </b-form-select>
                     </b-col>
-                    <b-col lg="2" md="3">
+                    <b-col lg="3" md="6">
                         <b-form-select v-model="selectedView" :select-size="1">
                             <option value="enrolled">Enrolled</option>
                             <option value="unenrolled">Unenrolled</option>
                         </b-form-select>
                     </b-col>
-                    <b-col lg="3" md="3">
+
+                    <b-col lg="4" md="6">
                         <input type="text" v-model="searchVariable" placeholder="Search .."/>
                     </b-col>
                 </b-row>
 
-            </b-form>
-        </b-card>
+            </b-card>
 
         <!-- TODO PROVIDE FULL NAME AND STUDENTNUMBER DATABASE BOYS -->
         <course-participant-card v-if="selectedView == 'enrolled'"

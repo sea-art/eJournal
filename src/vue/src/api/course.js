@@ -57,7 +57,7 @@ export default {
     delete_course (cID) {
         return auth.authenticatedPost('/delete_course/', {
             cID: cID
-        }).then(response => response.data.result)
+        }).then(response => response.message)
     },
 
     /* Updates the role of a student linked to a course. */
