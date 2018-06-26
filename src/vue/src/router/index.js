@@ -13,6 +13,7 @@ import permissionsApi from '@/api/permissions.js'
 import ErrorPage from '@/views/ErrorPage'
 import CourseEdit from '@/views/CourseEdit'
 import FormatEdit from '@/views/FormatEdit'
+import LtiLogin from '@/views/LtiLogin'
 
 Vue.use(Router)
 
@@ -38,6 +39,10 @@ var router = new Router({
         name: 'LtiLaunch',
         component: LtiLaunch
     }, {
+        path: '/LtiLogin',
+        name: 'LtiLogin',
+        component: LtiLogin
+    },{
         path: '/AssignmentsOverview',
         name: 'AssignmentsOverview',
         component: AssignmentsOverview

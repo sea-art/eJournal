@@ -25,7 +25,6 @@ export default {
     },
     data () {
         return {
-            msg: 'unsuccesfull',
             currentPage: 'LTI Integration',
 
             /* Variables for loading the right component. */
@@ -33,6 +32,7 @@ export default {
             handleAssignmentChoice: false,
             createAssignment: false,
 
+            /* Possible states for the control flow. */
             states: {
                 state: '',
 
@@ -75,54 +75,54 @@ export default {
             case 'courseCreated':
                 this.handleCourseChoice = false
                 this.page.cID = args[1]
-                this.states.state = this.states_create_assign
+                this.states.state = this.states.create_assign
                 alert('Course Created!')
                 break
             case 'courseConnected':
                 this.handleCourseChoice = false
                 this.page.cID = args[1]
-                this.states.state = this.states_check_assign
+                this.states.state = this.states.check_assign
                 alert('Course Connected!')
                 break
             case 'assignmentIntegrated':
                 this.handleAssignmentChoice = false
-                this.states.state = this.states_finish_t
+                this.states.state = this.states.finish_t
                 alert('Assignment Integrated!')
                 break
             case 'assignmentCreated':
                 this.createAssignment = false
                 this.page.aID = args[1]
-                this.states.state = this.states_finish_t
+                this.states.state = this.states.finish_t
                 alert('Assignment Created!')
                 break
             }
         },
         updateState (state) {
             switch (state) {
-            case this.states_new_course:
+            case this.states.new_course:
                 this.currentPage = 'Course Integration'
                 this.handleCourseChoice = true
                 break
-            case this.states_new_assign:
+            case this.states.new_assign:
                 this.currentPage = 'Assignment Integration'
                 this.handleAssignmentChoice = true
                 break
-            case this.states_create_assign:
+            case this.states.create_assign:
                 this.currentPage = 'Assigment Integration'
                 this.createAssignment = true
                 break
-            case this.states_check_assign:
+            case this.states.check_assign:
                 assignApi.get_assignment_by_lti_id(this.lti.ltiAssignID)
                     .then(response => {
                         if (response === undefined) {
-                            this.states.state = this.states_new_assign
+                            this.states.state = this.states.new_assign
                         } else {
                             this.page.aID = response.aID
-                            this.states.state = this.states_finish_t
+                            this.states.state = this.states.finish_t
                         }
                     })
                 break
-            case this.states_grade_center:
+            case this.states.grade_center:
                 this.$router.push({
                     name: 'Journal',
                     params: {
@@ -137,7 +137,7 @@ export default {
     },
     watch: {
         state: function (val) {
-            if (val === this.states_finish_s) {
+            if (val === this.states.finish_s) {
                 this.$router.push({
                     name: 'Journal',
                     params: {
@@ -146,7 +146,7 @@ export default {
                         jID: this.page.jID
                     }
                 })
-            } else if (val === this.states_finish_t) {
+            } else if (val === this.states.finish_t) {
                 this.$router.push({
                     name: 'Assignment',
                     params: {
@@ -160,16 +160,6 @@ export default {
         }
     },
     mounted () {
-        if (this.$route.query.jwt_access !== undefined) {
-            localStorage.setItem('jwt_access', this.$route.query.jwt_access)
-        }
-
-        if (this.$route.query.jwt_refresh !== undefined) {
-            localStorage.setItem('jwt_refresh', this.$route.query.jwt_refresh)
-        }
-
-        router.app.validToken = true
-
         /* Get the lti information from the query. */
         this.lti.ltiCourseID = this.$route.query.lti_cID
         this.lti.ltiCourseName = this.$route.query.lti_cName
@@ -184,7 +174,7 @@ export default {
         this.page.aID = this.$route.query.aID
         this.page.jID = this.$route.query.jID
 
-        if (this.states.state === this.states_bad_auth) {
+        if (this.states.state === this.states.bad_auth) {
             this.$router.push({
                 name: 'ErrorPage',
                 params: {
@@ -192,7 +182,7 @@ export default {
                     errorMessage: 'Network authorization required'
                 }
             })
-        } else if (this.states.state === this.states_no_course) {
+        } else if (this.states.state === this.states.no_course) {
             this.$router.push({
                 name: 'ErrorPage',
                 params: {
@@ -200,7 +190,7 @@ export default {
                     errorMessage: 'No course found with given ID'
                 }
             })
-        } else if (this.states.state === this.states_no_assign) {
+        } else if (this.states.state === this.states.no_assign) {
             this.$router.push({
                 name: 'ErrorPage',
                 params: {
