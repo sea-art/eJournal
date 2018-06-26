@@ -170,17 +170,11 @@ def get_linkable_courses_user(user):
 
     Returns all of the courses."""
     courses = []
-    addedCourses = []
-    participations = Participation.objects.filter(user=user.pk)
+    unlinked_courses = Course.objects.filter(participation__user=user.id,
+                                             participation__role__can_edit_course=True, lti_id=None)
 
-    for participation in participations:
-        if participation.role.can_edit_course:
-            course = participation.course
-
-            if course.pk not in addedCourses:
-                # Add all courses which the teacher can edit.
-                courses.append(serialize.course_to_dict(course))
-                addedCourses.append(course.pk)
+    for course in unlinked_courses:
+        courses.append(serialize.course_to_dict(course))
 
     return courses
 
