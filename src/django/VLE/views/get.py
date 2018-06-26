@@ -352,7 +352,31 @@ def get_format(request, aID):
                              'description': 'Assignment does not exist.'}, status=404)
 
     return JsonResponse({'result': 'success',
-                         'nodes': serialize.get_format_dict(assignment.format)}, status=200)
+                         'format': serialize.format_to_dict(assignment.format)},
+                        status=200)
+
+
+@api_view(['GET'])
+def get_template(request, tID):
+    """Get a template.
+
+    Arguments:
+    request -- the request that was sent
+    tID     -- the template id
+
+    Returns a json string containing the format.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        template = EntryTemplate.objects.get(pk=tID)
+    except EntryTemplate.DoesNotExist:
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Template does not exist.'}, status=404)
+
+    return JsonResponse({'result': 'success',
+                         'template': serialize.template_to_dict(template)})
 
 
 @api_view(['POST'])
@@ -435,7 +459,7 @@ def get_user_data(request, uID):
         # Select the nodes of this journal but only the ones with entries.
         nodes_of_journal_with_entries = Node.objects.filter(journal=journal).exclude(entry__isnull=True)
         # Serialize all entries and put them into the entries dictionary with the assignment name key.
-        entries_of_journal = [serialize.entry_to_dict(node.entry) for node in nodes_of_journal_with_entries]
+        entries_of_journal = [serialize.export_entry_to_dict(node.entry) for node in nodes_of_journal_with_entries]
         journal_dict.update({journal.assignment.name: entries_of_journal})
 
     return JsonResponse({'result': 'success',

@@ -28,9 +28,6 @@ class DataBaseTests(TestCase):
         self.jf1 = factory.make_journal_format()
         self.jf2 = factory.make_journal_format()
 
-        self.d1 = factory.make_deadline()
-        self.d2 = factory.make_deadline()
-
         self.f1 = factory.make_field(self.et1, "test0", "1")
         self.f2 = factory.make_field(self.et1, "test2", "2")
         self.f3 = factory.make_field(self.et2, "test1", "1")

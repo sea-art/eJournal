@@ -139,7 +139,7 @@ def entry_deadline_to_dict(node):
         'type': node.type,
         'nID': node.id,
         'jID': node.id,
-        'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
+        'deadline': node.preset.deadline.strftime('%Y-%m-%d %H:%M'),
         'template': template_to_dict(node.preset.forced_template),
         'entry': entry_to_dict(node.entry),
     } if node else None
@@ -151,13 +151,26 @@ def progress_to_dict(node):
         'type': node.type,
         'nID': node.id,
         'jID': node.id,
-        'deadline': node.preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
-        'target': node.preset.deadline.points,
+        'deadline': node.preset.deadline.strftime('%Y-%m-%d %H:%M'),
+        'target': node.preset.target,
     } if node else None
 
 
 def entry_to_dict(entry):
     """Convert entry to dictionary."""
+    return {
+        'eID': entry.id,
+        'createdate': entry.createdate.strftime('%Y-%m-%d %H:%M'),
+        'grade': entry.grade,
+        'published': entry.published,
+        # 'late': TODO
+        'template': template_to_dict(entry.template),
+        'content': [content_to_dict(content) for content in entry.content_set.all()],
+    } if entry else None
+
+
+def export_entry_to_dict(entry):
+    """Convert entry to exportable dictionary."""
     if not entry:
         return None
 
@@ -208,8 +221,9 @@ def content_to_dict(content):
 def format_to_dict(format):
     """Convert format to dictionary."""
     return {
+        'unused_templates': [template_to_dict(template) for template in format.unused_templates.all()],
         'templates': [template_to_dict(template) for template in format.available_templates.all()],
-        'presets': [preset_to_dict(preset) for preset in format.preset_set.all()],
+        'presets': [preset_to_dict(preset) for preset in format.presetnode_set.all().order_by('deadline')],
     } if format else None
 
 
@@ -219,12 +233,13 @@ def preset_to_dict(preset):
         return None
 
     base = {
+        'pID': preset.id,
         'type': preset.type,
-        'deadline': preset.deadline.datetime.strftime('%d-%m-%Y %H:%M'),
+        'deadline': preset.deadline.strftime('%Y-%m-%d %H:%M'),
     }
 
     if preset.type == Node.PROGRESS:
-        result = {**base, **{'target': preset.deadline.target}}
+        result = {**base, **{'target': preset.target}}
     elif preset.type == Node.ENTRYDEADLINE:
         result = {**base, **{'template': template_to_dict(preset.forced_template)}}
 
