@@ -34,7 +34,7 @@ function refresh (error) {
 function handleResponse (response) {
     response = response.response
     if (response.status === 401) {
-        router.push({name: 'Guest'})
+        router.push({name: 'Login'})
     } else {
         throw response
     }

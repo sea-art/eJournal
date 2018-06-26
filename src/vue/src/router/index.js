@@ -6,6 +6,7 @@ import Assignment from '@/views/Assignment'
 import Course from '@/views/Course'
 import Profile from '@/views/Profile'
 import Guest from '@/views/Guest'
+import Login from '@/views/Login'
 import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
 import AssignmentsOverview from '@/views/AssignmentsOverview'
@@ -26,6 +27,10 @@ var router = new Router({
         name: 'Home',
         component: Home
     }, {
+        path: '/Login',
+        name: Login,
+        component: Login
+    }, {
         path: '/Register',
         name: Register,
         component: Register
@@ -44,7 +49,8 @@ var router = new Router({
     }, {
         path: '/Error',
         name: 'ErrorPage',
-        component: ErrorPage
+        component: ErrorPage,
+        props: true
     }, {
         path: '/Home/Course/:cID',
         name: 'Course',
@@ -77,6 +83,12 @@ router.beforeEach((to, from, next) => {
     // TODO Possible redirect if token invalid?
     // TODO Handle errors properly
     // TODO Caching for permissions, how to handle permission changes when role is altered by teacher
+
+    if (to.name === 'Guest') {
+        /* Returning next because we short circuit the function here, no API calls
+         * are desired. */
+        return next()
+    }
 
     var params
     if (to.params.cID) {
