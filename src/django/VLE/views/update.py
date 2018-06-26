@@ -77,8 +77,7 @@ def connect_assignment_lti(request):
 
     assignment = Assignment.objects.get(pk=request.data['aID'])
     assignment.lti_id = request.data['lti_id']
-    if assignment.points_possible is None and \
-       request.data['points_possible'] is not '':
+    if assignment.points_possible is None and request.data['points_possible'] is not '':
         assignment.points_possible = request.data['points_possible']
     assignment.save()
 
