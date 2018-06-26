@@ -1,7 +1,7 @@
 <template>
     <b-card class="card no-hover" :class="this.color" style="">
         <b>{{ template.t.name }}</b>
-        <toggle-switch @click.native.stop class="template-todo-card-switch" :isActive="isActive" @parentActive="template.a = $event"/>
+        <toggle-switch @click.native.stop class="template-todo-card-switch" :isActive="isActive" @parentActive="template.available = $event"/>
     </b-card>
 </template>
 
