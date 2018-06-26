@@ -135,7 +135,7 @@ def get_user_courses(request):
     for course in user.participations.all():
         courses.append(serialize.course_to_dict(course))
 
-    return response.success(payload={'courses': courses})
+    return responses.success(payload={'courses': courses})
 
 
 def get_linkable_courses(request):
@@ -153,7 +153,7 @@ def get_linkable_courses(request):
 
     courses = get_linkable_courses_user(user)
 
-    return response.success(payload={'courses': courses})
+    return responses.success(payload={'courses': courses})
 
 
 def get_linkable_courses_user(user):
@@ -514,12 +514,12 @@ def get_assignment_by_lti_id(request, lti_id):
     lti_id -- lti_id of the assignment
     """
     if not request.user.is_authenticated:
-        return response.unauthorized()
+        return responses.unauthorized()
     try:
         assignment = Assignment.objects.get(lti_id=lti_id)
-        return response.succes(payload={'assignment': serialize.assignment_to_dict(assignment)})
+        return responses.succes(payload={'assignment': serialize.assignment_to_dict(assignment)})
     except Assignment.DoesNotExist:
-        return response.no_content()
+        return responses.no_content()
 
 
 @api_view(['POST'])

@@ -28,12 +28,13 @@ def connect_course_lti(request):
     """
     user = request.user
     if not user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     course = Course.objects.get(pk=request.data['cID'])
     course.lti_id = request.data['lti_id']
     course.save()
-    return JsonResponse({'result': 'success', 'course': serialize.course_to_dict(course)})
+
+    return responses.succes(payload={'course': serialize.course_to_dict(course)})
 
 
 @api_view(['POST'])
@@ -73,7 +74,7 @@ def connect_assignment_lti(request):
     """
     user = request.user
     if not user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     assignment = Assignment.objects.get(pk=request.data['aID'])
     assignment.lti_id = request.data['lti_id']
@@ -81,7 +82,7 @@ def connect_assignment_lti(request):
         assignment.points_possible = request.data['points_possible']
     assignment.save()
 
-    return JsonResponse({'result': 'success', 'assignment': serialize.assignment_to_dict(assignment)})
+    return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
 
 
 @api_view(['POST'])
