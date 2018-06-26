@@ -314,3 +314,8 @@ class RestTests(TestCase):
         role_test = Role.objects.get(name='TA2', course=course)
         self.assertTrue(role_test.can_grade_journal)
         self.assertEquals(Role.objects.filter(name='test_role', course=course).count(), 1)
+
+    def test_delete_course_role(self):
+        login = logging_in(self, self.teacher_user, self.teacher_pass)
+        api_post_call(self, '/api/delete_course_role/', {'cID': 1, 'name': 'TA2'}, login)
+        self.assertEquals(Role.objects.filter(name='TA2', course=Course.objects.get(pk=1)).count(), 0)
