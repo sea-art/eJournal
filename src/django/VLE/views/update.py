@@ -107,19 +107,19 @@ def update_password(request):
     """
     user = request.user
     if not user.is_authenticated or not user.check_password(request.data['old_password']):
-        return responses.unauthorized('Wrong password')
+        return responses.unauthorized('Wrong password.')
 
     password = request.data['new_password']
     if len(password) < 8:
-        return responses.bad_request('Password needs to contain at least 8 characters')
+        return responses.bad_request('Password needs to contain at least 8 characters.')
     if password == password.lower():
-        return responses.bad_request('Password needs to contain at least 1 capital letter')
+        return responses.bad_request('Password needs to contain at least 1 capital letter.')
     if re.match(r'^\w+$', password):
-        return responses.bad_request('Password needs to contain a special character')
+        return responses.bad_request('Password needs to contain a special character.')
 
     user.set_password(password)
     user.save()
-    return responses.success(message='Succesfully changed the password')
+    return responses.success(message='Succesfully changed the password.')
 
 
 @api_view(['POST'])
