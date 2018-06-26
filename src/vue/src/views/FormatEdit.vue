@@ -1,16 +1,16 @@
 <!-- TODO: delete template button -->
 
 <template>
-    <b-row no-gutters>
+    <b-row class="outer-container" no-gutters>
         <b-col v-if="bootstrapLg()" cols="12">
             <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
-        <b-col v-else xl="3" class="left-content">
+        <b-col v-else xl="3" class="left-content-format-edit">
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
 
-        <b-col lg="12" xl="6" order="2" class="main-content">
+        <b-col lg="12" xl="6" order="2" class="main-content-format-edit">
             <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <!--
                 Fill in the template using the corresponding data
@@ -34,10 +34,10 @@
                     </template-editor>
             </b-modal>
         </b-col>
-        <b-col cols="12" xl="3" order="3" class="right-content">
+        <b-col cols="12" xl="3" order="3" class="right-content-format-edit">
             <h3>Format</h3>
             <b-card @click.prevent.stop="addNode" class="card hover" :class="'grey-border'" style="">
-                <b>Add Preset</b>
+                <b>+ Add Preset to Format</b>
             </b-card>
             <b-card @click.prevent.stop="saveFormat" class="card hover" :class="'grey-border'" style="">
                 <b>Save Format</b>
@@ -279,27 +279,44 @@ export default {
 </script>
 
 <style>
-.template-card:hover {
-    background-color: var(--theme-dark-grey) !important;
-}
-
-.left-content {
+.left-content-format-edit {
     flex: 0 0 auto;
-    padding-top: 30px !important;
-    padding-left: 30px !important;
-    padding-right: 30px !important;
 }
 
-.main-content {
-    padding-top: 40px;
+.main-content-format-edit {
+    padding-top: 40px !important;
     background-color: var(--theme-medium-grey);
     flex: 1 1 auto;
+    overflow-x: hidden;
 }
 
-.right-content {
+.right-content-format-edit {
     flex: 0 0 auto;
     padding-top: 30px !important;
     padding-left: 30px !important;
     padding-right: 30px !important;
+}
+
+@media (min-width: 1200px) {
+    .outer-container {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .left-content-format-edit {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .main-content-format-edit, .right-content-format-edit {
+        height: 100%;
+        overflow-y: scroll;
+    }
+}
+
+@media (max-width: 1200px) {
+    .main-content-format-edit {
+        padding-top: 0px !important;
+    }
 }
 </style>

@@ -2,16 +2,16 @@
     <b-navbar v-if="!isGuest" id="header" toggleable="md" type="dark" fixed=top>
         <b-navbar-brand :to="'/Home'" class="brand-name">Logboek</b-navbar-brand>
 
-        <b-navbar-toggle class="ml-auto mr-auto" target="nav_collapse" aria-expanded="false" aria-controls="nav_collapse">
-            <span class="nav_collapse__icon nav_collapse__icon--open">
+        <b-navbar-toggle class="ml-auto mr-auto" target="nav-collapse" aria-expanded="false" aria-controls="nav-collapse">
+            <span class="nav-collapse__icon nav-collapse__icon--open">
                 <icon class="collapse-icon" name="caret-down" scale="1.75"></icon>
             </span>
-            <span class="nav_collapse__icon nav_collapse__icon--close">
+            <span class="nav-collapse__icon nav-collapse__icon--close">
                 <icon class="collapse-icon" name="caret-up" scale="1.75"></icon>
             </span>
         </b-navbar-toggle>
 
-        <b-collapse is-nav id="nav_collapse">
+        <b-collapse is-nav id="nav-collapse">
             <b-navbar-nav class="mr-auto">
                 <b-nav-item :to="{ name : 'Home' }">Courses</b-nav-item>
                 <b-nav-item :to="{ name : 'AssignmentsOverview' }">Assignments</b-nav-item>
@@ -67,7 +67,7 @@ export default {
         },
         handleLoginSucces () {
             this.isGuest = false
-            // this.$root.$emit('bv::toggle::collapse', 'nav_collapse')
+            // this.$root.$emit('bv::toggle::collapse', 'nav-collapse')
             this.show = false
             this.$nextTick(() => { this.show = true })
             this.$router.push('/Home')
@@ -95,7 +95,7 @@ export default {
     padding: 0.375rem 0.75rem !important;
 }
 
-#nav_collapse {
+#nav-collapse {
     background-color: var(--theme-dark-blue);
 }
 
@@ -104,19 +104,19 @@ export default {
 }
 
 /* Handles rotation of the arrow icon. */
-[aria-expanded="false"] .nav_collapse__icon--open {
+[aria-expanded="false"] .nav-collapse__icon--open {
     display: block;
 }
 
-[aria-expanded="false"] .nav_collapse__icon--close {
+[aria-expanded="false"] .nav-collapse__icon--close {
     display: none;
 }
 
-[aria-expanded="true"] .nav_collapse__icon--open {
+[aria-expanded="true"] .nav-collapse__icon--open {
     display: none;
 }
 
-[aria-expanded="true"] .nav_collapse__icon--close {
+[aria-expanded="true"] .nav-collapse__icon--close {
     display: block;
 }
 
@@ -169,6 +169,7 @@ export default {
         left: 50%;
         right: 50%;
         top: 15px;
+        transform: translateX(-50%);
         border-radius: 50% !important;
     }
 }

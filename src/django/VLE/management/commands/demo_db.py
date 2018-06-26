@@ -113,6 +113,18 @@ class Command(BaseCommand):
                 "presets": [
                     {"type": Node.PROGRESS, "points": 5},
                     {"type": Node.PROGRESS, "points": 10},
+                    {"type": Node.PROGRESS, "points": 10},
+                    {"type": Node.PROGRESS, "points": 10},
+                    {"type": Node.PROGRESS, "points": 10},
+                    {"type": Node.PROGRESS, "points": 10},
+                    {"type": Node.PROGRESS, "points": 10},
+                    {"type": Node.PROGRESS, "points": 10},
+                    {"type": Node.PROGRESS, "points": 10},
+                    {"type": Node.PROGRESS, "points": 10},
+                    {"type": Node.PROGRESS, "points": 10},
+                    {"type": Node.PROGRESS, "points": 10},
+                    {"type": Node.PROGRESS, "points": 10},
+                    {"type": Node.PROGRESS, "points": 10},
                 ]
             },
         ]

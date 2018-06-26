@@ -1,16 +1,15 @@
 <template>
     <b-row class="outer-container" no-gutters>
-    <!-- TODO: reopen bread-crumb when it is working again -->
         <b-col v-if="bootstrapLg()" cols="12">
-            <!-- <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
+            <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
-        <b-col v-else xl="3" class="left-content">
+        <b-col v-else xl="3" class="left-content-journal">
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
 
-        <b-col lg="12" xl="6" order="2" class="main-content">
-            <!-- <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
+        <b-col lg="12" xl="6" order="2" class="main-content-journal">
+            <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
                     <entry-non-student-preview ref="entry-template-card" :entryNode="nodes[currentNode]"/>
@@ -23,11 +22,87 @@
                         <h2>Needed progress</h2>
                         Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
                         before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
+                    </b-card><b-card class="card main-card no-hover" :class="'pink-border'">
+                        <h2>Needed progress</h2>
+                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                        before {{nodes[currentNode].deadline}}.
                     </b-card>
                 </div>
             </div>
         </b-col>
-        <b-col cols="12" xl="3" order="3" class="right-content"/>
+        <b-col cols="12" xl="3" order="3" class="right-content-journal"/>
     </b-row>
 </template>
 
@@ -126,15 +201,3 @@ export default {
     }
 }
 </script>
-
-<style>
-.left-content {
-    height: 100%;
-    overflow: hidden;
-}
-
-.outer-container {
-    height: 100%;
-    overflow: hidden;
-}
-</style>

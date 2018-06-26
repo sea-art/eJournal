@@ -38,10 +38,21 @@
 -->
 
 <template>
-    <div id="edag-outer">
-        <div id="edag-inner" ref="scd">
-            <edag-node v-for="(node, index) in this.nodes" @select-node="$emit('select-node', $event)" :index="index" :node="node" :selected="isSelected(index)" :key="node.nID" :upperEdgeStyle="upperEdgeStyle(index)" :lowerEdgeStyle="lowerEdgeStyle(index)"/>
-        </div>
+    <div class="edag-container">
+        <b-collapse id="edag-outer">
+            <div id="edag-inner" ref="scd">
+                <edag-node v-for="(node, index) in this.nodes" @select-node="$emit('select-node', $event)" :index="index" :node="node" :selected="isSelected(index)" :key="node.nID" :upperEdgeStyle="upperEdgeStyle(index)" :lowerEdgeStyle="lowerEdgeStyle(index)"/>
+            </div>
+        </b-collapse>
+
+        <b-card v-b-toggle.edag-outer target="edag-outer" aria-expanded="false" aria-controls="edag-outer" class="edag-toggle">
+            <span class="edag-outer__icon edag-outer__icon--open">
+                <b>Show Timeline</b>
+            </span>
+            <span class="edag-outer__icon edag-outer__icon--close">
+                Hide Timeline
+            </span>
+        </b-card>
     </div>
 </template>
 
@@ -80,19 +91,64 @@ export default {
 </script>
 
 <style>
-#edag-outer {
-    overflow: hidden;
-    height: 100%;
-}
-#edag-inner {
-    height: 100%;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    padding-right: 25px;
-    margin-right: -20px; /* Increase/decrease this value for cross-browser compatibility */
+@media (min-width: 1200px) {
+    .edag-container {
+        height: 100%;
+    }
+
+    #edag-outer[style] {
+        display: block !important;
+    }
+
+    #edag-outer {
+        overflow: hidden;
+        height: 100%;
+    }
+
+    #edag-inner {
+        height: 100%;
+        overflow-y: scroll;
+        overflow-x: hidden;
+        padding-right: 40px;
+        margin-right: -20px;
+    }
 }
 
-#edag-div::-webkit-scrollbar {
+@media (max-width: 1200px) {
+    /* Handles changing of the button text. */
+    [aria-expanded="false"] .edag-outer__icon--open {
+        display: block;
+        text-align: center;
+
+    }
+
+    [aria-expanded="false"] .edag-outer__icon--close {
+        display: none;
+        text-align: center;
+    }
+
+    [aria-expanded="true"] .edag-outer__icon--open {
+        display: none;
+        text-align: center;
+    }
+
+    [aria-expanded="true"] .edag-outer__icon--close {
+        display: block;
+        text-align: center;
+    }
+
+    .edag-toggle {
+        margin-top: 10px;
+        width: 100%;
+        border-color: var(--theme-dark-blue);
+    }
+
+    .edag-container {
+        text-align: center;
+    }
+}
+
+#edag-inner::-webkit-scrollbar {
     display: none;
 }
 </style>
