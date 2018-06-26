@@ -95,9 +95,10 @@ router.beforeEach((to, from, next) => {
         .catch(_ => {
             // TODO Check if this catch works as expected
             console.log('Error while loading permissions, does the redirect work?')
-            next(vm => {
-                vm.$router.push({name: 'ErrorPage', params: {errorMessage: 'Error while loading permissions', errorCode: '401'}})
-            })
+            // next(vm => {
+            // vm.$router.push({name: 'ErrorPage', params: {errorMessage: 'Error while loading permissions', errorCode: '401'}})
+            // })
+            next()
         })
 
     next()

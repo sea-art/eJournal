@@ -5,7 +5,6 @@ export default {
     get_assignment_data (cID, aID) {
         return auth.authenticatedGet('/get_assignment_data/' + cID + '/' + aID + '/')
             .then(response => response.data.assignment)
-            .catch(response => auth.handleResponse(response))
     },
 
     /* Get course assignments.
@@ -15,14 +14,12 @@ export default {
     get_course_assignments (cID) {
         return auth.authenticatedGet('/get_course_assignments/' + cID + '/')
             .then(response => response.data.assignments)
-            .catch(response => auth.handleResponse(response))
     },
 
     /* Get upcomming deadlines. */
     get_upcoming_deadlines () {
         return auth.authenticatedGet('/get_upcoming_deadlines/')
             .then(response => response.data.deadlines)
-            .catch(response => auth.handleResponse(response))
     },
 
     /* Create a new assignment. */
@@ -32,7 +29,6 @@ export default {
             description: description,
             cID: cID
         }).then(response => response.data)
-            .catch(response => auth.handleResponse(response))
     },
 
     /* Updates an existing assignment. */
@@ -42,7 +38,6 @@ export default {
             name: name,
             description: description
         }).then(response => response.data.assignment)
-            .catch(response => auth.handleResponse(response))
     },
 
     /* Deletes an existing assignment. */
@@ -50,7 +45,6 @@ export default {
         return auth.authenticatedPost('/delete_assignment/', {
             aID: aID
         }).then(response => response.data.result)
-            .catch(response => auth.handleResponse(response))
     }
 
 }

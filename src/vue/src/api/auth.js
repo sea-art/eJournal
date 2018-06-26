@@ -13,11 +13,31 @@ function getAuthorizationHeader () {
  * Stores this new token in jwt_access.
  * Returns a new Promise that can be used to chain more requests.
  */
-function refresh () {
-    return connection.conn.post('token/refresh/', {refresh: localStorage.getItem('jwt_refresh')})
-        .then(response => {
-            localStorage.setItem('jwt_access', response.data.access)
-        })
+function refresh (error) {
+    if (error.response.data.code === 'token_not_valid') {
+        return connection.conn.post('token/refresh/', {refresh: localStorage.getItem('jwt_refresh')})
+            .then(response => {
+                localStorage.setItem('jwt_access', response.data.access)
+                router.app.validToken = true
+            })
+            .catch(_ => {
+                if (error.response.data.code === 'token_not_valid') {
+                    router.app.validToken = false
+                }
+                throw error
+            })
+    } else {
+        throw error
+    }
+}
+
+function handleResponse (response) {
+    response = response.response
+    if (response.status === 401) {
+        router.push({name: 'Guest'})
+    } else {
+        throw response
+    }
 }
 
 /*
@@ -60,43 +80,11 @@ export default {
      * protected resources. If the access JWT token is outdated, it refreshes and tries again.
      * Returns a Promise to handle the request.
      */
-    authenticatedFilePost (url, data) {
-        var headers = getAuthorizationHeader()
-        headers.headers['Content-Type'] = 'multipart/form-data'
-        return connection.conn.post(url, data, headers)
-            .catch(error => {
-                if (error.response.data.code === 'token_not_valid') {
-                    var headers = getAuthorizationHeader()
-                    headers.headers['Content-Type'] = 'multipart/form-data'
-                    return refresh().then(_ => connection.conn.post(url, data, headers))
-                } else {
-                    throw error
-                }
-            })
-    },
-
-    /* Run an authenticated post request.
-     * This sets the JWT token to the Authorization headers of the request, so that it can access
-     * protected resources. If the access JWT token is outdated, it refreshes and tries again.
-     * Returns a Promise to handle the request.
-     */
     authenticatedPost (url, data) {
         return connection.conn.post(url, data, getAuthorizationHeader())
-            .catch(error => {
-                if (error.response.data.code === 'token_not_valid') {
-                    return refresh()
-                        .then(_ => connection.conn.post(url, data, getAuthorizationHeader()))
-                        .catch(error => {
-                            if (error.response.data.code === 'token_not_valid') {
-                                router.app.validToken = false
-                                // TODO reroute... use logout?
-                            }
-                            throw error
-                        })
-                } else {
-                    throw error
-                }
-            })
+            .catch(error => refresh(error))
+            .then(connection.conn.post(url, data, getAuthorizationHeader()))
+            .catch(error => handleResponse(error))
     },
 
     /* Run an authenticated get request.
@@ -106,27 +94,9 @@ export default {
      */
     authenticatedGet (url) {
         return connection.conn.get(url, getAuthorizationHeader())
-            .catch(error => {
-                if (error.response.data.code === 'token_not_valid') {
-                    return refresh()
-                        .then(_ => connection.conn.get(url, getAuthorizationHeader()))
-                        .catch(error => {
-                            if (error.response.data.code === 'token_not_valid') {
-                                router.app.validToken = false
-                                // TODO reroute...
-                            }
-                            throw error
-                        })
-                } else {
-                    throw error
-                }
-            })
-    },
-
-    handleResponse (response) {
-        console.log(response)
-        response = response.response
-
-        throw response
+            .catch(error => refresh(error, url))
+            .then(connection.conn.get(url, getAuthorizationHeader()))
+            .catch(error => handleResponse(error))
     }
+
 }
