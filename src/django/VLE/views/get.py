@@ -139,7 +139,7 @@ def get_user_courses(request):
     for course in user.participations.all():
         courses.append(serialize.course_to_dict(course))
 
-    return JsonResponse({'result': 'success', 'courses': courses}, status=200)
+    return response.success(payload={'courses': courses})
 
 
 def get_linkable_courses(request):
@@ -157,7 +157,7 @@ def get_linkable_courses(request):
 
     courses = get_linkable_courses_user(user)
 
-    return JsonResponse({'result': 'success', 'courses': courses})
+    return response.success(payload={'courses': courses})
 
 
 def get_linkable_courses_user(user):

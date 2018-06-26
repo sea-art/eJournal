@@ -16,9 +16,8 @@ export default {
             .then(response => response.data.assignments)
     },
 
-    /* Get course assignments.
-     * Requests all the course assignments.
-     * returns a list of all assignments.
+    /* Get an assignments by filtering on the lti_id.
+     * returns one assignment or none.
      */
     get_assignment_by_lti_id (ltiId) {
         return auth.authenticatedGet('/get_assignment_by_lti_id/' + ltiId + '/')

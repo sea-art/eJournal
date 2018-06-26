@@ -87,6 +87,7 @@ def select_create_user(request, roles):
     if users.count() > 0:
         user = users[0]
     else:
+        # TODO: Implement a login system for LTI.
         user = User()
         user.set_password('pass')
         if 'lis_person_contact_email_primary' in request:
@@ -120,8 +121,8 @@ def create_lti_query_link(names, values):
     Creates link to lti page with the given parameters
 
     Arguments
-    -- names -> names of the query variables
-    -- values -> values correnspanding to the names
+    names -- names of the query variables
+    values -- values correnspanding to the names
 
     returns the link
     """

@@ -26,7 +26,6 @@ export default {
     data () {
         return {
             msg: 'unsuccesfull',
-            jwt_refresh: ':(',
             currentPage: 'LTI Integration',
 
             /* Variables for loading the right component. */
@@ -69,27 +68,30 @@ export default {
     },
     methods: {
         handleActions (args) {
-            var msg = args[0]
-
-            if (msg === 'courseCreated') {
+            switch (args[0]) {
+            case 'courseCreated':
                 this.handleCourseChoice = false
                 this.page.cID = args[1]
                 this.state = this.s_create_assign
                 alert('Course Created!')
-            } else if (msg === 'courseConnected') {
+                break
+            case 'courseConnected':
                 this.handleCourseChoice = false
                 this.page.cID = args[1]
                 this.state = this.s_check_assign
                 alert('Course Connected!')
-            } else if (msg === 'assignmentIntegrated') {
+                break
+            case 'assignmentIntegrated':
                 this.handleAssignmentChoice = false
                 this.state = this.s_finish_t
                 alert('Assignment Integrated!')
-            } else if (msg === 'assignmentCreated') {
+                break
+            case 'assignmentCreated':
                 this.createAssignment = false
                 this.page.aID = args[1]
                 this.state = this.s_finish_t
                 alert('Assignment Created!')
+                break
             }
         },
         updateState (state) {
