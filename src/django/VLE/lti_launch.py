@@ -76,7 +76,7 @@ class OAuthRequestValidater(object):
         return validator.is_valid(request)
 
 
-def select_create_user(request):
+def select_create_user(request, roles):
     """Return the user of the lti_user_id in the request if it doesnt yet exist
     the user is create in our database.
     """
@@ -105,6 +105,10 @@ def select_create_user(request):
 
     if 'user_image' in request:
         user.profile_picture = request['user_image']
+        user.save()
+
+    if roles['Teacher'] in request:
+        user.is_teacher = True
         user.save()
 
     return user
