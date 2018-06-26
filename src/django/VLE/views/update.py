@@ -189,7 +189,7 @@ def update_templates(result_list, templates):
     for template_field in templates:
         if 'updated' in template_field and template_field['updated']:
             # Create the new template and add it to the format.
-            new_template = create_template(template_field)
+            new_template = parse_template(template_field)
             result_list.add(new_template)
 
             # Update presets to use the new template.
@@ -203,8 +203,8 @@ def update_templates(result_list, templates):
                 result_list.remove(template)
 
 
-def create_template(template_dict):
-    """ Create a new template according to the passed JSON-serialized template. """
+def parse_template(template_dict):
+    """ Parse a new template according to the passed JSON-serialized template. """
     name = template_dict['name']
     fields = template_dict['fields']
 
@@ -230,6 +230,25 @@ def swap_templates(from_list, goal_list, target_list):
             target_list.add(template)
 
 
+def update_journals(journals, preset, created):
+    """ Create or update the preset node in all relevant journals.
+
+    Arguments:
+    journals -- the journals to update.
+    preset -- the preset node to update the journals with.
+    created -- whether the preset node was newly created.
+    """
+    if created:
+        for journal in journals:
+            factory.make_node(journal, None, preset.type, preset)
+    else:
+        for journal in journals:
+            if journal.node_set.filter(preset=preset).count() > 0:
+                node = journal.node_set.get(preset=preset)
+                node.type = preset.type
+                node.save()
+
+
 def update_presets(assignment, presets):
     """ Update preset nodes in the assignment according to the passed list.
 
@@ -239,7 +258,6 @@ def update_presets(assignment, presets):
     """
     format = assignment.format
     for preset in presets:
-        # If pID is set, update an already existing preset, else create new.
         if 'pID' in preset:
             try:
                 preset_node = PresetNode.objects.get(pk=preset['pID'])
@@ -258,29 +276,13 @@ def update_presets(assignment, presets):
         elif preset_node.type == Node.ENTRYDEADLINE:
             template_field = preset['template']
 
-            # If tID is valid, use a pre-existing template, else create new.
             if 'tID' in template_field and template_field['tID'] > 0:
                 preset_node.forced_template = EntryTemplate.objects.get(pk=template_field['tID'])
             else:
-                preset_node.forced_template = create_template(template_field)
+                preset_node.forced_template = parse_template(template_field)
 
         preset_node.save()
-
-        # If the preset is new, create it for already existing journals.
-        if 'pID' not in preset:
-            for journal in assignment.journal_set.all():
-                Node(type=preset_node.type,
-                     journal=journal,
-                     preset=preset_node).save()
-
-        # If the preset is not new, update existing the existing nodes
-        # that have this preset to adapt to the change.
-        else:
-            for journal in assignment.journal_set.all():
-                if journal.node_set.filter(preset=preset_node).count() > 0:
-                    node = journal.node_set.get(preset=preset_node)
-                    node.type = preset_node.type
-                    node.save()
+        update_journals(assignment.journal_set.all(), preset_node, 'pID' not in preset)
 
 
 @api_view(['POST'])
@@ -315,16 +317,12 @@ def update_format(request):
                              'description': 'Format does not exist.'},
                             status=404)
 
-    # Update the presets in the assignment according to the passed presets.
     update_presets(assignment, presets)
-
-    # Update the templates in both lists according to the passed templates.
     update_templates(format.available_templates, templates)
     update_templates(format.unused_templates, unused_templates)
 
     # Swap templates from lists if they occur in the other:
-    # If a template was previously unused, but is now used, swap it to
-    # available templates, and vice versa.
+    # If a template was previously unused, but is now used, swap it to available templates, and vice versa.
     swap_templates(format.available_templates, unused_templates, format.unused_templates)
     swap_templates(format.unused_templates, templates, format.available_templates)
 

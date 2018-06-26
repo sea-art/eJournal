@@ -135,14 +135,14 @@ def make_entrydeadline_node(format, deadline, template):
     return node
 
 
-def make_node(journal, entry):
+def make_node(journal, entry=None, type=Node.ENTRY, preset=None):
     """Make a node.
 
     Arguments:
     journal -- journal the node belongs to.
     entry -- entry the node belongs to.
     """
-    node = Node(type=Node.ENTRY, entry=entry, journal=journal)
+    node = Node(type=type, entry=entry, preset=preset, journal=journal)
     node.save()
     return node
 
