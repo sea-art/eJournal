@@ -58,11 +58,8 @@ def make_course(name, abbrev, startdate=None, author=None, lti_id=None):
     course = Course(name=name, abbreviation=abbrev, startdate=startdate, author=author, lti_id=lti_id)
     course.save()
     if author:
-        participation = Participation()
-        participation.user = author
-        participation.course = course
-        participation.role = Role.objects.get(name='Teacher')
-        participation.save()
+        role = make_role_all_permissions("Teacher", course)
+        make_participation(author, course, role)
     return course
 
 
@@ -216,7 +213,7 @@ def make_journal_format():
     return journal_format
 
 
-def make_role(name, can_edit_course_roles=False, can_view_course_participants=False,
+def make_role(name, course, can_edit_course_roles=False, can_view_course_participants=False,
               can_edit_course=False, can_delete_course=False,
               can_add_assignment=False, can_view_assignment_participants=False,
               can_delete_assignment=False, can_publish_assigment_grades=False,
@@ -233,6 +230,7 @@ def make_role(name, can_edit_course_roles=False, can_view_course_participants=Fa
     """
     role = Role(
         name=name,
+        course=course,
 
         can_edit_course_roles=can_edit_course_roles,
         can_view_course_participants=can_view_course_participants,
@@ -253,15 +251,15 @@ def make_role(name, can_edit_course_roles=False, can_view_course_participants=Fa
     return role
 
 
-def make_role_all_permissions(name):
+def make_role_all_permissions(name, course):
     """Make a role with all permissions enabled.
 
     This enables a participant of the course to do everything within that course.
     This should not be confused with the global roles: these also have effect
     outside of the course.
     """
-    make_role(name, True, True, True, True, True, True,
-              True, True, True, True, True, True)
+    return make_role(name, course, True, True, True, True, True, True,
+                     True, True, True, True, True, True)
 
 
 def make_entrycomment(entry, author, text):

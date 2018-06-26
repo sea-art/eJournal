@@ -15,7 +15,8 @@ import json
 import VLE.lti_launch as lti
 import VLE.edag as edag
 import VLE.utils as utils
-from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment, User, Node
+from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment, User, Node, \
+    Role
 import VLE.serializers as serialize
 import VLE.permissions as permissions
 import VLE.views.responses as responses
@@ -401,6 +402,26 @@ def get_template(request, tID):
 
 
 @api_view(['GET'])
+def get_course_roles(request, cID):
+    """Get course roles.
+
+    Arguments:
+    request -- the request that was sent.
+    cID     -- the course id
+    """
+    request_user_role = Participation.objects.get(user=request.user.id, course=cID).role
+
+    if not request_user_role.can_edit_course_roles:
+        return JsonResponse({'result': '403 Forbidden'}, status=403)
+
+    roles = []
+
+    for role in Role.objects.filter(course=cID):
+        roles.append(serialize.role_to_dict(role))
+    return responses.success(payload={'roles': roles})
+
+
+@api_view(['GET'])
 def get_user_teacher_courses(request):
     """Get all the courses where the user is a teacher.
 
@@ -410,14 +431,13 @@ def get_user_teacher_courses(request):
     Returns a json string containing the format.
     """
     if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
-
+        return responses.unauthorized()
     q_courses = Course.objects.filter(participation__user=request.user.id,
                                       participation__role__can_edit_course=True)
     courses = []
     for course in q_courses:
         courses.append(serialize.course_to_dict(course))
-    return JsonResponse({'result': 'success', 'courses': courses}, status=200)
+    return responses.success(payload={'courses': courses})
 
 
 @api_view(['POST'])

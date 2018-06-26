@@ -30,15 +30,6 @@ class Command(BaseCommand):
         for u in users_examples:
             self.users.append(factory.make_user(u['username'], u['pass'], is_admin=u['is_admin']))
 
-    def gen_roles(self):
-        """Generate student and teacher roles.
-
-        The teacher has permission.
-        """
-        self.roles = []
-        self.roles.append(factory.make_role("Student"))
-        self.roles.append(factory.make_role_all_permissions("Teacher"))
-
     def gen_courses(self):
         """Generate the courses PAV and Beeldbewerken."""
         courses_examples = [
@@ -55,15 +46,14 @@ class Command(BaseCommand):
                 "teachers": [1],
             }
         ]
-
         self.courses = []
         for c in courses_examples:
             startdate = faker.date_this_decade(before_today=True)
             course = factory.make_course(c["name"], c["abbr"], startdate, self.users[random.choice(c["teachers"])])
-
+            role = factory.make_role("Student", course)
             for sid in c["students"]:
                 student = self.users[sid]
-                factory.make_participation(student, course, self.roles[0])
+                factory.make_participation(student, course, role)
 
             self.courses.append(course)
 
@@ -176,7 +166,6 @@ class Command(BaseCommand):
         This only contains the 'useful data'. For random data, execute demo_db as well.
         """
         self.gen_users()
-        self.gen_roles()
         self.gen_courses()
         self.gen_templates()
         self.gen_format()
