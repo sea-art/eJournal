@@ -15,7 +15,7 @@ import json
 import VLE.lti_launch as lti
 import VLE.edag as edag
 import VLE.utils as utils
-from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment, User
+from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment, User, Node
 import VLE.serializers as serialize
 import VLE.permissions as permission
 
@@ -482,9 +482,42 @@ def get_entrycomments(request, entryID):
 
 
 @api_view(['GET'])
+def get_user_data(request, uID):
+    """Get the user data of the given user.
+
+    Get his/her profile data and posted entries with the titles of the journals of the user based on the uID.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    user = User.objects.get(pk=uID)
+
+    # Check the right permissions to get this users data, either be the user of the data or be an admin.
+    permissions = permission.get_permissions(user, cID=-1)
+    if not (permissions['is_admin'] or request.user.id == uID):
+        return JsonResponse({'result': '403 Forbidden Error'}, status=403)
+
+    profile = serialize.user_to_dict(user)
+    # Don't send the user id with it.
+    del profile['uID']
+
+    journals = Journal.objects.filter(user=uID)
+    journal_dict = {}
+    for journal in journals:
+        # Select the nodes of this journal but only the ones with entries.
+        nodes_of_journal_with_entries = Node.objects.filter(journal=journal).exclude(entry__isnull=True)
+        # Serialize all entries and put them into the entries dictionary with the assignment name key.
+        entries_of_journal = [serialize.entry_to_dict(node.entry) for node in nodes_of_journal_with_entries]
+        journal_dict.update({journal.assignment.name: entries_of_journal})
+
+    return JsonResponse({'result': 'success',
+                         'profile': profile,
+                         'journals': journal_dict},
+                        status=200)
+
+@api_view(['GET'])
 def get_assignment_by_lti_id(request, lti_id):
     """Get an assignment if it exists.
-
     Arguments:
     request -- the request that was sent
     lti_id -- lti_id of the assignment

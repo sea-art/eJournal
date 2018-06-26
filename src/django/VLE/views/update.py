@@ -11,6 +11,8 @@ import VLE.utils as utils
 import VLE.factory as factory
 from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, Journal, User
 
+import re
+
 
 @api_view(['POST'])
 def connect_course_lti(request):
@@ -83,7 +85,7 @@ def connect_assignment_lti(request):
 
 @api_view(['POST'])
 def update_course_with_studentID(request):
-    """Updates an existing course with a student.
+    """Update an existing course with a student.
 
     Arguments:
     request -- the update request that was send with
@@ -148,15 +150,28 @@ def update_password(request):
     """
     user = request.user
     if not user.is_authenticated or not user.check_password(request.data['old_password']):
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return JsonResponse({'result': '401 Authentication Error', 'description': 'Wrong password'}, status=401)
 
-    # TODO: Add some real password validations
-    if len(request.data['new_password']) <= 3:
-        return JsonResponse({'result': '400 Bad request'}, status=400)
+    password = request.data['new_password']
+    if len(password) < 8:
+        return JsonResponse({
+            'result': '400 Bad request',
+            'description': 'Password needs to contain at least 8 characters'
+        }, status=400)
+    if password == password.lower():
+        return JsonResponse({
+            'result': '400 Bad request',
+            'description': 'Password needs to contain at least 1 capital letter'
+        }, status=400)
+    if re.match(r'^\w+$', password):
+        return JsonResponse({
+            'result': '400 Bad request',
+            'description': 'Password needs to contain a special character'
+        }, status=400)
 
-    user.set_password(request.data['new_password'])
+    user.set_password(password)
     user.save()
-    return JsonResponse({'result': 'success'}, status=200)
+    return JsonResponse({'result': 'success', 'description': 'Succesfully changed the password'}, status=200)
 
 
 @api_view(['POST'])

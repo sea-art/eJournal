@@ -55,6 +55,7 @@ urlpatterns = [
     path('api/get_course_users/<int:cID>/', get.get_course_users, name='get_course_users'),
     path('api/get_user_teacher_courses/', get.get_user_teacher_courses, name='get_user_teacher_courses'),
     path('api/get_assignment_by_lti_id/<str:lti_id>/', get.get_assignment_by_lti_id, name='get_assignment_by_lti_id'),
+    path('api/get_user_data/<int:uID>/', get.get_user_data, name='get_user_data'),
     path('api/get_unenrolled_users/<int:cID>/', get.get_unenrolled_users, name='get_unenrolled_users'),
 
     path('api/create_new_course/', create.create_new_course, name='create_new_course'),
