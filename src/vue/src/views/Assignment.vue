@@ -1,7 +1,6 @@
 <template>
     <content-columns>
         <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
-
         <b-card slot="main-content-column" class="settings-card no-hover">
             <b-row>
                 <b-col lg="4" md="12">
@@ -55,7 +54,6 @@ import statisticsCard from '@/components/StatisticsCard.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import journal from '@/api/journal.js'
 // TODO: temp
-import assignment from '@/api/assignment.js'
 
 export default {
     name: 'Assignment',
@@ -84,24 +82,6 @@ export default {
         'bread-crumb': breadCrumb
     },
     created () {
-        console.log("succes");
-        // TODO: Remove... just for demo
-        if (!this.$root.canViewAssignmentParticipants()) {
-            assignment.get_assignment_data(this.cID, this.aID)
-                .then(data => {
-                    console.log(data)
-                    this.$router.push({
-                        name: 'Journal',
-                        params: {
-                            cID: this.cID,
-                            aID: this.aID,
-                            jID: data.journal.jID,
-                            assignmentName: data.name
-                        }})
-                })
-            return
-        }
-        console.log("succes2")
         journal.get_assignment_journals(this.aID)
             .then(response => {
                 this.assignmentJournals = response.journals

@@ -1,29 +1,48 @@
-from rest_framework.test import APIRequestFactory
-from django.test import TestCase
-from django.urls import reverse
+"""
+test_apis.py.
 
-from VLE.models import User
-from VLE.models import Participation
-from VLE.models import Role
-from VLE.models import Course
-from VLE.models import Assignment
-from VLE.models import Journal
+Test API calls.
+"""
+from django.test import TestCase
 
 import VLE.factory as factory
-import VLE.utils as utils
 
 import test.test_rest as test
-import json as json
 
 
 class CreateApiTests(TestCase):
     def setUp(self):
+        """Setup."""
         self.username = 'test'
         self.password = 'test123'
 
         self.user = factory.make_user(self.username, self.password)
 
+    def test_get_course_users(self):
+        """Test get courses of user."""
+        login = test.logging_in(self, self.username, self.password)
+
+        course = factory.make_course("Beeldbewerken", "BB")
+
+        rein = factory.make_user("Rein", "123")
+        lars = factory.make_user("Lars", "123")
+
+        TA = factory.make_role("TA")
+        SD = factory.make_role("SD")
+        factory.make_participation(rein, course, TA)
+        factory.make_participation(lars, course, SD)
+
+        response = test.api_get_call(self, '/api/get_course_users/' + str(course.pk) + '/', login)
+
+        self.assertEquals(len(response.json()['users']), 2)
+
+        response = test.api_get_call(self, '/api/get_unenrolled_users/' + str(course.pk) + '/', login)
+
+        self.assertEquals(len(response.json()['users']), 1)
+        self.assertEquals(response.json()['users'][0]['name'], self.username)
+
     def test_create_entry(self):
+        """"Test create entry."""
         login = test.logging_in(self, self.username, self.password)
 
         assignment = factory.make_assignment("Assignment", "Your favorite assignment")
@@ -40,4 +59,4 @@ class CreateApiTests(TestCase):
                 }]
             }
 
-        response = test.api_post_call(self, '/api/create_entry/', some_dict, login, 201)
+        test.api_post_call(self, '/api/create_entry/', some_dict, login, 201)
