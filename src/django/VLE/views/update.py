@@ -273,6 +273,24 @@ def update_presets(assignment, presets):
             update_journals(assignment.journal_set.all(), preset_node, not exists)
 
 
+def delete_presets(presets, remove_presets):
+    """ Deletes all presets in remove_presets from presets. """
+    pIDs = []
+    for preset in remove_presets:
+        pIDs.append(preset['pID'])
+
+    presets.filter(pk__in=pIDs).delete()
+
+
+def delete_templates(templates, remove_templates):
+    """ Deletes all templates in remove_templates from templates. """
+    tIDs = []
+    for template in remove_templates:
+        tIDs.append(template['tID'])
+
+    templates.filter(pk__in=tIDs).delete()
+
+
 @api_view(['POST'])
 @parser_classes([JSONParser])
 def update_format(request):
@@ -289,11 +307,10 @@ def update_format(request):
         return responses.unauthorized()
 
     try:
-        aID, templates, presets, unused_templates = utils.required_params(request.data,
-                                                                          "aID",
-                                                                          "templates",
-                                                                          "presets",
-                                                                          "unused_templates")
+        aID, templates, presets = utils.required_params(request.data, "aID", "templates", "presets")
+        unused_templates, = utils.required_params(request.data, "unused_templates")
+        removed_presets, removed_templates = utils.required_params(request.data, "removed_presets", "removed_templates")
+
     except KeyError:
         return responses.keyerror("aID", "templates", "presets", "unused_templates")
 
@@ -311,6 +328,10 @@ def update_format(request):
     # If a template was previously unused, but is now used, swap it to available templates, and vice versa.
     swap_templates(format.available_templates, unused_templates, format.unused_templates)
     swap_templates(format.unused_templates, templates, format.available_templates)
+
+    delete_presets(format.presetnode_set, removed_presets)
+    delete_templates(format.available_templates, removed_templates)
+    delete_templates(format.unused_templates, removed_templates)
 
     return responses.success(payload={'format': serialize.format_to_dict(format)})
 
