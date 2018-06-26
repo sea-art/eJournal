@@ -44,7 +44,8 @@ var router = new Router({
     }, {
         path: '/Error',
         name: 'ErrorPage',
-        component: ErrorPage
+        component: ErrorPage,
+        props: true
     }, {
         path: '/Home/Course/:cID',
         name: 'Course',

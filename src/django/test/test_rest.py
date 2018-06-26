@@ -307,6 +307,7 @@ class RestTests(TestCase):
         self.assertEquals(Assignment.objects.filter(pk=1).count(), 0)
 
     def test_get_template(self):
+        """Test get templates."""
         login = logging_in(self, self.username, self.password)
 
         template = factory.make_entry_template("template")

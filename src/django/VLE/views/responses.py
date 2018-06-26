@@ -1,6 +1,7 @@
 """
-responses.py
+responses.py.
 
+Create response json codes
 """
 from django.http import JsonResponse
 
@@ -29,8 +30,7 @@ def no_content(description=''):
     Arguments:
     description -- header description (usable for example in the front end)
     """
-
-    return response(204, '204 No content', description=description)
+    return response(204, 'No content', description=description)
 
 
 def bad_request(description=''):
@@ -39,7 +39,7 @@ def bad_request(description=''):
     Arguments:
     description -- header description (usable for example in the front end)
     """
-    return response(400, '400 Bad Request', description=description)
+    return response(400, 'Bad Request', description=description)
 
 
 def unauthorized(description=''):
@@ -48,7 +48,7 @@ def unauthorized(description=''):
     Arguments:
     description -- header description (usable for example in the front end)
     """
-    return response(401, '401 Authentication Error', description=description)
+    return response(401, 'Authentication Error', description=description)
 
 
 def forbidden(description=''):
@@ -57,7 +57,7 @@ def forbidden(description=''):
     Arguments:
     description -- header description (usable for example in the front end)
     """
-    return response(403, '403 Forbidden', description=description)
+    return response(403, 'Forbidden', description=description)
 
 
 def not_found(description=''):
@@ -66,7 +66,7 @@ def not_found(description=''):
     Arguments:
     description -- header description (usable for example in the front end)
     """
-    return response(404, '404 Not Found', description=description)
+    return response(404, 'Not Found', description=description)
 
 
 def response(status, message, description='', payload={}):
@@ -82,7 +82,10 @@ def response(status, message, description='', payload={}):
 
 
 def keyerror(*keys):
-    """Generate a JsonResponse when the JSON has keyerror(s)."""
+    """Key error.
+
+    Generate a JsonResponse when the JSON has keyerror(s).
+    """
     if len(keys) == 1:
         return bad_request('Field {0} is required but is missing.'.format(keys))
     else:

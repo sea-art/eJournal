@@ -1,7 +1,14 @@
 <template>
     <b-row class="error-content">
         <b-col cols="12">
-            <h1 id="error-heading">Error {{ errorCode }}:</h1><h1 id="error-message"> {{ errorMessage }}</h1><br/>
+            <h1 id="error-heading">
+                Error {{ code }}: <span id="error-message"> {{ message }}</span>
+            </h1>
+        </b-col>
+        <b-col cols="12" v-if="description">
+            <h3>
+                {{ description }}
+            </h3>
         </b-col>
         <b-col cols="12">
             Unfortunately the page you are looking for is not here.<br/>
@@ -19,11 +26,16 @@
 export default {
     name: 'Error',
     props: {
-        errorCode: {
+        code: {
+            default: 404,
             required: true
         },
-        errorMessage: {
+        message: {
+            default: 'Not found',
             required: true
+        },
+        description: {
+            type: String
         }
     }
 }

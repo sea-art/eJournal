@@ -45,7 +45,6 @@ export default {
                             this.portraitPath,
                             this.uID)
                     })
-                    .catch(_ => alert('Error while adding user to course'))
             }
         }
     }

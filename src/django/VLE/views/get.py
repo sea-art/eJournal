@@ -139,14 +139,17 @@ def get_user_courses(request):
 
 
 def get_linkable_courses(request):
-    """Get all courses that the current user is connected with as sufficiently
+    """Get linkable courses.
+
+    Get all courses that the current user is connected with as sufficiently
     authenticated user. The lti_id should be equal to NULL. A user can then link
     this course to Canvas.
 
     Arguments:
     request -- contains the user that requested the linkable courses
 
-    Returns all of the courses."""
+    Returns all of the courses.
+    """
     user = request.user
     if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
@@ -157,14 +160,17 @@ def get_linkable_courses(request):
 
 
 def get_linkable_courses_user(user):
-    """Get all courses that the current user is connected with as sufficiently
+    """Get linkable courses user.
+
+    Get all courses that the current user is connected with as sufficiently
     authenticated user. The lti_id should be equal to NULL. A user can then link
     this course to Canvas.
 
     Arguments:
     user -- the user that requested the linkable courses.
 
-    Returns all of the courses."""
+    Returns all of the courses.
+    """
     courses = []
     unlinked_courses = Course.objects.filter(participation__user=user.id,
                                              participation__role__can_edit_course=True, lti_id=None)
@@ -224,7 +230,11 @@ def get_course_assignments(request, cID):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    course = Course.objects.get(pk=cID)
+    courses = Course.objects.filter(pk=cID)
+    if not courses.exists():
+        return responses.not_found('Course was not found')
+
+    course = courses.first()
     participation = Participation.objects.get(user=user, course=course)
 
     # Check whether the user can edit the course.
@@ -337,8 +347,10 @@ def get_course_permissions(request, cID):
         return responses.unauthorized()
 
     roleDict = permission.get_permissions(request.user, int(cID))
-
-    return responses.success(payload={'permissions': roleDict})
+    if roleDict:
+        return responses.success(payload={'permissions': roleDict})
+    else:
+        return responses.forbidden('You are not participating in this course')
 
 
 @api_view(['GET'])

@@ -35,6 +35,18 @@ function handleResponse (response) {
     response = response.response
     if (response.status === 401) {
         router.push({name: 'Guest'})
+    } if (response.status === 400 ||
+          response.status === 401 ||
+          response.status === 403 ||
+          response.status === 404) {
+        console.log(response)
+        console.log(response.statusText)
+        console.log(response.status)
+        router.push({name: 'ErrorPage', params: {
+            code: response.status,
+            message: response.data.result,
+            description: response.data.description
+        }})
     } else {
         throw response
     }
