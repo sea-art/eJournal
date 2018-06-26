@@ -210,7 +210,7 @@ def create_lti_user(request):
 
     lti_params = jwt.decode(request.data['jwt_params'], setttings.LTI_SECRET, algorithms=['HS256'])
 
-    user_id, user_image = lti_params['user_id'], lti_params['user_iamge']
+    user_id, user_image = lti_params['user_id'], lti_params['user_image']
     is_teacher = json.load(open('config.json'))['Teacher'] in lti_params
 
     try:
@@ -219,6 +219,5 @@ def create_lti_user(request):
     except KeyError:
         return responses.keyerror('username', 'password')
 
-
     factory.make_user(username, password, email=email, lti_id=user_id, is_teacher=is_teacher,
-                      first_name=first_name, last_name=last_name)
+                      first_name=first_name, last_name=last_name, profile_picture=user_image)
