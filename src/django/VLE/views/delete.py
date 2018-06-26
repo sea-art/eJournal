@@ -18,7 +18,7 @@ def delete_course(request):
     request -- the update request that was send with
         cID -- course ID given with the request
 
-    Returns a json string for if it is succesful or not.
+    Returns a json string for if it is successful or not.
     """
     user = request.user
     if not user.is_authenticated:
@@ -41,7 +41,7 @@ def delete_assignment(request):
         aID -- assignment ID given with the request
         cID -- course ID given with the request
 
-    Returns a json string for if it is succesful or not.
+    Returns a json string for if it is successful or not.
     """
     if not request.user.is_authenticated:
         return responses.unauthorized()
@@ -68,7 +68,7 @@ def delete_user_from_course(request):
         uID -- student ID given with the request
         cID -- course ID given with the request
 
-    Returns a json string for if it is succesful or not.
+    Returns a json string for if it is successful or not.
     """
     user = request.user
     if not user.is_authenticated:
@@ -83,4 +83,4 @@ def delete_user_from_course(request):
 
     participation.delete()
 
-    return responses.success(messsage='Succesfully deleted student from course')
+    return responses.success(message='Succesfully deleted student from course')
