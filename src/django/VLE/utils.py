@@ -5,11 +5,9 @@ A library with useful functions.
 """
 from VLE.models import Entry
 
-import VLE.views.responses as responses
-
 
 # START: API-POST functions
-def get_required_post_params(post, *keys):
+def required_params(post, *keys):
     """Get required post parameters, throwing KeyError if not present."""
     result = []
     for key in keys:
@@ -17,7 +15,7 @@ def get_required_post_params(post, *keys):
     return result
 
 
-def get_optional_post_params(post, *keys):
+def optional_params(post, *keys):
     """Get optional post parameters, filling them as None if not present."""
     result = []
     for key in keys:
@@ -29,14 +27,6 @@ def get_optional_post_params(post, *keys):
         else:
             result.append(None)
     return result
-
-
-def keyerror_json(*keys):
-    """Generate a JsonResponse when the JSON has keyerror(s)."""
-    if len(keys) == 1:
-        return responses.bad_request('Field {0} is required but is missing.'.format(keys))
-    else:
-        return responses.bad_request('Fields {0} are required but one or more are missing.'.format(keys))
 # END: API-POST functions
 
 

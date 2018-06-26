@@ -33,10 +33,10 @@ def create_new_course(request):
         return responses.unauthorized()
 
     try:
-        name, abbr = utils.get_required_post_params(request.data, "name", "abbr")
-        startdate, lti_id = utils.get_optional_post_params(request.data, "startdate", "lti_id")
+        name, abbr = utils.required_params(request.data, "name", "abbr")
+        startdate, lti_id = utils.optional_params(request.data, "startdate", "lti_id")
     except KeyError:
-        return utils.keyerror_json("name", "abbr")
+        return responses.keyerror("name", "abbr")
 
     course = factory.make_course(name, abbr, startdate, request.user, lti_id)
 
@@ -59,10 +59,10 @@ def create_new_assignment(request):
         return responses.unauthorized()
 
     try:
-        name, description, cID = utils.get_required_post_params(request.data, "name", "description", "cID")
-        points_possible, lti_id = utils.get_optional_post_params(request.data, "points_possible", "lti_id")
+        name, description, cID = utils.required_params(request.data, "name", "description", "cID")
+        points_possible, lti_id = utils.optional_params(request.data, "points_possible", "lti_id")
     except KeyError:
-        return utils.keyerror_json("name", "description", "cID")
+        return responses.keyerror("name", "description", "cID")
 
     assignment = factory.make_assignment(name, description, cIDs=[cID],
                                          author=request.user, lti_id=lti_id,
@@ -83,9 +83,9 @@ def create_journal(request):
         return responses.unauthorized()
 
     try:
-        aID = utils.get_required_post_params(request.data, "aID")
+        aID = utils.required_params(request.data, "aID")
     except KeyError:
-        return utils.keyerror_json("aID")
+        return responses.keyerror("aID")
 
     assignment = Assignment.objects.get(pk=aID)
     journal = factory.make_journal(assignment, request.user)
@@ -109,10 +109,10 @@ def create_entry(request):
         return responses.unauthorized()
 
     try:
-        jID, tID, content_list = utils.get_required_post_params(request.data, "jID", "tID", "content")
-        nID, = utils.get_optional_post_params(request.data, "nID")
+        jID, tID, content_list = utils.required_params(request.data, "jID", "tID", "content")
+        nID, = utils.optional_params(request.data, "nID")
     except KeyError:
-        return utils.keyerror_json("jID", "tID", "content")
+        return responses.keyerror("jID", "tID", "content")
 
     try:
         journal = Journal.objects.get(pk=jID, user=request.user)
@@ -173,9 +173,9 @@ def create_entrycomment(request):
         return responses.unauthorized()
 
     try:
-        entryID, authorID, text = utils.get_required_post_params(request.data, "entryID", "authorID", "text")
+        entryID, authorID, text = utils.required_params(request.data, "entryID", "authorID", "text")
     except KeyError:
-        return utils.keyerror_json("entryID", "authorID", "text")
+        return responses.keyerror("entryID", "authorID", "text")
 
     try:
         author = User.objects.get(pk=authorID)
