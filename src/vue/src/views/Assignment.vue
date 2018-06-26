@@ -4,14 +4,15 @@
 
         <b-card slot="main-content-column" class="settings-card no-hover">
             <b-row>
-                <b-col lg="3" md="3">
+                <b-col lg="4" md="12">
                     <b-form-select v-model="selectedSortOption" :select-size="1">
                        <option :value="null">Sort by ...</option>
                        <option value="sortName">Sort on name</option>
                        <option value="sortID">Sort on ID</option>
+                       <option value="sortMarking">Sort on marking needed</option>
                     </b-form-select>
                 </b-col>
-                <b-col lg="3" md="3">
+                <b-col lg="5" md="12">
                     <input type="text" v-model="searchVariable" placeholder="Search .."/>
                 </b-col>
             </b-row>
@@ -83,10 +84,12 @@ export default {
         'bread-crumb': breadCrumb
     },
     created () {
+        console.log("succes");
         // TODO: Remove... just for demo
         if (!this.$root.canViewAssignmentParticipants()) {
             assignment.get_assignment_data(this.cID, this.aID)
                 .then(data => {
+                    console.log(data)
                     this.$router.push({
                         name: 'Journal',
                         params: {
@@ -98,7 +101,7 @@ export default {
                 })
             return
         }
-
+        console.log("succes2")
         journal.get_assignment_journals(this.aID)
             .then(response => {
                 this.assignmentJournals = response.journals
@@ -136,6 +139,12 @@ export default {
                 return 0
             }
 
+            function compareMarkingNeeded (a, b) {
+                if (a.stats.submitted - a.stats.graded < b.stats.submitted - b.stats.graded) { return -1 }
+                if (a.stats.submitted - a.stats.graded > b.stats.submitted - b.stats.graded) { return 1 }
+                return 0
+            }
+
             function checkFilter (user) {
                 var userName = user.student.name.toLowerCase()
                 var userID = String(user.student.uID).toLowerCase()
@@ -153,6 +162,8 @@ export default {
                 return this.assignmentJournals.filter(checkFilter).sort(compareName)
             } else if (this.selectedSortOption === 'sortID') {
                 return this.assignmentJournals.filter(checkFilter).sort(compareID)
+            } else if (this.selectedSortOption === 'sortMarking') {
+                return this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded)
             } else {
                 return this.assignmentJournals.filter(checkFilter)
             }
