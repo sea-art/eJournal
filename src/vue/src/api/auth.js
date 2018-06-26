@@ -121,5 +121,13 @@ export default {
                     throw error
                 }
             })
+    },
+
+    handleResponse (response) {
+        console.log(response)
+        response = response.response
+
+
+        throw response
     }
 }
