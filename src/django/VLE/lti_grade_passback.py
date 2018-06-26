@@ -155,7 +155,7 @@ def needs_grading(journal):
 
     jID = str(journal.pk)
     aID = str(journal.assignment.pk)
-    cID = str(journal.assignment.course.pk)
+    cID = str(journal.assignment.courses.first().pk)
 
     # TODO create custom link for submission
     result_data = {'url': settings.BASELINK+'/Home/Course/' + cID + '/Assignment/' + aID + '/Journal/' + jID}
