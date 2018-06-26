@@ -111,7 +111,7 @@ def get_assignment_permissions(user, assignment):
     return result
 
 
-def check_permissions(user, cID, permissionList):
+def has_permissions(user, cID, permission_list):
     """Check if the user has the needed permissions.
 
     Do this by checking every permission, and returning False once a permission
@@ -120,11 +120,47 @@ def check_permissions(user, cID, permissionList):
     Arguments:
     user -- user that did the request.
     cID -- course ID used to validate the request.
+    permission_list -- the list of permissions to check.
     """
-    role = get_role(user, cID)
+    permissions = get_permissions(user, cID)
 
-    for permission in permissionList:
-        if not getattr(role, permission):
+    for permission in permission_list:
+        if permission not in permissions or not permissions[permission]:
+            return False
+
+    return True
+
+
+def has_permission(user, cID, permission):
+    """Check if the user has the needed permissions.
+
+    Do this by checking every permission, and returning False once a permission
+    is insufficient.
+
+    Arguments:
+    user -- user that did the request.
+    cID -- course ID used to validate the request.
+    permission -- the permission to check.
+    """
+    permissions = get_permissions(user, cID)
+    return permission in permissions and permissions[permission]
+
+
+def has_assignment_permissions(user, assignment, permission_list):
+    """Check if the user has the needed permissions.
+
+    Do this by checking every permission, and returning False once a permission
+    is insufficient.
+
+    Arguments:
+    user -- user that did the request.
+    assignment -- the assignment used to validate the request.
+    permissionList -- the list of permissions to check.
+    """
+    permissions = get_assignment_permissions(user, assignment)
+
+    for permission in permission_list:
+        if permission not in permissions or not permissions[permission]:
             return False
 
     return True
