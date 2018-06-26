@@ -93,7 +93,13 @@ class RestTests(TestCase):
 
         self.user_role = factory.make_user("test123", "test")
         role = factory.make_role(name='TA', can_grade_journal=True, can_view_assignment_participants=True)
-        student_role = factory.make_role(name='SD')
+        student_role = factory.make_role(name='SD', can_edit_journal=True, can_comment_journal=True)
+        teacher_role = factory.make_role(name='Teacher', can_edit_course_roles=True, can_view_course_participants=True,
+                                         can_edit_course=True, can_delete_course=True,
+                                         can_add_assignment=True, can_view_assignment_participants=True,
+                                         can_delete_assignment=True, can_publish_assigment_grades=True,
+                                         can_grade_journal=True, can_publish_journal_grades=True,
+                                         can_comment_journal=True)
 
         factory.make_participation(self.user_role, c1, role)
 
@@ -101,7 +107,6 @@ class RestTests(TestCase):
         for c in cs:
             factory.make_participation(self.user, c, role)
             factory.make_participation(self.student, c, student_role)
-
             factory.make_participation(self.teacher, c, teacher_role)
 
         t = factory.make_entry_template('template_test')
@@ -267,7 +272,9 @@ class RestTests(TestCase):
         """Test the create entry api call."""
         login = logging_in(self, self.username, self.password)
 
-        assignment = factory.make_assignment("Assignment", "Your favorite assignment")
+        course = factory.make_course("Course", "C")
+        assignment = factory.make_assignment("Assignment", "Your favorite assignment",
+                                             courses=[course])
         journal = factory.make_journal(assignment, self.user)
         template = factory.make_entry_template("some_template")
         field = factory.make_field(template, 'Some field', 0)
