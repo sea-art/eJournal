@@ -109,7 +109,6 @@ export default {
             case this.s_check_assign:
                 assignApi.get_assignment_by_lti_id(this.lti.ltiAssignID)
                     .then(response => {
-                        alert(response)
                         if (response === undefined) {
                             this.state = this.s_new_assign
                         } else {
