@@ -273,7 +273,8 @@ def make_role_all_permissions(name):
 
     This enables a participant of the course to do everything within that course.
     This should not be confused with the global roles: these also have effect
-    outside of the course."""
+    outside of the course.
+    """
     make_role(name, True, True, True, True, True, True,
               True, True, True, True, True, True)
 
