@@ -1,5 +1,5 @@
 <template>
-    <b-navbar v-if="!isGuest" id="header" toggleable="md" type="dark" fixed=top>
+    <b-navbar v-if="$root.validToken" id="header" toggleable="md" type="dark" fixed=top>
         <b-navbar-brand :to="'/Home'" class="brand-name">Logboek</b-navbar-brand>
 
         <b-navbar-toggle class="ml-auto mr-auto" target="nav_collapse" aria-expanded="false" aria-controls="nav_collapse">
@@ -33,7 +33,7 @@
         <b-navbar-nav class="ml-auto">
             <b-nav-dropdown right no-caret id="nav-dropdown-options">
                 <img id="nav-profile-image" slot="button-content" src="~@/assets/unknown-profile.png">
-                <div><login-form @login-succes="handleLoginSucces()"/></div>
+                <login-form @login-success="handleLoginSuccess" :key="'123'"/>
             </b-nav-dropdown>
         </b-navbar-nav>
     </b-navbar>
@@ -52,29 +52,19 @@ export default {
     data () {
         return {
             // TODO Figure out why webpack messes this up
-            profileImg: '~@/assets/unknown-profile.png',
-            isGuest: true
+            profileImg: '~@/assets/unknown-profile.png'
         }
     },
     methods: {
-        checkPermissions () {
-            this.isGuest = this.$router.currentRoute.path === '/'
-        },
         handleLogout () {
-            this.isGuest = true
             loginAPI.logout()
             this.$router.push('/')
         },
-        handleLoginSucces () {
-            this.isGuest = false
-            // this.$root.$emit('bv::toggle::collapse', 'nav_collapse')
-            this.show = false
-            this.$nextTick(() => { this.show = true })
-            this.$router.push('/Home')
+        handleLoginSuccess () {
+            console.log('Handling login success')
+            // TODO Set correct profile IMG
+            this.$router.push({name: 'Home'})
         }
-    },
-    created () {
-        this.checkPermissions()
     }
 }
 </script>

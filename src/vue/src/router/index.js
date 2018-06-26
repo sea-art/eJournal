@@ -28,11 +28,11 @@ var router = new Router({
         component: Home
     }, {
         path: '/Login',
-        name: Login,
+        name: 'Login',
         component: Login
     }, {
         path: '/Register',
-        name: Register,
+        name: 'Register',
         component: Register
     }, {
         path: '/Profile',
@@ -84,9 +84,15 @@ router.beforeEach((to, from, next) => {
     // TODO Handle errors properly
     // TODO Caching for permissions, how to handle permission changes when role is altered by teacher
 
+    console.log('Before each to:')
+    console.log(to)
+
     if (to.name === 'Guest') {
         /* Returning next because we short circuit the function here, no API calls
          * are desired. */
+        return next()
+    } else if (to.name === 'Login') {
+        console.log(from)
         return next()
     }
 
@@ -102,7 +108,6 @@ router.beforeEach((to, from, next) => {
     permissionsApi.get_course_permissions(params)
         .then(response => {
             router.app.permissions = response
-            next()
         })
         .catch(_ => {
             // TODO Check if this catch works as expected
@@ -110,7 +115,6 @@ router.beforeEach((to, from, next) => {
             // next(vm => {
             // vm.$router.push({name: 'ErrorPage', params: {errorMessage: 'Error while loading permissions', errorCode: '401'}})
             // })
-            next()
         })
 
     next()

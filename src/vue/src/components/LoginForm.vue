@@ -1,9 +1,9 @@
 <template>
-    <b-form @submit.prevent="handleLogin()" id="login-form">
+    <b-form @submit.prevent="handleLogin()" class="login-form">
         <b-input class="multi-form" id="formInputUsername" v-model="username" required placeholder="Username"/>
         <b-input class="multi-form" id="formInputPassword" type="password" @keyup.enter="handleLogin()" v-model="password" required placeholder="Password"/>
-        <b-button type="submit">Login</b-button><br/>
-        <b-button id="forgot-password-button">Forgot password?</b-button>
+        <b-button class="multi-form" type="submit">Login</b-button><br/>
+        <b-button>Forgot password?</b-button>
     </b-form>
 </template>
 
@@ -21,7 +21,10 @@ export default {
         handleLogin () {
             auth.login(this.username, this.password)
                 .then(_ => {
-                    this.$emit('login-succes')
+                    console.log('Login form handle login success')
+                    console.log(this)
+                    this.$emit('login-success')
+                    console.log('After emit')
                 })
                 .catch(_ => alert('Could not login'))
         }
@@ -30,11 +33,7 @@ export default {
 </script>
 
 <style>
-#forgot-password-button {
-    margin-top: 10px;
-}
-
-#login-form {
+.login-form {
     background-color: var(--theme-light-grey);
 }
 </style>

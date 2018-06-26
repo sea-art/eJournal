@@ -14,6 +14,7 @@ function getAuthorizationHeader () {
  * Returns a new Promise that can be used to chain more requests.
  */
 function refresh (error) {
+    console.log('Handling token refresh')
     if (error.response.data.code === 'token_not_valid') {
         return connection.conn.post('token/refresh/', {refresh: localStorage.getItem('jwt_refresh')})
             .then(response => {
@@ -32,21 +33,20 @@ function refresh (error) {
 }
 
 function handleResponse (response) {
+    console.log('Handling response')
     response = response.response
     if (response.status === 401) {
+        console.log(router.history)
         router.push({name: 'Login'})
     } if (response.status === 400 ||
-          response.status === 401 ||
           response.status === 403 ||
           response.status === 404) {
-        console.log(response)
-        console.log(response.statusText)
-        console.log(response.status)
-        router.push({name: 'ErrorPage', params: {
-            code: response.status,
-            message: response.data.result,
-            description: response.data.description
-        }})
+        router.push({name: 'ErrorPage',
+            params: {
+                code: response.status,
+                message: response.data.result,
+                description: response.data.description
+            }})
     } else {
         throw response
     }
@@ -79,7 +79,6 @@ export default {
         localStorage.removeItem('jwt_access')
         localStorage.removeItem('jwt_refresh')
         router.app.validToken = false
-        // TODO rerout here?
     },
 
     /* Change password. */
