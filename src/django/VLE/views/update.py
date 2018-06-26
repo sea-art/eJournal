@@ -71,19 +71,19 @@ def update_course_roles(request):
     """
     if not request.user.is_authenticated:
         return responses.unauthorized()
-        cID = request.data['cID']
-        request_user_role = Participation.objects.get(user=request.user.id, course=cID).role
+    cID = request.data['cID']
+    request_user_role = Participation.objects.get(user=request.user.id, course=cID).role
 
-        if not request_user_role.can_edit_course_roles:
-            return responses.forbidden()
+    if not request_user_role.can_edit_course_roles:
+        return responses.forbidden()
 
-            for role in request.data['roles']:
-                db_role = Role.objects.filter(name=role['name'])
-                if not db_role:
-                    factory.make_role(role['name'], Course.objects.get(pk=cID), **role['permissions'])
-                else:
-                    permissions.edit_permissions(db_role[0], **role['permissions'])
-                    return responses.succes()
+    for role in request.data['roles']:
+        db_role = Role.objects.filter(name=role['name'])
+        if not db_role:
+            factory.make_role(role['name'], Course.objects.get(pk=cID), **role['permissions'])
+        else:
+            permissions.edit_permissions(db_role[0], **role['permissions'])
+    return responses.success()
 
 
 @api_view(['POST'])

@@ -187,8 +187,8 @@ class RestTests(TestCase):
         self.assertEquals(len(journals), 4)
         self.assertEquals(journals[0]['student']['name'], 'Lars')
         self.assertEquals(journals[1]['student']['name'], 'Jeroen')
-        self.assertEquals(journals[2]['student']['name'], 'Rick')
-        self.assertEquals(journals[3]['student']['name'], 'Jeroen')
+        self.assertEquals(journals[2]['student']['name'], 'Student')
+        self.assertEquals(journals[3]['student']['name'], 'Rick')
 
     def test_journal_stats(self):
         """Test the journal stats functions in the serializer."""

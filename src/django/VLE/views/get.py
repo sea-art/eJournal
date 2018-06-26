@@ -418,9 +418,10 @@ def get_course_roles(request, cID):
 
     for role in Role.objects.filter(course=cID):
         roles.append(serialize.role_to_dict(role))
-    return responses.success(payload=roles)
+    return responses.success(payload={'roles': roles})
 
 
+@api_view(['GET'])
 def get_user_teacher_courses(request):
     """Get all the courses where the user is a teacher.
 
@@ -430,13 +431,13 @@ def get_user_teacher_courses(request):
     Returns a json string containing the format.
     """
     if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
     q_courses = Course.objects.filter(participation__user=request.user.id,
                                       participation__role__can_edit_course=True)
     courses = []
     for course in q_courses:
         courses.append(serialize.course_to_dict(course))
-    return responses.success(payload=courses)
+    return responses.success(payload={'courses': courses})
 
 
 @api_view(['POST'])
