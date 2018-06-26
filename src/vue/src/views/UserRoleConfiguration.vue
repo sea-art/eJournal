@@ -3,50 +3,39 @@
         <b-col cols="12" lg="6" offset-lg="3" class="table-content">
             <bread-crumb>&nbsp;</bread-crumb>
 
-            <b-button class="multi-form float-right add-button ml-2"> Update </b-button>
-            <b-button class="multi-form float-right delete-button"> Reset </b-button>
+            <b-button @click="update()" class="multi-form float-right add-button ml-2"> Update </b-button>
+            <b-button @click="reset()" class="multi-form float-right delete-button"> Reset </b-button>
 
-            <table class="table table-bordered table-hover">
-                <thead >
-                    <tr v-if="windowWidth > 750">
-                        <th/>
-                        <th v-for="role in roles" :key="'th-' + role">{{ role }}</th>
-                        <th><icon name="plus-square" @click.native="modalShow = !modalShow" class="add-icon" scale="1.75"></icon></th>
-                    </tr>
-                    <tr v-else>
-                        <th/>
-                        <b-form-select
-                            class="select-center mb-3"
-                            v-model="selectedRole"
-                            :options="selectRoles"/>
-                        <th><icon name="plus-square" @click.native="modalShow = !modalShow" class="add-icon" scale="1.75"></icon></th>
-                    </tr>
-                </thead>
-                <tbody v-if="windowWidth > 750">
-                    <tr v-for="permission in permissions" :key="permission">
-                        <td>{{ permission }}</td>
-                        <td v-for="role in roles" :key="role + '-' + permission">
-                            <custom-checkbox
-                            @checkbox-toggle="updateRole"
-                            :role="role"
-                            :permission="permission"
-                            :receivedState="false"/>
-                        </td>
-                    </tr>
-                </tbody>
-                <tbody v-else>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th/>
+                            <th v-for="role in roles" :key="'th-' + role">
+                                {{ role }}
+                                <icon
+                                    v-if="!undeleteableRoles.includes(role)"
+                                    name="trash" @click.native="deleteRole(role)"
+                                    class="trash-icon"
+                                    scale="1.25"/>
+                            </th>
+                            <th><icon name="plus-square" @click.native="modalShow = !modalShow" class="add-icon" scale="1.75"/></th>
+                        </tr>
+                    </thead>
+                    <tbody>
                         <tr v-for="permission in permissions" :key="permission">
-                        <td>{{ permission }}</td>
-                        <td>
-                            <custom-checkbox
-                            @checkbox-toggle="updateRole"
-                            :role="selectedRole"
-                            :permission="permission"
-                            :receivedState="false"/>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                            <td class="permission-column">{{ formatPermissionString(permission) }}</td>
+                            <td v-for="role in roles" :key="role + '-' + permission">
+                                <custom-checkbox
+                                @checkbox-toggle="updateRole"
+                                :role="role"
+                                :permission="permission"
+                                :receivedState="setState(role, permission)"/>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
 
             <b-modal
                 @shown="focusRoleNameInput"
@@ -84,24 +73,19 @@ export default {
     },
     data () {
         return {
-            roles: [
-                'Student',
-                'TA',
-                'Teacher',
-                'Admin',
-                'Observer'
-            ],
+            roles: [],
+            permissions: [],
+            backupPermissions: [],
+            roleConfig: [],
+            originalRoleConfig: [],
             defaultRoles: [],
-            defaultPermissions: [],
             selectRoles: [
                 {value: null, text: 'Please select a role'},
                 {value: 'Student', text: 'Student'},
                 {value: 'TA', text: 'TA'},
-                {value: 'Admin', text: 'Admin'},
-                {value: 'Observer', text: 'Observer'},
                 {}
             ],
-            permissions: ['Can edit course', 'Can add course'],
+            undeleteableRoles: ['Student', 'TA', 'Teacher'],
             selectedRole: null,
             modalShow: false,
             newRole: '',
@@ -113,23 +97,133 @@ export default {
             this.windowWidth = document.documentElement.clientWidth
         },
         updateRole (list) {
-            console.log(list)
+            var role = list[0]
+            var permission = list[1]
+            var state = list[2]
+
+            var i = this.roleConfig.findIndex(p => p.name === role)
+
+            this.roleConfig[i].permissions[permission] = (state ? 1 : 0)
+        },
+        callocRoleObject (role) {
+            /* Initialises a role object with the given name, the pages cID
+             * and permissions object with all  corresponding permissions set to false. */
+            var newPermissions = {}
+
+            for (var i = 0; i < this.permissions.length; i++) {
+                newPermissions[this.permissions[i]] = 0
+            }
+
+            return { name: role, cID: this.cID, permissions: newPermissions }
+        },
+        deepCopyRoles (roles) {
+            var deepCopy = []
+
+            for (var i = 0; i < roles.length; i++) {
+                var permissions = {}
+
+                for (var j = 0; j < this.permissions.length; j++) {
+                    permissions[this.permissions[j]] = roles[i].permissions[this.permissions[j]]
+                }
+
+                deepCopy.push({ name: roles[i].name, cID: this.cID, permissions: permissions })
+            }
+
+            return deepCopy
         },
         addRole () {
-            this.modalShow = false
+            /* Adds a new role, clearing the input buffer and updating the
+             * roles list and roleconfiguration objects. */
+            this.roleConfig.push(this.callocRoleObject(this.newRole))
             this.roles.push(this.newRole)
+
+            this.modalShow = false
             this.newRole = ''
         },
         focusRoleNameInput () {
+            /* Ensures the modal name field is focused upon the modal opening. */
             this.$refs.roleNameInput.focus()
+        },
+        setState (role, permission) {
+            var correctRole = (this.roleConfig.filter(arg => { return arg.name === role }))[0]
+            return correctRole.permissions[permission] === 1
+        },
+        reset () {
+            /* Resets the configuration to the defaults by deep copies.
+             * Forces reupdate of custom checkbox components,
+             * by temporarily clearing the roles and permissions lists.
+             * This could be prevented by creating a custom data model which
+             * could interact with v-model.
+             * However scaling should not be a problem here (time choice to keep
+             * working with the databse given format.)  */
+            this.roleConfig = this.deepCopyRoles(this.originalRoleConfig)
+
+            this.roles = []
+            this.backupPermissions = Array.from(this.permissions)
+            this.permissions = []
+            this.$nextTick(() => {
+                this.roles = Array.from(this.defaultRoles)
+                this.permissions = this.backupPermissions
+            })
+        },
+        update () {
+            permissions.update_course_roles(this.cID, this.roleConfig)
+                .then(response => {
+                    // TODO Update default roles, config etc
+                    alert('Update succesfull!')
+                })
+                .catch(_ => alert('Something went wrong when updating the permissions'))
+        },
+        formatPermissionString (str) {
+            /* Converts underscores to spaces and capatilises the first letter. */
+            var temp = str.split('_').join(' ')
+            return temp[0].toUpperCase() + temp.slice(1)
+        },
+        deleteRole(role) {
+            if (confirm('Are you sure you want to delete role: ' + role + 'entirely?')) {
+                if (this.defaultRoles.includes(role)) {
+                    // handle server update
+                    permissions.delete_course_role(this.cID, role)
+                        .then(response => {
+                            // TODO Update default roles and permissions
+                            this.deleteRoleLocalConfig(role)
+                            this.deleteRoleServerLoadedConfig(role)
+                            alert('Role deleted succesfully!')
+                        })
+                        .catch(_ => alert('Something went wrong when deleting role: ' + role))
+                } else {
+                    // Role exist locally only, delete locally
+                    this.deleteRoleLocalConfig(role)
+                }
+            }
+        },
+        deleteRoleLocalConfig(role) {
+            var i = this.roleConfig.findIndex(p => p.name === role)
+            this.roleConfig.splice(i, 1)
+            var i = this.roles.findIndex(p => p === role)
+            this.roles.splice(i, 1)
+        },
+        deleteRoleServerLoadedConfig(role) {
+            var i = this.originalRoleConfig.findIndex(p => p.name === role)
+            this.originalRoleConfig.splice(i, 1)
+            var i = this.defaultRoles.findIndex(p => p === role)
+            this.defaultRoles.splice(i, 1)
         }
     },
     created () {
+        /* Initialises roles, permissions and role config as well as their defaults.
+         * Roles and Permissions objects need to exist as deepcopy depends on then. */
         permissions.get_course_roles(this.cID)
             .then(response => {
-                this.defaultRoles = response
-                console.log('hoi')
-                console.log(response)
+                this.roleConfig = response
+
+                response.forEach(role => {
+                    this.defaultRoles.push(role.name)
+                })
+                this.permissions = Object.keys(response[0].permissions)
+                this.roles = Array.from(this.defaultRoles)
+
+                this.originalRoleConfig = this.deepCopyRoles(response)
             })
             .catch(_ => alert('Error while loading course roles'))
     },
@@ -164,6 +258,10 @@ export default {
 .table td {
     text-align: center; /* center checkbox horizontally */
     align-items: center;
+}
+
+.permission-column {
+    text-align: left !important;
 }
 
 .table-content {
