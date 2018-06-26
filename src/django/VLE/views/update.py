@@ -47,13 +47,13 @@ def update_course_roles(request):
     """
     if not request.user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
-    cID = request.data[0]['cID']
+    cID = request.data['cID']
     request_user_role = Participation.objects.get(user=request.user.id, course=cID).role
 
     if not request_user_role.can_edit_course_roles:
         return JsonResponse({'result': '403 Forbidden'}, status=403)
 
-    for role in request.data:
+    for role in request.data['roles']:
         db_role = Role.objects.filter(name=role['name'])
         if not db_role:
             factory.make_role(role['name'], Course.objects.get(pk=cID), **role['permissions'])
