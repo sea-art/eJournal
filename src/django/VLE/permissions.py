@@ -3,9 +3,10 @@ permissions.py.
 
 All the permission functions.
 """
-from VLE.models import Participation, Role
-
 from django.forms.models import model_to_dict
+
+from VLE.models import Participation, Role
+import VLE.views.responses as responses
 
 
 def get_role(user, cID):
@@ -87,7 +88,11 @@ def get_permissions(user, cID=-1):
             roleDict["can_add_course"] = True
     else:
         # The course ID was given. Return the permissions of the user as dictionary.
-        role = Participation.objects.get(user=user, course=cID).role
+        participations = Participation.objects.filter(user=user, course=cID)
+        if not participations.exists():
+            return None
+
+        role = participations.first().role
 
         roleDict = model_to_dict(role)
         roleDict['is_admin'] = False
