@@ -287,6 +287,19 @@ class RestTests(TestCase):
         api_post_call(self, '/api/delete_assignment/', {'cID': 2, 'aID': 1}, login)
         self.assertEquals(Assignment.objects.filter(pk=1).count(), 0)
 
+    def test_get_template(self):
+        login = logging_in(self, self.username, self.password)
+
+        template = factory.make_entry_template("template")
+        factory.make_field(template, "Some Field", 0)
+        factory.make_field(template, "Some other Field", 1)
+
+        response = api_get_call(self, '/api/get_template/' + str(template.pk) + '/', login)
+
+        self.assertEquals(response.json()['template']['tID'], template.pk)
+        self.assertEquals(response.json()['template']['name'], "template")
+        self.assertEquals(len(response.json()['template']['fields']), 2)
+
     def test_get_user_data(self):
         """Test the get_user_data function which responses with all the user data of a given user."""
         login = logging_in(self, 'Lars', 'pass')
