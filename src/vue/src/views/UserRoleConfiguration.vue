@@ -1,65 +1,62 @@
 <template>
-    <b-row no-gutters>
-        <b-col cols="12" lg="6" offset-lg="3" class="table-content">
-            <bread-crumb>&nbsp;</bread-crumb>
+    <content-single-table-column>
+        <bread-crumb>&nbsp;</bread-crumb>
 
-            <b-button @click="update()" class="multi-form float-right add-button ml-2"> Update </b-button>
-            <b-button @click="reset()" class="multi-form float-right delete-button"> Reset </b-button>
+        <b-button @click="update()" class="multi-form float-right add-button ml-2"> Update </b-button>
+        <b-button @click="reset()" class="multi-form float-right delete-button"> Reset </b-button>
 
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover">
-                    <thead>
-                        <tr>
-                            <th/>
-                            <th v-for="role in roles" :key="'th-' + role">
-                                {{ role }}
-                                <icon
-                                    v-if="!undeleteableRoles.includes(role)"
-                                    name="trash" @click.native="deleteRole(role)"
-                                    class="trash-icon"
-                                    scale="1.25"/>
-                            </th>
-                            <th><icon name="plus-square" @click.native="modalShow = !modalShow" class="add-icon" scale="1.75"/></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="permission in permissions" :key="permission">
-                            <td class="permission-column">{{ formatPermissionString(permission) }}</td>
-                            <td v-for="role in roles" :key="role + '-' + permission">
-                                <custom-checkbox
-                                @checkbox-toggle="updateRole"
-                                :role="role"
-                                :permission="permission"
-                                :receivedState="setState(role, permission)"/>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div class="table-responsive">
+            <table class="table table-bordered table-hover">
+                <thead>
+                    <tr>
+                        <th/>
+                        <th v-for="role in roles" :key="'th-' + role">
+                            {{ role }}
+                            <icon
+                                v-if="!undeleteableRoles.includes(role)"
+                                name="trash" @click.native="deleteRole(role)"
+                                class="trash-icon"
+                                scale="1.25"/>
+                        </th>
+                        <th><icon name="plus-square" @click.native="modalShow = !modalShow" class="add-icon" scale="1.75"/></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="permission in permissions" :key="permission">
+                        <td class="permission-column">{{ formatPermissionString(permission) }}</td>
+                        <td v-for="role in roles" :key="role + '-' + permission">
+                            <custom-checkbox
+                            @checkbox-toggle="updateRole"
+                            :role="role"
+                            :permission="permission"
+                            :receivedState="setState(role, permission)"/>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
 
-            <b-modal
-                @shown="focusRoleNameInput"
-                title="Role creation"
-                size="lg"
-                v-model="modalShow"
-                hide-footer>
-                <b-form-input
-                    @keyup.enter.native="addRole"
-                    v-model="newRole"
-                    class="multi-form"
-                    ref="roleNameInput"
-                    required placeholder="Role name"/>
-                <b-button @click="addRole" class="add-button">Create role</b-button>
-                <b-button @click="modalShow = false" class="delete-button">Cancel</b-button>
-            </b-modal>
-
-        </b-col>
-    </b-row>
+        <b-modal
+            @shown="focusRoleNameInput"
+            title="Role creation"
+            size="lg"
+            v-model="modalShow"
+            hide-footer>
+            <b-form-input
+                @keyup.enter.native="addRole"
+                v-model="newRole"
+                class="multi-form"
+                ref="roleNameInput"
+                required placeholder="Role name"/>
+            <b-button @click="addRole" class="add-button">Create role</b-button>
+            <b-button @click="modalShow = false" class="delete-button">Cancel</b-button>
+        </b-modal>
+    </content-single-table-column>
 </template>
 
 <script>
 import breadCrumb from '@/components/BreadCrumb.vue'
-import contentSingleColumn from '@/components/ContentSingleColumn.vue'
+import contentSingleTableColumn from '@/components/ContentSingleTableColumn.vue'
 import customCheckbox from '@/components/CustomCheckbox.vue'
 import icon from 'vue-awesome/components/Icon'
 import permissions from '@/api/permissions.js'
@@ -93,9 +90,6 @@ export default {
         }
     },
     methods: {
-        getWindowWidth (event) {
-            this.windowWidth = document.documentElement.clientWidth
-        },
         updateRole (list) {
             var role = list[0]
             var permission = list[1]
@@ -167,11 +161,10 @@ export default {
             })
         },
         update () {
-            console.log(this.roleConfig)
-            console.log(this.originalRoleConfig)
             permissions.update_course_roles(this.cID, this.roleConfig)
                 .then(response => {
-                    // TODO Update default roles, config etc
+                    this.originalRoleConfig = this.deepCopyRoles(this.roleConfig)
+                    this.defaultRoles = Array.from(this.roles)
                     alert('Update succesfull!')
                 })
                 .catch(_ => alert('Something went wrong when updating the permissions'))
@@ -184,17 +177,15 @@ export default {
         deleteRole (role) {
             if (confirm('Are you sure you want to delete role: ' + role + 'entirely?')) {
                 if (this.defaultRoles.includes(role)) {
-                    // handle server update
+                    /* handle server update. */
                     permissions.delete_course_role(this.cID, role)
                         .then(response => {
-                            // TODO Update default roles and permissions
                             this.deleteRoleLocalConfig(role)
                             this.deleteRoleServerLoadedConfig(role)
                             alert('Role deleted succesfully!')
                         })
                         .catch(_ => alert('Something went wrong when deleting role: ' + role))
                 } else {
-                    // Role exist locally only, delete locally
                     this.deleteRoleLocalConfig(role)
                 }
             }
@@ -229,18 +220,8 @@ export default {
             })
             .catch(_ => alert('Error while loading course roles'))
     },
-    mounted () {
-        this.$nextTick(function () {
-            window.addEventListener('resize', this.getWindowWidth)
-
-            this.getWindowWidth()
-        })
-    },
-    beforeDestroy () {
-        window.removeEventListener('resize', this.getWindowWidth)
-    },
     components: {
-        'content-single-column': contentSingleColumn,
+        'content-single-table-column': contentSingleTableColumn,
         'bread-crumb': breadCrumb,
         'custom-checkbox': customCheckbox,
         icon
