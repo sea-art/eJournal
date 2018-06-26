@@ -26,6 +26,7 @@ class User(AbstractUser):
     lti_id = models.TextField(
         null=True,
         unique=True,
+        blank=True,
     )
     profile_picture = models.TextField(
         null=True
@@ -218,6 +219,16 @@ class Journal(models.Model):
     user = models.ForeignKey(
         'User',
         on_delete=models.CASCADE,
+    )
+
+    sourcedid = models.TextField(
+        'sourcedid',
+        null=True
+    )
+
+    grade_url = models.TextField(
+        'grade_url',
+        null=True
     )
 
     def __str__(self):

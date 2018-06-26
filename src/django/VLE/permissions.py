@@ -58,7 +58,7 @@ def get_permissions(user, cID=-1):
             "can_edit_journal": False,
             "can_comment_journal": False
         }
-    elif cID is -1:
+    elif cID == -1:
         # No course ID was given. The user has no permissions.
         roleDict = {
             "is_admin": False,

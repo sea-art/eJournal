@@ -11,6 +11,7 @@ import VLE.factory as factory
 import VLE.utils as utils
 from VLE.models import User, Journal, EntryTemplate, Node, Assignment, Field, Entry, Content
 import VLE.edag as edag
+import VLE.lti_grade_passback as lti_grade
 
 import VLE.views.responses as responses
 
@@ -59,10 +60,13 @@ def create_new_assignment(request):
 
     try:
         name, description, cID = utils.required_params(request.data, "name", "description", "cID")
+        points_possible, lti_id = utils.optional_params(request.data, "points_possible", "lti_id")
     except KeyError:
         return responses.keyerror("name", "description", "cID")
 
-    assignment = factory.make_assignment(name, description, cIDs=[cID], author=request.user)
+    assignment = factory.make_assignment(name, description, cIDs=[cID],
+                                         author=request.user, lti_id=lti_id,
+                                         points_possible=points_possible)
 
     return responses.created(payload={'assignment': serialize.assignment_to_dict(assignment)})
 
@@ -112,6 +116,9 @@ def create_entry(request):
 
     try:
         journal = Journal.objects.get(pk=jID, user=request.user)
+
+        if journal.sourcedid is not None and journal.grade_url is not None:
+            lti_grade.needs_grading(journal)
 
         template = EntryTemplate.objects.get(pk=tID)
 

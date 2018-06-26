@@ -90,6 +90,7 @@ class RestTests(TestCase):
         c1 = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
         c2 = factory.make_course("BeeldBewerken", "BB")
         c3 = factory.make_course("Reflectie en Digitale Samenleving", "RDS")
+        factory.make_course("Statistisch Redeneren", "SR")
 
         self.user_role = factory.make_user("test123", "test")
         role_test = factory.make_role('TA2', c1, can_grade_journal=True, can_view_assignment_participants=True)
@@ -267,7 +268,9 @@ class RestTests(TestCase):
         """Test the create entry api call."""
         login = logging_in(self, self.username, self.password)
 
-        assignment = factory.make_assignment("Assignment", "Your favorite assignment")
+        course = factory.make_course("Course", "C")
+        assignment = factory.make_assignment("Assignment", "Your favorite assignment",
+                                             courses=[course])
         journal = factory.make_journal(assignment, self.user)
         template = factory.make_entry_template("some_template")
         field = factory.make_field(template, 'Some field', 0)
@@ -283,6 +286,12 @@ class RestTests(TestCase):
 
         response = api_post_call(self, '/api/create_entry/', some_dict, login, status=201)
         self.assertEquals(response.status_code, 201)
+
+    def test_get_user_teacher_courses(self):
+        """Test the get user teacher courses function."""
+        login = logging_in(self, self.teacher_user, self.teacher_pass)
+        result = api_get_call(self, reverse('get_user_teacher_courses'), login)
+        self.assertEquals(len(result.json()['courses']), 3)
 
     def test_delete_assignment(self):
         """Test the delete assignment."""

@@ -20,7 +20,10 @@ def optional_params(post, *keys):
     result = []
     for key in keys:
         if key in post:
-            result.append(post[key])
+            if post[key] == '':
+                result.append(None)
+            else:
+                result.append(post[key])
         else:
             result.append(None)
     return result
@@ -51,7 +54,6 @@ def get_acquired_grade(entries, journal):
     Returns the total number of points depending on the grade type.
     """
     format = journal.assignment.format
-    entries = get_journal_entries(journal)
     total_grade = 0
     if format.grade_type == 'GR':
         count_graded = 0

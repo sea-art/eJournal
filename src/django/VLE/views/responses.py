@@ -23,6 +23,16 @@ def created(message='success', payload={}):
     return response(201, message, payload=payload)
 
 
+def no_content(description=''):
+    """Return a no content header.
+
+    Arguments:
+    description -- header description (usable for example in the front end)
+    """
+
+    return response(204, '204 No content', description=description)
+
+
 def bad_request(description=''):
     """Return a bad request response header.
 

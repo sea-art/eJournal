@@ -23,9 +23,7 @@ from django.urls import path
 
 import VLE.views.get as get
 import VLE.views.create as create
-
 import VLE.views.update as update
-
 import VLE.views.delete as delete
 
 from rest_framework_simplejwt.views import (
@@ -56,6 +54,8 @@ urlpatterns = [
     path('api/get_entrycomments/<int:entryID>/', get.get_entrycomments, name='get_entrycomments'),
     path('api/get_course_users/<int:cID>/', get.get_course_users, name='get_course_users'),
     path('api/get_course_roles/<int:cID>/', get.get_course_roles, name='get_user_roles'),
+    path('api/get_user_teacher_courses/', get.get_user_teacher_courses, name='get_user_teacher_courses'),
+    path('api/get_assignment_by_lti_id/<str:lti_id>/', get.get_assignment_by_lti_id, name='get_assignment_by_lti_id'),
     path('api/get_template/<int:tID>/', get.get_template, name='get_template'),
     path('api/get_user_data/<int:uID>/', get.get_user_data, name='get_user_data'),
     path('api/get_unenrolled_users/<int:cID>/', get.get_unenrolled_users, name='get_unenrolled_users'),
@@ -67,6 +67,8 @@ urlpatterns = [
 
     path('api/update_user_data/', update.update_user_data, name='update_user_data'),
     path('api/update_course/', update.update_course, name='update_course'),
+    path('api/connect_course_lti/', update.connect_course_lti, name='connect_course_lti'),
+    path('api/connect_assignment_lti/', update.connect_assignment_lti, name='connect_assignment_lti'),
     path('api/update_assignment/', update.update_assignment, name='update_assignment'),
     path('api/update_password/', update.update_password, name='update_password'),
     path('api/update_grade_notification/', update.update_grade_notification,

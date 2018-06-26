@@ -227,6 +227,22 @@ input, select {
     background-color: red !important;
 }
 
+.lti-button-option {
+    width: 275px;
+    height: 100px;
+    margin-top: 20px;
+}
+
+.lti-button-text {
+    font-size: 20px;
+    text-align: center;
+}
+
+.lti-intro-text {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
 .portrait {
     max-width: 175px;
 }
