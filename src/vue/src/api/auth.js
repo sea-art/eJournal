@@ -63,7 +63,6 @@ export default {
     authenticatedFilePost (url, data) {
         var headers = getAuthorizationHeader()
         headers.headers['Content-Type'] = 'multipart/form-data'
-        console.log(headers)
         return connection.conn.post(url, data, headers)
             .catch(error => {
                 if (error.response.data.code === 'token_not_valid') {

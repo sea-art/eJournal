@@ -11,11 +11,11 @@
                                 <h2>{{entryNode.entry.template.name}}</h2>
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
-                                <div v-if="entryNode.entry.grade != 0">
+                                <div v-if="entryNode.entry.published">
                                     {{ entryNode.entry.grade }}
                                 </div>
                                 <div v-else>
-                                    To be grated
+                                    To be graded
                                 </div>
                             </b-col>
                         </b-row>
@@ -33,10 +33,10 @@
                                         <b-textarea v-model="completeContent[i].data"></b-textarea><br><br>
                                     </div>
                                     <div v-else-if="field.type=='i'">
-                                        <b-form-file v-model="completeContent[i].data" :state="Boolean(file)" placeholder="Choose a file..."></b-form-file><br><br>
+                                        <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
                                     </div>
                                     <div v-else-if="field.type=='f'">
-                                        <b-form-file v-model="completeContent[i].data" :state="Boolean(file)" placeholder="Choose a file..."></b-form-file><br><br>
+                                        <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
                                     </div>
                                 </div>
                                 <b-button @click="saveEdit">{{ saveEditMode }} </b-button>
@@ -53,7 +53,7 @@
                                 <h2>{{entryNode.entry.template.name}}</h2>
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
-                                <div v-if="entryNode.entry.grade != 0">
+                                <div v-if="entryNode.entry.published">
                                     {{ entryNode.entry.grade }}
                                 </div>
                                 <div v-else>
@@ -71,7 +71,7 @@
                                         <b>{{ field.title }}</b>
                                     </div>
                                     <div v-if="field.type=='t'">
-                                        {{ completeContent[i].data }}<br><br>
+                                        <span class="showEnters">{{ completeContent[i].data }}</span><br><br>
                                     </div>
                                     <div v-else-if="field.type=='i'">
                                         {{ completeContent[i].data }}<br><br>

@@ -12,9 +12,9 @@ import AssignmentsOverview from '@/views/AssignmentsOverview'
 import permissionsApi from '@/api/permissions.js'
 import ErrorPage from '@/views/ErrorPage'
 import CourseEdit from '@/views/CourseEdit'
-import TemplateEdit from '@/views/TemplateEdit'
 import AssignmentEdit from '@/views/AssignmentEdit'
 import UserRoleConfiguration from '@/views/UserRoleConfiguration'
+import FormatEdit from '@/views/FormatEdit'
 
 Vue.use(Router)
 
@@ -40,7 +40,7 @@ var router = new Router({
         name: 'AssignmentsOverview',
         component: AssignmentsOverview
     }, {
-        path: '/ErrorPage',
+        path: '/Error',
         name: 'ErrorPage',
         component: ErrorPage
     }, {
@@ -69,9 +69,9 @@ var router = new Router({
         component: AssignmentEdit,
         props: true
     }, {
-        path: '/Home/Course/:cID/Assignment/:aID/Format/TemplateEdit/:tID',
-        name: 'TemplateEdit',
-        component: TemplateEdit,
+        path: '/Home/Course/:cID/Assignment/:aID/Format',
+        name: 'FormatEdit',
+        component: FormatEdit,
         props: true
     }, {
         path: '/Home/Course/:cID/Assignment/:aID/Journal/:jID',

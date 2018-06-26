@@ -18,7 +18,7 @@ def get_sorted_nodes(journal):
     return journal.node_set.annotate(
         sort_deadline=Case(
             When(type=Node.ENTRY, then='entry__createdate'),
-            default='preset__deadline__datetime')
+            default='preset__deadline')
     ).order_by('sort_deadline')
 
 
@@ -38,7 +38,7 @@ def get_nodes_dict(journal, requester):
     added_add_node = False
     for node in nodes:
         if node.type == Node.PROGRESS:
-            is_future = (node.preset.deadline.datetime - timezone.now()).total_seconds() > 0
+            is_future = (node.preset.deadline - timezone.now()).total_seconds() > 0
             if is_own_journal and not added_add_node and is_future:
                 node_dict.append(serialize.add_node_dict(journal))
                 added_add_node = True

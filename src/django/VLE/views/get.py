@@ -16,9 +16,12 @@ import VLE.lti_launch as lti
 from VLE.lti_grade_passback import GradePassBackRequest
 import VLE.edag as edag
 import VLE.utils as utils
-from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment, Role
+from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment, User, Node, \
+    Role
 import VLE.serializers as serialize
 import VLE.permissions as permission
+
+import VLE.views.responses as responses
 
 
 @api_view(['GET'])
@@ -32,7 +35,7 @@ def get_own_user_data(request):
     """
     user = request.user
     if not user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     user_dict = serialize.user_to_dict(user)
     user_dict['grade_notifications'] = user.grade_notifications
@@ -52,7 +55,7 @@ def get_course_data(request, cID):
     """
     user = request.user
     if not user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     course = serialize.course_to_dict(Course.objects.get(pk=cID))
 
@@ -70,7 +73,7 @@ def get_course_users(request, cID):
     Returns a json string with a list of participants.
     """
     if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     try:
         course = Course.objects.get(pk=cID)
@@ -85,6 +88,32 @@ def get_course_users(request, cID):
 
 
 @api_view(['GET'])
+def get_unenrolled_users(request, cID):
+    """Get all users not connected to a given course.
+
+    Arguments:
+    request -- the request
+    cID -- the course ID
+
+    Returns a json string with a list of participants.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Course does not exist.'}, status=404)
+
+    ids_in_course = course.participation_set.all().values('user__id')
+    result = User.objects.all().exclude(id__in=ids_in_course)
+
+    return JsonResponse({'result': 'success',
+                         'users': [serialize.user_to_dict(user) for user in result]}, status=200)
+
+
+@api_view(['GET'])
 def get_user_courses(request):
     """Get the courses that are linked to the user linked to the request.
 
@@ -96,7 +125,7 @@ def get_user_courses(request):
     user = request.user
 
     if not user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     courses = []
 
@@ -153,7 +182,7 @@ def get_course_assignments(request, cID):
     """
     user = request.user
     if not user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     course = Course.objects.get(pk=cID)
     participation = Participation.objects.get(user=user, course=course)
@@ -186,7 +215,7 @@ def get_assignment_data(request, cID, aID):
     """
     user = request.user
     if not user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     course = Course.objects.get(pk=cID)
     assignment = Assignment.objects.get(pk=aID)
@@ -218,7 +247,7 @@ def get_assignment_journals(request, aID):
     """
     user = request.user
     if not user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     try:
         assignment = Assignment.objects.get(pk=aID)
@@ -259,7 +288,7 @@ def get_upcoming_deadlines(request):
     Returns a json string with the deadlines
     """
     if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     # TODO: Only take user specific upcoming enties
     deadlines = []
@@ -278,7 +307,7 @@ def get_course_permissions(request, cID):
     cID     -- the course id
     """
     if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     roleDict = permission.get_permissions(request.user, int(cID))
 
@@ -297,7 +326,7 @@ def get_nodes(request, jID):
     Returns a json string containing all entry and deadline nodes.
     """
     if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     journal = Journal.objects.get(pk=jID)
     return JsonResponse({'result': 'success',
@@ -315,7 +344,7 @@ def get_format(request, aID):
     Returns a json string containing the format.
     """
     if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     try:
         assignment = Assignment.objects.get(pk=aID)
@@ -324,7 +353,31 @@ def get_format(request, aID):
                              'description': 'Assignment does not exist.'}, status=404)
 
     return JsonResponse({'result': 'success',
-                         'nodes': serialize.get_format_dict(assignment.format)}, status=200)
+                         'format': serialize.format_to_dict(assignment.format)},
+                        status=200)
+
+
+@api_view(['GET'])
+def get_template(request, tID):
+    """Get a template.
+
+    Arguments:
+    request -- the request that was sent
+    tID     -- the template id
+
+    Returns a json string containing the format.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    try:
+        template = EntryTemplate.objects.get(pk=tID)
+    except EntryTemplate.DoesNotExist:
+        return JsonResponse({'result': '404 Not Found',
+                             'description': 'Template does not exist.'}, status=404)
+
+    return JsonResponse({'result': 'success',
+                         'template': serialize.template_to_dict(template)})
 
 
 @api_view(['GET'])
@@ -366,7 +419,7 @@ def get_names(request):
     'template' and jID populates 'journal' with the users' name.
     """
     if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     cID, aID, jID, tID = utils.get_optional_post_params(request.data, "cID", "aID", "jID", "tID")
     result = JsonResponse({'result': 'success'}, status=200)
@@ -396,11 +449,46 @@ def get_names(request):
 def get_entrycomments(request, entryID):
     """Get the comments belonging to the specified entry based on its entryID."""
     if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     entrycomments = EntryComment.objects.filter(entry=entryID)
     return JsonResponse({'result': 'success',
                          'entrycomments': [serialize.entrycomment_to_dict(comment) for comment in entrycomments]},
+                        status=200)
+
+
+@api_view(['GET'])
+def get_user_data(request, uID):
+    """Get the user data of the given user.
+
+    Get his/her profile data and posted entries with the titles of the journals of the user based on the uID.
+    """
+    if not request.user.is_authenticated:
+        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+
+    user = User.objects.get(pk=uID)
+
+    # Check the right permissions to get this users data, either be the user of the data or be an admin.
+    permissions = permission.get_permissions(user, cID=-1)
+    if not (permissions['is_admin'] or request.user.id == uID):
+        return JsonResponse({'result': '403 Forbidden Error'}, status=403)
+
+    profile = serialize.user_to_dict(user)
+    # Don't send the user id with it.
+    del profile['uID']
+
+    journals = Journal.objects.filter(user=uID)
+    journal_dict = {}
+    for journal in journals:
+        # Select the nodes of this journal but only the ones with entries.
+        nodes_of_journal_with_entries = Node.objects.filter(journal=journal).exclude(entry__isnull=True)
+        # Serialize all entries and put them into the entries dictionary with the assignment name key.
+        entries_of_journal = [serialize.export_entry_to_dict(node.entry) for node in nodes_of_journal_with_entries]
+        journal_dict.update({journal.assignment.name: entries_of_journal})
+
+    return JsonResponse({'result': 'success',
+                         'profile': profile,
+                         'journals': journal_dict},
                         status=200)
 
 

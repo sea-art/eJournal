@@ -56,6 +56,9 @@ urlpatterns = [
     path('api/get_entrycomments/<int:entryID>/', get.get_entrycomments, name='get_entrycomments'),
     path('api/get_course_users/<int:cID>/', get.get_course_users, name='get_course_users'),
     path('api/get_course_roles/<int:cID>/', get.get_course_roles, name='get_user_roles'),
+    path('api/get_template/<int:tID>/', get.get_template, name='get_template'),
+    path('api/get_user_data/<int:uID>/', get.get_user_data, name='get_user_data'),
+    path('api/get_unenrolled_users/<int:cID>/', get.get_unenrolled_users, name='get_unenrolled_users'),
 
     path('api/create_new_course/', create.create_new_course, name='create_new_course'),
     path('api/create_new_assignment/', create.create_new_assignment, name='create_new_assignment'),
@@ -70,6 +73,7 @@ urlpatterns = [
          name='update_grade_notification'),
     path('api/update_comment_notification/', update.update_comment_notification,
          name='update_comment_notification'),
+    path('api/update_format/', update.update_format, name='update_format'),
     path('api/update_entrycomment/', update.update_entrycomment, name='update_entrycomment'),
     path('api/update_course_roles/', update.update_course_roles, name='update_course_roles'),
 
@@ -79,8 +83,9 @@ urlpatterns = [
          name='update_publish_grades_assignment'),
     path('api/update_publish_grades_journal/<int:jID>/', update.update_publish_grades_journal,
          name='update_publish_grades_journal'),
-
     path('api/update_user_role_course/', update.update_user_role_course, name='update_user_role_course'),
+    path('api/update_course_with_studentID/', update.update_course_with_studentID, name='update_course_with_studentID'),
+
 
     path('api/delete_course/', delete.delete_course, name='delete_course'),
     path('api/delete_assignment/', delete.delete_assignment, name='delete_assignment'),

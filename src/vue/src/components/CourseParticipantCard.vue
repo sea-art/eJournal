@@ -1,20 +1,27 @@
 <template>
-    <b-card :class="$root.colors[uID % $root.colors.length]">
+    <b-card :class="$root.colors[uID % $root.colors.length]" class="no-hover">
         <b-row>
             <b-col cols="4" sm="2">
                 <img class="img-fluid" :src="portraitPath">
             </b-col>
             <b-col cols="8" order-sm="3" sm="4">
-                 <b-form-select v-model="selectedRole" class="mb-3" :select-size="1">
+                 <b-form-select v-if="this.$root.canEditCourseRoles"
+                                v-model="selectedRole"
+                                class="mb-3"
+                                :select-size="1">
                     <option :selected="role === 'Student'" value="Student">Student</option>
                     <option :selected="role === 'TA'" value="TA">Teaching Assistant (TA)</option>
                     <option :selected="role === 'Teacher'" value="Teacher">Teacher</option>
                  </b-form-select>
-                <b-button @click.prevent.stop="removeFromCourse()" class="delete-button full-width">Remove</b-button>
+                <b-button v-if="this.$root.canEditCourse"
+                          @click.prevent.stop="removeFromCourse()"
+                          class="delete-button full-width">
+                    Remove
+                </b-button>
             </b-col>
             <b-col cols="12" order-sm="2" sm="6">
                 Name: {{ name }} <br/>
-                StudentID: {{ studentNumber }} <br />
+                uID: {{ uID }} <br />
                 Role: {{selectedRole}}
             </b-col>
         </b-row>
@@ -59,7 +66,10 @@ export default {
             if (confirm('Are you sure you want to remove ' + name + '?')) {
                 courseApi.delete_user_from_course(this.uID, this.cID)
                     .then(response => {
-                        this.$emit('delete-participant', this.uID)
+                        this.$emit('delete-participant', this.role,
+                            this.name,
+                            this.portraitPath,
+                            this.uID)
                     })
                     .catch(_ => alert('Error while deleting user from course'))
             }

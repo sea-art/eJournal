@@ -28,9 +28,6 @@ class DataBaseTests(TestCase):
         self.jf1 = factory.make_journal_format()
         self.jf2 = factory.make_journal_format()
 
-        self.d1 = factory.make_deadline()
-        self.d2 = factory.make_deadline()
-
         self.f1 = factory.make_field(self.et1, "test0", "1")
         self.f2 = factory.make_field(self.et1, "test2", "2")
         self.f3 = factory.make_field(self.et2, "test1", "1")
@@ -121,6 +118,15 @@ class DataBaseTests(TestCase):
         perm = permissions.get_permissions(user, self.crs.id)
 
         self.assertTrue(perm["is_admin"])
+
+    def test_get_permissions_teacher(self):
+        """Test if the admin had the right permissions."""
+        usr = factory.make_user(email='some@other', username='teun2', password='1234', lti_id='abcde', is_teacher=True)
+        usr.save()
+
+        perm = permissions.get_permissions(usr)
+
+        self.assertTrue(perm["can_add_course"])
 
     def test_get_permissions_no_admin(self):
         """Test a request that returns a dictionary of permissions.

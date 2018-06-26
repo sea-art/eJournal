@@ -36,30 +36,55 @@ def get_permissions(user, cID=-1):
     roleDict = {}
 
     if user.is_admin:
-        # The call is made for system wide permissions and not course specific.
+        # For system wide permissions, not course specific.
         # Administrators should not be able to view grades.
         roleDict = {
-            "can_edit_grades": False,
-            "can_view_grades": False,
-            "can_edit_assignment": True,
-            "can_view_assignment": True,
-            "can_submit_assignment": True,
+            "is_admin": True,
+            "can_edit_institute": True,
+
+            "can_edit_course_roles": True,
+            "can_add_course": True,
+            "can_view_course_participants": True,
             "can_edit_course": True,
             "can_delete_course": True,
-            "is_admin": True
+
+            "can_add_assignment": True,
+            "can_view_assignment_participants": True,
+            "can_delete_assignment": True,
+            "can_publish_assigment_grades": False,
+
+            "can_grade_journal": False,
+            "can_publish_journal_grades": False,
+            "can_edit_journal": False,
+            "can_comment_journal": False
         }
     elif cID is -1:
         # No course ID was given. The user has no permissions.
         roleDict = {
-            "can_edit_grades": False,
-            "can_view_grades": False,
-            "can_edit_assignment": False,
-            "can_view_assignment": False,
-            "can_submit_assignment": False,
+            "is_admin": False,
+            "can_edit_institute": False,
+
+            "can_edit_course_roles": False,
+            "can_add_course": False,
+            "can_view_course_participants": False,
             "can_edit_course": False,
             "can_delete_course": False,
-            "is_admin": False
+
+            "can_add_assignment": False,
+            "can_view_assignment_participants": False,
+            "can_delete_assignment": False,
+            "can_publish_assigment_grades": False,
+
+            "can_grade_journal": False,
+            "can_publish_journal_grades": False,
+            "can_edit_journal": False,
+            "can_comment_journal": False
         }
+
+        # If the user is not in a specific course, but he is a teacher, he is
+        # allowed to create courses on the platform.
+        if user.is_teacher:
+            roleDict["can_add_course"] = True
     else:
         # The course ID was given. Return the permissions of the user as dictionary.
         role = Participation.objects.get(user=user, course=cID).role

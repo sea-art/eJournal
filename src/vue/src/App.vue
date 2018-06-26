@@ -174,6 +174,10 @@ input, select {
     border-left-color: var(--theme-blue);
 }
 
+.showEnters {
+    white-space: pre;
+}
+
 .portrait-container {
     height: 100px;
     width: 100px;
@@ -203,24 +207,24 @@ input, select {
 }
 
 .add-button {
-    border-color: var(--theme-blue);
-    background-color: var(--theme-add-unselected);
+    border-color: var(--theme-blue) !important;
+    background-color: var(--theme-add-unselected) !important;
 }
 
 .add-button:hover {
-    border-color: var(--theme-blue);
-    background-color: var(--theme-add-selected);
+    border-color: var(--theme-blue) !important;
+    background-color: var(--theme-add-selected) !important;
     color: black !important;
 }
 
 .delete-button {
-    border-color: var(--theme-blue);
-    background-color: var(--theme-pink);
+    border-color: var(--theme-blue) !important;
+    background-color: var(--theme-pink) !important;
 }
 
 .delete-button:hover {
-    border-color: var(--theme-dark-blue);
-    background-color: red;
+    border-color: var(--theme-dark-blue) !important;
+    background-color: red !important;
 }
 
 .portrait {
@@ -233,5 +237,15 @@ input, select {
 
 .no-hover:hover {
     background-color: var(--theme-light-grey);
+}
+
+.settings-card {
+    margin-top: 12px;
+    text-align: left;
+    background-color: var(--theme-light-grey);
+    border-width: 0px;
+    border-left-width: 20px;
+    border-radius: 0px;
+    border-left-color: var(--theme-blue);
 }
 </style>
