@@ -189,6 +189,15 @@ input, select {
     cursor: pointer;
 }
 
+.trash-icon:hover {
+    fill: var(--theme-red);
+}
+
+.trash-icon {
+    fill: var(--theme-red);
+    cursor: pointer;
+}
+
 .add-icon:hover {
     fill: var(--theme-add-selected) !important;
 }

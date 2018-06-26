@@ -10,7 +10,7 @@
             <b-button class="multi-form float-right add-button ml-2"> Update </b-button>
             <b-button class="multi-form float-right delete-button"> Reset </b-button>
 
-            <table class="table table-bordered table-hover">
+            <table class="table  table-bordered table-hover">
                 <thead >
                     <tr v-if="windowWidth > 750">
                         <th/>

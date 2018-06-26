@@ -162,10 +162,6 @@ export default {
     fill: var(--theme-dark-blue);
 }
 
-.trash-box:hover .trash-icon {
-    fill: var(--theme-red);
-}
-
 .handle:hover .move-icon {
     fill: var(--theme-blue);
 }
