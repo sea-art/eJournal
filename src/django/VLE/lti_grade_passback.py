@@ -166,11 +166,13 @@ def needs_grading(journal):
 
 
 def replace_result(journal):
-    """lti_grade_replace_result.
+    """Replace a grade on the LTI instance based on the request.
 
-    Replace a grade on the LTI instance based on the request.
+    Arguments:
+        journal -- the journal of which the grade needs to be updated in lti
+
+    returns de lti reponses
     """
-    # TODO Extend the docstring with what is important in the request variable.
 
     secret = settings.LTI_SECRET
     key = settings.LTI_KEY
