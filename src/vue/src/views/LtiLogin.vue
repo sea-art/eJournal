@@ -11,7 +11,7 @@ import ltiCreateConnectUser from '@/components/LtiCreateConnectUser.vue'
 export default {
     name: 'LtiLogin',
     components: {
-        'content-student-column': contentStudentColumn,
+        'content-student-column': contentSingleColumn,
         'lti-create-connect-user': ltiCreateConnectUser
     },
     data () {
