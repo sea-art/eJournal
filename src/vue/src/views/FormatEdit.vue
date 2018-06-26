@@ -1,5 +1,3 @@
-<!-- TODO: delete template button -->
-
 <template>
     <b-row no-gutters>
         <b-col v-if="bootstrapLg()" cols="12">
@@ -18,7 +16,7 @@
             . -->
 
             <div v-if="nodes.length > 0">
-                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @deadline-changed="sortList"/>
+                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @deadline-changed="sortList" @delete-preset="deletePreset"/>
             </div>
             <div v-else>
                 <p>No presets yet</p>
@@ -45,7 +43,7 @@
             <br/>
 
             <h3>Template Pool</h3>
-            <template-todo-card class="hover" v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" :color="'pink-border'"/>
+            <template-todo-card class="hover" v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" :color="'pink-border'" @delete-template="deleteTemplate"/>
             <b-card @click="showModal(newTemplate())" class="hover" :class="'grey-border'" style="">
                 <b>+ Add Template</b>
             </b-card>
@@ -87,7 +85,10 @@ export default {
                 'name': '',
                 'tID': -1
             },
-            wipTemplateId: -1
+            wipTemplateId: -1,
+
+            deletedTemplates: [],
+            deletedPresets: []
         }
     },
 
@@ -107,6 +108,14 @@ export default {
     },
 
     methods: {
+        deletePreset () {
+            this.deletedPresets.push(this.nodes[this.currentNode])
+            this.nodes.splice(this.currentNode, 1)
+        },
+        deleteTemplate (template) {
+            this.deletedTemplates.push(template.t)
+            this.templatePool.splice(this.templatePool.indexOf(template), 1)
+        },
         sortList () {
             var temp = this.nodes[this.currentNode]
             this.nodes.sort((a, b) => { return new Date(a.deadline) - new Date(b.deadline) })
@@ -198,8 +207,8 @@ export default {
             }
 
             this.convertToDB()
-            journalAPI.update_format(this.aID, this.templates, this.presets, this.unused_templates)
-                .then(data => { this.templates = data.format.templates; this.presets = data.format.presets; this.unused_templates = data.format.unused_templates; this.convertFromDB(); this.isChanged = false })
+            journalAPI.update_format(this.aID, this.templates, this.presets, this.unused_templates, this.deletedTemplates, this.deletedPresets)
+                .then(data => { this.templates = data.format.templates; this.presets = data.format.presets; this.unused_templates = data.format.unused_templates; this.deletedTemplates = []; this.deletedTemplates = []; this.convertFromDB(); this.isChanged = false })
         },
         getWindowWidth (event) {
             this.windowWidth = document.documentElement.clientWidth

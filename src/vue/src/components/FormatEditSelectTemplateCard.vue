@@ -39,6 +39,7 @@
                                 </div>
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12">
+                                <b-button @click.prevent="emitDeletePreset" class="delete-button">Delete Preset</b-button>
                             </b-col>
                         </b-row>
                     </b-card>
@@ -71,6 +72,11 @@ export default {
     },
 
     methods: {
+        emitDeletePreset () {
+            if (confirm('Are you sure you wish to delete this preset?')) {
+                this.$emit('delete-preset')
+            }
+        },
         onChangePresetType (value) {
             if (value !== 'p') {
                 this.currentPreset.target = ''

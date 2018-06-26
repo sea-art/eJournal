@@ -293,7 +293,7 @@ def delete_presets(presets, remove_presets):
     for preset in remove_presets:
         pIDs.append(preset['pID'])
 
-    presets.filter(pID__in=pIDs).delete()
+    presets.filter(pk__in=pIDs).delete()
 
 
 def delete_templates(templates, remove_templates):
@@ -302,7 +302,7 @@ def delete_templates(templates, remove_templates):
     for template in remove_templates:
         tIDs.append(template['tID'])
 
-    templates.filter(tID__in=tIDs).delete()
+    templates.filter(pk__in=tIDs).delete()
 
 
 @api_view(['POST'])
@@ -322,7 +322,7 @@ def update_format(request):
 
     try:
         aID, templates, presets = utils.required_params(request.data, "aID", "templates", "presets")
-        unused_templates = utils.required_params(request.data, "unused_templates")
+        unused_templates, = utils.required_params(request.data, "unused_templates")
         removed_presets, removed_templates = utils.required_params(request.data, "removed_presets", "removed_templates")
     except KeyError:
         return responses.keyerror("aID", "templates", "presets", "unused_templates")
@@ -344,7 +344,7 @@ def update_format(request):
     swap_templates(format.available_templates, unused_templates, format.unused_templates)
     swap_templates(format.unused_templates, templates, format.available_templates)
 
-    delete_presets(format.presets, removed_presets)
+    delete_presets(format.presetnode_set, removed_presets)
     delete_templates(format.available_templates, removed_templates)
     delete_templates(format.unused_templates, removed_templates)
 
