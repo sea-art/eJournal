@@ -9,6 +9,7 @@
             <span class="profile-data">Change profile picture</span>
             <b-form-file ref="file" v-on:change="updateProfilePicture" class="fileinput form-control" v-model="file" :state="Boolean(file)" placeholder="Upload profile picture..."></b-form-file>
             <b-button @click="saveUserdata">Save</b-button>
+            <b-button @click="downloadUserData">Download Data</b-button>
         </b-col>
     </b-row>
 </template>
@@ -30,6 +31,19 @@ export default {
         updateProfilePicture () {
             console.log(this.$refs.file)
             userAPI.updateProfilePicture(this.$refs.file)
+        },
+        downloadUserData () {
+            userAPI.getUserData(this.id).then(data => {
+                data = JSON.stringify(data)
+                const blob = new Blob([data], {type: 'text/plain'})
+                const e = document.createEvent('MouseEvents')
+                var a = document.createElement('a')
+                a.download = 'test.json'
+                a.href = window.URL.createObjectURL(blob)
+                a.dataset.downloadurl = ['text/json', a.download, a.href].join(':')
+                e.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
+                a.dispatchEvent(e)
+            })
         }
     },
     created () {
