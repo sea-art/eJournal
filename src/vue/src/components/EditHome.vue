@@ -1,6 +1,6 @@
 <template>
     <b-form @submit="onSubmit" @reset="onReset">
-        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" type="text" v-model="form.institueName" placeholder="Institute name"/>
+        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" type="text" v-model="institueName" placeholder="Institute name"/>
         <b-button class="float-right" type="reset">Reset</b-button>
         <b-button class="float-right" type="submit">Edit</b-button>
     </b-form>
