@@ -34,6 +34,7 @@ export default {
         },
         downloadUserData () {
             userAPI.getUserData(this.id).then(data => {
+                /* This is a way to download data. */
                 data = JSON.stringify(data)
                 const blob = new Blob([data], {type: 'text/plain'})
                 const e = document.createEvent('MouseEvents')
