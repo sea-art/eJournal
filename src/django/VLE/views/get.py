@@ -551,7 +551,7 @@ def lti_launch(request):
         roles = json.load(open('config.json'))
         lti_roles = dict((roles[k], k) for k in roles)
 
-        user = lti.select_create_user(request.POST)
+        user = lti.select_create_user(request.POST, roles)
         role = lti_roles[request.POST['roles']]
 
         token = TokenObtainPairSerializer.get_token(user)
