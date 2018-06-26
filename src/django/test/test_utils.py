@@ -12,7 +12,7 @@ import VLE.factory as factory
 
 
 def set_up_user_and_auth(username, password):
-    """Sets up a teacher user.
+    """Set up a teacher user.
 
     Arguments:
     username -- username for the user
@@ -25,10 +25,10 @@ def set_up_user_and_auth(username, password):
 
 
 def set_up_users(name, n):
-    """Sets up some students.
+    """Set up some students.
 
     Arguments:
-    name -- the base for the incremental name
+    name -- the base for the incremental names for the users
     n -- number of students to be made
 
     Returns a list of users with incremental naming.
@@ -40,7 +40,7 @@ def set_up_users(name, n):
 
 
 def set_up_entries(template, n):
-    """Sets up some entries.
+    """Set up some entries.
 
     Arguments:
     template -- the template to be used for the entries
@@ -52,6 +52,49 @@ def set_up_entries(template, n):
     for i in range(n):
         entries.append(factory.make_entry(template))
     return entries
+
+
+def set_up_courses(name, n, author=None, lti_id=False):
+    """Set up some courses.
+
+    Arguments:
+    name -- the base for the incremental names for the courses
+    n -- number of courses to be made
+    author -- the user who made the course and it automatically will be teacher
+    lti_id -- a boolean to determine if to give lti ids
+
+    Returns a list of courses.
+    """
+    courses = []
+    if lti_id:
+        for i in range(n):
+            courses.append(factory.make_course(name + str(i), name[0] + str(i), author=author, lti_id=str(i)))
+    else:
+        for i in range(n):
+            courses.append(factory.make_course(name + str(i), name[0] + str(i), author=author))
+    return courses
+
+
+def set_up_assignments(name, desc, n, course, lti_id=False):
+    """Set up some assignments.
+
+    Arguments:
+    name -- the base for the incremental names for the assignments
+    desc -- the base for the incremental description for the assignments
+    n -- number of assignments to be made.
+    lti_id -- a boolean to determine if to give lti ids
+
+    Returns a list of assignments.
+    """
+    assignments = []
+    if lti_id:
+        for i in range(n):
+            assignments.append(factory.make_assignment(name + str(i), desc + str(i),
+                                                       lti_id=str(i), courses=[course]))
+    else:
+        for i in range(n):
+            assignments.append(factory.make_assignment(name + str(i), desc + str(i), courses=[course]))
+    return assignments
 
 
 def logging_in(obj, username, password, status=200):

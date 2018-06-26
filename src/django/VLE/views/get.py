@@ -139,6 +139,7 @@ def get_user_courses(request):
     return responses.success(payload={'courses': courses})
 
 
+@api_view(['GET'])
 def get_linkable_courses(request):
     """Get all courses that the current user is connected with as sufficiently
     authenticated user. The lti_id should be equal to NULL. A user can then link
@@ -152,20 +153,6 @@ def get_linkable_courses(request):
     if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
-    courses = get_linkable_courses_user(user)
-
-    return responses.success(payload={'courses': courses})
-
-
-def get_linkable_courses_user(user):
-    """Get all courses that the current user is connected with as sufficiently
-    authenticated user. The lti_id should be equal to NULL. A user can then link
-    this course to Canvas.
-
-    Arguments:
-    user -- the user that requested the linkable courses.
-
-    Returns all of the courses."""
     courses = []
     unlinked_courses = Course.objects.filter(participation__user=user.id,
                                              participation__role__can_edit_course=True, lti_id=None)
@@ -173,7 +160,7 @@ def get_linkable_courses_user(user):
     for course in unlinked_courses:
         courses.append(serialize.course_to_dict(course))
 
-    return courses
+    return responses.success(payload={'courses': courses})
 
 
 def get_teacher_course_assignments(user, course):
@@ -205,7 +192,7 @@ def get_student_course_assignments(user, course):
     """
     # TODO: check permissions
     assignments = []
-    for assignment in Assignment.objects.get_queryset().filter(courses=course, journal__user=user):
+    for assignment in Assignment.objects.filter(courses=course, journal__user=user):
         assignments.append(serialize.student_assignment_to_dict(assignment, user))
 
     return assignments
@@ -228,7 +215,7 @@ def get_course_assignments(request, cID):
     course = Course.objects.get(pk=cID)
     participation = Participation.objects.get(user=user, course=course)
 
-    # Check whether the user can edit the course.
+    # Check whether the user can grade a journal in the course.
     if participation.role.can_grade_journal:
         return responses.success(payload={'assignments': get_teacher_course_assignments(user, course)})
     else:
