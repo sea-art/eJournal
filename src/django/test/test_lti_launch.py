@@ -48,7 +48,7 @@ class lti_launch_test(TestCase):
             'user_id': self.created_user.lti_id,
             'lis_person_contact_email_primary': 'test@mail.com',
             'lis_person_sourcedid': 'TestUsername'
-        })
+        }, self.roles)
         self.assertEquals(selected_user, self.created_user)
 
     def test_create_user(self):
@@ -136,7 +136,7 @@ class lti_launch_test(TestCase):
     def test_select_journal(self):
         """Hopefully select a journal."""
         selected_journal = lti.select_create_journal({
-            'roles': self.roles['student'],
+            'roles': self.roles['Student'],
         },
             user=self.created_user,
             assignment=self.created_assignment,
