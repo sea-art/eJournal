@@ -516,6 +516,7 @@ def get_user_data(request, uID):
                          'journals': journal_dict},
                         status=200)
 
+
 @api_view(['GET'])
 def get_assignment_by_lti_id(request, lti_id):
     """Get an assignment if it exists.

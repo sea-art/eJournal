@@ -31,7 +31,7 @@ export default {
         },
         connectAssignment (aID) {
             assignApi.connect_assignment_lti(aID, this.lti.ltiAssignID,
-                 this.lti.ltiPointsPossible)
+                this.lti.ltiPointsPossible)
                 .then(response => { this.$emit('handleAction', response.aID) })
         }
     },
