@@ -397,7 +397,7 @@ def get_names(request):
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
-    cID, aID, jID, tID = utils.get_optional_post_params(request.data, "cID", "aID", "jID", "tID")
+    cID, aID, jID, tID = utils.optional_params(request.data, "cID", "aID", "jID", "tID")
     result = JsonResponse({'result': 'success'}, status=200)
 
     try:

@@ -7,6 +7,7 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import JSONParser
 from django.http import JsonResponse
 
+import VLE.views.responses as responses
 import VLE.serializers as serialize
 import VLE.utils as utils
 import VLE.factory as factory
@@ -286,6 +287,24 @@ def update_presets(assignment, presets):
             update_journals(assignment.journal_set.all(), preset_node, not exists)
 
 
+def delete_presets(presets, remove_presets):
+    """ Deletes all presets in remove_presets from presets. """
+    pIDs = []
+    for preset in remove_presets:
+        pIDs.append(preset['pID'])
+
+    presets.filter(pID__in=pIDs).delete()
+
+
+def delete_templates(templates, remove_templates):
+    """ Deletes all templates in remove_templates from templates. """
+    tIDs = []
+    for template in remove_templates:
+        tIDs.append(template['tID'])
+
+    templates.filter(tID__in=tIDs).delete()
+
+
 @api_view(['POST'])
 @parser_classes([JSONParser])
 def update_format(request):
@@ -302,13 +321,11 @@ def update_format(request):
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     try:
-        aID, templates, presets, unused_templates = utils.get_required_post_params(request.data,
-                                                                                   "aID",
-                                                                                   "templates",
-                                                                                   "presets",
-                                                                                   "unused_templates")
+        aID, templates, presets = utils.required_params(request.data, "aID", "templates", "presets")
+        unused_templates = utils.required_params(request.data, "unused_templates")
+        removed_presets, removed_templates = utils.required_params(request.data, "removed_presets", "removed_templates")
     except KeyError:
-        return utils.keyerror_json("aID", "templates", "presets", "unused_templates")
+        return responses.keyerror("aID", "templates", "presets", "unused_templates")
 
     try:
         assignment = Assignment.objects.get(pk=aID)
@@ -327,6 +344,10 @@ def update_format(request):
     swap_templates(format.available_templates, unused_templates, format.unused_templates)
     swap_templates(format.unused_templates, templates, format.available_templates)
 
+    delete_presets(format.presets, removed_presets)
+    delete_templates(format.available_templates, removed_templates)
+    delete_templates(format.unused_templates, removed_templates)
+
     return JsonResponse({'result': 'success', 'format': serialize.format_to_dict(format)}, status=200)
 
 
@@ -340,9 +361,9 @@ def update_user_role_course(request):
     Returns a json string for if it is succesful or not.
     """
     try:
-        uID, cID = utils.get_required_post_params(request.data, "uID", "cID")
+        uID, cID = utils.required_params(request.data, "uID", "cID")
     except KeyError:
-        return utils.keyerror_json("uID", "cID")
+        return responses.keyerror("uID", "cID")
 
     try:
         participation = Participation.objects.get(user=request.data['uID'], course=request.data['cID'])
@@ -449,9 +470,9 @@ def update_entrycomment(request):
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     try:
-        entrycommentID, text = utils.get_required_post_params(request.data, "entrycommentID", "text")
+        entrycommentID, text = utils.required_params(request.data, "entrycommentID", "text")
     except KeyError:
-        return utils.keyerror_json("entrycommentID")
+        return responses.keyerror("entrycommentID")
 
     try:
         comment = EntryComment.objects.get(pk=entrycommentID)
