@@ -13,9 +13,10 @@
                        <option :value="null">Sort by ...</option>
                        <option value="sortName">Sort on name</option>
                        <option value="sortID">Sort on ID</option>
+                       <option value="sortMarking">Sort on marking needed</option>
                     </b-form-select>
                 </b-col>
-                <b-col lg="3" md="3">
+                <b-col lg="5" md="12">
                     <input type="text" v-model="searchVariable" placeholder="Search .."/>
                 </b-col>
             </b-row>
@@ -59,7 +60,6 @@ import statisticsCard from '@/components/StatisticsCard.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import journal from '@/api/journal.js'
 // TODO: temp
-import assignment from '@/api/assignment.js'
 
 export default {
     name: 'Assignment',
@@ -88,22 +88,6 @@ export default {
         'bread-crumb': breadCrumb
     },
     created () {
-        // TODO: Remove... just for demo
-        if (!this.$root.canViewAssignmentParticipants()) {
-            assignment.get_assignment_data(this.cID, this.aID)
-                .then(data => {
-                    this.$router.push({
-                        name: 'Journal',
-                        params: {
-                            cID: this.cID,
-                            aID: this.aID,
-                            jID: data.journal.jID,
-                            assignmentName: data.name
-                        }})
-                })
-            return
-        }
-
         journal.get_assignment_journals(this.aID)
             .then(response => {
                 this.assignmentJournals = response.journals
@@ -141,6 +125,12 @@ export default {
                 return 0
             }
 
+            function compareMarkingNeeded (a, b) {
+                if (a.stats.submitted - a.stats.graded < b.stats.submitted - b.stats.graded) { return -1 }
+                if (a.stats.submitted - a.stats.graded > b.stats.submitted - b.stats.graded) { return 1 }
+                return 0
+            }
+
             function checkFilter (user) {
                 var userName = user.student.name.toLowerCase()
                 var userID = String(user.student.uID).toLowerCase()
@@ -158,6 +148,8 @@ export default {
                 return this.assignmentJournals.filter(checkFilter).sort(compareName)
             } else if (this.selectedSortOption === 'sortID') {
                 return this.assignmentJournals.filter(checkFilter).sort(compareID)
+            } else if (this.selectedSortOption === 'sortMarking') {
+                return this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded)
             } else {
                 return this.assignmentJournals.filter(checkFilter)
             }

@@ -7,6 +7,12 @@ export default {
             .then(response => response.data.course)
     },
 
+    /* Get the courses where the logged in user is the teacher. */
+    get_user_teacher_courses () {
+        return auth.authenticatedGet('/get_user_teacher_courses/')
+            .then(response => response.data.courses)
+    },
+
     /* Get user courses.
      * Requests all the users courses.
      * returns a list of all courses.
@@ -27,11 +33,12 @@ export default {
     },
 
     /* Create a new course. */
-    create_new_course (name, abbr, startdate) {
+    create_new_course (name, abbr, startdate, lti_id = null) {
         return auth.authenticatedPost('/create_new_course/', {
             name: name,
             abbr: abbr,
-            startdate: startdate
+            startdate: startdate,
+            lti_id: lti_id
         }).then(response => response.data)
     },
 
@@ -42,6 +49,14 @@ export default {
             name: name,
             abbr: abbr,
             startDate: startDate
+        }).then(response => response.data.course)
+    },
+
+    /* Connect an existing course to lti course. */
+    connect_course_lti (cID, ltiID) {
+        return auth.authenticatedPost('/connect_course_lti/', {
+            cID: cID,
+            lti_id: ltiID
         }).then(response => response.data.course)
     },
 
@@ -57,7 +72,7 @@ export default {
     delete_course (cID) {
         return auth.authenticatedPost('/delete_course/', {
             cID: cID
-        }).then(response => response.data.result)
+        }).then(response => response.message)
     },
 
     /* Updates the role of a student linked to a course. */

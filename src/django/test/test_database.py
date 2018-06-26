@@ -4,9 +4,10 @@ test_database.py.
 Test the database tables.
 """
 import datetime
+from django.test import TestCase
+
 import VLE.factory as factory
 import VLE.permissions as permissions
-from django.test import TestCase
 from VLE.models import Field, Content, Entry, Journal
 
 
@@ -85,7 +86,7 @@ class DataBaseTests(TestCase):
         # Connect a participation to a user, course and role.
         factory.make_participation(self.usr, self.crs, role)
 
-        self.assertTrue(permissions.check_permissions(self.usr, self.crs.id, []))
+        self.assertTrue(permissions.has_permissions(self.usr, self.crs.id, []))
 
     def test_permission(self):
         """Test a request that needs a single permission."""
@@ -93,8 +94,8 @@ class DataBaseTests(TestCase):
 
         factory.make_participation(self.usr, self.crs, role)
 
-        self.assertTrue(permissions.check_permissions(self.usr, self.crs.id, ["can_delete_assignment"]))
-        self.assertFalse(permissions.check_permissions(self.usr, self.crs.id, ["can_grade_journal"]))
+        self.assertTrue(permissions.has_permissions(self.usr, self.crs.id, ["can_delete_assignment"]))
+        self.assertFalse(permissions.has_permissions(self.usr, self.crs.id, ["can_grade_journal"]))
 
     def test_permission_multiple(self):
         """Test a request that needs multiple permissions."""
@@ -102,9 +103,9 @@ class DataBaseTests(TestCase):
 
         factory.make_participation(self.usr, self.crs, role)
 
-        self.assertTrue(permissions.check_permissions(self.usr, self.crs.id, ["can_grade_journal"]))
-        self.assertFalse(permissions.check_permissions(self.usr, self.crs.id,
-                                                       ["can_grade_journal", "can_edit_journal"]))
+        self.assertTrue(permissions.has_permissions(self.usr, self.crs.id, ["can_grade_journal"]))
+        self.assertFalse(permissions.has_permissions(self.usr, self.crs.id,
+                                                     ["can_grade_journal", "can_edit_journal"]))
 
     def test_get_permissions_admin(self):
         """Test if the admin had the right permissions."""

@@ -1,5 +1,3 @@
-<!-- TODO: delete template button -->
-
 <template>
     <b-row class="outer-container" no-gutters>
         <b-col v-if="bootstrapLg()" cols="12">
@@ -18,7 +16,7 @@
             . -->
 
             <div v-if="nodes.length > 0">
-                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @deadline-changed="sortList"/>
+                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @deadline-changed="sortList" @delete-preset="deletePreset"/>
             </div>
             <div v-else>
                 <p>No presets yet</p>
@@ -45,7 +43,7 @@
             <br/>
 
             <h3>Template Pool</h3>
-            <template-todo-card class="hover" v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" :color="'pink-border'"/>
+            <template-todo-card class="hover" v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" :color="'pink-border'" @delete-template="deleteTemplate"/>
             <b-card @click="showModal(newTemplate())" class="hover" :class="'grey-border'" style="">
                 <b>+ Add Template</b>
             </b-card>
@@ -87,7 +85,10 @@ export default {
                 'name': '',
                 'tID': -1
             },
-            wipTemplateId: -1
+            wipTemplateId: -1,
+
+            deletedTemplates: [],
+            deletedPresets: []
         }
     },
 
@@ -107,6 +108,14 @@ export default {
     },
 
     methods: {
+        deletePreset () {
+            this.deletedPresets.push(this.nodes[this.currentNode])
+            this.nodes.splice(this.currentNode, 1)
+        },
+        deleteTemplate (template) {
+            this.deletedTemplates.push(template.t)
+            this.templatePool.splice(this.templatePool.indexOf(template), 1)
+        },
         sortList () {
             var temp = this.nodes[this.currentNode]
             this.nodes.sort((a, b) => { return new Date(a.deadline) - new Date(b.deadline) })
@@ -151,6 +160,7 @@ export default {
                 'deadline': this.newDate(),
                 'template': (this.templatePool[0]) ? this.templatePool[0].t : null
             })
+            this.sortList()
         },
         // Do client side validation and save to DB
         saveFormat () {
@@ -158,11 +168,22 @@ export default {
             var invalidTemplate = false
             var invalidTarget = false
 
+            var lastTarget
+            var targetsOutOfOrder = false
+
             var templatePoolIds = []
             for (var template of this.templatePool) {
                 templatePoolIds.push(template.t.tID)
             }
             for (var node of this.nodes) {
+                if (!targetsOutOfOrder && node.type === 'p') {
+                    if (lastTarget && node.target < lastTarget) {
+                        targetsOutOfOrder = true
+                        alert('Some preset targets are out of order. Please check the format and try again.')
+                    }
+                    lastTarget = node.target
+                }
+
                 if (!invalidDate && isNaN(Date.parse(node.deadline))) {
                     invalidDate = true
                     alert('One or more presets has an invalid deadline. Please check the format and try again.')
@@ -175,15 +196,19 @@ export default {
                     invalidTarget = true
                     alert('One or more presets has an invalid target. Please check the format and try again.')
                 }
+                if (!invalidTarget && node.type === 'p' && isNaN(parseInt(node.target))) {
+                    invalidTarget = true
+                    alert('One or more presets has an invalid target. Please check the format and try again.')
+                }
             }
 
-            if (invalidDate | invalidTemplate | invalidTarget) {
+            if (invalidDate | invalidTemplate | invalidTarget | targetsOutOfOrder) {
                 return
             }
 
             this.convertToDB()
-            journalAPI.update_format(this.aID, this.templates, this.presets, this.unused_templates)
-                .then(data => { this.templates = data.format.templates; this.presets = data.format.presets; this.unused_templates = data.format.unused_templates; this.convertFromDB(); this.isChanged = false })
+            journalAPI.update_format(this.aID, this.templates, this.presets, this.unused_templates, this.deletedTemplates, this.deletedPresets)
+                .then(data => { this.templates = data.format.templates; this.presets = data.format.presets; this.unused_templates = data.format.unused_templates; this.deletedTemplates = []; this.deletedTemplates = []; this.convertFromDB() }).then(_ => { this.isChanged = false; alert('New format saved') })
         },
         getWindowWidth (event) {
             this.windowWidth = document.documentElement.clientWidth
