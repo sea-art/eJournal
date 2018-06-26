@@ -40,7 +40,7 @@ def get_own_user_data(request):
     user_dict = serialize.user_to_dict(user)
     user_dict['grade_notifications'] = user.grade_notifications
     user_dict['comment_notifications'] = user.comment_notifications
-    return JsonResponse({'result': 'success', 'user': user_dict}, status=200)
+    return responses.success(payload={'user': user_dict})
 
 
 @api_view(['GET'])
@@ -59,7 +59,7 @@ def get_course_data(request, cID):
 
     course = serialize.course_to_dict(Course.objects.get(pk=cID))
 
-    return JsonResponse({'result': 'success', 'course': course}, status=200)
+    return responses.success(payload={'course': course})
 
 
 @api_view(['GET'])
@@ -78,13 +78,11 @@ def get_course_users(request, cID):
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
-        return JsonResponse({'result': '404 Not Found',
-                             'description': 'Course does not exist.'}, status=404)
+        return responses.not_found('Course does not exist.')
 
     participations = course.participation_set.all()
-    return JsonResponse({'result': 'success',
-                         'users': [serialize.participation_to_dict(participation)
-                                   for participation in participations]}, status=200)
+    return responses.success(payload={'users': [serialize.participation_to_dict(participation)
+                                                for participation in participations]})
 
 
 @api_view(['GET'])
@@ -103,14 +101,12 @@ def get_unenrolled_users(request, cID):
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
-        return JsonResponse({'result': '404 Not Found',
-                             'description': 'Course does not exist.'}, status=404)
+        return responses.not_found('Course does not exist.')
 
     ids_in_course = course.participation_set.all().values('user__id')
     result = User.objects.all().exclude(id__in=ids_in_course)
 
-    return JsonResponse({'result': 'success',
-                         'users': [serialize.user_to_dict(user) for user in result]}, status=200)
+    return responses.success(payload={'users': [serialize.user_to_dict(user) for user in result]})
 
 
 @api_view(['GET'])
@@ -132,7 +128,7 @@ def get_user_courses(request):
     for course in user.participations.all():
         courses.append(serialize.course_to_dict(course))
 
-    return JsonResponse({'result': 'success', 'courses': courses}, status=200)
+    return responses.success(payload={'courses': courses})
 
 
 def get_teacher_course_assignments(user, course):
@@ -189,15 +185,9 @@ def get_course_assignments(request, cID):
 
     # Check whether the user can edit the course.
     if participation.role.can_grade_journal:
-        return JsonResponse({
-            'result': 'success',
-            'assignments': get_teacher_course_assignments(user, course)
-        }, status=200)
+        return responses.success(payload={'assignments': get_teacher_course_assignments(user, course)})
     else:
-        return JsonResponse({
-            'result': 'success',
-            'assignments': get_student_course_assignments(user, course)
-        }, status=200)
+        return responses.success(payload={'assignments': get_student_course_assignments(user, course)})
 
 
 @api_view(['GET'])
@@ -222,17 +212,9 @@ def get_assignment_data(request, cID, aID):
     participation = Participation.objects.get(user=user, course=course)
 
     if participation.role.can_grade_journal:
-        # Return the assignment.
-        return JsonResponse({
-            'result': 'success',
-            'assignment': serialize.assignment_to_dict(assignment)
-        }, status=200)
+        return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
     else:
-        # Return the student's journal.
-        return JsonResponse({
-            'result': 'success',
-            'assignment': serialize.student_assignment_to_dict(assignment, request.user),
-        }, status=200)
+        return responses.success(payload={'assignment': serialize.student_assignment_to_dict(assignment, request.user)})
 
 
 @api_view(['GET'])
@@ -255,11 +237,10 @@ def get_assignment_journals(request, aID):
         course = assignment.courses.first()
         participation = Participation.objects.get(user=user, course=course)
     except (Participation.DoesNotExist, Assignment.DoesNotExist):
-        return JsonResponse({'result': '404 Not Found',
-                             'description': 'Assignment or Participation does not exist.'}, status=404)
+        return responses.not_found('Assignment or Participation does not exist.')
 
     if not participation.role.can_view_assignment_participants:
-        return JsonResponse({'result': '403 Forbidden'}, status=403)
+        return responses.forbidden('You are not allowed to view assignment participants.')
 
     journals = []
 
@@ -275,7 +256,7 @@ def get_assignment_journals(request, aID):
         stats['medianPoints'] = st.median(points)
         stats['avgEntries'] = round(st.mean([x['stats']['total_points'] for x in journals]), 2)
 
-    return JsonResponse({'result': 'success', 'stats': stats if stats else None, 'journals': journals}, status=200)
+    return responses.success(payload={'stats': stats if stats else None, 'journals': journals})
 
 
 @api_view(['GET'])
@@ -295,7 +276,7 @@ def get_upcoming_deadlines(request):
     for assign in Assignment.objects.all():
         deadlines.append(serialize.deadline_to_dict(assign))
 
-    return JsonResponse({'result': 'success', 'deadlines': deadlines}, status=200)
+    return responses.success(payload={'deadlines': deadlines})
 
 
 @api_view(['GET'])
@@ -311,8 +292,7 @@ def get_course_permissions(request, cID):
 
     roleDict = permission.get_permissions(request.user, int(cID))
 
-    return JsonResponse({'result': 'success',
-                         'permissions': roleDict}, status=200)
+    return responses.success(payload={'permissions': roleDict})
 
 
 @api_view(['GET'])
@@ -329,8 +309,7 @@ def get_nodes(request, jID):
         return responses.unauthorized()
 
     journal = Journal.objects.get(pk=jID)
-    return JsonResponse({'result': 'success',
-                         'nodes': edag.get_nodes_dict(journal, request.user)}, status=200)
+    return responses.success(payload={'nodes': edag.get_nodes_dict(journal, request.user)})
 
 
 @api_view(['GET'])
@@ -349,12 +328,9 @@ def get_format(request, aID):
     try:
         assignment = Assignment.objects.get(pk=aID)
     except Assignment.DoesNotExist:
-        return JsonResponse({'result': '404 Not Found',
-                             'description': 'Assignment does not exist.'}, status=404)
+        return responses.not_found('Assignment does not exist.')
 
-    return JsonResponse({'result': 'success',
-                         'format': serialize.format_to_dict(assignment.format)},
-                        status=200)
+    return responses.success(payload={'format': serialize.format_to_dict(assignment.format)})
 
 
 @api_view(['GET'])
@@ -368,16 +344,14 @@ def get_template(request, tID):
     Returns a json string containing the format.
     """
     if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     try:
         template = EntryTemplate.objects.get(pk=tID)
     except EntryTemplate.DoesNotExist:
-        return JsonResponse({'result': '404 Not Found',
-                             'description': 'Template does not exist.'}, status=404)
+        return responses.not_found('Template does not exist.')
 
-    return JsonResponse({'result': 'success',
-                         'template': serialize.template_to_dict(template)})
+    return responses.success(payload={'template': serialize.template_to_dict(template)})
 
 
 @api_view(['GET'])
@@ -421,8 +395,8 @@ def get_names(request):
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
-    cID, aID, jID, tID = utils.get_optional_post_params(request.data, "cID", "aID", "jID", "tID")
-    result = JsonResponse({'result': 'success'}, status=200)
+    cID, aID, jID, tID = utils.optional_params(request.data, "cID", "aID", "jID", "tID")
+    result = {}
 
     try:
         if cID:
@@ -439,10 +413,9 @@ def get_names(request):
             result.template = template.name
 
     except (Course.DoesNotExist, Assignment.DoesNotExist, Journal.DoesNotExist, EntryTemplate.DoesNotExist):
-        return JsonResponse({'result': '404 Not Found',
-                             'description': 'Course, Assignment, Journal or Template does not exist.'}, status=404)
+        return responses.not_found('Course, Assignment, Journal or Template does not exist.')
 
-    return result
+    return responses.success(payload=result)
 
 
 @api_view(['GET'])
@@ -452,9 +425,9 @@ def get_entrycomments(request, entryID):
         return responses.unauthorized()
 
     entrycomments = EntryComment.objects.filter(entry=entryID)
-    return JsonResponse({'result': 'success',
-                         'entrycomments': [serialize.entrycomment_to_dict(comment) for comment in entrycomments]},
-                        status=200)
+    return responses.success(payload={
+        'entrycomments': [serialize.entrycomment_to_dict(comment) for comment in entrycomments]
+        })
 
 
 @api_view(['GET'])
@@ -464,14 +437,14 @@ def get_user_data(request, uID):
     Get his/her profile data and posted entries with the titles of the journals of the user based on the uID.
     """
     if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     user = User.objects.get(pk=uID)
 
     # Check the right permissions to get this users data, either be the user of the data or be an admin.
     permissions = permission.get_permissions(user, cID=-1)
     if not (permissions['is_admin'] or request.user.id == uID):
-        return JsonResponse({'result': '403 Forbidden Error'}, status=403)
+        return responses.forbidden('You cannot view this users data.')
 
     profile = serialize.user_to_dict(user)
     # Don't send the user id with it.
@@ -486,10 +459,7 @@ def get_user_data(request, uID):
         entries_of_journal = [serialize.export_entry_to_dict(node.entry) for node in nodes_of_journal_with_entries]
         journal_dict.update({journal.assignment.name: entries_of_journal})
 
-    return JsonResponse({'result': 'success',
-                         'profile': profile,
-                         'journals': journal_dict},
-                        status=200)
+    return responses.success(payload={'profile': profile, 'journals': journal_dict})
 
 
 @api_view(['POST'])
@@ -507,9 +477,8 @@ def lti_grade_replace_result(request):
     grade_request.score = '0.5'
     grade_request.sourcedId = request.POST['lis_result_sourcedid']
     grade_request.url = request.POST['lis_outcome_service_url']
-    response = grade_request.send_post_request()
 
-    return JsonResponse(response)
+    return JsonResponse(grade_request.send_post_request())
 
 
 @api_view(['POST'])
@@ -523,7 +492,7 @@ def lti_launch(request):
     valid, err = lti.OAuthRequestValidater.check_signature(key, secret, request)
 
     if not valid:
-        return HttpResponse('unsuccesfull auth, {0}'.format(err))
+        return HttpResponse('Unsuccessful authentication: {0}'.format(err))
 
     # Select or create the user, course, assignment and journal.
     roles = json.load(open('config.json'))
