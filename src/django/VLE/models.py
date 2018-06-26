@@ -327,8 +327,14 @@ class JournalFormat(models.Model):
     max_points = models.IntegerField(
         default=10
     )
+    unused_templates = models.ManyToManyField(
+        'EntryTemplate',
+        related_name='unused_templates',
+    )
+
     available_templates = models.ManyToManyField(
         'EntryTemplate',
+        related_name='available_templates',
     )
 
     def __str__(self):
@@ -357,10 +363,11 @@ class PresetNode(models.Model):
         choices=TYPES,
     )
 
-    deadline = models.OneToOneField(
-        'Deadline',
-        on_delete=models.CASCADE,
+    target = models.IntegerField(
+        null=True,
     )
+
+    deadline = models.DateTimeField()
 
     forced_template = models.ForeignKey(
         'EntryTemplate',
@@ -372,26 +379,6 @@ class PresetNode(models.Model):
         'JournalFormat',
         on_delete=models.CASCADE
     )
-
-
-class Deadline(models.Model):
-    """Deadline.
-
-    A Deadline has the following features:
-    - datetime: the date where the deadline closes
-    - points: optionally the amount of points required for this deadline.
-    """
-
-    datetime = models.DateTimeField(
-        default=now
-    )
-    points = models.IntegerField(
-        null=True,
-    )
-
-    def __str__(self):
-        """toString."""
-        return str(self.pk)
 
 
 class Entry(models.Model):
@@ -407,7 +394,7 @@ class Entry(models.Model):
     template = models.ForeignKey(
         'EntryTemplate',
         on_delete=models.SET_NULL,
-        null=True
+        null=True,
     )
     createdate = models.DateTimeField(
         default=now,
@@ -488,7 +475,7 @@ class Field(models.Model):
 
     def __str__(self):
         """toString."""
-        return self.template.name + " field: " + self.location
+        return self.template.name + " field: " + str(self.location)
 
 
 class Content(models.Model):

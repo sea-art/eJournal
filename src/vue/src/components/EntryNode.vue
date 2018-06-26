@@ -11,7 +11,7 @@
                                 <h2>{{entryNode.entry.template.name}}</h2>
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
-                                <div v-if="$entryNode.entry.published">
+                                <div v-if="entryNode.entry.published">
                                     {{ entryNode.entry.grade }}
                                 </div>
                                 <div v-else>

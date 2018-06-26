@@ -1,7 +1,7 @@
 <template>
     <content-columns>
         <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
-
+        <b-button slot="main-content-column" :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">Edit Assignment Format</b-button>
         <b-card slot="main-content-column" class="settings-card no-hover">
             <b-row>
                 <b-col lg="3" md="3">
@@ -37,6 +37,7 @@
         <div v-if="assignmentJournals.length === 0" slot="main-content-column">
             <h1>No journals found</h1>
         </div>
+
         <div  v-if="stats" slot="right-content-column">
             <h3>Statistics</h3>
             <statistics-card :color="cardColor" :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>

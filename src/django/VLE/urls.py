@@ -55,6 +55,7 @@ urlpatterns = [
     path('api/get_course_users/<int:cID>/', get.get_course_users, name='get_course_users'),
     path('api/get_user_teacher_courses/', get.get_user_teacher_courses, name='get_user_teacher_courses'),
     path('api/get_assignment_by_lti_id/<str:lti_id>/', get.get_assignment_by_lti_id, name='get_assignment_by_lti_id'),
+    path('api/get_template/<int:tID>/', get.get_template, name='get_template'),
     path('api/get_user_data/<int:uID>/', get.get_user_data, name='get_user_data'),
     path('api/get_unenrolled_users/<int:cID>/', get.get_unenrolled_users, name='get_unenrolled_users'),
 
@@ -69,8 +70,11 @@ urlpatterns = [
     path('api/connect_assignment_lti/', update.connect_assignment_lti, name='connect_assignment_lti'),
     path('api/update_assignment/', update.update_assignment, name='update_assignment'),
     path('api/update_password/', update.update_password, name='update_password'),
-    path('api/update_grade_notification/', update.update_grade_notification, name='update_grade_notification'),
-    path('api/update_comment_notification/', update.update_comment_notification, name='update_comment_notification'),
+    path('api/update_grade_notification/', update.update_grade_notification,
+         name='update_grade_notification'),
+    path('api/update_comment_notification/', update.update_comment_notification,
+         name='update_comment_notification'),
+    path('api/update_format/', update.update_format, name='update_format'),
     path('api/update_entrycomment/', update.update_entrycomment, name='update_entrycomment'),
 
     path('api/update_grade_entry/<int:eID>/', update.update_grade_entry, name='update_grade_entry'),
@@ -79,7 +83,6 @@ urlpatterns = [
          name='update_publish_grades_assignment'),
     path('api/update_publish_grades_journal/<int:jID>/', update.update_publish_grades_journal,
          name='update_publish_grades_journal'),
-
     path('api/update_user_role_course/', update.update_user_role_course, name='update_user_role_course'),
     path('api/update_course_with_studentID/', update.update_course_with_studentID, name='update_course_with_studentID'),
 
