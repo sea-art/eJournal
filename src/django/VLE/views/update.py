@@ -243,10 +243,7 @@ def update_journals(journals, preset, created):
             factory.make_node(journal, None, preset.type, preset)
     else:
         for journal in journals:
-            if journal.node_set.filter(preset=preset).count() > 0:
-                node = journal.node_set.get(preset=preset)
-                node.type = preset.type
-                node.save()
+            journal.node_set.filter(preset=preset).update(type=preset.type)
 
 
 def update_presets(assignment, presets):
@@ -258,7 +255,9 @@ def update_presets(assignment, presets):
     """
     format = assignment.format
     for preset in presets:
-        if 'pID' in preset:
+        exists = 'pID' in preset
+
+        if exists:
             try:
                 preset_node = PresetNode.objects.get(pk=preset['pID'])
             except EntryTemplate.DoesNotExist:
@@ -268,6 +267,7 @@ def update_presets(assignment, presets):
         else:
             preset_node = PresetNode(format=format)
 
+        type_changed = preset_node.type != preset['type']
         preset_node.type = preset['type']
         preset_node.deadline = preset['deadline']
 
@@ -282,7 +282,8 @@ def update_presets(assignment, presets):
                 preset_node.forced_template = parse_template(template_field)
 
         preset_node.save()
-        update_journals(assignment.journal_set.all(), preset_node, 'pID' not in preset)
+        if type_changed:
+            update_journals(assignment.journal_set.all(), preset_node, not exists)
 
 
 @api_view(['POST'])
