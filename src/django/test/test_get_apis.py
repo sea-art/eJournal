@@ -1,19 +1,8 @@
-from rest_framework.test import APIRequestFactory
 from django.test import TestCase
-from django.urls import reverse
-
-from VLE.models import User
-from VLE.models import Participation
-from VLE.models import Role
-from VLE.models import Course
-from VLE.models import Assignment
-from VLE.models import Journal
 
 import VLE.factory as factory
-import VLE.utils as utils
 
 import test.test_rest as test
-import json as json
 
 
 class GetApiTests(TestCase):

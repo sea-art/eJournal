@@ -1,19 +1,12 @@
-from rest_framework.test import APIRequestFactory
 from django.test import TestCase
-from django.urls import reverse
 
-from VLE.models import User
-from VLE.models import Participation
-from VLE.models import Role
 from VLE.models import Course
-from VLE.models import Assignment
-from VLE.models import Journal
 
 import VLE.factory as factory
-import VLE.utils as utils
+
+import VLE.serializers as serialize
 
 import test.test_rest as test
-import json as json
 
 
 class DeleteApiTests(TestCase):
@@ -27,7 +20,7 @@ class DeleteApiTests(TestCase):
         login = test.logging_in(self, self.username, self.password)
 
         bb = factory.make_course("Beeldbewerken", "BB")
-        pav = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
+        factory.make_course("Portfolio Academische Vaardigheden", "PAV")
 
         test.api_post_call(self, '/api/delete_course/', {'cID':  bb.pk}, login)
 
@@ -38,7 +31,6 @@ class DeleteApiTests(TestCase):
         login = test.logging_in(self, self.username, self.password)
 
         course = factory.make_course("Beeldbewerken", "BB")
-        pav = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
 
         rein = factory.make_user("Rein", "123")
         lars = factory.make_user("Lars", "123")

@@ -7,11 +7,11 @@
             <b-col cols="4" order-sm="2" sm="4">
                 Name: {{ name }}
             </b-col>
-            <b-col cols="4" order-sm="3" sm="4">
+            <b-col cols="4" order-sm="3" sm="3">
                 <b-button v-if="this.$root.canEditCourse"
                           @click.prevent.stop="addUserToCourse()"
                           class="add-button full-width">
-                    Add to course
+                    Add
                 </b-button>
             </b-col>
         </b-row>
