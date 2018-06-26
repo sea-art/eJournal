@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.urls import reverse
 import json
 
-from VLE.models import Participation, Journal, Entry
+from VLE.models import Journal, Entry
 
 import VLE.factory as factory
 import VLE.utils as utils
@@ -156,21 +156,6 @@ class RestTests(TestCase):
         self.assertEquals(utils.get_max_points(journal), 5)
         self.assertEquals(utils.get_submitted_count(entries), 3)
         self.assertEquals(utils.get_graded_count(entries), 2)
-
-    def test_update_user_role_course(self):
-        """Test user role update in a course."""
-        user_role = Participation.objects.get(user=self.user_role, course=1).role.name
-        self.assertEquals(user_role, 'TA')
-
-        login = logging_in(self, self.username, self.password)
-        api_post_call(
-            self,
-            '/api/update_user_role_course/',
-            {'cID': 1, 'uID': self.user_role.pk, 'role': 'SD'},
-            login
-        )
-        user_role = Participation.objects.get(user=self.user_role, course=1).role.name
-        self.assertEquals(user_role, 'SD')
 
     def test_grade_publish(self):
         """Test the grade publish api functions."""
