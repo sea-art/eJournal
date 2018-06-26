@@ -159,11 +159,22 @@ export default {
             var invalidTemplate = false
             var invalidTarget = false
 
+            var lastTarget
+            var targetsOutOfOrder = false
+
             var templatePoolIds = []
             for (var template of this.templatePool) {
                 templatePoolIds.push(template.t.tID)
             }
             for (var node of this.nodes) {
+                if (!targetsOutOfOrder && node.type === 'p') {
+                    if (lastTarget && node.target < lastTarget) {
+                        targetsOutOfOrder = true
+                        alert('Some preset targets are out of order. Please check the format and try again.')
+                    }
+                    lastTarget = node.target
+                }
+
                 if (!invalidDate && isNaN(Date.parse(node.deadline))) {
                     invalidDate = true
                     alert('One or more presets has an invalid deadline. Please check the format and try again.')
@@ -176,9 +187,13 @@ export default {
                     invalidTarget = true
                     alert('One or more presets has an invalid target. Please check the format and try again.')
                 }
+                if (!invalidTarget && node.type === 'p' && isNaN(parseInt(node.target))) {
+                    invalidTarget = true
+                    alert('One or more presets has an invalid target. Please check the format and try again.')
+                }
             }
 
-            if (invalidDate | invalidTemplate | invalidTarget) {
+            if (invalidDate | invalidTemplate | invalidTarget | targetsOutOfOrder) {
                 return
             }
 
