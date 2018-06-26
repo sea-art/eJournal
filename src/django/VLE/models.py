@@ -144,8 +144,7 @@ class Participation(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     role = models.ForeignKey(
         Role,
-        null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name='role',
     )
 
