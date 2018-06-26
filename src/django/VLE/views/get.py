@@ -418,7 +418,7 @@ def get_course_roles(request, cID):
 
     for role in Role.objects.filter(course=cID):
         roles.append(serialize.role_to_dict(role))
-    return responses.succes(payload=roles)
+    return responses.success(payload=roles)
 
 
 def get_user_teacher_courses(request):
@@ -436,7 +436,7 @@ def get_user_teacher_courses(request):
     courses = []
     for course in q_courses:
         courses.append(serialize.course_to_dict(course))
-    return responses.succes(payload=courses)
+    return responses.success(payload=courses)
 
 
 @api_view(['POST'])

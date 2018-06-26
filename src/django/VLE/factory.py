@@ -258,8 +258,8 @@ def make_role_all_permissions(name, course):
     This should not be confused with the global roles: these also have effect
     outside of the course.
     """
-    make_role(name, True, True, True, True, True, True,
-              True, True, True, True, True, True)
+    return make_role(name, course, True, True, True, True, True, True,
+                     True, True, True, True, True, True)
 
 
 def make_entrycomment(entry, author, text):

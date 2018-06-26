@@ -94,8 +94,8 @@ class Command(BaseCommand):
         Generate roles for participation in courses.
         """
         course = factory.make_course(faker.company(), 'TEST', faker.date_this_decade(before_today=True))
-        ta = factory.make_role_all_permissions('teacher', course)
-        ta = factory.make_role('student', course)
+        factory.make_role_all_permissions('teacher', course)
+        factory.make_role('student', course)
 
     def gen_random_participation_for_each_user(self):
         """Generate participants to link students to courses with a role."""

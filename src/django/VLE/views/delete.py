@@ -96,4 +96,4 @@ def delete_course_role(request):
         return responses.forbidden()
 
     Role.objects.get(name=request.data['name'], course=request.data['cID']).delete()
-    return responses.succes(message='Succesfully deleted role from course')
+    return responses.success(message='Succesfully deleted role from course')
