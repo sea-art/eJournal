@@ -86,10 +86,10 @@ urlpatterns = [
     path('api/update_user_role_course/', update.update_user_role_course, name='update_user_role_course'),
     path('api/update_course_with_studentID/', update.update_course_with_studentID, name='update_course_with_studentID'),
 
-
     path('api/delete_course/', delete.delete_course, name='delete_course'),
     path('api/delete_assignment/', delete.delete_assignment, name='delete_assignment'),
     path('api/delete_user_from_course/', delete.delete_user_from_course, name='delete_user_from_course'),
 
     path('api/lti/launch', get.lti_launch, name='lti_launch'),
+    path('api/get_lti_params_from_jwt/<str:jwt_params>/', get.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),
 ]
