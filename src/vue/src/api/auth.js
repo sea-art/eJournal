@@ -31,19 +31,24 @@ function refresh (error) {
     }
 }
 
-function handleResponse (response) {
+function handleResponse (response, noRedirect = false) {
     response = response.response
     if (response.status === 401) { // Unauthorized
-        router.push({name: 'Login'})
-    } if (response.status === 403 || // Forbitten
+        console.log(router)
+        if (!noRedirect) {
+            router.push({name: 'Login'})
+        }
+    } if (response.status === 403 || // Forbidden
           response.status === 404 || // Not found
           response.status === 500) { // Internal server error
-        router.push({name: 'ErrorPage',
-            params: {
-                code: response.status,
-                message: response.data.result,
-                description: response.data.description
-            }})
+        if (!noRedirect) {
+            router.push({name: 'ErrorPage',
+                params: {
+                    code: response.status,
+                    message: response.data.result,
+                    description: response.data.description
+                }})
+        }
     } else if (response.status === 400) { // Bad request
         if (response.data.description) {
             router.app.showToast(response.data.result + ': ' + response.data.description)
@@ -91,7 +96,9 @@ export default {
 
     /* Check if the stored token is valid. */
     testValidToken () {
-        return this.authenticatedGet('/check_valid_token/')
+        return this.authenticatedGet('/check_valid_token/', true)
+            .then(_ => { router.app.validToken = true })
+            .catch(_ => { router.app.validToken = false })
     },
 
     /* Run an authenticated post request.
@@ -99,11 +106,11 @@ export default {
      * protected resources. If the access JWT token is outdated, it refreshes and tries again.
      * Returns a Promise to handle the request.
      */
-    authenticatedPost (url, data) {
+    authenticatedPost (url, data, noRedirect = false) {
         return connection.conn.post(url, data, getAuthorizationHeader())
             .catch(error => refresh(error))
             .then(connection.conn.post(url, data, getAuthorizationHeader()))
-            .catch(error => handleResponse(error))
+            .catch(error => handleResponse(error, noRedirect))
     },
 
     /* Run an authenticated get request.
@@ -111,11 +118,11 @@ export default {
      * protected resources. If the access JWT token is outdated, it refreshes and tries again.
      * Returns a Promise to handle the request.
      */
-    authenticatedGet (url) {
+    authenticatedGet (url, noRedirect = false) {
         return connection.conn.get(url, getAuthorizationHeader())
             .catch(error => refresh(error, url))
             .then(connection.conn.get(url, getAuthorizationHeader()))
-            .catch(error => handleResponse(error))
+            .catch(error => handleResponse(error, noRedirect))
     }
 
 }

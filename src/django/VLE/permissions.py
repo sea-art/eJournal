@@ -19,11 +19,13 @@ def get_role(user, cID):
     cID -- course ID used to validate the request.
     """
     # First get the role ID of the user participation.
-    participations = Participation.objects.filter(user=user, course=cID)
-    if not participations.exists():
+
+    try:
+        participation = Participation.objects.get(user=user, course=cID)
+    except Participation.DoesNotExist:
         return None
 
-    return participations.first().role
+    return participation.role
 
 
 def get_permissions(user, cID=-1):

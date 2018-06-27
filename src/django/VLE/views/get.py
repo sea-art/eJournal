@@ -35,7 +35,7 @@ GRADE_CENTER = '6'
 @api_view(['GET'])
 def check_valid_token(request):
     """Check if the token is a valid token."""
-    if not user.is_authenticated:
+    if not request.user.is_authenticated:
         return responses.unauthorized()
     return responses.success()
 
@@ -240,17 +240,32 @@ def get_course_assignments(request, cID):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    courses = Course.objects.filter(pk=cID)
-    if not courses.exists():
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
         return responses.not_found('Course was not found')
 
-    course = courses.first()
-    participation = Participation.objects.get(user=user, course=course)
+    try:
+        participation = Participation.objects.get(user=user, course=course)
+    except Participation.DoesNotExist:
+        return responses.forbidden('You are not participating in this course')
+
+    print("crs: " + str(course))
+
+    print("part: " + str(participation))
 
     # Check whether the user can grade a journal in the course.
     if participation.role.can_grade_journal:
+        print('TEACHER')
+        print('TEACHER')
+        print('TEACHER')
         return responses.success(payload={'assignments': get_teacher_course_assignments(user, course)})
     else:
+        print('STUDENT')
+        print('STUDENT')
+        print('STUDENT')
+        print('STUDENT')
+        print('STUDENT')
         return responses.success(payload={'assignments': get_student_course_assignments(user, course)})
 
 

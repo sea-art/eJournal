@@ -44,14 +44,11 @@
 
             </b-nav-dropdown>
         </b-navbar-nav>
-        <div id="toast" style="display:none;position:fixed;bottom:0;right:0;margin:0px 50px 50px 0px;padding:20px;z-index:100;background:#c83b4b;color:white">
-            Jawel
-        </div>
+        <div id="toast" style="display:none;position:fixed;bottom:0;right:0;margin:0px 50px 50px 0px;padding:20px;z-index:100;background:#c83b4b;color:white"/>
     </b-navbar>
 </template>
 
 <script>
-import LoginForm from '@/components/LoginForm.vue'
 import icon from 'vue-awesome/components/Icon'
 import authAPI from '@/api/auth.js'
 import userAPI from '@/api/user.js'
@@ -63,7 +60,7 @@ export default {
     data () {
         return {
             // TODO Figure out why webpack messes this up
-            profileImg: '~@/assets/unknown-profile.png',
+            profileImg: '~/assets/unknown-profile.png',
             username: '',
             password: '',
             profile: ''
