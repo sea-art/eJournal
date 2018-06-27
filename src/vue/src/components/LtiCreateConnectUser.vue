@@ -19,7 +19,7 @@
             title="Create user"
             size="lg"
             hide-footer>
-                <create-user @handleAction="handleCreation" :lti="lti"/>
+                <create-user @handleAction="handleIntegrated('createUserRef')" :lti="lti"/>
         </b-modal>
 
         <b-modal
@@ -27,7 +27,7 @@
             title="Connect user"
             size="lg"
             hide-footer>
-                <connect-user @handleAction="handleConnected" :lti="lti"/>
+                <connect-user @handleAction="handleIntegrated('connectUserRef')" :lti="lti"/>
         </b-modal>
     </div>
 </template>
@@ -42,6 +42,21 @@ export default {
     components: {
         'create-user': createUser,
         'connect-user': connectUser
+    },
+    methods: {
+        signal (msg) {
+            this.$emit('handleAction', msg)
+        },
+        showModal (ref) {
+            this.$refs[ref].show()
+        },
+        hideModal (ref) {
+            this.$refs[ref].hide()
+        },
+        handleIntegrated (ref) {
+            this.hideModal(ref)
+            this.signal(['userIntegrated'])
+        }
     }
 }
 </script>

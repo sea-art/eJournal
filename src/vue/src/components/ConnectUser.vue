@@ -6,6 +6,7 @@
 
 <script>
 import loginForm from '@/components/LoginForm.vue'
+import userApi from '@/api/user.js'
 
 export default {
     name: 'ConnectUser',
@@ -15,8 +16,8 @@ export default {
     },
     methods: {
         connectUser (uID) {
-            courseApi.connect_course_lti(cID, this.lti.ltiCourseID)
-                .then(response => { this.$emit('handleAction', response.cID) })
+            userApi.updateLtiIdToUser(lti.ltiJWT)
+                .then(response => { this.$emit('handleAction') })
         }
     },
 }
