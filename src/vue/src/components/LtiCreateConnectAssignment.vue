@@ -1,5 +1,5 @@
 <template>
-    <div slot="main-content-column">
+    <div>
         <p class="lti-intro-text">You came here from canvas with an unknown
             assignment. Do you want to create a new assignment on Logboek,
             or connect to an existing one?</p>
@@ -15,7 +15,6 @@
         </b-row>
 
         <b-modal
-            slot="main-content-column"
             ref="createAssignmentRef"
             title="Create assignment"
             size="lg"
@@ -24,7 +23,6 @@
         </b-modal>
 
         <b-modal
-            slot="main-content-column"
             ref="connectAssignmentRef"
             title="Connect assignment"
             size="lg"

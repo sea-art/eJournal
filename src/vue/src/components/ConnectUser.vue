@@ -1,6 +1,6 @@
 <template>
     <div>
-        <login-form/>
+        <login-form @handleAction="connectUser"/>
     </div>
 </template>
 
@@ -13,7 +13,7 @@ export default {
         'login-form': loginForm
     },
     methods: {
-        connectCourse (cID) {
+        connectUser (uID) {
             courseApi.connect_course_lti(cID, this.lti.ltiCourseID)
                 .then(response => { this.$emit('handleAction', response.cID) })
         }

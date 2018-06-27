@@ -1,5 +1,5 @@
 <template>
-    <div slot="main-content-column">
+    <div>
         <p class="lti-intro-text">You came here from canvas with an unknown
             user account. Do you want to create a new user on Logboek,
             or connect to an existing one?</p>
@@ -15,7 +15,6 @@
         </b-row>
 
         <b-modal
-            slot="main-content-column"
             ref="createUserRef"
             title="Create user"
             size="lg"
@@ -24,7 +23,6 @@
         </b-modal>
 
         <b-modal
-            slot="main-content-column"
             ref="connectUserRef"
             title="Connect user"
             size="lg"
@@ -40,6 +38,7 @@ import connectUser from '@/components/ConnectUser.vue'
 
 export default {
     name: 'LtiCreateConnectUser',
+    props: ['lti'],
     components: {
         'create-user': createUser,
         'connect-user': connectUser
