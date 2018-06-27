@@ -2,13 +2,13 @@
 export default {
     debug: false,
     state: {
-        breadCrumb: [],
+        cachedMap: [],
         format: { templatePool: [], nodes: [] },
         journals: []
     },
-    setBreadcrumb (breadCrumbInternalList) {
-        if (this.debug) { console.log('setBreadcrumb triggered with', breadCrumbInternalList) }
-        this.state.breadCrumb = breadCrumbInternalList.slice() // safety slice
+    setCachedMap (cachedMap) {
+        if (this.debug) { console.log('setCachedMap triggered with', cachedMap) }
+        this.state.cachedMap = cachedMap.slice()
     },
     setFormat (templatePool, nodes) {
         if (this.debug) { console.log('setFormat triggered with', templatePool, nodes) }
