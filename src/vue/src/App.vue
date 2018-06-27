@@ -151,6 +151,10 @@ input, select {
     cursor: pointer;
 }
 
+.card-last-elem-button .card-body {
+    padding-bottom: 2px !important;
+}
+
 .no-hover:hover {
     background-color: var(--theme-light-grey) !important;
 }
