@@ -1,9 +1,10 @@
 import auth from '@/api/auth'
+import connection from '@/api/connection'
 
 export default {
     /* Create a user and add it to the database. */
     createUser (username, password, firstname, lastname, email, jwtParams = null) {
-        return auth.authenticatedPost('/create_lti_user/', {
+        return connection.conn.post('/create_lti_user/', {
             username: username,
             password: password,
             first_name: firstname,
