@@ -80,7 +80,7 @@
                                         {{ completeContent[i].data }}<br><br>
                                     </div>
                                 </div>
-                                <b-button v-if="entryNode.entry.editable == true" @click="saveEdit">{{ saveEditMode }} </b-button>
+                                <b-button v-if="entryNode.entry.editable" @click="saveEdit">{{ saveEditMode }} </b-button>
                             </b-col>
                         </b-row>
                     </b-card>

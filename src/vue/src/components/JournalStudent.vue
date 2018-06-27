@@ -67,13 +67,13 @@ export default {
     created () {
         journal.get_nodes(this.jID)
             .then(response => { this.nodes = response.nodes })
-            .catch(_ => alert('Error while loading nodes.'))
+            .catch(_ => this.$toasted.error('Error while loading nodes.'))
 
         assignmentApi.get_assignment_data(this.cID, this.aID)
             .then(response => {
                 this.assignmentDescription = response.description
             })
-            .catch(_ => alert('Error while loading assignment data'))
+            .catch(_ => this.$toasted.error('Error while loading assignment description.'))
     },
     watch: {
         currentNode: function () {
