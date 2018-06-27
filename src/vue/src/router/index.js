@@ -16,9 +16,8 @@ import CourseEdit from '@/views/CourseEdit'
 import AssignmentEdit from '@/views/AssignmentEdit'
 import UserRoleConfiguration from '@/views/UserRoleConfiguration'
 import FormatEdit from '@/views/FormatEdit'
-import Toastr from 'vue-toastr'
+import authAPI from '@/api/auth.js'
 
-Vue.use(Toastr)
 Vue.use(Router)
 
 var router = new Router({
@@ -99,6 +98,10 @@ router.beforeEach((to, from, next) => {
     console.log('Before each to:')
     // console.log(to)
     console.log(from)
+
+    if (!router.app.validToken) {
+        authAPI.testValidToken()
+    }
 
     if (to.matched.length === 0) {
         console.log('Before each: No match detected rerouting to 404')
