@@ -46,6 +46,25 @@ def set_up_users(name, n):
     return users
 
 
+def set_up_journal(assignment, template, user, n):
+    """Set up a journal for an user with n entries.
+
+    Arguments:
+    assignment -- the assignment of the journal
+    template -- the entry template for the entries
+    user -- the user of the journal
+    n -- number of entries
+
+    Returns a journal with entries attached.
+    """
+    journal = factory.make_journal(assignment, user)
+
+    for entry in set_up_entries(template, n):
+        factory.make_node(journal, entry)
+
+    return journal
+
+
 def set_up_entries(template, n):
     """Set up some entries.
 
@@ -137,7 +156,7 @@ def api_get_call(obj, url, login, status=200):
     return result
 
 
-def unauthorized_api_get_call_test(obj, url):
+def test_unauthorized_api_get_call(obj, url):
     result = obj.client.get(url, {}, format='json')
     obj.assertEquals(result.status_code, 401)
 
@@ -159,6 +178,6 @@ def api_post_call(obj, url, params, login, status=200):
     return result
 
 
-def unauthorized_api_post_call_test(obj, params, url):
+def test_unauthorized_api_post_call(obj, url, params):
     result = obj.client.post(url, json.dumps(params), content_type='application/json')
     obj.assertEquals(result.status_code, 401)

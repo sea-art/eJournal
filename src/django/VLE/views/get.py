@@ -256,11 +256,6 @@ def get_course_assignments(request, cID):
     if role is None:
         return responses.forbidden('You are not in this course.')
 
-    try:
-        participation = Participation.objects.get(user=user, course=course)
-    except Participation.DoesNotExist:
-        return responses.forbidden('You are not participating in this course')
-
     # Check whether the user can grade a journal in the course.
     if role.can_grade_journal:
         return responses.success(payload={'assignments': get_teacher_course_assignments(user, course)})
@@ -340,7 +335,7 @@ def get_assignment_journals(request, aID):
         stats['avgPoints'] = round(st.mean(points), 2)
         stats['medianPoints'] = st.median(points)
         stats['avgEntries'] = round(
-            st.mean([x['stats']['total_points'] for x in journals]), 2)
+            st.mean([x['stats']['submitted'] for x in journals]), 2)
 
     return responses.success(payload={'stats': stats if stats else None, 'journals': journals})
 
@@ -434,7 +429,7 @@ def get_format(request, aID):
     except Assignment.DoesNotExist:
         return responses.not_found('Assignment does not exist.')
 
-    if not assignment.courses.all() < user.participants.all().values('course'):
+    if not (assignment.courses.all() & user.participations.all()):
         return responses.forbidden('You are not allowed to view this assignment.')
 
     return responses.success(payload={'format': serialize.format_to_dict(assignment.format)})
@@ -459,9 +454,8 @@ def get_course_roles(request, cID):
     role = permissions.get_role(user, course)
     if role is None:
         return responses.forbidden('You are not allowed to view this course.')
-
     elif not role.can_edit_course_roles:
-        return JsonResponse({'result': '403 Forbidden'}, status=403)
+        return responses.forbidden('You are not allowed to edit course roles.')
 
     roles = []
 
@@ -504,6 +498,7 @@ def get_names(request):
     cID populates 'course', aID populates 'assignment', tID populates
     'template' and jID populates 'journal' with the users' name.
     """
+    user = request.user
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
@@ -513,12 +508,20 @@ def get_names(request):
     try:
         if cID:
             course = Course.objects.get(pk=cID)
+            role = permissions.get_role(user, course)
+            if role is None:
+                return responses.forbidden('You are not allowed to view this course.')
             result['course'] = course.name
         if aID:
             assignment = Assignment.objects.get(pk=aID)
+            if not (assignment.courses.all() & user.participations.all()):
+                return responses.forbidden('You are not allowed to view this assignment.')
             result['assignment'] = assignment.name
         if jID:
             journal = Journal.objects.get(pk=jID)
+            if not (journal.user == user or permissions.has_assignment_permission(user,
+                    journal.assignment, 'can_grade_journal')):
+                return responses.forbidden('You are not allowed to view journals of other participants.')
             result['journal'] = journal.user.username
 
     except (Course.DoesNotExist, Assignment.DoesNotExist, Journal.DoesNotExist, EntryTemplate.DoesNotExist):
@@ -528,14 +531,14 @@ def get_names(request):
 
 
 @api_view(['GET'])
-def get_entrycomments(request, entryID):
+def get_entrycomments(request, eID):
     """Get the comments belonging to the specified entry based on its entryID."""
     user = request.user
     if not user.is_authenticated:
         return responses.unauthorized()
 
     try:
-        entry = Entry.objects.get(pk=entryID)
+        entry = Entry.objects.get(pk=eID)
     except Entry.DoesNotExist:
         return responses.not_found('Entry does not exist.')
 
