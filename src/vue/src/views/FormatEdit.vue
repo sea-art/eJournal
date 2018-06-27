@@ -108,7 +108,14 @@ export default {
     },
 
     created () {
-        journalAPI.get_format(this.aID).then(data => { this.templates = data.format.templates; this.presets = data.format.presets; this.unused_templates = data.format.unused_templates; this.convertFromDB() }).then(_ => { this.isChanged = false })
+        journalAPI.get_format(this.aID)
+            .then(data => {
+                this.templates = data.format.templates
+                this.presets = data.format.presets
+                this.unused_templates = data.format.unused_templates
+                this.convertFromDB()
+            })
+            .then(_ => { this.isChanged = false })
 
         window.addEventListener('beforeunload', e => {
             if (this.$route.name === 'FormatEdit' && this.isChanged) {
@@ -201,26 +208,26 @@ export default {
                 if (!targetsOutOfOrder && node.type === 'p') {
                     if (lastTarget && node.target < lastTarget) {
                         targetsOutOfOrder = true
-                        alert('Some preset targets are out of order. Please check the format and try again.')
+                        this.$toasted.error('Some preset targets are out of order. Please check the format and try again.')
                     }
                     lastTarget = node.target
                 }
 
                 if (!invalidDate && isNaN(Date.parse(node.deadline))) {
                     invalidDate = true
-                    alert('One or more presets has an invalid deadline. Please check the format and try again.')
+                    this.$toasted.error('One or more presets has an invalid deadline. Please check the format and try again.')
                 }
                 if (!invalidTemplate && node.type === 'd' && node.template.tID && !templatePoolIds.includes(node.template.tID)) {
                     invalidTemplate = true
-                    alert('One or more presets has an invalid template. Please check the format and try again.')
+                    this.$toasted.error('One or more presets has an invalid template. Please check the format and try again.')
                 }
                 if (!invalidTarget && node.type === 'p' && isNaN(parseInt(node.target))) {
                     invalidTarget = true
-                    alert('One or more presets has an invalid target. Please check the format and try again.')
+                    this.$toasted.error('One or more presets has an invalid target. Please check the format and try again.')
                 }
                 if (!invalidTarget && node.type === 'p' && isNaN(parseInt(node.target))) {
                     invalidTarget = true
-                    alert('One or more presets has an invalid target. Please check the format and try again.')
+                    this.$toasted.error('One or more presets has an invalid target. Please check the format and try again.')
                 }
             }
 
@@ -230,7 +237,18 @@ export default {
 
             this.convertToDB()
             journalAPI.update_format(this.aID, this.templates, this.presets, this.unused_templates, this.deletedTemplates, this.deletedPresets)
-                .then(data => { this.templates = data.format.templates; this.presets = data.format.presets; this.unused_templates = data.format.unused_templates; this.deletedTemplates = []; this.deletedTemplates = []; this.convertFromDB() }).then(_ => { this.isChanged = false; alert('New format saved') })
+                .then(data => {
+                    this.templates = data.format.templates
+                    this.presets = data.format.presets
+                    this.unused_templates = data.format.unused_templates
+                    this.deletedTemplates = []
+                    this.deletedTemplates = []
+                    this.convertFromDB()
+                })
+                .then(_ => {
+                    this.isChanged = false
+                    this.$toasted.success('New format saved')
+                })
         },
         // Used for responsiveness
         getWindowWidth (event) {
@@ -249,7 +267,7 @@ export default {
             return this.windowHeight < 922
         },
         customisePage () {
-            alert('Wishlist: Customise page')
+            this.$toasted.info('Wishlist: Customise page')
         },
         // Utility func to translate from db format to internal
         convertFromDB () {

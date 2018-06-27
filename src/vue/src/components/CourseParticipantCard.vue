@@ -71,7 +71,7 @@ export default {
                             this.portraitPath,
                             this.uID)
                     })
-                    .catch(_ => alert('Error while deleting user from course'))
+                    .catch(_ => this.$toasted.error('Error while deleting user from course'))
             }
         }
     },

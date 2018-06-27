@@ -10,8 +10,10 @@ import 'vue-awesome/icons/caret-down'
 import 'vue-awesome/icons/arrows'
 import 'vue-awesome/icons/trash'
 import 'vue-awesome/icons/plus-square'
+import Toasted from 'vue-toasted'
 
 Vue.config.productionTip = false
+Vue.use(Toasted, { position: 'bottom-right', duration: 4000 })
 Vue.use(BootstrapVue)
 
 /* eslint-disable no-new */
@@ -98,24 +100,7 @@ new Vue({
         },
         canCommentJournal () {
             return this.permissions.can_comment_journal
-        },
-
-        hideToast () {
-            document.getElementById('toast').style.display = 'none'
-        },
-        showToast (description, time = 5000, type = 'error') {
-            if (type === 'error') {
-                document.getElementById('toast').style.background = '#c83b4b'
-            } else if (type === 'info') {
-                document.getElementById('toast').style.background = '#22648A'
-            } else {
-                document.getElementById('toast').style.background = 'green'
-            }
-            document.getElementById('toast').innerHTML = description
-            document.getElementById('toast').style.display = 'block'
-            setTimeout(this.hideToast, time)
         }
-
     },
     template: '<App/>'
 })

@@ -30,7 +30,7 @@ export default {
             return this.windowHeight < 922
         },
         customisePage () {
-            alert('Wishlist: Customise page')
+            this.$toasted.info('Wishlist: Customise page')
         }
     },
     mounted () {
