@@ -32,7 +32,6 @@ function refresh (error) {
 }
 
 function handleResponse (response) {
-    console.log(response)
     response = response.response
     if (response.status === 401) { // Unauthorized
         router.push({name: 'Login'})
@@ -91,7 +90,7 @@ export default {
     },
 
     /* Check if the stored token is valid. */
-    checkValidToken () {
+    testValidToken () {
         return this.authenticatedGet('/check_valid_token/')
     },
 
