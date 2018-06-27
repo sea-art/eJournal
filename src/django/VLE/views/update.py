@@ -12,6 +12,7 @@ import VLE.utils as utils
 import VLE.permissions as permissions
 import VLE.factory as factory
 import re
+import VLE.lti_grade_passback as lti_grade
 from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, Journal, \
     User, EntryTemplate, Node, PresetNode
 
@@ -470,6 +471,14 @@ def update_publish_grade_entry(request, eID):
     entry = Entry.objects.get(pk=eID)
     entry.published = publish
     entry.save()
+
+    journal = entry.node.journal
+    if journal.sourcedid is not None and journal.grade_url is not None:
+        payload = lti_grade.replace_result(journal)
+    else:
+        payload = dict()
+
+    payload['new_published'] = entry.published
     return responses.success(payload={'new_published': entry.published})
 
 
@@ -488,7 +497,15 @@ def update_publish_grades_assignment(request, aID):
 
     assign = Assignment.objects.get(pk=aID)
     utils.publish_all_assignment_grades(assign, request.data['published'])
-    return responses.success(payload={'new_published': request.data['published']})
+
+    for journ in Journal.objects.filter(assignment=assign):
+        if journ.sourcedid is not None and journ.grade_url is not None:
+            payload = lti_grade.replace_result(journ)
+        else:
+            payload = dict()
+
+    payload['new_published'] = request.data['published']
+    return responses.success(payload=payload)
 
 
 @api_view(['POST'])
@@ -507,7 +524,14 @@ def update_publish_grades_journal(request, jID):
 
     journ = Journal.objects.get(pk=jID)
     utils.publish_all_journal_grades(journ, request.data['published'])
-    return responses.success(payload={'new_published': request.data['published']})
+
+    if journ.sourcedid is not None and journ.grade_url is not None:
+        payload = lti_grade.replace_result(journ)
+    else:
+        payload = dict()
+
+    payload['new_published'] = request.data['published']
+    return responses.success(payload=payload)
 
 
 @api_view(['POST'])
