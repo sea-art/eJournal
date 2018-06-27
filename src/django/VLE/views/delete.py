@@ -24,7 +24,13 @@ def delete_course(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    course = Course.objects.get(pk=request.data['cID'])
+    cID = request.data['cID']
+
+    participation = Participation.objects.get(user=user, course=cID)
+    if participation is None:
+        return responses.unauthorized()
+
+    course = Course.objects.get(pk=cID)
     course.delete()
 
     return responses.success(message='Succesfully deleted course')
