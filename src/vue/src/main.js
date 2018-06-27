@@ -98,6 +98,26 @@ new Vue({
         },
         canCommentJournal () {
             return this.permissions.can_comment_journal
+        },
+
+        hideToast () {
+            document.getElementById('toast').style.display = 'none'
+        },
+        showToast (description, time = 5000, type = 'error') {
+            console.log('asdjfhlaksjdfhlksajdf')
+            console.log('asdjfhlaksjdfhlksajdf')
+            console.log('asdjfhlaksjdfhlksajdf')
+            console.log('asdjfhlaksjdfhlksajdf')
+            if (type === 'error') {
+                document.getElementById('toast').style.background = '#c83b4b'
+            } else if (type === 'info') {
+                document.getElementById('toast').style.background = '#22648A'
+            } else {
+                document.getElementById('toast').style.background = 'green'
+            }
+            document.getElementById('toast').innerHTML = description
+            document.getElementById('toast').style.display = 'block'
+            setTimeout(this.hideToast, time)
         }
 
     },

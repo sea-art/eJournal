@@ -34,17 +34,28 @@ function refresh (error) {
 
 function handleResponse (response) {
     response = response.response
-    if (response.status === 401) {
+    console.log('KSALHLKJASD')
+    console.log('KSALHLKJASD')
+    console.log('KSALHLKJASD')
+    console.log(response)
+    console.log(router.app)
+    router.app.showToast(response.data.message)
+    console.log('asdjfhlaksjdfhlksajdf')
+    console.log('asdjfhlaksjdfhlksajdf')
+    console.log('asdjfhlaksjdfhlksajdf')
+    if (response.status === 401) { // Unauthorized
         router.push({name: 'Login'})
-    } if (response.status === 400 ||
-          response.status === 403 ||
-          response.status === 404) {
+    } if (response.status === 403 || // Forbitten
+          response.status === 404 || // Not found
+          response.status === 500) { // Internal server error
         router.push({name: 'ErrorPage',
             params: {
                 code: response.status,
                 message: response.data.result,
                 description: response.data.description
             }})
+    } else if (response.status === 400) { // Bad request
+        console.log('BAD REQUEST')
     } else {
         throw response
     }

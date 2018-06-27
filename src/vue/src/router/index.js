@@ -16,7 +16,9 @@ import CourseEdit from '@/views/CourseEdit'
 import AssignmentEdit from '@/views/AssignmentEdit'
 import UserRoleConfiguration from '@/views/UserRoleConfiguration'
 import FormatEdit from '@/views/FormatEdit'
+import Toastr from 'vue-toastr'
 
+Vue.use(Toastr)
 Vue.use(Router)
 
 var router = new Router({
