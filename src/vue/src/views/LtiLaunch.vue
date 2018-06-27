@@ -31,6 +31,7 @@ export default {
             handleCourseChoice: false,
             handleAssignmentChoice: false,
             createAssignment: false,
+            ltiJWT: '',
 
             /* Possible states for the control flow. */
             states: {
@@ -70,23 +71,25 @@ export default {
         }
     },
     methods: {
-        loadLtiData () {
-            ltiJWT = this.$route.query.ltiJWT
-            ltiApi.get_lti_params_from_jwt (ltiJWT)
+        async loadLtiData () {
+            this.ltiJWT = this.$route.query.ltiJWT
+            ltiApi.get_lti_params_from_jwt (this.ltiJWT)
                 .then(response => {
-                    this.lti.ltiCourseID = response.lti_cID
+                    alert(Object.values(response))
+                    alert(response.state)
                     this.lti.ltiCourseName = response.lti_cName
                     this.lti.ltiCourseAbbr = response.lti_abbr
-                    this.states.state = response.state
-
+                    this.lti.ltiCourseID = response.lti_cID
                     this.lti.ltiAssignName = response.lti_aName
                     this.lti.ltiAssignID = response.lti_aID
                     this.lti.ltiPointsPossible = response.lti_points_possible
-
                     this.page.cID = response.cID
                     this.page.aID = response.aID
                     this.page.jID = response.jID
+                    this.states.state = response.state
+                    resolve("success")
                 })
+                .catch(_ => reject(alert("Error decoding the JWT token")))
         },
         handleActions (args) {
             switch (args[0]) {
@@ -116,6 +119,7 @@ export default {
             }
         },
         updateState (state) {
+            alert("Ik kom binnen met state: " + state)
             switch (state) {
             case this.states.new_course:
                 this.currentPage = 'Course Integration'
@@ -178,7 +182,7 @@ export default {
         }
     },
     mounted () {
-        this.loadLtiData()
+        var x = await this.loadLtiData()
 
         if (this.states.state === this.states.bad_auth) {
             this.$router.push({
