@@ -20,23 +20,17 @@ class lti_launch_test(TestCase):
         """Setup."""
         self.roles = json.load(open('../../config.json'))
 
-        self.created_user = factory.make_user('TestUser', 'Pass')
-        self.created_user.lti_id = 'awefd'
-        self.created_user.save()
+        self.created_user = factory.make_user('TestUser', 'Pass', lti_id='awefd')
+        self.created_course = factory.make_course('TestCourse', 'aaaa', lti_id='asdf')
 
-        self.created_course = factory.make_course('TestCourse', 'aaaa')
-        self.created_course.lti_id = 'asdf'
-        self.created_course.save()
-
-        role = Role.objects.create(name='role')
+        role = Role.objects.create(name='role', course=self.created_course)
         Participation.objects.create(
             user=self.created_user,
             course=self.created_course,
             role=role
         )
 
-        self.created_assignment = factory.make_assignment("TestAss", "TestDescr")
-        self.created_assignment.lti_id = 'bughh'
+        self.created_assignment = factory.make_assignment("TestAss", "TestDescr", lti_id='bughh')
         self.created_assignment.user = self.created_user
         self.created_assignment.save()
 

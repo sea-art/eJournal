@@ -7,17 +7,18 @@
 
 <template>
     <b-row>
-        <b-col cols="4"/>
-        <b-col cols="4" class="d-flex align-items-center justify-content-center">
+        <b-col cols="4" sm="1"/>
+        <b-col cols="4" sm="5" class="d-flex align-items-center justify-content-center">
             <edag-node-date :date="node.deadline" :selected="selected"/>
         </b-col>
-        <b-col cols="4" class="d-flex align-items-center justify-content-center">
+        <b-col cols="4" sm="5" class="d-flex align-items-center justify-content-center">
             <div>
                 <div style="width: 0.5em; height: 3em; background-color: var(--theme-light-grey)" :style="upperEdgeStyle"/> <!-- grey line -->
                 <div style="width: 0.5em; height: 3em; background-color: var(--theme-light-grey)" :style="lowerEdgeStyle"/> <!-- grey line -->
             </div>
             <edag-node-circle @click.native="$emit('select-node', index)" style="position: absolute" :type="node.type" :text="node.target" :selected="selected"></edag-node-circle>
         </b-col>
+        <b-col cols="4" sm="1"/>
     </b-row>
 </template>
 
@@ -33,7 +34,3 @@ export default {
     }
 }
 </script>
-
-<style>
-/*  */
-</style>

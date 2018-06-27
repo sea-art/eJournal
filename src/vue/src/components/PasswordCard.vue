@@ -11,7 +11,7 @@
                 <span class="profile-password">Old password:</span>
             </b-col>
             <b-col cols="7">
-                <b-form-input class="passField" v-model="oldPass" type="password"></b-form-input><br/>
+                <b-form-input v-model="oldPass" type="password"></b-form-input><br/>
             </b-col>
         </b-row>
 
@@ -20,7 +20,7 @@
                 <span class="profile-password">New password:</span>
             </b-col>
             <b-col cols="7">
-                <b-form-input class="passField" v-model="newPass" type="password"></b-form-input><br/>
+                <b-form-input v-model="newPass" type="password"></b-form-input><br/>
             </b-col>
         </b-row>
 
@@ -29,7 +29,7 @@
                 <span class="profile-password">Repeat new password:</span>
             </b-col>
             <b-col cols="7">
-                <b-form-input class="passField" v-model="newPassRepeat" type="password"></b-form-input>
+                <b-form-input v-model="newPassRepeat" type="password"></b-form-input>
             </b-col>
         </b-row>
 
@@ -78,9 +78,3 @@ export default {
 }
 
 </script>
-
-<style>
-.passField {
-    height: 30px;
-}
-</style>
