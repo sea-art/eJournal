@@ -30,7 +30,6 @@ export default {
         loadCourses () {
             courseApi.get_user_teacher_courses()
                 .then(response => { this.courses = response })
-                .catch(_ => alert('Error while loading courses'))
         },
         connectCourse (cID) {
             courseApi.connect_course_lti(cID, this.lti.ltiCourseID)

@@ -93,14 +93,12 @@ export default {
         this.loadCourses()
 
         /* assignment.get_upcoming_deadlines()
-           .then(response => { this.deadlines = response })
-           .catch(_ => alert('Error while loading deadlines')) */
+           .then(response => { this.deadlines = response }) */
     },
     methods: {
         loadCourses () {
             course.get_user_courses()
                 .then(response => { this.courses = response })
-                .catch(_ => alert('Error while loading courses'))
         },
         deleteCourse (courseID, courseName) {
             if (confirm('Are you sure you want to delete ' + courseName + '?')) {
@@ -123,7 +121,7 @@ export default {
             this.$refs[ref].hide()
         },
         customisePage () {
-            alert('Wishlist: Customise page')
+            this.$toasted.info('Wishlist: Customise page')
         },
         canDeleteCourse () {
             return this.$root.permissions.can_delete_course

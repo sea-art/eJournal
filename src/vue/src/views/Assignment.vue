@@ -4,7 +4,7 @@
         <b-card slot="main-content-column" class="settings-card no-hover">
             <b-row>
                 <b-col lg="3" md="3">
-                    <b-button :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">Edit Assignment Format</b-button>
+                    <b-button v-if="$root.canAddAssignment()" :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">Edit Assignment Format</b-button>
                 </b-col>
             </b-row>
             <b-row>
@@ -20,6 +20,11 @@
                     <input type="text" v-model="searchVariable" placeholder="Search .."/>
                 </b-col>
             </b-row>
+            <b-row>
+                <b-col lg="3" md="3">
+                    <b-button @click="publishGradesAssignment">Publish all Grades</b-button>
+                </b-col>
+            </b-row>
         </b-card>
 
         <div v-if="assignmentJournals.length > 0" v-for="journal in filteredJournals" :key="journal.student.uID" slot="main-content-column">
@@ -30,13 +35,16 @@
                                               jID: journal.jID
                                           }
                                         }">
+
                 <student-card
                     :student="journal.student.name"
                     :studentNumber="journal.student.uID"
                     :portraitPath="journal.student.picture"
                     :stats="journal.stats"
-                    :color="$root.colors[journal.uid % $root.colors.length]">
+                    :color="$root.colors[journal.uid % $root.colors.length]"
+                    :jID="journal.jID">
                 </student-card>
+
             </b-link>
         </div>
         <div v-if="assignmentJournals.length === 0" slot="main-content-column">
@@ -59,7 +67,6 @@ import studentCard from '@/components/StudentCard.vue'
 import statisticsCard from '@/components/StatisticsCard.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import journal from '@/api/journal.js'
-// TODO: temp
 
 export default {
     name: 'Assignment',
@@ -93,11 +100,10 @@ export default {
                 this.assignmentJournals = response.journals
                 this.stats = response.stats
             })
-            .catch(_ => alert('Error while loading jounals'))
     },
     methods: {
         customisePage () {
-            alert('Wishlist: Customise page')
+            this.$toasted.info('Wishlist: Customise page')
         },
         handleEdit () {
             this.$router.push({
@@ -107,6 +113,15 @@ export default {
                     aID: this.aID
                 }
             })
+        },
+        publishGradesAssignment () {
+            journal.update_publish_grades_assignment(this.aID, 1)
+                .then(_ => {
+                    this.$toasted.success('All the grades for each journal are published.')
+                })
+                .catch(_ => {
+                    this.$toasted.error('Error whilest publishing the grades for each journal.')
+                })
         }
     },
     computed: {

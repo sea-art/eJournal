@@ -32,7 +32,7 @@ export default {
     },
     methods: {
         customisePage () {
-            alert('Wishlist: Customise page')
+            this.$toasted.info('Wishlist: Customise page')
         }
     },
     created () {

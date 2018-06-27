@@ -34,7 +34,12 @@
                 </div>
             </div>
         </b-col>
-        <b-col cols="12" xl="3" order="3" class="right-content-journal"/>
+        <b-col cols="12" xl="3" order="3" class="right-content-journal">
+            <h3>Assignment Description</h3>
+            <b-card class="no-hover" :class="'grey-border'" style="">
+                {{ assignmentDescription }}
+            </b-card>
+        </b-col>
     </b-row>
 </template>
 
@@ -46,21 +51,29 @@ import edag from '@/components/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import journal from '@/api/journal'
 import entryPreview from '@/components/EntryPreview.vue'
+import assignmentApi from '@/api/assignment.js'
 
 export default {
-    props: ['jID'],
+    props: ['cID', 'aID', 'jID'],
     data () {
         return {
             currentNode: 0,
             editedData: ['', ''],
             nodes: [],
-            progressNodes: {}
+            progressNodes: {},
+            assignmentDescription: ''
         }
     },
     created () {
         journal.get_nodes(this.jID)
             .then(response => { this.nodes = response.nodes })
-            .catch(_ => alert('Error while loading nodes.'))
+            .catch(_ => this.$toasted.error('Error while loading nodes.'))
+
+        assignmentApi.get_assignment_data(this.cID, this.aID)
+            .then(response => {
+                this.assignmentDescription = response.description
+            })
+            .catch(_ => this.$toasted.error('Error while loading assignment description.'))
     },
     watch: {
         currentNode: function () {
@@ -73,7 +86,6 @@ export default {
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData
             journal.create_entry(this.jID, this.nodes[this.currentNode].entry.template.tID, editedData.entry.content, this.nodes[this.currentNode].nID)
-                .catch(_ => alert('Error while creating the entry.'))
                 .then(response => {
                     this.nodes = response.nodes
                     this.currentNode = response.added
@@ -100,33 +112,29 @@ export default {
         },
         addNode (infoEntry) {
             journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
-                .catch(_ => alert('Error while creating the entry.'))
                 .then(response => {
                     this.nodes = response.nodes
                     this.currentNode = response.added
                 })
-                // .catch(_ => alert('Error while loading nodes.')))
-                // .then(response => { this.nodes = response.nodes })
         },
         fillDeadline (data) {
             journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data, this.nodes[this.currentNode].nID)
-                .catch(_ => alert('Error while creating the entry.'))
                 .then(response => {
                     this.nodes = response.nodes
                     this.currentNode = response.added
                 })
-            // journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data)
         },
         progressPoints (progressNode) {
             var tempProgress = 0
-
             for (var node of this.nodes) {
                 if (node.nID === progressNode.nID) {
                     break
                 }
 
                 if (node.type === 'e' || node.type === 'd') {
-                    tempProgress += node.entry.grade
+                    if (node.entry.published && node.entry.published !== '0') {
+                        tempProgress += node.entry.grade
+                    }
                 }
             }
 

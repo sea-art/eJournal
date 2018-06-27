@@ -77,9 +77,9 @@ class DeleteApiTests(TestCase):
         teacher_user = 'Teacher'
         teacher_pass = 'pass'
         teacher = factory.make_user(teacher_user, teacher_pass)
-        teacher_role = factory.make_role_all_permissions("TE", self.course)
+        teacher_role = factory.make_role_teacher("TE", self.course)
         factory.make_participation(teacher, self.course, teacher_role)
-        factory.make_role('TA2', self.course)
+        factory.make_role_ta('TA2', self.course)
         login = test.logging_in(self, teacher_user, teacher_pass)
         test.api_post_call(self, '/delete_course_role/', {'cID': 1, 'name': 'TA2'}, login)
 

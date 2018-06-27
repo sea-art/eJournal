@@ -27,7 +27,6 @@ export default {
         loadAssignments () {
             assignApi.get_course_assignments(this.page.cID)
                 .then(response => { this.assignments = response })
-                .catch(_ => alert('Error while loading assignments'))
         },
         connectAssignment (aID) {
             assignApi.connect_assignment_lti(aID, this.lti.ltiAssignID,
