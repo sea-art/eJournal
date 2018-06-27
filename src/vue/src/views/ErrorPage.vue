@@ -15,9 +15,9 @@
             You might want to try going back to the homepage or report the problem.
         </b-col>
         <b-col cols="12">
-            <b-button :to='"/Home"'>Home</b-button>
+            <b-button :to="{name: 'Home'}">Home</b-button>
             <!-- TODO: Add mailto or similar. -->
-            <b-button :to='"/Home"'>Contact</b-button>
+            <b-button :to="{name: 'Home'}">Contact</b-button>
         </b-col>
     </b-row>
 </template>

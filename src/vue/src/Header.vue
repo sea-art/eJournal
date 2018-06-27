@@ -20,8 +20,8 @@
 
         <b-navbar-nav class="ml-auto">
             <b-nav-item-dropdown no-caret right id="nav-dropdown-options">
-                <img id="nav-profile-image" slot="button-content" src="/static/oh_no/ohno.jpeg">
-                <b-dropdown-item><b-button :to="{ name: 'Profile'}">Profile</b-button></b-dropdown-item>
+                <img id="nav-profile-image" slot="button-content" :src="profileImg">
+                <b-dropdown-item><b-button :to="{ name: 'Profile'}" class="multi-form">Profile</b-button></b-dropdown-item>
                 <b-dropdown-item><b-button @click="handleLogout()">Sign out</b-button><br/></b-dropdown-item>
             </b-nav-item-dropdown>
         </b-navbar-nav>
@@ -31,9 +31,17 @@
         <b-navbar-brand  :to="'/'" class="brand-name">Logboek</b-navbar-brand>
 
         <b-navbar-nav class="ml-auto">
-            <b-nav-dropdown right no-caret id="nav-dropdown-options">
+            <b-nav-dropdown right no-caret id="nav-dropdown-options" ref="loginDropdown">
+                <!-- TODO Fix dynamic binding default image -->
                 <img id="nav-profile-image" slot="button-content" src="~@/assets/unknown-profile.png">
-                <login-form @login-success="handleLoginSuccess" :key="'123'"/>
+
+                <b-form @submit.prevent="handleLogin()" class="login-form">
+                    <b-input class="multi-form" v-model="username" required placeholder="Username"/>
+                    <b-input class="multi-form" type="password" @keyup.enter="handleLogin()" v-model="password" required placeholder="Password"/>
+                    <b-button class="multi-form" type="submit">Login</b-button><br/>
+                    <b-button>Forgot password?</b-button>
+                </b-form>
+
             </b-nav-dropdown>
         </b-navbar-nav>
     </b-navbar>
@@ -42,7 +50,8 @@
 <script>
 import LoginForm from '@/components/LoginForm.vue'
 import icon from 'vue-awesome/components/Icon'
-import loginAPI from '@/api/auth.js'
+import authAPI from '@/api/auth.js'
+import userAPI from '@/api/user.js'
 
 export default {
     components: {
@@ -52,18 +61,42 @@ export default {
     data () {
         return {
             // TODO Figure out why webpack messes this up
-            profileImg: '~@/assets/unknown-profile.png'
+            profileImg: '~@/assets/unknown-profile.png',
+            username: '',
+            password: '',
+            profile: ''
         }
     },
     methods: {
         handleLogout () {
-            loginAPI.logout()
+            authAPI.logout()
             this.$router.push('/')
         },
-        handleLoginSuccess () {
-            console.log('Handling login success')
-            // TODO Set correct profile IMG
-            this.$router.push({name: 'Home'})
+        handleLogin () {
+            authAPI.login(this.username, this.password)
+                .then(_ => {
+                    console.log('Handling login success')
+                    this.setProfilePicture()
+                    this.$router.push({name: 'Home'})
+                })
+                .catch(_ => {
+                    alert('Could not login')
+                })
+        },
+        setProfilePicture () {
+            userAPI.getOwnUserData()
+                .then(user => {
+                    this.profile = user
+                    if (user.picture) {
+                        this.profileImg = user.picture
+                    } else {
+                        // TODO Set default user picture
+                    }
+                })
+                .catch(_ => {
+                    alert('Something went wrong retrieving user data')
+                    // TODO Set default user picture
+                })
         }
     }
 }
@@ -135,6 +168,10 @@ export default {
     width: 50px;
     height: 50px;
     border-radius: 50% !important;
+}
+
+.login-form {
+    background-color: var(--theme-light-grey);
 }
 
 @media(max-width:992px) {
