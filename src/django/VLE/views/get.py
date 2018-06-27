@@ -482,7 +482,6 @@ def get_names(request):
         cID -- optionally the course id
         aID -- optionally the assignment id
         jID -- optionally the journal id
-        tID -- optionally the template id
 
     Returns a json string containing the names of the set fields.
     cID populates 'course', aID populates 'assignment', tID populates
@@ -491,22 +490,19 @@ def get_names(request):
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
-    cID, aID, jID, tID = utils.optional_params(request.data, "cID", "aID", "jID", "tID")
+    cID, aID, jID = utils.optional_params(request.data, "cID", "aID", "jID")
     result = {}
 
     try:
         if cID:
             course = Course.objects.get(pk=cID)
-            result.course = course.name
+            result['course'] = course.name
         if aID:
             assignment = Assignment.objects.get(pk=aID)
-            result.assignment = assignment.name
+            result['assignment'] = assignment.name
         if jID:
             journal = Journal.objects.get(pk=jID)
-            result.journal = journal.user.name
-        if tID:
-            template = EntryTemplate.objects.get(pk=tID)
-            result.template = template.name
+            result['journal'] = journal.user.username
 
     except (Course.DoesNotExist, Assignment.DoesNotExist, Journal.DoesNotExist, EntryTemplate.DoesNotExist):
         return responses.not_found('Course, Assignment, Journal or Template does not exist.')

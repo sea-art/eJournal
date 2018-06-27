@@ -1,5 +1,5 @@
 <template>
-    <journal-non-student v-if="$root.canEditJournal()" :jID="this.$route.params.jID"/>
+    <journal-non-student v-if="!$root.canEditJournal()" :jID="this.$route.params.jID"/>
     <journal-student v-else :jID="this.$route.params.jID"/>
 </template>
 

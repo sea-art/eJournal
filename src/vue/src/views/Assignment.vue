@@ -20,6 +20,11 @@
                     <input type="text" v-model="searchVariable" placeholder="Search .."/>
                 </b-col>
             </b-row>
+            <b-row>
+                <b-col lg="3" md="3">
+                    <b-button @click="publishGradesAssignment">Publish all Grades</b-button>
+                </b-col>
+            </b-row>
         </b-card>
 
         <div v-if="assignmentJournals.length > 0" v-for="journal in filteredJournals" :key="journal.student.uID" slot="main-content-column">
@@ -30,13 +35,16 @@
                                               jID: journal.jID
                                           }
                                         }">
+
                 <student-card
                     :student="journal.student.name"
                     :studentNumber="journal.student.uID"
                     :portraitPath="journal.student.picture"
                     :stats="journal.stats"
-                    :color="$root.colors[journal.uid % $root.colors.length]">
+                    :color="$root.colors[journal.uid % $root.colors.length]"
+                    :jID="journal.jID">
                 </student-card>
+
             </b-link>
         </div>
         <div v-if="assignmentJournals.length === 0" slot="main-content-column">
@@ -106,6 +114,10 @@ export default {
                     aID: this.aID
                 }
             })
+        },
+        publishGradesAssignment () {
+            journal.update_publish_grades_assignment(this.aID, 1)
+            alert('All the grades for each journal are published.')
         }
     },
     computed: {

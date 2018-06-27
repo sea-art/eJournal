@@ -112,14 +112,15 @@ export default {
         },
         progressPoints (progressNode) {
             var tempProgress = 0
-
             for (var node of this.nodes) {
                 if (node.nID === progressNode.nID) {
                     break
                 }
 
                 if (node.type === 'e' || node.type === 'd') {
-                    tempProgress += node.entry.grade
+                    if (node.entry.published && node.entry.published !== '0') {
+                        tempProgress += node.entry.grade
+                    }
                 }
             }
 
