@@ -39,13 +39,10 @@ export default {
         }
     },
     methods: {
-        userIntegrated (args) {
-
-        }
-    },
-    watch: {
-        state: function (val) {
-            this.updateState(this.states.state)
+        userIntegrated () {
+            this.$router.push({
+                name: 'LtiLaunch'
+            })
         }
     },
     mounted () {
