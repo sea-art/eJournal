@@ -1,31 +1,22 @@
 <template>
     <div>
         <b-form @submit="onSubmit" @reset="onReset">
-            <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="form.username" placeholder="Username" required/>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="form.password" placeholder="Password" required/>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0"  v-model="form.email" placeholder="Email" required/>
-            <b-form-select :options="instutes" v-model="selected" required></b-form-select>
-            <b-button type="submit" variant="primary">Register</b-button>
-            <b-button type="reset" variant="danger">Reset</b-button>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.username" placeholder="Username" required/>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.password" placeholder="Password" required/>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"  v-model="form.email" placeholder="Email" required/>
+            <b-button class="float-right" type="reset">Reset</b-button>
+            <b-button class="float-right" type="submit">Create</b-button>
         </b-form>
     </div>
 </template>
 
 <script>
 export default {
+    name: 'RegisterUser',
+    props: ['lti'],
     data () {
         return {
-            instutes: [
-                {
-                    text: 'Select the applicable institute',
-                    value: null
-                },
-                'Universiteit van Amsterdam (UvA)'
-            ],
-            
             form: {
-                selected: null,
-                institude: '',
                 username: '',
                 password: '',
                 firstname: '',
