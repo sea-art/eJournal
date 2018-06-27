@@ -34,7 +34,7 @@ export default {
                 firstname: '',
                 lastname: '',
                 username: '',
-                emaik: ''
+                email: ''
             }
         }
     },
