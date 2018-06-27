@@ -100,7 +100,7 @@ router.beforeEach((to, from, next) => {
     // console.log(from)
 
     if (!router.app.validToken) {
-        authAPI.checkValidToken()
+        authAPI.testValidToken()
     }
 
     if (to.matched.length === 0) {

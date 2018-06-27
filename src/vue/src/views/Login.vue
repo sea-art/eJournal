@@ -1,7 +1,6 @@
 <template>
     <content-single-column>
         <h1>Login</h1>
-        <!-- <login-form @login-success="handleLoginSucces"></login-form> -->
         <b-card class="blue-border no-hover card-last-elem-button">
             <b-form @submit.prevent="handleLogin()">
                 <b-input class="multi-form" v-model="username" required placeholder="Username"/>
