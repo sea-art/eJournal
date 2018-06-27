@@ -173,7 +173,6 @@ export default {
             this.unenrolledLoaded = !this.unenrolledLoaded
         },
         routeToEditCourseRoles () {
-            console.log('Can edit')
             this.$router.push({
                 name: 'UserRoleConfiguration',
                 params: { cID: this.cID }
