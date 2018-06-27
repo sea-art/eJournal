@@ -12,7 +12,7 @@ from django.shortcuts import redirect
 import statistics as st
 import json
 import jwt
-import datetime.datetime as datetime
+import datetime
 
 import VLE.lti_launch as lti
 import VLE.edag as edag
@@ -607,11 +607,8 @@ def lti_launch(request):
         params = request.POST
         user = lti.check_user_lti(params, roles)
 
-        params['exp'] = datetime.utcnow() + datetime.timedelta(minutes=15)
+        # params['exp'] = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
         lti_params = jwt.encode(params, secret, algorithm='HS256')
-
-        refresh = TokenObtainPairSerializer.get_token(user)
-        access = refresh.access_token
 
         if user is None:
             q_names = ['lti_params', 'state']
@@ -626,15 +623,18 @@ def lti_launch(request):
                 q_values += [firstname, lastname]
 
             if 'lis_person_sourcedid' in params:
-                q_names.apppend('username')
+                q_names.append('username')
                 q_values.append(params['lis_person_sourcedid'])
 
             if 'lis_person_contact_email_primary' in params:
                 q_names.append('email')
                 q_values.append(params['lis_person_contact_email_primary'])
 
-            return lti.create_lti_query_link(q_names, q_values)
-        return lti.create_lti_query_link(['lti_params', 'jwt_access', 'jwt_refresh', 'state'],
-                                         [lti_params, access, refresh, LOGGED_IN])
+            return redirect(lti.create_lti_query_link(q_names, q_values))
+
+        refresh = TokenObtainPairSerializer.get_token(user)
+        access = refresh.access_token
+        return redirect(lti.create_lti_query_link(['lti_params', 'jwt_access', 'jwt_refresh', 'state'],
+                                                  [lti_params, access, refresh, LOGGED_IN]))
 
     return redirect(lti.create_lti_query_link(['state'], [BAD_AUTH]))
