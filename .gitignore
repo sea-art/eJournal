@@ -1,4 +1,5 @@
 /venv
+/build
 VLE.db
 npm-debug.log
 
