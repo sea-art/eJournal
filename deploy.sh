@@ -7,7 +7,7 @@ source settings/database.conf
 sudo /etc/init.d/apache2 stop
 
 sudo a2ensite ejournal.conf || sudo a2ensite ejournal
-
+aasdf
 # Initialize
 if [[ $? -ne 0 ]]; then
     rm -rd ./build
@@ -32,24 +32,35 @@ if [[ $? -ne 0 ]]; then
 WSGIPythonPath ${TARGET}/django/VLE" > "${APACHEDIR}/conf-available/wsgi.conf"
     sudo a2enconf wsgi
 
-    echo "<VirtualHost *:${PORT}>
+    echo "
+<VirtualHost *:${PORT}>
+    DocumentRoot '${TARGET}'
+    ServerName www.${SERVERNAME}
+    ServerAlias ${SERVERNAME}
 
-    Alias ${HOOKPOINT}index.html ${TARGET}/index.html
-    Alias ${HOOKPOINT}static/ ${TARGET}/static/
-    Redirect ${HOOKPOINT}admin/ ${HOOKPOINT}api/admin/
 
-    <Directory ${TARGET}/static>
+    <Directory ${TARGET}>
         Require all granted
     </Directory>
-    <Directory ${TARGET}/django/VLE>
+    <Directory ${TARGET}static>
+        Require all granted
+    </Directory>
+</VirtualHost>
+
+<VirtualHost *:${PORT}>
+    ServerName www.api.${SERVERNAME}
+    ServerAlias api.${SERVERNAME}
+
+    <Directory ${TARGET}django/VLE>
         <Files wsgi.py>
             Require all granted
         </Files>
     </Directory>
 
-    WSGIScriptAlias ${HOOKPOINT}api ${TARGET}/django/VLE/wsgi.py
+    WSGIScriptAlias ${HOOKPOINT} ${TARGET}/django/VLE/wsgi.py
+</VirtualHost>
+" > "${APACHEDIR}/sites-available/ejournal.conf"
 
-</VirtualHost>" > "${APACHEDIR}/sites-available/ejournal.conf"
     sudo a2ensite ejournal.conf || sudo a2ensite ejournal
     cat ${APACHEDIR}/ports.conf | grep "Listen ${PORT}"
     if [[ $? -ne 0 ]]; then
@@ -68,7 +79,7 @@ rsync -a --exclude='VLE.db' --exclude='settings/development.py' --exclude='test/
 rsync -a ./src/vue/dist/ ${TARGET}
 
 sudo sed -i "s@{{DIR}}@${TARGET}/django@g" ${TARGET}/django/VLE/wsgi.py
-sudo sed -i "s@http://localhost:8000/@${URL}:${PORT}${HOOKPOINT}api/@g" ${TARGET}/static/js/*
+sudo sed -i "s@http://localhost:8000/@${APIURL}${HOOKPOINT}@g" ${TARGET}/static/js/*
 
 sudo sed -i "s@{{DATABASE_TYPE}}@${DATABASE_TYPE}@g" ${TARGET}/django/VLE/settings/production.py
 sudo sed -i "s@{{DATABASE_NAME}}@${DATABASE_NAME}@g" ${TARGET}/django/VLE/settings/production.py
