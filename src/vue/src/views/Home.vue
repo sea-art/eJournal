@@ -121,7 +121,7 @@ export default {
             this.$refs[ref].hide()
         },
         customisePage () {
-            alert('Wishlist: Customise page')
+            this.$toasted.info('Wishlist: Customise page')
         },
         canDeleteCourse () {
             return this.$root.permissions.can_delete_course
