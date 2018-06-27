@@ -15,7 +15,8 @@
                 </main-card>
             </b-link>
         </div>
-
+        <div slot="main-content-column">
+        </div>
         <main-card
             v-if="this.$root.canAddCourse()"
             slot="main-content-column"
@@ -24,13 +25,18 @@
             :line1="'+ Add course'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
-        <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
-            <b-link tag="b-button" :to="{name: 'Assignment', params: {cID: d.cIDs[0], aID: d.aIDs[0], dID: d.dID}}">
+        <div v-for="d in computedDeadlines" :key="d.aID" slot="right-content-column">
+            <b-link tag="b-button" :to="{name: 'Journal', params: {cID: d.cID,
+                                                                   aID: d.aID,
+                                                                   jID: d.jID,
+                                                                   assignmentName: d.name}}">
                 <todo-card
-                    :line0="d.datetime"
-                    :line1="d.name"
-                    :line2="d.courseAbbrs.join(', ')"
-                    :color="$root.colors[d.cIDs[0] % $root.colors.length]">
+                    :date="d.deadline.Date"
+                    :hours="d.deadline.Hours"
+                    :minutes="d.deadline.Minutes"
+                    :name="d.name"
+                    :abbr="d.courseAbbr"
+                    :color="$root.colors[d.cID % $root.colors.length]">
                 </todo-card>
             </b-link>
         </div>
@@ -63,6 +69,7 @@ import todoCard from '@/components/TodoCard.vue'
 import createCourse from '@/components/CreateCourse.vue'
 import editHome from '@/components/EditHome.vue'
 import course from '@/api/course'
+import assignmentApi from '@/api/assignment.js'
 
 export default {
     name: 'Home',
@@ -70,15 +77,7 @@ export default {
         return {
             intituteName: 'Universiteit van Amsterdam (UvA)',
             courses: [],
-            // TODO real deadlines with API, can a deadline be bound > 1 course and assignment?
-            deadlines: [{
-                name: 'Individueel logboek',
-                cIDs: ['1', '2'],
-                aIDs: ['1', '3'],
-                courseAbbrs: ['WEDA', 'PALSIE8'],
-                aID: '1',
-                datetime: '8-6-2018 13:00'
-            }]
+            deadlines: []
         }
     },
     components: {
@@ -92,9 +91,12 @@ export default {
     created () {
         this.loadCourses()
 
-        /* assignment.get_upcoming_deadlines()
-           .then(response => { this.deadlines = response })
-           .catch(_ => alert('Error while loading deadlines')) */
+        assignmentApi.get_upcoming_deadlines()
+            .then(response => {
+                console.log(response)
+                this.deadlines = response
+            })
+            .catch(_ => alert('Error while loading deadlines'))
     },
     methods: {
         loadCourses () {
@@ -127,6 +129,26 @@ export default {
         },
         canDeleteCourse () {
             return this.$root.permissions.can_delete_course
+        }
+    },
+    computed: {
+        computedDeadlines: function () {
+            var count = 0
+
+            function compareDate (a, b) {
+                // console.log(a.deadline.Date)
+                return new Date(a.deadline.Date) - new Date(b.deadline.Date)
+            }
+
+            function filterTopFive () {
+                if (++count <= 5) {
+                    return true
+                } else {
+                    return false
+                }
+            }
+
+            return this.deadlines.slice().sort(compareDate).filter(filterTopFive)
         }
     }
 }

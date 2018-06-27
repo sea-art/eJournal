@@ -2,20 +2,20 @@
     <b-card class="card" :class="color">
         <b-row>
             <b-col cols="7">
-                <h6>{{ line0 }}</h6>
+                <h6>{{ date }} {{ hours }}:{{ minutes }}</h6>
             </b-col>
             <b-col cols="5">
-                <p>{{ $root.timeLeft(this.line0) }}</p>
+                <p>{{ new Date().getFullDay }}</p>
             </b-col>
         </b-row>
-            <h5>{{ line1 }}</h5>
-            {{ line2 }}
+            <h5>{{ name }}</h5>
+            {{ abbr }}
     </b-card>
 </template>
 
 <script>
 export default {
-    props: ['line0', 'line1', 'line2', 'timeLeft', 'color']
+    props: ['date', 'hours', 'minutes', 'name', 'abbr', 'color']
 }
 </script>
 

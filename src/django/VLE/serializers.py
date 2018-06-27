@@ -7,6 +7,8 @@ import VLE.utils as utils
 import VLE.permissions as permissions
 from VLE.models import Journal, Node, EntryComment
 
+from datetime import datetime
+
 
 def user_to_dict(user):
     """Convert user object to dictionary."""
@@ -68,15 +70,13 @@ def student_assignment_to_dict(assignment, user):
     return assignment_dict
 
 
-def deadline_to_dict(assignment):
+def deadline_to_dict(deadline, i):
     """Convert deadline to dictionary."""
-    if not assignment:
-        return None
-
-    assignment_dict = assignment_to_dict(assignment)
-    assignment_dict['courses'] = [course_to_dict(c) for c in assignment.courses.all()]
-
-    return assignment_dict
+    return {
+        str(i): deadline['preset__deadline']
+        # str(i): deadline['preset__deadline'].date()
+        # str(i): datetime.combine(deadline['preset__deadline'], datetime.min.time())
+    } if deadline else None
 
 
 def assignment_to_dict(assignment):
