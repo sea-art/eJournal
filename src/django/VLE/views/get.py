@@ -162,25 +162,8 @@ def get_linkable_courses(request):
     """
     user = request.user
     if not user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
-    courses = get_linkable_courses_user(user)
-
-    return responses.success(payload={'courses': courses})
-
-
-def get_linkable_courses_user(user):
-    """Get linkable courses user.
-
-    Get all courses that the current user is connected with as sufficiently
-    authenticated user. The lti_id should be equal to NULL. A user can then link
-    this course to Canvas.
-
-    Arguments:
-    user -- the user that requested the linkable courses.
-
-    Returns all of the courses.
-    """
     courses = []
     unlinked_courses = Course.objects.filter(participation__user=user.id,
                                              participation__role__can_edit_course=True, lti_id=None)
@@ -250,22 +233,10 @@ def get_course_assignments(request, cID):
     except Participation.DoesNotExist:
         return responses.forbidden('You are not participating in this course')
 
-    print("crs: " + str(course))
-
-    print("part: " + str(participation))
-
     # Check whether the user can grade a journal in the course.
     if participation.role.can_grade_journal:
-        print('TEACHER')
-        print('TEACHER')
-        print('TEACHER')
         return responses.success(payload={'assignments': get_teacher_course_assignments(user, course)})
     else:
-        print('STUDENT')
-        print('STUDENT')
-        print('STUDENT')
-        print('STUDENT')
-        print('STUDENT')
         return responses.success(payload={'assignments': get_student_course_assignments(user, course)})
 
 

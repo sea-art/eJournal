@@ -7,9 +7,6 @@ from VLE.models import Participation
 
 from django.forms.models import model_to_dict
 
-from VLE.models import Participation, Role
-import VLE.views.responses as responses
-
 
 def get_role(user, cID):
     """Get the role (with permissions) of the given user in the given course.
