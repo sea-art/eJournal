@@ -43,6 +43,7 @@ urlpatterns = [
     path('get_course_data/<int:cID>/', get.get_course_data, name='get_course_data'),
     path('get_assignment_data/<int:cID>/<int:aID>/', get.get_assignment_data, name='get_assignment_data'),
 
+    path('check_valid_token/', get.check_valid_token, name='check_valid_token'),
     path('get_user_courses/', get.get_user_courses, name='get_user_courses'),
     path('get_course_assignments/<int:cID>/', get.get_course_assignments, name='get_course_assignments'),
     path('get_assignment_journals/<int:aID>/', get.get_assignment_journals, name='get_assignment_journals'),

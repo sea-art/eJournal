@@ -23,9 +23,11 @@ class GradePassBackRequest(object):
         self.secret = secret
         self.url = None if journal is None else journal.grade_url
         self.sourcedid = None if journal is None else journal.sourcedid
-        if send_score:
+        if send_score and journal.assignment is not None and journal.assignment.points_possible is not None:
             entries = utils.get_journal_entries(journal)
-            self.score = utils.get_acquired_grade(entries, journal)
+            score = utils.get_acquired_grade(entries, journal)
+            score /= float(journal.assignment.points_possible)
+            self.score = str(score)
         else:
             self.score = None
         self.result_data = result_data

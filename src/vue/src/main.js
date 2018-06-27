@@ -10,8 +10,10 @@ import 'vue-awesome/icons/caret-down'
 import 'vue-awesome/icons/arrows'
 import 'vue-awesome/icons/trash'
 import 'vue-awesome/icons/plus-square'
+import Toasted from 'vue-toasted'
 
 Vue.config.productionTip = false
+Vue.use(Toasted, { position: 'bottom-right', duration: 4000 })
 Vue.use(BootstrapVue)
 
 /* eslint-disable no-new */
@@ -22,7 +24,8 @@ new Vue({
     data: {
         colors: ['pink-border', 'peach-border', 'blue-border'],
         permissions: {},
-        validToken: false
+        validToken: false,
+        previousPage: null
     },
     methods: {
         timeLeft (date) {
@@ -98,7 +101,6 @@ new Vue({
         canCommentJournal () {
             return this.permissions.can_comment_journal
         }
-
     },
     template: '<App/>'
 })

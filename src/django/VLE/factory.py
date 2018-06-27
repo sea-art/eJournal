@@ -57,8 +57,12 @@ def make_course(name, abbrev, startdate=None, author=None, lti_id=None):
     """
     course = Course(name=name, abbreviation=abbrev, startdate=startdate, author=author, lti_id=lti_id)
     course.save()
+
+    # Student, TA and Teacher role are created on course creation as is saves check for lti.
+    make_role_student("Student", course)
+    make_role_ta("TA", course)
+    role = make_role_teacher("Teacher", course)
     if author:
-        role = make_role_all_permissions("Teacher", course)
         make_participation(author, course, role)
     return course
 
@@ -213,12 +217,12 @@ def make_journal_format():
     return journal_format
 
 
-def make_role(name, course, can_edit_course_roles=False, can_view_course_participants=False,
-              can_edit_course=False, can_delete_course=False,
-              can_add_assignment=False, can_view_assignment_participants=False,
-              can_delete_assignment=False, can_publish_assigment_grades=False,
-              can_grade_journal=False, can_publish_journal_grades=False,
-              can_edit_journal=False, can_comment_journal=False):
+def make_role_default_no_perms(name, course, can_edit_course_roles=False, can_view_course_participants=False,
+                               can_edit_course=False, can_delete_course=False,
+                               can_add_assignment=False, can_view_assignment_participants=False,
+                               can_delete_assignment=False, can_publish_assigment_grades=False,
+                               can_grade_journal=False, can_publish_journal_grades=False,
+                               can_edit_journal=False, can_comment_journal=False):
     """Make a role using the given permissions.
 
     A complete overview of the role requirements can be found here:
@@ -251,15 +255,47 @@ def make_role(name, course, can_edit_course_roles=False, can_view_course_partici
     return role
 
 
-def make_role_all_permissions(name, course):
-    """Make a role with all permissions enabled.
+def make_role_default_all_perms(name, course, can_edit_course_roles=True, can_view_course_participants=True,
+                                can_edit_course=True, can_delete_course=True,
+                                can_add_assignment=True, can_view_assignment_participants=True,
+                                can_delete_assignment=True, can_publish_assigment_grades=True,
+                                can_grade_journal=True, can_publish_journal_grades=True,
+                                can_edit_journal=True, can_comment_journal=True):
+    """Make a role where at default all permissions are given.
 
     This enables a participant of the course to do everything within that course.
     This should not be confused with the global roles: these also have effect
     outside of the course.
     """
-    return make_role(name, course, True, True, True, True, True, True,
-                     True, True, True, True, True, True)
+    return make_role_default_no_perms(name, course, can_edit_course_roles, can_view_course_participants,
+                                      can_edit_course, can_delete_course,
+                                      can_add_assignment, can_view_assignment_participants,
+                                      can_delete_assignment, can_publish_assigment_grades,
+                                      can_grade_journal, can_publish_journal_grades,
+                                      can_edit_journal, can_comment_journal)
+
+
+def make_role_student(name, course):
+    """Make a default student role."""
+    return make_role_default_no_perms(name, course, can_edit_journal=True, can_comment_journal=True)
+
+
+def make_role_ta(name, course):
+    """Make a default teacher assitant role."""
+    return make_role_default_no_perms(name, course, can_view_course_participants=True,
+                                      can_view_assignment_participants=True, can_grade_journal=True,
+                                      can_publish_journal_grades=True, can_comment_journal=True)
+
+
+def make_role_observer(name, course):
+    """"Make a default observer role."""
+    return make_role_default_no_perms(name, course, can_view_course_participants=True,
+                                      can_view_assignment_participants=True)
+
+
+def make_role_teacher(name, course):
+    """Make a default teacher role."""
+    return make_role_default_all_perms(name, course, can_edit_journal=False)
 
 
 def make_entrycomment(entry, author, text):

@@ -18,9 +18,8 @@ class UpdateApiTests(TestCase):
         login = test.logging_in(self, self.username, self.password)
         course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
 
-        ta_role = factory.make_role(name='TA', course=course, can_grade_journal=True,
-                                    can_view_assignment_participants=True)
-        student_role = factory.make_role(name='SD', course=course, can_edit_journal=True, can_comment_journal=True)
+        ta_role = Role.objects.get(name='TA', course=course)
+        student_role = factory.make_role_student(name='SD', course=course)
 
         self.user_role = factory.make_user("test123", "test")
         factory.make_participation(self.user_role, course, ta_role)
@@ -60,8 +59,7 @@ class UpdateApiTests(TestCase):
         login = test.logging_in(self, self.username, self.password)
 
         course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
-        factory.make_role(name='Student', course=course, can_edit_journal=True, can_comment_journal=True)
-        teacher_role = factory.make_role_all_permissions('Teacher', course)
+        teacher_role = Role.objects.get(name='Teacher', course=course)
 
         factory.make_participation(self.user, course, teacher_role)
         student = factory.make_user("Rick", "pass")
@@ -80,9 +78,9 @@ class UpdateApiTests(TestCase):
     def test_update_course_roles(self):
         """Test update course roles"""
         teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('Teacher', 'pass')
-        teacher_role = factory.make_role_all_permissions("TE", self.course)
+        teacher_role = factory.make_role_teacher("TE", self.course)
 
-        factory.make_role('TA2', self.course)
+        factory.make_role_ta('TA2', self.course)
         factory.make_participation(teacher, self.course, teacher_role)
 
         login = test.logging_in(self, teacher_user, teacher_pass)
@@ -93,7 +91,7 @@ class UpdateApiTests(TestCase):
             if role['name'] == 'TA2':
                 role['permissions']['can_grade_journal'] = 1
 
-        roles.append(serialize.role_to_dict(factory.make_role('test_role', self.course)))
+        roles.append(serialize.role_to_dict(factory.make_role_default_no_perms('test_role', self.course)))
         test.api_post_call(self, '/update_course_roles/', {'cID': 1, 'roles': roles}, login)
 
         role_test = Role.objects.get(name='TA2', course=self.course)
