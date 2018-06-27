@@ -105,6 +105,7 @@ h4 a {
     background-color: white !important;
     color: var(--theme-dark-blue) !important;
     border: none;
+    margin-bottom: 10px;
 }
 
 .fit-height {
@@ -186,6 +187,24 @@ input, select {
 .portrait-container-sm {
     height: 50px;
     width: 50px;
+}
+
+.add-icon {
+    fill: var(--theme-light-grey) !important;
+    cursor: pointer;
+}
+
+.trash-icon:hover {
+    fill: var(--theme-red);
+}
+
+.trash-icon {
+    fill: var(--theme-red);
+    cursor: pointer;
+}
+
+.add-icon:hover {
+    fill: var(--theme-add-selected) !important;
 }
 
 .add-button {

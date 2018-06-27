@@ -15,9 +15,10 @@ import json
 import VLE.lti_launch as lti
 import VLE.edag as edag
 import VLE.utils as utils
-from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment, User, Node
+from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment, User, Node, \
+    Role
 import VLE.serializers as serialize
-import VLE.permissions as permission
+import VLE.permissions as permissions
 import VLE.views.responses as responses
 
 # VUE ENTRY STATE
@@ -184,7 +185,7 @@ def get_teacher_course_assignments(user, course):
 
     Returns a json string with the assignments for the requested user
     """
-    # TODO: check permission
+    # TODO: check permissions
 
     assignments = []
     for assignment in course.assignment_set.all():
@@ -202,7 +203,7 @@ def get_student_course_assignments(user, course):
 
     Returns a json string with the assignments for the requested user
     """
-    # TODO: check permission
+    # TODO: check permissions
     assignments = []
     for assignment in Assignment.objects.get_queryset().filter(courses=course, journal__user=user):
         assignments.append(serialize.student_assignment_to_dict(assignment, user))
@@ -336,7 +337,7 @@ def get_course_permissions(request, cID):
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
-    roleDict = permission.get_permissions(request.user, int(cID))
+    roleDict = permissions.get_permissions(request.user, int(cID))
 
     return responses.success(payload={'permissions': roleDict})
 
@@ -401,6 +402,26 @@ def get_template(request, tID):
 
 
 @api_view(['GET'])
+def get_course_roles(request, cID):
+    """Get course roles.
+
+    Arguments:
+    request -- the request that was sent.
+    cID     -- the course id
+    """
+    request_user_role = Participation.objects.get(user=request.user.id, course=cID).role
+
+    if not request_user_role.can_edit_course_roles:
+        return JsonResponse({'result': '403 Forbidden'}, status=403)
+
+    roles = []
+
+    for role in Role.objects.filter(course=cID):
+        roles.append(serialize.role_to_dict(role))
+    return responses.success(payload={'roles': roles})
+
+
+@api_view(['GET'])
 def get_user_teacher_courses(request):
     """Get all the courses where the user is a teacher.
 
@@ -410,14 +431,13 @@ def get_user_teacher_courses(request):
     Returns a json string containing the format.
     """
     if not request.user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
-
+        return responses.unauthorized()
     q_courses = Course.objects.filter(participation__user=request.user.id,
                                       participation__role__can_edit_course=True)
     courses = []
     for course in q_courses:
         courses.append(serialize.course_to_dict(course))
-    return JsonResponse({'result': 'success', 'courses': courses}, status=200)
+    return responses.success(payload={'courses': courses})
 
 
 @api_view(['POST'])
@@ -485,8 +505,8 @@ def get_user_data(request, uID):
     user = User.objects.get(pk=uID)
 
     # Check the right permissions to get this users data, either be the user of the data or be an admin.
-    permissions = permission.get_permissions(user, cID=-1)
-    if not (permissions['is_admin'] or request.user.id == uID):
+    permission = permissions.get_permissions(user, cID=-1)
+    if not (permission['is_admin'] or request.user.id == uID):
         return responses.forbidden('You cannot view this users data.')
 
     profile = serialize.user_to_dict(user)

@@ -5,7 +5,7 @@ API functions that handle the delete requests.
 """
 from rest_framework.decorators import api_view
 
-from VLE.models import Assignment, Course, Participation, User
+from VLE.models import Assignment, Course, Participation, User, Role
 
 import VLE.views.responses as responses
 
@@ -82,5 +82,18 @@ def delete_user_from_course(request):
         return responses.not_found(description='User, Course or Participation does not exist.')
 
     participation.delete()
-
     return responses.success(message='Succesfully deleted student from course')
+
+
+@api_view(['POST'])
+def delete_course_role(request):
+    if not request.user.is_authenticated:
+        return responses.unauthorized()
+
+    request_user_role = Participation.objects.get(user=request.user.id, course=request.data['cID']).role
+
+    if not request_user_role.can_edit_course_roles:
+        return responses.forbidden()
+
+    Role.objects.get(name=request.data['name'], course=request.data['cID']).delete()
+    return responses.success(message='Succesfully deleted role from course')

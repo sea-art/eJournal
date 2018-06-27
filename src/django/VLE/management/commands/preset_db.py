@@ -5,7 +5,7 @@ Generate preset data and save it to the database.
 """
 
 from django.core.management.base import BaseCommand
-from VLE.models import Field, Node
+from VLE.models import Field, Node, Role
 import VLE.factory as factory
 from faker import Faker
 import random
@@ -35,18 +35,6 @@ class Command(BaseCommand):
                 is_admin = True
             self.users.append(factory.make_user(u['username'], u['pass'], is_admin=is_admin))
 
-    def gen_roles(self):
-        """Generate roles without permissions."""
-        role_examples = [
-            {"name": "Student"},
-            {"name": "TA"},
-            {"name": "Teacher"}
-        ]
-
-        self.roles = []
-        for r in role_examples:
-            self.roles.append(factory.make_role(r["name"]))
-
     def gen_courses(self):
         """Generate courses."""
         courses_examples = [
@@ -75,15 +63,28 @@ class Command(BaseCommand):
                 "teachers": [0, 1, 2, 3, 4, 5],
             }
         ]
+        role_examples = [
+            {"name": "Student"},
+            {"name": "TA"}
+        ]
 
         self.courses = []
+        self.roles = []
         for c in courses_examples:
             startdate = faker.date_this_decade(before_today=True)
-            course = factory.make_course(c["name"], c["abbr"], startdate, self.users[random.choice(c["teachers"])])
-
+            author = self.users[random.choice(c["teachers"])]
+            course = factory.make_course(c["name"], c["abbr"], startdate, author)
+            role_teacher = Role.objects.get(name='Teacher', course=course)
+            for r in role_examples:
+                self.roles.append(factory.make_role(r["name"], course))
             for sid in c["students"]:
                 student = self.users[sid]
                 factory.make_participation(student, course, self.roles[0])
+            for cid in c["teachers"]:
+                if self.users[cid] == author:
+                    continue
+                teacher = self.users[cid]
+                factory.make_participation(teacher, course, role_teacher)
 
             self.courses.append(course)
 
@@ -264,7 +265,6 @@ class Command(BaseCommand):
         This only contains the 'useful data'. For random data, execute demo_db as well.
         """
         self.gen_users()
-        self.gen_roles()
         self.gen_courses()
         self.gen_templates()
         self.gen_format()
