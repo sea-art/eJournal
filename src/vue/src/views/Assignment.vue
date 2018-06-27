@@ -158,16 +158,16 @@ export default {
 
             /* Filter list based on search input. */
             if (this.selectedSortOption === 'sortName') {
-                store.state.filteredJournals = this.assignmentJournals.filter(checkFilter).sort(compareName)
+                store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareName))
             } else if (this.selectedSortOption === 'sortID') {
-                store.state.filteredJournals = this.assignmentJournals.filter(checkFilter).sort(compareID)
+                store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareID))
             } else if (this.selectedSortOption === 'sortMarking') {
-                store.state.filteredJournals = this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded)
+                store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded))
             } else {
-                store.state.filteredJournals = this.assignmentJournals.filter(checkFilter)
+                store.setFilteredJournals(this.assignmentJournals.filter(checkFilter))
             }
 
-            return store.state.filteredJournals
+            return store.state.filteredJournals.slice()
         }
     }
 }

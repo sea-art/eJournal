@@ -28,18 +28,18 @@
             </div>
         </b-col>
         <b-col cols="12" xl="3" order="3" class="right-content-journal">
-            <h3>Options</h3>
+            <h3>Journal</h3>
             <b-card class="no-hover">
-                <!-- <b-link tag="b-button" :to="{ name: 'Journal',
+                <b-link tag="b-button" :to="{ name: 'Journal',
                                               params: {
-                                                  cID: cID,
-                                                  aID: aID,
-                                                  jID: journal.jID
+                                                  cID: this.$route.params.cID,
+                                                  aID: this.$route.params.aID,
+                                                  jID: this.filteredJournals[1].jID
                                               }
                                             }">
-                    Welke
-                </b-link> -->
-                <!-- {{ store.state.filteredJournals }} -->
+                    volgende
+                </b-link>
+                {{ filteredJournals }}
                 <b-button @click="publishGradesJournal">Publish Grades</b-button>
             </b-card>
         </b-col>
@@ -64,12 +64,14 @@ export default {
             editedData: ['', ''],
             nodes: [],
             newNodes: [],
-            progressNodes: {}
+            progressNodes: {},
+            filteredJournals: []
         }
     },
     created () {
         journal.get_nodes(this.jID)
             .then(response => { this.nodes = response.nodes })
+        this.filteredJournals = store.state.filteredJournals
     },
     watch: {
         currentNode: function () {

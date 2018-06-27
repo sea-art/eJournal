@@ -15,6 +15,10 @@ export default {
         this.state.format.templatePool = templatePool
         this.state.format.nodes = nodes
     },
+    setFilteredJournals (filteredJournals) {
+        console.log('setFilteredJournals triggered with', filteredJournals)
+        this.state.filteredJournals = filteredJournals.slice()
+    },
     clearFormat () {
         this.state.format = { templatePool: [], nodes: [] }
     },
