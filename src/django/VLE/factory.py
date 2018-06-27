@@ -57,8 +57,12 @@ def make_course(name, abbrev, startdate=None, author=None, lti_id=None):
     """
     course = Course(name=name, abbreviation=abbrev, startdate=startdate, author=author, lti_id=lti_id)
     course.save()
+
+    # Student, TA and Teacher role are created on course creation as is saves check for lti.
+    make_role_student("Student", course)
+    make_role_ta("TA", course)
+    role = make_role_teacher("Teacher", course)
     if author:
-        role = make_role_teacher("Teacher", course)
         make_participation(author, course, role)
     return course
 

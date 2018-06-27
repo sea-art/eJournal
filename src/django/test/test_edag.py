@@ -6,7 +6,7 @@ Test all about the edag.
 from django.test import TestCase
 import datetime
 
-from VLE.models import EntryTemplate
+from VLE.models import EntryTemplate, Role
 
 import VLE.factory as factory
 import VLE.edag as edag
@@ -29,7 +29,7 @@ class EdagTests(TestCase):
         f_log = factory.make_format()
 
         course = factory.make_course("Some Course", "c")
-        student_role = factory.make_role_student("Student", course)
+        student_role = Role.objects.get(name='Student', course=course)
         factory.make_participation(self.u_rick, course, student_role)
 
         a_colloq = factory.make_assignment("Colloq", "In de opdracht...1",

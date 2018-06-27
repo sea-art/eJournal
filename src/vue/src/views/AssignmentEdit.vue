@@ -49,7 +49,6 @@ export default {
                 this.assignment = response
                 this.pageName = this.assignment.name
             })
-            .catch(_ => alert('Error while loading assignment data'))
     },
     methods: {
         onSubmit (evt) {

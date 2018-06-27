@@ -3,6 +3,7 @@ from django.test import TestCase
 import VLE.factory as factory
 
 import test.test_utils as test
+from VLE.models import Role
 
 
 class GetApiTests(TestCase):
@@ -36,7 +37,7 @@ class GetApiTests(TestCase):
         """Test the get course users function."""
         login = test.logging_in(self, self.username, self.password)
 
-        TA = factory.make_role_ta("TA", self.course)
+        TA = Role.objects.get(name='TA', course=self.course)
         SD = factory.make_role_student("SD", self.course)
         factory.make_participation(self.rein, self.course, TA)
         factory.make_participation(self.lars, self.course, SD)
@@ -53,8 +54,7 @@ class GetApiTests(TestCase):
     def test_get_unenrolled_users(self):
         """Test the get get_unenrolledusers."""
         login = test.logging_in(self, self.username, self.password)
-
-        TA = factory.make_role_ta("TA", self.course)
+        TA = Role.objects.get(name='TA', course=self.course)
         SD = factory.make_role_student("SD", self.course)
         factory.make_participation(self.rein, self.course, TA)
         factory.make_participation(self.lars, self.course, SD)
@@ -67,7 +67,7 @@ class GetApiTests(TestCase):
     def test_get_user_courses(self):
         """Test the get user courses function."""
         for course in test.set_up_courses('course', 4):
-            student_role = factory.make_role_student('Student', course)
+            student_role = Role.objects.get(name='Student', course=course)
             factory.make_participation(self.user, course, student_role)
 
         login = test.logging_in(self, self.username, self.password)
@@ -89,7 +89,7 @@ class GetApiTests(TestCase):
         """Test the get course assignment function."""
         course = factory.make_course('Portfolio', 'PAV', author=self.rein)
         assigns = test.set_up_assignments('assign', 'desc', 2, course=course)
-        student_role = factory.make_role_student('Student', course)
+        student_role = Role.objects.get(name='Student', course=course)
         factory.make_participation(self.user, course, student_role)
         factory.make_journal(assigns[0], self.user)
         factory.make_journal(assigns[1], self.user)
@@ -108,11 +108,10 @@ class GetApiTests(TestCase):
         teacher_user = 'Teacher'
         teacher_pass = 'pass'
         teacher = factory.make_user(teacher_user, teacher_pass)
-        factory.make_role_ta("TA", self.course)
         factory.make_role_student("SD", self.course)
         factory.make_role_default_no_perms("HE", self.course)
         teacher_role = factory.make_role_teacher("TE", self.course)
         factory.make_participation(teacher, self.course, teacher_role)
         login = test.logging_in(self, teacher_user, teacher_pass)
         result = test.api_get_call(self, '/api/get_course_roles/1/', login)
-        self.assertEquals(len(result.json()['roles']), 4)
+        self.assertEquals(len(result.json()['roles']), 6)

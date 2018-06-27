@@ -86,7 +86,6 @@ export default {
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData
             journal.create_entry(this.jID, this.nodes[this.currentNode].entry.template.tID, editedData.entry.content, this.nodes[this.currentNode].nID)
-                .catch(_ => alert('Error while creating the entry.'))
                 .then(response => {
                     this.nodes = response.nodes
                     this.currentNode = response.added
@@ -113,7 +112,6 @@ export default {
         },
         addNode (infoEntry) {
             journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
-                .catch(_ => alert('Error while creating the entry.'))
                 .then(response => {
                     this.nodes = response.nodes
                     this.currentNode = response.added
@@ -121,7 +119,6 @@ export default {
         },
         fillDeadline (data) {
             journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data, this.nodes[this.currentNode].nID)
-                .catch(_ => alert('Error while creating the entry.'))
                 .then(response => {
                     this.nodes = response.nodes
                     this.currentNode = response.added
