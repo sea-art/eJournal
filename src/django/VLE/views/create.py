@@ -15,7 +15,8 @@ import VLE.lti_grade_passback as lti_grade
 
 import VLE.views.responses as responses
 
-
+import jwt
+from django.conf import settings
 @api_view(['POST'])
 def create_new_course(request):
     """Create a new course.
@@ -186,3 +187,37 @@ def create_entrycomment(request):
     factory.make_entrycomment(entry, author, text)
 
     return responses.success()
+
+
+@api_view(['POST'])
+def create_lti_user(request):
+    """Create a new user with lti_id.
+
+    Arguments:
+    request -- the request
+        username -- username of the new user
+        password -- password of the new user
+        first_name -- first_name (optinal)
+        last_name -- last_name (optinal)
+        email -- email (optinal)
+        jwt_params -- jwt params to get the lti information from
+            user_id -- id of the user
+            user_image -- user image
+            roles -- role of the user
+    """
+    if not request.data['jwt_params']:
+        return responses.bad_request()
+
+    lti_params = jwt.decode(request.data['jwt_params'], setttings.LTI_SECRET, algorithms=['HS256'])
+
+    user_id, user_image = lti_params['user_id'], lti_params['user_image']
+    is_teacher = json.load(open('config.json'))['Teacher'] in lti_params
+
+    try:
+        username, password = utils.required_params(request.data, 'username', 'password', 'text')
+        first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
+    except KeyError:
+        return responses.keyerror('username', 'password')
+
+    factory.make_user(username, password, email=email, lti_id=user_id, is_teacher=is_teacher,
+                      first_name=first_name, last_name=last_name, profile_picture=user_image)
