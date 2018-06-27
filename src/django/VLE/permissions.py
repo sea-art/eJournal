@@ -8,7 +8,7 @@ from VLE.models import Participation
 from django.forms.models import model_to_dict
 
 
-def get_role(user, cID):
+def get_role(user, course):
     """Get the role (with permissions) of the given user in the given course.
 
     Arguments:
@@ -203,3 +203,11 @@ def has_assignment_permission(user, assignment, permission):
 
     permissions = get_assignment_permissions(user, assignment)
     return permission in permissions and permissions[permission]
+
+
+def is_user_in_course(user, course):
+    return Participation.objects.filter(user=user, course=course).exists()
+
+
+def get_user_role(user, course):
+    return Participation.objects.get(user=user, course=course).role

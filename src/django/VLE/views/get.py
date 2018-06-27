@@ -65,7 +65,15 @@ def get_course_data(request, cID):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    course = serialize.course_to_dict(Course.objects.get(pk=cID))
+    try:
+        q_course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
+        return responses.not_found('Course does not exist.')
+
+    if not permissions.is_user_in_course(user, q_course):
+        return responses.forbidden('You are not in this course.')
+
+    course = serialize.course_to_dict(q_course)
 
     return responses.success(payload={'course': course})
 
@@ -80,13 +88,19 @@ def get_course_users(request, cID):
 
     Returns a json string with a list of participants.
     """
-    if not request.user.is_authenticated:
+    user = request.user
+    if not user.is_authenticated:
         return responses.unauthorized()
 
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
         return responses.not_found('Course does not exist.')
+
+    if not permissions.is_user_in_course(user, course):
+        return responses.forbidden('You are not in this course.')
+    elif not permissions.get_user_role(user, course).can_view_course_participants:
+        return responses.forbidden('You cannot view participants in this course.')
 
     participations = course.participation_set.all()
     return responses.success(payload={'users': [serialize.participation_to_dict(participation)
@@ -103,13 +117,19 @@ def get_unenrolled_users(request, cID):
 
     Returns a json string with a list of participants.
     """
-    if not request.user.is_authenticated:
+    user = request.user
+    if not user.is_authenticated:
         return JsonResponse({'result': '401 Authentication Error'}, status=401)
 
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
         return responses.not_found('Course does not exist.')
+
+    if not permissions.is_user_in_course(user, course):
+        return responses.forbidden('You are not in this course.')
+    elif not permissions.get_user_role(user, course).can_edit_course:
+        return responses.forbidden('You cannot edit this course.')
 
     ids_in_course = course.participation_set.all().values('user__id')
     result = User.objects.all().exclude(id__in=ids_in_course)
@@ -151,7 +171,10 @@ def get_linkable_courses(request):
     Returns all of the courses."""
     user = request.user
     if not user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
+
+    if not user.is_teacher:
+        return responses.forbidden("You are not allowed to add courses.")
 
     courses = []
     unlinked_courses = Course.objects.filter(participation__user=user.id,
@@ -172,7 +195,7 @@ def get_teacher_course_assignments(user, course):
 
     Returns a json string with the assignments for the requested user
     """
-    # TODO: check permissions
+    # TODO: Extra information for the teacher.
 
     assignments = []
     for assignment in course.assignment_set.all():
@@ -190,7 +213,6 @@ def get_student_course_assignments(user, course):
 
     Returns a json string with the assignments for the requested user
     """
-    # TODO: check permissions
     assignments = []
     for assignment in Assignment.objects.filter(courses=course, journal__user=user):
         assignments.append(serialize.student_assignment_to_dict(assignment, user))
@@ -212,11 +234,16 @@ def get_course_assignments(request, cID):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    course = Course.objects.get(pk=cID)
-    participation = Participation.objects.get(user=user, course=course)
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
+        return responses.not_found('Course does not exist.')
+
+    if not permissions.is_user_in_course(user, course):
+        return responses.not_found('You are not in this course.')
 
     # Check whether the user can grade a journal in the course.
-    if participation.role.can_grade_journal:
+    if permissions.get_user_role().can_grade_journal:
         return responses.success(payload={'assignments': get_teacher_course_assignments(user, course)})
     else:
         return responses.success(payload={'assignments': get_student_course_assignments(user, course)})
@@ -239,11 +266,20 @@ def get_assignment_data(request, cID, aID):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    course = Course.objects.get(pk=cID)
-    assignment = Assignment.objects.get(pk=aID)
-    participation = Participation.objects.get(user=user, course=course)
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
+        return responses.not_found('Course does not exist.')
 
-    if participation.role.can_grade_journal:
+    if not permissions.is_user_in_course(user, course):
+        return responses.not_found('You are not in this course.')
+
+    try:
+        assignment = Assignment.objects.get(pk=aID)
+    except Assignment.DoesNotExist:
+        return responses.not_found('Assignment does not exist.')
+
+    if permissions.get_user_role(user, course).can_grade_journal:
         return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
     else:
         return responses.success(payload={'assignment': serialize.student_assignment_to_dict(assignment, request.user)})
@@ -265,7 +301,7 @@ def get_assignment_journals(request, aID):
 
     try:
         assignment = Assignment.objects.get(pk=aID)
-    except (Assignment.DoesNotExist):
+    except Assignment.DoesNotExist:
         return responses.not_found('Assignment does not exist.')
 
     if not permissions.has_assignment_permission(user, assignment, 'can_view_assignment_participants'):
