@@ -12,6 +12,7 @@
 <script>
 export default {
     name: 'CreateUser',
+    props: ['lti'],
     data () {
         return {
             form: {

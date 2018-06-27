@@ -9,6 +9,7 @@ import loginForm from '@/components/LoginForm.vue'
 
 export default {
     name: 'ConnectUser',
+    props: ['lti'],
     components: {
         'login-form': loginForm
     },
