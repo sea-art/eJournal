@@ -16,7 +16,6 @@ import CourseEdit from '@/views/CourseEdit'
 import AssignmentEdit from '@/views/AssignmentEdit'
 import UserRoleConfiguration from '@/views/UserRoleConfiguration'
 import FormatEdit from '@/views/FormatEdit'
-
 import authAPI from '@/api/auth.js'
 
 Vue.use(Router)

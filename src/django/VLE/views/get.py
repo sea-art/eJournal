@@ -356,7 +356,7 @@ def get_course_permissions(request, cID):
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
-    roleDict = permission.get_permissions(request.user, int(cID))
+    roleDict = permissions.get_permissions(request.user, int(cID))
     if not roleDict:
         return responses.forbidden('You are not participating in this course')
 

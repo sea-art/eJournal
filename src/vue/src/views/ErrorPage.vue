@@ -23,12 +23,10 @@ export default {
     name: 'Error',
     props: {
         code: {
-            default: 404,
-            required: true
+            default: 404
         },
         message: {
-            default: 'Not found',
-            required: true
+            default: 'Not found'
         },
         description: {
             type: String

@@ -44,6 +44,9 @@
 
             </b-nav-dropdown>
         </b-navbar-nav>
+        <div id="toast" style="display:none;position:fixed;bottom:0;right:0;margin:0px 50px 50px 0px;padding:20px;z-index:100;background:#c83b4b;color:white">
+            Jawel
+        </div>
     </b-navbar>
 </template>
 
