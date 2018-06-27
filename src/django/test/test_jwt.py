@@ -9,6 +9,8 @@ from django.urls import reverse
 
 from VLE.models import User
 
+import test.test_utils as test
+
 
 class JWTTests(TestCase):
     """Test JWT.
@@ -18,12 +20,7 @@ class JWTTests(TestCase):
 
     def setUp(self):
         """Setup."""
-        self.username = 'test'
-        self.password = 'test123'
-
-        self.user = User(username=self.username)
-        self.user.set_password(self.password)
-        self.user.save()
+        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123')
 
     def test_get_auth(self):
         """Test simple authentication with JWT keys."""

@@ -7,6 +7,7 @@ from django.db.models import Case, When
 from django.utils import timezone
 from VLE.models import Node
 import VLE.serializers as serialize
+import VLE.permissions as permissions
 
 
 def get_sorted_nodes(journal):
@@ -22,16 +23,15 @@ def get_sorted_nodes(journal):
     ).order_by('sort_deadline')
 
 
-def get_nodes_dict(journal, requester):
+def get_nodes_dict(journal, user):
     """Convert a journal to a list of node dictionaries.
 
     First sorts the nodes on date, then attempts to add an
-    add-node if the requester is the owner of the journal, the subsequent
+    add-node if the user can add to the journal, the subsequent
     progress node is in the future and maximally one.
     """
-    is_own_journal = False
-    if requester and journal.user == requester:
-        is_own_journal = True
+    can_add = journal.user == user
+    can_add = can_add and permissions.has_assignment_permission(user, journal.assignment, 'can_edit_journal')
 
     nodes = get_sorted_nodes(journal)
     node_dict = []
@@ -39,8 +39,8 @@ def get_nodes_dict(journal, requester):
     for node in nodes:
         if node.type == Node.PROGRESS:
             is_future = (node.preset.deadline - timezone.now()).total_seconds() > 0
-            if is_own_journal and not added_add_node and is_future:
+            if can_add and not added_add_node and is_future:
                 node_dict.append(serialize.add_node_dict(journal))
                 added_add_node = True
-        node_dict.append(serialize.node_to_dict(node))
+        node_dict.append(serialize.node_to_dict(node, user))
     return node_dict

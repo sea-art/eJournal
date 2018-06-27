@@ -1,10 +1,14 @@
 <template>
     <content-columns>
         <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
-        <b-button slot="main-content-column" :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">Edit Assignment Format</b-button>
         <b-card slot="main-content-column" class="settings-card no-hover">
             <b-row>
-                <b-col lg="4" md="12">
+                <b-col lg="3" md="3">
+                    <b-button :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">Edit Assignment Format</b-button>
+                </b-col>
+            </b-row>
+            <b-row>
+                <b-col lg="3" md="3">
                     <b-form-select v-model="selectedSortOption" :select-size="1">
                        <option :value="null">Sort by ...</option>
                        <option value="sortName">Sort on name</option>

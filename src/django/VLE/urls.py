@@ -53,8 +53,10 @@ urlpatterns = [
     path('api/get_names/', get.get_names, name='get_names'),
     path('api/get_entrycomments/<int:entryID>/', get.get_entrycomments, name='get_entrycomments'),
     path('api/get_course_users/<int:cID>/', get.get_course_users, name='get_course_users'),
+    path('api/get_course_roles/<int:cID>/', get.get_course_roles, name='get_user_roles'),
     path('api/get_user_teacher_courses/', get.get_user_teacher_courses, name='get_user_teacher_courses'),
     path('api/get_assignment_by_lti_id/<str:lti_id>/', get.get_assignment_by_lti_id, name='get_assignment_by_lti_id'),
+    path('api/get_linkable_courses/', get.get_linkable_courses, name='get_linkable_courses'),
     path('api/get_template/<int:tID>/', get.get_template, name='get_template'),
     path('api/get_user_data/<int:uID>/', get.get_user_data, name='get_user_data'),
     path('api/get_unenrolled_users/<int:cID>/', get.get_unenrolled_users, name='get_unenrolled_users'),
@@ -63,6 +65,7 @@ urlpatterns = [
     path('api/create_new_assignment/', create.create_new_assignment, name='create_new_assignment'),
     path('api/create_entry/', create.create_entry, name='create_entry'),
     path('api/create_entrycomment/', create.create_entrycomment, name='create_entrycomment'),
+    path('api/create_journal/', create.create_journal, name='create_journal'),
 
     path('api/update_user_data/', update.update_user_data, name='update_user_data'),
     path('api/update_course/', update.update_course, name='update_course'),
@@ -76,6 +79,7 @@ urlpatterns = [
          name='update_comment_notification'),
     path('api/update_format/', update.update_format, name='update_format'),
     path('api/update_entrycomment/', update.update_entrycomment, name='update_entrycomment'),
+    path('api/update_course_roles/', update.update_course_roles, name='update_course_roles'),
 
     path('api/update_grade_entry/<int:eID>/', update.update_grade_entry, name='update_grade_entry'),
     path('api/update_publish_grade_entry/<int:eID>/', update.update_publish_grade_entry, name='update_grade_entry'),
@@ -90,6 +94,7 @@ urlpatterns = [
     path('api/delete_course/', delete.delete_course, name='delete_course'),
     path('api/delete_assignment/', delete.delete_assignment, name='delete_assignment'),
     path('api/delete_user_from_course/', delete.delete_user_from_course, name='delete_user_from_course'),
+    path('api/delete_course_role/', delete.delete_course_role, name='delete_course_role'),
 
     path('api/lti/launch', get.lti_launch, name='lti_launch'),
 ]
