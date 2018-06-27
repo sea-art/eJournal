@@ -117,8 +117,7 @@ export default {
             })
         },
         publishGradesAssignment () {
-            journal.update_publish_grades_assignment(this.aID, 1)
-            alert('All the grades for each journal are published.')
+            journal.update_publish_grades_assignment(this.aID, 1).then(alert('All the grades for each journal are published.'))
         }
     },
     computed: {
