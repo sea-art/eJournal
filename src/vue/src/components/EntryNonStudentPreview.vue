@@ -117,7 +117,6 @@ export default {
                 journalApi.update_grade_entry(this.entryNode.entry.eID,
                     this.grade,
                     this.status)
-                // console.log(this.entryNode)
                 this.$emit('check-grade', this.tempNode)
             }
         }
