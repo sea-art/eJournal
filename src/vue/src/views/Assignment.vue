@@ -1,10 +1,14 @@
 <template>
     <content-columns>
         <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
-        <b-button slot="main-content-column" :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">Edit Assignment Format</b-button>
         <b-card slot="main-content-column" class="settings-card no-hover">
             <b-row>
-                <b-col lg="4" md="12">
+                <b-col lg="3" md="3">
+                    <b-button :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">Edit Assignment Format</b-button>
+                </b-col>
+            </b-row>
+            <b-row>
+                <b-col lg="3" md="3">
                     <b-form-select v-model="selectedSortOption" :select-size="1">
                        <option :value="null">Sort by ...</option>
                        <option value="sortName">Sort on name</option>
@@ -14,6 +18,11 @@
                 </b-col>
                 <b-col lg="5" md="12">
                     <input type="text" v-model="searchVariable" placeholder="Search .."/>
+                </b-col>
+            </b-row>
+            <b-row>
+                <b-col lg="3" md="3">
+                    <b-button @click="publishGradesAssignment">Publish all Grades</b-button>
                 </b-col>
             </b-row>
         </b-card>
@@ -26,13 +35,16 @@
                                               jID: journal.jID
                                           }
                                         }">
+
                 <student-card
                     :student="journal.student.name"
                     :studentNumber="journal.student.uID"
                     :portraitPath="journal.student.picture"
                     :stats="journal.stats"
-                    :color="$root.colors[journal.uid % $root.colors.length]">
+                    :color="$root.colors[journal.uid % $root.colors.length]"
+                    :jID="journal.jID">
                 </student-card>
+
             </b-link>
         </div>
         <div v-if="assignmentJournals.length === 0" slot="main-content-column">
@@ -89,7 +101,6 @@ export default {
                 this.assignmentJournals = response.journals
                 this.stats = response.stats
             })
-            .catch(_ => alert('Error while loading jounals'))
     },
     methods: {
         customisePage () {
@@ -103,6 +114,10 @@ export default {
                     aID: this.aID
                 }
             })
+        },
+        publishGradesAssignment () {
+            journal.update_publish_grades_assignment(this.aID, 1)
+            alert('All the grades for each journal are published.')
         }
     },
     computed: {

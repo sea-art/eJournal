@@ -1,15 +1,14 @@
 <template>
     <b-row class="outer-container" no-gutters>
-        <!-- TODO: reopen bread-crumb when it is working again -->
         <b-col v-if="bootstrapLg()" cols="12">
             <bread-crumb v-if="bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
-        <b-col v-else xl="3" class="left-content">
+        <b-col v-else xl="3" class="left-content-journal">
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
 
-        <b-col lg="12" xl="6" order="2" class="main-content">
+        <b-col lg="12" xl="6" order="2" class="main-content-journal">
             <bread-crumb v-if="!bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
@@ -35,7 +34,7 @@
                 </div>
             </div>
         </b-col>
-        <b-col cols="12" xl="3" order="3" class="right-content"/>
+        <b-col cols="12" xl="3" order="3" class="right-content-journal"/>
     </b-row>
 </template>
 
@@ -61,7 +60,6 @@ export default {
     created () {
         journal.get_nodes(this.jID)
             .then(response => { this.nodes = response.nodes })
-            .catch(_ => alert('Error while loading nodes.'))
     },
     watch: {
         currentNode: function () {
@@ -74,7 +72,6 @@ export default {
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData
             journal.create_entry(this.jID, this.nodes[this.currentNode].entry.template.tID, editedData.entry.content, this.nodes[this.currentNode].nID)
-                .catch(_ => alert('Error while creating the entry.'))
                 .then(response => {
                     this.nodes = response.nodes
                     this.currentNode = response.added
@@ -101,33 +98,29 @@ export default {
         },
         addNode (infoEntry) {
             journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
-                .catch(_ => alert('Error while creating the entry.'))
                 .then(response => {
                     this.nodes = response.nodes
                     this.currentNode = response.added
                 })
-                // .catch(_ => alert('Error while loading nodes.')))
-                // .then(response => { this.nodes = response.nodes })
         },
         fillDeadline (data) {
             journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data, this.nodes[this.currentNode].nID)
-                .catch(_ => alert('Error while creating the entry.'))
                 .then(response => {
                     this.nodes = response.nodes
                     this.currentNode = response.added
                 })
-            // journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data)
         },
         progressPoints (progressNode) {
             var tempProgress = 0
-
             for (var node of this.nodes) {
                 if (node.nID === progressNode.nID) {
                     break
                 }
 
                 if (node.type === 'e' || node.type === 'd') {
-                    tempProgress += node.entry.grade
+                    if (node.entry.published && node.entry.published !== '0') {
+                        tempProgress += node.entry.grade
+                    }
                 }
             }
 
@@ -150,15 +143,3 @@ export default {
     }
 }
 </script>
-
-<style>
-.left-content {
-    height: 100%;
-    overflow: hidden;
-}
-
-.outer-container {
-    height: 100%;
-    overflow: hidden;
-}
-</style>

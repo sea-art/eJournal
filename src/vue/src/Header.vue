@@ -1,17 +1,17 @@
 <template>
-    <b-navbar v-if="!isGuest" id="header" toggleable="md" type="dark" fixed=top>
+    <b-navbar v-if="$root.validToken" id="header" toggleable="md" type="dark" fixed=top>
         <b-navbar-brand :to="'/Home'" class="brand-name">Logboek</b-navbar-brand>
 
-        <b-navbar-toggle class="ml-auto mr-auto" target="nav_collapse" aria-expanded="false" aria-controls="nav_collapse">
-            <span class="nav_collapse__icon nav_collapse__icon--open">
+        <b-navbar-toggle class="ml-auto mr-auto" target="nav-collapse" aria-expanded="false" aria-controls="nav-collapse">
+            <span class="nav-collapse__icon nav-collapse__icon--open">
                 <icon class="collapse-icon" name="caret-down" scale="1.75"></icon>
             </span>
-            <span class="nav_collapse__icon nav_collapse__icon--close">
+            <span class="nav-collapse__icon nav-collapse__icon--close">
                 <icon class="collapse-icon" name="caret-up" scale="1.75"></icon>
             </span>
         </b-navbar-toggle>
 
-        <b-collapse is-nav id="nav_collapse">
+        <b-collapse is-nav id="nav-collapse">
             <b-navbar-nav class="mr-auto">
                 <b-nav-item :to="{ name : 'Home' }">Courses</b-nav-item>
                 <b-nav-item :to="{ name : 'AssignmentsOverview' }">Assignments</b-nav-item>
@@ -20,9 +20,9 @@
 
         <b-navbar-nav class="ml-auto">
             <b-nav-item-dropdown no-caret right id="nav-dropdown-options">
-                <img id="nav-profile-image" slot="button-content" src="/static/oh_no/ohno.jpeg">
-                <b-dropdown-item><b-button :to="{ name: 'Profile'}">Profile</b-button></b-dropdown-item>
-                <b-dropdown-item><b-button @click="handleLogout()">Sign out</b-button><br/></b-dropdown-item>
+                <img id="nav-profile-image" slot="button-content" :src="profileImg">
+                <b-dropdown-item><b-button :to="{ name: 'Profile' }" class="multi-form">Profile</b-button></b-dropdown-item>
+                <b-dropdown-item><b-button :to="{ name: 'Logout' }">Sign out</b-button><br/></b-dropdown-item>
             </b-nav-item-dropdown>
         </b-navbar-nav>
     </b-navbar>
@@ -31,50 +31,72 @@
         <b-navbar-brand  :to="'/'" class="brand-name">Logboek</b-navbar-brand>
 
         <b-navbar-nav class="ml-auto">
-            <b-nav-dropdown right no-caret id="nav-dropdown-options">
+            <b-nav-dropdown right no-caret id="nav-dropdown-options" ref="loginDropdown">
+                <!-- TODO Fix dynamic binding default image -->
                 <img id="nav-profile-image" slot="button-content" src="~@/assets/unknown-profile.png">
-                <div><login-form @login-succes="handleLoginSucces()"/></div>
+
+                <b-form @submit.prevent="handleLogin()" class="login-form-header">
+                    <b-input class="multi-form" v-model="username" required placeholder="Username"/>
+                    <b-input class="multi-form" type="password" @keyup.enter="handleLogin()" v-model="password" required placeholder="Password"/>
+                    <b-button class="multi-form" type="submit">Login</b-button><br/>
+                    <b-button>Forgot password?</b-button>
+                </b-form>
+
             </b-nav-dropdown>
         </b-navbar-nav>
+        <div id="toast" style="display:none;position:fixed;bottom:0;right:0;margin:0px 50px 50px 0px;padding:20px;z-index:100;background:#c83b4b;color:white"/>
     </b-navbar>
 </template>
 
 <script>
-import LoginForm from '@/components/LoginForm.vue'
 import icon from 'vue-awesome/components/Icon'
-import loginAPI from '@/api/auth.js'
+import authAPI from '@/api/auth.js'
+import userAPI from '@/api/user.js'
 
 export default {
     components: {
-        'login-form': LoginForm,
         icon
     },
     data () {
         return {
             // TODO Figure out why webpack messes this up
-            profileImg: '~@/assets/unknown-profile.png',
-            isGuest: true
+            profileImg: '~/assets/unknown-profile.png',
+            username: '',
+            password: '',
+            profile: ''
         }
     },
     methods: {
-        checkPermissions () {
-            this.isGuest = this.$router.currentRoute.path === '/'
-        },
         handleLogout () {
-            this.isGuest = true
-            loginAPI.logout()
+            authAPI.logout()
             this.$router.push('/')
         },
-        handleLoginSucces () {
-            this.isGuest = false
-            // this.$root.$emit('bv::toggle::collapse', 'nav_collapse')
-            this.show = false
-            this.$nextTick(() => { this.show = true })
-            this.$router.push('/Home')
+        handleLogin () {
+            authAPI.login(this.username, this.password)
+                .then(_ => {
+                    console.log('Handling login success')
+                    this.setProfilePicture()
+                    this.$router.push({name: 'Home'})
+                })
+                .catch(_ => {
+                    alert('Could not login')
+                })
+        },
+        setProfilePicture () {
+            userAPI.getOwnUserData()
+                .then(user => {
+                    this.profile = user
+                    if (user.picture) {
+                        this.profileImg = user.picture
+                    } else {
+                        // TODO Set default user picture
+                    }
+                })
+                .catch(_ => {
+                    alert('Something went wrong retrieving user data')
+                    // TODO Set default user picture
+                })
         }
-    },
-    created () {
-        this.checkPermissions()
     }
 }
 </script>
@@ -95,7 +117,7 @@ export default {
     padding: 0.375rem 0.75rem !important;
 }
 
-#nav_collapse {
+#nav-collapse {
     background-color: var(--theme-dark-blue);
 }
 
@@ -104,24 +126,20 @@ export default {
 }
 
 /* Handles rotation of the arrow icon. */
-[aria-expanded="false"] .nav_collapse__icon--open {
+[aria-expanded="false"] .nav-collapse__icon--open {
     display: block;
 }
 
-[aria-expanded="false"] .nav_collapse__icon--close {
+[aria-expanded="false"] .nav-collapse__icon--close {
     display: none;
 }
 
-[aria-expanded="true"] .nav_collapse__icon--open {
+[aria-expanded="true"] .nav-collapse__icon--open {
     display: none;
 }
 
-[aria-expanded="true"] .nav_collapse__icon--close {
+[aria-expanded="true"] .nav-collapse__icon--close {
     display: block;
-}
-
-#login-form {
-    background: none !important;
 }
 
 .dropdown-menu {
@@ -147,6 +165,10 @@ export default {
     border-radius: 50% !important;
 }
 
+.login-form-header {
+    background-color: var(--theme-light-grey);
+}
+
 @media(max-width:992px) {
     #nav-dropdown-options {
         position: absolute;
@@ -169,6 +191,7 @@ export default {
         left: 50%;
         right: 50%;
         top: 15px;
+        transform: translateX(-50%);
         border-radius: 50% !important;
     }
 }

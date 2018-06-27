@@ -1,22 +1,22 @@
 <template>
     <b-row class="outer-container" no-gutters>
-    <!-- TODO: reopen bread-crumb when it is working again -->
         <b-col v-if="bootstrapLg()" cols="12">
-            <!-- <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
+            <bread-crumb v-if="bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
-        <b-col v-else xl="3" class="left-content">
+        <b-col v-else xl="3" class="left-content-journal">
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
 
-        <b-col lg="12" xl="6" order="2" class="main-content">
-            <!-- <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
+        <b-col lg="12" xl="6" order="2" class="main-content-journal">
+            <bread-crumb v-if="!bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
                     <entry-non-student-preview ref="entry-template-card" :entryNode="nodes[currentNode]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'd'">
-                    <entry-non-student-preview ref="entry-template-card" :entryNode="nodes[currentNode]"/>
+                    <entry-non-student-preview v-if="nodes[currentNode].entry !== null" ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
+                    <div v-else>No entry yet submitted</div>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'p'">
                     <b-card class="card main-card no-hover" :class="'pink-border'">
@@ -27,7 +27,12 @@
                 </div>
             </div>
         </b-col>
-        <b-col cols="12" xl="3" order="3" class="right-content"/>
+        <b-col cols="12" xl="3" order="3" class="right-content-journal">
+            <b-card class="no-hover">
+                <h4>Options</h4><br>
+                <b-button @click="publishGradesJournal">Publish Grades</b-button>
+            </b-card>
+        </b-col>
     </b-row>
 </template>
 
@@ -54,7 +59,6 @@ export default {
     created () {
         journal.get_nodes(this.jID)
             .then(response => { this.nodes = response.nodes })
-            .catch(_ => alert('Error while loading nodes.'))
     },
     watch: {
         currentNode: function () {
@@ -88,11 +92,9 @@ export default {
         },
         addNode (infoEntry) {
             journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
-            console.log(this.nodes)
             journal.get_nodes(this.jID)
                 .then(response => { this.nodes = response.nodes })
                 .catch(_ => alert('Error while loading nodes.'))
-            console.log(this.nodes)
         },
         progressPoints (progressNode) {
             var tempProgress = 0
@@ -103,11 +105,31 @@ export default {
                 }
 
                 if (node.type === 'e' || node.type === 'd') {
-                    tempProgress += node.entry.grade
+                    if (node.entry.published && node.entry.published !== '0') {
+                        tempProgress += parseInt(node.entry.grade)
+                    }
                 }
             }
 
-            this.progressNodes[progressNode.nID] = tempProgress
+            this.progressNodes[progressNode.nID] = tempProgress.toString()
+        },
+        updatedGrade (newNode) {
+            this.nodes[this.currentNode] = newNode
+            for (var node of this.nodes) {
+                if (node.type === 'p') {
+                    this.progressPoints(node)
+                }
+            }
+        },
+        publishGradesJournal () {
+            journal.update_publish_grades_journal(this.jID, 1)
+            alert('All the grades for this journal are published.')
+
+            for (var node of this.nodes) {
+                if (node.type === 'e' || node.type === 'd') {
+                    node.entry.published = true
+                }
+            }
         },
         bootstrapLg () {
             return this.windowHeight < 1200
@@ -126,15 +148,3 @@ export default {
     }
 }
 </script>
-
-<style>
-.left-content {
-    height: 100%;
-    overflow: hidden;
-}
-
-.outer-container {
-    height: 100%;
-    overflow: hidden;
-}
-</style>

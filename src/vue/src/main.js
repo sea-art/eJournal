@@ -9,6 +9,7 @@ import 'vue-awesome/icons/caret-up'
 import 'vue-awesome/icons/caret-down'
 import 'vue-awesome/icons/arrows'
 import 'vue-awesome/icons/trash'
+import 'vue-awesome/icons/plus-square'
 
 Vue.config.productionTip = false
 Vue.use(BootstrapVue)
@@ -21,7 +22,8 @@ new Vue({
     data: {
         colors: ['pink-border', 'peach-border', 'blue-border'],
         permissions: {},
-        validToken: false
+        validToken: false,
+        previousPage: null
     },
     methods: {
         timeLeft (date) {
@@ -96,6 +98,22 @@ new Vue({
         },
         canCommentJournal () {
             return this.permissions.can_comment_journal
+        },
+
+        hideToast () {
+            document.getElementById('toast').style.display = 'none'
+        },
+        showToast (description, time = 5000, type = 'error') {
+            if (type === 'error') {
+                document.getElementById('toast').style.background = '#c83b4b'
+            } else if (type === 'info') {
+                document.getElementById('toast').style.background = '#22648A'
+            } else {
+                document.getElementById('toast').style.background = 'green'
+            }
+            document.getElementById('toast').innerHTML = description
+            document.getElementById('toast').style.display = 'block'
+            setTimeout(this.hideToast, time)
         }
 
     },

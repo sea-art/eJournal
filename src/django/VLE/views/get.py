@@ -4,23 +4,40 @@ get.py.
 API functions that handle the get requests.
 """
 from rest_framework.decorators import api_view
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.conf import settings
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.shortcuts import redirect
 
-import json
 import statistics as st
+import json
 
 import VLE.lti_launch as lti
-from VLE.lti_grade_passback import GradePassBackRequest
 import VLE.edag as edag
 import VLE.utils as utils
-from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment, User, Node
+from VLE.models import Assignment, Course, Participation, Journal, EntryTemplate, EntryComment, User, Node, \
+    Role
 import VLE.serializers as serialize
-import VLE.permissions as permission
-
+import VLE.permissions as permissions
 import VLE.views.responses as responses
+
+# VUE ENTRY STATE
+BAD_AUTH = '-1'
+NO_COURSE = '0'
+NO_ASSIGN = '1'
+NEW_COURSE = '2'
+NEW_ASSIGN = '3'
+FINISH_T = '4'
+FINISH_S = '5'
+GRADE_CENTER = '6'
+
+
+@api_view(['GET'])
+def check_valid_token(request):
+    """Check if the token is a valid token."""
+    if not request.user.is_authenticated:
+        return responses.unauthorized()
+    return responses.success()
 
 
 @api_view(['GET'])
@@ -130,6 +147,33 @@ def get_user_courses(request):
     return responses.success(payload={'courses': courses})
 
 
+@api_view(['GET'])
+def get_linkable_courses(request):
+    """Get linkable courses.
+
+    Get all courses that the current user is connected with as sufficiently
+    authenticated user. The lti_id should be equal to NULL. A user can then link
+    this course to Canvas.
+
+    Arguments:
+    request -- contains the user that requested the linkable courses
+
+    Returns all of the courses.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    courses = []
+    unlinked_courses = Course.objects.filter(participation__user=user.id,
+                                             participation__role__can_edit_course=True, lti_id=None)
+
+    for course in unlinked_courses:
+        courses.append(serialize.course_to_dict(course))
+
+    return responses.success(payload={'courses': courses})
+
+
 def get_teacher_course_assignments(user, course):
     """Get the assignments from the course ID with extra information for the teacher.
 
@@ -139,7 +183,7 @@ def get_teacher_course_assignments(user, course):
 
     Returns a json string with the assignments for the requested user
     """
-    # TODO: check permission
+    # TODO: check permissions
 
     assignments = []
     for assignment in course.assignment_set.all():
@@ -157,9 +201,9 @@ def get_student_course_assignments(user, course):
 
     Returns a json string with the assignments for the requested user
     """
-    # TODO: check permission
+    # TODO: check permissions
     assignments = []
-    for assignment in Assignment.objects.get_queryset().filter(courses=course, journal__user=user):
+    for assignment in Assignment.objects.filter(courses=course, journal__user=user):
         assignments.append(serialize.student_assignment_to_dict(assignment, user))
 
     return assignments
@@ -179,10 +223,17 @@ def get_course_assignments(request, cID):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    course = Course.objects.get(pk=cID)
-    participation = Participation.objects.get(user=user, course=course)
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
+        return responses.not_found('Course was not found')
 
-    # Check whether the user can edit the course.
+    try:
+        participation = Participation.objects.get(user=user, course=course)
+    except Participation.DoesNotExist:
+        return responses.forbidden('You are not participating in this course')
+
+    # Check whether the user can grade a journal in the course.
     if participation.role.can_grade_journal:
         return responses.success(payload={'assignments': get_teacher_course_assignments(user, course)})
     else:
@@ -232,13 +283,10 @@ def get_assignment_journals(request, aID):
 
     try:
         assignment = Assignment.objects.get(pk=aID)
-        # TODO: Not first, for demo.
-        course = assignment.courses.first()
-        participation = Participation.objects.get(user=user, course=course)
-    except (Participation.DoesNotExist, Assignment.DoesNotExist):
-        return responses.not_found('Assignment or Participation does not exist.')
+    except (Assignment.DoesNotExist):
+        return responses.not_found('Assignment does not exist.')
 
-    if not participation.role.can_view_assignment_participants:
+    if not permissions.has_assignment_permission(user, assignment, 'can_view_assignment_participants'):
         return responses.forbidden('You are not allowed to view assignment participants.')
 
     journals = []
@@ -253,7 +301,8 @@ def get_assignment_journals(request, aID):
         points = [x['stats']['acquired_points'] for x in journals]
         stats['avgPoints'] = round(st.mean(points), 2)
         stats['medianPoints'] = st.median(points)
-        stats['avgEntries'] = round(st.mean([x['stats']['total_points'] for x in journals]), 2)
+        stats['avgEntries'] = round(
+            st.mean([x['stats']['total_points'] for x in journals]), 2)
 
     return responses.success(payload={'stats': stats if stats else None, 'journals': journals})
 
@@ -284,12 +333,15 @@ def get_course_permissions(request, cID):
 
     Arguments:
     request -- the request that was sent
-    cID     -- the course id
+    cID     -- the course id (string)
+
     """
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
-    roleDict = permission.get_permissions(request.user, int(cID))
+    roleDict = permissions.get_permissions(request.user, int(cID))
+    if not roleDict:
+        return responses.forbidden('You are not participating in this course')
 
     return responses.success(payload={'permissions': roleDict})
 
@@ -353,16 +405,54 @@ def get_template(request, tID):
     return responses.success(payload={'template': serialize.template_to_dict(template)})
 
 
+@api_view(['GET'])
+def get_course_roles(request, cID):
+    """Get course roles.
+
+    Arguments:
+    request -- the request that was sent.
+    cID     -- the course id
+    """
+    request_user_role = Participation.objects.get(user=request.user.id, course=cID).role
+
+    if not request_user_role.can_edit_course_roles:
+        return JsonResponse({'result': '403 Forbidden'}, status=403)
+
+    roles = []
+
+    for role in Role.objects.filter(course=cID):
+        roles.append(serialize.role_to_dict(role))
+    return responses.success(payload={'roles': roles})
+
+
+@api_view(['GET'])
+def get_user_teacher_courses(request):
+    """Get all the courses where the user is a teacher.
+
+    Arguments:
+    request -- the request that was sent
+
+    Returns a json string containing the format.
+    """
+    if not request.user.is_authenticated:
+        return responses.unauthorized()
+    q_courses = Course.objects.filter(participation__user=request.user.id,
+                                      participation__role__can_edit_course=True)
+    courses = []
+    for course in q_courses:
+        courses.append(serialize.course_to_dict(course))
+    return responses.success(payload={'courses': courses})
+
+
 @api_view(['POST'])
 def get_names(request):
     """Get the format attached to an assignment.
 
     Arguments:
     request -- the request that was sent
-    cID -- optionally the course id
-    aID -- optionally the assignment id
-    jID -- optionally the journal id
-    tID -- optionally the template id
+        cID -- optionally the course id
+        aID -- optionally the assignment id
+        jID -- optionally the journal id
 
     Returns a json string containing the names of the set fields.
     cID populates 'course', aID populates 'assignment', tID populates
@@ -371,22 +461,19 @@ def get_names(request):
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
-    cID, aID, jID, tID = utils.optional_params(request.data, "cID", "aID", "jID", "tID")
+    cID, aID, jID = utils.optional_params(request.data, "cID", "aID", "jID")
     result = {}
 
     try:
         if cID:
             course = Course.objects.get(pk=cID)
-            result.course = course.name
+            result['course'] = course.name
         if aID:
             assignment = Assignment.objects.get(pk=aID)
-            result.assignment = assignment.name
+            result['assignment'] = assignment.name
         if jID:
             journal = Journal.objects.get(pk=jID)
-            result.journal = journal.user.name
-        if tID:
-            template = EntryTemplate.objects.get(pk=tID)
-            result.template = template.name
+            result['journal'] = journal.user.username
 
     except (Course.DoesNotExist, Assignment.DoesNotExist, Journal.DoesNotExist, EntryTemplate.DoesNotExist):
         return responses.not_found('Course, Assignment, Journal or Template does not exist.')
@@ -418,8 +505,8 @@ def get_user_data(request, uID):
     user = User.objects.get(pk=uID)
 
     # Check the right permissions to get this users data, either be the user of the data or be an admin.
-    permissions = permission.get_permissions(user, cID=-1)
-    if not (permissions['is_admin'] or request.user.id == uID):
+    permission = permissions.get_permissions(user, cID=-1)
+    if not (permission['is_admin'] or request.user.id == uID):
         return responses.forbidden('You cannot view this users data.')
 
     profile = serialize.user_to_dict(user)
@@ -438,64 +525,92 @@ def get_user_data(request, uID):
     return responses.success(payload={'profile': profile, 'journals': journal_dict})
 
 
-@api_view(['POST'])
-def lti_grade_replace_result(request):
-    """lti_grade_replace_result.
+@api_view(['GET'])
+def get_assignment_by_lti_id(request, lti_id):
+    """Get an assignment if it exists.
 
-    Replace a grade on the LTI instance based on the request.
+    Arguments:
+    request -- the request that was sent
+    lti_id -- lti_id of the assignment
     """
-    # TODO Extend the docstring with what is important in the request variable.
-
-    secret = settings.LTI_SECRET
-    key = settings.LTI_KEY
-
-    grade_request = GradePassBackRequest(key, secret, None)
-    grade_request.score = '0.5'
-    grade_request.sourcedId = request.POST['lis_result_sourcedid']
-    grade_request.url = request.POST['lis_outcome_service_url']
-
-    return JsonResponse(grade_request.send_post_request())
+    if not request.user.is_authenticated:
+        return responses.unauthorized()
+    try:
+        assignment = Assignment.objects.get(lti_id=lti_id)
+        return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
+    except Assignment.DoesNotExist:
+        return responses.no_content()
 
 
 @api_view(['POST'])
 def lti_launch(request):
     """Django view for the lti post request."""
-    # canvas TODO change to its own database based on the key in the request.
     secret = settings.LTI_SECRET
     key = settings.LTI_KEY
 
-    print('key = postkey', key == request.POST['oauth_consumer_key'])
-    valid, err = lti.OAuthRequestValidater.check_signature(key, secret, request)
+    authenticated, err = lti.OAuthRequestValidater.check_signature(
+        key, secret, request)
 
-    if not valid:
-        return HttpResponse('Unsuccessful authentication: {0}'.format(err))
+    if authenticated:
+        # Select or create the user, course, assignment and journal.
+        roles = json.load(open('config.json'))
+        lti_roles = dict((roles[k], k) for k in roles)
 
-    # Select or create the user, course, assignment and journal.
-    roles = json.load(open('config.json'))
-    user = lti.select_create_user(request.POST)
-    course = lti.select_create_course(request.POST, user, roles)
-    assignment = lti.select_create_assignment(request.POST, user, course, roles)
-    journal = lti.select_create_journal(request.POST, user, assignment, roles)
+        user = lti.select_create_user(request.POST, roles)
+        role = lti_roles[request.POST['roles']]
 
-    # Check if the request comes from a student or not.
-    roles = json.load(open('config.json'))
-    student = request.POST['roles'] == roles['student']
+        token = TokenObtainPairSerializer.get_token(user)
+        access = token.access_token
 
-    token = TokenObtainPairSerializer.get_token(user)
-    access = token.access_token
+        course_names = ['lti_cName', 'lti_abbr', 'lti_cID']
+        course_values = [request.POST['context_title'],
+                         request.POST['context_label'],
+                         request.POST['context_id']]
+        assignment_names = ['lti_aName', 'lti_aID']
+        assignment_values = [request.POST['resource_link_title'],
+                             request.POST['resource_link_id']]
+        if 'custom_canvas_assignment_points_possible' in request.POST:
+            assignment_names.append('lti_points_possible')
+            assignment_values.append(
+                request.POST['custom_canvas_assignment_points_possible'])
 
-    # Set the ID's or if these do not exist set them to undefined.
-    cID = course.pk if course is not None else 'undefined'
-    aID = assignment.pk if assignment is not None else 'undefined'
-    jID = journal.pk if journal is not None else 'undefined'
+        course = lti.check_course_lti(request.POST, user, lti_roles[
+            request.POST['roles']])
+        if course is None:
+            if role == 'Teacher':
+                q_names = ['jwt_refresh', 'jwt_access', 'state']
+                q_names += course_names
+                q_names += assignment_names
+                q_values = [token, access, NEW_COURSE]
+                q_values += course_values
+                q_values += assignment_values
+                return redirect(lti.create_lti_query_link(q_names, q_values))
+            else:
+                q_names = ['jwt_refresh', 'jwt_access', 'state']
+                q_values = [token, access, NO_COURSE]
+                return redirect(lti.create_lti_query_link(q_names, q_values))
 
-    # TODO Should not be localhost anymore at production.
-    link = 'http://localhost:8080/#/lti/launch'
-    link += '?jwt_refresh={0}'.format(token)
-    link += '&jwt_access={0}'.format(access)
-    link += '&cID={0}'.format(cID)
-    link += '&aID={0}'.format(aID)
-    link += '&jID={0}'.format(jID)
-    link += '&student={0}'.format(student)
+        assignment = lti.check_assignment_lti(request.POST)
+        if assignment is None:
+            if role == 'Teacher':
+                q_names = ['jwt_refresh', 'jwt_access', 'state', 'cID']
+                q_names += assignment_names
+                q_values = [token, access, NEW_ASSIGN, course.pk]
+                q_values += assignment_values
+                return redirect(lti.create_lti_query_link(q_names, q_values))
+            else:
+                q_names = ['jwt_refresh', 'jwt_access', 'state']
+                q_values = [token, access, NO_ASSIGN]
+                return redirect(lti.create_lti_query_link(q_names, q_values))
 
-    return redirect(link)
+        journal = lti.select_create_journal(request.POST, user, assignment, roles)
+        jID = journal.pk if journal is not None else None
+        state = FINISH_T if jID is None else FINISH_S
+
+        q_names = ['jwt_refresh', 'jwt_access',
+                   'state', 'cID', 'aID', 'jID']
+        q_values = [token, access, state,
+                    course.pk, assignment.pk, jID]
+        return redirect(lti.create_lti_query_link(q_names, q_values))
+
+    return redirect(lti.create_lti_query_link(['state'], ['BAD_AUTH']))

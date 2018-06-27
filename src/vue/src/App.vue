@@ -105,6 +105,7 @@ h4 a {
     background-color: white !important;
     color: var(--theme-dark-blue) !important;
     border: none;
+    margin-bottom: 10px;
 }
 
 .fit-height {
@@ -150,6 +151,10 @@ input, select {
     cursor: pointer;
 }
 
+.card-last-elem-button .card-body {
+    padding-bottom: 2px !important;
+}
+
 .no-hover:hover {
     background-color: var(--theme-light-grey) !important;
 }
@@ -188,6 +193,24 @@ input, select {
     width: 50px;
 }
 
+.add-icon {
+    fill: var(--theme-light-grey) !important;
+    cursor: pointer;
+}
+
+.trash-icon:hover {
+    fill: var(--theme-red);
+}
+
+.trash-icon {
+    fill: var(--theme-red);
+    cursor: pointer;
+}
+
+.add-icon:hover {
+    fill: var(--theme-add-selected) !important;
+}
+
 .add-button {
     border-color: var(--theme-blue) !important;
     background-color: var(--theme-add-unselected) !important;
@@ -207,6 +230,22 @@ input, select {
 .delete-button:hover {
     border-color: var(--theme-dark-blue) !important;
     background-color: var(--theme-red) !important;
+}
+
+.lti-button-option {
+    width: 275px;
+    height: 100px;
+    margin-top: 20px;
+}
+
+.lti-button-text {
+    font-size: 20px;
+    text-align: center;
+}
+
+.lti-intro-text {
+    margin-left: 15px;
+    margin-right: 15px;
 }
 
 .portrait {

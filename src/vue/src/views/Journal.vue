@@ -1,5 +1,5 @@
 <template>
-    <journal-non-student v-if="$root.canEditJournal()" :jID="this.$route.params.jID"/>
+    <journal-non-student v-if="!$root.canEditJournal()" :jID="this.$route.params.jID"/>
     <journal-student v-else :jID="this.$route.params.jID"/>
 </template>
 
@@ -51,3 +51,46 @@ export default {
     }
 }
 </script>
+
+<style>
+.left-content-journal {
+    flex: 0 0 auto;
+}
+
+.main-content-journal {
+    padding-top: 40px !important;
+    background-color: var(--theme-medium-grey);
+    flex: 1 1 auto;
+    overflow-x: hidden;
+}
+
+.right-content-journal {
+    flex: 0 0 auto;
+    padding-top: 30px !important;
+    padding-left: 30px !important;
+    padding-right: 30px !important;
+}
+
+@media (min-width: 1200px) {
+    .outer-container {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .left-content-journal {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .main-content-journal, .right-content-journal {
+        height: 100%;
+        overflow-y: scroll;
+    }
+}
+
+@media (max-width: 1200px) {
+    .main-content-journal {
+        padding-top: 0px !important;
+    }
+}
+</style>

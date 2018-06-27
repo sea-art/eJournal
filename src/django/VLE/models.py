@@ -26,6 +26,7 @@ class User(AbstractUser):
     lti_id = models.TextField(
         null=True,
         unique=True,
+        blank=True,
     )
     profile_picture = models.TextField(
         null=True
@@ -98,8 +99,12 @@ class Role(models.Model):
     - name: name of the role
     - list of permissions (can_...)
     """
-    name = models.TextField()
 
+    name = models.TextField()
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE
+    )
     # GLOBAL: is_admin
     # GLOBAL: can_edit_institute
 
@@ -126,6 +131,10 @@ class Role(models.Model):
         """toString."""
         return str(self.name) + " (" + str(self.id) + ")"
 
+    class Meta:
+        """Meta data for the model: unique_together."""
+        unique_together = ('name', 'course',)
+
 
 class Participation(models.Model):
     """Participation.
@@ -134,12 +143,13 @@ class Participation(models.Model):
     The user is now linked to the course, and has a set of permissions
     associated with its role.
     """
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     role = models.ForeignKey(
         Role,
         null=True,
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         related_name='role',
     )
 
@@ -212,6 +222,16 @@ class Journal(models.Model):
     user = models.ForeignKey(
         'User',
         on_delete=models.CASCADE,
+    )
+
+    sourcedid = models.TextField(
+        'sourcedid',
+        null=True
+    )
+
+    grade_url = models.TextField(
+        'grade_url',
+        null=True
     )
 
     def __str__(self):
