@@ -34,7 +34,12 @@
                 </div>
             </div>
         </b-col>
-        <b-col cols="12" xl="3" order="3" class="right-content-journal"/>
+        <b-col cols="12" xl="3" order="3" class="right-content-journal">
+            <h3>Assignment Description</h3>
+            <b-card class="no-hover" :class="'grey-border'" style="">
+                {{ assignmentDescription }}
+            </b-card>
+        </b-col>
     </b-row>
 </template>
 
@@ -46,21 +51,29 @@ import edag from '@/components/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import journal from '@/api/journal'
 import entryPreview from '@/components/EntryPreview.vue'
+import assignmentApi from '@/api/assignment.js'
 
 export default {
-    props: ['jID'],
+    props: ['cID', 'aID', 'jID'],
     data () {
         return {
             currentNode: 0,
             editedData: ['', ''],
             nodes: [],
-            progressNodes: {}
+            progressNodes: {},
+            assignmentDescription: ''
         }
     },
     created () {
         journal.get_nodes(this.jID)
             .then(response => { this.nodes = response.nodes })
             .catch(_ => alert('Error while loading nodes.'))
+
+        assignmentApi.get_assignment_data(this.cID, this.aID)
+            .then(response => {
+                this.assignmentDescription = response.description
+            })
+            .catch(_ => alert('Error while loading assignment data'))
     },
     watch: {
         currentNode: function () {
