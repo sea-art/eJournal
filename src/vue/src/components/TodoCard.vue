@@ -6,6 +6,9 @@
             </b-col>
             <b-col cols="5">
                 <p>{{ new Date().getFullDay }}</p>
+                <p v-if="this.$root.canAddCourse()">
+                    {{ totalNeedsMarking }}
+                </p>
             </b-col>
         </b-row>
             <h5>{{ name }}</h5>
@@ -15,7 +18,7 @@
 
 <script>
 export default {
-    props: ['date', 'hours', 'minutes', 'name', 'abbr', 'color']
+    props: ['date', 'hours', 'minutes', 'name', 'abbr', 'totalNeedsMarking', 'color']
 }
 </script>
 

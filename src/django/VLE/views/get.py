@@ -320,7 +320,6 @@ def get_upcoming_deadlines(request):
             deadlines = journal.node_set.exclude(preset=None).values('preset__deadline')
             # Gets the node with the earliest deadline
             future_deadline = deadlines.filter(preset__deadline__gte=datetime.now()).order_by('preset__deadline')[0]
-            print(serialize.journal_to_dict(journal))
             future_deadline = {'Date': future_deadline['preset__deadline'].date(),
                                'Hours': future_deadline['preset__deadline'].hour,
                                'Minutes': future_deadline['preset__deadline'].minute}

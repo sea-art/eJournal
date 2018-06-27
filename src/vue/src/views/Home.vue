@@ -25,7 +25,7 @@
             :line1="'+ Add course'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
-        <div v-for="d in computedDeadlines" :key="d.aID" slot="right-content-column">
+        <div v-for="(d, i) in computedDeadlines" :key="d.aID" slot="right-content-column">
             <b-link tag="b-button" :to="{name: 'Journal', params: {cID: d.cID,
                                                                    aID: d.aID,
                                                                    jID: d.jID,
@@ -36,6 +36,7 @@
                     :minutes="d.deadline.Minutes"
                     :name="d.name"
                     :abbr="d.courseAbbr"
+                    :totalNeedsMarking="needsMarkingStats[i]"
                     :color="$root.colors[d.cID % $root.colors.length]">
                 </todo-card>
             </b-link>
@@ -70,6 +71,7 @@ import createCourse from '@/components/CreateCourse.vue'
 import editHome from '@/components/EditHome.vue'
 import course from '@/api/course'
 import assignmentApi from '@/api/assignment.js'
+import journalApi from '@/api/journal.js'
 
 export default {
     name: 'Home',
@@ -77,7 +79,8 @@ export default {
         return {
             intituteName: 'Universiteit van Amsterdam (UvA)',
             courses: [],
-            deadlines: []
+            deadlines: [],
+            needsMarkingStats: []
         }
     },
     components: {
@@ -129,18 +132,25 @@ export default {
         },
         canDeleteCourse () {
             return this.$root.permissions.can_delete_course
+        },
+        addMarkingList (aID) {
+            journalApi.get_assignment_journals(aID)
+                .then(response => {
+                    this.needsMarkingStats.push(response.stats.needsMarking)
+                })
+                .catch(_ => alert('Error while loading jounals'))
         }
     },
     computed: {
         computedDeadlines: function () {
             var count = 0
+            var topList
 
             function compareDate (a, b) {
-                // console.log(a.deadline.Date)
                 return new Date(a.deadline.Date) - new Date(b.deadline.Date)
             }
 
-            function filterTopFive () {
+            function filterTop () {
                 if (++count <= 5) {
                     return true
                 } else {
@@ -148,7 +158,12 @@ export default {
                 }
             }
 
-            return this.deadlines.slice().sort(compareDate).filter(filterTopFive)
+            topList = this.deadlines.slice().sort(compareDate).filter(filterTop)
+
+            for (var i = 0; i < topList.length; i++) {
+                this.addMarkingList(topList[i].aID)
+            }
+            return topList
         }
     }
 }
