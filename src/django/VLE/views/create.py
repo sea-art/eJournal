@@ -212,7 +212,7 @@ def create_lti_user(request):
     if request.data['jwt_params'] is not '':
         lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
         user_id, user_image = lti_params['user_id'], lti_params['user_image']
-        is_teacher = json.load(open('config.json'))['Teacher'] in lti_params
+        is_teacher = json.load(open('config.json'))['Teacher'] in lti_params['roles']
     else:
         user_id, user_image, is_teacher = None, None, False
 

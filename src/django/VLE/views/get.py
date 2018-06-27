@@ -608,7 +608,7 @@ def lti_launch(request):
         user = lti.check_user_lti(params, roles)
 
         # params['exp'] = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
-        lti_params = jwt.encode(params, secret, algorithm='HS256')
+        lti_params = jwt.encode(params, secret, algorithm='HS256').decode('utf-8')
 
         if user is None:
             q_names = ['lti_params', 'state']
