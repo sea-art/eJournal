@@ -26,10 +26,7 @@
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="(d, i) in computedDeadlines" :key="d.aID" slot="right-content-column">
-            <b-link tag="b-button" :to="{name: 'Journal', params: {cID: d.cID,
-                                                                   aID: d.aID,
-                                                                   jID: d.jID,
-                                                                   assignmentName: d.name}}">
+            <b-link tag="b-button" :to="journalRoute(d.cID, d.aID, d.jID, d.name)">
                 <todo-card
                     :date="d.deadline.Date"
                     :hours="d.deadline.Hours"
@@ -94,17 +91,12 @@ export default {
     created () {
         this.loadCourses()
 
-<<<<<<< HEAD
         assignmentApi.get_upcoming_deadlines()
             .then(response => {
                 console.log(response)
                 this.deadlines = response
             })
             .catch(_ => alert('Error while loading deadlines'))
-=======
-        /* assignment.get_upcoming_deadlines()
-           .then(response => { this.deadlines = response }) */
->>>>>>> 1ecaed66635d72ccbba912b37ad7ffabf282926e
     },
     methods: {
         loadCourses () {
@@ -142,7 +134,29 @@ export default {
                 .then(response => {
                     this.needsMarkingStats.push(response.stats.needsMarking)
                 })
-                .catch(_ => alert('Error while loading jounals'))
+                .catch(_ => alert('Error while loading journals'))
+        },
+        journalRoute (cID, aID, jID, name) {
+            if (this.$root.canAddCourse()) {
+                return {
+                    name: 'Assignment',
+                    params: {
+                        cID: cID,
+                        aID: aID,
+                        assignmentName: name
+                    }
+                }
+            } else {
+                return {
+                    name: 'Journal',
+                    params: {
+                        cID: cID,
+                        aID: aID,
+                        jID: jID,
+                        assignmentName: name
+                    }
+                }
+            }
         }
     },
     computed: {
@@ -167,6 +181,7 @@ export default {
             for (var i = 0; i < topList.length; i++) {
                 this.addMarkingList(topList[i].aID)
             }
+
             return topList
         }
     }

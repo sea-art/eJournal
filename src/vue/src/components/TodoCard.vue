@@ -7,7 +7,7 @@
             <b-col cols="5">
                 <p>{{ new Date().getFullDay }}</p>
                 <p v-if="this.$root.canAddCourse()">
-                    {{ totalNeedsMarking }}
+                    Marking needed: {{ totalNeedsMarking }}
                 </p>
             </b-col>
         </b-row>
