@@ -229,7 +229,7 @@ input, select {
 
 .delete-button:hover {
     border-color: var(--theme-dark-blue) !important;
-    background-color: red !important;
+    background-color: var(--theme-red) !important;
 }
 
 .lti-button-option {
