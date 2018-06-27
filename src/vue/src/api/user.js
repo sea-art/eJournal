@@ -13,7 +13,7 @@ export default {
         })
     },
 
-    /* Update user data. */
+    /* Update user data with lti credentials. */
     updateLtiIdToUser(jwtParams) {
         return auth.authenticatedPost('/update_lti_id_to_user/', {
             jwt_params: jwtParams
