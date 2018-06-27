@@ -14,7 +14,6 @@ function getAuthorizationHeader () {
  * Returns a new Promise that can be used to chain more requests.
  */
 function refresh (error) {
-    console.log('Handling token refresh')
     if (error.response.data.code === 'token_not_valid') {
         return connection.conn.post('token/refresh/', {refresh: localStorage.getItem('jwt_refresh')})
             .then(response => {
@@ -34,15 +33,6 @@ function refresh (error) {
 
 function handleResponse (response) {
     response = response.response
-    console.log('KSALHLKJASD')
-    console.log('KSALHLKJASD')
-    console.log('KSALHLKJASD')
-    console.log(response)
-    console.log(router.app)
-    router.app.showToast(response.data.message)
-    console.log('asdjfhlaksjdfhlksajdf')
-    console.log('asdjfhlaksjdfhlksajdf')
-    console.log('asdjfhlaksjdfhlksajdf')
     if (response.status === 401) { // Unauthorized
         router.push({name: 'Login'})
     } if (response.status === 403 || // Forbitten
@@ -55,7 +45,11 @@ function handleResponse (response) {
                 description: response.data.description
             }})
     } else if (response.status === 400) { // Bad request
-        console.log('BAD REQUEST')
+        if (response.data.description) {
+            router.app.showToast(response.data.result + ': ' + response.data.description)
+        } else {
+            router.app.showToast(response.data.result)
+        }
     } else {
         throw response
     }
