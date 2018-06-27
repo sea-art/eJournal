@@ -12,7 +12,7 @@ from django.shortcuts import redirect
 import statistics as st
 import json
 import jwt
-import datetime
+import datetime.datetime as datetime
 
 import VLE.lti_launch as lti
 import VLE.edag as edag
