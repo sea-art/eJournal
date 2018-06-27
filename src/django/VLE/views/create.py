@@ -209,7 +209,7 @@ def create_lti_user(request):
             user_image -- user image
             roles -- role of the user
     """
-    if request.data['jwt_params'] is '':
+    if request.data['jwt_params'] is not '':
         lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
         user_id, user_image = lti_params['user_id'], lti_params['user_image']
         is_teacher = json.load(open('config.json'))['Teacher'] in lti_params
@@ -217,10 +217,12 @@ def create_lti_user(request):
         user_id, user_image, is_teacher = None, None, False
 
     try:
-        username, password = utils.required_params(request.data, 'username', 'password', 'text')
+        username, password = utils.required_params(request.data, 'username', 'password')
         first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
     except KeyError:
         return responses.keyerror('username', 'password')
 
-    factory.make_user(username, password, email=email, lti_id=user_id, is_teacher=is_teacher,
-                      first_name=first_name, last_name=last_name, profile_picture=user_image)
+    user = factory.make_user(username, password, email=email, lti_id=user_id, is_teacher=is_teacher,
+                             first_name=first_name, last_name=last_name, profile_picture=user_image)
+
+    return responses.created(message='User successfully created', payload={'user': serialize.user_to_dict(user)})

@@ -16,8 +16,7 @@ export default {
     },
     methods: {
         handleRegistration () {
-            // TODO: Handle registratie goed af en redirect naar home page.
-            alert('Geregistreerd! :D')
+            this.$router.push({ name: 'Home' })
         }
     }
 }
