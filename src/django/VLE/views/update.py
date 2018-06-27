@@ -451,7 +451,17 @@ def update_grade_entry(request, eID):
     entry.grade = request.data['grade']
     entry.published = request.data['published']
     entry.save()
-    return responses.success(payload={'new_grade': entry.grade, 'new_published': entry.published})
+
+    journal = entry.node.journal
+    if entry.published and journal.sourcedid is not None and journal.grade_url is not None:
+        payload = lti_grade.replace_result(journal)
+    else:
+        payload = dict()
+
+    payload['new_grade'] = entry.grade
+    payload['new_published'] = entry.published
+
+    return responses.success(payload=payload)
 
 
 @api_view(['POST'])
@@ -473,7 +483,7 @@ def update_publish_grade_entry(request, eID):
     entry.save()
 
     journal = entry.node.journal
-    if journal.sourcedid is not None and journal.grade_url is not None:
+    if publish and journal.sourcedid is not None and journal.grade_url is not None:
         payload = lti_grade.replace_result(journal)
     else:
         payload = dict()
