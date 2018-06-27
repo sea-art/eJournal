@@ -3,7 +3,8 @@ export default {
     debug: false,
     state: {
         breadCrumb: [],
-        format: { templatePool: [], nodes: [] }
+        format: { templatePool: [], nodes: [] },
+        journals: []
     },
     setBreadcrumb (breadCrumbInternalList) {
         if (this.debug) { console.log('setBreadcrumb triggered with', breadCrumbInternalList) }

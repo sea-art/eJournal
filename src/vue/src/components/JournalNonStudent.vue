@@ -44,6 +44,7 @@ import addCard from '@/components/AddCard.vue'
 import edag from '@/components/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import journal from '@/api/journal'
+import store from '@/Store.vue'
 
 export default {
     props: ['jID'],

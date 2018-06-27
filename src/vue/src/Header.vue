@@ -1,6 +1,6 @@
 <template>
     <b-navbar v-if="!isGuest" id="header" toggleable="md" type="dark" fixed=top>
-        <b-navbar-brand :to="'/Home'" class="brand-name">Logboek</b-navbar-brand>
+        <b-navbar-brand :to="'/Home'" class="brand-name"><span>e</span>Journal</b-navbar-brand>
 
         <b-navbar-toggle class="ml-auto mr-auto" target="nav-collapse" aria-expanded="false" aria-controls="nav-collapse">
             <span class="nav-collapse__icon nav-collapse__icon--open">
@@ -139,6 +139,10 @@ export default {
 .brand-name {
     font-weight: bold;
     font-size: 25px;
+}
+
+.brand-name span {
+    color: var(--theme-blue) !important;
 }
 
 #nav-profile-image {

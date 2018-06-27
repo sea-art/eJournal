@@ -11,9 +11,9 @@
                 <b-col lg="3" md="3">
                     <b-form-select v-model="selectedSortOption" :select-size="1">
                        <option :value="null">Sort by ...</option>
-                       <option value="sortName">Sort on name</option>
-                       <option value="sortID">Sort on ID</option>
-                       <option value="sortMarking">Sort on marking needed</option>
+                       <option value="sortName">Sort by name</option>
+                       <option value="sortID">Sort by ID</option>
+                       <option value="sortMarking">Sort by marking needed</option>
                     </b-form-select>
                 </b-col>
                 <b-col lg="5" md="12">
