@@ -43,7 +43,7 @@ export default {
                         })
                         .catch(_ => alert('Could not login'))
                 })
-                .catch(_ => alert('Error while creating user'))
+                .catch(_ => alert('Error while creating user <3'))
         },
         onReset (evt) {
             if (evt !== undefined) {
@@ -65,7 +65,6 @@ export default {
     mounted () {
         if (this.lti !== undefined) {
             this.form.username = this.lti.username
-            this.form.password = this.lti.password
             this.form.firstname = this.lti.firstname
             this.form.lastname = this.lti.lastname
             this.form.email = this.lti.email

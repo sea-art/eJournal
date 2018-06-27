@@ -10,7 +10,7 @@ export default {
             last_name: lastname,
             email: email,
             jwt_params: jwtParams
-        })
+        }).then(response => response.data.user)
     },
 
     /* Update user data with lti credentials. */
