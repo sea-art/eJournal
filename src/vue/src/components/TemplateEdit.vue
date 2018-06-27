@@ -56,8 +56,10 @@ export default {
         'draggable': draggable
     },
     methods: {
-        onSubmit () {
-            // #TODO Handle saving the template.
+        updateLocations () {
+            for (var i = 0; i < this.template.fields.length; i++) {
+                this.template.fields[i].location = i
+            }
         },
         addField () {
             var newField = {
@@ -72,11 +74,11 @@ export default {
             if (confirm('Are you sure you want to remove \'' + this.template.fields[location].title + '\'?')) {
                 this.template.fields.splice(location, 1)
             }
+
+            this.updateLocations()
         },
         onUpdate () {
-            for (var i = 0; i < this.template.fields.length; i++) {
-                this.template.fields[i].location = i
-            }
+            this.updateLocations()
         }
     }
 }
@@ -129,10 +131,6 @@ export default {
 
 .field-card:hover .move-icon, .field-card:hover .trash-icon {
     fill: var(--theme-dark-blue);
-}
-
-.trash-box:hover .trash-icon {
-    fill: var(--theme-red);
 }
 
 .handle:hover .move-icon {

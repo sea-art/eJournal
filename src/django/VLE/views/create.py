@@ -82,12 +82,14 @@ def create_journal(request):
     Arguments:
     request -- the request that was send with
     aID -- the assignment id
+
+    On success, returns a json string containing the journal.
     """
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
     try:
-        aID = utils.required_params(request.data, "aID")
+        [aID] = utils.required_params(request.data, "aID")
     except KeyError:
         return responses.keyerror("aID")
 
@@ -187,9 +189,8 @@ def create_entrycomment(request):
     except (User.DoesNotExist, Entry.DoesNotExist):
         return responses.not_found('User or Entry does not exist.')
 
-    factory.make_entrycomment(entry, author, text)
-
-    return responses.success()
+    entrycomment = factory.make_entrycomment(entry, author, text)
+    return responses.created(payload={'comment': serialize.entrycomment_to_dict(entrycomment)})
 
 
 @api_view(['POST'])

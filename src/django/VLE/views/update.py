@@ -9,6 +9,7 @@ from rest_framework.parsers import JSONParser
 import VLE.views.responses as responses
 import VLE.serializers as serialize
 import VLE.utils as utils
+import VLE.permissions as permissions
 import VLE.factory as factory
 from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, \
     User, Journal, EntryTemplate, Node, PresetNode
@@ -46,6 +47,7 @@ def update_course(request):
 
     Arguments:
     request -- the update request that was send with
+        cID -- ID of the course
         name -- name of the course
         abbr -- abbreviation of the course
         startdate -- date when the course starts
@@ -62,6 +64,31 @@ def update_course(request):
     course.startdate = request.data['startDate']
     course.save()
     return responses.success(payload={'course': serialize.course_to_dict(course)})
+
+
+@api_view(['POST'])
+def update_course_roles(request):
+    """Updates course roles.
+
+    Arguments:
+    request -- the request that was sent.
+    cID     -- the course id
+    """
+    if not request.user.is_authenticated:
+        return responses.unauthorized()
+    cID = request.data['cID']
+    request_user_role = Participation.objects.get(user=request.user.id, course=cID).role
+
+    if not request_user_role.can_edit_course_roles:
+        return responses.forbidden()
+
+    for role in request.data['roles']:
+        db_role = Role.objects.filter(name=role['name'])
+        if not db_role:
+            factory.make_role_default_no_perms(role['name'], Course.objects.get(pk=cID), **role['permissions'])
+        else:
+            permissions.edit_permissions(db_role[0], **role['permissions'])
+    return responses.success()
 
 
 @api_view(['POST'])
@@ -400,7 +427,7 @@ def update_user_role_course(request):
 
     try:
         participation = Participation.objects.get(user=request.data['uID'], course=request.data['cID'])
-        participation.role = Role.objects.get(name=request.data['role'])
+        participation.role = Role.objects.get(name=request.data['role'], course=request.data['cID'])
     except (Participation.DoesNotExist, Role.DoesNotExist):
         return responses.not_found('Participation or Role does not exist.')
 

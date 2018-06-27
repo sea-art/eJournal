@@ -70,7 +70,7 @@ class DataBaseTests(TestCase):
 
     def test_get_permissions(self):
         """Test a request that doesn't need permissions."""
-        role = factory.make_role(name="Student")
+        role = factory.make_role_default_no_perms('Student', self.crs)
 
         # Connect a participation to a user, course and role.
         factory.make_participation(self.usr, self.crs, role)
@@ -81,41 +81,42 @@ class DataBaseTests(TestCase):
 
     def test_emptyPermissions(self):
         """Test a request that doesn't need permissions."""
-        role = factory.make_role("Student")
+        role = factory.make_role_default_no_perms('Student', self.crs)
 
         # Connect a participation to a user, course and role.
         factory.make_participation(self.usr, self.crs, role)
 
-        self.assertTrue(permissions.check_permissions(self.usr, self.crs.id, []))
+        self.assertTrue(permissions.has_permissions(self.usr, self.crs.id, []))
 
     def test_permission(self):
         """Test a request that needs a single permission."""
-        role = factory.make_role("Student", can_delete_assignment=True)
+        role = factory.make_role_default_no_perms("Student", self.crs, can_delete_assignment=True)
 
         factory.make_participation(self.usr, self.crs, role)
 
-        self.assertTrue(permissions.check_permissions(self.usr, self.crs.id, ["can_delete_assignment"]))
-        self.assertFalse(permissions.check_permissions(self.usr, self.crs.id, ["can_grade_journal"]))
+        self.assertTrue(permissions.has_permissions(self.usr, self.crs.id, ["can_delete_assignment"]))
+        self.assertFalse(permissions.has_permissions(self.usr, self.crs.id, ["can_grade_journal"]))
 
     def test_permission_multiple(self):
         """Test a request that needs multiple permissions."""
-        role = factory.make_role("TA", can_delete_assignment=True, can_grade_journal=True, can_add_assignment=True)
+        role = factory.make_role_default_no_perms("TA", self.crs, can_delete_assignment=True, can_grade_journal=True,
+                                                  can_add_assignment=True)
 
         factory.make_participation(self.usr, self.crs, role)
 
-        self.assertTrue(permissions.check_permissions(self.usr, self.crs.id, ["can_grade_journal"]))
-        self.assertFalse(permissions.check_permissions(self.usr, self.crs.id,
-                                                       ["can_grade_journal", "can_edit_journal"]))
+        self.assertTrue(permissions.has_permissions(self.usr, self.crs.id, ["can_grade_journal"]))
+        self.assertFalse(permissions.has_permissions(self.usr, self.crs.id,
+                                                     ["can_grade_journal", "can_edit_journal"]))
 
     def test_get_permissions_admin(self):
         """Test if the admin had the right permissions."""
-        usr = factory.make_user(email='some@other', username='teun2', password='1234', lti_id='abcde', is_admin=True)
-        usr.save()
-        role = factory.make_role("TA", can_delete_assignment=True, can_grade_journal=True, can_add_assignment=True)
+        user = factory.make_user(email='some@other', username='teun2', password='1234', lti_id='abcde', is_admin=True)
+        role = factory.make_role_default_no_perms("TA", self.crs, can_delete_assignment=True,
+                                                  can_grade_journal=True, can_add_assignment=True)
 
-        factory.make_participation(self.usr, self.crs, role)
+        factory.make_participation(user, self.crs, role)
 
-        perm = permissions.get_permissions(usr, self.crs.id)
+        perm = permissions.get_permissions(user, self.crs.id)
 
         self.assertTrue(perm["is_admin"])
 
@@ -133,7 +134,8 @@ class DataBaseTests(TestCase):
 
         The created user should NOT be provided with the admin permission.
         """
-        role = factory.make_role("TA", can_delete_assignment=True, can_grade_journal=True, can_add_assignment=True)
+        role = factory.make_role_default_no_perms("TA", self.crs, can_delete_assignment=True,
+                                                  can_grade_journal=True, can_add_assignment=True)
 
         factory.make_participation(self.usr, self.crs, role)
 

@@ -2,9 +2,8 @@ from django.conf import settings
 import oauth2
 """Package for oauth authentication in python"""
 
-
+from VLE.models import User, Course, Assignment, Role, Journal
 import VLE.factory as factory
-from VLE.models import User, Course, Assignment, Journal, Role
 
 
 class OAuthRequestValidater(object):

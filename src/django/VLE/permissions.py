@@ -3,7 +3,7 @@ permissions.py.
 
 All the permission functions.
 """
-from VLE.models import Participation, Role
+from VLE.models import Participation
 
 from django.forms.models import model_to_dict
 
@@ -16,9 +16,10 @@ def get_role(user, cID):
     cID -- course ID used to validate the request.
     """
     # First get the role ID of the user participation.
-    roleID = Participation.objects.get(user=user, course=cID).id
-    # Now get the role and its corresponding permissions.
-    return Role.objects.get(id=roleID)
+    try:
+        return Participation.objects.get(user=user, course=cID).role
+    except Participation.DoesNotExist:
+        return None
 
 
 def get_permissions(user, cID=-1):
@@ -87,7 +88,9 @@ def get_permissions(user, cID=-1):
             roleDict["can_add_course"] = True
     else:
         # The course ID was given. Return the permissions of the user as dictionary.
-        role = Participation.objects.get(user=user, course=cID).role
+        role = get_role(user, cID)
+        if not role:
+            return {}
 
         roleDict = model_to_dict(role)
         roleDict['is_admin'] = False
@@ -95,7 +98,20 @@ def get_permissions(user, cID=-1):
     return roleDict
 
 
-def check_permissions(user, cID, permissionList):
+def get_assignment_permissions(user, assignment):
+    """ Merge permissions from all courses that are linked to the assignment.
+
+    If the user has the permission in any of the courses, it will have the permission
+    for this assignment.
+    """
+    result = {}
+    for course in assignment.courses.all():
+        result = {key: value or (result[key] if key in result else False)
+                  for key, value in get_permissions(user, course.pk).items()}
+    return result
+
+
+def has_permissions(user, cID, permission_list):
     """Check if the user has the needed permissions.
 
     Do this by checking every permission, and returning False once a permission
@@ -104,11 +120,86 @@ def check_permissions(user, cID, permissionList):
     Arguments:
     user -- user that did the request.
     cID -- course ID used to validate the request.
+    permission_list -- the list of permissions to check.
     """
-    role = get_role(user, cID)
+    permissions = get_permissions(user, cID)
 
-    for permission in permissionList:
-        if not getattr(role, permission):
+    for permission in permission_list:
+        if permission not in permissions or not permissions[permission]:
             return False
 
     return True
+
+
+def has_permission(user, cID, permission):
+    """Check if the user has the needed permissions.
+
+    Do this by checking every permission, and returning False once a permission
+    is insufficient.
+
+    Arguments:
+    user -- user that did the request.
+    cID -- course ID used to validate the request.
+    permission -- the permission to check.
+    """
+    permissions = get_permissions(user, cID)
+    return permission in permissions and permissions[permission]
+
+
+def has_assignment_permissions(user, assignment, permission_list):
+    """Check if the user has the needed permissions.
+
+    Do this by checking every permission, and returning False once a permission
+    is insufficient.
+
+    Arguments:
+    user -- user that did the request.
+    assignment -- the assignment used to validate the request.
+    permissionList -- the list of permissions to check.
+    """
+    permissions = get_assignment_permissions(user, assignment)
+
+    for permission in permission_list:
+        if permission not in permissions or not permissions[permission]:
+            return False
+
+    return True
+
+
+def edit_permissions(role, can_edit_course_roles=False, can_view_course_participants=False,
+                     can_edit_course=False, can_delete_course=False,
+                     can_add_assignment=False, can_view_assignment_participants=False,
+                     can_delete_assignment=False, can_publish_assigment_grades=False,
+                     can_grade_journal=False, can_publish_journal_grades=False,
+                     can_edit_journal=False, can_comment_journal=False):
+    """Edits an existing role."""
+    role.can_edit_course_roles = can_edit_course_roles
+    role.can_view_course_participants = can_view_course_participants
+    role.can_edit_course = can_edit_course
+    role.can_delete_course = can_delete_course
+
+    role.can_add_assignment = can_add_assignment
+    role.can_view_assignment_participants = can_view_assignment_participants
+    role.can_delete_assignment = can_delete_assignment
+    role.can_publish_assigment_grades = can_publish_assigment_grades
+
+    role.can_grade_journal = can_grade_journal
+    role.can_publish_journal_grades = can_publish_journal_grades
+    role.can_edit_journal = can_edit_journal
+    role.can_comment_journal = can_comment_journal
+
+    role.save()
+    return role
+
+
+def has_assignment_permission(user, assignment, permission):
+    """Check if the user has the assignment permission.
+
+    Arguments:
+    user -- user that did the request.
+    assignment -- the assignment used to validate the request.
+    permission -- the permissions to check.
+    """
+
+    permissions = get_assignment_permissions(user, assignment)
+    return permission in permissions and permissions[permission]

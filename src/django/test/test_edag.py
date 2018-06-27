@@ -28,8 +28,14 @@ class EdagTests(TestCase):
         self.progressnode = factory.make_progress_node(f_colloq, datetime.date(2024, 1, 1), 10)
         f_log = factory.make_format()
 
-        a_colloq = factory.make_assignment("Colloq", "In de opdracht...1", author=self.u_rick, format=f_colloq)
-        a_log = factory.make_assignment("Logboek", "In de opdracht...2", author=self.u_rick, format=f_log)
+        course = factory.make_course("Some Course", "c")
+        student_role = factory.make_role_student("Student", course)
+        factory.make_participation(self.u_rick, course, student_role)
+
+        a_colloq = factory.make_assignment("Colloq", "In de opdracht...1",
+                                           author=self.u_rick, format=f_colloq, courses=[course])
+        a_log = factory.make_assignment("Logboek", "In de opdracht...2",
+                                        author=self.u_rick, format=f_log, courses=[course])
 
         self.j_rick_colloq = factory.make_journal(a_colloq, self.u_rick)
         self.j_lars_colloq = factory.make_journal(a_colloq, self.u_lars)
