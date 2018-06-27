@@ -1,11 +1,11 @@
 <template>
     <content-single-column>
-        <register-user/>
+        <register-user @handleAction="handleRegistration"/>
     </content-single-column>
 </template>
 
 <script>
-import contentSingleColumns from '@/components/ContentSingleColumn.vue'
+import contentSingleColumn from '@/components/ContentSingleColumn.vue'
 import registerUser from '@/components/RegisterUser.vue'
 
 export default {
@@ -16,7 +16,8 @@ export default {
     },
     methods: {
         handleRegistration () {
-            alert('Geregistreerd')
+            // TODO: Handle registratie goed af en redirect naar home page.
+            alert('Geregistreerd! :D')
         }
     }
 }

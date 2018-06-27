@@ -84,7 +84,7 @@ export default {
                     this.lti.email = this.$route.query.email
                 }
 
-                handleUserIntegration = true
+                this.handleUserIntegration = true
             } else {
                 this.$router.push({
                     name: 'ErrorPage',

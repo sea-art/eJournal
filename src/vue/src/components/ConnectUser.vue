@@ -16,9 +16,9 @@ export default {
     },
     methods: {
         connectUser (uID) {
-            userApi.updateLtiIdToUser(lti.ltiJWT)
+            userApi.updateLtiIdToUser(this.lti.ltiJWT)
                 .then(response => { this.$emit('handleAction') })
         }
-    },
+    }
 }
 </script>

@@ -2,7 +2,7 @@ import auth from '@/api/auth'
 
 export default {
     /* Create a user and add it to the database. */
-    createUser(username, password, firstname, lastname, email, jwtParams = NULL) {
+    createUser (username, password, firstname, lastname, email, jwtParams = null) {
         return auth.authenticatedPost('/create_lti_user/', {
             username: username,
             password: password,
@@ -14,34 +14,34 @@ export default {
     },
 
     /* Update user data with lti credentials. */
-    updateLtiIdToUser(jwtParams) {
+    updateLtiIdToUser (jwtParams) {
         return auth.authenticatedPost('/update_lti_id_to_user/', {
             jwt_params: jwtParams
         })
     },
 
     /* Get own user data. */
-    getOwnUserData() {
+    getOwnUserData () {
         return auth.authenticatedGet('/get_own_user_data/')
             .then(response => response.data.user)
     },
     /* Get user data.
      * Get all the profile data and all the data like entries etc.
      */
-    getUserData(uID) {
+    getUserData (uID) {
         return auth.authenticatedGet('/get_user_data/' + uID + '/')
             .then(response => response.data)
     },
 
     /* Update user data. */
-    updateUserData(username) {
+    updateUserData (username) {
         return auth.authenticatedPost('/update_user_data/', {
             username: username
         })
     },
 
     /* Update profile picture. */
-    updateProfilePicture(file) {
+    updateProfilePicture (file) {
         return auth.authenticatedFilePost('/update_user_data/', {
             picture: file
         })
@@ -52,7 +52,7 @@ export default {
      * if getsNotified is "false" the users WONT  get notified by mail when a grade changes.
      * else nothing changes (invalid argument).
      */
-    update_grade_notification(getsNotified) {
+    update_grade_notification (getsNotified) {
         return auth.authenticatedPost('/update_grade_notification/', {
             new_value: getsNotified
         }).then(r => r.data.new_value)
@@ -63,7 +63,7 @@ export default {
      * if getsNotified is "false" the users WONT  get notified by mail when a there is a new comment.
      * else nothing changes (invalid argument).
      */
-    update_comment_notification(getsNotified) {
+    update_comment_notification (getsNotified) {
         return auth.authenticatedPost('/update_comment_notification/', {
             new_value: getsNotified
         }).then(r => r.data.new_value)

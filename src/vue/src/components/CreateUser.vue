@@ -1,12 +1,11 @@
 <template>
     <div>
-        <register-user :lti="lti"/>
+        <register-user @handleAction="handleRegistered" :lti="lti"/>
     </div>
 </template>
 
 <script>
 import registerUser from '@/components/RegisterUser.vue'
-import userApi from '@/api/user.js'
 
 export default {
     name: 'CreateUser',
@@ -15,8 +14,8 @@ export default {
         'register-user': registerUser
     },
     methods: {
-        handleCreated () {
-
+        handleRegistered () {
+            this.$emit('handleAction')
         }
     }
 }

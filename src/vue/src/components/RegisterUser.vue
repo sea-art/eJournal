@@ -2,6 +2,8 @@
     <div>
         <b-form @submit="onSubmit" @reset="onReset">
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.username" placeholder="Username" required/>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"  v-model="form.firstname" placeholder="Firstname" required/>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"  v-model="form.lastname" placeholder="Lastname" required/>
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.password" placeholder="Password" required/>
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"  v-model="form.email" placeholder="Email" required/>
             <b-button class="float-right" type="reset">Reset</b-button>
@@ -11,6 +13,9 @@
 </template>
 
 <script>
+import auth from '@/api/auth.js'
+import userApi from '@/api/user.js'
+
 export default {
     name: 'RegisterUser',
     props: ['lti'],
@@ -29,8 +34,16 @@ export default {
     methods: {
         onSubmit () {
             userApi.createUser(this.form.username, this.form.password,
-                               this.form.firstname, this.form.lastname,
-                               this.form.email, this.form.ltiJWT)
+                this.form.firstname, this.form.lastname,
+                this.form.email, this.form.ltiJWT)
+                .then(response => {
+                    auth.login(this.form.username, this.form.password)
+                        .then(_ => {
+                            this.$emit('handleAction')
+                        })
+                        .catch(_ => alert('Could not login'))
+                })
+                .catch(_ => alert('Error while creating user'))
         },
         onReset (evt) {
             if (evt !== undefined) {
@@ -47,6 +60,16 @@ export default {
             /* Trick to reset/clear native browser form validation state */
             this.show = false
             this.$nextTick(() => { this.show = true })
+        }
+    },
+    mounted () {
+        if (this.lti !== undefined) {
+            this.form.username = this.lti.username
+            this.form.password = this.lti.password
+            this.form.firstname = this.lti.firstname
+            this.form.lastname = this.lti.lastname
+            this.form.email = this.lti.email
+            this.form.ltiJWT = this.lti.ltiJWT
         }
     }
 }
