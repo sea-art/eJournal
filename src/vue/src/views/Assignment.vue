@@ -4,7 +4,7 @@
         <b-card slot="main-content-column" class="settings-card no-hover">
             <b-row>
                 <b-col lg="3" md="3">
-                    <b-button :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">Edit Assignment Format</b-button>
+                    <b-button v-if="$root.canAddAssignment()" :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">Edit Assignment Format</b-button>
                 </b-col>
             </b-row>
             <b-row>
