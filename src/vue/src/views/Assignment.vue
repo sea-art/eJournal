@@ -67,6 +67,7 @@ import studentCard from '@/components/StudentCard.vue'
 import statisticsCard from '@/components/StatisticsCard.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import journal from '@/api/journal.js'
+import store from '@/Store.vue'
 // TODO: temp
 
 export default {
@@ -93,7 +94,8 @@ export default {
         'content-columns': contentColumns,
         'student-card': studentCard,
         'statistics-card': statisticsCard,
-        'bread-crumb': breadCrumb
+        'bread-crumb': breadCrumb,
+        'store': store
     },
     created () {
         journal.get_assignment_journals(this.aID)
@@ -157,14 +159,16 @@ export default {
 
             /* Filter list based on search input. */
             if (this.selectedSortOption === 'sortName') {
-                return this.assignmentJournals.filter(checkFilter).sort(compareName)
+                store.state.filteredJournals = this.assignmentJournals.filter(checkFilter).sort(compareName)
             } else if (this.selectedSortOption === 'sortID') {
-                return this.assignmentJournals.filter(checkFilter).sort(compareID)
+                store.state.filteredJournals = this.assignmentJournals.filter(checkFilter).sort(compareID)
             } else if (this.selectedSortOption === 'sortMarking') {
-                return this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded)
+                store.state.filteredJournals = this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded)
             } else {
-                return this.assignmentJournals.filter(checkFilter)
+                store.state.filteredJournals = this.assignmentJournals.filter(checkFilter)
             }
+
+            return store.state.filteredJournals
         }
     }
 }

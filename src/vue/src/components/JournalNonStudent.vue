@@ -146,7 +146,8 @@ export default {
         'bread-crumb': breadCrumb,
         'add-card': addCard,
         'edag': edag,
-        'entry-node': entryNode
+        'entry-node': entryNode,
+        'store': store
     }
 }
 </script>

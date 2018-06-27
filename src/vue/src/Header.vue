@@ -28,7 +28,7 @@
     </b-navbar>
 
     <b-navbar v-else id="header" toggleable="md" type="dark" fixed=top>
-        <b-navbar-brand  :to="'/'" class="brand-name">Logboek</b-navbar-brand>
+        <b-navbar-brand  :to="'/'" class="brand-name"><span>e</span>Journal</b-navbar-brand>
 
         <b-navbar-nav class="ml-auto">
             <b-nav-dropdown right no-caret id="nav-dropdown-options">
