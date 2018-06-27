@@ -25,7 +25,10 @@ def delete_course(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    cID = request.data['cID']
+    try:
+        [cID] = utils.required_params(request.data, 'cID')
+    except KeyError:
+        return responses.keyerror('cID')
 
     participation = Participation.objects.get(user=user, course=cID)
     if participation is None:
@@ -107,10 +110,15 @@ def delete_course_role(request):
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
-    request_user_role = Participation.objects.get(user=request.user.id, course=request.data['cID']).role
+    try:
+        cID, name = utils.required_params(request.data, 'cID', 'name')
+    except KeyError:
+        return responses.keyerror('cID', 'name')
+
+    request_user_role = Participation.objects.get(user=request.user.id, course=cID).role
 
     if not request_user_role.can_edit_course_roles:
         return responses.forbidden()
 
-    Role.objects.get(name=request.data['name'], course=request.data['cID']).delete()
+    Role.objects.get(name=name, course=cID).delete()
     return responses.success(message='Succesfully deleted role from course')

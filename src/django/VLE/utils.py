@@ -12,6 +12,7 @@ def required_params(post, *keys):
     result = []
     for key in keys:
         result.append(post[key])
+
     return result
 
 
