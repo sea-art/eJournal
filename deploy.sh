@@ -29,7 +29,7 @@ if [[ $? -ne 0 ]]; then
 
     # Set apache2 settings
     echo "WSGIPythonHome ${TARGET}/venv
-WSGIPythonPath ${TARGET}/django/VLE" > "${APACHEDIR}/conf-available/wsgi.conf"
+WSGIPythonPath ${TARGET}/django/VLE" > "${APACHE_DIR}/conf-available/wsgi.conf"
     sudo a2enconf wsgi
 
     echo "<VirtualHost *:${PORT}>
@@ -49,11 +49,11 @@ WSGIPythonPath ${TARGET}/django/VLE" > "${APACHEDIR}/conf-available/wsgi.conf"
 
     WSGIScriptAlias ${HOOKPOINT}api ${TARGET}/django/VLE/wsgi.py
 
-</VirtualHost>" > "${APACHEDIR}/sites-available/ejournal.conf"
+</VirtualHost>" > "${APACHE_DIR}/sites-available/ejournal.conf"
     sudo a2ensite ejournal.conf || sudo a2ensite ejournal
-    cat ${APACHEDIR}/ports.conf | grep "Listen ${PORT}"
+    cat ${APACHE_DIR}/ports.conf | grep "Listen ${PORT}"
     if [[ $? -ne 0 ]]; then
-        echo "Listen ${PORT}" >> ${APACHEDIR}/ports.conf
+        echo "Listen ${PORT}" >> ${APACHE_DIR}/ports.conf
     fi
 
     # Create database
