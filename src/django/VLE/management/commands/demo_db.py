@@ -50,7 +50,7 @@ class Command(BaseCommand):
         for c in courses_examples:
             startdate = faker.date_this_decade(before_today=True)
             course = factory.make_course(c["name"], c["abbr"], startdate, self.users[random.choice(c["teachers"])])
-            role = factory.make_role("Student", course)
+            role = factory.make_role_student("Student", course)
             for sid in c["students"]:
                 student = self.users[sid]
                 factory.make_participation(student, course, role)
