@@ -18,7 +18,7 @@ class UpdateApiTests(TestCase):
         login = test.logging_in(self, self.username, self.password)
         course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
 
-        ta_role = factory.make_role_ta(name='TA', course=course)
+        ta_role = Role.objects.get(name='TA', course=course)
         student_role = factory.make_role_student(name='SD', course=course)
 
         self.user_role = factory.make_user("test123", "test")
@@ -59,8 +59,7 @@ class UpdateApiTests(TestCase):
         login = test.logging_in(self, self.username, self.password)
 
         course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
-        factory.make_role_student(name='Student', course=course)
-        teacher_role = factory.make_role_teacher('Teacher', course)
+        teacher_role = Role.objects.get(name='Teacher', course=course)
 
         factory.make_participation(self.user, course, teacher_role)
         student = factory.make_user("Rick", "pass")

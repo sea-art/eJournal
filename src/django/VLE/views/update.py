@@ -135,7 +135,7 @@ def update_course_with_studentID(request):
         return responses.not_found('User, Course or Participation does not exist.')
 
     # TODO use roles from course
-    role = Role.objects.get(name="Student")
+    role = Role.objects.get(name="Student", course=course)
     participation = factory.make_participation(user, course, role)
 
     participation.save()
