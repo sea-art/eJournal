@@ -1,5 +1,6 @@
 <template>
     <content-student-column>
+        <h1 class="title-container">User Integration</h1>
         <lti-create-connect-user v-if="handleUserIntegration" @handleAction="userIntegrated"/>
     </content-student-column>
 </template>
@@ -7,6 +8,7 @@
 <script>
 import contentSingleColumn from '@/components/ContentSingleColumn.vue'
 import ltiCreateConnectUser from '@/components/LtiCreateConnectUser.vue'
+import router from '@/router'
 
 export default {
     name: 'LtiLogin',
@@ -34,16 +36,20 @@ export default {
         },
         updateState (state) {
             switch (state) {
+            case this.states.bad_auth:
+                this.$router.push({
+                    name: 'ErrorPage',
+                    params: {
+                        errorCode: '511',
+                        errorMessage: 'Network authorization required'
+                    }
+                })
+                break
             case this.states.no_user:
+                handleUserIntegration = true
                 break
             case this.states.logged_in:
-                break
-            }
-        }
-    },
-    watch: {
-        state: function (val) {
-            if (val === this.states.logged_in) {
+                // TODO: Add property with uID en JWT token.
                 this.$router.push({
                     name: 'Journal',
                     params: {
@@ -52,9 +58,13 @@ export default {
                         jID: this.page.jID
                     }
                 })
-            } else {
-                this.updateState(this.states.state)
+                break
             }
+        }
+    },
+    watch: {
+        state: function (val) {
+            this.updateState(this.states.state)
         }
     },
     mounted () {
@@ -68,18 +78,7 @@ export default {
 
         router.app.validToken = true
         this.states.state = '0'
-
-        if (this.states.state === this.states.bad_auth) {
-            this.$router.push({
-                name: 'ErrorPage',
-                params: {
-                    errorCode: '511',
-                    errorMessage: 'Network authorization required'
-                }
-            })
-        } else {
-            this.updateState(this.states.state)
-        }
+        this.updateState(this.states.state)
     }
 }
 </script>

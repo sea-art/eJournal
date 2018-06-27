@@ -42,7 +42,7 @@ var router = new Router({
         path: '/LtiLogin',
         name: 'LtiLogin',
         component: LtiLogin
-    },{
+    }, {
         path: '/AssignmentsOverview',
         name: 'AssignmentsOverview',
         component: AssignmentsOverview

@@ -13,7 +13,6 @@ import ltiCreateConnectCourse from '@/components/LtiCreateConnectCourse.vue'
 import ltiCreateConnectAssignment from '@/components/LtiCreateConnectAssignment.vue'
 import ltiCreateAssignment from '@/components/LtiCreateAssignment.vue'
 import assignApi from '@/api/assignment.js'
-import router from '@/router'
 
 export default {
     name: 'LtiLaunch',

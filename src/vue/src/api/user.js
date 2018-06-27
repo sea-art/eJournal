@@ -1,6 +1,11 @@
 import auth from '@/api/auth'
 
 export default {
+    /* Create a user and add it to the database. */
+    createUser () {
+        
+    },
+
     /* Get own user data. */
     getOwnUserData () {
         return auth.authenticatedGet('/get_own_user_data/')
