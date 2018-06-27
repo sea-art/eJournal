@@ -17,7 +17,7 @@ def get_role(user, course):
     """
     # First get the role ID of the user participation.
     try:
-        return Participation.objects.get(user=user, course=cID).role
+        return Participation.objects.get(user=user, course=course).role
     except Participation.DoesNotExist:
         return None
 
@@ -207,7 +207,3 @@ def has_assignment_permission(user, assignment, permission):
 
 def is_user_in_course(user, course):
     return Participation.objects.filter(user=user, course=course).exists()
-
-
-def get_user_role(user, course):
-    return Participation.objects.get(user=user, course=course).role

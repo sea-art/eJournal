@@ -5,6 +5,7 @@ Test helper functions.
 """
 
 from django.urls import reverse
+from VLE.models import Role
 import json
 
 
@@ -12,7 +13,7 @@ import VLE.factory as factory
 
 
 def set_up_user_and_auth(username, password):
-    """Set up a teacher user.
+    """Set up a user.
 
     Arguments:
     username -- username for the user
@@ -22,6 +23,12 @@ def set_up_user_and_auth(username, password):
     """
     user = factory.make_user(username, password)
     return username, password, user
+
+
+def set_up_participation(user, course, role):
+    """Set up a student in a course."""
+    q_role = Role.objects.get(name=role, course=course)
+    return factory.make_participation(user, course, q_role)
 
 
 def set_up_users(name, n):
@@ -130,6 +137,11 @@ def api_get_call(obj, url, login, status=200):
     return result
 
 
+def unauthorized_api_get_call_test(obj, url):
+    result = obj.client.get(url, {}, format='json')
+    obj.assertEquals(result.status_code, 401)
+
+
 def api_post_call(obj, url, params, login, status=200):
     """Send an get api call.
 
@@ -145,3 +157,8 @@ def api_post_call(obj, url, params, login, status=200):
                              HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access']))
     obj.assertEquals(result.status_code, status)
     return result
+
+
+def unauthorized_api_post_call_test(obj, params, url):
+    result = obj.client.post(url, json.dumps(params), content_type='application/json')
+    obj.assertEquals(result.status_code, 401)

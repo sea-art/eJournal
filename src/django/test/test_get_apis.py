@@ -18,10 +18,11 @@ class GetApiTests(TestCase):
     def test_get_own_user_data(self):
         """Tests the get own user data function."""
         login = test.logging_in(self, self.username, self.password)
-
         response = test.api_get_call(self, '/api/get_own_user_data/', login)
 
         self.assertEquals(response.json()['user']['name'], self.username)
+
+        test.unauthorized_api_get_call_test(self,  '/api/get_own_user_data/')
 
     def test_get_course_data(self):
         """Tests get coursedata function."""
@@ -32,10 +33,15 @@ class GetApiTests(TestCase):
         self.assertEquals(response.json()['course']['name'], 'Beeldbewerken')
         self.assertEquals(response.json()['course']['abbr'], 'BB')
 
+        test.unauthorized_api_get_call_test(self, '/api/get_course_data/' + str(self.course.pk) + '/')
+
     def test_get_course_users(self):
         """Test the get course users function."""
-        login = test.logging_in(self, self.username, self.password)
+        teacher = factory.make_user('Teacher', 'pass')
+        TE = factory.make_role_teacher("TE", self.course)
+        factory.make_participation(teacher, self.course, TE)
 
+        login = test.logging_in(self, 'Teacher', 'pass')
         TA = factory.make_role_ta("TA", self.course)
         SD = factory.make_role_student("SD", self.course)
         factory.make_participation(self.rein, self.course, TA)
@@ -43,12 +49,15 @@ class GetApiTests(TestCase):
 
         response = test.api_get_call(self, '/api/get_course_users/' + str(self.course.pk) + '/', login)
 
-        self.assertEquals(len(response.json()['users']), 2)
+        self.assertEquals(len(response.json()['users']), 3)
 
         response = test.api_get_call(self, '/api/get_unenrolled_users/' + str(self.course.pk) + '/', login)
 
         self.assertEquals(len(response.json()['users']), 1)
         self.assertEquals(response.json()['users'][0]['name'], self.username)
+
+        test.unauthorized_api_get_call_test(self,  '/api/get_course_users/' + str(self.course.pk) + '/')
+        test.unauthorized_api_get_call_test(self, '/api/get_unenrolled_users/' + str(self.course.pk) + '/')
 
     def test_get_unenrolled_users(self):
         """Test the get get_unenrolledusers."""
@@ -64,6 +73,8 @@ class GetApiTests(TestCase):
         self.assertEquals(len(response.json()['users']), 1)
         self.assertEquals(response.json()['users'][0]['name'], self.username)
 
+        test.unauthorized_api_get_call_test(self, '/api/get_unenrolled_users/')
+
     def test_get_user_courses(self):
         """Test the get user courses function."""
         for course in test.set_up_courses('course', 4):
@@ -75,6 +86,8 @@ class GetApiTests(TestCase):
         response = test.api_get_call(self, '/api/get_user_courses/', login)
         self.assertEquals(len(response.json()['courses']), 4)
 
+        test.unauthorized_api_get_call_test(self, '/api/get_user_courses/')
+
     def test_get_linkable_courses(self):
         """Test the get linkable courses function."""
         test.set_up_courses('course', 3, author=self.user)
@@ -84,6 +97,8 @@ class GetApiTests(TestCase):
 
         response = test.api_get_call(self, '/api/get_linkable_courses/', login)
         self.assertEquals(len(response.json()['courses']), 3)
+
+        test.unauthorized_api_get_call_test(self, '/api/get_linkable_courses/')
 
     def test_get_course_assignment(self):
         """Test the get course assignment function."""
@@ -103,6 +118,8 @@ class GetApiTests(TestCase):
         response = test.api_get_call(self, '/api/get_course_assignments/' + str(course.pk) + '/', login_rein)
         self.assertEquals(len(response.json()['assignments']), 2)
 
+        test.unauthorized_api_get_call_test(self, '/api/get_course_assignments/' + str(course.pk) + '/')
+
     def test_get_course_roles(self):
         """Test the get delete assignment function."""
         teacher_user = 'Teacher'
@@ -116,3 +133,5 @@ class GetApiTests(TestCase):
         login = test.logging_in(self, teacher_user, teacher_pass)
         result = test.api_get_call(self, '/api/get_course_roles/1/', login)
         self.assertEquals(len(result.json()['roles']), 4)
+
+        test.unauthorized_api_get_call_test(self, '/api/get_course_roles/1/')
