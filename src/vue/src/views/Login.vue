@@ -1,12 +1,15 @@
 <template>
-    <content-single-column :extraClasses="'pr-2 pl-2'">
+    <content-single-column>
         <h1>Login</h1>
-        <b-form @submit.prevent="handleLogin()">
-            <b-input class="multi-form" v-model="username" required placeholder="Username"/>
-            <b-input class="multi-form" type="password" @keyup.enter="handleLogin()" v-model="password" required placeholder="Password"/>
-            <b-button class="add-button" type="submit">Login</b-button>
-            <b-button class="float-right">Forgot password?</b-button>
-        </b-form>
+        <!-- <login-form @login-success="handleLoginSucces"></login-form> -->
+        <b-card class="blue-border no-hover card-last-elem-button">
+            <b-form @submit.prevent="handleLogin()">
+                <b-input class="multi-form" v-model="username" required placeholder="Username"/>
+                <b-input class="multi-form" type="password" @keyup.enter="handleLogin()" v-model="password" required placeholder="Password"/>
+                <b-button class="add-button" type="submit">Login</b-button>
+                <b-button class="float-right">Forgot password?</b-button>
+            </b-form>
+        </b-card>
     </content-single-column>
 </template>
 

@@ -97,11 +97,11 @@ router.beforeEach((to, from, next) => {
     // TODO Caching for permissions, how to handle permission changes when role is altered by teacher
 
     console.log('Before each to:')
-    // console.log(to)
-    console.log(from)
+    console.log(to)
+    // console.log(from)
 
     if (!router.app.validToken) {
-        authAPI.testValidToken()
+        authAPI.checkValidToken()
     }
 
     if (to.matched.length === 0) {

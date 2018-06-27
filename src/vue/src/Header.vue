@@ -35,7 +35,7 @@
                 <!-- TODO Fix dynamic binding default image -->
                 <img id="nav-profile-image" slot="button-content" src="~@/assets/unknown-profile.png">
 
-                <b-form @submit.prevent="handleLogin()" class="login-form">
+                <b-form @submit.prevent="handleLogin()" class="login-form-header">
                     <b-input class="multi-form" v-model="username" required placeholder="Username"/>
                     <b-input class="multi-form" type="password" @keyup.enter="handleLogin()" v-model="password" required placeholder="Password"/>
                     <b-button class="multi-form" type="submit">Login</b-button><br/>
@@ -55,7 +55,6 @@ import userAPI from '@/api/user.js'
 
 export default {
     components: {
-        'login-form': LoginForm,
         icon
     },
     data () {
@@ -143,10 +142,6 @@ export default {
     display: block;
 }
 
-#login-form {
-    background: none !important;
-}
-
 .dropdown-menu {
     background: var(--theme-light-grey) !important;
     border: none !important;
@@ -170,7 +165,7 @@ export default {
     border-radius: 50% !important;
 }
 
-.login-form {
+.login-form-header {
     background-color: var(--theme-light-grey);
 }
 
