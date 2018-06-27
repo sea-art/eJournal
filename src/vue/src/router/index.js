@@ -6,6 +6,7 @@ import Assignment from '@/views/Assignment'
 import Course from '@/views/Course'
 import Profile from '@/views/Profile'
 import Guest from '@/views/Guest'
+import Login from '@/views/Login'
 import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
 import AssignmentsOverview from '@/views/AssignmentsOverview'
@@ -15,6 +16,8 @@ import CourseEdit from '@/views/CourseEdit'
 import AssignmentEdit from '@/views/AssignmentEdit'
 import UserRoleConfiguration from '@/views/UserRoleConfiguration'
 import FormatEdit from '@/views/FormatEdit'
+import Logout from '@/views/Logout'
+import authAPI from '@/api/auth.js'
 
 Vue.use(Router)
 
@@ -28,8 +31,12 @@ var router = new Router({
         name: 'Home',
         component: Home
     }, {
+        path: '/Login',
+        name: 'Login',
+        component: Login
+    }, {
         path: '/Register',
-        name: Register,
+        name: 'Register',
         component: Register
     }, {
         path: '/Profile',
@@ -46,7 +53,12 @@ var router = new Router({
     }, {
         path: '/Error',
         name: 'ErrorPage',
-        component: ErrorPage
+        component: ErrorPage,
+        props: true
+    }, {
+        path: '/Logout',
+        name: 'Logout',
+        component: Logout
     }, {
         path: '/Home/Course/:cID',
         name: 'Course',
@@ -86,9 +98,24 @@ var router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
-    // TODO Possible redirect if token invalid?
-    // TODO Handle errors properly
     // TODO Caching for permissions, how to handle permission changes when role is altered by teacher
+    router.app.previousPage = from
+
+    if (!router.app.validToken) {
+        authAPI.testValidToken()
+    }
+
+    if (to.matched.length === 0) {
+        return next({name: 'ErrorPage', params: {code: '404', message: 'Page not found'}})
+    }
+
+    /* Returning next because we short circuit the function here, no API calls
+    * are desired. */
+    if (to.name === 'Guest') {
+        return next()
+    } else if (to.name === 'Login') {
+        return next()
+    }
 
     var params
     if (to.params.cID) {
@@ -102,14 +129,9 @@ router.beforeEach((to, from, next) => {
     permissionsApi.get_course_permissions(params)
         .then(response => {
             router.app.permissions = response
-            next()
         })
         .catch(_ => {
-            // TODO Check if this catch works as expected
             console.log('Error while loading permissions, does the redirect work?')
-            next(vm => {
-                vm.$router.push({name: 'ErrorPage', params: {errorMessage: 'Error while loading permissions', errorCode: '401'}})
-            })
         })
 
     next()

@@ -19,18 +19,21 @@
                          required/>
 
                 <b-row>
-                    <b-col lg="3" md="6">
+                    <b-col>
                         <b-button class="add-button"
                                   type="submit"
                                   v-if="this.$root.canEditCourse()"
                             >Update Course
                         </b-button>
-                    </b-col>
-                    <b-col lg="3" md="6">
                         <b-button v-if="this.$root.canDeleteCourse()"
                                   @click.prevent.stop="deleteCourse()"
                                   class="delete-button">
                             Delete Course
+                        </b-button>
+                        <b-button v-if="this.$root.canEditCourseRoles()"
+                                  @click.prevent.stop="routeToEditCourseRoles"
+                                  class="">
+                            Edit permissions
                         </b-button>
                     </b-col>
                 </b-row>
@@ -40,21 +43,21 @@
         <b-card class="no-hover settings-card">
             <h3>Manage course students</h3>
                 <b-row>
-                    <b-col lg="3" md="6">
+                    <b-col lg="3" sm="6">
                         <b-form-select v-model="selectedSortOption" :select-size="1">
                            <option :value="null">Sort by ...</option>
                            <option value="sortName">Sort on name</option>
                            <option value="sortID">Sort on ID</option>
                         </b-form-select>
                     </b-col>
-                    <b-col lg="3" md="6">
+                    <b-col lg="3" sm="6">
                         <b-form-select v-model="selectedView" :select-size="1">
                             <option value="enrolled">Enrolled</option>
                             <option value="unenrolled">Unenrolled</option>
                         </b-form-select>
                     </b-col>
 
-                    <b-col lg="4" md="6">
+                    <b-col cols="6">
                         <input type="text" v-model="searchVariable" placeholder="Search .."/>
                     </b-col>
                 </b-row>
@@ -117,13 +120,11 @@ export default {
             .then(response => {
                 this.course = response
             })
-            .catch(_ => alert('Error while loading course data'))
 
         courseApi.get_users(this.cID)
             .then(response => {
                 this.participants = response.users
             })
-            .catch(_ => alert('Error while loading course users'))
     },
     methods: {
         onSubmit () {
@@ -170,6 +171,12 @@ export default {
                     this.unenrolledStudents = response
                 })
             this.unenrolledLoaded = !this.unenrolledLoaded
+        },
+        routeToEditCourseRoles () {
+            this.$router.push({
+                name: 'UserRoleConfiguration',
+                params: { cID: this.cID }
+            })
         }
     },
     computed: {

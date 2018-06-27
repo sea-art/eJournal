@@ -1,5 +1,5 @@
 <template>
-    <journal-non-student v-if="$root.canEditJournal()" :jID="this.$route.params.jID"/>
+    <journal-non-student v-if="!$root.canEditJournal()" :jID="this.$route.params.jID"/>
     <journal-student v-else :jID="this.$route.params.jID"/>
 </template>
 
@@ -82,10 +82,6 @@ export default {
         overflow: hidden;
     }
 
-    .main-content-format-edit {
-        padding-top: 0px !important;
-    }
-
     .main-content-journal, .right-content-journal {
         height: 100%;
         overflow-y: scroll;
@@ -93,7 +89,7 @@ export default {
 }
 
 @media (max-width: 1200px) {
-    .main-content-format-edit {
+    .main-content-journal {
         padding-top: 0px !important;
     }
 }

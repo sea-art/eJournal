@@ -99,6 +99,7 @@ class Role(models.Model):
     - name: name of the role
     - list of permissions (can_...)
     """
+
     name = models.TextField()
     course = models.ForeignKey(
         Course,
@@ -142,6 +143,7 @@ class Participation(models.Model):
     The user is now linked to the course, and has a set of permissions
     associated with its role.
     """
+
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     role = models.ForeignKey(

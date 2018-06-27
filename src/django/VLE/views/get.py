@@ -33,6 +33,14 @@ GRADE_CENTER = '6'
 
 
 @api_view(['GET'])
+def check_valid_token(request):
+    """Check if the token is a valid token."""
+    if not request.user.is_authenticated:
+        return responses.unauthorized()
+    return responses.success()
+
+
+@api_view(['GET'])
 def get_own_user_data(request):
     """Get the data linked to the logged in user.
 
@@ -163,14 +171,17 @@ def get_user_courses(request):
 
 @api_view(['GET'])
 def get_linkable_courses(request):
-    """Get all courses that the current user is connected with as sufficiently
+    """Get linkable courses.
+
+    Get all courses that the current user is connected with as sufficiently
     authenticated user. The lti_id should be equal to NULL. A user can then link
     this course to Canvas.
 
     Arguments:
     request -- contains the user that requested the linkable courses
 
-    Returns all of the courses."""
+    Returns all of the courses.
+    """
     user = request.user
     if not user.is_authenticated:
         return responses.unauthorized()
@@ -244,6 +255,11 @@ def get_course_assignments(request, cID):
     role = permissions.get_role(user, course)
     if role is None:
         return responses.forbidden('You are not in this course.')
+
+    try:
+        participation = Participation.objects.get(user=user, course=course)
+    except Participation.DoesNotExist:
+        return responses.forbidden('You are not participating in this course')
 
     # Check whether the user can grade a journal in the course.
     if role.can_grade_journal:
@@ -367,6 +383,8 @@ def get_course_permissions(request, cID):
         return responses.not_found('Course does not exist.')
 
     roleDict = permissions.get_permissions(request.user, int(cID))
+    if not roleDict:
+        return responses.forbidden('You are not participating in this course')
 
     return responses.success(payload={'permissions': roleDict})
 
@@ -481,7 +499,6 @@ def get_names(request):
         cID -- optionally the course id
         aID -- optionally the assignment id
         jID -- optionally the journal id
-        tID -- optionally the template id
 
     Returns a json string containing the names of the set fields.
     cID populates 'course', aID populates 'assignment', tID populates
@@ -490,22 +507,19 @@ def get_names(request):
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
-    cID, aID, jID, tID = utils.optional_params(request.data, "cID", "aID", "jID", "tID")
+    cID, aID, jID = utils.optional_params(request.data, "cID", "aID", "jID")
     result = {}
 
     try:
         if cID:
             course = Course.objects.get(pk=cID)
-            result.course = course.name
+            result['course'] = course.name
         if aID:
             assignment = Assignment.objects.get(pk=aID)
-            result.assignment = assignment.name
+            result['assignment'] = assignment.name
         if jID:
             journal = Journal.objects.get(pk=jID)
-            result.journal = journal.user.name
-        if tID:
-            template = EntryTemplate.objects.get(pk=tID)
-            result.template = template.name
+            result['journal'] = journal.user.username
 
     except (Course.DoesNotExist, Assignment.DoesNotExist, Journal.DoesNotExist, EntryTemplate.DoesNotExist):
         return responses.not_found('Course, Assignment, Journal or Template does not exist.')

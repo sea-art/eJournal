@@ -51,13 +51,13 @@ export default {
             .then(response => response.data)
     },
 
-    update_publish_grades_assignment (aID) {
-        return auth.authenticatedGet('/update_publish_grades_assignment/' + aID + '/')
+    update_publish_grades_assignment (aID, published) {
+        return auth.authenticatedPost('/update_publish_grades_assignment/' + aID + '/', {published: published})
             .then(response => response.data)
     },
 
-    update_publish_grades_journal (jID) {
-        return auth.authenticatedGet('/api/update_publish_grades_journal/' + jID + '/')
+    update_publish_grades_journal (jID, published) {
+        return auth.authenticatedPost('/update_publish_grades_journal/' + jID + '/', {published: published})
             .then(response => response.data)
     }
 }

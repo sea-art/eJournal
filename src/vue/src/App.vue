@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <header-bar/>
-        <router-view class="fit-height"/>
+        <router-view :key="$route.fullPath" class="fit-height"/>
     </div>
 </template>
 
@@ -149,6 +149,10 @@ input, select {
 
 .hover {
     cursor: pointer;
+}
+
+.card-last-elem-button .card-body {
+    padding-bottom: 2px !important;
 }
 
 .no-hover:hover {
