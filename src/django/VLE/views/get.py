@@ -297,13 +297,10 @@ def get_assignment_journals(request, aID):
 
     try:
         assignment = Assignment.objects.get(pk=aID)
-        # TODO: Not first, for demo.
-        course = assignment.courses.first()
-        participation = Participation.objects.get(user=user, course=course)
-    except (Participation.DoesNotExist, Assignment.DoesNotExist):
-        return responses.not_found('Assignment or Participation does not exist.')
+    except (Assignment.DoesNotExist):
+        return responses.not_found('Assignment does not exist.')
 
-    if not participation.role.can_view_assignment_participants:
+    if not permissions.has_assignment_permission(user, assignment, 'can_view_assignment_participants'):
         return responses.forbidden('You are not allowed to view assignment participants.')
 
     journals = []
