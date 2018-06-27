@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <header-bar/>
-        <router-view class="fit-height"/>
+        <router-view :key="$route.fullPath" class="fit-height"/>
     </div>
 </template>
 
@@ -229,7 +229,7 @@ input, select {
 
 .delete-button:hover {
     border-color: var(--theme-dark-blue) !important;
-    background-color: red !important;
+    background-color: var(--theme-red) !important;
 }
 
 .lti-button-option {

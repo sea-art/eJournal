@@ -1,3 +1,10 @@
+<!--
+    Format Editor view.
+    Lists all templates used within the assignment.
+    Template availability for adding by the student can be toggled on a per-template basis.
+    Presets are given in a list format, same as the journal view.
+-->
+
 <template>
     <b-row class="outer-container" no-gutters>
         <b-col v-if="bootstrapLg()" cols="12">
@@ -16,7 +23,7 @@
             . -->
 
             <div v-if="nodes.length > 0">
-                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @deadline-changed="sortList" @delete-preset="deletePreset"/>
+                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @deadline-changed="sortList" @delete-preset="deletePreset" @changed="isChanged = true" :color="$root.colors[aID % $root.colors.length]"/>
             </div>
             <div v-else>
                 <p>No presets yet</p>
@@ -43,7 +50,7 @@
             <br/>
 
             <h3>Template Pool</h3>
-            <template-todo-card class="hover" v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" :color="'pink-border'" @delete-template="deleteTemplate"/>
+            <template-todo-card class="hover" v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate" :color="$root.colors[aID % $root.colors.length]"/>
             <b-card @click="showModal(newTemplate())" class="hover" :class="'grey-border'" style="">
                 <b>+ Add Template</b>
             </b-card>
@@ -66,6 +73,14 @@ export default {
 
     props: ['cID', 'aID', 'editedTemplate'],
 
+    /* Main data representations:
+       templates, presets, unused templates: as received.
+       templatePool: the list of used templates. Elements are meta objects with a t field storing the template,
+            available field storing student availability, boolean updated field.
+       nodes: processed copy of presets.
+       deletedTemplates, deletedPresets: stores deleted objects for db communication
+       isChanged: stores whether the user has made any changes
+    */
     data () {
         return {
             windowWidth: 0,
@@ -101,14 +116,18 @@ export default {
                 this.convertFromDB()
             })
             .then(_ => { this.isChanged = false })
+
+        window.addEventListener('beforeunload', e => {
+            if (this.$route.name === 'FormatEdit' && this.isChanged) {
+                var dialogText = 'Oh no! Unsaved changes will be lost if you leave. Do you wish to continue?'
+                e.returnValue = dialogText
+                return dialogText
+            }
+        })
     },
 
     watch: {
         templatePool: {
-            handler: function () { this.isChanged = true },
-            deep: true
-        },
-        nodes: {
             handler: function () { this.isChanged = true },
             deep: true
         }
@@ -123,6 +142,7 @@ export default {
             this.deletedTemplates.push(template.t)
             this.templatePool.splice(this.templatePool.indexOf(template), 1)
         },
+        // Used to sort the list when dates are changed. Updates the currentNode index accordingly
         sortList () {
             var temp = this.nodes[this.currentNode]
             this.nodes.sort((a, b) => { return new Date(a.deadline) - new Date(b.deadline) })
@@ -143,6 +163,7 @@ export default {
                 available: false
             }
         },
+        // Shows the modal AND sets updated flag on template
         showModal (template) {
             template.updated = true
             if (!this.templatePool.includes(template)) {
@@ -168,6 +189,7 @@ export default {
                 'template': (this.templatePool[0]) ? this.templatePool[0].t : null
             })
             this.sortList()
+            this.isChanged = true
         },
         // Do client side validation and save to DB
         saveFormat () {
@@ -228,15 +250,19 @@ export default {
                     this.$toasted.success('New format saved')
                 })
         },
+        // Used for responsiveness
         getWindowWidth (event) {
             this.windowWidth = document.documentElement.clientWidth
         },
+        // Used for responsiveness
         getWindowHeight (event) {
             this.windowHeight = document.documentElement.clientHeight
         },
+        // Used for responsiveness
         bootstrapLg () {
             return this.windowHeight < 1200
         },
+        // Used for responsiveness
         bootstrapMd () {
             return this.windowHeight < 922
         },
@@ -290,6 +316,7 @@ export default {
         }
     },
 
+    // Used for responsiveness
     mounted () {
         this.$nextTick(function () {
             window.addEventListener('resize', this.getWindowWidth)
@@ -297,6 +324,8 @@ export default {
             this.getWindowWidth()
         })
     },
+
+    // Used for responsiveness
     beforeDestroy () {
         window.removeEventListener('resize', this.getWindowWidth)
     },
@@ -310,6 +339,7 @@ export default {
         'template-editor': templateEdit
     },
 
+    // Prompts user
     beforeRouteLeave (to, from, next) {
         if (this.isChanged && !confirm('Oh no! Unsaved changes will be lost if you leave. Do you wish to continue?')) {
             next(false)

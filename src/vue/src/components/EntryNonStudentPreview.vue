@@ -118,7 +118,7 @@ export default {
                 this.tempNode.entry.grade = this.grade
                 this.tempNode.entry.published = this.status
 
-                if (status) {
+                if (this.status) {
                     journalApi.update_grade_entry(this.entryNode.entry.eID,
                         this.grade, 1)
                     this.$emit('check-grade', this.tempNode)
