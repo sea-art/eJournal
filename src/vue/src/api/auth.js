@@ -33,10 +33,8 @@ function refresh (error) {
 }
 
 function handleResponse (response) {
-    console.log('Handling response')
     response = response.response
     if (response.status === 401) {
-        console.log(router.history)
         router.push({name: 'Login'})
     } if (response.status === 400 ||
           response.status === 403 ||

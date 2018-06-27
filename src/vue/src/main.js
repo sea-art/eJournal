@@ -21,7 +21,8 @@ new Vue({
     data: {
         colors: ['pink-border', 'peach-border', 'blue-border'],
         permissions: {},
-        validToken: false
+        validToken: false,
+        previousPage: null
     },
     methods: {
         timeLeft (date) {

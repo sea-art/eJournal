@@ -83,21 +83,21 @@ router.beforeEach((to, from, next) => {
     // TODO Caching for permissions, how to handle permission changes when role is altered by teacher
 
     console.log('Before each to:')
-    console.log(to)
+    // console.log(to)
+    console.log(from)
 
     if (to.matched.length === 0) {
         console.log('Before each: No match detected rerouting to 404')
         return next({name: 'ErrorPage', params: {code: '404', message: 'Page not found'}})
     }
 
+    /* Returning next because we short circuit the function here, no API calls
+    * are desired. */
     if (to.name === 'Guest') {
-        /* Returning next because we short circuit the function here, no API calls
-         * are desired. */
         return next()
     } else if (to.name === 'Login') {
-        // TODO Set from parameters, if from == NULL set from HOME so a catch all
-        // Works for rerouting
-        console.log(from)
+        console.log(from.name)
+        router.app.previousPage = from
         return next()
     }
 
