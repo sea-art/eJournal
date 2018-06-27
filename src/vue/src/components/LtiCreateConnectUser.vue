@@ -19,7 +19,8 @@
             title="Create user"
             size="lg"
             hide-footer>
-                <create-user @handleAction="handleIntegrated('createUserRef')" :lti="lti"/>
+                <!-- <create-user @handleAction="handleIntegrated('createUserRef')" :lti="lti"/> -->
+                <register-user @handleAction="handleRegistered" :lti="lti"/>
         </b-modal>
 
         <b-modal
@@ -27,7 +28,8 @@
             title="Connect user"
             size="lg"
             hide-footer>
-                <connect-user @handleAction="handleIntegrated('connectUserRef')" :lti="lti"/>
+                <!-- <connect-user @handleAction="handleIntegrated('connectUserRef')" :lti="lti"/> -->
+                <login-form @handleAction="handleConnected"/>
         </b-modal>
     </div>
 </template>
@@ -35,13 +37,18 @@
 <script>
 import createUser from '@/components/CreateUser.vue'
 import connectUser from '@/components/ConnectUser.vue'
+import registerUser from '@/components/RegisterUser.vue'
+import loginForm from '@/components/LoginForm.vue'
+import userApi from '@/api/user.js'
 
 export default {
     name: 'LtiCreateConnectUser',
     props: ['lti'],
     components: {
         'create-user': createUser,
-        'connect-user': connectUser
+        'connect-user': connectUser,
+        'register-user': registerUser,
+        'login-form': loginForm
     },
     methods: {
         signal (msg) {
@@ -53,9 +60,20 @@ export default {
         hideModal (ref) {
             this.$refs[ref].hide()
         },
-        handleIntegrated (ref) {
-            this.hideModal(ref)
+        // handleIntegrated (ref) {
+        //     this.hideModal(ref)
+        //     this.signal(['userIntegrated'])
+        // },
+        handleRegistered () {
+            this.hideModal('createUserRef')
             this.signal(['userIntegrated'])
+        },
+        handleConnected () {
+            userApi.updateLtiIdToUser(this.lti.ltiJWT)
+                .then(response => {
+                    this.hideModal('connectUserRef')
+                    this.signal(['userIntegrated'])
+                 })
         }
     }
 }

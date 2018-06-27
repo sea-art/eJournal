@@ -15,7 +15,7 @@ export default {
         'login-form': loginForm
     },
     methods: {
-        connectUser (uID) {
+        connectUser () {
             userApi.updateLtiIdToUser(this.lti.ltiJWT)
                 .then(response => { this.$emit('handleAction') })
         }
