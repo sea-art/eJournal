@@ -13,7 +13,10 @@ import VLE.factory as factory
 from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, \
     User, Journal, EntryTemplate, Node, PresetNode
 
+from django.conf import settings
 import re
+import jwt
+import json
 
 
 @api_view(['POST'])
@@ -559,7 +562,7 @@ def update_lti_id_to_user(request):
     if not request.data['jwt_params']:
         return responses.bad_request()
 
-    lti_params = jwt.decode(request.data['jwt_params'], setttings.LTI_SECRET, algorithms=['HS256'])
+    lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
 
     user_id, user_image = lti_params['user_id'], lti_params['user_iamge']
     is_teacher = json.load(open('config.json'))['Teacher'] in lti_params

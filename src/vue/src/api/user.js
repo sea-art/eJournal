@@ -3,7 +3,12 @@ import auth from '@/api/auth'
 export default {
     /* Create a user and add it to the database. */
     createUser () {
-        
+
+    },
+
+    /* Update user data. */
+    updateLtiIdToUser (jwtParams) {
+        return auth.authenticatedPost('/update_lti_id_to_user/', {jwt_params: jwtParams})
     },
 
     /* Get own user data. */
