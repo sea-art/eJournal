@@ -16,6 +16,7 @@ import CourseEdit from '@/views/CourseEdit'
 import AssignmentEdit from '@/views/AssignmentEdit'
 import UserRoleConfiguration from '@/views/UserRoleConfiguration'
 import FormatEdit from '@/views/FormatEdit'
+import Logout from '@/views/Logout'
 import authAPI from '@/api/auth.js'
 
 Vue.use(Router)
@@ -54,6 +55,10 @@ var router = new Router({
         name: 'ErrorPage',
         component: ErrorPage,
         props: true
+    }, {
+        path: '/Logout',
+        name: 'Logout',
+        component: Logout
     }, {
         path: '/Home/Course/:cID',
         name: 'Course',
