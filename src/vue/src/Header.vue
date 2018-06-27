@@ -79,7 +79,6 @@ export default {
                 })
                 .catch(_ => {
                     this.$toasted.error('Could not login')
-                    // alert('Could not login')
                 })
         },
         setProfilePicture () {
@@ -93,7 +92,7 @@ export default {
                     }
                 })
                 .catch(_ => {
-                    alert('Something went wrong retrieving user data')
+                    this.$toasted.error('Something went wrong retrieving user data')
                     // TODO Set default user picture
                 })
         }

@@ -52,7 +52,6 @@ export default {
 
     /* Connect an existing course to lti course. */
     connect_assignment_lti (aID, ltiID, pointsPossible) {
-        alert(pointsPossible)
         return auth.authenticatedPost('/connect_assignment_lti/', {
             aID: aID,
             lti_id: ltiID,
