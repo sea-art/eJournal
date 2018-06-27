@@ -17,7 +17,6 @@ import auth from '@/api/auth.js'
 
 export default {
     name: 'Login',
-    props: ['from'],
     data () {
         return {
             username: '',
@@ -26,8 +25,11 @@ export default {
     },
     methods: {
         handleLoginSucces () {
-            // TODO Proper redirect
-            this.$router.go(-1)
+            if (this.$root.previousPage === null) {
+                this.$router.push({name: 'Home'})
+            } else {
+                this.$router.push({name: this.$root.previousPage.name, params: this.$root.previousPage.params})
+            }
         },
         handleLogin () {
             auth.login(this.username, this.password)
@@ -36,13 +38,6 @@ export default {
                 })
                 .catch(_ => alert('Could not login'))
         }
-    },
-    created () {
-        console.log(this.$router)
-    },
-    beforeRouteUpdate (to, from, next) {
-        console.log('beforeRouteUpdate')
-        console.log(from)
     },
     components: {
         'login-form': loginForm,
