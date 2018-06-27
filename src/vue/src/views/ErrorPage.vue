@@ -2,13 +2,11 @@
     <b-row class="error-content">
         <b-col cols="12">
             <h1 id="error-heading">
-                Error {{ code }}: <span id="error-message"> {{ message }}</span>
+                Error {{ code }}: <span id="error-message">{{ message }}</span>
             </h1>
         </b-col>
         <b-col cols="12" v-if="description">
-            <h3>
-                {{ description }}
-            </h3>
+            {{ description }}
         </b-col>
         <b-col cols="12">
             <b-button :to="{name: 'Home'}">Home</b-button>
