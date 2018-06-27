@@ -22,8 +22,13 @@ def make_user(username, password, email=None, lti_id=None, profile_picture=None,
     profile_picture -- profile picture of the user (default: none)
     is_admin -- if the user needs all permissions, set this true (default: False)
     """
-    user = User(username=username, email=email, lti_id=lti_id, is_admin=is_admin,
-                is_teacher=is_teacher, first_name=None, last_name=None)
+    # TODO first and last name should always be given but it isnt in the demo db
+    if first_name is None or last_name is None:
+        user = User(username=username, email=email, lti_id=lti_id, is_admin=is_admin,
+                    is_teacher=is_teacher)
+    else:
+        user = User(username=username, email=email, lti_id=lti_id, is_admin=is_admin,
+                    is_teacher=is_teacher, first_name=first_name, last_name=last_name)
     user.save()
     user.set_password(password)
     if profile_picture:

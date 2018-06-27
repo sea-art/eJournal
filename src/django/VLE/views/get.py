@@ -607,7 +607,7 @@ def lti_launch(request):
         params = request.POST
         user = lti.check_user_lti(params, roles)
 
-        params['exp'] = datetime.utcnow()
+        params['exp'] = datetime.utcnow() + datetime.timedelta(minutes=15)
         lti_params = jwt.encode(params, secret, algorithm='HS256')
 
         refresh = TokenObtainPairSerializer.get_token(user)
