@@ -4,16 +4,13 @@ from VLE.models import Course, Assignment, Role
 
 import VLE.factory as factory
 import VLE.serializers as serialize
-import test.test_rest as test
+import test.test_utils as test
 
 
 class DeleteApiTests(TestCase):
     def setUp(self):
         """Setup"""
-        self.username = 'test'
-        self.password = 'test123'
-
-        self.user = factory.make_user(self.username, self.password)
+        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123')
         self.course = factory.make_course("Beeldbewerken", "BB")
 
     def test_delete_course(self):
@@ -80,9 +77,9 @@ class DeleteApiTests(TestCase):
         teacher_user = 'Teacher'
         teacher_pass = 'pass'
         teacher = factory.make_user(teacher_user, teacher_pass)
-        teacher_role = factory.make_role_all_permissions("TE", self.course)
+        teacher_role = factory.make_role_teacher("TE", self.course)
         factory.make_participation(teacher, self.course, teacher_role)
-        factory.make_role('TA2', self.course)
+        factory.make_role_ta('TA2', self.course)
         login = test.logging_in(self, teacher_user, teacher_pass)
         test.api_post_call(self, '/api/delete_course_role/', {'cID': 1, 'name': 'TA2'}, login)
 

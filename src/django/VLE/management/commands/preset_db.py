@@ -63,10 +63,6 @@ class Command(BaseCommand):
                 "teachers": [0, 1, 2, 3, 4, 5],
             }
         ]
-        role_examples = [
-            {"name": "Student"},
-            {"name": "TA"}
-        ]
 
         self.courses = []
         self.roles = []
@@ -75,8 +71,8 @@ class Command(BaseCommand):
             author = self.users[random.choice(c["teachers"])]
             course = factory.make_course(c["name"], c["abbr"], startdate, author)
             role_teacher = Role.objects.get(name='Teacher', course=course)
-            for r in role_examples:
-                self.roles.append(factory.make_role(r["name"], course))
+            self.roles.append(factory.make_role_ta('TA', course))
+            self.roles.append(factory.make_role_student('Student', course))
             for sid in c["students"]:
                 student = self.users[sid]
                 factory.make_participation(student, course, self.roles[0])

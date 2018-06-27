@@ -70,7 +70,7 @@ class DataBaseTests(TestCase):
 
     def test_get_permissions(self):
         """Test a request that doesn't need permissions."""
-        role = factory.make_role('Student', self.crs)
+        role = factory.make_role_default_no_perms('Student', self.crs)
 
         # Connect a participation to a user, course and role.
         factory.make_participation(self.usr, self.crs, role)
@@ -81,7 +81,7 @@ class DataBaseTests(TestCase):
 
     def test_emptyPermissions(self):
         """Test a request that doesn't need permissions."""
-        role = factory.make_role('Student', self.crs)
+        role = factory.make_role_default_no_perms('Student', self.crs)
 
         # Connect a participation to a user, course and role.
         factory.make_participation(self.usr, self.crs, role)
@@ -90,7 +90,7 @@ class DataBaseTests(TestCase):
 
     def test_permission(self):
         """Test a request that needs a single permission."""
-        role = factory.make_role("Student", self.crs, can_delete_assignment=True)
+        role = factory.make_role_default_no_perms("Student", self.crs, can_delete_assignment=True)
 
         factory.make_participation(self.usr, self.crs, role)
 
@@ -99,8 +99,8 @@ class DataBaseTests(TestCase):
 
     def test_permission_multiple(self):
         """Test a request that needs multiple permissions."""
-        role = factory.make_role("TA", self.crs, can_delete_assignment=True, can_grade_journal=True,
-                                 can_add_assignment=True)
+        role = factory.make_role_default_no_perms("TA", self.crs, can_delete_assignment=True, can_grade_journal=True,
+                                                  can_add_assignment=True)
 
         factory.make_participation(self.usr, self.crs, role)
 
@@ -111,8 +111,8 @@ class DataBaseTests(TestCase):
     def test_get_permissions_admin(self):
         """Test if the admin had the right permissions."""
         user = factory.make_user(email='some@other', username='teun2', password='1234', lti_id='abcde', is_admin=True)
-        role = factory.make_role("TA", self.crs, can_delete_assignment=True,
-                                 can_grade_journal=True, can_add_assignment=True)
+        role = factory.make_role_default_no_perms("TA", self.crs, can_delete_assignment=True,
+                                                  can_grade_journal=True, can_add_assignment=True)
 
         factory.make_participation(user, self.crs, role)
 
@@ -134,8 +134,8 @@ class DataBaseTests(TestCase):
 
         The created user should NOT be provided with the admin permission.
         """
-        role = factory.make_role("TA", self.crs, can_delete_assignment=True,
-                                 can_grade_journal=True, can_add_assignment=True)
+        role = factory.make_role_default_no_perms("TA", self.crs, can_delete_assignment=True,
+                                                  can_grade_journal=True, can_add_assignment=True)
 
         factory.make_participation(self.usr, self.crs, role)
 

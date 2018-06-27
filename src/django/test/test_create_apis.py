@@ -4,52 +4,59 @@ test_apis.py.
 Test API calls.
 """
 from django.test import TestCase
+from VLE.models import Course, Assignment, Journal, Entry, Content, EntryComment
 
 import VLE.factory as factory
-import test.test_rest as test
+import test.test_utils as test
 
 
 class CreateApiTests(TestCase):
     def setUp(self):
         """Setup."""
-        self.username = 'test'
-        self.password = 'test123'
+        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123')
 
-        self.user = factory.make_user(self.username, self.password)
+    def test_create_new_course(self):
+        """Test create new course."""
+        lti_id = '12AB'
+        login = test.logging_in(self, self.username, self.password)
+        create_course_dict = {'name': 'Beeldbewerken', 'abbr': 'BB', 'lti_id': lti_id}
 
-    def test_get_course_users(self):
-        """Test get courses of user."""
+        test.api_post_call(self, '/api/create_new_course/', create_course_dict, login, 201)
+        self.assertEquals(Course.objects.get(lti_id=lti_id).name, 'Beeldbewerken')
+
+    def test_create_new_assignment(self):
+        """test create new assignment."""
+        lti_id = '12AB'
+        course = factory.make_course("BeeldBewerken", "BB")
+        login = test.logging_in(self, self.username, self.password)
+        create_assign_dict = {
+            'name': 'SIFT',
+            'description': 'In this assign...',
+            'cID': course.pk,
+            'lti_id': lti_id
+        }
+
+        test.api_post_call(self, '/api/create_new_assignment/', create_assign_dict, login, 201)
+        self.assertEquals(Assignment.objects.get(lti_id=lti_id).name, 'SIFT')
+
+    def test_create_journal(self):
+        """test create journal."""
+        assign = factory.make_assignment("Assignment", "Your favorite assignment")
+        create_journal_dict = {'aID': assign.pk}
         login = test.logging_in(self, self.username, self.password)
 
-        course = factory.make_course("Beeldbewerken", "BB")
-
-        rein = factory.make_user("Rein", "123")
-        lars = factory.make_user("Lars", "123")
-
-        TA = factory.make_role("TA", course)
-        SD = factory.make_role("SD", course)
-        factory.make_participation(rein, course, TA)
-        factory.make_participation(lars, course, SD)
-
-        response = test.api_get_call(self, '/api/get_course_users/' + str(course.pk) + '/', login)
-
-        self.assertEquals(len(response.json()['users']), 2)
-
-        response = test.api_get_call(self, '/api/get_unenrolled_users/' + str(course.pk) + '/', login)
-
-        self.assertEquals(len(response.json()['users']), 1)
-        self.assertEquals(response.json()['users'][0]['name'], self.username)
+        test.api_post_call(self, '/api/create_journal/', create_journal_dict, login, 201)
+        self.assertTrue(Journal.objects.filter(user=self.user).exists())
 
     def test_create_entry(self):
         """"Test create entry."""
-        login = test.logging_in(self, self.username, self.password)
-
         assignment = factory.make_assignment("Assignment", "Your favorite assignment")
         journal = factory.make_journal(assignment, self.user)
         template = factory.make_entry_template("some_template")
         field = factory.make_field(template, 'Some field', 0)
+        login = test.logging_in(self, self.username, self.password)
 
-        some_dict = {
+        create_entry_dict = {
             'jID': journal.id,
             'tID': template.id,
             'content': [{
@@ -58,4 +65,27 @@ class CreateApiTests(TestCase):
                 }]
             }
 
-        test.api_post_call(self, '/api/create_entry/', some_dict, login, 201)
+        test.api_post_call(self, '/api/create_entry/', create_entry_dict, login, 201)
+        self.assertTrue(Entry.objects.filter(node__journal=journal).exists())
+        self.assertEquals(Content.objects.get(entry=1).data, "This is some data")
+
+    def test_create_entrycomment(self):
+        """Test create entry comment."""
+        assignment = factory.make_assignment("Assignment", "Your favorite assignment")
+        journal = factory.make_journal(assignment, self.user)
+        template = factory.make_entry_template("some_template")
+        entry = factory.make_entry(template)
+        factory.make_node(journal, entry)
+
+        commentator = factory.make_user('Commentator', 'pass')
+        login = test.logging_in(self, self.username, self.password)
+
+        create_entrycomment_dict = {
+            'entryID': entry.pk,
+            'authorID': commentator.pk,
+            'text': 'Wow! This is bad/good'
+        }
+
+        test.api_post_call(self, '/api/create_entrycomment/', create_entrycomment_dict, login, 201)
+        self.assertTrue(EntryComment.objects.filter(entry=entry).exists())
+        self.assertEquals(EntryComment.objects.get(pk=1).text, 'Wow! This is bad/good')
