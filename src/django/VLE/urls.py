@@ -76,6 +76,7 @@ urlpatterns = [
          name='update_comment_notification'),
     path('api/update_format/', update.update_format, name='update_format'),
     path('api/update_entrycomment/', update.update_entrycomment, name='update_entrycomment'),
+    path('api/update_lti_id_to_user/', update.update_lti_id_to_user, name='update_lti_id_to_user'),
 
     path('api/update_grade_entry/<int:eID>/', update.update_grade_entry, name='update_grade_entry'),
     path('api/update_publish_grade_entry/<int:eID>/', update.update_publish_grade_entry, name='update_grade_entry'),

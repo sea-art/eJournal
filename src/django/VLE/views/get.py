@@ -530,7 +530,7 @@ def get_assignment_by_lti_id(request, lti_id):
 
 @api_view(['GET'])
 def get_lti_params_from_jwt(request, jwt_params):
-    # TODO docstring and js and url
+    """help me"""
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
@@ -624,7 +624,7 @@ def lti_launch(request):
                 q_values.append(params['lis_person_contact_email_primary'])
 
             return lti.create_lti_query_link(q_names, q_values)
-        return lti.create_lti_query_link(['lti_params', 'uID', 'jwt_access', 'jwt_refresh', 'state'],
-                                         [lti_params, user.pk, access, refresh, LOGGED_IN])
+        return lti.create_lti_query_link(['lti_params', 'jwt_access', 'jwt_refresh', 'state'],
+                                         [lti_params, access, refresh, LOGGED_IN])
 
     return redirect(lti.create_lti_query_link(['state'], [BAD_AUTH]))
