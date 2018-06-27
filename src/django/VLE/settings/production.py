@@ -21,10 +21,12 @@ LTI_KEY = '{{LTI_KEY}}'
 
 BASELINK = '{{BASELINK}}'
 
+ALLOWED_HOSTS = ['*']
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.{{DATABASE_TYPE}}',
-        'NAME': '{{DATABASE_URL}}',
+        'NAME': '{{DATABASE_NAME}}',
         'USER': '{{DATABASE_USER}}',
         'PASSWORD': '{{DATABASE_PASSWORD}}',
         'HOST': '{{DATABASE_HOST}}',

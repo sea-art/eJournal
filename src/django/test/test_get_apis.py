@@ -19,7 +19,7 @@ class GetApiTests(TestCase):
         """Tests the get own user data function."""
         login = test.logging_in(self, self.username, self.password)
 
-        response = test.api_get_call(self, '/api/get_own_user_data/', login)
+        response = test.api_get_call(self, '/get_own_user_data/', login)
 
         self.assertEquals(response.json()['user']['name'], self.username)
 
@@ -27,7 +27,7 @@ class GetApiTests(TestCase):
         """Tests get coursedata function."""
         login = test.logging_in(self, self.username, self.password)
 
-        response = test.api_get_call(self, '/api/get_course_data/' + str(self.course.pk) + '/', login)
+        response = test.api_get_call(self, '/get_course_data/' + str(self.course.pk) + '/', login)
 
         self.assertEquals(response.json()['course']['name'], 'Beeldbewerken')
         self.assertEquals(response.json()['course']['abbr'], 'BB')
@@ -41,11 +41,11 @@ class GetApiTests(TestCase):
         factory.make_participation(self.rein, self.course, TA)
         factory.make_participation(self.lars, self.course, SD)
 
-        response = test.api_get_call(self, '/api/get_course_users/' + str(self.course.pk) + '/', login)
+        response = test.api_get_call(self, '/get_course_users/' + str(self.course.pk) + '/', login)
 
         self.assertEquals(len(response.json()['users']), 2)
 
-        response = test.api_get_call(self, '/api/get_unenrolled_users/' + str(self.course.pk) + '/', login)
+        response = test.api_get_call(self, '/get_unenrolled_users/' + str(self.course.pk) + '/', login)
 
         self.assertEquals(len(response.json()['users']), 1)
         self.assertEquals(response.json()['users'][0]['name'], self.username)
@@ -59,7 +59,7 @@ class GetApiTests(TestCase):
         factory.make_participation(self.rein, self.course, TA)
         factory.make_participation(self.lars, self.course, SD)
 
-        response = test.api_get_call(self, '/api/get_unenrolled_users/' + str(self.course.pk) + '/', login)
+        response = test.api_get_call(self, '/get_unenrolled_users/' + str(self.course.pk) + '/', login)
 
         self.assertEquals(len(response.json()['users']), 1)
         self.assertEquals(response.json()['users'][0]['name'], self.username)
@@ -72,7 +72,7 @@ class GetApiTests(TestCase):
 
         login = test.logging_in(self, self.username, self.password)
 
-        response = test.api_get_call(self, '/api/get_user_courses/', login)
+        response = test.api_get_call(self, '/get_user_courses/', login)
         self.assertEquals(len(response.json()['courses']), 4)
 
     def test_get_linkable_courses(self):
@@ -82,7 +82,7 @@ class GetApiTests(TestCase):
 
         login = test.logging_in(self, self.username, self.password)
 
-        response = test.api_get_call(self, '/api/get_linkable_courses/', login)
+        response = test.api_get_call(self, '/get_linkable_courses/', login)
         self.assertEquals(len(response.json()['courses']), 3)
 
     def test_get_course_assignment(self):
@@ -95,12 +95,12 @@ class GetApiTests(TestCase):
         factory.make_journal(assigns[1], self.user)
 
         login_user = test.logging_in(self, self.username, self.password)
-        response = test.api_get_call(self, '/api/get_course_assignments/' + str(course.pk) + '/', login_user)
+        response = test.api_get_call(self, '/get_course_assignments/' + str(course.pk) + '/', login_user)
         self.assertEquals(len(response.json()['assignments']), 2)
         self.assertIn('journal', response.json()['assignments'][0])
 
         login_rein = test.logging_in(self, self.rein_user, self.rein_pass)
-        response = test.api_get_call(self, '/api/get_course_assignments/' + str(course.pk) + '/', login_rein)
+        response = test.api_get_call(self, '/get_course_assignments/' + str(course.pk) + '/', login_rein)
         self.assertEquals(len(response.json()['assignments']), 2)
 
     def test_get_course_roles(self):
@@ -114,5 +114,5 @@ class GetApiTests(TestCase):
         teacher_role = factory.make_role_all_permissions("TE", self.course)
         factory.make_participation(teacher, self.course, teacher_role)
         login = test.logging_in(self, teacher_user, teacher_pass)
-        result = test.api_get_call(self, '/api/get_course_roles/1/', login)
+        result = test.api_get_call(self, '/get_course_roles/1/', login)
         self.assertEquals(len(result.json()['roles']), 4)

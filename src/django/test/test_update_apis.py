@@ -31,7 +31,7 @@ class UpdateApiTests(TestCase):
 
         test.api_post_call(
             self,
-            '/api/update_user_role_course/',
+            '/update_user_role_course/',
             {'cID': 2, 'uID': self.user_role.pk, 'role': 'SD'},
             login
         )
@@ -46,7 +46,7 @@ class UpdateApiTests(TestCase):
 
         test.api_post_call(
             self,
-            '/api/update_course/',
+            '/update_course/',
             {'cID': course.pk, 'name': 'Beeldbewerken', 'abbr': 'BB', 'startDate': course.startdate},
             login
         )
@@ -68,7 +68,7 @@ class UpdateApiTests(TestCase):
 
         test.api_post_call(
             self,
-            '/api/update_course_with_studentID/',
+            '/update_course_with_studentID/',
             {'uID': student.pk, 'cID': course.pk},
             login
         )
@@ -86,7 +86,7 @@ class UpdateApiTests(TestCase):
         factory.make_participation(teacher, self.course, teacher_role)
 
         login = test.logging_in(self, teacher_user, teacher_pass)
-        result = test.api_get_call(self, '/api/get_course_roles/1/', login)
+        result = test.api_get_call(self, '/get_course_roles/1/', login)
 
         roles = result.json()['roles']
         for role in roles:
@@ -94,7 +94,7 @@ class UpdateApiTests(TestCase):
                 role['permissions']['can_grade_journal'] = 1
 
         roles.append(serialize.role_to_dict(factory.make_role('test_role', self.course)))
-        test.api_post_call(self, '/api/update_course_roles/', {'cID': 1, 'roles': roles}, login)
+        test.api_post_call(self, '/update_course_roles/', {'cID': 1, 'roles': roles}, login)
 
         role_test = Role.objects.get(name='TA2', course=self.course)
         self.assertTrue(role_test.can_grade_journal)
@@ -121,21 +121,21 @@ class UpdateApiTests(TestCase):
         factory.make_node(journal2, entries[3])
 
         login = test.logging_in(self, teacher_user, teacher_pass)
-        result = test.api_post_call(self, '/api/update_grade_entry/1/', {'grade': 1, 'published': 0}, login)
+        result = test.api_post_call(self, '/update_grade_entry/1/', {'grade': 1, 'published': 0}, login)
         self.assertEquals(Entry.objects.get(pk=1).grade, int(result.json()['new_grade']))
 
-        result = test.api_post_call(self, '/api/update_grade_entry/1/', {'grade': 2, 'published': 1}, login)
+        result = test.api_post_call(self, '/update_grade_entry/1/', {'grade': 2, 'published': 1}, login)
         self.assertEquals(Entry.objects.get(pk=1).grade, int(result.json()['new_grade']))
         self.assertEquals(Entry.objects.get(pk=1).published, int(result.json()['new_published']))
 
-        result = test.api_post_call(self, '/api/update_publish_grade_entry/1/', {'published': 0}, login)
+        result = test.api_post_call(self, '/update_publish_grade_entry/1/', {'published': 0}, login)
         self.assertEquals(Entry.objects.get(pk=1).published, int(result.json()['new_published']))
 
         for i in range(2, 4):
-            test.api_post_call(self, '/api/update_grade_entry/{}/'.format(i + 1), {'grade': 1, 'published': 0}, login)
-        result = test.api_post_call(self, '/api/update_publish_grades_assignment/1/', {'published': 1}, login)
+            test.api_post_call(self, '/update_grade_entry/{}/'.format(i + 1), {'grade': 1, 'published': 0}, login)
+        result = test.api_post_call(self, '/update_publish_grades_assignment/1/', {'published': 1}, login)
         self.assertEquals(Entry.objects.filter(node__journal__assignment=assign1, published=1).count(), 3)
 
-        result = test.api_post_call(self, '/api/update_publish_grades_journal/1/', {'published': 0}, login)
+        result = test.api_post_call(self, '/update_publish_grades_journal/1/', {'published': 0}, login)
         self.assertEquals(Entry.objects.filter(node__journal=1, published=0).count(), 3)
         self.assertEquals(Entry.objects.get(pk=4).published, 1)
