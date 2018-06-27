@@ -68,7 +68,7 @@ class PermissionTests(TestCase):
                                                      ["can_grade_journal", "can_edit_journal"]))
 
     def test_get_permissions_admin(self):
-        """Test if the admin had the right permissions."""
+        """Test whether the admin obtains the is_admin permission."""
         user = factory.make_user(email='some@other', username='teun2', password='1234', lti_id='a', is_admin=True)
         role = factory.make_role("TA", self.crs, can_delete_assignment=True,
                                  can_grade_journal=True, can_add_assignment=True)
@@ -80,7 +80,7 @@ class PermissionTests(TestCase):
         self.assertTrue(perm["is_admin"])
 
     def test_get_permissions_can_add_course(self):
-        """Test if the admin had the right permissions."""
+        """Test whether the admin has the can_add_course permission."""
         usr = factory.make_user(email='a@other', username='teun2', password='a', lti_id='a', is_teacher=True)
         usr.save()
 
@@ -88,15 +88,22 @@ class PermissionTests(TestCase):
 
         self.assertTrue(perm["can_add_course"])
 
-        usr2 = factory.make_user(email='some@other', username='teun3', password='b', lti_id='b', is_teacher=False)
-        usr2.save()
+        usr = factory.make_user(email='b@other', username='teun3', password='b', lti_id='b', is_teacher=False)
+        usr.save()
 
-        perm = permissions.get_permissions(usr2)
+        perm = permissions.get_permissions(usr)
 
         self.assertFalse(perm["can_add_course"])
 
+        usr = factory.make_user(email='c@other', username='teun4', password='b', lti_id='c', is_admin=True)
+        usr.save()
+
+        perm = permissions.get_permissions(usr)
+
+        self.assertTrue(perm["can_add_course"])
+
     def test_get_permissions_can_edit_institute(self):
-        """Test if the admin had the right permissions."""
+        """Test whether the admin can edit the application institute data."""
         usr = factory.make_user(email='a@other', username='teun2', password='a', lti_id='a', is_admin=True)
         usr.save()
 
@@ -104,10 +111,10 @@ class PermissionTests(TestCase):
 
         self.assertTrue(perm["can_edit_institute"])
 
-        usr2 = factory.make_user(email='some@other', username='teun3', password='b', lti_id='b', is_admin=False)
-        usr2.save()
+        usr = factory.make_user(email='some@other', username='teun3', password='b', lti_id='b', is_admin=False)
+        usr.save()
 
-        perm = permissions.get_permissions(usr2)
+        perm = permissions.get_permissions(usr)
 
         self.assertFalse(perm["can_edit_institute"])
 
