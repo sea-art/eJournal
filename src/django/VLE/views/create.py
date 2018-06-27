@@ -16,7 +16,10 @@ import VLE.lti_grade_passback as lti_grade
 import VLE.views.responses as responses
 
 import jwt
+import json
 from django.conf import settings
+
+
 @api_view(['POST'])
 def create_new_course(request):
     """Create a new course.
@@ -205,13 +208,12 @@ def create_lti_user(request):
             user_image -- user image
             roles -- role of the user
     """
-    if not request.data['jwt_params']:
-        return responses.bad_request()
-
-    lti_params = jwt.decode(request.data['jwt_params'], setttings.LTI_SECRET, algorithms=['HS256'])
-
-    user_id, user_image = lti_params['user_id'], lti_params['user_image']
-    is_teacher = json.load(open('config.json'))['Teacher'] in lti_params
+    if request.data['jwt_params'] is '':
+        lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
+        user_id, user_image = lti_params['user_id'], lti_params['user_image']
+        is_teacher = json.load(open('config.json'))['Teacher'] in lti_params
+    else:
+        user_id, user_image, is_teacher = None, None, False
 
     try:
         username, password = utils.required_params(request.data, 'username', 'password', 'text')
