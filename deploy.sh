@@ -7,10 +7,11 @@ source settings/database.conf
 sudo /etc/init.d/apache2 stop
 
 sudo a2ensite ejournal.conf || sudo a2ensite ejournal
-aasdf
+
 # Initialize
 if [[ $? -ne 0 ]]; then
     rm -rd ./build
+    rm -rd ${TARGET}
 
     # Install apache and wsgi
     sudo apt -y install apache2 apache2-dev libapache2-mod-wsgi libpq-dev postgresql postgresql-contrib
@@ -29,7 +30,7 @@ if [[ $? -ne 0 ]]; then
 
     # Set apache2 settings
     echo "WSGIPythonHome ${TARGET}/venv
-WSGIPythonPath ${TARGET}/django/VLE" > "${APACHEDIR}/conf-available/wsgi.conf"
+WSGIPythonPath ${TARGET}/django/VLE" > "${APACHE_DIR}/conf-available/wsgi.conf"
     sudo a2enconf wsgi
 
     echo "
@@ -59,12 +60,12 @@ WSGIPythonPath ${TARGET}/django/VLE" > "${APACHEDIR}/conf-available/wsgi.conf"
 
     WSGIScriptAlias ${HOOKPOINT} ${TARGET}/django/VLE/wsgi.py
 </VirtualHost>
-" > "${APACHEDIR}/sites-available/ejournal.conf"
+" > "${APACHE_DIR}/sites-available/ejournal.conf"
 
     sudo a2ensite ejournal.conf || sudo a2ensite ejournal
-    cat ${APACHEDIR}/ports.conf | grep "Listen ${PORT}"
+    cat ${APACHE_DIR}/ports.conf | grep "Listen ${PORT}"
     if [[ $? -ne 0 ]]; then
-        echo "Listen ${PORT}" >> ${APACHEDIR}/ports.conf
+        echo "Listen ${PORT}" >> ${APACHE_DIR}/ports.conf
     fi
 
     # Create database
