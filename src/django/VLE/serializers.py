@@ -63,9 +63,7 @@ def student_assignment_to_dict(assignment, user):
         journal = None
 
     assignment_dict = assignment_to_dict(assignment)
-    assignment_dict['journal'] = journal_to_dict(journal) if journal else {
-        'test': 123
-    }
+    assignment_dict['journal'] = journal_to_dict(journal) if journal else None
 
     return assignment_dict
 
