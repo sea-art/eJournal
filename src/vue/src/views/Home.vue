@@ -94,18 +94,22 @@ export default {
     created () {
         this.loadCourses()
 
+<<<<<<< HEAD
         assignmentApi.get_upcoming_deadlines()
             .then(response => {
                 console.log(response)
                 this.deadlines = response
             })
             .catch(_ => alert('Error while loading deadlines'))
+=======
+        /* assignment.get_upcoming_deadlines()
+           .then(response => { this.deadlines = response }) */
+>>>>>>> 1ecaed66635d72ccbba912b37ad7ffabf282926e
     },
     methods: {
         loadCourses () {
             course.get_user_courses()
                 .then(response => { this.courses = response })
-                .catch(_ => alert('Error while loading courses'))
         },
         deleteCourse (courseID, courseName) {
             if (confirm('Are you sure you want to delete ' + courseName + '?')) {

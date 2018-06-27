@@ -81,7 +81,7 @@ def update_course_roles(request):
     for role in request.data['roles']:
         db_role = Role.objects.filter(name=role['name'])
         if not db_role:
-            factory.make_role(role['name'], Course.objects.get(pk=cID), **role['permissions'])
+            factory.make_role_default_no_perms(role['name'], Course.objects.get(pk=cID), **role['permissions'])
         else:
             permissions.edit_permissions(db_role[0], **role['permissions'])
     return responses.success()
