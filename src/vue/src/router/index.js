@@ -100,16 +100,12 @@ var router = new Router({
 router.beforeEach((to, from, next) => {
     // TODO Caching for permissions, how to handle permission changes when role is altered by teacher
     router.app.previousPage = from
-    console.log('Before each to:')
-    console.log(to)
-    // console.log(from)
 
     if (!router.app.validToken) {
         authAPI.testValidToken()
     }
 
     if (to.matched.length === 0) {
-        console.log('Before each: No match detected rerouting to 404')
         return next({name: 'ErrorPage', params: {code: '404', message: 'Page not found'}})
     }
 
@@ -118,7 +114,6 @@ router.beforeEach((to, from, next) => {
     if (to.name === 'Guest') {
         return next()
     } else if (to.name === 'Login') {
-        console.log(from.name)
         return next()
     }
 
@@ -134,14 +129,9 @@ router.beforeEach((to, from, next) => {
     permissionsApi.get_course_permissions(params)
         .then(response => {
             router.app.permissions = response
-            console.log(response.can_view_assignment_participants)
         })
         .catch(_ => {
-            // TODO Check if this catch works as expected
             console.log('Error while loading permissions, does the redirect work?')
-            // next(vm => {
-            // vm.$router.push({name: 'ErrorPage', params: {errorMessage: 'Error while loading permissions', errorCode: '401'}})
-            // })
         })
 
     next()
