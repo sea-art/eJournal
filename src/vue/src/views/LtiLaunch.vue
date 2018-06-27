@@ -71,7 +71,7 @@ export default {
         }
     },
     methods: {
-        async loadLtiData () {
+        loadLtiData () {
             this.ltiJWT = this.$route.query.ltiJWT
             ltiApi.get_lti_params_from_jwt (this.ltiJWT)
                 .then(response => {
@@ -182,7 +182,7 @@ export default {
         }
     },
     mounted () {
-        var x = await this.loadLtiData()
+        this.loadLtiData()
 
         if (this.states.state === this.states.bad_auth) {
             this.$router.push({
