@@ -8,7 +8,7 @@
                     </span>
                 </h4>
                 <h1 id="h1-current-page-breadcrumb">
-                    {{ crumbsLower }}
+                    {{ idea }}
                     <slot>
                         <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
                         <b-button v-if="canEdit()" @click="editClick()" class="float-right edit-button"> Edit</b-button>
@@ -28,6 +28,38 @@ export default {
         icon
     },
     computed: {
+        assocParam (name, params) {
+
+        },
+        idea () {
+            // grab route matched object
+            var routeMatched = this.$route.matched[0].path
+            var params = this.$route.params
+
+            // grab router
+            var routerRoutes = this.$router.options.routes
+
+            var crumbs = []
+            // fill list using routes list matches with route match
+            for (var route of routerRoutes) {
+                if (routeMatched.startsWith(route.path)) {
+                    // add to list
+                    crumbs.push({ name: route.name, param: assocParam(route.name, params), display: "" })
+                }
+            }
+            crumbs.sort((a, b) => { b.name.length - a.name.length })
+
+            // get parammed page names
+
+            // use current page params + names for linking
+
+            // create display mapping from hardcode + anonymous functions, using name as key
+            var map = []
+            // map.push({ name:  })
+
+            // cache internally using router objects
+            return crumbs
+        },
         // Internal list of crumbs (object representations of individual parts of the breadcrumb)
         internalList () {
             var splittedPath = this.$route.path.split('/').slice(1)
