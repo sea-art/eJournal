@@ -561,7 +561,7 @@ def get_lti_params_from_jwt(request, jwt_params):
             if 'custom_canvas_assignment_points_possible' in lti_params:
                 payload['lti_points_possible'] = lti_params['custom_canvas_assignment_points_possible']
 
-            return responses.success(payload=payload)
+            return responses.success(payload={'params': payload})
         else:
             return responses.not_found(description='The assignment you are looking for cannot be found. \
                 <br>Note it might still be reachable though the assignment section')

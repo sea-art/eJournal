@@ -41,7 +41,10 @@ export default {
     methods: {
         userIntegrated () {
             this.$router.push({
-                name: 'LtiLaunch'
+                name: 'LtiLaunch',
+                query: {
+                    ltiJWT: this.lti.ltiJWT
+                }
             })
         }
     },
@@ -67,6 +70,7 @@ export default {
                 }
 
                 router.app.validToken = true
+                this.userIntegrated()
             } else if (this.$route.query.state === this.states.no_user) {
                 if (this.$route.query.firstname !== undefined) {
                     this.lti.firstname = this.$route.query.firstname

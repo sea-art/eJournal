@@ -13,6 +13,7 @@ import ltiCreateConnectCourse from '@/components/LtiCreateConnectCourse.vue'
 import ltiCreateConnectAssignment from '@/components/LtiCreateConnectAssignment.vue'
 import ltiCreateAssignment from '@/components/LtiCreateAssignment.vue'
 import assignApi from '@/api/assignment.js'
+import ltiApi from '@/api/ltilaunch.js'
 
 export default {
     name: 'LtiLaunch',
@@ -69,6 +70,24 @@ export default {
         }
     },
     methods: {
+        loadLtiData () {
+            ltiJWT = this.$route.query.ltiJWT
+            ltiApi.get_lti_params_from_jwt (ltiJWT)
+                .then(response => {
+                    this.lti.ltiCourseID = response.lti_cID
+                    this.lti.ltiCourseName = response.lti_cName
+                    this.lti.ltiCourseAbbr = response.lti_abbr
+                    this.states.state = response.state
+
+                    this.lti.ltiAssignName = response.lti_aName
+                    this.lti.ltiAssignID = response.lti_aID
+                    this.lti.ltiPointsPossible = response.lti_points_possible
+
+                    this.page.cID = response.cID
+                    this.page.aID = response.aID
+                    this.page.jID = response.jID
+                })
+        },
         handleActions (args) {
             switch (args[0]) {
             case 'courseCreated':
@@ -159,19 +178,7 @@ export default {
         }
     },
     mounted () {
-        /* Get the lti information from the query. */
-        this.lti.ltiCourseID = this.$route.query.lti_cID
-        this.lti.ltiCourseName = this.$route.query.lti_cName
-        this.lti.ltiCourseAbbr = this.$route.query.lti_abbr
-        this.states.state = this.$route.query.state
-
-        this.lti.ltiAssignName = this.$route.query.lti_aName
-        this.lti.ltiAssignID = this.$route.query.lti_aID
-        this.lti.ltiPointsPossible = this.$route.query.lti_points_possible
-
-        this.page.cID = this.$route.query.cID
-        this.page.aID = this.$route.query.aID
-        this.page.jID = this.$route.query.jID
+        this.loadLtiData()
 
         if (this.states.state === this.states.bad_auth) {
             this.$router.push({

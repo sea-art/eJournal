@@ -32,8 +32,8 @@ export default {
                 this.form.courseAbbr, this.form.courseStartdate,
                 this.form.ltiCourseID)
                 .then(response => {
-                    this.$emit('handleAction', response.course.cID)
                     this.onReset(undefined)
+                    this.$emit('handleAction', response.course.cID)
                 })
         },
         onReset (evt) {
