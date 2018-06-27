@@ -101,7 +101,6 @@ export default {
                 this.assignmentJournals = response.journals
                 this.stats = response.stats
             })
-            .catch(_ => alert('Error while loading jounals'))
     },
     methods: {
         customisePage () {

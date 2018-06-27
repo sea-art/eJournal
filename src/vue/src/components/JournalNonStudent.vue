@@ -59,7 +59,6 @@ export default {
     created () {
         journal.get_nodes(this.jID)
             .then(response => { this.nodes = response.nodes })
-            .catch(_ => alert('Error while loading nodes.'))
     },
     watch: {
         currentNode: function () {

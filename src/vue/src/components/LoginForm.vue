@@ -1,16 +1,19 @@
 <template>
-    <b-form @submit.prevent="handleLogin()" id="login-form">
-        <b-input class="multi-form" id="formInputUsername" v-model="username" required placeholder="Username"/>
-        <b-input class="multi-form" id="formInputPassword" type="password" @keyup.enter="handleLogin()" v-model="password" required placeholder="Password"/>
-        <b-button type="submit">Login</b-button><br/>
-        <b-button id="forgot-password-button">Forgot password?</b-button>
-    </b-form>
+    <b-card class="blue-border no-hover card-last-elem-button">
+        <b-form @submit.prevent="handleLogin()">
+            <b-input class="multi-form" v-model="username" required placeholder="Username"/>
+            <b-input class="multi-form" type="password" @keyup.enter="handleLogin()" v-model="password" required placeholder="Password"/>
+            <b-button class="add-button" type="submit">Login</b-button>
+            <b-button class="float-right">Forgot password?</b-button>
+        </b-form>
+    </b-card>
 </template>
 
 <script>
-import auth from '@/api/auth'
+import authAPI from '@/api/auth'
 
 export default {
+    name: 'LoginForm',
     data () {
         return {
             username: '',
@@ -19,22 +22,12 @@ export default {
     },
     methods: {
         handleLogin () {
-            auth.login(this.username, this.password)
+            authAPI.login(this.username, this.password)
                 .then(_ => {
-                    this.$emit('login-succes')
+                    this.$emit('login-success')
                 })
                 .catch(_ => alert('Could not login'))
         }
     }
 }
 </script>
-
-<style>
-#forgot-password-button {
-    margin-top: 10px;
-}
-
-#login-form {
-    background-color: var(--theme-light-grey);
-}
-</style>

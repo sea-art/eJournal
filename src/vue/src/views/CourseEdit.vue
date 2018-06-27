@@ -117,13 +117,11 @@ export default {
             .then(response => {
                 this.course = response
             })
-            .catch(_ => alert('Error while loading course data'))
 
         courseApi.get_users(this.cID)
             .then(response => {
                 this.participants = response.users
             })
-            .catch(_ => alert('Error while loading course users'))
     },
     methods: {
         onSubmit () {
