@@ -105,8 +105,6 @@ export default {
                     this.nodes = response.nodes
                     this.currentNode = response.added
                 })
-                // .catch(_ => alert('Error while loading nodes.')))
-                // .then(response => { this.nodes = response.nodes })
         },
         fillDeadline (data) {
             journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data, this.nodes[this.currentNode].nID)
@@ -115,18 +113,18 @@ export default {
                     this.nodes = response.nodes
                     this.currentNode = response.added
                 })
-            // journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data)
         },
         progressPoints (progressNode) {
             var tempProgress = 0
-
             for (var node of this.nodes) {
                 if (node.nID === progressNode.nID) {
                     break
                 }
 
                 if (node.type === 'e' || node.type === 'd') {
-                    tempProgress += node.entry.grade
+                    if (node.entry.published && node.entry.published !== '0') {
+                        tempProgress += node.entry.grade
+                    }
                 }
             }
 
