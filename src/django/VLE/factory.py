@@ -57,6 +57,8 @@ def make_course(name, abbrev, startdate=None, author=None, lti_id=None):
     """
     course = Course(name=name, abbreviation=abbrev, startdate=startdate, author=author, lti_id=lti_id)
     course.save()
+
+    # Het scheelt werk voor lti als de Student en TA van een vak altijd bestaan.
     make_role_student("Student", course)
     make_role_ta("TA", course)
     role = make_role_teacher("Teacher", course)
