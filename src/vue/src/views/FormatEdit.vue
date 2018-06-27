@@ -109,6 +109,14 @@ export default {
 
     created () {
         journalAPI.get_format(this.aID).then(data => { this.templates = data.format.templates; this.presets = data.format.presets; this.unused_templates = data.format.unused_templates; this.convertFromDB() }).then(_ => { this.isChanged = false })
+
+        window.addEventListener('beforeunload', e => {
+            if (this.$route.name === 'FormatEdit' && this.isChanged) {
+                var dialogText = 'Oh no! Unsaved changes will be lost if you leave. Do you wish to continue?'
+                e.returnValue = dialogText
+                return dialogText
+            }
+        })
     },
 
     watch: {
