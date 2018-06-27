@@ -4,16 +4,13 @@ from VLE.models import Course, Assignment, Role
 
 import VLE.factory as factory
 import VLE.serializers as serialize
-import test.test_rest as test
+import test.test_utils as test
 
 
 class DeleteApiTests(TestCase):
     def setUp(self):
         """Setup"""
-        self.username = 'test'
-        self.password = 'test123'
-
-        self.user = factory.make_user(self.username, self.password)
+        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123')
         self.course = factory.make_course("Beeldbewerken", "BB")
 
     def test_delete_course(self):
