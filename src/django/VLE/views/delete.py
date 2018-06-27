@@ -8,6 +8,7 @@ from rest_framework.decorators import api_view
 from VLE.models import Assignment, Course, Participation, User, Role
 
 import VLE.views.responses as responses
+import VLE.utils as utils
 
 
 @api_view(['POST'])
@@ -52,6 +53,11 @@ def delete_assignment(request):
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
+    try:
+        cID, aID = utils.required_params(request.data, 'cID', 'aID')
+    except KeyError:
+        return responses.keyerror('cID', 'aID')
+
     response = {'removed_completely': False}
     course = Course.objects.get(pk=request.data['cID'])
     assignment = Assignment.objects.get(pk=request.data['aID'])
@@ -81,8 +87,13 @@ def delete_user_from_course(request):
         return responses.unauthorized()
 
     try:
-        user = User.objects.get(pk=request.data['uID'])
-        course = Course.objects.get(pk=request.data['cID'])
+        uID, cID = utils.required_params(request.data, 'uID', 'cID')
+    except KeyError:
+        return responses.keyerror('uID', 'cID')
+
+    try:
+        user = User.objects.get(pk=uID)
+        course = Course.objects.get(pk=cID)
         participation = Participation.objects.get(user=user, course=course)
     except (User.DoesNotExist, Course.DoesNotExist, Participation.DoesNotExist):
         return responses.not_found(description='User, Course or Participation does not exist.')

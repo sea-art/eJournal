@@ -20,6 +20,10 @@ class DeleteApiTests(TestCase):
         bb = factory.make_course("Beeldbewerken", "BB")
         factory.make_course("Portfolio Academische Vaardigheden", "PAV")
 
+        role = factory.make_role_default_no_perms("test", bb)
+
+        factory.make_participation(user=self.user, course=bb, role=role)
+
         test.api_post_call(self, '/api/delete_course/', {'cID':  bb.pk}, login)
 
         self.assertEquals(Course.objects.filter(name="Beeldbewerken").count(), 1)
