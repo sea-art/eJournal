@@ -71,7 +71,7 @@ export default {
                     })
             } else {
                 this.test = false
-                alert('Passwords do not match')
+                this.$toasted.error('Passwords do not match')
             }
         }
     }

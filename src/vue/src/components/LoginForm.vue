@@ -26,7 +26,9 @@ export default {
                 .then(_ => {
                     this.$emit('login-success')
                 })
-                .catch(_ => alert('Could not login'))
+                .catch(_ => {
+                    this.$toasted.error('Could not login')
+                })
         }
     }
 }

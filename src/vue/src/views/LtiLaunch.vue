@@ -73,24 +73,24 @@ export default {
                 this.handleCourseChoice = false
                 this.page.cID = args[1]
                 this.state = this.s_create_assign
-                alert('Course Created!')
+                this.$toasted.success('Course Created!')
                 break
             case 'courseConnected':
                 this.handleCourseChoice = false
                 this.page.cID = args[1]
                 this.state = this.s_check_assign
-                alert('Course Connected!')
+                this.$toasted.success('Course Connected!')
                 break
             case 'assignmentIntegrated':
                 this.handleAssignmentChoice = false
                 this.state = this.s_finish_t
-                alert('Assignment Integrated!')
+                this.$toasted.success('Assignment Integrated!')
                 break
             case 'assignmentCreated':
                 this.createAssignment = false
                 this.page.aID = args[1]
                 this.state = this.s_finish_t
-                alert('Assignment Created!')
+                this.$toasted.success('Assignment Created!')
                 break
             }
         },

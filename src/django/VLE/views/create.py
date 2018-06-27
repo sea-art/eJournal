@@ -6,6 +6,8 @@ API functions that handle the create requests.
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import JSONParser
 
+from django.utils.timezone import now
+
 import VLE.serializers as serialize
 import VLE.factory as factory
 import VLE.utils as utils
@@ -131,10 +133,19 @@ def create_entry(request):
                 return responses.bad_request('Passed node is a Progress node.')
 
             if node.entry:
-                Content.objects.filter(entry=node.entry).all().delete()
-                node.entry.template = template
-                node.save()
+                if node.entry.grade is None:
+                    if node.type == Node.ENTRYDEADLINE and node.preset.deadline < now():
+                        return responses.bad_request('The deadline has already passed.')
+
+                    Content.objects.filter(entry=node.entry).all().delete()
+                    node.entry.template = template
+                    node.save()
+                else:
+                    return responses.bad_request('Can not overwrite entry, since it is already graded.')
             else:
+                if node.type == Node.ENTRYDEADLINE and node.preset.deadline < now():
+                    return responses.bad_request('The deadline has already passed.')
+
                 node.entry = factory.make_entry(template)
                 node.save()
         else:

@@ -114,7 +114,7 @@ export default {
         },
         commitGrade: function () {
             if (this.grade !== null) {
-                alert('Oh yeah! grade updated')
+                this.$toasted.succes('Oh yeah! grade updated')
                 this.tempNode.entry.grade = this.grade
                 this.tempNode.entry.published = this.status
 
