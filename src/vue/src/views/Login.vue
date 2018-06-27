@@ -41,7 +41,7 @@ export default {
         console.log(this.$router)
     },
     beforeRouteUpdate (to, from, next) {
-        conole.log('beforeRouteUpdate')
+        console.log('beforeRouteUpdate')
         console.log(from)
     },
     components: {
