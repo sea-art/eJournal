@@ -530,7 +530,10 @@ def get_assignment_by_lti_id(request, lti_id):
 
 @api_view(['GET'])
 def get_lti_params_from_jwt(request, jwt_params):
-    """help me"""
+    """Handle the controlflow for course/assignment create, connect and select.
+
+    Returns the data needed for the correct entry place.
+    """
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
@@ -584,7 +587,10 @@ def get_lti_params_from_jwt(request, jwt_params):
 
 @api_view(['POST'])
 def lti_launch(request):
-    """Django view for the lti post request."""
+    """Django view for the lti post request.
+
+    handles the users login or sned to a creation page.
+    """
     secret = settings.LTI_SECRET
     key = settings.LTI_KEY
 
