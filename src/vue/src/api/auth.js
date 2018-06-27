@@ -85,6 +85,11 @@ export default {
         return this.authenticatedPost('/update_password/', {new_password: newPassword, old_password: oldPassword})
     },
 
+    /* Check if the stored token is valid. */
+    checkValidToken () {
+        return this.authenticatedGet('/check_valid_token/')
+    },
+
     /* Run an authenticated post request.
      * This sets the JWT token to the Authorization headers of the request, so that it can access
      * protected resources. If the access JWT token is outdated, it refreshes and tries again.

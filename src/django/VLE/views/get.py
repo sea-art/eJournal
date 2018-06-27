@@ -33,6 +33,14 @@ GRADE_CENTER = '6'
 
 
 @api_view(['GET'])
+def check_valid_token(request):
+    """Check if the token is a valid token."""
+    if not user.is_authenticated:
+        return responses.unauthorized()
+    return responses.success()
+
+
+@api_view(['GET'])
 def get_own_user_data(request):
     """Get the data linked to the logged in user.
 
@@ -550,7 +558,7 @@ def get_assignment_by_lti_id(request, lti_id):
         return responses.unauthorized()
     try:
         assignment = Assignment.objects.get(lti_id=lti_id)
-        return responses.succes(payload={'assignment': serialize.assignment_to_dict(assignment)})
+        return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
     except Assignment.DoesNotExist:
         return responses.no_content()
 
