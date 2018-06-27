@@ -28,7 +28,7 @@
                         <br>
                         Fill in the grade:<br>
                         <b-form-input type="number" v-model="grade" placeholder="Grade"></b-form-input>
-                        <b-form-checkbox v-model="status" value=1 unchecked-value=0>
+                        <b-form-checkbox v-model="status" value=true unchecked-value=false>
                             Show grade to student
                         </b-form-checkbox><br>
                         <b-button @click="commitGrade">Grade</b-button>
@@ -73,8 +73,11 @@ export default {
                 this.status = this.entryNode.entry.published
             } else {
                 this.grade = null
-                this.status = 1
+                this.status = true
             }
+        },
+        'entryNode.entry.published': function () {
+            this.status = this.entryNode.entry.published
         }
     },
     created () {
@@ -114,10 +117,16 @@ export default {
                 alert('Oh yeah! grade updated')
                 this.tempNode.entry.grade = this.grade
                 this.tempNode.entry.published = this.status
-                journalApi.update_grade_entry(this.entryNode.entry.eID,
-                    this.grade,
-                    this.status)
-                this.$emit('check-grade', this.tempNode)
+
+                if (status) {
+                    journalApi.update_grade_entry(this.entryNode.entry.eID,
+                        this.grade, 1)
+                    this.$emit('check-grade', this.tempNode)
+                } else {
+                    journalApi.update_grade_entry(this.entryNode.entry.eID,
+                        this.grade, 0)
+                    this.$emit('check-grade', this.tempNode)
+                }
             }
         }
     },
