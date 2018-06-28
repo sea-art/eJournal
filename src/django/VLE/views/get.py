@@ -355,7 +355,6 @@ def create_teacher_assignment_deadline(course, assignment):
     totalNeedsMarking = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
 
     format = serialize.format_to_dict(assignment.format)
-    print(len(format['presets']))
     if len(format['presets']) == 0:
         return {}
 
@@ -373,7 +372,6 @@ def create_teacher_assignment_deadline(course, assignment):
             'courseAbbr': course.abbreviation,
             'cID': course.id,
             'aID': assignment.id,
-            'jID': journal.id,
             'deadline': deadline,
             'totalNeedsMarking': totalNeedsMarking}
 
@@ -388,6 +386,8 @@ def create_student_assignment_deadline(user, course, assignment):
 
     Returns a dictionary with information of the assignment deadline.
     """
+    journal = {}
+
     try:
         journal = Journal.objects.get(assignment=assignment, user=user)
     except Journal.DoesNotExist:
