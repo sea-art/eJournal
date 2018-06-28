@@ -125,8 +125,9 @@ export default {
 <style>
 #header {
     background-color: var(--theme-dark-blue);
-    color: var(--theme-pink);
+    color: white;
     font-family: 'Roboto Condensed', sans-serif;
+    font-size: 1.3em;
     height: 70px;
 }
 

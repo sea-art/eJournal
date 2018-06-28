@@ -48,26 +48,26 @@ img {
 
 h1 {
     font-weight: bold;
-    font-size: 60px;
+    font-size: 2.5em;
     border-left: 20px solid var(--theme-dark-blue);
     padding-left: 20px;
 }
 
 h2 {
     font-weight: bold;
-    font-size: 35px;
+    font-size: 1.8em;
 }
 
 h3 {
     font-weight: bold;
-    font-size: 35px;
+    font-size: 1.8em;
     border-left: 20px solid var(--theme-dark-blue);
     padding-left: 20px;
 }
 
 h4 {
     font-weight: bold;
-    font-size: 30px;
+    font-size: 1.5em;
     color: var(--theme-blue);
     border-left: 20px solid var(--theme-dark-blue);
     padding-left: 20px;
@@ -75,12 +75,12 @@ h4 {
 }
 
 h5 {
-    font-size: 30px;
+    font-size: 1.5em;
     margin-bottom: 0px;
 }
 
 h6 {
-    font-size: 20px;
+    font-size: 1.5em;
     color: var(--theme-blue);
     margin-bottom: 0px;
 }
@@ -92,7 +92,7 @@ h4 a {
 #app {
     overflow-x: hidden;
     font-family: 'Roboto', sans-serif;
-    font-size: 20px;
+    font-size: 1em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     display: flex;
