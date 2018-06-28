@@ -94,7 +94,7 @@ export default {
             .then(response => {
                 this.deadlines = response
             })
-            .catch(_ => alert('Error while loading deadlines'))
+            .catch(_ => this.$toasted.error('Error while loading deadlines'))
     },
     methods: {
         loadCourses () {
@@ -129,7 +129,7 @@ export default {
                 .then(response => {
                     this.needsMarkingStats.push(response.stats.needsMarking)
                 })
-                .catch(_ => alert('Error while loading journals'))
+                .catch(_ => this.$toasted.error('Error while loading journals'))
         },
         journalRoute (cID, aID, jID, name) {
             if (this.$root.canAddCourse()) {

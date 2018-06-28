@@ -16,15 +16,18 @@ function getAuthorizationHeader () {
  */
 function refresh (error) {
     if (error.response.data.code === 'token_not_valid') {
+        if (localStorage.getItem('jwt_refresh') == null) {
+            router.app.validToken = false
+            throw error
+        }
+
         return connection.conn.post('token/refresh/', {refresh: localStorage.getItem('jwt_refresh')})
             .then(response => {
                 localStorage.setItem('jwt_access', response.data.access)
                 router.app.validToken = true
             })
-            .catch(_ => {
-                if (error.response.data.code === 'token_not_valid') {
-                    router.app.validToken = false
-                }
+            .catch(error => {
+                router.app.validToken = false
                 throw error
             })
     } else {
@@ -35,11 +38,10 @@ function refresh (error) {
 function handleResponse (response, noRedirect = false) {
     response = response.response
     if (response.status === 401) { // Unauthorized
-        console.log(router)
         if (!noRedirect) {
             router.push({name: 'Login'})
         }
-    } if (response.status === 403 || // Forbidden
+    } else if (response.status === 403 || // Forbidden
           response.status === 404 || // Not found
           response.status === 500) { // Internal server error
         if (!noRedirect) {
@@ -97,9 +99,13 @@ export default {
 
     /* Check if the stored token is valid. */
     testValidToken () {
-        return this.authenticatedGet('/check_valid_token/', true)
-            .then(_ => { router.app.validToken = true })
-            .catch(_ => { router.app.validToken = false })
+        if (localStorage.getItem('jwt_access') == null && localStorage.getItem('jwt_refresh') == null) {
+            router.app.validToken = false
+            return
+        }
+
+        connection.conn.post('/token/verify/', {token: localStorage.getItem('jwt_access')})
+            .catch(error => refresh(error))
     },
 
     /* Run an authenticated post request.
@@ -110,8 +116,8 @@ export default {
     authenticatedPost (url, data, noRedirect = false) {
         return connection.conn.post(url, data, getAuthorizationHeader())
             .catch(error => refresh(error)
-                .then(connection.conn.post(url, data, getAuthorizationHeader())
-                    .catch(error => handleResponse(error, noRedirect))))
+                .then(_ => connection.conn.post(url, data, getAuthorizationHeader())))
+            .catch(error => handleResponse(error, noRedirect))
     },
 
     /* Run an authenticated get request.
@@ -122,8 +128,8 @@ export default {
     authenticatedGet (url, noRedirect = false) {
         return connection.conn.get(url, getAuthorizationHeader())
             .catch(error => refresh(error, url)
-                .then(connection.conn.get(url, getAuthorizationHeader())
-                    .catch(error => handleResponse(error, noRedirect))))
+                .then(_ => connection.conn.get(url, getAuthorizationHeader())))
+            .catch(error => handleResponse(error, noRedirect))
     }
 
 }
