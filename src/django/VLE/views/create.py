@@ -43,11 +43,11 @@ def create_new_course(request):
 
     try:
         name, abbr = utils.required_params(request.data, "name", "abbr")
-        startdate, lti_id = utils.optional_params(request.data, "startdate", "lti_id")
+        startdate, enddate, lti_id = utils.optional_params(request.data, "startdate", "enddate", "lti_id")
     except KeyError:
         return responses.keyerror("name", "abbr")
 
-    course = factory.make_course(name, abbr, startdate, request.user, lti_id)
+    course = factory.make_course(name, abbr, startdate, enddate, request.user, lti_id)
 
     return responses.created(payload={'course': serialize.course_to_dict(course)})
 
@@ -136,9 +136,6 @@ def create_entry(request):
     try:
         journal = Journal.objects.get(pk=jID, user=request.user)
 
-        if journal.sourcedid is not None and journal.grade_url is not None:
-            lti_grade.needs_grading(journal)
-
         template = EntryTemplate.objects.get(pk=tID)
 
         # TODO: Check if node can still be created (deadline passed? graded?)
@@ -166,6 +163,9 @@ def create_entry(request):
         else:
             entry = factory.make_entry(template)
             node = factory.make_node(journal, entry)
+
+        if journal.sourcedid is not None and journal.grade_url is not None:
+            lti_grade.needs_grading(journal, node.id)
 
         for content in content_list:
             data = content['data']

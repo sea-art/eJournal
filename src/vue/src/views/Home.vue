@@ -10,12 +10,10 @@
             <b-link :to="{name: 'Course', params: {cID: c.cID, courseName: c.name}}">
                 <main-card
                     :line1="c.name"
-                    :line2="'From - To (years eg: 2017 - 2018)'"
+                    :line2="c.startdate.substring(0, 4) + '-' + c.enddate.substring(0, 4)"
                     :color="$root.colors[c.cID % $root.colors.length]">
                 </main-card>
             </b-link>
-        </div>
-        <div slot="main-content-column">
         </div>
         <main-card
             v-if="this.$root.canAddCourse()"
@@ -25,6 +23,7 @@
             :line1="'+ Add course'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
+
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
             <b-link tag="b-button" :to="journalRoute(d.cID, d.aID, d.jID, d.name)">
                 <todo-card
@@ -95,7 +94,7 @@ export default {
             .then(response => {
                 this.deadlines = response
             })
-            .catch(_ => alert('Error while loading deadlines'))
+            .catch(_ => this.$toasted.error('Error while loading deadlines'))
     },
     methods: {
         loadCourses () {
@@ -130,7 +129,7 @@ export default {
                 .then(response => {
                     this.needsMarkingStats.push(response.stats.needsMarking)
                 })
-                .catch(_ => alert('Error while loading journals'))
+                .catch(_ => this.$toasted.error('Error while loading journals'))
         },
         journalRoute (cID, aID, jID, name) {
             if (this.$root.canAddCourse()) {

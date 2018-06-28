@@ -34,9 +34,9 @@ def delete_course(request):
     # Courses can only be deleted with can_delete_course permission.
     role = permissions.get_role(user, cID)
     if role is None:
-        return responses.unauthorized()
+        return responses.unauthorized(description="You have no access to this course")
     elif not role.can_delete_course:
-        return responses.forbidden()
+        return responses.forbidden(description="You have no permissions to delete a course.")
 
     course = Course.objects.get(pk=cID)
     course.delete()
@@ -69,9 +69,9 @@ def delete_assignment(request):
     # Assignments can only be deleted with can_delete_assignment permission.
     role = permissions.get_role(user, cID)
     if role is None:
-        return responses.unauthorized()
+        return responses.unauthorized(description="You have no access to this course")
     elif not role.can_delete_assignment:
-        return responses.forbidden()
+        return responses.forbidden(description="You have no permissions to delete a assignment.")
 
     response = {'removed_completely': False}
     course = Course.objects.get(pk=cID)
@@ -109,9 +109,9 @@ def delete_user_from_course(request):
     # Users can only be deleted from the course with can_view_course_participants
     role = permissions.get_role(user, cID)
     if role is None:
-        return responses.unauthorized()
+        return responses.unauthorized(description="You have no access to this course")
     elif not role.can_view_course_participants:
-        return responses.forbidden()
+        return responses.forbidden(description="Uou have no permissions to delete this user.")
 
     try:
         user = User.objects.get(pk=uID)
@@ -138,9 +138,9 @@ def delete_course_role(request):
     # Users can only delete course roles with can_edit_course_roles
     role = permissions.get_role(user, cID)
     if role is None:
-        return responses.unauthorized()
+        return responses.unauthorized(description="You have no access to this course")
     elif not role.can_edit_course_roles:
-        return responses.forbidden()
+        return responses.forbidden(description="You have no permissions to delete this course role.")
 
     request_user_role = Participation.objects.get(user=request.user.id, course=cID).role
 
