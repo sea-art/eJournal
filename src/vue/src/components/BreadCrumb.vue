@@ -157,7 +157,7 @@ export default {
                     display: display,
                     route: {
                         name: crumb.name,
-                        params: this.$router.params 
+                        params: this.$router.params
                     }
                 })
             }
