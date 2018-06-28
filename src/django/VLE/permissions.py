@@ -36,11 +36,11 @@ def get_permissions(user, cID=-1):
     """
     roleDict = {}
 
-    if user.is_admin:
+    if user.is_superuser:
         # For system wide permissions, not course specific.
         # Administrators should not be able to view grades.
         roleDict = {
-            "is_admin": True,
+            "is_superuser": True,
             "can_edit_institute": True,
 
             "can_edit_course_roles": True,
@@ -64,7 +64,7 @@ def get_permissions(user, cID=-1):
     elif cID == -1:
         # No course ID was given. The user has no permissions.
         roleDict = {
-            "is_admin": False,
+            "is_superuser": False,
             "can_edit_institute": False,
 
             "can_edit_course_roles": False,
@@ -100,7 +100,7 @@ def get_permissions(user, cID=-1):
             return {}
 
         roleDict = model_to_dict(role)
-        roleDict['is_admin'] = False
+        roleDict['is_superuser'] = False
 
     return roleDict
 
