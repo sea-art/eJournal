@@ -70,14 +70,11 @@ export default {
     },
     computed: {
         computedDeadlines: function () {
-            var count = 0
-            var topList
-
             function compareDate (a, b) {
                 return new Date(a.deadline.Date) - new Date(b.deadline.Date)
             }
 
-            return topList = this.deadlines.slice().sort(compareDate)
+            return this.deadlines.slice().sort(compareDate)
         }
     }
 }
