@@ -10,7 +10,7 @@ import random
 import django.utils.timezone as timezone
 
 
-def make_user(username, password, email=None, lti_id=None, profile_picture=None, is_admin=False, is_teacher=False):
+def make_user(username, password, email=None, lti_id=None, profile_picture=None, is_superuser=False, is_teacher=False):
     """Create a user.
 
     Arguments:
@@ -19,9 +19,9 @@ def make_user(username, password, email=None, lti_id=None, profile_picture=None,
     email -- mail of the user (default: none)
     lti_id -- to link the user to canvas (default: none)
     profile_picture -- profile picture of the user (default: none)
-    is_admin -- if the user needs all permissions, set this true (default: False)
+    is_superuser -- if the user needs all permissions, set this true (default: False)
     """
-    user = User(username=username, email=email, lti_id=lti_id, is_admin=is_admin, is_teacher=is_teacher)
+    user = User(username=username, email=email, lti_id=lti_id, is_superuser=is_superuser, is_teacher=is_teacher)
     user.save()
     user.set_password(password)
     if profile_picture:
