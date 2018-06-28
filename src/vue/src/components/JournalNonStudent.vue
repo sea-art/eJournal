@@ -167,7 +167,7 @@ export default {
                 }
 
                 if (node.type === 'e' || node.type === 'd') {
-                    if (node.entry.grade != null && node.entry.grade !== '0') {
+                    if (node.entry.grade != null && node.entry.grade !== '0' && node.entry.published) {
                         tempProgress += parseInt(node.entry.grade)
                     }
                 }

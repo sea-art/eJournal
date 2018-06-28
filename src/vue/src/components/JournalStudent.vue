@@ -155,8 +155,6 @@ export default {
 
                 if (node.type === 'e' || node.type === 'd') {
                     if (node.entry.grade && node.entry.grade !== '0') {
-                        console.log(node.entry.grade)
-                        console.log(node.nID)
                         tempProgress += parseInt(node.entry.grade)
                     }
                 }
