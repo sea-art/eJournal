@@ -59,6 +59,9 @@ export default {
                     this.assignments = response
                     this.pageName = this.assignment.name
                     this.$toasted.success('Updated assignment')
+                    // this.$router.push({
+                    //
+                    // })
                 })
         },
         deleteAssignment () {
