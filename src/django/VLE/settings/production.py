@@ -20,7 +20,8 @@ LTI_SECRET = '{{LTI_SECRET}}'
 LTI_KEY = '{{LTI_KEY}}'
 
 BASELINK = '{{BASELINK}}'
-
+CORS_ORIGIN_ALLOW_ALL = True
+MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware'] + MIDDLEWARE
 ALLOWED_HOSTS = ['*']
 
 DATABASES = {
