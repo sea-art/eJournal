@@ -66,6 +66,7 @@ urlpatterns = [
     path('api/create_new_assignment/', create.create_new_assignment, name='create_new_assignment'),
     path('api/create_entry/', create.create_entry, name='create_entry'),
     path('api/create_entrycomment/', create.create_entrycomment, name='create_entrycomment'),
+    path('api/create_lti_user/', create.create_lti_user, name='create_lti_user'),
     path('api/create_journal/', create.create_journal, name='create_journal'),
 
     path('api/update_user_data/', update.update_user_data, name='update_user_data'),
@@ -80,17 +81,17 @@ urlpatterns = [
          name='update_comment_notification'),
     path('api/update_format/', update.update_format, name='update_format'),
     path('api/update_entrycomment/', update.update_entrycomment, name='update_entrycomment'),
+    path('api/update_lti_id_to_user/', update.update_lti_id_to_user, name='update_lti_id_to_user'),
     path('api/update_course_roles/', update.update_course_roles, name='update_course_roles'),
 
-    path('api/update_grade_entry/<int:eID>/', update.update_grade_entry, name='update_grade_entry'),
-    path('api/update_publish_grade_entry/<int:eID>/', update.update_publish_grade_entry, name='update_grade_entry'),
-    path('api/update_publish_grades_assignment/<int:aID>/', update.update_publish_grades_assignment,
+    path('api/update_grade_entry/', update.update_grade_entry, name='update_grade_entry'),
+    path('api/update_publish_grade_entry/', update.update_publish_grade_entry, name='update_grade_entry'),
+    path('api/update_publish_grades_assignment/', update.update_publish_grades_assignment,
          name='update_publish_grades_assignment'),
-    path('api/update_publish_grades_journal/<int:jID>/', update.update_publish_grades_journal,
+    path('api/update_publish_grades_journal/', update.update_publish_grades_journal,
          name='update_publish_grades_journal'),
     path('api/update_user_role_course/', update.update_user_role_course, name='update_user_role_course'),
-    path('api/update_course_with_studentID/', update.update_course_with_studentID, name='update_course_with_studentID'),
-
+    path('api/update_course_with_student/', update.update_course_with_student, name='update_course_with_student'),
 
     path('api/delete_course/', delete.delete_course, name='delete_course'),
     path('api/delete_assignment/', delete.delete_assignment, name='delete_assignment'),
@@ -98,4 +99,5 @@ urlpatterns = [
     path('api/delete_course_role/', delete.delete_course_role, name='delete_course_role'),
 
     path('api/lti/launch', get.lti_launch, name='lti_launch'),
+    path('api/get_lti_params_from_jwt/<str:jwt_params>/', get.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),
 ]

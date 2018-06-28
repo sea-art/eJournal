@@ -11,10 +11,13 @@ import VLE.serializers as serialize
 import VLE.utils as utils
 import VLE.permissions as permissions
 import VLE.factory as factory
-import re
+from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, \
+    User, Journal
 import VLE.lti_grade_passback as lti_grade
-from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, Journal, \
-    User, EntryTemplate, Node, PresetNode
+from django.conf import settings
+import re
+import jwt
+import json
 
 
 @api_view(['POST'])
@@ -24,18 +27,34 @@ def connect_course_lti(request):
     Arguments:
     request -- the update request that was send with
         lti_id -- lti_id that needs to be added to the course
+        cID -- course that needs to be connected to lti_id
 
-    Returns a json string for if it is succesful or not.
+    Returns a json string for if it is successful or not.
     """
     user = request.user
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    course = Course.objects.get(pk=request.data['cID'])
+    try:
+        [cID] = utils.required_params(request.data, 'cID')
+    except KeyError:
+        return responses.keyerror('cID')
+
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
+        return responses.not_found('Course')
+
+    role = permissions.get_role(user, course)
+    if role is None:
+        return responses.forbidden('You are not in this course.')
+    elif not role.can_edit_course:
+        return responses.forbidden('You cannot edit this course.')
+
     course.lti_id = request.data['lti_id']
     course.save()
 
-    return responses.succes(payload={'course': serialize.course_to_dict(course)})
+    return responses.success(payload={'course': serialize.course_to_dict(course)})
 
 
 @api_view(['POST'])
@@ -61,7 +80,17 @@ def update_course(request):
     except KeyError:
         return responses.keyerror('cID', 'name', 'abbr', 'startdate', 'enddate')
 
-    course = Course.objects.get(pk=cID)
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
+        return responses.not_found('Course')
+
+    role = permissions.get_role(user, course)
+    if role is None:
+        return responses.forbidden('You are not in this course.')
+    elif not role.can_edit_course:
+        return responses.forbidden('You cannot edit this course.')
+
     course.name = name
     course.abbreviation = abbr
     course.startdate = startdate
@@ -79,13 +108,25 @@ def update_course_roles(request):
     request -- the request that was sent.
     cID     -- the course id
     """
-    if not request.user.is_authenticated:
+    user = request.user
+    if not user.is_authenticated:
         return responses.unauthorized()
-    cID = request.data['cID']
-    request_user_role = Participation.objects.get(user=request.user.id, course=cID).role
 
-    if not request_user_role.can_edit_course_roles:
-        return responses.forbidden()
+    try:
+        [cID] = utils.required_params(request.data, 'cID')
+    except KeyError:
+        return responses.keyerror('cID')
+
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
+        return responses.not_found('Course')
+
+    role = permissions.get_role(user, course)
+    if role is None:
+        return responses.forbidden('You are not in this course.')
+    elif not role.can_edit_course_roles:
+        return responses.forbidden('You cannot edit roles of this course.')
 
     for role in request.data['roles']:
         db_role = Role.objects.filter(name=role['name'])
@@ -102,6 +143,7 @@ def connect_assignment_lti(request):
 
     Arguments:
     request -- the update request that was send with
+        aID -- the id of the assignment to be linked with lti
         lti_id -- lti_id that needs to be added to the assignment
         points_possible -- points_possible in lti assignment
 
@@ -110,17 +152,31 @@ def connect_assignment_lti(request):
     user = request.user
     if not user.is_authenticated:
         return responses.unauthorized()
-    assignment = Assignment.objects.get(pk=request.data['aID'])
-    assignment.lti_id = request.data['lti_id']
-    if assignment.points_possible is None and request.data['points_possible'] is not '':
-        assignment.points_possible = request.data['points_possible']
+
+    try:
+        aID, lti_id = utils.required_params(request.data, 'aID', 'lti_id')
+        [points_possible] = utils.optional_params(request.data, 'points_possible')
+    except KeyError:
+        return responses.keyerror('aID')
+
+    try:
+        assignment = Assignment.objects.get(pk=aID)
+    except Assignment.DoesNotExist:
+        return responses.not_found('Assignment')
+
+    if not permissions.has_assignment_permission(user, assignment, 'can_edit_assignment'):
+        return responses.forbidden('You are not allowed to edit the assignment.')
+
+    assignment.lti_id = lti_id
+    if assignment.points_possible is None and points_possible is not '':
+        assignment.points_possible = points_possible
     assignment.save()
 
     return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
 
 
 @api_view(['POST'])
-def update_course_with_studentID(request):
+def update_course_with_student(request):
     """Update an existing course with a student.
 
     Arguments:
@@ -135,15 +191,27 @@ def update_course_with_studentID(request):
         return responses.unauthorized()
 
     try:
-        user = User.objects.get(pk=request.data['uID'])
-        course = Course.objects.get(pk=request.data['cID'])
+        uID, cID = utils.required_params(request.data, 'uID', 'cID')
+    except KeyError:
+        return responses.keyerror('uID', 'cID')
 
-    except (User.DoesNotExist, Course.DoesNotExist, Participation.DoesNotExist):
+    try:
+        q_user = User.objects.get(pk=request.data['uID'])
+        course = Course.objects.get(pk=request.data['cID'])
+    except (User.DoesNotExist, Course.DoesNotExist):
         return responses.not_found('User, Course or Participation does not exist.')
 
-    # TODO use roles from course
+    role = permissions.get_role(user, course)
+    if role is None:
+        return responses.forbidden('You are not in this course.')
+    elif not role.can_add_course_participants:
+        return responses.forbidden('You cannot add users to this course.')
+
+    if permissions.is_user_in_course(q_user, course):
+        return responses.bad_request('User already participates in the course.')
+
     role = Role.objects.get(name="Student", course=course)
-    participation = factory.make_participation(user, course, role)
+    participation = factory.make_participation(q_user, course, role)
 
     participation.save()
     return responses.success(message='Succesfully added student to course')
@@ -165,7 +233,19 @@ def update_assignment(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    assignment = Assignment.objects.get(pk=request.data['aID'])
+    try:
+        aID, name, description = utils.required_params(request.data, 'aID', 'name', 'description')
+    except KeyError:
+        return responses.keyerror('aID', 'name', 'description')
+
+    try:
+        assignment = Assignment.objects.get(pk=aID)
+    except Assignment.DoesNotExist:
+        return responses.not_found('Assignment')
+
+    if not permissions.has_assignment_permission(user, assignment, 'can_edit_assignment'):
+        return responses.forbidden('You are not allowed to edit this assignment.')
+
     assignment.name = request.data['name']
     assignment.description = request.data['description']
     assignment.save()
@@ -185,18 +265,22 @@ def update_password(request):
     Returns a json string for if it is successful or not.
     """
     user = request.user
-    if not user.is_authenticated or not user.check_password(request.data['old_password']):
+    try:
+        new_password, old_password = utils.required_params(request.data, 'new_password', 'old_password')
+    except KeyError:
+        return responses.KeyError('new_password', 'old_password')
+
+    if not user.is_authenticated or not user.check_password(old_password):
         return responses.unauthorized('Wrong password.')
 
-    password = request.data['new_password']
-    if len(password) < 8:
+    if len(new_password) < 8:
         return responses.bad_request('Password needs to contain at least 8 characters.')
-    if password == password.lower():
+    if new_password == new_password.lower():
         return responses.bad_request('Password needs to contain at least 1 capital letter.')
-    if re.match(r'^\w+$', password):
+    if re.match(r'^\w+$', new_password):
         return responses.bad_request('Password needs to contain a special character.')
 
-    user.set_password(password)
+    user.set_password(new_password)
     user.save()
     return responses.success(message='Succesfully changed the password.')
 
@@ -207,6 +291,7 @@ def update_grade_notification(request):
 
     Arguments:
     request -- the request that was send with
+        new_value -- the new value for the grade notifcation toggle
 
     Returns a json string for if it is successful or not.
     """
@@ -215,11 +300,13 @@ def update_grade_notification(request):
         return responses.unauthorized()
 
     try:
-        user.grade_notifications = request.data['new_value']
-    except Exception:
-        return responses.bad_request()
+        [new_value] = utils.required_params(request.data, 'new_value')
+    except KeyError:
+        return responses.keyerror('new_value')
 
+    user.grade_notifications = new_value
     user.save()
+
     return responses.success(payload={'new_value': user.grade_notifications})
 
 
@@ -237,137 +324,13 @@ def update_comment_notification(request):
         return responses.unauthorized()
 
     try:
-        user.comment_notifications = request.data['new_value']
-    except Exception:
-        return responses.bad_request()
+        [new_value] = utils.required_params(request.data, 'new_value')
+    except KeyError:
+        return responses.keyerror('new_value')
 
+    user.comment_notifications = new_value
     user.save()
     return responses.success(payload={'new_value': user.comment_notifications})
-
-
-def update_templates(result_list, templates):
-    """ Create new templates for those which have changed,
-    and removes the old one.
-
-    Entries have to keep their original template, so that the content
-    does not change after a template update, therefore when a template
-    is updated, the template is recreated from scratch and bound to
-    all nodes that use the previous template, if there were any.
-    """
-    for template_field in templates:
-        if 'updated' in template_field and template_field['updated']:
-            # Create the new template and add it to the format.
-            new_template = parse_template(template_field)
-            result_list.add(new_template)
-
-            # Update presets to use the new template.
-            if 'tID' in template_field and template_field['tID'] > 0:
-                template = EntryTemplate.objects.get(pk=template_field['tID'])
-                presets = PresetNode.objects.filter(forced_template=template).all()
-                for preset in presets:
-                    preset.forced_template = new_template
-                    preset.save()
-
-                result_list.remove(template)
-
-
-def parse_template(template_dict):
-    """ Parse a new template according to the passed JSON-serialized template. """
-    name = template_dict['name']
-    fields = template_dict['fields']
-
-    template = factory.make_entry_template(name)
-
-    for field in fields:
-        type = field['type']
-        title = field['title']
-        location = field['location']
-
-        factory.make_field(template, title, location, type)
-
-    template.save()
-    return template
-
-
-def swap_templates(from_list, goal_list, target_list):
-    """ Swap templates from from_list to target_list if they are present in goal_list. """
-    for template in goal_list:
-        if from_list.filter(pk=template['tID']).count() > 0:
-            template = from_list.get(pk=template['tID'])
-            from_list.remove(template)
-            target_list.add(template)
-
-
-def update_journals(journals, preset, created):
-    """ Create or update the preset node in all relevant journals.
-
-    Arguments:
-    journals -- the journals to update.
-    preset -- the preset node to update the journals with.
-    created -- whether the preset node was newly created.
-    """
-    if created:
-        for journal in journals:
-            factory.make_node(journal, None, preset.type, preset)
-    else:
-        for journal in journals:
-            journal.node_set.filter(preset=preset).update(type=preset.type)
-
-
-def update_presets(assignment, presets):
-    """ Update preset nodes in the assignment according to the passed list.
-
-    Arguments:
-    assignment -- the assignment to update the presets in.
-    presets -- a list of JSON-serialized presets.
-    """
-    format = assignment.format
-    for preset in presets:
-        exists = 'pID' in preset
-
-        if exists:
-            try:
-                preset_node = PresetNode.objects.get(pk=preset['pID'])
-            except EntryTemplate.DoesNotExist:
-                return responses.not_found('Preset does not exist.')
-        else:
-            preset_node = PresetNode(format=format)
-
-        type_changed = preset_node.type != preset['type']
-        preset_node.type = preset['type']
-        preset_node.deadline = preset['deadline']
-
-        if preset_node.type == Node.PROGRESS:
-            preset_node.target = preset['target']
-        elif preset_node.type == Node.ENTRYDEADLINE:
-            template_field = preset['template']
-
-            if 'tID' in template_field and template_field['tID'] > 0:
-                preset_node.forced_template = EntryTemplate.objects.get(pk=template_field['tID'])
-            else:
-                preset_node.forced_template = parse_template(template_field)
-
-        preset_node.save()
-        if type_changed:
-            update_journals(assignment.journal_set.all(), preset_node, not exists)
-
-
-def delete_presets(presets, remove_presets):
-    """ Deletes all presets in remove_presets from presets. """
-    pIDs = []
-    for preset in remove_presets:
-        pIDs.append(preset['pID'])
-
-    presets.filter(pk__in=pIDs).delete()
-
-
-def delete_templates(templates, remove_templates):
-    """ Deletes all templates in remove_templates from templates. """
-    tIDs = []
-    for template in remove_templates:
-        tIDs.append(template['tID'])
-
-    templates.filter(pk__in=tIDs).delete()
 
 
 @api_view(['POST'])
@@ -377,40 +340,50 @@ def update_format(request):
     Arguments:
     request -- the request that was send with
         aID -- the assignments' format to update
+        max_points -- the max points possible.
         templates -- the list of templates to bind to the format
         presets -- the list of presets to bind to the format
         unused_templates -- the list of templates that are bound to the template
                             deck, but are not used in presets nor the entry templates.
+        removed_presets -- presets to be removed
+        removed_templates -- templates to be removed
+
+    Returns a json string for if it is successful or not.
     """
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
     try:
         aID, templates, presets = utils.required_params(request.data, "aID", "templates", "presets")
-        unused_templates, = utils.required_params(request.data, "unused_templates")
+        unused_templates, max_points = utils.required_params(request.data, "unused_templates", "max_points")
         removed_presets, removed_templates = utils.required_params(request.data, "removed_presets", "removed_templates")
 
     except KeyError:
-        return responses.keyerror("aID", "templates", "presets", "unused_templates")
+        return responses.keyerror("aID", "templates", "presets", "unused_templates", "max_points")
 
     try:
         assignment = Assignment.objects.get(pk=aID)
         format = assignment.format
     except Assignment.DoesNotExist:
-        return responses.not_found('Format does not exist.')
+        return responses.not_found('Assignment')
 
-    update_presets(assignment, presets)
-    update_templates(format.available_templates, templates)
-    update_templates(format.unused_templates, unused_templates)
+    if not permissions.has_assignment_permission(request.user, assignment, 'can_edit_assignment'):
+        return responses.forbidden('You are not allowed to edit this assignment.')
+
+    format.max_points = max_points
+    format.save()
+    utils.update_presets(assignment, presets)
+    utils.update_templates(format.available_templates, templates)
+    utils.update_templates(format.unused_templates, unused_templates)
 
     # Swap templates from lists if they occur in the other:
     # If a template was previously unused, but is now used, swap it to available templates, and vice versa.
-    swap_templates(format.available_templates, unused_templates, format.unused_templates)
-    swap_templates(format.unused_templates, templates, format.available_templates)
+    utils.swap_templates(format.available_templates, unused_templates, format.unused_templates)
+    utils.swap_templates(format.unused_templates, templates, format.available_templates)
 
-    delete_presets(format.presetnode_set, removed_presets)
-    delete_templates(format.available_templates, removed_templates)
-    delete_templates(format.unused_templates, removed_templates)
+    utils.delete_presets(format.presetnode_set, removed_presets)
+    utils.delete_templates(format.available_templates, removed_templates)
+    utils.delete_templates(format.unused_templates, removed_templates)
 
     return responses.success(payload={'format': serialize.format_to_dict(format)})
 
@@ -421,45 +394,68 @@ def update_user_role_course(request):
 
     Arguments:
     request -- the request that was send with
+        role -- the new role for the user
+        uID -- user id of the user to be updated
+        cID -- the course of the new role
 
     Returns a json string for if it is successful or not.
     """
     try:
-        uID, cID = utils.required_params(request.data, "uID", "cID")
+        role, uID, cID = utils.required_params(request.data, "role", "uID", "cID")
     except KeyError:
-        return responses.keyerror("uID", "cID")
+        return responses.keyerror("role", "uID", "cID")
 
     try:
-        participation = Participation.objects.get(user=request.data['uID'], course=request.data['cID'])
-        participation.role = Role.objects.get(name=request.data['role'], course=request.data['cID'])
-    except (Participation.DoesNotExist, Role.DoesNotExist):
-        return responses.not_found('Participation or Role does not exist.')
+        course = Course.objects.get(pk=cID)
+        participation = Participation.objects.get(user=uID, course=cID)
+    except (Participation.DoesNotExist, Role.DoesNotExist, Course.DoesNotExist):
+        return responses.not_found('Participation, Role or Course does not exist.')
+
+    q_role = permissions.get_role(request.user, course)
+    if q_role is None:
+        return responses.forbidden('You are not in this course.')
+    elif not q_role.can_edit_course_roles:
+        return responses.forbidden('You cannot edit the roles of this course.')
+
+    participation.role = Role.objects.get(name=role, course=cID)
 
     participation.save()
     return responses.success(payload={'new_role': participation.role.name})
 
 
 @api_view(['POST'])
-def update_grade_entry(request, eID):
+def update_grade_entry(request):
     """Update the entry grade.
 
     Arguments:
     request -- the request that was send with
-    grade -- the grade
-    published -- published
-    eID -- the entry id
+        grade -- the grade
+        published -- published
+        eID -- the entry id
 
     Returns a json string if it was successful or not.
     """
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
-    entry = Entry.objects.get(pk=eID)
-    entry.grade = request.data['grade']
-    entry.published = request.data['published']
-    entry.save()
+    try:
+        grade, published, eID = utils.required_params(request.data, 'grade', 'published', 'eID')
+    except KeyError:
+        return responses.keyerror('grade', 'published', 'eID')
+
+    try:
+        entry = Entry.objects.get(pk=eID)
+    except Entry.DoesNotExist:
+        return responses.not_found('Entry')
 
     journal = entry.node.journal
+    if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_grade_journal'):
+        return responses.forbidden('You cannot grade or publish entries.')
+
+    entry.grade = grade
+    entry.published = published
+    entry.save()
+
     if entry.published and journal.sourcedid is not None and journal.grade_url is not None:
         payload = lti_grade.replace_result(journal)
     else:
@@ -472,25 +468,36 @@ def update_grade_entry(request, eID):
 
 
 @api_view(['POST'])
-def update_publish_grade_entry(request, eID):
+def update_publish_grade_entry(request):
     """Update the grade publish status for one entry.
 
     Arguments:
     request -- the request that was send with
-    eID -- the entry id
+        eID -- the entry id
 
     Returns a json string if it was successful or not.
     """
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
-    publish = request.data['published']
-    entry = Entry.objects.get(pk=eID)
-    entry.published = publish
-    entry.save()
+    try:
+        published, eID = utils.required_params(request.data, 'published', 'eID')
+    except KeyError:
+        return responses.keyerror('published', 'eID')
+
+    try:
+        entry = Entry.objects.get(pk=eID)
+    except Entry.DoesNotExist:
+        return responses.not_found('Entry')
 
     journal = entry.node.journal
-    if publish and journal.sourcedid is not None and journal.grade_url is not None:
+    if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_journal_grades'):
+        return responses.forbidden('You cannot publish entries.')
+
+    entry.published = published
+    entry.save()
+
+    if published and journal.sourcedid is not None and journal.grade_url is not None:
         payload = lti_grade.replace_result(journal)
     else:
         payload = dict()
@@ -500,20 +507,33 @@ def update_publish_grade_entry(request, eID):
 
 
 @api_view(['POST'])
-def update_publish_grades_assignment(request, aID):
+def update_publish_grades_assignment(request):
     """Update the grade publish status for whole assignment.
 
     Arguments:
     request -- the request that was send with
-    aID -- assignment ID
+        published -- new published state
+        aID -- assignment ID
 
     Returns a json string if it was successful or not.
     """
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
-    assign = Assignment.objects.get(pk=aID)
-    utils.publish_all_assignment_grades(assign, request.data['published'])
+    try:
+        published, aID = utils.required_params(request.data, 'published', 'aID')
+    except KeyError:
+        return responses.keyerror('aID')
+
+    try:
+        assign = Assignment.objects.get(pk=aID)
+    except Assignment.DoesNotExist:
+        return responses.not_found('Assignment')
+
+    if not permissions.has_assignment_permission(request.user, assign, 'can_publish_journal_grades'):
+        return responses.forbidden('You cannot publish assignments.')
+
+    utils.publish_all_assignment_grades(assign, aID)
 
     for journ in Journal.objects.filter(assignment=assign):
         if journ.sourcedid is not None and journ.grade_url is not None:
@@ -521,25 +541,37 @@ def update_publish_grades_assignment(request, aID):
         else:
             payload = dict()
 
-    payload['new_published'] = request.data['published']
+    payload['new_published'] = published
     return responses.success(payload=payload)
 
 
 @api_view(['POST'])
-def update_publish_grades_journal(request, jID):
+def update_publish_grades_journal(request):
     """Update the grade publish status for a journal.
 
     Arguments:
     request -- the request that was send with
         published -- publish state of grade
-    jID -- journal ID
+        jID -- journal ID
 
     Returns a json string if it was successful or not.
     """
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
-    journ = Journal.objects.get(pk=jID)
+    try:
+        published, jID = utils.required_params(request.data, 'published', 'jID')
+    except KeyError:
+        return responses.keyerror('published', 'jID')
+
+    try:
+        journ = Journal.objects.get(pk=jID)
+    except Journal.DoesNotExist:
+        return responses.DoesNotExist('Journal')
+
+    if not permissions.has_assignment_permission(request.user, journ.assignment, 'can_publish_journal_grades'):
+        return responses.forbidden('You cannot publish assignments.')
+
     utils.publish_all_journal_grades(journ, request.data['published'])
 
     if journ.sourcedid is not None and journ.grade_url is not None:
@@ -574,6 +606,11 @@ def update_entrycomment(request):
         comment = EntryComment.objects.get(pk=entrycommentID)
     except EntryComment.DoesNotExist:
         return responses.not_found('Entrycomment does not exist.')
+
+    if not permissions.has_assignment_permission(request.user, comment.entry.node.journal.assignment,
+                                                 'can_comment_journal'):
+        return responses.forbidden('You cannot comment on entries.')
+
     comment.text = text
     comment.save()
     return responses.success()
@@ -600,4 +637,50 @@ def update_user_data(request):
         user.profile_picture = request.data['picture']
 
     user.save()
+    return responses.success(payload={'user': serialize.user_to_dict(user)})
+
+
+@api_view(['POST'])
+def update_lti_id_to_user(request):
+    """Create a new user with lti_id.
+
+    Arguments:
+    request -- the request
+        username -- username of the new user
+        password -- password of the new user
+        first_name -- first_name (optinal)
+        last_name -- last_name (optinal)
+        email -- email (optinal)
+        jwt_params -- jwt params to get the lti information from
+            user_id -- id of the user
+            user_image -- user image
+            roles -- role of the user
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    if not request.data['jwt_params']:
+        return responses.bad_request()
+
+    lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
+
+    user_id, user_image = lti_params['user_id'], lti_params['user_image']
+    is_teacher = json.load(open('config.json'))['Teacher'] == lti_params['roles']
+    first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
+
+    if first_name is not None:
+        user.first_name = first_name
+    if last_name is not None:
+        user.last_name = last_name
+    if email is not None:
+        user.email = email
+    if user_image is not None:
+        user.profile_picture = user_image
+    if is_teacher:
+        user.is_teacher = is_teacher
+
+    user.lti_id = user_id
+    user.save()
+
     return responses.success(payload={'user': serialize.user_to_dict(user)})
