@@ -654,7 +654,7 @@ def get_names(request):
             if not (journal.user == user or permissions.has_assignment_permission(user,
                     journal.assignment, 'can_view_assignment_participants')):
                 return responses.forbidden('You are not allowed to view journals of other participants.')
-            result['journal'] = journal.user.username
+            result['journal'] = journal.user.first_name + " " + journal.user.last_name
 
     except (Course.DoesNotExist, Assignment.DoesNotExist, Journal.DoesNotExist, EntryTemplate.DoesNotExist):
         return responses.not_found('Course, Assignment, Journal or Template does not exist.')
@@ -664,7 +664,7 @@ def get_names(request):
 
 @api_view(['GET'])
 def get_entrycomments(request, eID):
-    """Get the comments belonging to the specified entry based on its entryID."""
+    """Get the comments belonging to the specified entry based on its eID."""
     user = request.user
     if not user.is_authenticated:
         return responses.unauthorized()
@@ -698,7 +698,7 @@ def get_user_data(request, uID):
 
     # Check the right permissions to get this users data, either be the user of the data or be an admin.
     permission = permissions.get_permissions(user, cID=-1)
-    if not (permission['is_admin'] or request.user.id == uID):
+    if not (permission['is_superuser'] or request.user.id == uID):
         return responses.forbidden('You cannot view this users data.')
 
     profile = serialize.user_to_dict(user)

@@ -1,7 +1,7 @@
 <template>
     <b-container no-gutters>
         <b-row>
-            <h3 class="profile-title">Change password</h3><br/>
+            <h2 class="profile-title">Change password</h2><br/>
         </b-row>
         <b-row>
             <alert-box v-if="response" :type="response.type" :description="response.description"/>

@@ -55,6 +55,7 @@ export default {
 
 <style>
 .left-content-journal {
+    padding: 0px 30px !important;
     flex: 0 0 auto;
 }
 
@@ -90,8 +91,26 @@ export default {
 }
 
 @media (max-width: 1200px) {
+    .right-content-journal {
+        padding: 30px !important;
+    }
+
     .main-content-journal {
-        padding-top: 0px !important;
+        padding: 30px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .left-content-journal {
+        padding: 0px !important;
+    }
+
+    .right-content-journal {
+        padding: 30px 0px !important;
+    }
+
+    .main-content-journal {
+        padding: 30px 0px !important;
     }
 }
 </style>

@@ -26,7 +26,13 @@ export default {
 
 @media(max-width:992px){
     .main-content {
-        padding-top: 0px !important;
+        padding: 30px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .main-content {
+        padding: 30px 0px !important;
     }
 }
 </style>

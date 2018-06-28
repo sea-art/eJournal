@@ -4,16 +4,20 @@
         <b-card slot="main-content-column" class="settings-card no-hover">
             <b-row>
                 <b-col lg="3" md="3">
-                    <b-button v-if="$root.canAddAssignment()" :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">Edit Assignment Format</b-button>
+                    <b-button
+                        v-if="$root.canAddAssignment()"
+                        class="change-button"
+                        :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">
+                        Edit Assignment Format
+                    </b-button>
                 </b-col>
             </b-row>
             <b-row>
                 <b-col lg="3" md="3">
                     <b-form-select v-model="selectedSortOption" :select-size="1">
-                       <option :value="null">Sort by ...</option>
-                       <option value="sortName">Sort on name</option>
-                       <option value="sortID">Sort on ID</option>
-                       <option value="sortMarking">Sort on marking needed</option>
+                       <option value="sortName">Sort by name</option>
+                       <option value="sortID">Sort by ID</option>
+                       <option value="sortMarking">Sort by marking needed</option>
                     </b-form-select>
                 </b-col>
                 <b-col lg="5" md="12">
@@ -22,7 +26,12 @@
             </b-row>
             <b-row>
                 <b-col lg="3" md="3">
-                    <b-button v-if="$root.canGradeJournal()" @click="publishGradesAssignment">Publish all Grades</b-button>
+                    <b-button
+                        v-if="$root.canGradeJournal()"
+                        class="add-button"
+                        @click="publishGradesAssignment">
+                        Publish all Grades
+                    </b-button>
                 </b-col>
             </b-row>
         </b-card>
@@ -33,21 +42,21 @@
                                               cID: cID,
                                               aID: aID,
                                               jID: journal.jID
-                                          }
+                                          }, query: query
                                         }">
 
                 <student-card
-                    :student="journal.student.name"
-                    :studentNumber="journal.student.uID"
+                    :student="journal.student.first_name + ' ' + journal.student.last_name"
+                    :studentNumber="journal.student.name"
                     :portraitPath="journal.student.picture"
                     :stats="journal.stats"
-                    :color="$root.colors[journal.uid % $root.colors.length]"
+                    :color="$root.colors[cID % $root.colors.length]"
                     :jID="journal.jID">
                 </student-card>
 
             </b-link>
         </div>
-        <div v-if="assignmentJournals.length === 0" slot="main-content-column">
+        <div v-else slot="main-content-column">
             <h1>No journals found</h1>
         </div>
 
@@ -67,6 +76,8 @@ import studentCard from '@/components/StudentCard.vue'
 import statisticsCard from '@/components/StatisticsCard.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import journal from '@/api/journal.js'
+import permissionsApi from '@/api/permissions.js'
+import store from '@/Store.vue'
 
 export default {
     name: 'Assignment',
@@ -84,22 +95,42 @@ export default {
             assignmentJournals: [],
             stats: [],
             cardColor: '',
-            selectedSortOption: null,
-            searchVariable: ''
+            selectedSortOption: 'sortName',
+            searchVariable: '',
+            query: {}
         }
     },
     components: {
         'content-columns': contentColumns,
         'student-card': studentCard,
         'statistics-card': statisticsCard,
-        'bread-crumb': breadCrumb
+        'bread-crumb': breadCrumb,
+        'store': store
     },
     created () {
-        journal.get_assignment_journals(this.aID)
+        permissionsApi.get_course_permissions(this.cID)
             .then(response => {
-                this.assignmentJournals = response.journals
-                this.stats = response.stats
+                if (!this.$router.app.canViewAssignmentParticipants()) {
+                    this.$router.push({name: 'Course', params: {cID: this.cID}})
+                    return
+                }
+
+                journal.get_assignment_journals(this.aID)
+                    .then(response => {
+                        this.assignmentJournals = response.journals
+                        this.stats = response.stats
+                    })
             })
+
+        if (this.$route.query.sort === 'sortName' ||
+            this.$route.query.sort === 'sortID' ||
+            this.$route.query.sort === 'sortMarking') {
+            this.selectedSortOption = this.$route.query.sort
+        }
+
+        if (this.$route.query.search) {
+            this.searchVariable = this.$route.query.search
+        }
     },
     methods: {
         customisePage () {
@@ -115,13 +146,24 @@ export default {
             })
         },
         publishGradesAssignment () {
-            journal.update_publish_grades_assignment(this.aID, 1)
-                .then(_ => {
-                    this.$toasted.success('All the grades for each journal are published.')
-                })
-                .catch(_ => {
-                    this.$toasted.error('Error while publishing the grades for each journal.')
-                })
+            if (confirm('Are you sure you want to publish all grades for each journal?')) {
+                journal.update_publish_grades_assignment(this.aID, 1)
+                    .then(_ => {
+                        this.$toasted.success('All the grades for each journal are published.')
+                    })
+                    .catch(_ => {
+                        this.$toasted.error('Error while publishing the grades for each journal.')
+                    })
+            }
+        },
+        updateQuery () {
+            if (this.searchVariable !== '') {
+                this.query = {sort: this.selectedSortOption, search: this.searchVariable}
+            } else {
+                this.query = {sort: this.selectedSortOption}
+            }
+
+            this.$router.replace({ query: this.query })
         }
     },
     computed: {
@@ -129,14 +171,14 @@ export default {
             let self = this
 
             function compareName (a, b) {
-                if (a.student.name < b.student.name) { return -1 }
-                if (a.student.name > b.student.name) { return 1 }
+                if (a.student.last_name < b.student.last_name) { return -1 }
+                if (a.student.last_name > b.student.last_name) { return 1 }
                 return 0
             }
 
             function compareID (a, b) {
-                if (a.student.uID < b.student.uID) { return -1 }
-                if (a.student.uID > b.student.uID) { return 1 }
+                if (a.student.name < b.student.name) { return -1 }
+                if (a.student.name > b.student.name) { return 1 }
                 return 0
             }
 
@@ -147,8 +189,8 @@ export default {
             }
 
             function checkFilter (user) {
-                var userName = user.student.name.toLowerCase()
-                var userID = String(user.student.uID).toLowerCase()
+                var userName = (user.student.first_name + ' ' + user.student.lastname).toLowerCase()
+                var userID = user.student.name.toLowerCase()
 
                 if (userName.includes(self.searchVariable.toLowerCase()) ||
                 userID.includes(self.searchVariable)) {
@@ -160,14 +202,16 @@ export default {
 
             /* Filter list based on search input. */
             if (this.selectedSortOption === 'sortName') {
-                return this.assignmentJournals.filter(checkFilter).sort(compareName)
+                store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareName))
             } else if (this.selectedSortOption === 'sortID') {
-                return this.assignmentJournals.filter(checkFilter).sort(compareID)
+                store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareID))
             } else if (this.selectedSortOption === 'sortMarking') {
-                return this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded)
-            } else {
-                return this.assignmentJournals.filter(checkFilter)
+                store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded))
             }
+
+            this.updateQuery()
+
+            return store.state.filteredJournals.slice()
         }
     }
 }

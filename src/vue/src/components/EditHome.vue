@@ -1,8 +1,9 @@
 <template>
-    <b-form @submit="onSubmit" @reset="onReset">
+    <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
         <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" type="text" v-model="institueName" placeholder="Institute name"/>
-        <b-button class="float-right" type="reset">Reset</b-button>
-        <b-button class="float-right" type="submit">Edit</b-button>
+        <!-- TODO less placeholdery -->
+        <b-button class="float-right delete-button" type="reset">Reset</b-button>
+        <b-button class="float-right add-button" type="submit">Save</b-button>
     </b-form>
 </template>
 

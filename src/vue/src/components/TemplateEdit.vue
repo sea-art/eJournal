@@ -6,26 +6,22 @@
                 <div v-for="field in template.fields" :key="field.location">
                     <b-card class="field-card">
                         <b-row align-h="between" no-gutters>
-                            <b-col cols="12" md="11">
+                            <b-col cols="12" sm="10" lg="11">
                                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="field.title" placeholder="Field title" required/>
                                 <b-select :options="fieldTypes" v-model="field.type"></b-select>
                             </b-col>
-                            <b-col cols="12" md="1">
-                                <div class="icon-box">
-                                    <div class="handle">
-                                        <icon class="move-icon" name="arrows" scale="1.75"></icon>
-                                    </div>
-                                    <div class="trash-box" @click="removeField(field.location)">
-                                        <icon class="trash-icon" name="trash" scale="1.75"></icon>
-                                    </div>
+                            <b-col cols="12" sm="2" lg="1" class="icon-box">
+                                <div class="handle d-inline d-sm-block">
+                                    <icon class="move-icon" name="arrows" scale="1.75"></icon>
                                 </div>
+                                <icon class="trash-icon" @click.native="removeField(field.location)" name="trash" scale="1.75"/>
                             </b-col>
                         </b-row>
                     </b-card>
                 </div>
                 <div style="visibility: hidden;"></div>
             </draggable>
-            <b-card class="hover" @click="addField">+ Add field</b-card>
+            <b-card class="hover add-button" @click="addField">+ Add field</b-card>
         </b-card>
     </div>
 </template>
@@ -112,38 +108,30 @@ export default {
     text-align: center;
 }
 
-.handle, .trash-box {
-    text-align: center;
-    padding: 10px 0px 10px 10px;
-}
-
 .handle {
-    cursor: grab;
+    text-align: center;
 }
 
-.trash-box {
-    cursor: pointer;
-}
-
-.move-icon, .trash-icon {
+.move-icon {
     fill: var(--theme-dark-grey)
 }
 
 .field-card:hover .move-icon, .field-card:hover .trash-icon {
-    fill: var(--theme-dark-blue);
+    fill: var(--theme-dark-blue) !important;
 }
 
 .handle:hover .move-icon {
-    fill: var(--theme-blue);
+    cursor: grab;
+    fill: var(--theme-blue) !important;
+}
+
+.field-card:hover .trash-icon:hover {
+    fill: var(--theme-negative-selected) !important;
 }
 
 @media(max-width:768px){
     .icon-box {
         margin-top: 10px;
-    }
-
-    .handle, .trash-box {
-        display: inline;
     }
 }
 </style>

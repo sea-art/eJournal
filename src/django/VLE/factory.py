@@ -10,8 +10,8 @@ import random
 import django.utils.timezone as timezone
 
 
-def make_user(username, password, email=None, lti_id=None, profile_picture=None, is_admin=False, is_teacher=False,
-              first_name=None, last_name=None):
+def make_user(username, password, email=None, lti_id=None, profile_picture=None,
+              is_superuser=False, is_teacher=False, first_name=None, last_name=None):
     """Create a user.
 
     Arguments:
@@ -20,15 +20,16 @@ def make_user(username, password, email=None, lti_id=None, profile_picture=None,
     email -- mail of the user (default: none)
     lti_id -- to link the user to canvas (default: none)
     profile_picture -- profile picture of the user (default: none)
-    is_admin -- if the user needs all permissions, set this true (default: False)
+    is_superuser -- if the user needs all permissions, set this true (default: False)
     """
-    # TODO first and last name should always be given but it isnt in the demo db
-    if first_name is None or last_name is None:
-        user = User(username=username, email=email, lti_id=lti_id, is_admin=is_admin,
-                    is_teacher=is_teacher)
-    else:
-        user = User(username=username, email=email, lti_id=lti_id, is_admin=is_admin,
-                    is_teacher=is_teacher, first_name=first_name, last_name=last_name)
+    user = User(username=username, email=email, lti_id=lti_id, is_superuser=is_superuser,
+                is_teacher=is_teacher)
+
+    if first_name:
+        user.first_name = first_name
+    if last_name:
+        user.last_name = last_name
+
     user.save()
     user.set_password(password)
     if profile_picture:

@@ -1,7 +1,7 @@
 <template>
     <b-row class="outer-container" no-gutters>
         <b-col v-if="bootstrapLg()" cols="12">
-            <bread-crumb v-if="bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
+            <bread-crumb v-if="bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
         <b-col v-else xl="3" class="left-content-journal">
@@ -9,10 +9,10 @@
         </b-col>
 
         <b-col lg="12" xl="6" order="2" class="main-content-journal">
-            <bread-crumb v-if="!bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
+            <bread-crumb v-if="!bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
-                    <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
+                    <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]" :color="$root.colors[cID % $root.colors.length]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'd'">
                     <div v-if="nodes[currentNode].entry !== null">
@@ -28,7 +28,7 @@
                     </div>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'a'">
-                    <add-card @info-entry="addNode" :addNode="nodes[currentNode]"></add-card>
+                    <add-card @info-entry="addNode" :addNode="nodes[currentNode]" :color="$root.colors[cID % $root.colors.length]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'p'">
                     <b-card class="card main-card no-hover" :class="'pink-border'">
@@ -75,6 +75,12 @@ export default {
                 this.nodes = response.nodes
                 if (this.$route.query.nID !== undefined) {
                     this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
+                }
+
+                for (var node of this.nodes) {
+                    if (node.type === 'p') {
+                        this.progressPoints(node)
+                    }
                 }
             })
             .catch(_ => this.$toasted.error('Error while loading nodes.'))

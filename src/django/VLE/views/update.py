@@ -538,7 +538,7 @@ def update_publish_grades_assignment(request):
     if not permissions.has_assignment_permission(request.user, assign, 'can_publish_journal_grades'):
         return responses.forbidden('You cannot publish assignments.')
 
-    utils.publish_all_assignment_grades(assign, aID)
+    utils.publish_all_assignment_grades(assign, published)
 
     for journ in Journal.objects.filter(assignment=assign):
         if journ.sourcedid is not None and journ.grade_url is not None:
@@ -577,7 +577,7 @@ def update_publish_grades_journal(request):
     if not permissions.has_assignment_permission(request.user, journ.assignment, 'can_publish_journal_grades'):
         return responses.forbidden('You cannot publish assignments.')
 
-    utils.publish_all_journal_grades(journ, request.data['published'])
+    utils.publish_all_journal_grades(journ, published)
 
     if journ.sourcedid is not None and journ.grade_url is not None:
         payload = lti_grade.replace_result(journ)
@@ -640,6 +640,10 @@ def update_user_data(request):
         user.username = request.data['username']
     if 'picture' in request.data:
         user.profile_picture = request.data['picture']
+    if 'first_name' in request.data:
+        user.first_name = request.data['first_name']
+    if 'last_name' in request.data:
+        user.last_name = request.data['last_name']
 
     user.save()
     return responses.success(payload={'user': serialize.user_to_dict(user)})

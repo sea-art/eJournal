@@ -1,7 +1,7 @@
 <template>
     <b-card class="card" :class="color">
         <b-row>
-            <b-col cols="7">
+            <b-col cols="9">
                 <h6>{{ date }} {{ hours }}:{{ minutes }}</h6>
             </b-col>
             <b-col cols="5">

@@ -8,7 +8,7 @@
     <div class="entry-template">
         <b-row>
             <b-col id="main-card-left-column" cols="12">
-                    <b-card class="card main-card no-hover" :class="'pink-border'">
+                    <b-card class="card main-card no-hover" :class="color">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>Select a template</h2>
@@ -38,7 +38,7 @@ import templatePreview from '@/components/TemplatePreview.vue'
 import entryPreview from '@/components/EntryPreview.vue'
 
 export default {
-    props: ['addNode'],
+    props: ['addNode', 'color'],
     data () {
         return {
             selectedTemplate: null,

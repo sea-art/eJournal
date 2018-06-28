@@ -31,7 +31,6 @@ class User(AbstractUser):
     profile_picture = models.TextField(
         null=True
     )
-    is_admin = models.BooleanField(default=False)
     is_teacher = models.BooleanField(default=False)
     grade_notifications = models.BooleanField(
         default=True
@@ -108,7 +107,7 @@ class Role(models.Model):
         Course,
         on_delete=models.CASCADE
     )
-    # GLOBAL: is_admin
+    # GLOBAL: is_superuser
     # GLOBAL: can_edit_institute
 
     # Course permissions.

@@ -16,6 +16,7 @@ import 'vue-awesome/icons/check'
 import 'vue-awesome/icons/times'
 import 'vue-awesome/icons/exclamation'
 import 'vue-awesome/icons/plus'
+import 'vue-awesome/icons/list-ul'
 
 import Toasted from 'vue-toasted'
 
@@ -42,6 +43,9 @@ new Vue({
              * TODO implement (will most likely require a lib) */
             return '1M 9D 9H'
         },
+        getBorderClass (cID) {
+            return this.colors[cID % this.colors.length]
+        },
 
         /* #############################################################
          *              Permissions,
@@ -54,7 +58,7 @@ new Vue({
 
         /* Site-wide permissions */
         isAdmin () {
-            return this.permissions.is_admin
+            return this.permissions.is_superuser
         },
         /* Institute wide settings, think institute name/abbreviation logo. */
         canEditInstitute () {

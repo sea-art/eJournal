@@ -3,7 +3,7 @@
     the parrent once it's saved.
 -->
 <template>
-    <b-card class="card main-card no-hover" :class="'dark-border'">
+    <b-card class="card main-card no-hover" :class="$root.getBorderClass($route.params.cID)">
         <b-row>
             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                 <h2>{{template.name}}</h2>
@@ -34,7 +34,7 @@
                     @dismissed="dismissCountDown=0">
                     Please fill in every field.
                 </b-alert>
-                <b-button @click="save">Post Entry</b-button>
+                <b-button class="add-button" @click="save">Post Entry</b-button>
             </b-col>
         </b-row>
     </b-card>

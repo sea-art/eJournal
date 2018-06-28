@@ -17,17 +17,22 @@ class CreateApiTests(TestCase):
 
     def test_create_new_course(self):
         """Test create new course."""
+        username, password, user = test.set_up_user_and_auth('test2', 'test1233', is_teacher=True)
         lti_id = '12AB'
-        login = test.logging_in(self, self.username, self.password)
+        login = test.logging_in(self, username, password)
         create_course_dict = {'name': 'Beeldbewerken', 'abbr': 'BB', 'lti_id': lti_id}
 
-        test.api_post_call(self, '/api/create_new_course/', create_course_dict, login, 201)
+        test.api_post_call(self, '/create_new_course/', create_course_dict, login, 201)
         self.assertEquals(Course.objects.get(lti_id=lti_id).name, 'Beeldbewerken')
 
     def test_create_new_assignment(self):
         """test create new assignment."""
         lti_id = '12AB'
         course = factory.make_course("BeeldBewerken", "BB")
+
+        role = factory.make_role_default_no_perms("teacher", course, can_add_assignment=True)
+        factory.make_participation(user=self.user, course=course, role=role)
+
         login = test.logging_in(self, self.username, self.password)
         create_assign_dict = {
             'name': 'SIFT',
@@ -36,7 +41,7 @@ class CreateApiTests(TestCase):
             'lti_id': lti_id
         }
 
-        test.api_post_call(self, '/api/create_new_assignment/', create_assign_dict, login, 201)
+        test.api_post_call(self, '/create_new_assignment/', create_assign_dict, login, 201)
         self.assertEquals(Assignment.objects.get(lti_id=lti_id).name, 'SIFT')
 
     def test_create_journal(self):
@@ -45,7 +50,13 @@ class CreateApiTests(TestCase):
         create_journal_dict = {'aID': assign.pk}
         login = test.logging_in(self, self.username, self.password)
 
-        test.api_post_call(self, '/api/create_journal/', create_journal_dict, login, 201)
+        course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
+        assign.courses.add(course)
+
+        role = factory.make_role_default_no_perms("student", course, can_edit_journal=True)
+        factory.make_participation(user=self.user, course=course, role=role)
+
+        test.api_post_call(self, '/create_journal/', create_journal_dict, login, 201)
         self.assertTrue(Journal.objects.filter(user=self.user).exists())
 
     def test_create_entry(self):
@@ -65,7 +76,7 @@ class CreateApiTests(TestCase):
                 }]
             }
 
-        test.api_post_call(self, '/api/create_entry/', create_entry_dict, login, 201)
+        test.api_post_call(self, '/create_entry/', create_entry_dict, login, 201)
         self.assertTrue(Entry.objects.filter(node__journal=journal).exists())
         self.assertEquals(Content.objects.get(entry=1).data, "This is some data")
 
@@ -86,6 +97,6 @@ class CreateApiTests(TestCase):
             'text': 'Wow! This is bad/good'
         }
 
-        test.api_post_call(self, '/api/create_entrycomment/', create_entrycomment_dict, login, 201)
+        test.api_post_call(self, '/create_entrycomment/', create_entrycomment_dict, login, 201)
         self.assertTrue(EntryComment.objects.filter(entry=entry).exists())
         self.assertEquals(EntryComment.objects.get(pk=1).text, 'Wow! This is bad/good')

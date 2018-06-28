@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <header-bar/>
-        <router-view :key="$route.fullPath" class="fit-height"/>
+        <router-view :key="$route.path" class="fit-height"/>
     </div>
 </template>
 
@@ -20,16 +20,18 @@ export default {
 
 :root {
     --theme-dark-blue: #252C39;
-    --theme-peach: #E9A480;
     --theme-dark-peach: #dE8F3F;
-    --theme-light-grey: #EEEEEE;
-    --theme-dark-grey: #BBBBBB;
-    --theme-pink: #E64769;
-    --theme-blue: #22648A;
-    --theme-red: #c83b4b;
     --theme-medium-grey: #DEDEDE;
-    --theme-add-unselected: #99ff99;
-    --theme-add-selected: #1aff1a;
+    --theme-dark-grey: #BBBBBB;
+    --theme-light-grey: #EEEEEE;
+    --theme-peach: #E9A480;
+    --theme-blue: #22648A;
+    --theme-red: #82000e;
+    --theme-pink: #E64769;
+    --theme-positive-selected: #007E33;
+    --theme-negative-selected: #CC0000;
+    --theme-change-selected: #FF8800;
+    --theme-change-hover: #FF6600;
 }
 
 * {
@@ -198,38 +200,32 @@ input, select {
     cursor: pointer;
 }
 
+.add-icon:hover {
+    fill: var(--theme-positive-selected) !important;
+}
+
 .trash-icon:hover {
-    fill: var(--theme-red);
+    fill: var(--theme-negative-selected) !important;
 }
 
 .trash-icon {
-    fill: var(--theme-red);
+    fill: var(--theme-dark-grey) !important;
     cursor: pointer;
 }
 
-.add-icon:hover {
-    fill: var(--theme-add-selected) !important;
-}
-
-.add-button {
-    border-color: var(--theme-blue) !important;
-    background-color: var(--theme-add-unselected) !important;
-}
-
 .add-button:hover {
-    border-color: var(--theme-blue) !important;
-    background-color: var(--theme-add-selected) !important;
-    color: black !important;
-}
-
-.delete-button {
-    border-color: var(--theme-blue) !important;
-    background-color: var(--theme-pink) !important;
+    border-color: var(--theme-positive-selected) !important;
+    color: white !important;
 }
 
 .delete-button:hover {
-    border-color: var(--theme-dark-blue) !important;
-    background-color: var(--theme-red) !important;
+    border-color: var(--theme-negative-selected) !important;
+    color: white !important;
+}
+
+.change-button:hover {
+    border-color: var(--theme-change-selected) !important;
+    color: white !important;
 }
 
 .lti-button-option {
@@ -267,6 +263,6 @@ input, select {
     border-width: 0px;
     border-left-width: 20px;
     border-radius: 0px;
-    border-left-color: var(--theme-blue);
+    border-left-color: var(--theme-dark-grey);
 }
 </style>

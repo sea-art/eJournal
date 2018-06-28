@@ -14,10 +14,10 @@
 
         <b-card v-b-toggle.edag-outer target="edag-outer" aria-expanded="false" aria-controls="edag-outer" class="edag-toggle">
             <span class="edag-outer__icon edag-outer__icon--open">
-                <b>Show Timeline</b>
+                    <icon class="collapse-icon" name="list-ul" scale="1.75"></icon>
             </span>
             <span class="edag-outer__icon edag-outer__icon--close">
-                Hide Timeline
+                    <icon class="collapse-icon" name="caret-up" scale="1.75"></icon>
             </span>
         </b-card>
     </div>
@@ -25,6 +25,7 @@
 
 <script>
 import edagNode from '@/components/EdagNode'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     props: ['selected', 'nodes', 'edgeStyles', 'isInEditFormatPage'],
@@ -52,12 +53,30 @@ export default {
         }
     },
     components: {
-        'edag-node': edagNode
+        'edag-node': edagNode,
+        'icon': icon
     }
 }
 </script>
 
 <style>
+#edag-inner::-webkit-scrollbar {
+    display: none;
+}
+
+#edag-outer {
+    overflow: hidden;
+    height: 100%;
+}
+
+#edag-inner {
+    height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding-right: 40px;
+    margin-right: -20px;
+}
+
 @media (min-width: 1200px) {
     .edag-container {
         height: 100%;
@@ -65,19 +84,6 @@ export default {
 
     #edag-outer[style] {
         display: block !important;
-    }
-
-    #edag-outer {
-        overflow: hidden;
-        height: 100%;
-    }
-
-    #edag-inner {
-        height: 100%;
-        overflow-y: scroll;
-        overflow-x: hidden;
-        padding-right: 40px;
-        margin-right: -20px;
     }
 }
 
@@ -105,16 +111,30 @@ export default {
 
     .edag-toggle {
         margin-top: 10px;
-        width: 100%;
-        border-color: var(--theme-dark-blue);
+        border: 0px;
+        background-color: var(--theme-blue) !important;
+    }
+
+    .edag-toggle:hover {
+        background-color: var(--theme-blue) !important;
+    }
+
+    .edag-toggle:hover {
+        cursor: pointer
+    }
+
+    .edag-toggle .collapse-icon {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .edag-container {
         text-align: center;
     }
-}
 
-#edag-inner::-webkit-scrollbar {
-    display: none;
+    #edag-outer, #edag-inner {
+        max-height: 50vh;
+    }
 }
 </style>
