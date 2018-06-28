@@ -10,12 +10,10 @@
             <b-link :to="{name: 'Course', params: {cID: c.cID, courseName: c.name}}">
                 <main-card
                     :line1="c.name"
-                    :line2="'From - To (years eg: 2017 - 2018)'"
+                    :line2="c.date.substring(0, 4)"
                     :color="$root.colors[c.cID % $root.colors.length]">
                 </main-card>
             </b-link>
-        </div>
-        <div slot="main-content-column">
         </div>
         <main-card
             v-if="this.$root.canAddCourse()"
