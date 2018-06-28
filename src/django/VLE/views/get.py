@@ -398,7 +398,7 @@ def get_course_permissions(request, cID):
         return responses.unauthorized()
 
     try:
-        if cID >= 0:
+        if int(cID) >= 0:
             Course.objects.get(pk=cID)
     except Course.DoesNotExist:
         return responses.not_found('Course does not exist.')
