@@ -138,6 +138,7 @@ input, select {
     border-width: 0px;
     border-left-width: 20px;
     border-radius: 0px;
+    overflow: hidden;
 }
 
 .card-body {
@@ -180,7 +181,7 @@ input, select {
 }
 
 .showEnters {
-    white-space: pre;
+    white-space: pre-wrap;
 }
 
 .portrait-container {
