@@ -138,7 +138,6 @@ input, select {
     border-width: 0px;
     border-left-width: 20px;
     border-radius: 0px;
-    overflow: hidden;
 }
 
 .card-body {
