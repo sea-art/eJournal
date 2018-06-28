@@ -28,7 +28,7 @@
 
 <script>
 import Switch from '@/components/SwitchComponent.vue'
-import userAPI from '@/user.js'
+import userAPI from '@/api/user.js'
 
 export default {
     props: ['gradeUpdate', 'commentUpdate'],

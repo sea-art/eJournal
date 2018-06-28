@@ -51,7 +51,7 @@
 
 <script>
 import commentCard from '@/components/CommentCard.vue'
-import journalApi from '@/journal.js'
+import journalApi from '@/api/journal.js'
 
 export default {
     props: ['entryNode'],

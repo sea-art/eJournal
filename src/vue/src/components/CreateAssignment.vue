@@ -12,7 +12,7 @@
 
 <script>
 import ContentSingleColumn from '@/components/ContentSingleColumn.vue'
-import assignmentApi from '@/assignment.js'
+import assignmentApi from '@/api/assignment.js'
 
 export default {
     name: 'CreateAssignment',

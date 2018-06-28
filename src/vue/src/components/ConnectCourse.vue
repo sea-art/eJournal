@@ -13,7 +13,7 @@
 
 <script>
 import mainCard from '@/components/MainCard.vue'
-import courseApi from '@/course.js'
+import courseApi from '@/api/course.js'
 
 export default {
     name: 'ConnectCourse',

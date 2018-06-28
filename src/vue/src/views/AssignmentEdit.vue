@@ -24,7 +24,7 @@
 <script>
 import contentSingleColumn from '@/components/ContentSingleColumn.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
-import assignmentApi from '@/assignment.js'
+import assignmentApi from '@/api/assignment.js'
 
 export default {
     name: 'AssignmentEdit',

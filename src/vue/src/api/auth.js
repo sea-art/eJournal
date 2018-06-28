@@ -1,4 +1,4 @@
-import connection from '@/connection'
+import connection from '@/api/connection'
 import router from '@/router'
 import Vue from 'vue'
 

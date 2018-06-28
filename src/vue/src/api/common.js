@@ -1,4 +1,4 @@
-import auth from '@/auth'
+import auth from '@/api/auth'
 
 export default {
     /* Common file for multi-purpose api calls. */

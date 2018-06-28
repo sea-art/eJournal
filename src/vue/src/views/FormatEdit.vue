@@ -65,7 +65,7 @@ import edag from '@/components/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import formatEditAvailableTemplateCard from '@/components/FormatEditAvailableTemplateCard.vue'
 import formatEditSelectTemplateCard from '@/components/FormatEditSelectTemplateCard.vue'
-import journalAPI from '@/journal.js'
+import journalAPI from '@/api/journal.js'
 import templateEdit from '@/components/TemplateEdit.vue'
 
 export default {

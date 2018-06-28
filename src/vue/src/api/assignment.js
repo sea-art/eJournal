@@ -1,4 +1,4 @@
-import auth from '@/auth'
+import auth from '@/api/auth'
 
 export default {
     /* Get data of a cassignment specified with its ID. */

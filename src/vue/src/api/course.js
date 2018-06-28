@@ -1,4 +1,4 @@
-import auth from '@/auth'
+import auth from '@/api/auth'
 
 export default {
     /* Get data of a course specified with its ID. */

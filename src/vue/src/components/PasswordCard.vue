@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import auth from '@/auth'
+import auth from '@/api/auth'
 import alert from '@/components/Alert.vue'
 
 export default {

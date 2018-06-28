@@ -1,4 +1,4 @@
-import auth from '@/auth'
+import auth from '@/api/auth'
 
 export default {
     /* Get the user's permissions in a course. */

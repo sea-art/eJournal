@@ -49,8 +49,8 @@
 
 <script>
 import icon from 'vue-awesome/components/Icon'
-import authAPI from '@/auth.js'
-import userAPI from '@/user.js'
+import authAPI from '@/api/auth.js'
+import userAPI from '@/api/user.js'
 
 export default {
     components: {

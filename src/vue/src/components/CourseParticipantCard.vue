@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import courseApi from '@/course.js'
+import courseApi from '@/api/course.js'
 
 export default {
     props: {

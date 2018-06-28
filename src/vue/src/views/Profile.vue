@@ -16,7 +16,7 @@
 import contentColumns from '@/components/ContentColumns.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import profileCard from '@/components/ProfileCard.vue'
-import userAPI from '@/user.js'
+import userAPI from '@/api/user.js'
 
 export default {
     name: 'Profile',

@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import userAPI from '@/user.js'
+import userAPI from '@/api/user.js'
 export default {
     props: ['uname', 'id', 'image'],
     data () {
