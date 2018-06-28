@@ -53,7 +53,7 @@ export default {
      * if getsNotified is "false" the users WONT  get notified by mail when a grade changes.
      * else nothing changes (invalid argument).
      */
-    update_grade_notification (getsNotified) {
+    updateGradeNotification (getsNotified) {
         return auth.authenticatedPost('/update_grade_notification/', {
             new_value: getsNotified
         }).then(r => r.data.new_value)
@@ -64,7 +64,7 @@ export default {
      * if getsNotified is "false" the users WONT  get notified by mail when a there is a new comment.
      * else nothing changes (invalid argument).
      */
-    update_comment_notification (getsNotified) {
+    updateCommentNotification (getsNotified) {
         return auth.authenticatedPost('/update_comment_notification/', {
             new_value: getsNotified
         }).then(r => r.data.new_value)
