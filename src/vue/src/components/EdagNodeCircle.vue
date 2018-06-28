@@ -67,19 +67,19 @@ export default {
 }
 
 .edag-node-circle.enc-deadline {
-    background-color: var(--theme-peach)
+    background-color: var(--theme-change-selected)
 }
 
 .edag-node-circle.enc-deadline:hover {
-    background-color: var(--theme-dark-peach)
+    background-color: var(--theme-change-hover)
 }
 
 .edag-node-circle.enc-deadline.enc-selected {
-    background-color: var(--theme-dark-peach)
+    background-color: var(--theme-change-hover)
 }
 
 .edag-node-circle.enc-progress {
-    background-color: var(--theme-pink)
+    background-color: var(--theme-negative-selected)
 }
 
 .edag-node-circle.enc-progress:hover {

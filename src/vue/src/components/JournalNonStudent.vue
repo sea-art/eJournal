@@ -59,7 +59,6 @@
 
 <script>
 import contentColumns from '@/components/ContentColumns.vue'
-import entryNode from '@/components/EntryNode.vue'
 import entryNonStudentPreview from '@/components/EntryNonStudentPreview.vue'
 import addCard from '@/components/AddCard.vue'
 import edag from '@/components/Edag.vue'
@@ -226,7 +225,6 @@ export default {
         'bread-crumb': breadCrumb,
         'add-card': addCard,
         'edag': edag,
-        'entry-node': entryNode,
         'store': store
     },
     computed: {

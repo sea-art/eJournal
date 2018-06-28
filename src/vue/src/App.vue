@@ -20,20 +20,18 @@ export default {
 
 :root {
     --theme-dark-blue: #252C39;
-    --theme-peach: #E9A480;
     --theme-dark-peach: #dE8F3F;
-    --theme-light-grey: #EEEEEE;
-    --theme-dark-grey: #BBBBBB;
-    --theme-pink: #E64769;
-    --theme-blue: #22648A;
-    --theme-red: #c83b4b;
     --theme-medium-grey: #DEDEDE;
-    --theme-positive-unselected: #99ff99;
-    --theme-positive-selected: #1aff1a;
-    --theme-negative-unselected: #99ff99;
-    --theme-negative-selected: #1aff1a;
-    --theme-change-unselected: #99ff99;
-    --theme-change-selected: #1aff1a;
+    --theme-dark-grey: #BBBBBB;
+    --theme-light-grey: #EEEEEE;
+    --theme-peach: #E9A480;
+    --theme-blue: #22648A;
+    --theme-red: #82000e;
+    --theme-pink: #E64769;
+    --theme-positive-selected: #007E33;
+    --theme-negative-selected: #CC0000;
+    --theme-change-selected: #FF8800;
+    --theme-change-hover: #FF6600;
 }
 
 * {
@@ -215,28 +213,19 @@ input, select {
     cursor: pointer;
 }
 
-.add-button {
-    background-color: var(--theme-positive-unselected) !important;
-}
-
 .add-button:hover {
-    background-color: var(--theme-positive-selected) !important;
-}
-
-.delete-button {
-    background-color: var(--theme-negative-unselected) !important;
+    border-color: var(--theme-positive-selected) !important;
+    color: white !important;
 }
 
 .delete-button:hover {
-    background-color: var(--theme-negative-selected) !important;
-}
-
-.change-button {
-    background-color: var(--theme-change-unselected) !important;
+    border-color: var(--theme-negative-selected) !important;
+    color: white !important;
 }
 
 .change-button:hover {
-    background-color: var(--theme-change-selected) !important;
+    border-color: var(--theme-change-selected) !important;
+    color: white !important;
 }
 
 .lti-button-option {
@@ -274,6 +263,6 @@ input, select {
     border-width: 0px;
     border-left-width: 20px;
     border-radius: 0px;
-    border-left-color: var(--theme-blue);
+    border-left-color: var(--theme-dark-grey);
 }
 </style>

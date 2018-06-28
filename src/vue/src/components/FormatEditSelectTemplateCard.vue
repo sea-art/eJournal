@@ -35,7 +35,7 @@
                                 </b-form-select>
                                 <br><br>
                                 <div v-if="currentPreset !== null">
-                                    <h3>Preview</h3>
+                                    <h2>Preview</h2>
                                     <template-preview :template="currentPreset.template"/>
                                 </div>
                             </div>

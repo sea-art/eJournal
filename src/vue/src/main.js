@@ -36,6 +36,9 @@ new Vue({
              * TODO implement (will most likely require a lib) */
             return '1M 9D 9H'
         },
+        getBorderClass (cID) {
+            return this.colors[cID % this.colors.length]
+        },
 
         /* #############################################################
          *              Permissions,
