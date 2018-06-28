@@ -96,25 +96,25 @@ export default {
             case 'courseCreated':
                 this.handleCourseChoice = false
                 this.page.cID = args[1]
-                this.states.state = this.states.create_assign
                 this.$toasted.success('Course Created!')
+                this.states.state = this.states.create_assign
                 break
             case 'courseConnected':
                 this.handleCourseChoice = false
                 this.page.cID = args[1]
-                this.states.state = this.states.check_assign
                 this.$toasted.success('Course Connected!')
+                this.states.state = this.states.check_assign
                 break
             case 'assignmentIntegrated':
                 this.handleAssignmentChoice = false
-                this.states.state = this.states.finish_t
                 this.$toasted.success('Assignment Integrated!')
+                this.states.state = this.states.finish_t
                 break
             case 'assignmentCreated':
                 this.createAssignment = false
                 this.page.aID = args[1]
-                this.states.state = this.states.finish_t
                 this.$toasted.success('Assignment Created!')
+                this.states.state = this.states.finish_t
                 break
             }
         },
@@ -135,6 +135,8 @@ export default {
             case this.states.check_assign:
                 assignApi.get_assignment_by_lti_id(this.lti.ltiAssignID)
                     .then(response => {
+                        alert(Object.values(response))
+                        console.log(response);
                         if (response === undefined) {
                             this.states.state = this.states.new_assign
                         } else {
@@ -176,7 +178,7 @@ export default {
         }
     },
     watch: {
-        state: function (val) {
+        'states.state': function (val) {
             this.updateState(this.states.state)
         }
     },

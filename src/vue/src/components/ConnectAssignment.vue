@@ -29,12 +29,15 @@ export default {
                 .then(response => { this.assignments = response })
         },
         connectAssignment (aID) {
+            alert(this.lti.ltiPointsPossible)
             assignApi.connect_assignment_lti(aID, this.lti.ltiAssignID,
                 this.lti.ltiPointsPossible)
                 .then(response => { this.$emit('handleAction', response.aID) })
         }
     },
     created () {
+        alert(Object.values(this.lti))
+        alert(Object.keys(this.lti))
         this.loadAssignments()
     }
 }
