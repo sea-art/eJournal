@@ -32,10 +32,7 @@
                                               cID: cID,
                                               aID: aID,
                                               jID: journal.jID
-                                          }, query: {
-                                              sorted: selectedSortOption,
-                                              searched: searchVariable
-                                          }
+                                          }, query: query
                                         }">
 
                 <student-card
@@ -88,7 +85,8 @@ export default {
             stats: [],
             cardColor: '',
             selectedSortOption: 'sortName',
-            searchVariable: ''
+            searchVariable: '',
+            query: {}
         }
     },
     components: {
@@ -136,6 +134,15 @@ export default {
                 .catch(_ => {
                     this.$toasted.error('Error whilest publishing the grades for each journal.')
                 })
+        },
+        updateQuery () {
+            if (this.searchVariable !== '') {
+                this.query = {sorted: this.selectedSortOption, searched: this.searchVariable}
+            } else {
+                this.query = {sorted: this.selectedSortOption}
+            }
+
+            this.$router.replace({ query: this.query })
         }
     },
     computed: {
@@ -181,11 +188,7 @@ export default {
                 store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded))
             }
 
-            if (this.searchVariable !== '') {
-                this.$router.replace({ query: {sorted: this.selectedSortOption, searched: this.searchVariable} })
-            } else {
-                this.$router.replace({ query: {sorted: this.selectedSortOption} })
-            }
+            this.updateQuery()
 
             return store.state.filteredJournals.slice()
         }

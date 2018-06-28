@@ -57,7 +57,7 @@ import journal from '@/api/journal'
 import store from '@/Store.vue'
 
 export default {
-    props: ['jID'],
+    props: ['cID', 'aID', 'jID'],
     data () {
         return {
             currentNode: 0,
@@ -65,21 +65,20 @@ export default {
             nodes: [],
             newNodes: [],
             progressNodes: {},
-            filteredJournals: [],
+            assignmentJournals: [],
             selectedSortOption: 'sortName',
-            searchVariable: ''
+            searchVariable: '',
+            query: {}
         }
     },
     created () {
         journal.get_nodes(this.jID)
             .then(response => { this.nodes = response.nodes })
 
-        if (store.state.filteredJournals.length !== 0) {
-            this.filteredJournals = store.state.filteredJournals
-        } else {
+        if (store.state.filteredJournals.length === 0) {
             journal.get_assignment_journals(2)
                 .then(response => {
-                    this.filteredJournals = response.journals
+                    this.assignmentJournals = response.journals
                 })
 
             if (this.$route.query.sorted === 'sortName' ||
@@ -91,8 +90,6 @@ export default {
             if (this.$route.query.searched) {
                 this.searchVariable = this.$route.query.searched
             }
-
-            this.filteredJournals = this.filterJournals()
         }
     },
     watch: {
@@ -177,7 +174,27 @@ export default {
         bootstrapMd () {
             return this.windowHeight < 922
         },
-        filterJournals () {
+        updateQuery () {
+            if (this.searchVariable !== '') {
+                this.query = {sorted: this.selectedSortOption, searched: this.searchVariable}
+            } else {
+                this.query = {sorted: this.selectedSortOption}
+            }
+
+            this.$router.replace({ query: this.query })
+        }
+    },
+    components: {
+        'entry-non-student-preview': entryNonStudentPreview,
+        'content-columns': contentColumns,
+        'bread-crumb': breadCrumb,
+        'add-card': addCard,
+        'edag': edag,
+        'entry-node': entryNode,
+        'store': store
+    },
+    computed: {
+        filteredJournals: function () {
             let self = this
 
             function compareName (a, b) {
@@ -210,32 +227,21 @@ export default {
                 }
             }
 
-            /* Filter list based on search input. */
-            if (this.selectedSortOption === 'sortName') {
-                store.setFilteredJournals(this.filteredJournals.filter(checkFilter).sort(compareName))
-            } else if (this.selectedSortOption === 'sortID') {
-                store.setFilteredJournals(this.filteredJournals.filter(checkFilter).sort(compareID))
-            } else if (this.selectedSortOption === 'sortMarking') {
-                store.setFilteredJournals(this.filteredJournals.filter(checkFilter).sort(compareMarkingNeeded))
-            }
+            if (store.state.filteredJournals.length === 0) {
+                /* Filter list based on search input. */
+                if (this.selectedSortOption === 'sortName') {
+                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareName))
+                } else if (this.selectedSortOption === 'sortID') {
+                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareID))
+                } else if (this.selectedSortOption === 'sortMarking') {
+                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded))
+                }
 
-            if (this.searchVariable !== '') {
-                this.$router.replace({ query: {sorted: this.selectedSortOption, searched: this.searchVariable} })
-            } else {
-                this.$router.replace({ query: {sorted: this.selectedSortOption} })
+                this.updateQuery()
             }
 
             return store.state.filteredJournals.slice()
         }
-    },
-    components: {
-        'entry-non-student-preview': entryNonStudentPreview,
-        'content-columns': contentColumns,
-        'bread-crumb': breadCrumb,
-        'add-card': addCard,
-        'edag': edag,
-        'entry-node': entryNode,
-        'store': store
     }
 }
 </script>
