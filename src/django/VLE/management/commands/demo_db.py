@@ -26,33 +26,33 @@ class Command(BaseCommand):
                 "first_name": "Rick",
                 "last_name": "Hen",
                 "pass": "pass",
-                "is_admin": False
+                "is_superuser": False
             }, {
                 "username": "Teacher",
                 "first_name": "Marco",
                 "last_name": "Polo",
                 "pass": "pass",
-                "is_admin": False,
+                "is_superuser": False,
                 "is_teacher": True
             }, {
                 "username": "Admin",
                 "first_name": "Best",
                 "last_name": "Admin",
                 "pass": "pass",
-                "is_admin": True,
+                "is_superuser": True,
                 "is_teacher": True
             }, {
                 "username": "Student2",
                 "first_name": "Maarten",
                 "last_name": "van den Wijngaerd",
                 "pass": "pass",
-                "is_admin": False
+                "is_superuser": False
             },
         ]
 
         self.users = []
         for u in users_examples:
-            self.users.append(factory.make_user(u['username'], u['pass'], is_superuser=u['is_admin'],
+            self.users.append(factory.make_user(u['username'], u['pass'], is_superuser=u['is_superuser'],
                                                 first_name=u['first_name'], last_name=u['last_name']))
 
     def gen_courses(self):

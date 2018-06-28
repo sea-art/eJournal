@@ -14,7 +14,7 @@ def user_to_dict(user):
         'name': user.username,
         'email': user.email,
         'lti_id': user.lti_id,
-        'is_supersuer': user.is_superuser,
+        'is_superuser': user.is_superuser,
         'grade_notifications': user.grade_notifications,
         'comment_notifications': user.comment_notifications,
         'picture': user.profile_picture,

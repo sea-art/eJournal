@@ -107,7 +107,7 @@ class Role(models.Model):
         Course,
         on_delete=models.CASCADE
     )
-    # GLOBAL: is_admin
+    # GLOBAL: is_superuser
     # GLOBAL: can_edit_institute
 
     # Course permissions.
