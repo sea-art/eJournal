@@ -205,6 +205,6 @@ export default {
 }
 
 .eye-icon:hover {
-    fill: var(--theme-pink) !important;
+    fill: var(--theme-change-selected) !important;
 }
 </style>

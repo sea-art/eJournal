@@ -1,6 +1,9 @@
-<!-- Loads a preview of a template. -->
+<!--
+    Loads a preview of an Entry-Template and returns the filled in data to
+    the parrent once it's saved.
+-->
 <template>
-    <b-card class="card main-card no-hover" :class="'dark-border'">
+    <b-card class="card main-card no-hover" :class="$root.getBorderClass($route.params.cID)">
         <b-row>
             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                 <h2>{{template.name}}</h2>

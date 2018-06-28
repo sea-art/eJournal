@@ -2,7 +2,7 @@
     <b-container no-gutters>
         <b-row>
             <b-col>
-                <h3 class="profile-title">Email notification</h3><br/>
+                <h2 class="profile-title">Email notification</h2><br/>
             </b-col>
         </b-row>
         <b-row>

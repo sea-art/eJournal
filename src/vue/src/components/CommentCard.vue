@@ -1,3 +1,7 @@
+<!--
+    Component that will show all the comments of a given entry and support
+    the possibility to add comments when the right permissions are met.
+-->
 <template>
     <div>
         <div v-if="commentObject !== null">
@@ -8,8 +12,8 @@
                         <br><b>{{ comments.author.name }}</b>
                     </b-col>
                     <b-col cols="10">
-                        <b-card class="no-hover" :class="'pink-border'">
-                            {{ comments.text }}
+                        <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+                            <span class="showEnters">{{ comments.text }}</span>
                         </b-card>
                     </b-col>
                 </b-row>
@@ -22,7 +26,7 @@
                     <br><b>{{userData.name}}</b>
                 </b-col>
                 <b-col cols="10">
-                    <b-textarea v-model="tempComment" placeholder="Add your beautiful comment here"></b-textarea><br>
+                    <b-textarea v-model="tempComment" placeholder="Add your comment here" :class="$root.getBorderClass($route.params.cID)"></b-textarea><br>
                     <b-button @click="addComment">Add your comment</b-button>
                 </b-col>
             </b-row>
@@ -36,7 +40,6 @@ import entryApi from '@/api/entry.js'
 
 export default {
     props: ['eID'],
-
     data () {
         return {
             tempComment: '',

@@ -2,8 +2,8 @@
     <content-single-column>
         <bread-crumb>&nbsp;</bread-crumb>
         <b-card class="no-hover settings-card">
-            <h3>Manage course data</h3>
-            <b-form @submit="onSubmit">
+            <h2>Manage course data</h2>
+            <b-form @submit.prevent="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
                          v-model="course.name"
                          placeholder="Course name"
@@ -45,7 +45,7 @@
         </b-card>
 
         <b-card class="no-hover settings-card">
-            <h3>Manage course students</h3>
+            <h2>Manage course students</h2>
                 <b-row>
                     <b-col lg="3" sm="6">
                         <b-form-select v-model="selectedSortOption" :select-size="1">
@@ -99,6 +99,7 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 import contentSingleColumn from '@/components/ContentSingleColumn.vue'
 import courseParticipantCard from '@/components/CourseParticipantCard.vue'
 import courseApi from '@/api/course.js'
+import store from '@/Store'
 
 export default {
     name: 'CourseEdit',
@@ -141,6 +142,13 @@ export default {
                     this.course = response
                     this.pageName = this.course.name
                     this.$toasted.success('Updated course')
+                    store.clearCache()
+                    this.$router.push({
+                        name: 'Course',
+                        params: {
+                            cID: this.cID
+                        }
+                    })
                 })
         },
         deleteCourse () {

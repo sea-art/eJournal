@@ -50,7 +50,7 @@
                     :studentNumber="journal.student.uID"
                     :portraitPath="journal.student.picture"
                     :stats="journal.stats"
-                    :color="$root.colors[journal.uid % $root.colors.length]"
+                    :color="$root.colors[cID % $root.colors.length]"
                     :jID="journal.jID">
                 </student-card>
 
@@ -139,12 +139,12 @@ export default {
         publishGradesAssignment () {
             if (confirm('Are you sure you want to publish all grades for each journal?')) {
                 journal.update_publish_grades_assignment(this.aID, 1)
-                .then(_ => {
-                    this.$toasted.success('All the grades for each journal are published.')
-                })
-                .catch(_ => {
-                    this.$toasted.error('Error while publishing the grades for each journal.')
-                })
+                    .then(_ => {
+                        this.$toasted.success('All the grades for each journal are published.')
+                    })
+                    .catch(_ => {
+                        this.$toasted.error('Error while publishing the grades for each journal.')
+                    })
             }
         },
         updateQuery () {

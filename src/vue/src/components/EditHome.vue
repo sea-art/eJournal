@@ -1,5 +1,5 @@
 <template>
-    <b-form @submit="onSubmit" @reset="onReset">
+    <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
         <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" type="text" v-model="institueName" placeholder="Institute name"/>
         <!-- TODO less placeholdery -->
         <b-button class="float-right delete-button" type="reset">Reset</b-button>

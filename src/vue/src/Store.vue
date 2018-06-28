@@ -16,7 +16,7 @@ export default {
         this.state.format.nodes = nodes
     },
     setFilteredJournals (filteredJournals) {
-        console.log('setFilteredJournals triggered with', filteredJournals)
+        if (this.debug) { console.log('setFilteredJournals triggered with', filteredJournals) }
         this.state.filteredJournals = filteredJournals.slice()
     },
     clearFormat () {
@@ -27,6 +27,9 @@ export default {
     },
     debugOff () {
         this.debug = false
+    },
+    clearCache () {
+        this.state.cachedMap = []
     }
 }
 </script>

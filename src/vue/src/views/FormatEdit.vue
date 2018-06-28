@@ -9,10 +9,10 @@
     <b-row class="outer-container" no-gutters>
         <b-col v-if="bootstrapLg()" cols="12">
             <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
-            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
+            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :isInEditFormatPage="true"/>
         </b-col>
         <b-col v-else xl="3" class="left-content-format-edit">
-            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
+            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :isInEditFormatPage="true"/>
         </b-col>
 
         <b-col lg="12" xl="6" order="3" order-xl="2" class="main-content-format-edit">
@@ -23,7 +23,7 @@
             . -->
 
             <div v-if="nodes.length > 0">
-                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @deadline-changed="sortList" @delete-preset="deletePreset" @changed="isChanged = true" :color="$root.colors[aID % $root.colors.length]"/>
+                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @deadline-changed="sortList" @delete-preset="deletePreset" @changed="isChanged = true" :color="$root.colors[cID % $root.colors.length]"/>
             </div>
             <div v-else>
                 <p>No presets yet</p>
@@ -54,7 +54,7 @@
             <br/>
 
             <h3>Template Pool</h3>
-            <template-todo-card class="hover" v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate" :color="$root.colors[aID % $root.colors.length]"/>
+            <template-todo-card class="hover" v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate" :color="$root.colors[cID % $root.colors.length]"/>
             <b-card @click="showModal(newTemplate())" class="hover add-button" :class="'grey-border'" style="">
                 <b>+ Add Template</b>
             </b-card>
@@ -153,12 +153,7 @@ export default {
         sortList () {
             var temp = this.nodes[this.currentNode]
             this.nodes.sort((a, b) => { return new Date(a.deadline) - new Date(b.deadline) })
-            for (var i = 0; i < this.nodes.length; i++) {
-                if (this.nodes[i] === temp) {
-                    this.currentNode = i
-                    break
-                }
-            }
+            this.currentNode = this.nodes.indexOf(temp)
         },
         newTemplate () {
             return {
@@ -190,11 +185,19 @@ export default {
             return new Date().toISOString().split('T')[0].slice(0, 10) + ' ' + new Date().toISOString().split('T')[1].slice(0, 5)
         },
         addNode () {
-            this.nodes.push({
-                'type': 'd',
-                'deadline': this.newDate(),
-                'template': (this.templatePool[0]) ? this.templatePool[0].t : null
-            })
+            var newNode = {
+                'type': this.nodes[this.currentNode].type,
+                'deadline': this.nodes[this.currentNode].deadline
+            }
+
+            if (newNode.type === 'd') {
+                this.$set(newNode, 'template', this.nodes[this.currentNode].template)
+            } else {
+                this.$set(newNode, 'target', this.nodes[this.currentNode].target)
+            }
+
+            this.nodes.push(newNode)
+            this.currentNode = this.nodes.indexOf(newNode)
             this.sortList()
             this.isChanged = true
         },

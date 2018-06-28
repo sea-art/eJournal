@@ -4,7 +4,7 @@
             <img class="profile-portrait" :src="image">
         </b-col>
         <b-col lg="8" md="12">
-            <h3>User data</h3>
+            <h2>User data</h2>
             <b-form-input v-model="uname" type="text"></b-form-input>
             <span class="profile-data">Change profile picture</span>
             <b-form-file ref="file" v-on:change="updateProfilePicture" class="fileinput form-control" v-model="file" :state="Boolean(file)" placeholder="Upload profile picture..."></b-form-file>
