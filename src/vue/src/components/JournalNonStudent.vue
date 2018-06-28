@@ -115,7 +115,7 @@ export default {
         },
         updatedGrade (newNode) {
             this.nodes[this.currentNode].entry.grade = newNode.entry.grade
-            this.nodes[this.currentNode].entry.status = newNode.entry.published
+            this.nodes[this.currentNode].entry.published = newNode.entry.published
             for (var node of this.nodes) {
                 if (node.type === 'p') {
                     this.progressPoints(node)
