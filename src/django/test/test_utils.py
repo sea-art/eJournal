@@ -7,12 +7,12 @@ Test helper functions.
 from django.urls import reverse
 import json
 
-
+from VLE.models import Role
 import VLE.factory as factory
 
 
 def set_up_user_and_auth(username, password):
-    """Set up a teacher user.
+    """Set up a user.
 
     Arguments:
     username -- username for the user
@@ -22,6 +22,12 @@ def set_up_user_and_auth(username, password):
     """
     user = factory.make_user(username, password)
     return username, password, user
+
+
+def set_up_participation(user, course, role):
+    """Set up a student in a course."""
+    q_role = Role.objects.get(name=role, course=course)
+    return factory.make_participation(user, course, q_role)
 
 
 def set_up_users(name, n):
@@ -37,6 +43,25 @@ def set_up_users(name, n):
     for i in range(n):
         users.append(factory.make_user(name + str(i), 'pass'))
     return users
+
+
+def set_up_journal(assignment, template, user, n):
+    """Set up a journal for an user with n entries.
+
+    Arguments:
+    assignment -- the assignment of the journal
+    template -- the entry template for the entries
+    user -- the user of the journal
+    n -- number of entries
+
+    Returns a journal with entries attached.
+    """
+    journal = factory.make_journal(assignment, user)
+
+    for entry in set_up_entries(template, n):
+        factory.make_node(journal, entry)
+
+    return journal
 
 
 def set_up_entries(template, n):
@@ -130,6 +155,17 @@ def api_get_call(obj, url, login, status=200):
     return result
 
 
+def test_unauthorized_api_get_call(obj, url):
+    """Tests unauthorized api get calls.
+
+    Arguments
+    url -- url to send the call to
+    params -- extra parameters that the api needs
+    """
+    result = obj.client.get(url, {}, format='json')
+    obj.assertEquals(result.status_code, 401)
+
+
 def api_post_call(obj, url, params, login, status=200):
     """Send an get api call.
 
@@ -145,3 +181,14 @@ def api_post_call(obj, url, params, login, status=200):
                              HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access']))
     obj.assertEquals(result.status_code, status)
     return result
+
+
+def test_unauthorized_api_post_call(obj, url, params):
+    """Tests unauthorized api post calls.
+
+    Arguments
+    url -- url to send the call to
+    params -- extra parameters that the api needs
+    """
+    result = obj.client.post(url, json.dumps(params), content_type='application/json')
+    obj.assertEquals(result.status_code, 401)
