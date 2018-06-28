@@ -11,10 +11,14 @@ import VLE.serializers as serialize
 import VLE.utils as utils
 import VLE.permissions as permissions
 import VLE.factory as factory
-import re
+from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, \
+    User, Journal, EntryTemplate, Node, PresetNode
 import VLE.lti_grade_passback as lti_grade
-from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, Journal, \
-    User, EntryTemplate, Node, PresetNode
+
+from django.conf import settings
+import re
+import jwt
+import json
 
 
 @api_view(['POST'])
@@ -25,7 +29,7 @@ def connect_course_lti(request):
     request -- the update request that was send with
         lti_id -- lti_id that needs to be added to the course
 
-    Returns a json string for if it is succesful or not.
+    Returns a json string for if it is successful or not.
     """
     user = request.user
     if not user.is_authenticated:
@@ -35,7 +39,7 @@ def connect_course_lti(request):
     course.lti_id = request.data['lti_id']
     course.save()
 
-    return responses.succes(payload={'course': serialize.course_to_dict(course)})
+    return responses.success(payload={'course': serialize.course_to_dict(course)})
 
 
 @api_view(['POST'])
@@ -600,4 +604,50 @@ def update_user_data(request):
         user.profile_picture = request.data['picture']
 
     user.save()
+    return responses.success(payload={'user': serialize.user_to_dict(user)})
+
+
+@api_view(['POST'])
+def update_lti_id_to_user(request):
+    """Create a new user with lti_id.
+
+    Arguments:
+    request -- the request
+        username -- username of the new user
+        password -- password of the new user
+        first_name -- first_name (optinal)
+        last_name -- last_name (optinal)
+        email -- email (optinal)
+        jwt_params -- jwt params to get the lti information from
+            user_id -- id of the user
+            user_image -- user image
+            roles -- role of the user
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    if not request.data['jwt_params']:
+        return responses.bad_request()
+
+    lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
+
+    user_id, user_image = lti_params['user_id'], lti_params['user_image']
+    is_teacher = json.load(open('config.json'))['Teacher'] == lti_params['roles']
+    first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
+
+    if first_name is not None:
+        user.first_name = first_name
+    if last_name is not None:
+        user.last_name = last_name
+    if email is not None:
+        user.email = email
+    if user_image is not None:
+        user.profile_picture = user_image
+    if is_teacher:
+        user.is_teacher = is_teacher
+
+    user.lti_id = user_id
+    user.save()
+
     return responses.success(payload={'user': serialize.user_to_dict(user)})

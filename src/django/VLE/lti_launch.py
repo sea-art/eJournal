@@ -75,6 +75,24 @@ class OAuthRequestValidater(object):
         return validator.is_valid(request)
 
 
+def check_user_lti(request, roles):
+    """Check is an user with the lti_id exists"""
+    lti_user_id = request['user_id']
+
+    users = User.objects.filter(lti_id=lti_user_id)
+    if users.count() > 0:
+        user = users[0]
+        if 'user_image' in request:
+            user.profile_picture = request['user_image']
+            user.save()
+
+        if roles['Teacher'] in request:
+            user.is_teacher = True
+            user.save()
+        return user
+    return None
+
+
 def select_create_user(request, roles):
     """
     Returns the user of the lti_user_id in the request. If the user does not
@@ -126,7 +144,7 @@ def create_lti_query_link(names, values):
     returns the link
     """
     link = settings.BASELINK
-    link += '/LtiLaunch'
+    link += '/LtiLogin'
     start = '?'
     for i, name in enumerate(names):
         link += start + name + '={0}'.format(values[i])
@@ -135,6 +153,7 @@ def create_lti_query_link(names, values):
 
 
 def check_course_lti(request, user, role):
+    """Check is an course with the lti_id exists"""
     course_id = request['context_id']
     courses = Course.objects.filter(lti_id=course_id)
 
@@ -147,6 +166,7 @@ def check_course_lti(request, user, role):
 
 
 def check_assignment_lti(request):
+    """Check is an assignment with the lti_id exists"""
     assign_id = request['resource_link_id']
     assignments = Assignment.objects.filter(lti_id=assign_id)
     if assignments.count() > 0:
