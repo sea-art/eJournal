@@ -36,7 +36,7 @@ export default {
             .then(response => {
                 this.deadlines = response
             })
-            .catch(_ => alert('Error while loading deadlines'))
+            .catch(_ => this.$toasted.error('Error while loading deadlines'))
     },
     components: {
         'content-columns': contentColumns,

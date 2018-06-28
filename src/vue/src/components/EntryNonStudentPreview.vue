@@ -78,6 +78,9 @@ export default {
         },
         'entryNode.entry.published': function () {
             this.status = this.entryNode.entry.published
+        },
+        'entryNode.entry.grade': function () {
+            this.grade = this.entryNode.entry.grade
         }
     },
     created () {

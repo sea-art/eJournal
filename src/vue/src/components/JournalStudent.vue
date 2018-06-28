@@ -19,7 +19,12 @@
                         <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                     </div>
                     <div v-else>
-                        <entry-preview ref="entry-template-card" @content-template="fillDeadline" :template="nodes[currentNode].template"/>
+                        <div v-if="checkDeadline()">
+                            <entry-preview ref="entry-template-card" @content-template="fillDeadline" :template="nodes[currentNode].template"/>
+                        </div>
+                        <div v-else>
+                            The deadline has passed, you can't make another submission
+                        </div>
                     </div>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'a'">
@@ -139,6 +144,12 @@ export default {
             }
 
             this.progressNodes[progressNode.nID] = tempProgress
+        },
+        checkDeadline () {
+            var currentDate = new Date()
+            var deadline = new Date(this.nodes[this.currentNode].deadline)
+
+            return currentDate <= deadline
         },
         bootstrapLg () {
             return this.windowHeight < 1200

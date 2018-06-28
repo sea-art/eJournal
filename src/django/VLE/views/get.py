@@ -34,14 +34,6 @@ GRADE_CENTER = '6'
 
 
 @api_view(['GET'])
-def check_valid_token(request):
-    """Check if the token is a valid token."""
-    if not request.user.is_authenticated:
-        return responses.unauthorized()
-    return responses.success()
-
-
-@api_view(['GET'])
 def get_own_user_data(request):
     """Get the data linked to the logged in user.
 

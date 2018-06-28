@@ -12,7 +12,7 @@
             <bread-crumb v-if="!bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
-                    <entry-non-student-preview ref="entry-template-card" :entryNode="nodes[currentNode]"/>
+                    <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'd'">
                     <entry-non-student-preview v-if="nodes[currentNode].entry !== null" ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
@@ -114,7 +114,8 @@ export default {
             this.progressNodes[progressNode.nID] = tempProgress.toString()
         },
         updatedGrade (newNode) {
-            this.nodes[this.currentNode] = newNode
+            this.nodes[this.currentNode].entry.grade = newNode.entry.grade
+            this.nodes[this.currentNode].entry.published = newNode.entry.published
             for (var node of this.nodes) {
                 if (node.type === 'p') {
                     this.progressPoints(node)

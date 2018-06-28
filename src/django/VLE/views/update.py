@@ -14,7 +14,7 @@ import VLE.factory as factory
 import re
 import VLE.lti_grade_passback as lti_grade
 from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, Journal, \
-    User, EntryTemplate, Node, PresetNode
+    User
 
 
 @api_view(['POST'])
@@ -71,6 +71,12 @@ def update_course(request):
         return responses.unauthorized()
 
     try:
+        cID, name, abbr = utils.required_params(request.data, 'cID', 'name', 'abbr')
+        startdate, enddate = utils.required_params(request.data, 'startdate', 'enddate')
+    except KeyError:
+        return responses.keyerror('cID', 'name', 'abbr', 'startdate', 'enddate')
+
+    try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
         return responses.not_found('Course')
@@ -81,10 +87,12 @@ def update_course(request):
     elif not role.can_edit_course:
         return responses.forbidden('You cannot edit this course.')
 
-    course.name = request.data['name']
-    course.abbreviation = request.data['abbr']
-    course.startdate = request.data['startDate']
+    course.name = name
+    course.abbreviation = abbr
+    course.startdate = startdate
+    course.enddate = enddate
     course.save()
+
     return responses.success(payload={'course': serialize.course_to_dict(course)})
 
 
@@ -258,12 +266,12 @@ def update_password(request):
     except KeyError:
         return responses.KeyError('new_password', 'old_password')
 
-    if not user.is_authenticated or not user.check_password(password):
+    if not user.is_authenticated or not user.check_password(old_password):
         return responses.unauthorized('Wrong password.')
 
     if len(new_password) < 8:
         return responses.bad_request('Password needs to contain at least 8 characters.')
-    if new_password == password.lower():
+    if new_password == new_password.lower():
         return responses.bad_request('Password needs to contain at least 1 capital letter.')
     if re.match(r'^\w+$', new_password):
         return responses.bad_request('Password needs to contain a special character.')
@@ -405,7 +413,7 @@ def update_user_role_course(request):
 
 
 @api_view(['POST'])
-def update_grade_entry(request, eID):
+def update_grade_entry(request):
     """Update the entry grade.
 
     Arguments:
@@ -449,12 +457,12 @@ def update_grade_entry(request, eID):
 
 
 @api_view(['POST'])
-def update_publish_grade_entry(request, eID):
+def update_publish_grade_entry(request):
     """Update the grade publish status for one entry.
 
     Arguments:
     request -- the request that was send with
-    eID -- the entry id
+        eID -- the entry id
 
     Returns a json string if it was successful or not.
     """
@@ -488,20 +496,33 @@ def update_publish_grade_entry(request, eID):
 
 
 @api_view(['POST'])
-def update_publish_grades_assignment(request, aID):
+def update_publish_grades_assignment(request):
     """Update the grade publish status for whole assignment.
 
     Arguments:
     request -- the request that was send with
-    aID -- assignment ID
+        published -- new published state
+        aID -- assignment ID
 
     Returns a json string if it was successful or not.
     """
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
-    assign = Assignment.objects.get(pk=aID)
-    utils.publish_all_assignment_grades(assign, request.data['published'])
+    try:
+        published, aID = utils.required_params(request.data, 'published', 'aID')
+    except KeyError:
+        return responses.keyerror('aID')
+
+    try:
+        assign = Assignment.objects.get(pk=aID)
+    except Assignment.DoesNotExist:
+        return responses.not_found('Assignment')
+
+    if not permissions.has_assignment_permission(request.user, assign, 'can_publish_journal_grades'):
+        return responses.forbidden('You cannot publish assignments.')
+
+    utils.publish_all_assignment_grades(assign, aID)
 
     for journ in Journal.objects.filter(assignment=assign):
         if journ.sourcedid is not None and journ.grade_url is not None:
@@ -509,25 +530,37 @@ def update_publish_grades_assignment(request, aID):
         else:
             payload = dict()
 
-    payload['new_published'] = request.data['published']
+    payload['new_published'] = published
     return responses.success(payload=payload)
 
 
 @api_view(['POST'])
-def update_publish_grades_journal(request, jID):
+def update_publish_grades_journal(request):
     """Update the grade publish status for a journal.
 
     Arguments:
     request -- the request that was send with
         published -- publish state of grade
-    jID -- journal ID
+        jID -- journal ID
 
     Returns a json string if it was successful or not.
     """
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
-    journ = Journal.objects.get(pk=jID)
+    try:
+        published, jID = utils.required_params(request.data, 'published', 'jID')
+    except KeyError:
+        return responses.keyerror('published', 'jID')
+
+    try:
+        journ = Journal.objects.get(pk=jID)
+    except Journal.DoesNotExist:
+        return responses.DoesNotExist('Journal')
+
+    if not permissions.has_assignment_permission(request.user, journ.assign, 'can_publish_journal_grades'):
+        return responses.forbidden('You cannot publish assignments.')
+
     utils.publish_all_journal_grades(journ, request.data['published'])
 
     if journ.sourcedid is not None and journ.grade_url is not None:
@@ -562,6 +595,11 @@ def update_entrycomment(request):
         comment = EntryComment.objects.get(pk=entrycommentID)
     except EntryComment.DoesNotExist:
         return responses.not_found('Entrycomment does not exist.')
+
+    if not permissions.has_assignment_permission(request.user, comment.entry.node.journal.assign,
+                                                 'can_comment_journal'):
+        return responses.forbidden('You cannot comment on entries.')
+
     comment.text = text
     comment.save()
     return responses.success()

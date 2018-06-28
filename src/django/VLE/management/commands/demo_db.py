@@ -49,7 +49,9 @@ class Command(BaseCommand):
         self.courses = []
         for c in courses_examples:
             startdate = faker.date_this_decade(before_today=True)
-            course = factory.make_course(c["name"], c["abbr"], startdate, self.users[random.choice(c["teachers"])])
+            enddate = faker.date_this_decade(before_today=False)
+            teacher = self.users[random.choice(c["teachers"])]
+            course = factory.make_course(c["name"], c["abbr"], startdate, enddate, teacher)
             role = Role.objects.get(name='Student', course=course)
             for sid in c["students"]:
                 student = self.users[sid]
