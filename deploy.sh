@@ -87,7 +87,7 @@ sudo sed -i "s@{{DATABASE_USER}}@${DATABASE_USER}@g" ${TARGET}/django/VLE/settin
 sudo sed -i "s@{{DATABASE_PASSWORD}}@${DATABASE_PASSWORD}@g" ${TARGET}/django/VLE/settings/production.py
 sudo sed -i "s@{{DATABASE_PORT}}@${DATABASE_PORT}@g" ${TARGET}/django/VLE/settings/production.py
 sudo sed -i "s@{{DATABASE_HOST}}@${DATABASE_HOST}@g" ${TARGET}/django/VLE/settings/production.py
-sudo sed -i "s@{{BASELINK}}@${SERVERNAME}:${PORT}${HOOKPOINT}@g" ${TARGET}/django/VLE/settings/production.py
+sudo sed -i "s@{{BASELINK}}@${TYPE}://${SERVERNAME}:${PORT}${HOOKPOINT}@g" ${TARGET}/django/VLE/settings/production.py
 
 sudo sed -i "s'{{SECRET_KEY}}'${SECRET_KEY}'g" ${TARGET}/django/VLE/settings/production.py
 sudo sed -i "s'{{LTI_SECRET}}'${LTI_SECRET}'g" ${TARGET}/django/VLE/settings/production.py
