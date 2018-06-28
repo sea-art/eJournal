@@ -31,7 +31,6 @@
                     <div v-if="$root.canGradeJournal()">
                         <br>
                         Fill in the grade:<br>
-                        {{status}}
                         <b-form-input type="number" v-model="grade" placeholder="Grade"></b-form-input>
                         <b-form-checkbox v-model="status" value=true unchecked-value=false>
                             Show grade to student
@@ -125,21 +124,21 @@ export default {
                 if (this.status === 'true') {
                     journalApi.update_grade_entry(this.entryNode.entry.eID, this.grade, 1)
                         .then(_ => {
-                            this.$toasted.success('Oh yeah! grade updated1')
+                            this.$toasted.success('Oh yeah! grade updated with visibility')
                             this.$emit('check-grade')
                         })
                         .catch(_ => {
-                            this.$toasted.error('Oh no! something went wrong1')
+                            this.$toasted.error('Oh no! something went wrong')
                         })
                 } else {
                     journalApi.update_grade_entry(this.entryNode.entry.eID,
                         this.grade, 0)
                         .then(_ => {
-                            this.$toasted.success('Oh yeah! grade updated2')
+                            this.$toasted.success('Oh yeah! grade updated without visibility')
                             this.$emit('check-grade')
                         })
                         .catch(_ => {
-                            this.$toasted.error('Oh no! something went wrong1')
+                            this.$toasted.error('Oh no! something went wrong')
                         })
                 }
             }
