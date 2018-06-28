@@ -25,7 +25,7 @@
             :line1="'+ Add course'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
-        <div v-for="(d, i) in computedDeadlines" :key="d.aID" slot="right-content-column">
+        <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
             <b-link tag="b-button" :to="journalRoute(d.cID, d.aID, d.jID, d.name)">
                 <todo-card
                     :date="d.deadline.Date"
@@ -93,7 +93,6 @@ export default {
 
         assignmentApi.get_upcoming_deadlines()
             .then(response => {
-                console.log(response)
                 this.deadlines = response
             })
             .catch(_ => alert('Error while loading deadlines'))
@@ -178,8 +177,10 @@ export default {
 
             topList = this.deadlines.slice().sort(compareDate).filter(filterTop)
 
-            for (var i = 0; i < topList.length; i++) {
-                this.addMarkingList(topList[i].aID)
+            if (this.$root.permissions.canAddCourse) {
+                for (var i = 0; i < topList.length; i++) {
+                    this.addMarkingList(topList[i].aID)
+                }
             }
 
             return topList
