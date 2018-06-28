@@ -13,7 +13,7 @@
                     </b-col>
                     <b-col cols="10">
                         <b-card class="no-hover" :class="'pink-border'">
-                            {{ comments.text }}
+                            <span class="showEnters">{{ comments.text }}</span>
                         </b-card>
                     </b-col>
                 </b-row>
