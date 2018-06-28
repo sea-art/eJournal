@@ -121,9 +121,6 @@ def create_entry(request):
     try:
         journal = Journal.objects.get(pk=jID, user=request.user)
 
-        if journal.sourcedid is not None and journal.grade_url is not None:
-            lti_grade.needs_grading(journal)
-
         template = EntryTemplate.objects.get(pk=tID)
 
         # TODO: Check if node can still be created (deadline passed? graded?)
@@ -151,6 +148,9 @@ def create_entry(request):
         else:
             entry = factory.make_entry(template)
             node = factory.make_node(journal, entry)
+
+        if journal.sourcedid is not None and journal.grade_url is not None:
+            lti_grade.needs_grading(journal, node.id)
 
         for content in content_list:
             data = content['data']
