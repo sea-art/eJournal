@@ -158,7 +158,6 @@ def get_user_courses(request):
 
     for course in user.participations.all():
         courses.append(serialize.course_to_dict(course))
-
     return responses.success(payload={'courses': courses})
 
 
@@ -351,6 +350,10 @@ def create_teacher_assignment_deadline(course, assignment):
     totalNeedsMarking = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
 
     format = serialize.format_to_dict(assignment.format)
+    print(len(format['presets']))
+    if len(format['presets']) == 0:
+        return {}
+
     deadline_data = format['presets'][0]['deadline']
     splitted_deadline = deadline_data.split(' ')
     deadline = [splitted_deadline[0],
@@ -380,8 +383,15 @@ def create_student_assignment_deadline(user, course, assignment):
 
     Returns a dictionary with information of the assignment deadline.
     """
-    journal = Journal.objects.get(assignment=assignment, user=user)
+    try:
+        journal = Journal.objects.get(assignment=assignment, user=user)
+    except Journal.DoesNotExist:
+        return {}
+
     deadlines = journal.node_set.exclude(preset=None).values('preset__deadline')
+    if len(deadlines) == 0:
+        return {}
+
     # Gets the node with the earliest deadline
     future_deadline = deadlines.filter(preset__deadline__gte=datetime.now()).order_by('preset__deadline')[0]
     future_deadline = {'Date': future_deadline['preset__deadline'].date(),
@@ -425,12 +435,14 @@ def get_upcoming_deadlines(request):
 
         if role.can_grade_journal:
             for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
-                # Appends the earliest deadline of the assignment to the deadline list
-                deadline_list.append(create_teacher_assignment_deadline(course, assignment))
+                deadline = create_teacher_assignment_deadline(course, assignment)
+                if deadline:
+                    deadline_list.append(deadline)
         else:
             for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
-                # Appends the earliest deadline of the assignment to the deadline list
-                deadline_list.append(create_student_assignment_deadline(user, course, assignment))
+                deadline = create_student_assignment_deadline(user, course, assignment)
+                if deadline:
+                    deadline_list.append(deadline)
 
     return responses.success(payload={'deadlines': deadline_list})
 
@@ -464,9 +476,13 @@ def get_upcoming_course_deadlines(request, cID):
             return responses.forbidden('You are not in this course.')
 
         if role.can_grade_journal:
-            deadline_list.append(create_teacher_assignment_deadline(course, assignment))
+            deadline = create_teacher_assignment_deadline(course, assignment)
+            if deadline:
+                deadline_list.append(deadline)
         else:
-            deadline_list.append(create_student_assignment_deadline(user, course, assignment))
+            deadline = create_student_assignment_deadline(user, course, assignment)
+            if deadline:
+                deadline_list.append(deadline)
 
     return responses.success(payload={'deadlines': deadline_list})
 
