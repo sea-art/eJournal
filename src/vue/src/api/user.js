@@ -11,7 +11,9 @@ export default {
             last_name: lastname,
             email: email,
             jwt_params: jwtParams
-        }).then(response => response.data.user)
+        }).then(response => {
+            localStorage.setItem("peop", "afasd")
+            response.data.user })
     },
 
     /* Update user data with lti credentials. */

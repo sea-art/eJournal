@@ -15,6 +15,7 @@
 <script>
 import auth from '@/api/auth.js'
 import userApi from '@/api/user.js'
+import router from '@/router'
 
 export default {
     name: 'RegisterUser',
