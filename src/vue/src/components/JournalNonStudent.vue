@@ -58,7 +58,12 @@ export default {
     },
     created () {
         journal.get_nodes(this.jID)
-            .then(response => { this.nodes = response.nodes })
+            .then(response => {
+                this.nodes = response.nodes
+                if (this.$route.query.nID !== undefined) {
+                    this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
+                }
+            })
     },
     watch: {
         currentNode: function () {
@@ -135,6 +140,15 @@ export default {
                     node.entry.published = true
                 }
             }
+        },
+        findEntryNode (nodeID) {
+            for (var i = 0; i < this.nodes.length; i++) {
+                if (this.nodes[i].nID === nodeID) {
+                    return i
+                }
+            }
+
+            return 0
         },
         bootstrapLg () {
             return this.windowHeight < 1200

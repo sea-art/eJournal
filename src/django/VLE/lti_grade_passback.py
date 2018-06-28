@@ -77,12 +77,12 @@ class GradePassBackRequest(object):
 
         if self.result_data:
             data = ET.SubElement(result, 'resultData')
-            if 'text' in self.result_data:
-                data_text = ET.SubElement(data, 'text')
-                data_text.text = self.result_data['text']
             if 'url' in self.result_data:
                 data_url = ET.SubElement(data, 'url')
                 data_url.text = self.result_data['url']
+            if 'text' in self.result_data:
+                data_text = ET.SubElement(data, 'text')
+                data_text.text = self.result_data['text']
             if 'launchUrl' in self.result_data:
                 launch_url = ET.SubElement(data, 'ltiLaunchUrl')
                 launch_url.text = self.result_data['launchUrl']
@@ -149,7 +149,7 @@ class GradePassBackRequest(object):
                 'description': description}
 
 
-def needs_grading(journal):
+def needs_grading(journal, nID):
     """Give the teacher a needs grading notification in lti instancie."""
     secret = settings.LTI_SECRET
     key = settings.LTI_KEY
@@ -159,7 +159,8 @@ def needs_grading(journal):
     cID = str(journal.assignment.courses.first().pk)
 
     # TODO create custom link for submission
-    result_data = {'url': settings.BASELINK + '/Home/Course/' + cID + '/Assignment/' + aID + '/Journal/' + jID}
+    result_data = {'url': settings.BASELINK + '/Home/Course/' + cID +
+                   '/Assignment/' + aID + '/Journal/' + jID + '?nID=' + str(nID)}
 
     grade_request = GradePassBackRequest(key, secret, journal, result_data=result_data)
     response = grade_request.send_post_request()

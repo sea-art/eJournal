@@ -63,6 +63,7 @@ export default {
     props: ['selected', 'nodes', 'edgeStyles'],
     methods: {
         isSelected (id) {
+            console.log(this.selected)
             return id === this.selected
         },
         upperEdgeStyle (nodeIndex) {
