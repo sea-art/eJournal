@@ -49,6 +49,7 @@ export default {
         }
     },
     mounted () {
+        console.log('State: ' + this.$route.query.state);
         if (this.$route.query.state === this.states.bad_auth) {
             router.push({
                 name: 'ErrorPage',

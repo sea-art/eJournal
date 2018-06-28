@@ -109,7 +109,7 @@ router.beforeEach((to, from, next) => {
 
     /* If undefined, this means this is a hard refresh, therefore we have to call up the state. */
     if (router.app.validToken === undefined) {
-        authAPI.testValidToken()
+        authAPI.testValidToken().catch(_ => console.error('Token not valid'))
     }
 
     if (to.matched.length === 0) {
@@ -127,7 +127,7 @@ router.beforeEach((to, from, next) => {
                 .then(_ => next({name: 'Home'}))
                 .catch(_ => next())
         }
-    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register'].includes(to.name)) {
+    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage'].includes(to.name)) {
         return next()
     } else if (to.name === 'Assignment') {
         if (!router.app.canViewAssignmentParticipants()) {
@@ -149,7 +149,7 @@ router.beforeEach((to, from, next) => {
             router.app.permissions = response
         })
         .catch(_ => {
-            this.$toasted.error('Error while loading permissions.')
+            router.app.$toasted.error('Error while loading permissions.')
         })
 
     next()
