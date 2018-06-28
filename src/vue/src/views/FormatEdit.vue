@@ -180,7 +180,7 @@ export default {
         addNode () {
             var newNode = {
                 'type': this.nodes[this.currentNode].type,
-                'deadline': this.nodes[this.currentNode].deadline,
+                'deadline': this.nodes[this.currentNode].deadline
             }
 
             if (newNode.type === 'd') {
