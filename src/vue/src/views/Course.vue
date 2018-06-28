@@ -127,7 +127,7 @@ export default {
                 .then(response => {
                     this.needsMarkingStats.push(response.stats.needsMarking)
                 })
-                .catch(_ => alert('Error while loading journals'))
+                .catch(_ => this.$toasted.error('Error while loading journals'))
         },
         assignmentRoute (cID, aID, name, journal) {
             if (this.$root.canViewAssignmentParticipants()) {
