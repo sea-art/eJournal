@@ -126,7 +126,7 @@ export default {
 
         window.addEventListener('beforeunload', e => {
             if (this.$route.name === 'FormatEdit' && this.isChanged) {
-                var dialogText = 'Oh no! Unsaved changes will be lost if you leave. Do you wish to continue?'
+                var dialogText = 'Unsaved changes will be lost if you leave. Do you wish to continue?'
                 e.returnValue = dialogText
                 return dialogText
             }
@@ -369,7 +369,7 @@ export default {
 
     // Prompts user
     beforeRouteLeave (to, from, next) {
-        if (this.isChanged && !confirm('Oh no! Unsaved changes will be lost if you leave. Do you wish to continue?')) {
+        if (this.isChanged && !confirm('Unsaved changes will be lost if you leave. Do you wish to continue?')) {
             next(false)
             return
         }
