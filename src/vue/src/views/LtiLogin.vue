@@ -49,7 +49,7 @@ export default {
         }
     },
     mounted () {
-        console.log('State: ' + this.$route.query.state);
+        console.log('State: ' + this.$route.query.state)
         if (this.$route.query.state === this.states.bad_auth) {
             router.push({
                 name: 'ErrorPage',
@@ -93,9 +93,10 @@ export default {
                 router.push({
                     name: 'ErrorPage',
                     params: {
-                        code: '400',
-                        message: 'Bad request',
-                        description: `Received invalid state from the server.
+                        code: '500',
+                        message: 'Internal Server Error',
+                        description: `Received invalid state from the server
+                                      when trying to integrate the new user.
                                       Please contact your system administrator
                                       for more information. Further integration
                                       is not possible.`

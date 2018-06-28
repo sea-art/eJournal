@@ -41,9 +41,29 @@ export default {
                         .then(_ => {
                             this.$emit('handleAction')
                         })
-                        .catch(_ => alert('Could not login'))
+                        .catch(_ => {
+                            router.push({
+                                name: 'ErrorPage',
+                                params: {
+                                    code: '511',
+                                    message: 'Network authorization required',
+                                    description: `Invalid credentials for logging in.
+                                                  Please contact your system administrator.`
+                                }
+                            })
+                        })
                 })
-                .catch(_ => alert('Error while creating user'))
+                .catch(_ => {
+                    router.push({
+                        name: 'ErrorPage',
+                        params: {
+                            code: '500',
+                            message: 'Internal Server Error',
+                            description: `Could not create user. Please contact
+                                          your system administrator.`
+                        }
+                    })
+                })
         },
         onReset (evt) {
             if (evt !== undefined) {
