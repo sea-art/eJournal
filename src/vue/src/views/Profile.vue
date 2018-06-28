@@ -1,7 +1,7 @@
 <template>
     <content-columns>
-        <bread-crumb @eye-click="customisePage" slot="main-content-column" :currentPage="'Settings'"></bread-crumb>
-
+        <bread-crumb @eye-click="customisePage" slot="main-content-column"/>
+        <p slot="main-content-column">{{ profile }}</p>
         <profile-card slot="main-content-column"
                       :uname="profile.name"
                       :image="profile.picture"

@@ -1,7 +1,7 @@
 <template>
     <b-row>
         <b-col lg="4" md="12">
-            <img :src="image">
+            <img class="profile-portrait" :src="image">
         </b-col>
         <b-col lg="8" md="12">
             <h3>User data</h3>
@@ -60,9 +60,8 @@ export default {
 </script>
 
 <style>
-.profile-picture {
-    position: relative;
-    width: 50%;
+.profile-portrait {
+    max-height: 250px;
 }
 
 .fileinput {
