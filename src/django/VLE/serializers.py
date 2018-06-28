@@ -223,6 +223,7 @@ def content_to_dict(content):
 def format_to_dict(format):
     """Convert format to dictionary."""
     return {
+        'max_points': format.max_points,
         'unused_templates': [template_to_dict(template) for template in format.unused_templates.all()],
         'templates': [template_to_dict(template) for template in format.available_templates.all()],
         'presets': [preset_to_dict(preset) for preset in format.presetnode_set.all().order_by('deadline')],
