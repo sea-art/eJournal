@@ -9,7 +9,7 @@
                 <b-row>
                     <b-col cols="2">
                         <img class="profilePic" id="nav-profile-image" slot="button-content" :src="comments.author.picture">
-                        <br><b>{{ comments.author.name }}</b>
+                        <br><b>{{ comments.author.first_name + ' ' + userData.last_name }}</b>
                     </b-col>
                     <b-col cols="10">
                         <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
@@ -23,7 +23,7 @@
             <b-row>
                 <b-col cols="2">
                     <img class="profilePic" id="nav-profile-image" slot="button-content" :src="userData.picture">
-                    <br><b>{{userData.name}}</b>
+                    <br><b>{{userData.first_name + ' ' + userData.last_name}}</b>
                 </b-col>
                 <b-col cols="10">
                     <b-textarea v-model="tempComment" placeholder="Add your comment here" :class="$root.getBorderClass($route.params.cID)"></b-textarea><br>
@@ -71,7 +71,7 @@ export default {
                 this.commentObject.entrycomments.push({
                     entrtyID: this.eID,
                     author: {
-                        name: this.userData.name,
+                        name: this.userData.first_name + ' ' + this.userData.last_name,
                         picture: this.userData.picture
                     },
                     text: this.tempComment

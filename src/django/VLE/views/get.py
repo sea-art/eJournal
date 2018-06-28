@@ -590,7 +590,7 @@ def get_names(request):
             if not (journal.user == user or permissions.has_assignment_permission(user,
                     journal.assignment, 'can_view_assignment_participants')):
                 return responses.forbidden('You are not allowed to view journals of other participants.')
-            result['journal'] = journal.user.username
+            result['journal'] = journal.user.first_name + " " + journal.user.last_name
 
     except (Course.DoesNotExist, Assignment.DoesNotExist, Journal.DoesNotExist, EntryTemplate.DoesNotExist):
         return responses.not_found('Course, Assignment, Journal or Template does not exist.')

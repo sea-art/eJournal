@@ -1,6 +1,8 @@
 <template>
     <b-card class="settings-card no-hover">
         <profile-data :uname="uname"
+                      :first="first"
+                      :last="last"
                       :image="image"
                       :id="id">
         </profile-data>
@@ -18,7 +20,7 @@ import notificationCard from '@/components/NotificationCard.vue'
 import passwordCard from '@/components/PasswordCard.vue'
 
 export default {
-    props: ['uname', 'id', 'image', 'gradeUpdate', 'commentUpdate'],
+    props: ['uname', 'first', 'last', 'id', 'image', 'gradeUpdate', 'commentUpdate'],
     components: {
         'profile-data': profileData,
         'notification-card': notificationCard,

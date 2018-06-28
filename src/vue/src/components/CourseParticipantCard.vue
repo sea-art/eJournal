@@ -9,9 +9,9 @@
                                 v-model="selectedRole"
                                 class="mb-3"
                                 :select-size="1">
-                    <option :selected="role === 'Student'" value="Student">Student</option>
-                    <option :selected="role === 'TA'" value="TA">Teaching Assistant (TA)</option>
-                    <option :selected="role === 'Teacher'" value="Teacher">Teacher</option>
+                    <option v-for="r in roles" :key="r.name" :value="r.name">
+                        {{r.name}}
+                    </option>
                  </b-form-select>
                 <b-button v-if="this.$root.canEditCourse"
                           @click.prevent.stop="removeFromCourse()"
@@ -21,7 +21,7 @@
             </b-col>
             <b-col cols="12" order-sm="2" sm="6">
                 Name: {{ name }} <br/>
-                uID: {{ uID }} <br />
+                Username: {{ studentNumber }} <br />
                 Role: {{selectedRole}}
             </b-col>
         </b-row>
@@ -30,6 +30,7 @@
 
 <script>
 import courseApi from '@/api/course.js'
+import permissions from '@/api/permissions.js'
 
 export default {
     props: {
@@ -58,7 +59,8 @@ export default {
     data () {
         return {
             selectedRole: '',
-            init: true
+            init: true,
+            roles: []
         }
     },
     methods: {
@@ -91,6 +93,11 @@ export default {
     },
     created () {
         this.selectedRole = this.role
+
+        permissions.get_course_roles(this.cID)
+            .then(response => {
+                this.roles = response
+            })
     }
 }
 </script>
