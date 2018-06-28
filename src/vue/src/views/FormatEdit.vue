@@ -146,12 +146,7 @@ export default {
         sortList () {
             var temp = this.nodes[this.currentNode]
             this.nodes.sort((a, b) => { return new Date(a.deadline) - new Date(b.deadline) })
-            for (var i = 0; i < this.nodes.length; i++) {
-                if (this.nodes[i] === temp) {
-                    this.currentNode = i
-                    break
-                }
-            }
+            this.currentNode = this.nodes.indexOf(temp)
         },
         newTemplate () {
             return {
@@ -183,11 +178,19 @@ export default {
             return new Date().toISOString().split('T')[0].slice(0, 10) + ' ' + new Date().toISOString().split('T')[1].slice(0, 5)
         },
         addNode () {
-            this.nodes.push({
-                'type': 'd',
-                'deadline': this.newDate(),
-                'template': (this.templatePool[0]) ? this.templatePool[0].t : null
-            })
+            var newNode = {
+                'type': this.nodes[this.currentNode].type,
+                'deadline': this.nodes[this.currentNode].deadline,
+            }
+
+            if (newNode.type === 'd') {
+                this.$set(newNode, 'template', this.nodes[this.currentNode].template)
+            } else {
+                this.$set(newNode, 'target', this.nodes[this.currentNode].target)
+            }
+
+            this.nodes.push(newNode)
+            this.currentNode = this.nodes.indexOf(newNode)
             this.sortList()
             this.isChanged = true
         },
