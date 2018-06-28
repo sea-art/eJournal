@@ -38,7 +38,7 @@ export default {
     methods: {
         addUserToCourse () {
             if (confirm('Are you sure you want to add ' + this.name + ' to the course?')) {
-                courseApi.update_course_with_studentID(this.uID, this.cID)
+                courseApi.update_course_with_student(this.uID, this.cID)
                     .then(response => {
                         this.$emit('add-participant', 'Student',
                             this.name,

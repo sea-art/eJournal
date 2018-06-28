@@ -16,8 +16,8 @@
                 <div style="width: 0.5em; height: 3em; background-color: var(--theme-light-grey)" :style="upperEdgeStyle"/> <!-- grey line -->
                 <div style="width: 0.5em; height: 3em; background-color: var(--theme-light-grey)" :style="lowerEdgeStyle"/> <!-- grey line -->
             </div>
-            <edag-node-circle  v-if="node.type == 'a'" @click.native="$emit('select-node', index)" style="position: absolute" :type="node.type" :text="'+'" :selected="selected"></edag-node-circle>
-            <edag-node-circle v-else @click.native="$emit('select-node', index)" style="position: absolute" :type="node.type" :text="node.target" :selected="selected"></edag-node-circle>
+            <edag-node-circle  v-if="node.type == 'a'" @click.native="$emit('select-node', index)" style="position: absolute" :type="node.type" :selected="selected" :entrystate="'addNode'"></edag-node-circle>
+            <edag-node-circle v-else @click.native="$emit('select-node', index)" style="position: absolute" :type="node.type" :text="node.target" :selected="selected" :entrystate="entryState()"></edag-node-circle>
         </b-col>
         <b-col cols="4" sm="1"/>
     </b-row>
@@ -28,10 +28,55 @@ import edagNodeCircle from '@/components/EdagNodeCircle.vue'
 import edagNodeDate from '@/components/EdagNodeDate.vue'
 
 export default {
-    props: ['node', 'selected', 'upperEdgeStyle', 'lowerEdgeStyle', 'index'],
+    props: ['node', 'selected', 'upperEdgeStyle', 'lowerEdgeStyle', 'index', 'isInEditFormatPage'],
     components: {
         'edag-node-date': edagNodeDate,
         'edag-node-circle': edagNodeCircle
+    },
+    computed: {
+        deadlineHasPassed () {
+            var currentDate = new Date()
+            var deadline = new Date(this.node.deadline)
+
+            return currentDate > deadline
+        }
+    },
+    methods: {
+        entryState () {
+            if (this.isInEditFormatPage) {
+                return ''
+            }
+            if (this.node.type === 'p' || this.node.type === 'a') {
+                return ''
+            }
+
+            var entry = this.node.entry
+            var isGrader = this.$root.canPublishAssignmentGrades()
+
+            if (entry && entry.published) {
+                return 'graded'
+            }
+
+            if (!entry && this.deadlineHasPassed) {
+                return 'failed'
+            }
+            if (!entry && !this.deadlineHasPassed) {
+                return 'empty'
+            }
+
+            if (!isGrader && entry && !entry.published && this.deadlineHasPassed) {
+                return 'grading'
+            }
+            if (!isGrader && entry && !entry.published && !this.deadlineHasPassed) {
+                return ''
+            }
+
+            if (isGrader && entry && !entry.published) {
+                return 'needsgrading'
+            }
+
+            return ''
+        }
     }
 }
 </script>

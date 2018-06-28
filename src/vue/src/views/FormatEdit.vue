@@ -9,10 +9,10 @@
     <b-row class="outer-container" no-gutters>
         <b-col v-if="bootstrapLg()" cols="12">
             <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
-            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
+            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :isInEditFormatPage="true"/>
         </b-col>
         <b-col v-else xl="3" class="left-content-format-edit">
-            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
+            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :isInEditFormatPage="true"/>
         </b-col>
 
         <b-col lg="12" xl="6" order="2" class="main-content-format-edit">
@@ -43,6 +43,10 @@
             <h3>Format</h3>
             <b-card @click.prevent.stop="addNode" class="card hover" :class="'grey-border'" style="">
                 <b>+ Add Preset to Format</b>
+            </b-card>
+            <b-card class="no-hover">
+                <b>Point Maximum</b>
+                <input v-model="max_points" placeholder="Point Maximum" type="number">
             </b-card>
             <b-card @click.prevent.stop="saveFormat" class="card hover" :class="'grey-border'" style="">
                 <b>Save Format</b>
@@ -103,7 +107,9 @@ export default {
             wipTemplateId: -1,
 
             deletedTemplates: [],
-            deletedPresets: []
+            deletedPresets: [],
+
+            max_points: 0
         }
     },
 
@@ -111,6 +117,7 @@ export default {
         journalAPI.get_format(this.aID)
             .then(data => {
                 this.templates = data.format.templates
+                this.max_points = data.format.max_points
                 this.presets = data.format.presets
                 this.unused_templates = data.format.unused_templates
                 this.convertFromDB()
@@ -236,7 +243,7 @@ export default {
             }
 
             this.convertToDB()
-            journalAPI.update_format(this.aID, this.templates, this.presets, this.unused_templates, this.deletedTemplates, this.deletedPresets)
+            journalAPI.update_format(this.aID, this.templates, this.max_points, this.presets, this.unused_templates, this.deletedTemplates, this.deletedPresets)
                 .then(data => {
                     this.templates = data.format.templates
                     this.presets = data.format.presets

@@ -77,6 +77,9 @@ export default {
             this.nodes[this.currentNode] = editedData
         },
         selectNode ($event) {
+            /* Function that prevents you from instant leaving an EntryNode
+             * or a DeadlineNode when clicking on a different node in the
+             * tree. */
             if ($event === this.currentNode) {
                 return this.currentNode
             }
@@ -102,6 +105,9 @@ export default {
                 .catch(_ => this.$toasted.error('Error while loading nodes.'))
         },
         progressPoints (progressNode) {
+            /* The function will update a given progressNode by
+             * going through all the nodes and count the published grades
+             * so far. */
             var tempProgress = 0
 
             for (var node of this.nodes) {
@@ -118,9 +124,7 @@ export default {
 
             this.progressNodes[progressNode.nID] = tempProgress.toString()
         },
-        updatedGrade (newNode) {
-            this.nodes[this.currentNode].entry.grade = newNode.entry.grade
-            this.nodes[this.currentNode].entry.published = newNode.entry.published
+        updatedGrade () {
             for (var node of this.nodes) {
                 if (node.type === 'p') {
                     this.progressPoints(node)

@@ -2,46 +2,13 @@
     Edag component. Handles the prop connection with parent, as well as any
     functionality involving the list (ie. showing the list,
     passing selected state)
-
-    Example data:
-    data () {
-        return {
-            selected: 2,
-            nodes: [
-                {
-                    type: 'e',
-                    text: '',
-                    nID: 0,
-                    date: new Date()
-                },
-                {
-                    type: 'entry',
-                    text: '',
-                    id: 1,
-                    date: new Date()
-                },
-                {
-                    type: 'entry',
-                    text: '',
-                    id: 2,
-                    date: new Date()
-                },
-                {
-                    type: 'progress',
-                    text: '5',
-                    id: 3,
-                    date: new Date()
-                }
-            ]
-        }
-    }
 -->
 
 <template>
     <div class="edag-container">
         <b-collapse id="edag-outer">
             <div id="edag-inner" ref="scd">
-                <edag-node v-for="(node, index) in this.nodes" @select-node="$emit('select-node', $event)" :index="index" :node="node" :selected="isSelected(index)" :key="node.nID" :upperEdgeStyle="upperEdgeStyle(index)" :lowerEdgeStyle="lowerEdgeStyle(index)"/>
+                <edag-node v-for="(node, index) in this.nodes" @select-node="$emit('select-node', $event)" :index="index" :node="node" :selected="isSelected(index)" :isInEditFormatPage="isInEditFormatPage" :key="node.nID" :upperEdgeStyle="upperEdgeStyle(index)" :lowerEdgeStyle="lowerEdgeStyle(index)"/>
             </div>
         </b-collapse>
 
@@ -60,7 +27,7 @@
 import edagNode from '@/components/EdagNode'
 
 export default {
-    props: ['selected', 'nodes', 'edgeStyles'],
+    props: ['selected', 'nodes', 'edgeStyles', 'isInEditFormatPage'],
     methods: {
         isSelected (id) {
             return id === this.selected
