@@ -45,7 +45,7 @@ export default {
             }
         },
         iconScale () {
-            if (this.entrystate == 'addNode') {
+            if (this.entrystate === 'addNode') {
                 if (this.selected) {
                     return '2'
                 } else {
