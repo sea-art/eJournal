@@ -185,6 +185,16 @@ export default {
             return new Date().toISOString().split('T')[0].slice(0, 10) + ' ' + new Date().toISOString().split('T')[1].slice(0, 5)
         },
         addNode () {
+            if (this.nodes.length === 0) {
+                this.nodes.push({
+                    'type': 'p',
+                    'deadline': this.newDate(),
+                    'target': 0
+                })
+                this.isChanged = true
+                return
+            }
+
             var newNode = {
                 'type': this.nodes[this.currentNode].type,
                 'deadline': this.nodes[this.currentNode].deadline
@@ -226,6 +236,10 @@ export default {
                 if (!invalidDate && isNaN(Date.parse(node.deadline))) {
                     invalidDate = true
                     this.$toasted.error('One or more presets has an invalid deadline. Please check the format and try again.')
+                }
+                if (!invalidTemplate && node.type === 'd' && typeof node.template.tID === 'undefined') {
+                    invalidTemplate = true
+                    this.$toasted.error('One or more presets has an invalid template. Please check the format and try again.')
                 }
                 if (!invalidTemplate && node.type === 'd' && node.template.tID && !templatePoolIds.includes(node.template.tID)) {
                     invalidTemplate = true
