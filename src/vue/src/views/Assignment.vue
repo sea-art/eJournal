@@ -103,14 +103,14 @@ export default {
                 this.stats = response.stats
             })
 
-        if (this.$route.query.sorted === 'sortName' ||
-            this.$route.query.sorted === 'sortID' ||
-            this.$route.query.sorted === 'sortMarking') {
-            this.selectedSortOption = this.$route.query.sorted
+        if (this.$route.query.sort === 'sortName' ||
+            this.$route.query.sort === 'sortID' ||
+            this.$route.query.sort === 'sortMarking') {
+            this.selectedSortOption = this.$route.query.sort
         }
 
-        if (this.$route.query.searched) {
-            this.searchVariable = this.$route.query.searched
+        if (this.$route.query.search) {
+            this.searchVariable = this.$route.query.search
         }
     },
     methods: {
@@ -137,9 +137,9 @@ export default {
         },
         updateQuery () {
             if (this.searchVariable !== '') {
-                this.query = {sorted: this.selectedSortOption, searched: this.searchVariable}
+                this.query = {sort: this.selectedSortOption, search: this.searchVariable}
             } else {
-                this.query = {sorted: this.selectedSortOption}
+                this.query = {sort: this.selectedSortOption}
             }
 
             this.$router.replace({ query: this.query })

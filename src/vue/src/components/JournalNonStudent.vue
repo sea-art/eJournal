@@ -30,16 +30,18 @@
         <b-col cols="12" xl="3" order="3" class="right-content-journal">
             <h3>Journal</h3>
             <b-card class="no-hover">
-                <!-- <b-link tag="b-button" :to="{ name: 'Journal',
+                <b-button tag="b-button" :to="{ name: 'Journal',
                                               params: {
-                                                  cID: this.$route.params.cID,
-                                                  aID: this.$route.params.aID,
-                                                  jID: this.filteredJournals[1].jID
-                                              }
+                                                  cID: cID,
+                                                  aID: aID,
+                                                  jID: 1
+                                              },
+                                              query: query
                                             }">
-                    volgende
-                </b-link> -->
-                {{ filteredJournals }}
+                    Next
+                </b-button>
+                {{ nextJournal }}
+                <!-- {{ filteredJournals }} -->
                 <b-button @click="publishGradesJournal">Publish Grades</b-button>
             </b-card>
         </b-col>
@@ -81,14 +83,14 @@ export default {
                     this.assignmentJournals = response.journals
                 })
 
-            if (this.$route.query.sorted === 'sortName' ||
-                this.$route.query.sorted === 'sortID' ||
-                this.$route.query.sorted === 'sortMarking') {
-                this.selectedSortOption = this.$route.query.sorted
+            if (this.$route.query.sort === 'sortName' ||
+                this.$route.query.sort === 'sortID' ||
+                this.$route.query.sort === 'sortMarking') {
+                this.selectedSortOption = this.$route.query.sort
             }
 
-            if (this.$route.query.searched) {
-                this.searchVariable = this.$route.query.searched
+            if (this.$route.query.search) {
+                this.searchVariable = this.$route.query.search
             }
         }
     },
@@ -176,12 +178,21 @@ export default {
         },
         updateQuery () {
             if (this.searchVariable !== '') {
-                this.query = {sorted: this.selectedSortOption, searched: this.searchVariable}
+                this.query = {sort: this.selectedSortOption, search: this.searchVariable}
             } else {
-                this.query = {sorted: this.selectedSortOption}
+                this.query = {sort: this.selectedSortOption}
             }
 
             this.$router.replace({ query: this.query })
+        },
+        findIndex (array, property, value) {
+            for (var i = 0; i < array.length; i++) {
+                if (array[i][property] === value) {
+                    return i
+                }
+            }
+
+            return -1
         }
     },
     components: {
@@ -241,7 +252,22 @@ export default {
             }
 
             return store.state.filteredJournals.slice()
+        },
+        prevJournal () {
+            var curIndex = this.findIndex(store.state.filteredJournals, 'jID', this.jID)
+            var prevIndex = (curIndex - 1) % store.state.filteredJournals.length
+
+            return store.state.filteredJournals[prevIndex].slice()
+        },
+        nextJournal () {
+            var curIndex = this.findIndex(store.state.filteredJournals, 'jID', this.jID)
+            var nextIndex = (curIndex + 1) % store.state.filteredJournals.length
+            console.log(store.state.filteredJournals[nextIndex])
+            console.log(store.state.filteredJournals)
+
+            return store.state.filteredJournals[nextIndex].slice()
         }
+
     }
 }
 </script>
