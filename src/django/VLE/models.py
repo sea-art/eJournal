@@ -115,11 +115,13 @@ class Role(models.Model):
     can_edit_course_roles = models.BooleanField(default=False)
     # GLOBAL: can_add_course
     can_view_course_participants = models.BooleanField(default=False)
+    can_add_course_participants = models.BooleanField(default=False)
     can_edit_course = models.BooleanField(default=False)
     can_delete_course = models.BooleanField(default=False)
 
     # Assignment permissions
     can_add_assignment = models.BooleanField(default=False)
+    can_edit_assignment = models.BooleanField(default=False)
     can_view_assignment_participants = models.BooleanField(default=False)
     can_delete_assignment = models.BooleanField(default=False)
     can_publish_assigment_grades = models.BooleanField(default=False)
@@ -190,7 +192,8 @@ class Assignment(models.Model):
     )
     points_possible = models.IntegerField(
         'points_possible',
-        null=True
+        null=True,
+        blank=True
     )
     lti_id = models.TextField(
         'lti_id',

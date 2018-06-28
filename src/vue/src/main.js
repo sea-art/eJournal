@@ -4,12 +4,19 @@ import router from './router'
 import BootstrapVue from 'bootstrap-vue'
 import '../node_modules/bootstrap/dist/css/bootstrap.css'
 import '../node_modules/bootstrap-vue/dist/bootstrap-vue.css'
+
 import 'vue-awesome/icons/eye'
 import 'vue-awesome/icons/caret-up'
 import 'vue-awesome/icons/caret-down'
 import 'vue-awesome/icons/arrows'
 import 'vue-awesome/icons/trash'
 import 'vue-awesome/icons/plus-square'
+import 'vue-awesome/icons/hourglass-half'
+import 'vue-awesome/icons/check'
+import 'vue-awesome/icons/times'
+import 'vue-awesome/icons/exclamation'
+import 'vue-awesome/icons/plus'
+
 import Toasted from 'vue-toasted'
 
 Vue.config.productionTip = false
@@ -67,6 +74,9 @@ new Vue({
         canViewCourseParticipants () {
             return this.permissions.can_view_course_participants
         },
+        canAddCourseParticipants () {
+            return this.permissions.can_add_course_participants
+        },
         canEditCourse () {
             return this.permissions.can_edit_course
         },
@@ -77,6 +87,9 @@ new Vue({
         /* Assignment permissions. */
         canAddAssignment () {
             return this.permissions.can_add_assignment
+        },
+        canEditAssignment () {
+            return this.permissions.can_edit_assignment
         },
         canViewAssignmentParticipants () {
             return this.permissions.can_view_assignment_participants
