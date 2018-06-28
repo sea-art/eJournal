@@ -10,7 +10,7 @@ import random
 import django.utils.timezone as timezone
 
 
-def make_user(username, password, email=None, lti_id=None, profile_picture=None, is_admin=False, is_teacher=False,
+def make_user(username, password, email=None, lti_id=None, profile_picture=None, is_superuser=False, is_teacher=False,
               first_name=None, last_name=None):
     """Create a user.
 
@@ -24,10 +24,10 @@ def make_user(username, password, email=None, lti_id=None, profile_picture=None,
     """
     # TODO first and last name should always be given but it isnt in the demo db
     if first_name is None or last_name is None:
-        user = User(username=username, email=email, lti_id=lti_id, is_admin=is_admin,
+        user = User(username=username, email=email, lti_id=lti_id, is_superuser=is_superuser,
                     is_teacher=is_teacher)
     else:
-        user = User(username=username, email=email, lti_id=lti_id, is_admin=is_admin,
+        user = User(username=username, email=email, lti_id=lti_id, is_superuser=is_superuser,
                     is_teacher=is_teacher, first_name=first_name, last_name=last_name)
     user.save()
     user.set_password(password)
