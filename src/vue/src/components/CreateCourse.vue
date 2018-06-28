@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-form @submit="onSubmit" @reset="onReset" :v-model="form.ltiCourseID">
+        <b-form @submit.prevent="onSubmit" @reset.prevent="onReset" :v-model="form.ltiCourseID">
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseName" placeholder="Course name" required/>
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseAbbr" maxlength="10" placeholder="Course Abbreviation (Max 10 letters)" required/>
             <b-row>
@@ -42,11 +42,11 @@ export default {
         onSubmit () {
             courseApi.create_new_course(this.form.courseName,
                 this.form.courseAbbr, this.form.courseStartdate,
-                this.form.courseEndDate,
+                this.form.courseEnddate,
                 this.form.ltiCourseID)
                 .then(response => {
-                    this.$emit('handleAction', response.course.cID)
                     this.onReset(undefined)
+                    this.$emit('handleAction', response.course.cID)
                 })
         },
         onReset (evt) {
