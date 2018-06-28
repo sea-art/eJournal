@@ -68,17 +68,6 @@ def student_assignment_to_dict(assignment, user):
     return assignment_dict
 
 
-def deadline_to_dict(assignment):
-    """Convert deadline to dictionary."""
-    if not assignment:
-        return None
-
-    assignment_dict = assignment_to_dict(assignment)
-    assignment_dict['courses'] = [course_to_dict(c) for c in assignment.courses.all()]
-
-    return assignment_dict
-
-
 def assignment_to_dict(assignment):
     """Convert assignment to dictionary."""
     return {

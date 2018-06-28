@@ -109,9 +109,9 @@ export default {
      */
     authenticatedPost (url, data, noRedirect = false) {
         return connection.conn.post(url, data, getAuthorizationHeader())
-            .catch(error => refresh(error))
-            .then(connection.conn.post(url, data, getAuthorizationHeader()))
-            .catch(error => handleResponse(error, noRedirect))
+            .catch(error => refresh(error)
+                .then(connection.conn.post(url, data, getAuthorizationHeader())
+                    .catch(error => handleResponse(error, noRedirect))))
     },
 
     /* Run an authenticated get request.
@@ -121,9 +121,9 @@ export default {
      */
     authenticatedGet (url, noRedirect = false) {
         return connection.conn.get(url, getAuthorizationHeader())
-            .catch(error => refresh(error, url))
-            .then(connection.conn.get(url, getAuthorizationHeader()))
-            .catch(error => handleResponse(error, noRedirect))
+            .catch(error => refresh(error, url)
+                .then(connection.conn.get(url, getAuthorizationHeader())
+                    .catch(error => handleResponse(error, noRedirect))))
     }
 
 }

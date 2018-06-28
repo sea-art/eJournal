@@ -15,7 +15,8 @@
                 </main-card>
             </b-link>
         </div>
-
+        <div slot="main-content-column">
+        </div>
         <main-card
             v-if="this.$root.canAddCourse()"
             slot="main-content-column"
@@ -24,13 +25,16 @@
             :line1="'+ Add course'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
-        <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
-            <b-link tag="b-button" :to="{name: 'Assignment', params: {cID: d.cIDs[0], aID: d.aIDs[0], dID: d.dID}}">
+        <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
+            <b-link tag="b-button" :to="journalRoute(d.cID, d.aID, d.jID, d.name)">
                 <todo-card
-                    :line0="d.datetime"
-                    :line1="d.name"
-                    :line2="d.courseAbbrs.join(', ')"
-                    :color="$root.colors[d.cIDs[0] % $root.colors.length]">
+                    :date="d.deadline.Date"
+                    :hours="d.deadline.Hours"
+                    :minutes="d.deadline.Minutes"
+                    :name="d.name"
+                    :abbr="d.courseAbbr"
+                    :totalNeedsMarking="needsMarkingStats[i]"
+                    :color="$root.colors[d.cID % $root.colors.length]">
                 </todo-card>
             </b-link>
         </div>
@@ -63,6 +67,8 @@ import todoCard from '@/components/TodoCard.vue'
 import createCourse from '@/components/CreateCourse.vue'
 import editHome from '@/components/EditHome.vue'
 import course from '@/api/course'
+import assignmentApi from '@/api/assignment.js'
+import journalApi from '@/api/journal.js'
 
 export default {
     name: 'Home',
@@ -70,15 +76,8 @@ export default {
         return {
             intituteName: 'Universiteit van Amsterdam (UvA)',
             courses: [],
-            // TODO real deadlines with API, can a deadline be bound > 1 course and assignment?
-            deadlines: [{
-                name: 'Individueel logboek',
-                cIDs: ['1', '2'],
-                aIDs: ['1', '3'],
-                courseAbbrs: ['WEDA', 'PALSIE8'],
-                aID: '1',
-                datetime: '8-6-2018 13:00'
-            }]
+            deadlines: [],
+            needsMarkingStats: []
         }
     },
     components: {
@@ -92,8 +91,11 @@ export default {
     created () {
         this.loadCourses()
 
-        /* assignment.get_upcoming_deadlines()
-           .then(response => { this.deadlines = response }) */
+        assignmentApi.get_upcoming_deadlines()
+            .then(response => {
+                this.deadlines = response
+            })
+            .catch(_ => alert('Error while loading deadlines'))
     },
     methods: {
         loadCourses () {
@@ -123,8 +125,62 @@ export default {
         customisePage () {
             this.$toasted.info('Wishlist: Customise page')
         },
-        canDeleteCourse () {
-            return this.$root.permissions.can_delete_course
+        addMarkingList (aID) {
+            journalApi.get_assignment_journals(aID)
+                .then(response => {
+                    this.needsMarkingStats.push(response.stats.needsMarking)
+                })
+                .catch(_ => alert('Error while loading journals'))
+        },
+        journalRoute (cID, aID, jID, name) {
+            if (this.$root.canAddCourse()) {
+                return {
+                    name: 'Assignment',
+                    params: {
+                        cID: cID,
+                        aID: aID,
+                        assignmentName: name
+                    }
+                }
+            } else {
+                return {
+                    name: 'Journal',
+                    params: {
+                        cID: cID,
+                        aID: aID,
+                        jID: jID,
+                        assignmentName: name
+                    }
+                }
+            }
+        }
+    },
+    computed: {
+        computedDeadlines: function () {
+            var count = 0
+            var topList
+
+            function compareDate (a, b) {
+                return new Date(a.deadline.Date) - new Date(b.deadline.Date)
+            }
+
+            function filterTop () {
+                if (++count <= 5) {
+                    return true
+                } else {
+                    return false
+                }
+            }
+
+            topList = this.deadlines.slice().sort(compareDate).filter(filterTop)
+
+            if (this.$root.canAddCourse()) {
+                for (var i = 0; i < topList.length; i++) {
+                    this.addMarkingList(topList[i].aID)
+                }
+            }
+
+            return topList
         }
     }
 }
