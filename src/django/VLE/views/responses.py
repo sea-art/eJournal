@@ -26,7 +26,7 @@ def created(message='success', payload={}):
     return response(201, message, payload=payload)
 
 
-def no_content(description=''):
+def no_content(description='Request succeeded.'):
     """Return a no content header.
 
     Arguments:
@@ -35,7 +35,7 @@ def no_content(description=''):
     return response(204, 'No Content', description=description)
 
 
-def bad_request(description=''):
+def bad_request(description='Your browser performed a bad request.'):
     """Return a bad request response header.
 
     Arguments:
@@ -44,7 +44,7 @@ def bad_request(description=''):
     return response(400, 'Bad Request', description=description)
 
 
-def unauthorized(description=''):
+def unauthorized(description='You are not authenticated.'):
     """Return an unauthorized response header.
 
     Arguments:
@@ -53,7 +53,7 @@ def unauthorized(description=''):
     return response(401, 'Authentication Error', description=description)
 
 
-def forbidden(description=''):
+def forbidden(description='You have no access to this page'):
     """Return a forbidden response header.
 
     Arguments:
@@ -62,7 +62,7 @@ def forbidden(description=''):
     return response(403, 'Forbidden', description=description)
 
 
-def not_found(description=''):
+def not_found(description='The page or file you requested was not found.'):
     """Return a not found response header.
 
     Arguments:
@@ -71,7 +71,7 @@ def not_found(description=''):
     return response(404, 'Not Found', description='{} not found.'.format(description))
 
 
-def internal_server_error(description=''):
+def internal_server_error(description='Oops! The server experienced internal hiccups.'):
     """Return an internal server error response header.
 
     Arguments:
