@@ -112,7 +112,11 @@ router.beforeEach((to, from, next) => {
     /* Returning next because we short circuit the function here, no API calls
     * are desired. */
     if (to.name === 'Guest') {
-        return next()
+        if (router.app.validToken) {
+            return next({name: 'Home'})
+        } else {
+            return next()
+        }
     } else if (to.name === 'Login') {
         return next()
     }
@@ -131,7 +135,7 @@ router.beforeEach((to, from, next) => {
             router.app.permissions = response
         })
         .catch(_ => {
-            console.log('Error while loading permissions, does the redirect work?')
+            this.$toasted.error('Error while loading permissions.')
         })
 
     next()

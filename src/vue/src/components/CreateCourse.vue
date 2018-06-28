@@ -4,6 +4,8 @@
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseName" placeholder="Course name" required/>
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseAbbr" maxlength="10" placeholder="Course Abbreviation (Max 10 letters)" required/>
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseStartdate" type="date" required/>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseEnddate" type="date" required/>
+
             <b-button class="float-right" type="reset">Reset</b-button>
             <b-button class="float-right" type="submit">Create</b-button>
         </b-form>
@@ -22,6 +24,7 @@ export default {
                 courseName: '',
                 courseAbbr: '',
                 courseStartdate: '',
+                courseEnddate: '',
                 ltiCourseID: ''
             }
         }
@@ -30,6 +33,7 @@ export default {
         onSubmit () {
             courseApi.create_new_course(this.form.courseName,
                 this.form.courseAbbr, this.form.courseStartdate,
+                this.form.courseEndDate,
                 this.form.ltiCourseID)
                 .then(response => {
                     this.$emit('handleAction', response.course.cID)
@@ -45,6 +49,7 @@ export default {
             this.form.courseName = ''
             this.form.courseAbbr = ''
             this.form.courseStartdate = ''
+            this.form.courseEnddate = ''
 
             /* Trick to reset/clear native browser form validation state */
             this.show = false
