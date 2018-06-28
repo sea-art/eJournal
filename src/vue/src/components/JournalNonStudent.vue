@@ -90,6 +90,12 @@ export default {
                 if (this.$route.query.nID !== undefined) {
                     this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
                 }
+
+                for (var node of this.nodes) {
+                    if (node.type === 'p') {
+                        this.progressPoints(node)
+                    }
+                }
             })
 
         if (store.state.filteredJournals.length === 0) {
@@ -237,6 +243,7 @@ export default {
         filteredJournals: function () {
             let self = this
 
+            // TODO: add better compare functions
             function compareName (a, b) {
                 if (a.student.name < b.student.name) { return -1 }
                 if (a.student.name > b.student.name) { return 1 }

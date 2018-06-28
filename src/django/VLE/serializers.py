@@ -18,7 +18,9 @@ def user_to_dict(user):
         'grade_notifications': user.grade_notifications,
         'comment_notifications': user.comment_notifications,
         'picture': user.profile_picture,
-        'uID': user.id
+        'uID': user.id,
+        'first_name': user.first_name,
+        'last_name': user.last_name
     } if user else None
 
 

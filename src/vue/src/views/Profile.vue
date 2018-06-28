@@ -3,6 +3,8 @@
         <bread-crumb @eye-click="customisePage" slot="main-content-column"/>
         <profile-card slot="main-content-column"
                       :uname="profile.name"
+                      :first="profile.first_name"
+                      :last="profile.last_name"
                       :image="profile.picture"
                       :id="profile.uID"
                       :gradeUpdate="profile.grade_notifications"

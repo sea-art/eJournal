@@ -635,6 +635,10 @@ def update_user_data(request):
         user.username = request.data['username']
     if 'picture' in request.data:
         user.profile_picture = request.data['picture']
+    if 'first_name' in request.data:
+        user.first_name = request.data['first_name']
+    if 'last_name' in request.data:
+        user.last_name = request.data['last_name']
 
     user.save()
     return responses.success(payload={'user': serialize.user_to_dict(user)})

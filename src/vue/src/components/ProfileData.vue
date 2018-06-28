@@ -6,6 +6,8 @@
         <b-col lg="8" md="12">
             <h2>User data</h2>
             <b-form-input v-model="uname" type="text"></b-form-input>
+            <b-form-input v-model="first" type="text"></b-form-input>
+            <b-form-input v-model="last" type="text"></b-form-input>
             <span class="profile-data">Change profile picture</span>
             <b-form-file ref="file" v-on:change="updateProfilePicture" class="fileinput form-control" v-model="file" :state="Boolean(file)" placeholder="Upload profile picture..."></b-form-file>
             <b-button class="add-button" @click="saveUserdata">Save</b-button>
@@ -17,16 +19,15 @@
 <script>
 import userAPI from '@/api/user.js'
 export default {
-    props: ['uname', 'id', 'image'],
+    props: ['uname', 'first', 'last', 'id', 'image'],
     data () {
         return {
-            file: null,
-            username: ''
+            file: null
         }
     },
     methods: {
         saveUserdata () {
-            userAPI.updateUserData(this.uname)
+            userAPI.updateUserData(this.uname, this.first, this.last)
         },
         updateProfilePicture () {
             console.log(this.$refs.file)
@@ -52,9 +53,6 @@ export default {
                 downloadElement.dispatchEvent(clickEvent)
             })
         }
-    },
-    created () {
-        this.username = this.uname
     }
 }
 </script>
