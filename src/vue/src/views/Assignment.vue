@@ -21,7 +21,7 @@
             </b-row>
             <b-row>
                 <b-col lg="3" md="3">
-                    <b-button @click="publishGradesAssignment">Publish all Grades</b-button>
+                    <b-button v-if="$root.canGradeJournal()" @click="publishGradesAssignment">Publish all Grades</b-button>
                 </b-col>
             </b-row>
         </b-card>
@@ -132,7 +132,7 @@ export default {
                     this.$toasted.success('All the grades for each journal are published.')
                 })
                 .catch(_ => {
-                    this.$toasted.error('Error whilest publishing the grades for each journal.')
+                    this.$toasted.error('Error while publishing the grades for each journal.')
                 })
         },
         updateQuery () {

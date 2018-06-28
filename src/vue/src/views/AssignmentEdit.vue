@@ -58,17 +58,19 @@ export default {
                 .then(response => {
                     this.assignments = response
                     this.pageName = this.assignment.name
+                    this.$toasted.success('Updated assignment')
                 })
         },
         deleteAssignment () {
             if (confirm('Are you sure you want to delete ' + this.assignment.name + '?')) {
-                assignmentApi.delete_assignment(this.aID, this.cID)
+                assignmentApi.delete_assignment(this.cID, this.aID)
                     .then(response => {
                         this.$router.push({name: 'Course',
                             params: {
                                 cID: this.cID,
                                 courseName: this.$route.params.courseName
                             }})
+                        this.$toasted.success('Deleted assignment')
                     })
             }
         }

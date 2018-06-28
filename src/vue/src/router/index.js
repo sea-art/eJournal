@@ -22,6 +22,7 @@ import authAPI from '@/api/auth.js'
 Vue.use(Router)
 
 var router = new Router({
+    mode: 'history',
     routes: [{
         path: '/',
         name: 'Guest',
@@ -101,7 +102,8 @@ router.beforeEach((to, from, next) => {
     // TODO Caching for permissions, how to handle permission changes when role is altered by teacher
     router.app.previousPage = from
 
-    if (!router.app.validToken) {
+    /* If undefined, this means this is a hard refresh, therefore we have to call up the state. */
+    if (router.app.validToken === undefined) {
         authAPI.testValidToken()
     }
 
@@ -109,12 +111,23 @@ router.beforeEach((to, from, next) => {
         return next({name: 'ErrorPage', params: {code: '404', message: 'Page not found'}})
     }
 
-    /* Returning next because we short circuit the function here, no API calls
-    * are desired. */
+    /* If valid token, redirect to Home, if not currently valid, look to see if it is valid.
+     * If now valid, redirect as well, otherwise continue to guest page.
+     */
     if (to.name === 'Guest') {
-        return next()
+        if (router.app.validToken) {
+            return next({name: 'Home'})
+        } else {
+            return authAPI.testValidToken()
+                .then(_ => next({name: 'Home'}))
+                .catch(_ => next())
+        }
     } else if (to.name === 'Login') {
         return next()
+    } else if (to.name === 'Assignment') {
+        if (!router.app.canViewAssignmentParticipants()) {
+            return next({name: 'Course', params: {cID: to.params.cID}})
+        }
     }
 
     var params
@@ -131,7 +144,7 @@ router.beforeEach((to, from, next) => {
             router.app.permissions = response
         })
         .catch(_ => {
-            console.log('Error while loading permissions, does the redirect work?')
+            this.$toasted.error('Error while loading permissions.')
         })
 
     next()

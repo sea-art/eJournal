@@ -32,23 +32,31 @@ export default {
             .then(response => response.data.users)
     },
 
+    /* Get upcomming deadlines. */
+    get_upcoming_course_deadlines (cID) {
+        return auth.authenticatedGet('/get_upcoming_course_deadlines/' + cID + '/')
+            .then(response => response.data.deadlines)
+    },
+
     /* Create a new course. */
-    create_new_course (name, abbr, startdate, lti_id = null) {
+    create_new_course (name, abbr, startdate, enddate, lti_id = null) {
         return auth.authenticatedPost('/create_new_course/', {
             name: name,
             abbr: abbr,
             startdate: startdate,
+            enddate: enddate,
             lti_id: lti_id
         }).then(response => response.data)
     },
 
     /* Updates an existing course. */
-    update_course (cID, name, abbr, startDate) {
+    update_course (cID, name, abbr, startDate, endDate) {
         return auth.authenticatedPost('/update_course/', {
             cID: cID,
             name: name,
             abbr: abbr,
-            startDate: startDate
+            startdate: startDate,
+            enddate: endDate
         }).then(response => response.data.course)
     },
 
