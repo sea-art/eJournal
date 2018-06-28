@@ -19,7 +19,12 @@
                         <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                     </div>
                     <div v-else>
-                        <entry-preview ref="entry-template-card" @content-template="fillDeadline" :template="nodes[currentNode].template"/>
+                        <div v-if="checkDeadline()">
+                            <entry-preview ref="entry-template-card" @content-template="fillDeadline" :template="nodes[currentNode].template"/>
+                        </div>
+                        <div v-else>
+                            The deadline has passed, you can't make another submission
+                        </div>
                     </div>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'a'">
@@ -66,7 +71,12 @@ export default {
     },
     created () {
         journal.get_nodes(this.jID)
-            .then(response => { this.nodes = response.nodes })
+            .then(response => {
+                this.nodes = response.nodes
+                if (this.$route.query.nID !== undefined) {
+                    this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
+                }
+            })
             .catch(_ => this.$toasted.error('Error while loading nodes.'))
 
         assignmentApi.get_assignment_data(this.cID, this.aID)
@@ -139,6 +149,20 @@ export default {
             }
 
             this.progressNodes[progressNode.nID] = tempProgress
+        },
+        findEntryNode (nodeID) {
+            for (var i = 0; i < this.nodes.length; i++) {
+                if (this.nodes[i].nID === nodeID) {
+                    return i
+                }
+            }
+            return 0
+        },
+        checkDeadline () {
+            var currentDate = new Date()
+            var deadline = new Date(this.nodes[this.currentNode].deadline)
+
+            return currentDate <= deadline
         },
         bootstrapLg () {
             return this.windowHeight < 1200

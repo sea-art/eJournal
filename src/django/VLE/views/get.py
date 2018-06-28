@@ -7,9 +7,11 @@ from rest_framework.decorators import api_view
 from django.conf import settings
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.shortcuts import redirect
+import datetime
 
 import statistics as st
 import json
+import jwt
 
 import VLE.lti_launch as lti
 import VLE.edag as edag
@@ -20,10 +22,12 @@ import VLE.serializers as serialize
 import VLE.permissions as permissions
 import VLE.views.responses as responses
 
-from datetime import datetime
-
 # VUE ENTRY STATE
 BAD_AUTH = '-1'
+
+NO_USER = '0'
+LOGGED_IN = '1'
+
 NO_COURSE = '0'
 NO_ASSIGN = '1'
 NEW_COURSE = '2'
@@ -347,6 +351,7 @@ def create_teacher_assignment_deadline(course, assignment):
     for journal in assignment.journal_set.all():
         journals.append(serialize.journal_to_dict(journal))
 
+    print("12345")
     totalNeedsMarking = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
 
     format = serialize.format_to_dict(assignment.format)
@@ -393,7 +398,7 @@ def create_student_assignment_deadline(user, course, assignment):
         return {}
 
     # Gets the node with the earliest deadline
-    future_deadline = deadlines.filter(preset__deadline__gte=datetime.now()).order_by('preset__deadline')[0]
+    future_deadline = deadlines.filter(preset__deadline__gte=datetime.datetime.now()).order_by('preset__deadline')[0]
     future_deadline = {'Date': future_deadline['preset__deadline'].date(),
                        'Hours': future_deadline['preset__deadline'].hour,
                        'Minutes': future_deadline['preset__deadline'].minute}
@@ -416,7 +421,6 @@ def get_upcoming_deadlines(request):
 
     Returns a json string with the deadlines
     """
-
     user = request.user
     if not user.is_authenticated:
         return responses.unauthorized()
@@ -434,7 +438,7 @@ def get_upcoming_deadlines(request):
             return responses.forbidden('You are not in this course.')
 
         if role.can_grade_journal:
-            for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
+            for assignment in Assignment.objects.filter(courses=course.id).all():
                 deadline = create_teacher_assignment_deadline(course, assignment)
                 if deadline:
                     deadline_list.append(deadline)
@@ -735,9 +739,73 @@ def get_assignment_by_lti_id(request, lti_id):
     return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
 
 
+@api_view(['GET'])
+def get_lti_params_from_jwt(request, jwt_params):
+    """Handle the controlflow for course/assignment create, connect and select.
+
+    Returns the data needed for the correct entry place.
+    """
+    if not request.user.is_authenticated:
+        return responses.unauthorized()
+
+    user = request.user
+    lti_params = jwt.decode(jwt_params, settings.LTI_SECRET, algorithms=['HS256'])
+    roles = json.load(open('config.json'))
+    lti_roles = dict((roles[k], k) for k in roles)
+    role = lti_roles[lti_params['roles']]
+
+    payload = dict()
+    course = lti.check_course_lti(lti_params, user, role)
+    if course is None:
+        if role == 'Teacher':
+            payload['state'] = NEW_COURSE
+            payload['lti_cName'] = lti_params['context_title']
+            payload['lti_abbr'] = lti_params['context_label']
+            payload['lti_cID'] = lti_params['context_id']
+            payload['lti_aName'] = lti_params['resource_link_title']
+            payload['lti_aID'] = lti_params['resource_link_id']
+
+            if 'custom_canvas_assignment_points_possible' in lti_params:
+                payload['lti_points_possible'] = lti_params['custom_canvas_assignment_points_possible']
+
+            return responses.success(payload={'params': payload})
+        else:
+            return responses.not_found(description='The assignment you are looking for cannot be found. \
+                <br>Note it might still be reachable though the assignment section')
+
+    assignment = lti.check_assignment_lti(lti_params)
+    if assignment is None:
+        if role == 'Teacher':
+            payload['state'] = NEW_ASSIGN
+            payload['cID'] = course.pk
+            payload['lti_aName'] = lti_params['resource_link_title']
+            payload['lti_aID'] = lti_params['resource_link_id']
+
+            if 'custom_canvas_assignment_points_possible' in lti_params:
+                payload['lti_points_possible'] = lti_params['custom_canvas_assignment_points_possible']
+
+            return responses.success(payload={'params': payload})
+        else:
+            return responses.not_found(description='The assignment you are looking for cannot be found. \
+                <br>Note it might still be reachable though the assignment section')
+
+    journal = lti.select_create_journal(lti_params, user, assignment, roles)
+    jID = journal.pk if journal is not None else None
+    state = FINISH_T if jID is None else FINISH_S
+
+    payload['state'] = state
+    payload['cID'] = course.pk
+    payload['aID'] = assignment.pk
+    payload['jID'] = jID
+    return responses.success(payload={'params': payload})
+
+
 @api_view(['POST'])
 def lti_launch(request):
-    """Django view for the lti post request."""
+    """Django view for the lti post request.
+
+    handles the users login or sned to a creation page.
+    """
     secret = settings.LTI_SECRET
     key = settings.LTI_KEY
 
@@ -745,65 +813,38 @@ def lti_launch(request):
         key, secret, request)
 
     if authenticated:
-        # Select or create the user, course, assignment and journal.
         roles = json.load(open('config.json'))
-        lti_roles = dict((roles[k], k) for k in roles)
+        params = request.POST.dict()
+        user = lti.check_user_lti(params, roles)
 
-        user = lti.select_create_user(request.POST, roles)
-        role = lti_roles[request.POST['roles']]
+        params['exp'] = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
+        lti_params = jwt.encode(params, secret, algorithm='HS256').decode('utf-8')
 
-        token = TokenObtainPairSerializer.get_token(user)
-        access = token.access_token
+        if user is None:
+            q_names = ['state', 'lti_params']
+            q_values = [NO_USER, lti_params]
 
-        course_names = ['lti_cName', 'lti_abbr', 'lti_cID']
-        course_values = [request.POST['context_title'],
-                         request.POST['context_label'],
-                         request.POST['context_id']]
-        assignment_names = ['lti_aName', 'lti_aID']
-        assignment_values = [request.POST['resource_link_title'],
-                             request.POST['resource_link_id']]
-        if 'custom_canvas_assignment_points_possible' in request.POST:
-            assignment_names.append('lti_points_possible')
-            assignment_values.append(
-                request.POST['custom_canvas_assignment_points_possible'])
+            if 'lis_person_name_full' in params:
+                fullname = params['lis_person_name_full']
+                splitname = fullname.split(' ')
+                firstname = splitname[0]
+                lastname = fullname[len(splitname[0])+1:]
+                q_names += ['firstname', 'lastname']
+                q_values += [firstname, lastname]
 
-        course = lti.check_course_lti(request.POST, user, lti_roles[
-            request.POST['roles']])
-        if course is None:
-            if role == 'Teacher':
-                q_names = ['jwt_refresh', 'jwt_access', 'state']
-                q_names += course_names
-                q_names += assignment_names
-                q_values = [token, access, NEW_COURSE]
-                q_values += course_values
-                q_values += assignment_values
-                return redirect(lti.create_lti_query_link(q_names, q_values))
-            else:
-                q_names = ['jwt_refresh', 'jwt_access', 'state']
-                q_values = [token, access, NO_COURSE]
-                return redirect(lti.create_lti_query_link(q_names, q_values))
+            if 'lis_person_sourcedid' in params:
+                q_names.append('username')
+                q_values.append(params['lis_person_sourcedid'])
 
-        assignment = lti.check_assignment_lti(request.POST)
-        if assignment is None:
-            if role == 'Teacher':
-                q_names = ['jwt_refresh', 'jwt_access', 'state', 'cID']
-                q_names += assignment_names
-                q_values = [token, access, NEW_ASSIGN, course.pk]
-                q_values += assignment_values
-                return redirect(lti.create_lti_query_link(q_names, q_values))
-            else:
-                q_names = ['jwt_refresh', 'jwt_access', 'state']
-                q_values = [token, access, NO_ASSIGN]
-                return redirect(lti.create_lti_query_link(q_names, q_values))
+            if 'lis_person_contact_email_primary' in params:
+                q_names.append('email')
+                q_values.append(params['lis_person_contact_email_primary'])
 
-        journal = lti.select_create_journal(request.POST, user, assignment, roles)
-        jID = journal.pk if journal is not None else None
-        state = FINISH_T if jID is None else FINISH_S
+            return redirect(lti.create_lti_query_link(q_names, q_values))
 
-        q_names = ['jwt_refresh', 'jwt_access',
-                   'state', 'cID', 'aID', 'jID']
-        q_values = [token, access, state,
-                    course.pk, assignment.pk, jID]
-        return redirect(lti.create_lti_query_link(q_names, q_values))
+        refresh = TokenObtainPairSerializer.get_token(user)
+        access = refresh.access_token
+        return redirect(lti.create_lti_query_link(['lti_params', 'jwt_access', 'jwt_refresh', 'state'],
+                                                  [lti_params, access, refresh, LOGGED_IN]))
 
-    return redirect(lti.create_lti_query_link(['state'], ['BAD_AUTH']))
+    return redirect(lti.create_lti_query_link(['state'], [BAD_AUTH]))

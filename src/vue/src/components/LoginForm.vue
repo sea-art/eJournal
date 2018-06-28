@@ -23,12 +23,8 @@ export default {
     methods: {
         handleLogin () {
             authAPI.login(this.username, this.password)
-                .then(_ => {
-                    this.$emit('login-success')
-                })
-                .catch(_ => {
-                    this.$toasted.error('Could not login')
-                })
+                .then(_ => { this.$emit('handleAction') })
+                .catch(_ => { this.$toasted.error('Could not login') })
         }
     }
 }

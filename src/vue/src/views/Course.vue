@@ -148,15 +148,19 @@ export default {
                     }
                 }
             } else {
-                return {
+                var obj = {
                     name: 'Journal',
                     params: {
                         cID: cID,
                         aID: aID,
-                        jID: journal.jID,
                         assignmentName: name
                     }
                 }
+                if (journal) {
+                    obj.params.jID = journal.jID
+                }
+
+                return obj
             }
         },
         journalRoute (cID, aID, jID, name) {
