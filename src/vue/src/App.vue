@@ -180,7 +180,7 @@ input, select {
 }
 
 .showEnters {
-    white-space: pre;
+    white-space: pre-wrap;
 }
 
 .portrait-container {
