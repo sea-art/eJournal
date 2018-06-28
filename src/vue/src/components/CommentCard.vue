@@ -71,7 +71,8 @@ export default {
                 this.commentObject.entrycomments.push({
                     entrtyID: this.eID,
                     author: {
-                        name: this.userData.first_name + ' ' + this.userData.last_name,
+                        first_name: this.userData.first_name,
+                        last_name: this.userData.last_name,
                         picture: this.userData.picture
                     },
                     text: this.tempComment

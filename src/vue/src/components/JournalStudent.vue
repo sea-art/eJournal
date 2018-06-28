@@ -154,8 +154,10 @@ export default {
                 }
 
                 if (node.type === 'e' || node.type === 'd') {
-                    if (node.entry.published && node.entry.published !== '0') {
-                        tempProgress += node.entry.grade
+                    if (node.entry.grade && node.entry.grade !== '0') {
+                        console.log(node.entry.grade)
+                        console.log(node.nID)
+                        tempProgress += parseInt(node.entry.grade)
                     }
                 }
             }
