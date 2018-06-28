@@ -1,4 +1,10 @@
-<!-- Example of a simple template. -->
+<!--
+    Loads in an entry for a student, which was previously filled in
+    by the student using an Add-Node or an empty Deadline-Entry-Node.
+    It will also show the grade once it's published by responsible user
+    and give a possibility to edit an entry if it still has the
+    needed privileges.
+ -->
 <template>
     <div class="entry-template">
         <b-row>
@@ -21,7 +27,8 @@
                         </b-row>
                         <b-row>
                             <b-col id="main-card-left-column" cols="12" lg-cols="12">
-                                <!-- Shows every field description and
+                                <!--
+                                    Shows every field description and
                                     a corresponding form.
                                 -->
                                 <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
@@ -68,7 +75,8 @@
                         </b-row>
                         <b-row>
                             <b-col id="main-card-left-column" cols="12" lg-cols="12">
-                                <!-- Gives a view of every templatefield and
+                                <!--
+                                    Gives a view of every templatefield and
                                     if possible the already filled in entry.
                                 -->
                                 <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
@@ -138,6 +146,8 @@ export default {
             this.setContent()
         },
         setContent: function () {
+            /* Loads in the data of an entry in the right order by matching
+             * the different data-fields with the corresponding template-IDs. */
             var checkFound = false
             for (var templateField of this.entryNode.entry.template.fields) {
                 checkFound = false
