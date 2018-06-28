@@ -18,10 +18,6 @@
 
         <main-card slot="main-content-column" v-if="$root.canAddAssignment()" class="hover" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
 
-        <div slot="main-content-column">
-            {{deadlines}}
-        </div>
-
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
             <b-link tag="b-button" :to="journalRoute(d.cID, d.aID, d.jID, d.name)">
