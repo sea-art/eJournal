@@ -16,6 +16,7 @@ import VLE.edag as edag
 import VLE.lti_grade_passback as lti_grade
 
 import VLE.views.responses as responses
+import VLE.permissions as permissions
 
 import jwt
 import json
@@ -35,8 +36,14 @@ def create_new_course(request):
 
     On success, returns a json string containing the course.
     """
-    if not request.user.is_authenticated:
+    user = request.user
+    if not user.is_authenticated:
         return responses.unauthorized()
+
+    perm = permissions.get_permissions(user)
+
+    if not perm["can_add_course"]:
+        return responses.forbidden("You have no permissions to create a course.")
 
     try:
         name, abbr = utils.required_params(request.data, "name", "abbr")
@@ -61,7 +68,8 @@ def create_new_assignment(request):
 
     On success, returns a json string containing the assignment.
     """
-    if not request.user.is_authenticated:
+    user = request.user
+    if not user.is_authenticated:
         return responses.unauthorized()
 
     try:
@@ -69,6 +77,13 @@ def create_new_assignment(request):
         points_possible, lti_id = utils.optional_params(request.data, "points_possible", "lti_id")
     except KeyError:
         return responses.keyerror("name", "description", "cID")
+
+    # Assignments can only be created with can_create_assignment permission.
+    role = permissions.get_role(user, cID)
+    if role is None:
+        return responses.unauthorized("You have no access to this course.")
+    elif not role.can_add_assignment:
+        return responses.forbidden("You have no permissions to create a new assignment.")
 
     assignment = factory.make_assignment(name, description, cIDs=[cID],
                                          author=request.user, lti_id=lti_id,
@@ -87,13 +102,21 @@ def create_journal(request):
 
     On success, returns a json string containing the journal.
     """
-    if not request.user.is_authenticated:
+    user = request.user
+    if not user.is_authenticated:
         return responses.unauthorized()
 
     try:
         [aID] = utils.required_params(request.data, "aID")
     except KeyError:
         return responses.keyerror("aID")
+
+    role = permissions.get_assignment_id_permissions(user, aID)
+
+    if role == {}:
+        return responses.forbidden("You have no permissions within this course.")
+    elif not role["can_edit_journal"]:
+        return responses.forbidden("You have no permissions to create a journal.")
 
     assignment = Assignment.objects.get(pk=aID)
     journal = factory.make_journal(assignment, request.user)
