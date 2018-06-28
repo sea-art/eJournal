@@ -135,6 +135,7 @@ export default {
                 .then(response => {
                     this.course = response
                     this.pageName = this.course.name
+                    this.$toasted.success('Updated course')
                 })
         },
         deleteCourse () {
