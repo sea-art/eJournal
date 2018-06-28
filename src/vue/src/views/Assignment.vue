@@ -76,6 +76,7 @@ import studentCard from '@/components/StudentCard.vue'
 import statisticsCard from '@/components/StatisticsCard.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import journal from '@/api/journal.js'
+import permissionsApi from '@/api/permissions.js'
 import store from '@/Store.vue'
 
 export default {
@@ -107,10 +108,18 @@ export default {
         'store': store
     },
     created () {
-        journal.get_assignment_journals(this.aID)
+        permissionsApi.get_course_permissions(this.cID)
             .then(response => {
-                this.assignmentJournals = response.journals
-                this.stats = response.stats
+                if (!this.$router.app.canViewAssignmentParticipants()) {
+                    this.$router.push({name: 'Course', params: {cID: this.cID}})
+                    return
+                }
+
+                journal.get_assignment_journals(this.aID)
+                    .then(response => {
+                        this.assignmentJournals = response.journals
+                        this.stats = response.stats
+                    })
             })
 
         if (this.$route.query.sort === 'sortName' ||
