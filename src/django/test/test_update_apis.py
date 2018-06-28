@@ -44,11 +44,11 @@ class UpdateApiTests(TestCase):
         course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
 
         test.api_post_call(self, '/api/update_course/', {
-                'cID': course.pk,
-                'name': 'Beeldbewerken',
-                'abbr': 'BB',
-                'startdate': course.startdate,
-                'enddate': course.enddate
+            'cID': course.pk,
+            'name': 'Beeldbewerken',
+            'abbr': 'BB',
+            'startdate': course.startdate,
+            'enddate': course.enddate
             },
             login
         )
