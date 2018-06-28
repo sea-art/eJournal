@@ -1,3 +1,9 @@
+<!--
+    Shows the functionality of an Add-Node. It will give the user options
+    to select an Entry-Template, this was set by the teacher, and then fill in
+    this corresponding Entry-Template so it can be saved and added to the
+    EDAG-Tree.
+-->
 <template>
     <div class="entry-template">
         <b-row>

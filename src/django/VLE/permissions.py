@@ -47,10 +47,12 @@ def get_permissions(user, cID=-1):
             "can_edit_course_roles": True,
             "can_add_course": True,
             "can_view_course_participants": True,
+            "can_add_course_participants": True,
             "can_edit_course": True,
             "can_delete_course": True,
 
             "can_add_assignment": True,
+            "can_edit_assignment": True,
             "can_view_assignment_participants": True,
             "can_delete_assignment": True,
             "can_publish_assigment_grades": False,
@@ -69,10 +71,12 @@ def get_permissions(user, cID=-1):
             "can_edit_course_roles": False,
             "can_add_course": False,
             "can_view_course_participants": False,
+            "can_add_course_participants": False,
             "can_edit_course": False,
             "can_delete_course": False,
 
             "can_add_assignment": False,
+            "can_edit_assignment": False,
             "can_view_assignment_participants": False,
             "can_delete_assignment": False,
             "can_publish_assigment_grades": False,
@@ -171,18 +175,22 @@ def has_assignment_permissions(user, assignment, permission_list):
 
 
 def edit_permissions(role, can_edit_course_roles=False, can_view_course_participants=False,
+                     can_add_course_participants=False,
                      can_edit_course=False, can_delete_course=False,
                      can_add_assignment=False, can_view_assignment_participants=False,
+                     can_edit_assignment=False,
                      can_delete_assignment=False, can_publish_assigment_grades=False,
                      can_grade_journal=False, can_publish_journal_grades=False,
                      can_edit_journal=False, can_comment_journal=False):
     """Edit the name and permissions of an existing role."""
     role.can_edit_course_roles = can_edit_course_roles
     role.can_view_course_participants = can_view_course_participants
+    role.can_add_course_participants = can_add_course_participants
     role.can_edit_course = can_edit_course
     role.can_delete_course = can_delete_course
 
     role.can_add_assignment = can_add_assignment
+    role.can_edit_assignment = can_edit_assignment
     role.can_view_assignment_participants = can_view_assignment_participants
     role.can_delete_assignment = can_delete_assignment
     role.can_publish_assigment_grades = can_publish_assigment_grades

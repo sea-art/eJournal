@@ -1,4 +1,7 @@
-<!-- Loads a preview of a template. -->
+<!--
+    Loads a preview of an Entry-Template and returns the filled in data to
+    the parrent once it's saved.
+-->
 <template>
     <b-card class="card main-card no-hover" :class="'dark-border'">
         <b-row>

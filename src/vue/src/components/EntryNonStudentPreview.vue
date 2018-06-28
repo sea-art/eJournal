@@ -1,4 +1,8 @@
-<!-- Loads a preview of an entry. -->
+<!--
+    Loads a filled in template of an entry and the corresponding
+    comments. The teacher tools will also be loaded if the user has the
+    right permissions.
+-->
 <template>
     <div v-if="entryNode.entry !== null">
         <b-card class="card main-card no-hover" :class="'dark-border'">
@@ -35,7 +39,7 @@
                     </div>
                     <div v-else>
                         <div v-if="tempNode.entry.published">
-                            {{ tempNode.entry.grade }}
+                            {{ entryNode.entry.grade }}
                         </div>
                         <div v-else>
                             To be graded
@@ -67,6 +71,7 @@ export default {
         entryNode: function () {
             this.completeContent = []
             this.setContent()
+            this.tempNode = this.entryNode
 
             if (this.entryNode.entry !== null) {
                 this.grade = this.entryNode.entry.grade
@@ -75,12 +80,6 @@ export default {
                 this.grade = null
                 this.status = true
             }
-        },
-        'entryNode.entry.published': function () {
-            this.status = this.entryNode.entry.published
-        },
-        'entryNode.entry.grade': function () {
-            this.grade = this.entryNode.entry.grade
         }
     },
     created () {
@@ -88,6 +87,8 @@ export default {
     },
     methods: {
         setContent: function () {
+            /* Loads in the data of an entry in the right order by matching
+             * the different data-fields with the corresponding template-IDs. */
             var checkFound = false
 
             if (this.entryNode.entry !== null) {
@@ -117,18 +118,28 @@ export default {
         },
         commitGrade: function () {
             if (this.grade !== null) {
-                this.$toasted.success('Oh yeah! grade updated')
                 this.tempNode.entry.grade = this.grade
-                this.tempNode.entry.published = this.status
+                this.tempNode.entry.published = (this.status === 'true')
 
-                if (this.status) {
-                    journalApi.update_grade_entry(this.entryNode.entry.eID,
-                        this.grade, 1)
-                    this.$emit('check-grade', this.tempNode)
+                if (this.status === 'true') {
+                    journalApi.update_grade_entry(this.entryNode.entry.eID, this.grade, 1)
+                        .then(_ => {
+                            this.$toasted.success('Oh yeah! grade updated with visibility')
+                            this.$emit('check-grade')
+                        })
+                        .catch(_ => {
+                            this.$toasted.error('Oh no! something went wrong')
+                        })
                 } else {
                     journalApi.update_grade_entry(this.entryNode.entry.eID,
                         this.grade, 0)
-                    this.$emit('check-grade', this.tempNode)
+                        .then(_ => {
+                            this.$toasted.success('Oh yeah! grade updated without visibility')
+                            this.$emit('check-grade')
+                        })
+                        .catch(_ => {
+                            this.$toasted.error('Oh no! something went wrong')
+                        })
                 }
             }
         }
