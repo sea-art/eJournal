@@ -228,6 +228,23 @@ input, select {
     color: white !important;
 }
 
+.error {
+    background-color: var(--theme-negative-selected) !important;
+}
+
+.success {
+    background-color: var(--theme-positive-selected) !important;
+}
+
+.warning {
+    background-color: var(--theme-change-selected) !important;
+}
+
+.error, .success, .warning {
+    font-family: 'Roboto Condensed', sans-serif !important;
+    font-size: 1.1em !important;
+}
+
 .lti-button-option {
     width: 275px;
     height: 100px;

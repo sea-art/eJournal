@@ -115,7 +115,7 @@ export default {
             }
 
             if (this.$refs['entry-template-card'].saveEditMode === 'Save') {
-                if (!confirm('Oh no! Progress will not be saved if you leave. Do you wish to continue?')) {
+                if (!confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
                     return
                 }
             }

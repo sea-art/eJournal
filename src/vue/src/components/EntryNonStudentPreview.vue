@@ -124,21 +124,21 @@ export default {
                 if (this.status === 'true' || this.status === true) {
                     journalApi.update_grade_entry(this.entryNode.entry.eID, this.grade, 1)
                         .then(_ => {
-                            this.$toasted.success('Oh yeah! Grade updated with visibility')
+                            this.$toasted.success('Grade updated and published.')
                             this.$emit('check-grade')
                         })
                         .catch(_ => {
-                            this.$toasted.error('Oh no! something went wrong')
+                            this.$toasted.error('Something went wrong with updating the grade.')
                         })
                 } else {
                     journalApi.update_grade_entry(this.entryNode.entry.eID,
                         this.grade, 0)
                         .then(_ => {
-                            this.$toasted.success('Oh yeah! Grade updated without visibility')
+                            this.$toasted.success('Grade updated but not published.')
                             this.$emit('check-grade')
                         })
                         .catch(_ => {
-                            this.$toasted.error('Oh no! Something went wrong')
+                            this.$toasted.error('Something went wrong with updating the grade.')
                         })
                 }
             }
