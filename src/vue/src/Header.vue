@@ -1,6 +1,6 @@
 <template>
     <b-navbar v-if="$root.validToken" id="header" toggleable="md" type="dark" fixed=top>
-        <b-navbar-brand :to="'/Home'" class="brand-name">Logboek</b-navbar-brand>
+        <b-navbar-brand :to="{ name: 'Home' }" class="brand-name">Logboek</b-navbar-brand>
 
         <b-navbar-toggle class="ml-auto mr-auto" target="nav-collapse" aria-expanded="false" aria-controls="nav-collapse">
             <span class="nav-collapse__icon nav-collapse__icon--open">
@@ -28,12 +28,11 @@
     </b-navbar>
 
     <b-navbar v-else id="header" toggleable="md" type="dark" fixed=top>
-        <b-navbar-brand  :to="'/'" class="brand-name">Logboek</b-navbar-brand>
+        <b-navbar-brand  :to="{ name: 'Guest' }" class="brand-name">Logboek</b-navbar-brand>
 
         <b-navbar-nav class="ml-auto">
             <b-nav-dropdown right no-caret id="nav-dropdown-options" ref="loginDropdown">
-                <!-- TODO Fix dynamic binding default image -->
-                <img id="nav-profile-image" slot="button-content" src="~@/assets/unknown-profile.png">
+                <img id="nav-profile-image" slot="button-content" :src="profileImg">
 
                 <b-form @submit.prevent="handleLogin()" class="login-form-header">
                     <b-input class="multi-form" v-model="username" required placeholder="Username"/>
@@ -58,44 +57,62 @@ export default {
     },
     data () {
         return {
-            // TODO Figure out why webpack messes this up
-            profileImg: '~/assets/unknown-profile.png',
+            defaultProfileImg: '../static/unknown-profile.png',
+            profileImg: '',
             username: '',
             password: '',
-            profile: ''
+            profile: '',
+            profileFetchAttempts: 0
+        }
+    },
+    watch: {
+        '$root.validToken': function (val) {
+            this.setProfileImg()
         }
     },
     methods: {
         handleLogout () {
             authAPI.logout()
-            this.$router.push('/')
+            this.$router.push({ name: 'Guest' })
         },
         handleLogin () {
             authAPI.login(this.username, this.password)
                 .then(_ => {
-                    console.log('Handling login success')
-                    this.setProfilePicture()
+                    this.setUserProfile()
                     this.$router.push({name: 'Home'})
                 })
                 .catch(_ => {
                     this.$toasted.error('Could not login')
                 })
         },
-        setProfilePicture () {
+        setUserProfile () {
             userAPI.getOwnUserData()
                 .then(user => {
                     this.profile = user
-                    if (user.picture) {
-                        this.profileImg = user.picture
-                    } else {
-                        // TODO Set default user picture
-                    }
+                    this.setProfileImg()
                 })
                 .catch(_ => {
                     this.$toasted.error('Something went wrong retrieving user data')
-                    // TODO Set default user picture
                 })
+        },
+        setProfileImg () {
+            if (this.$root.validToken) {
+                if (this.profile.picture) {
+                    this.profileImg = this.profile.picture
+                } else if (this.profileFetchAttempts === 0) {
+                    this.setUserProfile()
+                    this.profileFetchAttempts = this.profileFetchAttempts + 1
+                } else {
+                    this.profileImg = this.defaultProfileImg
+                    this.profileFetchAttempts = 0
+                }
+            } else {
+                this.profileImg = this.defaultProfileImg
+            }
         }
+    },
+    created () {
+        this.setProfileImg()
     }
 }
 </script>
