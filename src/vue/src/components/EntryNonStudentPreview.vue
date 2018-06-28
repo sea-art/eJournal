@@ -1,4 +1,8 @@
-<!-- Loads a preview of an entry. -->
+<!--
+    Loads a filled in template of an entry and the corresponding
+    comments. The teacher tools will also be loaded if the user has the
+    right permissions.
+-->
 <template>
     <div v-if="entryNode.entry !== null">
         <b-card class="card main-card no-hover" :class="'dark-border'">
@@ -88,6 +92,8 @@ export default {
     },
     methods: {
         setContent: function () {
+            /* Loads in the data of an entry in the right order by matching
+             * the different data-fields with the corresponding template-IDs. */
             var checkFound = false
 
             if (this.entryNode.entry !== null) {
