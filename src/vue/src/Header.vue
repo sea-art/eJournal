@@ -1,4 +1,5 @@
 <template>
+    <!-- Section visible if user logged in -->
     <b-navbar v-if="$root.validToken" id="header" toggleable="md" type="dark" fixed=top>
         <b-navbar-brand :to="{ name: 'Home' }" class="brand-name">Logboek</b-navbar-brand>
 
@@ -27,6 +28,7 @@
         </b-navbar-nav>
     </b-navbar>
 
+    <!-- Section visible if user logged out -->
     <b-navbar v-else id="header" toggleable="md" type="dark" fixed=top>
         <b-navbar-brand  :to="{ name: 'Guest' }" class="brand-name">Logboek</b-navbar-brand>
 
@@ -96,6 +98,9 @@ export default {
                 })
         },
         setProfileImg () {
+            /* Sets the profile img if found, else a default is set.
+             * If a valid token is registered but no profile image is found,
+             * one more call is made to retrieve the profile image. */
             if (this.$root.validToken) {
                 if (this.profile.picture) {
                     this.profileImg = this.profile.picture
