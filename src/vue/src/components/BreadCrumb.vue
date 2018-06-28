@@ -48,7 +48,8 @@ export default {
             cachedMap: [],
             aliases: {
                 'Home': 'Courses',
-                'FormatEdit': 'Format Editor'
+                'FormatEdit': 'Format Editor',
+                'AssignmentsOverview': 'Assignment Overview'
             },
             paramMap: {
                 'Course': 'cID',

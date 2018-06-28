@@ -78,6 +78,9 @@ export default {
         },
         'entryNode.entry.published': function () {
             this.status = this.entryNode.entry.published
+        },
+        'entryNode.entry.grade': function () {
+            this.grade = this.entryNode.entry.grade
         }
     },
     created () {
@@ -114,7 +117,7 @@ export default {
         },
         commitGrade: function () {
             if (this.grade !== null) {
-                this.$toasted.succes('Oh yeah! grade updated')
+                this.$toasted.success('Oh yeah! grade updated')
                 this.tempNode.entry.grade = this.grade
                 this.tempNode.entry.published = this.status
 

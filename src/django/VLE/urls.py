@@ -43,11 +43,12 @@ urlpatterns = [
     path('api/get_course_data/<int:cID>/', get.get_course_data, name='get_course_data'),
     path('api/get_assignment_data/<int:cID>/<int:aID>/', get.get_assignment_data, name='get_assignment_data'),
 
-    path('api/check_valid_token/', get.check_valid_token, name='check_valid_token'),
     path('api/get_user_courses/', get.get_user_courses, name='get_user_courses'),
     path('api/get_course_assignments/<int:cID>/', get.get_course_assignments, name='get_course_assignments'),
     path('api/get_assignment_journals/<int:aID>/', get.get_assignment_journals, name='get_assignment_journals'),
     path('api/get_upcoming_deadlines/', get.get_upcoming_deadlines, name='get_upcoming_deadlines'),
+    path('api/get_upcoming_course_deadlines/<int:cID>/', get.get_upcoming_course_deadlines,
+         name='get_upcoming_course_deadlines'),
     path('api/get_course_permissions/<str:cID>/', get.get_course_permissions, name='get_course_permissions'),
     path('api/get_nodes/<int:jID>/', get.get_nodes, name='get_nodes'),
     path('api/get_format/<int:aID>/', get.get_format, name='get_format'),
