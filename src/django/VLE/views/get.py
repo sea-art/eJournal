@@ -358,21 +358,26 @@ def get_upcoming_deadlines(request):
 
     for course in courses:
         for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
-            journal = Journal.objects.get(assignment=assignment, user=user)
-            deadlines = journal.node_set.exclude(preset=None).values('preset__deadline')
-            # Gets the node with the earliest deadline
-            future_deadline = deadlines.filter(preset__deadline__gte=datetime.now()).order_by('preset__deadline')[0]
-            future_deadline = {'Date': future_deadline['preset__deadline'].date(),
-                               'Hours': future_deadline['preset__deadline'].hour,
-                               'Minutes': future_deadline['preset__deadline'].minute}
+            try:
+                journal = Journal.objects.get(assignment=assignment, user=user)
+                deadlines = journal.node_set.exclude(preset=None).values('preset__deadline')
+                # Gets the node with the earliest deadline
+                future_deadline = deadlines.filter(preset__deadline__gte=datetime.datetime.now(
+                    )).order_by('preset__deadline')[0]
+                future_deadline = {'Date': future_deadline['preset__deadline'].date(),
+                                   'Hours': future_deadline['preset__deadline'].hour,
+                                   'Minutes': future_deadline['preset__deadline'].minute}
 
-            # Appends the earliest deadline of the assignment to the deadline list
-            deadline_list.append({'name': serialize.assignment_to_dict(assignment)['name'],
-                                  'courseAbbr': course.abbreviation,
-                                  'cID': course.id,
-                                  'aID': assignment.id,
-                                  'jID': journal.id,
-                                  'deadline': future_deadline})
+                # Appends the earliest deadline of the assignment to the deadline list
+                deadline_list.append({'name': serialize.assignment_to_dict(assignment)['name'],
+                                      'courseAbbr': course.abbreviation,
+                                      'cID': course.id,
+                                      'aID': assignment.id,
+                                      'jID': journal.id,
+                                      'deadline': future_deadline})
+            except Exception:
+                # JOEY pushed non working code
+                pass
 
     return responses.success(payload={'deadlines': deadline_list})
 
@@ -400,21 +405,24 @@ def get_upcoming_course_deadlines(request, cID):
         return responses.not_found('Course does not exist.')
 
     for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
-        journal = Journal.objects.get(assignment=assignment, user=user)
-        deadlines = journal.node_set.exclude(preset=None).values('preset__deadline')
-        # Gets the node with the earliest deadline
-        future_deadline = deadlines.filter(preset__deadline__gte=datetime.now()).order_by('preset__deadline')[0]
-        future_deadline = {'Date': future_deadline['preset__deadline'].date(),
-                           'Hours': future_deadline['preset__deadline'].hour,
-                           'Minutes': future_deadline['preset__deadline'].minute}
+        try:
+            journal = Journal.objects.get(assignment=assignment, user=user)
+            deadlines = journal.node_set.exclude(preset=None).values('preset__deadline')
+            # Gets the node with the earliest deadline
+            future_deadline = deadlines.filter(preset__deadline__gte=datetime.now()).order_by('preset__deadline')[0]
+            future_deadline = {'Date': future_deadline['preset__deadline'].date(),
+                               'Hours': future_deadline['preset__deadline'].hour,
+                               'Minutes': future_deadline['preset__deadline'].minute}
 
-        # Appends the earliest deadline of the assignment to the deadline list
-        deadline_list.append({'name': serialize.assignment_to_dict(assignment)['name'],
-                              'courseAbbr': course.abbreviation,
-                              'cID': course.id,
-                              'aID': assignment.id,
-                              'jID': journal.id,
-                              'deadline': future_deadline})
+            # Appends the earliest deadline of the assignment to the deadline list
+            deadline_list.append({'name': serialize.assignment_to_dict(assignment)['name'],
+                                  'courseAbbr': course.abbreviation,
+                                  'cID': course.id,
+                                  'aID': assignment.id,
+                                  'jID': journal.id,
+                                  'deadline': future_deadline})
+        except Exception:
+            pass
 
     return responses.success(payload={'deadlines': deadline_list})
 
