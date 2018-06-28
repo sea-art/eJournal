@@ -11,8 +11,8 @@ from VLE.models import Role
 import VLE.factory as factory
 
 
-def set_up_user_and_auth(username, password, is_superuser=False, is_teacher=False,
-                         first_name=None, last_name=None)):
+def set_up_user_and_auth(username, password, first_name=None, last_name=None,
+                         is_superuser=False, is_teacher=False):
     """Set up a user with the possibility of global permissions.
 
     Arguments:

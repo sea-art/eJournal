@@ -22,12 +22,13 @@ def make_user(username, password, email=None, lti_id=None, profile_picture=None,
     profile_picture -- profile picture of the user (default: none)
     is_superuser -- if the user needs all permissions, set this true (default: False)
     """
-    if first_name is None or last_name is None:
-        user = User(username=username, email=email, lti_id=lti_id, is_superuser=is_superuser,
-                    is_teacher=is_teacher)
-    else:
-        user = User(username=username, email=email, lti_id=lti_id, is_superuser=is_superuser,
-                    is_teacher=is_teacher, first_name=first_name, last_name=last_name)
+    user = User(username=username, email=email, lti_id=lti_id, is_superuser=is_superuser,
+                is_teacher=is_teacher)
+
+    if first_name:
+        user.first_name = first_name
+    if last_name:
+        user.last_name = last_name
 
     user.save()
     user.set_password(password)
