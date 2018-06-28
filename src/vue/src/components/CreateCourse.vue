@@ -33,7 +33,7 @@ export default {
         onSubmit () {
             courseApi.create_new_course(this.form.courseName,
                 this.form.courseAbbr, this.form.courseStartdate,
-                this.form.courseEndDate,
+                this.form.courseEnddate,
                 this.form.ltiCourseID)
                 .then(response => {
                     this.onReset(undefined)
