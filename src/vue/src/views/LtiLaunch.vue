@@ -72,24 +72,23 @@ export default {
     },
     methods: {
         loadLtiData () {
-            this.ltiJWT = this.$route.query.ltiJWT
-            ltiApi.get_lti_params_from_jwt (this.ltiJWT)
-                .then(response => {
-                    alert(Object.values(response))
-                    alert(response.state)
-                    this.lti.ltiCourseName = response.lti_cName
-                    this.lti.ltiCourseAbbr = response.lti_abbr
-                    this.lti.ltiCourseID = response.lti_cID
-                    this.lti.ltiAssignName = response.lti_aName
-                    this.lti.ltiAssignID = response.lti_aID
-                    this.lti.ltiPointsPossible = response.lti_points_possible
-                    this.page.cID = response.cID
-                    this.page.aID = response.aID
-                    this.page.jID = response.jID
-                    this.states.state = response.state
-                    resolve("success")
-                })
-                .catch(_ => reject(alert("Error decoding the JWT token")))
+            return new Promise((resolve, reject) => {
+                ltiApi.get_lti_params_from_jwt(this.ltiJWT)
+                    .then(response => {
+                        this.lti.ltiCourseName = response.lti_cName
+                        this.lti.ltiCourseAbbr = response.lti_abbr
+                        this.lti.ltiCourseID = response.lti_cID
+                        this.lti.ltiAssignName = response.lti_aName
+                        this.lti.ltiAssignID = response.lti_aID
+                        this.lti.ltiPointsPossible = response.lti_points_possible
+                        this.page.cID = response.cID
+                        this.page.aID = response.aID
+                        this.page.jID = response.jID
+                        this.states.state = response.state
+                        resolve('success')
+                    })
+                    .catch(_ => reject(new Error('Error while loading LTI information')))
+            })
         },
         handleActions (args) {
             switch (args[0]) {
@@ -119,7 +118,6 @@ export default {
             }
         },
         updateState (state) {
-            alert("Ik kom binnen met state: " + state)
             switch (state) {
             case this.states.new_course:
                 this.currentPage = 'Course Integration'
@@ -181,8 +179,20 @@ export default {
             }
         }
     },
-    mounted () {
-        this.loadLtiData()
+    async mounted () {
+        this.ltiJWT = this.$route.query.ltiJWT
+        var retval = await this.loadLtiData()
+
+        if (retval !== 'success') {
+            alert(retval)
+            this.$router.push({
+                name: 'ErrorPage',
+                params: {
+                    errorCode: '404',
+                    errorMessage: retval
+                }
+            })
+        }
 
         if (this.states.state === this.states.bad_auth) {
             this.$router.push({

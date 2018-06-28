@@ -5,6 +5,6 @@ export default {
      */
     get_lti_params_from_jwt (jwtParams) {
         return auth.authenticatedGet('/get_lti_params_from_jwt/' + jwtParams + '/')
-            .then(response => response.data)
+            .then(response => response.data.params)
     }
 }

@@ -573,7 +573,7 @@ def get_lti_params_from_jwt(request, jwt_params):
             payload['cID'] = course.pk
             payload['lti_aName'] = lti_params['resource_link_title']
             payload['lti_aID'] = lti_params['resource_link_id']
-            return responses.success(payload=payload)
+            return responses.success(payload={'params': payload})
         else:
             return responses.not_found(description='The assignment you are looking for cannot be found. \
                 <br>Note it might still be reachable though the assignment section')
@@ -586,7 +586,7 @@ def get_lti_params_from_jwt(request, jwt_params):
     payload['cID'] = course.pk
     payload['aID'] = assignment.pk
     payload['jID'] = jID
-    return responses.success(payload=payload)
+    return responses.success(payload={'params': payload})
 
 
 @api_view(['POST'])
