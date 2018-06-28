@@ -159,8 +159,8 @@ def needs_grading(journal, nID):
     cID = str(journal.assignment.courses.first().pk)
 
     # TODO create custom link for submission
-    result_data = {'url': settings.BASELINK + '/Home/Course/' + cID +
-                   '/Assignment/' + aID + '/Journal/' + jID + '?nID=' + str(nID)}
+    result_data = {'url': '{0}/Home/Course/{1}/Assignment/{2}/Journal/{3}?nID={4}'.format(settings.BASELINK,
+                                                                                          cID, aID, jID, nID)}
 
     grade_request = GradePassBackRequest(key, secret, journal, result_data=result_data)
     response = grade_request.send_post_request()

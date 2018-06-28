@@ -148,7 +148,6 @@ export default {
                     return i
                 }
             }
-
             return 0
         },
         bootstrapLg () {
