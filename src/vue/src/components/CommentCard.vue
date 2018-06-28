@@ -57,7 +57,6 @@ export default {
     methods: {
         getAuthorID: function () {
             userApi.getOwnUserData()
-                .catch(_ => alert('Error while loading in user data.'))
                 .then(response => { this.userData = response })
         },
         getEntryComments: function () {

@@ -141,7 +141,7 @@ def check_course_lti(request, user, role):
     if courses.count() > 0:
         course = courses[0]
         if user not in course.users.all():
-            factory.make_participation(user, course, Role.objects.get(name=role))
+            factory.make_participation(user, course, Role.objects.get(name=role, course=course))
         return course
     return None
 

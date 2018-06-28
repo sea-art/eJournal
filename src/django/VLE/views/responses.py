@@ -1,5 +1,5 @@
 """
-responses.py
+responses.py.
 
 This file contains functions to easily generate common HTTP error responses
 using JsonResponses. These functions should be used whenever the client needs
@@ -32,7 +32,7 @@ def no_content(description='Request succeeded.'):
     Arguments:
     description -- header description (usable for example in the front end)
     """
-    return response(204, '204 No Content', description=description)
+    return response(204, 'No Content', description=description)
 
 
 def bad_request(description='Your browser performed a bad request.'):
@@ -41,7 +41,7 @@ def bad_request(description='Your browser performed a bad request.'):
     Arguments:
     description -- header description (usable for example in the front end)
     """
-    return response(400, '400 Bad Request', description=description)
+    return response(400, 'Bad Request', description=description)
 
 
 def unauthorized(description='You are not authenticated.'):
@@ -50,7 +50,7 @@ def unauthorized(description='You are not authenticated.'):
     Arguments:
     description -- header description (usable for example in the front end)
     """
-    return response(401, '401 Authentication Error', description=description)
+    return response(401, 'Authentication Error', description=description)
 
 
 def forbidden(description='You have no access to this page'):
@@ -59,7 +59,7 @@ def forbidden(description='You have no access to this page'):
     Arguments:
     description -- header description (usable for example in the front end)
     """
-    return response(403, '403 Forbidden', description=description)
+    return response(403, 'Forbidden', description=description)
 
 
 def not_found(description='The page or file you requested was not found.'):
@@ -68,7 +68,7 @@ def not_found(description='The page or file you requested was not found.'):
     Arguments:
     description -- header description (usable for example in the front end)
     """
-    return response(404, '404 Not Found', description=description)
+    return response(404, 'Not Found', description=description)
 
 
 def internal_server_error(description='Oops! The server experienced internal hiccups.'):

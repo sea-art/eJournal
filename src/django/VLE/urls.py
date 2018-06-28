@@ -43,6 +43,7 @@ urlpatterns = [
     path('api/get_course_data/<int:cID>/', get.get_course_data, name='get_course_data'),
     path('api/get_assignment_data/<int:cID>/<int:aID>/', get.get_assignment_data, name='get_assignment_data'),
 
+    path('api/check_valid_token/', get.check_valid_token, name='check_valid_token'),
     path('api/get_user_courses/', get.get_user_courses, name='get_user_courses'),
     path('api/get_course_assignments/<int:cID>/', get.get_course_assignments, name='get_course_assignments'),
     path('api/get_assignment_journals/<int:aID>/', get.get_assignment_journals, name='get_assignment_journals'),
@@ -51,13 +52,12 @@ urlpatterns = [
     path('api/get_nodes/<int:jID>/', get.get_nodes, name='get_nodes'),
     path('api/get_format/<int:aID>/', get.get_format, name='get_format'),
     path('api/get_names/', get.get_names, name='get_names'),
-    path('api/get_entrycomments/<int:entryID>/', get.get_entrycomments, name='get_entrycomments'),
+    path('api/get_entrycomments/<int:eID>/', get.get_entrycomments, name='get_entrycomments'),
     path('api/get_course_users/<int:cID>/', get.get_course_users, name='get_course_users'),
     path('api/get_course_roles/<int:cID>/', get.get_course_roles, name='get_user_roles'),
     path('api/get_user_teacher_courses/', get.get_user_teacher_courses, name='get_user_teacher_courses'),
     path('api/get_assignment_by_lti_id/<str:lti_id>/', get.get_assignment_by_lti_id, name='get_assignment_by_lti_id'),
     path('api/get_linkable_courses/', get.get_linkable_courses, name='get_linkable_courses'),
-    path('api/get_template/<int:tID>/', get.get_template, name='get_template'),
     path('api/get_user_data/<int:uID>/', get.get_user_data, name='get_user_data'),
     path('api/get_unenrolled_users/<int:cID>/', get.get_unenrolled_users, name='get_unenrolled_users'),
 

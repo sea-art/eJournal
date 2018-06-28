@@ -49,7 +49,6 @@ export default {
                 this.assignment = response
                 this.pageName = this.assignment.name
             })
-            .catch(_ => alert('Error while loading assignment data'))
     },
     methods: {
         onSubmit (evt) {
@@ -63,7 +62,7 @@ export default {
         },
         deleteAssignment () {
             if (confirm('Are you sure you want to delete ' + this.assignment.name + '?')) {
-                assignmentApi.delete_assignment(this.aID)
+                assignmentApi.delete_assignment(this.aID, this.cID)
                     .then(response => {
                         this.$router.push({name: 'Course',
                             params: {

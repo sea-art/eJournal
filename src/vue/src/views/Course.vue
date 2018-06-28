@@ -8,7 +8,10 @@
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
             <b-link tag="b-button" :to="assignmentRoute(cID, a.aID, a.name, a.journal)">
                 <assignment-card :line1="a.name" :color="$root.colors[a.aID % $root.colors.length]">
-                    <progress-bar v-if="a.journal && a.journal.stats" :currentPoints="a.journal.stats.acquired_points" :totalPoints="a.journal.stats.total_points"></progress-bar>
+                    <progress-bar
+                        v-if="a.journal && a.journal.stats"
+                        :currentPoints="a.journal.stats.acquired_points"
+                        :totalPoints="a.journal.stats.total_points"/>
                 </assignment-card>
             </b-link>
         </div>
@@ -59,7 +62,7 @@ export default {
     },
     data () {
         return {
-            assignments: [],
+            assignments: null,
             cardColor: '',
             post: null,
             error: null,
@@ -90,7 +93,6 @@ export default {
         loadAssignments () {
             assignment.get_course_assignments(this.cID)
                 .then(response => { this.assignments = response })
-                .catch(_ => alert('Error while loading assignments'))
         },
         showModal (ref) {
             this.$refs[ref].show()
@@ -108,7 +110,7 @@ export default {
             this.$refs[ref].hide()
         },
         customisePage () {
-            alert('Wishlist: Customise page')
+            this.$toasted.info('Wishlist: Customise page')
         },
         handleEdit () {
             this.$router.push({

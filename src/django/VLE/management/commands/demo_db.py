@@ -6,7 +6,7 @@ It generates a teacher and student account. The teacher has permissions.
 """
 
 from django.core.management.base import BaseCommand
-from VLE.models import Field, Node
+from VLE.models import Field, Node, Role
 import VLE.factory as factory
 from faker import Faker
 import random
@@ -50,7 +50,7 @@ class Command(BaseCommand):
         for c in courses_examples:
             startdate = faker.date_this_decade(before_today=True)
             course = factory.make_course(c["name"], c["abbr"], startdate, self.users[random.choice(c["teachers"])])
-            role = factory.make_role_student("Student", course)
+            role = Role.objects.get(name='Student', course=course)
             for sid in c["students"]:
                 student = self.users[sid]
                 factory.make_participation(student, course, role)
