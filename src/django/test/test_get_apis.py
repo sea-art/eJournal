@@ -300,7 +300,7 @@ class GetApiTests(TestCase):
         template = factory.make_entry_template('template')
         format = factory.make_format([template], 10)
         assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course])
-        student_user, student_pass, student = test.set_up_user_and_auth('student', 'pass')
+        student_user, student_pass, student = test.set_up_user_and_auth('student', 'pass', 'first', 'last')
         test.set_up_participation(student, course, 'Student')
         journal = test.set_up_journal(assignment, template, student, 4)
 
@@ -311,7 +311,7 @@ class GetApiTests(TestCase):
 
         result = test.api_post_call(self, '/get_names/', get_names_dict, login).json()
         self.assertEquals(result['course'], 'Portfolio')
-        self.assertEquals(result['journal'], 'student')
+        self.assertEquals(result['journal'], 'first last')
         self.assertEquals(result['assignment'], 'Colloq')
 
         # permissions and authorization check for the api call.

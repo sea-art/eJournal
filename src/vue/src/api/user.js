@@ -35,9 +35,11 @@ export default {
     },
 
     /* Update user data. */
-    updateUserData (username) {
+    updateUserData (username, firstName, lastName) {
         return auth.authenticatedPost('/update_user_data/', {
-            username: username
+            username: username,
+            first_name: firstName,
+            last_name: lastName
         })
     },
 
