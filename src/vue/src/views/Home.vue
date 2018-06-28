@@ -125,9 +125,6 @@ export default {
         customisePage () {
             this.$toasted.info('Wishlist: Customise page')
         },
-        canDeleteCourse () {
-            return this.$root.permissions.can_delete_course
-        },
         addMarkingList (aID) {
             journalApi.get_assignment_journals(aID)
                 .then(response => {
@@ -177,7 +174,7 @@ export default {
 
             topList = this.deadlines.slice().sort(compareDate).filter(filterTop)
 
-            if (this.$root.permissions.canAddCourse) {
+            if (this.$root.canAddCourse()) {
                 for (var i = 0; i < topList.length; i++) {
                     this.addMarkingList(topList[i].aID)
                 }
