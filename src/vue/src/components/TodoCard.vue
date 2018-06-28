@@ -6,6 +6,7 @@
             </b-col>
             <b-col cols="5">
                 <p>{{ new Date().getFullDay }}</p>
+                {{this.$route.path !='/AssignmentsOverview'}}
                 <p v-if="this.$root.canAddCourse() && this.$route.path !='/AssignmentsOverview'">
                     <todo-square :num="totalNeedsMarking"/>
                 </p>
