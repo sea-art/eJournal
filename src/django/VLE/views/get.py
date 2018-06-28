@@ -589,7 +589,7 @@ def get_user_data(request, uID):
 
     # Check the right permissions to get this users data, either be the user of the data or be an admin.
     permission = permissions.get_permissions(user, cID=-1)
-    if not (permission['is_admin'] or request.user.id == uID):
+    if not (permission['is_superuser'] or request.user.id == uID):
         return responses.forbidden('You cannot view this users data.')
 
     profile = serialize.user_to_dict(user)
