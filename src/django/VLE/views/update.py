@@ -147,9 +147,9 @@ def update_assignment(request):
 
     Arguments:
     request -- the update request that was send with
+        aID -- ID of the assignment
         name -- name of the assignment
         description -- description of the assignment
-        deadline -- deadline of the assignment
 
     Returns a json string for if it is successful or not.
     """

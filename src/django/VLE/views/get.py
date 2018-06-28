@@ -20,6 +20,8 @@ import VLE.serializers as serialize
 import VLE.permissions as permissions
 import VLE.views.responses as responses
 
+from datetime import datetime
+
 # VUE ENTRY STATE
 BAD_AUTH = '-1'
 NO_COURSE = '0'
@@ -348,15 +350,36 @@ def get_upcoming_deadlines(request):
 
     Returns a json string with the deadlines
     """
-    if not request.user.is_authenticated:
+
+    user = request.user
+    if not user.is_authenticated:
         return responses.unauthorized()
 
-    # TODO: Only take user specific upcoming enties
-    deadlines = []
-    for assign in Assignment.objects.all():
-        deadlines.append(serialize.deadline_to_dict(assign))
+    courses = []
+    deadline_list = []
 
-    return responses.success(payload={'deadlines': deadlines})
+    for course in user.participations.all():
+        courses.append(course)
+
+    for course in courses:
+        for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
+            journal = Journal.objects.get(assignment=assignment, user=user)
+            deadlines = journal.node_set.exclude(preset=None).values('preset__deadline')
+            # Gets the node with the earliest deadline
+            future_deadline = deadlines.filter(preset__deadline__gte=datetime.now()).order_by('preset__deadline')[0]
+            future_deadline = {'Date': future_deadline['preset__deadline'].date(),
+                               'Hours': future_deadline['preset__deadline'].hour,
+                               'Minutes': future_deadline['preset__deadline'].minute}
+
+            # Appends the earliest deadline of the assignment to the deadline list
+            deadline_list.append({'name': serialize.assignment_to_dict(assignment)['name'],
+                                  'courseAbbr': course.abbreviation,
+                                  'cID': course.id,
+                                  'aID': assignment.id,
+                                  'jID': journal.id,
+                                  'deadline': future_deadline})
+
+    return responses.success(payload={'deadlines': deadline_list})
 
 
 @api_view(['GET'])
