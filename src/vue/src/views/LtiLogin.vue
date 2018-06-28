@@ -50,11 +50,13 @@ export default {
     },
     mounted () {
         if (this.$route.query.state === this.states.bad_auth) {
-            this.$router.push({
+            router.push({
                 name: 'ErrorPage',
                 params: {
-                    errorCode: '511',
-                    errorMessage: 'Network authorization required'
+                    code: '511',
+                    message: 'Network authorization required',
+                    description: `Invalid credentials from the LTI environment.
+                                  Please contact your system administrator.`
                 }
             })
         } else {
@@ -87,11 +89,15 @@ export default {
 
                 this.handleUserIntegration = true
             } else {
-                this.$router.push({
+                router.push({
                     name: 'ErrorPage',
                     params: {
-                        errorCode: '400',
-                        errorMessage: 'Bad request'
+                        code: '400',
+                        message: 'Bad request',
+                        description: `Received invalid state from the server.
+                                      Please contact your system administrator
+                                      for more information. Further integration
+                                      is not possible.`
                     }
                 })
             }

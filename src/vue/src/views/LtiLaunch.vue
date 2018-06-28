@@ -14,6 +14,7 @@ import ltiCreateConnectAssignment from '@/components/LtiCreateConnectAssignment.
 import ltiCreateAssignment from '@/components/LtiCreateAssignment.vue'
 import assignApi from '@/api/assignment.js'
 import ltiApi from '@/api/ltilaunch.js'
+import router from '@/router'
 
 export default {
     name: 'LtiLaunch',
@@ -183,37 +184,49 @@ export default {
         this.ltiJWT = this.$route.query.ltiJWT
         await this.loadLtiData()
             .catch(err => {
-                this.$router.push({
+                router.push({
                     name: 'ErrorPage',
                     params: {
-                        errorCode: '404',
-                        errorMessage: err
+                        code: '404',
+                        message: err,
+                        description: `Error while loading LTI information.
+                                        Please contact your system administrator
+                                        for more information. Further integration
+                                        is not possible.`
                     }
                 })
             })
 
         if (this.states.state === this.states.bad_auth) {
-            this.$router.push({
+            router.push({
                 name: 'ErrorPage',
                 params: {
-                    errorCode: '511',
-                    errorMessage: 'Network authorization required'
+                    code: '511',
+                    message: 'Network authorization required',
+                    description: `Invalid credentials from the LTI environment.
+                                  Please contact your system administrator.`
                 }
             })
         } else if (this.states.state === this.states.no_course) {
-            this.$router.push({
+            router.push({
                 name: 'ErrorPage',
                 params: {
-                    errorCode: '404',
-                    errorMessage: 'No course found with given ID'
+                    code: '404',
+                    message: 'No course found with given ID',
+                    description: `The requested course is not available on
+                                  ejournal. Wait for it to become availible or
+                                  contact your teacher for more information.`
                 }
             })
         } else if (this.states.state === this.states.no_assign) {
-            this.$router.push({
+            router.push({
                 name: 'ErrorPage',
                 params: {
-                    errorCode: '404',
-                    errorMessage: 'No assignment found with given ID'
+                    code: '404',
+                    message: 'No assignment found with given ID',
+                    description: `The requested assignment is not available on
+                                  ejournal. Wait for it to become availible or
+                                  contact your teacher for more information.`
                 }
             })
         } else {
