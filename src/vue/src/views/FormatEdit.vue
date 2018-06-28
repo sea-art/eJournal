@@ -142,11 +142,15 @@ export default {
 
     methods: {
         deletePreset () {
-            this.deletedPresets.push(this.nodes[this.currentNode])
+            if (typeof this.nodes[this.currentNode].pID !== 'undefined') {
+                this.deletedPresets.push(this.nodes[this.currentNode])
+            }
             this.nodes.splice(this.currentNode, 1)
         },
         deleteTemplate (template) {
-            this.deletedTemplates.push(template.t)
+            if (typeof template.t.tID !== 'undefined') {
+                this.deletedTemplates.push(template.t)
+            }
             this.templatePool.splice(this.templatePool.indexOf(template), 1)
         },
         // Used to sort the list when dates are changed. Updates the currentNode index accordingly
@@ -185,6 +189,16 @@ export default {
             return new Date().toISOString().split('T')[0].slice(0, 10) + ' ' + new Date().toISOString().split('T')[1].slice(0, 5)
         },
         addNode () {
+            if (this.nodes.length === 0) {
+                this.nodes.push({
+                    'type': 'p',
+                    'deadline': this.newDate(),
+                    'target': 0
+                })
+                this.isChanged = true
+                return
+            }
+
             var newNode = {
                 'type': this.nodes[this.currentNode].type,
                 'deadline': this.nodes[this.currentNode].deadline
@@ -227,6 +241,10 @@ export default {
                     invalidDate = true
                     this.$toasted.error('One or more presets has an invalid deadline. Please check the format and try again.')
                 }
+                if (!invalidTemplate && node.type === 'd' && typeof node.template.tID === 'undefined') {
+                    invalidTemplate = true
+                    this.$toasted.error('One or more presets has an invalid template. Please check the format and try again.')
+                }
                 if (!invalidTemplate && node.type === 'd' && node.template.tID && !templatePoolIds.includes(node.template.tID)) {
                     invalidTemplate = true
                     this.$toasted.error('One or more presets has an invalid template. Please check the format and try again.')
@@ -252,7 +270,7 @@ export default {
                     this.presets = data.format.presets
                     this.unused_templates = data.format.unused_templates
                     this.deletedTemplates = []
-                    this.deletedTemplates = []
+                    this.deletedPresets = []
                     this.convertFromDB()
                 })
                 .then(_ => {
