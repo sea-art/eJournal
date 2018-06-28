@@ -354,7 +354,6 @@ def get_upcoming_deadlines(request):
 
     Returns a json string with the deadlines
     """
-
     user = request.user
     if not user.is_authenticated:
         return responses.unauthorized()
