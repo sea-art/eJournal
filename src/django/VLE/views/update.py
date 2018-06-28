@@ -55,11 +55,18 @@ def update_course(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    course = Course.objects.get(pk=request.data['cID'])
-    course.name = request.data['name']
-    course.abbreviation = request.data['abbr']
-    course.startdate = request.data['startDate']
+    try:
+        cID, name, abbr, startdate, enddate = utils.required_params(request.data, 'cID', 'name', 'abbr', 'startdate', 'enddate')
+    except KeyError:
+        return responses.keyerror('cID', 'name', 'abbr', 'startdate', 'enddate')
+
+    course = Course.objects.get(pk=cID)
+    course.name = name
+    course.abbreviation = abbr
+    course.startdate = startdate
+    course.enddate = enddate
     course.save()
+
     return responses.success(payload={'course': serialize.course_to_dict(course)})
 
 

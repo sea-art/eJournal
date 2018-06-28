@@ -46,7 +46,7 @@ class UpdateApiTests(TestCase):
         test.api_post_call(
             self,
             '/api/update_course/',
-            {'cID': course.pk, 'name': 'Beeldbewerken', 'abbr': 'BB', 'startDate': course.startdate},
+            {'cID': course.pk, 'name': 'Beeldbewerken', 'abbr': 'BB', 'startDate': course.startdate, 'endDate': course.enddate},
             login
         )
 
