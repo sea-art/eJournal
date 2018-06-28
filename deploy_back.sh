@@ -4,8 +4,8 @@ source settings/deploy.conf
 source settings/secrets.conf
 source settings/database.conf
 
-rsync -a ./venv ${TARGET}
-rsync -a --exclude='VLE.db' --exclude='settings/development.py' --exclude='test/' --exclude="__pycache__" --exclude="migrations/" ./src/django ${TARGET}
+sudo rsync -a ./venv ${TARGET}
+sudo rsync -a --exclude='VLE.db' --exclude='settings/development.py' --exclude='test/' --exclude="__pycache__" --exclude="migrations/" ./src/django ${TARGET}
 
 sudo sed -i "s@{{DIR}}@${TARGET}/django@g" ${TARGET}/django/VLE/wsgi.py
 

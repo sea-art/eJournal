@@ -23,14 +23,14 @@ class UpdateApiTests(TestCase):
 
         connect_dict = {'cID': course.pk, 'lti_id': '12XY'}
 
-        test.api_post_call(self, '/api/connect_course_lti/', connect_dict, login)
+        test.api_post_call(self, '/connect_course_lti/', connect_dict, login)
 
         q_course = Course.objects.get(pk=course.pk)
         self.assertEquals(q_course.lti_id, '12XY')
 
         # permission checks
         login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
-        test.test_unauthorized_api_post_call(self, '/api/connect_course_lti/', connect_dict)
+        test.test_unauthorized_api_post_call(self, '/connect_course_lti/', connect_dict)
         test.api_post_call(self, '/connect_course_lti/', connect_dict, login, status=403)
 
         test.set_up_participation(self.no_permission_user, course, 'Student')
@@ -88,7 +88,7 @@ class UpdateApiTests(TestCase):
         connect_dict = {'aID': assignment.pk, 'lti_id': '12XY'}
 
         login = test.logging_in(self, self.rein_user, self.rein_pass)
-        test.api_post_call(self, '/api/connect_assignment_lti/', connect_dict, login)
+        test.api_post_call(self, '/connect_assignment_lti/', connect_dict, login)
 
         q_assignment = Assignment.objects.get(pk=assignment.pk)
         self.assertEquals(q_assignment.lti_id, '12XY')
@@ -105,7 +105,7 @@ class UpdateApiTests(TestCase):
 
         test.api_post_call(
             self,
-            '/api/update_course_with_student/',
+            '/update_course_with_student/',
             {'uID': student.pk, 'cID': course.pk},
             login
         )
@@ -154,7 +154,7 @@ class UpdateApiTests(TestCase):
             'unused_templates': []
         }
 
-        test.api_post_call(self, '/api/update_format/', update_dict, login)
+        test.api_post_call(self, '/update_format/', update_dict, login)
 
         q_assign = Assignment.objects.get(pk=assignment.pk)
         self.assertEquals(q_assign.format.max_points, 11)
@@ -176,7 +176,7 @@ class UpdateApiTests(TestCase):
 
         test.api_post_call(
             self,
-            '/api/update_user_role_course/',
+            '/update_user_role_course/',
             {'cID': course.pk, 'uID': self.user_role.pk, 'role': 'SD'},
             login
         )
@@ -257,7 +257,7 @@ class UpdateApiTests(TestCase):
         login = test.logging_in(self, self.rein_user, self.rein_pass)
 
         update_dict = {'entrycommentID': entrycomment.pk, 'text': 'Bad!'}
-        test.api_post_call(self, '/api/update_entrycomment/', update_dict, login)
+        test.api_post_call(self, '/update_entrycomment/', update_dict, login)
 
         q_entrycomment = EntryComment.objects.get(pk=entrycomment.pk)
         self.assertEquals(q_entrycomment.text, 'Bad!')
