@@ -212,7 +212,7 @@ def update_grade_notification(request):
         return responses.bad_request()
 
     user.save()
-    return responses.bad_request(payload={'new_value': user.grade_notifications})
+    return responses.success(payload={'new_value': user.grade_notifications})
 
 
 @api_view(['POST'])
