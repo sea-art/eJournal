@@ -117,6 +117,10 @@ router.beforeEach((to, from, next) => {
     /* Returning next because we short circuit the function here, no API calls
     * are desired. */
     if (['Guest', 'Login', 'LtiLogin', 'LtiLaunch', 'Register'].includes(to.name)) {
+        if (to.name === 'Guest' && router.app.validToken) {
+            return next({name: 'Home'})
+        }
+
         return next()
     }
 
@@ -134,7 +138,7 @@ router.beforeEach((to, from, next) => {
             router.app.permissions = response
         })
         .catch(_ => {
-            console.log('Error while loading permissions, does the redirect work?')
+            this.$toasted.error('Error while loading permissions.')
         })
 
     next()

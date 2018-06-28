@@ -38,14 +38,6 @@ GRADE_CENTER = '6'
 
 
 @api_view(['GET'])
-def check_valid_token(request):
-    """Check if the token is a valid token."""
-    if not request.user.is_authenticated:
-        return responses.unauthorized()
-    return responses.success()
-
-
-@api_view(['GET'])
 def get_own_user_data(request):
     """Get the data linked to the logged in user.
 
@@ -381,6 +373,48 @@ def get_upcoming_deadlines(request):
                                   'aID': assignment.id,
                                   'jID': journal.id,
                                   'deadline': future_deadline})
+
+    return responses.success(payload={'deadlines': deadline_list})
+
+
+@api_view(['GET'])
+def get_upcoming_course_deadlines(request, cID):
+    """Get upcoming deadlines for the requested user.
+
+    Arguments:
+    request -- the request that was send with
+    cID -- the course ID that was send with
+
+    Returns a json string with the course deadlines
+    """
+
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    deadline_list = []
+
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
+        return responses.not_found('Course does not exist.')
+
+    for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
+        journal = Journal.objects.get(assignment=assignment, user=user)
+        deadlines = journal.node_set.exclude(preset=None).values('preset__deadline')
+        # Gets the node with the earliest deadline
+        future_deadline = deadlines.filter(preset__deadline__gte=datetime.now()).order_by('preset__deadline')[0]
+        future_deadline = {'Date': future_deadline['preset__deadline'].date(),
+                           'Hours': future_deadline['preset__deadline'].hour,
+                           'Minutes': future_deadline['preset__deadline'].minute}
+
+        # Appends the earliest deadline of the assignment to the deadline list
+        deadline_list.append({'name': serialize.assignment_to_dict(assignment)['name'],
+                              'courseAbbr': course.abbreviation,
+                              'cID': course.id,
+                              'aID': assignment.id,
+                              'jID': journal.id,
+                              'deadline': future_deadline})
 
     return responses.success(payload={'deadlines': deadline_list})
 

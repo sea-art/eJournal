@@ -52,7 +52,7 @@ def make_participation(user=None, course=None, role=None):
     return participation
 
 
-def make_course(name, abbrev, startdate=None, author=None, lti_id=None):
+def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=None):
     """Create a course.
 
     Arguments:
@@ -62,7 +62,7 @@ def make_course(name, abbrev, startdate=None, author=None, lti_id=None):
     author -- author of the course, this will also get the teacher role as participation
     lti_id -- potential lti_id, this is to link the canvas course to the VLE course.
     """
-    course = Course(name=name, abbreviation=abbrev, startdate=startdate, author=author, lti_id=lti_id)
+    course = Course(name=name, abbreviation=abbrev, startdate=startdate, enddate=enddate, author=author, lti_id=lti_id)
     course.save()
 
     # Student, TA and Teacher role are created on course creation as is saves check for lti.
