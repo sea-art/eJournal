@@ -102,7 +102,6 @@ def connect_assignment_lti(request):
     user = request.user
     if not user.is_authenticated:
         return responses.unauthorized()
-
     assignment = Assignment.objects.get(pk=request.data['aID'])
     assignment.lti_id = request.data['lti_id']
     if assignment.points_possible is None and request.data['points_possible'] is not '':
@@ -148,9 +147,9 @@ def update_assignment(request):
 
     Arguments:
     request -- the update request that was send with
+        aID -- ID of the assignment
         name -- name of the assignment
         description -- description of the assignment
-        deadline -- deadline of the assignment
 
     Returns a json string for if it is successful or not.
     """

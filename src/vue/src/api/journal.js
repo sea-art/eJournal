@@ -5,8 +5,8 @@ export default {
      * Requests all the assignment journals.
      * returns a list of all journals.
      */
-    get_assignment_journals (cID) {
-        return auth.authenticatedGet('/get_assignment_journals/' + cID + '/')
+    get_assignment_journals (aID) {
+        return auth.authenticatedGet('/get_assignment_journals/' + aID + '/')
             .then(response => response.data)
             .catch(error => { throw error })
     },
@@ -23,11 +23,6 @@ export default {
         }
 
         return auth.authenticatedPost('/create_entry/', data)
-            .then(response => response.data)
-    },
-
-    get_template (tID) {
-        return auth.authenticatedGet('/get_template/' + tID + '/')
             .then(response => response.data)
     },
 
