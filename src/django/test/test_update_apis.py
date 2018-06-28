@@ -54,8 +54,8 @@ class UpdateApiTests(TestCase):
         self.assertEquals(course.name, 'Beeldbewerken')
         self.assertEquals(course.abbreviation, 'BB')
 
-    def test_update_course_with_studentID(self):
-        """Test update_course_with_studentID"""
+    def test_update_course_with_student(self):
+        """Test update_course_with_student"""
         login = test.logging_in(self, self.username, self.password)
 
         course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
@@ -66,7 +66,7 @@ class UpdateApiTests(TestCase):
 
         test.api_post_call(
             self,
-            '/api/update_course_with_studentID/',
+            '/api/update_course_with_student/',
             {'uID': student.pk, 'cID': course.pk},
             login
         )

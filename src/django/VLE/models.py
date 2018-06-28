@@ -187,7 +187,8 @@ class Assignment(models.Model):
     )
     points_possible = models.IntegerField(
         'points_possible',
-        null=True
+        null=True,
+        blank=True
     )
     lti_id = models.TextField(
         'lti_id',

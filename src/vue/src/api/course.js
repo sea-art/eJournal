@@ -61,8 +61,8 @@ export default {
     },
 
     /* Updates the role of a student linked to a course. */
-    update_course_with_studentID (uID, cID) {
-        return auth.authenticatedPost('/update_course_with_studentID/', {
+    update_course_with_student (uID, cID) {
+        return auth.authenticatedPost('/update_course_with_student/', {
             uID: uID,
             cID: cID
         }).then(response => response.data.result)

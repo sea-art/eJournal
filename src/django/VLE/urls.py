@@ -88,7 +88,7 @@ urlpatterns = [
     path('api/update_publish_grades_journal/<int:jID>/', update.update_publish_grades_journal,
          name='update_publish_grades_journal'),
     path('api/update_user_role_course/', update.update_user_role_course, name='update_user_role_course'),
-    path('api/update_course_with_studentID/', update.update_course_with_studentID, name='update_course_with_studentID'),
+    path('api/update_course_with_student/', update.update_course_with_student, name='update_course_with_student'),
 
 
     path('api/delete_course/', delete.delete_course, name='delete_course'),

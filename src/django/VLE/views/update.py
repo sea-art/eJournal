@@ -31,7 +31,22 @@ def connect_course_lti(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    course = Course.objects.get(pk=request.data['cID'])
+    try:
+        cID = utils.required_params(request.data, 'cID')
+    except KeyError:
+        return responses.keyerror('cID')
+
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
+        return responses.not_found('Course')
+
+    role = permissions.get_role(user, course)
+    if role is None:
+        return responses.forbidden('You are not in this course.')
+    elif not role.can_edit_course:
+        return responses.forbidden('You cannot edit this course.')
+
     course.lti_id = request.data['lti_id']
     course.save()
 
@@ -55,7 +70,17 @@ def update_course(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    course = Course.objects.get(pk=request.data['cID'])
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
+        return responses.not_found('Course')
+
+    role = permissions.get_role(user, course)
+    if role is None:
+        return responses.forbidden('You are not in this course.')
+    elif not role.can_edit_course:
+        return responses.forbidden('You cannot edit this course.')
+
     course.name = request.data['name']
     course.abbreviation = request.data['abbr']
     course.startdate = request.data['startDate']
@@ -71,13 +96,25 @@ def update_course_roles(request):
     request -- the request that was sent.
     cID     -- the course id
     """
-    if not request.user.is_authenticated:
+    user = request.user
+    if not user.is_authenticated:
         return responses.unauthorized()
-    cID = request.data['cID']
-    request_user_role = Participation.objects.get(user=request.user.id, course=cID).role
 
-    if not request_user_role.can_edit_course_roles:
-        return responses.forbidden()
+    try:
+        cID = utils.required_params(request.data, 'cID')
+    except KeyError:
+        return responses.keyerror('cID')
+
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
+        return responses.not_found('Course')
+
+    role = permissions.get_role(user, course)
+    if role is None:
+        return responses.forbidden('You are not in this course.')
+    elif not role.can_edit_course_roles:
+        return responses.forbidden('You cannot edit roles of this course.')
 
     for role in request.data['roles']:
         db_role = Role.objects.filter(name=role['name'])
@@ -94,6 +131,7 @@ def connect_assignment_lti(request):
 
     Arguments:
     request -- the update request that was send with
+        aID -- the id of the assignment to be linked with lti
         lti_id -- lti_id that needs to be added to the assignment
         points_possible -- points_possible in lti assignment
 
@@ -102,9 +140,23 @@ def connect_assignment_lti(request):
     user = request.user
     if not user.is_authenticated:
         return responses.unauthorized()
-    assignment = Assignment.objects.get(pk=request.data['aID'])
-    assignment.lti_id = request.data['lti_id']
-    if assignment.points_possible is None and request.data['points_possible'] is not '':
+
+    try:
+        aID, lti_id = utils.required_params(request.data, 'aID', 'lti_id')
+        points_possible = utils.optional_params(request.data, 'points_possible')
+    except KeyError:
+        return responses.keyerror('aID')
+
+    try:
+        assignment = Assignment.objects.get(pk=aID)
+    except Assignment.DoesNotExist:
+        return responses.not_found('Assignment')
+
+    if not permissions.has_assignment_permission(user, assignment, 'can_edit_course'):
+        return responses.forbidden('You are not allowed to edit the courses.')
+
+    assignment.lti_id = lti_id
+    if assignment.points_possible is None and points_possible is not '':
         assignment.points_possible = request.data['points_possible']
     assignment.save()
 
@@ -112,7 +164,7 @@ def connect_assignment_lti(request):
 
 
 @api_view(['POST'])
-def update_course_with_studentID(request):
+def update_course_with_student(request):
     """Update an existing course with a student.
 
     Arguments:
@@ -133,7 +185,6 @@ def update_course_with_studentID(request):
     except (User.DoesNotExist, Course.DoesNotExist, Participation.DoesNotExist):
         return responses.not_found('User, Course or Participation does not exist.')
 
-    # TODO use roles from course
     role = Role.objects.get(name="Student", course=course)
     participation = factory.make_participation(user, course, role)
 
