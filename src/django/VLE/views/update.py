@@ -626,13 +626,6 @@ def update_lti_id_to_user(request):
 
     user_id, user_image = lti_params['user_id'], lti_params['user_image']
     is_teacher = json.load(open('config.json'))['Teacher'] == lti_params['roles']
-
-    print('\n\n')
-    print(json.load(open('config.json')))
-    print(lti_params)
-    print("Is Teacher: " + str(is_teacher))
-    print('\n\n')
-
     first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
 
     if first_name is not None:
