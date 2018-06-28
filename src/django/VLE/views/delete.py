@@ -9,6 +9,7 @@ from VLE.models import Assignment, Course, Participation, User, Role
 
 import VLE.views.responses as responses
 import VLE.utils as utils
+import VLE.permissions as permissions
 
 
 @api_view(['POST'])
@@ -30,9 +31,12 @@ def delete_course(request):
     except KeyError:
         return responses.keyerror('cID')
 
-    participation = Participation.objects.get(user=user, course=cID)
-    if participation is None:
+    # Courses can only be deleted with can_delete_course permission.
+    role = permissions.get_role(user, cID)
+    if role is None:
         return responses.unauthorized()
+    elif not role.can_delete_course:
+        return responses.forbidden()
 
     course = Course.objects.get(pk=cID)
     course.delete()
@@ -53,7 +57,8 @@ def delete_assignment(request):
 
     Returns a json string for if it is successful or not.
     """
-    if not request.user.is_authenticated:
+    user = request.user
+    if not user.is_authenticated:
         return responses.unauthorized()
 
     try:
@@ -61,9 +66,16 @@ def delete_assignment(request):
     except KeyError:
         return responses.keyerror('cID', 'aID')
 
+    # Assignments can only be deleted with can_delete_assignment permission.
+    role = permissions.get_role(user, cID)
+    if role is None:
+        return responses.unauthorized()
+    elif not role.can_delete_assignment:
+        return responses.forbidden()
+
     response = {'removed_completely': False}
-    course = Course.objects.get(pk=request.data['cID'])
-    assignment = Assignment.objects.get(pk=request.data['aID'])
+    course = Course.objects.get(pk=cID)
+    assignment = Assignment.objects.get(pk=aID)
     assignment.courses.remove(course)
     assignment.save()
     response['removed_from_course'] = True
@@ -94,6 +106,13 @@ def delete_user_from_course(request):
     except KeyError:
         return responses.keyerror('uID', 'cID')
 
+    # Users can only be deleted from the course with can_view_course_participants
+    role = permissions.get_role(user, cID)
+    if role is None:
+        return responses.unauthorized()
+    elif not role.can_view_course_participants:
+        return responses.forbidden()
+
     try:
         user = User.objects.get(pk=uID)
         course = Course.objects.get(pk=cID)
@@ -107,13 +126,21 @@ def delete_user_from_course(request):
 
 @api_view(['POST'])
 def delete_course_role(request):
-    if not request.user.is_authenticated:
+    user = request.user
+    if not user.is_authenticated:
         return responses.unauthorized()
 
     try:
         cID, name = utils.required_params(request.data, 'cID', 'name')
     except KeyError:
         return responses.keyerror('cID', 'name')
+
+    # Users can only delete course roles with can_edit_course_roles
+    role = permissions.get_role(user, cID)
+    if role is None:
+        return responses.unauthorized()
+    elif not role.can_edit_course_roles:
+        return responses.forbidden()
 
     request_user_role = Participation.objects.get(user=request.user.id, course=cID).role
 
