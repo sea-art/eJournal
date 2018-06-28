@@ -19,6 +19,21 @@
         <main-card slot="main-content-column" v-if="$root.canAddAssignment()" class="hover" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
+
+        <b-card v-if="this.$root.canViewAssignmentParticipants()"
+                class="no-hover settings-card"
+                slot="right-content-column">
+                <b-row>
+                    <b-col lg="6" sm="6">
+                        <b-form-select v-model="selectedSortOption" :select-size="1">
+                           <option :value="null">Sort by ...</option>
+                           <option value="sortDate">Sort by date</option>
+                           <option value="sortNeedsMarking">Sort by markings needed</option>
+                        </b-form-select>
+                    </b-col>
+                </b-row>
+        </b-card>
+
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
             <b-link tag="b-button" :to="journalRoute(d.cID, d.aID, d.jID, d.name)">
                 <todo-card
@@ -27,7 +42,7 @@
                     :minutes="d.deadline.Minutes"
                     :name="d.name"
                     :abbr="d.courseAbbr"
-                    :totalNeedsMarking="needsMarkingStats[i]"
+                    :totalNeedsMarking="d.totalNeedsMarking"
                     :color="$root.colors[d.cID % $root.colors.length]">
                 </todo-card>
             </b-link>
@@ -54,7 +69,6 @@ import assignment from '@/api/assignment.js'
 import mainCard from '@/components/MainCard.vue'
 import createAssignment from '@/components/CreateAssignment.vue'
 import courseApi from '@/api/course.js'
-import journalApi from '@/api/journal.js'
 
 export default {
     name: 'Course',
@@ -70,6 +84,7 @@ export default {
             cardColor: '',
             post: null,
             error: null,
+            selectedSortOption: null,
             deadlines: [],
             needsMarkingStats: []
         }
@@ -122,13 +137,6 @@ export default {
                 }
             })
         },
-        addMarkingList (aID) {
-            journalApi.get_assignment_journals(aID)
-                .then(response => {
-                    this.needsMarkingStats.push(response.stats.needsMarking)
-                })
-                .catch(_ => this.$toasted.error('Error while loading journals'))
-        },
         assignmentRoute (cID, aID, name, journal) {
             if (this.$root.canViewAssignmentParticipants()) {
                 return {
@@ -176,30 +184,33 @@ export default {
     },
     computed: {
         computedDeadlines: function () {
-            var count = 0
-            var topList
+            var counter = 0
 
             function compareDate (a, b) {
                 return new Date(a.deadline.Date) - new Date(b.deadline.Date)
             }
 
+            function compareMarkingsNeeded (a, b) {
+                if (a.totalNeedsMarking > b.totalNeedsMarking) { return -1 }
+                if (a.totalNeedsMarking < b.totalNeedsMarking) { return 1 }
+                return 0
+            }
+
             function filterTop () {
-                if (++count <= 5) {
-                    return true
-                } else {
-                    return false
-                }
+                return (++counter <= 5)
             }
 
-            topList = this.deadlines.slice().sort(compareDate).filter(filterTop)
-
-            if (this.$root.canAddCourse()) {
-                for (var i = 0; i < topList.length; i++) {
-                    this.addMarkingList(topList[i].aID)
-                }
+            function filterNoEntries (deadline) {
+                return deadline.totalNeedsMarking !== 0
             }
 
-            return topList
+            if (this.selectedSortOption === 'sortDate') {
+                return this.deadlines.slice().sort(compareDate).filter(filterTop)
+            } else if (this.selectedSortOption === 'sortNeedsMarking') {
+                return this.deadlines.slice().sort(compareMarkingsNeeded).filter(filterTop).filter(filterNoEntries)
+            } else {
+                return this.deadlines.slice().sort(compareDate).filter(filterTop)
+            }
         }
     }
 }

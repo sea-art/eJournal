@@ -5,8 +5,8 @@
                 <h6>{{ date }} {{ hours }}:{{ minutes }}</h6>
             </b-col>
             <b-col cols="5">
-                <p>{{ new Date().getFullDay }}</p>
-                <p v-if="this.$root.canAddCourse() && this.$route.path !='/AssignmentsOverview'">
+                <!-- {{this.$route.path}} -->
+                <p class="float-right" v-if="checkPermissions()">
                     <todo-square :num="totalNeedsMarking"/>
                 </p>
             </b-col>
@@ -23,6 +23,16 @@ export default {
     props: ['date', 'hours', 'minutes', 'name', 'abbr', 'totalNeedsMarking', 'color'],
     components: {
         'todo-square': todoSquare
+    },
+    methods: {
+        checkPermissions () {
+            if (this.$route.name === 'Home') {
+                return this.$root.canAddCourse()
+            } else if (this.$route.name === 'AssignmentsOverview' ||
+                       this.$route.name === 'Course') {
+                return this.$root.canAddCourse()
+            }
+        }
     }
 }
 </script>
