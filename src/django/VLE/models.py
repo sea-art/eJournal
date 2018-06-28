@@ -78,6 +78,9 @@ class Course(models.Model):
     startdate = models.DateField(
         null=True,
     )
+    enddate = models.DateField(
+        null=True,
+    )
 
     lti_id = models.TextField(
         null=True,
