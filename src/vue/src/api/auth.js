@@ -21,7 +21,7 @@ function refresh (error) {
                 localStorage.setItem('jwt_access', response.data.access)
                 router.app.validToken = true
             })
-            .catch(_ => {
+            .catch(error => {
                 if (error.response.data.code === 'token_not_valid') {
                     router.app.validToken = false
                 }
@@ -35,7 +35,6 @@ function refresh (error) {
 function handleResponse (response, noRedirect = false) {
     response = response.response
     if (response.status === 401) { // Unauthorized
-        console.log(router)
         if (!noRedirect) {
             router.push({name: 'Login'})
         }
@@ -97,7 +96,7 @@ export default {
 
     /* Check if the stored token is valid. */
     testValidToken () {
-        return this.authenticatedGet('/check_valid_token/', true)
+        return connection.conn.post('/token/verify/', {token: localStorage.getItem('jwt_access')})
             .then(_ => { router.app.validToken = true })
             .catch(_ => { router.app.validToken = false })
     },
@@ -110,8 +109,8 @@ export default {
     authenticatedPost (url, data, noRedirect = false) {
         return connection.conn.post(url, data, getAuthorizationHeader())
             .catch(error => refresh(error)
-                .then(connection.conn.post(url, data, getAuthorizationHeader())
-                    .catch(error => handleResponse(error, noRedirect))))
+                .then(connection.conn.post(url, data, getAuthorizationHeader())))
+            .catch(error => handleResponse(error, noRedirect))
     },
 
     /* Run an authenticated get request.
@@ -122,8 +121,8 @@ export default {
     authenticatedGet (url, noRedirect = false) {
         return connection.conn.get(url, getAuthorizationHeader())
             .catch(error => refresh(error, url)
-                .then(connection.conn.get(url, getAuthorizationHeader())
-                    .catch(error => handleResponse(error, noRedirect))))
+                .then(connection.conn.get(url, getAuthorizationHeader())))
+            .catch(error => handleResponse(error, noRedirect))
     }
 
 }
