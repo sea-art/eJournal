@@ -17,6 +17,7 @@ class CreateApiTests(TestCase):
 
     def test_create_new_course(self):
         """Test create new course."""
+        username, password, user = test.set_up_user_and_auth('test2', 'test1233', is_admin=True)
         lti_id = '12AB'
         login = test.logging_in(self, self.username, self.password)
         create_course_dict = {'name': 'Beeldbewerken', 'abbr': 'BB', 'lti_id': lti_id}
@@ -28,6 +29,10 @@ class CreateApiTests(TestCase):
         """test create new assignment."""
         lti_id = '12AB'
         course = factory.make_course("BeeldBewerken", "BB")
+
+        role = factory.make_role_default_no_perms("teacher", course, can_add_assignment=True)
+        factory.make_participation(user=self.user, course=course, role=role)
+
         login = test.logging_in(self, self.username, self.password)
         create_assign_dict = {
             'name': 'SIFT',
