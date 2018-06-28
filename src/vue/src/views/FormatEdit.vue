@@ -142,11 +142,15 @@ export default {
 
     methods: {
         deletePreset () {
-            this.deletedPresets.push(this.nodes[this.currentNode])
+            if (typeof this.nodes[this.currentNode].pID !== 'undefined') {
+                this.deletedPresets.push(this.nodes[this.currentNode])
+            }
             this.nodes.splice(this.currentNode, 1)
         },
         deleteTemplate (template) {
-            this.deletedTemplates.push(template.t)
+            if (typeof template.t.tID !== 'undefined') {
+                this.deletedTemplates.push(template.t)
+            }
             this.templatePool.splice(this.templatePool.indexOf(template), 1)
         },
         // Used to sort the list when dates are changed. Updates the currentNode index accordingly
@@ -266,7 +270,7 @@ export default {
                     this.presets = data.format.presets
                     this.unused_templates = data.format.unused_templates
                     this.deletedTemplates = []
-                    this.deletedTemplates = []
+                    this.deletedPresets = []
                     this.convertFromDB()
                 })
                 .then(_ => {
