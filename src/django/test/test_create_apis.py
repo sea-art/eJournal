@@ -50,6 +50,12 @@ class CreateApiTests(TestCase):
         create_journal_dict = {'aID': assign.pk}
         login = test.logging_in(self, self.username, self.password)
 
+        course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
+        assign.courses.add(course)
+
+        role = factory.make_role_default_no_perms("student", course, can_edit_journal=True)
+        factory.make_participation(user=self.user, course=course, role=role)
+
         test.api_post_call(self, '/api/create_journal/', create_journal_dict, login, 201)
         self.assertTrue(Journal.objects.filter(user=self.user).exists())
 

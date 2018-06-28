@@ -3,7 +3,7 @@ permissions.py.
 
 All the permission functions.
 """
-from VLE.models import Participation
+from VLE.models import Participation, Assignment
 
 from django.forms.models import model_to_dict
 
@@ -15,9 +15,8 @@ def get_role(user, course):
     user -- user that did the request.
     cID -- course ID used to validate the request.
     """
-    # First get the role ID of the user participation.
-
     try:
+        # First attempt to get the participation of the user within the course.
         return Participation.objects.get(user=user, course=course).role
     except Participation.DoesNotExist:
         return None
@@ -98,6 +97,20 @@ def get_permissions(user, cID=-1):
 
         roleDict = model_to_dict(role)
         roleDict['is_admin'] = False
+
+    return roleDict
+
+
+def get_assignment_id_permissions(user, aID):
+    """Merge permissions from all courses that are linked to the assignment.
+
+    Arguments:
+    user -- user that did the request
+    aID -- the assignment ID
+    """
+    assignment = Assignment.objects.get(pk=aID)
+
+    roleDict = get_assignment_permissions(user, assignment)
 
     return roleDict
 
@@ -204,7 +217,6 @@ def has_assignment_permission(user, assignment, permission):
     assignment -- the assignment used to validate the request.
     permission -- the permissions to check.
     """
-
     permissions = get_assignment_permissions(user, assignment)
     return permission in permissions and permissions[permission]
 

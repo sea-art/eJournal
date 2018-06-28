@@ -77,7 +77,7 @@ def create_new_assignment(request):
     # Assignments can only be created with can_create_assignment permission.
     role = permissions.get_role(user, cID)
     if role is None:
-        return responses.unauthorized("Have no access to this course.")
+        return responses.unauthorized("You have no access to this course.")
     elif not role.can_add_assignment:
         return responses.forbidden("You have no permissions to create a new assignment.")
 
@@ -98,13 +98,21 @@ def create_journal(request):
 
     On success, returns a json string containing the journal.
     """
-    if not request.user.is_authenticated:
+    user = request.user
+    if not user.is_authenticated:
         return responses.unauthorized()
 
     try:
         [aID] = utils.required_params(request.data, "aID")
     except KeyError:
         return responses.keyerror("aID")
+
+    role = permissions.get_assignment_id_permissions(user, aID)
+
+    if role == {}:
+        return responses.unauthorized("You have no access to this course.")
+    elif not role["can_edit_journal"]:
+        return responses.forbidden("You have no permissions to create a journal.")
 
     assignment = Assignment.objects.get(pk=aID)
     journal = factory.make_journal(assignment, request.user)
@@ -138,7 +146,6 @@ def create_entry(request):
 
         template = EntryTemplate.objects.get(pk=tID)
 
-        # TODO: Check if node can still be created (deadline passed? graded?)
         if nID:
             node = Node.objects.get(pk=nID, journal=journal)
             if node.type == Node.PROGRESS:
