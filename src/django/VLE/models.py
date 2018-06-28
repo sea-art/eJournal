@@ -58,7 +58,7 @@ class Course(models.Model):
 
     name = models.TextField()
     abbreviation = models.TextField(
-        max_length=4,
+        max_length=10,
         default='XXXX',
     )
 
