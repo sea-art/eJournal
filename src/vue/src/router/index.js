@@ -102,11 +102,14 @@ router.beforeEach((to, from, next) => {
     // TODO Caching for permissions, how to handle permission changes when role is altered by teacher
     router.app.previousPage = from
 
+    /* If undefined, this means this is a hard refresh, therefore we have to call up the state. */
+    if (router.app.validToken === undefined) {
+        authAPI.testValidToken()
+    }
+
     if (to.matched.length === 0) {
         return next({name: 'ErrorPage', params: {code: '404', message: 'Page not found'}})
     }
-
-    console.log('state' + router.app.validToken)
 
     /* If valid token, redirect to Home, if not currently valid, look to see if it is valid.
      * If now valid, redirect as well, otherwise continue to guest page.
