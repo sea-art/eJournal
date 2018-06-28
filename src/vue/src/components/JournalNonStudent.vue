@@ -97,7 +97,6 @@ export default {
             })
 
         if (store.state.filteredJournals.length === 0) {
-            alert($root.canEditJournal())
             journal.get_assignment_journals(2)
                 .then(response => {
                     this.assignmentJournals = response.journals
