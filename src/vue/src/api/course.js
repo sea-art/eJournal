@@ -32,6 +32,12 @@ export default {
             .then(response => response.data.users)
     },
 
+    /* Get upcomming deadlines. */
+    get_upcoming_course_deadlines (cID) {
+        return auth.authenticatedGet('/get_upcoming_course_deadlines/' + cID + '/')
+            .then(response => response.data.deadlines)
+    },
+
     /* Create a new course. */
     create_new_course (name, abbr, startdate, lti_id = null) {
         return auth.authenticatedPost('/create_new_course/', {

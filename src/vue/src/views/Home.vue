@@ -23,6 +23,7 @@
             :line1="'+ Add course'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
+
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
             <b-link tag="b-button" :to="journalRoute(d.cID, d.aID, d.jID, d.name)">
                 <todo-card
