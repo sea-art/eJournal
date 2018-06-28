@@ -555,7 +555,7 @@ def get_names(request):
 
 @api_view(['GET'])
 def get_entrycomments(request, eID):
-    """Get the comments belonging to the specified entry based on its entryID."""
+    """Get the comments belonging to the specified entry based on its eID."""
     user = request.user
     if not user.is_authenticated:
         return responses.unauthorized()

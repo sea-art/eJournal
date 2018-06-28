@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import commonAPI from '@/api/common.js'
+import commonAPI from '@/common.js'
 import icon from 'vue-awesome/components/Icon'
 import store from '@/Store.vue'
 

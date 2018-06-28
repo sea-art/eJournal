@@ -94,7 +94,7 @@ import addUsersToCourseCard from '@/components/AddUsersToCourseCard.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import contentSingleColumn from '@/components/ContentSingleColumn.vue'
 import courseParticipantCard from '@/components/CourseParticipantCard.vue'
-import courseApi from '@/api/course.js'
+import courseApi from '@/course.js'
 
 export default {
     name: 'CourseEdit',

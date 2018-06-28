@@ -21,7 +21,7 @@
 import contentColumns from '@/components/ContentColumns.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import mainCard from '@/components/MainCard.vue'
-import assignmentApi from '@/api/assignment.js'
+import assignmentApi from '@/assignment.js'
 import todoCard from '@/components/TodoCard.vue'
 
 export default {

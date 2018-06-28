@@ -10,14 +10,14 @@ import Login from '@/views/Login'
 import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
 import AssignmentsOverview from '@/views/AssignmentsOverview'
-import permissionsApi from '@/api/permissions.js'
+import permissionsApi from '@/permissions.js'
 import ErrorPage from '@/views/ErrorPage'
 import CourseEdit from '@/views/CourseEdit'
 import AssignmentEdit from '@/views/AssignmentEdit'
 import UserRoleConfiguration from '@/views/UserRoleConfiguration'
 import FormatEdit from '@/views/FormatEdit'
 import Logout from '@/views/Logout'
-import authAPI from '@/api/auth.js'
+import authAPI from '@/auth.js'
 
 Vue.use(Router)
 

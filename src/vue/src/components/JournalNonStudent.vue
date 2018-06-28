@@ -43,7 +43,7 @@ import entryNonStudentPreview from '@/components/EntryNonStudentPreview.vue'
 import addCard from '@/components/AddCard.vue'
 import edag from '@/components/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
-import journal from '@/api/journal'
+import journal from '@/journal'
 
 export default {
     props: ['jID'],

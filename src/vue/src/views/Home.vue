@@ -66,9 +66,9 @@ import mainCard from '@/components/MainCard.vue'
 import todoCard from '@/components/TodoCard.vue'
 import createCourse from '@/components/CreateCourse.vue'
 import editHome from '@/components/EditHome.vue'
-import course from '@/api/course'
-import assignmentApi from '@/api/assignment.js'
-import journalApi from '@/api/journal.js'
+import course from '@/course'
+import assignmentApi from '@/assignment.js'
+import journalApi from '@/journal.js'
 
 export default {
     name: 'Home',

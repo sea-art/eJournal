@@ -66,7 +66,7 @@ import contentColumns from '@/components/ContentColumns.vue'
 import studentCard from '@/components/StudentCard.vue'
 import statisticsCard from '@/components/StatisticsCard.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
-import journal from '@/api/journal.js'
+import journal from '@/journal.js'
 
 export default {
     name: 'Assignment',

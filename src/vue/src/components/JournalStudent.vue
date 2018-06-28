@@ -49,9 +49,9 @@ import entryNode from '@/components/EntryNode.vue'
 import addCard from '@/components/AddCard.vue'
 import edag from '@/components/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
-import journal from '@/api/journal'
+import journal from '@/journal'
 import entryPreview from '@/components/EntryPreview.vue'
-import assignmentApi from '@/api/assignment.js'
+import assignmentApi from '@/assignment.js'
 
 export default {
     props: ['cID', 'aID', 'jID'],

@@ -10,7 +10,7 @@
 
 <script>
 import assignmentCard from '@/components/AssignmentCard.vue'
-import assignApi from '@/api/assignment.js'
+import assignApi from '@/assignment.js'
 
 export default {
     name: 'ConnectAssignment',

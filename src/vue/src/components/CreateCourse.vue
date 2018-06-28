@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import courseApi from '@/api/course.js'
+import courseApi from '@/course.js'
 
 export default {
     name: 'CreateCourse',

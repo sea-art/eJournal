@@ -12,7 +12,7 @@ import contentSingleColumn from '@/components/ContentSingleColumn.vue'
 import ltiCreateConnectCourse from '@/components/LtiCreateConnectCourse.vue'
 import ltiCreateConnectAssignment from '@/components/LtiCreateConnectAssignment.vue'
 import ltiCreateAssignment from '@/components/LtiCreateAssignment.vue'
-import assignApi from '@/api/assignment.js'
+import assignApi from '@/assignment.js'
 import router from '@/router'
 
 export default {

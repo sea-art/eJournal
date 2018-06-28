@@ -15,7 +15,7 @@
 <script>
 import contentSingleColumn from '@/components/ContentSingleColumn.vue'
 import loginForm from '@/components/LoginForm.vue'
-import auth from '@/api/auth.js'
+import auth from '@/auth.js'
 
 export default {
     name: 'Login',

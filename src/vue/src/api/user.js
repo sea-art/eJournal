@@ -1,4 +1,4 @@
-import auth from '@/api/auth'
+import auth from '@/auth'
 
 export default {
     /* Get own user data. */

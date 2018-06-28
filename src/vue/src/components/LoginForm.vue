@@ -10,7 +10,7 @@
 </template>
 
 <script>
-import authAPI from '@/api/auth'
+import authAPI from '@/auth'
 
 export default {
     name: 'LoginForm',

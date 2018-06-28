@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import authAPI from '@/api/auth.js'
+import authAPI from '@/auth.js'
 
 export default {
     created () {

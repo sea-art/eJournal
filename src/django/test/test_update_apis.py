@@ -109,7 +109,7 @@ class UpdateApiTests(TestCase):
         login = test.logging_in(self, teacher_user, teacher_pass)
 
         test.api_post_call(self,
-                           '/api/update_assignment/',
+                           '/update_assignment/',
                            {'aID': assign.pk,
                             'name': 'Assign2',
                             'description': 'summary'},
@@ -164,7 +164,7 @@ class UpdateApiTests(TestCase):
         login = test.logging_in(self, self.username, self.password)
 
         test.api_post_call(self,
-                           '/api/update_password/',
+                           '/update_password/',
                            {'new_password': 'Pass123!',
                             'old_password': self.password},
                            login)
@@ -172,7 +172,7 @@ class UpdateApiTests(TestCase):
         test.logging_in(self, self.username, 'Pass123!')
 
         test.api_post_call(self,
-                           '/api/update_password/',
+                           '/update_password/',
                            {'new_password': 'Pass321!',
                             'old_password': 'Pass123!'},
                            login)

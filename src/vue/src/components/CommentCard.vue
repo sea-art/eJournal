@@ -31,8 +31,8 @@
 </template>
 
 <script>
-import userApi from '@/api/user.js'
-import entryApi from '@/api/entry.js'
+import userApi from '@/user.js'
+import entryApi from '@/entry.js'
 
 export default {
     props: ['eID'],
