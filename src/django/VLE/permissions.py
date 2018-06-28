@@ -90,6 +90,7 @@ def get_permissions(user, cID=-1):
     else:
         # The course ID was given. Return the permissions of the user as dictionary.
         role = get_role(user, cID)
+
         # The role might not actually exist in the database, so return an
         # empty permission list.
         if not role:
