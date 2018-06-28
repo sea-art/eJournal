@@ -12,7 +12,7 @@
                         <br><b>{{ comments.author.first_name + ' ' + userData.last_name }}</b>
                     </b-col>
                     <b-col cols="10">
-                        <b-card class="no-hover" :class="'pink-border'">
+                        <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                             <span class="showEnters">{{ comments.text }}</span>
                         </b-card>
                     </b-col>
@@ -26,7 +26,7 @@
                     <br><b>{{userData.first_name + ' ' + userData.last_name}}</b>
                 </b-col>
                 <b-col cols="10">
-                    <b-textarea v-model="tempComment" placeholder="Add your comment here"></b-textarea><br>
+                    <b-textarea v-model="tempComment" placeholder="Add your comment here" :class="$root.getBorderClass($route.params.cID)"></b-textarea><br>
                     <b-button @click="addComment">Add your comment</b-button>
                 </b-col>
             </b-row>
@@ -40,7 +40,6 @@ import entryApi from '@/api/entry.js'
 
 export default {
     props: ['eID'],
-
     data () {
         return {
             tempComment: '',

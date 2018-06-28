@@ -2,7 +2,7 @@
     <content-single-column>
         <bread-crumb>&nbsp;</bread-crumb>
         <b-card class="no-hover settings-card">
-            <h3>Manage course data</h3>
+            <h2>Manage course data</h2>
             <b-form @submit.prevent="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
                          v-model="course.name"
@@ -36,7 +36,7 @@
                         </b-button>
                         <b-button v-if="this.$root.canEditCourseRoles()"
                                   @click.prevent.stop="routeToEditCourseRoles"
-                                  class="">
+                                  class="change-button">
                             Edit permissions
                         </b-button>
                     </b-col>
@@ -45,7 +45,7 @@
         </b-card>
 
         <b-card class="no-hover settings-card">
-            <h3>Manage course students</h3>
+            <h2>Manage course students</h2>
                 <b-row>
                     <b-col lg="3" sm="6">
                         <b-form-select v-model="selectedSortOption" :select-size="1">

@@ -1,7 +1,7 @@
 <template>
     <!-- Section visible if user logged in -->
     <b-navbar v-if="$root.validToken" id="header" toggleable="md" type="dark" fixed=top>
-        <b-navbar-brand :to="{ name: 'Home' }" class="brand-name">Logboek</b-navbar-brand>
+        <b-navbar-brand :to="{ name: 'Home' }" class="brand-name"><span>e</span>Journal</b-navbar-brand>
 
         <b-navbar-toggle class="ml-auto mr-auto" target="nav-collapse" aria-expanded="false" aria-controls="nav-collapse">
             <span class="nav-collapse__icon nav-collapse__icon--open">
@@ -30,7 +30,7 @@
 
     <!-- Section visible if user logged out -->
     <b-navbar v-else id="header" toggleable="md" type="dark" fixed=top>
-        <b-navbar-brand  :to="{ name: 'Guest' }" class="brand-name">Logboek</b-navbar-brand>
+        <b-navbar-brand  :to="{ name: 'Guest' }" class="brand-name"><span>e</span>Journal</b-navbar-brand>
 
         <b-navbar-nav class="ml-auto">
             <b-nav-dropdown right no-caret id="nav-dropdown-options" ref="loginDropdown">
@@ -178,6 +178,10 @@ export default {
 .brand-name {
     font-weight: bold;
     font-size: 25px;
+}
+
+.brand-name span {
+    color: var(--theme-blue) !important;
 }
 
 #nav-profile-image {

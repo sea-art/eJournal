@@ -5,7 +5,7 @@
 <template>
     <b-card class="card no-hover" :class="color" style="">
         <b>{{ template.t.name }}</b>
-        <icon @click.native.stop="emitDeleteTemplate" class="trash-icon" name="trash" scale="1.75"></icon>
+        <icon @click.native.stop="emitDeleteTemplate" class="trash-icon ml-10 float-right" name="trash" scale="1.75"></icon>
         <toggle-switch @click.native.stop class="template-todo-card-switch" :isActive="isActive" @parentActive="template.available = $event"/>
     </b-card>
 </template>
@@ -40,18 +40,5 @@ export default {
     float: right;
     text-align: center;
     margin-top: 2px;
-}
-
-.no-hover:hover {
-    background-color: var(--theme-light-grey) !important;
-}
-
-.trash-icon {
-    float: right;
-    margin-left: 10px;
-}
-
-.trash-icon:hover {
-    fill: var(--theme-red);
 }
 </style>

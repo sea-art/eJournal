@@ -46,15 +46,15 @@
                                         <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
                                     </div>
                                 </div>
-                                <b-button @click="saveEdit">{{ saveEditMode }} </b-button>
-                                <b-button @click="cancel">Cancel</b-button>
+                                <b-button class="add-button" @click="saveEdit">{{ saveEditMode }} </b-button>
+                                <b-button class="change-button" @click="cancel">Cancel</b-button>
                             </b-col>
                         </b-row>
                     </b-card>
                 </div>
                 <div v-else>
                     <!-- Overview mode. -->
-                    <b-card class="card main-card no-hover" :class="'pink-border'">
+                    <b-card class="card main-card no-hover" :class="this.$root.getBorderClass($router.params.cID)">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>{{entryNode.entry.template.name}}</h2>

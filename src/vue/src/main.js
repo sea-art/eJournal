@@ -16,6 +16,7 @@ import 'vue-awesome/icons/check'
 import 'vue-awesome/icons/times'
 import 'vue-awesome/icons/exclamation'
 import 'vue-awesome/icons/plus'
+import 'vue-awesome/icons/list-ul'
 
 import Toasted from 'vue-toasted'
 
@@ -41,6 +42,9 @@ new Vue({
              * If the time left is negative returns Expired
              * TODO implement (will most likely require a lib) */
             return '1M 9D 9H'
+        },
+        getBorderClass (cID) {
+            return this.colors[cID % this.colors.length]
         },
 
         /* #############################################################

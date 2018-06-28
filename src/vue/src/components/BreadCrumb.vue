@@ -19,7 +19,7 @@
                     {{ breadedCrumbs.slice(-1)[0].display }}
                     <slot>
                         <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
-                        <b-button v-if="canEdit()" @click="editClick()" class="float-right edit-button"> Edit</b-button>
+                        <b-button v-if="canEdit()" @click="editClick()" class="float-right change-button"> Edit</b-button>
                     </slot>
                 </h1>
             </b-col>
@@ -49,10 +49,10 @@ export default {
             aliases: {
                 'Home': 'Courses',
                 'FormatEdit': 'Format Editor',
+                'CourseEdit': 'Course Editor',
+                'AssignmentEdit': 'Assignment Editor',
                 'AssignmentsOverview': 'Assignment Overview',
-                'CourseEdit': 'Course Edit',
-                'UserRoleConfiguration': 'Role Configuration',
-                'AssignmentEdit': 'Assignment Edit'
+                'UserRoleConfiguration': 'User Role Configuration'
             },
             paramMap: {
                 'Course': 'cID',
@@ -205,6 +205,6 @@ export default {
 }
 
 .eye-icon:hover {
-    fill: var(--theme-pink) !important;
+    fill: var(--theme-change-selected) !important;
 }
 </style>

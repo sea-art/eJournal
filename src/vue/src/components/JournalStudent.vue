@@ -12,7 +12,7 @@
             <bread-crumb v-if="!bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
-                    <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
+                    <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]" :color="$root.colors[cID % $root.colors.length]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'd'">
                     <div v-if="nodes[currentNode].entry !== null">
@@ -28,7 +28,7 @@
                     </div>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'a'">
-                    <add-card @info-entry="addNode" :addNode="nodes[currentNode]"></add-card>
+                    <add-card @info-entry="addNode" :addNode="nodes[currentNode]" :color="$root.colors[cID % $root.colors.length]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'p'">
                     <b-card class="card main-card no-hover" :class="'pink-border'">

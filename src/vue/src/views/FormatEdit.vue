@@ -15,7 +15,7 @@
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :isInEditFormatPage="true"/>
         </b-col>
 
-        <b-col lg="12" xl="6" order="2" class="main-content-format-edit">
+        <b-col lg="12" xl="6" order="3" order-xl="2" class="main-content-format-edit">
             <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <!--
                 Fill in the template using the corresponding data
@@ -23,7 +23,7 @@
             . -->
 
             <div v-if="nodes.length > 0">
-                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @deadline-changed="sortList" @delete-preset="deletePreset" @changed="isChanged = true" :color="$root.colors[aID % $root.colors.length]"/>
+                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @deadline-changed="sortList" @delete-preset="deletePreset" @changed="isChanged = true" :color="$root.colors[cID % $root.colors.length]"/>
             </div>
             <div v-else>
                 <p>No presets yet</p>
@@ -39,23 +39,23 @@
                     </template-editor>
             </b-modal>
         </b-col>
-        <b-col cols="12" xl="3" order="3" class="right-content-format-edit">
+        <b-col cols="12" xl="3" order="2" order-xl="3" class="right-content-format-edit">
             <h3>Format</h3>
-            <b-card @click.prevent.stop="addNode" class="card hover" :class="'grey-border'" style="">
+            <b-card @click.prevent.stop="addNode" class="card hover add-button" :class="'grey-border'" style="">
                 <b>+ Add Preset to Format</b>
             </b-card>
             <b-card class="no-hover">
                 <b>Point Maximum</b>
                 <input v-model="max_points" placeholder="Point Maximum" type="number">
             </b-card>
-            <b-card @click.prevent.stop="saveFormat" class="card hover" :class="'grey-border'" style="">
+            <b-card @click.prevent.stop="saveFormat" class="card hover add-button" :class="'grey-border'" style="">
                 <b>Save Format</b>
             </b-card>
             <br/>
 
             <h3>Template Pool</h3>
-            <template-todo-card class="hover" v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate" :color="$root.colors[aID % $root.colors.length]"/>
-            <b-card @click="showModal(newTemplate())" class="hover" :class="'grey-border'" style="">
+            <template-todo-card class="hover" v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate" :color="$root.colors[cID % $root.colors.length]"/>
+            <b-card @click="showModal(newTemplate())" class="hover add-button" :class="'grey-border'" style="">
                 <b>+ Add Template</b>
             </b-card>
         </b-col>
@@ -381,6 +381,7 @@ export default {
 
 <style>
 .left-content-format-edit {
+    padding: 0px 30px !important;
     flex: 0 0 auto;
 }
 
@@ -416,8 +417,26 @@ export default {
 }
 
 @media (max-width: 1200px) {
+    .right-content-format-edit {
+        padding: 30px !important;
+    }
+
     .main-content-format-edit {
-        padding-top: 0px !important;
+        padding: 30px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .left-content-format-edit {
+        padding: 0px !important;
+    }
+
+    .right-content-format-edit {
+        padding: 30px 0px !important;
+    }
+
+    .main-content-format-edit {
+        padding: 30px 0px !important;
     }
 }
 </style>
