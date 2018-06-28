@@ -69,7 +69,7 @@ def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=
     make_role_student("Student", course)
     make_role_ta("TA", course)
     role = make_role_teacher("Teacher", course)
-    if author:
+    if author is not None:
         make_participation(author, course, role)
     return course
 
