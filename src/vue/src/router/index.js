@@ -116,7 +116,7 @@ router.beforeEach((to, from, next) => {
 
     /* Returning next because we short circuit the function here, no API calls
     * are desired. */
-    if (['Guest', 'Login', 'LtiLogin'].includes(to.name)) {
+    if (['Guest', 'Login', 'LtiLogin', 'LtiLaunch'].includes(to.name)) {
         return next()
     }
 

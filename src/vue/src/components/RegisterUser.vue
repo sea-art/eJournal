@@ -43,7 +43,7 @@ export default {
                         })
                         .catch(_ => alert('Could not login'))
                 })
-                .catch(_ => alert('Error while creating user <3'))
+                .catch(_ => alert('Error while creating user'))
         },
         onReset (evt) {
             if (evt !== undefined) {
