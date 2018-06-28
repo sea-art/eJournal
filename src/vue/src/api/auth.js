@@ -1,5 +1,6 @@
 import connection from '@/api/connection'
 import router from '@/router'
+import Vue from 'vue'
 
 /* Utility function to get the Authorization header with
  * the JWT token.
@@ -51,9 +52,9 @@ function handleResponse (response, noRedirect = false) {
         }
     } else if (response.status === 400) { // Bad request
         if (response.data.description) {
-            router.app.showToast(response.data.result + ': ' + response.data.description)
+            Vue.toasted.error(response.data.result + ': ' + response.data.description)
         } else {
-            router.app.showToast(response.data.result)
+            Vue.toasted.error(response.data.result)
         }
     } else {
         throw response
@@ -108,9 +109,9 @@ export default {
      */
     authenticatedPost (url, data, noRedirect = false) {
         return connection.conn.post(url, data, getAuthorizationHeader())
-            .catch(error => refresh(error))
-            .then(connection.conn.post(url, data, getAuthorizationHeader()))
-            .catch(error => handleResponse(error, noRedirect))
+            .catch(error => refresh(error)
+                .then(connection.conn.post(url, data, getAuthorizationHeader())
+                    .catch(error => handleResponse(error, noRedirect))))
     },
 
     /* Run an authenticated get request.
@@ -120,9 +121,9 @@ export default {
      */
     authenticatedGet (url, noRedirect = false) {
         return connection.conn.get(url, getAuthorizationHeader())
-            .catch(error => refresh(error, url))
-            .then(connection.conn.get(url, getAuthorizationHeader()))
-            .catch(error => handleResponse(error, noRedirect))
+            .catch(error => refresh(error, url)
+                .then(connection.conn.get(url, getAuthorizationHeader())
+                    .catch(error => handleResponse(error, noRedirect))))
     }
 
 }

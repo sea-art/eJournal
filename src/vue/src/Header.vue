@@ -44,7 +44,6 @@
 
             </b-nav-dropdown>
         </b-navbar-nav>
-        <div id="toast" style="display:none;position:fixed;bottom:0;right:0;margin:0px 50px 50px 0px;padding:20px;z-index:100;background:#c83b4b;color:white"/>
     </b-navbar>
 </template>
 
@@ -79,7 +78,7 @@ export default {
                     this.$router.push({name: 'Home'})
                 })
                 .catch(_ => {
-                    alert('Could not login')
+                    this.$toasted.error('Could not login')
                 })
         },
         setProfilePicture () {
@@ -93,7 +92,7 @@ export default {
                     }
                 })
                 .catch(_ => {
-                    alert('Something went wrong retrieving user data')
+                    this.$toasted.error('Something went wrong retrieving user data')
                     // TODO Set default user picture
                 })
         }

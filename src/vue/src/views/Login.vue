@@ -38,7 +38,9 @@ export default {
                 .then(_ => {
                     this.handleLoginSucces()
                 })
-                .catch(_ => alert('Could not login'))
+                .catch(_ => {
+                    this.$toasted.error('Could not login')
+                })
         }
     },
     components: {

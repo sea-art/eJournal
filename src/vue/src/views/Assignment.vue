@@ -4,7 +4,7 @@
         <b-card slot="main-content-column" class="settings-card no-hover">
             <b-row>
                 <b-col lg="3" md="3">
-                    <b-button :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">Edit Assignment Format</b-button>
+                    <b-button v-if="$root.canAddAssignment()" :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">Edit Assignment Format</b-button>
                 </b-col>
             </b-row>
             <b-row>
@@ -70,7 +70,6 @@ import statisticsCard from '@/components/StatisticsCard.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import journal from '@/api/journal.js'
 import store from '@/Store.vue'
-// TODO: temp
 
 export default {
     name: 'Assignment',
@@ -118,7 +117,7 @@ export default {
     },
     methods: {
         customisePage () {
-            alert('Wishlist: Customise page')
+            this.$toasted.info('Wishlist: Customise page')
         },
         handleEdit () {
             this.$router.push({
@@ -131,7 +130,12 @@ export default {
         },
         publishGradesAssignment () {
             journal.update_publish_grades_assignment(this.aID, 1)
-            alert('All the grades for each journal are published.')
+                .then(_ => {
+                    this.$toasted.success('All the grades for each journal are published.')
+                })
+                .catch(_ => {
+                    this.$toasted.error('Error whilest publishing the grades for each journal.')
+                })
         }
     },
     computed: {
