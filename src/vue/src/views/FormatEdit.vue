@@ -9,10 +9,10 @@
     <b-row class="outer-container" no-gutters>
         <b-col v-if="bootstrapLg()" cols="12">
             <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
-            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
+            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :isInEditFormatPage="true"/>
         </b-col>
         <b-col v-else xl="3" class="left-content-format-edit">
-            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
+            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :isInEditFormatPage="true"/>
         </b-col>
 
         <b-col lg="12" xl="6" order="2" class="main-content-format-edit">

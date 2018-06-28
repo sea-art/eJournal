@@ -461,7 +461,7 @@ def get_nodes(request, jID):
         return responses.not_found("Journal does not exist.")
 
     if not (journal.user == user or permissions.has_assignment_permission(user,
-            journal.assignment, 'can_grade_journal')):
+            journal.assignment, 'can_view_assignment_participants')):
         return responses.forbidden('You are not allowed to view journals of other participants.')
 
     return responses.success(payload={'nodes': edag.get_nodes_dict(journal, request.user)})
@@ -577,7 +577,7 @@ def get_names(request):
         if jID:
             journal = Journal.objects.get(pk=jID)
             if not (journal.user == user or permissions.has_assignment_permission(user,
-                    journal.assignment, 'can_grade_journal')):
+                    journal.assignment, 'can_view_assignment_participants')):
                 return responses.forbidden('You are not allowed to view journals of other participants.')
             result['journal'] = journal.user.username
 
@@ -600,7 +600,7 @@ def get_entrycomments(request, eID):
         return responses.not_found('Entry does not exist.')
 
     if not (entry.node.journal.user == user or permissions.has_assignment_permission(user,
-            entry.node.journal.assignment, 'can_grade_journal')):
+            entry.node.journal.assignment, 'can_view_assignment_participants')):
         return responses.forbidden('You are not allowed to view journals of other participants.')
 
     entrycomments = EntryComment.objects.filter(entry=entry)
