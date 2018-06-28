@@ -68,7 +68,7 @@ def not_found(description='The page or file you requested was not found.'):
     Arguments:
     description -- header description (usable for example in the front end)
     """
-    return response(404, 'Not Found', description=description)
+    return response(404, 'Not Found', description='{} not found.'.format(description))
 
 
 def internal_server_error(description='Oops! The server experienced internal hiccups.'):

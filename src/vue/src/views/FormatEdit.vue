@@ -44,6 +44,10 @@
             <b-card @click.prevent.stop="addNode" class="card hover" :class="'grey-border'" style="">
                 <b>+ Add Preset to Format</b>
             </b-card>
+            <b-card class="no-hover">
+                <b>Point Maximum</b>
+                <input v-model="max_points" placeholder="Point Maximum" type="number">
+            </b-card>
             <b-card @click.prevent.stop="saveFormat" class="card hover" :class="'grey-border'" style="">
                 <b>Save Format</b>
             </b-card>
@@ -103,7 +107,9 @@ export default {
             wipTemplateId: -1,
 
             deletedTemplates: [],
-            deletedPresets: []
+            deletedPresets: [],
+
+            max_points: 0
         }
     },
 
@@ -111,6 +117,7 @@ export default {
         journalAPI.get_format(this.aID)
             .then(data => {
                 this.templates = data.format.templates
+                this.max_points = data.format.max_points
                 this.presets = data.format.presets
                 this.unused_templates = data.format.unused_templates
                 this.convertFromDB()
@@ -239,7 +246,7 @@ export default {
             }
 
             this.convertToDB()
-            journalAPI.update_format(this.aID, this.templates, this.presets, this.unused_templates, this.deletedTemplates, this.deletedPresets)
+            journalAPI.update_format(this.aID, this.templates, this.max_points, this.presets, this.unused_templates, this.deletedTemplates, this.deletedPresets)
                 .then(data => {
                     this.templates = data.format.templates
                     this.presets = data.format.presets
