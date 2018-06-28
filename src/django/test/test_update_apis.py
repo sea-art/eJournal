@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from VLE.models import Participation, Course, User, Role, Entry
+from VLE.models import Participation, Course, User, Role, Entry, Assignment
 import VLE.serializers as serialize
 
 import VLE.factory as factory
@@ -18,7 +18,7 @@ class UpdateApiTests(TestCase):
         login = test.logging_in(self, self.username, self.password)
         course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
 
-        ta_role = factory.make_role_ta(name='TA', course=course)
+        ta_role = Role.objects.get(name='TA', course=course)
         student_role = factory.make_role_student(name='SD', course=course)
 
         self.user_role = factory.make_user("test123", "test")
@@ -59,8 +59,7 @@ class UpdateApiTests(TestCase):
         login = test.logging_in(self, self.username, self.password)
 
         course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
-        factory.make_role_student(name='Student', course=course)
-        teacher_role = factory.make_role_teacher('Teacher', course)
+        teacher_role = Role.objects.get(name='Teacher', course=course)
 
         factory.make_participation(self.user, course, teacher_role)
         student = factory.make_user("Rick", "pass")
@@ -98,6 +97,27 @@ class UpdateApiTests(TestCase):
         role_test = Role.objects.get(name='TA2', course=self.course)
         self.assertTrue(role_test.can_grade_journal)
         self.assertEquals(Role.objects.filter(name='test_role', course=self.course).count(), 1)
+
+    def test_update_assignment(self):
+        """Test update assignment"""
+        teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('Teacher', 'pass')
+        teacher_role = factory.make_role_default_all_perms("TE", self.course)
+
+        factory.make_participation(teacher, self.course, teacher_role)
+        assign = test.set_up_assignments('Assign', '', 1, self.course)[0]
+
+        login = test.logging_in(self, teacher_user, teacher_pass)
+
+        test.api_post_call(self,
+                           '/api/update_assignment/',
+                           {'aID': assign.pk,
+                            'name': 'Assign2',
+                            'description': 'summary'},
+                           login)
+
+        assign = Assignment.objects.get(pk=assign.pk)
+        self.assertEquals(assign.name, 'Assign2')
+        self.assertEquals(assign.description, 'summary')
 
     def test_grade_publish(self):
         """Test the grade publish api functions."""
@@ -138,3 +158,21 @@ class UpdateApiTests(TestCase):
         result = test.api_post_call(self, '/api/update_publish_grades_journal/1/', {'published': 0}, login)
         self.assertEquals(Entry.objects.filter(node__journal=1, published=0).count(), 3)
         self.assertEquals(Entry.objects.get(pk=4).published, 1)
+
+    def test_update_password(self):
+        """Test update assignment"""
+        login = test.logging_in(self, self.username, self.password)
+
+        test.api_post_call(self,
+                           '/api/update_password/',
+                           {'new_password': 'Pass123!',
+                            'old_password': self.password},
+                           login)
+
+        test.logging_in(self, self.username, 'Pass123!')
+
+        test.api_post_call(self,
+                           '/api/update_password/',
+                           {'new_password': 'Pass321!',
+                            'old_password': 'Pass123!'},
+                           login)

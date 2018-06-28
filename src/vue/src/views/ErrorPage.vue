@@ -1,16 +1,17 @@
 <template>
     <b-row class="error-content">
         <b-col cols="12">
-            <h1 id="error-heading">Error {{ errorCode }}:</h1><h1 id="error-message"> {{ errorMessage }}</h1><br/>
+            <h1 id="error-heading">
+                Error {{ code }}: <span id="error-message">{{ message }}</span>
+            </h1>
+        </b-col>
+        <b-col cols="12" v-if="description">
+            {{ description }}
         </b-col>
         <b-col cols="12">
-            Unfortunately the page you are looking for is not here.<br/>
-            You might want to try going back to the homepage or report the problem.
-        </b-col>
-        <b-col cols="12">
-            <b-button :to='"/Home"'>Home</b-button>
+            <b-button :to="{name: 'Home'}">Home</b-button>
             <!-- TODO: Add mailto or similar. -->
-            <b-button :to='"/Home"'>Contact</b-button>
+            <b-button :to="{name: 'Home'}">Contact</b-button>
         </b-col>
     </b-row>
 </template>
@@ -19,11 +20,14 @@
 export default {
     name: 'Error',
     props: {
-        errorCode: {
-            required: true
+        code: {
+            default: 404
         },
-        errorMessage: {
-            required: true
+        message: {
+            default: 'Not found'
+        },
+        description: {
+            type: String
         }
     }
 }

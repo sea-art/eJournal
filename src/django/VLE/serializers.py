@@ -68,17 +68,6 @@ def student_assignment_to_dict(assignment, user):
     return assignment_dict
 
 
-def deadline_to_dict(assignment):
-    """Convert deadline to dictionary."""
-    if not assignment:
-        return None
-
-    assignment_dict = assignment_to_dict(assignment)
-    assignment_dict['courses'] = [course_to_dict(c) for c in assignment.courses.all()]
-
-    return assignment_dict
-
-
 def assignment_to_dict(assignment):
     """Convert assignment to dictionary."""
     return {
@@ -168,7 +157,11 @@ def entry_to_dict(entry, user):
         'published': entry.published,
         'template': template_to_dict(entry.template),
         'content': [content_to_dict(content) for content in entry.content_set.all()],
+        'editable': True
     }
+
+    if entry.grade is not None:
+        data['editable'] = False
 
     assignment = entry.node.journal.assignment
     if permissions.has_assignment_permission(user, assignment, 'can_grade_journal') or entry.published:

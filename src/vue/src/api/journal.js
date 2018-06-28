@@ -5,8 +5,8 @@ export default {
      * Requests all the assignment journals.
      * returns a list of all journals.
      */
-    get_assignment_journals (cID) {
-        return auth.authenticatedGet('/get_assignment_journals/' + cID + '/')
+    get_assignment_journals (aID) {
+        return auth.authenticatedGet('/get_assignment_journals/' + aID + '/')
             .then(response => response.data)
             .catch(error => { throw error })
     },
@@ -23,11 +23,6 @@ export default {
         }
 
         return auth.authenticatedPost('/create_entry/', data)
-            .then(response => response.data)
-    },
-
-    get_template (tID) {
-        return auth.authenticatedGet('/get_template/' + tID + '/')
             .then(response => response.data)
     },
 
@@ -56,13 +51,13 @@ export default {
             .then(response => response.data)
     },
 
-    update_publish_grades_assignment (aID) {
-        return auth.authenticatedGet('/update_publish_grades_assignment/' + aID + '/')
+    update_publish_grades_assignment (aID, published) {
+        return auth.authenticatedPost('/update_publish_grades_assignment/' + aID + '/', {published: published})
             .then(response => response.data)
     },
 
-    update_publish_grades_journal (jID) {
-        return auth.authenticatedGet('/api/update_publish_grades_journal/' + jID + '/')
+    update_publish_grades_journal (jID, published) {
+        return auth.authenticatedPost('/update_publish_grades_journal/' + jID + '/', {published: published})
             .then(response => response.data)
     }
 }

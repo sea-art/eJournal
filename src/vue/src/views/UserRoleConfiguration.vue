@@ -165,9 +165,9 @@ export default {
                 .then(response => {
                     this.originalRoleConfig = this.deepCopyRoles(this.roleConfig)
                     this.defaultRoles = Array.from(this.roles)
-                    alert('Update succesfull!')
+                    this.$toasted.success('Update succesfull!')
                 })
-                .catch(_ => alert('Something went wrong when updating the permissions'))
+                .catch(_ => this.$toasted.error('Something went wrong when updating the permissions'))
         },
         formatPermissionString (str) {
             /* Converts underscores to spaces and capatilises the first letter. */
@@ -182,9 +182,9 @@ export default {
                         .then(response => {
                             this.deleteRoleLocalConfig(role)
                             this.deleteRoleServerLoadedConfig(role)
-                            alert('Role deleted succesfully!')
+                            this.$toasted.success('Role deleted succesfully!')
                         })
-                        .catch(_ => alert('Something went wrong when deleting role: ' + role))
+                        .catch(_ => this.$toasted.error('Something went wrong when deleting role: ' + role))
                 } else {
                     this.deleteRoleLocalConfig(role)
                 }
@@ -218,7 +218,7 @@ export default {
 
                 this.originalRoleConfig = this.deepCopyRoles(response)
             })
-            .catch(_ => alert('Error while loading course roles'))
+            .catch(_ => this.$toasted.error('Error while loading course roles'))
     },
     components: {
         'content-single-table-column': contentSingleTableColumn,
