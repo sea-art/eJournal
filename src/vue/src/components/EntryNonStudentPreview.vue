@@ -31,6 +31,7 @@
                     <div v-if="$root.canGradeJournal()">
                         <br>
                         Fill in the grade:<br>
+                        {{status}}
                         <b-form-input type="number" v-model="grade" placeholder="Grade"></b-form-input>
                         <b-form-checkbox v-model="status" value=true unchecked-value=false>
                             Show grade to student
@@ -39,7 +40,7 @@
                     </div>
                     <div v-else>
                         <div v-if="tempNode.entry.published">
-                            {{ tempNode.entry.grade }}
+                            {{ entryNode.entry.grade }}
                         </div>
                         <div v-else>
                             To be graded
@@ -71,6 +72,7 @@ export default {
         entryNode: function () {
             this.completeContent = []
             this.setContent()
+            this.tempNode = this.entryNode
 
             if (this.entryNode.entry !== null) {
                 this.grade = this.entryNode.entry.grade
@@ -79,12 +81,6 @@ export default {
                 this.grade = null
                 this.status = true
             }
-        },
-        'entryNode.entry.published': function () {
-            this.status = this.entryNode.entry.published
-        },
-        'entryNode.entry.grade': function () {
-            this.grade = this.entryNode.entry.grade
         }
     },
     created () {
@@ -123,18 +119,28 @@ export default {
         },
         commitGrade: function () {
             if (this.grade !== null) {
-                this.$toasted.success('Oh yeah! grade updated')
                 this.tempNode.entry.grade = this.grade
                 this.tempNode.entry.published = this.status
 
-                if (this.status) {
-                    journalApi.update_grade_entry(this.entryNode.entry.eID,
-                        this.grade, 1)
-                    this.$emit('check-grade', this.tempNode)
+                if (this.status === 'true') {
+                    journalApi.update_grade_entry(this.entryNode.entry.eID, this.grade, 1)
+                        .then(_ => {
+                            this.$toasted.success('Oh yeah! grade updated1')
+                            this.$emit('check-grade', this.tempNode)
+                        })
+                        .catch(_ => {
+                            this.$toasted.error('Oh no! something went wrong1')
+                        })
                 } else {
                     journalApi.update_grade_entry(this.entryNode.entry.eID,
                         this.grade, 0)
-                    this.$emit('check-grade', this.tempNode)
+                        .then(_ => {
+                            this.$toasted.success('Oh yeah! grade updated2')
+                            this.$emit('check-grade', this.tempNode)
+                        })
+                        .catch(_ => {
+                            this.$toasted.error('Oh no! something went wrong1')
+                        })
                 }
             }
         }
