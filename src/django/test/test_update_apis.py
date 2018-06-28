@@ -101,7 +101,7 @@ class UpdateApiTests(TestCase):
     def test_update_assignment(self):
         """Test update assignment"""
         teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('Teacher', 'pass')
-        teacher_role = factory.make_role_all_permissions("TE", self.course)
+        teacher_role = factory.make_role_default_all_perms("TE", self.course)
 
         factory.make_participation(teacher, self.course, teacher_role)
         assign = test.set_up_assignments('Assign', '', 1, self.course)[0]
@@ -173,6 +173,6 @@ class UpdateApiTests(TestCase):
 
         test.api_post_call(self,
                            '/api/update_password/',
-                           {'new_password': 'Pass123!',
-                            'old_password': self.password},
+                           {'new_password': 'Pass321!',
+                            'old_password': 'Pass123!'},
                            login)
