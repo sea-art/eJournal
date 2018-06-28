@@ -10,6 +10,7 @@ import 'vue-awesome/icons/caret-down'
 import 'vue-awesome/icons/arrows'
 import 'vue-awesome/icons/trash'
 import 'vue-awesome/icons/plus-square'
+import 'vue-awesome/icons/list-ul'
 import Toasted from 'vue-toasted'
 
 Vue.config.productionTip = false

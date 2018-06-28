@@ -8,7 +8,7 @@
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
 
-        <b-col lg="12" xl="6" order="2" class="main-content-journal">
+        <b-col lg="12" xl="6" order="3" order-xl="2" class="main-content-journal">
             <bread-crumb v-if="!bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
@@ -27,20 +27,29 @@
                 </div>
             </div>
         </b-col>
-        <b-col cols="12" xl="3" order="3" class="right-content-journal">
+        <b-col cols="12" xl="3" order="2" order-xl="3" class="right-content-journal">
             <h3>Journal</h3>
             <b-card class="no-hover">
-                <b-button tag="b-button" :to="{ name: 'Journal',
+                <b-button tag="b-button" v-if="filteredJournals.length !== 0" :to="{ name: 'Journal',
                                               params: {
                                                   cID: cID,
                                                   aID: aID,
-                                                  jID: 1
+                                                  jID: prevJournal.jID
+                                              },
+                                              query: query
+                                            }">
+                    Previous
+                </b-button>
+                <b-button tag="b-button" v-if="filteredJournals.length !== 0" :to="{ name: 'Journal',
+                                              params: {
+                                                  cID: cID,
+                                                  aID: aID,
+                                                  jID: nextJournal.jID
                                               },
                                               query: query
                                             }">
                     Next
                 </b-button>
-                {{ nextJournal }}
                 <!-- {{ filteredJournals }} -->
                 <b-button @click="publishGradesJournal">Publish Grades</b-button>
             </b-card>
@@ -93,6 +102,8 @@ export default {
                 this.searchVariable = this.$route.query.search
             }
         }
+
+        this.query = this.$route.query
     },
     watch: {
         currentNode: function () {
@@ -116,7 +127,7 @@ export default {
             }
 
             if (this.$refs['entry-template-card'].saveEditMode === 'Save') {
-                if (!confirm('Oh no! Progress will not be saved if you leave. Do you wish to continue?')) {
+                if (!confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
                     return
                 }
             }
@@ -254,18 +265,16 @@ export default {
             return store.state.filteredJournals.slice()
         },
         prevJournal () {
-            var curIndex = this.findIndex(store.state.filteredJournals, 'jID', this.jID)
-            var prevIndex = (curIndex - 1) % store.state.filteredJournals.length
+            var curIndex = this.findIndex(this.filteredJournals, 'jID', this.jID)
+            var prevIndex = (curIndex - 1 + this.filteredJournals.length) % this.filteredJournals.length
 
-            return store.state.filteredJournals[prevIndex].slice()
+            return this.filteredJournals[prevIndex]
         },
         nextJournal () {
-            var curIndex = this.findIndex(store.state.filteredJournals, 'jID', this.jID)
-            var nextIndex = (curIndex + 1) % store.state.filteredJournals.length
-            console.log(store.state.filteredJournals[nextIndex])
-            console.log(store.state.filteredJournals)
+            var curIndex = this.findIndex(this.filteredJournals, 'jID', this.jID)
+            var nextIndex = (curIndex + 1) % this.filteredJournals.length
 
-            return store.state.filteredJournals[nextIndex].slice()
+            return this.filteredJournals[nextIndex]
         }
 
     }

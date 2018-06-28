@@ -15,7 +15,7 @@
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
 
-        <b-col lg="12" xl="6" order="2" class="main-content-format-edit">
+        <b-col lg="12" xl="6" order="3" order-xl="2" class="main-content-format-edit">
             <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <!--
                 Fill in the template using the corresponding data
@@ -39,7 +39,7 @@
                     </template-editor>
             </b-modal>
         </b-col>
-        <b-col cols="12" xl="3" order="3" class="right-content-format-edit">
+        <b-col cols="12" xl="3" order="2" order-xl="3" class="right-content-format-edit">
             <h3>Format</h3>
             <b-card @click.prevent.stop="addNode" class="card hover" :class="'grey-border'" style="">
                 <b>+ Add Preset to Format</b>
@@ -353,6 +353,7 @@ export default {
 
 <style>
 .left-content-format-edit {
+    padding: 0px 30px !important;
     flex: 0 0 auto;
 }
 
@@ -388,8 +389,26 @@ export default {
 }
 
 @media (max-width: 1200px) {
+    .right-content-format-edit {
+        padding: 30px !important;
+    }
+
     .main-content-format-edit {
-        padding-top: 0px !important;
+        padding: 30px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .left-content-format-edit {
+        padding: 0px !important;
+    }
+
+    .right-content-format-edit {
+        padding: 30px 0px !important;
+    }
+
+    .main-content-format-edit {
+        padding: 30px 0px !important;
     }
 }
 </style>

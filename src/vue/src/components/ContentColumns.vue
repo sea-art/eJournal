@@ -1,12 +1,12 @@
 <template>
     <b-row no-gutters>
-        <b-col lg="3" order="3" order-lg="1" class="left-content d-none d-lg-block">
+        <b-col lg="3" order="3" order-lg="1" class="left-content d-none d-xl-block">
             <slot name="left-content-column"></slot>
         </b-col>
-        <b-col md="12" lg="6" order="2" class="main-content">
+        <b-col lg="12" xl="6" order="2" class="main-content">
             <slot name="main-content-column"></slot>
         </b-col>
-        <b-col md="12" lg="3" order="1" order-lg="3" class="right-content">
+        <b-col lg="12" xl="3" order="1" order-xl="3" class="right-content">
             <slot name="right-content-column"></slot>
         </b-col>
     </b-row>
@@ -39,18 +39,24 @@ export default {
     padding-right: 30px !important;
 }
 
-/* Needed for full responsiveness, please double check before changing! */
-@media(max-width:992px){
+/* Needed for full responsiveness, please double check before changing!
+   NOTE: max-width corresponds to bootstrap dimensions offset by 1. */
+@media(max-width: 1200px){
     .right-content {
-        padding: 0px !important;
-        margin-top: 8px;
+        padding: 30px !important;
     }
 
     .main-content {
-        padding-top: 0px !important;
+        padding: 30px !important;
     }
 }
-@media(min-width:768px){}
-@media(min-width:992px){}
-@media(min-width:1200px){}
+@media (max-width: 576px) {
+    .right-content {
+        padding: 30px 0px !important;
+    }
+
+    .main-content {
+        padding: 30px 0px !important;
+    }
+}
 </style>
