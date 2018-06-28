@@ -60,9 +60,10 @@ export default {
     },
 
     /* Deletes an existing assignment. */
-    delete_assignment (aID) {
+    delete_assignment (aID, cID) {
         return auth.authenticatedPost('/delete_assignment/', {
-            aID: aID
+            aID: aID,
+            cID: cID
         }).then(response => response.data.result)
     }
 

@@ -47,8 +47,8 @@ def delete_assignment(request):
         return responses.unauthorized()
 
     response = {'removed_completely': False}
-    course = Course.objects.get(pk=request.data['cID'])
     assignment = Assignment.objects.get(pk=request.data['aID'])
+    course = Course.objects.get(pk=request.data['cID'])
     assignment.courses.remove(course)
     assignment.save()
     response['removed_from_course'] = True
