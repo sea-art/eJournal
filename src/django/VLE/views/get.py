@@ -843,6 +843,7 @@ def lti_launch(request):
             return redirect(lti.create_lti_query_link(q_names, q_values))
 
         refresh = TokenObtainPairSerializer.get_token(user)
+        print(refresh)
         access = refresh.access_token
         return redirect(lti.create_lti_query_link(['lti_params', 'jwt_access', 'jwt_refresh', 'state'],
                                                   [lti_params, access, refresh, LOGGED_IN]))
