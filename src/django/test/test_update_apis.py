@@ -256,7 +256,8 @@ class UpdateApiTests(TestCase):
 
         login = test.logging_in(self, self.rein_user, self.rein_pass)
 
-        update_dict = {'eID': entrycomment.pk, 'text': 'Bad!'}
+        update_dict = {'entrycommentID': entrycomment.pk, 'text': 'Bad!'}
         test.api_post_call(self, '/api/update_entrycomment/', update_dict, login)
 
         q_entrycomment = EntryComment.objects.get(pk=entrycomment.pk)
+        self.assertEquals(q_entrycomment.text, 'Bad!')
