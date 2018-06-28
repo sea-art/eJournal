@@ -181,17 +181,16 @@ export default {
     },
     async mounted () {
         this.ltiJWT = this.$route.query.ltiJWT
-        var retval = await this.loadLtiData()
-
-        if (retval !== 'success') {
-            this.$router.push({
-                name: 'ErrorPage',
-                params: {
-                    errorCode: '404',
-                    errorMessage: retval
-                }
+        await this.loadLtiData()
+            .catch(err => {
+                this.$router.push({
+                    name: 'ErrorPage',
+                    params: {
+                        errorCode: '404',
+                        errorMessage: err
+                    }
+                })
             })
-        }
 
         if (this.states.state === this.states.bad_auth) {
             this.$router.push({
