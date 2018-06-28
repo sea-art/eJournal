@@ -58,7 +58,7 @@ new Vue({
 
         /* Site-wide permissions */
         isAdmin () {
-            return this.permissions.is_admin
+            return this.permissions.is_superuser
         },
         /* Institute wide settings, think institute name/abbreviation logo. */
         canEditInstitute () {
