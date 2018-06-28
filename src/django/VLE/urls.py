@@ -58,7 +58,6 @@ urlpatterns = [
     path('get_user_teacher_courses/', get.get_user_teacher_courses, name='get_user_teacher_courses'),
     path('get_assignment_by_lti_id/<str:lti_id>/', get.get_assignment_by_lti_id, name='get_assignment_by_lti_id'),
     path('get_linkable_courses/', get.get_linkable_courses, name='get_linkable_courses'),
-    path('get_template/<int:tID>/', get.get_template, name='get_template'),
     path('get_user_data/<int:uID>/', get.get_user_data, name='get_user_data'),
     path('get_unenrolled_users/<int:cID>/', get.get_unenrolled_users, name='get_unenrolled_users'),
 

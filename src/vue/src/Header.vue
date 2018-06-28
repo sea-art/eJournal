@@ -59,7 +59,7 @@ export default {
     data () {
         return {
             // TODO Figure out why webpack messes this up
-            profileImg: '~/assets/unknown-profile.png',
+            profileImg: '~@/assets/unknown-profile.png',
             username: '',
             password: '',
             profile: ''

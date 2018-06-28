@@ -35,7 +35,6 @@ function refresh (error) {
 function handleResponse (response, noRedirect = false) {
     response = response.response
     if (response.status === 401) { // Unauthorized
-        console.log(router)
         if (!noRedirect) {
             router.push({name: 'Login'})
         }

@@ -37,7 +37,7 @@ GRADE_CENTER = '6'
 def check_valid_token(request):
     """Check if the token is a valid token."""
     if not request.user.is_authenticated:
-        return responses.unauthorized()
+        return responses.unauthorized(str(request.user))
     return responses.success()
 
 

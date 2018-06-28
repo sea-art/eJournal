@@ -7,9 +7,9 @@ source settings/database.conf
 sudo /etc/init.d/apache2 stop
 
 sudo a2ensite ejournal.conf || sudo a2ensite ejournal
-sds
+
 # Initialize
-if [[ $? -ne 0 || $1 -eq 'fresh' ]]; then
+if [[ $? -ne 0 ]]; then
     rm -rd ./build
     rm -rd ${TARGET}
 
