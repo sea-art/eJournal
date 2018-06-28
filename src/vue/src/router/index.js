@@ -135,7 +135,7 @@ router.beforeEach((to, from, next) => {
             router.app.permissions = response
         })
         .catch(_ => {
-            console.log('Error while loading permissions.')
+            this.$toasted.error('Error while loading permissions.')
         })
 
     next()
