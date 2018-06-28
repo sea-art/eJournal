@@ -9,6 +9,8 @@ from django.test import TestCase
 import VLE.factory as factory
 import VLE.permissions as permissions
 
+from VLE.models import Role
+
 
 class PermissionTests(TestCase):
     """Test the permission system.
@@ -140,3 +142,13 @@ class PermissionTests(TestCase):
         perm = permissions.get_permissions(usr)
 
         self.assertFalse(perm["can_edit_institute"])
+
+    def test_get_role(self):
+        """Test whether the get_role function returns the right type of value."""
+        # Connect a participation to a user, course and role.
+        role = factory.make_role_default_no_perms('teststudent2', self.crs)
+
+        factory.make_participation(self.usr, self.crs, role)
+
+        role = permissions.get_role(self.usr, self.crs)
+        self.assertTrue(isinstance(role, Role))
