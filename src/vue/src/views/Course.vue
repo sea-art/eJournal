@@ -16,7 +16,7 @@
             </b-link>
         </div>
 
-        <main-card slot="main-content-column" v-if="$root.canAddAssignment()" class="hover" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
+        <main-card slot="main-content-column" v-if="$root.canAddAssignment()" class="hover add-button" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">

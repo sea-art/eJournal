@@ -2,7 +2,7 @@
     <content-single-table-column>
         <bread-crumb>&nbsp;</bread-crumb>
 
-        <b-button @click="update()" class="multi-form float-right add-button ml-2"> Update </b-button>
+        <b-button @click="update()" class="multi-form float-right add-button ml-2"> Save </b-button>
         <b-button @click="reset()" class="multi-form float-right delete-button"> Reset </b-button>
 
         <div class="table-responsive">
@@ -150,15 +150,17 @@ export default {
              * could interact with v-model.
              * However scaling should not be a problem here (time choice to keep
              * working with the databse given format.)  */
-            this.roleConfig = this.deepCopyRoles(this.originalRoleConfig)
+            if (confirm('This will undo all unsaved work\n Are you sure you want to continue?')) {
+                this.roleConfig = this.deepCopyRoles(this.originalRoleConfig)
 
-            this.roles = []
-            this.backupPermissions = Array.from(this.permissions)
-            this.permissions = []
-            this.$nextTick(() => {
-                this.roles = Array.from(this.defaultRoles)
-                this.permissions = this.backupPermissions
-            })
+                this.roles = []
+                this.backupPermissions = Array.from(this.permissions)
+                this.permissions = []
+                this.$nextTick(() => {
+                    this.roles = Array.from(this.defaultRoles)
+                    this.permissions = this.backupPermissions
+                })
+            }
         },
         update () {
             permissions.update_course_roles(this.cID, this.roleConfig)

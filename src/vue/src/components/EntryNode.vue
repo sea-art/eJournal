@@ -39,8 +39,8 @@
                                         <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
                                     </div>
                                 </div>
-                                <b-button @click="saveEdit">{{ saveEditMode }} </b-button>
-                                <b-button @click="cancel">Cancel</b-button>
+                                <b-button class="add-button" @click="saveEdit">{{ saveEditMode }} </b-button>
+                                <b-button class="change-button" @click="cancel">Cancel</b-button>
                             </b-col>
                         </b-row>
                     </b-card>

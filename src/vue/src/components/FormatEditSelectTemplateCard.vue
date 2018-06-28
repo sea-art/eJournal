@@ -45,7 +45,7 @@
                             </div>
                         </b-col>
                         <b-col id="main-card-right-column" cols="3" lg-cols="12">
-                            <b-button @click.prevent="emitDeletePreset" class="delete-preset-button">Delete Preset</b-button>
+                            <b-button @click.prevent="emitDeletePreset" class="delete-button">Delete Preset</b-button>
                         </b-col>
                     </b-row>
                 </b-card>
@@ -106,10 +106,3 @@ export default {
     }
 }
 </script>
-
-<style>
-.delete-preset-button:hover {
-    border-color: var(--theme-dark-blue) !important;
-    background-color: var(--theme-red) !important;
-}
-</style>

@@ -4,7 +4,12 @@
         <b-card slot="main-content-column" class="settings-card no-hover">
             <b-row>
                 <b-col lg="3" md="3">
-                    <b-button v-if="$root.canAddAssignment()" :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">Edit Assignment Format</b-button>
+                    <b-button
+                        v-if="$root.canAddAssignment()"
+                        class="change-button"
+                        :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">
+                        Edit Assignment Format
+                    </b-button>
                 </b-col>
             </b-row>
             <b-row>
@@ -21,7 +26,12 @@
             </b-row>
             <b-row>
                 <b-col lg="3" md="3">
-                    <b-button v-if="$root.canGradeJournal()" @click="publishGradesAssignment">Publish all Grades</b-button>
+                    <b-button
+                        v-if="$root.canGradeJournal()"
+                        class="add-button"
+                        @click="publishGradesAssignment">
+                        Publish all Grades
+                    </b-button>
                 </b-col>
             </b-row>
         </b-card>
@@ -127,13 +137,15 @@ export default {
             })
         },
         publishGradesAssignment () {
-            journal.update_publish_grades_assignment(this.aID, 1)
+            if (confirm('Are you sure you want to publish all grades for each journal?')) {
+                journal.update_publish_grades_assignment(this.aID, 1)
                 .then(_ => {
                     this.$toasted.success('All the grades for each journal are published.')
                 })
                 .catch(_ => {
                     this.$toasted.error('Error while publishing the grades for each journal.')
                 })
+            }
         },
         updateQuery () {
             if (this.searchVariable !== '') {

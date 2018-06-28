@@ -19,8 +19,8 @@
                                 <br>
                                 <h2>Description:</h2>
                                 <b-textarea v-model="tempbox2"></b-textarea><br><br>
-                                <b-button @click="saveEdit">{{ saveEditMode }} </b-button>
-                                <b-button @click="cancel">Cancel</b-button>
+                                <b-button class="add-button" @click="saveEdit">{{ saveEditMode }} </b-button>
+                                <b-button class="change-button" @click="cancel">Cancel</b-button>
                             </b-col>
                         </b-row>
                     </b-card>
@@ -31,7 +31,7 @@
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>{{ textbox1 }}</h2>
                                 {{ textbox2 }}<br><br>
-                                <b-button @click="saveEdit">{{ saveEditMode }} </b-button>
+                                <b-button class="add-button" @click="saveEdit">{{ saveEditMode }} </b-button>
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12">
                             </b-col>
@@ -60,15 +60,9 @@ export default {
             tempbox1: this.textbox1,
             tempbox2: this.textbox2,
             tempProps: [],
-            comment: 'hoi1000',
+            comment: '',
             editedComment: '',
-            comments: [{
-                message: 'Hoi het is super slecht, ga je schamen!',
-                person: 'Peter'
-            }, {
-                message: 'Hoi het is super goed!',
-                person: 'Ptheven'
-            }]
+            comments: []
         }
     },
 

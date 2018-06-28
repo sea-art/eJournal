@@ -31,7 +31,7 @@
                     @dismissed="dismissCountDown=0">
                     Please fill in every field.
                 </b-alert>
-                <b-button @click="save">Post Entry</b-button>
+                <b-button class="add-button" @click="save">Post Entry</b-button>
             </b-col>
         </b-row>
     </b-card>

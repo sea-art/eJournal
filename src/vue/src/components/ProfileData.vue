@@ -8,7 +8,7 @@
             <b-form-input v-model="uname" type="text"></b-form-input>
             <span class="profile-data">Change profile picture</span>
             <b-form-file ref="file" v-on:change="updateProfilePicture" class="fileinput form-control" v-model="file" :state="Boolean(file)" placeholder="Upload profile picture..."></b-form-file>
-            <b-button @click="saveUserdata">Save</b-button>
+            <b-button class="add-button" @click="saveUserdata">Save</b-button>
             <b-button @click="downloadUserData">Download Data</b-button>
         </b-col>
     </b-row>

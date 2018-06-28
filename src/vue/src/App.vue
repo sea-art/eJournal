@@ -231,6 +231,14 @@ input, select {
     background-color: var(--theme-negative-selected) !important;
 }
 
+.change-button {
+    background-color: var(--theme-change-unselected) !important;
+}
+
+.change-button:hover {
+    background-color: var(--theme-change-selected) !important;
+}
+
 .lti-button-option {
     width: 275px;
     height: 100px;

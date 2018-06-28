@@ -14,8 +14,8 @@
                                  placeholder="Description"
                                  required/>
 
-                <b-button type="submit">Update Assignment</b-button>
-                <b-button @click.prevent.stop="deleteAssignment()">Delete Assignment</b-button>
+                <b-button type="submit" class="change-button">Update Assignment</b-button>
+                <b-button @click.prevent.stop="deleteAssignment()" class="delete-button">Delete Assignment</b-button>
             </b-form>
         </b-card>
     </content-single-column>

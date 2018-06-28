@@ -36,7 +36,7 @@
                         </b-button>
                         <b-button v-if="this.$root.canEditCourseRoles()"
                                   @click.prevent.stop="routeToEditCourseRoles"
-                                  class="">
+                                  class="change-button">
                             Edit permissions
                         </b-button>
                     </b-col>
