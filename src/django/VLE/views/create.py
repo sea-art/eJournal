@@ -39,7 +39,7 @@ def create_new_course(request):
     perm = permissions.get_permissions(user)
 
     if not perm["can_add_course"]:
-        return responses.forbidden()
+        return responses.forbidden("You have no permissions to create a course.")
 
     try:
         name, abbr = utils.required_params(request.data, "name", "abbr")
@@ -77,9 +77,9 @@ def create_new_assignment(request):
     # Assignments can only be created with can_create_assignment permission.
     role = permissions.get_role(user, cID)
     if role is None:
-        return responses.unauthorized()
+        return responses.unauthorized("Have no access to this course.")
     elif not role.can_add_assignment:
-        return responses.forbidden()
+        return responses.forbidden("You have no permissions to create a new assignment.")
 
     assignment = factory.make_assignment(name, description, cIDs=[cID],
                                          author=request.user, lti_id=lti_id,

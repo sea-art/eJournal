@@ -17,9 +17,9 @@ class CreateApiTests(TestCase):
 
     def test_create_new_course(self):
         """Test create new course."""
-        username, password, user = test.set_up_user_and_auth('test2', 'test1233', is_admin=True)
+        username, password, user = test.set_up_user_and_auth('test2', 'test1233', is_teacher=True)
         lti_id = '12AB'
-        login = test.logging_in(self, self.username, self.password)
+        login = test.logging_in(self, username, password)
         create_course_dict = {'name': 'Beeldbewerken', 'abbr': 'BB', 'lti_id': lti_id}
 
         test.api_post_call(self, '/api/create_new_course/', create_course_dict, login, 201)
