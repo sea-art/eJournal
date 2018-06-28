@@ -17,8 +17,9 @@ class CreateApiTests(TestCase):
 
     def test_create_new_course(self):
         """Test create new course."""
+        username, password, user = test.set_up_user_and_auth('test2', 'test1233', is_teacher=True)
         lti_id = '12AB'
-        login = test.logging_in(self, self.username, self.password)
+        login = test.logging_in(self, username, password)
         create_course_dict = {'name': 'Beeldbewerken', 'abbr': 'BB', 'lti_id': lti_id}
 
         test.api_post_call(self, '/create_new_course/', create_course_dict, login, 201)
@@ -28,6 +29,10 @@ class CreateApiTests(TestCase):
         """test create new assignment."""
         lti_id = '12AB'
         course = factory.make_course("BeeldBewerken", "BB")
+
+        role = factory.make_role_default_no_perms("teacher", course, can_add_assignment=True)
+        factory.make_participation(user=self.user, course=course, role=role)
+
         login = test.logging_in(self, self.username, self.password)
         create_assign_dict = {
             'name': 'SIFT',
@@ -44,6 +49,12 @@ class CreateApiTests(TestCase):
         assign = factory.make_assignment("Assignment", "Your favorite assignment")
         create_journal_dict = {'aID': assign.pk}
         login = test.logging_in(self, self.username, self.password)
+
+        course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
+        assign.courses.add(course)
+
+        role = factory.make_role_default_no_perms("student", course, can_edit_journal=True)
+        factory.make_participation(user=self.user, course=course, role=role)
 
         test.api_post_call(self, '/create_journal/', create_journal_dict, login, 201)
         self.assertTrue(Journal.objects.filter(user=self.user).exists())
