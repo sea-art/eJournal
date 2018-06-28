@@ -128,7 +128,6 @@ router.beforeEach((to, from, next) => {
                 .catch(_ => next())
         }
     } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage'].includes(to.name)) {
-        alert('index.js')
         return next()
     } else if (to.name === 'Assignment') {
         if (!router.app.canViewAssignmentParticipants()) {
