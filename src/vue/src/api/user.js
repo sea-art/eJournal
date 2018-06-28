@@ -18,7 +18,7 @@ export default {
     updateLtiIdToUser (jwtParams) {
         return auth.authenticatedPost('/update_lti_id_to_user/', {
             jwt_params: jwtParams
-        })
+        }).then(response => response.data.user)
     },
 
     /* Get own user data. */

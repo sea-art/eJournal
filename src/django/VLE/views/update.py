@@ -624,7 +624,7 @@ def update_lti_id_to_user(request):
 
     lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
 
-    user_id, user_image = lti_params['user_id'], lti_params['user_iamge']
+    user_id, user_image = lti_params['user_id'], lti_params['user_image']
     is_teacher = json.load(open('config.json'))['Teacher'] in lti_params
 
     first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
@@ -639,5 +639,8 @@ def update_lti_id_to_user(request):
         user.profile_picture = user_image
     if is_teacher:
         user.is_teacher = is_teacher
+
     user.lti_id = user_id
+    user.save()
+
     return responses.success(payload={'user': serialize.user_to_dict(user)})

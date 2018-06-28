@@ -60,7 +60,7 @@ export default {
         },
         handleConnected () {
             userApi.updateLtiIdToUser(this.lti.ltiJWT)
-                .then(response => {
+                .then(_ => {
                     this.hideModal('connectUserRef')
                     this.signal(['userIntegrated'])
                 })
