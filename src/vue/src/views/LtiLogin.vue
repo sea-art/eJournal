@@ -90,17 +90,17 @@ export default {
 
                 this.handleUserIntegration = true
             } else {
-                router.push({
-                    name: 'ErrorPage',
-                    params: {
-                        code: '400',
-                        message: 'Bad request',
-                        description: `Received invalid state from the server.
-                                      Please contact your system administrator
-                                      for more information. Further integration
-                                      is not possible.`
-                    }
-                })
+                // router.push({
+                //     name: 'ErrorPage',
+                //     params: {
+                //         code: '400',
+                //         message: 'Bad request',
+                //         description: `Received invalid state from the server.
+                //                       Please contact your system administrator
+                //                       for more information. Further integration
+                //                       is not possible.`
+                //     }
+                // })
             }
         }
     }

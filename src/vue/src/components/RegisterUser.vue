@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-form @submit="onSubmit" @reset="onReset">
+        <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.username" placeholder="Username" required/>
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"  v-model="form.firstname" placeholder="Firstname" required/>
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"  v-model="form.lastname" placeholder="Lastname" required/>
