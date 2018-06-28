@@ -1,7 +1,7 @@
 <template>
     <b-row class="outer-container" no-gutters>
         <b-col v-if="bootstrapLg()" cols="12">
-            <bread-crumb v-if="bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
+            <bread-crumb v-if="bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
         <b-col v-else xl="3" class="left-content-journal">
@@ -9,7 +9,7 @@
         </b-col>
 
         <b-col lg="12" xl="6" order="2" class="main-content-journal">
-            <bread-crumb v-if="!bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
+            <bread-crumb v-if="!bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
                     <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]" :color="$root.colors[cID % $root.colors.length]"/>
@@ -102,6 +102,9 @@ export default {
                 })
         },
         selectNode ($event) {
+            /* Function that prevents you from instant leaving an EntryNode
+             * or a DeadlineNode when clicking on a different node in the
+             * tree. */
             if ($event === this.currentNode) {
                 return this.currentNode
             }
@@ -135,6 +138,9 @@ export default {
                 })
         },
         progressPoints (progressNode) {
+            /* The function will update a given progressNode by
+             * going through all the nodes and count the published grades
+             * so far. */
             var tempProgress = 0
             for (var node of this.nodes) {
                 if (node.nID === progressNode.nID) {

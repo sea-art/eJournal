@@ -1,15 +1,15 @@
 <template>
     <b-row class="outer-container" no-gutters>
         <b-col v-if="bootstrapLg()" cols="12">
-            <bread-crumb v-if="bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
+            <bread-crumb v-if="bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
         <b-col v-else xl="3" class="left-content-journal">
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
 
-        <b-col lg="12" xl="6" order="3" order-xl="2" class="main-content-journal">
-            <bread-crumb v-if="!bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
+<b-col lg="12" xl="6" order="3" order-xl="2" class="main-content-journal">
+            <bread-crumb v-if="!bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
                     <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
@@ -121,6 +121,9 @@ export default {
             this.nodes[this.currentNode] = editedData
         },
         selectNode ($event) {
+            /* Function that prevents you from instant leaving an EntryNode
+             * or a DeadlineNode when clicking on a different node in the
+             * tree. */
             if ($event === this.currentNode) {
                 return this.currentNode
             }
@@ -146,6 +149,9 @@ export default {
                 .catch(_ => this.$toasted.error('Error while loading nodes.'))
         },
         progressPoints (progressNode) {
+            /* The function will update a given progressNode by
+             * going through all the nodes and count the published grades
+             * so far. */
             var tempProgress = 0
 
             for (var node of this.nodes) {
@@ -162,9 +168,7 @@ export default {
 
             this.progressNodes[progressNode.nID] = tempProgress.toString()
         },
-        updatedGrade (newNode) {
-            this.nodes[this.currentNode].entry.grade = newNode.entry.grade
-            this.nodes[this.currentNode].entry.published = newNode.entry.published
+        updatedGrade () {
             for (var node of this.nodes) {
                 if (node.type === 'p') {
                     this.progressPoints(node)
