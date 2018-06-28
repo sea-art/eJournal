@@ -16,7 +16,7 @@ export default {
 </script>
 
 <style>
-/* @import url('https://fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700'); */
+@import url('https://fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700');
 
 :root {
     --theme-dark-blue: #252C39;
