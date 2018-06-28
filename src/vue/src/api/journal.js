@@ -26,11 +26,6 @@ export default {
             .then(response => response.data)
     },
 
-    get_template (tID) {
-        return auth.authenticatedGet('/get_template/' + tID + '/')
-            .then(response => response.data)
-    },
-
     create_template (name, fields) {
         return auth.authenticatedPost('/create_template/', {name: name, fields: fields})
             .then(response => response.data)

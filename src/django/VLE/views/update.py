@@ -102,7 +102,6 @@ def connect_assignment_lti(request):
     user = request.user
     if not user.is_authenticated:
         return responses.unauthorized()
-
     assignment = Assignment.objects.get(pk=request.data['aID'])
     assignment.lti_id = request.data['lti_id']
     if assignment.points_possible is None and request.data['points_possible'] is not '':
@@ -213,7 +212,7 @@ def update_grade_notification(request):
         return responses.bad_request()
 
     user.save()
-    return responses.bad_request(payload={'new_value': user.grade_notifications})
+    return responses.success(payload={'new_value': user.grade_notifications})
 
 
 @api_view(['POST'])
