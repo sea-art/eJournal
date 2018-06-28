@@ -184,7 +184,6 @@ export default {
         var retval = await this.loadLtiData()
 
         if (retval !== 'success') {
-            alert(retval)
             this.$router.push({
                 name: 'ErrorPage',
                 params: {
