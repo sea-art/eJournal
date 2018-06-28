@@ -57,7 +57,12 @@
                                     {{ entryNode.entry.grade }}
                                 </div>
                                 <div v-else>
-                                    To be graded
+                                    <div v-if="entryNode.entry.editable">
+                                        To be graded
+                                    </div>
+                                    <div v-else>
+                                        Grade is not visible
+                                    </div>
                                 </div>
                             </b-col>
                         </b-row>
