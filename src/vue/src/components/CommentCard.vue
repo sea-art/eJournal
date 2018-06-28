@@ -26,7 +26,7 @@
                     <br><b>{{userData.name}}</b>
                 </b-col>
                 <b-col cols="10">
-                    <b-textarea v-model="tempComment" placeholder="Add your beautiful comment here"></b-textarea><br>
+                    <b-textarea v-model="tempComment" placeholder="Add your comment here"></b-textarea><br>
                     <b-button @click="addComment">Add your comment</b-button>
                 </b-col>
             </b-row>
