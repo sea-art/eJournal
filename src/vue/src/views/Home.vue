@@ -10,10 +10,12 @@
             <b-link :to="{name: 'Course', params: {cID: c.cID, courseName: c.name}}">
                 <main-card
                     :line1="c.name"
-                    :line2="c.date.substring(0, 4)"
+                    :line2="'From - To (years eg: 2017 - 2018)'"
                     :color="$root.colors[c.cID % $root.colors.length]">
                 </main-card>
             </b-link>
+        </div>
+        <div slot="main-content-column">
         </div>
         <main-card
             v-if="this.$root.canAddCourse()"
@@ -93,7 +95,6 @@ export default {
             .then(response => {
                 this.deadlines = response
             })
-            .catch(_ => alert('Error while loading deadlines'))
     },
     methods: {
         loadCourses () {
@@ -128,7 +129,6 @@ export default {
                 .then(response => {
                     this.needsMarkingStats.push(response.stats.needsMarking)
                 })
-                .catch(_ => alert('Error while loading journals'))
         },
         journalRoute (cID, aID, jID, name) {
             if (this.$root.canAddCourse()) {
