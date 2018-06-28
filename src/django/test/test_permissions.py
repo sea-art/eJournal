@@ -146,7 +146,7 @@ class PermissionTests(TestCase):
     def test_get_role(self):
         """Test whether the get_role function returns the right type of value."""
         # Connect a participation to a user, course and role.
-        factory.make_role_default_no_perms('teststudent2', self.crs)
+        role = factory.make_role_default_no_perms('teststudent2', self.crs)
 
         factory.make_participation(self.usr, self.crs, role)
 
