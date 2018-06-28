@@ -10,7 +10,7 @@
             <b-link :to="{name: 'Course', params: {cID: c.cID, courseName: c.name}}">
                 <main-card
                     :line1="c.name"
-                    :line2="c.date.substring(0, 4)"
+                    :line2="c.startdate.substring(0, 4) + '-' + c.enddate.substring(0, 4)"
                     :color="$root.colors[c.cID % $root.colors.length]">
                 </main-card>
             </b-link>
@@ -94,7 +94,7 @@ export default {
             .then(response => {
                 this.deadlines = response
             })
-            .catch(_ => alert('Error while loading deadlines'))
+            .catch(_ => this.$toasted.error('Error while loading deadlines'))
     },
     methods: {
         loadCourses () {
@@ -129,7 +129,7 @@ export default {
                 .then(response => {
                     this.needsMarkingStats.push(response.stats.needsMarking)
                 })
-                .catch(_ => alert('Error while loading journals'))
+                .catch(_ => this.$toasted.error('Error while loading journals'))
         },
         journalRoute (cID, aID, jID, name) {
             if (this.$root.canAddCourse()) {

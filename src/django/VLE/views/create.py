@@ -36,11 +36,11 @@ def create_new_course(request):
 
     try:
         name, abbr = utils.required_params(request.data, "name", "abbr")
-        startdate, lti_id = utils.optional_params(request.data, "startdate", "lti_id")
+        startdate, enddate, lti_id = utils.optional_params(request.data, "startdate", "enddate", "lti_id")
     except KeyError:
         return responses.keyerror("name", "abbr")
 
-    course = factory.make_course(name, abbr, startdate, request.user, lti_id)
+    course = factory.make_course(name, abbr, startdate, enddate, request.user, lti_id)
 
     return responses.created(payload={'course': serialize.course_to_dict(course)})
 
