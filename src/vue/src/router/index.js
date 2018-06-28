@@ -129,10 +129,6 @@ router.beforeEach((to, from, next) => {
         }
     } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage'].includes(to.name)) {
         return next()
-    } else if (to.name === 'Assignment') {
-        if (!router.app.canViewAssignmentParticipants()) {
-            return next({name: 'Course', params: {cID: to.params.cID}})
-        }
     }
 
     var params
