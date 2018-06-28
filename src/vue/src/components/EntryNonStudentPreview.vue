@@ -119,9 +119,9 @@ export default {
         commitGrade: function () {
             if (this.grade !== null) {
                 this.tempNode.entry.grade = this.grade
-                this.tempNode.entry.published = (this.status === 'true')
+                this.tempNode.entry.published = (this.status === 'true' || this.status === true)
 
-                if (this.status === 'true') {
+                if (this.status === 'true' || this.status === true) {
                     journalApi.update_grade_entry(this.entryNode.entry.eID, this.grade, 1)
                         .then(_ => {
                             this.$toasted.success('Oh yeah! grade updated with visibility')
