@@ -749,8 +749,8 @@ def lti_launch(request):
         lti_params = jwt.encode(params, secret, algorithm='HS256').decode('utf-8')
 
         if user is None:
-            q_names = ['lti_params', 'state']
-            q_values = [lti_params, NO_USER]
+            q_names = ['state', 'lti_params']
+            q_values = [NO_USER, lti_params]
 
             if 'lis_person_name_full' in params:
                 fullname = params['lis_person_name_full']
