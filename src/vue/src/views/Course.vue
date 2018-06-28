@@ -110,7 +110,7 @@ export default {
             this.$refs[ref].hide()
         },
         customisePage () {
-            alert('Wishlist: Customise page')
+            this.$toasted.info('Wishlist: Customise page')
         },
         handleEdit () {
             this.$router.push({

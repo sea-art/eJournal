@@ -157,7 +157,11 @@ def entry_to_dict(entry, user):
         'published': entry.published,
         'template': template_to_dict(entry.template),
         'content': [content_to_dict(content) for content in entry.content_set.all()],
+        'editable': True
     }
+
+    if entry.grade is not None:
+        data['editable'] = False
 
     assignment = entry.node.journal.assignment
     if permissions.has_assignment_permission(user, assignment, 'can_grade_journal') or entry.published:

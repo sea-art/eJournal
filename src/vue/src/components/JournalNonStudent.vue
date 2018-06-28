@@ -94,7 +94,7 @@ export default {
             journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
             journal.get_nodes(this.jID)
                 .then(response => { this.nodes = response.nodes })
-                .catch(_ => alert('Error while loading nodes.'))
+                .catch(_ => this.$toasted.error('Error while loading nodes.'))
         },
         progressPoints (progressNode) {
             var tempProgress = 0
@@ -123,7 +123,12 @@ export default {
         },
         publishGradesJournal () {
             journal.update_publish_grades_journal(this.jID, 1)
-            alert('All the grades for this journal are published.')
+                .then(_ => {
+                    this.$toasted.success('All the grades for this journal are published.')
+                })
+                .catch(_ => {
+                    this.$toasted.error('Error publishing all grades for this journal')
+                })
 
             for (var node of this.nodes) {
                 if (node.type === 'e' || node.type === 'd') {
