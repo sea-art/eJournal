@@ -113,8 +113,7 @@ def publish_all_journal_grades(journal, published):
 
 
 def update_templates(result_list, templates):
-    """ Create new templates for those which have changed,
-    and removes the old one.
+    """Create new templates for those which have changed, and removes the old one.
 
     Entries have to keep their original template, so that the content
     does not change after a template update, therefore when a template
@@ -139,7 +138,7 @@ def update_templates(result_list, templates):
 
 
 def parse_template(template_dict):
-    """ Parse a new template according to the passed JSON-serialized template. """
+    """Parse a new template according to the passed JSON-serialized template."""
     name = template_dict['name']
     fields = template_dict['fields']
 
@@ -157,7 +156,7 @@ def parse_template(template_dict):
 
 
 def swap_templates(from_list, goal_list, target_list):
-    """ Swap templates from from_list to target_list if they are present in goal_list. """
+    """Swap templates from from_list to target_list if they are present in goal_list."""
     for template in goal_list:
         if from_list.filter(pk=template['tID']).count() > 0:
             template = from_list.get(pk=template['tID'])
@@ -166,7 +165,7 @@ def swap_templates(from_list, goal_list, target_list):
 
 
 def update_journals(journals, preset, created):
-    """ Create or update the preset node in all relevant journals.
+    """Create or update the preset node in all relevant journals.
 
     Arguments:
     journals -- the journals to update.
@@ -182,7 +181,7 @@ def update_journals(journals, preset, created):
 
 
 def update_presets(assignment, presets):
-    """ Update preset nodes in the assignment according to the passed list.
+    """Update preset nodes in the assignment according to the passed list.
 
     Arguments:
     assignment -- the assignment to update the presets in.
@@ -220,7 +219,7 @@ def update_presets(assignment, presets):
 
 
 def delete_presets(presets, remove_presets):
-    """ Deletes all presets in remove_presets from presets. """
+    """Deletes all presets in remove_presets from presets. """
     pIDs = []
     for preset in remove_presets:
         pIDs.append(preset['pID'])
@@ -229,7 +228,7 @@ def delete_presets(presets, remove_presets):
 
 
 def delete_templates(templates, remove_templates):
-    """ Deletes all templates in remove_templates from templates. """
+    """Deletes all templates in remove_templates from templates. """
     tIDs = []
     for template in remove_templates:
         tIDs.append(template['tID'])
