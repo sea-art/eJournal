@@ -22,8 +22,6 @@ import VLE.serializers as serialize
 import VLE.permissions as permissions
 import VLE.views.responses as responses
 
-from datetime import datetime
-
 # VUE ENTRY STATE
 BAD_AUTH = '-1'
 

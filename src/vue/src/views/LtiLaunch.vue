@@ -153,12 +153,7 @@ export default {
                     }
                 })
                 break
-            }
-        }
-    },
-    watch: {
-        state: function (val) {
-            if (val === this.states.finish_s) {
+            case this.states.finish_s:
                 this.$router.push({
                     name: 'Journal',
                     params: {
@@ -167,7 +162,8 @@ export default {
                         jID: this.page.jID
                     }
                 })
-            } else if (val === this.states.finish_t) {
+                break
+            case this.states.finish_t:
                 this.$router.push({
                     name: 'Assignment',
                     params: {
@@ -175,9 +171,13 @@ export default {
                         aID: this.page.aID
                     }
                 })
-            } else {
-                this.updateState(this.states.state)
+                break
             }
+        }
+    },
+    watch: {
+        state: function (val) {
+            this.updateState(this.states.state)
         }
     },
     async mounted () {
