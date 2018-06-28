@@ -109,7 +109,6 @@ def connect_assignment_lti(request):
     user = request.user
     if not user.is_authenticated:
         return responses.unauthorized()
-
     assignment = Assignment.objects.get(pk=request.data['aID'])
     assignment.lti_id = request.data['lti_id']
     if assignment.points_possible is None and request.data['points_possible'] is not '':
