@@ -1,7 +1,7 @@
 <template>
     <b-row class="outer-container" no-gutters>
         <b-col v-if="bootstrapLg()" cols="12">
-            <bread-crumb v-if="bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
+            <bread-crumb v-if="bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"> </bread-crumb>
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
         <b-col v-else xl="3" class="left-content-journal">

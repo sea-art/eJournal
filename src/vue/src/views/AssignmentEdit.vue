@@ -2,7 +2,7 @@
     <content-single-column>
         <bread-crumb>&nbsp;</bread-crumb>
         <b-card class="no-hover">
-            <b-form @submit="onSubmit">
+            <b-form @submit.prevent="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
                          v-model="assignment.name"
                          placeholder="Assignment name"

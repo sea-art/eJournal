@@ -3,7 +3,7 @@
         <bread-crumb>&nbsp;</bread-crumb>
         <b-card class="no-hover settings-card">
             <h3>Manage course data</h3>
-            <b-form @submit="onSubmit">
+            <b-form @submit.prevent="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
                          v-model="course.name"
                          placeholder="Course name"
