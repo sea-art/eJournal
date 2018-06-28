@@ -1,14 +1,13 @@
 <template>
     <b-card class="card" :class="color">
         <b-row>
-            <b-col cols="7">
+            <b-col cols="9">
                 <h6>{{ date }} {{ hours }}:{{ minutes }}</h6>
             </b-col>
-            <b-col cols="5">
-                <p>{{ new Date().getFullDay }}</p>
-                <p v-if="this.$root.canAddCourse() && this.$route.path !='/AssignmentsOverview'">
-                    <todo-square :num="totalNeedsMarking"/>
-                </p>
+            <b-col cols="3">
+                <!-- TODO: Show time left for students. -->
+                <!-- TODO: Check if a user is a TA or teacher in order to show amount left to grade. -->
+                <todo-square v-if="this.$root.canAddCourse() && this.$route.path !='/AssignmentsOverview'" class="float-right" :num="totalNeedsMarking"/>
             </b-col>
         </b-row>
             <h5>{{ name }}</h5>

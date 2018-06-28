@@ -28,8 +28,12 @@ export default {
     --theme-blue: #22648A;
     --theme-red: #c83b4b;
     --theme-medium-grey: #DEDEDE;
-    --theme-add-unselected: #99ff99;
-    --theme-add-selected: #1aff1a;
+    --theme-positive-unselected: #99ff99;
+    --theme-positive-selected: #1aff1a;
+    --theme-negative-unselected: #99ff99;
+    --theme-negative-selected: #1aff1a;
+    --theme-change-unselected: #99ff99;
+    --theme-change-selected: #1aff1a;
 }
 
 * {
@@ -198,38 +202,33 @@ input, select {
     cursor: pointer;
 }
 
+.add-icon:hover {
+    fill: var(--theme-positive-selected) !important;
+}
+
 .trash-icon:hover {
-    fill: var(--theme-red);
+    fill: var(--theme-negative-selected) !important;
 }
 
 .trash-icon {
-    fill: var(--theme-red);
+    fill: var(--theme-dark-grey) !important;
     cursor: pointer;
 }
 
-.add-icon:hover {
-    fill: var(--theme-add-selected) !important;
-}
-
 .add-button {
-    border-color: var(--theme-blue) !important;
-    background-color: var(--theme-add-unselected) !important;
+    background-color: var(--theme-positive-unselected) !important;
 }
 
 .add-button:hover {
-    border-color: var(--theme-blue) !important;
-    background-color: var(--theme-add-selected) !important;
-    color: black !important;
+    background-color: var(--theme-positive-selected) !important;
 }
 
 .delete-button {
-    border-color: var(--theme-blue) !important;
-    background-color: var(--theme-pink) !important;
+    background-color: var(--theme-negative-unselected) !important;
 }
 
 .delete-button:hover {
-    border-color: var(--theme-dark-blue) !important;
-    background-color: var(--theme-red) !important;
+    background-color: var(--theme-negative-selected) !important;
 }
 
 .lti-button-option {

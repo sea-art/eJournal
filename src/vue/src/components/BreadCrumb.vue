@@ -49,7 +49,10 @@ export default {
             aliases: {
                 'Home': 'Courses',
                 'FormatEdit': 'Format Editor',
-                'AssignmentsOverview': 'Assignment Overview'
+                'CourseEdit': 'Course Editor',
+                'AssignmentEdit': 'Assignment Editor',
+                'AssignmentsOverview': 'Assignment Overview',
+                'UserRoleConfiguration': 'User Role Configuration'
             },
             paramMap: {
                 'Course': 'cID',

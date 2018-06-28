@@ -3,7 +3,7 @@
 </template>
 <style>
 .alert-success {
-    background: var(--theme-add-unselected);
+    background: var(--theme-positive-unselected);
     color: black;
     border: none;
 }
