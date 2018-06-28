@@ -120,7 +120,7 @@ export default {
                     this.$toasted.success('All the grades for each journal are published.')
                 })
                 .catch(_ => {
-                    this.$toasted.error('Error whilest publishing the grades for each journal.')
+                    this.$toasted.error('Error while publishing the grades for each journal.')
                 })
         }
     },
