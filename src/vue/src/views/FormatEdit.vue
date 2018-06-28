@@ -236,7 +236,7 @@ export default {
             }
 
             this.convertToDB()
-            journalAPI.update_format(this.aID, this.templates, this.presets, this.unused_templates, this.deletedTemplates, this.deletedPresets)
+            journalAPI.update_format(this.aID, this.templates, this.max_points, this.presets, this.unused_templates, this.deletedTemplates, this.deletedPresets)
                 .then(data => {
                     this.templates = data.format.templates
                     this.presets = data.format.presets

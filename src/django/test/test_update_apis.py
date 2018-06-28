@@ -11,37 +11,36 @@ class UpdateApiTests(TestCase):
     def setUp(self):
         """Setup"""
         self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123')
+        self.rein_user, self.rein_pass, self.rein = test.set_up_user_and_auth("Rein", "123")
+        self.no_perm_user, self.no_perm_pass, self.no_permission_user = test.set_up_user_and_auth("no_perm", "123")
         self.course = factory.make_course("Beeldbewerken", "BB")
 
-    def test_update_user_role_course(self):
-        """Test user role update in a course."""
-        login = test.logging_in(self, self.username, self.password)
-        course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
+    def test_connect_course_lti(self):
+        """Test the connect course lti function."""
+        course = factory.make_course('Portfolio', 'PAV', author=self.rein)
 
-        ta_role = Role.objects.get(name='TA', course=course)
-        student_role = factory.make_role_student(name='SD', course=course)
+        login = test.logging_in(self, self.rein_user, self.rein_pass)
 
-        self.user_role = factory.make_user("test123", "test")
-        factory.make_participation(self.user_role, course, ta_role)
-        factory.make_participation(self.user, course, student_role)
+        connect_dict = {'cID': course.pk, 'lti_id': '12XY'}
 
-        user_role = Participation.objects.get(user=self.user_role, course=2).role.name
-        self.assertEquals(user_role, 'TA')
+        test.api_post_call(self, '/api/connect_course_lti/', connect_dict, login)
 
-        test.api_post_call(
-            self,
-            '/api/update_user_role_course/',
-            {'cID': 2, 'uID': self.user_role.pk, 'role': 'SD'},
-            login
-        )
-        user_role = Participation.objects.get(user=self.user_role, course=2).role.name
-        self.assertEquals(user_role, 'SD')
+        q_course = Course.objects.get(pk=course.pk)
+        self.assertEquals(q_course.lti_id, '12XY')
+
+        # permission checks
+        login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
+        test.test_unauthorized_api_post_call(self, '/api/connect_course_lti/', connect_dict)
+        test.api_post_call(self, '/api/connect_course_lti/', connect_dict, login, status=403)
+
+        test.set_up_participation(self.no_permission_user, course, 'Student')
+        test.api_post_call(self, '/api/connect_course_lti/', connect_dict, login, status=403)
 
     def test_update_course(self):
         """Test update_course"""
         login = test.logging_in(self, self.username, self.password)
 
-        course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
+        course = factory.make_course("Portfolio Academische Vaardigheden", "PAV", author=self.user)
 
         test.api_post_call(self, '/api/update_course/', {
             'cID': course.pk,
@@ -56,27 +55,6 @@ class UpdateApiTests(TestCase):
         course = Course.objects.get(pk=course.pk)
         self.assertEquals(course.name, 'Beeldbewerken')
         self.assertEquals(course.abbreviation, 'BB')
-
-    def test_update_course_with_student(self):
-        """Test update_course_with_student"""
-        login = test.logging_in(self, self.username, self.password)
-
-        course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
-        teacher_role = Role.objects.get(name='Teacher', course=course)
-
-        factory.make_participation(self.user, course, teacher_role)
-        student = factory.make_user("Rick", "pass")
-
-        test.api_post_call(
-            self,
-            '/api/update_course_with_student/',
-            {'uID': student.pk, 'cID': course.pk},
-            login
-        )
-
-        course = Course.objects.get(pk=course.pk)
-        self.assertEquals(len(course.users.all()), 2)
-        self.assertTrue(User.objects.filter(participation__course=course, username='Rick').exists())
 
     def test_update_course_roles(self):
         """Test update course roles"""
@@ -101,6 +79,41 @@ class UpdateApiTests(TestCase):
         self.assertTrue(role_test.can_grade_journal)
         self.assertEquals(Role.objects.filter(name='test_role', course=self.course).count(), 1)
 
+    def test_connect_assignment_lti(self):
+        """Test connect assignment lti."""
+        course = factory.make_course('Portfolio', 'PAV', author=self.rein)
+        template = factory.make_entry_template('template')
+        format = factory.make_format([template], 10)
+        assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course])
+        connect_dict = {'aID': assignment.pk, 'lti_id': '12XY'}
+
+        login = test.logging_in(self, self.rein_user, self.rein_pass)
+        test.api_post_call(self, '/api/connect_assignment_lti/', connect_dict, login)
+
+        q_assignment = Assignment.objects.get(pk=assignment.pk)
+        self.assertEquals(q_assignment.lti_id, '12XY')
+
+    def test_update_course_with_student(self):
+        """Test update_course_with_student"""
+        login = test.logging_in(self, self.username, self.password)
+
+        course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
+        teacher_role = Role.objects.get(name='Teacher', course=course)
+
+        factory.make_participation(self.user, course, teacher_role)
+        student = factory.make_user("Rick", "pass")
+
+        test.api_post_call(
+            self,
+            '/api/update_course_with_student/',
+            {'uID': student.pk, 'cID': course.pk},
+            login
+        )
+
+        course = Course.objects.get(pk=course.pk)
+        self.assertEquals(len(course.users.all()), 2)
+        self.assertTrue(User.objects.filter(participation__course=course, username='Rick').exists())
+
     def test_update_assignment(self):
         """Test update assignment"""
         teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('Teacher', 'pass')
@@ -121,6 +134,13 @@ class UpdateApiTests(TestCase):
         assign = Assignment.objects.get(pk=assign.pk)
         self.assertEquals(assign.name, 'Assign2')
         self.assertEquals(assign.description, 'summary')
+
+    def test_update_format(self):
+        """Test update format function."""
+        course = factory.make_course('Portfolio', 'PAV', author=self.rein)
+        template = factory.make_entry_template('template')
+        format = factory.make_format([template], 10)
+        assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course])
 
     def test_grade_publish(self):
         """Test the grade publish api functions."""
@@ -143,22 +163,22 @@ class UpdateApiTests(TestCase):
         factory.make_node(journal2, entries[3])
 
         login = test.logging_in(self, teacher_user, teacher_pass)
-        result = test.api_post_call(self, '/api/update_grade_entry/1/', {'grade': 1, 'published': 0}, login)
+        result = test.api_post_call(self, '/api/update_grade_entry/', {'eID': 1, 'grade': 1, 'published': 0}, login)
         self.assertEquals(Entry.objects.get(pk=1).grade, int(result.json()['new_grade']))
 
-        result = test.api_post_call(self, '/api/update_grade_entry/1/', {'grade': 2, 'published': 1}, login)
+        result = test.api_post_call(self, '/api/update_grade_entry/', {'eID': 1, 'grade': 2, 'published': 1}, login)
         self.assertEquals(Entry.objects.get(pk=1).grade, int(result.json()['new_grade']))
         self.assertEquals(Entry.objects.get(pk=1).published, int(result.json()['new_published']))
 
-        result = test.api_post_call(self, '/api/update_publish_grade_entry/1/', {'published': 0}, login)
+        result = test.api_post_call(self, '/api/update_publish_grade_entry/', {'eID': 1, 'published': 0}, login)
         self.assertEquals(Entry.objects.get(pk=1).published, int(result.json()['new_published']))
 
         for i in range(2, 4):
-            test.api_post_call(self, '/api/update_grade_entry/{}/'.format(i + 1), {'grade': 1, 'published': 0}, login)
-        result = test.api_post_call(self, '/api/update_publish_grades_assignment/1/', {'published': 1}, login)
+            test.api_post_call(self, '/api/update_grade_entry/', {'eID': i + 1, 'grade': 1, 'published': 0}, login)
+        result = test.api_post_call(self, '/api/update_publish_grades_assignment/', {'aID': 1, 'published': 1}, login)
         self.assertEquals(Entry.objects.filter(node__journal__assignment=assign1, published=1).count(), 3)
 
-        result = test.api_post_call(self, '/api/update_publish_grades_journal/1/', {'published': 0}, login)
+        result = test.api_post_call(self, '/api/update_publish_grades_journal/', {'jID': 1, 'published': 0}, login)
         self.assertEquals(Entry.objects.filter(node__journal=1, published=0).count(), 3)
         self.assertEquals(Entry.objects.get(pk=4).published, 1)
 
@@ -179,3 +199,27 @@ class UpdateApiTests(TestCase):
                            {'new_password': 'Pass321!',
                             'old_password': 'Pass123!'},
                            login)
+
+    def test_update_user_role_course(self):
+        """Test user role update in a course."""
+        login = test.logging_in(self, self.rein_user, self.rein_pass)
+        course = factory.make_course("Portfolio Academische Vaardigheden", "PAV", author=self.rein)
+
+        ta_role = Role.objects.get(name='TA', course=course)
+        student_role = factory.make_role_student(name='SD', course=course)
+
+        self.user_role = factory.make_user("test123", "test")
+        factory.make_participation(self.user_role, course, ta_role)
+        factory.make_participation(self.user, course, student_role)
+
+        user_role = Participation.objects.get(user=self.user_role, course=2).role.name
+        self.assertEquals(user_role, 'TA')
+
+        test.api_post_call(
+            self,
+            '/api/update_user_role_course/',
+            {'cID': course.pk, 'uID': self.user_role.pk, 'role': 'SD'},
+            login
+        )
+        user_role = Participation.objects.get(user=self.user_role, course=course.pk).role.name
+        self.assertEquals(user_role, 'SD')

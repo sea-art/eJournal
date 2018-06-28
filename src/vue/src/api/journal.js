@@ -36,28 +36,28 @@ export default {
             .then(response => response.data)
     },
 
-    update_format (aID, templates, presets, unusedTemplates, removedTemplates, removedPresets) {
-        return auth.authenticatedPost('/update_format/', {aID: aID, templates: templates, presets: presets, unused_templates: unusedTemplates, removed_templates: removedTemplates, removed_presets: removedPresets})
+    update_format (aID, templates, max_points, presets, unusedTemplates, removedTemplates, removedPresets) {
+        return auth.authenticatedPost('/update_format/', {aID: aID, templates: templates, max_points: max_points, presets: presets, unused_templates: unusedTemplates, removed_templates: removedTemplates, removed_presets: removedPresets})
             .then(response => response.data)
     },
 
     update_grade_entry (eID, grade, published) {
-        return auth.authenticatedPost('/update_grade_entry/' + eID + '/', {grade: grade, published: published})
+        return auth.authenticatedPost('/update_grade_entry/', {eID: eID, grade: grade, published: published})
             .then(response => response.data)
     },
 
     update_publish_grade_entry (eID, published) {
-        return auth.authenticatedPost('/update_publish_grade_entry/' + eID + '/', {published: published})
+        return auth.authenticatedPost('/update_publish_grade_entry/', {eID: eID, published: published})
             .then(response => response.data)
     },
 
     update_publish_grades_assignment (aID, published) {
-        return auth.authenticatedPost('/update_publish_grades_assignment/' + aID + '/', {published: published})
+        return auth.authenticatedPost('/update_publish_grades_assignment/', {aID: aID, published: published})
             .then(response => response.data)
     },
 
     update_publish_grades_journal (jID, published) {
-        return auth.authenticatedPost('/update_publish_grades_journal/' + jID + '/', {published: published})
+        return auth.authenticatedPost('/update_publish_grades_journal/', {jID: jID, published: published})
             .then(response => response.data)
     }
 }

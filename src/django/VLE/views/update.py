@@ -24,6 +24,7 @@ def connect_course_lti(request):
     Arguments:
     request -- the update request that was send with
         lti_id -- lti_id that needs to be added to the course
+        cID -- course that needs to be connected to lti_id
 
     Returns a json string for if it is succesful or not.
     """
@@ -50,7 +51,7 @@ def connect_course_lti(request):
     course.lti_id = request.data['lti_id']
     course.save()
 
-    return responses.succes(payload={'course': serialize.course_to_dict(course)})
+    return responses.success(payload={'course': serialize.course_to_dict(course)})
 
 
 @api_view(['POST'])
@@ -151,7 +152,7 @@ def connect_assignment_lti(request):
 
     try:
         aID, lti_id = utils.required_params(request.data, 'aID', 'lti_id')
-        points_possible = utils.optional_params(request.data, 'points_possible')
+        [points_possible] = utils.optional_params(request.data, 'points_possible')
     except KeyError:
         return responses.keyerror('aID')
 
@@ -160,12 +161,12 @@ def connect_assignment_lti(request):
     except Assignment.DoesNotExist:
         return responses.not_found('Assignment')
 
-    if not permissions.has_assignment_permission(user, assignment, 'can_edit_course'):
-        return responses.forbidden('You are not allowed to edit the courses.')
+    if not permissions.has_assignment_permission(user, assignment, 'can_edit_assignment'):
+        return responses.forbidden('You are not allowed to edit the assignment.')
 
     assignment.lti_id = lti_id
     if assignment.points_possible is None and points_possible is not '':
-        assignment.points_possible = request.data['points_possible']
+        assignment.points_possible = points_possible
     assignment.save()
 
     return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
@@ -400,10 +401,10 @@ def update_user_role_course(request):
     except (Participation.DoesNotExist, Role.DoesNotExist, Course.DoesNotExist):
         return responses.not_found('Participation, Role or Course does not exist.')
 
-    role = permissions.get_role(request.user, course)
-    if role is None:
+    q_role = permissions.get_role(request.user, course)
+    if q_role is None:
         return responses.forbidden('You are not in this course.')
-    elif not role.can_edit_course_roles:
+    elif not q_role.can_edit_course_roles:
         return responses.forbidden('You cannot edit the roles of this course.')
 
     participation.role = Role.objects.get(name=role, course=cID)
@@ -558,7 +559,7 @@ def update_publish_grades_journal(request):
     except Journal.DoesNotExist:
         return responses.DoesNotExist('Journal')
 
-    if not permissions.has_assignment_permission(request.user, journ.assign, 'can_publish_journal_grades'):
+    if not permissions.has_assignment_permission(request.user, journ.assignment, 'can_publish_journal_grades'):
         return responses.forbidden('You cannot publish assignments.')
 
     utils.publish_all_journal_grades(journ, request.data['published'])
@@ -596,7 +597,7 @@ def update_entrycomment(request):
     except EntryComment.DoesNotExist:
         return responses.not_found('Entrycomment does not exist.')
 
-    if not permissions.has_assignment_permission(request.user, comment.entry.node.journal.assign,
+    if not permissions.has_assignment_permission(request.user, comment.entry.node.journal.assignment,
                                                  'can_comment_journal'):
         return responses.forbidden('You cannot comment on entries.')
 
