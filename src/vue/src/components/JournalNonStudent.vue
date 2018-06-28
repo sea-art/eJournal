@@ -30,7 +30,7 @@
         <b-col cols="12" xl="3" order="3" class="right-content-journal">
             <h3>Journal</h3>
             <b-card class="no-hover">
-                <b-link tag="b-button" :to="{ name: 'Journal',
+                <!-- <b-link tag="b-button" :to="{ name: 'Journal',
                                               params: {
                                                   cID: this.$route.params.cID,
                                                   aID: this.$route.params.aID,
@@ -38,7 +38,7 @@
                                               }
                                             }">
                     volgende
-                </b-link>
+                </b-link> -->
                 {{ filteredJournals }}
                 <b-button @click="publishGradesJournal">Publish Grades</b-button>
             </b-card>
@@ -65,13 +65,35 @@ export default {
             nodes: [],
             newNodes: [],
             progressNodes: {},
-            filteredJournals: []
+            filteredJournals: [],
+            selectedSortOption: 'sortName',
+            searchVariable: ''
         }
     },
     created () {
         journal.get_nodes(this.jID)
             .then(response => { this.nodes = response.nodes })
-        this.filteredJournals = store.state.filteredJournals
+
+        if (store.state.filteredJournals.length !== 0) {
+            this.filteredJournals = store.state.filteredJournals
+        } else {
+            journal.get_assignment_journals(2)
+                .then(response => {
+                    this.filteredJournals = response.journals
+                })
+
+            if (this.$route.query.sorted === 'sortName' ||
+                this.$route.query.sorted === 'sortID' ||
+                this.$route.query.sorted === 'sortMarking') {
+                this.selectedSortOption = this.$route.query.sorted
+            }
+
+            if (this.$route.query.searched) {
+                this.searchVariable = this.$route.query.searched
+            }
+
+            this.filteredJournals = this.filterJournals()
+        }
     },
     watch: {
         currentNode: function () {
@@ -149,6 +171,56 @@ export default {
         },
         bootstrapMd () {
             return this.windowHeight < 922
+        },
+        filterJournals () {
+            let self = this
+
+            function compareName (a, b) {
+                if (a.student.name < b.student.name) { return -1 }
+                if (a.student.name > b.student.name) { return 1 }
+                return 0
+            }
+
+            function compareID (a, b) {
+                if (a.student.uID < b.student.uID) { return -1 }
+                if (a.student.uID > b.student.uID) { return 1 }
+                return 0
+            }
+
+            function compareMarkingNeeded (a, b) {
+                if (a.stats.submitted - a.stats.graded < b.stats.submitted - b.stats.graded) { return -1 }
+                if (a.stats.submitted - a.stats.graded > b.stats.submitted - b.stats.graded) { return 1 }
+                return 0
+            }
+
+            function checkFilter (user) {
+                var userName = user.student.name.toLowerCase()
+                var userID = String(user.student.uID).toLowerCase()
+
+                if (userName.includes(self.searchVariable.toLowerCase()) ||
+                userID.includes(self.searchVariable)) {
+                    return true
+                } else {
+                    return false
+                }
+            }
+
+            /* Filter list based on search input. */
+            if (this.selectedSortOption === 'sortName') {
+                store.setFilteredJournals(this.filteredJournals.filter(checkFilter).sort(compareName))
+            } else if (this.selectedSortOption === 'sortID') {
+                store.setFilteredJournals(this.filteredJournals.filter(checkFilter).sort(compareID))
+            } else if (this.selectedSortOption === 'sortMarking') {
+                store.setFilteredJournals(this.filteredJournals.filter(checkFilter).sort(compareMarkingNeeded))
+            }
+
+            if (this.searchVariable !== '') {
+                this.$router.replace({ query: {sorted: this.selectedSortOption, searched: this.searchVariable} })
+            } else {
+                this.$router.replace({ query: {sorted: this.selectedSortOption} })
+            }
+
+            return store.state.filteredJournals.slice()
         }
     },
     components: {

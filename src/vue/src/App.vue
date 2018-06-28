@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <header-bar/>
-        <router-view :key="$route.fullPath" class="fit-height"/>
+        <router-view :key="$route.path" class="fit-height"/>
     </div>
 </template>
 

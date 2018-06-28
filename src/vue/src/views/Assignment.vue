@@ -10,7 +10,6 @@
             <b-row>
                 <b-col lg="3" md="3">
                     <b-form-select v-model="selectedSortOption" :select-size="1">
-                       <option :value="null">Sort by ...</option>
                        <option value="sortName">Sort by name</option>
                        <option value="sortID">Sort by ID</option>
                        <option value="sortMarking">Sort by marking needed</option>
@@ -33,6 +32,9 @@
                                               cID: cID,
                                               aID: aID,
                                               jID: journal.jID
+                                          }, query: {
+                                              sorted: selectedSortOption,
+                                              searched: searchVariable
                                           }
                                         }">
 
@@ -47,7 +49,7 @@
 
             </b-link>
         </div>
-        <div v-if="assignmentJournals.length === 0" slot="main-content-column">
+        <div v-else slot="main-content-column">
             <h1>No journals found</h1>
         </div>
 
@@ -86,7 +88,7 @@ export default {
             assignmentJournals: [],
             stats: [],
             cardColor: '',
-            selectedSortOption: null,
+            selectedSortOption: 'sortName',
             searchVariable: ''
         }
     },
@@ -103,6 +105,16 @@ export default {
                 this.assignmentJournals = response.journals
                 this.stats = response.stats
             })
+
+        if (this.$route.query.sorted === 'sortName' ||
+            this.$route.query.sorted === 'sortID' ||
+            this.$route.query.sorted === 'sortMarking') {
+            this.selectedSortOption = this.$route.query.sorted
+        }
+
+        if (this.$route.query.searched) {
+            this.searchVariable = this.$route.query.searched
+        }
     },
     methods: {
         customisePage () {
@@ -163,8 +175,12 @@ export default {
                 store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareID))
             } else if (this.selectedSortOption === 'sortMarking') {
                 store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded))
+            }
+
+            if (this.searchVariable !== '') {
+                this.$router.replace({ query: {sorted: this.selectedSortOption, searched: this.searchVariable} })
             } else {
-                store.setFilteredJournals(this.assignmentJournals.filter(checkFilter))
+                this.$router.replace({ query: {sorted: this.selectedSortOption} })
             }
 
             return store.state.filteredJournals.slice()
