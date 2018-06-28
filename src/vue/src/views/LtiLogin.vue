@@ -8,7 +8,6 @@
 <script>
 import contentSingleColumn from '@/components/ContentSingleColumn.vue'
 import ltiCreateConnectUser from '@/components/LtiCreateConnectUser.vue'
-import router from '@/router'
 
 export default {
     name: 'LtiLogin',
@@ -49,9 +48,8 @@ export default {
         }
     },
     mounted () {
-        console.log('State: ' + this.$route.query.state)
         if (this.$route.query.state === this.states.bad_auth) {
-            router.push({
+            this.$router.push({
                 name: 'ErrorPage',
                 params: {
                     code: '511',
@@ -72,7 +70,7 @@ export default {
                     localStorage.setItem('jwt_refresh', this.$route.query.jwt_refresh)
                 }
 
-                router.app.validToken = true
+                this.$router.app.validToken = true
                 this.userIntegrated()
             } else if (this.$route.query.state === this.states.no_user) {
                 if (this.$route.query.firstname !== undefined) {
@@ -90,7 +88,7 @@ export default {
 
                 this.handleUserIntegration = true
             } else {
-                router.push({
+                this.$router.push({
                     name: 'ErrorPage',
                     params: {
                         code: '500',
