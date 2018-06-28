@@ -197,7 +197,7 @@ export default {
 
             topList = this.deadlines.slice().sort(compareDate).filter(filterTop)
 
-            if (this.$root.canAddCourse()) {
+            if (this.$root.canViewAssignmentParticipants()) {
                 for (var i = 0; i < topList.length; i++) {
                     this.addMarkingList(topList[i].aID)
                 }

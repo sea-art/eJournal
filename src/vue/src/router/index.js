@@ -127,7 +127,7 @@ router.beforeEach((to, from, next) => {
                 .then(_ => next({name: 'Home'}))
                 .catch(_ => next())
         }
-    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage'].includes(to.name)) {
+    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage', 'Assignment'].includes(to.name)) {
         return next()
     }
 
