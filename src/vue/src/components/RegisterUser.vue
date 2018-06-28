@@ -36,7 +36,7 @@ export default {
             userApi.createUser(this.form.username, this.form.password,
                 this.form.firstname, this.form.lastname,
                 this.form.email, this.form.ltiJWT)
-                .then(response => {
+                .then(_ => {
                     auth.login(this.form.username, this.form.password)
                         .then(_ => {
                             this.$emit('handleAction')
