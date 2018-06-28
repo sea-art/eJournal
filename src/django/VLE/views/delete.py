@@ -69,7 +69,7 @@ def delete_assignment(request):
     # Assignments can only be deleted with can_delete_assignment permission.
     role = permissions.get_role(user, cID)
     if role is None:
-        return responses.unauthorized(description="You have no access to this course")
+        return responses.forbidden(description="You have no access to this course")
     elif not role.can_delete_assignment:
         return responses.forbidden(description="You have no permissions to delete a assignment.")
 
