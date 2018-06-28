@@ -99,6 +99,7 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 import contentSingleColumn from '@/components/ContentSingleColumn.vue'
 import courseParticipantCard from '@/components/CourseParticipantCard.vue'
 import courseApi from '@/api/course.js'
+import store from '@/Store'
 
 export default {
     name: 'CourseEdit',
@@ -141,6 +142,13 @@ export default {
                     this.course = response
                     this.pageName = this.course.name
                     this.$toasted.success('Updated course')
+                    store.clearCache()
+                    this.$router.push({
+                        name: 'Course',
+                        params: {
+                            cID: this.cID
+                        }
+                    })
                 })
         },
         deleteCourse () {

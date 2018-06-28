@@ -25,6 +25,7 @@
 import contentSingleColumn from '@/components/ContentSingleColumn.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import assignmentApi from '@/api/assignment.js'
+import store from '@/Store'
 
 export default {
     name: 'AssignmentEdit',
@@ -59,9 +60,14 @@ export default {
                     this.assignments = response
                     this.pageName = this.assignment.name
                     this.$toasted.success('Updated assignment')
-                    // this.$router.push({
-                    //
-                    // })
+                    store.clearCache()
+                    this.$router.push({
+                        name: 'Assignment',
+                        params: {
+                            cID: this.cID,
+                            aID: this.aID
+                        }
+                    })
                 })
         },
         deleteAssignment () {
