@@ -101,10 +101,11 @@ export default {
     testValidToken () {
         if (localStorage.getItem('jwt_access') == null && localStorage.getItem('jwt_refresh') == null) {
             router.app.validToken = false
-            return
+            return Promise.reject(new Error('Token undefined'))
         }
 
-        connection.conn.post('/token/verify/', {token: localStorage.getItem('jwt_access')})
+        return connection.conn.post('/token/verify/', {token: localStorage.getItem('jwt_access')})
+            .then(router.app.validToken = true)
             .catch(error => refresh(error))
     },
 
@@ -114,6 +115,7 @@ export default {
      * Returns a Promise to handle the request.
      */
     authenticatedPost (url, data, noRedirect = false) {
+        router.app.validToken = true
         return connection.conn.post(url, data, getAuthorizationHeader())
             .catch(error => refresh(error)
                 .then(_ => connection.conn.post(url, data, getAuthorizationHeader())))
@@ -126,6 +128,7 @@ export default {
      * Returns a Promise to handle the request.
      */
     authenticatedGet (url, noRedirect = false) {
+        router.app.validToken = true
         return connection.conn.get(url, getAuthorizationHeader())
             .catch(error => refresh(error, url)
                 .then(_ => connection.conn.get(url, getAuthorizationHeader())))
