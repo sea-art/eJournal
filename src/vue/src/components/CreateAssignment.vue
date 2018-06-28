@@ -1,7 +1,7 @@
 <template>
     <!-- TODO: Maak formats! -->
     <div>
-        <b-form @submit="onSubmit" @reset="onReset">
+        <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.assignmentName" placeholder="Assignment name"/>
             <b-textarea class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.assignmentDescription" rows="6" placeholder="Description of the assignment"/>
             <b-button class="float-right" type="reset">Reset</b-button>

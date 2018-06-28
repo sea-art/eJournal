@@ -50,6 +50,7 @@ urlpatterns = [
     path('get_course_permissions/<str:cID>/', get.get_course_permissions, name='get_course_permissions'),
     path('get_upcoming_course_deadlines/<int:cID>/', get.get_upcoming_course_deadlines,
          name='get_upcoming_course_deadlines'),
+    path('get_course_permissions/<str:cID>/', get.get_course_permissions, name='get_course_permissions'),
     path('get_nodes/<int:jID>/', get.get_nodes, name='get_nodes'),
     path('get_format/<int:aID>/', get.get_format, name='get_format'),
     path('get_names/', get.get_names, name='get_names'),
@@ -66,6 +67,7 @@ urlpatterns = [
     path('create_new_assignment/', create.create_new_assignment, name='create_new_assignment'),
     path('create_entry/', create.create_entry, name='create_entry'),
     path('create_entrycomment/', create.create_entrycomment, name='create_entrycomment'),
+    path('create_lti_user/', create.create_lti_user, name='create_lti_user'),
     path('create_journal/', create.create_journal, name='create_journal'),
 
     path('update_user_data/', update.update_user_data, name='update_user_data'),
@@ -80,6 +82,7 @@ urlpatterns = [
          name='update_comment_notification'),
     path('update_format/', update.update_format, name='update_format'),
     path('update_entrycomment/', update.update_entrycomment, name='update_entrycomment'),
+    path('update_lti_id_to_user/', update.update_lti_id_to_user, name='update_lti_id_to_user'),
     path('update_course_roles/', update.update_course_roles, name='update_course_roles'),
 
     path('update_grade_entry/<int:eID>/', update.update_grade_entry, name='update_grade_entry'),
@@ -91,11 +94,11 @@ urlpatterns = [
     path('update_user_role_course/', update.update_user_role_course, name='update_user_role_course'),
     path('update_course_with_studentID/', update.update_course_with_studentID, name='update_course_with_studentID'),
 
-
     path('delete_course/', delete.delete_course, name='delete_course'),
     path('delete_assignment/', delete.delete_assignment, name='delete_assignment'),
     path('delete_user_from_course/', delete.delete_user_from_course, name='delete_user_from_course'),
     path('delete_course_role/', delete.delete_course_role, name='delete_course_role'),
 
     path('lti/launch', get.lti_launch, name='lti_launch'),
+    path('get_lti_params_from_jwt/<str:jwt_params>/', get.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),
 ]

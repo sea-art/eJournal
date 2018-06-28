@@ -1,5 +1,5 @@
 <template>
-    <div slot="main-content-column">
+    <div>
         <p class="lti-intro-text">You came here from canvas with an unknown
             course. Do you want to create a new course on Logboek,
             or connect to an existing one?</p>
@@ -15,7 +15,6 @@
         </b-row>
 
         <b-modal
-            slot="main-content-column"
             ref="createCourseRef"
             title="Create course"
             size="lg"
@@ -24,7 +23,6 @@
         </b-modal>
 
         <b-modal
-            slot="main-content-column"
             ref="connectCourseRef"
             title="Connect course"
             size="lg"
@@ -35,7 +33,6 @@
 </template>
 
 <script>
-import breadCrumb from '@/components/BreadCrumb.vue'
 import createCourse from '@/components/CreateCourse.vue'
 import connectCourse from '@/components/ConnectCourse.vue'
 
@@ -43,7 +40,6 @@ export default {
     name: 'LtiCreateConnectCourse',
     props: ['lti'],
     components: {
-        'bread-crumb': breadCrumb,
         'create-course': createCourse,
         'connect-course': connectCourse
     },

@@ -50,7 +50,8 @@ function handleResponse (response, noRedirect = false) {
                     code: response.status,
                     message: response.data.result,
                     description: response.data.description
-                }})
+                }
+            })
         }
     } else if (response.status === 400) { // Bad request
         if (response.data.description) {
