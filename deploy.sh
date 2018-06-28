@@ -9,7 +9,7 @@ sudo /etc/init.d/apache2 stop
 sudo a2ensite ejournal.conf || sudo a2ensite ejournal
 
 # Initialize
-if [[ $? -ne 0 ]]; then
+if [[ $? -ne 0 || $1 -eq 'fresh' ]]; then
     rm -rd ./build
     rm -rd ${TARGET}
 
@@ -63,7 +63,7 @@ WSGIPythonPath ${TARGET}/django/VLE" > "${APACHE_DIR}/conf-available/wsgi.conf"
 " > "${APACHE_DIR}/sites-available/ejournal.conf"
 
     sudo a2ensite ejournal.conf || sudo a2ensite ejournal
-    cat ${APACHE_DIR}/ports.conf | grep "Listen ${PORT}"
+    cat ${APACHE_DIR}/ports.conf | grep -w "Listen ${PORT}"
     if [[ $? -ne 0 ]]; then
         echo "Listen ${PORT}" >> ${APACHE_DIR}/ports.conf
     fi

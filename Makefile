@@ -75,3 +75,7 @@ setup:
 deploy:
 	chmod +x deploy.sh
 	sudo ./deploy.sh
+
+deploy-fresh:
+	chmod +x deploy.sh
+	sudo ./deploy.sh fresh
