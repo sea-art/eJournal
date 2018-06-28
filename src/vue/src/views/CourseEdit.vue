@@ -140,6 +140,7 @@ export default {
                 .then(response => {
                     this.course = response
                     this.pageName = this.course.name
+                    this.$toasted.success('Updated course')
                 })
         },
         deleteCourse () {
@@ -147,6 +148,7 @@ export default {
                 courseApi.delete_course(this.cID)
                     .then(response => {
                         this.$router.push({name: 'Home'})
+                        this.$toasted.success('Deleted course')
                     })
             }
         },
