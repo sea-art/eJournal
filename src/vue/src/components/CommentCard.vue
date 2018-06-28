@@ -13,7 +13,7 @@
                     </b-col>
                     <b-col cols="10">
                         <b-card class="no-hover" :class="'pink-border'">
-                            {{ comments.text }}
+                            <span class="showEnters">{{ comments.text }}</span>
                         </b-card>
                     </b-col>
                 </b-row>
@@ -26,7 +26,7 @@
                     <br><b>{{userData.name}}</b>
                 </b-col>
                 <b-col cols="10">
-                    <b-textarea v-model="tempComment" placeholder="Add your beautiful comment here"></b-textarea><br>
+                    <b-textarea v-model="tempComment" placeholder="Add your comment here"></b-textarea><br>
                     <b-button @click="addComment">Add your comment</b-button>
                 </b-col>
             </b-row>
