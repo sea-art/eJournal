@@ -21,7 +21,7 @@
             </b-col>
             <b-col cols="12" order-sm="2" sm="6">
                 Name: {{ name }} <br/>
-                uID: {{ uID }} <br />
+                Username: {{ studentNumber }} <br />
                 Role: {{selectedRole}}
             </b-col>
         </b-row>

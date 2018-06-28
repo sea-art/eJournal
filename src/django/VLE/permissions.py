@@ -37,7 +37,7 @@ def get_permissions(user, cID=-1):
     """
     roleDict = {}
 
-    if user.is_admin:
+    if user.is_superuser:
         # For system wide permissions, not course specific.
         # Administrators should not be able to view grades.
         roleDict = {

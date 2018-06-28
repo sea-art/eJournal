@@ -15,8 +15,8 @@ export default {
     },
 
     /* Update user data. */
-    updateUserData (username) {
-        return auth.authenticatedPost('/update_user_data/', {username: username})
+    updateUserData (username, firstName, lastName) {
+        return auth.authenticatedPost('/update_user_data/', {username: username, first_name: firstName, last_name: lastName})
     },
 
     /* Update profile picture. */

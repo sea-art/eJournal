@@ -76,8 +76,8 @@
             :cID="cID"
             :uID="p.uID"
             :index="i"
-            :studentNumber="p.studentNumber"
-            :name="p.name"
+            :studentNumber="p.name"
+            :name="p.first_name + ' ' + p.last_name"
             :portraitPath="p.picture"
             :role="p.role"/>
 

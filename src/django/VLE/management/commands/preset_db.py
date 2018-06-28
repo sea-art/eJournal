@@ -20,12 +20,12 @@ class Command(BaseCommand):
     def gen_users(self):
         """Generate users with password 'pass'."""
         users_examples = [
-            {"username": "Lars", "pass": "pass", "is_admin": False, "is_teacher": False},
-            {"username": "Rick", "pass": "pass", "is_admin": False, "is_teacher": False},
-            {"username": "Dennis", "pass": "pass", "is_admin": False, "is_teacher": False},
-            {"username": "Zi", "pass": "pass", "is_admin": True, "is_teacher": False},
-            {"username": "Jeroen", "pass": "pass", "is_admin": False, "is_teacher": False},
-            {"username": "Maarten", "pass": "pass", "is_admin": False, "is_teacher": True}
+            {"username": "22222222", "first_name": "Lars", "last_name": "van Hijfte", "pass": "pass", "is_admin": False, "is_teacher": False},
+            {"username": "11111111", "first_name": "Rick", "last_name": "Watertor", "pass": "pass", "is_admin": False, "is_teacher": False},
+            {"username": "00000000", "first_name": "Dennis", "last_name": "Wind", "pass": "pass", "is_admin": False, "is_teacher": False},
+            {"username": "33333333", "first_name": "Maarten", "last_name": "Keulen", "pass": "pass", "is_admin": True, "is_teacher": False},
+            {"username": "44444444", "first_name": "Zi Long", "last_name": "Zhu", "pass": "pass", "is_admin": False, "is_teacher": False},
+            {"username": "55555555", "first_name": "Xavier", "last_name": "van Dommelen", "pass": "pass", "is_admin": False, "is_teacher": True}
         ]
 
         self.users = []
@@ -36,7 +36,8 @@ class Command(BaseCommand):
                 is_admin = True
             if u['is_teacher']:
                 is_teacher = True
-            self.users.append(factory.make_user(u['username'], u['pass'], is_admin=is_admin, is_teacher=is_teacher))
+            self.users.append(factory.make_user(u['username'], u['pass'], is_superuser=is_admin, is_teacher=is_teacher,
+                                                first_name=u['first_name'], last_name=u['last_name']))
 
     def gen_courses(self):
         """Generate courses."""

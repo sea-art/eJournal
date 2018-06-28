@@ -37,8 +37,8 @@
                                         }">
 
                 <student-card
-                    :student="journal.student.name"
-                    :studentNumber="journal.student.uID"
+                    :student="journal.student.first_name + ' ' + journal.student.last_name"
+                    :studentNumber="journal.student.name"
                     :portraitPath="journal.student.picture"
                     :stats="journal.stats"
                     :color="$root.colors[journal.uid % $root.colors.length]"
@@ -129,14 +129,14 @@ export default {
             let self = this
 
             function compareName (a, b) {
-                if (a.student.name < b.student.name) { return -1 }
-                if (a.student.name > b.student.name) { return 1 }
+                if (a.student.last_name < b.student.last_name) { return -1 }
+                if (a.student.last_name > b.student.last_name) { return 1 }
                 return 0
             }
 
             function compareID (a, b) {
-                if (a.student.uID < b.student.uID) { return -1 }
-                if (a.student.uID > b.student.uID) { return 1 }
+                if (a.student.name < b.student.name) { return -1 }
+                if (a.student.name > b.student.name) { return 1 }
                 return 0
             }
 
@@ -147,8 +147,8 @@ export default {
             }
 
             function checkFilter (user) {
-                var userName = user.student.name.toLowerCase()
-                var userID = String(user.student.uID).toLowerCase()
+                var userName = (user.student.first_name + ' ' + user.student.lastname).toLowerCase()
+                var userID = user.student.name.toLowerCase()
 
                 if (userName.includes(self.searchVariable.toLowerCase()) ||
                 userID.includes(self.searchVariable)) {

@@ -124,10 +124,6 @@ router.beforeEach((to, from, next) => {
         }
     } else if (to.name === 'Login') {
         return next()
-    } else if (to.name === 'Assignment') {
-        if (!router.app.canViewAssignmentParticipants()) {
-            return next({name: 'Course', params: {cID: to.params.cID}})
-        }
     }
 
     var params
@@ -144,7 +140,7 @@ router.beforeEach((to, from, next) => {
             router.app.permissions = response
         })
         .catch(_ => {
-            this.$toasted.error('Error while loading permissions.')
+            router.app.$toasted.error('Error while loading permissions.')
         })
 
     next()

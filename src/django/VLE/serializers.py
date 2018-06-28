@@ -14,11 +14,13 @@ def user_to_dict(user):
         'name': user.username,
         'email': user.email,
         'lti_id': user.lti_id,
-        'is_admin': user.is_admin,
+        'is_supersuer': user.is_superuser,
         'grade_notifications': user.grade_notifications,
         'comment_notifications': user.comment_notifications,
         'picture': user.profile_picture,
-        'uID': user.id
+        'uID': user.id,
+        'first_name': user.first_name,
+        'last_name': user.last_name
     } if user else None
 
 

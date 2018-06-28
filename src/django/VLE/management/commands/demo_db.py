@@ -21,14 +21,16 @@ class Command(BaseCommand):
     def gen_users(self):
         """Generate a student and teacher."""
         users_examples = [
-            {"username": "Student", "pass": "pass", "is_admin": False},
-            {"username": "Teacher", "pass": "pass", "is_admin": False},
-            {"username": "Admin", "pass": "pass", "is_admin": True},
+            {"username": "Student", "first_name": "Rick", "last_name": "Hen", "pass": "pass", "is_admin": False},
+            {"username": "Teacher", "first_name": "Marco", "last_name": "Polo", "pass": "pass", "is_admin": False, "is_teacher": True},
+            {"username": "Admin", "first_name": "Best", "last_name": "Admin", "pass": "pass", "is_admin": True, "is_teacher": True},
+            {"username": "Student2", "first_name": "Maarten", "last_name": "van den Wijngaerd", "pass": "pass", "is_admin": False},
         ]
 
         self.users = []
         for u in users_examples:
-            self.users.append(factory.make_user(u['username'], u['pass'], is_admin=u['is_admin']))
+            self.users.append(factory.make_user(u['username'], u['pass'], is_superuser=u['is_admin'],
+                                first_name=u['first_name'], last_name=u['last_name']))
 
     def gen_courses(self):
         """Generate the courses PAV and Beeldbewerken."""
