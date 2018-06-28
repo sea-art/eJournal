@@ -209,4 +209,12 @@ def has_assignment_permission(user, assignment, permission):
 
 
 def is_user_in_course(user, course):
+    """Check whether the user is in a given course or not.
+
+    Arguments:
+    user -- the user to be checked if in a course or not
+    course -- the course to check with
+
+    Returns True if the user is in the course, else False.
+    """
     return Participation.objects.filter(user=user, course=course).exists()

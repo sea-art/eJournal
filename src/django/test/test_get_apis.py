@@ -332,3 +332,20 @@ class GetApiTests(TestCase):
         test.api_get_call(self, '/api/get_entrycomments/' + str(entry.pk) + '/', login, status=403)
         test.api_get_call(self, '/api/get_entrycomments/' + str(self.not_found_pk) + '/', login, status=404)
         test.test_unauthorized_api_get_call(self, '/api/get_entrycomments/' + str(entry.pk) + '/')
+
+    def test_get_assignment_by_lti_id(self):
+        """Test get assignment by lti id function."""
+        course = factory.make_course('Portfolio', 'PAV', author=self.rein)
+        template = factory.make_entry_template('template')
+        format = factory.make_format([template], 10)
+        factory.make_assignment('Colloq', 'description1', format=format, courses=[course], lti_id='12xy')
+
+        login = test.logging_in(self, self.rein_user, self.rein_pass)
+        result = test.api_get_call(self, '/api/get_assignment_by_lti_id/12xy/', login).json()
+        self.assertEquals(result['assignment']['name'], 'Colloq')
+
+        # permissions and authorization check for the api call.
+        login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
+        test.api_get_call(self, '/api/get_assignment_by_lti_id/12xy/', login, status=403)
+        test.api_get_call(self, '/api/get_assignment_by_lti_id/random/', login, status=404)
+        test.test_unauthorized_api_get_call(self, '/api/get_assignment_by_lti_id/12xy/')

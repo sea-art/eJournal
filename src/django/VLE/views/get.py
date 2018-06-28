@@ -4,7 +4,6 @@ get.py.
 API functions that handle the get requests.
 """
 from rest_framework.decorators import api_view
-from django.http import JsonResponse
 from django.conf import settings
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.shortcuts import redirect
@@ -128,7 +127,7 @@ def get_unenrolled_users(request, cID):
     """
     user = request.user
     if not user.is_authenticated:
-        return JsonResponse({'result': '401 Authentication Error'}, status=401)
+        return responses.unauthorized()
 
     try:
         course = Course.objects.get(pk=cID)
@@ -395,7 +394,7 @@ def get_nodes(request, jID):
     Returns a json string containing all entry and deadline nodes.
     """
     user = request.user
-    if not request.user.is_authenticated:
+    if not user.is_authenticated:
         return responses.unauthorized()
 
     try:
@@ -421,7 +420,7 @@ def get_format(request, aID):
     Returns a json string containing the format.
     """
     user = request.user
-    if not request.user.is_authenticated:
+    if not user.is_authenticated:
         return responses.unauthorized()
 
     try:
@@ -444,7 +443,7 @@ def get_course_roles(request, cID):
     cID     -- the course id
     """
     user = request.user
-    if not request.user.is_authenticated:
+    if not user.is_authenticated:
         return responses.unauthorized()
     try:
         course = Course.objects.get(pk=cID)
@@ -499,7 +498,7 @@ def get_names(request):
     'template' and jID populates 'journal' with the users' name.
     """
     user = request.user
-    if not request.user.is_authenticated:
+    if not user.is_authenticated:
         return responses.unauthorized()
 
     cID, aID, jID = utils.optional_params(request.data, "cID", "aID", "jID")
@@ -593,14 +592,18 @@ def get_assignment_by_lti_id(request, lti_id):
     request -- the request that was sent
     lti_id -- lti_id of the assignment
     """
-    if not request.user.is_authenticated:
+    user = request.user
+    if not user.is_authenticated:
         return responses.unauthorized()
     try:
         assignment = Assignment.objects.get(lti_id=lti_id)
     except Assignment.DoesNotExist:
         return responses.not_found('Assignment does not exist.')
-    # TODO: permissions.
-    return responses.succes(payload={'assignment': serialize.assignment_to_dict(assignment)})
+
+    if not permissions.has_assignment_permission(user, assignment, 'can_edit_course'):
+        return responses.forbidden('You are not allowed to edit courses.')
+
+    return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
 
 
 @api_view(['POST'])

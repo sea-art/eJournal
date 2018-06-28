@@ -5,10 +5,9 @@ Test helper functions.
 """
 
 from django.urls import reverse
-from VLE.models import Role
 import json
 
-
+from VLE.models import Role
 import VLE.factory as factory
 
 
@@ -157,6 +156,12 @@ def api_get_call(obj, url, login, status=200):
 
 
 def test_unauthorized_api_get_call(obj, url):
+    """Tests unauthorized api get calls.
+
+    Arguments
+    url -- url to send the call to
+    params -- extra parameters that the api needs
+    """
     result = obj.client.get(url, {}, format='json')
     obj.assertEquals(result.status_code, 401)
 
@@ -179,5 +184,11 @@ def api_post_call(obj, url, params, login, status=200):
 
 
 def test_unauthorized_api_post_call(obj, url, params):
+    """Tests unauthorized api post calls.
+
+    Arguments
+    url -- url to send the call to
+    params -- extra parameters that the api needs
+    """
     result = obj.client.post(url, json.dumps(params), content_type='application/json')
     obj.assertEquals(result.status_code, 401)
