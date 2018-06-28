@@ -533,7 +533,7 @@ def update_publish_grades_assignment(request):
     if not permissions.has_assignment_permission(request.user, assign, 'can_publish_journal_grades'):
         return responses.forbidden('You cannot publish assignments.')
 
-    utils.publish_all_assignment_grades(assign, aID)
+    utils.publish_all_assignment_grades(assign, published)
 
     for journ in Journal.objects.filter(assignment=assign):
         if journ.sourcedid is not None and journ.grade_url is not None:
@@ -572,7 +572,7 @@ def update_publish_grades_journal(request):
     if not permissions.has_assignment_permission(request.user, journ.assignment, 'can_publish_journal_grades'):
         return responses.forbidden('You cannot publish assignments.')
 
-    utils.publish_all_journal_grades(journ, request.data['published'])
+    utils.publish_all_journal_grades(journ, published)
 
     if journ.sourcedid is not None and journ.grade_url is not None:
         payload = lti_grade.replace_result(journ)

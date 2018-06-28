@@ -18,7 +18,7 @@
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
                                 <div v-if="entryNode.entry.published">
-                                    {{ entryNode.entry.grade }}
+                                    Points: {{ entryNode.entry.grade }}
                                 </div>
                                 <div v-else>
                                     To be graded
@@ -61,7 +61,7 @@
                             </b-col>
                             <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
                                 <div v-if="entryNode.entry.published">
-                                    {{ entryNode.entry.grade }}
+                                    Points: {{ entryNode.entry.grade }}
                                 </div>
                                 <div v-else>
                                     <div v-if="entryNode.entry.editable">

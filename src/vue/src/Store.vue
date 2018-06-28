@@ -22,6 +22,9 @@ export default {
     },
     debugOff () {
         this.debug = false
+    },
+    clearCache () {
+        this.state.cachedMap = []
     }
 }
 </script>
