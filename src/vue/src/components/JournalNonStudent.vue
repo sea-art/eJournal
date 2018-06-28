@@ -16,7 +16,9 @@
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'd'">
                     <entry-non-student-preview v-if="nodes[currentNode].entry !== null" ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
-                    <div v-else>No entry yet submitted</div>
+                    <b-card v-else class="no-hover">
+                        <b>No entry submitted yet</b>
+                    </b-card>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'p'">
                     <b-card class="card main-card no-hover" :class="'pink-border'">
