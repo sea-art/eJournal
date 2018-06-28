@@ -7,7 +7,6 @@
                     <b-button v-if="$root.canAddAssignment()" :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">Edit Assignment Format</b-button>
                 </b-col>
             </b-row>
-            {{assignmentJournals[0]}}
             <b-row>
                 <b-col lg="3" md="3">
                     <b-form-select v-model="selectedSortOption" :select-size="1">
