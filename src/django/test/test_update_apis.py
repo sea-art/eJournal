@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from VLE.models import Participation, Course, User, Role, Entry, Assignment
+from VLE.models import Participation, Course, User, Role, Entry, Assignment, EntryComment
 import VLE.serializers as serialize
 
 import VLE.factory as factory
@@ -142,6 +142,47 @@ class UpdateApiTests(TestCase):
         format = factory.make_format([template], 10)
         assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course])
 
+        login = test.logging_in(self, self.rein_user, self.rein_pass)
+
+        update_dict = {
+            'aID': assignment.pk,
+            'max_points': 11,
+            'templates': [serialize.template_to_dict(template) for template in format.available_templates.all()],
+            'removed_presets': [],
+            'removed_templates': [],
+            'presets': [],
+            'unused_templates': []
+        }
+
+        test.api_post_call(self, '/api/update_format/', update_dict, login)
+
+        q_assign = Assignment.objects.get(pk=assignment.pk)
+        self.assertEquals(q_assign.format.max_points, 11)
+
+    def test_update_user_role_course(self):
+        """Test user role update in a course."""
+        login = test.logging_in(self, self.rein_user, self.rein_pass)
+        course = factory.make_course("Portfolio Academische Vaardigheden", "PAV", author=self.rein)
+
+        ta_role = Role.objects.get(name='TA', course=course)
+        student_role = factory.make_role_student(name='SD', course=course)
+
+        self.user_role = factory.make_user("test123", "test")
+        factory.make_participation(self.user_role, course, ta_role)
+        factory.make_participation(self.user, course, student_role)
+
+        user_role = Participation.objects.get(user=self.user_role, course=2).role.name
+        self.assertEquals(user_role, 'TA')
+
+        test.api_post_call(
+            self,
+            '/api/update_user_role_course/',
+            {'cID': course.pk, 'uID': self.user_role.pk, 'role': 'SD'},
+            login
+        )
+        user_role = Participation.objects.get(user=self.user_role, course=course.pk).role.name
+        self.assertEquals(user_role, 'SD')
+
     def test_grade_publish(self):
         """Test the grade publish api functions."""
         teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('Teacher', 'pass')
@@ -200,26 +241,22 @@ class UpdateApiTests(TestCase):
                             'old_password': 'Pass123!'},
                            login)
 
-    def test_update_user_role_course(self):
-        """Test user role update in a course."""
+    def test_get_entrycomments(self):
+        """Test update entrycomment function."""
+        course = factory.make_course('Portfolio', 'PAV', author=self.rein)
+        template = factory.make_entry_template('template')
+        format = factory.make_format([template], 10)
+        assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course])
+        student_user, student_pass, student = test.set_up_user_and_auth('student', 'pass')
+        test.set_up_participation(student, course, 'Student')
+        journal = factory.make_journal(assignment, student)
+        entry = factory.make_entry(template)
+        factory.make_node(journal, entry)
+        entrycomment = factory.make_entrycomment(entry, self.rein, 'Excellent!')
+
         login = test.logging_in(self, self.rein_user, self.rein_pass)
-        course = factory.make_course("Portfolio Academische Vaardigheden", "PAV", author=self.rein)
 
-        ta_role = Role.objects.get(name='TA', course=course)
-        student_role = factory.make_role_student(name='SD', course=course)
+        update_dict = {'eID': entrycomment.pk, 'text': 'Bad!'}
+        test.api_post_call(self, '/api/update_entrycomment/', update_dict, login)
 
-        self.user_role = factory.make_user("test123", "test")
-        factory.make_participation(self.user_role, course, ta_role)
-        factory.make_participation(self.user, course, student_role)
-
-        user_role = Participation.objects.get(user=self.user_role, course=2).role.name
-        self.assertEquals(user_role, 'TA')
-
-        test.api_post_call(
-            self,
-            '/api/update_user_role_course/',
-            {'cID': course.pk, 'uID': self.user_role.pk, 'role': 'SD'},
-            login
-        )
-        user_role = Participation.objects.get(user=self.user_role, course=course.pk).role.name
-        self.assertEquals(user_role, 'SD')
+        q_entrycomment = EntryComment.objects.get(pk=entrycomment.pk)

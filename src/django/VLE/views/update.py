@@ -337,31 +337,38 @@ def update_format(request):
     Arguments:
     request -- the request that was send with
         aID -- the assignments' format to update
+        max_points -- the max points possible.
         templates -- the list of templates to bind to the format
         presets -- the list of presets to bind to the format
         unused_templates -- the list of templates that are bound to the template
                             deck, but are not used in presets nor the entry templates.
+        removed_presets -- presets to be removed
+        removed_templates -- templates to be removed
+
+    Returns a json string for if it is successful or not.
     """
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
     try:
         aID, templates, presets = utils.required_params(request.data, "aID", "templates", "presets")
-        unused_templates, = utils.required_params(request.data, "unused_templates")
+        unused_templates, max_points = utils.required_params(request.data, "unused_templates", "max_points")
         removed_presets, removed_templates = utils.required_params(request.data, "removed_presets", "removed_templates")
 
     except KeyError:
-        return responses.keyerror("aID", "templates", "presets", "unused_templates")
+        return responses.keyerror("aID", "templates", "presets", "unused_templates", "max_points")
 
     try:
         assignment = Assignment.objects.get(pk=aID)
         format = assignment.format
     except Assignment.DoesNotExist:
-        return responses.not_found('Format')
+        return responses.not_found('Assignment')
 
     if not permissions.has_assignment_permission(request.user, assignment, 'can_edit_assignment'):
         return responses.forbidden('You are not allowed to edit this assignment.')
 
+    format.max_points = max_points
+    format.save()
     utils.update_presets(assignment, presets)
     utils.update_templates(format.available_templates, templates)
     utils.update_templates(format.unused_templates, unused_templates)
