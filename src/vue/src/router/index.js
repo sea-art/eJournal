@@ -16,12 +16,14 @@ import CourseEdit from '@/views/CourseEdit'
 import AssignmentEdit from '@/views/AssignmentEdit'
 import UserRoleConfiguration from '@/views/UserRoleConfiguration'
 import FormatEdit from '@/views/FormatEdit'
+import LtiLogin from '@/views/LtiLogin'
 import Logout from '@/views/Logout'
 import authAPI from '@/api/auth.js'
 
 Vue.use(Router)
 
 var router = new Router({
+    mode: 'history',
     routes: [{
         path: '/',
         name: 'Guest',
@@ -46,6 +48,10 @@ var router = new Router({
         path: '/LtiLaunch',
         name: 'LtiLaunch',
         component: LtiLaunch
+    }, {
+        path: '/LtiLogin',
+        name: 'LtiLogin',
+        component: LtiLogin
     }, {
         path: '/AssignmentsOverview',
         name: 'AssignmentsOverview',
@@ -101,23 +107,27 @@ router.beforeEach((to, from, next) => {
     // TODO Caching for permissions, how to handle permission changes when role is altered by teacher
     router.app.previousPage = from
 
-    if (!router.app.validToken) {
-        authAPI.testValidToken()
+    /* If undefined, this means this is a hard refresh, therefore we have to call up the state. */
+    if (router.app.validToken === undefined) {
+        authAPI.testValidToken().catch(_ => console.error('Token not valid'))
     }
 
     if (to.matched.length === 0) {
         return next({name: 'ErrorPage', params: {code: '404', message: 'Page not found'}})
     }
 
-    /* Returning next because we short circuit the function here, no API calls
-    * are desired. */
+    /* If valid token, redirect to Home, if not currently valid, look to see if it is valid.
+     * If now valid, redirect as well, otherwise continue to guest page.
+     */
     if (to.name === 'Guest') {
         if (router.app.validToken) {
             return next({name: 'Home'})
         } else {
-            return next()
+            return authAPI.testValidToken()
+                .then(_ => next({name: 'Home'}))
+                .catch(_ => next())
         }
-    } else if (to.name === 'Login') {
+    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage'].includes(to.name)) {
         return next()
     }
 
@@ -135,7 +145,7 @@ router.beforeEach((to, from, next) => {
             router.app.permissions = response
         })
         .catch(_ => {
-            this.$toasted.error('Error while loading permissions.')
+            router.app.$toasted.error('Error while loading permissions.')
         })
 
     next()

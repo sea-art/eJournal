@@ -1,5 +1,5 @@
 <template>
-    <div slot="main-content-column">
+    <div>
         <p class="lti-intro-text">You came here from canvas with an unknown
             assignment. Do you want to create a new assignment on Logboek,
             or connect to an existing one?</p>
@@ -15,7 +15,6 @@
         </b-row>
 
         <b-modal
-            slot="main-content-column"
             ref="createAssignmentRef"
             title="Create assignment"
             size="lg"
@@ -24,7 +23,6 @@
         </b-modal>
 
         <b-modal
-            slot="main-content-column"
             ref="connectAssignmentRef"
             title="Connect assignment"
             size="lg"
@@ -35,7 +33,6 @@
 </template>
 
 <script>
-import breadCrumb from '@/components/BreadCrumb.vue'
 import createAssignment from '@/components/CreateAssignment.vue'
 import connectAssignment from '@/components/ConnectAssignment.vue'
 
@@ -43,7 +40,6 @@ export default {
     name: 'LtiCreateConnectAssignment',
     props: ['lti', 'page'],
     components: {
-        'bread-crumb': breadCrumb,
         'create-assignment': createAssignment,
         'connect-assignment': connectAssignment
     },

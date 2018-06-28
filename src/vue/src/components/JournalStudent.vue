@@ -71,7 +71,12 @@ export default {
     },
     created () {
         journal.get_nodes(this.jID)
-            .then(response => { this.nodes = response.nodes })
+            .then(response => {
+                this.nodes = response.nodes
+                if (this.$route.query.nID !== undefined) {
+                    this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
+                }
+            })
             .catch(_ => this.$toasted.error('Error while loading nodes.'))
 
         assignmentApi.get_assignment_data(this.cID, this.aID)
@@ -150,6 +155,14 @@ export default {
             }
 
             this.progressNodes[progressNode.nID] = tempProgress
+        },
+        findEntryNode (nodeID) {
+            for (var i = 0; i < this.nodes.length; i++) {
+                if (this.nodes[i].nID === nodeID) {
+                    return i
+                }
+            }
+            return 0
         },
         checkDeadline () {
             var currentDate = new Date()

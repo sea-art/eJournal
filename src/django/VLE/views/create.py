@@ -17,6 +17,10 @@ import VLE.lti_grade_passback as lti_grade
 
 import VLE.views.responses as responses
 
+import jwt
+import json
+from django.conf import settings
+
 
 @api_view(['POST'])
 def create_new_course(request):
@@ -121,9 +125,6 @@ def create_entry(request):
     try:
         journal = Journal.objects.get(pk=jID, user=request.user)
 
-        if journal.sourcedid is not None and journal.grade_url is not None:
-            lti_grade.needs_grading(journal)
-
         template = EntryTemplate.objects.get(pk=tID)
 
         # TODO: Check if node can still be created (deadline passed? graded?)
@@ -151,6 +152,9 @@ def create_entry(request):
         else:
             entry = factory.make_entry(template)
             node = factory.make_node(journal, entry)
+
+        if journal.sourcedid is not None and journal.grade_url is not None:
+            lti_grade.needs_grading(journal, node.id)
 
         for content in content_list:
             data = content['data']
@@ -197,5 +201,39 @@ def create_entrycomment(request):
         return responses.not_found('User or Entry does not exist.')
 
     entrycomment = factory.make_entrycomment(entry, author, text)
-
     return responses.created(payload={'comment': serialize.entrycomment_to_dict(entrycomment)})
+
+
+@api_view(['POST'])
+def create_lti_user(request):
+    """Create a new user with lti_id.
+
+    Arguments:
+    request -- the request
+        username -- username of the new user
+        password -- password of the new user
+        first_name -- first_name (optinal)
+        last_name -- last_name (optinal)
+        email -- email (optinal)
+        jwt_params -- jwt params to get the lti information from
+            user_id -- id of the user
+            user_image -- user image
+            roles -- role of the user
+    """
+    if request.data['jwt_params'] is not '':
+        lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
+        user_id, user_image = lti_params['user_id'], lti_params['user_image']
+        is_teacher = json.load(open('config.json'))['Teacher'] in lti_params['roles']
+    else:
+        user_id, user_image, is_teacher = None, None, False
+
+    try:
+        username, password = utils.required_params(request.data, 'username', 'password')
+        first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
+    except KeyError:
+        return responses.keyerror('username', 'password')
+
+    user = factory.make_user(username, password, email=email, lti_id=user_id, is_teacher=is_teacher,
+                             first_name=first_name, last_name=last_name, profile_picture=user_image)
+
+    return responses.created(message='User successfully created', payload={'user': serialize.user_to_dict(user)})

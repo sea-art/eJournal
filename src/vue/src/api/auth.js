@@ -50,7 +50,8 @@ function handleResponse (response, noRedirect = false) {
                     code: response.status,
                     message: response.data.result,
                     description: response.data.description
-                }})
+                }
+            })
         }
     } else if (response.status === 400) { // Bad request
         if (response.data.description) {
@@ -101,10 +102,11 @@ export default {
     testValidToken () {
         if (localStorage.getItem('jwt_access') == null && localStorage.getItem('jwt_refresh') == null) {
             router.app.validToken = false
-            return
+            return Promise.reject(new Error('Token undefined'))
         }
 
-        connection.conn.post('/token/verify/', {token: localStorage.getItem('jwt_access')})
+        return connection.conn.post('/token/verify/', {token: localStorage.getItem('jwt_access')})
+            .then(_ => { router.app.validToken = true })
             .catch(error => refresh(error))
     },
 
