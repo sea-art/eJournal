@@ -127,7 +127,6 @@ def create_entry(request):
 
         template = EntryTemplate.objects.get(pk=tID)
 
-        # TODO: Check if node can still be created (deadline passed? graded?)
         if nID:
             node = Node.objects.get(pk=nID, journal=journal)
             if node.type == Node.PROGRESS:
