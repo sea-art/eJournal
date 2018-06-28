@@ -14,7 +14,11 @@
                          placeholder="Course Abbreviation (Max 10 letters)"
                          required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
-                         v-model="course.date"
+                         v-model="course.startdate"
+                         type="date"
+                         required/>
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
+                         v-model="course.enddate"
                          type="date"
                          required/>
 
@@ -131,7 +135,8 @@ export default {
             courseApi.update_course(this.cID,
                 this.course.name,
                 this.course.abbr,
-                this.course.date)
+                this.course.startdate,
+                this.course.enddate)
                 .then(response => {
                     this.course = response
                     this.pageName = this.course.name
