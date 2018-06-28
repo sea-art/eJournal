@@ -6,8 +6,8 @@
             </b-col>
             <b-col cols="5">
                 <p>{{ new Date().getFullDay }}</p>
-                <p v-if="this.$root.canAddCourse()">
-                    Marking needed: {{ totalNeedsMarking }}
+                <p v-if="this.$root.canAddCourse() && this.$route.path !='/AssignmentsOverview'">
+                    <todo-square :num="totalNeedsMarking"/>
                 </p>
             </b-col>
         </b-row>
@@ -17,8 +17,13 @@
 </template>
 
 <script>
+import todoSquare from '@/components/TodoSquare.vue'
+
 export default {
-    props: ['date', 'hours', 'minutes', 'name', 'abbr', 'totalNeedsMarking', 'color']
+    props: ['date', 'hours', 'minutes', 'name', 'abbr', 'totalNeedsMarking', 'color'],
+    components: {
+        'todo-square': todoSquare
+    }
 }
 </script>
 
