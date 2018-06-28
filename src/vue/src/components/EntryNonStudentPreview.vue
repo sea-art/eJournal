@@ -31,7 +31,7 @@
                     <div v-if="$root.canGradeJournal()">
                         <br>
                         Fill in the grade:<br>
-                        <b-form-input type="number" v-model="grade" placeholder="Grade"></b-form-input>
+                        <b-form-input type="number" v-model="grade" placeholder="Grade" min=0></b-form-input>
                         <b-form-checkbox v-model="status" value=true unchecked-value=false>
                             Show grade to student
                         </b-form-checkbox><br>
@@ -39,7 +39,7 @@
                     </div>
                     <div v-else>
                         <div v-if="tempNode.entry.published">
-                            {{ entryNode.entry.grade }}
+                            Points: {{ entryNode.entry.grade }}
                         </div>
                         <div v-else>
                             To be graded
@@ -124,7 +124,7 @@ export default {
                 if (this.status === 'true' || this.status === true) {
                     journalApi.update_grade_entry(this.entryNode.entry.eID, this.grade, 1)
                         .then(_ => {
-                            this.$toasted.success('Oh yeah! grade updated with visibility')
+                            this.$toasted.success('Oh yeah! Grade updated with visibility')
                             this.$emit('check-grade')
                         })
                         .catch(_ => {
@@ -134,11 +134,11 @@ export default {
                     journalApi.update_grade_entry(this.entryNode.entry.eID,
                         this.grade, 0)
                         .then(_ => {
-                            this.$toasted.success('Oh yeah! grade updated without visibility')
+                            this.$toasted.success('Oh yeah! Grade updated without visibility')
                             this.$emit('check-grade')
                         })
                         .catch(_ => {
-                            this.$toasted.error('Oh no! something went wrong')
+                            this.$toasted.error('Oh no! Something went wrong')
                         })
                 }
             }
