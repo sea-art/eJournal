@@ -120,13 +120,13 @@ export default {
         commitGrade: function () {
             if (this.grade !== null) {
                 this.tempNode.entry.grade = this.grade
-                this.tempNode.entry.published = this.status
+                this.tempNode.entry.published = (this.status === 'true')
 
                 if (this.status === 'true') {
                     journalApi.update_grade_entry(this.entryNode.entry.eID, this.grade, 1)
                         .then(_ => {
                             this.$toasted.success('Oh yeah! grade updated1')
-                            this.$emit('check-grade', this.tempNode)
+                            this.$emit('check-grade')
                         })
                         .catch(_ => {
                             this.$toasted.error('Oh no! something went wrong1')
@@ -136,7 +136,7 @@ export default {
                         this.grade, 0)
                         .then(_ => {
                             this.$toasted.success('Oh yeah! grade updated2')
-                            this.$emit('check-grade', this.tempNode)
+                            this.$emit('check-grade')
                         })
                         .catch(_ => {
                             this.$toasted.error('Oh no! something went wrong1')

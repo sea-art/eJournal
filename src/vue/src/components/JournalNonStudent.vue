@@ -120,12 +120,7 @@ export default {
 
             this.progressNodes[progressNode.nID] = tempProgress.toString()
         },
-        updatedGrade (newNode) {
-            // this.nodes[this.currentNode].entry.grade = newNode.entry.grade
-            // console.log(this.nodes[this.currentNode].entry.published)
-            // this.nodes[this.currentNode].entry.published = newNode.entry.published
-            // console.log(this.nodes[this.currentNode].entry.published)
-
+        updatedGrade () {
             for (var node of this.nodes) {
                 if (node.type === 'p') {
                     this.progressPoints(node)
