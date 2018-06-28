@@ -15,7 +15,6 @@
 <script>
 import auth from '@/api/auth.js'
 import userApi from '@/api/user.js'
-import router from '@/router'
 
 export default {
     name: 'RegisterUser',
@@ -43,7 +42,7 @@ export default {
                             this.$emit('handleAction')
                         })
                         .catch(_ => {
-                            router.push({
+                            this.$router.push({
                                 name: 'ErrorPage',
                                 params: {
                                     code: '511',
@@ -55,7 +54,7 @@ export default {
                         })
                 })
                 .catch(_ => {
-                    router.push({
+                    this.$router.push({
                         name: 'ErrorPage',
                         params: {
                             code: '500',
