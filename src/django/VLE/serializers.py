@@ -48,7 +48,8 @@ def course_to_dict(course):
         'cID': course.id,
         'name': course.name,
         'auth': user_to_dict(course.author),
-        'date': course.startdate,
+        'startdate': course.startdate,
+        'enddate': course.enddate,
         'abbr': course.abbreviation
     } if course else None
 

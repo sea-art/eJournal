@@ -20,6 +20,9 @@ class DeleteApiTests(TestCase):
         bb = factory.make_course("Beeldbewerken", "BB")
         factory.make_course("Portfolio Academische Vaardigheden", "PAV")
 
+        role = factory.make_role_default_no_perms("teacher", bb, can_delete_course=True)
+        factory.make_participation(user=self.user, course=bb, role=role)
+
         test.api_post_call(self, '/delete_course/', {'cID':  bb.pk}, login)
 
         self.assertEquals(Course.objects.filter(name="Beeldbewerken").count(), 1)
@@ -53,13 +56,20 @@ class DeleteApiTests(TestCase):
         """Test delete_assignment."""
         login = test.logging_in(self, self.username, self.password)
 
-        user = factory.make_user("Zi-Long", "pass")
-
         course1 = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
         course2 = factory.make_course("BeeldBewerken", "BB")
 
-        assign1 = factory.make_assignment("Colloq", "In de opdracht...1", user)
-        assign2 = factory.make_assignment("Logboek", "In de opdracht...2", user)
+        assign1 = factory.make_assignment("Colloq", "In de opdracht...1", self.user)
+        assign2 = factory.make_assignment("Logboek", "In de opdracht...2", self.user)
+
+        role = factory.make_role_default_no_perms("teacher", self.course, can_delete_assignment=True)
+        factory.make_participation(user=self.user, course=self.course, role=role)
+
+        role = factory.make_role_default_no_perms("teacher", course1, can_delete_assignment=True)
+        factory.make_participation(user=self.user, course=course1, role=role)
+
+        role = factory.make_role_default_no_perms("teacher", course2, can_delete_assignment=True)
+        factory.make_participation(user=self.user, course=course2, role=role)
 
         assign1.courses.add(course1)
         assign1.courses.add(course2)
