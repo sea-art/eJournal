@@ -74,6 +74,9 @@ new Vue({
         canViewCourseParticipants () {
             return this.permissions.can_view_course_participants
         },
+        canAddCourseParticipants () {
+            return this.permissions.can_add_course_participants
+        },
         canEditCourse () {
             return this.permissions.can_edit_course
         },
@@ -84,6 +87,9 @@ new Vue({
         /* Assignment permissions. */
         canAddAssignment () {
             return this.permissions.can_add_assignment
+        },
+        canEditAssignment () {
+            return this.permissions.can_edit_assignment
         },
         canViewAssignmentParticipants () {
             return this.permissions.can_view_assignment_participants
