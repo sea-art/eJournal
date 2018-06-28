@@ -114,7 +114,7 @@ def create_journal(request):
     role = permissions.get_assignment_id_permissions(user, aID)
 
     if role == {}:
-        return responses.unauthorized("You have no access to this course.")
+        return responses.forbidden("You have no permissions within this course.")
     elif not role["can_edit_journal"]:
         return responses.forbidden("You have no permissions to create a journal.")
 
