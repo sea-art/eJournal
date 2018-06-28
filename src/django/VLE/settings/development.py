@@ -19,7 +19,7 @@ LTI_KEY = '0cd500938a8e7414ccd31899710c98ce'
 
 BASELINK = 'http://localhost:8080/#'
 CORS_ORIGIN_ALLOW_ALL = True
-X_FRAME_OPTIONS = 'DENY'
+
 MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware'] + MIDDLEWARE
 ALLOWED_HOSTS = ['*']
 

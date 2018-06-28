@@ -21,7 +21,7 @@ LTI_KEY = '{{LTI_KEY}}'
 
 BASELINK = '{{BASELINK}}'
 CORS_ORIGIN_ALLOW_ALL = True
-X_FRAME_OPTIONS = 'DENY'
+
 MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware'] + MIDDLEWARE
 ALLOWED_HOSTS = ['*']
 

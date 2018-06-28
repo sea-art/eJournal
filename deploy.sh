@@ -7,7 +7,7 @@ source settings/database.conf
 sudo /etc/init.d/apache2 stop
 
 sudo a2ensite ejournal.conf || sudo a2ensite ejournal
-
+asdf
 # Initialize
 if [[ $? -ne 0 ]]; then
     rm -rd ./build
@@ -35,8 +35,8 @@ WSGIPythonPath ${TARGET}/django/VLE" > "${APACHE_DIR}/conf-available/wsgi.conf"
 
     echo "
 <VirtualHost *:${PORT}>
-    Alias ${HOOKPOINT}index.html '${TARGET}/index.html'
-    Alias ${HOOKPOINT}static/ '${TARGET}/static/'
+    Alias ${HOOKPOINT}index.html '${TARGET}index.html'
+    Alias ${HOOKPOINT}static/ '${TARGET}static/'
     ServerName www.${SERVERNAME}
     ServerAlias ${SERVERNAME}
 
@@ -44,23 +44,28 @@ WSGIPythonPath ${TARGET}/django/VLE" > "${APACHE_DIR}/conf-available/wsgi.conf"
         Require all granted
     </Directory>
 </VirtualHost>
-
+" > "${APACHE_DIR}/sites-available/ejournal.conf"
+    echo "
 <VirtualHost *:${PORT}>
     ServerName www.${APIURL}
     ServerAlias ${APIURL}
-    Alias ${HOOKPOINT}static/ '${TARGET}/static/'
+    Alias ${HOOKPOINT}django/static/ '${TARGET}django/static/'
 
+    <Directory ${TARGET}django/static>
+        Require all granted
+    </Directory>
     <Directory ${TARGET}django/VLE>
         <Files wsgi.py>
             Require all granted
         </Files>
     </Directory>
 
-    WSGIScriptAlias ${HOOKPOINT} ${TARGET}/django/VLE/wsgi.py
+    WSGIScriptAlias ${HOOKPOINT} ${TARGET}django/VLE/wsgi.py
 </VirtualHost>
-" > "${APACHE_DIR}/sites-available/ejournal.conf"
+" > "${APACHE_DIR}/sites-available/ejournalapi.conf"
 
     sudo a2ensite ejournal.conf || sudo a2ensite ejournal
+    sudo a2ensite ejournalapi.conf || sudo a2ensite ejournalapi
     cat ${APACHE_DIR}/ports.conf | grep -w "Listen ${PORT}"
     if [[ $? -ne 0 ]]; then
         echo "Listen ${PORT}" >> ${APACHE_DIR}/ports.conf
@@ -78,7 +83,7 @@ rsync -a --exclude='VLE.db' --exclude='settings/development.py' --exclude='test/
 rsync -a ./src/vue/dist/ ${TARGET}
 
 sudo sed -i "s@{{DIR}}@${TARGET}/django@g" ${TARGET}/django/VLE/wsgi.py
-sudo sed -i "s@localhost:8000/@${APIURL}:${PORT}${HOOKPOINT}@g" ${TARGET}/static/js/*
+sudo sed -i "s@http://localhost:8000/@${TYPE}://${APIURL}${HOOKPOINT}@g" ${TARGET}/static/js/*
 
 sudo sed -i "s@{{DATABASE_TYPE}}@${DATABASE_TYPE}@g" ${TARGET}/django/VLE/settings/production.py
 sudo sed -i "s@{{DATABASE_NAME}}@${DATABASE_NAME}@g" ${TARGET}/django/VLE/settings/production.py
@@ -87,7 +92,7 @@ sudo sed -i "s@{{DATABASE_USER}}@${DATABASE_USER}@g" ${TARGET}/django/VLE/settin
 sudo sed -i "s@{{DATABASE_PASSWORD}}@${DATABASE_PASSWORD}@g" ${TARGET}/django/VLE/settings/production.py
 sudo sed -i "s@{{DATABASE_PORT}}@${DATABASE_PORT}@g" ${TARGET}/django/VLE/settings/production.py
 sudo sed -i "s@{{DATABASE_HOST}}@${DATABASE_HOST}@g" ${TARGET}/django/VLE/settings/production.py
-sudo sed -i "s@{{BASELINK}}@${TYPE}://${SERVERNAME}:${PORT}${HOOKPOINT}@g" ${TARGET}/django/VLE/settings/production.py
+sudo sed -i "s@{{BASELINK}}@${TYPE}://${SERVERNAME}${HOOKPOINT}@g" ${TARGET}/django/VLE/settings/production.py
 
 sudo sed -i "s'{{SECRET_KEY}}'${SECRET_KEY}'g" ${TARGET}/django/VLE/settings/production.py
 sudo sed -i "s'{{LTI_SECRET}}'${LTI_SECRET}'g" ${TARGET}/django/VLE/settings/production.py
