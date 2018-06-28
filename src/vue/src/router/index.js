@@ -16,6 +16,7 @@ import CourseEdit from '@/views/CourseEdit'
 import AssignmentEdit from '@/views/AssignmentEdit'
 import UserRoleConfiguration from '@/views/UserRoleConfiguration'
 import FormatEdit from '@/views/FormatEdit'
+import LtiLogin from '@/views/LtiLogin'
 import Logout from '@/views/Logout'
 import authAPI from '@/api/auth.js'
 
@@ -47,6 +48,10 @@ var router = new Router({
         path: '/LtiLaunch',
         name: 'LtiLaunch',
         component: LtiLaunch
+    }, {
+        path: '/LtiLogin',
+        name: 'LtiLogin',
+        component: LtiLogin
     }, {
         path: '/AssignmentsOverview',
         name: 'AssignmentsOverview',
@@ -104,7 +109,7 @@ router.beforeEach((to, from, next) => {
 
     /* If undefined, this means this is a hard refresh, therefore we have to call up the state. */
     if (router.app.validToken === undefined) {
-        authAPI.testValidToken()
+        authAPI.testValidToken().catch(_ => console.error('Token not valid'))
     }
 
     if (to.matched.length === 0) {
@@ -122,7 +127,7 @@ router.beforeEach((to, from, next) => {
                 .then(_ => next({name: 'Home'}))
                 .catch(_ => next())
         }
-    } else if (to.name === 'Login') {
+    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage'].includes(to.name)) {
         return next()
     }
 

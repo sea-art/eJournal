@@ -108,6 +108,9 @@ export default {
                 })
         },
         selectNode ($event) {
+            /* Function that prevents you from instant leaving an EntryNode
+             * or a DeadlineNode when clicking on a different node in the
+             * tree. */
             if ($event === this.currentNode) {
                 return this.currentNode
             }
@@ -141,6 +144,9 @@ export default {
                 })
         },
         progressPoints (progressNode) {
+            /* The function will update a given progressNode by
+             * going through all the nodes and count the published grades
+             * so far. */
             var tempProgress = 0
             for (var node of this.nodes) {
                 if (node.nID === progressNode.nID) {

@@ -1,5 +1,5 @@
 <template>
-    <div slot="main-content-column">
+    <div>
         <p class="lti-intro-text">You came here from canvas with an unknown
             assignment. Click on the button to create a new assignment on
             Logboek.</p>
@@ -10,7 +10,6 @@
         </b-row>
 
         <b-modal
-            slot="main-content-column"
             ref="createAssignmentRef"
             title="Create assignment"
             size="lg"
@@ -21,14 +20,12 @@
 </template>
 
 <script>
-import breadCrumb from '@/components/BreadCrumb.vue'
 import createAssignment from '@/components/CreateAssignment.vue'
 
 export default {
     name: 'LtiCreateAssignment',
     props: ['lti', 'page'],
     components: {
-        'bread-crumb': breadCrumb,
         'create-assignment': createAssignment
     },
     methods: {

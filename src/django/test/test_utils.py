@@ -11,7 +11,7 @@ from VLE.models import Role
 import VLE.factory as factory
 
 
-def set_up_user_and_auth(username, password):
+def set_up_user_and_auth(username, password, first_name=None, last_name=None):
     """Set up a user.
 
     Arguments:
@@ -20,7 +20,7 @@ def set_up_user_and_auth(username, password):
 
     Returns the user and its credentials
     """
-    user = factory.make_user(username, password)
+    user = factory.make_user(username, password, first_name=first_name, last_name=last_name)
     return username, password, user
 
 

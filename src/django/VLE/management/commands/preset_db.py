@@ -20,12 +20,49 @@ class Command(BaseCommand):
     def gen_users(self):
         """Generate users with password 'pass'."""
         users_examples = [
-            {"username": "22222222", "first_name": "Lars", "last_name": "van Hijfte", "pass": "pass", "is_admin": False, "is_teacher": False},
-            {"username": "11111111", "first_name": "Rick", "last_name": "Watertor", "pass": "pass", "is_admin": False, "is_teacher": False},
-            {"username": "00000000", "first_name": "Dennis", "last_name": "Wind", "pass": "pass", "is_admin": False, "is_teacher": False},
-            {"username": "33333333", "first_name": "Maarten", "last_name": "Keulen", "pass": "pass", "is_admin": True, "is_teacher": False},
-            {"username": "44444444", "first_name": "Zi Long", "last_name": "Zhu", "pass": "pass", "is_admin": False, "is_teacher": False},
-            {"username": "55555555", "first_name": "Xavier", "last_name": "van Dommelen", "pass": "pass", "is_admin": False, "is_teacher": True}
+            {
+                "username": "22222222",
+                "first_name": "Lars",
+                "last_name": "van Hijfte",
+                "pass": "pass",
+                "is_admin": False,
+                "is_teacher": False
+            }, {
+                "username": "11111111",
+                "first_name": "Rick",
+                "last_name": "Watertor",
+                "pass": "pass",
+                "is_admin": False,
+                "is_teacher": False
+            }, {
+                "username": "00000000",
+                "first_name": "Dennis",
+                "last_name": "Wind",
+                "pass": "pass",
+                "is_admin": False,
+                "is_teacher": False
+            }, {
+                "username": "33333333",
+                "first_name": "Maarten",
+                "last_name": "Keulen",
+                "pass": "pass",
+                "is_admin": True,
+                "is_teacher": False
+            }, {
+                "username": "44444444",
+                "first_name": "Zi Long",
+                "last_name": "Zhu",
+                "pass": "pass",
+                "is_admin": False,
+                "is_teacher": False
+            }, {
+                "username": "55555555",
+                "first_name": "Xavier",
+                "last_name": "van Dommelen",
+                "pass": "pass",
+                "is_admin": False,
+                "is_teacher": True
+            }
         ]
 
         self.users = []

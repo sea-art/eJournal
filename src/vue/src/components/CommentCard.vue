@@ -1,3 +1,7 @@
+<!--
+    Component that will show all the comments of a given entry and support
+    the possibility to add comments when the right permissions are met.
+-->
 <template>
     <div>
         <div v-if="commentObject !== null">
