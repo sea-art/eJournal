@@ -147,13 +147,9 @@ export default {
         },
         checkDeadline () {
             var currentDate = new Date()
-            var deadline = new Date(this.nodes[this.currentNode].type)
+            var deadline = new Date(this.nodes[this.currentNode].deadline)
 
-            if (currentDate > deadline) {
-                return false
-            }
-
-            return true
+            return currentDate <= deadline
         },
         bootstrapLg () {
             return this.windowHeight < 1200
