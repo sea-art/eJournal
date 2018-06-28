@@ -56,7 +56,8 @@ def update_course(request):
         return responses.unauthorized()
 
     try:
-        cID, name, abbr, startdate, enddate = utils.required_params(request.data, 'cID', 'name', 'abbr', 'startdate', 'enddate')
+        cID, name, abbr = utils.required_params(request.data, 'cID', 'name', 'abbr')
+        startdate, enddate = utils.required_params(request.data, 'startdate', 'enddate')
     except KeyError:
         return responses.keyerror('cID', 'name', 'abbr', 'startdate', 'enddate')
 
