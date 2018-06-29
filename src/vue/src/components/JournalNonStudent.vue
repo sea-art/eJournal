@@ -13,6 +13,7 @@
             {{!$root.canEditJournal()}}
 
             <bread-crumb v-if="!bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
+            haaaaalp
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
                     <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
