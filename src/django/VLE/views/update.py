@@ -215,8 +215,14 @@ def update_course_with_student(request):
 
     assignments = course.assignment_set.all()
 
+    # for assignment in assignments:
+    #     factory.make_journal(assignment, q_user)
+
+    role = permissions.get_role(q_user, cID)
     for assignment in assignments:
-        factory.make_journal(assignment, q_user)
+        if role.can_edit_journal:
+            if not Journal.objects.filter(assignment=assignment, user=q_user).exists():
+                factory.make_journal(assignment, q_user)
 
     participation.save()
     return responses.success(message='Succesfully added student to course')
