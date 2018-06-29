@@ -351,7 +351,6 @@ def create_teacher_assignment_deadline(course, assignment):
     for journal in assignment.journal_set.all():
         journals.append(serialize.journal_to_dict(journal))
 
-    print("12345")
     totalNeedsMarking = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
 
     format = serialize.format_to_dict(assignment.format)
@@ -398,7 +397,13 @@ def create_student_assignment_deadline(user, course, assignment):
         return {}
 
     # Gets the node with the earliest deadline
-    future_deadline = deadlines.filter(preset__deadline__gte=datetime.datetime.now()).order_by('preset__deadline')[0]
+    future_deadlines = deadlines.filter(preset__deadline__gte=datetime.datetime.now()).order_by('preset__deadline')
+
+    if len(future_deadlines) == 0:
+        return {}
+
+    future_deadline = future_deadlines[0]
+
     future_deadline = {'Date': future_deadline['preset__deadline'].date(),
                        'Hours': future_deadline['preset__deadline'].hour,
                        'Minutes': future_deadline['preset__deadline'].minute}

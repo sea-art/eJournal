@@ -149,6 +149,7 @@ router.beforeEach((to, from, next) => {
         })
 
     next()
+    console.log(router.app.permissions)
 })
 
 export default router

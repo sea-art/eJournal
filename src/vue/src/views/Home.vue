@@ -16,7 +16,6 @@
                 </main-card>
             </b-link>
         </div>
-
         <main-card
             v-if="this.$root.canAddCourse()"
             slot="main-content-column"

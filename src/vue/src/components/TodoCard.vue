@@ -6,7 +6,7 @@
             </b-col>
             <b-col cols="5">
                 <!-- {{this.$route.path}} -->
-                <p class="float-right" v-if="checkPermissions()">
+                <p v-if="checkPermissions()">
                     <todo-square :num="totalNeedsMarking"/>
                 </p>
             </b-col>

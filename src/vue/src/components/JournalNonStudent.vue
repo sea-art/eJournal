@@ -1,5 +1,6 @@
 <template>
     <b-row class="outer-container" no-gutters>
+
         <b-col v-if="bootstrapLg()" cols="12">
             <bread-crumb v-if="bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
@@ -9,6 +10,8 @@
         </b-col>
 
 <b-col lg="12" xl="6" order="3" order-xl="2" class="main-content-journal">
+            {{!$root.canEditJournal()}}
+
             <bread-crumb v-if="!bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
@@ -97,10 +100,13 @@ export default {
             })
 
         if (store.state.filteredJournals.length === 0) {
-            journal.get_assignment_journals(2)
-                .then(response => {
-                    this.assignmentJournals = response.journals
-                })
+            console.log(this.cID)
+            if (this.$router.app.canViewAssignmentParticipants()) {
+                journal.get_assignment_journals(3)
+                    .then(response => {
+                        this.assignmentJournals = response.journals
+                    })
+            }
 
             if (this.$route.query.sort === 'sortName' ||
                 this.$route.query.sort === 'sortID' ||
