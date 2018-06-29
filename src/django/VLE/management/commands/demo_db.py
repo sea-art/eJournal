@@ -6,7 +6,7 @@ It generates a teacher and student account. The teacher has permissions.
 """
 
 from django.core.management.base import BaseCommand
-from VLE.models import Field, Node, Role
+from VLE.models import Field, Node, Role, Journal
 import VLE.factory as factory
 from faker import Faker
 import random
@@ -23,14 +23,50 @@ class Command(BaseCommand):
         users_examples = [
             {
                 "username": "Student",
-                "first_name": "Rick",
-                "last_name": "Hen",
+                "first_name": "Jan",
+                "last_name": "Klaassen",
                 "pass": "pass",
-                "is_superuser": False
+                "is_superuser": False,
+                "is_teacher": False,
+            }, {
+                "username": "Student2",
+                "first_name": "Henk",
+                "last_name": "Doorn",
+                "pass": "pass",
+                "is_superuser": False,
+                "is_teacher": False,
+            }, {
+                "username": "Student3",
+                "first_name": "Siemen",
+                "last_name": "Gerry",
+                "pass": "pass",
+                "is_superuser": False,
+                "is_teacher": False,
+            }, {
+                "username": "Student4",
+                "first_name": "Annet",
+                "last_name": "Stien",
+                "pass": "pass",
+                "is_superuser": False,
+                "is_teacher": False,
+            }, {
+                "username": "Student5",
+                "first_name": "Maarten",
+                "last_name": "van den Wijngaerd",
+                "pass": "pass",
+                "is_superuser": False,
+                "is_teacher": False,
             }, {
                 "username": "Teacher",
                 "first_name": "Marco",
                 "last_name": "Polo",
+                "pass": "pass",
+                "is_superuser": False,
+                "is_teacher": True
+            }, {
+                "username": "Teacher2",
+                "first_name": "Manfred",
+                "last_name": "Sigurdsson",
                 "pass": "pass",
                 "is_superuser": False,
                 "is_teacher": True
@@ -41,34 +77,38 @@ class Command(BaseCommand):
                 "pass": "pass",
                 "is_superuser": True,
                 "is_teacher": True
-            }, {
-                "username": "Student2",
-                "first_name": "Maarten",
-                "last_name": "van den Wijngaerd",
-                "pass": "pass",
-                "is_superuser": False
             },
         ]
 
         self.users = []
         for u in users_examples:
             self.users.append(factory.make_user(u['username'], u['pass'], is_superuser=u['is_superuser'],
-                                                first_name=u['first_name'], last_name=u['last_name']))
+                                                is_teacher=u['is_teacher'], first_name=u['first_name'],
+                                                last_name=u['last_name']))
 
     def gen_courses(self):
         """Generate the courses PAV and Beeldbewerken."""
         courses_examples = [
             {
-                "name": "Portfolio Academische Vaardigheden 1",
-                "abbr": "PAV",
-                "students": [0],
-                "teachers": [1],
-            },
-            {
+                "name": "Academische Vaardigheden Informatica 1",
+                "abbr": "AVI1",
+                "students": [0, 1, 2, 3, 4],
+                "teachers": [5],
+            }, {
+                "name": "Academische Vaardigheden Informatica 2",
+                "abbr": "AVI2",
+                "students": [0, 1, 2, 3, 4],
+                "teachers": [5],
+            }, {
                 "name": "Beeldbewerken",
-                "abbr": "BB",
-                "students": [0],
-                "teachers": [1],
+                "abbr": "IPCV",
+                "students": [0, 1, 2],
+                "teachers": [6],
+            }, {
+                "name": "Reflectie op de Digitale Samenleving",
+                "abbr": "RDS",
+                "students": [3, 4],
+                "teachers": [6],
             }
         ]
         self.courses = []
@@ -99,13 +139,24 @@ class Command(BaseCommand):
                     {"title": "Experience", "location": 2, "type": Field.TEXT},
                     {"title": "Requested Points", "location": 3, "type": Field.TEXT},
                 ]
-            },
-            {
-                "name": "Beeldbewerken Cijfers",
+            }, {
+                "name": "Report",
                 "fields": [
-                    {"title": "Text", "location": 0, "type": Field.TEXT},
+                    {"title": "Title", "location": 0, "type": Field.TEXT},
+                    {"title": "Introduction", "location": 1, "type": Field.TEXT},
+                    {"title": "Method", "location": 2, "type": Field.TEXT},
+                    {"title": "Results", "location": 3, "type": Field.TEXT},
+                    {"title": "Discussion", "location": 4, "type": Field.TEXT},
                 ]
-            },
+            }, {
+                "name": "Essay",
+                "fields": [
+                    {"title": "Title", "location": 0, "type": Field.TEXT},
+                    {"title": "Introduction", "location": 1, "type": Field.TEXT},
+                    {"title": "Body", "location": 2, "type": Field.TEXT},
+                    {"title": "Conclusion", "location": 3, "type": Field.TEXT},
+                ]
+            }
         ]
 
         self.templates = []
@@ -120,9 +171,15 @@ class Command(BaseCommand):
         """Generate a assignment format."""
         format_examples = [
             {
-                "templates": [1],
+                "templates": [],
                 "presets": [
-                    {"type": Node.PROGRESS, "points": 5}
+                    {"type": Node.ENTRYDEADLINE, "template": 1}
+                ]
+            },
+            {
+                "templates": [],
+                "presets": [
+                    {"type": Node.ENTRYDEADLINE, "template": 2}
                 ]
             },
             {
@@ -139,8 +196,11 @@ class Command(BaseCommand):
             templates = [self.templates[template] for template in f["templates"]]
             format = factory.make_format(templates)
 
+            deadline_date = faker.date_time_between(start_date="now", end_date="+1m", tzinfo=None)
+            deadline_end = faker.date_time_between(start_date="+5m", end_date="+1y")
+
             for p in f["presets"]:
-                deadline_date = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
+                deadline_date = faker.date_time_between_dates(datetime_start=deadline_date, datetime_end=deadline_end, tzinfo=None)
 
                 if p["type"] == Node.PROGRESS:
                     factory.make_progress_node(format, deadline_date, p["points"])
@@ -154,17 +214,24 @@ class Command(BaseCommand):
         assign_examples = [
             {
                 "name": "Colloquium",
-                "description": "This is the best colloquium logbook in the world",
-                "courses": [0],
-                "format": 1,
-                "author": 1,
+                "description": "Report your attendance at colloquia here.",
+                "courses": [0, 1],
+                "format": 2,
+                "author": 5,
             },
             {
-                "name": "Verslag",
-                "description": "Verslag your verslag",
-                "courses": [1],
+                "name": "Report",
+                "description": "Report your findings here.",
+                "courses": [2],
                 "format": 0,
-                "author": 1,
+                "author": 6,
+            },
+            {
+                "name": "Essay",
+                "description": "Publish iterations of your essay here.",
+                "courses": [3],
+                "format": 1,
+                "author": 6,
             },
         ]
 
@@ -172,7 +239,6 @@ class Command(BaseCommand):
         for a in assign_examples:
             author = self.users[a["author"]]
             format = self.formats[a["format"]]
-            faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
             assignment = factory.make_assignment(a["name"], a["description"], author, format)
 
             for course in a["courses"]:
@@ -182,10 +248,15 @@ class Command(BaseCommand):
     def gen_journals(self):
         """Generate journals."""
         self.journals = []
-        for a in self.assignments:
-            for u in self.users:
-                journal = factory.make_journal(a, u)
-                self.journals.append(journal)
+        for c in self.courses:
+            for a in c.assignment_set.all():
+                for u in c.users.all():
+                    if c.author == u:
+                        continue
+
+                    if not Journal.objects.filter(assignment=a, user=u).exists():
+                        journal = factory.make_journal(a, u)
+                        self.journals.append(journal)
 
     def handle(self, *args, **options):
         """Generate data to test and fill the database with.

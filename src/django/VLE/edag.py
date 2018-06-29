@@ -40,7 +40,9 @@ def get_nodes_dict(journal, user):
         if node.type == Node.PROGRESS:
             is_future = (node.preset.deadline - timezone.now()).total_seconds() > 0
             if can_add and not added_add_node and is_future:
-                node_dict.append(serialize.add_node_dict(journal))
+                add_node = serialize.add_node_dict(journal)
+                if add_node is not None:
+                    node_dict.append(add_node)
                 added_add_node = True
         node_dict.append(serialize.node_to_dict(node, user))
     return node_dict

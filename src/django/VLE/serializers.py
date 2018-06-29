@@ -98,6 +98,9 @@ def journal_to_dict(journal):
 
 def add_node_dict(journal):
     """Convert a add_node to a dictionary."""
+    if journal.assignment.format.available_templates.count() == 0:
+        return None
+
     return {
         'type': 'a',
         'nID': -1,

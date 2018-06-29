@@ -152,7 +152,7 @@ export default {
             journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
                 .then(_ => journal.get_nodes(this.jID)
                     .then(response => { this.nodes = response.nodes })
-                    .catch(error => this.$toasted.error('Error while loading nodes.')))
+                    .catch(_ => this.$toasted.error('Error while loading nodes.')))
         },
         progressPoints (progressNode) {
             /* The function will update a given progressNode by
@@ -166,7 +166,7 @@ export default {
                 }
 
                 if (node.type === 'e' || node.type === 'd') {
-                    if (node.entry.grade != null && node.entry.grade !== '0' && node.entry.published) {
+                    if (node.entry && node.entry.grade && node.entry.published && node.entry.grade !== '0') {
                         tempProgress += parseInt(node.entry.grade)
                     }
                 }
