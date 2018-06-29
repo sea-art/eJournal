@@ -200,7 +200,7 @@ class Command(BaseCommand):
             deadline_end = faker.date_time_between(start_date="+5m", end_date="+1y")
 
             for p in f["presets"]:
-                deadline_date = faker.date_time_between_dates(datetime_start=deadline_date, datetime_end=deadline_end, tzinfo=None)
+                deadline_date = faker.date_time_between_dates(datetime_start=deadline_date, datetime_end=deadline_end)
 
                 if p["type"] == Node.PROGRESS:
                     factory.make_progress_node(format, deadline_date, p["points"])
