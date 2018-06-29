@@ -6,6 +6,7 @@
             slot="main-content-column"
             :currentPage="'Courses'">
         </bread-crumb>
+
         <div v-for="c in courses" :key="c.cID" slot="main-content-column">
             <b-link :to="{name: 'Course', params: {cID: c.cID, courseName: c.name}}">
                 <main-card
@@ -15,8 +16,6 @@
                 </main-card>
             </b-link>
         </div>
-        <div slot="main-content-column">
-        </div>
         <main-card
             v-if="this.$root.canAddCourse()"
             slot="main-content-column"
@@ -25,6 +24,19 @@
             :line1="'+ Add course'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
+        <b-card v-if="this.$root.canAddCourse()"
+                class="no-hover settings-card"
+                slot="right-content-column">
+                <b-row>
+                    <b-col lg="6" sm="6">
+                        <b-form-select v-model="selectedSortOption" :select-size="1">
+                           <option :value="null">Sort by ...</option>
+                           <option value="sortDate">Sort by date</option>
+                           <option value="sortNeedsMarking">Sort by markings needed</option>
+                        </b-form-select>
+                    </b-col>
+                </b-row>
+        </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
             <b-link tag="b-button" :to="journalRoute(d.cID, d.aID, d.jID, d.name)">
@@ -34,7 +46,7 @@
                     :minutes="d.deadline.Minutes"
                     :name="d.name"
                     :abbr="d.courseAbbr"
-                    :totalNeedsMarking="needsMarkingStats[i]"
+                    :totalNeedsMarking="d.totalNeedsMarking"
                     :color="$root.colors[d.cID % $root.colors.length]">
                 </todo-card>
             </b-link>
@@ -69,7 +81,6 @@ import createCourse from '@/components/CreateCourse.vue'
 import editHome from '@/components/EditHome.vue'
 import course from '@/api/course'
 import assignmentApi from '@/api/assignment.js'
-import journalApi from '@/api/journal.js'
 
 export default {
     name: 'Home',
@@ -77,8 +88,8 @@ export default {
         return {
             intituteName: 'Universiteit van Amsterdam (UvA)',
             courses: [],
-            deadlines: [],
-            needsMarkingStats: []
+            selectedSortOption: null,
+            deadlines: []
         }
     },
     components: {
@@ -126,13 +137,6 @@ export default {
         customisePage () {
             this.$toasted.info('Wishlist: Customise page')
         },
-        addMarkingList (aID) {
-            journalApi.get_assignment_journals(aID)
-                .then(response => {
-                    this.needsMarkingStats.push(response.stats.needsMarking)
-                })
-                .catch(_ => this.$toasted.error('Error while loading journals'))
-        },
         journalRoute (cID, aID, jID, name) {
             if (this.$root.canAddCourse()) {
                 return {
@@ -158,30 +162,33 @@ export default {
     },
     computed: {
         computedDeadlines: function () {
-            var count = 0
-            var topList
+            var counter = 0
 
             function compareDate (a, b) {
                 return new Date(a.deadline.Date) - new Date(b.deadline.Date)
             }
 
+            function compareMarkingsNeeded (a, b) {
+                if (a.totalNeedsMarking > b.totalNeedsMarking) { return -1 }
+                if (a.totalNeedsMarking < b.totalNeedsMarking) { return 1 }
+                return 0
+            }
+
             function filterTop () {
-                if (++count <= 5) {
-                    return true
-                } else {
-                    return false
-                }
+                return (++counter <= 5)
             }
 
-            topList = this.deadlines.slice().sort(compareDate).filter(filterTop)
-
-            if (this.$root.canAddCourse()) {
-                for (var i = 0; i < topList.length; i++) {
-                    this.addMarkingList(topList[i].aID)
-                }
+            function filterNoEntries (deadline) {
+                return deadline.totalNeedsMarking !== 0
             }
 
-            return topList
+            if (this.selectedSortOption === 'sortDate') {
+                return this.deadlines.slice().sort(compareDate).filter(filterTop)
+            } else if (this.selectedSortOption === 'sortNeedsMarking') {
+                return this.deadlines.slice().sort(compareMarkingsNeeded).filter(filterTop).filter(filterNoEntries)
+            } else {
+                return this.deadlines.slice().sort(compareDate).filter(filterTop)
+            }
         }
     }
 }

@@ -17,7 +17,7 @@ from VLE.settings.base import *
 LTI_SECRET = '4339900ae5861f3086861ea492772864'
 LTI_KEY = '0cd500938a8e7414ccd31899710c98ce'
 
-BASELINK = 'http://localhost:8080/#'
+BASELINK = 'http://localhost:8080'
 CORS_ORIGIN_ALLOW_ALL = True
 
 MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware'] + MIDDLEWARE

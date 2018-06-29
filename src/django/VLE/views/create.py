@@ -94,10 +94,15 @@ def create_new_assignment(request):
                                          author=request.user, lti_id=lti_id,
                                          points_possible=points_possible)
 
-    for user in course.users.all():
-        role = permissions.get_role(user, cID)
-        if role.can_edit_journal:
-            factory.make_journal(assignment, user)
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
+        return responses.not_found('Course does not exist.')
+
+    participations = course.participation_set.filter(role__name='Student').all()
+
+    for student in participations:
+        factory.make_journal(assignment, student.user)
 
     return responses.created(payload={'assignment': serialize.assignment_to_dict(assignment)})
 

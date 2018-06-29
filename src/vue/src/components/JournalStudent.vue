@@ -12,11 +12,11 @@
             <bread-crumb v-if="!bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
-                    <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]" :color="$root.colors[cID % $root.colors.length]"/>
+                    <entry-node ref="entry-template-card" @edit-node="adaptData" :cID="cID" :entryNode="nodes[currentNode]" :color="$root.colors[cID % $root.colors.length]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'd'">
                     <div v-if="nodes[currentNode].entry !== null">
-                        <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
+                        <entry-node :cID="cID" ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                     </div>
                     <div v-else>
                         <div v-if="checkDeadline()">
