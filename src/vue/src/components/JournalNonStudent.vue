@@ -20,7 +20,9 @@
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'd'">
                     <entry-non-student-preview v-if="nodes[currentNode].entry !== null" ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
-                    <div v-else>No entry yet submitted</div>
+                    <b-card v-else class="no-hover">
+                        <b>No entry submitted yet</b>
+                    </b-card>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'p'">
                     <b-card class="card main-card no-hover" :class="'pink-border'">
@@ -157,9 +159,9 @@ export default {
         },
         addNode (infoEntry) {
             journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
-            journal.get_nodes(this.jID)
-                .then(response => { this.nodes = response.nodes })
-                .catch(_ => this.$toasted.error('Error while loading nodes.'))
+                .then(_ => journal.get_nodes(this.jID)
+                    .then(response => { this.nodes = response.nodes })
+                    .catch(_ => this.$toasted.error('Error while loading nodes.')))
         },
         progressPoints (progressNode) {
             /* The function will update a given progressNode by
@@ -173,7 +175,7 @@ export default {
                 }
 
                 if (node.type === 'e' || node.type === 'd') {
-                    if (node.entry.published && node.entry.published !== '0') {
+                    if (node.entry && node.entry.grade && node.entry.published && node.entry.grade !== '0') {
                         tempProgress += parseInt(node.entry.grade)
                     }
                 }

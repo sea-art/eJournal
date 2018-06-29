@@ -121,7 +121,7 @@ export default {
             }
 
             if (this.$refs['entry-template-card'].saveEditMode === 'Save') {
-                if (!confirm('Oh no! Progress will not be saved if you leave. Do you wish to continue?')) {
+                if (!confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
                     return
                 }
             }
@@ -154,8 +154,8 @@ export default {
                 }
 
                 if (node.type === 'e' || node.type === 'd') {
-                    if (node.entry.published && node.entry.published !== '0') {
-                        tempProgress += node.entry.grade
+                    if (node.entry && node.entry.grade && node.entry.grade !== '0') {
+                        tempProgress += parseInt(node.entry.grade)
                     }
                 }
             }

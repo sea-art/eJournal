@@ -85,6 +85,11 @@ def create_new_assignment(request):
     elif not role.can_add_assignment:
         return responses.forbidden("You have no permissions to create a new assignment.")
 
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
+        return responses.not_found('Course does not exist.')
+
     assignment = factory.make_assignment(name, description, cIDs=[cID],
                                          author=request.user, lti_id=lti_id,
                                          points_possible=points_possible)
