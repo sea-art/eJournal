@@ -146,6 +146,7 @@ export default {
                 this.deletedPresets.push(this.nodes[this.currentNode])
             }
             this.nodes.splice(this.currentNode, 1)
+            this.currentNode = Math.min(this.currentNode, this.nodes.length - 1)
         },
         deleteTemplate (template) {
             if (typeof template.t.tID !== 'undefined') {

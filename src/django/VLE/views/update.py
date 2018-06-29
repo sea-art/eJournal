@@ -372,9 +372,10 @@ def update_format(request):
 
     format.max_points = max_points
     format.save()
-    utils.update_presets(assignment, presets)
-    utils.update_templates(format.available_templates, templates)
-    utils.update_templates(format.unused_templates, unused_templates)
+    template_map = {}
+    utils.update_presets(assignment, presets, template_map)
+    utils.update_templates(format.available_templates, templates, template_map)
+    utils.update_templates(format.unused_templates, unused_templates, template_map)
 
     # Swap templates from lists if they occur in the other:
     # If a template was previously unused, but is now used, swap it to available templates, and vice versa.
