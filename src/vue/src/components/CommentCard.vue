@@ -9,7 +9,7 @@
                 <b-row>
                     <b-col cols="2">
                         <img class="profilePic" id="nav-profile-image" slot="button-content" :src="comments.author.picture">
-                        <br><b>{{ comments.author.first_name + ' ' + userData.last_name }}</b>
+                        <br><b>{{ comments.author.first_name + ' ' + comments.author.last_name }}</b>
                     </b-col>
                     <b-col cols="10">
                         <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
@@ -71,7 +71,8 @@ export default {
                 this.commentObject.entrycomments.push({
                     entrtyID: this.eID,
                     author: {
-                        name: this.userData.first_name + ' ' + this.userData.last_name,
+                        first_name: this.userData.first_name,
+                        last_name: this.userData.last_name,
                         picture: this.userData.picture
                     },
                     text: this.tempComment

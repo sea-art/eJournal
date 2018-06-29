@@ -42,13 +42,22 @@ function handleResponse (response, noRedirect = false) {
             router.push({name: 'Login'})
         }
     } else if (response.status === 403 || // Forbidden
-          response.status === 404 || // Not found
-          response.status === 500) { // Internal server error
+          response.status === 404) { // Not found)
         if (!noRedirect) {
             router.push({name: 'ErrorPage',
                 params: {
                     code: response.status,
                     message: response.data.result,
+                    description: response.data.description
+                }
+            })
+        }
+    } else if (response.status === 500) { // Internal server error
+        if (!noRedirect) {
+            router.push({name: 'ErrorPage',
+                params: {
+                    code: response.status,
+                    message: 'Internal Server Error',
                     description: response.data.description
                 }
             })

@@ -11,7 +11,7 @@ from django.utils.timezone import now
 import VLE.serializers as serialize
 import VLE.factory as factory
 import VLE.utils as utils
-from VLE.models import User, Journal, EntryTemplate, Node, Assignment, Field, Entry, Content
+from VLE.models import User, Journal, EntryTemplate, Node, Assignment, Field, Entry, Content, Course
 import VLE.edag as edag
 import VLE.lti_grade_passback as lti_grade
 
@@ -85,9 +85,19 @@ def create_new_assignment(request):
     elif not role.can_add_assignment:
         return responses.forbidden("You have no permissions to create a new assignment.")
 
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
+        return responses.not_found('Course does not exist.')
+
     assignment = factory.make_assignment(name, description, cIDs=[cID],
                                          author=request.user, lti_id=lti_id,
                                          points_possible=points_possible)
+
+    for user in course.users.all():
+        role = permissions.get_role(user, cID)
+        if role.can_edit_journal:
+            factory.make_journal(assignment, user)
 
     return responses.created(payload={'assignment': serialize.assignment_to_dict(assignment)})
 

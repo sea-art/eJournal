@@ -28,6 +28,8 @@ class EdagTests(TestCase):
         self.progressnode = factory.make_progress_node(f_colloq, datetime.date(2024, 1, 1), 10)
         f_log = factory.make_format()
 
+        f_colloq.available_templates.add(self.template)
+
         course = factory.make_course("Some Course", "c")
         student_role = Role.objects.get(name='Student', course=course)
         factory.make_participation(self.u_rick, course, student_role)
