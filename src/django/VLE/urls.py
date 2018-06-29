@@ -50,7 +50,6 @@ urlpatterns = [
     path('get_course_permissions/<str:cID>/', get.get_course_permissions, name='get_course_permissions'),
     path('get_upcoming_course_deadlines/<int:cID>/', get.get_upcoming_course_deadlines,
          name='get_upcoming_course_deadlines'),
-    path('get_course_permissions/<str:cID>/', get.get_course_permissions, name='get_course_permissions'),
     path('get_nodes/<int:jID>/', get.get_nodes, name='get_nodes'),
     path('get_format/<int:aID>/', get.get_format, name='get_format'),
     path('get_names/', get.get_names, name='get_names'),

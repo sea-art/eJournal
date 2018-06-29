@@ -215,9 +215,6 @@ def update_course_with_student(request):
 
     assignments = course.assignment_set.all()
 
-    # for assignment in assignments:
-    #     factory.make_journal(assignment, q_user)
-
     role = permissions.get_role(q_user, cID)
     for assignment in assignments:
         if role.can_edit_journal:

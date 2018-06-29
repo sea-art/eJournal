@@ -99,11 +99,6 @@ def create_new_assignment(request):
     except Course.DoesNotExist:
         return responses.not_found('Course does not exist.')
 
-    # participations = course.participation_set.filter(role__name='Student').all()
-
-    # for student in participations:
-    #     factory.make_journal(assignment, student.user)
-
     for user in course.users.all():
         role = permissions.get_role(user, cID)
         if role.can_edit_journal:
