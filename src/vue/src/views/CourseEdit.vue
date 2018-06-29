@@ -65,8 +65,7 @@
                         <input type="text" v-model="searchVariable" placeholder="Search .."/>
                     </b-col>
                 </b-row>
-
-            </b-card>
+        </b-card>
 
         <!-- TODO PROVIDE FULL NAME AND STUDENTNUMBER DATABASE BOYS -->
         <course-participant-card v-if="selectedView == 'enrolled'"

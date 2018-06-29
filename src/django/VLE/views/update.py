@@ -213,6 +213,11 @@ def update_course_with_student(request):
     role = Role.objects.get(name="Student", course=course)
     participation = factory.make_participation(q_user, course, role)
 
+    assignments = course.assignment_set.all()
+
+    for assignment in assignments:
+        factory.make_journal(assignment, q_user)
+
     participation.save()
     return responses.success(message='Succesfully added student to course')
 

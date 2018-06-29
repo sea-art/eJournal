@@ -4,10 +4,11 @@
             <b-col cols="9">
                 <h6>{{ date }} {{ hours }}:{{ minutes }}</h6>
             </b-col>
-            <b-col cols="3">
-                <!-- TODO: Show time left for students. -->
-                <!-- TODO: Check if a user is a TA or teacher in order to show amount left to grade. -->
-                <todo-square v-if="this.$root.canAddCourse() && this.$route.path !='/AssignmentsOverview'" class="float-right" :num="totalNeedsMarking"/>
+            <b-col cols="5">
+                <!-- {{this.$route.path}} -->
+                <p v-if="checkPermissions()">
+                    <todo-square :num="totalNeedsMarking"/>
+                </p>
             </b-col>
         </b-row>
             <h5>{{ name }}</h5>
@@ -22,6 +23,16 @@ export default {
     props: ['date', 'hours', 'minutes', 'name', 'abbr', 'totalNeedsMarking', 'color'],
     components: {
         'todo-square': todoSquare
+    },
+    methods: {
+        checkPermissions () {
+            if (this.$route.name === 'Home') {
+                return this.$root.canAddCourse()
+            } else if (this.$route.name === 'AssignmentsOverview' ||
+                       this.$route.name === 'Course') {
+                return this.$root.canAddCourse()
+            }
+        }
     }
 }
 </script>
