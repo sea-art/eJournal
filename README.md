@@ -76,11 +76,14 @@ If Git Flow does not work for whatever reason, default Git commands can be used 
 
 In the file `settings/deploy.conf` there are multiple options to configure:
 
+
 - `APACHE_DIR`: should be pointed to the directory where apache is installed (defaults to `/etc/apache2`).
 - `TARGET`: should be the directory where apache will be serving files from (defaults to `/var/www/ejournal`).
-- `PORT`: should be the port the website will be accessible over, this will be appended to the `$APACHE_DIR/ports.conf` file (defaults to `8080`).
-- `URL`: should be the basis URL of the site. The site will be accessible on `$URL:$PORT$HOOKPOINT`, most apis will be accessible on `$URL:$PORT$HOOKPOINTapi`, and admin will be accessible on `$URL:$PORT$HOOKPOINTadmin` (defaults to `localhost:8080`).
-- `HOOKPOINT`: Defines the path after the URL to serve as a root folder for this project (defaults to `/`).
+- `TYPE`: should be the http type: either http or https (defaults to `http`).
+- `SERVERNAME`: should be the website URL. The site will be accessible on `$URL:$PORT$HOOKPOINT` (defaults to `localhost`).
+- `APIURL`: should be the API URL. The API will be accessible on `$APIURL:$PORT$HOOKPOINT` (defaults to `api.localhost`).
+- `PORT`: should be the port the website will be accessible over, this will be appended to the `$APACHE_DIR/ports.conf` file (defaults to `80`).
+- `HOOKPOINT`: Defines the path after the URL to serve as a root folder for this project. Should always end with a `/` (defaults to `/`).
 
 
 In the file `settings/database.conf` you will need to configure the database. By default we use [postgresql](https://www.postgresql.org/).
