@@ -28,9 +28,9 @@ export default {
     methods: {
         saveUserdata () {
             userAPI.updateUserData(this.uname, this.first, this.last)
+                .then(this.$toasted.success('Saved profile data'))
         },
         updateProfilePicture () {
-            console.log(this.$refs.file)
             userAPI.updateProfilePicture(this.$refs.file)
         },
         downloadUserData () {
@@ -60,6 +60,7 @@ export default {
 <style>
 .profile-portrait {
     max-height: 250px;
+    border-radius: 50%!important;
 }
 
 .fileinput {

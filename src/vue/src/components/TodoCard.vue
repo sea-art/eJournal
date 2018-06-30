@@ -1,14 +1,12 @@
 <template>
     <b-card class="card" :class="color">
         <b-row>
-            <b-col cols="9">
+            <b-col cols="7">
                 <h6>{{ date }} {{ hours }}:{{ minutes }}</h6>
             </b-col>
             <b-col cols="5">
+                <todo-square v-if="checkPermissions()" :num="totalNeedsMarking" class="float-right" />
                 <!-- {{this.$route.path}} -->
-                <p v-if="checkPermissions()">
-                    <todo-square :num="totalNeedsMarking"/>
-                </p>
             </b-col>
         </b-row>
             <h5>{{ name }}</h5>
