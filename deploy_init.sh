@@ -21,6 +21,7 @@ make
 sudo make install
 cd ../../
 
+sudo rsync -a ./venv ${TARGET}
 source ${TARGET}venv/bin/activate
 pip install -r requirements.txt
 deactivate

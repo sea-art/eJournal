@@ -1,3 +1,6 @@
+default:
+	make setup
+	make test
 
 superuser:
 	bash -c 'source ./venv/bin/activate && python3.6 src/django/manage.py createsuperuser && deactivate'
@@ -70,3 +73,7 @@ setup:
 	make fill-db
 
 	@echo "DONE!"
+
+deploy:
+	sudo chmod +x ./deploy.sh
+	./deploy.sh init
