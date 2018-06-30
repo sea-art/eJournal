@@ -25,6 +25,11 @@ CORS_ORIGIN_ALLOW_ALL = True
 MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware'] + MIDDLEWARE
 ALLOWED_HOSTS = ['*']
 
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+X_FRAME_OPTIONS = 'DENY'
+SECURE_BROWSER_XSS_FILTER = True
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.{{DATABASE_TYPE}}',
