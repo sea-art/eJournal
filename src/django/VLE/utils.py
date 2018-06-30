@@ -1,49 +1,41 @@
-from VLE.models import Node
-from VLE.models import Entry
-from django.http import JsonResponse
+"""
+Utilities.
+
+A library with useful functions.
+"""
+from VLE.models import Entry, Node, EntryTemplate, PresetNode
+import VLE.factory as factory
+import VLE.views.responses as responses
 
 
 # START: API-POST functions
-def get_required_post_params(post, *keys):
-    """
-    Gets required post parameters, throwing
-    KeyError if not present.
-    """
+def required_params(post, *keys):
+    """Get required post parameters, throwing KeyError if not present."""
     result = []
     for key in keys:
         result.append(post[key])
+
     return result
 
 
-def get_optional_post_params(post, *keys):
-    """
-    Gets optional post parameters, filling
-    them as None if not present.
-    """
+def optional_params(post, *keys):
+    """Get optional post parameters, filling them as None if not present."""
     result = []
     for key in keys:
         if key in post:
-            result.append(post[key])
+            if post[key] == '':
+                result.append(None)
+            else:
+                result.append(post[key])
         else:
             result.append(None)
     return result
-
-
-def keyerror_json(*keys):
-    if len(keys) == 1:
-        return JsonResponse({'result': '400 Bad Request',
-                             'description': 'Field {0} is required but is missing.'.format(keys)},
-                            status=400)
-    else:
-        return JsonResponse({'result': '400 Bad Request',
-                             'description': 'Fields {0} are required but one or more are missing.'.format(keys)},
-                            status=400)
 # END: API-POST functions
 
 
 # START: journal stat functions
 def get_journal_entries(journal):
-    """Gets the journal entries from a journal.
+    """Get the journal entries from a journal.
 
     - journal: the journal in question.
 
@@ -53,18 +45,18 @@ def get_journal_entries(journal):
 
 
 def get_max_points(journal):
+    """Get the maximum amount of points for an assignment."""
     return journal.assignment.format.max_points
 
 
 def get_acquired_grade(entries, journal):
-    """Gets the number of acquired points in an journal.
+    """Get the number of acquired points in an journal.
 
     - journal: the journal in question.
 
     Returns the total number of points depending on the grade type.
     """
     format = journal.assignment.format
-    entries = get_journal_entries(journal)
     total_grade = 0
     if format.grade_type == 'GR':
         count_graded = 0
@@ -72,7 +64,7 @@ def get_acquired_grade(entries, journal):
             if entry.published:
                 count_graded += 1
                 total_grade += entry.grade if entry.grade is not None else 0
-        return total_gradee
+        return total_grade
     else:
         for entry in entries:
             total_grade += entry.grade if entry.grade is not None else 0
@@ -80,7 +72,7 @@ def get_acquired_grade(entries, journal):
 
 
 def get_submitted_count(entries):
-    """Counts the number of submitted entries.
+    """Count the number of submitted entries.
 
     - entries: the entries to count with.
 
@@ -90,7 +82,7 @@ def get_submitted_count(entries):
 
 
 def get_graded_count(entries):
-    """Counts the number of graded entries.
+    """Count the number of graded entries.
 
     - entries: the entries to count with.
 
@@ -102,7 +94,7 @@ def get_graded_count(entries):
 
 # START grading functions
 def publish_all_assignment_grades(assignment, published):
-    """Sets published all not None grades from an assignment.
+    """Set published all not None grades from an assignment.
 
     - assignment: the assignment in question
     - published: either True or False. If True show the grade to student.
@@ -111,10 +103,145 @@ def publish_all_assignment_grades(assignment, published):
 
 
 def publish_all_journal_grades(journal, published):
-    """Sets published all not None grades from a journal.
+    """Set published all not None grades from a journal.
 
     - journal: the journal in question
     - published: either True or False. If True show the grade to student.
     """
     Entry.objects.filter(node__journal=journal).exclude(grade=None).update(published=published)
 # END grading functions
+
+
+def update_templates(result_list, templates, template_map):
+    """Create new templates for those which have changed, and removes the old one.
+
+    Entries have to keep their original template, so that the content
+    does not change after a template update, therefore when a template
+    is updated, the template is recreated from scratch and bound to
+    all nodes that use the previous template, if there were any.
+    """
+    for template_field in templates:
+        if 'updated' in template_field and template_field['updated']:
+            # Create the new template and add it to the format.
+            if 'tID' in template_field and template_field['tID'] < 0 and template_field['tID'] in template_map:
+                new_template = template_map[template_field['tID']]
+            else:
+                new_template = parse_template(template_field)
+
+            result_list.add(new_template)
+
+            # Update presets to use the new template.
+            if 'tID' in template_field and template_field['tID'] > 0:
+                template = EntryTemplate.objects.get(pk=template_field['tID'])
+                presets = PresetNode.objects.filter(forced_template=template).all()
+                for preset in presets:
+                    preset.forced_template = new_template
+                    preset.save()
+
+                result_list.remove(template)
+
+
+def parse_template(template_dict):
+    """Parse a new template according to the passed JSON-serialized template."""
+    name = template_dict['name']
+    fields = template_dict['fields']
+
+    template = factory.make_entry_template(name)
+
+    for field in fields:
+        type = field['type']
+        title = field['title']
+        location = field['location']
+
+        factory.make_field(template, title, location, type)
+
+    template.save()
+    return template
+
+
+def swap_templates(from_list, goal_list, target_list):
+    """Swap templates from from_list to target_list if they are present in goal_list."""
+    for template in goal_list:
+        if from_list.filter(pk=template['tID']).count() > 0:
+            template = from_list.get(pk=template['tID'])
+            from_list.remove(template)
+            target_list.add(template)
+
+
+def update_journals(journals, preset, created):
+    """Create or update the preset node in all relevant journals.
+
+    Arguments:
+    journals -- the journals to update.
+    preset -- the preset node to update the journals with.
+    created -- whether the preset node was newly created.
+    """
+    if created:
+        for journal in journals:
+            factory.make_node(journal, None, preset.type, preset)
+    else:
+        for journal in journals:
+            journal.node_set.filter(preset=preset).update(type=preset.type)
+
+
+def update_presets(assignment, presets, template_map):
+    """Update preset nodes in the assignment according to the passed list.
+
+    Arguments:
+    assignment -- the assignment to update the presets in.
+    presets -- a list of JSON-serialized presets.
+    """
+    format = assignment.format
+    for preset in presets:
+        exists = 'pID' in preset
+
+        if exists:
+            try:
+                preset_node = PresetNode.objects.get(pk=preset['pID'])
+            except EntryTemplate.DoesNotExist:
+                return responses.not_found('Preset does not exist.')
+        else:
+            preset_node = PresetNode(format=format)
+
+        type_changed = preset_node.type != preset['type']
+        preset_node.type = preset['type']
+        preset_node.deadline = preset['deadline']
+
+        if preset_node.type == Node.PROGRESS:
+            preset_node.target = preset['target']
+        elif preset_node.type == Node.ENTRYDEADLINE:
+            template_field = preset['template']
+
+            if 'tID' in template_field:
+                if template_field['tID'] > 0:
+                    preset_node.forced_template = EntryTemplate.objects.get(pk=template_field['tID'])
+                else:
+                    if template_field['tID'] in template_map:
+                        preset_node.forced_template = template_map[template_field['tID']]
+                    else:
+                        preset_node.forced_template = parse_template(template_field)
+                        template_map[template_field['tID']] = preset_node.forced_template
+            else:
+                preset_node.forced_template = parse_template(template_field)
+
+        preset_node.save()
+        if type_changed:
+            update_journals(assignment.journal_set.all(), preset_node, not exists)
+
+
+def delete_presets(presets, remove_presets):
+    """Deletes all presets in remove_presets from presets. """
+    pIDs = []
+    for preset in remove_presets:
+        pIDs.append(preset['pID'])
+
+    presets.filter(pk__in=pIDs).delete()
+
+
+def delete_templates(templates, remove_templates):
+    """Deletes all templates in remove_templates from templates. """
+    tIDs = []
+    for template in remove_templates:
+        tIDs.append(template['tID'])
+
+    templates.filter(pk__in=tIDs).delete()

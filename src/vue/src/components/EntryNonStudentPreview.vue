@@ -1,7 +1,11 @@
-<!-- Loads a preview of a template. -->
+<!--
+    Loads a filled in template of an entry and the corresponding
+    comments. The teacher tools will also be loaded if the user has the
+    right permissions.
+-->
 <template>
     <div v-if="entryNode.entry !== null">
-        <b-card class="card main-card no-hover" :class="'dark-border'">
+        <b-card class="card main-card no-hover" :class="$root.getBorderClass($route.params.cID)">
             <b-row>
                 <b-col id="main-card-left-column" cols="9" lg-cols="12">
                     <h2>{{entryNode.entry.template.name}}</h2>
@@ -16,25 +20,36 @@
                             <b>{{ field.title }}</b>
                         </div>
                         <div v-if="field.type=='t'">
-                            {{ completeContent[i].data }}<br><br>
+                            <span class="showEnters">{{ completeContent[i].data }}</span><br><br>
                         </div>
                         <div v-else-if="field.type=='i'">
                         </div>
                         <div v-else-if="field.type=='f'">
                         </div>
                     </div>
-                    <br>
-                    Fill in the grade:<br>
-                    <b-form-input type="number" v-model="grade" placeholder="Grade"></b-form-input>
-                    <b-form-checkbox v-model="status" value=1 unchecked-value=0>
-                        Show grade to student
-                    </b-form-checkbox><br>
-                    <b-button @click="commitGrade">Grade</b-button>
+
+                    <div v-if="$root.canGradeJournal()">
+                        <br>
+                        Fill in the grade:<br>
+                        <b-form-input type="number" v-model="grade" placeholder="Grade" min=0></b-form-input>
+                        <b-form-checkbox v-model="status" value=true unchecked-value=false>
+                            Show grade to student
+                        </b-form-checkbox><br>
+                        <b-button @click="commitGrade">Grade</b-button>
+                    </div>
+                    <div v-else>
+                        <div v-if="tempNode.entry.published">
+                            Points: {{ entryNode.entry.grade }}
+                        </div>
+                        <div v-else>
+                            To be graded
+                        </div>
+                    </div>
                 </b-col>
             </b-row>
         </b-card>
 
-        <comment-card @new-comments="addComment" :comments="comments" :person="'Teacher'" :eID="entryNode.entry.eID"/>
+        <comment-card :eID="entryNode.entry.eID"/>
     </div>
 </template>
 
@@ -48,29 +63,22 @@ export default {
         return {
             tempNode: this.entryNode,
             completeContent: [],
-            grade: null,
-            status: 1,
-
-            comments: [{
-                message: 'I have seen you do better.',
-                person: 'Peter'
-            }, {
-                message: 'This is awesome!',
-                person: 'Stephen'
-            }]
+            grade: this.entryNode.entry.grade,
+            status: this.entryNode.entry.published
         }
     },
     watch: {
         entryNode: function () {
             this.completeContent = []
             this.setContent()
+            this.tempNode = this.entryNode
 
             if (this.entryNode.entry !== null) {
                 this.grade = this.entryNode.entry.grade
                 this.status = this.entryNode.entry.published
             } else {
                 this.grade = null
-                this.status = 1
+                this.status = true
             }
         }
     },
@@ -79,6 +87,8 @@ export default {
     },
     methods: {
         setContent: function () {
+            /* Loads in the data of an entry in the right order by matching
+             * the different data-fields with the corresponding template-IDs. */
             var checkFound = false
 
             if (this.entryNode.entry !== null) {
@@ -106,13 +116,31 @@ export default {
                 }
             }
         },
-        addComment: function (newComments) {
-            this.comments = newComments
-        },
         commitGrade: function () {
             if (this.grade !== null) {
-                journalApi.update_grade_entry(this.entryNode.entry.eID, this.grade, this.status)
-                confirm('Oh yeah! grade updated')
+                this.tempNode.entry.grade = this.grade
+                this.tempNode.entry.published = (this.status === 'true' || this.status === true)
+
+                if (this.status === 'true' || this.status === true) {
+                    journalApi.update_grade_entry(this.entryNode.entry.eID, this.grade, 1)
+                        .then(_ => {
+                            this.$toasted.success('Grade updated and published.')
+                            this.$emit('check-grade')
+                        })
+                        .catch(_ => {
+                            this.$toasted.error('Something went wrong with updating the grade.')
+                        })
+                } else {
+                    journalApi.update_grade_entry(this.entryNode.entry.eID,
+                        this.grade, 0)
+                        .then(_ => {
+                            this.$toasted.success('Grade updated but not published.')
+                            this.$emit('check-grade')
+                        })
+                        .catch(_ => {
+                            this.$toasted.error('Something went wrong with updating the grade.')
+                        })
+                }
             }
         }
     },

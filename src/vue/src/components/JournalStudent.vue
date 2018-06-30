@@ -1,30 +1,34 @@
 <template>
-    <b-row no-gutters>
-        <!-- TODO: reopen bread-crumb when it is working again -->
+    <b-row class="outer-container" no-gutters>
         <b-col v-if="bootstrapLg()" cols="12">
-            <!-- <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
+            <bread-crumb v-if="bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
-        <b-col v-else xl="3" class="left-content">
+        <b-col v-else xl="3" class="left-content-journal">
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
 
-        <b-col lg="12" xl="6" order="2" class="main-content">
-            <!-- <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/> -->
+        <b-col lg="12" xl="6" order="2" class="main-content-journal">
+            <bread-crumb v-if="!bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
-                    <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
+                    <entry-node ref="entry-template-card" @edit-node="adaptData" :cID="cID" :entryNode="nodes[currentNode]" :color="$root.colors[cID % $root.colors.length]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'd'">
                     <div v-if="nodes[currentNode].entry !== null">
-                        <entry-node ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
+                        <entry-node :cID="cID" ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                     </div>
                     <div v-else>
-                        <entry-preview ref="entry-template-card" @content-template="fillDeadline" :template="nodes[currentNode].template"/>
+                        <div v-if="checkDeadline()">
+                            <entry-preview ref="entry-template-card" @content-template="fillDeadline" :template="nodes[currentNode].template"/>
+                        </div>
+                        <div v-else>
+                            The deadline has passed, you can't make another submission
+                        </div>
                     </div>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'a'">
-                    <add-card @info-entry="addNode" :addNode="nodes[currentNode]"></add-card>
+                    <add-card @info-entry="addNode" :addNode="nodes[currentNode]" :color="$root.colors[cID % $root.colors.length]"/>
                 </div>
                 <div v-else-if="nodes[currentNode].type == 'p'">
                     <b-card class="card main-card no-hover" :class="'pink-border'">
@@ -35,7 +39,12 @@
                 </div>
             </div>
         </b-col>
-        <b-col cols="12" xl="3" order="3" class="right-content"/>
+        <b-col cols="12" xl="3" order="3" class="right-content-journal">
+            <h3>Assignment Description</h3>
+            <b-card class="no-hover" :class="'grey-border'" style="">
+                {{ assignmentDescription }}
+            </b-card>
+        </b-col>
     </b-row>
 </template>
 
@@ -47,6 +56,7 @@ import edag from '@/components/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import journal from '@/api/journal'
 import entryPreview from '@/components/EntryPreview.vue'
+import assignmentApi from '@/api/assignment.js'
 
 export default {
     props: ['cID', 'aID', 'jID'],
@@ -55,13 +65,31 @@ export default {
             currentNode: 0,
             editedData: ['', ''],
             nodes: [],
-            progressNodes: {}
+            progressNodes: {},
+            assignmentDescription: ''
         }
     },
     created () {
         journal.get_nodes(this.jID)
-            .then(response => { this.nodes = response.nodes })
-            .catch(_ => alert('Error while loading nodes.'))
+            .then(response => {
+                this.nodes = response.nodes
+                if (this.$route.query.nID !== undefined) {
+                    this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
+                }
+
+                for (var node of this.nodes) {
+                    if (node.type === 'p') {
+                        this.progressPoints(node)
+                    }
+                }
+            })
+            .catch(_ => this.$toasted.error('Error while loading nodes.'))
+
+        assignmentApi.get_assignment_data(this.cID, this.aID)
+            .then(response => {
+                this.assignmentDescription = response.description
+            })
+            .catch(_ => this.$toasted.error('Error while loading assignment description.'))
     },
     watch: {
         currentNode: function () {
@@ -73,8 +101,16 @@ export default {
     methods: {
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData
+            journal.create_entry(this.jID, this.nodes[this.currentNode].entry.template.tID, editedData.entry.content, this.nodes[this.currentNode].nID)
+                .then(response => {
+                    this.nodes = response.nodes
+                    this.currentNode = response.added
+                })
         },
         selectNode ($event) {
+            /* Function that prevents you from instant leaving an EntryNode
+             * or a DeadlineNode when clicking on a different node in the
+             * tree. */
             if ($event === this.currentNode) {
                 return this.currentNode
             }
@@ -85,7 +121,7 @@ export default {
             }
 
             if (this.$refs['entry-template-card'].saveEditMode === 'Save') {
-                if (!confirm('Oh no! Progress will not be saved if you leave. Do you wish to continue?')) {
+                if (!confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
                     return
                 }
             }
@@ -95,27 +131,50 @@ export default {
         },
         addNode (infoEntry) {
             journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
-            journal.get_nodes(this.jID)
-                .then(response => { this.nodes = response.nodes })
-                .catch(_ => alert('Error while loading nodes.'))
+                .then(response => {
+                    this.nodes = response.nodes
+                    this.currentNode = response.added
+                })
         },
         fillDeadline (data) {
-            journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data)
+            journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data, this.nodes[this.currentNode].nID)
+                .then(response => {
+                    this.nodes = response.nodes
+                    this.currentNode = response.added
+                })
         },
         progressPoints (progressNode) {
+            /* The function will update a given progressNode by
+             * going through all the nodes and count the published grades
+             * so far. */
             var tempProgress = 0
-
             for (var node of this.nodes) {
                 if (node.nID === progressNode.nID) {
                     break
                 }
 
                 if (node.type === 'e' || node.type === 'd') {
-                    tempProgress += node.entry.grade
+                    if (node.entry && node.entry.grade && node.entry.grade !== '0') {
+                        tempProgress += parseInt(node.entry.grade)
+                    }
                 }
             }
 
             this.progressNodes[progressNode.nID] = tempProgress
+        },
+        findEntryNode (nodeID) {
+            for (var i = 0; i < this.nodes.length; i++) {
+                if (this.nodes[i].nID === nodeID) {
+                    return i
+                }
+            }
+            return 0
+        },
+        checkDeadline () {
+            var currentDate = new Date()
+            var deadline = new Date(this.nodes[this.currentNode].deadline)
+
+            return currentDate <= deadline
         },
         bootstrapLg () {
             return this.windowHeight < 1200

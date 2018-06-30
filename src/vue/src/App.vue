@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <header-bar/>
-        <router-view class="fit-height"/>
+        <router-view :key="$route.path" class="fit-height"/>
     </div>
 </template>
 
@@ -20,16 +20,18 @@ export default {
 
 :root {
     --theme-dark-blue: #252C39;
-    --theme-peach: #E9A480;
     --theme-dark-peach: #dE8F3F;
-    --theme-light-grey: #EEEEEE;
-    --theme-dark-grey: #BBBBBB;
-    --theme-pink: #E64769;
-    --theme-blue: #22648A;
-    --theme-red: #c83b4b;
     --theme-medium-grey: #DEDEDE;
-    --theme-add-unselected: #99ff99;
-    --theme-add-selected: #1aff1a;
+    --theme-dark-grey: #BBBBBB;
+    --theme-light-grey: #EEEEEE;
+    --theme-peach: #E9A480;
+    --theme-blue: #22648A;
+    --theme-red: #82000e;
+    --theme-pink: #E64769;
+    --theme-positive-selected: #007E33;
+    --theme-negative-selected: #CC0000;
+    --theme-change-selected: #FF8800;
+    --theme-change-hover: #FF6600;
 }
 
 * {
@@ -46,26 +48,26 @@ img {
 
 h1 {
     font-weight: bold;
-    font-size: 60px;
+    font-size: 2.5em;
     border-left: 20px solid var(--theme-dark-blue);
     padding-left: 20px;
 }
 
 h2 {
     font-weight: bold;
-    font-size: 35px;
+    font-size: 1.8em;
 }
 
 h3 {
     font-weight: bold;
-    font-size: 35px;
+    font-size: 1.8em;
     border-left: 20px solid var(--theme-dark-blue);
     padding-left: 20px;
 }
 
 h4 {
     font-weight: bold;
-    font-size: 30px;
+    font-size: 1.5em;
     color: var(--theme-blue);
     border-left: 20px solid var(--theme-dark-blue);
     padding-left: 20px;
@@ -73,12 +75,12 @@ h4 {
 }
 
 h5 {
-    font-size: 30px;
+    font-size: 1.5em;
     margin-bottom: 0px;
 }
 
 h6 {
-    font-size: 20px;
+    font-size: 1.5em;
     color: var(--theme-blue);
     margin-bottom: 0px;
 }
@@ -90,7 +92,7 @@ h4 a {
 #app {
     overflow-x: hidden;
     font-family: 'Roboto', sans-serif;
-    font-size: 20px;
+    font-size: 1em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     display: flex;
@@ -105,6 +107,7 @@ h4 a {
     background-color: white !important;
     color: var(--theme-dark-blue) !important;
     border: none;
+    margin-bottom: 10px;
 }
 
 .fit-height {
@@ -150,6 +153,10 @@ input, select {
     cursor: pointer;
 }
 
+.card-last-elem-button .card-body {
+    padding-bottom: 2px !important;
+}
+
 .no-hover:hover {
     background-color: var(--theme-light-grey) !important;
 }
@@ -174,6 +181,10 @@ input, select {
     border-left-color: var(--theme-blue);
 }
 
+.showEnters {
+    white-space: pre-wrap;
+}
+
 .portrait-container {
     height: 100px;
     width: 100px;
@@ -184,25 +195,70 @@ input, select {
     width: 50px;
 }
 
-.add-button {
-    border-color: var(--theme-blue);
-    background-color: var(--theme-add-unselected);
+.add-icon {
+    fill: var(--theme-light-grey) !important;
+    cursor: pointer;
+}
+
+.add-icon:hover {
+    fill: var(--theme-positive-selected) !important;
+}
+
+.trash-icon:hover {
+    fill: var(--theme-negative-selected) !important;
+}
+
+.trash-icon {
+    fill: var(--theme-dark-grey) !important;
+    cursor: pointer;
 }
 
 .add-button:hover {
-    border-color: var(--theme-blue);
-    background-color: var(--theme-add-selected);
-    color: black !important;
-}
-
-.delete-button {
-    border-color: var(--theme-blue);
-    background-color: var(--theme-pink);
+    border-color: var(--theme-positive-selected) !important;
+    color: white !important;
 }
 
 .delete-button:hover {
-    border-color: var(--theme-dark-blue);
-    background-color: red;
+    border-color: var(--theme-negative-selected) !important;
+    color: white !important;
+}
+
+.change-button:hover {
+    border-color: var(--theme-change-selected) !important;
+    color: white !important;
+}
+
+.error {
+    background-color: var(--theme-negative-selected) !important;
+}
+
+.success {
+    background-color: var(--theme-positive-selected) !important;
+}
+
+.warning {
+    background-color: var(--theme-change-selected) !important;
+}
+
+.error, .success, .warning {
+    font-family: 'Roboto Condensed', sans-serif !important;
+    font-size: 1.1em !important;
+}
+
+.lti-button-option {
+    width: 275px;
+    height: 100px;
+    margin-top: 20px;
+}
+
+.lti-button-text {
+    font-size: 20px;
+    text-align: center;
+}
+
+.lti-intro-text {
+    margin-left: 15px;
+    margin-right: 15px;
 }
 
 .portrait {
@@ -215,5 +271,15 @@ input, select {
 
 .no-hover:hover {
     background-color: var(--theme-light-grey);
+}
+
+.settings-card {
+    margin-top: 12px;
+    text-align: left;
+    background-color: var(--theme-light-grey);
+    border-width: 0px;
+    border-left-width: 20px;
+    border-radius: 0px;
+    border-left-color: var(--theme-dark-grey);
 }
 </style>

@@ -1,24 +1,18 @@
-from django.shortcuts import redirect
-from django.http import JsonResponse, HttpResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.clickjacking import xframe_options_exempt
-from rest_framework.decorators import api_view
-from django.conf import settings
-import oauth2
-import json
 import xml.etree.cElementTree as ET
+import oauth2
+"""Package for oauth authentication in python"""
 
-from .models import Journal, Counter
+import VLE.utils as utils
+from django.conf import settings
+from VLE.models import Counter
 
 
 class GradePassBackRequest(object):
-    """
-    Class to send Grade replace lti requests.
-    """
+    """Class to send Grade replace lti requests."""
 
-    def __init__(self, key, secret, journal):
+    def __init__(self, key, secret, journal, send_score=False, result_data=None):
         """
-        Constructor that set the needed variables
+        Create the instancie to set the needed variables.
 
         Arguments:
         key -- key for the oauth communication
@@ -27,16 +21,20 @@ class GradePassBackRequest(object):
         """
         self.key = key
         self.secret = secret
-        self.url = None  # TODO database url
-        self.sourcedId = None  # TODO database sourcedId
-        self.score = None  # TODO database
-        self.result_data = None
+        self.url = None if journal is None else journal.grade_url
+        self.sourcedid = None if journal is None else journal.sourcedid
+        if send_score and journal.assignment is not None and journal.assignment.points_possible is not None:
+            entries = utils.get_journal_entries(journal)
+            score = utils.get_acquired_grade(entries, journal)
+            score /= float(utils.get_max_points(journal))
+            self.score = str(min(score, 1.0))
+        else:
+            self.score = None
+        self.result_data = result_data
 
     @classmethod
     def get_message_id_and_increment(cls):
-        """
-        Get the current count for message_id and increment this count.
-        """
+        """Get the current count for message_id and increment this count."""
         try:
             message_id_counter = Counter.objects.get(name='message_id')
         except Counter.DoesNotExist:
@@ -49,12 +47,7 @@ class GradePassBackRequest(object):
         return str(count)
 
     def create_xml(self):
-        """
-        Created the xml used as the body of the lti communication
-
-        returns xml as string
-        """
-
+        """Create the xml used as the body of the lti communication."""
         root = ET.Element(
             'imsx_POXEnvelopeRequest',
             xmlns='http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0'
@@ -70,7 +63,7 @@ class GradePassBackRequest(object):
         result_record = ET.SubElement(request, 'resultRecord')
         sourced_guid = ET.SubElement(result_record, 'sourcedGUID')
         sourced_id = ET.SubElement(sourced_guid, "sourcedId")
-        sourced_id.text = self.sourcedId
+        sourced_id.text = self.sourcedid
 
         if self.score is not None or self.result_data:
             result = ET.SubElement(result_record, 'result')
@@ -84,12 +77,12 @@ class GradePassBackRequest(object):
 
         if self.result_data:
             data = ET.SubElement(result, 'resultData')
-            if 'text' in self.result_data:
-                data_text = ET.SubElement(data, 'text')
-                data_text.text = self.result_data['text']
             if 'url' in self.result_data:
                 data_url = ET.SubElement(data, 'url')
                 data_url.text = self.result_data['url']
+            if 'text' in self.result_data:
+                data_text = ET.SubElement(data, 'text')
+                data_text.text = self.result_data['text']
             if 'launchUrl' in self.result_data:
                 launch_url = ET.SubElement(data, 'ltiLaunchUrl')
                 launch_url.text = self.result_data['launchUrl']
@@ -98,26 +91,30 @@ class GradePassBackRequest(object):
 
     def send_post_request(self):
         """
-        Send the grade replace post request
+        Send the grade replace post request.
 
         returns response dictionary with status of request
         """
-        consumer = oauth2.Consumer(
-            self.key, self.secret
-        )
-        client = oauth2.Client(consumer)
+        if self.url is not None and self.sourcedid is not None:
+            consumer = oauth2.Consumer(
+                self.key, self.secret
+            )
+            client = oauth2.Client(consumer)
 
-        _, content = client.request(
-            self.url,
-            'POST',
-            body=self.create_xml(),
-            headers={'Content-Type': 'application/xml'}
-        )
-        return self.parse_return_xml(content)
+            _, content = client.request(
+                self.url,
+                'POST',
+                body=self.create_xml(),
+                headers={'Content-Type': 'application/xml'}
+            )
+            return self.parse_return_xml(content)
+        return {'severity': 'status',
+                'code_mayor': 'No grade passback url set',
+                'description': 'not found'}
 
     def parse_return_xml(self, xml):
         """
-        Parses the xml returned by the lti instance.
+        Parse the xml returned by the lti instance.
 
         Arguments:
         xml -- response xml as byte literal
@@ -125,26 +122,65 @@ class GradePassBackRequest(object):
         returns response dictionary with status of request
         """
         root = ET.fromstring(xml)
-        namespace = root.tag.split('}')[0]+'}'
-        head = root.find(namespace+'imsx_POXHeader')
-        imsx_head_info = head.find(namespace+'imsx_POXResponseHeaderInfo')
-        imsx_status_info = imsx_head_info.find(namespace+'imsx_statusInfo')
-        imsx_code_mayor = imsx_status_info.find(namespace+'imsx_codeMajor')
+        namespace = root.tag.split('}')[0] + '}'
+        head = root.find(namespace + 'imsx_POXHeader')
+        imsx_head_info = head.find(namespace + 'imsx_POXResponseHeaderInfo')
+        imsx_status_info = imsx_head_info.find(namespace + 'imsx_statusInfo')
+        imsx_code_mayor = imsx_status_info.find(namespace + 'imsx_codeMajor')
         if imsx_code_mayor is not None:
             code_mayor = imsx_code_mayor.text
         else:
             code_mayor = None
 
-        imsx_severity = imsx_status_info.find(namespace+'imsx_severity')
+        imsx_severity = imsx_status_info.find(namespace + 'imsx_severity')
         if imsx_severity is not None:
             severity = imsx_severity.text
         else:
             severity = None
 
-        imsx_description = imsx_status_info.find(namespace+'imsx_description')
+        imsx_description = imsx_status_info.find(
+            namespace + 'imsx_description')
         if imsx_description is not None and imsx_description.text is not None:
             description = imsx_description.text
         else:
             description = 'not found'
 
-        return {'severity': severity, 'code_mayor': code_mayor, 'description': description}
+        return {'severity': severity, 'code_mayor': code_mayor,
+                'description': description}
+
+
+def needs_grading(journal, nID):
+    """Give the teacher a needs grading notification in lti instancie."""
+    secret = settings.LTI_SECRET
+    key = settings.LTI_KEY
+
+    jID = str(journal.pk)
+    aID = str(journal.assignment.pk)
+    cID = str(journal.assignment.courses.first().pk)
+
+    # TODO create custom link for submission
+    result_data = {'url': '{0}/Home/Course/{1}/Assignment/{2}/Journal/{3}?nID={4}'.format(settings.BASELINK,
+                                                                                          cID, aID, jID, nID)}
+
+    grade_request = GradePassBackRequest(key, secret, journal, result_data=result_data)
+    response = grade_request.send_post_request()
+
+    return response
+
+
+def replace_result(journal):
+    """Replace a grade on the LTI instance based on the request.
+
+    Arguments:
+        journal -- the journal of which the grade needs to be updated in lti
+
+    returns de lti reponses
+    """
+
+    secret = settings.LTI_SECRET
+    key = settings.LTI_KEY
+
+    grade_request = GradePassBackRequest(key, secret, journal, send_score=True)
+    response = grade_request.send_post_request()
+
+    return response

@@ -1,26 +1,55 @@
 <template>
-    <content-columns>
-        <h1 slot="main-content-column">{{ errorCode }}' : '{{ errorMessage }}</h1>
-        <img src="/static/oh_no/ohno.jpeg" slot="main-content-column">
-        <router-link tag="button" :to='"/"' slot="main-content-column">Back to landing page</router-link>
-    </content-columns>
+    <b-row class="error-content">
+        <b-col cols="12">
+            <h1 id="error-heading">
+                Error {{ code }}: <span id="error-message">{{ message }}</span>
+            </h1>
+        </b-col>
+        <b-col cols="12" v-if="description">
+            {{ description }}
+        </b-col>
+        <b-col cols="12">
+            <b-button :to="{name: 'Home'}">Home</b-button>
+            <!-- TODO: Add mailto or similar. -->
+            <b-button :to="{name: 'Home'}">Contact</b-button>
+        </b-col>
+    </b-row>
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
-
 export default {
     name: 'Error',
     props: {
-        errorMessage: {
-            required: true
+        code: {
+            default: 404
         },
-        errorCode: {
-            required: true
+        message: {
+            default: 'Not found'
+        },
+        description: {
+            type: String
         }
-    },
-    components: {
-        'content-columns': contentColumns
     }
 }
 </script>
+
+<style>
+.error-content {
+    padding: 40px;
+}
+
+#error-heading, #error-message {
+    border: none;
+    padding: 0px;
+}
+
+#error-heading {
+    color: var(--theme-dark-grey);
+    font-size: 80px;
+}
+
+#error-message {
+    color: var(--theme-medium-grey);
+    font-size: 60px;
+}
+</style>

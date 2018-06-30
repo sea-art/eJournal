@@ -7,26 +7,46 @@
 
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
             <b-link tag="b-button" :to="assignmentRoute(cID, a.aID, a.name, a.journal)">
-                <assignment-card :line1="a.name" :color="$root.colors[a.aID % $root.colors.length]">
-                    <progress-bar v-if="a.journal && a.journal.stats" :currentPoints="a.journal.stats.acquired_points" :totalPoints="a.journal.stats.total_points"></progress-bar>
+                <assignment-card :line1="a.name" :color="$root.colors[cID % $root.colors.length]">
+                    <progress-bar
+                        v-if="a.journal && a.journal.stats"
+                        :currentPoints="a.journal.stats.acquired_points"
+                        :totalPoints="a.journal.stats.total_points"/>
                 </assignment-card>
             </b-link>
         </div>
 
-        <main-card slot="main-content-column" v-if="$root.canSubmitAssignment()" class="hover" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
+        <main-card slot="main-content-column" v-if="$root.canAddAssignment()" class="hover add-button" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
-        <div v-for="d in deadlines" :key="d.dID" slot="right-content-column">
-            <b-link tag="b-button" :to="{name: 'Assignment', params: {cID: d.cIDs[0], aID: d.aIDs[0], dID: d.dID}}">
+
+        <b-card v-if="this.$root.canViewAssignmentParticipants()"
+                class="no-hover settings-card"
+                slot="right-content-column">
+                <b-row>
+                    <b-col lg="6" sm="6">
+                        <b-form-select v-model="selectedSortOption" :select-size="1">
+                           <option :value="null">Sort by ...</option>
+                           <option value="sortDate">Sort by date</option>
+                           <option value="sortNeedsMarking">Sort by markings needed</option>
+                        </b-form-select>
+                    </b-col>
+                </b-row>
+        </b-card>
+
+        <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
+            <b-link tag="b-button" :to="journalRoute(d.cID, d.aID, d.jID, d.name)">
                 <todo-card
-                    :line0="d.datetime"
-                    :line1="d.name"
-                    :line2="d.courseAbbrs.join(', ')"
-                    :color="$root.colors[d.cIDs[0] % $root.colors.length]">
+                    :date="d.deadline.Date"
+                    :hours="d.deadline.Hours"
+                    :minutes="d.deadline.Minutes"
+                    :name="d.name"
+                    :abbr="d.courseAbbr"
+                    :totalNeedsMarking="d.totalNeedsMarking"
+                    :color="$root.colors[d.cID % $root.colors.length]">
                 </todo-card>
             </b-link>
         </div>
-
         <b-modal
             slot="main-content-column"
             ref="createAssignmentRef"
@@ -48,6 +68,7 @@ import progressBar from '@/components/ProgressBar.vue'
 import assignment from '@/api/assignment.js'
 import mainCard from '@/components/MainCard.vue'
 import createAssignment from '@/components/CreateAssignment.vue'
+import courseApi from '@/api/course.js'
 
 export default {
     name: 'Course',
@@ -59,19 +80,13 @@ export default {
     },
     data () {
         return {
-            assignments: [],
+            assignments: null,
             cardColor: '',
             post: null,
             error: null,
-            // TODO real deadlines with API, can a deadline be bound > 1 course and assignment?
-            deadlines: [{
-                name: 'Individueel logboek',
-                cIDs: ['1', '2'],
-                aIDs: ['1', '3'],
-                courseAbbrs: ['WEDA', 'PALSIE8'],
-                aID: '1',
-                datetime: '8-6-2018 13:00'
-            }]
+            selectedSortOption: null,
+            deadlines: [],
+            needsMarkingStats: []
         }
     },
     components: {
@@ -85,14 +100,16 @@ export default {
     },
     created () {
         this.loadAssignments()
+
+        courseApi.get_upcoming_course_deadlines(this.cID)
+            .then(response => {
+                this.deadlines = response
+            })
     },
     methods: {
         loadAssignments () {
             assignment.get_course_assignments(this.cID)
-                .then(response => {
-                    this.assignments = response
-                })
-                .catch(_ => alert('Error while loading assignments'))
+                .then(response => { this.assignments = response })
         },
         showModal (ref) {
             this.$refs[ref].show()
@@ -110,7 +127,7 @@ export default {
             this.$refs[ref].hide()
         },
         customisePage () {
-            alert('Wishlist: Customise page')
+            this.$toasted.info('Wishlist: Customise page')
         },
         handleEdit () {
             this.$router.push({
@@ -121,7 +138,33 @@ export default {
             })
         },
         assignmentRoute (cID, aID, name, journal) {
-            if (this.$root.canViewAssignment()) {
+            if (this.$root.canViewAssignmentParticipants()) {
+                return {
+                    name: 'Assignment',
+                    params: {
+                        cID: cID,
+                        aID: aID,
+                        assignmentName: name
+                    }
+                }
+            } else {
+                var obj = {
+                    name: 'Journal',
+                    params: {
+                        cID: cID,
+                        aID: aID,
+                        assignmentName: name
+                    }
+                }
+                if (journal) {
+                    obj.params.jID = journal.jID
+                }
+
+                return obj
+            }
+        },
+        journalRoute (cID, aID, jID, name) {
+            if (this.$root.canViewAssignmentParticipants()) {
                 return {
                     name: 'Assignment',
                     params: {
@@ -136,10 +179,41 @@ export default {
                     params: {
                         cID: cID,
                         aID: aID,
-                        jID: journal.jID,
+                        jID: jID,
                         assignmentName: name
                     }
                 }
+            }
+        }
+    },
+    computed: {
+        computedDeadlines: function () {
+            var counter = 0
+
+            function compareDate (a, b) {
+                return new Date(a.deadline.Date) - new Date(b.deadline.Date)
+            }
+
+            function compareMarkingsNeeded (a, b) {
+                if (a.totalNeedsMarking > b.totalNeedsMarking) { return -1 }
+                if (a.totalNeedsMarking < b.totalNeedsMarking) { return 1 }
+                return 0
+            }
+
+            function filterTop () {
+                return (++counter <= 5)
+            }
+
+            function filterNoEntries (deadline) {
+                return deadline.totalNeedsMarking !== 0
+            }
+
+            if (this.selectedSortOption === 'sortDate') {
+                return this.deadlines.slice().sort(compareDate).filter(filterTop)
+            } else if (this.selectedSortOption === 'sortNeedsMarking') {
+                return this.deadlines.slice().sort(compareMarkingsNeeded).filter(filterTop).filter(filterNoEntries)
+            } else {
+                return this.deadlines.slice().sort(compareDate).filter(filterTop)
             }
         }
     }

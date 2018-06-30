@@ -1,7 +1,7 @@
 <template>
     <!-- TODO: Maak formats! -->
     <div>
-        <b-form @submit="onSubmit" @reset="onReset">
+        <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.assignmentName" placeholder="Assignment name"/>
             <b-textarea class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.assignmentDescription" rows="6" placeholder="Description of the assignment"/>
             <b-button class="float-right" type="reset">Reset</b-button>
@@ -15,12 +15,16 @@ import ContentSingleColumn from '@/components/ContentSingleColumn.vue'
 import assignmentApi from '@/api/assignment.js'
 
 export default {
-    name: 'AssignmentCreation',
+    name: 'CreateAssignment',
+    props: ['lti', 'page'],
     data () {
         return {
             form: {
                 assignmentName: '',
-                assignmentDescription: ''
+                assignmentDescription: '',
+                courseID: '',
+                ltiAssignID: null,
+                pointsPossible: null
             }
         }
     },
@@ -29,11 +33,18 @@ export default {
     },
     methods: {
         onSubmit () {
-            assignmentApi.create_new_assignment(this.form.assignmentName, this.form.assignmentDescription, this.$route.params.cID)
-                .then(_ => { this.$emit('handleAction') })
+            assignmentApi.create_new_assignment(this.form.assignmentName,
+                this.form.assignmentDescription, this.form.courseID,
+                this.form.ltiAssignID, this.form.pointsPossible)
+                .then(response => {
+                    this.$emit('handleAction', response.assignment.aID)
+                    this.onReset(undefined)
+                })
         },
         onReset (evt) {
-            evt.preventDefault()
+            if (evt !== undefined) {
+                evt.preventDefault()
+            }
             /* Reset our form values */
             this.form.assignmentName = ''
             this.form.assignmentDescription = ''
@@ -41,6 +52,16 @@ export default {
             /* Trick to reset/clear native browser form validation state */
             this.show = false
             this.$nextTick(() => { this.show = true })
+        }
+    },
+    mounted () {
+        if (this.lti !== undefined) {
+            this.form.assignmentName = this.lti.ltiAssignName
+            this.form.ltiAssignID = this.lti.ltiAssignID
+            this.form.pointsPossible = this.lti.ltiPointsPossible
+            this.form.courseID = this.page.cID
+        } else {
+            this.form.courseID = this.$route.params.cID
         }
     }
 }

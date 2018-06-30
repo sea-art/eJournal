@@ -1,6 +1,6 @@
 <template>
-    <journal-non-student v-if="$root.canViewAssignment()" :cID="cID" :aID="aID" :jID="jID"/>
-    <journal-student v-else :cID="cID" :aID="aID" :jID="jID"/>
+    <journal-student v-if="$root.canEditJournal()" :cID="cID" :aID="aID" :jID="jID"/>
+    <journal-non-student v-else-if="!$root.canEditJournal() && $root.canEditJournal() != null" :cID="cID" :aID="aID" :jID="jID"/>
 </template>
 
 <script>
@@ -31,7 +31,7 @@ export default {
             return this.windowHeight < 922
         },
         customisePage () {
-            alert('Wishlist: Customise page')
+            this.$toasted.info('Wishlist: Customise page')
         }
     },
     mounted () {
@@ -54,4 +54,63 @@ export default {
 </script>
 
 <style>
+.left-content-journal {
+    padding: 0px 30px !important;
+    flex: 0 0 auto;
+}
+
+.main-content-journal {
+    padding-top: 40px !important;
+    background-color: var(--theme-medium-grey);
+    flex: 1 1 auto;
+    overflow-x: hidden;
+}
+
+.right-content-journal {
+    flex: 0 0 auto;
+    padding-top: 30px !important;
+    padding-left: 30px !important;
+    padding-right: 30px !important;
+}
+
+@media (min-width: 1200px) {
+    .outer-container {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .left-content-journal {
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .main-content-journal, .right-content-journal {
+        height: 100%;
+        overflow-y: scroll;
+    }
+}
+
+@media (max-width: 1200px) {
+    .right-content-journal {
+        padding: 30px !important;
+    }
+
+    .main-content-journal {
+        padding: 30px !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .left-content-journal {
+        padding: 0px !important;
+    }
+
+    .right-content-journal {
+        padding: 30px 0px !important;
+    }
+
+    .main-content-journal {
+        padding: 30px 0px !important;
+    }
+}
 </style>

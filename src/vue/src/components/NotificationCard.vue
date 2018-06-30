@@ -1,7 +1,9 @@
 <template>
     <b-container no-gutters>
         <b-row>
-            <h3 class="profile-title">Email notification</h3><br/>
+            <b-col>
+                <h2 class="profile-title">Email notification</h2><br/>
+            </b-col>
         </b-row>
         <b-row>
             <b-col class="profile-col" cols="4">

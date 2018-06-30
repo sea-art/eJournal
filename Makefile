@@ -1,11 +1,21 @@
+default:
+	make setup
+	make test
+
+superuser:
+	bash -c 'source ./venv/bin/activate && python3.6 src/django/manage.py createsuperuser && deactivate'
 
 test-back:
-	pep8 ./src/django --max-line-length=120 --exclude='./src/django/VLE/migrations'
+	pep8 ./src/django --max-line-length=120 --exclude='./src/django/VLE/migrations','./src/django/VLE/settings*'
+	make test-flake
 	bash -c "source ./venv/bin/activate && cd ./src/django/ && python3.6 manage.py test && deactivate"
 
 test-front:
 	npm run lint --prefix ./src/vue
 	npm run test --prefix ./src/vue
+
+test-flake:
+	bash -c 'source ./venv/bin/activate && flake8 --max-line-length=120 src/django --exclude="src/django/VLE/migrations/*","src/django/VLE/settings/*","src/django/VLE/settings.py" && deactivate'
 
 test: test-back test-front
 
@@ -44,10 +54,12 @@ fixnpm:
 	npm config set strict-ssl true
 	sudo n stable
 
-setup: clean
+setup:
 	#Install apt dependencies and ppa's.
 	(sudo apt-cache show python3.6 | grep "Package: python3.6") || (sudo add-apt-repository ppa:deadsnakes/ppa -y; sudo apt update) || echo "0"
 	sudo apt install npm nodejs git-flow python3.6 python3-pip pep8 sqlite3 -y
+
+	make clean
 
 	#Install dependencies for python (django, etc).
 	sudo pip3 install virtualenv
@@ -61,3 +73,7 @@ setup: clean
 	make fill-db
 
 	@echo "DONE!"
+
+deploy:
+	sudo chmod +x ./deploy.sh
+	./deploy.sh init
