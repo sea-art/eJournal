@@ -20,6 +20,7 @@ import VLE.lti_grade_passback as lti_grade
 import VLE.views.responses as responses
 import VLE.permissions as permissions
 
+import re
 import jwt
 import json
 from django.conf import settings
@@ -280,6 +281,13 @@ def create_lti_user(request):
 
     if user_id is not None and User.objects.filter(lti_id=user_id).exists():
         return responses.bad_request('User with this lti id already exists.')
+
+    if len(password) < 8:
+        return responses.bad_request('Password needs to contain at least 8 characters.')
+    if password == password.lower():
+        return responses.bad_request('Password needs to contain at least 1 capital letter.')
+    if re.match(r'^\w+$', password):
+        return responses.bad_request('Password needs to contain a special character.')
 
     try:
         validate_email(email)
