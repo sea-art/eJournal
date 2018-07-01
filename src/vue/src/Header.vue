@@ -35,14 +35,8 @@
         <b-navbar-nav class="ml-auto">
             <b-nav-dropdown right no-caret id="nav-dropdown-options" ref="loginDropdown">
                 <img id="nav-profile-image" slot="button-content" :src="profileImg">
-
-                <b-form @submit.prevent="handleLogin()" class="login-form-header">
-                    <b-input class="multi-form" v-model="username" required placeholder="Username"/>
-                    <b-input class="multi-form" type="password" @keyup.enter="handleLogin()" v-model="password" required placeholder="Password"/>
-                    <b-button class="multi-form" type="submit">Login</b-button><br/>
-                </b-form>
                 <b-button class="login-form-header" :to="{ name: 'Register' }">Sign Up!</b-button>
-
+                <b-button class="login-form-header" :to="{ name: 'Login' }">Login</b-button>
             </b-nav-dropdown>
         </b-navbar-nav>
     </b-navbar>

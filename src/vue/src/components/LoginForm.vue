@@ -3,8 +3,8 @@
         <b-form @submit.prevent="handleLogin()">
             <b-input class="multi-form" v-model="username" required placeholder="Username"/>
             <b-input class="multi-form" type="password" @keyup.enter="handleLogin()" v-model="password" required placeholder="Password"/>
-            <b-button class="add-button" type="submit">Login</b-button>
-            <b-button class="float-right">Forgot password?</b-button>
+            <b-button class="float-right">Forgot password</b-button>
+            <b-button class="add-button float-right" type="submit">Login</b-button>
         </b-form>
     </b-card>
 </template>
