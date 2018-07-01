@@ -91,9 +91,9 @@ In the file `settings/database.conf` you will need to configure the database. By
 - `DATABASE_TYPE`: the backend of the database. Can be one of the backends [specified by django](https://docs.djangoproject.com/en/2.0/ref/settings/#std:setting-DATABASE-ENGINE) (defaults to postgresql).
 - `DATABASE_NAME`: the name of the database (defaults to ejournal).
 - `DATABASE_HOST`: the URL of the server running the database (defaults to localhost).
-- `DATABASE_PORT`: the port on which the database is accessible through `$DATABASE_HOST`.
+- `DATABASE_PORT`: the port on which the database is accessible through `$DATABASE_HOST` (default PostgreSQL port is 5432).
 - `DATABASE_USER`: the user for the server to create as database owner. Note that this user will gain all rights for the table set in `$DATABASE_NAME`, as this is required for the server to be able to freely manipulate the database.
-- `DATABASE_PASSWORD`: the password that should be set for the `$DATABASE_USER`.
+- `DATABASE_PASSWORD`: the password that is set for the `$DATABASE_USER`.
 
 In the file `settings/secrets.conf` you will be required to generate new secret keys for django and LTI. Neither of these fields should be the same, and it is suggested you use a random string generator to generate the secret.
 Use a sufficiently long and complex secret (the default by django is 50 characters).
@@ -139,10 +139,10 @@ Xavier van Dommelen: Design, Front-end & EDAG
 Engel Hamer: Design, Front-end  
 Hendrik Huang: Design, Front-end & EDAG  
 Maarten van Keulen: Design, Front-end  
-Zi Long Zhu: Database Design, Back-end, Test Implementations  
-Joey Lai: Front-end, Back-end, Test Implementations  
-Teun Mathijssen: Front-end, Back-end  
-Lars van Hijfte: Project Structure, Back-end, Project Deployment, Assistant Git Master  
+Zi Long Zhu: Database Design, Back-end, Testing  
+Joey Lai: Front-end, Back-end, Testing  
+Teun Mathijssen: Back-end, Database Specialist, Testing  
+Lars van Hijfte: Project Structure, Back-end, Project Deployment, Server Master  
 Rick Watertor: Project Structure, Back-end, Project Deployment, Git Master  
 Okke van Eck: Front-end & LTI  
 Dennis Wind: LTI Specialist  
