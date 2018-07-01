@@ -55,16 +55,8 @@ export default {
                             })
                         })
                 })
-                .catch(_ => {
-                    this.$router.push({
-                        name: 'ErrorPage',
-                        params: {
-                            code: '500',
-                            message: 'Internal Server Error',
-                            description: `Could not create user. Please contact
-                                          your system administrator.`
-                        }
-                    })
+                .catch(error => {
+                    this.$toasted.error(error.response.data.result + ': ' + error.response.data.description)
                 })
         },
         onReset (evt) {

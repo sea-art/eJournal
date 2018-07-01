@@ -641,7 +641,10 @@ def update_user_data(request):
         return responses.unauthorized()
 
     if 'username' in request.data:
-        user.username = request.data['username']
+        username = request.data['username']
+        if User.objects.filter(username=username).exists():
+            return responses.bad_request('User with this username already exists.')
+        user.username = username
     if 'picture' in request.data:
         user.profile_picture = request.data['picture']
     if 'first_name' in request.data:
@@ -687,13 +690,20 @@ def update_lti_id_to_user(request):
     if last_name is not None:
         user.last_name = last_name
     if email is not None:
+        if User.objects.filter(email=email).exists():
+            return responses.bad_request('User with this email already exists.')
+
         user.email = email
     if user_image is not None:
         user.profile_picture = user_image
     if is_teacher:
         user.is_teacher = is_teacher
 
+    if User.objects.filter(lti_id=user_id).exists():
+        return responses.bad_request('User with this lti id already exists.')
+
     user.lti_id = user_id
+
     user.save()
 
     return responses.success(payload={'user': serialize.user_to_dict(user)})
