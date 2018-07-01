@@ -4,7 +4,7 @@ source settings/deploy.conf
 source settings/secrets.conf
 source settings/database.conf
 
-source ${TARGET}/venv/bin/activate
+source ${TARGET}venv/bin/activate
 pip install psycopg2-binary
 deactivate
 

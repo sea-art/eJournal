@@ -54,7 +54,7 @@
                 </div>
                 <div v-else>
                     <!-- Overview mode. -->
-                    <b-card class="card main-card no-hover" :class="this.$root.getBorderClass($route.params.cID)">
+                    <b-card class="card main-card no-hover" :class="this.$root.getBorderClass(cID)">
                         <b-row>
                             <b-col id="main-card-left-column" cols="9" lg-cols="12">
                                 <h2>{{entryNode.entry.template.name}}</h2>
@@ -109,7 +109,7 @@
 import commentCard from '@/components/CommentCard.vue'
 
 export default {
-    props: ['entryNode'],
+    props: ['entryNode', 'cID'],
     data () {
         return {
             saveEditMode: 'Edit',

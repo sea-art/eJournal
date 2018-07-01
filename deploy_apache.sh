@@ -7,18 +7,40 @@ source settings/database.conf
 sudo /etc/init.d/apache2 stop
 
 sudo echo "WSGIPythonHome ${TARGET}/venv
-WSGIPythonPath ${TARGET}/django/VLE" > "${APACHE_DIR}/conf-available/wsgi.conf"
-    sudo a2enconf wsgi
+WSGIPythonPath ${TARGET}/django/VLE
+WSGIPassAuthorization On" > "${APACHE_DIR}/conf-available/wsgi.conf"
+
+sudo a2enconf wsgi
+sudo a2enmod rewrite
 
 sudo echo "
 <VirtualHost *:${PORT}>
-    Alias ${HOOKPOINT}index.html '${TARGET}index.html'
-    Alias ${HOOKPOINT}static/ '${TARGET}static/'
+    Alias ${HOOKPOINT} '${TARGET}'
     ServerName www.${SERVERNAME}
     ServerAlias ${SERVERNAME}
 
     <Directory ${TARGET}static>
         Require all granted
+    </Directory>
+
+    <Directory ${TARGET}>
+        Options -Indexes
+        <IfModule mod_rewrite.c>
+            RewriteEngine On
+            RewriteBase ${HOOKPOINT}
+            RewriteRule ^index\.html$ - [L]
+            RewriteCond %{REQUEST_FILENAME} !-f
+            RewriteCond %{REQUEST_FILENAME} !-d
+            RewriteRule . ${TARGET}index.html [L]
+        </IfModule>
+    </Directory>
+
+    <Directory /var/www/ejournal/django/>
+        Deny from all
+    </Directory>
+
+    <Directory /var/www/ejournal/venv/>
+        Deny from all
     </Directory>
 </VirtualHost>
 " > "${APACHE_DIR}/sites-available/ejournal.conf"

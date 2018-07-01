@@ -94,6 +94,11 @@ def create_new_assignment(request):
                                          author=request.user, lti_id=lti_id,
                                          points_possible=points_possible)
 
+    try:
+        course = Course.objects.get(pk=cID)
+    except Course.DoesNotExist:
+        return responses.not_found('Course does not exist.')
+
     for user in course.users.all():
         role = permissions.get_role(user, cID)
         if role.can_edit_journal:

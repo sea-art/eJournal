@@ -4,7 +4,6 @@ source settings/deploy.conf
 source settings/secrets.conf
 source settings/database.conf
 
-sudo rsync -a ./venv ${TARGET}
 sudo rsync -a --exclude='VLE.db' --exclude='settings/development.py' --exclude='test/' --exclude="__pycache__" --exclude="migrations/" ./src/django ${TARGET}
 
 sudo sed -i "s@{{DIR}}@${TARGET}/django@g" ${TARGET}/django/VLE/wsgi.py
@@ -28,10 +27,10 @@ mkdir ${TARGET}django/VLE/migrations || sudo mkdir ${TARGET}django/VLE/migration
 touch ${TARGET}django/VLE/migrations/__init__.py || sudo touch ${TARGET}django/VLE/migrations/__init__.py
 
 source ${TARGET}venv/bin/activate
-python ${TARGET}django/manage.py makemigrations
+python ${TARGET}django/manage.py makemigrations || sudo sh -c "${TARGET}venv/bin/activate && python ${TARGET}django/manage.py makemigrations"
 python ${TARGET}django/manage.py migrate
 python ${TARGET}django/manage.py collectstatic --noinput
 python ${TARGET}django/manage.py check --deploy
 deactivate
 
-rsync -a ${TARGET}django/static ${TARGET}static
+sudo rsync -a ${TARGET}django/static ${TARGET}static

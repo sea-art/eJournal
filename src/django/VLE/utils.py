@@ -112,7 +112,7 @@ def publish_all_journal_grades(journal, published):
 # END grading functions
 
 
-def update_templates(result_list, templates):
+def update_templates(result_list, templates, template_map):
     """Create new templates for those which have changed, and removes the old one.
 
     Entries have to keep their original template, so that the content
@@ -123,7 +123,11 @@ def update_templates(result_list, templates):
     for template_field in templates:
         if 'updated' in template_field and template_field['updated']:
             # Create the new template and add it to the format.
-            new_template = parse_template(template_field)
+            if 'tID' in template_field and template_field['tID'] < 0 and template_field['tID'] in template_map:
+                new_template = template_map[template_field['tID']]
+            else:
+                new_template = parse_template(template_field)
+
             result_list.add(new_template)
 
             # Update presets to use the new template.
@@ -180,7 +184,7 @@ def update_journals(journals, preset, created):
             journal.node_set.filter(preset=preset).update(type=preset.type)
 
 
-def update_presets(assignment, presets):
+def update_presets(assignment, presets, template_map):
     """Update preset nodes in the assignment according to the passed list.
 
     Arguments:
@@ -208,8 +212,15 @@ def update_presets(assignment, presets):
         elif preset_node.type == Node.ENTRYDEADLINE:
             template_field = preset['template']
 
-            if 'tID' in template_field and template_field['tID'] > 0:
-                preset_node.forced_template = EntryTemplate.objects.get(pk=template_field['tID'])
+            if 'tID' in template_field:
+                if template_field['tID'] > 0:
+                    preset_node.forced_template = EntryTemplate.objects.get(pk=template_field['tID'])
+                else:
+                    if template_field['tID'] in template_map:
+                        preset_node.forced_template = template_map[template_field['tID']]
+                    else:
+                        preset_node.forced_template = parse_template(template_field)
+                        template_map[template_field['tID']] = preset_node.forced_template
             else:
                 preset_node.forced_template = parse_template(template_field)
 

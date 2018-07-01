@@ -213,6 +213,14 @@ def update_course_with_student(request):
     role = Role.objects.get(name="Student", course=course)
     participation = factory.make_participation(q_user, course, role)
 
+    assignments = course.assignment_set.all()
+
+    role = permissions.get_role(q_user, cID)
+    for assignment in assignments:
+        if role.can_edit_journal:
+            if not Journal.objects.filter(assignment=assignment, user=q_user).exists():
+                factory.make_journal(assignment, q_user)
+
     participation.save()
     return responses.success(message='Succesfully added student to course')
 
@@ -372,9 +380,10 @@ def update_format(request):
 
     format.max_points = max_points
     format.save()
-    utils.update_presets(assignment, presets)
-    utils.update_templates(format.available_templates, templates)
-    utils.update_templates(format.unused_templates, unused_templates)
+    template_map = {}
+    utils.update_presets(assignment, presets, template_map)
+    utils.update_templates(format.available_templates, templates, template_map)
+    utils.update_templates(format.unused_templates, unused_templates, template_map)
 
     # Swap templates from lists if they occur in the other:
     # If a template was previously unused, but is now used, swap it to available templates, and vice versa.
