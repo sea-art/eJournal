@@ -141,7 +141,7 @@ Hendrik Huang: Design, Front-end & EDAG
 Maarten van Keulen: Design, Front-end  
 Zi Long Zhu: Database Design, Back-end, Test Implementations  
 Joey Lai: Front-end, Back-end, Test Implementations  
-Teun Mathijssen: Front-end, Back-end  
+Teun Mathijssen: Back-end, Database specialist, Testing
 Lars van Hijfte: Project Structure, Back-end, Project Deployment, Assistant Git Master  
 Rick Watertor: Project Structure, Back-end, Project Deployment, Git Master  
 Okke van Eck: Front-end & LTI  
