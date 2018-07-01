@@ -7,6 +7,8 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import JSONParser
 
 from django.utils.timezone import now
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 import VLE.serializers as serialize
 import VLE.factory as factory
@@ -269,6 +271,20 @@ def create_lti_user(request):
         first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
     except KeyError:
         return responses.keyerror('username', 'password')
+
+    if User.objects.filter(email=email).exists():
+        return responses.bad_request('User with this email address already exists.')
+
+    if User.objects.filter(username=username).exists():
+        return responses.bad_request('User with this username already exists.')
+
+    if user_id is not None and User.objects.filter(lti_id=user_id).exists():
+        return responses.bad_request('User with this lti id already exists.')
+
+    try:
+        validate_email(email)
+    except ValidationError:
+        return responses.bad_request('Invalid email address.')
 
     user = factory.make_user(username, password, email=email, lti_id=user_id, is_teacher=is_teacher,
                              first_name=first_name, last_name=last_name, profile_picture=user_image)
