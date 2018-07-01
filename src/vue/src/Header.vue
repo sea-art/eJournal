@@ -40,8 +40,8 @@
                     <b-input class="multi-form" v-model="username" required placeholder="Username"/>
                     <b-input class="multi-form" type="password" @keyup.enter="handleLogin()" v-model="password" required placeholder="Password"/>
                     <b-button class="multi-form" type="submit">Login</b-button><br/>
-                    <b-button>Forgot password?</b-button>
                 </b-form>
+                <b-button class="login-form-header" :to="{ name: 'Register' }">Sign Up!</b-button>
 
             </b-nav-dropdown>
         </b-navbar-nav>
