@@ -39,21 +39,8 @@ export default {
         checkInput () {
             var correctInput = true
 
-            /* Validate the password. */
-            var re = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/
-            if (!re.test(String(this.form.password))) {
-                this.$toasted.error('The given password does not match the criteria!')
-                correctInput = false
-            }
             if (this.form.password !== this.form.password2) {
                 this.$toasted.error('The given passwords do not match!')
-                correctInput = false
-            }
-
-            /* Validate the email. */
-            re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-            if (!re.test(String(this.form.email).toLowerCase())) {
-                this.$toasted.error('The given email is incorrect!')
                 correctInput = false
             }
 
