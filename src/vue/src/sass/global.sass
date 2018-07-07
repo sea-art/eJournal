@@ -1,0 +1,52 @@
+@import '~sass/modules/colors.sass'
+
+@import '~sass/partials/buttons.sass'
+@import '~sass/partials/cards.sass'
+@import '~sass/partials/forms.sass'
+@import '~sass/partials/headers.sass'
+@import '~sass/partials/icons.sass'
+@import '~sass/partials/images.sass'
+@import '~sass/partials/inputs.sass'
+@import '~sass/partials/paragraph.sass'
+@import '~sass/partials/select.sass'
+
+@import '~sass/vendor/fonts.sass'
+
+// TODO How should this be correctly placed?
+*
+    border-radius: 0px !important
+    text-decoration: none !important
+    color: $theme-dark-blue
+    text-align: left
+
+.fit-height
+    flex: 1 1 auto
+    display: flex
+
+.multi-form
+    margin-bottom: 10px !important
+
+.hover
+    cursor: pointer
+
+.no-hover:hover
+    background-color: $theme-light-grey !important
+
+.showEnters
+    white-space: pre-wrap
+
+.full-width
+    width: 100%
+
+.error
+    background-color: $theme-negative-selected !important
+
+.success
+    background-color: $theme-positive-selected !important
+
+.warning
+    background-color: $theme-change-selected !important
+
+.error, .success, .warning
+    font-family: 'Roboto Condensed', sans-serif !important
+    font-size: 1.1em !important

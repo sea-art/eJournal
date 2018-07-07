@@ -36,6 +36,7 @@ module.exports = {
     alias: {
       'vue$': 'vue/dist/vue.esm.js',
       '@': resolve('src'),
+      'sass': path.resolve(__dirname, '../src/sass')
     }
   },
   module: {
@@ -46,7 +47,7 @@ module.exports = {
         loader: 'vue-loader',
 	options: {
             'scss': 'vue-style-loader!css-loader!sass-loader',
-            'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax'
+            'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax=1'
         }
         //options: vueLoaderConfig
       },
