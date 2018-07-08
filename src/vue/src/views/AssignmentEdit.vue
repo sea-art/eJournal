@@ -91,8 +91,7 @@ export default {
 }
 </script>
 
-<style>
-.descriptionTextArea {
-    margin-bottom: 10px;
-}
+<style lang="sass">
+.descriptionTextArea
+    margin-bottom: 10px
 </style>

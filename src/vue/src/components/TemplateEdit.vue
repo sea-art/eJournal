@@ -80,58 +80,47 @@ export default {
 }
 </script>
 
-<style>
-#templateName {
-    font-weight: bold;
-    font-size: 35px;
-    font-family: 'Roboto', sans-serif;
-    color: var(--theme-dark-blue);
-}
+<style lang="sass">
+@import '~sass/modules/colors.sass'
 
-.field-card {
-    background-color: var(--theme-medium-grey);
-}
+#templateName
+    font-weight: bold
+    font-size: 35px
+    font-family: 'Roboto', sans-serif
+    color: $theme-dark-blue
 
-.sortable-chosen .card {
-    background-color: var(--theme-dark-grey)
-}
+.field-card
+    background-color: $theme-medium-grey
 
-.sortable-ghost {
-    visibility: hidden;
-}
+.sortable-chosen .card
+    background-color: $theme-dark-grey
 
-.sortable-drag .card {
-    visibility: visible;
-}
+.sortable-ghost
+    visibility: hidden
 
-.icon-box {
-    text-align: center;
-}
+.sortable-drag .card
+    visibility: visible
 
-.handle {
-    text-align: center;
-}
+.icon-box
+    text-align: center
 
-.move-icon {
-    fill: var(--theme-dark-grey)
-}
+.handle
+    text-align: center
 
-.field-card:hover .move-icon, .field-card:hover .trash-icon {
-    fill: var(--theme-dark-blue) !important;
-}
+.move-icon
+    fill: $theme-dark-grey
 
-.handle:hover .move-icon {
-    cursor: grab;
-    fill: var(--theme-blue) !important;
-}
+.field-card:hover .move-icon, .field-card:hover .trash-icon
+    fill: $theme-dark-blue !important
 
-.field-card:hover .trash-icon:hover {
-    fill: var(--theme-negative-selected) !important;
-}
+.handle:hover .move-icon
+    cursor: grab
+    fill: $theme-blue !important
 
-@media(max-width:768px){
-    .icon-box {
-        margin-top: 10px;
-    }
-}
+.field-card:hover .trash-icon:hover
+    fill: $theme-negative-selected !important
+
+@media(max-width:768px)
+    .icon-box
+        margin-top: 10px
 </style>

@@ -236,17 +236,14 @@ export default {
 }
 </script>
 
-<style>
-.title-container {
-    padding-right: 10px;
-    padding-bottom: 12px;
-    margin-bottom: -4px;
-}
+<style lang="sass">
+.title-container
+    padding-right: 10px
+    padding-bottom: 12px
+    margin-bottom: -4px
 
-@media(max-width:992px) {
-    .title-container  {
-        padding-top: 12px !important;
-        margin-top: -4px !important;
-    }
-}
+@media(max-width:992px)
+    .title-container
+        padding-top: 12px !important
+        margin-top: -4px !important
 </style>

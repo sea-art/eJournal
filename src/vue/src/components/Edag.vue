@@ -59,82 +59,67 @@ export default {
 }
 </script>
 
-<style>
-#edag-inner::-webkit-scrollbar {
-    display: none;
-}
+<style lang="sass">
+@import '~sass/modules/colors.sass'
 
-#edag-outer {
-    overflow: hidden;
-    height: 100%;
-}
+#edag-inner::-webkit-scrollbar
+    display: none
 
-#edag-inner {
-    height: 100%;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    padding-right: 40px;
-    margin-right: -20px;
-}
+#edag-outer
+    overflow: hidden
+    height: 100%
 
-@media (min-width: 1200px) {
-    .edag-container {
-        height: 100%;
-    }
+#edag-inner
+    height: 100%
+    overflow-y: scroll
+    overflow-x: hidden
+    padding-right: 40px
+    margin-right: -20px
 
-    #edag-outer[style] {
-        display: block !important;
-    }
-}
+@media (min-width: 1200px)
+    .edag-container
+        height: 100%
 
-@media (max-width: 1200px) {
+    #edag-outer[style]
+        display: block !important
+
+@media (max-width: 1200px)
     /* Handles changing of the button text. */
-    [aria-expanded="false"] .edag-outer__icon--open {
-        display: block;
-        text-align: center;
-    }
+    [aria-expanded="false"] .edag-outer__icon--open
+        display: block
+        text-align: center
 
-    [aria-expanded="false"] .edag-outer__icon--close {
-        display: none;
-        text-align: center;
-    }
+    [aria-expanded="false"] .edag-outer__icon--close
+        display: none
+        text-align: center
 
-    [aria-expanded="true"] .edag-outer__icon--open {
-        display: none;
-        text-align: center;
-    }
+    [aria-expanded="true"] .edag-outer__icon--open
+        display: none
+        text-align: center
 
-    [aria-expanded="true"] .edag-outer__icon--close {
-        display: block;
-        text-align: center;
-    }
+    [aria-expanded="true"] .edag-outer__icon--close
+        display: block
+        text-align: center
 
-    .edag-toggle {
-        margin-top: 10px;
-        border: 0px;
-        background-color: var(--theme-blue) !important;
-    }
+    .edag-toggle
+        margin-top: 10px
+        border: 0px
+        background-color: $theme-blue !important
 
-    .edag-toggle:hover {
-        background-color: var(--theme-blue) !important;
-    }
+    .edag-toggle:hover
+        background-color: $theme-blue !important
 
-    .edag-toggle:hover {
+    .edag-toggle:hover
         cursor: pointer
-    }
 
-    .edag-toggle .collapse-icon {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-    }
+    .edag-toggle .collapse-icon
+        display: block
+        margin-left: auto
+        margin-right: auto
 
-    .edag-container {
-        text-align: center;
-    }
+    .edag-container
+        text-align: center
 
-    #edag-outer, #edag-inner {
-        max-height: 50vh;
-    }
-}
+    #edag-outer, #edag-inner
+        max-height: 50vh
 </style>

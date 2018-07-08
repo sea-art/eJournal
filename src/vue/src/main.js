@@ -5,8 +5,6 @@ import BootstrapVue from 'bootstrap-vue'
 import '../node_modules/bootstrap/dist/css/bootstrap.css'
 import '../node_modules/bootstrap-vue/dist/bootstrap-vue.css'
 
-import 'sass/global.sass'
-
 import 'vue-awesome/icons/eye'
 import 'vue-awesome/icons/caret-up'
 import 'vue-awesome/icons/caret-down'

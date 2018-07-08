@@ -380,64 +380,52 @@ export default {
 }
 </script>
 
-<style>
-.left-content-format-edit {
-    padding: 0px 30px !important;
-    flex: 0 0 auto;
-}
+<style lang="sass">
+@import '~sass/modules/colors.sass'
 
-.main-content-format-edit {
-    padding-top: 40px !important;
-    background-color: var(--theme-medium-grey);
-    flex: 1 1 auto;
-    overflow-x: hidden;
-}
+.left-content-format-edit
+    padding: 0px 30px !important
+    flex: 0 0 auto
 
-.right-content-format-edit {
-    flex: 0 0 auto;
-    padding-top: 30px !important;
-    padding-left: 30px !important;
-    padding-right: 30px !important;
-}
+.main-content-format-edit
+    padding-top: 40px !important
+    background-color: $theme-medium-grey
+    flex: 1 1 auto
+    overflow-x: hidden
 
-@media (min-width: 1200px) {
-    .outer-container {
-        height: 100%;
-        overflow: hidden;
-    }
+.right-content-format-edit
+    flex: 0 0 auto
+    padding-top: 30px !important
+    padding-left: 30px !important
+    padding-right: 30px !important
 
-    .left-content-format-edit {
-        height: 100%;
-        overflow: hidden;
-    }
+@media (min-width: 1200px)
+    .outer-container
+        height: 100%
+        overflow: hidden
 
-    .main-content-format-edit, .right-content-format-edit {
-        height: 100%;
-        overflow-y: scroll;
-    }
-}
+    .left-content-format-edit
+        height: 100%
+        overflow: hidden
 
-@media (max-width: 1200px) {
-    .right-content-format-edit {
-        padding: 30px !important;
-    }
+    .main-content-format-edit, .right-content-format-edit
+        height: 100%
+        overflow-y: scroll
 
-    .main-content-format-edit {
-        padding: 30px !important;
-    }
-}
+@media (max-width: 1200px)
+    .right-content-format-edit
+        padding: 30px !important
 
-@media (max-width: 576px) {
-    .left-content-format-edit {
-        padding: 0px !important;
-    }
+    .main-content-format-edit
+        padding: 30px !important
 
-    .right-content-format-edit {
-        padding: 30px 0px !important;
-    }
+@media (max-width: 576px)
+    .left-content-format-edit
+        padding: 0px !important
 
-    .main-content-format-edit {
-        padding: 30px 0px !important;
-    }
-}
+    .right-content-format-edit
+        padding: 30px 0px !important
+
+    .main-content-format-edit
+        padding: 30px 0px !important
 </style>

@@ -35,10 +35,9 @@ export default {
 }
 </script>
 
-<style>
-.template-todo-card-switch {
-    float: right;
-    text-align: center;
-    margin-top: 2px;
-}
+<style lang="sass">
+.template-todo-card-switch
+    float: right
+    text-align: center
+    margin-top: 2px
 </style>

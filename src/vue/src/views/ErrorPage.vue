@@ -33,23 +33,21 @@ export default {
 }
 </script>
 
-<style>
-.error-content {
-    padding: 40px;
-}
+<style lang="sass">
+@import '~sass/modules/colors.sass'
 
-#error-heading, #error-message {
-    border: none;
-    padding: 0px;
-}
+.error-content
+    padding: 40px
 
-#error-heading {
-    color: var(--theme-dark-grey);
-    font-size: 80px;
-}
+#error-heading, #error-message
+    border: none
+    padding: 0px
 
-#error-message {
-    color: var(--theme-medium-grey);
-    font-size: 60px;
-}
+#error-heading
+    color: $theme-dark-grey
+    font-size: 80px
+
+#error-message
+    color: $theme-medium-grey
+    font-size: 60px
 </style>

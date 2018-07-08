@@ -174,37 +174,32 @@ export default {
 }
 </script>
 
-<style>
-#h1-current-page-breadcrumb {
-    margin-bottom: 0px !important;
-}
+<style lang="sass">
+@import '~sass/modules/colors.sass'
+
+#h1-current-page-breadcrumb
+    margin-bottom: 0px !important
 
 /* Most paddings/margins relate to full responive build, please take care.*/
-.bread-crumb {
-    padding: 0px;
-    background-color: var(--theme-medium-grey);
-    margin-bottom: 0px;
-}
+.bread-crumb
+    padding: 0px
+    background-color: $theme-medium-grey
+    margin-bottom: 0px
 
-.bread-crumb-container {
-    padding-right: 10px;
-    padding-bottom: 12px;
-    margin-bottom: -4px;
-}
+.bread-crumb-container
+    padding-right: 10px
+    padding-bottom: 12px
+    margin-bottom: -4px
 
-@media(max-width:992px) {
-    .bread-crumb-container  {
-        padding-top: 12px !important;
-        margin-top: -4px !important;
-    }
-}
+@media(max-width:992px)
+    .bread-crumb-container
+        padding-top: 12px !important
+        margin-top: -4px !important
 
-.eye-icon {
-    fill: var(--theme-light-grey) !important;
-    cursor: pointer;
-}
+.eye-icon
+    fill: $theme-light-grey !important
+    cursor: pointer
 
-.eye-icon:hover {
-    fill: var(--theme-change-selected) !important;
-}
+.eye-icon:hover
+    fill: $theme-change-selected !important
 </style>

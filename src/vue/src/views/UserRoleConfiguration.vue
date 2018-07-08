@@ -231,33 +231,26 @@ export default {
 }
 </script>
 
-<style>
-.select-center {
-    text-align: center;
-}
+<style lang="sass">
+.select-center
+    text-align: center
 
-.table th {
-   text-align: center;
-}
+.table th
+   text-align: center
 
-.table td {
-    text-align: center; /* center checkbox horizontally */
-    align-items: center;
-}
+.table td
+    text-align: center
+    align-items: center
 
-.permission-column {
-    text-align: left !important;
-}
+.permission-column
+    text-align: left !important
 
-.table-content {
-    padding-top: 40px;
-    background-color: white;
-    flex: 1 1 auto;
-}
+.table-content
+    padding-top: 40px
+    background-color: white
+    flex: 1 1 auto
 
-@media(max-width:992px){
-    .table-content {
-        padding-top: 0px !important;
-    }
-}
+@media(max-width:992px)
+    .table-content
+        padding-top: 0px !important
 </style>

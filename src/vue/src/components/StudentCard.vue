@@ -42,13 +42,11 @@ export default {
 }
 </script>
 
-<style>
-.progress-bar-container {
-    height: 100%;
-}
+<style lang="sass">
+.progress-bar-container
+    height: 100%
 
 /* TODO Not the most clean solution for xl. */
-.portrait-max-height {
-    max-height: 173px;
-}
+.portrait-max-height
+    max-height: 173px
 </style>

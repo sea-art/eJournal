@@ -10,15 +10,15 @@ export default {
 }
 </script>
 
-<style>
-.point-square {
-    float: right;
-    text-align: center;
-    color: white;
-    font-family: 'Roboto Condensed', sans-serif;
-    font-size: 18px;
-    background-color: var(--theme-blue);
-    width: 45px;
-    height: 30px;
-}
+<style lang="sass">
+@import '~sass/modules/colors.sass'
+.point-square
+    float: right
+    text-align: center
+    color: white
+    font-family: 'Roboto Condensed', sans-serif
+    font-size: 18px
+    background-color: $theme-blue
+    width: 45px
+    height: 30px
 </style>

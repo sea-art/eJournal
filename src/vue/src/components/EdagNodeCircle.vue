@@ -65,99 +65,80 @@ export default {
 }
 </script>
 
-<style>
-.text-white {
-    color: white;
-}
+<style lang="sass">
+@import '~sass/modules/colors.sass'
+.text-white
+    color: white
 
-.fill-white {
-    fill: white;
-}
+.fill-white
+    fill: white
 
-.edag-node-circle {
-    width: 4em;
-    height: 4em;
-    border-radius: 50% !important;
-    border-style: solid;
-    border-width: 5px;
-    border-color: white;
-}
+.edag-node-circle
+    width: 4em
+    height: 4em
+    border-radius: 50% !important
+    border-style: solid
+    border-width: 5px
+    border-color: white
 
-.edag-node-circle.enc-selected {
-    width: 5em;
-    height: 5em;
-}
+.edag-node-circle.enc-selected
+    width: 5em
+    height: 5em
 
-.edag-node-circle-inner {
-    width: 2em;
-    height: 2em;
-    background-color: white;
-    border-radius: 50% !important;
-    border-style: solid;
-    border-width: 5px;
-    border-color: white;
-}
+.edag-node-circle-inner
+    width: 2em
+    height: 2em
+    background-color: white
+    border-radius: 50% !important
+    border-style: solid
+    border-width: 5px
+    border-color: white
 
-.edag-node-circle-inner.enc-selected {
-    width: 3em;
-    height: 3em;
-}
+.edag-node-circle-inner.enc-selected
+    width: 3em
+    height: 3em
 
-.edag-node-circle.enc-add {
-    width: 3em;
-    height: 3em;
-}
+.edag-node-circle.enc-add
+    width: 3em
+    height: 3em
 
-.edag-node-circle.enc-selected.enc-add {
-    width: 4em;
-    height: 4em;
-}
+.edag-node-circle.enc-selected.enc-add
+    width: 4em
+    height: 4em
 
-.edag-node-circle.enc-entry {
-    background-color: var(--theme-medium-grey)
-}
+.edag-node-circle.enc-entry
+    background-color: $theme-medium-grey
 
-.edag-node-circle.enc-entry:hover {
-    background-color: var(--theme-dark-grey)
-}
+.edag-node-circle.enc-entry:hover
+    background-color: $theme-dark-grey
 
-.edag-node-circle.enc-entry.enc-selected {
-    background-color: var(--theme-dark-grey)
-}
+.edag-node-circle.enc-entry.enc-selected
+    background-color: $theme-dark-grey
 
-.edag-node-circle.enc-deadline {
-    background-color: var(--theme-change-selected)
-}
+.edag-node-circle.enc-deadline
+    background-color: $theme-change-selected
 
-.edag-node-circle.enc-deadline:hover {
-    background-color: var(--theme-change-hover)
-}
+.edag-node-circle.enc-deadline:hover
+    background-color: $theme-change-hover
 
-.edag-node-circle.enc-deadline.enc-selected {
-    background-color: var(--theme-change-hover)
-}
+.edag-node-circle.enc-deadline.enc-selected
+    background-color: $theme-change-hover
 
-.edag-node-circle.enc-progress {
-    background-color: var(--theme-negative-selected)
-}
+.edag-node-circle.enc-progress
+    background-color: $theme-negative-selected
 
-.edag-node-circle.enc-progress:hover {
-    background-color: var(--theme-red)
-}
+.edag-node-circle.enc-progress:hover
+    background-color: $theme-red
 
-.edag-node-circle.enc-progress.enc-selected {
-    background-color: var(--theme-red)
-}
+.edag-node-circle.enc-progress.enc-selected
+    background-color: $theme-red
 
-.edag-node-circle.enc-add {
-    background-color: var(--theme-blue)
-}
+.edag-node-circle.enc-add
+    background-color: $theme-blue
 
-.edag-node-circle.enc-add:hover {
-    background-color: var(--theme-dark-blue)
-}
+.edag-node-circle.enc-add:hover
+    background-color: $theme-dark-blue
 
-.edag-node-circle.enc-add.enc-selected {
-    background-color: var(--theme-dark-blue)
-}
+.edag-node-circle.enc-add.enc-selected
+    background-color: $theme-dark-blue
 </style>

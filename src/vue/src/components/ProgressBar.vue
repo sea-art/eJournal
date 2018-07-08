@@ -19,21 +19,20 @@ export default {
 }
 </script>
 
-<style>
-.progress-percentage   {
-    display: inline;
-    border: none;
-    padding: 0px !important;
-    text-align: right;
-}
+<style lang="sass">
+@import '~sass/modules/colors.sass'
 
-.progress-bar-box {
-    margin-top: 10px;
-    height: 20px;
-    background-color: white;
-}
+.progress-percentage
+    display: inline
+    border: none
+    padding: 0px !important
+    text-align: right
 
-.progress-bar {
-    background-color: var(--theme-blue) !important;
-}
+.progress-bar-box
+    margin-top: 10px
+    height: 20px
+    background-color: white
+
+.progress-bar
+    background-color: $theme-blue !important
 </style>

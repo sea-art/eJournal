@@ -17,22 +17,19 @@ export default {
 }
 </script>
 
-<style>
-.main-content {
-    padding-top: 40px;
-    background-color: var(--theme-medium-grey);
-    flex: 1 1 auto;
-}
+<style lang="sass">
+@import '~sass/modules/colors.sass'
 
-@media(max-width:992px){
-    .main-content {
-        padding: 30px !important;
-    }
-}
+.main-content
+    padding-top: 40px
+    background-color: $theme-medium-grey
+    flex: 1 1 auto
 
-@media (max-width: 576px) {
-    .main-content {
-        padding: 30px 0px !important;
-    }
-}
+@media(max-width:992px)
+    .main-content
+        padding: 30px !important
+
+@media (max-width: 576px)
+    .main-content
+        padding: 30px 0px !important
 </style>

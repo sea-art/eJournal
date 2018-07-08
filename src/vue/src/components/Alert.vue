@@ -1,20 +1,23 @@
 <template>
     <b-alert show :variant="type">{{ description }}</b-alert>
 </template>
-<style>
-.alert-success {
-    background: var(--theme-positive-unselected);
-    color: black;
-    border: none;
-}
-.alert-danger {
-    background: var(--theme-red);
-    color: white;
-    border: none;
-}
-</style>
+
 <script>
 export default {
     props: ['type', 'description']
 }
 </script>
+
+<style lang="sass">
+@import '~sass/modules/colors.sass'
+
+.alert-success
+    background: $theme-positive-selected
+    color: black
+    border: none
+
+.alert-danger
+    background: $theme-negative-selected
+    color: white
+    border: none
+</style>

@@ -12,15 +12,12 @@ export default {
 }
 </script>
 
-<style>
-.main-table {
-    padding-top: 40px;
-    flex: 1 1 auto;
-}
+<style lang="sass">
+.main-table
+    padding-top: 40px
+    flex: 1 1 auto
 
-@media(max-width:992px){
-    .main-table {
-        padding-top: 0px !important;
-    }
-}
+@media(max-width:992px)
+    .main-table
+        padding-top: 0px !important
 </style>

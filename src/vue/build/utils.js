@@ -54,6 +54,14 @@ exports.cssLoaders = function (options) {
     }
   }
 
+    // let sassOptions = {
+    //     indentedSyntax: true,
+    //     includePaths: [
+    //         './src/sass'
+    //     ],
+    //     data: '@import "./src/sass/modules/colors";'
+    // }
+
   // https://vue-loader.vuejs.org/en/configurations/extract-css.html
   return {
     css: generateLoaders(),
