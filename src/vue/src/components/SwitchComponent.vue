@@ -24,6 +24,8 @@ export default {
 </script>
 
 <style lang="sass">
+@import "~sass/modules/colors.sass"
+
 .switch
     position: relative
     display: inline-block
@@ -56,7 +58,7 @@ export default {
     transition: .4s
 
 input:checked + .slider
-    background-color: var(--theme-blue)
+    background-color: $theme-blue
 
 input:focus + .slider
     box-shadow: 0 0 1px #2196F3

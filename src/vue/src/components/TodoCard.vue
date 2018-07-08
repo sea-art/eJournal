@@ -35,15 +35,15 @@ export default {
 }
 </script>
 
-<style scoped>
-h6 {
-    display: inline;
-}
+<style lang="sass" scoped>
+@import "~sass/modules/colors.sass"
 
-p {
-    text-align: right;
-    font-size: 20px;
-    color: var(--theme-blue);
-    margin-bottom: 0px;
-}
+h6
+    display: inline
+
+p
+    text-align: right
+    font-size: 20px
+    color: $theme-blue
+    margin-bottom: 0px
 </style>

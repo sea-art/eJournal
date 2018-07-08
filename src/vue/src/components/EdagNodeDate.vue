@@ -12,7 +12,8 @@ export default {
     props: ['date', 'selected'],
     computed: {
         color () {
-            return (this.selected) ? 'var(--theme-dark-grey)' : 'var(--theme-medium-grey)'
+            // TODO Solve with variables as return theme dark and med gray
+            return (this.selected) ? '#BBBBBB' : '#DEDEDE'
         },
         dateText () {
             // prettify date

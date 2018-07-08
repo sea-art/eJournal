@@ -59,16 +59,17 @@ export default {
 
 <style lang="sass">
 @import '~sass/modules/colors.sass'
+
 .profile-portrait
     max-height: 250px
     border-radius: 50%!important
 
 .fileinput
-    border-color: var(--theme-dark-grey)!important
+    border-color: $theme-dark-grey !important
 
 .fileinput label
-    border: 1px var(--theme-light-grey) solid!important
+    border: 1px $theme-light-grey solid !important
 
 .fileinput input
-    background-color: var(--theme-light-grey)!important
+    background-color: $theme-light-grey!important
 </style>
