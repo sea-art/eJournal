@@ -44,11 +44,7 @@ module.exports = {
             ...(config.dev.useEslint ? [createLintingRule()] : []),
             {
                 test: /\.vue$/,
-                loader: 'vue-loader',
-                options: {
-                    'sass': 'vue-style-loader!css-loader!sass-loader?indentedSyntax=1',
-                    'scss': 'vue-style-loader!css-loader!sass-loader'
-                }
+                loader: 'vue-loader'
             }, {
                 test: /\.js$/,
                 loader: 'babel-loader',
@@ -74,13 +70,20 @@ module.exports = {
                     limit: 10000,
                     name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
                 }
+            // TODO Figure out why this has zero impact
             }, {
                 test: /\.(scss|sass)$/,
                 use: [
+                    'vue-style-loader',
+                    'css-loader',
                     {
-                        loader: 'css-loader'
-                    }, {
-                        loader: 'sass-loader'
+                        loader: 'sass-loader',
+                        // global data for all components
+                        // this can be read from a scss/sass file
+                        options: {
+                            indentedSyntax: true,
+                            data: `$test: red;`
+                        }
                     }
                 ]
             }
