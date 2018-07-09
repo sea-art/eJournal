@@ -1,7 +1,7 @@
 <template>
     <b-row class="outer-container" no-gutters>
-        <b-col v-if="bootstrapLg()" cols="12">
-            <bread-crumb v-if="bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
+        <b-col v-if="!$root.lg()" cols="12">
+            <bread-crumb v-if="!$root.lg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
         <b-col v-else xl="3" class="left-content-journal">
@@ -9,7 +9,7 @@
         </b-col>
 
         <b-col lg="12" xl="6" order="2" class="main-content-journal">
-            <bread-crumb v-if="!bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
+            <bread-crumb v-if="$root.lg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
                     <entry-node ref="entry-template-card" @edit-node="adaptData" :cID="cID" :entryNode="nodes[currentNode]" :color="$root.colors[cID % $root.colors.length]"/>
@@ -175,12 +175,6 @@ export default {
             var deadline = new Date(this.nodes[this.currentNode].deadline)
 
             return currentDate <= deadline
-        },
-        bootstrapLg () {
-            return this.windowHeight < 1200
-        },
-        bootstrapMd () {
-            return this.windowHeight < 922
         }
     },
     components: {

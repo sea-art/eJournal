@@ -1,16 +1,16 @@
 <template>
     <b-row class="outer-container" no-gutters>
 
-        <b-col v-if="bootstrapLg()" cols="12">
-            <bread-crumb v-if="bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
+        <b-col v-if="!$root.lg()" cols="12">
+            <bread-crumb v-if="!$root.lg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
         <b-col v-else xl="3" class="left-content-journal">
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
 
-<b-col lg="12" xl="6" order="3" order-xl="2" class="main-content-journal">
-            <bread-crumb v-if="!bootstrapLg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
+        <b-col lg="12" xl="6" order="3" order-xl="2" class="main-content-journal">
+            <bread-crumb v-if="$root.lg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
                     <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
@@ -209,12 +209,6 @@ export default {
                 }
             }
             return 0
-        },
-        bootstrapLg () {
-            return this.windowHeight < 1200
-        },
-        bootstrapMd () {
-            return this.windowHeight < 922
         },
         updateQuery () {
             if (this.searchVariable !== '') {
