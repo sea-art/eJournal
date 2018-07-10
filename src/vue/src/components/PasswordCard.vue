@@ -1,42 +1,16 @@
 <template>
-    <b-container no-gutters>
+    <div>
         <b-row>
-            <h2 class="profile-title">Change password</h2><br/>
-        </b-row>
-        <b-row>
-            <alert-box v-if="response" :type="response.type" :description="response.description"/>
-        </b-row>
-        <b-row>
-            <b-col class="profile-col" cols="4">
-                <span class="profile-password">Old password:</span>
-            </b-col>
-            <b-col cols="7">
-                <b-form-input v-model="oldPass" type="password"></b-form-input><br/>
+            <b-col cols="12">
+                <h2 class="profile-title">Change password</h2>
             </b-col>
         </b-row>
-
-        <b-row>
-            <b-col class="profile-col" cols="4">
-                <span class="profile-password">New password:</span>
-            </b-col>
-            <b-col cols="7">
-                <b-form-input v-model="newPass" type="password"></b-form-input><br/>
-            </b-col>
-        </b-row>
-
-        <b-row>
-            <b-col class="profile-col" cols="4">
-                <span class="profile-password">Repeat new password:</span>
-            </b-col>
-            <b-col cols="7">
-                <b-form-input v-model="newPassRepeat" type="password"></b-form-input>
-            </b-col>
-        </b-row>
-
-        <b-row>
-            <b-button @click="changePassword">Change password</b-button>
-        </b-row>
-    </b-container>
+        <alert-box v-if="response" :type="response.type" :description="response.description"/>
+        <b-input v-model="oldPass" type="password" placeholder="Old password"/>
+        <b-input v-model="newPass" type="password" placeholder="New password"/>
+        <b-input v-model="newPassRepeat" type="password" placeholder="Repeat new password"/>
+        <b-button @click="changePassword">Change password</b-button>
+    </div>
 </template>
 
 <script>

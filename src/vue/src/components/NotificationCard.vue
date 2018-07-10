@@ -1,31 +1,25 @@
 <template>
-    <b-container no-gutters>
-        <b-row>
-            <b-col>
-                <h2 class="profile-title">Email notification</h2><br/>
-            </b-col>
-        </b-row>
-        <b-row>
-            <b-col class="profile-col" cols="4">
-                <span class="profile-notification">Grade updates</span>
-            </b-col>
-            <b-col cols="6">
-                <toggle-switch :isActive="gradeUpdate"
-                               @parentActive="getGradeNotification">
-                </toggle-switch>
-            </b-col>
-        </b-row>
-        <b-row>
-            <b-col class="profile-col" cols="4">
-                <span class="profile-notification">Comments</span>
-            </b-col>
-            <b-col cols="6">
-                <toggle-switch :isActive="commentUpdate"
-                               @parentActive="getCommentNotification">
-                </toggle-switch>
-            </b-col>
-        </b-row>
-    </b-container>
+    <b-row>
+        <b-col cols="12">
+            <h2 class="profile-title">Email notification</h2>
+        </b-col>
+        <b-col cols="4">
+            <span class="profile-notification">Grade updates</span>
+        </b-col>
+        <b-col cols="8">
+            <toggle-switch :isActive="gradeUpdate"
+                           @parentActive="getGradeNotification">
+            </toggle-switch>
+        </b-col>
+        <b-col cols="4">
+            <span class="profile-notification">Comments</span>
+        </b-col>
+        <b-col cols="8">
+            <toggle-switch :isActive="commentUpdate"
+                           @parentActive="getCommentNotification">
+            </toggle-switch>
+        </b-col>
+    </b-row>
 </template>
 
 <script>

@@ -55,7 +55,4 @@ p.profile-password
     font-size: 18px
     line-height: 15px
     margin-bottom: 28px
-
-.profile-col
-    padding-left: 0px
 </style>

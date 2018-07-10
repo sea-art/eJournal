@@ -13,7 +13,7 @@
                     </b-col>
                     <b-col cols="10">
                         <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-                            <span class="showEnters">{{ comments.text }}</span>
+                            <span class="show-enters">{{ comments.text }}</span>
                         </b-card>
                     </b-col>
                 </b-row>

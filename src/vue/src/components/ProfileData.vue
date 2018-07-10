@@ -5,11 +5,17 @@
         </b-col>
         <b-col lg="8" md="12">
             <h2>User data</h2>
-            <b-form-input v-model="uname" type="text"></b-form-input>
-            <b-form-input v-model="first" type="text"></b-form-input>
-            <b-form-input v-model="last" type="text"></b-form-input>
-            <span class="profile-data">Change profile picture</span>
-            <b-form-file ref="file" v-on:change="updateProfilePicture" class="fileinput form-control" v-model="file" :state="Boolean(file)" placeholder="Upload profile picture..."></b-form-file>
+            <b-form-input v-model="uname" type="text"/>
+            <b-form-input v-model="first" type="text"/>
+            <b-form-input v-model="last" type="text"/>
+            <b-form-file
+                ref="file"
+                accept="image/*"
+                v-on:change="updateProfilePicture"
+                class="fileinput"
+                v-model="file"
+                :state="Boolean(file)"
+                placeholder="Change picture"/>
             <b-button class="add-button" @click="saveUserdata">Save</b-button>
             <b-button @click="downloadUserData">Download Data</b-button>
         </b-col>
@@ -61,15 +67,6 @@ export default {
 @import '~sass/modules/colors.sass'
 
 .profile-portrait
-    max-height: 250px
-    border-radius: 50%!important
-
-.fileinput
-    border-color: $theme-dark-grey !important
-
-.fileinput label
-    border: 1px $theme-light-grey solid !important
-
-.fileinput input
-    background-color: $theme-light-grey!important
+    max-width: 250px
+    border-radius: 50% !important
 </style>
