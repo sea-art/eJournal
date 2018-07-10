@@ -39,9 +39,7 @@ export default {
     padding-right: 30px !important;
 }
 
-/* Needed for full responsiveness, please double check before changing!
-   NOTE: max-width corresponds to bootstrap dimensions offset by 1. */
-@media(max-width: 1200px){
+@media(max-width: 1199){
     .right-content {
         padding: 30px !important;
     }
@@ -50,7 +48,7 @@ export default {
         padding: 30px !important;
     }
 }
-@media (max-width: 576px) {
+@media (max-width: 575px) {
     .right-content {
         padding: 30px 0px !important;
     }
