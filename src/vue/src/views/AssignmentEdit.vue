@@ -7,7 +7,7 @@
                          v-model="assignment.name"
                          placeholder="Assignment name"
                          required/>
-                <b-form-textarea class="descriptionTextArea"
+                <b-form-textarea class="description-text-area"
                                  :rows="3"
                                  :max-rows="6"
                                  v-model="assignment.description"
@@ -92,6 +92,6 @@ export default {
 </script>
 
 <style lang="sass">
-.descriptionTextArea
+.description-text-area
     margin-bottom: 10px
 </style>

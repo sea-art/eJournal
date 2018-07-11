@@ -255,8 +255,3 @@ export default {
     }
 }
 </script>
-
-<style lang="sass">
-#pushBot
-    margin-bottom: 10px
-</style>

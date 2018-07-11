@@ -1,0 +1,30 @@
+/* Using the default bootstrap breakpoints */
+
+/* Small tablets and large smartphones (landscape view) */
+$screen-sm-min: 576px
+/* Small tablets (portrait view) */
+$screen-md-min: 768px
+/* Tablets and small desktops */
+$screen-lg-min: 992px
+/* Large tablets and desktops */
+$screen-xl-min: 1200px
+
+/* Small devices and up */
+@mixin sm
+   @media (min-width: #{$screen-sm-min})
+       @content
+
+/* Medium devices and up */
+@mixin md
+   @media (min-width: #{$screen-md-min})
+       @content
+
+/* Large devices and up */
+@mixin lg
+   @media (min-width: #{$screen-lg-min})
+       @content
+
+/* Extra large devices and up */
+@mixin xl
+   @media (min-width: #{$screen-xl-min})
+       @content

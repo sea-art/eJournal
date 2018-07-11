@@ -15,7 +15,7 @@
                         <b-link tag="b-button" :to="breadcrumb.route">{{ breadcrumb.display }}</b-link> /
                     </span>
                 </h4>
-                <h1 id="h1-current-page-breadcrumb">
+                <h1>
                     {{ breadedCrumbs.slice(-1)[0].display }}
                     <slot>
                         <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
@@ -177,29 +177,13 @@ export default {
 <style lang="sass">
 @import '~sass/modules/colors.sass'
 
-#h1-current-page-breadcrumb
-    margin-bottom: 0px !important
-
-/* Most paddings/margins relate to full responive build, please take care.*/
-.bread-crumb
-    padding: 0px
-    background-color: $theme-medium-grey
-    margin-bottom: 0px
-
 .bread-crumb-container
-    padding-right: 10px
-    padding-bottom: 12px
+    padding-top: 12px
     margin-bottom: -4px
-
-@media(max-width:992px)
-    .bread-crumb-container
-        padding-top: 12px !important
-        margin-top: -4px !important
 
 .eye-icon
     fill: $theme-light-grey !important
     cursor: pointer
-
-.eye-icon:hover
-    fill: $theme-change-selected !important
+    &:hover
+        fill: $theme-change-selected !important
 </style>
