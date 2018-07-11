@@ -33,9 +33,28 @@ new Vue({
         colors: ['pink-border', 'peach-border', 'blue-border'],
         permissions: {},
         validToken: false,
-        previousPage: null
+        previousPage: null,
+        windowWidth: 0
+    },
+    mounted () {
+        this.$nextTick(function () {
+            window.addEventListener('resize', this.getWindowWidth)
+
+            this.getWindowWidth()
+        })
+    },
+    beforeDestroy () {
+        window.removeEventListener('resize', this.getWindowWidth)
     },
     methods: {
+        getWindowWidth () {
+            this.windowWidth = window.innerWidth
+        },
+        /* Bootstrap breakpoints for custom events. */
+        sm () { return this.windowWidth > 575 },
+        md () { return this.windowWidth > 767 },
+        lg () { return this.windowWidth > 991 },
+        xl () { return this.windowWidth > 1199 },
         timeLeft (date) {
             /* Date format is:
              * Returns the remaining time left as:

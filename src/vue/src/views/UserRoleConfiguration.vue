@@ -85,8 +85,7 @@ export default {
             undeleteableRoles: ['Student', 'TA', 'Teacher'],
             selectedRole: null,
             modalShow: false,
-            newRole: '',
-            windowWidth: 550
+            newRole: ''
         }
     },
     methods: {

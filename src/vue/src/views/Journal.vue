@@ -12,37 +12,10 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 export default {
     name: 'Journal',
     props: ['cID', 'aID', 'jID'],
-    data () {
-        return {
-            windowWidth: 0
-        }
-    },
     methods: {
-        getWindowWidth (event) {
-            this.windowWidth = document.documentElement.clientWidth
-        },
-        getWindowHeight (event) {
-            this.windowHeight = document.documentElement.clientHeight
-        },
-        bootstrapLg () {
-            return this.windowHeight < 1200
-        },
-        bootstrapMd () {
-            return this.windowHeight < 922
-        },
         customisePage () {
             this.$toasted.info('Wishlist: Customise page')
         }
-    },
-    mounted () {
-        this.$nextTick(function () {
-            window.addEventListener('resize', this.getWindowWidth)
-
-            this.getWindowWidth()
-        })
-    },
-    beforeDestroy () {
-        window.removeEventListener('resize', this.getWindowWidth)
     },
     components: {
         'content-columns': contentColumns,

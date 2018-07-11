@@ -7,8 +7,8 @@
 
 <template>
     <b-row class="outer-container" no-gutters>
-        <b-col v-if="bootstrapLg()" cols="12">
-            <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
+        <b-col v-if="!$root.lg()" cols="12">
+            <bread-crumb v-if="!$root.lg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :isInEditFormatPage="true"/>
         </b-col>
         <b-col v-else xl="3" class="left-content-format-edit left-content">
@@ -16,7 +16,7 @@
         </b-col>
 
         <b-col lg="12" xl="6" class="main-content-format-edit main-content">
-            <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
+            <bread-crumb v-if="$root.lg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <!--
                 Fill in the template using the corresponding data
                 of the entry
@@ -94,7 +94,6 @@ export default {
     */
     data () {
         return {
-            windowWidth: 0,
             currentNode: 0,
 
             templates: [],
@@ -286,22 +285,6 @@ export default {
                     this.$toasted.success('New format saved')
                 })
         },
-        // Used for responsiveness
-        getWindowWidth (event) {
-            this.windowWidth = document.documentElement.clientWidth
-        },
-        // Used for responsiveness
-        getWindowHeight (event) {
-            this.windowHeight = document.documentElement.clientHeight
-        },
-        // Used for responsiveness
-        bootstrapLg () {
-            return this.windowHeight < 1200
-        },
-        // Used for responsiveness
-        bootstrapMd () {
-            return this.windowHeight < 922
-        },
         customisePage () {
             this.$toasted.info('Wishlist: Customise page')
         },
@@ -350,20 +333,6 @@ export default {
                 }
             }
         }
-    },
-
-    // Used for responsiveness
-    mounted () {
-        this.$nextTick(function () {
-            window.addEventListener('resize', this.getWindowWidth)
-
-            this.getWindowWidth()
-        })
-    },
-
-    // Used for responsiveness
-    beforeDestroy () {
-        window.removeEventListener('resize', this.getWindowWidth)
     },
 
     components: {
