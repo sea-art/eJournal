@@ -1,5 +1,5 @@
 <template>
-    <b-card class="settings-card no-hover">
+    <b-card class="no-hover">
         <profile-data :uname="uname"
                       :first="first"
                       :last="last"

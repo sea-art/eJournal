@@ -61,6 +61,7 @@ export default {
 
 <style lang="sass">
 @import '~sass/modules/colors.sass'
+@import '~sass/modules/breakpoints.sass'
 
 #edag-inner::-webkit-scrollbar
     display: none

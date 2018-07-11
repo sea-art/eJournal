@@ -2,7 +2,7 @@
     <content-columns>
         <bread-crumb slot="main-content-column" :currentPage="'Assignments'"></bread-crumb>
 
-        <b-card class="no-hover settings-card" slot="main-content-column">
+        <b-card class="no-hover" slot="main-content-column">
                 <b-row>
                     <b-col lg="4" sm="6">
                         <b-form-select v-model="selectedSortOption" :select-size="1">

@@ -1,7 +1,7 @@
 <template>
     <content-columns>
         <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
-        <b-card slot="main-content-column" class="settings-card no-hover">
+        <b-card slot="main-content-column" class="no-hover">
             <b-row>
                 <b-col lg="3" md="3">
                     <b-button

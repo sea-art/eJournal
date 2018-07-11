@@ -25,7 +25,7 @@
 
         <h3 slot="right-content-column">Upcoming</h3>
         <b-card v-if="this.$root.canAddCourse()"
-                class="no-hover settings-card"
+                class="no-hover"
                 slot="right-content-column">
                 <b-row>
                     <b-col lg="6" sm="6">

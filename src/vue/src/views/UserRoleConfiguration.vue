@@ -244,13 +244,4 @@ export default {
 
 .permission-column
     text-align: left !important
-
-.table-content
-    padding-top: 40px
-    background-color: white
-    flex: 1 1 auto
-
-@media(max-width:992px)
-    .table-content
-        padding-top: 0px !important
 </style>

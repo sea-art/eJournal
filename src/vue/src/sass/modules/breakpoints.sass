@@ -28,3 +28,23 @@ $screen-xl-min: 1200px
 @mixin xl
    @media (min-width: #{$screen-xl-min})
        @content
+
+/* Xs devices*/
+@mixin xs-max
+   @media (max-width: #{$screen-sm-min - 1})
+       @content
+
+/* Xs and Sm devices*/
+@mixin sm-max
+   @media (max-width: #{$screen-md-min - 1})
+       @content
+
+/* Xs and sm and md devices */
+@mixin md-max
+   @media (max-width: #{$screen-lg-min - 1})
+       @content
+
+/* Xs and sm, md, and lg devices */
+@mixin lg-max
+   @media (max-width: #{$screen-xl-min - 1})
+       @content

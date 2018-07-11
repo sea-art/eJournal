@@ -17,6 +17,7 @@ export default {
 
 <style lang="sass">
 @import '~sass/global.sass'
+@import '~sass/modules/breakpoints.sass'
 
 #app
     overflow-x: hidden
@@ -26,6 +27,7 @@ export default {
     -moz-osx-font-smoothing: grayscale
     display: flex
     flex-flow: column
-    height: 100%
     padding-top: 70px
+    @include xl
+        height: 100%
 </style>

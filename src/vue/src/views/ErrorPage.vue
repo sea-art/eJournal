@@ -5,8 +5,10 @@
                 Error {{ code }}: <span id="error-message">{{ message }}</span>
             </h1>
         </b-col>
-        <b-col cols="12" v-if="description">
-            {{ description }}
+        <b-col cols="12" >
+            <div class="description-container" v-if="description">
+                {{ description }}
+            </div>
         </b-col>
         <b-col cols="12">
             <b-button :to="{name: 'Home'}">Home</b-button>
@@ -38,6 +40,9 @@ export default {
 
 .error-content
     padding: 40px
+
+.description-container
+    padding: 20px 0px
 
 #error-heading, #error-message
     border: none

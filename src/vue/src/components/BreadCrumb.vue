@@ -6,7 +6,7 @@
 -->
 
 <template>
-    <div class="bread-crumb-container">
+    <div class="breadcrumb-container">
         <b-row>
             <b-col cols="12" md="12">
                 <h4>
@@ -175,15 +175,6 @@ export default {
 </script>
 
 <style lang="sass">
-@import '~sass/modules/colors.sass'
-
-.bread-crumb-container
-    padding-top: 12px
-    margin-bottom: -4px
-
-.eye-icon
-    fill: $theme-light-grey !important
-    cursor: pointer
-    &:hover
-        fill: $theme-change-selected !important
+.breadcrumb-container
+    padding-right: 10px
 </style>
