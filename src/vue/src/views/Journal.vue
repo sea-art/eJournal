@@ -28,50 +28,25 @@ export default {
 
 <style lang="sass">
 @import '~sass/modules/colors.sass'
+@import '~sass/modules/breakpoints.sass'
 
 .left-content-journal
-    padding: 0px 30px !important
-    flex: 0 0 auto
+    padding: 0px !important
+    @include xl
+        height: 100%
+        overflow: hidden
 
 .main-content-journal
-    padding-top: 40px !important
-    background-color: $theme-medium-grey
-    flex: 1 1 auto
     overflow-x: hidden
+    @include xl
+        height: 100%
 
 .right-content-journal
-    flex: 0 0 auto
-    padding-top: 30px !important
-    padding-left: 30px !important
-    padding-right: 30px !important
+    @include xl
+        height: 100%
 
-@media (min-width: 1200px)
-    .outer-container
+.outer-container
+    @include xl
         height: 100%
         overflow: hidden
-
-    .left-content-journal
-        height: 100%
-        overflow: hidden
-
-    .main-content-journal, .right-content-journal
-        height: 100%
-        overflow-y: scroll
-
-@media (max-width: 1200px)
-    .right-content-journal
-        padding: 30px !important
-
-    .main-content-journal
-        padding: 30px !important
-
-@media (max-width: 576px)
-    .left-content-journal
-        padding: 0px !important
-
-    .right-content-journal
-        padding: 30px 0px !important
-
-    .main-content-journal
-        padding: 30px 0px !important
 </style>

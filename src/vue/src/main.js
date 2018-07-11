@@ -51,10 +51,15 @@ new Vue({
             this.windowWidth = window.innerWidth
         },
         /* Bootstrap breakpoints for custom events. */
+        // TODO Figure out how to get these from the dedicated sass file (more webpack fun)
         sm () { return this.windowWidth > 575 },
         md () { return this.windowWidth > 767 },
         lg () { return this.windowWidth > 991 },
         xl () { return this.windowWidth > 1199 },
+        xsMax () { return this.windowWidth < 576 },
+        smMax () { return this.windowWidth < 769 },
+        mdMax () { return this.windowWidth < 992 },
+        lgMax () { return this.windowWidth < 1200 },
         timeLeft (date) {
             /* Date format is:
              * Returns the remaining time left as:

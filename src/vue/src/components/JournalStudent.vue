@@ -1,15 +1,14 @@
 <template>
     <b-row class="outer-container" no-gutters>
-        <b-col v-if="!$root.lg()" cols="12">
-            <bread-crumb v-if="!$root.lg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
-            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
+        <b-col v-if="$root.lgMax()" cols="12" class="main-content">
+            <bread-crumb :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
         </b-col>
-        <b-col v-else xl="3" class="left-content-journal">
+        <b-col class="left-content-journal left-content">
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
 
-        <b-col lg="12" xl="6" order="2" class="main-content-journal">
-            <bread-crumb v-if="$root.lg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
+        <b-col lg="12" xl="6" class="main-content-journal main-content">
+            <bread-crumb v-if="!$root.lgMax()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
                     <entry-node ref="entry-template-card" @edit-node="adaptData" :cID="cID" :entryNode="nodes[currentNode]" :color="$root.colors[cID % $root.colors.length]"/>
@@ -39,7 +38,7 @@
                 </div>
             </div>
         </b-col>
-        <b-col cols="12" xl="3" order="3" class="right-content-journal">
+        <b-col cols="12" xl="3" class="right-content-journal right-content">
             <h3>Assignment Description</h3>
             <b-card class="no-hover" :class="'grey-border'" style="">
                 {{ assignmentDescription }}

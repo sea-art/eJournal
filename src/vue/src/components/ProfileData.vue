@@ -1,10 +1,10 @@
 <template>
     <b-row>
-        <b-col lg="4" md="12">
+        <b-col md="5" sm="12" class="text-center">
             <img class="profile-portrait" :src="image">
         </b-col>
-        <b-col lg="8" md="12">
-            <h2>User data</h2>
+        <b-col md="7" sm="12">
+            <h2 class="mb-2">User data</h2>
             <b-form-input v-model="uname" type="text"/>
             <b-form-input v-model="first" type="text"/>
             <b-form-input v-model="last" type="text"/>
@@ -68,5 +68,6 @@ export default {
 
 .profile-portrait
     max-width: 250px
+    margin-bottom: 20px
     border-radius: 50% !important
 </style>

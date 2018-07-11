@@ -1,16 +1,14 @@
 <template>
     <b-row class="outer-container" no-gutters>
-
-        <b-col v-if="!$root.lg()" cols="12">
-            <bread-crumb v-if="!$root.lg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
-            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
+        <b-col v-if="$root.lgMax()" md="12" lg="8" class="main-content">
+            <bread-crumb :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
         </b-col>
-        <b-col v-else xl="3" class="left-content-journal">
+        <b-col md="12" lg="8" xl="3" class="left-content-journal left-content">
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
 
-        <b-col lg="12" xl="6" order="3" order-xl="2" class="main-content-journal">
-            <bread-crumb v-if="$root.lg()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
+        <b-col md="12" lg="8" xl="6" class="main-content-journal main-content">
+            <bread-crumb v-if="!$root.lgMax()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
                     <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
@@ -30,7 +28,7 @@
                 </div>
             </div>
         </b-col>
-        <b-col cols="12" xl="3" order="2" order-xl="3" class="right-content-journal">
+        <b-col md="12" lg="4" xl="3" class="right-content-journal right-content">
             <h3>Journal</h3>
             <b-card class="no-hover">
                 <b-button tag="b-button" v-if="filteredJournals.length !== 0" :to="{ name: 'Journal',

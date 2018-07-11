@@ -7,16 +7,15 @@
 
 <template>
     <b-row class="outer-container" no-gutters>
-        <b-col v-if="!$root.lg()" cols="12">
-            <bread-crumb v-if="!$root.lg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
-            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :isInEditFormatPage="true"/>
+        <b-col v-if="$root.lgMax()" cols="12" class="main-content">
+            <bread-crumb @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
         </b-col>
-        <b-col v-else xl="3" class="left-content-format-edit left-content">
+        <b-col xl="3" class="left-content-format-edit left-content">
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :isInEditFormatPage="true"/>
         </b-col>
 
         <b-col lg="12" xl="6" class="main-content-format-edit main-content">
-            <bread-crumb v-if="$root.lg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
+            <bread-crumb v-if="$root.xl()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <!--
                 Fill in the template using the corresponding data
                 of the entry
@@ -370,12 +369,10 @@ export default {
     overflow-x: hidden
     @include xl
         height: 100%
-        overflow-y: scroll
 
 .right-content-format-edit
     @include xl
         height: 100%
-        overflow-y: scroll
 
 .outer-container
     @include xl

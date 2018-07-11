@@ -25,8 +25,11 @@ export default {
     font-size: 1em
     -webkit-font-smoothing: antialiased
     -moz-osx-font-smoothing: grayscale
+
     display: flex
-    flex-flow: column
+    flex-flow: column wrap
+    align-items: stretch
+
     padding-top: 70px
     @include lg
         height: 100%

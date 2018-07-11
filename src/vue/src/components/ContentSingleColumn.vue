@@ -8,7 +8,7 @@
 
 <script>
 export default {
-    name: 'ContentColumns',
+    name: 'ContentColumn',
     props: {
         extraClasses: {
             default: ''

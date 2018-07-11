@@ -12,14 +12,14 @@
             </div>
         </b-collapse>
 
-        <b-card v-b-toggle.edag-outer target="edag-outer" aria-expanded="false" aria-controls="edag-outer" class="edag-toggle">
+        <div v-b-toggle.edag-outer target="edag-outer" aria-expanded="false" aria-controls="edag-outer" id="edag-toggle">
             <span class="edag-outer__icon edag-outer__icon--open">
                     <icon class="collapse-icon" name="list-ul" scale="1.75"></icon>
             </span>
             <span class="edag-outer__icon edag-outer__icon--close">
                     <icon class="collapse-icon" name="caret-up" scale="1.75"></icon>
             </span>
-        </b-card>
+        </div>
     </div>
 </template>
 
@@ -76,6 +76,7 @@ export default {
     overflow: hidden
     height: 100%
     @include lg-max
+        border-top: 48px solid $theme-blue
         max-height: 50vh
 
 @include xl
@@ -109,19 +110,15 @@ export default {
         display: block
         text-align: center
 
-    .edag-toggle
-        margin-top: 10px
+    #edag-toggle
         border: 0px
+        padding: 10px 0px
         background-color: $theme-blue !important
-
-    .edag-toggle:hover
-        background-color: $theme-blue !important
-
-    .edag-toggle:hover
-        cursor: pointer
-
-    .edag-toggle .collapse-icon
-        display: block
-        margin-left: auto
-        margin-right: auto
+        &:hover
+            background-color: $theme-blue !important
+            cursor: pointer
+        .collapse-icon
+            display: block
+            margin-left: auto
+            margin-right: auto
 </style>

@@ -1,10 +1,10 @@
 <template>
     <b-row>
         <b-col cols="12">
-            <h2 class="profile-title">Email notification</h2>
+            <h2 class="mb-2">Email notification</h2>
         </b-col>
         <b-col cols="4">
-            <span class="profile-notification">Grade updates</span>
+            <span>Grade updates</span>
         </b-col>
         <b-col cols="8">
             <toggle-switch :isActive="gradeUpdate"
@@ -12,7 +12,7 @@
             </toggle-switch>
         </b-col>
         <b-col cols="4">
-            <span class="profile-notification">Comments</span>
+            <span>Comments</span>
         </b-col>
         <b-col cols="8">
             <toggle-switch :isActive="commentUpdate"

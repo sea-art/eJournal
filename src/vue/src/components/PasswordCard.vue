@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h2 class="profile-title">Change password</h2>
+        <h2 class="mb-2">Change password</h2>
         <b-input v-model="oldPass" type="password" placeholder="Old password"/>
         <b-input v-model="newPass" type="password" placeholder="New password"/>
         <b-input v-model="newPassRepeat" type="password" placeholder="Repeat new password"/>
