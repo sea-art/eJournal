@@ -82,6 +82,7 @@ export default {
 
 <style lang="sass">
 @import '~sass/modules/colors.sass'
+@import '~sass/modules/breakpoints.sass'
 
 #templateName
     font-weight: bold
@@ -120,7 +121,7 @@ export default {
 .field-card:hover .trash-icon:hover
     fill: $theme-negative-selected !important
 
-@media(max-width:768px)
+@include sm-max
     .icon-box
         margin-top: 10px
 </style>

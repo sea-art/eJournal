@@ -11,11 +11,11 @@
             <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :isInEditFormatPage="true"/>
         </b-col>
-        <b-col v-else xl="3" class="left-content-format-edit">
+        <b-col v-else xl="3" class="left-content-format-edit left-content">
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :isInEditFormatPage="true"/>
         </b-col>
 
-        <b-col lg="12" xl="6" order="3" order-xl="2" class="main-content-format-edit">
+        <b-col lg="12" xl="6" class="main-content-format-edit main-content">
             <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
             <!--
                 Fill in the template using the corresponding data
@@ -23,7 +23,14 @@
             . -->
 
             <div v-if="nodes.length > 0">
-                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @deadline-changed="sortList" @delete-preset="deletePreset" @changed="isChanged = true" :color="$root.colors[cID % $root.colors.length]"/>
+                <selected-node-card
+                    ref="entry-template-card"
+                    :currentPreset="nodes[currentNode]"
+                    :templates="templatePool"
+                    @deadline-changed="sortList"
+                    @delete-preset="deletePreset"
+                    @changed="isChanged = true"
+                    :color="$root.colors[cID % $root.colors.length]"/>
             </div>
             <div v-else>
                 <p>No presets yet</p>
@@ -39,7 +46,7 @@
                     </template-editor>
             </b-modal>
         </b-col>
-        <b-col cols="12" xl="3" order="2" order-xl="3" class="right-content-format-edit">
+        <b-col cols="12" xl="3" class="right-content-format-edit right-content">
             <h3>Format</h3>
             <b-card @click.prevent.stop="addNode" class="card hover add-button" :class="'grey-border'" style="">
                 <b>+ Add Preset to Format</b>
@@ -382,50 +389,24 @@ export default {
 
 <style lang="sass">
 @import '~sass/modules/colors.sass'
+@import '~sass/modules/breakpoints.sass'
 
 .left-content-format-edit
-    padding: 0px 30px !important
-    flex: 0 0 auto
+    padding: 0px !important
+    @include xl
+        height: 100%
+        overflow: hidden
 
 .main-content-format-edit
-    padding-top: 40px !important
-    background-color: $theme-medium-grey
-    flex: 1 1 auto
     overflow-x: hidden
 
-.right-content-format-edit
-    flex: 0 0 auto
-    padding-top: 30px !important
-    padding-left: 30px !important
-    padding-right: 30px !important
+.outer-container
+    @include xl
+        height: 100%
+        overflow: hidden
 
 @media (min-width: 1200px)
-    .outer-container
-        height: 100%
-        overflow: hidden
-
-    .left-content-format-edit
-        height: 100%
-        overflow: hidden
-
     .main-content-format-edit, .right-content-format-edit
         height: 100%
         overflow-y: scroll
-
-@media (max-width: 1200px)
-    .right-content-format-edit
-        padding: 30px !important
-
-    .main-content-format-edit
-        padding: 30px !important
-
-@media (max-width: 576px)
-    .left-content-format-edit
-        padding: 0px !important
-
-    .right-content-format-edit
-        padding: 30px 0px !important
-
-    .main-content-format-edit
-        padding: 30px 0px !important
 </style>

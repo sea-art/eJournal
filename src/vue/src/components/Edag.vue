@@ -63,12 +63,24 @@ export default {
 @import '~sass/modules/colors.sass'
 @import '~sass/modules/breakpoints.sass'
 
+.edag-container
+    @include lg-max
+        text-align: center
+    @include xl
+        height: 100%
+
 #edag-inner::-webkit-scrollbar
     display: none
 
 #edag-outer
     overflow: hidden
     height: 100%
+    @include lg-max
+        max-height: 50vh
+
+@include xl
+    #edag-outer[style]
+        display: block !important
 
 #edag-inner
     height: 100%
@@ -76,15 +88,10 @@ export default {
     overflow-x: hidden
     padding-right: 40px
     margin-right: -20px
+    @include lg-max
+        max-height: 50vh
 
-@media (min-width: 1200px)
-    .edag-container
-        height: 100%
-
-    #edag-outer[style]
-        display: block !important
-
-@media (max-width: 1200px)
+@include lg-max
     /* Handles changing of the button text. */
     [aria-expanded="false"] .edag-outer__icon--open
         display: block
@@ -117,10 +124,4 @@ export default {
         display: block
         margin-left: auto
         margin-right: auto
-
-    .edag-container
-        text-align: center
-
-    #edag-outer, #edag-inner
-        max-height: 50vh
 </style>

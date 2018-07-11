@@ -118,6 +118,7 @@ export default {
 
 <style lang="sass">
 @import '~sass/modules/colors.sass'
+@import '~sass/modules/breakpoints.sass'
 
 #header
     background-color: $theme-dark-blue
@@ -125,6 +126,19 @@ export default {
     font-family: 'Roboto Condensed', sans-serif
     font-size: 1.3em
     height: 70px
+    @include md-max
+        min-height: 70px
+        height: auto
+
+#nav-dropdown-options
+    @include md-max
+        position: absolute
+        top: 10px
+        right: 10px
+        width: auto
+
+        a.nav-link
+            text-align: right !important
 
 #nav-dropdown-options a
     padding: 0px !important
@@ -176,21 +190,8 @@ export default {
 .login-form-header
     background-color: $theme-light-grey
 
-@media(max-width:992px)
-    #nav-dropdown-options
-        position: absolute
-        top: 10px
-        right: 10px
-        width: auto
-
-    #nav-dropdown-options a.nav-link
-        text-align: right !important
-
-    #header
-        min-height: 70px
-        height: auto
-
-    .navbar-toggler
+.navbar-toggler
+    @include md-max
         position: absolute
         left: 50%
         right: 50%

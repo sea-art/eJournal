@@ -28,6 +28,6 @@ export default {
     display: flex
     flex-flow: column
     padding-top: 70px
-    @include xl
+    @include lg
         height: 100%
 </style>
