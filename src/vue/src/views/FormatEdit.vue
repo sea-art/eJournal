@@ -399,14 +399,17 @@ export default {
 
 .main-content-format-edit
     overflow-x: hidden
+    @include xl
+        height: 100%
+        overflow-y: scroll
+
+.right-content-format-edit
+    @include xl
+        height: 100%
+        overflow-y: scroll
 
 .outer-container
     @include xl
         height: 100%
         overflow: hidden
-
-@media (min-width: 1200px)
-    .main-content-format-edit, .right-content-format-edit
-        height: 100%
-        overflow-y: scroll
 </style>
