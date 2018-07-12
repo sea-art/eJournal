@@ -1,32 +1,32 @@
 <template>
-    <div>
     <b-row class="outer-container" no-gutters>
+        <b-col md="12" lg="8" xl="9" class="inner-container">
+            <b-col md="12" lg="auto" xl="4" class="left-content-journal left-content">
+                <bread-crumb v-if="$root.lgMax()" class="bread-crumb-top">&nbsp;</bread-crumb>
+                <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
+            </b-col>
 
-        <b-col md="12" lg="8" xl="3" class="left-content-journal left-content">
-            <bread-crumb v-if="$root.lgMax()" class="bread-crumb-top">&nbsp;</bread-crumb>
-            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
-        </b-col>
-
-        <b-col md="12" lg="8" xl="6" class="main-content-journal main-content">
-            <bread-crumb v-if="$root.xl()">&nbsp;</bread-crumb>
-            <div v-if="nodes.length > currentNode">
-                <div v-if="nodes[currentNode].type == 'e'">
-                    <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
+            <b-col md="12" lg="auto" xl="8" class="main-content-journal main-content">
+                <bread-crumb v-if="$root.xl()">&nbsp;</bread-crumb>
+                <div v-if="nodes.length > currentNode">
+                    <div v-if="nodes[currentNode].type == 'e'">
+                        <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
+                    </div>
+                    <div v-else-if="nodes[currentNode].type == 'd'">
+                        <entry-non-student-preview v-if="nodes[currentNode].entry !== null" ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
+                        <b-card v-else class="no-hover">
+                            <b>No entry submitted yet</b>
+                        </b-card>
+                    </div>
+                    <div v-else-if="nodes[currentNode].type == 'p'">
+                        <b-card class="card main-card no-hover" :class="'pink-border'">
+                            <h2>Needed progress</h2>
+                            Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                            before {{nodes[currentNode].deadline}}.
+                        </b-card>
+                    </div>
                 </div>
-                <div v-else-if="nodes[currentNode].type == 'd'">
-                    <entry-non-student-preview v-if="nodes[currentNode].entry !== null" ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
-                    <b-card v-else class="no-hover">
-                        <b>No entry submitted yet</b>
-                    </b-card>
-                </div>
-                <div v-else-if="nodes[currentNode].type == 'p'">
-                    <b-card class="card main-card no-hover" :class="'pink-border'">
-                        <h2>Needed progress</h2>
-                        Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
-                        before {{nodes[currentNode].deadline}}.
-                    </b-card>
-                </div>
-            </div>
+            </b-col>
         </b-col>
 
         <b-col md="12" lg="4" xl="3" class="right-content-journal right-content">
@@ -47,9 +47,7 @@
                 <b-button @click="publishGradesJournal">Publish Grades</b-button>
             </b-card>
         </b-col>
-
     </b-row>
-    </div>
 </template>
 
 <script>
