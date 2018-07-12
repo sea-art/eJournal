@@ -1,14 +1,14 @@
 <template>
+    <div>
     <b-row class="outer-container" no-gutters>
-        <b-col v-if="$root.lgMax()" md="12" lg="8" class="main-content">
-            <bread-crumb :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
-        </b-col>
+
         <b-col md="12" lg="8" xl="3" class="left-content-journal left-content">
+            <bread-crumb v-if="$root.lgMax()" class="bread-crumb-top">&nbsp;</bread-crumb>
             <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
         </b-col>
 
         <b-col md="12" lg="8" xl="6" class="main-content-journal main-content">
-            <bread-crumb v-if="!$root.lgMax()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
+            <bread-crumb v-if="$root.xl()">&nbsp;</bread-crumb>
             <div v-if="nodes.length > currentNode">
                 <div v-if="nodes[currentNode].type == 'e'">
                     <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
@@ -28,34 +28,28 @@
                 </div>
             </div>
         </b-col>
+
         <b-col md="12" lg="4" xl="3" class="right-content-journal right-content">
             <h3>Journal</h3>
             <b-card class="no-hover">
-                <b-button tag="b-button" v-if="filteredJournals.length !== 0" :to="{ name: 'Journal',
-                                              params: {
-                                                  cID: cID,
-                                                  aID: aID,
-                                                  jID: prevJournal.jID
-                                              },
-                                              query: query
-                                            }">
+                <b-button
+                    tag="b-button"
+                    v-if="filteredJournals.length !== 0"
+                    :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.jID }, query: query }">
                     Previous
                 </b-button>
-                <b-button tag="b-button" v-if="filteredJournals.length !== 0" :to="{ name: 'Journal',
-                                              params: {
-                                                  cID: cID,
-                                                  aID: aID,
-                                                  jID: nextJournal.jID
-                                              },
-                                              query: query
-                                            }">
+                <b-button
+                    tag="b-button"
+                    v-if="filteredJournals.length !== 0"
+                    :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: nextJournal.jID }, query: query }">
                     Next
                 </b-button>
-                <!-- {{ filteredJournals }} -->
                 <b-button @click="publishGradesJournal">Publish Grades</b-button>
             </b-card>
         </b-col>
+
     </b-row>
+    </div>
 </template>
 
 <script>
@@ -74,7 +68,6 @@ export default {
             currentNode: 0,
             editedData: ['', ''],
             nodes: [],
-            newNodes: [],
             progressNodes: {},
             assignmentJournals: [],
             selectedSortOption: 'sortName',

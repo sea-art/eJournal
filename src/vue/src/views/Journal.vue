@@ -30,6 +30,10 @@ export default {
 @import '~sass/modules/colors.sass'
 @import '~sass/modules/breakpoints.sass'
 
+.bread-crumb-top
+    padding-top: 30px
+    background-color: $theme-medium-grey
+
 .left-content-journal
     padding: 0px !important
     @include xl
