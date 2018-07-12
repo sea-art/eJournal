@@ -5,12 +5,10 @@
                 <img class="img-fluid portrait-max-height" :src="portraitPath">
             </b-col>
             <b-col order="2" cols="8" class="d-none d-sm-inline">
-                    <todo-square :num="this.stats.submitted - this.stats.graded"/>
-                    {{ student }}<br/>
-                    <p>{{ studentNumber }}</p><br/>
-                <div class="progress-bar-container">
-                    <progress-bar class="progress-bar-comp" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
-                </div>
+                <todo-square :num="this.stats.submitted - this.stats.graded"/>
+                {{ student }}<br/>
+                <p>{{ studentNumber }}</p><br/>
+                <progress-bar :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
             </b-col>
 
             <b-col order="2" cols="8" order-sm="3" sm="3" class="d-sm-none">
@@ -43,9 +41,6 @@ export default {
 </script>
 
 <style lang="sass">
-.progress-bar-container
-    height: 100%
-
 /* TODO Not the most clean solution for xl. */
 .portrait-max-height
     max-height: 173px
