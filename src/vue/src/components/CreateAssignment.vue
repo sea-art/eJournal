@@ -1,5 +1,5 @@
 <template>
-    <!-- TODO: Maak formats! -->
+    <!-- TODO: Create default formats. -->
     <div>
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.assignmentName" placeholder="Assignment name"/>
