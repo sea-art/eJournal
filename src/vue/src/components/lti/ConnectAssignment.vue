@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import assignmentCard from '@/components/AssignmentCard.vue'
+import assignmentCard from '@/components/assignment/AssignmentCard.vue'
 import assignApi from '@/api/assignment.js'
 
 export default {

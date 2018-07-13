@@ -55,9 +55,9 @@
 </template>
 
 <script>
-import breadCrumb from '@/components/BreadCrumb.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import contentSingleTableColumn from '@/components/columns/ContentSingleTableColumn.vue'
-import customCheckbox from '@/components/CustomCheckbox.vue'
+import customCheckbox from '@/components/assets/CustomCheckbox.vue'
 import icon from 'vue-awesome/components/Icon'
 import permissions from '@/api/permissions.js'
 

@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import createCourse from '@/components/CreateCourse.vue'
+import createCourse from '@/components/course/CreateCourse.vue'
 import connectCourse from '@/components/lti/ConnectCourse.vue'
 
 export default {

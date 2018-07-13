@@ -61,13 +61,13 @@
 
 <script>
 import contentColumns from '@/components/columns/ContentColumns.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
-import assignmentCard from '@/components/AssignmentCard.vue'
-import todoCard from '@/components/TodoCard.vue'
-import progressBar from '@/components/ProgressBar.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import assignmentCard from '@/components/assignment/AssignmentCard.vue'
+import todoCard from '@/components/assets/TodoCard.vue'
+import progressBar from '@/components/assets/ProgressBar.vue'
 import assignment from '@/api/assignment.js'
-import mainCard from '@/components/MainCard.vue'
-import createAssignment from '@/components/CreateAssignment.vue'
+import mainCard from '@/components/assets/MainCard.vue'
+import createAssignment from '@/components/assignment/CreateAssignment.vue'
 import courseApi from '@/api/course.js'
 
 export default {

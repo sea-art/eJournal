@@ -72,9 +72,9 @@
 
 <script>
 import contentColumns from '@/components/columns/ContentColumns.vue'
-import studentCard from '@/components/StudentCard.vue'
-import statisticsCard from '@/components/StatisticsCard.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
+import studentCard from '@/components/assignment/StudentCard.vue'
+import statisticsCard from '@/components/assignment/StatisticsCard.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import journal from '@/api/journal.js'
 import permissionsApi from '@/api/permissions.js'
 import store from '@/Store.vue'

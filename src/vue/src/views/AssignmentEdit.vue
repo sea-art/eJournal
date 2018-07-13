@@ -23,7 +23,7 @@
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import assignmentApi from '@/api/assignment.js'
 import store from '@/Store'
 

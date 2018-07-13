@@ -93,10 +93,10 @@
 </template>
 
 <script>
-import addUsersToCourseCard from '@/components/AddUsersToCourseCard.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
+import addUsersToCourseCard from '@/components/course/AddUsersToCourseCard.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
-import courseParticipantCard from '@/components/CourseParticipantCard.vue'
+import courseParticipantCard from '@/components/course/CourseParticipantCard.vue'
 import courseApi from '@/api/course.js'
 import store from '@/Store'
 

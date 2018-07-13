@@ -20,7 +20,7 @@
 </template>
 
 <script>
-import createAssignment from '@/components/CreateAssignment.vue'
+import createAssignment from '@/components/assignment/CreateAssignment.vue'
 
 export default {
     name: 'LtiCreateAssignment',

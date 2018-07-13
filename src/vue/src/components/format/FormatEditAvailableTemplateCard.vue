@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import Switch from '@/components/SwitchComponent.vue'
+import Switch from '@/components/assets/SwitchComponent.vue'
 import icon from 'vue-awesome/components/Icon'
 
 export default {

@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import mainCard from '@/components/MainCard.vue'
+import mainCard from '@/components/assets/MainCard.vue'
 import courseApi from '@/api/course.js'
 
 export default {

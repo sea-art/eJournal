@@ -73,7 +73,7 @@
 <script>
 import contentColumns from '@/components/columns/ContentColumns.vue'
 import edag from '@/components/edag/Edag.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import formatEditAvailableTemplateCard from '@/components/format/FormatEditAvailableTemplateCard.vue'
 import formatEditSelectTemplateCard from '@/components/format/FormatEditSelectTemplateCard.vue'
 import journalAPI from '@/api/journal.js'

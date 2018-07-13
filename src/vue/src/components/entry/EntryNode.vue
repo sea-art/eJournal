@@ -106,7 +106,7 @@
 </template>
 
 <script>
-import commentCard from '@/components/CommentCard.vue'
+import commentCard from '@/components/journal/CommentCard.vue'
 
 export default {
     props: ['entryNode', 'cID'],

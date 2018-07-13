@@ -7,8 +7,8 @@
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
-import loginForm from '@/components/LoginForm.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import loginForm from '@/components/account/LoginForm.vue'
 import auth from '@/api/auth.js'
 
 export default {

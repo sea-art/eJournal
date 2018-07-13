@@ -23,7 +23,7 @@
 </template>
 
 <script>
-import Switch from '@/components/SwitchComponent.vue'
+import Switch from '@/components/assets/SwitchComponent.vue'
 import userAPI from '@/api/user.js'
 
 export default {

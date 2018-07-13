@@ -28,8 +28,8 @@
 </template>
 
 <script>
-import progressBar from '@/components/ProgressBar.vue'
-import todoSquare from '@/components/TodoSquare.vue'
+import progressBar from '@/components/assets/ProgressBar.vue'
+import todoSquare from '@/components/assets/TodoSquare.vue'
 
 export default {
     props: ['student', 'studentNumber', 'portraitPath', 'stats', 'color'],

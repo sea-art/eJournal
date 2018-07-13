@@ -33,8 +33,8 @@
 </template>
 
 <script>
-import registerUser from '@/components/RegisterUser.vue'
-import loginForm from '@/components/LoginForm.vue'
+import registerUser from '@/components/account/RegisterUser.vue'
+import loginForm from '@/components/account/LoginForm.vue'
 import userApi from '@/api/user.js'
 
 export default {

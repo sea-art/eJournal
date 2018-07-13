@@ -15,7 +15,7 @@
 </template>
 
 <script>
-import todoSquare from '@/components/TodoSquare.vue'
+import todoSquare from '@/components/assets/TodoSquare.vue'
 
 export default {
     props: ['date', 'hours', 'minutes', 'name', 'abbr', 'totalNeedsMarking', 'color'],

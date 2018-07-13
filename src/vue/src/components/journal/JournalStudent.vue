@@ -56,9 +56,9 @@
 <script>
 import contentColumns from '@/components/columns/ContentColumns.vue'
 import entryNode from '@/components/entry/EntryNode.vue'
-import addCard from '@/components/AddCard.vue'
+import addCard from '@/components/journal/AddCard.vue'
 import edag from '@/components/edag/Edag.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import journal from '@/api/journal'
 import entryPreview from '@/components/entry/EntryPreview.vue'
 import assignmentApi from '@/api/assignment.js'

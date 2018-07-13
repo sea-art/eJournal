@@ -74,11 +74,11 @@
 
 <script>
 import contentColumns from '@/components/columns/ContentColumns.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
-import mainCard from '@/components/MainCard.vue'
-import todoCard from '@/components/TodoCard.vue'
-import createCourse from '@/components/CreateCourse.vue'
-import editHome from '@/components/EditHome.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import mainCard from '@/components/assets/MainCard.vue'
+import todoCard from '@/components/assets/TodoCard.vue'
+import createCourse from '@/components/course/CreateCourse.vue'
+import editHome from '@/components/home/EditHome.vue'
 import course from '@/api/course'
 import assignmentApi from '@/api/assignment.js'
 

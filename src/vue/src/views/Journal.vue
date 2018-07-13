@@ -7,7 +7,7 @@
 import contentColumns from '@/components/columns/ContentColumns.vue'
 import journalStudent from '@/components/journal/JournalStudent.vue'
 import journalNonStudent from '@/components/journal/JournalNonStudent.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
 
 export default {
     name: 'Journal',

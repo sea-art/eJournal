@@ -37,10 +37,10 @@
 
 <script>
 import contentColumns from '@/components/columns/ContentColumns.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
-import mainCard from '@/components/MainCard.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import mainCard from '@/components/assets/MainCard.vue'
 import assignmentApi from '@/api/assignment.js'
-import todoCard from '@/components/TodoCard.vue'
+import todoCard from '@/components/assets/TodoCard.vue'
 
 export default {
     name: 'AssignmentsOverview',
