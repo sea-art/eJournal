@@ -45,7 +45,7 @@
                             </div>
                         </b-col>
                         <b-col id="main-card-right-column" cols="3" lg-cols="12">
-                            <b-button @click.prevent="emitDeletePreset" class="delete-button">Delete Preset</b-button>
+                            <b-button @click.prevent="emitDeletePreset" class="delete-button float-right">Delete</b-button>
                         </b-col>
                     </b-row>
                 </b-card>

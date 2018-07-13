@@ -6,46 +6,47 @@
 -->
 
 <template>
-    <b-row class="outer-container" no-gutters>
-        <b-col v-if="$root.lgMax()" cols="12" class="main-content">
-            <bread-crumb @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
-        </b-col>
-        <b-col xl="3" class="left-content-format-edit left-content">
-            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :isInEditFormatPage="true"/>
+    <b-row class="outer-container-edag-page" no-gutters>
+        <b-col md="12" lg="8" xl="9" class="inner-container-edag-page">
+            <b-col md="12" lg="auto" xl="4" class="left-content-edag-page">
+                <bread-crumb v-if="$root.lgMax()" class="main-content">&nbsp;</bread-crumb>
+                <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :isInEditFormatPage="true"/>
+            </b-col>
+
+            <b-col md="12" lg="auto" xl="8" class="main-content-edag-page">
+                <bread-crumb v-if="$root.xl()" class="main-content">&nbsp;</bread-crumb>
+                <!--
+                    Fill in the template using the corresponding data
+                    of the entry
+                . -->
+
+                <div v-if="nodes.length > 0">
+                    <selected-node-card
+                        ref="entry-template-card"
+                        :currentPreset="nodes[currentNode]"
+                        :templates="templatePool"
+                        @deadline-changed="sortList"
+                        @delete-preset="deletePreset"
+                        @changed="isChanged = true"
+                        :color="$root.colors[cID % $root.colors.length]"/>
+                </div>
+                <div v-else>
+                    <p>No presets yet</p>
+                </div>
+
+                <b-modal
+                    ref="modal"
+                    size="lg"
+                    ok-only
+                    hide-header>
+                        <span slot="modal-ok">Back</span>
+                        <template-editor :template="templateBeingEdited">
+                        </template-editor>
+                </b-modal>
+            </b-col>
         </b-col>
 
-        <b-col lg="12" xl="6" class="main-content-format-edit main-content">
-            <bread-crumb v-if="$root.xl()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
-            <!--
-                Fill in the template using the corresponding data
-                of the entry
-            . -->
-
-            <div v-if="nodes.length > 0">
-                <selected-node-card
-                    ref="entry-template-card"
-                    :currentPreset="nodes[currentNode]"
-                    :templates="templatePool"
-                    @deadline-changed="sortList"
-                    @delete-preset="deletePreset"
-                    @changed="isChanged = true"
-                    :color="$root.colors[cID % $root.colors.length]"/>
-            </div>
-            <div v-else>
-                <p>No presets yet</p>
-            </div>
-
-            <b-modal
-                ref="modal"
-                size="lg"
-                ok-only
-                hide-header>
-                    <span slot="modal-ok">Back</span>
-                    <template-editor :template="templateBeingEdited">
-                    </template-editor>
-            </b-modal>
-        </b-col>
-        <b-col cols="12" xl="3" class="right-content-format-edit right-content">
+        <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
             <h3>Format</h3>
             <b-card @click.prevent.stop="addNode" class="card hover add-button" :class="'grey-border'" style="">
                 <b>+ Add Preset to Format</b>
@@ -356,26 +357,5 @@ export default {
 </script>
 
 <style lang="sass">
-@import '~sass/modules/colors.sass'
-@import '~sass/modules/breakpoints.sass'
-
-.left-content-format-edit
-    padding: 0px !important
-    @include xl
-        height: 100%
-        overflow: hidden
-
-.main-content-format-edit
-    overflow-x: hidden
-    @include xl
-        height: 100%
-
-.right-content-format-edit
-    @include xl
-        height: 100%
-
-.outer-container
-    @include xl
-        height: 100%
-        overflow: hidden
+@import '~sass/partials/edag-page-layout.sass'
 </style>

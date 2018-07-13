@@ -1,13 +1,13 @@
 <template>
-    <b-row class="outer-container" no-gutters>
-        <b-col md="12" lg="8" xl="9" class="inner-container">
-            <b-col md="12" lg="auto" xl="4" class="left-content-journal left-content">
-                <bread-crumb v-if="$root.lgMax()" class="bread-crumb-top">&nbsp;</bread-crumb>
+    <b-row class="outer-container-edag-page" no-gutters>
+        <b-col md="12" lg="8" xl="9" class="inner-container-edag-page">
+            <b-col md="12" lg="auto" xl="4" class="left-content-edag-page">
+                <bread-crumb v-if="$root.lgMax()" class="main-content">&nbsp;</bread-crumb>
                 <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
             </b-col>
 
-            <b-col md="12" lg="auto" xl="8" class="main-content-journal main-content">
-                <bread-crumb v-if="$root.xl()">&nbsp;</bread-crumb>
+            <b-col md="12" lg="auto" xl="8" class="main-content-edag-page">
+                <bread-crumb v-if="$root.xl()" class="main-content">&nbsp;</bread-crumb>
                 <div v-if="nodes.length > currentNode">
                     <div v-if="nodes[currentNode].type == 'e'">
                         <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
@@ -29,7 +29,7 @@
             </b-col>
         </b-col>
 
-        <b-col md="12" lg="4" xl="3" class="right-content-journal right-content">
+        <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
             <h3>Journal</h3>
             <b-card class="no-hover">
                 <b-button

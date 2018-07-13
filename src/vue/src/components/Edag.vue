@@ -76,7 +76,6 @@ export default {
     overflow: hidden
     height: 100%
     @include lg-max
-        border-top: 48px solid $theme-blue
         max-height: 50vh
 
 @include xl

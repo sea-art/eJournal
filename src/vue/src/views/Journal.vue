@@ -27,42 +27,5 @@ export default {
 </script>
 
 <style lang="sass">
-@import '~sass/modules/colors.sass'
-@import '~sass/modules/breakpoints.sass'
-
-.bread-crumb-top
-    padding-top: 30px
-    background-color: $theme-medium-grey
-
-.left-content-journal
-    padding: 0px !important
-    @include xl
-        height: 100%
-        overflow: hidden
-
-.main-content-journal
-    padding: 30px 0px 0px 0px !important
-    overflow-x: hidden
-    flex-grow: 1
-    @include xl
-        height: 100%
-
-.right-content-journal
-    @include xl
-        height: 100%
-
-.outer-container
-    @include xl
-        height: 100%
-        overflow: hidden
-
-.inner-container
-    display: flex
-    min-height: 100%
-    flex-direction: row
-    flex-wrap: wrap
-    @include lg
-        flex-direction: column
-    @include xl
-        flex-direction: row
+    @import '~sass/partials/edag-page-layout.sass'
 </style>

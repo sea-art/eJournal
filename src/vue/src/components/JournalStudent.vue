@@ -1,44 +1,51 @@
 <template>
     <b-row class="outer-container" no-gutters>
-        <b-col v-if="$root.lgMax()" cols="12" class="main-content">
-            <bread-crumb :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
-        </b-col>
-        <b-col class="left-content-journal left-content">
-            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
-        </b-col>
+        <b-col md="12" lg="8" xl="9" class="inner-container-edag-page">
+            <b-col md="12" lg="auto" xl="4" class="left-content-edag-page">
+                <bread-crumb v-if="$root.lgMax()" class="main-content">&nbsp;</bread-crumb>
+                <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
+            </b-col>
 
-        <b-col lg="12" xl="6" class="main-content-journal main-content">
-            <bread-crumb v-if="!$root.lgMax()" :currentPage="$route.params.assignmentName" :course="$route.params.courseName">&nbsp;</bread-crumb>
-            <div v-if="nodes.length > currentNode">
-                <div v-if="nodes[currentNode].type == 'e'">
-                    <entry-node ref="entry-template-card" @edit-node="adaptData" :cID="cID" :entryNode="nodes[currentNode]" :color="$root.colors[cID % $root.colors.length]"/>
-                </div>
-                <div v-else-if="nodes[currentNode].type == 'd'">
-                    <div v-if="nodes[currentNode].entry !== null">
-                        <entry-node :cID="cID" ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
+            <b-col md="12" lg="auto" xl="8" class="main-content-edag-page">
+                <bread-crumb v-if="$root.xl()" class="main-content">&nbsp;</bread-crumb>
+                <div v-if="nodes.length > currentNode">
+                    <div v-if="nodes[currentNode].type == 'e'">
+                        <entry-node
+                            ref="entry-template-card"
+                            @edit-node="adaptData"
+                            :cID="cID"
+                            :entryNode="nodes[currentNode]"
+                            :color="$root.colors[cID % $root.colors.length]"/>
                     </div>
-                    <div v-else>
-                        <div v-if="checkDeadline()">
-                            <entry-preview ref="entry-template-card" @content-template="fillDeadline" :template="nodes[currentNode].template"/>
+                    <div v-else-if="nodes[currentNode].type == 'd'">
+                        <div v-if="nodes[currentNode].entry !== null">
+                            <entry-node :cID="cID" ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                         </div>
                         <div v-else>
-                            The deadline has passed, you can't make another submission
+                            <div v-if="checkDeadline()">
+                                <entry-preview ref="entry-template-card" @content-template="fillDeadline" :template="nodes[currentNode].template"/>
+                            </div>
+                            <div v-else>
+                                The deadline has passed, you can't make another submission
+                            </div>
                         </div>
                     </div>
+                    <div v-else-if="nodes[currentNode].type == 'a'">
+                        <add-card @info-entry="addNode" :addNode="nodes[currentNode]" :color="$root.colors[cID % $root.colors.length]"/>
+                    </div>
+                    <div v-else-if="nodes[currentNode].type == 'p'">
+                        <b-card class="card main-card no-hover" :class="'pink-border'">
+                            <h2>Needed progress</h2>
+                            You have {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
+                            needed points before {{nodes[currentNode].deadline}}.
+                        </b-card>
+                    </div>
                 </div>
-                <div v-else-if="nodes[currentNode].type == 'a'">
-                    <add-card @info-entry="addNode" :addNode="nodes[currentNode]" :color="$root.colors[cID % $root.colors.length]"/>
-                </div>
-                <div v-else-if="nodes[currentNode].type == 'p'">
-                    <b-card class="card main-card no-hover" :class="'pink-border'">
-                        <h2>Needed progress</h2>
-                        You have {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
-                        needed points before {{nodes[currentNode].deadline}}.
-                    </b-card>
-                </div>
-            </div>
+            </b-col>
         </b-col>
-        <b-col cols="12" xl="3" class="right-content-journal right-content">
+
+
+        <b-col md="12" lg="4" xl="3" class="right-content-journal right-content">
             <h3>Assignment Description</h3>
             <b-card class="no-hover" :class="'grey-border'" style="">
                 {{ assignmentDescription }}
