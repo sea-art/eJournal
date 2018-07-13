@@ -6,8 +6,8 @@
 </template>
 
 <script>
-import contentSingleColumn from '@/components/ContentSingleColumn.vue'
-import ltiCreateConnectUser from '@/components/LtiCreateConnectUser.vue'
+import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import ltiCreateConnectUser from '@/components/lti/LtiCreateConnectUser.vue'
 
 export default {
     name: 'LtiLogin',

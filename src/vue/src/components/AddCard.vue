@@ -34,8 +34,8 @@
 </template>
 
 <script>
-import templatePreview from '@/components/TemplatePreview.vue'
-import entryPreview from '@/components/EntryPreview.vue'
+import templatePreview from '@/components/template/TemplatePreview.vue'
+import entryPreview from '@/components/entry/EntryPreview.vue'
 
 export default {
     props: ['addNode', 'color'],

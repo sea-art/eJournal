@@ -15,9 +15,9 @@
 </template>
 
 <script>
-import profileData from '@/components/ProfileData.vue'
-import notificationCard from '@/components/NotificationCard.vue'
-import passwordCard from '@/components/PasswordCard.vue'
+import profileData from '@/components/profile/ProfileData.vue'
+import notificationCard from '@/components/profile/NotificationCard.vue'
+import passwordCard from '@/components/profile/PasswordCard.vue'
 
 export default {
     props: ['uname', 'first', 'last', 'id', 'image', 'gradeUpdate', 'commentUpdate'],

@@ -4,9 +4,9 @@
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
-import journalStudent from '@/components/JournalStudent.vue'
-import journalNonStudent from '@/components/JournalNonStudent.vue'
+import contentColumns from '@/components/columns/ContentColumns.vue'
+import journalStudent from '@/components/journal/JournalStudent.vue'
+import journalNonStudent from '@/components/journal/JournalNonStudent.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 
 export default {

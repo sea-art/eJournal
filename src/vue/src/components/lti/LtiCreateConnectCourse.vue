@@ -34,7 +34,7 @@
 
 <script>
 import createCourse from '@/components/CreateCourse.vue'
-import connectCourse from '@/components/ConnectCourse.vue'
+import connectCourse from '@/components/lti/ConnectCourse.vue'
 
 export default {
     name: 'LtiCreateConnectCourse',

@@ -8,10 +8,10 @@
 </template>
 
 <script>
-import contentSingleColumn from '@/components/ContentSingleColumn.vue'
-import ltiCreateConnectCourse from '@/components/LtiCreateConnectCourse.vue'
-import ltiCreateConnectAssignment from '@/components/LtiCreateConnectAssignment.vue'
-import ltiCreateAssignment from '@/components/LtiCreateAssignment.vue'
+import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import ltiCreateConnectCourse from '@/components/lti/LtiCreateConnectCourse.vue'
+import ltiCreateConnectAssignment from '@/components/lti/LtiCreateConnectAssignment.vue'
+import ltiCreateAssignment from '@/components/lti/LtiCreateAssignment.vue'
 import assignApi from '@/api/assignment.js'
 import ltiApi from '@/api/ltilaunch.js'
 import router from '@/router'

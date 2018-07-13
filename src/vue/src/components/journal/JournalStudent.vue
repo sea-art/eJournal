@@ -44,7 +44,6 @@
             </b-col>
         </b-col>
 
-
         <b-col md="12" lg="4" xl="3" class="right-content-journal right-content">
             <h3>Assignment Description</h3>
             <b-card class="no-hover" :class="'grey-border'" style="">
@@ -55,13 +54,13 @@
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
-import entryNode from '@/components/EntryNode.vue'
+import contentColumns from '@/components/columns/ContentColumns.vue'
+import entryNode from '@/components/entry/EntryNode.vue'
 import addCard from '@/components/AddCard.vue'
-import edag from '@/components/Edag.vue'
+import edag from '@/components/edag/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import journal from '@/api/journal'
-import entryPreview from '@/components/EntryPreview.vue'
+import entryPreview from '@/components/entry/EntryPreview.vue'
 import assignmentApi from '@/api/assignment.js'
 
 export default {

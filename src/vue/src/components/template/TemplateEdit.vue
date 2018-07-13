@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import ContentSingleColumn from '@/components/ContentSingleColumn.vue'
+import ContentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import icon from 'vue-awesome/components/Icon'
 import draggable from 'vuedraggable'
 

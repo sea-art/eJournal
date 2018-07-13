@@ -6,7 +6,7 @@
 </template>
 
 <script>
-import contentSingleColumn from '@/components/ContentSingleColumn.vue'
+import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import registerUser from '@/components/RegisterUser.vue'
 

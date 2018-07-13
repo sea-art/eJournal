@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import edagNode from '@/components/EdagNode'
+import edagNode from '@/components/edag/EdagNode.vue'
 import icon from 'vue-awesome/components/Icon'
 
 export default {

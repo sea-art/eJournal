@@ -34,7 +34,7 @@
 
 <script>
 import createAssignment from '@/components/CreateAssignment.vue'
-import connectAssignment from '@/components/ConnectAssignment.vue'
+import connectAssignment from '@/components/lti/ConnectAssignment.vue'
 
 export default {
     name: 'LtiCreateConnectAssignment',

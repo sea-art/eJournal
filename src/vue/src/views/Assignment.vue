@@ -71,7 +71,7 @@
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
+import contentColumns from '@/components/columns/ContentColumns.vue'
 import studentCard from '@/components/StudentCard.vue'
 import statisticsCard from '@/components/StatisticsCard.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'

@@ -25,8 +25,8 @@
 </template>
 
 <script>
-import edagNodeCircle from '@/components/EdagNodeCircle.vue'
-import edagNodeDate from '@/components/EdagNodeDate.vue'
+import edagNodeCircle from '@/components/edag/EdagNodeCircle.vue'
+import edagNodeDate from '@/components/edag/EdagNodeDate.vue'
 
 export default {
     props: ['node', 'selected', 'upperEdgeStyle', 'lowerEdgeStyle', 'index', 'isInEditFormatPage'],

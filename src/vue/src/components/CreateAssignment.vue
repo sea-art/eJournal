@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import ContentSingleColumn from '@/components/ContentSingleColumn.vue'
+import ContentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import assignmentApi from '@/api/assignment.js'
 
 export default {

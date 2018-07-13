@@ -14,9 +14,9 @@
 </template>
 
 <script>
-import contentSingleColumn from '@/components/ContentSingleColumn.vue'
+import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
-import profileCard from '@/components/ProfileCard.vue'
+import profileCard from '@/components/profile/ProfileCard.vue'
 import userAPI from '@/api/user.js'
 
 export default {

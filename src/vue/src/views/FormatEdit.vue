@@ -71,13 +71,13 @@
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
-import edag from '@/components/Edag.vue'
+import contentColumns from '@/components/columns/ContentColumns.vue'
+import edag from '@/components/edag/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
-import formatEditAvailableTemplateCard from '@/components/FormatEditAvailableTemplateCard.vue'
-import formatEditSelectTemplateCard from '@/components/FormatEditSelectTemplateCard.vue'
+import formatEditAvailableTemplateCard from '@/components/format/FormatEditAvailableTemplateCard.vue'
+import formatEditSelectTemplateCard from '@/components/format/FormatEditSelectTemplateCard.vue'
 import journalAPI from '@/api/journal.js'
-import templateEdit from '@/components/TemplateEdit.vue'
+import templateEdit from '@/components/template/TemplateEdit.vue'
 
 export default {
     name: 'FormatEdit',

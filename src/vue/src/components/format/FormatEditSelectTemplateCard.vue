@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import templatePreview from '@/components/TemplatePreview.vue'
+import templatePreview from '@/components/template/TemplatePreview.vue'
 
 export default {
     props: ['currentPreset', 'templates', 'color'],

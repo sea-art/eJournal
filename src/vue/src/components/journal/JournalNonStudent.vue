@@ -51,10 +51,10 @@
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
-import entryNonStudentPreview from '@/components/EntryNonStudentPreview.vue'
+import contentColumns from '@/components/columns/ContentColumns.vue'
+import entryNonStudentPreview from '@/components/entry/EntryNonStudentPreview.vue'
 import addCard from '@/components/AddCard.vue'
-import edag from '@/components/Edag.vue'
+import edag from '@/components/edag/Edag.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import journal from '@/api/journal'
 import store from '@/Store.vue'

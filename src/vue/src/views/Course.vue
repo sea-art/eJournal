@@ -60,7 +60,7 @@
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
+import contentColumns from '@/components/columns/ContentColumns.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import assignmentCard from '@/components/AssignmentCard.vue'
 import todoCard from '@/components/TodoCard.vue'
