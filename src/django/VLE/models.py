@@ -510,10 +510,10 @@ class Content(models.Model):
     data = models.TextField()
 
 
-class EntryComment(models.Model):
-    """EntryComment.
+class Comment(models.Model):
+    """Comment.
 
-    EntryComments contain the comments given to the entries.
+    Comments contain the comments given to the entries.
     It is linked to a single entry with a single author and the comment text.
     """
 

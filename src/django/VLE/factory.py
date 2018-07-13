@@ -4,7 +4,7 @@ factory.py.
 The facory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
-from VLE.models import User, Participation, Course, Assignment, Role, JournalFormat, PresetNode, Node, EntryComment, \
+from VLE.models import User, Participation, Course, Assignment, Role, JournalFormat, PresetNode, Node, Comment, \
     Entry, EntryTemplate, Field, Content, Journal
 import random
 import django.utils.timezone as timezone
@@ -324,7 +324,7 @@ def make_entrycomment(entry, author, text):
     author -- author of the comment
     text -- content of the comment
     """
-    return EntryComment.objects.create(
+    return Comment.objects.create(
         entry=entry,
         author=author,
         text=text

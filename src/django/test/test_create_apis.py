@@ -4,7 +4,7 @@ test_apis.py.
 Test API calls.
 """
 from django.test import TestCase
-from VLE.models import Course, Assignment, Journal, Entry, Content, EntryComment
+from VLE.models import Course, Assignment, Journal, Entry, Content, Comment
 
 import VLE.factory as factory
 import test.test_utils as test
@@ -98,5 +98,5 @@ class CreateApiTests(TestCase):
         }
 
         test.api_post_call(self, '/create_entrycomment/', create_entrycomment_dict, login, 201)
-        self.assertTrue(EntryComment.objects.filter(entry=entry).exists())
-        self.assertEquals(EntryComment.objects.get(pk=1).text, 'Wow! This is bad/good')
+        self.assertTrue(Comment.objects.filter(entry=entry).exists())
+        self.assertEquals(Comment.objects.get(pk=1).text, 'Wow! This is bad/good')

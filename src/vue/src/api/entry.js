@@ -2,12 +2,12 @@ import auth from '@/api/auth'
 
 export default {
     /* Get entrycomments based on an entryID. */
-    getEntryComments (entryID) {
+    getComments (entryID) {
         return auth.authenticatedGet('/get_entrycomments/' + entryID + '/')
             .then(response => response.data)
     },
     /* Create Entry Comment with given text, author and entry. */
-    createEntryComment (entryID, authorID, text) {
+    createComment (entryID, authorID, text) {
         return auth.authenticatedPost('/create_entrycomment/', {
             entryID: entryID,
             authorID: authorID,
@@ -15,8 +15,8 @@ export default {
         })
             .then(response => response.data)
     },
-    /* Update Entry Comment with given text and EntryComment. */
-    updateEntryComments (entrycommentID, text) {
+    /* Update Entry Comment with given text and Comment. */
+    updateComments (entrycommentID, text) {
         return auth.authenticatedGet('/update_entrycomments/', {
             entrycommentID: entrycommentID,
             text: text

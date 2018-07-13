@@ -16,7 +16,7 @@ import jwt
 import VLE.lti_launch as lti
 import VLE.edag as edag
 import VLE.utils as utils
-from VLE.models import Assignment, Course, Journal, EntryTemplate, EntryComment, User, Node, \
+from VLE.models import Assignment, Course, Journal, EntryTemplate, Comment, User, Node, \
     Role, Entry
 import VLE.serializers as serialize
 import VLE.permissions as permissions
@@ -683,7 +683,7 @@ def get_entrycomments(request, eID):
             entry.node.journal.assignment, 'can_view_assignment_participants')):
         return responses.forbidden('You are not allowed to view journals of other participants.')
 
-    entrycomments = EntryComment.objects.filter(entry=entry)
+    entrycomments = Comment.objects.filter(entry=entry)
 
     return responses.success(payload={
         'entrycomments': [serialize.entrycomment_to_dict(comment) for comment in entrycomments]

@@ -11,7 +11,7 @@ import VLE.serializers as serialize
 import VLE.utils as utils
 import VLE.permissions as permissions
 import VLE.factory as factory
-from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, \
+from VLE.models import Course, Comment, Assignment, Participation, Role, Entry, \
     User, Journal
 import VLE.lti_grade_passback as lti_grade
 from django.conf import settings
@@ -612,8 +612,8 @@ def update_entrycomment(request):
         return responses.keyerror("entrycommentID")
 
     try:
-        comment = EntryComment.objects.get(pk=entrycommentID)
-    except EntryComment.DoesNotExist:
+        comment = Comment.objects.get(pk=entrycommentID)
+    except Comment.DoesNotExist:
         return responses.not_found('Entrycomment does not exist.')
 
     if not permissions.has_assignment_permission(request.user, comment.entry.node.journal.assignment,

@@ -50,24 +50,24 @@ export default {
     watch: {
         eID: function () {
             this.tempComment = ''
-            entryApi.getEntryComments(this.eID).then(response => { this.commentObject = response })
+            entryApi.getComments(this.eID).then(response => { this.commentObject = response })
         }
     },
     created () {
         this.getAuthorID()
-        this.getEntryComments()
+        this.getComments()
     },
     methods: {
         getAuthorID: function () {
             userApi.getOwnUserData()
                 .then(response => { this.userData = response })
         },
-        getEntryComments: function () {
-            entryApi.getEntryComments(this.eID).then(response => { this.commentObject = response })
+        getComments: function () {
+            entryApi.getComments(this.eID).then(response => { this.commentObject = response })
         },
         addComment: function () {
             if (this.tempComment !== '') {
-                entryApi.createEntryComment(this.eID, this.userData.uID, this.tempComment)
+                entryApi.createComment(this.eID, this.userData.uID, this.tempComment)
                 this.commentObject.entrycomments.push({
                     entrtyID: this.eID,
                     author: {
