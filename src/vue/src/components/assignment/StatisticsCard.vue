@@ -1,5 +1,5 @@
 <template>
-    <b-card class="card no-hover" :class="color" style="">
+    <b-card class="card no-hover" :class="color">
         <b>{{ subject }}</b><div class="point-square">{{ num }}</div>
     </b-card>
 </template>

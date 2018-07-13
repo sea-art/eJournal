@@ -46,7 +46,7 @@
 
         <b-col md="12" lg="4" xl="3" class="right-content-journal right-content">
             <h3>Assignment Description</h3>
-            <b-card class="no-hover" :class="'grey-border'" style="">
+            <b-card class="no-hover" :class="'grey-border'">
                 {{ assignmentDescription }}
             </b-card>
         </b-col>

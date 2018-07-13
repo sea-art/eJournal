@@ -19,7 +19,7 @@
                         </b-row>
                     </b-card>
                 </div>
-                <div style="visibility: hidden;"></div>
+                <div class="invisible"></div>
             </draggable>
             <b-card class="hover add-button" @click="addField">+ Add field</b-card>
         </b-card>

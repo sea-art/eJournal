@@ -5,7 +5,7 @@ Taken from: http://thesassway.com/beginner/how-to-structure-a-sass-project
 As we require more structure when it comes to our CSS, I figured this would be a good place to start. The format is inspired by: https://smacss.com
 An incredibly modular approach to scaling css structure.
 
-### The goal is to adapt this to our need, take it as starting point.
+**The goal is to adapt this to our need, take it as starting point.**
 
 ## Modules
 The modules directory is reserved for Sass code that doesn't cause Sass to actually output CSS. Things like mixin declarations, functions, and variables.

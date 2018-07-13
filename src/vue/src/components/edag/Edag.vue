@@ -8,7 +8,16 @@
     <div class="edag-container">
         <b-collapse id="edag-outer">
             <div id="edag-inner" ref="scd">
-                <edag-node v-for="(node, index) in this.nodes" @select-node="$emit('select-node', $event)" :index="index" :node="node" :selected="isSelected(index)" :isInEditFormatPage="isInEditFormatPage" :key="node.nID" :upperEdgeStyle="upperEdgeStyle(index)" :lowerEdgeStyle="lowerEdgeStyle(index)"/>
+                <edag-node
+                    v-for="(node, index) in this.nodes"
+                    @select-node="$emit('select-node', $event)"
+                    :index="index"
+                    :node="node"
+                    :selected="isSelected(index)"
+                    :isInEditFormatPage="isInEditFormatPage"
+                    :key="node.nID"
+                    :upperEdgeStyle="upperEdgeStyle(index)"
+                    :lowerEdgeStyle="lowerEdgeStyle(index)"/>
             </div>
         </b-collapse>
 

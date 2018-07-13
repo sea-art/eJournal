@@ -13,9 +13,8 @@
         </b-col>
         <b-col cols="4" sm="5" class="d-flex align-items-center justify-content-center">
             <div>
-                <!-- TODO Please fix no style in line, variable #EEEEEE (Theme light grey not dry) -->
-                <div style="width: 0.5em; height: 3em; background-color: #EEEEEE" :style="upperEdgeStyle"/> <!-- grey line -->
-                <div style="width: 0.5em; height: 3em; background-color: #EEEEEE" :style="lowerEdgeStyle"/> <!-- grey line -->
+                <div class="grey-line" :style="upperEdgeStyle"/>
+                <div class="grey-line" :style="lowerEdgeStyle"/>
             </div>
             <edag-node-circle  v-if="node.type == 'a'" @click.native="$emit('select-node', index)" style="position: absolute" :type="node.type" :selected="selected" :entrystate="'addNode'"></edag-node-circle>
             <edag-node-circle v-else @click.native="$emit('select-node', index)" style="position: absolute" :type="node.type" :text="node.target" :selected="selected" :entrystate="entryState()"></edag-node-circle>
@@ -81,3 +80,12 @@ export default {
     }
 }
 </script>
+
+<style lang="sass">
+@import '~sass/modules/colors.sass'
+
+.grey-line
+    width: 0.5em
+    height: 3em
+    background-color: $theme-light-grey
+</style>

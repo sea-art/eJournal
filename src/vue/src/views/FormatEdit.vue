@@ -48,21 +48,21 @@
 
         <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
             <h3>Format</h3>
-            <b-card @click.prevent.stop="addNode" class="card hover add-button" :class="'grey-border'" style="">
+            <b-card @click.prevent.stop="addNode" class="card hover add-button" :class="'grey-border'">
                 <b>+ Add Preset to Format</b>
             </b-card>
             <b-card class="no-hover">
                 <b>Point Maximum</b>
                 <input v-model="max_points" placeholder="Point Maximum" type="number">
             </b-card>
-            <b-card @click.prevent.stop="saveFormat" class="card hover add-button" :class="'grey-border'" style="">
+            <b-card @click.prevent.stop="saveFormat" class="card hover add-button" :class="'grey-border'">
                 <b>Save Format</b>
             </b-card>
             <br/>
 
             <h3>Template Pool</h3>
             <template-todo-card class="hover" v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate" :color="$root.colors[cID % $root.colors.length]"/>
-            <b-card @click="showModal(newTemplate())" class="hover add-button" :class="'grey-border'" style="">
+            <b-card @click="showModal(newTemplate())" class="hover add-button" :class="'grey-border'">
                 <b>+ Add Template</b>
             </b-card>
         </b-col>
