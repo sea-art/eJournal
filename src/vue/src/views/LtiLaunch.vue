@@ -237,12 +237,14 @@ export default {
 </script>
 
 <style lang="sass">
+@import '~sass/modules/breakpoints.sass'
+
 .title-container
     padding-right: 10px
     padding-bottom: 12px
     margin-bottom: -4px
 
-@media(max-width:992px)
+@include md-max
     .title-container
         padding-top: 12px !important
         margin-top: -4px !important
