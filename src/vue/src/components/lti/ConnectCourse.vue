@@ -4,8 +4,7 @@
             <main-card
                 @click.native="connectCourse(c.cID)"
                 :line1="c.name"
-                :line2="'From - To (years eg: 2017 - 2018)'"
-                :color="$root.colors[c.cID % $root.colors.length]">
+                :line2="'From - To (years eg: 2017 - 2018)'">
             </main-card>
         </div>
     </div>

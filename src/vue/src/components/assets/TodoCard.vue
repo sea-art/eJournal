@@ -1,5 +1,5 @@
 <template>
-    <b-card class="card" :class="color">
+    <b-card class="card" :class="$root.getBorderClass($route.params.cID)">
         <b-row>
             <b-col cols="7">
                 <h6>{{ date }} {{ hours }}:{{ minutes }}</h6>
@@ -18,7 +18,7 @@
 import todoSquare from '@/components/assets/TodoSquare.vue'
 
 export default {
-    props: ['date', 'hours', 'minutes', 'name', 'abbr', 'totalNeedsMarking', 'color'],
+    props: ['date', 'hours', 'minutes', 'name', 'abbr', 'totalNeedsMarking'],
     components: {
         'todo-square': todoSquare
     },

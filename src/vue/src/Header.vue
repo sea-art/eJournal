@@ -21,7 +21,7 @@
 
         <b-navbar-nav class="ml-auto">
             <b-nav-item-dropdown no-caret right id="nav-dropdown-options">
-                <img id="nav-profile-image" slot="button-content" :src="profileImg">
+                <img class="profile-picture" slot="button-content" :src="profileImg">
                 <b-dropdown-item><b-button :to="{ name: 'Profile' }" class="multi-form">Profile</b-button></b-dropdown-item>
                 <b-dropdown-item><b-button :to="{ name: 'Logout' }">Sign out</b-button><br/></b-dropdown-item>
             </b-nav-item-dropdown>
@@ -34,7 +34,7 @@
 
         <b-navbar-nav class="ml-auto">
             <b-nav-dropdown right no-caret id="nav-dropdown-options" ref="loginDropdown">
-                <img id="nav-profile-image" slot="button-content" :src="profileImg">
+                <img class="profile-picture" slot="button-content" :src="profileImg">
                 <b-button class="login-form-header" :to="{ name: 'Register' }">Sign Up!</b-button>
                 <b-button class="login-form-header" :to="{ name: 'Login' }">Login</b-button>
             </b-nav-dropdown>
@@ -126,6 +126,9 @@ export default {
     font-family: 'Roboto Condensed', sans-serif
     font-size: 1.3em
     height: 70px
+    .profile-picture
+        width: 50px
+        height: 50px
     @include md-max
         min-height: 70px
         height: auto
@@ -148,6 +151,7 @@ export default {
 
 #nav-collapse
     background-color: $theme-dark-blue
+
 
 .collapse-icon
     fill: white !important
@@ -182,10 +186,6 @@ export default {
 .brand-name span
     color: $theme-blue !important
 
-#nav-profile-image
-    width: 50px
-    height: 50px
-    border-radius: 50% !important
 
 .login-form-header
     background-color: $theme-light-grey

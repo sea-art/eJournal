@@ -14,8 +14,7 @@
                             ref="entry-template-card"
                             @edit-node="adaptData"
                             :cID="cID"
-                            :entryNode="nodes[currentNode]"
-                            :color="$root.colors[cID % $root.colors.length]"/>
+                            :entryNode="nodes[currentNode]"/>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'd'">
                         <div v-if="nodes[currentNode].entry !== null">
@@ -31,7 +30,7 @@
                         </div>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'a'">
-                        <add-card @info-entry="addNode" :addNode="nodes[currentNode]" :color="$root.colors[cID % $root.colors.length]"/>
+                        <add-card @info-entry="addNode" :addNode="nodes[currentNode]"/>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'p'">
                         <b-card class="card main-card no-hover" :class="'pink-border'">
@@ -46,7 +45,7 @@
 
         <b-col md="12" lg="4" xl="3" class="right-content-journal right-content">
             <h3>Assignment Description</h3>
-            <b-card class="no-hover" :class="'grey-border'">
+            <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                 {{ assignmentDescription }}
             </b-card>
         </b-col>

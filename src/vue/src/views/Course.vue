@@ -7,7 +7,7 @@
 
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
             <b-link tag="b-button" :to="assignmentRoute(cID, a.aID, a.name, a.journal)">
-                <assignment-card :line1="a.name" :color="$root.colors[cID % $root.colors.length]">
+                <assignment-card :line1="a.name">
                     <progress-bar
                         v-if="a.journal && a.journal.stats"
                         :currentPoints="a.journal.stats.acquired_points"
@@ -42,8 +42,7 @@
                     :minutes="d.deadline.Minutes"
                     :name="d.name"
                     :abbr="d.courseAbbr"
-                    :totalNeedsMarking="d.totalNeedsMarking"
-                    :color="$root.colors[d.cID % $root.colors.length]">
+                    :totalNeedsMarking="d.totalNeedsMarking">
                 </todo-card>
             </b-link>
         </div>

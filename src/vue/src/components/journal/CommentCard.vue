@@ -8,7 +8,7 @@
             <div v-for="(comments, index) in commentObject.entrycomments" :key="index">
                 <b-row>
                     <b-col cols="2">
-                        <img class="profilePic" id="nav-profile-image" slot="button-content" :src="comments.author.picture">
+                        <img class="profile-picture" :src="comments.author.picture">
                         <br><b>{{ comments.author.first_name + ' ' + comments.author.last_name }}</b>
                     </b-col>
                     <b-col cols="10">
@@ -22,8 +22,7 @@
         <div v-if="$root.canCommentJournal()">
             <b-row>
                 <b-col cols="2">
-                    <img class="profilePic" id="nav-profile-image" slot="button-content" :src="userData.picture">
-                    <br><b>{{userData.first_name + ' ' + userData.last_name}}</b>
+                    <img class="profile-picture" :src="userData.picture">
                 </b-col>
                 <b-col cols="10">
                     <b-textarea v-model="tempComment" placeholder="Add your comment here" :class="$root.getBorderClass($route.params.cID)"></b-textarea><br>

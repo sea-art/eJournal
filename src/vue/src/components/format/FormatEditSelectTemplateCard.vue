@@ -5,12 +5,12 @@
 -->
 
 <template>
-    <div class="entry-template">
+    <div>
         <b-row>
-            <b-col id="main-card-left-column" cols="12">
-                <b-card class="card main-card no-hover" :class="color">
+            <b-col cols="12">
+                <b-card class="card main-card no-hover" :class="$root.getBorderClass($route.params.cID)">
                     <b-row>
-                        <b-col id="main-card-left-column" cols="9" lg-cols="12">
+                        <b-col cols="9" lg-cols="12">
                             <h2>Preset Deadline</h2>
                             <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="deadlineDate" type="date" @change="$emit('changed')"/>
                             <br/>
@@ -58,7 +58,7 @@
 import templatePreview from '@/components/template/TemplatePreview.vue'
 
 export default {
-    props: ['currentPreset', 'templates', 'color'],
+    props: ['currentPreset', 'templates'],
 
     data () {
         return {

@@ -50,7 +50,6 @@
                     :studentNumber="journal.student.name"
                     :portraitPath="journal.student.picture"
                     :stats="journal.stats"
-                    :color="$root.colors[cID % $root.colors.length]"
                     :jID="journal.jID">
                 </student-card>
 
@@ -62,10 +61,10 @@
 
         <div  v-if="stats" slot="right-content-column">
             <h3>Statistics</h3>
-            <statistics-card :color="cardColor" :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>
-            <statistics-card :color="cardColor" :subject="'Average points'" :num="stats.avgPoints"></statistics-card>
-            <statistics-card :color="cardColor" :subject="'Median points'" :num="stats.medianPoints"></statistics-card>
-            <statistics-card :color="cardColor" :subject="'Average entries'" :num="stats.avgEntries"></statistics-card>
+            <statistics-card :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>
+            <statistics-card :subject="'Average points'" :num="stats.avgPoints"></statistics-card>
+            <statistics-card :subject="'Median points'" :num="stats.medianPoints"></statistics-card>
+            <statistics-card :subject="'Average entries'" :num="stats.avgEntries"></statistics-card>
         </div>
     </content-columns>
 </template>
@@ -94,7 +93,6 @@ export default {
         return {
             assignmentJournals: [],
             stats: [],
-            cardColor: '',
             selectedSortOption: 'sortName',
             searchVariable: '',
             query: {}

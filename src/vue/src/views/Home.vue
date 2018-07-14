@@ -12,7 +12,7 @@
                 <main-card
                     :line1="c.name"
                     :line2="c.startdate.substring(0, 4) + '-' + c.enddate.substring(0, 4)"
-                    :color="$root.colors[c.cID % $root.colors.length]">
+                    :class="$root.getBorderClass(c.cID)">
                 </main-card>
             </b-link>
         </div>
@@ -24,6 +24,7 @@
             :line1="'+ Add course'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
+        <!-- TODO: This seems like an inappropriate permission check. Will have to be reconsidered in the rework. -->
         <b-card v-if="this.$root.canAddCourse()"
                 class="no-hover"
                 slot="right-content-column">
@@ -47,7 +48,7 @@
                     :name="d.name"
                     :abbr="d.courseAbbr"
                     :totalNeedsMarking="d.totalNeedsMarking"
-                    :color="$root.colors[d.cID % $root.colors.length]">
+                    :class="$root.getBorderClass(d.cID)">
                 </todo-card>
             </b-link>
         </div>

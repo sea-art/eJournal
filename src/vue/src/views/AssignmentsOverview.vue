@@ -27,8 +27,7 @@
                     :minutes="d.deadline.Minutes"
                     :name="d.name"
                     :abbr="d.courseAbbr"
-                    :totalNeedsMarking="d.totalNeedsMarking"
-                    :color="$root.colors[d.cID % $root.colors.length]">
+                    :totalNeedsMarking="d.totalNeedsMarking">
                 </todo-card>
             </b-link>
         </div>

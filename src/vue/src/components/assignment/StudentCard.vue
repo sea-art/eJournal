@@ -1,5 +1,5 @@
 <template>
-    <b-card :class="color">
+    <b-card :class="$root.getBorderClass($route.params.cID)">
         <b-row>
             <b-col order="1" cols="4">
                 <img class="img-fluid portrait-max-height" :src="portraitPath">
@@ -32,7 +32,7 @@ import progressBar from '@/components/assets/ProgressBar.vue'
 import todoSquare from '@/components/assets/TodoSquare.vue'
 
 export default {
-    props: ['student', 'studentNumber', 'portraitPath', 'stats', 'color'],
+    props: ['student', 'studentNumber', 'portraitPath', 'stats'],
     components: {
         'progress-bar': progressBar,
         'todo-square': todoSquare

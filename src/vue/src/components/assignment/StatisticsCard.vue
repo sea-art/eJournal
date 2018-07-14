@@ -1,12 +1,12 @@
 <template>
-    <b-card class="card no-hover" :class="color">
+    <b-card class="card no-hover" :class="$root.getBorderClass($route.params.cID)">
         <b>{{ subject }}</b><div class="point-square">{{ num }}</div>
     </b-card>
 </template>
 
 <script>
 export default {
-    props: ['subject', 'num', 'color']
+    props: ['subject', 'num']
 }
 </script>
 
