@@ -1,7 +1,7 @@
 <template>
     <b-row>
         <b-col cols="12">
-            <h2 class="mb-2">Email notification</h2>
+            <h2 class="mb-2">Email notifications</h2>
         </b-col>
         <b-col cols="4">
             <span>Grade updates</span>

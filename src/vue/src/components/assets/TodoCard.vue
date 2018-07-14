@@ -1,5 +1,5 @@
 <template>
-    <b-card class="card" :class="$root.getBorderClass($route.params.cID)">
+    <b-card :class="$root.getBorderClass($route.params.cID)">
         <b-row>
             <b-col cols="7">
                 <h6>{{ date }} {{ hours }}:{{ minutes }}</h6>

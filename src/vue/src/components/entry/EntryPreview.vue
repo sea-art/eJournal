@@ -5,7 +5,7 @@
 <template>
     <div>
         <h2>{{template.name}}</h2>
-        <b-card class="card main-card no-hover">
+        <b-card class="main-card no-hover">
             <b-row>
                 <b-col cols="12" lg-cols="12">
                     <div v-for="(field, i) in template.fields" :key="field.eID">

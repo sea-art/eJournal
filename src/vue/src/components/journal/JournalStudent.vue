@@ -33,7 +33,7 @@
                         <add-card @info-entry="addNode" :addNode="nodes[currentNode]"/>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'p'">
-                        <b-card class="card main-card no-hover" :class="'pink-border'">
+                        <b-card class="main-card no-hover" :class="'pink-border'">
                             <h2>Needed progress</h2>
                             You have {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
                             needed points before {{nodes[currentNode].deadline}}.

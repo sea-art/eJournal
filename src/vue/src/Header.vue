@@ -20,11 +20,11 @@
         </b-collapse>
 
         <b-navbar-nav class="ml-auto">
-            <b-nav-item-dropdown no-caret right id="nav-dropdown-options">
+            <b-nav-dropdown no-caret right id="nav-dropdown-options">
                 <img class="profile-picture" slot="button-content" :src="profileImg">
-                <b-dropdown-item><b-button :to="{ name: 'Profile' }" class="multi-form">Profile</b-button></b-dropdown-item>
-                <b-dropdown-item><b-button :to="{ name: 'Logout' }">Sign out</b-button><br/></b-dropdown-item>
-            </b-nav-item-dropdown>
+                <b-button :to="{ name: 'Profile' }" class="multi-form">Profile</b-button>
+                <b-button :to="{ name: 'Logout' }">Sign out</b-button>
+            </b-nav-dropdown>
         </b-navbar-nav>
     </b-navbar>
 
@@ -35,8 +35,8 @@
         <b-navbar-nav class="ml-auto">
             <b-nav-dropdown right no-caret id="nav-dropdown-options" ref="loginDropdown">
                 <img class="profile-picture" slot="button-content" :src="profileImg">
-                <b-button class="login-form-header" :to="{ name: 'Register' }">Sign Up!</b-button>
-                <b-button class="login-form-header" :to="{ name: 'Login' }">Login</b-button>
+                <b-button class="multi-form" :to="{ name: 'Register' }">Sign Up!</b-button>
+                <b-button class="multi-form" :to="{ name: 'Login' }">Login</b-button>
             </b-nav-dropdown>
         </b-navbar-nav>
     </b-navbar>
@@ -126,9 +126,6 @@ export default {
     font-family: 'Roboto Condensed', sans-serif
     font-size: 1.3em
     height: 70px
-    .profile-picture
-        width: 50px
-        height: 50px
     @include md-max
         min-height: 70px
         height: auto
@@ -152,7 +149,6 @@ export default {
 #nav-collapse
     background-color: $theme-dark-blue
 
-
 .collapse-icon
     fill: white !important
 
@@ -170,9 +166,9 @@ export default {
     display: block
 
 .dropdown-menu
-    background: $theme-light-grey !important
+    background: $theme-dark-grey !important
     border: none !important
-    padding: 5px
+    padding: 10px 5px
     margin-top: 10px
 
 .dropdown-menu .btn
@@ -185,7 +181,6 @@ export default {
 
 .brand-name span
     color: $theme-blue !important
-
 
 .login-form-header
     background-color: $theme-light-grey

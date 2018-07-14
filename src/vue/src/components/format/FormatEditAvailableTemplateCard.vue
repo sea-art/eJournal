@@ -3,7 +3,7 @@
 -->
 
 <template>
-    <b-card class="card no-hover" :class="$root.getBorderClass($route.params.cID)">
+    <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
         <b>{{ template.t.name }}</b>
         <icon @click.native.stop="emitDeleteTemplate" class="trash-icon ml-10 float-right" name="trash" scale="1.75"></icon>
         <toggle-switch @click.native.stop class="template-todo-card-switch" :isActive="isActive" @parentActive="template.available = $event"/>

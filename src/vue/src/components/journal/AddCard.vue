@@ -5,7 +5,7 @@
     EDAG-Tree.
 -->
 <template>
-    <b-card class="card main-card no-hover" :class="$root.getBorderClass($route.params.cID)">
+    <b-card class="main-card no-hover" :class="$root.getBorderClass($route.params.cID)">
         <b-row>
             <b-col cols="9" lg-cols="12">
                 <h2>Select a template</h2>

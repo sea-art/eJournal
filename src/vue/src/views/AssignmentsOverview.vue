@@ -27,7 +27,8 @@
                     :minutes="d.deadline.Minutes"
                     :name="d.name"
                     :abbr="d.courseAbbr"
-                    :totalNeedsMarking="d.totalNeedsMarking">
+                    :totalNeedsMarking="d.totalNeedsMarking"
+                    :class="$root.getBorderClass(d.cID)">
                 </todo-card>
             </b-link>
         </div>

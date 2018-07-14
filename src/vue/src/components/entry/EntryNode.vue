@@ -8,7 +8,7 @@
 <template>
     <div>
         <!-- Edit mode. -->
-        <b-card v-if="saveEditMode == 'Save'" class="card main-card no-hover" :class="$root.getBorderClass(cID)">
+        <b-card v-if="saveEditMode == 'Save'" class="main-card no-hover" :class="$root.getBorderClass(cID)">
             <b-row>
                 <b-col cols="9" lg-cols="12">
                     <h2>{{entryNode.entry.template.name}}</h2>
@@ -49,7 +49,7 @@
             </b-row>
         </b-card>
         <!-- Overview mode. -->
-        <b-card v-else class="card main-card no-hover" :class="$root.getBorderClass(cID)">
+        <b-card v-else class="main-card no-hover" :class="$root.getBorderClass(cID)">
             <b-row>
                 <b-col cols="9" lg-cols="12">
                     <h2>{{entryNode.entry.template.name}}</h2>

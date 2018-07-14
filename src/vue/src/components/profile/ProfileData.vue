@@ -1,10 +1,10 @@
 <template>
     <b-row>
         <b-col md="5" sm="12" class="text-center">
-            <img class="profile-portrait" :src="image">
+            <img class="profile-portrait shadow" :src="image">
         </b-col>
         <b-col md="7" sm="12">
-            <h2 class="mb-2">User data</h2>
+            <h2 class="mb-2">User details</h2>
             <b-form-input v-model="uname" type="text"/>
             <b-form-input v-model="first" type="text"/>
             <b-form-input v-model="last" type="text"/>
@@ -16,8 +16,8 @@
                 v-model="file"
                 :state="Boolean(file)"
                 placeholder="Change picture"/>
-            <b-button class="add-button" @click="saveUserdata">Save</b-button>
-            <b-button @click="downloadUserData">Download Data</b-button>
+            <b-button class="add-button multi-form" @click="saveUserdata">Save</b-button>
+            <b-button class="multi-form" @click="downloadUserData">Download Data</b-button>
         </b-col>
     </b-row>
 </template>

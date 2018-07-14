@@ -5,30 +5,21 @@
 <template>
     <div>
         <div v-if="commentObject !== null">
-            <div v-for="(comments, index) in commentObject.entrycomments" :key="index">
-                <b-row>
-                    <b-col cols="2">
-                        <img class="profile-picture" :src="comments.author.picture">
-                        <br><b>{{ comments.author.first_name + ' ' + comments.author.last_name }}</b>
-                    </b-col>
-                    <b-col cols="10">
-                        <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-                            <span class="show-enters">{{ comments.text }}</span>
-                        </b-card>
-                    </b-col>
-                </b-row>
+            <div v-for="(comment, index) in commentObject.entrycomments" class="comment-section" :key="index">
+                <img class="profile-picture" :src="comment.author.picture">
+
+                <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+                    <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b><br/>
+                    <span class="show-enters">{{ comment.text }}</span>
+                </b-card>
             </div>
         </div>
-        <div v-if="$root.canCommentJournal()">
-            <b-row>
-                <b-col cols="2">
-                    <img class="profile-picture" :src="userData.picture">
-                </b-col>
-                <b-col cols="10">
-                    <b-textarea v-model="tempComment" placeholder="Add your comment here" :class="$root.getBorderClass($route.params.cID)"></b-textarea><br>
-                    <b-button @click="addComment">Add your comment</b-button>
-                </b-col>
-            </b-row>
+        <div v-if="$root.canCommentJournal()" class="comment-section">
+            <img class="profile-picture" :src="userData.picture">
+            <b-card class="no-hover new-comment" :class="$root.getBorderClass($route.params.cID)">
+                <b-textarea v-model="tempComment" placeholder="Add your comment here" :class="$root.getBorderClass($route.params.cID)"/>
+                <b-button @click="addComment">></b-button>
+            </b-card>
         </div>
     </div>
 </template>
@@ -82,3 +73,22 @@ export default {
     }
 }
 </script>
+
+<style lang="sass">
+.comment-section
+    display: flex
+    .profile-picture
+        margin: 0px 12px
+        display: inline
+        background-color: red
+    .new-comment .card-body
+        display: flex
+    .card, textarea
+        flex: 1 1 auto
+    textarea
+        margin-right: 10px
+    .btn
+        width: 50px
+        height: 50px
+
+</style>

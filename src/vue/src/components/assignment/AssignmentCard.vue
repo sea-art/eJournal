@@ -1,5 +1,5 @@
 <template>
-    <b-card class="card" :class="$root.getBorderClass($route.params.cID)">
+    <b-card :class="$root.getBorderClass($route.params.cID)">
         <b-row align-h="between">
             <b-col cols="12" lg="6">
                 <h2>{{ line1 }}</h2>
