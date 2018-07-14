@@ -19,10 +19,13 @@ import 'vue-awesome/icons/plus'
 import 'vue-awesome/icons/list-ul'
 
 import Toasted from 'vue-toasted'
+import TinyMCE from '@tinymce/tinymce-vue'
 
 Vue.config.productionTip = false
 Vue.use(Toasted, { position: 'bottom-right', duration: 4000 })
 Vue.use(BootstrapVue)
+
+Vue.component('tiny-mce', TinyMCE)
 
 /* eslint-disable no-new */
 new Vue({
