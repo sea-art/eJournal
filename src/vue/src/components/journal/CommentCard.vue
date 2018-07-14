@@ -16,7 +16,7 @@
         </div>
         <div v-if="$root.canCommentJournal()" class="comment-section">
             <img class="profile-picture no-hover" :src="userData.picture">
-            <b-card class="no-hover new-comment" :class="$root.getBorderClass($route.params.cID)">
+            <b-card class="no-hover new-comment">
                 <b-textarea v-model="tempComment" placeholder="Add your comment here" :class="$root.getBorderClass($route.params.cID)"/>
                 <b-button @click="addComment">
                     <icon class="send-icon" name="paper-plane" scale="1.4"></icon>

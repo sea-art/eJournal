@@ -6,33 +6,28 @@
     <div>
         <h2>{{template.name}}</h2>
         <b-card class="main-card no-hover">
-            <b-row>
-                <b-col cols="12" lg-cols="12">
-                    <div v-for="(field, i) in template.fields" :key="field.eID">
-                        <div v-if="field.title != ''">
-                            <b>{{ field.title }}</b>
-                        </div>
+            <div v-for="(field, i) in template.fields" :key="field.eID">
+                <div v-if="field.title != ''">
+                    <b>{{ field.title }}</b>
+                </div>
 
-                        <div v-if="field.type=='t'">
-                            <b-textarea v-model="completeContent[i].data"></b-textarea><br><br>
-                        </div>
-                        <div v-else-if="field.type=='i'">
-                            <br>
-                            <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
-                        </div>
-                        <div v-else-if="field.type=='f'">
-                            <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
-                        </div>
-                    </div>
+                <div v-if="field.type=='t'">
+                    <b-textarea v-model="completeContent[i].data"></b-textarea><br><br>
+                </div>
+                <div v-else-if="field.type=='i'">
+                    <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
+                </div>
+                <div v-else-if="field.type=='f'">
+                    <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
+                </div>
+            </div>
 
-                    <b-alert :show="dismissCountDown" dismissible variant="secondary"
-                        @dismissed="dismissCountDown=0">
-                        Please fill in every field.
-                    </b-alert>
-                    <b-button class="add-button" @click="save">Post Entry</b-button>
-                </b-col>
-            </b-row>
+            <b-alert :show="dismissCountDown" dismissible variant="secondary"
+                @dismissed="dismissCountDown=0">
+                Please fill in every field.
+            </b-alert>
         </b-card>
+        <b-button class="add-button" @click="save">Post Entry</b-button>
     </div>
 </template>
 

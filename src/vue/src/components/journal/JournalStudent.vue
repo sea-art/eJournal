@@ -45,7 +45,7 @@
 
         <b-col md="12" lg="4" xl="3" class="right-content-journal right-content">
             <h3>Assignment Description</h3>
-            <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+            <b-card class="no-hover">
                 {{ assignmentDescription }}
             </b-card>
         </b-col>

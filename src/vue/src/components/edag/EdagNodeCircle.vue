@@ -4,10 +4,12 @@
 -->
 
 <template>
-    <div class="edag-node-circle d-flex align-items-center justify-content-center" :class="classObject">
-        <div v-if="this.entrystate === 'empty'" class="edag-node-circle-inner" :class="classObject"></div>
-        <icon v-else-if="this.entrystate != ''" :name="iconName" class="edag-node-circle-icon fill-white" :scale="iconScale"></icon>
-        <div v-else class="text-white">{{ text }}</div>
+    <div class="edag-node-circle-border">
+        <div class="edag-node-circle d-flex align-items-center justify-content-center" :class="classObject">
+            <div v-if="this.entrystate === 'empty'" class="edag-node-circle-inner" :class="classObject"></div>
+            <icon v-else-if="this.entrystate != ''" :name="iconName" class="edag-node-circle-icon fill-white" :scale="iconScale"></icon>
+            <div v-else class="text-white">{{ text }}</div>
+        </div>
     </div>
 </template>
 
@@ -73,38 +75,38 @@ export default {
 .fill-white
     fill: white
 
-.edag-node-circle
-    width: 4em
-    height: 4em
+.edag-node-circle-border
     border-radius: 50% !important
-    border-style: solid
-    border-width: 5px
-    border-color: white
+    background-color: white
+    padding: 5px
+
+.edag-node-circle
+    width: 55px
+    height: 55px
+    border-radius: 50% !important
+    // border: 5px solid white
 
 .edag-node-circle.enc-selected
-    width: 5em
-    height: 5em
+    width: 65px
+    height: 65px
 
 .edag-node-circle-inner
-    width: 2em
-    height: 2em
+    width: 75px
+    height: 75px
     background-color: white
     border-radius: 50% !important
     border-style: solid
     border-width: 5px
     border-color: white
 
-.edag-node-circle-inner.enc-selected
-    width: 3em
-    height: 3em
-
+.edag-node-circle-inner.enc-selected,
 .edag-node-circle.enc-add
-    width: 3em
-    height: 3em
+    width: 45px
+    height: 45px
 
 .edag-node-circle.enc-selected.enc-add
-    width: 4em
-    height: 4em
+    width: 55px
+    height: 55px
 
 .edag-node-circle.enc-entry
     background-color: $theme-medium-grey

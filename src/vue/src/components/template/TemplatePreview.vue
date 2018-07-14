@@ -5,7 +5,7 @@
             <b-col cols="9" lg-cols="12">
                 <h2>{{template.name}}</h2>
             </b-col>
-            <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
+            <b-col  cols="3" lg-cols="12" class="right-content">
             </b-col>
         </b-row>
         <b-row>

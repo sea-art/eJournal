@@ -6,23 +6,15 @@
 -->
 <template>
     <b-card class="main-card no-hover" :class="$root.getBorderClass($route.params.cID)">
-        <b-row>
-            <b-col cols="9" lg-cols="12">
-                <h2>Select a template</h2>
-                <b-form-select v-model="selectedTemplate">
-                    <!-- <option :value="null" disabled>Please select a template</option> -->
-                    <option v-for="template in addNode.templates" :key="template.tID" :value="template">
-                        {{template.name}}
-                    </option>
-                </b-form-select>
-                <br><br>
-                <div v-if="selectedTemplate !== null">
-                    <entry-preview @content-template="createEntry" :template="selectedTemplate"/>
-                </div>
-            </b-col>
-            <b-col id="main-card-right-column" cols="3" lg-cols="12">
-            </b-col>
-        </b-row>
+        <h2>Select a template</h2>
+        <b-form-select v-model="selectedTemplate">
+            <!-- <option :value="null" disabled>Please select a template</option> -->
+            <option v-for="template in addNode.templates" :key="template.tID" :value="template">
+                {{template.name}}
+            </option>
+        </b-form-select>
+        <br><br>
+        <entry-preview v-if="selectedTemplate !== null" @content-template="createEntry" :template="selectedTemplate"/>
     </b-card>
 </template>
 
