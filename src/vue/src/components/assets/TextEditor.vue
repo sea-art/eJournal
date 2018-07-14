@@ -1,5 +1,7 @@
 <template>
-    <tiny-mce :init="tinyMCEInit"/>
+    <div class="editor-container">
+        <tiny-mce v-model="content" ref="mce" :init="tinyMCEInit"/>
+    </div>
 </template>
 
 <script>
@@ -9,13 +11,17 @@ export default {
         return {
             tinyMCEInit: {
                 menubar: false,
-                statusbar: false,
-                autosave_ask_before_unload: false
+                statusbar: false
             },
-            checked: ''
+            content: ''
         }
     },
     methods: {
     }
 }
 </script>
+
+<style lang="sass">
+    .editor-container
+        padding: 2px
+</style>
