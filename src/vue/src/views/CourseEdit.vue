@@ -23,20 +23,20 @@
                          required/>
 
                 <b-row>
-                    <b-col>
-                        <b-button class="add-button"
+                    <b-col class="d-flex flex-wrap">
+                        <b-button class="add-button flex-grow-1 multi-form"
                                   type="submit"
-                                  v-if="this.$root.canEditCourse()"
-                            >Update Course
+                                  v-if="this.$root.canEditCourse()">
+                            Save
                         </b-button>
                         <b-button v-if="this.$root.canDeleteCourse()"
                                   @click.prevent.stop="deleteCourse()"
-                                  class="delete-button">
+                                  class="delete-button flex-grow-1 multi-form">
                             Delete Course
                         </b-button>
                         <b-button v-if="this.$root.canEditCourseRoles()"
                                   @click.prevent.stop="routeToEditCourseRoles"
-                                  class="change-button">
+                                  class="change-button flex-grow-1 multi-form">
                             Edit permissions
                         </b-button>
                     </b-col>
@@ -47,22 +47,22 @@
         <b-card class="no-hover">
             <h2>Manage course students</h2>
                 <b-row>
-                    <b-col lg="3" sm="6">
-                        <b-form-select v-model="selectedSortOption" :select-size="1">
+                    <b-col lg="3" sm="6" class="d-flex flex-wrap">
+                        <b-form-select class="flex-grow-1 multi-form" v-model="selectedSortOption" :select-size="1">
                            <option :value="null">Sort by ...</option>
                            <option value="sortName">Sort on name</option>
                            <option value="sortID">Sort on ID</option>
                         </b-form-select>
                     </b-col>
-                    <b-col lg="3" sm="6">
-                        <b-form-select v-model="selectedView" :select-size="1">
+                    <b-col lg="3" sm="6" class="d-flex flex-wrap">
+                        <b-form-select class="flex-grow-1 multi-form" v-model="selectedView" :select-size="1">
                             <option value="enrolled">Enrolled</option>
                             <option value="unenrolled">Unenrolled</option>
                         </b-form-select>
                     </b-col>
 
-                    <b-col cols="6">
-                        <input type="text" v-model="searchVariable" placeholder="Search .."/>
+                    <b-col cols="6" class="d-flex flex-wrap">
+                        <input type="text" class="flex-grow-1 multi-form" v-model="searchVariable" placeholder="Search .."/>
                     </b-col>
                 </b-row>
         </b-card>

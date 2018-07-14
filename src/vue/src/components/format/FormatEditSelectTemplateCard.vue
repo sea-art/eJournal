@@ -44,7 +44,7 @@
                                 <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="currentPreset.target" placeholder="Amount of points" @change="$emit('changed')"/>
                             </div>
                         </b-col>
-                        <b-col  cols="3" lg-cols="12">
+                        <b-col cols="3" lg-cols="12">
                             <b-button @click.prevent="emitDeletePreset" class="delete-button float-right">Delete</b-button>
                         </b-col>
                     </b-row>

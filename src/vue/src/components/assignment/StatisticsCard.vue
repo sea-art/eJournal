@@ -1,24 +1,16 @@
 <template>
     <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-        <b>{{ subject }}</b><div class="point-square">{{ num }}</div>
+        <b>{{ subject }}</b><todo-square class="float-right" :num="num"/>
     </b-card>
 </template>
 
 <script>
+import todoSquare from '@/components/assets/TodoSquare.vue'
+
 export default {
-    props: ['subject', 'num']
+    props: ['subject', 'num'],
+    components: {
+        'todo-square': todoSquare
+    }
 }
 </script>
-
-<style lang="sass">
-@import '~sass/modules/colors.sass'
-.point-square
-    float: right
-    text-align: center
-    color: white
-    font-family: 'Roboto Condensed', sans-serif
-    font-size: 18px
-    background-color: $theme-blue
-    width: 45px
-    height: 30px
-</style>

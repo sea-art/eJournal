@@ -84,63 +84,46 @@ export default {
     width: 55px
     height: 55px
     border-radius: 50% !important
-    // border: 5px solid white
-
-.edag-node-circle.enc-selected
-    width: 65px
-    height: 65px
+    &.enc-selected
+        width: 65px
+        height: 65px
+    &.enc-add
+        width: 45px
+        height: 45px
+    &.enc-selected.enc-add
+        width: 55px
+        height: 55px
+    &.enc-entry
+        background-color: $theme-medium-grey
+    &.enc-entry:hover
+        background-color: $theme-dark-grey
+    &.enc-entry.enc-selected
+        background-color: $theme-dark-grey
+    &.enc-deadline
+        background-color: $theme-change-selected
+    &.enc-deadline:hover
+        background-color: $theme-change-hover
+    &.enc-deadline.enc-selected
+        background-color: $theme-change-hover
+    &.enc-progress
+        background-color: $theme-negative-selected
+    &.enc-progress:hover
+        background-color: $theme-red
+    &.enc-progress.enc-selected
+        background-color: $theme-red
+    &.enc-add
+        background-color: $theme-blue
+    &.enc-add:hover
+        background-color: $theme-dark-blue
+    &.enc-add.enc-selected
+        background-color: $theme-dark-blue
 
 .edag-node-circle-inner
-    width: 75px
-    height: 75px
+    width: 35px
+    height: 35px
     background-color: white
     border-radius: 50% !important
-    border-style: solid
-    border-width: 5px
-    border-color: white
-
-.edag-node-circle-inner.enc-selected,
-.edag-node-circle.enc-add
-    width: 45px
-    height: 45px
-
-.edag-node-circle.enc-selected.enc-add
-    width: 55px
-    height: 55px
-
-.edag-node-circle.enc-entry
-    background-color: $theme-medium-grey
-
-.edag-node-circle.enc-entry:hover
-    background-color: $theme-dark-grey
-
-.edag-node-circle.enc-entry.enc-selected
-    background-color: $theme-dark-grey
-
-.edag-node-circle.enc-deadline
-    background-color: $theme-change-selected
-
-.edag-node-circle.enc-deadline:hover
-    background-color: $theme-change-hover
-
-.edag-node-circle.enc-deadline.enc-selected
-    background-color: $theme-change-hover
-
-.edag-node-circle.enc-progress
-    background-color: $theme-negative-selected
-
-.edag-node-circle.enc-progress:hover
-    background-color: $theme-red
-
-.edag-node-circle.enc-progress.enc-selected
-    background-color: $theme-red
-
-.edag-node-circle.enc-add
-    background-color: $theme-blue
-
-.edag-node-circle.enc-add:hover
-    background-color: $theme-dark-blue
-
-.edag-node-circle.enc-add.enc-selected
-    background-color: $theme-dark-blue
+    &.enc-selected,
+        width: 45px
+        height: 45px
 </style>

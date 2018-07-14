@@ -9,14 +9,8 @@
             <b-col md="12" lg="auto" xl="8" class="main-content-edag-page">
                 <bread-crumb v-if="$root.xl()" class="main-content">&nbsp;</bread-crumb>
                 <div v-if="nodes.length > currentNode">
-                    <div v-if="nodes[currentNode].type == 'e'">
+                    <div v-if="nodes[currentNode].type == 'e' || nodes[currentNode].type == 'd'">
                         <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
-                    </div>
-                    <div v-else-if="nodes[currentNode].type == 'd'">
-                        <entry-non-student-preview v-if="nodes[currentNode].entry !== null" ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
-                        <b-card v-else class="no-hover">
-                            <b>No entry submitted yet</b>
-                        </b-card>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'p'">
                         <b-card class="main-card no-hover" :class="'pink-border'">
@@ -31,20 +25,34 @@
 
         <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
             <h3>Journal</h3>
-            <b-card class="no-hover">
-                <b-button
-                    tag="b-button"
-                    v-if="filteredJournals.length !== 0"
-                    :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.jID }, query: query }">
-                    Previous
-                </b-button>
-                <b-button
-                    tag="b-button"
-                    v-if="filteredJournals.length !== 0"
-                    :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: nextJournal.jID }, query: query }">
-                    Next
-                </b-button>
-                <b-button @click="publishGradesJournal">Publish Grades</b-button>
+            <b-card class="no-hover journal-controls">
+                <b-row>
+                    <b-col md="6" lg="12" class="d-flex flex-wrap">
+                        <b-button
+                            class="multi-form flex-grow-1"
+                            tag="b-button"
+                            v-if="filteredJournals.length !== 0"
+                            :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.jID }, query: query }">
+                            <icon name="arrow-left"></icon>
+                            Previous
+                        </b-button>
+                        <b-button
+                            class="multi-form flex-grow-1"
+                            tag="b-button"
+                            v-if="filteredJournals.length !== 0"
+                            :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: nextJournal.jID }, query: query }">
+                            Next
+                            <icon name="arrow-right"></icon>
+                        </b-button>
+                        <b-button class="multi-form flex-grow-1" @click="publishGradesJournal">
+                            <icon name="upload"></icon>
+                            Publish All Grades
+                        </b-button>
+                    </b-col>
+                    <b-col md="6" lg="12">
+                        <progress-bar :currentPoints="5" :totalPoints="10"/>
+                    </b-col>
+                </b-row>
             </b-card>
         </b-col>
     </b-row>
@@ -58,6 +66,8 @@ import edag from '@/components/edag/Edag.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import journal from '@/api/journal'
 import store from '@/Store.vue'
+import icon from 'vue-awesome/components/Icon'
+import progressBar from '@/components/assets/ProgressBar.vue'
 
 export default {
     props: ['cID', 'aID', 'jID'],
@@ -224,7 +234,9 @@ export default {
         'bread-crumb': breadCrumb,
         'add-card': addCard,
         'edag': edag,
-        'store': store
+        'store': store,
+        'icon': icon,
+        'progress-bar': progressBar
     },
     computed: {
         filteredJournals: function () {

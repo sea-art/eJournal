@@ -1,6 +1,6 @@
 <!--
     Loads a preview of an Entry-Template and returns the filled in data to
-    the parrent once it's saved.
+    the parent once it's saved.
 -->
 <template>
     <div>

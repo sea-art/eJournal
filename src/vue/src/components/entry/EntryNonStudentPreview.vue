@@ -5,57 +5,54 @@
 -->
 <template>
     <div v-if="entryNode.entry !== null">
-        <b-card class="main-card no-hover" :class="$root.getBorderClass($route.params.cID)">
-            <b-row>
-                <b-col cols="9" lg-cols="12">
-                    <h2>{{entryNode.entry.template.name}}</h2>
-                </b-col>
-                <b-col  cols="3" lg-cols="12" class="right-content">
-                </b-col>
-            </b-row>
-            <b-row>
-                <b-col cols="12" lg-cols="12">
-                    <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
-                        <div v-if="field.title != ''">
-                            <b>{{ field.title }}</b>
-                        </div>
-                        <div v-if="field.type=='t'">
-                            <span class="show-enters">{{ completeContent[i].data }}</span><br><br>
-                        </div>
-                        <div v-else-if="field.type=='i'">
-                        </div>
-                        <div v-else-if="field.type=='f'">
-                        </div>
-                    </div>
+        <b-card class="main-card no-hover entry-card" :class="$root.getBorderClass($route.params.cID)">
+            <div class="template-name">
+                <h2>{{entryNode.entry.template.name}}</h2>
+            </div>
+            <div v-if="$root.canGradeJournal()" class="grade-section-teacher shadow no-hover">
+                <b-form-input type="number" size="2" v-model="grade" placeholder="0" min=0></b-form-input>
+                <b-form-checkbox v-model="status" value=true unchecked-value=false data-toggle="tooltip" title="Show grade to student">
+                    Publish
+                </b-form-checkbox>
+                <b-button class="add-button" @click="commitGrade">
+                    <icon name="save" scale="1"></icon>
+                    Save
+                </b-button>
+            </div>
+            <div v-else class="grade-section shadow">
+                <span v-if="tempNode.entry.published">
+                    {{ entryNode.entry.grade }}
+                </span>
+                <span v-else>
+                    <icon name="hourglass-half"></icon>
+                </span>
+            </div>
 
-                    <div v-if="$root.canGradeJournal()">
-                        <br>
-                        Fill in the grade:<br>
-                        <b-form-input type="number" v-model="grade" placeholder="Grade" min=0></b-form-input>
-                        <b-form-checkbox v-model="status" value=true unchecked-value=false>
-                            Show grade to student
-                        </b-form-checkbox><br>
-                        <b-button @click="commitGrade">Grade</b-button>
-                    </div>
-                    <div v-else>
-                        <div v-if="tempNode.entry.published">
-                            Points: {{ entryNode.entry.grade }}
-                        </div>
-                        <div v-else>
-                            To be graded
-                        </div>
-                    </div>
-                </b-col>
-            </b-row>
+            <div v-for="(field, i) in entryNode.entry.template.fields" class="entry-field" :key="field.eID">
+                <div v-if="field.title != ''">
+                    <b>{{ field.title }}</b>
+                </div>
+                <div v-if="field.type=='t'">
+                    <span class="show-enters">{{ completeContent[i].data }}</span><br><br>
+                </div>
+                <div v-else-if="field.type=='i'">
+                </div>
+                <div v-else-if="field.type=='f'">
+                </div>
+            </div>
         </b-card>
 
         <comment-card :eID="entryNode.entry.eID"/>
     </div>
+    <b-card v-else class="no-hover">
+        <b>No submission for this student</b>
+    </b-card>
 </template>
 
 <script>
 import commentCard from '@/components/journal/CommentCard.vue'
 import journalApi from '@/api/journal.js'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     props: ['entryNode'],
@@ -145,7 +142,8 @@ export default {
         }
     },
     components: {
-        'comment-card': commentCard
+        'comment-card': commentCard,
+        'icon': icon
     }
 }
 </script>

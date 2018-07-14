@@ -18,6 +18,10 @@ import 'vue-awesome/icons/exclamation'
 import 'vue-awesome/icons/plus'
 import 'vue-awesome/icons/list-ul'
 import 'vue-awesome/icons/paper-plane'
+import 'vue-awesome/icons/save'
+import 'vue-awesome/icons/upload'
+import 'vue-awesome/icons/arrow-right'
+import 'vue-awesome/icons/arrow-left'
 
 import Toasted from 'vue-toasted'
 

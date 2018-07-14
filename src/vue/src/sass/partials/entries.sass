@@ -1,0 +1,40 @@
+.entry-card
+    display: flex
+    .template-name
+        display: inline-block
+        width: 70%
+        @include xs-max
+            width: 50%
+    .grade-section,
+    .grade-section-teacher
+        width: 3em
+        height: 3em
+        background-color: white
+        border: 1px solid $theme-dark-grey
+        float: right
+        overflow: hidden
+        display: flex
+        justify-content: center
+        align-items: center
+        flex-wrap: wrap
+        margin: 0px 0px 10px 0px
+        input, span
+            width: 3em
+            display: inline-block
+            border: 0px !important
+            margin: 0px
+            padding: 0px !important
+            font-family: 'Roboto', sans-serif
+            font-weight: bold
+            font-size: 1.5em
+            text-align: center
+        .btn
+            border-top: 1px solid $theme-dark-grey
+            flex-basis: 100%
+    .entry-field
+        clear: both
+    .grade-section-teacher
+        width: 30%
+        height: auto
+        @include xs-max
+            width: 50%

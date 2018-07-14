@@ -8,8 +8,8 @@
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.password" type="password" placeholder="Password" required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.password2" type="password" placeholder="Password (again)" required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"  v-model="form.email" placeholder="Email" required/>
-                <b-button class="float-right" type="reset">Reset</b-button>
-                <b-button class="float-right" type="submit">Register</b-button>
+                <b-button class="float-left delete-button multi-form" type="reset">Reset</b-button>
+                <b-button class="float-right add-button multi-form" type="submit">Register</b-button>
             </b-form>
         </b-card>
     </div>

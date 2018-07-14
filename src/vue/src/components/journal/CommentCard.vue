@@ -18,8 +18,8 @@
             <img class="profile-picture no-hover" :src="userData.picture">
             <b-card class="no-hover new-comment">
                 <b-textarea v-model="tempComment" placeholder="Add your comment here" :class="$root.getBorderClass($route.params.cID)"/>
-                <b-button @click="addComment">
-                    <icon class="send-icon" name="paper-plane" scale="1.4"></icon>
+                <b-button class="go-button" @click="addComment">
+                    <icon name="paper-plane" scale="1"></icon>
                 </b-button>
             </b-card>
         </div>
@@ -87,20 +87,10 @@ export default {
     .profile-picture
         margin: 0px 12px
         display: inline
-        background-color: red
     .new-comment .card-body
         display: flex
     .card, textarea
         flex: 1 1 auto
     textarea
         margin-right: 10px
-    .btn
-        width: 50px
-        height: 50px
-        .send-icon
-            fill: $theme-blue !important
-            display: block
-            margin-left: auto
-            margin-right: auto
-
 </style>

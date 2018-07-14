@@ -30,6 +30,7 @@
                         v-if="$root.canGradeJournal()"
                         class="add-button"
                         @click="publishGradesAssignment">
+                        <icon name="upload"></icon>
                         Publish all Grades
                     </b-button>
                 </b-col>
@@ -77,6 +78,7 @@ import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import journal from '@/api/journal.js'
 import permissionsApi from '@/api/permissions.js'
 import store from '@/Store.vue'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     name: 'Assignment',
@@ -103,7 +105,8 @@ export default {
         'student-card': studentCard,
         'statistics-card': statisticsCard,
         'bread-crumb': breadCrumb,
-        'store': store
+        'store': store,
+        'icon': icon
     },
     created () {
         permissionsApi.get_course_permissions(this.cID)
