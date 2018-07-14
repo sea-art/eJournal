@@ -17,6 +17,7 @@ import 'vue-awesome/icons/times'
 import 'vue-awesome/icons/exclamation'
 import 'vue-awesome/icons/plus'
 import 'vue-awesome/icons/list-ul'
+import 'vue-awesome/icons/paper-plane'
 
 import Toasted from 'vue-toasted'
 

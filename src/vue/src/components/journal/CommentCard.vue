@@ -6,7 +6,7 @@
     <div>
         <div v-if="commentObject !== null">
             <div v-for="(comment, index) in commentObject.entrycomments" class="comment-section" :key="index">
-                <img class="profile-picture" :src="comment.author.picture">
+                <img class="profile-picture no-hover" :src="comment.author.picture">
 
                 <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                     <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b><br/>
@@ -15,10 +15,12 @@
             </div>
         </div>
         <div v-if="$root.canCommentJournal()" class="comment-section">
-            <img class="profile-picture" :src="userData.picture">
+            <img class="profile-picture no-hover" :src="userData.picture">
             <b-card class="no-hover new-comment" :class="$root.getBorderClass($route.params.cID)">
                 <b-textarea v-model="tempComment" placeholder="Add your comment here" :class="$root.getBorderClass($route.params.cID)"/>
-                <b-button @click="addComment">></b-button>
+                <b-button @click="addComment">
+                    <icon class="send-icon" name="paper-plane" scale="1.4"></icon>
+                </b-button>
             </b-card>
         </div>
     </div>
@@ -27,9 +29,13 @@
 <script>
 import userApi from '@/api/user.js'
 import entryApi from '@/api/entry.js'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     props: ['eID'],
+    components: {
+        icon
+    },
     data () {
         return {
             tempComment: '',
@@ -75,6 +81,7 @@ export default {
 </script>
 
 <style lang="sass">
+@import '~sass/modules/colors.sass'
 .comment-section
     display: flex
     .profile-picture
@@ -90,5 +97,10 @@ export default {
     .btn
         width: 50px
         height: 50px
+        .send-icon
+            fill: $theme-blue !important
+            display: block
+            margin-left: auto
+            margin-right: auto
 
 </style>
