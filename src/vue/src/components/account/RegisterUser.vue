@@ -2,14 +2,14 @@
     <div>
         <b-card class="blue-border no-hover card-last-elem-button">
             <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.username" placeholder="Username" required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"  v-model="form.firstname" placeholder="Firstname" required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"  v-model="form.lastname" placeholder="Lastname" required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.password" type="password" placeholder="Password" required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.password2" type="password" placeholder="Password (again)" required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"  v-model="form.email" placeholder="Email" required/>
-                <b-button class="float-left delete-button multi-form" type="reset">Reset</b-button>
-                <b-button class="float-right add-button multi-form" type="submit">Register</b-button>
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.username" placeholder="Username" required/>
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"  v-model="form.firstname" placeholder="First name" required/>
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"  v-model="form.lastname" placeholder="Last name" required/>
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.password" type="password" placeholder="Password" required/>
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.password2" type="password" placeholder="Password (again)" required/>
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"  v-model="form.email" placeholder="Email" required/>
+                <b-button class="float-left change-button multi-form" type="reset">Reset</b-button>
+                <b-button class="float-right multi-form" type="submit">Register</b-button>
             </b-form>
         </b-card>
     </div>

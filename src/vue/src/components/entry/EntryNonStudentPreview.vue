@@ -10,7 +10,7 @@
                 <h2>{{entryNode.entry.template.name}}</h2>
             </div>
             <div v-if="$root.canGradeJournal()" class="grade-section-teacher shadow no-hover">
-                <b-form-input type="number" size="2" v-model="grade" placeholder="0" min=0></b-form-input>
+                <b-form-input class="theme-input" type="number" size="2" v-model="grade" placeholder="0" min=0></b-form-input>
                 <b-form-checkbox v-model="status" value=true unchecked-value=false data-toggle="tooltip" title="Show grade to student">
                     Publish
                 </b-form-checkbox>
