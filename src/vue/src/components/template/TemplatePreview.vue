@@ -3,7 +3,7 @@
     <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
         <b-row>
             <b-col cols="9" lg-cols="12">
-                <h2>{{template.name}}</h2>
+                <h2 class="mb-2">{{template.name}}</h2>
             </b-col>
             <b-col cols="3" lg-cols="12" class="right-content">
             </b-col>

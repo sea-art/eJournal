@@ -2,7 +2,7 @@
     <content-single-column>
         <bread-crumb>&nbsp;</bread-crumb>
         <b-card class="no-hover">
-            <h2>Manage course data</h2>
+            <h2 class="mb-2">Manage course data</h2>
             <b-form @submit.prevent="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                          v-model="course.name"
@@ -45,13 +45,13 @@
         </b-card>
 
         <b-card class="no-hover">
-            <h2>Manage course students</h2>
+            <h2 class="mb-2">Manage course students</h2>
                 <b-row>
                     <b-col lg="3" sm="6" class="d-flex flex-wrap">
                         <b-form-select class="flex-grow-1 multi-form" v-model="selectedSortOption" :select-size="1">
                            <option :value="null">Sort by ...</option>
-                           <option value="sortName">Sort on name</option>
-                           <option value="sortID">Sort on ID</option>
+                           <option value="sortName">Sort by name</option>
+                           <option value="sortID">Sort by ID</option>
                         </b-form-select>
                     </b-col>
                     <b-col lg="3" sm="6" class="d-flex flex-wrap">

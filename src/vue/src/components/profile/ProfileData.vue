@@ -1,21 +1,18 @@
 <template>
     <b-row>
         <b-col md="5" sm="12" class="text-center">
-            <img class="profile-portrait shadow" :src="image">
+            <div class="profile-portrait small-shadow">
+                <img :src="image">
+                <!-- TODO handle file uploads. The original profile picture upload did not work yet.
+                <b-form-file ref="file" v-on:change="updateProfilePicture" class="fileinput form-control" v-model="file" :state="Boolean(file)" placeholder="Upload profile picture..."></b-form-file> -->
+                <b-button class="d-block">Upload</b-button>
+            </div>
         </b-col>
         <b-col md="7" sm="12">
             <h2 class="mb-2">User details</h2>
             <b-form-input class="theme-input multi-form" v-model="uname" type="text"/>
             <b-form-input class="theme-input multi-form" v-model="first" type="text"/>
             <b-form-input class="theme-input multi-form" v-model="last" type="text"/>
-            <b-form-file
-                ref="file"
-                accept="image/*"
-                v-on:change="updateProfilePicture"
-                class="fileinput"
-                v-model="file"
-                :state="Boolean(file)"
-                placeholder="Change picture"/>
             <b-button class="add-button multi-form" @click="saveUserdata">Save</b-button>
             <b-button class="multi-form" @click="downloadUserData">Download Data</b-button>
         </b-col>
@@ -65,7 +62,30 @@ export default {
 
 <style lang="sass">
 .profile-portrait
+    display: inline-block
+    position: relative
+    width: 100%
     max-width: 250px
     margin-bottom: 20px
     border-radius: 50% !important
+    overflow: hidden
+    img
+        position: absolute
+        height: 100%
+        width: 100%
+    .btn
+        position: absolute
+        width: 100%
+        height: 25%
+        bottom: -25%
+        opacity: 0
+    &:hover
+        .btn
+            bottom: 0px
+            opacity: 1
+
+.profile-portrait:after
+    content: ""
+    display: block
+    padding-bottom: 100%
 </style>

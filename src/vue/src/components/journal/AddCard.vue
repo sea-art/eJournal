@@ -6,7 +6,7 @@
 -->
 <template>
     <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-        <h2>Select a template</h2>
+        <h2 class="mb-2">Select a template</h2>
         <b-form-select v-model="selectedTemplate">
             <!-- <option :value="null" disabled>Please select a template</option> -->
             <option v-for="template in addNode.templates" :key="template.tID" :value="template">

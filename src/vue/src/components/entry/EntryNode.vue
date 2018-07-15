@@ -10,7 +10,7 @@
         <!-- Edit mode. -->
         <b-card v-if="saveEditMode == 'Save'" class="entry-card no-hover" :class="$root.getBorderClass(cID)">
             <div class="template-name">
-                <h2>{{entryNode.entry.template.name}}</h2>
+                <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
             </div>
             <div class="grade-section shadow">
                 <span v-if="entryNode.entry.published">
@@ -45,7 +45,7 @@
         <!-- Overview mode. -->
         <b-card v-else class="entry-card no-hover" :class="$root.getBorderClass(cID)">
             <div class="template-name">
-                <h2>{{entryNode.entry.template.name}}</h2>
+                <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
             </div>
             <div class="grade-section shadow">
                 <span v-if="entryNode.entry.published">

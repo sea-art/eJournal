@@ -7,7 +7,7 @@
     <div v-if="entryNode.entry !== null">
         <b-card class="entry-card no-hover entry-card-teacher" :class="$root.getBorderClass($route.params.cID)">
             <div class="template-name">
-                <h2>{{entryNode.entry.template.name}}</h2>
+                <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
             </div>
             <div v-if="$root.canGradeJournal()" class="grade-section shadow no-hover">
                 <b-form-input class="theme-input" type="number" size="2" v-model="grade" placeholder="0" min=0></b-form-input>

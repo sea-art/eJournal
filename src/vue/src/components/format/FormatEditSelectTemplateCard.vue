@@ -11,13 +11,13 @@
                 <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                     <b-row>
                         <b-col cols="9" lg-cols="12">
-                            <h2>Preset Deadline</h2>
+                            <h2 class="mb-2">Preset Deadline</h2>
                             <b-input class="mb-2 mr-sm-2 mb-sm-0 theme-input" v-model="deadlineDate" type="date" @change="$emit('changed')"/>
                             <br/>
                             <b-input class="mb-2 mr-sm-2 mb-sm-0 theme-input" v-model="deadlineTime" type="time" @change="$emit('changed')"/>
                             <br/>
 
-                            <h2>Preset Type</h2>
+                            <h2 class="mb-2">Preset Type</h2>
                             <b-form-select v-model="currentPreset.type" @change="onChangePresetType">
                                 <option :value="'d'">Entry</option>
                                 <option :value="'p'">Progress Check</option>
@@ -26,7 +26,7 @@
                             <br/>
 
                             <div v-if="currentPreset.type === 'd'">
-                                <h2>Preset Template</h2>
+                                <h2 class="mb-2">Preset Template</h2>
                                 <b-form-select v-model="currentPreset.template" @change="$emit('changed')">
                                     <option disabled value="">Please select a template</option>
                                     <option v-for="template in templates" :key="template.t.tID" :value="template.t">
@@ -35,12 +35,12 @@
                                 </b-form-select>
                                 <br><br>
                                 <div v-if="currentPreset !== null">
-                                    <h2>Preview</h2>
+                                    <h2 class="mb-2">Preview</h2>
                                     <template-preview :template="currentPreset.template"/>
                                 </div>
                             </div>
                             <div v-else-if="currentPreset.type === 'p'">
-                                <h2>Point Target</h2>
+                                <h2 class="mb-2">Point Target</h2>
                                 <b-input class="mb-2 mr-sm-2 mb-sm-0 theme-input" v-model="currentPreset.target" placeholder="Amount of points" @change="$emit('changed')"/>
                             </div>
                         </b-col>

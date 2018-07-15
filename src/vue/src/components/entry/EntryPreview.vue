@@ -4,7 +4,7 @@
 -->
 <template>
     <div>
-        <h2>{{template.name}}</h2>
+        <h2 class="mb-2">{{template.name}}</h2>
         <b-card class="no-hover">
             <div v-for="(field, i) in template.fields" :key="field.eID">
                 <div v-if="field.title != ''">

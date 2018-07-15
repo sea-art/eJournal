@@ -1,21 +1,16 @@
 <template>
     <b-card :class="$root.getBorderClass(uID)" class="no-hover">
-        <b-row>
-            <b-col cols="4" order-sm="2" sm="4">
-                StudentID: {{ uID }}
-            </b-col>
-            <b-col cols="4" order-sm="2" sm="4">
-                Name: {{ name }}
-            </b-col>
-            <b-col cols="4" order-sm="3" sm="3">
-                <b-button v-if="this.$root.canEditCourse"
-                          @click.prevent.stop="addUserToCourse()"
-                          class="add-button full-width">
+        <div class="float-left">
+            <b>{{ name }}</b><br>
+            {{ uID }}
+        </div>
+        <b-button v-if="this.$root.canEditCourse"
+                  @click.prevent.stop="addUserToCourse()"
+                  class="add-button float-right">
                     Add
-                </b-button>
-            </b-col>
-        </b-row>
-    </b-card></template>
+        </b-button>
+    </b-card>
+</template>
 
 <script>
 import courseApi from '@/api/course.js'

@@ -1,28 +1,30 @@
 <template>
     <b-card :class="$root.getBorderClass(uID)" class="no-hover">
         <b-row>
-            <b-col cols="4" sm="2">
-                <img class="img-fluid" :src="portraitPath">
+            <b-col sm="12" lg="8" class="d-flex mb-2">
+                <b-col cols="3" class="text-center">
+                    <img class="profile-picture" :src="portraitPath">
+                </b-col>
+                <b-col cols="9">
+                    <b>{{ name }}</b> ({{ selectedRole }})<br/>
+                    {{ studentNumber }}
+                </b-col>
             </b-col>
-            <b-col cols="8" order-sm="3" sm="4">
-                 <b-form-select v-if="this.$root.canEditCourseRoles"
-                                v-model="selectedRole"
-                                class="mb-3"
-                                :select-size="1">
-                    <option v-for="r in roles" :key="r.name" :value="r.name">
-                        {{r.name}}
-                    </option>
-                 </b-form-select>
+            <b-col sm="12" lg="4">
+                <div class="shadow">
+                    <b-form-select v-if="this.$root.canEditCourseRoles"
+                                   v-model="selectedRole"
+                                   :select-size="1">
+                        <option v-for="r in roles" :key="r.name" :value="r.name">
+                            {{r.name}}
+                        </option>
+                    </b-form-select>
+                </div>
                 <b-button v-if="this.$root.canEditCourse"
                           @click.prevent.stop="removeFromCourse()"
                           class="delete-button full-width">
                     Remove
                 </b-button>
-            </b-col>
-            <b-col cols="12" order-sm="2" sm="6">
-                Name: {{ name }} <br/>
-                Username: {{ studentNumber }} <br />
-                Role: {{selectedRole}}
             </b-col>
         </b-row>
     </b-card>
