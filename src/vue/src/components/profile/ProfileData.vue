@@ -5,9 +5,9 @@
         </b-col>
         <b-col md="7" sm="12">
             <h2 class="mb-2">User data</h2>
-            <b-form-input v-model="uname" type="text"/>
-            <b-form-input v-model="first" type="text"/>
-            <b-form-input v-model="last" type="text"/>
+            <b-form-input class="theme-input" v-model="uname" type="text"/>
+            <b-form-input class="theme-input" v-model="first" type="text"/>
+            <b-form-input class="theme-input" v-model="last" type="text"/>
             <b-form-file
                 ref="file"
                 accept="image/*"

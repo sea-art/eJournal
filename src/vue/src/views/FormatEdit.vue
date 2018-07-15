@@ -53,7 +53,7 @@
             </b-card>
             <b-card class="no-hover">
                 <b>Point Maximum</b>
-                <input v-model="max_points" placeholder="Point Maximum" type="number">
+                <input class="theme-input" v-model="max_points" placeholder="Point Maximum" type="number">
             </b-card>
             <b-card @click.prevent.stop="saveFormat" class="card hover add-button" :class="'grey-border'">
                 <b>Save Format</b>

@@ -31,7 +31,7 @@
                     <div v-if="$root.canGradeJournal()">
                         <br>
                         Fill in the grade:<br>
-                        <b-form-input type="number" v-model="grade" placeholder="Grade" min=0></b-form-input>
+                        <b-form-input class="theme-input" type="number" v-model="grade" placeholder="Grade" min=0></b-form-input>
                         <b-form-checkbox v-model="status" value=true unchecked-value=false>
                             Show grade to student
                         </b-form-checkbox><br>

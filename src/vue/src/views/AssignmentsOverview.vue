@@ -14,7 +14,7 @@
                         </b-form-select>
                     </b-col>
                     <b-col cols="6">
-                        <input type="text" v-model="searchVariable" placeholder="Search .."/>
+                        <input class="theme-input" type="text" v-model="searchVariable" placeholder="Search .."/>
                     </b-col>
                 </b-row>
         </b-card>
