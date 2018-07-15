@@ -15,13 +15,13 @@
                         <b-link tag="b-button" :to="breadcrumb.route">{{ breadcrumb.display }}</b-link> /
                     </span>
                 </h4>
-                <h1>
+                <h1 class="d-inline-block">
                     {{ breadedCrumbs.slice(-1)[0].display }}
                     <slot>
                         <icon name="eye" @click.native="eyeClick()" class="eye-icon icon-shadow" scale="1.75"></icon>
-                        <b-button v-if="canEdit()" @click="editClick()" class="float-right change-button"> Edit</b-button>
                     </slot>
                 </h1>
+                <b-button v-if="canEdit()" @click="editClick()" class="float-right change-button multi-form"> Edit</b-button>
             </b-col>
         </b-row>
     </div>

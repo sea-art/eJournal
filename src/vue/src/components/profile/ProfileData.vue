@@ -5,9 +5,9 @@
         </b-col>
         <b-col md="7" sm="12">
             <h2 class="mb-2">User details</h2>
-            <b-form-input class="theme-input" v-model="uname" type="text"/>
-            <b-form-input class="theme-input" v-model="first" type="text"/>
-            <b-form-input class="theme-input" v-model="last" type="text"/>
+            <b-form-input class="theme-input multi-form" v-model="uname" type="text"/>
+            <b-form-input class="theme-input multi-form" v-model="first" type="text"/>
+            <b-form-input class="theme-input multi-form" v-model="last" type="text"/>
             <b-form-file
                 ref="file"
                 accept="image/*"
@@ -64,8 +64,6 @@ export default {
 </script>
 
 <style lang="sass">
-@import '~sass/modules/colors.sass'
-
 .profile-portrait
     max-width: 250px
     margin-bottom: 20px

@@ -13,7 +13,7 @@
                         <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'p'">
-                        <b-card class="main-card no-hover" :class="'pink-border'">
+                        <b-card class="no-hover" :class="'pink-border'">
                             <h2>Needed progress</h2>
                             Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
                             before {{nodes[currentNode].deadline}}.

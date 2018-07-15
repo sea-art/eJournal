@@ -5,14 +5,14 @@
 <template>
     <div>
         <h2>{{template.name}}</h2>
-        <b-card class="main-card no-hover">
+        <b-card class="no-hover">
             <div v-for="(field, i) in template.fields" :key="field.eID">
                 <div v-if="field.title != ''">
                     <b>{{ field.title }}</b>
                 </div>
 
                 <div v-if="field.type=='t'">
-                    <b-textarea v-model="completeContent[i].data"></b-textarea><br><br>
+                    <b-textarea class="theme-input" v-model="completeContent[i].data"></b-textarea><br><br>
                 </div>
                 <div v-else-if="field.type=='i'">
                     <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>

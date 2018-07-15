@@ -3,19 +3,19 @@
         <bread-crumb>&nbsp;</bread-crumb>
         <b-card class="no-hover">
             <b-form @submit.prevent="onSubmit">
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                          v-model="assignment.name"
                          placeholder="Assignment name"
                          required/>
-                <b-form-textarea class="description-text-area"
+                <b-form-textarea class="description-text-area theme-input"
                                  :rows="3"
                                  :max-rows="6"
                                  v-model="assignment.description"
                                  placeholder="Description"
                                  required/>
 
-                <b-button type="submit" class="change-button">Update Assignment</b-button>
-                <b-button @click.prevent.stop="deleteAssignment()" class="delete-button">Delete Assignment</b-button>
+                <b-button type="submit" class="add-button float-left">Save</b-button>
+                <b-button @click.prevent.stop="deleteAssignment()" class="delete-button float-right">Delete Assignment</b-button>
             </b-form>
         </b-card>
     </content-single-column>

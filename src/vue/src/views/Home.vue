@@ -19,7 +19,7 @@
         <main-card
             v-if="this.$root.canAddCourse()"
             slot="main-content-column"
-            class="hover add-button"
+            class="hover add-card"
             @click.native="showModal('createCourseRef')"
             :line1="'+ Add course'"/>
 

@@ -2,15 +2,10 @@
     display: flex
     .template-name
         display: inline-block
-        width: 70%
-        @include xs-max
-            width: 50%
     .grade-section,
-    .grade-section-teacher
         width: 3em
         height: 3em
         background-color: white
-        border: 1px solid $theme-dark-grey
         float: right
         overflow: hidden
         display: flex
@@ -18,10 +13,10 @@
         align-items: center
         flex-wrap: wrap
         margin: 0px 0px 10px 0px
-        input, span
+        .theme-input, span
             width: 3em
             display: inline-block
-            border: 0px !important
+            border: 0px
             margin: 0px
             padding: 0px !important
             font-family: 'Roboto', sans-serif
@@ -33,7 +28,14 @@
             flex-basis: 100%
     .entry-field
         clear: both
-    .grade-section-teacher
+
+.entry-card-teacher
+    @extend .entry-card
+    .template-name
+        width: 70%
+        @include xs-max
+            width: 50%
+    .grade-section
         width: 30%
         height: auto
         @include xs-max

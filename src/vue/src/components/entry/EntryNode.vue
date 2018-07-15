@@ -8,7 +8,7 @@
 <template>
     <div>
         <!-- Edit mode. -->
-        <b-card v-if="saveEditMode == 'Save'" class="main-card no-hover entry-card" :class="$root.getBorderClass(cID)">
+        <b-card v-if="saveEditMode == 'Save'" class="entry-card no-hover" :class="$root.getBorderClass(cID)">
             <div class="template-name">
                 <h2>{{entryNode.entry.template.name}}</h2>
             </div>
@@ -30,7 +30,7 @@
                 </div>
 
                 <div v-if="field.type=='t'">
-                    <b-textarea v-model="completeContent[i].data"></b-textarea><br><br>
+                    <b-textarea class="theme-input" v-model="completeContent[i].data"></b-textarea><br><br>
                 </div>
                 <div v-else-if="field.type=='i'">
                     <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
@@ -43,7 +43,7 @@
             <b-button class="change-button" @click="cancel">Cancel</b-button>
         </b-card>
         <!-- Overview mode. -->
-        <b-card v-else class="main-card no-hover entry-card" :class="$root.getBorderClass(cID)">
+        <b-card v-else class="entry-card no-hover" :class="$root.getBorderClass(cID)">
             <div class="template-name">
                 <h2>{{entryNode.entry.template.name}}</h2>
             </div>

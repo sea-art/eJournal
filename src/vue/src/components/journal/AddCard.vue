@@ -5,7 +5,7 @@
     EDAG-Tree.
 -->
 <template>
-    <b-card class="main-card no-hover" :class="$root.getBorderClass($route.params.cID)">
+    <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
         <h2>Select a template</h2>
         <b-form-select v-model="selectedTemplate">
             <!-- <option :value="null" disabled>Please select a template</option> -->

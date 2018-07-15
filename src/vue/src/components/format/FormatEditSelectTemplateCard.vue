@@ -8,7 +8,7 @@
     <div>
         <b-row>
             <b-col cols="12">
-                <b-card class="main-card no-hover" :class="$root.getBorderClass($route.params.cID)">
+                <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                     <b-row>
                         <b-col cols="9" lg-cols="12">
                             <h2>Preset Deadline</h2>
