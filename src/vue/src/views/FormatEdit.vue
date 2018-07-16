@@ -22,7 +22,7 @@
                 of the entry
             . -->
 
-            <div v-if="nodes.length > 0">
+            <div v-if="nodes.length > 0" :class="{ grayed : saveRequestInFlight }">
                 <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @deadline-changed="sortList" @delete-preset="deletePreset" @changed="isChanged = true" :color="$root.colors[cID % $root.colors.length]"/>
             </div>
             <div v-else>
@@ -41,23 +41,28 @@
         </b-col>
         <b-col cols="12" xl="3" order="2" order-xl="3" class="right-content-format-edit">
             <h3>Format</h3>
-            <b-card @click.prevent.stop="addNode" class="card hover add-button" :class="'grey-border'" style="">
-                <b>+ Add Preset to Format</b>
-            </b-card>
-            <b-card class="no-hover">
-                <b>Point Maximum</b>
-                <input v-model="max_points" placeholder="Point Maximum" type="number">
-            </b-card>
-            <b-card @click.prevent.stop="saveFormat" class="card hover add-button" :class="'grey-border'" style="">
-                <b>Save Format</b>
-            </b-card>
-            <br/>
+            <div :class="{ grayed : saveRequestInFlight }">
+                <b-card @click.prevent.stop="addNode" class="card hover add-button" :class="'grey-border'" style="">
+                    <b>+ Add Preset to Format</b>
+                </b-card>
+                <b-card class="no-hover">
+                    <b>Point Maximum</b>
+                    <input v-model="max_points" placeholder="Point Maximum" type="number">
+                </b-card>
+                <b-card @click.prevent.stop="saveFormat" class="card hover add-button" :class="'grey-border'" style="">
+                    <b v-if="saveRequestInFlight">Saving...</b>
+                    <b v-else>Save Format</b>
+                </b-card>
+                <br/>
+            </div>
 
             <h3>Template Pool</h3>
-            <template-todo-card class="hover" v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate" :color="$root.colors[cID % $root.colors.length]"/>
-            <b-card @click="showModal(newTemplate())" class="hover add-button" :class="'grey-border'" style="">
-                <b>+ Add Template</b>
-            </b-card>
+            <div :class="{ grayed : saveRequestInFlight }">
+                <template-todo-card class="hover" v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate" :color="$root.colors[cID % $root.colors.length]"/>
+                <b-card @click="showModal(newTemplate())" class="hover add-button" :class="'grey-border'" style="">
+                    <b>+ Add Template</b>
+                </b-card>
+            </div>
         </b-col>
     </b-row>
 
@@ -84,6 +89,8 @@ export default {
        nodes: processed copy of presets.
        deletedTemplates, deletedPresets: stores deleted objects for db communication
        isChanged: stores whether the user has made any changes
+       saveRequestInFlight: stores whether a request to save is in flight, should not allow changes as that would
+            create desync between server and local (format is reloaded after save response, local changes lost)
     */
     data () {
         return {
@@ -98,6 +105,7 @@ export default {
             nodes: [],
 
             isChanged: false,
+            saveRequestInFlight: false,
 
             templateBeingEdited: {
                 'fields': [],
@@ -116,10 +124,7 @@ export default {
     created () {
         journalAPI.get_format(this.aID)
             .then(data => {
-                this.templates = data.format.templates
-                this.max_points = data.format.max_points
-                this.presets = data.format.presets
-                this.unused_templates = data.format.unused_templates
+                this.saveFromDB(data)
                 this.convertFromDB()
             })
             .then(_ => { this.isChanged = false })
@@ -264,18 +269,16 @@ export default {
                 return
             }
 
+            this.saveRequestInFlight = true
             this.convertToDB()
             journalAPI.update_format(this.aID, this.templates, this.max_points, this.presets, this.unused_templates, this.deletedTemplates, this.deletedPresets)
                 .then(data => {
-                    this.templates = data.format.templates
-                    this.presets = data.format.presets
-                    this.unused_templates = data.format.unused_templates
-                    this.deletedTemplates = []
-                    this.deletedPresets = []
+                    this.saveFromDB(data)
                     this.convertFromDB()
                 })
                 .then(_ => {
                     this.isChanged = false
+                    this.saveRequestInFlight = false
                     this.$toasted.success('New format saved')
                 })
         },
@@ -297,6 +300,13 @@ export default {
         },
         customisePage () {
             this.$toasted.info('Wishlist: Customise page')
+        },
+        saveFromDB (data) {
+            this.templates = data.format.templates
+            this.presets = data.format.presets
+            this.unused_templates = data.format.unused_templates
+            this.deletedTemplates = []
+            this.deletedPresets = []
         },
         // Utility func to translate from db format to internal
         convertFromDB () {
@@ -381,6 +391,11 @@ export default {
 </script>
 
 <style>
+.grayed {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
 .left-content-format-edit {
     padding: 0px 30px !important;
     flex: 0 0 auto;
