@@ -41,7 +41,7 @@
                             </div>
                             <div v-else-if="currentPreset.type === 'p'">
                                 <h2>Point Target</h2>
-                                <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="currentPreset.target" placeholder="Amount of points" @change="$emit('changed')"/>
+                                <b-input type="number" class="mb-2 mr-sm-2 mb-sm-0" v-model="currentPreset.target" placeholder="Amount of points" @change="$emit('changed')"/>
                             </div>
                         </b-col>
                         <b-col id="main-card-right-column" cols="3" lg-cols="12">
