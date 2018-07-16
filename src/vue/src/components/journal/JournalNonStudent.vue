@@ -33,7 +33,7 @@
                             tag="b-button"
                             v-if="filteredJournals.length !== 0"
                             :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.jID }, query: query }">
-                            <icon name="arrow-left"></icon>
+                            <icon name="arrow-left"/>
                             Previous
                         </b-button>
                         <b-button
@@ -42,10 +42,10 @@
                             v-if="filteredJournals.length !== 0"
                             :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: nextJournal.jID }, query: query }">
                             Next
-                            <icon name="arrow-right"></icon>
+                            <icon name="arrow-right"/>
                         </b-button>
                         <b-button class="multi-form flex-grow-1" @click="publishGradesJournal">
-                            <icon name="upload"></icon>
+                            <icon name="upload"/>
                             Publish All Grades
                         </b-button>
                     </b-col>

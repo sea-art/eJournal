@@ -23,10 +23,10 @@
 
         <div v-b-toggle.edag-outer target="edag-outer" aria-expanded="false" aria-controls="edag-outer" id="edag-toggle">
             <span class="edag-outer__icon edag-outer__icon--open">
-                    <icon class="collapse-icon" name="list-ul" scale="1.75"></icon>
+                    <icon class="collapse-icon" name="list-ul" scale="1.75"/>
             </span>
             <span class="edag-outer__icon edag-outer__icon--close">
-                    <icon class="collapse-icon" name="caret-up" scale="1.75"></icon>
+                    <icon class="collapse-icon" name="caret-up" scale="1.75"/>
             </span>
         </div>
     </div>

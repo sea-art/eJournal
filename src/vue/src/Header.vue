@@ -5,10 +5,10 @@
 
         <b-navbar-toggle class="ml-auto mr-auto" target="nav-collapse" aria-expanded="false" aria-controls="nav-collapse">
             <span class="nav-collapse__icon nav-collapse__icon--open">
-                <icon class="collapse-icon" name="caret-down" scale="1.75"></icon>
+                <icon class="collapse-icon" name="caret-down" scale="1.75"/>
             </span>
             <span class="nav-collapse__icon nav-collapse__icon--close">
-                <icon class="collapse-icon" name="caret-up" scale="1.75"></icon>
+                <icon class="collapse-icon" name="caret-up" scale="1.75"/>
             </span>
         </b-navbar-toggle>
 
@@ -21,9 +21,17 @@
 
         <b-navbar-nav class="ml-auto">
             <b-nav-dropdown no-caret right id="nav-dropdown-options">
-                <img class="profile-picture" slot="button-content" :src="profileImg">
-                <b-button :to="{ name: 'Profile' }" class="multi-form">Profile</b-button>
-                <b-button :to="{ name: 'Logout' }">Sign out</b-button>
+                <div class="profile-picture-container" slot="button-content">
+                    <img class="profile-picture" :src="profileImg">
+                </div>
+                <b-button :to="{ name: 'Profile' }" class="multi-form">
+                    <icon name="user"/>
+                    &nbsp;Profile
+                </b-button>
+                <b-button :to="{ name: 'Logout' }">
+                    <icon name="sign-out"/>
+                    Log out
+                </b-button>
             </b-nav-dropdown>
         </b-navbar-nav>
     </b-navbar>
@@ -34,9 +42,17 @@
 
         <b-navbar-nav class="ml-auto">
             <b-nav-dropdown right no-caret id="nav-dropdown-options" ref="loginDropdown">
-                <img class="profile-picture" slot="button-content" :src="profileImg">
-                <b-button class="multi-form" :to="{ name: 'Register' }">Sign Up!</b-button>
-                <b-button class="multi-form" :to="{ name: 'Login' }">Login</b-button>
+                <div class="profile-picture-container bg-white d-flex justify-content-center align-items-center" slot="button-content">
+                    <icon name="user" scale="2.5"/>
+                </div>
+                <b-button class="multi-form" :to="{ name: 'Register' }">
+                    <icon name="user-plus"/>
+                    Register
+                </b-button>
+                <b-button :to="{ name: 'Login' }">
+                    <icon name="sign-in"/>
+                    Log in
+                </b-button>
             </b-nav-dropdown>
         </b-navbar-nav>
     </b-navbar>
@@ -121,76 +137,80 @@ export default {
 @import '~sass/modules/breakpoints.sass'
 
 #header
+    .brand-name
+        font-weight: bold
+        font-size: 25px
+        span
+            color: $theme-blue !important
     background-color: $theme-dark-blue
     color: white
     font-family: 'Roboto Condensed', sans-serif
     font-size: 1.3em
     height: 70px
+    .navbar-toggler
+        .collapse-icon
+            fill: white !important
+        @include md-max
+            position: absolute
+            left: 50%
+            right: 50%
+            top: 15px
+            transform: translateX(-50%)
+            border-radius: 50% !important
+    /* Handles rotation of the arrow icon. */
+    [aria-expanded="false"] .nav-collapse__icon--open
+        display: block
+
+    [aria-expanded="false"] .nav-collapse__icon--close
+        display: none
+
+    [aria-expanded="true"] .nav-collapse__icon--open
+        display: none
+
+    [aria-expanded="true"] .nav-collapse__icon--close
+        display: block
     @include md-max
         min-height: 70px
         height: auto
 
 #nav-dropdown-options
+    .profile-picture-container
+        border-radius: 50% !important
+        width: 50px
+        height: 50px
+        @include md-max
+            position: absolute
+            top: 10px
+            right: 10px
+    a
+        padding: 0px !important
+    a.btn
+        padding: 0.375rem 0.75rem !important
     @include md-max
         position: absolute
-        top: 10px
-        right: 10px
+        top: 0px
+        right: 0px
         width: auto
 
         a.nav-link
             text-align: right !important
 
-#nav-dropdown-options a
-    padding: 0px !important
-
-#nav-dropdown-options a.btn
-    padding: 0.375rem 0.75rem !important
-
 #nav-collapse
     background-color: $theme-dark-blue
 
-.collapse-icon
-    fill: white !important
-
-/* Handles rotation of the arrow icon. */
-[aria-expanded="false"] .nav-collapse__icon--open
-    display: block
-
-[aria-expanded="false"] .nav-collapse__icon--close
-    display: none
-
-[aria-expanded="true"] .nav-collapse__icon--open
-    display: none
-
-[aria-expanded="true"] .nav-collapse__icon--close
-    display: block
 
 .dropdown-menu
     background: $theme-dark-grey !important
     border: none !important
     padding: 10px 5px
     margin-top: 10px
-
-.dropdown-menu .btn
-    width: 100%
-    text-align: left
-
-.brand-name
-    font-weight: bold
-    font-size: 25px
-
-.brand-name span
-    color: $theme-blue !important
-
-.login-form-header
-    background-color: $theme-light-grey
-
-.navbar-toggler
+    .btn
+        justify-content: left
+        svg
+            margin-left: 0px
     @include md-max
-        position: absolute
-        left: 50%
-        right: 50%
-        top: 15px
-        transform: translateX(-50%)
-        border-radius: 50% !important
+        margin-top: 70px
+
+
+
 </style>

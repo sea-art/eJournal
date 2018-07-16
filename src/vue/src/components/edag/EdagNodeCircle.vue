@@ -7,7 +7,7 @@
     <div class="edag-node-circle-border">
         <div class="edag-node-circle d-flex align-items-center justify-content-center" :class="classObject">
             <div v-if="this.entrystate === 'empty'" class="edag-node-circle-inner" :class="classObject"></div>
-            <icon v-else-if="this.entrystate != ''" :name="iconName" class="edag-node-circle-icon fill-white" :scale="iconScale"></icon>
+            <icon v-else-if="this.entrystate != ''" :name="iconName" class="edag-node-circle-icon fill-white" :scale="iconScale"/>
             <div v-else class="text-white">{{ text }}</div>
         </div>
     </div>

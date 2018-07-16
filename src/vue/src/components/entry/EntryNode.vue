@@ -17,7 +17,7 @@
                     {{ entryNode.entry.grade }}
                 </span>
                 <span v-else>
-                    <icon name="hourglass-half"></icon>
+                    <icon name="hourglass-half"/>
                 </span>
             </div>
             <!--
@@ -52,7 +52,7 @@
                     {{ entryNode.entry.grade }}
                 </span>
                 <span v-else>
-                    <icon name="hourglass-half"></icon>
+                    <icon name="hourglass-half"/>
                 </span>
             </div>
             <!--

@@ -3,15 +3,23 @@
     font-size: 1.2em
     background-color: white
     border: none
+    display: flex
+    justify-content: center
+    align-items: center
     color: $theme-dark-blue
     transition: all 0.6s cubic-bezier(.25,.8,.25,1) !important
+    svg
+        transition: all 0.6s cubic-bezier(.25,.8,.25,1) !important
+        margin: 5px
     &:hover, &.active
         background-color: $theme-blue !important
         color: white !important
         svg
             fill: white !important
 
-.go-button
+.send-button
+    svg
+        margin: 0px
     width: 40px
     height: 40px
 

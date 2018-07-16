@@ -18,7 +18,7 @@
                 <h1 class="d-inline-block">
                     {{ breadedCrumbs.slice(-1)[0].display }}
                     <slot>
-                        <icon name="eye" @click.native="eyeClick()" class="eye-icon icon-shadow" scale="1.75"></icon>
+                        <icon name="eye" @click.native="eyeClick()" class="eye-icon icon-shadow" scale="1.75"/>
                     </slot>
                 </h1>
                 <b-button v-if="canEdit()" @click="editClick()" class="float-right change-button multi-form"> Edit</b-button>

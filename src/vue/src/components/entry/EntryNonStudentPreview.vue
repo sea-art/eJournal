@@ -15,7 +15,7 @@
                     Publish
                 </b-form-checkbox>
                 <b-button class="add-button" @click="commitGrade">
-                    <icon name="save" scale="1"></icon>
+                    <icon name="save" scale="1"/>
                     Save
                 </b-button>
             </div>
@@ -24,7 +24,7 @@
                     {{ entryNode.entry.grade }}
                 </span>
                 <span v-else>
-                    <icon name="hourglass-half"></icon>
+                    <icon name="hourglass-half"/>
                 </span>
             </div>
 

@@ -12,7 +12,7 @@
                             </b-col>
                             <b-col cols="12" sm="2" lg="1" class="icon-box">
                                 <div class="handle d-inline d-sm-block">
-                                    <icon class="move-icon" name="arrows" scale="1.75"></icon>
+                                    <icon class="move-icon" name="arrows" scale="1.75"/>
                                 </div>
                                 <icon class="trash-icon" @click.native="removeField(field.location)" name="trash" scale="1.75"/>
                             </b-col>

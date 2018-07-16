@@ -8,8 +8,14 @@
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.password" type="password" placeholder="Password" required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.password2" type="password" placeholder="Password (again)" required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"  v-model="form.email" placeholder="Email" required/>
-                <b-button class="float-left change-button multi-form" type="reset">Reset</b-button>
-                <b-button class="float-right multi-form" type="submit">Register</b-button>
+                <b-button class="float-left change-button multi-form" type="reset">
+                    <icon name="undo"/>
+                    Reset
+                </b-button>
+                <b-button class="float-right multi-form" type="submit">
+                    <icon name="user-plus"/>
+                    Register
+                </b-button>
             </b-form>
         </b-card>
     </div>
@@ -18,6 +24,8 @@
 <script>
 import auth from '@/api/auth.js'
 import userApi from '@/api/user.js'
+import icon from 'vue-awesome/components/Icon'
+
 
 export default {
     name: 'RegisterUser',
@@ -100,6 +108,9 @@ export default {
             this.form.email = this.lti.email
             this.form.ltiJWT = this.lti.ltiJWT
         }
+    },
+    components: {
+        'icon': icon
     }
 }
 </script>

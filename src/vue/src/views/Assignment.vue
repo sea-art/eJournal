@@ -30,7 +30,7 @@
                         v-if="$root.canGradeJournal()"
                         class="add-button"
                         @click="publishGradesAssignment">
-                        <icon name="upload"></icon>
+                        <icon name="upload"/>
                         Publish all Grades
                     </b-button>
                 </b-col>
