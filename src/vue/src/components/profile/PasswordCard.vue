@@ -4,12 +4,16 @@
         <b-input class="theme-input multi-form" v-model="oldPass" type="password" placeholder="Old password"/>
         <b-input class="theme-input multi-form" v-model="newPass" type="password" placeholder="New password"/>
         <b-input class="theme-input multi-form" v-model="newPassRepeat" type="password" placeholder="Repeat new password"/>
-        <b-button @click="changePassword" class="add-button">Change password</b-button>
+        <b-button @click="changePassword" class="add-button">
+            <icon name="save"/>
+            Save
+        </b-button>
     </div>
 </template>
 
 <script>
 import auth from '@/api/auth'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     data () {
@@ -34,6 +38,9 @@ export default {
                 this.$toasted.error('Passwords do not match')
             }
         }
+    },
+    components: {
+        'icon': icon
     }
 }
 </script>

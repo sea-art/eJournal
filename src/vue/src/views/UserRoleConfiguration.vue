@@ -1,10 +1,16 @@
 <template>
     <content-single-table-column>
         <bread-crumb>&nbsp;</bread-crumb>
-
-        <b-button @click="update()" class="multi-form float-right add-button ml-2"> Save </b-button>
-        <b-button @click="reset()" class="multi-form float-right delete-button"> Reset </b-button>
-
+        <div class="settings-card justify-content-between">
+            <b-button @click="reset()" class="multi-form change-button">
+                <icon name="undo"/>
+                Undo Changes
+            </b-button>
+            <b-button @click="update()" class="multi-form add-button">
+                <icon name="save"/>
+                Save
+            </b-button>
+        </div>
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
                 <thead>
@@ -16,9 +22,14 @@
                                 v-if="!undeleteableRoles.includes(role)"
                                 name="trash" @click.native="deleteRole(role)"
                                 class="trash-icon"
-                                scale="1.25"/>
+                                scale="1.2"/>
                         </th>
-                        <th><icon name="plus-square" @click.native="modalShow = !modalShow" class="add-icon" scale="1.75"/></th>
+                        <th>
+                            <b-button @click="modalShow = !modalShow" class="add-button">
+                                <icon name="plus-square"/>
+                                Add Role
+                            </b-button>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -38,7 +49,7 @@
 
         <b-modal
             @shown="focusRoleNameInput"
-            title="Role creation"
+            title="New Role"
             size="lg"
             v-model="modalShow"
             hide-footer>
@@ -48,8 +59,14 @@
                 class="multi-form theme-input"
                 ref="roleNameInput"
                 required placeholder="Role name"/>
-            <b-button @click="addRole" class="add-button">Create role</b-button>
-            <b-button @click="modalShow = false" class="delete-button">Cancel</b-button>
+            <b-button @click="addRole" class="add-button">
+                <icon name="user-plus"/>
+                Create role
+            </b-button>
+            <b-button @click="modalShow = false" class="delete-button">
+                <icon name="ban"/>
+                Cancel
+            </b-button>
         </b-modal>
     </content-single-table-column>
 </template>
@@ -225,7 +242,7 @@ export default {
         'content-single-table-column': contentSingleTableColumn,
         'bread-crumb': breadCrumb,
         'custom-checkbox': customCheckbox,
-        icon
+        'icon': icon
     }
 }
 </script>

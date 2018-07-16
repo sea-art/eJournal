@@ -6,10 +6,16 @@
     border-left-width: 15px
     border-radius: 0px
     .card
-        border: 2px solid $theme-dark-grey
+        border: 2px solid $theme-dark-grey !important
     &:hover:not(.no-hover)
         cursor: pointer
         background-color: $theme-medium-grey
+
+.settings-card
+    display: flex
+    .btn, .theme-input, select
+        @include xs-max
+            width: 100%
 
 .card-body
     padding: 12px 10px 12px 10px

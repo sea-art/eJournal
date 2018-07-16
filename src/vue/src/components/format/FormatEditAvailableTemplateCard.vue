@@ -5,7 +5,10 @@
 <template>
     <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
         <b>{{ template.t.name }}</b>
-        <icon @click.native.stop="emitDeleteTemplate" class="trash-icon ml-10 float-right" name="trash" scale="1.75"/>
+        <b-button v-on:click.stop @click="emitDeleteTemplate" class="delete-button float-right">
+            <icon name="trash"/>
+            Delete
+        </b-button>
         <toggle-switch @click.native.stop class="template-todo-card-switch" :isActive="isActive" @parentActive="template.available = $event"/>
     </b-card>
 </template>
@@ -40,4 +43,5 @@ export default {
     float: right
     text-align: center
     margin-top: 2px
+    margin-right: 5px
 </style>

@@ -7,6 +7,7 @@
         <b-button v-if="this.$root.canEditCourse"
                   @click.prevent.stop="addUserToCourse()"
                   class="add-button float-right">
+                  <icon name="user-plus"/>
                     Add
         </b-button>
     </b-card>
@@ -14,6 +15,7 @@
 
 <script>
 import courseApi from '@/api/course.js'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     props: {
@@ -42,6 +44,9 @@ export default {
                     })
             }
         }
+    },
+    components: {
+        'icon': icon
     }
 }
 </script>

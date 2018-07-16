@@ -1,40 +1,26 @@
 <template>
     <content-columns>
         <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
-        <b-card slot="main-content-column" class="no-hover">
+        <b-card slot="main-content-column" class="no-hover settings-card">
             <b-row>
-                <b-col lg="3" md="3">
-                    <b-button
-                        v-if="$root.canAddAssignment()"
-                        class="change-button"
-                        :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">
-                        Edit Assignment Format
-                    </b-button>
-                </b-col>
-            </b-row>
-            <b-row>
-                <b-col lg="3" md="3">
-                    <b-form-select v-model="selectedSortOption" :select-size="1">
+                <b-col sm="6">
+                    <b-form-select class="multi-form" v-model="selectedSortOption" :select-size="1">
                        <option value="sortName">Sort by name</option>
                        <option value="sortID">Sort by ID</option>
                        <option value="sortMarking">Sort by marking needed</option>
                     </b-form-select>
                 </b-col>
-                <b-col lg="5" md="12">
-                    <input class="theme-input" type="text" v-model="searchVariable" placeholder="Search .."/>
+                <b-col sm="6">
+                    <input class="theme-input multi-form full-width" type="text" v-model="searchVariable" placeholder="Search .."/>
                 </b-col>
             </b-row>
-            <b-row>
-                <b-col lg="3" md="3">
-                    <b-button
-                        v-if="$root.canGradeJournal()"
-                        class="add-button"
-                        @click="publishGradesAssignment">
-                        <icon name="upload"/>
-                        Publish all Grades
-                    </b-button>
-                </b-col>
-            </b-row>
+            <b-button
+                v-if="$root.canGradeJournal()"
+                class="add-button"
+                @click="publishGradesAssignment">
+                <icon name="upload"/>
+                Publish all Grades for this Assignment
+            </b-button>
         </b-card>
 
         <div v-if="assignmentJournals.length > 0" v-for="journal in filteredJournals" :key="journal.student.uID" slot="main-content-column">

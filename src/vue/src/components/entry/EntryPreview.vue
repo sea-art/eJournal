@@ -12,7 +12,7 @@
                 </div>
 
                 <div v-if="field.type=='t'">
-                    <b-textarea class="theme-input" v-model="completeContent[i].data"></b-textarea><br><br>
+                    <b-textarea class="theme-input" v-model="completeContent[i].data"></b-textarea><br>
                 </div>
                 <div v-else-if="field.type=='i'">
                     <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
@@ -27,11 +27,16 @@
                 Please fill in every field.
             </b-alert>
         </b-card>
-        <b-button class="add-button" @click="save">Post Entry</b-button>
+        <b-button class="add-button float-right" @click="save">
+            <icon name="paper-plane"/>
+            Post Entry
+        </b-button>
     </div>
 </template>
 
 <script>
+import icon from 'vue-awesome/components/Icon'
+
 export default {
     props: ['template'],
     data () {
@@ -76,6 +81,9 @@ export default {
                 this.dismissCountDown = this.dismissSecs
             }
         }
+    },
+    components: {
+        'icon': icon
     }
 }
 </script>

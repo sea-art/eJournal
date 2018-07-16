@@ -5,18 +5,20 @@
             or connect to an existing one?</p>
         <b-row align-h="center">
             <b-button class="lti-button-option" @click="showModal('createAssignmentRef')">
+                <icon name="plus-square" scale="1.8"/>
                 <h2 class="lti-button-text">Create new assignment</h2>
             </b-button>
         </b-row>
         <b-row  align-h="center">
             <b-button class="lti-button-option" @click="showModal('connectAssignmentRef')">
+                <icon name="link" scale="1.8"/>
                 <h2 class="lti-button-text">Connect to existing <br/> assignment</h2>
             </b-button>
         </b-row>
 
         <b-modal
             ref="createAssignmentRef"
-            title="Create assignment"
+            title="New Assignment"
             size="lg"
             hide-footer>
                 <create-assignment @handleAction="handleCreated" :lti="lti" :page="page"/>
@@ -24,7 +26,7 @@
 
         <b-modal
             ref="connectAssignmentRef"
-            title="Connect assignment"
+            title="Connect Assignment"
             size="lg"
             hide-footer>
                 <connect-assignment @handleAction="handleConnected" :lti="lti" :page="page"/>
@@ -35,13 +37,15 @@
 <script>
 import createAssignment from '@/components/assignment/CreateAssignment.vue'
 import connectAssignment from '@/components/lti/ConnectAssignment.vue'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     name: 'LtiCreateConnectAssignment',
     props: ['lti', 'page'],
     components: {
         'create-assignment': createAssignment,
-        'connect-assignment': connectAssignment
+        'connect-assignment': connectAssignment,
+        'icon': icon
     },
     methods: {
         signal (msg) {

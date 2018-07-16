@@ -23,6 +23,7 @@
                 <b-button v-if="this.$root.canEditCourse"
                           @click.prevent.stop="removeFromCourse()"
                           class="delete-button full-width">
+                    <icon name="user-times"/>
                     Remove
                 </b-button>
             </b-col>
@@ -33,6 +34,7 @@
 <script>
 import courseApi from '@/api/course.js'
 import permissions from '@/api/permissions.js'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     props: {
@@ -100,6 +102,9 @@ export default {
             .then(response => {
                 this.roles = response
             })
+    },
+    components: {
+        'icon': icon
     }
 }
 </script>

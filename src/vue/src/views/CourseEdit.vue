@@ -1,7 +1,7 @@
 <template>
     <content-single-column>
         <bread-crumb>&nbsp;</bread-crumb>
-        <b-card class="no-hover">
+        <b-card class="no-hover settings-card">
             <h2 class="mb-2">Manage course data</h2>
             <b-form @submit.prevent="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
@@ -27,17 +27,20 @@
                         <b-button class="add-button flex-grow-1 multi-form"
                                   type="submit"
                                   v-if="this.$root.canEditCourse()">
+                            <icon name="save"/>
                             Save
                         </b-button>
                         <b-button v-if="this.$root.canDeleteCourse()"
                                   @click.prevent.stop="deleteCourse()"
                                   class="delete-button flex-grow-1 multi-form">
+                            <icon name="trash"/>
                             Delete Course
                         </b-button>
                         <b-button v-if="this.$root.canEditCourseRoles()"
                                   @click.prevent.stop="routeToEditCourseRoles"
                                   class="change-button flex-grow-1 multi-form">
-                            Edit permissions
+                            <icon name="users"/>
+                            Manage Role Permissions
                         </b-button>
                     </b-col>
                 </b-row>
@@ -45,26 +48,23 @@
         </b-card>
 
         <b-card class="no-hover">
-            <h2 class="mb-2">Manage course students</h2>
+            <h2 class="mb-2">Manage course members</h2>
                 <b-row>
-                    <b-col lg="3" sm="6" class="d-flex flex-wrap">
+                    <b-col sm="6" class="d-flex flex-wrap">
                         <b-form-select class="flex-grow-1 multi-form" v-model="selectedSortOption" :select-size="1">
                            <option :value="null">Sort by ...</option>
                            <option value="sortName">Sort by name</option>
                            <option value="sortID">Sort by ID</option>
                         </b-form-select>
                     </b-col>
-                    <b-col lg="3" sm="6" class="d-flex flex-wrap">
+                    <b-col sm="6" class="d-flex flex-wrap">
                         <b-form-select class="flex-grow-1 multi-form" v-model="selectedView" :select-size="1">
                             <option value="enrolled">Enrolled</option>
                             <option value="unenrolled">Unenrolled</option>
                         </b-form-select>
                     </b-col>
-
-                    <b-col cols="6" class="d-flex flex-wrap">
-                        <input class="flex-grow-1 multi-form theme-input" type="text" v-model="searchVariable" placeholder="Search .."/>
-                    </b-col>
                 </b-row>
+                <input class="multi-form theme-input full-width" type="text" v-model="searchVariable" placeholder="Search .."/>
         </b-card>
 
         <!-- TODO PROVIDE FULL NAME AND STUDENTNUMBER DATABASE BOYS -->
@@ -99,6 +99,7 @@ import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import courseParticipantCard from '@/components/course/CourseParticipantCard.vue'
 import courseApi from '@/api/course.js'
 import store from '@/Store'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     name: 'CourseEdit',
@@ -251,7 +252,8 @@ export default {
         'add-user-card': addUsersToCourseCard,
         'bread-crumb': breadCrumb,
         'content-single-column': contentSingleColumn,
-        'course-participant-card': courseParticipantCard
+        'course-participant-card': courseParticipantCard,
+        'icon': icon
     }
 }
 </script>

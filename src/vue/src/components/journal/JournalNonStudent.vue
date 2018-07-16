@@ -50,6 +50,7 @@
                         </b-button>
                     </b-col>
                     <b-col md="6" lg="12">
+                        <!-- TODO: Use actual journal data. -->
                         <progress-bar :currentPoints="5" :totalPoints="10"/>
                     </b-col>
                 </b-row>

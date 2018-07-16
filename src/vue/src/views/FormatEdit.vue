@@ -19,26 +19,26 @@
                     Fill in the template using the corresponding data
                     of the entry
                 . -->
+                <selected-node-card
+                    v-if="nodes.length > 0"
+                    ref="entry-template-card"
+                    :currentPreset="nodes[currentNode]"
+                    :templates="templatePool"
+                    @deadline-changed="sortList"
+                    @delete-preset="deletePreset"
+                    @changed="isChanged = true"/>
+                <main-card v-else class="no-hover" :line1="'No presets in format'" :class="'grey-border'"/>
 
-                <div v-if="nodes.length > 0">
-                    <selected-node-card
-                        ref="entry-template-card"
-                        :currentPreset="nodes[currentNode]"
-                        :templates="templatePool"
-                        @deadline-changed="sortList"
-                        @delete-preset="deletePreset"
-                        @changed="isChanged = true"/>
-                </div>
-                <div v-else>
-                    <p>No presets yet</p>
-                </div>
+                <main-card class="add-card" v-on:click.native.prevent.stop="addNode" :line1="'+ Add preset to format'" :class="'grey-border'"/>
 
                 <b-modal
                     ref="modal"
                     size="lg"
                     ok-only
                     hide-header>
-                        <span slot="modal-ok">Back</span>
+                        <span slot="modal-ok">
+                            Back
+                        </span>
                         <template-editor :template="templateBeingEdited">
                         </template-editor>
                 </b-modal>
@@ -46,22 +46,21 @@
         </b-col>
 
         <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
-            <h3>Format</h3>
-            <b-card @click.prevent.stop="addNode" class="hover add-button" :class="'grey-border'">
-                <b>+ Add Preset to Format</b>
+            <h3>Assignment Format</h3>
+            <b-card class="no-hover mb-4 settings-card">
+                <div class="point-maximum multi-form">
+                    <b>Point Maximum</b>
+                    <input class="theme-input" v-model="max_points" placeholder="Points" type="number">
+                </div>
+                <b-button @click.prevent.stop="saveFormat" class="add-button full-width">
+                    <icon name="save"/>
+                    Save Format
+                </b-button>
             </b-card>
-            <b-card class="no-hover">
-                <b>Point Maximum</b>
-                <input class="theme-input" v-model="max_points" placeholder="Point Maximum" type="number">
-            </b-card>
-            <b-card @click.prevent.stop="saveFormat" class="hover add-button" :class="'grey-border'">
-                <b>Save Format</b>
-            </b-card>
-            <br/>
 
-            <h3>Template Pool</h3>
-            <template-todo-card class="hover" v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate"/>
-            <b-card @click="showModal(newTemplate())" class="hover add-button" :class="'grey-border'">
+            <h3>Entry Templates</h3>
+            <template-todo-card v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate"/>
+            <b-card @click="showModal(newTemplate())" class="add-card" :class="'grey-border'">
                 <b>+ Add Template</b>
             </b-card>
         </b-col>
@@ -71,18 +70,18 @@
 
 <script>
 import contentColumns from '@/components/columns/ContentColumns.vue'
+import mainCard from '@/components/assets/MainCard.vue'
 import edag from '@/components/edag/Edag.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import formatEditAvailableTemplateCard from '@/components/format/FormatEditAvailableTemplateCard.vue'
 import formatEditSelectTemplateCard from '@/components/format/FormatEditSelectTemplateCard.vue'
 import journalAPI from '@/api/journal.js'
 import templateEdit from '@/components/template/TemplateEdit.vue'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     name: 'FormatEdit',
-
     props: ['cID', 'aID', 'editedTemplate'],
-
     /* Main data representations:
        templates, presets, unused templates: as received.
        templatePool: the list of used templates. Elements are meta objects with a t field storing the template,
@@ -117,7 +116,6 @@ export default {
             max_points: 0
         }
     },
-
     created () {
         journalAPI.get_format(this.aID)
             .then(data => {
@@ -137,14 +135,12 @@ export default {
             }
         })
     },
-
     watch: {
         templatePool: {
             handler: function () { this.isChanged = true },
             deep: true
         }
     },
-
     methods: {
         deletePreset () {
             if (typeof this.nodes[this.currentNode].pID !== 'undefined') {
@@ -333,14 +329,15 @@ export default {
             }
         }
     },
-
     components: {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'edag': edag,
         'template-todo-card': formatEditAvailableTemplateCard,
         'selected-node-card': formatEditSelectTemplateCard,
-        'template-editor': templateEdit
+        'template-editor': templateEdit,
+        'icon': icon,
+        'main-card': mainCard
     },
 
     // Prompts user
@@ -357,4 +354,17 @@ export default {
 
 <style lang="sass">
 @import '~sass/partials/edag-page-layout.sass'
+
+.point-maximum
+    display: flex
+    align-items: center
+    b
+        flex-grow: 1
+    .theme-input
+        float: right
+        width: 4em
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button
+        -webkit-appearance: none
+        margin: 0
 </style>

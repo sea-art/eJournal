@@ -5,18 +5,20 @@
             or connect to an existing one?</p>
         <b-row align-h="center">
             <b-button class="lti-button-option" @click="showModal('createCourseRef')">
+                <icon name="plus-square" scale="1.8"/>
                 <h2 class="lti-button-text">Create new course</h2>
             </b-button>
         </b-row>
         <b-row  align-h="center">
             <b-button class="lti-button-option" @click="showModal('connectCourseRef')">
+                <icon name="link" scale="1.8"/>
                 <h2 class="lti-button-text">Connect to existing course</h2>
             </b-button>
         </b-row>
 
         <b-modal
             ref="createCourseRef"
-            title="Create course"
+            title="New Course"
             size="lg"
             hide-footer>
                 <create-course @handleAction="handleCreation" :lti="lti"/>
@@ -24,7 +26,7 @@
 
         <b-modal
             ref="connectCourseRef"
-            title="Connect course"
+            title="Connect Course"
             size="lg"
             hide-footer>
                 <connect-course @handleAction="handleConnected" :lti="lti"/>
@@ -35,13 +37,15 @@
 <script>
 import createCourse from '@/components/course/CreateCourse.vue'
 import connectCourse from '@/components/lti/ConnectCourse.vue'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     name: 'LtiCreateConnectCourse',
     props: ['lti'],
     components: {
         'create-course': createCourse,
-        'connect-course': connectCourse
+        'connect-course': connectCourse,
+        'icon': icon
     },
     methods: {
         signal (msg) {

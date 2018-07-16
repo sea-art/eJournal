@@ -137,16 +137,16 @@ export default {
 @import '~sass/modules/breakpoints.sass'
 
 #header
-    .brand-name
-        font-weight: bold
-        font-size: 25px
-        span
-            color: $theme-blue !important
     background-color: $theme-dark-blue
     color: white
     font-family: 'Roboto Condensed', sans-serif
     font-size: 1.3em
     height: 70px
+    .brand-name
+        font-weight: bold
+        font-size: 25px
+        span
+            color: $theme-blue !important
     .navbar-toggler
         .collapse-icon
             fill: white !important
@@ -186,6 +186,7 @@ export default {
         padding: 0px !important
     a.btn
         padding: 0.375rem 0.75rem !important
+        width: 100%
     @include md-max
         position: absolute
         top: 0px
@@ -198,7 +199,6 @@ export default {
 #nav-collapse
     background-color: $theme-dark-blue
 
-
 .dropdown-menu
     background: $theme-dark-grey !important
     border: none !important
@@ -210,7 +210,4 @@ export default {
             margin-left: 0px
     @include md-max
         margin-top: 70px
-
-
-
 </style>

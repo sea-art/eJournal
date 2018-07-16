@@ -26,7 +26,6 @@ import auth from '@/api/auth.js'
 import userApi from '@/api/user.js'
 import icon from 'vue-awesome/components/Icon'
 
-
 export default {
     name: 'RegisterUser',
     props: ['lti'],

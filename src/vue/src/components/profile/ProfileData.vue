@@ -5,7 +5,10 @@
                 <img :src="image">
                 <!-- TODO handle file uploads. The original profile picture upload did not work yet.
                 <b-form-file ref="file" v-on:change="updateProfilePicture" class="fileinput form-control" v-model="file" :state="Boolean(file)" placeholder="Upload profile picture..."></b-form-file> -->
-                <b-button class="d-block">Upload</b-button>
+                <b-button>
+                    <icon name="upload"/>
+                    Upload
+                </b-button>
             </div>
         </b-col>
         <b-col md="7" sm="12">
@@ -13,14 +16,22 @@
             <b-form-input class="theme-input multi-form" v-model="uname" type="text"/>
             <b-form-input class="theme-input multi-form" v-model="first" type="text"/>
             <b-form-input class="theme-input multi-form" v-model="last" type="text"/>
-            <b-button class="add-button multi-form" @click="saveUserdata">Save</b-button>
-            <b-button class="multi-form" @click="downloadUserData">Download Data</b-button>
+            <b-button class="add-button multi-form" @click="saveUserdata">
+                <icon name="save"/>
+                Save
+            </b-button>
+            <b-button class="multi-form" @click="downloadUserData">
+                <icon name="download"/>
+                Download Data
+            </b-button>
         </b-col>
     </b-row>
 </template>
 
 <script>
 import userAPI from '@/api/user.js'
+import icon from 'vue-awesome/components/Icon'
+
 export default {
     props: ['uname', 'first', 'last', 'id', 'image'],
     data () {
@@ -56,6 +67,9 @@ export default {
                 downloadElement.dispatchEvent(clickEvent)
             })
         }
+    },
+    components: {
+        'icon': icon
     }
 }
 </script>

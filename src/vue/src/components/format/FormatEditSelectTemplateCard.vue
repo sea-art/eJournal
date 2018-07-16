@@ -45,7 +45,10 @@
                             </div>
                         </b-col>
                         <b-col cols="3" lg-cols="12">
-                            <b-button @click.prevent="emitDeletePreset" class="delete-button float-right">Delete</b-button>
+                            <b-button @click.prevent="emitDeletePreset" class="delete-button float-right">
+                                <icon name="trash"/>
+                                Delete
+                            </b-button>
                         </b-col>
                     </b-row>
                 </b-card>
@@ -56,16 +59,15 @@
 
 <script>
 import templatePreview from '@/components/template/TemplatePreview.vue'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     props: ['currentPreset', 'templates'],
-
     data () {
         return {
             templateNames: []
         }
     },
-
     // Get/set for the preset deadline.
     computed: {
         deadlineDate: {
@@ -77,7 +79,6 @@ export default {
             set: function (val) { this.currentPreset.deadline = this.currentPreset.deadline.split(' ')[0] + ' ' + val; this.$emit('deadline-changed') }
         }
     },
-
     methods: {
         emitDeletePreset () {
             this.$emit('changed')
@@ -100,9 +101,9 @@ export default {
             }
         }
     },
-
     components: {
-        'template-preview': templatePreview
+        'template-preview': templatePreview,
+        'icon': icon
     }
 }
 </script>

@@ -4,8 +4,14 @@
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.assignmentName" placeholder="Assignment name"/>
             <b-textarea class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.assignmentDescription" rows="6" placeholder="Description of the assignment"/>
-            <b-button class="float-right" type="reset">Reset</b-button>
-            <b-button class="float-right" type="submit">Create</b-button>
+            <b-button class="float-left change-button" type="reset">
+                <icon name="undo"/>
+                Reset
+            </b-button>
+            <b-button class="float-right add-button" type="submit">
+                <icon name="plus-square"/>
+                Create
+            </b-button>
         </b-form>
     </div>
 </template>
@@ -13,6 +19,7 @@
 <script>
 import ContentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import assignmentApi from '@/api/assignment.js'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     name: 'CreateAssignment',
@@ -29,7 +36,8 @@ export default {
         }
     },
     components: {
-        'content-single-columns': ContentSingleColumn
+        'content-single-columns': ContentSingleColumn,
+        'icon': icon
     },
     methods: {
         onSubmit () {

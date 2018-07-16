@@ -129,4 +129,5 @@ export default {
             display: block
             margin-left: auto
             margin-right: auto
+            fill: white
 </style>

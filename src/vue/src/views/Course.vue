@@ -16,7 +16,7 @@
             </b-link>
         </div>
 
-        <main-card slot="main-content-column" v-if="$root.canAddAssignment()" class="add-card" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
+        <main-card slot="main-content-column" v-if="$root.canAddAssignment()" class="add-card" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Create assignment'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
 
@@ -49,7 +49,7 @@
         <b-modal
             slot="main-content-column"
             ref="createAssignmentRef"
-            title="Create assignment"
+            title="New Assignment"
             size="lg"
             hide-footer>
                 <create-assignment @handleAction="handleConfirm('createAssignmentRef')"></create-assignment>

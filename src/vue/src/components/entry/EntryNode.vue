@@ -30,17 +30,23 @@
                 </div>
 
                 <div v-if="field.type=='t'">
-                    <b-textarea class="theme-input" v-model="completeContent[i].data"></b-textarea><br><br>
+                    <b-textarea class="theme-input" v-model="completeContent[i].data"></b-textarea><br>
                 </div>
                 <div v-else-if="field.type=='i'">
-                    <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
+                    <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br>
                 </div>
                 <div v-else-if="field.type=='f'">
-                    <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
+                    <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br>
                 </div>
             </div>
-            <b-button class="add-button" @click="saveEdit">{{ saveEditMode }} </b-button>
-            <b-button class="change-button" @click="cancel">Cancel</b-button>
+            <b-button class="add-button float-right" @click="saveEdit">
+                <icon name="save"/>
+                Save
+            </b-button>
+            <b-button class="delete-button" @click="cancel">
+                <icon name="ban"/>
+                Cancel
+            </b-button>
         </b-card>
         <!-- Overview mode. -->
         <b-card v-else class="entry-card no-hover" :class="$root.getBorderClass(cID)">
@@ -64,16 +70,19 @@
                     <b>{{ field.title }}</b>
                 </div>
                 <div v-if="field.type=='t'">
-                    <span class="show-enters">{{ completeContent[i].data }}</span><br><br>
+                    <span class="show-enters">{{ completeContent[i].data }}</span><br>
                 </div>
                 <div v-else-if="field.type=='i'">
-                    {{ completeContent[i].data }}<br><br>
+                    {{ completeContent[i].data }}<br>
                 </div>
                 <div v-else-if="field.type=='f'">
-                    {{ completeContent[i].data }}<br><br>
+                    {{ completeContent[i].data }}<br>
                 </div>
             </div>
-            <b-button v-if="entryNode.entry.editable" @click="saveEdit">{{ saveEditMode }} </b-button>
+            <b-button v-if="entryNode.entry.editable" class="change-button float-right" @click="saveEdit">
+                <icon name="edit"/>
+                Edit
+            </b-button>
         </b-card>
 
         <comment-card :eID="entryNode.entry.eID"/>

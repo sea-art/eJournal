@@ -21,7 +21,7 @@
                 </div>
                 <div class="invisible"></div>
             </draggable>
-            <b-card class="hover add-button" @click="addField">+ Add field</b-card>
+            <b-card class="add-card" @click="addField">+ Add field</b-card>
         </b-card>
     </div>
 </template>

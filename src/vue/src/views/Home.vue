@@ -19,9 +19,9 @@
         <main-card
             v-if="this.$root.canAddCourse()"
             slot="main-content-column"
-            class="hover add-card"
+            class="add-card"
             @click.native="showModal('createCourseRef')"
-            :line1="'+ Add course'"/>
+            :line1="'+ Create course'"/>
 
         <h3 slot="right-content-column">Upcoming</h3>
         <!-- TODO: This seems like an inappropriate permission check. Will have to be reconsidered in the rework. -->
@@ -56,7 +56,7 @@
         <b-modal
             slot="main-content-column"
             ref="editCourseRef"
-            title="Global changes"
+            title="Global Changes"
             size="lg"
             hide-footer>
                 <edit-home @handleAction="handleConfirm('editCourseRef')"></edit-home>
@@ -65,7 +65,7 @@
         <b-modal
             slot="main-content-column"
             ref="createCourseRef"
-            title="Create course"
+            title="New Course"
             size="lg"
             hide-footer>
                 <create-course @handleAction="handleConfirm('createCourseRef')"></create-course>
