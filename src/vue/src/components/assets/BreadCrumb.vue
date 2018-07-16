@@ -21,7 +21,10 @@
                         <icon name="eye" @click.native="eyeClick()" class="eye-icon icon-shadow" scale="1.75"/>
                     </slot>
                 </h1>
-                <b-button v-if="canEdit()" @click="editClick()" class="float-right change-button multi-form"> Edit</b-button>
+                <b-button v-if="canEdit()" @click="editClick()" class="float-right change-button multi-form">
+                    <icon name="edit"/>
+                    Edit
+                </b-button>
             </b-col>
         </b-row>
     </div>
@@ -34,7 +37,7 @@ import store from '@/Store.vue'
 
 export default {
     components: {
-        icon
+        'icon': icon
     },
     /*
         cachedMap: list of crumb objects of named pages, with displayname, synced with the store
