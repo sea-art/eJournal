@@ -5,7 +5,7 @@ This file contains functions to easily generate common HTTP error responses
 using JsonResponses. These functions should be used whenever the client needs
 to receive the appropriate error code.
 """
-from django.http import JsonResponse
+from rest_framework.response import Response
 
 
 def success(message='success', payload={}):
@@ -89,7 +89,7 @@ def response(status, message, description='', payload={}):
     description -- header description (usable for example in the front end)
     payload -- payload to deliver
     """
-    return JsonResponse({'result': message, 'description': description, **payload}, status=status)
+    return Response({'result': message, 'description': description, **payload}, status=status)
 
 
 def keyerror(*keys):
