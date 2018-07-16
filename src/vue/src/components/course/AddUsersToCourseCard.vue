@@ -7,8 +7,8 @@
         <b-button v-if="this.$root.canEditCourse"
                   @click.prevent.stop="addUserToCourse()"
                   class="add-button float-right">
-                  <icon name="user-plus"/>
-                    Add
+            <icon name="user-plus"/>
+                Add
         </b-button>
     </b-card>
 </template>
