@@ -55,9 +55,9 @@
 </template>
 
 <script>
-import breadCrumb from '@/components/BreadCrumb.vue'
-import contentSingleTableColumn from '@/components/ContentSingleTableColumn.vue'
-import customCheckbox from '@/components/CustomCheckbox.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import contentSingleTableColumn from '@/components/columns/ContentSingleTableColumn.vue'
+import customCheckbox from '@/components/assets/CustomCheckbox.vue'
 import icon from 'vue-awesome/components/Icon'
 import permissions from '@/api/permissions.js'
 
@@ -85,8 +85,7 @@ export default {
             undeleteableRoles: ['Student', 'TA', 'Teacher'],
             selectedRole: null,
             modalShow: false,
-            newRole: '',
-            windowWidth: 550
+            newRole: ''
         }
     },
     methods: {
@@ -231,33 +230,17 @@ export default {
 }
 </script>
 
-<style>
-.select-center {
-    text-align: center;
-}
+<style lang="sass">
+.select-center
+    text-align: center
 
-.table th {
-   text-align: center;
-}
+.table th
+   text-align: center
 
-.table td {
-    text-align: center; /* center checkbox horizontally */
-    align-items: center;
-}
+.table td
+    text-align: center
+    align-items: center
 
-.permission-column {
-    text-align: left !important;
-}
-
-.table-content {
-    padding-top: 40px;
-    background-color: white;
-    flex: 1 1 auto;
-}
-
-@media(max-width:992px){
-    .table-content {
-        padding-top: 0px !important;
-    }
-}
+.permission-column
+    text-align: left !important
 </style>

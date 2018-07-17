@@ -1,7 +1,7 @@
 <template>
     <content-columns>
         <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
-        <b-card slot="main-content-column" class="settings-card no-hover">
+        <b-card slot="main-content-column" class="no-hover">
             <b-row>
                 <b-col lg="3" md="3">
                     <b-button
@@ -71,10 +71,10 @@
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
-import studentCard from '@/components/StudentCard.vue'
-import statisticsCard from '@/components/StatisticsCard.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
+import contentColumns from '@/components/columns/ContentColumns.vue'
+import studentCard from '@/components/assignment/StudentCard.vue'
+import statisticsCard from '@/components/assignment/StatisticsCard.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import journal from '@/api/journal.js'
 import permissionsApi from '@/api/permissions.js'
 import store from '@/Store.vue'

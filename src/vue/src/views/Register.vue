@@ -6,9 +6,9 @@
 </template>
 
 <script>
-import contentSingleColumn from '@/components/ContentSingleColumn.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
-import registerUser from '@/components/RegisterUser.vue'
+import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import registerUser from '@/components/account/RegisterUser.vue'
 
 export default {
     name: 'Register',

@@ -1,7 +1,7 @@
 <template>
     <content-single-column>
         <bread-crumb>&nbsp;</bread-crumb>
-        <b-card class="no-hover settings-card">
+        <b-card class="no-hover">
             <h2>Manage course data</h2>
             <b-form @submit.prevent="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
@@ -44,7 +44,7 @@
             </b-form>
         </b-card>
 
-        <b-card class="no-hover settings-card">
+        <b-card class="no-hover">
             <h2>Manage course students</h2>
                 <b-row>
                     <b-col lg="3" sm="6">
@@ -93,10 +93,10 @@
 </template>
 
 <script>
-import addUsersToCourseCard from '@/components/AddUsersToCourseCard.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
-import contentSingleColumn from '@/components/ContentSingleColumn.vue'
-import courseParticipantCard from '@/components/CourseParticipantCard.vue'
+import addUsersToCourseCard from '@/components/course/AddUsersToCourseCard.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import courseParticipantCard from '@/components/course/CourseParticipantCard.vue'
 import courseApi from '@/api/course.js'
 import store from '@/Store'
 
@@ -255,9 +255,3 @@ export default {
     }
 }
 </script>
-
-<style>
-#pushBot {
-    margin-bottom: 10px;
-}
-</style>

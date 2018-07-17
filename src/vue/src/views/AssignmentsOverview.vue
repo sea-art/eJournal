@@ -2,7 +2,7 @@
     <content-columns>
         <bread-crumb slot="main-content-column" :currentPage="'Assignments'"></bread-crumb>
 
-        <b-card class="no-hover settings-card" slot="main-content-column">
+        <b-card class="no-hover" slot="main-content-column">
                 <b-row>
                     <b-col lg="4" sm="6">
                         <b-form-select v-model="selectedSortOption" :select-size="1">
@@ -36,11 +36,11 @@
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
-import mainCard from '@/components/MainCard.vue'
+import contentColumns from '@/components/columns/ContentColumns.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import mainCard from '@/components/assets/MainCard.vue'
 import assignmentApi from '@/api/assignment.js'
-import todoCard from '@/components/TodoCard.vue'
+import todoCard from '@/components/assets/TodoCard.vue'
 
 export default {
     name: 'AssignmentsOverview',

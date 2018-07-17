@@ -116,103 +116,86 @@ export default {
 }
 </script>
 
-<style>
-#header {
-    background-color: var(--theme-dark-blue);
-    color: white;
-    font-family: 'Roboto Condensed', sans-serif;
-    font-size: 1.3em;
-    height: 70px;
-}
+<style lang="sass">
+@import '~sass/modules/colors.sass'
+@import '~sass/modules/breakpoints.sass'
 
-#nav-dropdown-options a {
-    padding: 0px !important;
-}
+#header
+    background-color: $theme-dark-blue
+    color: white
+    font-family: 'Roboto Condensed', sans-serif
+    font-size: 1.3em
+    height: 70px
+    @include md-max
+        min-height: 70px
+        height: auto
 
-#nav-dropdown-options a.btn {
-    padding: 0.375rem 0.75rem !important;
-}
+#nav-dropdown-options
+    @include md-max
+        position: absolute
+        top: 10px
+        right: 10px
+        width: auto
 
-#nav-collapse {
-    background-color: var(--theme-dark-blue);
-}
+        a.nav-link
+            text-align: right !important
 
-.collapse-icon {
-    fill: white !important;
-}
+#nav-dropdown-options a
+    padding: 0px !important
+
+#nav-dropdown-options a.btn
+    padding: 0.375rem 0.75rem !important
+
+#nav-collapse
+    background-color: $theme-dark-blue
+
+.collapse-icon
+    fill: white !important
 
 /* Handles rotation of the arrow icon. */
-[aria-expanded="false"] .nav-collapse__icon--open {
-    display: block;
-}
+[aria-expanded="false"] .nav-collapse__icon--open
+    display: block
 
-[aria-expanded="false"] .nav-collapse__icon--close {
-    display: none;
-}
+[aria-expanded="false"] .nav-collapse__icon--close
+    display: none
 
-[aria-expanded="true"] .nav-collapse__icon--open {
-    display: none;
-}
+[aria-expanded="true"] .nav-collapse__icon--open
+    display: none
 
-[aria-expanded="true"] .nav-collapse__icon--close {
-    display: block;
-}
+[aria-expanded="true"] .nav-collapse__icon--close
+    display: block
 
-.dropdown-menu {
-    background: var(--theme-light-grey) !important;
-    border: none !important;
-    padding: 5px;
-    margin-top: 10px;
-}
+.dropdown-menu
+    background: $theme-light-grey !important
+    border: none !important
+    padding: 5px
+    margin-top: 10px
 
-.dropdown-menu .btn {
-    width: 100%;
-    text-align: left;
-}
+.dropdown-menu .btn
+    width: 100%
+    text-align: left
 
-.brand-name {
-    font-weight: bold;
-    font-size: 25px;
-}
+.brand-name
+    font-weight: bold
+    font-size: 25px
 
-.brand-name span {
-    color: var(--theme-blue) !important;
-}
+.brand-name span
+    color: $theme-blue !important
 
-#nav-profile-image {
-    width: 50px;
-    height: 50px;
-    border-radius: 50% !important;
-}
+#nav-profile-image
+    width: 50px
+    height: 50px
+    border-radius: 50% !important
 
-.login-form-header {
-    background-color: var(--theme-light-grey);
-}
+.login-form-header
+    background-color: $theme-light-grey
 
-@media(max-width:992px) {
-    #nav-dropdown-options {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        width: auto;
-    }
-
-    #nav-dropdown-options a.nav-link {
-        text-align: right !important;
-    }
-
-    #header {
-        min-height: 70px;
-        height: auto;
-    }
-
-    .navbar-toggler {
-        position: absolute;
-        left: 50%;
-        right: 50%;
-        top: 15px;
-        transform: translateX(-50%);
-        border-radius: 50% !important;
-    }
-}
+.navbar-toggler
+    @include md-max
+        position: absolute
+        left: 50%
+        right: 50%
+        top: 15px
+        transform: translateX(-50%)
+        border-radius: 50% !important
 </style>
