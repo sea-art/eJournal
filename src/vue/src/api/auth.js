@@ -130,6 +130,13 @@ export default {
                 .then(_ => connection.conn.post(url, data, getAuthorizationHeader())))
             .catch(error => handleResponse(error, noRedirect))
     },
+    
+    authenticatedPostFile (url, data, noRedirect = false) {
+        return connection.connFile.post(url, data, getAuthorizationHeader())
+            .catch(error => refresh(error)
+                .then(_ => connection.connFile.post(url, data, getAuthorizationHeader())))
+            .catch(error => handleResponse(error, noRedirect))
+    },
 
     /* Run an authenticated get request.
      * This sets the JWT token to the Authorization headers of the request, so that it can access

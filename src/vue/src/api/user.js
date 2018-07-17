@@ -44,10 +44,8 @@ export default {
     },
 
     /* Update profile picture. */
-    updateProfilePicture (file) {
-        return auth.authenticatedFilePost('/update_user_data/', {
-            picture: file
-        })
+    updateProfilePicture (formData) {
+        return auth.authenticatedPostFile('/update_user_profile_picture/', formData)
     },
 
     /* Change whether the user gets grade notification or not.

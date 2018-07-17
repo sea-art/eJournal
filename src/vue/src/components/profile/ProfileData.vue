@@ -1,7 +1,7 @@
 <template>
     <b-row>
         <b-col md="5" sm="12" class="text-center">
-            <img class="profile-portrait" :src="image">
+            <img class="profile-portrait" :src="profileImage">
         </b-col>
         <b-col md="7" sm="12">
             <h2 class="mb-2">User data</h2>
@@ -11,11 +11,12 @@
             <b-form-file
                 ref="file"
                 accept="image/*"
-                v-on:change="updateProfilePicture"
                 class="fileinput"
+                @change="fileHandler"
                 v-model="file"
                 :state="Boolean(file)"
                 placeholder="Change picture"/>
+
             <b-button class="add-button" @click="saveUserdata">Save</b-button>
             <b-button @click="downloadUserData">Download Data</b-button>
         </b-col>
@@ -24,11 +25,13 @@
 
 <script>
 import userAPI from '@/api/user.js'
+
 export default {
     props: ['uname', 'first', 'last', 'id', 'image'],
     data () {
         return {
-            file: null
+            file: null,
+            profileImage: null
         }
     },
     methods: {
@@ -36,8 +39,27 @@ export default {
             userAPI.updateUserData(this.uname, this.first, this.last)
                 .then(this.$toasted.success('Saved profile data'))
         },
-        updateProfilePicture () {
-            userAPI.updateProfilePicture(this.$refs.file)
+        fileHandler (e) {
+            let files = e.target.files
+            if (!files.length) { return }
+
+            this.file = files[0]
+
+            let formData = new FormData()
+            formData.append('file', this.file)
+
+            userAPI.updateProfilePicture(formData)
+                .then(_ => { this.setClientProfilePicture(this.file) })
+                .catch(_ => { this.$toasted.error('Something went wrong while uploading your profile picture.') })
+        },
+        setClientProfilePicture (imageFile) {
+            var reader = new FileReader()
+            var vm = this
+
+            reader.onload = (e) => {
+                vm.profileImage = e.target.result
+            }
+            reader.readAsDataURL(imageFile)
         },
         downloadUserData () {
             userAPI.getUserData(this.id).then(data => {
@@ -59,6 +81,9 @@ export default {
                 downloadElement.dispatchEvent(clickEvent)
             })
         }
+    },
+    created () {
+        this.profileImage = this.image
     }
 }
 </script>

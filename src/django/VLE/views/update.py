@@ -19,6 +19,9 @@ import re
 import jwt
 import json
 
+# TODO Clean
+from django import forms
+# from .forms import UploadFileForm
 
 @api_view(['POST'])
 def connect_course_lti(request):
@@ -622,6 +625,30 @@ def update_entrycomment(request):
 
     comment.text = text
     comment.save()
+    return responses.success()
+
+
+@api_view(['POST'])
+def update_user_profile_picture(request):
+    """Update user data.
+
+    Arguments:
+    request -- the update request that was send with
+        picture -- new profile picture of the user
+
+    Returns a json string for if it is successful or not.
+    """
+    print(request)
+    print(request.POST)
+    print(request.FILES)
+
+    for file in request.FILES:
+        print(file)
+
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
     return responses.success()
 
 
