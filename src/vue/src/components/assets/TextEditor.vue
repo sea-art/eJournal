@@ -6,11 +6,19 @@
 </template>
 
 <script>
-import 'tinymce/tinymce'
+// TODO Figure out why this gives a warning transferred with MIME type 2x
+
+// TODO Deze kan global als tinymce niet meer direct gecalled wordt
+import tinymce from 'tinymce/tinymce'
 import 'tinymce/themes/modern/theme'
-// TODO Figure out why this gives a warning transferred with MIME type
+
 import 'tinymce/skins/lightgray/skin.min.css'
 import TinyMCE from '@tinymce/tinymce-vue'
+
+import 'tinymce/plugins/autoresize'
+
+import 'tinymce/plugins/image'
+import 'tinymce/plugins/imagetools'
 
 import 'tinymce/plugins/link'
 import 'tinymce/plugins/media'
@@ -23,7 +31,7 @@ export default {
     name: 'TextEditor',
     data () {
         return {
-            content: 'Hi',
+            content: '',
             config: {
                 menubar: true,
                 branding: false,
@@ -35,7 +43,7 @@ export default {
                 menu: {
                     file: {title: 'File', items: 'newdocument preview print'},
                     edit: {title: 'Edit', items: 'undo redo | cut copy paste pastetext | selectall'},
-                    insert: {title: 'Insert', items: 'link media | template hr'},
+                    insert: {title: 'Insert', items: 'link | template hr | media image'},
                     view: {title: 'View', items: 'visualaid'},
                     format: {title: 'Format', items: 'bold italic underline strikethrough superscript subscript | formats | removeformat'},
                     table: {title: 'Table', items: 'inserttable tableprops deletetable | cell row column'},
@@ -45,11 +53,63 @@ export default {
                 // TODO Figure out why initial render ignores the font
                 // font_formats: 'Robot Condensed = roboto condensed',
                 // insert_button_items:
-                plugins: ['hr', 'link', 'media', 'preview', 'print']
+                plugins: ['autoresize', 'image', 'hr', 'link', 'media', 'preview', 'print'],
+                image_title: true,
+
+                // TODO Add more file support
+                // Browser supposed to be deprecated, callback works nonetheless
+                // file_browser_callback: this.handleFileBrowsing,
+                // file_browser_callback_types: 'image'
+
+                // TODO Kan weg als image upload handler werkt willen pdf en files toch niet in de editor
+                file_picker_types: 'image',
+                file_picker_callback: this.handleFilePicking,
+
+                // automatic_uploads: true,
+                // https://www.tiny.cloud/docs/advanced/php-upload-handler/
+                // images_upload_url: TODO Create or not depending on the handler
+                images_upload_handler: this.handleImageUpload
             }
         }
     },
     methods: {
+        // https://www.tiny.cloud/docs/configure/file-image-upload
+        handleImageUpload (blobInfo, success, failure) {
+            console.log(blobInfo)
+            console.log('Handle image upload')
+        },
+        handleFilePicking (cb, value, meta) {
+            var input = document.createElement('input')
+            input.setAttribute('type', 'file')
+            input.setAttribute('accept', 'image/*')
+
+            // Note: In modern browsers input[type="file"] is functional without
+            // even adding it to the DOM, but that might not be the case in some older
+            // or quirky browsers like IE, so you might want to add it to the DOM
+            // just in case, and visually hide it.
+            // TODO Remove input after click
+
+            input.onchange = function () {
+                // TODO Some file error handling
+                var file = this.files[0]
+
+                var reader = new FileReader()
+                reader.onload = function () {
+                    // Note: Now we need to register the blob in TinyMCEs image blob registry
+                    var id = 'blobid' + (new Date()).getTime()
+                    var blobCache = tinymce.activeEditor.editorUpload.blobCache
+                    var base64 = reader.result.split(',')[1]
+                    var blobInfo = blobCache.create(id, file, base64)
+                    blobCache.add(blobInfo)
+
+                    // call the callback and populate the Title field with the file name
+                    cb(blobInfo.blobUri(), { title: file.name })
+                }
+                reader.readAsDataURL(file)
+            }
+
+            input.click()
+        }
     },
     components: {
         'tiny-mce': TinyMCE

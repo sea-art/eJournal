@@ -634,16 +634,14 @@ def update_user_profile_picture(request):
 
     Arguments:
     request -- the update request that was send with
-        picture -- new profile picture of the user
+        request.FILES should contain the user uploaded file
 
     Returns a json string for if it is successful or not.
     """
-    print(request)
+    # TODO Handle file on server
     print(request.POST)
     print(request.FILES)
-
-    for file in request.FILES:
-        print(file)
+    print(request.FILES['file'])
 
     user = request.user
     if not user.is_authenticated:

@@ -130,7 +130,7 @@ export default {
                 .then(_ => connection.conn.post(url, data, getAuthorizationHeader())))
             .catch(error => handleResponse(error, noRedirect))
     },
-    
+
     authenticatedPostFile (url, data, noRedirect = false) {
         return connection.connFile.post(url, data, getAuthorizationHeader())
             .catch(error => refresh(error)
