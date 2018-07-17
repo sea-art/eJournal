@@ -15,20 +15,39 @@ import 'tinymce/themes/modern/theme'
 import 'tinymce/skins/lightgray/skin.min.css'
 import TinyMCE from '@tinymce/tinymce-vue'
 
+/* Only works with basic lists enabled. */
+import 'tinymce/plugins/advlist'
 import 'tinymce/plugins/autoresize'
+
+/* The colorpicker plugin adds an HSV color picker dialog to the editor.
+When activated in conjunction with the textcolor plugin it adds a "custom color"
+button to the text color toolbar dropdown. */
+import 'tinymce/plugins/colorpicker'
+
+// TODO Add
+import 'tinymce/plugins/fullscreen'
 
 import 'tinymce/plugins/image'
 import 'tinymce/plugins/imagetools'
 
 import 'tinymce/plugins/link'
+import 'tinymce/plugins/lists'
+
 import 'tinymce/plugins/media'
 import 'tinymce/plugins/preview'
 import 'tinymce/plugins/print'
 
 import 'tinymce/plugins/hr'
+import 'tinymce/plugins/textcolor'
 
 export default {
     name: 'TextEditor',
+    props: {
+        limitedColors: {
+            type: Boolean,
+            default: false
+        }
+    },
     data () {
         return {
             content: '',
@@ -36,25 +55,24 @@ export default {
                 menubar: true,
                 branding: false,
                 statusbar: false,
-
                 /* Hides the menu untill selected pop up ontop */
                 inline: false,
+                image_title: true,
 
-                menu: {
-                    file: {title: 'File', items: 'newdocument preview print'},
-                    edit: {title: 'Edit', items: 'undo redo | cut copy paste pastetext | selectall'},
-                    insert: {title: 'Insert', items: 'link | template hr | media image'},
-                    view: {title: 'View', items: 'visualaid'},
-                    format: {title: 'Format', items: 'bold italic underline strikethrough superscript subscript | formats | removeformat'},
-                    table: {title: 'Table', items: 'inserttable tableprops deletetable | cell row column'},
-                    tools: {title: 'Tools', items: 'spellchecker code'}
-                },
+                toolbar1: '',
+                // menu: {
+                //     file: {title: 'File', items: 'newdocument preview print'},
+                //     edit: {title: 'Edit', items: 'undo redo | cut copy paste pastetext | selectall'},
+                //     insert: {title: 'Insert', items: 'link | template hr | media image'},
+                //     view: {title: 'View', items: 'visualaid'},
+                //     format: {title: 'Format', items: 'bold italic underline strikethrough superscript subscript | formats | removeformat'},
+                //     table: {title: 'Table', items: 'inserttable tableprops deletetable | cell row column'},
+                //     tools: {title: 'Tools', items: 'spellchecker code'}
+                // },
                 content_css: ['//fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700'],
                 // TODO Figure out why initial render ignores the font
                 // font_formats: 'Robot Condensed = roboto condensed',
                 // insert_button_items:
-                plugins: ['autoresize', 'image', 'hr', 'link', 'media', 'preview', 'print'],
-                image_title: true,
 
                 // TODO Add more file support
                 // Browser supposed to be deprecated, callback works nonetheless
@@ -68,8 +86,19 @@ export default {
                 // automatic_uploads: true,
                 // https://www.tiny.cloud/docs/advanced/php-upload-handler/
                 // images_upload_url: TODO Create or not depending on the handler
-                images_upload_handler: this.handleImageUpload
+                images_upload_handler: this.handleImageUpload,
+
+                plugins: []
+            },
+            basicConfig: {
+                toolbar1: 'undo redo forecolor backcolor numlist',
+                plugins: ['autoresize textcolor image lists']
+            },
+            extensiveConfig: {
+                toolbar1: 'undo redo forecolor backcolor numlist bullist',
+                plugins: ['link media preview print hr lists advlist']
             }
+            // TODO add inline config if desired
         }
     },
     methods: {
@@ -109,7 +138,31 @@ export default {
             }
 
             input.click()
+        },
+        setCustomColors () {
+            /* Enables some basic colors too chose from, inline with the websites theme colors. */
+            this.config.textcolor_cols = 4
+            this.config.textcolor_rows = 1
+            this.config.textcolor_map = [
+                '252C39', 'Theme dark blue',
+                '007E33', 'Theme positive selected',
+                'FF8800', 'Theme change selected',
+                'CC0000', 'Theme negative selected'
+            ]
+        },
+        setBasicConfig () {
+            this.config.toolbar1 = this.basicConfig.toolbar1
+            this.config.plugins = this.basicConfig.plugins
         }
+    },
+    created () {
+        if (this.limitedColors) {
+            this.setCustomColors()
+        } else {
+            this.config.plugins.push('colorpicker')
+        }
+
+        this.setBasicConfig()
     },
     components: {
         'tiny-mce': TinyMCE
