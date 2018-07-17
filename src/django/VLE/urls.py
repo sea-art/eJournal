@@ -18,13 +18,8 @@ Including another URLconf
 
 """
 from django.contrib import admin
-from django.conf import settings
 from django.conf.urls import url, include
 
-import VLE.views.get as get
-import VLE.views.create as create
-import VLE.views.update as update
-import VLE.views.delete as delete
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -34,10 +29,12 @@ from rest_framework_simplejwt.views import (
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^api/', include(('VLE.views.urls', 'VLE.views'), namespace='VLE')),
-    # path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    # path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    # path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+
+    url(r'^token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    url(r'^token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    url(r'^token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+
+    url(r'^', include(('VLE.views.urls', 'VLE.views'), namespace='VLE')),
     #
     # path('get_own_user_data/', get.get_own_user_data, name='get_own_user_data'),
     # path('get_course_data/<int:cID>/', get.get_course_data, name='get_course_data'),

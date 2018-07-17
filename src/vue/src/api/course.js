@@ -18,8 +18,8 @@ export default {
      * returns a list of all courses.
      */
     get_user_courses () {
-        return auth.authenticatedGet('/get_user_courses/')
-            .then(response => response.data.courses)
+        return auth.authenticatedGet('/courses/')
+            .then(response => response.data.result)
     },
 
     get_users (cID) {

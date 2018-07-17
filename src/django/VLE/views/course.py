@@ -5,11 +5,12 @@ In this file are all the course api requests.
 """
 from rest_framework import viewsets
 
-from django.shortcuts import get_object_or_404
-
 import VLE.views.responses as response
 from VLE.serializers import CourseSerializer
 from VLE.models import Course
+import VLE.permissions as permissions
+import VLE.utils as utils
+import VLE.factory as factory
 
 
 class View(viewsets.ViewSet):
@@ -23,16 +24,36 @@ class View(viewsets.ViewSet):
         return response.success(serializer.data)
 
     def create(self, request):
-        print(request)
+        if not self.request.user.is_authenticated:
+            return response.unauthorized()
+
+        perm = permissions.get_permissions(self.request.user)
+
+        if not perm['can_add_course']:
+            return response.forbidden('You have no permissions to create a course.')
+
+        try:
+            name, abbr = utils.required_params(request.data, 'name', 'abbr')
+            startdate, enddate, lti_id = utils.optional_params(request.data, 'startdate', 'enddate', 'lti_id')
+        except KeyError:
+            return response.keyerror('name', 'abbr')
+
+        course = factory.make_course(name, abbr, startdate, enddate, request.user, lti_id)
+
+        serializer = self.serializer_class(course, many=False)
+        return response.created(serializer)
 
     def retrieve(self, request, pk=None):
         if not pk:
             return response.bad_request('pk is missing')
-        # if not self.request.user.is_authenticated or \
-        #    not self.request.user.participations.filter(pk=pk):
-        #     return response.unauthorized()
-        queryset = Course.objects.all()
-        course = get_object_or_404(queryset, pk=pk)
+        if not self.request.user.is_authenticated or \
+           not self.request.user.participations.filter(pk=pk):
+            return response.unauthorized()
+        try:
+            course = Course.objects.get(pk=pk)
+        except Course.DoesNotExist:
+            return response.not_found('Course')
+
         serializer = self.serializer_class(course, many=False)
         return response.success(serializer.data)
 

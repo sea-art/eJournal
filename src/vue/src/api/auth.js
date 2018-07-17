@@ -44,23 +44,23 @@ function handleResponse (response, noRedirect = false) {
     } else if (response.status === 403 || // Forbidden
           response.status === 404) { // Not found)
         if (!noRedirect) {
-            router.push({name: 'ErrorPage',
-                params: {
-                    code: response.status,
-                    message: response.data.result,
-                    description: response.data.description
-                }
-            })
+            // router.push({name: 'ErrorPage',
+            //     params: {
+            //         code: response.status,
+            //         message: response.data.result,
+            //         description: response.data.description
+            //     }
+            // })
         }
     } else if (response.status === 500) { // Internal server error
         if (!noRedirect) {
-            router.push({name: 'ErrorPage',
-                params: {
-                    code: response.status,
-                    message: 'Internal Server Error',
-                    description: response.data.description
-                }
-            })
+            // router.push({name: 'ErrorPage',
+            //     params: {
+            //         code: response.status,
+            //         message: 'Internal Server Error',
+            //         description: response.data.description
+            //     }
+            // })
         }
     } else if (response.status === 400) { // Bad request
         if (response.data.description) {

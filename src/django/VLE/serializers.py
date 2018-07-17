@@ -4,9 +4,9 @@ Serializers.
 Functions to convert certain data to other formats.
 """
 from rest_framework import serializers
-import VLE.utils as utils
-import VLE.permissions as permissions
-from VLE.models import User, Course, Journal, Node, Comment, Assignment
+# import VLE.utils as utils
+# import VLE.permissions as permissions
+from VLE.models import User, Course, Node, Comment, Assignment
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -25,7 +25,14 @@ class CourseSerializer(serializers.ModelSerializer):
         depth = 1
 
 
-class AssignmentSerializer(serializers.ModelSerializer):
+class StudentAssignmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assignment
+        fields = '__all__'
+        read_only_fields = ('id', )
+
+
+class TeacherAssignmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assignment
         fields = '__all__'

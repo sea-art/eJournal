@@ -7,12 +7,13 @@
             :currentPage="'Courses'">
         </bread-crumb>
 
-        <div v-for="c in courses" :key="c.cID" slot="main-content-column">
-            <b-link :to="{name: 'Course', params: {cID: c.cID, courseName: c.name}}">
+        <div v-for="c in courses" :key="c.id" slot="main-content-column">
+            asdf
+            <b-link :to="{name: 'Course', params: {cID: c.id, courseName: c.name}}">
                 <main-card
                     :line1="c.name"
                     :line2="c.startdate.substring(0, 4) + '-' + c.enddate.substring(0, 4)"
-                    :color="$root.colors[c.cID % $root.colors.length]">
+                    :color="$root.colors[c.id % $root.colors.length]">
                 </main-card>
             </b-link>
         </div>
@@ -112,7 +113,9 @@ export default {
     methods: {
         loadCourses () {
             course.get_user_courses()
-                .then(response => { this.courses = response })
+                .then(response => {
+                    this.courses = response
+                })
         },
         deleteCourse (courseID, courseName) {
             if (confirm('Are you sure you want to delete ' + courseName + '?')) {
