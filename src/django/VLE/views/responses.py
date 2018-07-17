@@ -17,13 +17,22 @@ def success(message='success', payload={}):
     return response(200, message, payload=payload)
 
 
-def created(message='success', payload={}):
+def created(message='Successfully created', obj=None, description=None, payload={}):
     """Return a created response header.
 
     Arguments:
     payload -- payload to deliver after creation
     """
-    return response(201, message, payload=payload)
+    return response(201, message, description=description or 'Succesfully created {}.'.format(obj), payload=payload)
+
+
+def deleted(message='Successfully deleted', obj=None, description=None, payload={}):
+    """Return a deleted response header.
+
+    Arguments:
+    payload -- payload to deliver on success
+    """
+    return response(200, message, description=description or 'Succesfully deleted {}.'.format(obj), payload=payload)
 
 
 def no_content(description='Request succeeded.'):
@@ -80,13 +89,13 @@ def internal_server_error(description='Oops! The server experienced internal hic
     return response(500, '500 Internal Server Error', description=description)
 
 
-def response(status, message, description='', payload={}):
+def response(status, message, description=None, payload={}):
     """Return a generic response header with customizable fields.
 
     Arguments:
     status -- HTTP status number
     message -- response message
-    description -- header description (usable for example in the front end)
+    description -- header description
     payload -- payload to deliver
     """
     return Response({'result': message, 'description': description, **payload}, status=status)

@@ -58,49 +58,6 @@ def connect_course_lti(request):
 
 
 @api_view(['POST'])
-def update_course(request):
-    """Update an existing course.
-
-    Arguments:
-    request -- the update request that was send with
-        cID -- ID of the course
-        name -- name of the course
-        abbr -- abbreviation of the course
-        startdate -- date when the course starts
-
-    Returns a json string for if it is successful or not.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        cID, name, abbr = utils.required_params(request.data, 'cID', 'name', 'abbr')
-        startdate, enddate = utils.required_params(request.data, 'startdate', 'enddate')
-    except KeyError:
-        return responses.keyerror('cID', 'name', 'abbr', 'startdate', 'enddate')
-
-    try:
-        course = Course.objects.get(pk=cID)
-    except Course.DoesNotExist:
-        return responses.not_found('Course')
-
-    role = permissions.get_role(user, course)
-    if role is None:
-        return responses.forbidden('You are not in this course.')
-    elif not role.can_edit_course:
-        return responses.forbidden('You cannot edit this course.')
-
-    course.name = name
-    course.abbreviation = abbr
-    course.startdate = startdate
-    course.enddate = enddate
-    course.save()
-
-    return responses.success(payload={'course': serialize.course_to_dict(course)})
-
-
-@api_view(['POST'])
 def update_course_roles(request):
     """Updates course roles.
 

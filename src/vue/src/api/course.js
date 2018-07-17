@@ -17,9 +17,8 @@ export default {
      * Requests all the users courses.
      * returns a list of all courses.
      */
-    get_user_courses () {
-        return auth.authenticatedGet('/courses/')
-            .then(response => response.data.result)
+    getCourses () {
+        return auth.get('courses')
     },
 
     get_users (cID) {

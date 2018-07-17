@@ -13,38 +13,6 @@ import VLE.permissions as permissions
 
 
 @api_view(['POST'])
-def delete_course(request):
-    """Delete an existing course.
-
-    Arguments:
-    request -- the update request that was send with
-        cID -- course ID given with the request
-
-    Returns a json string for if it is successful or not.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        [cID] = utils.required_params(request.data, 'cID')
-    except KeyError:
-        return responses.keyerror('cID')
-
-    # Courses can only be deleted with can_delete_course permission.
-    role = permissions.get_role(user, cID)
-    if role is None:
-        return responses.unauthorized(description="You have no access to this course")
-    elif not role.can_delete_course:
-        return responses.forbidden(description="You have no permissions to delete a course.")
-
-    course = Course.objects.get(pk=cID)
-    course.delete()
-
-    return responses.success(message='Succesfully deleted course')
-
-
-@api_view(['POST'])
 def delete_assignment(request):
     """Delete an existing assignment from a course.
 

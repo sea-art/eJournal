@@ -57,33 +57,6 @@ def get_own_user_data(request):
 
 
 @api_view(['GET'])
-def get_course_data(request, cID):
-    """Get the data linked to a course ID.
-
-    Arguments:
-    request -- the request that was send with
-    cID -- course ID given with the request
-
-    Returns a json string with the course data for the requested user
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        q_course = Course.objects.get(pk=cID)
-    except Course.DoesNotExist:
-        return responses.not_found('Course')
-
-    if not permissions.is_user_in_course(user, q_course):
-        return responses.forbidden('You are not in this course.')
-
-    course = serialize.course_to_dict(q_course)
-
-    return responses.success(payload={'course': course})
-
-
-@api_view(['GET'])
 def get_course_users(request, cID):
     """Get all users for a given course, including their role for this course.
 

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from '@/views/Home'
+import Test from '@/views/Test'
 import Journal from '@/views/Journal'
 import Assignment from '@/views/Assignment'
 import Course from '@/views/Course'
@@ -28,6 +29,10 @@ var router = new Router({
         path: '/',
         name: 'Guest',
         component: Guest
+    }, {
+        path: '/test',
+        name: 'Test',
+        component: Test
     }, {
         path: '/Home',
         name: 'Home',

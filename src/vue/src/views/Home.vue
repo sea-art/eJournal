@@ -8,7 +8,6 @@
         </bread-crumb>
 
         <div v-for="c in courses" :key="c.id" slot="main-content-column">
-            asdf
             <b-link :to="{name: 'Course', params: {cID: c.id, courseName: c.name}}">
                 <main-card
                     :line1="c.name"
@@ -81,7 +80,7 @@ import todoCard from '@/components/TodoCard.vue'
 import createCourse from '@/components/CreateCourse.vue'
 import editHome from '@/components/EditHome.vue'
 import course from '@/api/course'
-import assignmentApi from '@/api/assignment.js'
+// import assignmentApi from '@/api/assignment.js'
 
 export default {
     name: 'Home',
@@ -104,18 +103,15 @@ export default {
     created () {
         this.loadCourses()
 
-        assignmentApi.get_upcoming_deadlines()
-            .then(response => {
-                this.deadlines = response
-            })
-            .catch(_ => this.$toasted.error('Error while loading deadlines'))
+        // assignmentApi.get_upcoming_deadlines()
+        //     .then(response => {
+        //         this.deadlines = response
+        //     })
+        //     .catch(_ => this.$toasted.error('Error while loading deadlines'))
     },
     methods: {
         loadCourses () {
-            course.get_user_courses()
-                .then(response => {
-                    this.courses = response
-                })
+            course.getCourses().then(courses => { this.courses = courses })
         },
         deleteCourse (courseID, courseName) {
             if (confirm('Are you sure you want to delete ' + courseName + '?')) {

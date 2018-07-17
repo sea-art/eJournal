@@ -100,7 +100,6 @@ export default {
             })
 
         if (store.state.filteredJournals.length === 0) {
-            console.log(this.cID)
             if (this.$router.app.canViewAssignmentParticipants()) {
                 journal.get_assignment_journals(this.aID)
                     .then(response => {

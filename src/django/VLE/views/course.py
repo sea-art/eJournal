@@ -17,17 +17,46 @@ class View(viewsets.ViewSet):
     serializer_class = CourseSerializer
 
     def list(self, request):
-        if not self.request.user.is_authenticated:
+        """Get the courses that the user participates in.
+
+        Arguments:
+        request -- request data
+
+        Returns:
+        On failure:
+            unauthorized -- when the user not logged in
+        On succes:
+            success -- with the course data
+        """
+        if not request.user.is_authenticated:
             return response.unauthorized()
-        queryset = self.request.user.participations.all()
+
+        queryset = request.user.participations.all()
         serializer = self.serializer_class(queryset, many=True)
         return response.success(serializer.data)
 
     def create(self, request):
-        if not self.request.user.is_authenticated:
+        """Create a new course.
+
+        Arguments:
+        request -- request data
+            name -- name of the course
+            abbr -- abbreviation of the course
+            startdate -- (optional) date when the course starts
+            enddate -- (optional) date when the course ends
+            lti_id -- (optional) lti_id to link the course to
+
+        Returns:
+        On failure:
+            unauthorized -- when the user not logged in
+            forbidden -- when the user has no permission to create new courses
+        On succes:
+            success -- with the course data
+        """
+        if not request.user.is_authenticated:
             return response.unauthorized()
 
-        perm = permissions.get_permissions(self.request.user)
+        perm = permissions.get_permissions(request.user)
 
         if not perm['can_add_course']:
             return response.forbidden('You have no permissions to create a course.')
@@ -41,35 +70,110 @@ class View(viewsets.ViewSet):
         course = factory.make_course(name, abbr, startdate, enddate, request.user, lti_id)
 
         serializer = self.serializer_class(course, many=False)
-        return response.created(serializer)
+        return response.created(serializer.data, obj='course')
 
     def retrieve(self, request, pk=None):
-        if not pk:
-            return response.bad_request('pk is missing')
-        if not self.request.user.is_authenticated or \
-           not self.request.user.participations.filter(pk=pk):
+        """Get the course data from the course ID.
+
+        Arguments:
+        request -- request data
+        pk -- course ID
+
+        Returns:
+        On failure:
+            unauthorized -- when the user not logged in
+            not found -- when the course does not exists
+            forbidden -- when the user is not in the course
+        On success:
+            success -- with the course data
+        """
+        if not request.user.is_authenticated:
             return response.unauthorized()
+
         try:
             course = Course.objects.get(pk=pk)
         except Course.DoesNotExist:
             return response.not_found('Course')
 
+        if not permissions.is_user_in_course(request.user, course):
+            return response.forbidden('You are not in this course.')
+
         serializer = self.serializer_class(course, many=False)
         return response.success(serializer.data)
 
-    def update(self, request, pk=None):
-        if not pk:
-            return response.bad_request('pk is missing')
+    def update(self, request, *args, **kwargs):
+        pass
+
+    def partial_update(self, request, *args, **kwargs):
+        """Update an existing course.
+
+        Arguments:
+        request -- request data
+            data -- the new data for the course
+        pk -- course ID
+
+        Returns:
+        On failure:
+            unauthorized -- when the user not logged in
+            not found -- when the course does not exists
+            forbidden -- when the user is not in the course
+            unauthorized -- when the user is unauthorized to edit the course
+            bad_request -- when there is invalid data in the request
+        On success:
+            success -- with the new course data
+        """
+        pk = kwargs.get('pk')
         # TODO: Check if its a partcipation with the correct rights
-        if not self.request.user.is_authenticated or \
-           not self.request.user.participations.filter(pk=pk):
+        if not request.user.is_authenticated or \
+           not request.user.participations.filter(pk=pk):
             return response.unauthorized()
-        queryset = Course.objects.get(pk)
-        serializer = self.serializer_class(queryset, many=False)
+
+        try:
+            course = Course.objects.get(pk=pk)
+        except Course.DoesNotExist:
+            return response.not_found('course')
+
+        role = permissions.get_role(request.user, course)
+        if role is None:
+            return response.forbidden('You are not in this course.')
+        elif not role.can_edit_course:
+            return response.unauthorized('You are unauthorized to edit this course.')
+
+        serializer = self.serializer_class(course, data=request.data, partial=True)
+        if not serializer.is_valid():
+            response.bad_request()
+        serializer.save()
         return response.success(serializer.data)
 
-    def partial_update(self, request, pk=None):
-        print(request)
+    def destroy(self, request, *args, **kwargs):
+        """Delete an existing course.
 
-    def destroy(self, request, pk=None):
-        print(request)
+        Arguments:
+        request -- request data
+        pk -- course ID
+
+        Returns:
+        On failure:
+            not found -- when the course does not exists
+            unauthorized -- when the user is unauthorized
+            forbidden -- when the user is not in the course
+        On success:
+            success -- with a message that the course was deleted
+        """
+        pk = kwargs.get('pk')
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+
+        try:
+            course = Course.objects.get(pk=pk)
+        except Course.DoesNotExist:
+            return response.not_found('course')
+
+        role = permissions.get_role(request.user, pk)
+        if role is None:
+            return response.unauthorized(description="You are unauthorized to view this course.")
+        elif not role.can_delete_course:
+            return response.forbidden(description="You are unauthorized to delete this course.")
+
+        course.delete()
+        return response.deleted('course')
