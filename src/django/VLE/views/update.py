@@ -628,6 +628,7 @@ def update_entrycomment(request):
     return responses.success()
 
 
+
 @api_view(['POST'])
 def update_user_profile_picture(request):
     """Update user data.
@@ -638,14 +639,14 @@ def update_user_profile_picture(request):
 
     Returns a json string for if it is successful or not.
     """
-    # TODO Handle file on server
-    print(request.POST)
-    print(request.FILES)
-    print(request.FILES['file'])
+    # TODO CHECKS for file integrety
+    # Set default profile picture to the new one on success
 
     user = request.user
     if not user.is_authenticated:
         return responses.unauthorized()
+
+    utils.handle_uploaded_file(request.FILES['file'], 'uploads/users/' + str(request.user.id) + '/files/')
 
     return responses.success()
 

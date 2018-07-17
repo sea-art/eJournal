@@ -6,6 +6,7 @@ A library with useful functions.
 from VLE.models import Entry, Node, EntryTemplate, PresetNode
 import VLE.factory as factory
 import VLE.views.responses as responses
+import os
 
 
 # START: API-POST functions
@@ -245,3 +246,16 @@ def delete_templates(templates, remove_templates):
         tIDs.append(template['tID'])
 
     templates.filter(pk__in=tIDs).delete()
+
+
+def handle_uploaded_file(f, path, userID, type):
+    root = os.getcwd()
+    paths = {
+        'user_file': '/{}/uploads/users/{}/files/'.format(root, userID),
+        'profile_picture': '/{}/uploads/users/{}/profile_pictures/'.format(root, userID)
+    }
+    os.makedirs(os.path.dirname(os.getcwd() + path), exist_ok=True)
+
+    with open(os.getcwd() + path + str(f), 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
