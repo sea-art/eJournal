@@ -52,6 +52,7 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('id', )
 
+
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
