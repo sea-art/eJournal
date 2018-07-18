@@ -248,13 +248,13 @@ class CourseView(viewsets.ViewSet):
         # TODO: Include role of participation
         return response.success(serializer.data)
 
-    @action(methods=['get', 'patch', 'post'], detail=True)
+    @action(methods=['get', 'patch'], detail=True)
     def roles(self, request, pk):
         if request.method == 'GET':
             return RoleView.list(request, pk)
         elif request.method == 'PATCH':
             return RoleView.partial_update(request, pk)
-        elif request.method == 'POST':
+        elif request.method == 'post':
             return RoleView.create(request, pk)
         return response.bad_request('Invalid method')
 

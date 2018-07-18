@@ -12,8 +12,16 @@ from VLE.models import User, Course, Node, Comment, Assignment, Role
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'last_login', 'username', 'first_name', 'last_name', 'is_active',
-                  'email', 'lti_id', 'profile_picture', 'is_teacher')
+        fields = ('last_login', 'username', 'first_name', 'last_name', 'is_active', 'email',
+                  'profile_picture', 'is_teacher')
+        read_only_fields = ('id', )
+
+
+class OwnUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'last_login', 'username', 'first_name', 'last_name', 'is_active', 'email',
+                  'lti_id', 'profile_picture', 'is_teacher', 'grade_notifications', 'comment_notifications')
         read_only_fields = ('id', )
 
 

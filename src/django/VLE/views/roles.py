@@ -104,8 +104,7 @@ class RoleView(object):
         On success:
             success -- newly created course
         """
-        user = request.user
-        if not user.is_authenticated:
+        if not request.user.is_authenticated:
             return response.unauthorized()
 
         try:
@@ -113,7 +112,7 @@ class RoleView(object):
         except Course.DoesNotExist:
             return response.not_found('course')
 
-        own_role = permissions.get_role(user, course)
+        own_role = permissions.get_role(request.user, course)
         if own_role is None:
             return response.forbidden('You are not in this course.')
         elif not own_role.can_edit_course_roles:
@@ -143,9 +142,7 @@ class RoleView(object):
         On success:
             success -- newly created course
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-        if 'name' not in request.data['name']:
+        if 'name' not in request.data:
             return response.keyerror('name')
 
         # Users can only delete course roles with can_edit_course_roles

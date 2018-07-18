@@ -89,26 +89,59 @@ function testRoles () {
                 console.log('create /courses/1/roles does not work')
                 console.log(resp)
             }
-            console.log(resp)
-            auth.delete('courses/1/roles', {name: 'Student'})
-                .then(resp => {
-                    console.log(resp)
-                    if (!resp || resp.description !== 'Succesfully created course.') {
-                        console.log('destroy /courses/1/roles does not work')
-                        console.log(resp)
-                    }
-                })
         })
+    auth.delete('courses/1/roles', {name: name})
+        .then(resp => {
+            console.log(resp)
+            if (!resp || resp.description !== 'Succesfully deleted course.') {
+                console.log('destroy /courses/1/roles does not work')
+                console.log(resp)
+            }
+        })
+}
+
+function testUsers () {
+    var name = 'test' + Math.random()
+    auth.get('users')
+        .then(resp => {
+            if (!resp || resp.length <= 3) {
+                console.log('get /users/ does not work')
+                console.log(resp)
+            }
+        })
+    auth.get('users/1')
+        .then(resp => {
+            if (!resp || resp.first_name !== 'Lars') {
+                console.log('get /users/1 does not work')
+                console.log(resp)
+            }
+        })
+    auth.get('users/6')
+        .then(resp => {
+            if (!resp || resp.id !== 6 || !resp.grade_notifications) {
+                console.log('get /users/6 does not work (logged in user)')
+                console.log(resp)
+            }
+        })
+    auth.create('users', {username: name, password: 'Test123!'})
+        .then(resp => {
+            if (!resp || resp.description !== 'Succesfully created user.') {
+                console.log('create /users/ does not work')
+                console.log(resp)
+            }
+        })
+        .catch(resp => console.log(resp))
 }
 
 export default {
     created () {
         auth.login('55555555', 'pass')
             .catch(err => console.log(err))
-        testRoles()
+        testUsers()
     },
 
     dontRun () {
+        testRoles()
         testCourses()
     }
 }
