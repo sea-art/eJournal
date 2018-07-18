@@ -181,7 +181,7 @@ class AssignmentView(viewsets.ViewSet):
 
         Returns:
         On failure:
-            not found -- when the assignment does not exists
+            not found -- when the assignment or course does not exists
             unauthorized -- when the user is not logged in
             forbidden -- when the user cannot delete the assignment
         On success:
@@ -190,12 +190,16 @@ class AssignmentView(viewsets.ViewSet):
         if not self.request.user.is_authenticated:
             return response.unauthorized()
 
-        a_pk = kwargs.get('a_pk')
-        c_pk = kwargs.get('c_pk')
+        pk = kwargs.get('a_pk')
 
         try:
-            assignment = Assignment.objects.get(pk=a_pk)
-            course = Course.objects.get(pk=c_pk)
+            [cID] = utils.required_params(request.data, 'cID')
+        except KeyError:
+            return response.keyerror('cID')
+
+        try:
+            assignment = Assignment.objects.get(pk=pk)
+            course = Course.objects.get(pk=cID)
         except (Assignment.DoesNotExist, Course.DoesNotExist):
             return response.not_found('Assignment or course')
 
@@ -214,4 +218,4 @@ class AssignmentView(viewsets.ViewSet):
             assignment.delete()
             response['removed_completely'] = True
 
-        return response.success(message='Succesfully deleted assignment', payload=response)
+        return response.success(message='assignment', payload=response)

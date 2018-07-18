@@ -145,22 +145,22 @@ function testAssignments () {
     auth.get('assignments/1')
         .then(resp => {
             if (!resp || resp.name !== 'Logboek') {
-                console.log('get /assignment/1 does not work')
+                console.log('get /assignments/1 does not work')
                 console.log(resp)
             }
         })
         .catch(resp => console.log(resp))
-    auth.update('assignment/1', {name: 'Logboek test'})
+    auth.update('assignments/1', {name: 'Logboek test'})
         .then(resp => {
             if (!resp || resp.name === 'Logboek test') {
-                console.log('update /assignment/1 does not work')
+                console.log('update /assignments/1 does not work')
                 console.log(resp)
             }
         })
-    auth.update('assignment/1', {name: 'Logboek test'})
+    auth.update('assignments/1', {name: 'Logboek'})
         .then(resp => {
             if (!resp || resp.name === 'Is PAV') {
-                console.log('update /assignment/1 does not work')
+                console.log('update /assignments/1 does not work')
                 console.log(resp)
             }
         })
