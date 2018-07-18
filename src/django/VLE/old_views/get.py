@@ -17,7 +17,7 @@ import VLE.lti_launch as lti
 import VLE.edag as edag
 import VLE.utils as utils
 from VLE.models import Assignment, Course, Journal, EntryTemplate, Comment, User, Node, \
-    Role, Entry
+    Entry
 import VLE.serializers as serialize
 import VLE.permissions as permissions
 import VLE.views.responses as responses
@@ -153,12 +153,12 @@ def get_course_assignments(request, cID):
 
 @api_view(['GET'])
 def get_assignment_data(request, cID, aID):
-    """Get the data linked to an assignemnt ID.
+    """Get the data linked to an assignment ID.
 
     Arguments:
     request -- the request that was send with
     cID -- course ID given with the request
-    aID -- assignemnt ID given with the request
+    aID -- assignment ID given with the request
 
     Returns a json string with the assignment data for the requested user.
     Depending on the permissions, return all student journals or a specific

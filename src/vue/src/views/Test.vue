@@ -91,7 +91,7 @@ function testRoles () {
 }
 
 function testAssignments () {
-    auth.create('assignemnts', {name: 'test', description: 'test descrip', cID: '1', points_possible: '1'})
+    auth.create('assignments', {name: 'test', description: 'test descrip', cID: '1', points_possible: '1'})
         .then(resp => {
             if (!resp || resp.description !== 'Succesfully created assignment.') {
                 console.log('create /assignments/ does not work')
@@ -99,14 +99,37 @@ function testAssignments () {
             }
         })
         .catch(resp => console.log(resp))
+    auth.get('assignments/1')
+        .then(resp => {
+            if (!resp || resp.name !== 'Logboek') {
+                console.log('get /assignment/1 does not work')
+                console.log(resp)
+            }
+        })
+        .catch(resp => console.log(resp))
+    auth.update('assignment/1', {name: 'Logboek test'})
+        .then(resp => {
+            if (!resp || resp.name === 'Logboek test') {
+                console.log('update /assignment/1 does not work')
+                console.log(resp)
+            }
+        })
+    auth.update('assignment/1', {name: 'Logboek test'})
+        .then(resp => {
+            if (!resp || resp.name === 'Is PAV') {
+                console.log('update /assignment/1 does not work')
+                console.log(resp)
+            }
+        })
 }
 
 export default {
     created () {
         auth.login('55555555', 'pass')
             .catch(err => console.log(err))
-        testCourses()
-        testRoles()
+        // testCourses()
+        // testRoles()
+        testAssignments()
     }
 }
 </script>

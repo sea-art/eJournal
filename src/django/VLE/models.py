@@ -168,7 +168,7 @@ class Participation(models.Model):
 
 
 class Assignment(models.Model):
-    """Assignemnt.
+    """Assignment.
 
     An Assignment entity has the following features:
     - name: name of the assignment.
