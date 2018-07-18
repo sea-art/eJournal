@@ -19,7 +19,7 @@
             <b-card class="no-hover new-comment">
                 <b-textarea class="theme-input" v-model="tempComment" placeholder="Add your comment here" :class="$root.getBorderClass($route.params.cID)"/>
                 <b-button class="send-button" @click="addComment">
-                    <icon name="paper-plane" scale="1"/>
+                    <icon name="paper-plane"/>
                 </b-button>
             </b-card>
         </div>

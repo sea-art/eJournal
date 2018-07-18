@@ -5,7 +5,7 @@
                 <img class="img-fluid portrait-max-height" :src="portraitPath">
             </b-col>
             <b-col order="2" cols="8" class="d-none d-sm-inline">
-                <todo-square class="float-right" :num="this.stats.submitted - this.stats.graded"/>
+                <todo-square v-if="numMarkingNeeded > 0" class="float-right" :num="numMarkingNeeded"/>
                 {{ student }}<br/>
                 <p>{{ studentNumber }}</p><br/>
                 <progress-bar :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
@@ -36,6 +36,11 @@ export default {
     components: {
         'progress-bar': progressBar,
         'todo-square': todoSquare
+    },
+    computed: {
+        numMarkingNeeded () {
+            return this.stats.submitted - this.stats.graded
+        }
     }
 }
 </script>

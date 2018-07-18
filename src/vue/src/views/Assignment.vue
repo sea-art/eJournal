@@ -42,14 +42,14 @@
 
             </b-link>
         </div>
-        <main-card slot="main-content-column" class="no-hover" :line1="'No journals found'"/>
+        <main-card v-if="assignmentJournals.length === 0" slot="main-content-column" class="no-hover" :line1="'No journals found'"/>
 
         <div  v-if="stats" slot="right-content-column">
-            <h3>Statistics</h3>
+            <h3>Insights</h3>
+            <statistics-card :subject="'Average entries'" :num="stats.avgEntries"></statistics-card>
             <statistics-card :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>
             <statistics-card :subject="'Average points'" :num="stats.avgPoints"></statistics-card>
             <statistics-card :subject="'Median points'" :num="stats.medianPoints"></statistics-card>
-            <statistics-card :subject="'Average entries'" :num="stats.avgEntries"></statistics-card>
         </div>
     </content-columns>
 </template>
