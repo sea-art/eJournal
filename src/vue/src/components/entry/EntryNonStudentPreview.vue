@@ -6,9 +6,6 @@
 <template>
     <div v-if="entryNode.entry !== null">
         <b-card class="entry-card no-hover entry-card-teacher" :class="$root.getBorderClass($route.params.cID)">
-            <div class="template-name">
-                <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
-            </div>
             <div v-if="$root.canGradeJournal()" class="grade-section shadow no-hover">
                 <b-form-input class="theme-input" type="number" size="2" v-model="grade" placeholder="0" min=0></b-form-input>
                 <b-form-checkbox v-model="status" value=true unchecked-value=false data-toggle="tooltip" title="Show grade to student">
@@ -19,13 +16,16 @@
                     Save
                 </b-button>
             </div>
-            <div v-else class="grade-section shadow">
+            <div v-else class="grade-section shadow no-hover">
                 <span v-if="tempNode.entry.published">
                     {{ entryNode.entry.grade }}
                 </span>
                 <span v-else>
                     <icon name="hourglass-half"/>
                 </span>
+            </div>
+            <div class="template-name">
+                <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
             </div>
 
             <div v-for="(field, i) in entryNode.entry.template.fields" class="entry-field" :key="field.eID">

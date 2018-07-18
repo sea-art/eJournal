@@ -59,7 +59,7 @@
             </b-card>
 
             <h3>Entry Templates</h3>
-            <template-todo-card v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate"/>
+            <available-template-card v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate"/>
             <b-card @click="showModal(newTemplate())" class="add-card" :class="'grey-border'">
                 <b>+ Add Template</b>
             </b-card>
@@ -333,7 +333,7 @@ export default {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'edag': edag,
-        'template-todo-card': formatEditAvailableTemplateCard,
+        'available-template-card': formatEditAvailableTemplateCard,
         'selected-node-card': formatEditSelectTemplateCard,
         'template-editor': templateEdit,
         'icon': icon,

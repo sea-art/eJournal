@@ -7,26 +7,24 @@
 
 <template>
     <div class="breadcrumb-container">
-        <b-row>
-            <b-col cols="12" md="12">
-                <h4>
-                    <!-- Assumes on a page above guest page (guest page matches every page first) -->
-                    <span v-for="breadcrumb in breadedCrumbs.slice(1, -1)" :key="breadcrumb.name">
-                        <b-link tag="b-button" :to="breadcrumb.route">{{ breadcrumb.display }}</b-link> /
-                    </span>
-                </h4>
-                <h1 class="d-inline-block">
-                    {{ breadedCrumbs.slice(-1)[0].display }}
-                    <slot>
-                        <icon name="eye" @click.native="eyeClick()" class="eye-icon icon-shadow" scale="1.75"/>
-                    </slot>
-                </h1>
-                <b-button v-if="canEdit()" @click="editClick()" class="float-right change-button multi-form">
-                    <icon name="edit"/>
-                    Edit
-                </b-button>
-            </b-col>
-        </b-row>
+        <b-button v-if="canEdit()" @click="editClick()" class="float-right change-button multi-form">
+            <icon name="edit"/>
+            Edit
+        </b-button>
+        <div>
+            <h4>
+                <!-- Assumes on a page above guest page (guest page matches every page first) -->
+                <span v-for="breadcrumb in breadedCrumbs.slice(1, -1)" :key="breadcrumb.name">
+                    <b-link tag="b-button" :to="breadcrumb.route">{{ breadcrumb.display }}</b-link> /
+                </span>
+            </h4>
+            <h1>
+                {{ breadedCrumbs.slice(-1)[0].display }}
+                <slot>
+                    <icon name="eye" @click.native="eyeClick()" class="eye-icon icon-shadow" scale="1.75"/>
+                </slot>
+            </h1>
+        </div>
     </div>
 </template>
 
