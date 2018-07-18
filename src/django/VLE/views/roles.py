@@ -52,6 +52,7 @@ class RoleView(object):
         On failure:
             unauthorized -- when the user is not logged in
             not found -- when the course does not exists
+            forbidden -- when the user is not in the course
             forbidden -- when the user is unauthorized to edit its roles
         On success:
             success -- list of all the roles in the course
@@ -90,12 +91,15 @@ class RoleView(object):
 
         Arguments:
         request -- request data
+            name -- role name
+            permissions -- permissions to change (default everything is false)
         pk -- course ID
 
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
             not found -- when the course does not exists
+            forbidden -- when the user is not in the course
             forbidden -- when the user is unauthorized to edit its roles
         On success:
             success -- newly created course
@@ -121,3 +125,35 @@ class RoleView(object):
             return response.bad_request()
         serializer = RoleSerializer(role, many=False)
         return response.created(serializer.data, obj='role')
+
+    def destroy(request, pk):
+        """Delete course role.
+
+        Arguments:
+        request -- request data
+            name -- role name
+        pk -- course ID
+
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+            keyerror -- when name is not set
+            forbidden -- when the user is not in the course
+            forbidden -- when the user is unauthorized to edit its roles
+        On success:
+            success -- newly created course
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+        if 'name' not in request.data['name']:
+            return response.keyerror('name')
+
+        # Users can only delete course roles with can_edit_course_roles
+        own_role = permissions.get_role(request.user, pk)
+        if own_role is None:
+            return response.forbidden(description="You have no access to this course")
+        elif not own_role.can_edit_course_roles:
+            return response.forbidden(description="You have no permissions to delete this course role.")
+
+        Role.objects.get(name=request.data['name'], course=pk).delete()
+        return response.success(message='Succesfully deleted role from course')

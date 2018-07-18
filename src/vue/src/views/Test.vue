@@ -6,6 +6,7 @@
 
 <script>
 import auth from '@/api/auth'
+
 function testCourses () {
     auth.get('courses')
         .then(resp => {
@@ -50,6 +51,7 @@ function testCourses () {
 }
 
 function testRoles () {
+    var name = 'ProStudent' + Math.random()
     auth.get('courses/1/roles')
         .then(resp => {
             if (!resp || resp.length <= 3) {
@@ -78,7 +80,7 @@ function testRoles () {
             }
         })
     auth.create('courses/1/roles', {
-        name: 'ProStudent' + Math.random(),
+        name: name,
         permissions: {can_edit_course: true}
     })
         .then(resp => {
@@ -87,6 +89,15 @@ function testRoles () {
                 console.log('create /courses/1/roles does not work')
                 console.log(resp)
             }
+            console.log(resp)
+            auth.delete('courses/1/roles', {name: 'Student'})
+                .then(resp => {
+                    console.log(resp)
+                    if (!resp || resp.description !== 'Succesfully created course.') {
+                        console.log('destroy /courses/1/roles does not work')
+                        console.log(resp)
+                    }
+                })
         })
 }
 
@@ -94,8 +105,11 @@ export default {
     created () {
         auth.login('55555555', 'pass')
             .catch(err => console.log(err))
-        testCourses()
         testRoles()
+    },
+
+    dontRun () {
+        testCourses()
     }
 }
 </script>

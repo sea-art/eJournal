@@ -158,12 +158,20 @@ export default {
                 .then(_ => connection.conn.post(url, data, getAuthorizationHeader())))
             .catch(error => handleResponse(error, noRedirect))
     },
-    delete (url, noRedirect = false) {
+    delete (url, data = null, noRedirect = false) {
         if (url.slice(-1) !== '/') url += '/'
-        return connection.conn.delete(url, getAuthorizationHeader())
-            .then(response => response.data)
-            .catch(error => refresh(error)
-                .then(_ => connection.conn.post(url, getAuthorizationHeader())))
-            .catch(error => handleResponse(error, noRedirect))
+        if (data) {
+            return connection.conn.delete(url, data, getAuthorizationHeader())
+                .then(response => response.data)
+                .catch(error => refresh(error)
+                    .then(_ => connection.conn.post(url, data, getAuthorizationHeader())))
+                .catch(error => handleResponse(error, noRedirect))
+        } else {
+            return connection.conn.delete(url, getAuthorizationHeader())
+                .then(response => response.data)
+                .catch(error => refresh(error)
+                    .then(_ => connection.conn.post(url, getAuthorizationHeader())))
+                .catch(error => handleResponse(error, noRedirect))
+        }
     }
 }
