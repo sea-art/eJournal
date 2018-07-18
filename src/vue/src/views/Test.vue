@@ -89,6 +89,14 @@ export default {
                     console.log(resp)
                 }
             })
+        auth.create('assignemnts', {name: 'test', description: 'test descrip', cID: '1', points_possible: '1'})
+            .then(resp => {
+                if (!resp || resp.description !== 'Succesfully created assignment.') {
+                    console.log('create /assignments/ does not work')
+                    console.log(resp)
+                }
+            })
+            .catch(resp => console.log(resp))
     }
 }
 </script>

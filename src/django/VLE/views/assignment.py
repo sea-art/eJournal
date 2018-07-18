@@ -64,6 +64,9 @@ class AssignmentView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
+            not_found -- could not find the course with the given id
+            key_error -- missing keys
+
         On success:
             succes -- with the assignment data
         """
@@ -79,7 +82,7 @@ class AssignmentView(viewsets.ViewSet):
         try:
             Course.objects.get(pk=request.cID)
         except Course.DoesNotExist:
-            return response.not_found('Course does not exist.')
+            return response.not_found('Course')
 
         role = permissions.get_role(request.user, cID)
 
