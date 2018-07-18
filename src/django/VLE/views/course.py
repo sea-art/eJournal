@@ -4,16 +4,19 @@ course.py.
 In this file are all the course api requests.
 """
 from rest_framework import viewsets
+from rest_framework.decorators import action
 
 import VLE.views.responses as response
 from VLE.serializers import CourseSerializer
+from VLE.serializers import UserSerializer
 from VLE.models import Course
 import VLE.permissions as permissions
 import VLE.utils as utils
 import VLE.factory as factory
+import VLE.views.roles as RoleView
 
 
-class View(viewsets.ViewSet):
+class CourseView(viewsets.ViewSet):
     serializer_class = CourseSerializer
 
     def list(self, request):
@@ -24,7 +27,7 @@ class View(viewsets.ViewSet):
 
         Returns:
         On failure:
-            unauthorized -- when the user not logged in
+            unauthorized -- when the user is not logged in
         On succes:
             success -- with the course data
         """
@@ -48,7 +51,7 @@ class View(viewsets.ViewSet):
 
         Returns:
         On failure:
-            unauthorized -- when the user not logged in
+            unauthorized -- when the user is not logged in
             forbidden -- when the user has no permission to create new courses
         On succes:
             success -- with the course data
@@ -81,7 +84,7 @@ class View(viewsets.ViewSet):
 
         Returns:
         On failure:
-            unauthorized -- when the user not logged in
+            unauthorized -- when the user is not logged in
             not found -- when the course does not exists
             forbidden -- when the user is not in the course
         On success:
@@ -114,7 +117,7 @@ class View(viewsets.ViewSet):
 
         Returns:
         On failure:
-            unauthorized -- when the user not logged in
+            unauthorized -- when the user is not logged in
             not found -- when the course does not exists
             forbidden -- when the user is not in the course
             unauthorized -- when the user is unauthorized to edit the course
@@ -155,7 +158,7 @@ class View(viewsets.ViewSet):
         Returns:
         On failure:
             not found -- when the course does not exists
-            unauthorized -- when the user is unauthorized
+            unauthorized -- when the user is not logged in
             forbidden -- when the user is not in the course
         On success:
             success -- with a message that the course was deleted
@@ -177,3 +180,98 @@ class View(viewsets.ViewSet):
 
         course.delete()
         return response.deleted('course')
+
+    @action(methods=['get'], detail=False)
+    def linkable(self, request):
+        """Get linkable courses.
+
+        Get all courses that the current user is connected to and where the lti_id equals to NULL.
+        A user can then link this course to Canvas.
+
+        Arguments:
+        request -- request data
+
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+            not found -- when the course does not exists
+            forbidden -- when the user is not in the course
+        On success:
+            success -- with a message that the course was deleted
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+
+        if not request.user.is_teacher:
+            return response.forbidden("You are not allowed to link courses.")
+
+        unlinked_courses = Course.objects.filter(participation__user=request.user.id,
+                                                 participation__role__can_edit_course=True,
+                                                 lti_id=None)
+
+        serializer = UserSerializer(unlinked_courses, many=True)
+        return response.success(serializer.data)
+
+    @action(methods=['get'], detail=True)
+    def users(self, request, pk=None):
+        """Get all users and their roles for a given course.
+
+        Arguments:
+        request -- request data
+        pk -- course ID
+
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+            not found -- when the course does not exists
+            forbidden -- when the user is not in the course
+            forbidden -- when the user is unauthorized to view its participants
+        On success:
+            success -- list of all the users and their role
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+
+        try:
+            course = Course.objects.get(pk=pk)
+        except Course.DoesNotExist:
+            return response.not_found('Course')
+
+        role = permissions.get_role(request.user, course)
+        if role is None:
+            return response.forbidden('You are not in this course.')
+        elif not role.can_view_course_participants:
+            return response.forbidden('You cannot view participants in this course.')
+
+        queryset = course.users
+        serializer = UserSerializer(queryset, many=True)
+        # TODO: Include role of participation
+        return response.success(serializer.data)
+
+    @action(methods=['get', 'patch'], detail=True)
+    def roles(self, request, pk):
+        if request.method == 'get':
+            return RoleView.list(request, pk)
+        elif request.method == 'patch':
+            return RoleView.partial_update(request, pk)
+
+    @action(methods=['get'], detail=False)
+    def teacher(self, request):
+        """Get all the courses where the user is a teacher.
+
+        Arguments:
+        request -- request data
+
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+        On success:
+            success -- list of all the courses where the user is a teacher
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+
+        courses = Course.objects.filter(participation__user=request.user.id,
+                                        participation__role__can_edit_course=True)
+        serializer = CourseSerializer(courses, many=True)
+        return response.success(serializer.data)

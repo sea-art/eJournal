@@ -58,43 +58,6 @@ def connect_course_lti(request):
 
 
 @api_view(['POST'])
-def update_course_roles(request):
-    """Updates course roles.
-
-    Arguments:
-    request -- the request that was sent.
-    cID     -- the course id
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        [cID] = utils.required_params(request.data, 'cID')
-    except KeyError:
-        return responses.keyerror('cID')
-
-    try:
-        course = Course.objects.get(pk=cID)
-    except Course.DoesNotExist:
-        return responses.not_found('Course')
-
-    role = permissions.get_role(user, course)
-    if role is None:
-        return responses.forbidden('You are not in this course.')
-    elif not role.can_edit_course_roles:
-        return responses.forbidden('You cannot edit roles of this course.')
-
-    for role in request.data['roles']:
-        db_role = Role.objects.filter(name=role['name'])
-        if not db_role:
-            factory.make_role_default_no_perms(role['name'], Course.objects.get(pk=cID), **role['permissions'])
-        else:
-            permissions.edit_permissions(db_role[0], **role['permissions'])
-    return responses.success()
-
-
-@api_view(['POST'])
 def connect_assignment_lti(request):
     """Connect an existing assignment to an lti assignment.
 

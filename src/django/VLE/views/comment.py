@@ -9,7 +9,7 @@ from VLE.serializers import CommentSerializer
 from VLE.models import Comment
 
 
-class View(viewsets.ModelViewSet):
+class CommentView(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
 
     def get_queryset(self):

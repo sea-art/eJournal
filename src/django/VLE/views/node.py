@@ -9,7 +9,7 @@ from VLE.serializers import NodeSerializer
 from VLE.models import Node
 
 
-class View(viewsets.ModelViewSet):
+class NodeView(viewsets.ModelViewSet):
     serializer_class = NodeSerializer
 
     def get_queryset(self):

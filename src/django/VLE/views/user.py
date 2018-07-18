@@ -9,7 +9,7 @@ from VLE.serializers import UserSerializer
 from VLE.models import User
 
 
-class View(viewsets.ModelViewSet):
+class UserView(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
     def get_queryset(self):

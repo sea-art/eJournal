@@ -6,7 +6,7 @@ Functions to convert certain data to other formats.
 from rest_framework import serializers
 # import VLE.utils as utils
 # import VLE.permissions as permissions
-from VLE.models import User, Course, Node, Comment, Assignment
+from VLE.models import User, Course, Node, Comment, Assignment, Role
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -49,6 +49,12 @@ class NodeSerializer(serializers.ModelSerializer):
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
+        fields = '__all__'
+        read_only_fields = ('id', )
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
         fields = '__all__'
         read_only_fields = ('id', )
 

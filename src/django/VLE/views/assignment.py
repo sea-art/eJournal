@@ -11,7 +11,7 @@ from VLE.models import Assignment, Course
 import VLE.permissions as permissions
 
 
-class View(viewsets.ViewSet):
+class AssignmentView(viewsets.ViewSet):
     serializer_class = StudentAssignmentSerializer
 
     def list(self, request):

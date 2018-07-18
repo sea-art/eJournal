@@ -57,36 +57,6 @@ def get_own_user_data(request):
 
 
 @api_view(['GET'])
-def get_course_users(request, cID):
-    """Get all users for a given course, including their role for this course.
-
-    Arguments:
-    request -- the request
-    cID -- the course ID
-
-    Returns a json string with a list of participants.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        course = Course.objects.get(pk=cID)
-    except Course.DoesNotExist:
-        return responses.not_found('Course')
-
-    role = permissions.get_role(user, course)
-    if role is None:
-        return responses.forbidden('You are not in this course.')
-    elif not role.can_view_course_participants:
-        return responses.forbidden('You cannot view participants in this course.')
-
-    participations = course.participation_set.all()
-    return responses.success(payload={'users': [serialize.participation_to_dict(participation)
-                                                for participation in participations]})
-
-
-@api_view(['GET'])
 def get_unenrolled_users(request, cID):
     """Get all users not connected to a given course.
 
@@ -115,57 +85,6 @@ def get_unenrolled_users(request, cID):
     result = User.objects.all().exclude(id__in=ids_in_course)
 
     return responses.success(payload={'users': [serialize.user_to_dict(user) for user in result]})
-
-
-@api_view(['GET'])
-def get_user_courses(request):
-    """Get the courses that are linked to the user linked to the request.
-
-    Arguments:
-    request -- the request that was send with
-
-    Returns a json string with the courses for the requested user
-    """
-    user = request.user
-
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    courses = []
-
-    for course in user.participations.all():
-        courses.append(serialize.course_to_dict(course))
-    return responses.success(payload={'courses': courses})
-
-
-@api_view(['GET'])
-def get_linkable_courses(request):
-    """Get linkable courses.
-
-    Get all courses that the current user is connected with as sufficiently
-    authenticated user. The lti_id should be equal to NULL. A user can then link
-    this course to Canvas.
-
-    Arguments:
-    request -- contains the user that requested the linkable courses
-
-    Returns all of the courses.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    if not user.is_teacher:
-        return responses.forbidden("You are not allowed to add courses.")
-
-    courses = []
-    unlinked_courses = Course.objects.filter(participation__user=user.id,
-                                             participation__role__can_edit_course=True, lti_id=None)
-
-    for course in unlinked_courses:
-        courses.append(serialize.course_to_dict(course))
-
-    return responses.success(payload={'courses': courses})
 
 
 def get_teacher_course_assignments(user, course):
@@ -543,55 +462,6 @@ def get_format(request, aID):
         return responses.forbidden('You are not allowed to view this assignment.')
 
     return responses.success(payload={'format': serialize.format_to_dict(assignment.format)})
-
-
-@api_view(['GET'])
-def get_course_roles(request, cID):
-    """Get course roles.
-
-    Arguments:
-    request -- the request that was sent.
-    cID     -- the course id
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-    try:
-        course = Course.objects.get(pk=cID)
-    except Course.DoesNotExist:
-        return responses.not_found('Course')
-
-    role = permissions.get_role(user, course)
-    if role is None:
-        return responses.forbidden('You are not allowed to view this course.')
-    elif not role.can_edit_course_roles:
-        return responses.forbidden('You are not allowed to edit course roles.')
-
-    roles = []
-
-    for role in Role.objects.filter(course=cID):
-        roles.append(serialize.role_to_dict(role))
-    return responses.success(payload={'roles': roles})
-
-
-@api_view(['GET'])
-def get_user_teacher_courses(request):
-    """Get all the courses where the user is a teacher.
-
-    Arguments:
-    request -- the request that was sent
-
-    Returns a json string containing the format.
-    """
-    if not request.user.is_authenticated:
-        return responses.unauthorized()
-
-    q_courses = Course.objects.filter(participation__user=request.user.id,
-                                      participation__role__can_edit_course=True)
-    courses = []
-    for course in q_courses:
-        courses.append(serialize.course_to_dict(course))
-    return responses.success(payload={'courses': courses})
 
 
 @api_view(['POST'])
