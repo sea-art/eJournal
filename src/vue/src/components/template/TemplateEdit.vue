@@ -119,7 +119,7 @@ export default {
     fill: $theme-blue !important
 
 .field-card:hover .trash-icon:hover
-    fill: $theme-negative-selected !important
+    fill: $theme-red !important
 
 @include sm-max
     .icon-box

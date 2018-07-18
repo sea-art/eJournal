@@ -22,7 +22,7 @@ export default {
     font-size: 18px
     background-color: $theme-blue
     &.unpublished-count
-        background-color: $theme-change-selected
+        background-color: $theme-orange
     width: 45px
     height: 30px
 </style>

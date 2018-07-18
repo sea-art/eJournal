@@ -99,10 +99,10 @@ export default {
     fill: white
 
 .fill-negative
-    fill: $theme-negative-selected
+    fill: $theme-red
 
 .fill-positive
-    fill: $theme-positive-selected
+    fill: $theme-green
 
 .edag-node-circle-border
     border-radius: 50% !important
@@ -136,7 +136,7 @@ export default {
     &.enc-add
         background-color: $theme-blue
     &.enc-progress
-        background-color: $theme-negative-selected
+        background-color: $theme-red
     svg
         transition: all 0.6s cubic-bezier(.25,.8,.25,1)
     .edag-node-circle-text
