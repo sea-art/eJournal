@@ -42,9 +42,7 @@
 
             </b-link>
         </div>
-        <div v-else slot="main-content-column">
-            <h1>No journals found</h1>
-        </div>
+        <main-card slot="main-content-column" class="no-hover" :line1="'No journals found'"/>
 
         <div  v-if="stats" slot="right-content-column">
             <h3>Statistics</h3>
@@ -59,6 +57,7 @@
 <script>
 import contentColumns from '@/components/columns/ContentColumns.vue'
 import studentCard from '@/components/assignment/StudentCard.vue'
+import mainCard from '@/components/assets/MainCard.vue'
 import statisticsCard from '@/components/assignment/StatisticsCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import journal from '@/api/journal.js'
@@ -92,7 +91,8 @@ export default {
         'statistics-card': statisticsCard,
         'bread-crumb': breadCrumb,
         'store': store,
-        'icon': icon
+        'icon': icon,
+        'main-card': mainCard
     },
     created () {
         permissionsApi.get_course_permissions(this.cID)
@@ -136,10 +136,10 @@ export default {
             if (confirm('Are you sure you want to publish all grades for each journal?')) {
                 journal.update_publish_grades_assignment(this.aID, 1)
                     .then(_ => {
-                        this.$toasted.success('All the grades for each journal are published.')
+                        this.$toasted.success('Published all grades for this assignment.')
                     })
                     .catch(_ => {
-                        this.$toasted.error('Error while publishing the grades for each journal.')
+                        this.$toasted.error('Error while publishing all grades for this assignment.')
                     })
             }
         },

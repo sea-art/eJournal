@@ -36,6 +36,7 @@ import 'vue-awesome/icons/ban'
 import 'vue-awesome/icons/link'
 import 'vue-awesome/icons/envelope'
 import 'vue-awesome/icons/home'
+import 'vue-awesome/icons/calendar'
 
 import Toasted from 'vue-toasted'
 

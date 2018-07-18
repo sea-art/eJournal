@@ -12,21 +12,10 @@
     @extend .shadow
     transition: box-shadow 0.6s cubic-bezier(.25,.8,.25,1)
     &:hover:not(.no-hover)
-        box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23)
+        box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 7px 7px rgba(0,0,0,0.23)
 
 .large-shadow
     @extend .shadow
     transition: box-shadow 0.6s cubic-bezier(.25,.8,.25,1)
     &:hover:not(.no-hover)
         box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22)
-
-// Shadows can be applied to all objects of a certain class by adding
-// that class to the list with a comma. Alternatively one can apply
-// the shadow class to a single particular object.
-.btn,
-.profile-picture,
-.edag-node-circle
-    @extend .small-shadow
-
-.card
-    @extend  .large-shadow

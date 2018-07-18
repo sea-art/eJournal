@@ -51,7 +51,7 @@ export default {
             }
 
             var entry = this.node.entry
-            var isGrader = this.$root.canPublishAssignmentGrades()
+            var isGrader = this.$root.canGradeJournal()
 
             if (entry && entry.published) {
                 return 'graded'
@@ -64,15 +64,16 @@ export default {
                 return 'empty'
             }
 
-            if (!isGrader && entry && !entry.published && this.deadlineHasPassed) {
-                return 'grading'
+            if (!isGrader && entry && !entry.published) {
+                return 'awaiting_grade'
             }
-            if (!isGrader && entry && !entry.published && !this.deadlineHasPassed) {
-                return ''
+
+            if (isGrader && entry && !entry.grade) {
+                return 'needs_grading'
             }
 
             if (isGrader && entry && !entry.published) {
-                return 'needsgrading'
+                return 'needs_publishing'
             }
 
             return ''

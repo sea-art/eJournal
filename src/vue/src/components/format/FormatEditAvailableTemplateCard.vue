@@ -26,7 +26,7 @@ export default {
     },
     methods: {
         emitDeleteTemplate () {
-            if (confirm('Are you sure you wish to delete this template?')) {
+            if (confirm('Are you sure you want to delete template "' + this.template + '" from this format?')) {
                 this.$emit('delete-template', this.template)
             }
         }

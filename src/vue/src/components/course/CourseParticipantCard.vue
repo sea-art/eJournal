@@ -6,8 +6,8 @@
                     <img class="profile-picture" :src="portraitPath">
                 </b-col>
                 <b-col cols="9">
-                    <b>{{ name }}</b> ({{ selectedRole }})<br/>
-                    {{ studentNumber }}
+                    <b>{{ fullName }}</b> ({{ selectedRole }})<br/>
+                    {{ userName }}
                 </b-col>
             </b-col>
             <b-col sm="12" lg="4">
@@ -47,10 +47,10 @@ export default {
         index: {
             required: true
         },
-        studentNumber: {
+        userName: {
             required: true
         },
-        name: {
+        fullName: {
             required: true
         },
         portraitPath: {
@@ -69,7 +69,7 @@ export default {
     },
     methods: {
         removeFromCourse () {
-            if (confirm('Are you sure you want to remove ' + name + '?')) {
+            if (confirm('Are you sure you want to remove "' + name + '" from this course?')) {
                 courseApi.delete_user_from_course(this.uID, this.cID)
                     .then(response => {
                         this.$emit('delete-participant', this.role,

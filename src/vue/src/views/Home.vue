@@ -28,15 +28,11 @@
         <b-card v-if="this.$root.canAddCourse()"
                 class="no-hover"
                 slot="right-content-column">
-                <b-row>
-                    <b-col lg="6" sm="6">
-                        <b-form-select v-model="selectedSortOption" :select-size="1">
-                           <option :value="null">Sort by ...</option>
-                           <option value="sortDate">Sort by date</option>
-                           <option value="sortNeedsMarking">Sort by markings needed</option>
-                        </b-form-select>
-                    </b-col>
-                </b-row>
+            <b-form-select v-model="selectedSortOption" :select-size="1">
+                <option :value="null">Sort by ...</option>
+                <option value="sortDate">Sort by date</option>
+                <option value="sortNeedsMarking">Sort by markings needed</option>
+            </b-form-select>
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">

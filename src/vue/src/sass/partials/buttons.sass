@@ -1,4 +1,7 @@
+@import '~sass/partials/shadows.sass'
+
 .btn
+    @extend .small-shadow
     font-family: 'Roboto Condensed', sans-serif
     font-size: 1.2em
     background-color: white
@@ -24,6 +27,8 @@
     height: 40px
 
 .add-button
+    svg
+        fill: $theme-positive-selected !important
     &:hover, &:active
         background-color: $theme-positive-selected !important
 
@@ -33,10 +38,14 @@
         opacity: 1
 
 .delete-button
+    svg
+        fill: $theme-negative-selected !important
     &:hover, &:active
         background-color: $theme-negative-selected !important
 
 .change-button
+    svg
+        fill: $theme-change-selected !important
     &:hover, &:active
         background-color: $theme-change-selected !important
 

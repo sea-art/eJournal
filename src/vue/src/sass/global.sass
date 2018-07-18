@@ -1,6 +1,7 @@
 @import '~sass/modules/colors.sass'
 @import '~sass/modules/breakpoints.sass'
 
+@import '~sass/partials/shadows.sass'
 @import '~sass/partials/buttons.sass'
 @import '~sass/partials/cards.sass'
 @import '~sass/partials/columns.sass'
@@ -12,7 +13,6 @@
 @import '~sass/partials/inputs.sass'
 @import '~sass/partials/paragraph.sass'
 @import '~sass/partials/select.sass'
-@import '~sass/partials/shadows.sass'
 
 @import '~sass/vendor/fonts.sass'
 
@@ -34,6 +34,13 @@
 
 .full-width
     width: 100%
+
+.unselectable
+    -moz-user-select: -moz-none
+    -khtml-user-select: none
+    -webkit-user-select: none
+    -o-user-select: none
+    user-select: none
 
 .error
     background-color: $theme-negative-selected !important

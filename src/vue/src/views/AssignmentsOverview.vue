@@ -4,7 +4,7 @@
 
         <b-card class="no-hover" slot="main-content-column">
                 <b-row>
-                    <b-col lg="4" sm="6">
+                    <b-col sm="6">
                         <b-form-select v-model="selectedSortOption" :select-size="1">
                            <option :value="null">Sort by ...</option>
                            <option value="sortDate">Sort by date</option>
@@ -13,8 +13,8 @@
                                    value="sortNeedsMarking">Sort by markings needed</option>
                         </b-form-select>
                     </b-col>
-                    <b-col cols="6">
-                        <input class="theme-input" type="text" v-model="searchVariable" placeholder="Search .."/>
+                    <b-col sm="6">
+                        <input class="theme-input full-width" type="text" v-model="searchVariable" placeholder="Search .."/>
                     </b-col>
                 </b-row>
         </b-card>

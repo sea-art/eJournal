@@ -44,7 +44,7 @@
                             Next
                             <icon name="arrow-right"/>
                         </b-button>
-                        <b-button class="multi-form flex-grow-1" @click="publishGradesJournal">
+                        <b-button class="add-button multi-form flex-grow-1" @click="publishGradesJournal">
                             <icon name="upload"/>
                             Publish All Grades
                         </b-button>
@@ -100,7 +100,6 @@ export default {
             })
 
         if (store.state.filteredJournals.length === 0) {
-            console.log(this.cID)
             if (this.$router.app.canViewAssignmentParticipants()) {
                 journal.get_assignment_journals(this.aID)
                     .then(response => {
@@ -188,17 +187,19 @@ export default {
             }
         },
         publishGradesJournal () {
-            journal.update_publish_grades_journal(this.jID, 1)
-                .then(_ => {
-                    this.$toasted.success('All the grades for this journal are published.')
-                })
-                .catch(_ => {
-                    this.$toasted.error('Error publishing all grades for this journal')
-                })
+            if (confirm('Are you sure you want to publish all grades for this journal?')) {
+                journal.update_publish_grades_journal(this.jID, 1)
+                    .then(_ => {
+                        this.$toasted.success('Published all grades for this journal.')
+                    })
+                    .catch(_ => {
+                        this.$toasted.error('Error while publishing all grades for this journal.')
+                    })
 
-            for (var node of this.nodes) {
-                if (node.type === 'e' || node.type === 'd') {
-                    node.entry.published = true
+                for (var node of this.nodes) {
+                    if (node.type === 'e' || node.type === 'd') {
+                        node.entry.published = true
+                    }
                 }
             }
         },

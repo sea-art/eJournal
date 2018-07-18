@@ -26,11 +26,11 @@
                 @dismissed="dismissCountDown=0">
                 Please fill in every field.
             </b-alert>
+            <b-button class="add-button float-right" @click="save">
+                <icon name="paper-plane"/>
+                Post Entry
+            </b-button>
         </b-card>
-        <b-button class="add-button float-right" @click="save">
-            <icon name="paper-plane"/>
-            Post Entry
-        </b-button>
     </div>
 </template>
 

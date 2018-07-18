@@ -67,7 +67,7 @@ export default {
             this.template.fields.push(newField)
         },
         removeField (location) {
-            if (confirm('Are you sure you want to remove \'' + this.template.fields[location].title + '\'?')) {
+            if (confirm('Are you sure you want to remove "' + this.template.fields[location].title + '" from this template?')) {
                 this.template.fields.splice(location, 1)
             }
 

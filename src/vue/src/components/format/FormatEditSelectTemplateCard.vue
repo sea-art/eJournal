@@ -82,7 +82,7 @@ export default {
     methods: {
         emitDeletePreset () {
             this.$emit('changed')
-            if (confirm('Are you sure you wish to delete this preset?')) {
+            if (confirm('Are you sure you want to remove this preset from this format?')) {
                 this.$emit('delete-preset')
             }
         },

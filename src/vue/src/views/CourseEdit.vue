@@ -24,12 +24,6 @@
 
                 <b-row>
                     <b-col class="d-flex flex-wrap">
-                        <b-button class="add-button flex-grow-1 multi-form"
-                                  type="submit"
-                                  v-if="this.$root.canEditCourse()">
-                            <icon name="save"/>
-                            Save
-                        </b-button>
                         <b-button v-if="this.$root.canDeleteCourse()"
                                   @click.prevent.stop="deleteCourse()"
                                   class="delete-button flex-grow-1 multi-form">
@@ -40,7 +34,13 @@
                                   @click.prevent.stop="routeToEditCourseRoles"
                                   class="change-button flex-grow-1 multi-form">
                             <icon name="users"/>
-                            Manage Role Permissions
+                            Manage Roles and Permissions
+                        </b-button>
+                        <b-button class="add-button flex-grow-1 multi-form"
+                                  type="submit"
+                                  v-if="this.$root.canEditCourse()">
+                            <icon name="save"/>
+                            Save
                         </b-button>
                     </b-col>
                 </b-row>
@@ -75,8 +75,8 @@
             :cID="cID"
             :uID="p.uID"
             :index="i"
-            :studentNumber="p.name"
-            :name="p.first_name + ' ' + p.last_name"
+            :userName="p.name"
+            :fullName="p.first_name + ' ' + p.last_name"
             :portraitPath="p.picture"
             :role="p.role"/>
 
@@ -86,7 +86,8 @@
              :key="p.uID"
              :cID="cID"
              :uID="p.uID"
-             :name="p.name"
+             :userName="p.name"
+             :fullName="p.first_name + ' ' + p.last_name"
              :portraitPath="p.picture"/>
 
     </content-single-column>
