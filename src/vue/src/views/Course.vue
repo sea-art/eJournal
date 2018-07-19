@@ -68,7 +68,8 @@ import progressBar from '@/components/ProgressBar.vue'
 import assignment from '@/api/assignment.js'
 import mainCard from '@/components/MainCard.vue'
 import createAssignment from '@/components/CreateAssignment.vue'
-import courseApi from '@/api/course.js'
+
+import auth from '@/api/auth.js'
 
 export default {
     name: 'Course',
@@ -101,14 +102,14 @@ export default {
     created () {
         this.loadAssignments()
 
-        courseApi.get_upcoming_course_deadlines(this.cID)
-            .then(response => {
-                this.deadlines = response
-            })
+        // courseApi.get_upcoming_course_deadlines(this.cID)
+        //     .then(response => {
+        //         this.deadlines = response
+        //     })
     },
     methods: {
         loadAssignments () {
-            assignment.get_course_assignments(this.cID)
+            auth.get('assignments/' + this.cID)
                 .then(response => { this.assignments = response })
         },
         showModal (ref) {

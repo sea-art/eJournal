@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+
 import Home from '@/views/Home'
 import Test from '@/views/Test'
 import Journal from '@/views/Journal'
@@ -11,7 +12,6 @@ import Login from '@/views/Login'
 import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
 import AssignmentsOverview from '@/views/AssignmentsOverview'
-import permissionsApi from '@/api/permissions.js'
 import ErrorPage from '@/views/ErrorPage'
 import CourseEdit from '@/views/CourseEdit'
 import AssignmentEdit from '@/views/AssignmentEdit'
@@ -19,7 +19,8 @@ import UserRoleConfiguration from '@/views/UserRoleConfiguration'
 import FormatEdit from '@/views/FormatEdit'
 import LtiLogin from '@/views/LtiLogin'
 import Logout from '@/views/Logout'
-import authAPI from '@/api/auth.js'
+
+import auth from '@/api/auth.js'
 
 Vue.use(Router)
 
@@ -114,7 +115,7 @@ router.beforeEach((to, from, next) => {
 
     /* If undefined, this means this is a hard refresh, therefore we have to call up the state. */
     if (router.app.validToken === undefined) {
-        authAPI.testValidToken().catch(_ => console.error('Token not valid'))
+        auth.testValidToken().catch(_ => console.error('Token not valid'))
     }
 
     if (to.matched.length === 0) {
@@ -128,24 +129,24 @@ router.beforeEach((to, from, next) => {
         if (router.app.validToken) {
             return next({name: 'Home'})
         } else {
-            return authAPI.testValidToken()
+            return auth.testValidToken()
                 .then(_ => next({name: 'Home'}))
                 .catch(_ => next())
         }
-    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage', 'Assignment'].includes(to.name)) {
+    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage'].includes(to.name)) {
         return next()
     }
 
-    var params
+    var cID
     if (to.params.cID) {
-        params = to.params.cID
+        cID = to.params.cID
     } else {
         /* -1 is used to indicate that the course ID (cID) is not known. This
         is used for sitewide permissions. */
-        params = -1
+        cID = -1
     }
 
-    permissionsApi.get_course_permissions(params)
+    auth.get('roles/' + cID)
         .then(response => {
             router.app.permissions = response
         })

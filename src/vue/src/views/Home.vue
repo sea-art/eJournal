@@ -11,7 +11,7 @@
             <b-link :to="{name: 'Course', params: {cID: c.id, courseName: c.name}}">
                 <main-card
                     :line1="c.name"
-                    :line2="c.startdate.substring(0, 4) + '-' + c.enddate.substring(0, 4)"
+                    :line2="c.startdate ? (c.startdate.substring(0, 4) + (c.enddate ? ' - ' + c.enddate.substring(0, 4) : '')) : ''"
                     :color="$root.colors[c.id % $root.colors.length]">
                 </main-card>
             </b-link>
@@ -79,8 +79,7 @@ import mainCard from '@/components/MainCard.vue'
 import todoCard from '@/components/TodoCard.vue'
 import createCourse from '@/components/CreateCourse.vue'
 import editHome from '@/components/EditHome.vue'
-import course from '@/api/course'
-// import assignmentApi from '@/api/assignment.js'
+import auth from '@/api/auth'
 
 export default {
     name: 'Home',
@@ -111,7 +110,7 @@ export default {
     },
     methods: {
         loadCourses () {
-            course.getCourses().then(courses => { this.courses = courses })
+            auth.get('courses').then(courses => { this.courses = courses })
         },
         deleteCourse (courseID, courseName) {
             if (confirm('Are you sure you want to delete ' + courseName + '?')) {

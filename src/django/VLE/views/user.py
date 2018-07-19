@@ -72,12 +72,15 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            user = User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            return response.not_found('user')
+        if int(pk) is not 0:
+            try:
+                user = User.objects.get(pk=pk)
+            except User.DoesNotExist:
+                return response.not_found('user')
+        else:
+            user = request.user
 
-        if request.user.pk is int(pk):
+        if request.user is user:
             serializer = OwnUserSerializer(user, many=False)
         else:
             serializer = self.serializer_class(user, many=False)

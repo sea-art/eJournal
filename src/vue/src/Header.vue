@@ -44,8 +44,7 @@
 
 <script>
 import icon from 'vue-awesome/components/Icon'
-import authAPI from '@/api/auth.js'
-import userAPI from '@/api/user.js'
+import auth from '@/api/auth.js'
 
 export default {
     components: {
@@ -68,11 +67,11 @@ export default {
     },
     methods: {
         handleLogout () {
-            authAPI.logout()
+            auth.logout()
             this.$router.push({ name: 'Guest' })
         },
         handleLogin () {
-            authAPI.login(this.username, this.password)
+            auth.login(this.username, this.password)
                 .then(_ => {
                     this.setUserProfile()
                     this.$router.push({name: 'Home'})
@@ -82,7 +81,7 @@ export default {
                 })
         },
         setUserProfile () {
-            userAPI.getOwnUserData()
+            auth.get('users/0')
                 .then(user => {
                     this.profile = user
                     this.setProfileImg()

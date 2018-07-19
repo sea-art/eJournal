@@ -13,7 +13,6 @@ from VLE.models import Course, User, Role, Journal
 import VLE.permissions as permissions
 import VLE.utils as utils
 import VLE.factory as factory
-from VLE.views.roles import RoleView
 
 
 class CourseView(viewsets.ViewSet):
@@ -247,16 +246,6 @@ class CourseView(viewsets.ViewSet):
         serializer = UserSerializer(queryset, many=True)
         # TODO: Include role of participation
         return response.success(serializer.data)
-
-    @action(methods=['get', 'patch'], detail=True)
-    def roles(self, request, pk):
-        if request.method == 'GET':
-            return RoleView.list(request, pk)
-        elif request.method == 'PATCH':
-            return RoleView.partial_update(request, pk)
-        elif request.method == 'post':
-            return RoleView.create(request, pk)
-        return response.bad_request('Invalid method')
 
     @action(methods=['get'], detail=False)
     def is_teacher(self, request):

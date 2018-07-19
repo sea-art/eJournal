@@ -1,4 +1,6 @@
 
+from rest_framework import viewsets
+
 import VLE.permissions as permissions
 import VLE.views.responses as response
 from VLE.serializers import RoleSerializer
@@ -6,8 +8,8 @@ from VLE.models import Course, Role
 import VLE.factory as factory
 
 
-class RoleView(object):
-    def list(request, pk):
+class RoleView(viewsets.ViewSet):
+    def list(self, request, pk):
         """Get course roles.
 
         Arguments:
@@ -40,7 +42,7 @@ class RoleView(object):
         serializer = RoleSerializer(roles, many=True)
         return response.success(serializer.data)
 
-    def partial_update(request, pk):
+    def partial_update(self, request, pk):
         """Updates course roles.
 
         Arguments:
@@ -86,7 +88,37 @@ class RoleView(object):
             resp.append(serializer.data)
         return response.success(resp)
 
-    def create(request, pk):
+    def retrieve(self, request, pk):
+        """Get the permissions of a course.
+
+        Arguments:
+        request -- the request that was sent
+        pk -- course ID
+
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+            not found -- when the course is not found
+            forbidden -- when the user is not in the course
+        On success:
+            success -- with a list of the permissions
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+
+        try:
+            if int(pk) > 0:
+                Course.objects.get(pk=pk)
+        except Course.DoesNotExist:
+            return response.not_found('asdfCourse')
+
+        roleDict = permissions.get_permissions(request.user, int(pk))
+        if not roleDict:
+            return response.forbidden('You are not participating in this course')
+
+        return response.success(roleDict)
+
+    def create(self, request, pk):
         """Create course role.
 
         Arguments:
@@ -125,7 +157,7 @@ class RoleView(object):
         serializer = RoleSerializer(role, many=False)
         return response.created(serializer.data, obj='role')
 
-    def destroy(request, pk):
+    def destroy(self, request, pk):
         """Delete course role.
 
         Arguments:
