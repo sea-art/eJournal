@@ -205,17 +205,17 @@ class AssignmentView(viewsets.ViewSet):
 
         # Assignments can only be deleted with can_delete_assignment permission.
         role = permissions.get_role(request.user, course)
-        if role is None:
+        if not role:
             return response.forbidden(description="You have no access to this course")
-        elif not role.can_delete_assignment:
-            return response.forbidden(description="You have no permissions to delete a assignment.")
+        if not role.can_delete_assignment:
+            return response.forbidden(description="You have no permissions to delete this assignment.")
 
-        response = {'removed_completely': False}
+        data = {'removed_completely': False}
         assignment.courses.remove(course)
         assignment.save()
-        response['removed_from_course'] = True
+        data['removed_from_course'] = True
         if assignment.courses.count() == 0:
             assignment.delete()
-            response['removed_completely'] = True
+            data['removed_completely'] = True
 
-        return response.success(message='assignment', payload=response)
+        return response.success(data, description='Removed assignment')
