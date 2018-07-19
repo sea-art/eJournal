@@ -21,7 +21,10 @@
                 </div>
                 <div class="invisible"></div>
             </draggable>
-            <b-card class="add-card" @click="addField">+ Add field</b-card>
+            <b-button class="add-button full-width" @click="addField">
+                <icon name="plus"/>
+                Add field
+            </b-button>
         </b-card>
     </div>
 </template>

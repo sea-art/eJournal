@@ -25,7 +25,7 @@
 
         <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
             <h3>Journal</h3>
-            <b-card class="no-hover journal-controls">
+            <b-card class="no-hover">
                 <b-row>
                     <b-col md="6" lg="12" class="d-flex flex-wrap">
                         <b-button
@@ -50,8 +50,7 @@
                         </b-button>
                     </b-col>
                     <b-col md="6" lg="12">
-                        <!-- TODO: Use actual journal data. -->
-                        <progress-bar :currentPoints="5" :totalPoints="10"/>
+                        <progress-bar v-if="curJournal" :currentPoints="curJournal.stats.acquired_points" :totalPoints="curJournal.stats.total_points"/>
                     </b-col>
                 </b-row>
             </b-card>
@@ -65,7 +64,7 @@ import entryNonStudentPreview from '@/components/entry/EntryNonStudentPreview.vu
 import addCard from '@/components/journal/AddCard.vue'
 import edag from '@/components/edag/Edag.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import journal from '@/api/journal'
+import journalApi from '@/api/journal'
 import store from '@/Store.vue'
 import icon from 'vue-awesome/components/Icon'
 import progressBar from '@/components/assets/ProgressBar.vue'
@@ -79,13 +78,13 @@ export default {
             nodes: [],
             progressNodes: {},
             assignmentJournals: [],
-            selectedSortOption: 'sortName',
+            selectedSortOption: 'sortUserName',
             searchVariable: '',
             query: {}
         }
     },
     created () {
-        journal.get_nodes(this.jID)
+        journalApi.get_nodes(this.jID)
             .then(response => {
                 this.nodes = response.nodes
                 if (this.$route.query.nID !== undefined) {
@@ -101,14 +100,14 @@ export default {
 
         if (store.state.filteredJournals.length === 0) {
             if (this.$router.app.canViewAssignmentParticipants()) {
-                journal.get_assignment_journals(this.aID)
+                journalApi.get_assignment_journals(this.aID)
                     .then(response => {
                         this.assignmentJournals = response.journals
                     })
             }
 
-            if (this.$route.query.sort === 'sortName' ||
-                this.$route.query.sort === 'sortID' ||
+            if (this.$route.query.sort === 'sortFullName' ||
+                this.$route.query.sort === 'sortUsername' ||
                 this.$route.query.sort === 'sortMarking') {
                 this.selectedSortOption = this.$route.query.sort
             }
@@ -134,7 +133,7 @@ export default {
         selectNode ($event) {
             /* Function that prevents you from instant leaving an EntryNode
              * or a DeadlineNode when clicking on a different node in the
-             * tree. */
+             * timeline. */
             if ($event === this.currentNode) {
                 return this.currentNode
             }
@@ -154,8 +153,8 @@ export default {
             this.currentNode = $event
         },
         addNode (infoEntry) {
-            journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
-                .then(_ => journal.get_nodes(this.jID)
+            journalApi.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
+                .then(_ => journalApi.get_nodes(this.jID)
                     .then(response => { this.nodes = response.nodes })
                     .catch(_ => this.$toasted.error('Error while loading nodes.')))
         },
@@ -188,7 +187,7 @@ export default {
         },
         publishGradesJournal () {
             if (confirm('Are you sure you want to publish all grades for this journal?')) {
-                journal.update_publish_grades_journal(this.jID, 1)
+                journalApi.update_publish_grades_journal(this.jID, 1)
                     .then(_ => {
                         this.$toasted.success('Published all grades for this journal.')
                     })
@@ -222,12 +221,12 @@ export default {
         },
         findIndex (array, property, value) {
             for (var i = 0; i < array.length; i++) {
-                if (array[i][property] === value) {
+                if (String(array[i][property]) === String(value)) {
                     return i
                 }
             }
 
-            return -1
+            return false
         }
     },
     components: {
@@ -244,16 +243,18 @@ export default {
         filteredJournals: function () {
             let self = this
 
-            // TODO: add better compare functions
-            function compareName (a, b) {
-                if (a.student.name < b.student.name) { return -1 }
-                if (a.student.name > b.student.name) { return 1 }
+            function compareFullName (a, b) {
+                var fullNameA = a.student.first_name + ' ' + a.student.last_name
+                var fullNameB = b.student.first_name + ' ' + b.student.last_name
+
+                if (fullNameA < fullNameB) { return -1 }
+                if (fullNameA > fullNameB) { return 1 }
                 return 0
             }
 
-            function compareID (a, b) {
-                if (a.student.uID < b.student.uID) { return -1 }
-                if (a.student.uID > b.student.uID) { return 1 }
+            function compareUsername (a, b) {
+                if (a.student.name < b.student.name) { return -1 }
+                if (a.student.name > b.student.name) { return 1 }
                 return 0
             }
 
@@ -264,11 +265,12 @@ export default {
             }
 
             function checkFilter (user) {
-                var userName = user.student.name.toLowerCase()
-                var userID = String(user.student.uID).toLowerCase()
+                var username = user.student.name.toLowerCase()
+                var fullName = user.student.first_name.toLowerCase() + ' ' + user.student.last_name.toLowerCase()
+                var searchVariable = self.searchVariable.toLowerCase()
 
-                if (userName.includes(self.searchVariable.toLowerCase()) ||
-                userID.includes(self.searchVariable)) {
+                if (username.includes(searchVariable) ||
+                    fullName.includes(searchVariable)) {
                     return true
                 } else {
                     return false
@@ -277,10 +279,10 @@ export default {
 
             if (store.state.filteredJournals.length === 0) {
                 /* Filter list based on search input. */
-                if (this.selectedSortOption === 'sortName') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareName))
-                } else if (this.selectedSortOption === 'sortID') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareID))
+                if (this.selectedSortOption === 'sortFullName') {
+                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareFullName))
+                } else if (this.selectedSortOption === 'sortUsername') {
+                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareUsername))
                 } else if (this.selectedSortOption === 'sortMarking') {
                     store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded))
                 }
@@ -295,6 +297,11 @@ export default {
             var prevIndex = (curIndex - 1 + this.filteredJournals.length) % this.filteredJournals.length
 
             return this.filteredJournals[prevIndex]
+        },
+        curJournal () {
+            var curIndex = this.findIndex(this.filteredJournals, 'jID', this.jID)
+
+            return this.filteredJournals[curIndex]
         },
         nextJournal () {
             var curIndex = this.findIndex(this.filteredJournals, 'jID', this.jID)

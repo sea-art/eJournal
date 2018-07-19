@@ -7,7 +7,7 @@
                 </b-col>
                 <b-col cols="9">
                     <b>{{ fullName }}</b> ({{ selectedRole }})<br/>
-                    {{ userName }}
+                    {{ username }}
                 </b-col>
             </b-col>
             <b-col sm="12" lg="4">
@@ -47,7 +47,7 @@ export default {
         index: {
             required: true
         },
-        userName: {
+        username: {
             required: true
         },
         fullName: {
@@ -73,11 +73,11 @@ export default {
                 courseApi.delete_user_from_course(this.uID, this.cID)
                     .then(response => {
                         this.$emit('delete-participant', this.role,
-                            this.name,
+                            this.username,
                             this.portraitPath,
                             this.uID)
                     })
-                    .catch(_ => this.$toasted.error('Error while deleting user from course'))
+                    .catch(_ => this.$toasted.error('Error while removing user from course'))
             }
         }
     },

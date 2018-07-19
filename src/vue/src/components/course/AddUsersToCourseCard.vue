@@ -2,7 +2,7 @@
     <b-card :class="$root.getBorderClass(uID)" class="no-hover">
         <div class="float-left">
             <b>{{ fullName }}</b><br>
-            {{ userName }}
+            {{ username }}
         </div>
         <b-button v-if="this.$root.canEditCourse"
                   @click.prevent.stop="addUserToCourse()"
@@ -25,7 +25,7 @@ export default {
         uID: {
             required: true
         },
-        userName: {
+        username: {
             required: true
         },
         fullName: {
@@ -37,11 +37,11 @@ export default {
     },
     methods: {
         addUserToCourse () {
-            if (confirm('Are you sure you want to add "' + this.name + '" to this course?')) {
+            if (confirm('Are you sure you want to add "' + this.fullName + '" to this course?')) {
                 courseApi.update_course_with_student(this.uID, this.cID)
                     .then(response => {
                         this.$emit('add-participant', 'Student',
-                            this.name,
+                            this.username,
                             this.portraitPath,
                             this.uID)
                     })

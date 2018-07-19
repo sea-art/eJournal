@@ -53,8 +53,8 @@
                     <b-col sm="6" class="d-flex flex-wrap">
                         <b-form-select class="flex-grow-1 multi-form" v-model="selectedSortOption" :select-size="1">
                            <option :value="null">Sort by ...</option>
-                           <option value="sortName">Sort by name</option>
-                           <option value="sortID">Sort by ID</option>
+                           <option value="sortFullName">Sort by name</option>
+                           <option value="sortUsername">Sort by username</option>
                         </b-form-select>
                     </b-col>
                     <b-col sm="6" class="d-flex flex-wrap">
@@ -67,7 +67,6 @@
                 <input class="multi-form theme-input full-width" type="text" v-model="searchVariable" placeholder="Search .."/>
         </b-card>
 
-        <!-- TODO PROVIDE FULL NAME AND STUDENTNUMBER DATABASE BOYS -->
         <course-participant-card v-if="selectedView == 'enrolled'"
                                  @delete-participant="deleteParticipantLocally"
                                  v-for="(p, i) in filteredUsers"
@@ -75,7 +74,7 @@
             :cID="cID"
             :uID="p.uID"
             :index="i"
-            :userName="p.name"
+            :username="p.name"
             :fullName="p.first_name + ' ' + p.last_name"
             :portraitPath="p.picture"
             :role="p.role"/>
@@ -83,12 +82,12 @@
         <add-user-card v-if="selectedView == 'unenrolled'"
                                  @add-participant="addParticipantLocally"
                                  v-for="p in filteredUsers"
-             :key="p.uID"
-             :cID="cID"
-             :uID="p.uID"
-             :userName="p.name"
-             :fullName="p.first_name + ' ' + p.last_name"
-             :portraitPath="p.picture"/>
+            :key="p.uID"
+            :cID="cID"
+            :uID="p.uID"
+            :username="p.name"
+            :fullName="p.first_name + ' ' + p.last_name"
+            :portraitPath="p.picture"/>
 
     </content-single-column>
 </template>
@@ -179,7 +178,8 @@ export default {
             this.participants.push({ 'role': role,
                 'name': name,
                 'picture': picture,
-                'uID': uID })
+                'uID': uID
+            })
         },
         loadUnenrolledStudents () {
             courseApi.get_unenrolled_users(this.cID)
@@ -199,36 +199,35 @@ export default {
         filteredUsers: function () {
             let self = this
 
-            function compareName (a, b) {
+            function compareFullName (a, b) {
+                var fullNameA = a.first_name + ' ' + a.last_name
+                var fullNameB = b.first_name + ' ' + b.last_name
+
+                if (fullNameA < fullNameB) { return -1 }
+                if (fullNameA > fullNameB) { return 1 }
+                return 0
+            }
+
+            function compareUsername (a, b) {
                 if (a.name < b.name) { return -1 }
                 if (a.name > b.name) { return 1 }
                 return 0
             }
 
-            function compareID (a, b) {
-                if (a.uID < b.uID) { return -1 }
-                if (a.uID > b.uID) { return 1 }
-                return 0
-            }
-
-            function filterTeacher (user) {
-                return user.role !== 'Teacher'
-            }
-
             function checkFilter (user) {
-                var userName = user.name.toLowerCase()
-                var userID = String(user.uID).toLowerCase()
+                var username = user.name.toLowerCase()
+                var fullName = user.first_name.toLowerCase() + ' ' + user.last_name.toLowerCase()
+                var searchVariable = self.searchVariable.toLowerCase()
 
-                if (userName.includes(self.searchVariable.toLowerCase()) ||
-                    userID.includes(self.searchVariable)) {
+                if (username.includes(searchVariable) ||
+                    fullName.includes(searchVariable)) {
                     return true
                 } else {
                     return false
                 }
             }
 
-            /* Filter list on teachers. */
-            var viewList = this.participants.filter(filterTeacher)
+            var viewList = this.participants
 
             /* Switch view list with drop down menu and load unenrolled
                students when accessing other students at first time. */
@@ -240,10 +239,10 @@ export default {
             }
 
             /* Filter list based on search input. */
-            if (this.selectedSortOption === 'sortName') {
-                return viewList.filter(checkFilter).sort(compareName)
-            } else if (this.selectedSortOption === 'sortID') {
-                return viewList.filter(checkFilter).sort(compareID)
+            if (this.selectedSortOption === 'sortFullName') {
+                return viewList.filter(checkFilter).sort(compareFullName)
+            } else if (this.selectedSortOption === 'sortUsername') {
+                return viewList.filter(checkFilter).sort(compareUsername)
             } else {
                 return viewList.filter(checkFilter)
             }

@@ -6,9 +6,9 @@
 <template>
     <div v-if="entryNode.entry !== null">
         <b-card class="entry-card no-hover entry-card-teacher" :class="$root.getBorderClass($route.params.cID)">
-            <div v-if="$root.canGradeJournal()" class="grade-section shadow no-hover">
+            <div v-if="$root.canGradeJournal()" class="grade-section shadow">
                 <b-form-input class="theme-input" type="number" size="2" v-model="grade" placeholder="0" min=0></b-form-input>
-                <b-form-checkbox v-model="status" value=true unchecked-value=false data-toggle="tooltip" title="Show grade to student">
+                <b-form-checkbox v-model="published" value=true unchecked-value=false data-toggle="tooltip" title="Show grade to student">
                     Publish
                 </b-form-checkbox>
                 <b-button class="add-button" @click="commitGrade">
@@ -16,7 +16,7 @@
                     Save
                 </b-button>
             </div>
-            <div v-else class="grade-section shadow no-hover">
+            <div v-else class="grade-section shadow">
                 <span v-if="tempNode.entry.published">
                     {{ entryNode.entry.grade }}
                 </span>
@@ -60,30 +60,35 @@ export default {
         return {
             tempNode: this.entryNode,
             completeContent: [],
-            grade: this.entryNode.entry.grade,
-            status: this.entryNode.entry.published
+            grade: null,
+            published: null
         }
     },
     watch: {
-        entryNode: function () {
+        entryNode () {
             this.completeContent = []
             this.setContent()
             this.tempNode = this.entryNode
 
             if (this.entryNode.entry !== null) {
                 this.grade = this.entryNode.entry.grade
-                this.status = this.entryNode.entry.published
+                this.published = this.entryNode.entry.published
             } else {
                 this.grade = null
-                this.status = true
+                this.published = true
             }
         }
     },
     created () {
         this.setContent()
+
+        if (this.entryNode.entry) {
+            this.grade = this.entryNode.entry.grade
+            this.published = this.entryNode.entry.published
+        }
     },
     methods: {
-        setContent: function () {
+        setContent () {
             /* Loads in the data of an entry in the right order by matching
              * the different data-fields with the corresponding template-IDs. */
             var checkFound = false
@@ -113,12 +118,12 @@ export default {
                 }
             }
         },
-        commitGrade: function () {
+        commitGrade () {
             if (this.grade !== null) {
                 this.tempNode.entry.grade = this.grade
-                this.tempNode.entry.published = (this.status === 'true' || this.status === true)
+                this.tempNode.entry.published = (this.published === 'true' || this.published === true)
 
-                if (this.status === 'true' || this.status === true) {
+                if (this.published === 'true' || this.published === true) {
                     journalApi.update_grade_entry(this.entryNode.entry.eID, this.grade, 1)
                         .then(_ => {
                             this.$toasted.success('Grade updated and published.')

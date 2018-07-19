@@ -5,8 +5,8 @@
             <b-row>
                 <b-col sm="6">
                     <b-form-select class="multi-form" v-model="selectedSortOption" :select-size="1">
-                       <option value="sortName">Sort by name</option>
-                       <option value="sortID">Sort by ID</option>
+                       <option value="sortFullName">Sort by name</option>
+                       <option value="sortUsername">Sort by username</option>
                        <option value="sortMarking">Sort by marking needed</option>
                     </b-form-select>
                 </b-col>
@@ -80,7 +80,7 @@ export default {
         return {
             assignmentJournals: [],
             stats: [],
-            selectedSortOption: 'sortName',
+            selectedSortOption: 'sortUsername',
             searchVariable: '',
             query: {}
         }
@@ -109,8 +109,8 @@ export default {
                     })
             })
 
-        if (this.$route.query.sort === 'sortName' ||
-            this.$route.query.sort === 'sortID' ||
+        if (this.$route.query.sort === 'sortFullName' ||
+            this.$route.query.sort === 'sortUsername' ||
             this.$route.query.sort === 'sortMarking') {
             this.selectedSortOption = this.$route.query.sort
         }
@@ -157,30 +157,34 @@ export default {
         filteredJournals: function () {
             let self = this
 
-            function compareName (a, b) {
-                if (a.student.last_name < b.student.last_name) { return -1 }
-                if (a.student.last_name > b.student.last_name) { return 1 }
+            function compareFullName (a, b) {
+                var fullNameA = a.student.first_name + ' ' + a.student.last_name
+                var fullNameB = b.student.first_name + ' ' + b.student.last_name
+
+                if (fullNameA < fullNameB) { return -1 }
+                if (fullNameA > fullNameB) { return 1 }
                 return 0
             }
 
-            function compareID (a, b) {
+            function compareUsername (a, b) {
                 if (a.student.name < b.student.name) { return -1 }
                 if (a.student.name > b.student.name) { return 1 }
                 return 0
             }
 
             function compareMarkingNeeded (a, b) {
-                if (a.stats.submitted - a.stats.graded > b.stats.submitted - b.stats.graded) { return -1 }
-                if (a.stats.submitted - a.stats.graded < b.stats.submitted - b.stats.graded) { return 1 }
+                if (a.stats.submitted - a.stats.graded < b.stats.submitted - b.stats.graded) { return -1 }
+                if (a.stats.submitted - a.stats.graded > b.stats.submitted - b.stats.graded) { return 1 }
                 return 0
             }
 
             function checkFilter (user) {
-                var userName = (user.student.first_name + ' ' + user.student.lastname).toLowerCase()
-                var userID = user.student.name.toLowerCase()
+                var username = user.student.name.toLowerCase()
+                var fullName = user.student.first_name.toLowerCase() + ' ' + user.student.last_name.toLowerCase()
+                var searchVariable = self.searchVariable.toLowerCase()
 
-                if (userName.includes(self.searchVariable.toLowerCase()) ||
-                userID.includes(self.searchVariable)) {
+                if (username.includes(searchVariable) ||
+                    fullName.includes(searchVariable)) {
                     return true
                 } else {
                     return false
@@ -188,10 +192,10 @@ export default {
             }
 
             /* Filter list based on search input. */
-            if (this.selectedSortOption === 'sortName') {
-                store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareName))
-            } else if (this.selectedSortOption === 'sortID') {
-                store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareID))
+            if (this.selectedSortOption === 'sortFullName') {
+                store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareFullName))
+            } else if (this.selectedSortOption === 'sortUsername') {
+                store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareUsername))
             } else if (this.selectedSortOption === 'sortMarking') {
                 store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded))
             }

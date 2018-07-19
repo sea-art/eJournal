@@ -49,26 +49,18 @@ def get_max_points(journal):
     return journal.assignment.format.max_points
 
 
-def get_acquired_grade(entries, journal):
-    """Get the number of acquired points in an journal.
+def get_acquired_points(entries):
+    """Get the number of acquired points from a set of entries.
 
-    - journal: the journal in question.
+    - entries: the journal in question.
 
     Returns the total number of points depending on the grade type.
     """
-    format = journal.assignment.format
     total_grade = 0
-    if format.grade_type == 'GR':
-        count_graded = 0
-        for entry in entries:
-            if entry.published:
-                count_graded += 1
-                total_grade += entry.grade if entry.grade is not None else 0
-        return total_grade
-    else:
-        for entry in entries:
+    for entry in entries:
+        if entry.published:
             total_grade += entry.grade if entry.grade is not None else 0
-        return total_grade
+    return total_grade
 
 
 def get_submitted_count(entries):

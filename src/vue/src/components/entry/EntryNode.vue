@@ -9,9 +9,6 @@
     <div>
         <!-- Edit mode. -->
         <b-card v-if="saveEditMode == 'Save'" class="entry-card no-hover" :class="$root.getBorderClass(cID)">
-            <div class="template-name">
-                <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
-            </div>
             <div class="grade-section shadow">
                 <span v-if="entryNode.entry.published">
                     {{ entryNode.entry.grade }}
@@ -20,6 +17,7 @@
                     <icon name="hourglass-half"/>
                 </span>
             </div>
+            <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
             <!--
                 Shows every field description and
                 a corresponding form.
@@ -50,9 +48,6 @@
         </b-card>
         <!-- Overview mode. -->
         <b-card v-else class="entry-card no-hover" :class="$root.getBorderClass(cID)">
-            <div class="template-name">
-                <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
-            </div>
             <div class="grade-section shadow">
                 <span v-if="entryNode.entry.published">
                     {{ entryNode.entry.grade }}
@@ -61,6 +56,7 @@
                     <icon name="hourglass-half"/>
                 </span>
             </div>
+            <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
             <!--
                 Gives a view of every templatefield and
                 if possible the already filled in entry.

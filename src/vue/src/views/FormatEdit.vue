@@ -29,7 +29,11 @@
                     @changed="isChanged = true"/>
                 <main-card v-else class="no-hover" :line1="'No presets in format'" :class="'grey-border'"/>
 
-                <main-card class="add-card" v-on:click.native.prevent.stop="addNode" :line1="'+ Add preset to format'" :class="'grey-border'"/>
+                <!-- <main-card class="add-card"  :line1="'+ Add preset to format'" :class="'grey-border'"/> -->
+                <b-button class="add-button full-width" @click="addNode">
+                    <icon name="plus"/>
+                    Add New Preset to Format
+                </b-button>
 
                 <b-modal
                     ref="modal"

@@ -109,8 +109,10 @@ export default {
                 return 0
             }
 
-            function searchFilter (course) {
-                return course.name.toLowerCase().includes(self.searchVariable.toLowerCase())
+            function searchFilter (assignment) {
+                var searchVariable = self.searchVariable.toLowerCase()
+                return (assignment.name.toLowerCase().includes(searchVariable) ||
+                        assignment.courseAbbr.toLowerCase().includes(searchVariable))
             }
 
             if (this.selectedSortOption === 'sortName') {

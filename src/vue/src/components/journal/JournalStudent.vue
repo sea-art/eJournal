@@ -43,11 +43,20 @@
             </b-col>
         </b-col>
 
-        <b-col md="12" lg="4" xl="3" class="right-content-journal right-content">
-            <h3>Assignment Description</h3>
-            <b-card class="no-hover">
-                {{ assignmentDescription }}
-            </b-card>
+        <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
+            <h3>{{ assignmentName }}</h3>
+            <b-row>
+                <b-col md="6" lg="12" class="d-flex flex-wrap">
+                    <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+                        {{ assignmentDescription }}
+                    </b-card>
+                </b-col>
+                <b-col md="6" lg="12">
+                    <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+                        <progress-bar v-if="journal.stats" :currentPoints="journal.stats.acquired_points" :totalPoints="journal.stats.total_points"/>
+                    </b-card>
+                </b-col>
+            </b-row>
         </b-col>
     </b-row>
 </template>
@@ -58,9 +67,10 @@ import entryNode from '@/components/entry/EntryNode.vue'
 import addCard from '@/components/journal/AddCard.vue'
 import edag from '@/components/edag/Edag.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import journal from '@/api/journal'
+import journalApi from '@/api/journal'
 import entryPreview from '@/components/entry/EntryPreview.vue'
 import assignmentApi from '@/api/assignment.js'
+import progressBar from '@/components/assets/ProgressBar.vue'
 
 export default {
     props: ['cID', 'aID', 'jID'],
@@ -69,12 +79,14 @@ export default {
             currentNode: 0,
             editedData: ['', ''],
             nodes: [],
+            journal: {},
             progressNodes: {},
+            assignmentName: '',
             assignmentDescription: ''
         }
     },
     created () {
-        journal.get_nodes(this.jID)
+        journalApi.get_nodes(this.jID)
             .then(response => {
                 this.nodes = response.nodes
                 if (this.$route.query.nID !== undefined) {
@@ -89,8 +101,15 @@ export default {
             })
             .catch(_ => this.$toasted.error('Error while loading nodes.'))
 
+        journalApi.get_journal(this.jID)
+            .then(response => {
+                this.journal = response.journal
+            })
+            .catch(_ => this.$toasted.error('Error while loading journal data.'))
+
         assignmentApi.get_assignment_data(this.cID, this.aID)
             .then(response => {
+                this.assignmentName = response.name
                 this.assignmentDescription = response.description
             })
             .catch(_ => this.$toasted.error('Error while loading assignment description.'))
@@ -105,7 +124,7 @@ export default {
     methods: {
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData
-            journal.create_entry(this.jID, this.nodes[this.currentNode].entry.template.tID, editedData.entry.content, this.nodes[this.currentNode].nID)
+            journalApi.create_entry(this.jID, this.nodes[this.currentNode].entry.template.tID, editedData.entry.content, this.nodes[this.currentNode].nID)
                 .then(response => {
                     this.nodes = response.nodes
                     this.currentNode = response.added
@@ -114,7 +133,7 @@ export default {
         selectNode ($event) {
             /* Function that prevents you from instant leaving an EntryNode
              * or a DeadlineNode when clicking on a different node in the
-             * tree. */
+             * timeline. */
             if ($event === this.currentNode) {
                 return this.currentNode
             }
@@ -134,14 +153,14 @@ export default {
             this.currentNode = $event
         },
         addNode (infoEntry) {
-            journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
+            journalApi.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
                 .then(response => {
                     this.nodes = response.nodes
                     this.currentNode = response.added
                 })
         },
         fillDeadline (data) {
-            journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data, this.nodes[this.currentNode].nID)
+            journalApi.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data, this.nodes[this.currentNode].nID)
                 .then(response => {
                     this.nodes = response.nodes
                     this.currentNode = response.added
@@ -187,7 +206,8 @@ export default {
         'add-card': addCard,
         'edag': edag,
         'entry-node': entryNode,
-        'entry-preview': entryPreview
+        'entry-preview': entryPreview,
+        'progress-bar': progressBar
     }
 }
 </script>

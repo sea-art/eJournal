@@ -6,8 +6,8 @@
     <div>
         <div v-if="commentObject !== null">
             <div v-for="(comment, index) in commentObject.entrycomments" class="comment-section" :key="index">
-                <img class="profile-picture no-hover" :src="comment.author.picture">
 
+                <img class="profile-picture no-hover" :src="comment.author.picture">
                 <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                     <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b><br/>
                     <span class="show-enters">{{ comment.text }}</span>
