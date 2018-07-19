@@ -101,8 +101,11 @@ export default {
                 images_upload_handler: this.handleImageUpload,
 
                 plugins: [],
+                // external_plugins: {
+                //     'latex': '/node_modules/tinymce/plugins/latex/editor_plugin.js'
+                // },
 
-                toolbar1: '',
+                toolbar1: 'latex',
                 setup: function (editor) {
                     console.log(editor)
                     editor.addButton('fullscreentoggle', {

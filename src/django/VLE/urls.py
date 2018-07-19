@@ -18,6 +18,9 @@ Including another URLconf
 
 """
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 from django.contrib import admin
 from django.urls import path
 
@@ -103,3 +106,6 @@ urlpatterns = [
     path('lti/launch', get.lti_launch, name='lti_launch'),
     path('get_lti_params_from_jwt/<str:jwt_params>/', get.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),
 ]
+
+if settings.DEBUG is True:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
