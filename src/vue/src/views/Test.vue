@@ -34,7 +34,7 @@ function testCourses () {
         .catch(resp => console.log(resp))
     auth.update('courses/1', {name: 'Is PAV'})
         .then(resp => {
-            if (!resp || resp.name === 'Is PAV') {
+            if (!resp || resp.result.name !== 'Is PAV') {
                 console.log('update /courses/1 does not work')
                 console.log(resp)
             }
@@ -42,12 +42,20 @@ function testCourses () {
         .catch(resp => console.log(resp))
     auth.get('courses/1/users')
         .then(resp => {
-            if (!resp || resp.length < 4 || resp[0].id !== 6) {
+            if (!resp || resp.length < 4) {
                 console.log('get /courses/users does not work')
                 console.log(resp)
             }
         })
         .catch(resp => console.log(resp))
+
+    auth.update('courses/1', {lti_id: '5'})
+        .then(resp => {
+            if (!resp || resp.result.lti_id !== '5') {
+                console.log('update lti /courses/1 does not work')
+                console.log(resp)
+            }
+        })
 }
 
 function testRoles () {
@@ -152,14 +160,14 @@ function testAssignments () {
         .catch(resp => console.log(resp))
     auth.update('assignments/1', {name: 'Logboek test'})
         .then(resp => {
-            if (!resp || resp.name === 'Logboek test') {
+            if (!resp || resp.result.name !== 'Logboek test') {
                 console.log('update /assignments/1 does not work')
                 console.log(resp)
             }
         })
     auth.update('assignments/1', {name: 'Logboek'})
         .then(resp => {
-            if (!resp || resp.name === 'Is PAV') {
+            if (!resp || resp.result.name !== 'Logboek') {
                 console.log('update /assignments/1 does not work')
                 console.log(resp)
             }
@@ -169,13 +177,15 @@ function testAssignments () {
 export default {
     created () {
         auth.login('55555555', 'pass')
+            .then(_ => {
+                testCourses()
+            })
             .catch(err => console.log(err))
-        testAssignments()
     },
 
     dontRun () {
+        testAssignments()
         testRoles()
-        testCourses()
         testUsers()
     }
 }

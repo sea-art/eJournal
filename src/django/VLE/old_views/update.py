@@ -20,43 +20,6 @@ import json
 
 
 @api_view(['POST'])
-def connect_course_lti(request):
-    """Connect an existing course to an lti course.
-
-    Arguments:
-    request -- the update request that was send with
-        lti_id -- lti_id that needs to be added to the course
-        cID -- course that needs to be connected to lti_id
-
-    Returns a json string for if it is successful or not.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        [cID] = utils.required_params(request.data, 'cID')
-    except KeyError:
-        return responses.keyerror('cID')
-
-    try:
-        course = Course.objects.get(pk=cID)
-    except Course.DoesNotExist:
-        return responses.not_found('Course')
-
-    role = permissions.get_role(user, course)
-    if role is None:
-        return responses.forbidden('You are not in this course.')
-    elif not role.can_edit_course:
-        return responses.forbidden('You cannot edit this course.')
-
-    course.lti_id = request.data['lti_id']
-    course.save()
-
-    return responses.success(payload={'course': serialize.course_to_dict(course)})
-
-
-@api_view(['POST'])
 def connect_assignment_lti(request):
     """Connect an existing assignment to an lti assignment.
 
@@ -426,37 +389,6 @@ def update_entrycomment(request):
     comment.text = text
     comment.save()
     return responses.success()
-
-
-@api_view(['POST'])
-def update_user_data(request):
-    """Update user data.
-
-    Arguments:
-    request -- the update request that was send with
-        username -- new password of the user
-        picture -- current password of the user
-
-    Returns a json string for if it is successful or not.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    if 'username' in request.data:
-        username = request.data['username']
-        if User.objects.filter(username=username).exists():
-            return responses.bad_request('User with this username already exists.')
-        user.username = username
-    if 'picture' in request.data:
-        user.profile_picture = request.data['picture']
-    if 'first_name' in request.data:
-        user.first_name = request.data['first_name']
-    if 'last_name' in request.data:
-        user.last_name = request.data['last_name']
-
-    user.save()
-    return responses.success(payload={'user': serialize.user_to_dict(user)})
 
 
 @api_view(['POST'])

@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 import VLE.views.responses as response
 from VLE.serializers import CourseSerializer
 from VLE.serializers import UserSerializer
-from VLE.models import Course
+from VLE.models import Course, User, Role, Journal
 import VLE.permissions as permissions
 import VLE.utils as utils
 import VLE.factory as factory
@@ -259,7 +259,7 @@ class CourseView(viewsets.ViewSet):
         return response.bad_request('Invalid method')
 
     @action(methods=['get'], detail=False)
-    def teacher(self, request):
+    def is_teacher(self, request):
         """Get all the courses where the user is a teacher.
 
         Arguments:
@@ -278,3 +278,60 @@ class CourseView(viewsets.ViewSet):
                                         participation__role__can_edit_course=True)
         serializer = CourseSerializer(courses, many=True)
         return response.success(serializer.data)
+
+    @action(methods=['patch'], detail=True)
+    def add_user(self, request, pk):
+        """Add a user to a course.
+
+        Arguments:
+        request -- request data
+            uID -- student ID given with the request
+            role -- name of the role (default: Student)
+
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+            not found -- when course or user is not found
+            forbidden -- when the logged in user is not connected to the course
+            bad request -- when the new user is already connected to the course
+            not found -- when the role doesnt exist
+        On success:
+            success -- success message
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+
+        try:
+            user_id = utils.required_params(request.data, 'uID')
+            role_name = utils.optional_params(request.data, 'role') or 'Student'
+        except KeyError:
+            return response.keyerror('uID')
+
+        try:
+            user = User.objects.get(pk=user_id)
+            course = Course.objects.get(pk=pk)
+        except (User.DoesNotExist, Course.DoesNotExist):
+            return response.not_found('user or course')
+
+        role = permissions.get_role(request.user, course)
+        if role is None:
+            return response.forbidden('You are not in this course.')
+        elif not role.can_add_course_participants:
+            return response.forbidden('You cannot add users to this course.')
+
+        if permissions.is_user_in_course(user, course):
+            return response.bad_request('User already participates in the course.')
+
+        try:
+            role = Role.objects.get(name=role_name, course=course)
+        except Role.DoesNotExist:
+            return response.not_found()
+        factory.make_participation(user, course, role)
+
+        assignments = course.assignment_set.all()
+        role = permissions.get_role(user, pk)
+        if role.can_edit_journal:
+            for assignment in assignments:
+                if not Journal.objects.filter(assignment=assignment, user=user).exists():
+                    factory.make_journal(assignment, user)
+        return response.success(message='Succesfully added student to course')
