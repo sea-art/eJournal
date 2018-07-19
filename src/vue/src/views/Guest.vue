@@ -1,7 +1,6 @@
 <template>
     <content-single-columns>
         <h1>Welcome to eJournal!</h1>
-        <text-editor/>
         <h5>Please enjoy a brief tour of our website:</h5><br/>
         <img src="../../static/landing_page/course_overview.png">
         <img src="../../static/landing_page/journal.png">
@@ -14,13 +13,11 @@
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
-import textEditor from '@/components/assets/TextEditor.vue'
 
 export default {
     name: 'Guest',
     components: {
-        'content-single-columns': contentSingleColumn,
-        'text-editor': textEditor
+        'content-single-columns': contentSingleColumn
     }
 }
 </script>

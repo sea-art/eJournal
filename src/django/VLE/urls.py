@@ -70,6 +70,7 @@ urlpatterns = [
     path('create_journal/', create.create_journal, name='create_journal'),
 
     path('update_user_profile_picture/', update.update_user_profile_picture, name='update_user_profile_picture'),
+    path('update_user_image/', update.update_user_image, name='update_user_image'),
     path('update_user_data/', update.update_user_data, name='update_user_data'),
     path('update_course/', update.update_course, name='update_course'),
     path('connect_course_lti/', update.connect_course_lti, name='connect_course_lti'),

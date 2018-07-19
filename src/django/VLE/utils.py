@@ -248,14 +248,20 @@ def delete_templates(templates, remove_templates):
     templates.filter(pk__in=tIDs).delete()
 
 
-def handle_uploaded_file(f, path, userID, type):
+def handle_uploaded_file(f, path, userID):
     root = os.getcwd()
     paths = {
-        'user_file': '/{}/uploads/users/{}/files/'.format(root, userID),
-        'profile_picture': '/{}/uploads/users/{}/profile_pictures/'.format(root, userID)
+        # 'user_file': '/{}/uploads/users/{}/files/'.format(root, userID),
+        # 'profile_picture': '/{}/uploads/users/{}/profile_pictures/'.format(root, userID)
+        'user_file': '/{}/src/vue/static/uploads/users/{}/files/'.format(root, userID),
+        'profile_picture': '/{}/src/vue/static/uploads/users/{}/profile_pictures/'.format(root, userID)
     }
-    os.makedirs(os.path.dirname(os.getcwd() + path), exist_ok=True)
+    os.makedirs(os.path.dirname(paths[path]), exist_ok=True)
 
-    with open(os.getcwd() + path + str(f), 'wb+') as destination:
+    fullFilePath = paths[path] + str(f)
+
+    with open(fullFilePath, 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
+
+    return fullFilePath

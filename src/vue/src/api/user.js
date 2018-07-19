@@ -48,6 +48,11 @@ export default {
         return auth.authenticatedPostFile('/update_user_profile_picture/', formData)
     },
 
+    /* Upload an image to user directory. */
+    updateImage (formData) {
+        return auth.authenticatedPostFile('/update_user_image/', formData)
+    },
+
     /* Change whether the user gets grade notification or not.
      * if getsNotified is "true" the users gets notified by mail when a grade changes.
      * if getsNotified is "false" the users WONT  get notified by mail when a grade changes.

@@ -628,10 +628,9 @@ def update_entrycomment(request):
     return responses.success()
 
 
-
 @api_view(['POST'])
 def update_user_profile_picture(request):
-    """Update user data.
+    """Update user profile picture.
 
     Arguments:
     request -- the update request that was send with
@@ -646,9 +645,31 @@ def update_user_profile_picture(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    utils.handle_uploaded_file(request.FILES['file'], 'uploads/users/' + str(request.user.id) + '/files/')
+    utils.handle_uploaded_file(request.FILES['file'], 'profile_picture', user.id)
 
     return responses.success()
+
+
+@api_view(['POST'])
+def update_user_image(request):
+    """Update user image directory.
+
+    Arguments:
+    request -- the update request that was send with
+        request.FILES should contain the user uploaded file
+
+    Returns a json string for if it is successful or not.
+    """
+    # TODO CHECKS for file integrety
+    # Set default profile picture to the new one on success
+
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    fullPath = utils.handle_uploaded_file(request.FILES['file'], 'user_file', user.id)
+
+    return responses.success({'location': fullPath})
 
 
 @api_view(['POST'])
