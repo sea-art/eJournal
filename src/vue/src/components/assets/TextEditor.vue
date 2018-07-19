@@ -1,7 +1,9 @@
+<!-- Custom wrapper for tinymce editor -->
+<!-- If more events are desired, here is an overview: https://www.tiny.cloud/docs/advanced/events/ -->
+
 <template>
     <div class="editor-container">
-        <tiny-mce :id="'test1'" v-model="content" ref="mce" :init="config"/>
-        <div v-html="content"/>
+        <textarea :id="uID"/>
     </div>
 </template>
 
@@ -9,57 +11,39 @@
 import userAPI from '@/api/user.js'
 
 // TODO Figure out why importing tinymce gives a warning transferred with MIME type 2x
-
 import tinymce from 'tinymce/tinymce'
 import 'tinymce/themes/modern/theme'
-
 import 'tinymce/skins/lightgray/skin.min.css'
-// TODO Custom component gaan maken
-import TinyMCE from '@tinymce/tinymce-vue'
 
 /* Only works with basic lists enabled. */
 import 'tinymce/plugins/advlist'
 import 'tinymce/plugins/autolink'
 import 'tinymce/plugins/autoresize'
 import 'tinymce/plugins/autosave'
-
 /* Allows direct manipulation of the html aswell as easy export. */
 import 'tinymce/plugins/code'
-
 // TODO Make code sample work!
 /* Allows for code block display, uses external prism for css and js. */
 // import 'tinymce/plugins/codesample'
-
-/* The colorpicker plugin adds an HSV color picker dialog to the editor.
-When activated in conjunction with the textcolor plugin it adds a "custom color"
-button to the text color toolbar dropdown. */
 import 'tinymce/plugins/colorpicker'
-
 import 'tinymce/plugins/fullscreen'
-
 import 'tinymce/plugins/image'
 import 'tinymce/plugins/imagetools'
-
 import 'tinymce/plugins/link'
 import 'tinymce/plugins/lists'
-
 import 'tinymce/plugins/nonbreaking'
 import 'tinymce/plugins/media'
 import 'tinymce/plugins/preview'
 import 'tinymce/plugins/print'
-
 import 'tinymce/plugins/hr'
 import 'tinymce/plugins/searchreplace'
 import 'tinymce/plugins/spellchecker'
-
 import 'tinymce/plugins/table'
 import 'tinymce/plugins/textcolor'
 import 'tinymce/plugins/textpattern'
 /* Table of contents. */
 import 'tinymce/plugins/toc'
-
 import 'tinymce/plugins/wordcount'
-
 // TODO implement
 // https://moonwave99.github.io/TinyMCELatexPlugin/
 // import 'tinymce/plugins/latex'
@@ -74,12 +58,22 @@ export default {
         basic: {
             type: Boolean,
             default: false
+        },
+        /* Used to bind the editor to the components text area. */
+        uID: {
+            type: String,
+            required: true
         }
     },
     data () {
         return {
             content: '',
+            editor: null,
             config: {
+                selector: '#' + this.uID,
+                init_instance_callback: this.editorInit,
+                setup: this.editorSetup,
+
                 menubar: true,
                 branding: false,
                 statusbar: true,
@@ -88,7 +82,7 @@ export default {
 
                 autosave_ask_before_unload: true,
                 autosave_interval: '10s',
-                // autosave_restore_when_empty: true,
+                autosave_restore_when_empty: true,
                 // autosave_retention: '30m',
 
                 /* Custom styling applied to the editor */
@@ -96,37 +90,7 @@ export default {
 
                 file_picker_types: 'image',
                 file_picker_callback: this.handleFilePicking,
-
-                // automatic_uploads: true,
-                images_upload_handler: this.handleImageUpload,
-
-                plugins: [],
-                // external_plugins: {
-                //     'latex': '/node_modules/tinymce/plugins/latex/editor_plugin.js'
-                // },
-
-                toolbar1: 'latex',
-                setup: function (editor) {
-                    console.log(editor)
-                    editor.addButton('fullscreentoggle', {
-                        icon: 'fullscreen',
-                        onclick: function () {
-                            editor.execCommand('mceFullScreen')
-                            this.active(editor.plugins.fullscreen.isFullscreen())
-                        },
-                        /* If we ever start in fullscreen set correct state. */
-                        onpostrender: function () {
-                            var btn = this
-                            editor.on('init', function () {
-                                btn.active(editor.plugins.fullscreen.isFullscreen())
-                            })
-                        }
-                    })
-                    /* Set default font */
-                    editor.on('init', function (e) {
-                        editor.execCommand('fontName', false, 'roboto condensed')
-                    })
-                }
+                images_upload_handler: this.handleImageUpload
             },
             basicConfig: {
                 toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify | forecolor backcolor restoredraft | formatselect | bullist numlist | image media table | removeformat fullscreentoggle',
@@ -140,7 +104,7 @@ export default {
                 plugins: [
                     'link media preview print hr lists advlist wordcount autolink autosave',
                     'autoresize code fullscreen image imagetools',
-                    'textcolor searchreplace table toc latex'
+                    'textcolor searchreplace table toc'
                 ]
             },
             extensiveConfigMenu: {
@@ -156,10 +120,44 @@ export default {
         }
     },
     methods: {
-        handleImageUpload (blobInfo, success, failure) {
-            console.log(blobInfo)
-            console.log('Handle image upload')
+        editorInit (editor) {
+            var vm = this
+            this.editor = editor
 
+            editor.on('init', (e) => {
+                editor.setContent(this.content)
+            })
+
+            editor.on('Change', (e) => {
+                vm.content = this.editor.getContent()
+            })
+
+            editor.on('KeyUp', (e) => {
+                vm.content = this.editor.getContent()
+            })
+        },
+        editorSetup (editor) {
+            editor.addButton('fullscreentoggle', {
+                icon: 'fullscreen',
+                onclick: function () {
+                    editor.execCommand('mceFullScreen')
+                    this.active(editor.plugins.fullscreen.isFullscreen())
+                },
+                /* Fullscreen set correct state of button. */
+                onpostrender: function () {
+                    var btn = this
+                    editor.on('init', function () {
+                        btn.active(editor.plugins.fullscreen.isFullscreen())
+                    })
+                }
+            })
+
+            /* Set default font in the editor instance */
+            editor.on('init', function (e) {
+                editor.execCommand('fontName', false, 'roboto condensed')
+            })
+        },
+        handleImageUpload (blobInfo, success, failure) {
             let formData = new FormData()
             formData.append('file', blobInfo.blob())
 
@@ -173,16 +171,12 @@ export default {
                 .catch(_ => { this.$toasted.error('Something went wrong while uploading your requested image.') })
         },
         handleFilePicking (cb, value, meta) {
-            /* Client side allows for handling of files more than image types, which a plugin currently handles. */
+            /* Client side allows for handling of files more than image types, which a plugin aslo handles.
+               Adds a more intuitive browse button the image upload section. */
             console.log('filePicking')
             var input = document.createElement('input')
             input.setAttribute('type', 'file')
             input.setAttribute('accept', 'image/*')
-
-            // Note: In modern browsers input[type="file"] is functional without
-            // even adding it to the DOM, but that might not be the case in some older
-            // or quirky browsers like IE, so you might want to add it to the DOM
-            // just in case, and visually hide it.
             // TODO Remove input after click
 
             input.onchange = function () {
@@ -191,14 +185,13 @@ export default {
 
                 var reader = new FileReader()
                 reader.onload = function () {
-                    // Note: Now we need to register the blob in TinyMCEs image blob registry
                     var id = 'blobid' + (new Date()).getTime()
                     var blobCache = tinymce.activeEditor.editorUpload.blobCache
                     var base64 = reader.result.split(',')[1]
                     var blobInfo = blobCache.create(id, file, base64, file.name.replace(/\.[^/.]+$/, ''))
                     blobCache.add(blobInfo)
 
-                    // call the callback and populate the Title field with the file name
+                    // Call the callback and populate the Title field with the file name
                     cb(blobInfo.blobUri(), { title: file.name })
                 }
                 reader.readAsDataURL(file)
@@ -254,7 +247,7 @@ export default {
             ]
         }
     },
-    created () {
+    mounted () {
         if (this.basic) {
             this.setBasicConfig()
         } else {
@@ -270,9 +263,11 @@ export default {
         this.enableTabs()
         this.enableBrowserSpellchecker()
         this.enableMarkdownPatterns()
+
+        tinymce.init(this.config)
     },
-    components: {
-        'tiny-mce': TinyMCE
+    beforeDestroy () {
+        if (this.editor) { this.editor.destroy() }
     }
 }
 </script>
