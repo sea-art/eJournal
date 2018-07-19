@@ -251,8 +251,6 @@ def delete_templates(templates, remove_templates):
 def handle_uploaded_file(f, path, userID):
     root = os.getcwd()
     paths = {
-        # 'user_file': '/{}/uploads/users/{}/files/'.format(root, userID),
-        # 'profile_picture': '/{}/uploads/users/{}/profile_pictures/'.format(root, userID)
         'user_file': '/{}/src/vue/static/uploads/users/{}/files/'.format(root, userID),
         'profile_picture': '/{}/src/vue/static/uploads/users/{}/profile_pictures/'.format(root, userID)
     }
