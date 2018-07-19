@@ -8,13 +8,13 @@ to receive the appropriate error code.
 from rest_framework.response import Response
 
 
-def success(message='success', payload={}):
+def success(message='success', description=None, payload={}):
     """Return a success response header.
 
     Arguments:
     payload -- payload to deliver on success
     """
-    return response(200, message, payload=payload)
+    return response(200, message, description=description, payload=payload)
 
 
 def created(message='Successfully created', obj=None, description=None, payload={}):

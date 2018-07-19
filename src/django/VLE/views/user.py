@@ -6,7 +6,9 @@ In this file are all the user api requests.
 from django.conf import settings
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+
 from rest_framework import viewsets
+from rest_framework.decorators import action
 
 from VLE.serializers import UserSerializer
 from VLE.serializers import OwnUserSerializer
@@ -139,6 +141,39 @@ class UserView(viewsets.ViewSet):
 
         return response.created(self.serializer_class(user).data, obj='user')
 
+    def partial_update(self, request, *args, **kwargs):
+        """Update an existing user.
+
+        Arguments:
+        request -- request data
+        pk -- user ID
+
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+            forbidden -- when the user is not superuser or pk is not the same as the logged in user
+            not found -- when the user doesnt exists
+            bad request -- when the data is invalid
+        On success:
+            success -- with the updated user
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+        pk = kwargs.get('pk')
+        if request.user.pk is not int(pk) or not request.user.is_superuser:
+            return response.forbidden()
+
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return request.not_found('user')
+
+        serializer = OwnUserSerializer(user, data=request.data, partial=True)
+        if not serializer.is_valid():
+            response.bad_request()
+        serializer.save()
+        return response.success(serializer.data)
+
     def destroy(self, request, pk):
         """Delete a user.
 
@@ -166,3 +201,38 @@ class UserView(viewsets.ViewSet):
 
         user.delete()
         return response.deleted('user')
+
+    @action(methods=['patch'], detail=True)
+    def change_password(self, request, pk):
+        """Change the password of a user.
+
+        Arguments:
+        request -- request data
+            new_password -- new password of the user
+            old_password -- current password of the user
+        pk -- user ID
+
+        Returns
+        On failure:
+            unauthorized -- when the user is not logged in
+            keyerror -- when new or old password is not set
+            bad request -- when the password is invalid
+        On success:
+            success -- with a success description
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+        try:
+            new_password, old_password = utils.required_params(request.data, 'new_password', 'old_password')
+        except KeyError:
+            return response.KeyError('new_password', 'old_password')
+
+        if not request.user.is_authenticated or not request.user.check_password(old_password):
+            return response.unauthorized('Wrong password.')
+
+        if validate_password(new_password):
+            return response.bad_request(validate_password(new_password))
+
+        request.user.set_password(new_password)
+        request.user.save()
+        return response.success({}, description='Succesfully changed the password.')

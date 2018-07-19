@@ -15,7 +15,6 @@ from VLE.models import Course, Comment, Assignment, Participation, Role, Entry, 
     User, Journal
 import VLE.lti_grade_passback as lti_grade
 from django.conf import settings
-import re
 import jwt
 import json
 
@@ -143,122 +142,6 @@ def update_course_with_student(request):
 
     participation.save()
     return responses.success(message='Succesfully added student to course')
-
-
-@api_view(['POST'])
-def update_assignment(request):
-    """Update an existing assignment.
-
-    Arguments:
-    request -- the update request that was send with
-        aID -- ID of the assignment
-        name -- name of the assignment
-        description -- description of the assignment
-
-    Returns a json string for if it is successful or not.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        aID, name, description = utils.required_params(request.data, 'aID', 'name', 'description')
-    except KeyError:
-        return responses.keyerror('aID', 'name', 'description')
-
-    try:
-        assignment = Assignment.objects.get(pk=aID)
-    except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
-
-    if not permissions.has_assignment_permission(user, assignment, 'can_edit_assignment'):
-        return responses.forbidden('You are not allowed to edit this assignment.')
-
-    assignment.name = request.data['name']
-    assignment.description = request.data['description']
-    assignment.save()
-
-    return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
-
-
-@api_view(['POST'])
-def update_password(request):
-    """Update a password.
-
-    Arguments:
-    request -- the update request that was send with
-        new_password -- new password of the user
-        old_password -- current password of the user
-
-    Returns a json string for if it is successful or not.
-    """
-    user = request.user
-    try:
-        new_password, old_password = utils.required_params(request.data, 'new_password', 'old_password')
-    except KeyError:
-        return responses.KeyError('new_password', 'old_password')
-
-    if not user.is_authenticated or not user.check_password(old_password):
-        return responses.unauthorized('Wrong password.')
-
-    if len(new_password) < 8:
-        return responses.bad_request('Password needs to contain at least 8 characters.')
-    if new_password == new_password.lower():
-        return responses.bad_request('Password needs to contain at least 1 capital letter.')
-    if re.match(r'^\w+$', new_password):
-        return responses.bad_request('Password needs to contain a special character.')
-
-    user.set_password(new_password)
-    user.save()
-    return responses.success(message='Succesfully changed the password.')
-
-
-@api_view(['POST'])
-def update_grade_notification(request):
-    """Update whether the user gets notified when a grade changes/new grade.
-
-    Arguments:
-    request -- the request that was send with
-        new_value -- the new value for the grade notifcation toggle
-
-    Returns a json string for if it is successful or not.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        [new_value] = utils.required_params(request.data, 'new_value')
-    except KeyError:
-        return responses.keyerror('new_value')
-
-    user.grade_notifications = new_value
-    user.save()
-
-    return responses.success(payload={'new_value': user.grade_notifications})
-
-
-@api_view(['POST'])
-def update_comment_notification(request):
-    """Update whether the user gets notified when a comment changes/new comment.
-
-    Arguments:
-    request -- the request that was send with
-
-    Returns a json string for if it is successful or not.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        [new_value] = utils.required_params(request.data, 'new_value')
-    except KeyError:
-        return responses.keyerror('new_value')
-
-    user.comment_notifications = new_value
-    user.save()
-    return responses.success(payload={'new_value': user.comment_notifications})
 
 
 @api_view(['POST'])
