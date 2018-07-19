@@ -153,11 +153,11 @@ export default {
                         display = display.display
                     }
                 }
+                // params are inherited from current router? TODO: verify
                 breadedCrumbs.push({
                     display: display,
                     route: {
-                        name: crumb.name,
-                        params: this.$route.params
+                        name: crumb.name
                     }
                 })
             }
