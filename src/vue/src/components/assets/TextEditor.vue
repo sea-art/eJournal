@@ -173,7 +173,6 @@ export default {
         handleFilePicking (cb, value, meta) {
             /* Client side allows for handling of files more than image types, which a plugin aslo handles.
                Adds a more intuitive browse button the image upload section. */
-            console.log('filePicking')
             var input = document.createElement('input')
             input.setAttribute('type', 'file')
             input.setAttribute('accept', 'image/*')
