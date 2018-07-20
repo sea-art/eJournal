@@ -11,17 +11,14 @@ import VLE.serializers as serialize
 import VLE.utils as utils
 import VLE.permissions as permissions
 import VLE.factory as factory
-from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, \
-    User, Journal
+from VLE.models import Course, EntryComment, Assignment, Participation, Role, \
+    Entry, User, Journal
 import VLE.lti_grade_passback as lti_grade
 from django.conf import settings
 import re
 import jwt
 import json
 
-# TODO Clean
-from django import forms
-# from .forms import UploadFileForm
 
 @api_view(['POST'])
 def connect_course_lti(request):
