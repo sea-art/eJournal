@@ -49,24 +49,29 @@
         </b-col>
 
         <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
-            <h3>Assignment Format</h3>
-            <b-card class="no-hover mb-4 settings-card">
-                <div class="point-maximum multi-form">
-                    <b>Point Maximum</b>
-                    <input class="theme-input" v-model="max_points" placeholder="Points" type="number">
-                </div>
-                <b-button @click.prevent.stop="saveFormat" class="add-button full-width">
-                    <icon name="save"/>
-                    Save Format
-                </b-button>
-            </b-card>
-
-            <h3>Entry Templates</h3>
-            <available-template-card v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate"/>
-            <b-button class="add-button grey-background full-width" @click="showModal(newTemplate())">
-                <icon name="plus"/>
-                Create New Template
-            </b-button>
+            <b-row>
+                <b-col md="6" lg="12">
+                    <h3>Assignment Format</h3>
+                    <b-card class="no-hover settings-card mb-4" :class="$root.getBorderClass($route.params.cID)">
+                        <div class="point-maximum multi-form">
+                            <b>Point Maximum</b>
+                            <input class="theme-input" v-model="max_points" placeholder="Points" type="number">
+                        </div>
+                        <b-button @click.prevent.stop="saveFormat" class="add-button full-width">
+                            <icon name="save"/>
+                            Save Format
+                        </b-button>
+                    </b-card>
+                </b-col>
+                <b-col md="6" lg="12">
+                    <h3>Entry Templates</h3>
+                    <available-template-card v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate"/>
+                    <b-button class="add-button grey-background full-width" @click="showModal(newTemplate())">
+                        <icon name="plus"/>
+                        Create New Template
+                    </b-button>
+                </b-col>
+            </b-row>
         </b-col>
     </b-row>
 

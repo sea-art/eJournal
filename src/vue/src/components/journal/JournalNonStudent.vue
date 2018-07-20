@@ -24,36 +24,45 @@
         </b-col>
 
         <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
-            <h3>Journal</h3>
-            <b-card class="no-hover">
-                <b-row>
-                    <b-col md="6" lg="12" class="d-flex flex-wrap">
-                        <b-button
-                            class="multi-form flex-grow-1"
-                            tag="b-button"
-                            v-if="filteredJournals.length !== 0"
-                            :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.jID }, query: query }">
-                            <icon name="arrow-left"/>
-                            Previous
-                        </b-button>
-                        <b-button
-                            class="multi-form flex-grow-1"
-                            tag="b-button"
-                            v-if="filteredJournals.length !== 0"
-                            :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: nextJournal.jID }, query: query }">
-                            Next
-                            <icon name="arrow-right"/>
-                        </b-button>
-                        <b-button class="add-button multi-form flex-grow-1" @click="publishGradesJournal">
+            <b-row>
+                <b-col md="6" lg="12">
+                    <h3>Journal</h3>
+                    <student-card
+                    v-if="journal"
+                    :student="journal.student"
+                    :stats="journal.stats"
+                    :hideTodo="true"
+                    :fullWidthProgress="true"
+                    :class="'mb-4'"/>
+                </b-col>
+                <b-col md="6" lg="12">
+                    <h3>Controls</h3>
+                    <b-card class="no-hover settings-card" :class="$root.getBorderClass($route.params.cID)">
+                        <div class="d-flex">
+                            <b-button
+                                class="multi-form flex-grow-1"
+                                tag="b-button"
+                                v-if="filteredJournals.length !== 0"
+                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.jID }, query: query }">
+                                <icon name="arrow-left"/>
+                                Previous
+                            </b-button>
+                            <b-button
+                                class="multi-form flex-grow-1"
+                                tag="b-button"
+                                v-if="filteredJournals.length !== 0"
+                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: nextJournal.jID }, query: query }">
+                                Next
+                                <icon name="arrow-right"/>
+                            </b-button>
+                        </div>
+                        <b-button class="add-button flex-grow-1 full-width" @click="publishGradesJournal">
                             <icon name="upload"/>
                             Publish All Grades
                         </b-button>
-                    </b-col>
-                    <b-col md="6" lg="12">
-                        <progress-bar v-if="journal" :currentPoints="journal.stats.acquired_points" :totalPoints="journal.stats.total_points"/>
-                    </b-col>
-                </b-row>
-            </b-card>
+                    </b-card>
+                </b-col>
+            </b-row>
         </b-col>
     </b-row>
 </template>
@@ -66,6 +75,7 @@ import edag from '@/components/edag/Edag.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import journalApi from '@/api/journal'
 import store from '@/Store.vue'
+import studentCard from '@/components/assignment/StudentCard.vue'
 import icon from 'vue-awesome/components/Icon'
 import progressBar from '@/components/assets/ProgressBar.vue'
 
@@ -78,7 +88,7 @@ export default {
             nodes: [],
             progressNodes: {},
             assignmentJournals: [],
-            journal: {},
+            journal: null,
             selectedSortOption: 'sortUserName',
             searchVariable: '',
             query: {}
@@ -216,7 +226,6 @@ export default {
                     .catch(_ => {
                         this.$toasted.error('Error while publishing all grades for this journal.')
                     })
-
             }
         },
         findEntryNode (nodeID) {
@@ -253,6 +262,7 @@ export default {
         'add-card': addCard,
         'edag': edag,
         'store': store,
+        'student-card': studentCard,
         'icon': icon,
         'progress-bar': progressBar
     },

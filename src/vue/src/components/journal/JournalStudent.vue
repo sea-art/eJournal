@@ -44,14 +44,15 @@
         </b-col>
 
         <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
-            <h3>{{ assignmentName }}</h3>
             <b-row>
-                <b-col md="6" lg="12" class="d-flex flex-wrap">
+                <b-col md="6" lg="12">
+                    <h3>Description</h3>
                     <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                         {{ assignmentDescription }}
                     </b-card>
                 </b-col>
                 <b-col md="6" lg="12">
+                    <h3>Progress</h3>
                     <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                         <progress-bar v-if="journal.stats" :currentPoints="journal.stats.acquired_points" :totalPoints="journal.stats.total_points"/>
                     </b-card>

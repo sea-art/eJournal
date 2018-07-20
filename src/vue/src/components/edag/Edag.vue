@@ -8,7 +8,20 @@
     <div class="edag-container">
         <b-collapse id="edag-outer">
             <div id="edag-inner" ref="scd">
+                <div v-if="$root.lgMax()" v-b-toggle.edag-outer target="edag-outer" aria-expanded="false" aria-controls="edag-outer">
+                    <edag-node
+                        v-for="(node, index) in this.nodes"
+                        @select-node="$emit('select-node', $event)"
+                        :index="index"
+                        :node="node"
+                        :selected="isSelected(index)"
+                        :isInEditFormatPage="isInEditFormatPage"
+                        :key="node.nID"
+                        :upperEdgeStyle="upperEdgeStyle(index)"
+                        :lowerEdgeStyle="lowerEdgeStyle(index)"/>
+                </div>
                 <edag-node
+                    v-else
                     v-for="(node, index) in this.nodes"
                     @select-node="$emit('select-node', $event)"
                     :index="index"
@@ -98,10 +111,10 @@ export default {
     padding-right: 40px
     margin-right: -20px
     @include lg-max
-        max-height: 50vh
+        height: 50vh
 
 @include lg-max
-    /* Handles changing of the button text. */
+    /* Handles changing of the button icon. */
     [aria-expanded="false"] .edag-outer__icon--open
         display: block
         text-align: center

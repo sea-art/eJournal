@@ -33,11 +33,8 @@
                                         }">
 
                 <student-card
-                    :student="journal.student.first_name + ' ' + journal.student.last_name"
-                    :studentNumber="journal.student.name"
-                    :portraitPath="journal.student.picture"
-                    :stats="journal.stats"
-                    :jID="journal.jID">
+                    :student="journal.student"
+                    :stats="journal.stats">
                 </student-card>
 
             </b-link>
