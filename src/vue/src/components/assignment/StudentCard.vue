@@ -33,7 +33,6 @@ export default {
 </script>
 
 <style lang="sass">
-/* TODO Not the most clean solution for xl. */
 .student-card-portrait
     border-radius: 50% !important
     display: block

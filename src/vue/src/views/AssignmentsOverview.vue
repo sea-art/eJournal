@@ -1,8 +1,8 @@
 <template>
-    <content-columns>
-        <bread-crumb slot="main-content-column" :currentPage="'Assignments'"></bread-crumb>
+    <content-single-column>
+        <bread-crumb :currentPage="'Assignments'"></bread-crumb>
 
-        <b-card class="no-hover" slot="main-content-column">
+        <b-card class="no-hover">
                 <b-row>
                     <b-col sm="6">
                         <b-form-select v-model="selectedSortOption" :select-size="1">
@@ -19,7 +19,7 @@
                 </b-row>
         </b-card>
 
-        <div v-for="(d, i) in computedDeadlines" :key="i" slot="main-content-column">
+        <div v-for="(d, i) in computedDeadlines" :key="i">
             <b-link tag="b-button" :to="journalRoute(d.cID, d.aID, d.jID, d.name)">
                 <todo-card
                     :date="d.deadline.Date"
@@ -32,11 +32,11 @@
                 </todo-card>
             </b-link>
         </div>
-    </content-columns>
+    </content-single-column>
 </template>
 
 <script>
-import contentColumns from '@/components/columns/ContentColumns.vue'
+import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import mainCard from '@/components/assets/MainCard.vue'
 import assignmentApi from '@/api/assignment.js'
@@ -60,7 +60,7 @@ export default {
             .catch(_ => this.$toasted.error('Error while loading deadlines'))
     },
     components: {
-        'content-columns': contentColumns,
+        'content-single-column': contentSingleColumn,
         'bread-crumb': breadCrumb,
         'main-card': mainCard,
         'todo-card': todoCard

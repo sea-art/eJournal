@@ -29,8 +29,7 @@
                     @changed="isChanged = true"/>
                 <main-card v-else class="no-hover" :line1="'No presets in format'" :class="'grey-border'"/>
 
-                <!-- <main-card class="add-card"  :line1="'+ Add preset to format'" :class="'grey-border'"/> -->
-                <b-button class="add-button full-width" @click="addNode">
+                <b-button class="add-button grey-background full-width" @click="addNode">
                     <icon name="plus"/>
                     Add New Preset to Format
                 </b-button>
@@ -64,9 +63,10 @@
 
             <h3>Entry Templates</h3>
             <available-template-card v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate"/>
-            <b-card @click="showModal(newTemplate())" class="add-card" :class="'grey-border'">
-                <b>+ Add Template</b>
-            </b-card>
+            <b-button class="add-button grey-background full-width" @click="showModal(newTemplate())">
+                <icon name="plus"/>
+                Create New Template
+            </b-button>
         </b-col>
     </b-row>
 
@@ -195,31 +195,18 @@ export default {
             return new Date().toISOString().split('T')[0].slice(0, 10) + ' ' + new Date().toISOString().split('T')[1].slice(0, 5)
         },
         addNode () {
-            if (this.nodes.length === 0) {
-                this.nodes.push({
-                    'type': 'p',
-                    'deadline': this.newDate(),
-                    'target': 0
-                })
-                this.isChanged = true
-                return
-            }
-
             var newNode = {
-                'type': this.nodes[this.currentNode].type,
-                'deadline': this.nodes[this.currentNode].deadline
-            }
-
-            if (newNode.type === 'd') {
-                this.$set(newNode, 'template', this.nodes[this.currentNode].template)
-            } else {
-                this.$set(newNode, 'target', this.nodes[this.currentNode].target)
+                'type': 'p',
+                'deadline': this.newDate(),
+                'target': this.max_points
             }
 
             this.nodes.push(newNode)
             this.currentNode = this.nodes.indexOf(newNode)
             this.sortList()
             this.isChanged = true
+
+            this.$toasted.success('Added new node to format.')
         },
         // Do client side validation and save to DB
         saveFormat () {
@@ -245,23 +232,23 @@ export default {
 
                 if (!invalidDate && isNaN(Date.parse(node.deadline))) {
                     invalidDate = true
-                    this.$toasted.error('One or more presets has an invalid deadline. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have an invalid deadline. Please check the format and try again.')
                 }
                 if (!invalidTemplate && node.type === 'd' && typeof node.template.tID === 'undefined') {
                     invalidTemplate = true
-                    this.$toasted.error('One or more presets has an invalid template. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have an invalid template. Please check the format and try again.')
                 }
                 if (!invalidTemplate && node.type === 'd' && node.template.tID && !templatePoolIds.includes(node.template.tID)) {
                     invalidTemplate = true
-                    this.$toasted.error('One or more presets has an invalid template. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have an invalid template. Please check the format and try again.')
                 }
                 if (!invalidTarget && node.type === 'p' && isNaN(parseInt(node.target))) {
                     invalidTarget = true
-                    this.$toasted.error('One or more presets has an invalid target. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have an invalid target. Please check the format and try again.')
                 }
                 if (!invalidTarget && node.type === 'p' && isNaN(parseInt(node.target))) {
                     invalidTarget = true
-                    this.$toasted.error('One or more presets has an invalid target. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have an invalid target. Please check the format and try again.')
                 }
             }
 

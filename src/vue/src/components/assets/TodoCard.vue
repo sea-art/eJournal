@@ -5,8 +5,7 @@
                 <h6>{{ date }} {{ hours }}:{{ minutes }}</h6>
             </b-col>
             <b-col cols="5">
-                <todo-square v-if="checkPermissions()" :num="totalNeedsMarking" class="float-right" />
-                <!-- {{this.$route.path}} -->
+                <todo-square v-if="checkPermissions() && totalNeedsMarking > 0" :num="totalNeedsMarking" class="float-right" />
             </b-col>
         </b-row>
             <h5>{{ name }}</h5>

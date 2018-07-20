@@ -16,12 +16,19 @@
                 </main-card>
             </b-link>
         </div>
-        <main-card
+        <!-- <main-card
             v-if="this.$root.canAddCourse()"
             slot="main-content-column"
             class="add-card"
-            @click.native="showModal('createCourseRef')"
-            :line1="'+ Create course'"/>
+            @click.native=""
+            :line1="'+ Create course'"/> -->
+        <b-button v-if="$root.canAddCourse()"
+            slot="main-content-column"
+            class="add-button grey-background full-width"
+            @click="showModal('createCourseRef')">
+            <icon name="plus"/>
+            Create New Course
+        </b-button>
 
         <h3 slot="right-content-column">Upcoming</h3>
         <!-- TODO: This seems like an inappropriate permission check. Will have to be reconsidered in the rework. -->
@@ -76,6 +83,7 @@ import mainCard from '@/components/assets/MainCard.vue'
 import todoCard from '@/components/assets/TodoCard.vue'
 import createCourse from '@/components/course/CreateCourse.vue'
 import editHome from '@/components/home/EditHome.vue'
+import icon from 'vue-awesome/components/Icon'
 import course from '@/api/course'
 import assignmentApi from '@/api/assignment.js'
 
@@ -95,7 +103,8 @@ export default {
         'main-card': mainCard,
         'todo-card': todoCard,
         'create-course': createCourse,
-        'edit-home': editHome
+        'edit-home': editHome,
+        'icon': icon
     },
     created () {
         this.loadCourses()

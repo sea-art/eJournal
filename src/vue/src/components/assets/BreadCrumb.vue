@@ -52,7 +52,7 @@ export default {
                 'FormatEdit': 'Format Editor',
                 'CourseEdit': 'Course Editor',
                 'AssignmentEdit': 'Assignment Editor',
-                'AssignmentsOverview': 'Assignment Overview',
+                'AssignmentsOverview': 'Assignments',
                 'UserRoleConfiguration': 'User Role Configuration'
             },
             paramMap: {

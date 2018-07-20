@@ -16,7 +16,13 @@
             </b-link>
         </div>
 
-        <main-card slot="main-content-column" v-if="$root.canAddAssignment()" class="add-card" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Create assignment'"/>
+        <b-button v-if="$root.canAddAssignment()"
+            slot="main-content-column"
+            class="add-button grey-background full-width"
+            @click="showModal('createAssignmentRef')">
+            <icon name="plus"/>
+            Create New Assignment
+        </b-button>
 
         <h3 slot="right-content-column">Upcoming</h3>
 
@@ -62,6 +68,7 @@ import todoCard from '@/components/assets/TodoCard.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
 import assignment from '@/api/assignment.js'
 import mainCard from '@/components/assets/MainCard.vue'
+import icon from 'vue-awesome/components/Icon'
 import createAssignment from '@/components/assignment/CreateAssignment.vue'
 import courseApi from '@/api/course.js'
 
@@ -91,7 +98,8 @@ export default {
         'todo-card': todoCard,
         'progress-bar': progressBar,
         'main-card': mainCard,
-        'create-assignment': createAssignment
+        'create-assignment': createAssignment,
+        'icon': icon
     },
     created () {
         this.loadAssignments()

@@ -1,6 +1,6 @@
 <template>
     <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
-        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" type="text" v-model="institueName" placeholder="Institute name"/>
+        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" type="text" v-model="instituteName" placeholder="Institute name"/>
         <!-- TODO less placeholdery -->
         <b-button class="float-right delete-button" type="reset">
             <icon name="undo"/>
@@ -20,7 +20,7 @@ export default {
     name: 'EditHome',
     data () {
         return {
-            institueName: ''
+            instituteName: ''
         }
     },
     methods: {
@@ -30,7 +30,7 @@ export default {
         onReset (evt) {
             evt.preventDefault()
             /* Reset our form values */
-            this.institueName = ''
+            this.instituteName = ''
 
             /* Trick to reset/clear native browser form validation state */
             this.show = false
