@@ -9,6 +9,23 @@ from django.utils.timezone import now
 from . import validators
 
 
+class ProfilePicture(models.Model):
+    profile_picture_file = models.ImageField(
+        null=True,
+        upload_to='profile_pictures',
+        validators=[validators.validate_profile_picture]
+    )
+    creation_date = models.DateField(
+        auto_now_add=True,
+        blank=True
+    )
+    author = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+        null=False
+    )
+
+
 class User(AbstractUser):
     """User.
 
@@ -31,11 +48,6 @@ class User(AbstractUser):
     )
     profile_picture = models.TextField(
         null=True
-    )
-    profile_picture_file = models.ImageField(
-        null=True,
-        upload_to='profile_pictures',
-        validators=[validators.validate_profile_picture]
     )
     is_teacher = models.BooleanField(default=False)
     grade_notifications = models.BooleanField(
