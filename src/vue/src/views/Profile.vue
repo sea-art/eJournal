@@ -1,7 +1,7 @@
 <template>
     <content-single-column>
         <bread-crumb @eye-click="customisePage"/>
-        <profile-card
+        <profile-card v-if="profile"
             :uname="profile.name"
             :first="profile.first_name"
             :last="profile.last_name"
@@ -23,7 +23,7 @@ export default {
     name: 'Profile',
     data () {
         return {
-            profile: {}
+            profile: null
         }
     },
     components: {
@@ -37,7 +37,10 @@ export default {
         }
     },
     created () {
-        userAPI.getOwnUserData().then(user => { this.profile = user })
+        userAPI.getOwnUserData()
+            .then(user => {
+                this.profile = user
+            })
     }
 }
 </script>
