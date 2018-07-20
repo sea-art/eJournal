@@ -6,6 +6,7 @@ Database file
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
+from . import validators
 
 
 class User(AbstractUser):
@@ -33,7 +34,8 @@ class User(AbstractUser):
     )
     profile_picture_file = models.ImageField(
         null=True,
-        upload_to='profile_pictures'
+        upload_to='profile_pictures',
+        validators=[validators.validate_profile_picture]
     )
     is_teacher = models.BooleanField(default=False)
     grade_notifications = models.BooleanField(

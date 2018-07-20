@@ -636,11 +636,14 @@ def update_user_profile_picture(request):
     Returns a json string for if it is successful or not.
     """
     # TODO CHECKS for file integrety
-    # Set default profile picture to the new one on success
+    # TODO Set default profile picture to the new one on success
 
     user = request.user
     if not user.is_authenticated:
         return responses.unauthorized()
+
+    user.profile_picture_file = request.FILES['file']
+    user.save()
 
     utils.handle_uploaded_file(request.FILES['file'], 'profile_picture', user.id)
 
