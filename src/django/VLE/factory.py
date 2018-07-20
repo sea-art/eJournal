@@ -35,7 +35,7 @@ def make_user(username, password, email=None, lti_id=None, profile_picture=None,
     if profile_picture:
         user.profile_picture = profile_picture
     else:
-        user.profile_picture = '/static/oh_no/{}.png'.format(random.randint(1, 10))
+        user.profile_picture = '/static/unknown-profile.png'
     user.save()
     return user
 
