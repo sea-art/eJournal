@@ -205,15 +205,14 @@ class UserView(viewsets.ViewSet):
         user.delete()
         return response.deleted('user')
 
-    @action(methods=['patch'], detail=True)
-    def change_password(self, request, pk):
+    @action(methods=['patch'], detail=False)
+    def password(self, request):
         """Change the password of a user.
 
         Arguments:
         request -- request data
             new_password -- new password of the user
             old_password -- current password of the user
-        pk -- user ID
 
         Returns
         On failure:
@@ -230,7 +229,7 @@ class UserView(viewsets.ViewSet):
         except KeyError:
             return response.KeyError('new_password', 'old_password')
 
-        if not request.user.is_authenticated or not request.user.check_password(old_password):
+        if not request.user.check_password(old_password):
             return response.unauthorized('Wrong password.')
 
         if validate_password(new_password):

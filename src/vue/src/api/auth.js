@@ -39,30 +39,30 @@ function handleResponse (response, noRedirect = true) {
     response = response.response
     if (response.status === 401) { // Unauthorized
         if (!noRedirect) {
-            // router.push({name: 'Login'})
+            router.push({name: 'Login'})
         }
     } else if (response.status === 403 || // Forbidden
           response.status === 404) { // Not found)
         if (!noRedirect) {
             Vue.toasted.error(response.data.result + ': ' + response.data.description)
-            // router.push({name: 'ErrorPage',
-            //     params: {
-            //         code: response.status,
-            //         message: response.data.result,
-            //         description: response.data.description
-            //     }
-            // })
+            router.push({name: 'ErrorPage',
+                params: {
+                    code: response.status,
+                    message: response.data.result,
+                    description: response.data.description
+                }
+            })
         }
     } else if (response.status === 500) { // Internal server error
         if (!noRedirect) {
             Vue.toasted.error(response.data.result + ': ' + response.data.description)
-            // router.push({name: 'ErrorPage',
-            //     params: {
-            //         code: response.status,
-            //         message: 'Internal Server Error',
-            //         description: response.data.description
-            //     }
-            // })
+            router.push({name: 'ErrorPage',
+                params: {
+                    code: response.status,
+                    message: 'Internal Server Error',
+                    description: response.data.description
+                }
+            })
         }
     } else if (response.status === 400) { // Bad request
         if (response.data.description) {
@@ -106,7 +106,7 @@ export default {
 
     /* Change password. */
     changePassword (newPassword, oldPassword) {
-        return this.authenticatedPost('/update_password/', {new_password: newPassword, old_password: oldPassword})
+        return this.patch('/users/password', { new_password: newPassword, old_password: oldPassword })
     },
 
     /* Check if the stored token is valid. */
@@ -126,24 +126,16 @@ export default {
         return this.get('courses')
     },
 
-    get (url, data = null, noRedirect = false) {
-        if (url.slice(-1) !== '/') url += '/'
-        if (data) {
-            return connection.conn.get(url, data, getAuthorizationHeader())
-                .then(response => response.data.result)
-                .catch(error => refresh(error)
-                    .then(_ => connection.conn.post(url, data, getAuthorizationHeader())))
-                .catch(error => handleResponse(error, noRedirect))
-        } else {
-            return connection.conn.get(url, getAuthorizationHeader())
-                .then(response => response.data.result)
-                .catch(error => refresh(error)
-                    .then(_ => connection.conn.post(url, getAuthorizationHeader())))
-                .catch(error => handleResponse(error, noRedirect))
-        }
+    get (url, noRedirect = false) {
+        if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
+        return connection.conn.get(url, getAuthorizationHeader())
+            .then(response => response.data.result)
+            .catch(error => refresh(error)
+                .then(_ => connection.conn.post(url, getAuthorizationHeader())))
+            .catch(error => handleResponse(error, noRedirect))
     },
     create (url, data, noRedirect = false) {
-        if (url.slice(-1) !== '/') url += '/'
+        if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
         return connection.conn.post(url, data, getAuthorizationHeader())
             .then(response => response.data)
             .catch(error => refresh(error)
@@ -151,27 +143,19 @@ export default {
             .catch(error => handleResponse(error, noRedirect))
     },
     update (url, data, noRedirect = false) {
-        if (url.slice(-1) !== '/') url += '/'
+        if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
         return connection.conn.patch(url, data, getAuthorizationHeader())
             .then(response => response.data)
             .catch(error => refresh(error)
                 .then(_ => connection.conn.post(url, data, getAuthorizationHeader())))
             .catch(error => handleResponse(error, noRedirect))
     },
-    delete (url, data = null, noRedirect = false) {
-        if (url.slice(-1) !== '/') url += '/'
-        if (data) {
-            return connection.conn.delete(url, {params: data}, getAuthorizationHeader())
-                .then(response => response.data)
-                .catch(error => refresh(error)
-                    .then(_ => connection.conn.post(url, {params: data}, getAuthorizationHeader())))
-                .catch(error => handleResponse(error, noRedirect))
-        } else {
-            return connection.conn.delete(url, {}, getAuthorizationHeader())
-                .then(response => response.data)
-                .catch(error => refresh(error)
-                    .then(_ => connection.conn.post(url, {}, getAuthorizationHeader())))
-                .catch(error => handleResponse(error, noRedirect))
-        }
+    delete (url,  noRedirect = false) {
+        if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
+        return connection.conn.delete(url, {}, getAuthorizationHeader())
+            .then(response => response.data)
+            .catch(error => refresh(error)
+                .then(_ => connection.conn.post(url, {}, getAuthorizationHeader())))
+            .catch(error => handleResponse(error, noRedirect))
     }
 }

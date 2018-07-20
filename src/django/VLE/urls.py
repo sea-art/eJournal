@@ -19,7 +19,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.conf.urls import url, include
+from django.urls import path
 
+import VLE.views.extra as extra
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -35,6 +37,9 @@ urlpatterns = [
     url(r'^token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
     url(r'^', include(('VLE.views.urls', 'VLE.views'), namespace='VLE')),
+
+    path('names/<int:cID>/<int:aID>/<int:jID>/', extra.names, name='names'),
+    # url('names/', extra.names, name='namestest')
     #
     # path('get_own_user_data/', get.get_own_user_data, name='get_own_user_data'),
     # path('get_course_data/<int:cID>/', get.get_course_data, name='get_course_data'),

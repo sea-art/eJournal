@@ -147,13 +147,13 @@ export default {
         },
         publishGradesAssignment () {
             if (confirm('Are you sure you want to publish all grades for each journal?')) {
-                journal.update_publish_grades_assignment(this.aID, 1)
-                    .then(_ => {
-                        this.$toasted.success('All the grades for each journal are published.')
-                    })
-                    .catch(_ => {
-                        this.$toasted.error('Error while publishing the grades for each journal.')
-                    })
+                // journal.update_publish_grades_assignment(this.aID, 1)
+                //     .then(_ => {
+                //         this.$toasted.success('All the grades for each journal are published.')
+                //     })
+                //     .catch(_ => {
+                //         this.$toasted.error('Error while publishing the grades for each journal.')
+                //     })
             }
         },
         updateQuery () {

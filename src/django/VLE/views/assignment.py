@@ -31,14 +31,18 @@ class AssignmentView(viewsets.ViewSet):
         On succes:
             success -- with the assignment data
         """
-        if not self.request.user.is_authenticated:
+        if not request.user.is_authenticated:
             return response.unauthorized()
         try:
-            course = Course.objects.get(pk=self.request.cID)
+            cID = request.query_params['cID']
+        except KeyError:
+            return response.keyerror("cID")
+        try:
+            course = Course.objects.get(pk=cID)
         except Course.DoesNotExist:
             return response.not_found('Course')
 
-        role = permissions.get_role(self.request.user, course)
+        role = permissions.get_role(request.user, course)
         if role is None:
             return response.forbidden('You are not in this course.')
 
@@ -46,7 +50,7 @@ class AssignmentView(viewsets.ViewSet):
             queryset = course.assignment_set.all()
             serializer = StudentAssignmentSerializer(queryset, many=True)
         else:
-            queryset = Assignment.objects.filter(courses=course, journal__user=self.request.user)
+            queryset = Assignment.objects.filter(courses=course, journal__user=request.user)
             serializer = TeacherAssignmentSerializer(queryset, many=True)
 
         return response.success(serializer.data)
@@ -115,7 +119,7 @@ class AssignmentView(viewsets.ViewSet):
         On success:
             succes -- with the assignment data
         """
-        if not self.request.user.is_authenticated:
+        if not request.user.is_authenticated:
             return response.unauthorized()
 
         if pk is None:
@@ -153,7 +157,7 @@ class AssignmentView(viewsets.ViewSet):
         On success:
             success -- with the new assignment data
         """
-        if not self.request.user.is_authenticated:
+        if not request.user.is_authenticated:
             return response.unauthorized()
 
         pk = kwargs.get('pk')
@@ -187,7 +191,7 @@ class AssignmentView(viewsets.ViewSet):
         On success:
             success -- with a message that the course was deleted
         """
-        if not self.request.user.is_authenticated:
+        if not request.user.is_authenticated:
             return response.unauthorized()
 
         pk = kwargs.get('a_pk')

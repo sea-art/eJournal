@@ -28,9 +28,10 @@
 </template>
 
 <script>
-import commonAPI from '@/api/common.js'
 import icon from 'vue-awesome/components/Icon'
+
 import store from '@/Store.vue'
+import auth from '@/api/auth.js'
 
 export default {
     components: {
@@ -89,7 +90,7 @@ export default {
             this.cachedMap = store.state.cachedMap.slice()
 
             // fill missing parts of the request
-            var request = {}
+            var request = { cID: 0, aID: 0, jID: 0 }
             for (var crumb of this.crumbs) {
                 if (!(typeof crumb.param === 'undefined')) {
                     if (this.cachedMap.filter(map => map.name === crumb.name && map.param === crumb.param).length === 0) {
@@ -99,7 +100,7 @@ export default {
             }
             // fill the displaymap cache
             if (!(Object.keys(request).length === 0 && request.constructor === Object)) {
-                commonAPI.get_names(request).then(data => {
+                auth.get('names/' + request.cID + '/' + request.aID + '/' + request.jID).then(data => {
                     var localMap = {
                         'cID': 'course',
                         'aID': 'assignment',

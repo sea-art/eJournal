@@ -65,7 +65,6 @@ import breadCrumb from '@/components/BreadCrumb.vue'
 import assignmentCard from '@/components/AssignmentCard.vue'
 import todoCard from '@/components/TodoCard.vue'
 import progressBar from '@/components/ProgressBar.vue'
-import assignment from '@/api/assignment.js'
 import mainCard from '@/components/MainCard.vue'
 import createAssignment from '@/components/CreateAssignment.vue'
 
@@ -109,7 +108,7 @@ export default {
     },
     methods: {
         loadAssignments () {
-            auth.get('assignments/' + this.cID)
+            auth.get('assignments/?cID=' + this.cID)
                 .then(response => { this.assignments = response })
         },
         showModal (ref) {
