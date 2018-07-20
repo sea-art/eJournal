@@ -137,6 +137,11 @@ export default {
                 journal.update_publish_grades_assignment(this.aID, 1)
                     .then(_ => {
                         this.$toasted.success('Published all grades for this assignment.')
+                        journal.get_assignment_journals(this.aID)
+                            .then(response => {
+                                this.assignmentJournals = response.journals
+                                this.stats = response.stats
+                            })
                     })
                     .catch(_ => {
                         this.$toasted.error('Error while publishing all grades for this assignment.')

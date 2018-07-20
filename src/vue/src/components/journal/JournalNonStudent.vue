@@ -50,7 +50,7 @@
                         </b-button>
                     </b-col>
                     <b-col md="6" lg="12">
-                        <progress-bar v-if="curJournal" :currentPoints="curJournal.stats.acquired_points" :totalPoints="curJournal.stats.total_points"/>
+                        <progress-bar v-if="journal" :currentPoints="journal.stats.acquired_points" :totalPoints="journal.stats.total_points"/>
                     </b-col>
                 </b-row>
             </b-card>
@@ -78,6 +78,7 @@ export default {
             nodes: [],
             progressNodes: {},
             assignmentJournals: [],
+            journal: {},
             selectedSortOption: 'sortUserName',
             searchVariable: '',
             query: {}
@@ -96,6 +97,11 @@ export default {
                         this.progressPoints(node)
                     }
                 }
+            })
+
+        journalApi.get_journal(this.jID)
+            .then(response => {
+                this.journal = response.journal
             })
 
         if (store.state.filteredJournals.length === 0) {
@@ -184,22 +190,33 @@ export default {
                     this.progressPoints(node)
                 }
             }
+
+            journalApi.get_journal(this.jID)
+                .then(response => {
+                    this.journal = response.journal
+                })
         },
         publishGradesJournal () {
             if (confirm('Are you sure you want to publish all grades for this journal?')) {
                 journalApi.update_publish_grades_journal(this.jID, 1)
                     .then(_ => {
                         this.$toasted.success('Published all grades for this journal.')
+
+                        for (var node of this.nodes) {
+                            if (node.type === 'e' || node.type === 'd') {
+                                node.entry.published = true
+                            }
+                        }
+
+                        journalApi.get_journal(this.jID)
+                            .then(response => {
+                                this.journal = response.journal
+                            })
                     })
                     .catch(_ => {
                         this.$toasted.error('Error while publishing all grades for this journal.')
                     })
 
-                for (var node of this.nodes) {
-                    if (node.type === 'e' || node.type === 'd') {
-                        node.entry.published = true
-                    }
-                }
             }
         },
         findEntryNode (nodeID) {
@@ -297,11 +314,6 @@ export default {
             var prevIndex = (curIndex - 1 + this.filteredJournals.length) % this.filteredJournals.length
 
             return this.filteredJournals[prevIndex]
-        },
-        curJournal () {
-            var curIndex = this.findIndex(this.filteredJournals, 'jID', this.jID)
-
-            return this.filteredJournals[curIndex]
         },
         nextJournal () {
             var curIndex = this.findIndex(this.filteredJournals, 'jID', this.jID)
