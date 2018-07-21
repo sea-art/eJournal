@@ -6,11 +6,10 @@
                 <b-row>
                     <b-col sm="6">
                         <b-form-select v-model="selectedSortOption" :select-size="1">
-                           <option :value="null">Sort by ...</option>
                            <option value="sortDate">Sort by date</option>
                            <option value="sortName">Sort by name</option>
                            <option v-if="this.$root.canAddCourse()"
-                                   value="sortNeedsMarking">Sort by markings needed</option>
+                                   value="sortNeedsMarking">Sort by marking needed</option>
                         </b-form-select>
                     </b-col>
                     <b-col sm="6">
@@ -47,7 +46,7 @@ export default {
     data () {
         return {
             deadlines: [],
-            selectedSortOption: null,
+            selectedSortOption: 'sortDate',
             searchVariable: ''
 
         }
@@ -103,7 +102,7 @@ export default {
                 return new Date(a.deadline.Date) - new Date(b.deadline.Date)
             }
 
-            function compareMarkingsNeeded (a, b) {
+            function compareMarkingNeeded (a, b) {
                 if (a.totalNeedsMarking > b.totalNeedsMarking) { return -1 }
                 if (a.totalNeedsMarking < b.totalNeedsMarking) { return 1 }
                 return 0
@@ -120,7 +119,7 @@ export default {
             } else if (this.selectedSortOption === 'sortDate') {
                 return this.deadlines.filter(searchFilter).slice().sort(compareDate)
             } else if (this.selectedSortOption === 'sortNeedsMarking') {
-                return this.deadlines.filter(searchFilter).slice().sort(compareMarkingsNeeded)
+                return this.deadlines.filter(searchFilter).slice().sort(compareMarkingNeeded)
             } else {
                 return this.deadlines.filter(searchFilter).slice()
             }

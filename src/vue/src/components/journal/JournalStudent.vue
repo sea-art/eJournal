@@ -21,12 +21,11 @@
                             <entry-node :cID="cID" ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                         </div>
                         <div v-else>
-                            <div v-if="checkDeadline()">
-                                <entry-preview ref="entry-template-card" @content-template="fillDeadline" :template="nodes[currentNode].template"/>
-                            </div>
-                            <div v-else>
-                                The deadline has passed, you can't make another submission
-                            </div>
+                            <entry-preview v-if="checkDeadline()" ref="entry-template-card" @content-template="fillDeadline" :template="nodes[currentNode].template"/>
+                            <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+                                <h2 class="mb-2">{{nodes[currentNode].template.name}}</h2>
+                                <b>The deadline has passed. You can not submit an entry anymore.</b>
+                            </b-card>
                         </div>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'a'">

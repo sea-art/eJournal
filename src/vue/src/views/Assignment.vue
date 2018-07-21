@@ -43,10 +43,8 @@
 
         <div  v-if="stats" slot="right-content-column">
             <h3>Insights</h3>
-            <statistics-card :subject="'Average entries'" :num="stats.avgEntries"></statistics-card>
             <statistics-card :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>
             <statistics-card :subject="'Average points'" :num="stats.avgPoints"></statistics-card>
-            <statistics-card :subject="'Median points'" :num="stats.medianPoints"></statistics-card>
         </div>
     </content-columns>
 </template>

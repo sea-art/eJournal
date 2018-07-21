@@ -23,11 +23,11 @@ export default {
     },
     methods: {
         checkPermissions () {
-            if (this.$route.name === 'Home') {
-                return this.$root.canAddCourse()
+            if (this.$route.name === 'Course') {
+                return this.$root.canViewAssignmentParticipants()
             } else if (this.$route.name === 'AssignmentsOverview' ||
-                       this.$route.name === 'Course') {
-                return this.$root.canAddCourse()
+                       this.$route.name === 'Home') {
+               return this.$root.canAddCourse()
             }
         }
     }

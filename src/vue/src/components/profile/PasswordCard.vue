@@ -32,7 +32,7 @@ export default {
                         this.$toasted.success('Password updated successfully')
                     })
                     .catch(response => {
-                        this.$toasted.error('Something went wrong updating your password, try again.')
+                        this.$toasted.error('Something went wrong updating your password, please try again.')
                     })
             } else {
                 this.$toasted.error('Passwords do not match')

@@ -24,9 +24,7 @@
                     <icon name="hourglass-half"/>
                 </span>
             </div>
-            <div class="template-name">
-                <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
-            </div>
+            <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
 
             <div v-for="(field, i) in entryNode.entry.template.fields" class="entry-field" :key="field.eID">
                 <div v-if="field.title != ''">
@@ -44,7 +42,8 @@
 
         <comment-card :eID="entryNode.entry.eID"/>
     </div>
-    <b-card v-else class="no-hover">
+    <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+        <h2 class="mb-2">{{entryNode.template.name}}</h2>
         <b>No submission for this student</b>
     </b-card>
 </template>

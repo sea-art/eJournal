@@ -329,9 +329,6 @@ def get_assignment_journals(request, aID):
         stats['needsMarking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
         points = [x['stats']['acquired_points'] for x in journals]
         stats['avgPoints'] = round(st.mean(points), 2)
-        stats['medianPoints'] = st.median(points)
-        stats['avgEntries'] = round(
-            st.mean([x['stats']['submitted'] for x in journals]), 2)
 
     return responses.success(payload={'stats': stats if stats else None, 'journals': journals})
 

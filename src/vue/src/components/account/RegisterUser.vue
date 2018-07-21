@@ -72,7 +72,7 @@ export default {
                                         code: '511',
                                         message: 'Network authorization required',
                                         description: `Invalid credentials for logging in.
-                                                      Please contact your system administrator.`
+                                                      Please contact the system administrator.`
                                     }
                                 })
                             })
