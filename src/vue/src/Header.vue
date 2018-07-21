@@ -60,7 +60,6 @@
 
 <script>
 import icon from 'vue-awesome/components/Icon'
-import authAPI from '@/api/auth.js'
 import userAPI from '@/api/user.js'
 
 export default {
@@ -78,25 +77,16 @@ export default {
         }
     },
     watch: {
-        '$root.validToken': function (val) {
+        '$root.validToken': function (validToken) {
             this.setProfileImg()
+            if (!validToken) {
+                this.profileImg = this.defaultProfileImg
+            } else {
+                this.setUserProfile()
+            }
         }
     },
     methods: {
-        handleLogout () {
-            authAPI.logout()
-            this.$router.push({ name: 'Guest' })
-        },
-        handleLogin () {
-            authAPI.login(this.username, this.password)
-                .then(_ => {
-                    this.setUserProfile()
-                    this.$router.push({name: 'Home'})
-                })
-                .catch(_ => {
-                    this.$toasted.error('Could not login')
-                })
-        },
         setUserProfile () {
             userAPI.getOwnUserData()
                 .then(user => {

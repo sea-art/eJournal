@@ -27,7 +27,7 @@ export default {
                 return this.$root.canViewAssignmentParticipants()
             } else if (this.$route.name === 'AssignmentsOverview' ||
                        this.$route.name === 'Home') {
-               return this.$root.canAddCourse()
+                return this.$root.canAddCourse()
             }
         }
     }

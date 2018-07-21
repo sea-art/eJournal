@@ -18,6 +18,9 @@ Including another URLconf
 
 """
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 from django.contrib import admin
 from django.urls import path
 
@@ -70,6 +73,8 @@ urlpatterns = [
     path('create_lti_user/', create.create_lti_user, name='create_lti_user'),
     path('create_journal/', create.create_journal, name='create_journal'),
 
+    path('update_user_profile_picture/', update.update_user_profile_picture, name='update_user_profile_picture'),
+    path('update_user_image/', update.update_user_image, name='update_user_image'),
     path('update_user_data/', update.update_user_data, name='update_user_data'),
     path('update_course/', update.update_course, name='update_course'),
     path('connect_course_lti/', update.connect_course_lti, name='connect_course_lti'),
@@ -102,3 +107,6 @@ urlpatterns = [
     path('lti/launch', get.lti_launch, name='lti_launch'),
     path('get_lti_params_from_jwt/<str:jwt_params>/', get.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),
 ]
+
+if settings.DEBUG is True:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

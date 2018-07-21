@@ -36,7 +36,8 @@ export default {
     props: ['uname', 'first', 'last', 'id', 'image'],
     data () {
         return {
-            file: null
+            file: null,
+            profileImage: null
         }
     },
     methods: {
@@ -44,8 +45,27 @@ export default {
             userAPI.updateUserData(this.uname, this.first, this.last)
                 .then(this.$toasted.success('Saved profile data'))
         },
-        updateProfilePicture () {
-            userAPI.updateProfilePicture(this.$refs.file)
+        fileHandler (e) {
+            let files = e.target.files
+            if (!files.length) { return }
+
+            this.file = files[0]
+
+            let formData = new FormData()
+            formData.append('file', this.file)
+
+            userAPI.updateProfilePicture(formData)
+                .then(_ => { this.setClientProfilePicture(this.file) })
+                .catch(_ => { this.$toasted.error('Something went wrong while uploading your profile picture.') })
+        },
+        setClientProfilePicture (imageFile) {
+            var reader = new FileReader()
+            var vm = this
+
+            reader.onload = (e) => {
+                vm.profileImage = e.target.result
+            }
+            reader.readAsDataURL(imageFile)
         },
         downloadUserData () {
             userAPI.getUserData(this.id).then(data => {
@@ -70,6 +90,9 @@ export default {
     },
     components: {
         'icon': icon
+    },
+    created () {
+        this.profileImage = this.image
     }
 }
 </script>
