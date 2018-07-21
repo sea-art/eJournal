@@ -66,7 +66,7 @@
             </b-button>
             <b-button @click="addRole" class="add-button float-right">
                 <icon name="user-plus"/>
-                Create role
+                Create new role
             </b-button>
         </b-modal>
     </content-single-table-column>

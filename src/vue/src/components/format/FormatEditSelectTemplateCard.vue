@@ -47,7 +47,7 @@
                         <b-col cols="3" lg-cols="12">
                             <b-button @click.prevent="emitDeletePreset" class="delete-button float-right">
                                 <icon name="trash"/>
-                                Delete
+                                Remove
                             </b-button>
                         </b-col>
                     </b-row>

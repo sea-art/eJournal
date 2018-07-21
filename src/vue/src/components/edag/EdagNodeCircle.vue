@@ -54,13 +54,9 @@ export default {
             case 'failed':
                 return 'fill-negative'
             case 'empty':
-                return 'fill-white'
             case 'awaiting_grade':
-                return 'fill-white'
             case 'needs_grading':
-                return 'fill-white'
             case 'needs_publishing':
-                return 'fill-white'
             case 'addNode':
                 return 'fill-white'
             default:

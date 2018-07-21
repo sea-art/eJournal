@@ -16,12 +16,6 @@
                 </main-card>
             </b-link>
         </div>
-        <!-- <main-card
-            v-if="this.$root.canAddCourse()"
-            slot="main-content-column"
-            class="add-card"
-            @click.native=""
-            :line1="'+ Create course'"/> -->
         <b-button v-if="$root.canAddCourse()"
             slot="main-content-column"
             class="add-button grey-background full-width"

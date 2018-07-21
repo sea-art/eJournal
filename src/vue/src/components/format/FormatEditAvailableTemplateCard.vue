@@ -4,7 +4,6 @@
 
 <template>
     <b-card :class="$root.getBorderClass($route.params.cID)">
-        <!-- <toggle-switch @click.native.stop class="template-todo-card-switch" :isActive="isActive" @parentActive="template.available = $event"/> -->
         <div class="float-right ml-2">
             <b-button v-on:click.stop v-if="!template.available" @click="toggleActive" class="delete-button full-width">
                 <icon name="times"/>

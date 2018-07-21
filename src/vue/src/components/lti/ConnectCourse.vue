@@ -4,7 +4,7 @@
             <main-card
                 @click.native="connectCourse(c.cID)"
                 :line1="c.name"
-                :line2="'From - To (years eg: 2017 - 2018)'">
+                :line2="c.startdate.substring(0, 4) + '-' + c.enddate.substring(0, 4)">
             </main-card>
         </div>
     </div>

@@ -33,9 +33,9 @@
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'p'">
                         <b-card class="no-hover" :class="'pink-border'">
-                            <h2 class="mb-2">Needed progress</h2>
-                            You have {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
-                            needed points before {{nodes[currentNode].deadline}}.
+                            <h2 class="mb-2">Progress: {{nodes[currentNode].target}} points</h2>
+                            You have reached {{ progressNodes[nodes[currentNode].nID] }} out of {{ nodes[currentNode].target }} points.<br/>
+                            {{ nodes[currentNode].target - progressNodes[nodes[currentNode].nID] }} more required before {{ $root.beautifyDeadline(nodes[currentNode].deadline) }}.
                         </b-card>
                     </div>
                 </div>
@@ -64,13 +64,13 @@
 <script>
 import contentColumns from '@/components/columns/ContentColumns.vue'
 import entryNode from '@/components/entry/EntryNode.vue'
+import entryPreview from '@/components/entry/EntryPreview.vue'
 import addCard from '@/components/journal/AddCard.vue'
 import edag from '@/components/edag/Edag.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import journalApi from '@/api/journal'
-import entryPreview from '@/components/entry/EntryPreview.vue'
-import assignmentApi from '@/api/assignment.js'
 import progressBar from '@/components/assets/ProgressBar.vue'
+import journalApi from '@/api/journal'
+import assignmentApi from '@/api/assignment.js'
 
 export default {
     props: ['cID', 'aID', 'jID'],

@@ -251,10 +251,6 @@ export default {
                     invalidTarget = true
                     this.$toasted.error('One or more presets have an invalid target. Please check the format and try again.')
                 }
-                if (!invalidTarget && node.type === 'p' && isNaN(parseInt(node.target))) {
-                    invalidTarget = true
-                    this.$toasted.error('One or more presets have an invalid target. Please check the format and try again.')
-                }
             }
 
             if (invalidDate | invalidTemplate | invalidTarget | targetsOutOfOrder) {

@@ -14,9 +14,9 @@
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'p'">
                         <b-card class="no-hover" :class="'pink-border'">
-                            <h2 class="mb-2">Needed progress</h2>
-                            Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
-                            before {{nodes[currentNode].deadline}}.
+                            <h2 class="mb-2">Progress: {{nodes[currentNode].target}} points</h2>
+                            Has reached {{progressNodes[nodes[currentNode].nID]}} out of {{nodes[currentNode].target}} points.<br/>
+                            {{nodes[currentNode].target - progressNodes[nodes[currentNode].nID]}} more required before {{$root.beautifyDeadline(nodes[currentNode].deadline)}}.
                         </b-card>
                     </div>
                 </div>
@@ -28,12 +28,12 @@
                 <b-col md="6" lg="12">
                     <h3>Journal</h3>
                     <student-card
-                    v-if="journal"
-                    :student="journal.student"
-                    :stats="journal.stats"
-                    :hideTodo="true"
-                    :fullWidthProgress="true"
-                    :class="'mb-4'"/>
+                        v-if="journal"
+                        :student="journal.student"
+                        :stats="journal.stats"
+                        :hideTodo="true"
+                        :fullWidthProgress="true"
+                        :class="'mb-4'"/>
                 </b-col>
                 <b-col md="6" lg="12">
                     <h3>Controls</h3>
@@ -72,12 +72,12 @@ import contentColumns from '@/components/columns/ContentColumns.vue'
 import entryNonStudentPreview from '@/components/entry/EntryNonStudentPreview.vue'
 import addCard from '@/components/journal/AddCard.vue'
 import edag from '@/components/edag/Edag.vue'
-import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import journalApi from '@/api/journal'
-import store from '@/Store.vue'
 import studentCard from '@/components/assignment/StudentCard.vue'
 import icon from 'vue-awesome/components/Icon'
 import progressBar from '@/components/assets/ProgressBar.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import journalApi from '@/api/journal'
+import store from '@/Store.vue'
 
 export default {
     props: ['cID', 'aID', 'jID'],
@@ -213,7 +213,7 @@ export default {
                         this.$toasted.success('Published all grades for this journal.')
 
                         for (var node of this.nodes) {
-                            if (node.type === 'e' || node.type === 'd') {
+                            if ((node.type === 'e' || node.type === 'd') && node.entry) {
                                 node.entry.published = true
                             }
                         }

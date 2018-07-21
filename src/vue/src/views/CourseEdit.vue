@@ -5,40 +5,40 @@
             <h2 class="mb-2">Manage course data</h2>
             <b-form @submit.prevent="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                         v-model="course.name"
-                         placeholder="Course name"
-                         required/>
+                    v-model="course.name"
+                    placeholder="Course name"
+                    required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                         v-model="course.abbr"
-                         maxlength="10"
-                         placeholder="Course Abbreviation (Max 10 letters)"
-                         required/>
+                    v-model="course.abbr"
+                    maxlength="10"
+                    placeholder="Course Abbreviation (Max 10 letters)"
+                    required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                         v-model="course.startdate"
-                         type="date"
-                         required/>
+                    v-model="course.startdate"
+                    type="date"
+                    required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                         v-model="course.enddate"
-                         type="date"
-                         required/>
+                    v-model="course.enddate"
+                    type="date"
+                    required/>
 
                 <b-row>
                     <b-col class="d-flex flex-wrap">
                         <b-button v-if="this.$root.canDeleteCourse()"
-                                  @click.prevent.stop="deleteCourse()"
-                                  class="delete-button flex-grow-1 multi-form">
+                            @click.prevent.stop="deleteCourse()"
+                            class="delete-button flex-grow-1 multi-form">
                             <icon name="trash"/>
                             Delete Course
                         </b-button>
                         <b-button v-if="this.$root.canEditCourseRoles()"
-                                  @click.prevent.stop="routeToEditCourseRoles"
-                                  class="change-button flex-grow-1 multi-form">
+                            @click.prevent.stop="routeToEditCourseRoles"
+                            class="change-button flex-grow-1 multi-form">
                             <icon name="users"/>
                             Manage Roles and Permissions
                         </b-button>
                         <b-button class="add-button flex-grow-1 multi-form"
-                                  type="submit"
-                                  v-if="this.$root.canEditCourse()">
+                            type="submit"
+                            v-if="this.$root.canEditCourse()">
                             <icon name="save"/>
                             Save
                         </b-button>
@@ -68,8 +68,8 @@
         </b-card>
 
         <course-participant-card v-if="selectedView == 'enrolled'"
-                                 @delete-participant="deleteParticipantLocally"
-                                 v-for="(p, i) in filteredUsers"
+            @delete-participant="deleteParticipantLocally"
+            v-for="(p, i) in filteredUsers"
             :key="p.uID"
             :cID="cID"
             :uID="p.uID"
@@ -80,8 +80,8 @@
             :role="p.role"/>
 
         <add-user-card v-if="selectedView == 'unenrolled'"
-                                 @add-participant="addParticipantLocally"
-                                 v-for="p in filteredUsers"
+            @add-participant="addParticipantLocally"
+            v-for="p in filteredUsers"
             :key="p.uID"
             :cID="cID"
             :uID="p.uID"

@@ -3,8 +3,7 @@
         <b-col md="5" sm="12" class="text-center">
             <div class="profile-portrait small-shadow">
                 <img :src="image">
-                <!-- TODO handle file uploads. The original profile picture upload did not work yet.
-                <b-form-file ref="file" v-on:change="updateProfilePicture" class="fileinput form-control" v-model="file" :state="Boolean(file)" placeholder="Upload profile picture..."></b-form-file> -->
+                <!-- TODO handle file upload. The original profile picture upload did not work yet. -->
                 <b-button>
                     <icon name="upload"/>
                     Upload
