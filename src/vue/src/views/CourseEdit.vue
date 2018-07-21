@@ -4,20 +4,20 @@
         <b-card class="no-hover">
             <h2>Manage course data</h2>
             <b-form @submit.prevent="onSubmit">
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                          v-model="course.name"
                          placeholder="Course name"
                          required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                          v-model="course.abbr"
                          maxlength="10"
                          placeholder="Course Abbreviation (Max 10 letters)"
                          required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                          v-model="course.startdate"
                          type="date"
                          required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                          v-model="course.enddate"
                          type="date"
                          required/>
@@ -62,7 +62,7 @@
                     </b-col>
 
                     <b-col cols="6">
-                        <input type="text" v-model="searchVariable" placeholder="Search .."/>
+                        <input class="theme-input" type="text" v-model="searchVariable" placeholder="Search .."/>
                     </b-col>
                 </b-row>
         </b-card>

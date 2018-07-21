@@ -45,7 +45,7 @@
             <b-form-input
                 @keyup.enter.native="addRole"
                 v-model="newRole"
-                class="multi-form"
+                class="multi-form theme-input"
                 ref="roleNameInput"
                 required placeholder="Role name"/>
             <b-button @click="addRole" class="add-button">Create role</b-button>
