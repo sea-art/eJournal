@@ -40,9 +40,6 @@ export default {
         'progress-bar': progressBar,
         'todo-square': todoSquare
     },
-    created () {
-        console.log(this.student)
-    },
     computed: {
         numMarkingNeeded () {
             return this.stats.submitted - this.stats.graded
