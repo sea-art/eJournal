@@ -1,17 +1,17 @@
 <template>
     <div>
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset" :v-model="form.ltiCourseID">
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseName" placeholder="Course name" required/>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseAbbr" maxlength="10" placeholder="Course Abbreviation (Max 10 letters)" required/>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.courseName" placeholder="Course name" required/>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.courseAbbr" maxlength="10" placeholder="Course Abbreviation (Max 10 letters)" required/>
             <b-row>
                 <b-col cols="6">
                     <b-form-group label="From:">
-                        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input" v-model="form.courseStartdate" type="date" placeholder="From" required/>
+                        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input" v-model="form.courseStartdate" type="date" placeholder="From" required/>
                     </b-form-group>
                 </b-col>
                 <b-col cols="6">
                     <b-form-group label="To:">
-                        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input" v-model="form.courseEnddate" type="date" placeholder="To" required/>
+                        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input" v-model="form.courseEnddate" type="date" placeholder="To" required/>
                     </b-form-group>
                 </b-col>
             </b-row>

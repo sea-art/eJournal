@@ -12,9 +12,9 @@
                     <b-row>
                         <b-col id="main-card-left-column" cols="9" lg-cols="12">
                             <h2>Preset Deadline</h2>
-                            <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="deadlineDate" type="date" @change="$emit('changed')"/>
+                            <b-input class="mb-2 mr-sm-2 mb-sm-0 theme-input" v-model="deadlineDate" type="date" @change="$emit('changed')"/>
                             <br/>
-                            <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="deadlineTime" type="time" @change="$emit('changed')"/>
+                            <b-input class="mb-2 mr-sm-2 mb-sm-0 theme-input" v-model="deadlineTime" type="time" @change="$emit('changed')"/>
                             <br/>
 
                             <h2>Preset Type</h2>
@@ -41,7 +41,7 @@
                             </div>
                             <div v-else-if="currentPreset.type === 'p'">
                                 <h2>Point Target</h2>
-                                <b-input class="mb-2 mr-sm-2 mb-sm-0" v-model="currentPreset.target" placeholder="Amount of points" @change="$emit('changed')"/>
+                                <b-input class="mb-2 mr-sm-2 mb-sm-0 theme-input" v-model="currentPreset.target" placeholder="Amount of points" @change="$emit('changed')"/>
                             </div>
                         </b-col>
                         <b-col id="main-card-right-column" cols="3" lg-cols="12">
