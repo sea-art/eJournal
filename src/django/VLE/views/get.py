@@ -680,7 +680,8 @@ def get_names(request):
         if jID:
             journal = Journal.objects.get(pk=jID)
             if journal.user is not user and \
-                    not permissions.has_assignment_permission(user, journal.assignment, 'can_view_assignment_participants'):
+                    not permissions.has_assignment_permission(user, journal.assignment,
+                                                              'can_view_assignment_participants'):
                 return responses.forbidden('You are not allowed to view journals of other participants.')
             result['journal'] = journal.user.first_name + " " + journal.user.last_name
 
