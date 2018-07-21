@@ -352,8 +352,8 @@ def get_journal(request, jID):
     except journal.DoesNotExist:
         return responses.not_found('Journal')
 
-    if journal.user is not user and \
-            not permissions.has_assignment_permission(user, journal.assignment, 'can_view_assignment_participants'):
+    if not (journal.user == user or permissions.has_assignment_permission(user, journal.assignment,
+                                                                          'can_view_assignment_participants')):
         return responses.forbidden('You are not allowed to view this journal.')
 
     return responses.success(payload={'journal': serialize.journal_to_dict(journal)})
@@ -563,8 +563,8 @@ def get_nodes(request, jID):
     except Journal.DoesNotExist:
         return responses.not_found("Journal")
 
-    if journal.user is not user and \
-            not permissions.has_assignment_permission(user, journal.assignment, 'can_view_assignment_participants'):
+    if not (journal.user == user or permissions.has_assignment_permission(user,
+            journal.assignment, 'can_view_assignment_participants')):
         return responses.forbidden('You are not allowed to view journals of other participants.')
 
     return responses.success(payload={'nodes': edag.get_nodes_dict(journal, request.user)})
@@ -679,9 +679,8 @@ def get_names(request):
             result['assignment'] = assignment.name
         if jID:
             journal = Journal.objects.get(pk=jID)
-            if journal.user is not user and \
-                    not permissions.has_assignment_permission(user, journal.assignment,
-                                                              'can_view_assignment_participants'):
+            if not (journal.user == user or permissions.has_assignment_permission(user,
+                    journal.assignment, 'can_view_assignment_participants')):
                 return responses.forbidden('You are not allowed to view journals of other participants.')
             result['journal'] = journal.user.first_name + " " + journal.user.last_name
 
