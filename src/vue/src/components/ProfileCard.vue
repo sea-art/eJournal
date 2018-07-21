@@ -1,8 +1,8 @@
 <template>
     <b-card class="settings-card no-hover">
-        <profile-data :uname="uname"
-                      :first="first"
-                      :last="last"
+        <profile-data :username="uname"
+                      :first_name="first"
+                      :last_name="last"
                       :image="image"
                       :id="id">
         </profile-data>

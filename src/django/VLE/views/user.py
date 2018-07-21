@@ -112,10 +112,10 @@ class UserView(viewsets.ViewSet):
         """
         if 'jwt_params' in request.data and request.data['jwt_params'] != '':
             lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
-            user_id, user_image = utils.optional_params(lti_params, 'user_id', 'user_image')
+            lti_id, user_image = utils.optional_params(lti_params, 'user_id', 'user_image')
             is_teacher = json.load(open('config.json'))['Teacher'] in lti_params['roles']
         else:
-            user_id, user_image, is_teacher = None, None, False
+            lti_id, user_image, is_teacher = None, None, False
 
         try:
             username, password = utils.required_params(request.data, 'username', 'password')
@@ -133,22 +133,27 @@ class UserView(viewsets.ViewSet):
         if User.objects.filter(username=username).exists():
             return response.bad_request('User with this username already exists.')
 
-        if user_id is not None and User.objects.filter(lti_id=user_id).exists():
+        if lti_id is not None and User.objects.filter(lti_id=lti_id).exists():
             return response.bad_request('User with this lti id already exists.')
 
         if validate_password(password):
             return response.bad_request(validate_password(password))
 
-        user = factory.make_user(username, password, email=email, lti_id=user_id, is_teacher=is_teacher,
+        user = factory.make_user(username, password, email=email, lti_id=lti_id, is_teacher=is_teacher,
                                  first_name=first_name, last_name=last_name, profile_picture=user_image)
 
         return response.created(self.serializer_class(user).data, obj='user')
 
+    # TODO: Test if lti works!
     def partial_update(self, request, *args, **kwargs):
         """Update an existing user.
 
         Arguments:
         request -- request data
+            jwt_params -- jwt params to get the lti information from
+                user_id -- id of the user
+                user_image -- user image
+                roles -- role of the user
         pk -- user ID
 
         Returns:
@@ -163,7 +168,7 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
         pk = kwargs.get('pk')
-        if request.user.pk is not int(pk) or not request.user.is_superuser:
+        if request.user.pk != int(pk) and not request.user.is_superuser:
             return response.forbidden()
 
         try:
@@ -171,11 +176,27 @@ class UserView(viewsets.ViewSet):
         except User.DoesNotExist:
             return request.not_found('user')
 
+        if 'jwt_params' in request.data and request.data['jwt_params'] != '':
+            lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
+            lti_id, user_image = utils.optional_params(lti_params, 'user_id', 'user_image')
+            is_teacher = json.load(open('config.json'))['Teacher'] in lti_params['roles']
+        else:
+            lti_id, user_image, is_teacher = None, None, False
+        if user_image is not None:
+            user.profile_picture = user_image
+        if is_teacher:
+            user.is_teacher = is_teacher
+
+        if lti_id:
+            if User.objects.filter(lti_id=lti_id).exists() and User.objects.filter(lti_id=lti_id) is not user:
+                return response.bad_request('User with this lti id already exists.')
+            user.lti_id = lti_id
+
         serializer = OwnUserSerializer(user, data=request.data, partial=True)
         if not serializer.is_valid():
-            response.bad_request()
+            return response.bad_request()
         serializer.save()
-        return response.success(serializer.data)
+        return response.success(serializer.data, description='Successfully updated.')
 
     def destroy(self, request, pk):
         """Delete a user.

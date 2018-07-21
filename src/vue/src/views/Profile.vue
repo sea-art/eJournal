@@ -1,12 +1,11 @@
 <template>
     <content-columns>
-        <bread-crumb @eye-click="customisePage" slot="main-content-column"/>
         <profile-card slot="main-content-column"
-                      :uname="profile.name"
+                      :uname="profile.username"
                       :first="profile.first_name"
                       :last="profile.last_name"
-                      :image="profile.picture"
-                      :id="profile.uID"
+                      :image="profile.profile_picture"
+                      :id="profile.id"
                       :gradeUpdate="profile.grade_notifications"
                       :commentUpdate="profile.comment_notifications">
         </profile-card>
@@ -17,7 +16,7 @@
 import contentColumns from '@/components/ContentColumns.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import profileCard from '@/components/ProfileCard.vue'
-import userAPI from '@/api/user.js'
+import auth from '@/api/auth.js'
 
 export default {
     name: 'Profile',
@@ -37,7 +36,8 @@ export default {
         }
     },
     created () {
-        userAPI.getOwnUserData().then(user => { this.profile = user })
+        auth.get('users/0')
+            .then(user => { this.profile = user })
     }
 }
 </script>

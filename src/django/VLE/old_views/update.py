@@ -10,101 +10,50 @@ import VLE.views.responses as responses
 import VLE.serializers as serialize
 import VLE.utils as utils
 import VLE.permissions as permissions
-import VLE.factory as factory
-from VLE.models import Course, Comment, Assignment, Participation, Role, Entry, \
+from VLE.models import Comment, Assignment, Entry, \
     User, Journal
 import VLE.lti_grade_passback as lti_grade
 from django.conf import settings
 import jwt
 import json
 
-
-@api_view(['POST'])
-def connect_assignment_lti(request):
-    """Connect an existing assignment to an lti assignment.
-
-    Arguments:
-    request -- the update request that was send with
-        aID -- the id of the assignment to be linked with lti
-        lti_id -- lti_id that needs to be added to the assignment
-        points_possible -- points_possible in lti assignment
-
-    Returns a json string for if it is succesful or not.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        aID, lti_id = utils.required_params(request.data, 'aID', 'lti_id')
-        [points_possible] = utils.optional_params(request.data, 'points_possible')
-    except KeyError:
-        return responses.keyerror('aID')
-
-    try:
-        assignment = Assignment.objects.get(pk=aID)
-    except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
-
-    if not permissions.has_assignment_permission(user, assignment, 'can_edit_assignment'):
-        return responses.forbidden('You are not allowed to edit the assignment.')
-
-    assignment.lti_id = lti_id
-    if assignment.points_possible is None and points_possible is not '':
-        assignment.points_possible = points_possible
-    assignment.save()
-
-    return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
-
-
-@api_view(['POST'])
-def update_course_with_student(request):
-    """Update an existing course with a student.
-
-    Arguments:
-    request -- the update request that was send with
-        uID -- student ID given with the request
-        cID -- course ID given with the request
-
-    Returns a json string for if it is successful or not.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        uID, cID = utils.required_params(request.data, 'uID', 'cID')
-    except KeyError:
-        return responses.keyerror('uID', 'cID')
-
-    try:
-        q_user = User.objects.get(pk=request.data['uID'])
-        course = Course.objects.get(pk=request.data['cID'])
-    except (User.DoesNotExist, Course.DoesNotExist):
-        return responses.not_found('User, Course or Participation does not exist.')
-
-    role = permissions.get_role(user, course)
-    if role is None:
-        return responses.forbidden('You are not in this course.')
-    elif not role.can_add_course_participants:
-        return responses.forbidden('You cannot add users to this course.')
-
-    if permissions.is_user_in_course(q_user, course):
-        return responses.bad_request('User already participates in the course.')
-
-    role = Role.objects.get(name="Student", course=course)
-    participation = factory.make_participation(q_user, course, role)
-
-    assignments = course.assignment_set.all()
-
-    role = permissions.get_role(q_user, cID)
-    for assignment in assignments:
-        if role.can_edit_journal:
-            if not Journal.objects.filter(assignment=assignment, user=q_user).exists():
-                factory.make_journal(assignment, q_user)
-
-    participation.save()
-    return responses.success(message='Succesfully added student to course')
+# Think this one works already
+# @api_view(['POST'])
+# def connect_assignment_lti(request):
+#     """Connect an existing assignment to an lti assignment.
+#
+#     Arguments:
+#     request -- the update request that was send with
+#         aID -- the id of the assignment to be linked with lti
+#         lti_id -- lti_id that needs to be added to the assignment
+#         points_possible -- points_possible in lti assignment
+#
+#     Returns a json string for if it is succesful or not.
+#     """
+#     user = request.user
+#     if not user.is_authenticated:
+#         return responses.unauthorized()
+#
+#     try:
+#         aID, lti_id = utils.required_params(request.data, 'aID', 'lti_id')
+#         [points_possible] = utils.optional_params(request.data, 'points_possible')
+#     except KeyError:
+#         return responses.keyerror('aID')
+#
+#     try:
+#         assignment = Assignment.objects.get(pk=aID)
+#     except Assignment.DoesNotExist:
+#         return responses.not_found('Assignment')
+#
+#     if not permissions.has_assignment_permission(user, assignment, 'can_edit_assignment'):
+#         return responses.forbidden('You are not allowed to edit the assignment.')
+#
+#     assignment.lti_id = lti_id
+#     if assignment.points_possible is None and points_possible is not '':
+#         assignment.points_possible = points_possible
+#     assignment.save()
+#
+#     return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
 
 
 @api_view(['POST'])
@@ -161,41 +110,6 @@ def update_format(request):
     utils.delete_templates(format.unused_templates, removed_templates)
 
     return responses.success(payload={'format': serialize.format_to_dict(format)})
-
-
-@api_view(['POST'])
-def update_user_role_course(request):
-    """Update user role in a course.
-
-    Arguments:
-    request -- the request that was send with
-        role -- the new role for the user
-        uID -- user id of the user to be updated
-        cID -- the course of the new role
-
-    Returns a json string for if it is successful or not.
-    """
-    try:
-        role, uID, cID = utils.required_params(request.data, "role", "uID", "cID")
-    except KeyError:
-        return responses.keyerror("role", "uID", "cID")
-
-    try:
-        course = Course.objects.get(pk=cID)
-        participation = Participation.objects.get(user=uID, course=cID)
-    except (Participation.DoesNotExist, Role.DoesNotExist, Course.DoesNotExist):
-        return responses.not_found('Participation, Role or Course does not exist.')
-
-    q_role = permissions.get_role(request.user, course)
-    if q_role is None:
-        return responses.forbidden('You are not in this course.')
-    elif not q_role.can_edit_course_roles:
-        return responses.forbidden('You cannot edit the roles of this course.')
-
-    participation.role = Role.objects.get(name=role, course=cID)
-
-    participation.save()
-    return responses.success(payload={'new_role': participation.role.name})
 
 
 @api_view(['POST'])
@@ -390,55 +304,55 @@ def update_entrycomment(request):
     comment.save()
     return responses.success()
 
-
-@api_view(['POST'])
-def update_lti_id_to_user(request):
-    """Create a new user with lti_id.
-
-    Arguments:
-    request -- the request
-        username -- username of the new user
-        password -- password of the new user
-        first_name -- first_name (optinal)
-        last_name -- last_name (optinal)
-        email -- email (optinal)
-        jwt_params -- jwt params to get the lti information from
-            user_id -- id of the user
-            user_image -- user image
-            roles -- role of the user
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    if not request.data['jwt_params']:
-        return responses.bad_request()
-
-    lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
-
-    user_id, user_image = lti_params['user_id'], lti_params['user_image']
-    is_teacher = json.load(open('config.json'))['Teacher'] == lti_params['roles']
-    first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
-
-    if first_name is not None:
-        user.first_name = first_name
-    if last_name is not None:
-        user.last_name = last_name
-    if email is not None:
-        if User.objects.filter(email=email).exists():
-            return responses.bad_request('User with this email already exists.')
-
-        user.email = email
-    if user_image is not None:
-        user.profile_picture = user_image
-    if is_teacher:
-        user.is_teacher = is_teacher
-
-    if User.objects.filter(lti_id=user_id).exists():
-        return responses.bad_request('User with this lti id already exists.')
-
-    user.lti_id = user_id
-
-    user.save()
-
-    return responses.success(payload={'user': serialize.user_to_dict(user)})
+# TODO: Test if lti works!
+# @api_view(['POST'])
+# def update_lti_id_to_user(request):
+#     """Create a new user with lti_id.
+#
+#     Arguments:
+#     request -- the request
+#         username -- username of the new user
+#         password -- password of the new user
+#         first_name -- first_name (optinal)
+#         last_name -- last_name (optinal)
+#         email -- email (optinal)
+#         jwt_params -- jwt params to get the lti information from
+#             user_id -- id of the user
+#             user_image -- user image
+#             roles -- role of the user
+#     """
+#     user = request.user
+#     if not user.is_authenticated:
+#         return responses.unauthorized()
+#
+#     if not request.data['jwt_params']:
+#         return responses.bad_request()
+#
+#     lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
+#
+#     user_id, user_image = lti_params['user_id'], lti_params['user_image']
+#     is_teacher = json.load(open('config.json'))['Teacher'] == lti_params['roles']
+#     first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
+#
+#     if first_name is not None:
+#         user.first_name = first_name
+#     if last_name is not None:
+#         user.last_name = last_name
+#     if email is not None:
+#         if User.objects.filter(email=email).exists():
+#             return responses.bad_request('User with this email already exists.')
+#
+#         user.email = email
+#     if user_image is not None:
+#         user.profile_picture = user_image
+#     if is_teacher:
+#         user.is_teacher = is_teacher
+#
+#     if User.objects.filter(lti_id=user_id).exists():
+#         return responses.bad_request('User with this lti id already exists.')
+#
+#     user.lti_id = user_id
+#
+#     user.save()
+#
+#     return responses.success(payload={'user': serialize.user_to_dict(user)})
