@@ -16,7 +16,7 @@
             <b-form-input class="theme-input multi-form" v-model="uname" type="text"/>
             <b-form-input class="theme-input multi-form" v-model="first" type="text"/>
             <b-form-input class="theme-input multi-form" v-model="last" type="text"/>
-            <b-button class="add-button multi-form" @click="saveUserdata">
+            <b-button class="add-button multi-form float-right" @click="saveUserdata">
                 <icon name="save"/>
                 Save
             </b-button>

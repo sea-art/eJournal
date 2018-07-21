@@ -4,7 +4,7 @@
         <b-input class="theme-input multi-form" v-model="oldPass" type="password" placeholder="Old password"/>
         <b-input class="theme-input multi-form" v-model="newPass" type="password" placeholder="New password"/>
         <b-input class="theme-input multi-form" v-model="newPassRepeat" type="password" placeholder="Repeat new password"/>
-        <b-button @click="changePassword" class="add-button">
+        <b-button @click="changePassword" class="add-button float-right">
             <icon name="save"/>
             Save
         </b-button>
