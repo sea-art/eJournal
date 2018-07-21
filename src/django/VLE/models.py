@@ -6,24 +6,25 @@ Database file
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
-from . import validators
 
 
 class ProfilePicture(models.Model):
     profile_picture_file = models.ImageField(
-        null=True,
-        upload_to='profile_pictures',
-        validators=[validators.validate_profile_picture]
-    )
-    creation_date = models.DateField(
-        auto_now_add=True,
-        blank=True
+        null=False,
+        upload_to='profile_pictures'
     )
     author = models.ForeignKey(
         'User',
         on_delete=models.CASCADE,
         null=False
     )
+    creation_date = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        """toString."""
+        return self.profile_picture_file.name
 
 
 class User(AbstractUser):

@@ -11,8 +11,9 @@ import VLE.serializers as serialize
 import VLE.utils as utils
 import VLE.permissions as permissions
 import VLE.factory as factory
+import VLE.validators as validators
 from VLE.models import Course, EntryComment, Assignment, Participation, Role, \
-    Entry, User, Journal
+    Entry, User, Journal, ProfilePicture
 import VLE.lti_grade_passback as lti_grade
 from django.conf import settings
 import re
@@ -642,6 +643,7 @@ def update_user_profile_picture(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
+    validators.validate_profile_picture(request.FILES['file'])
     user.profile_picture_file = request.FILES['file']
     user.save()
 

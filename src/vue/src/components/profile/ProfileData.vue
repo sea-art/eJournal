@@ -40,26 +40,36 @@ export default {
                 .then(this.$toasted.success('Saved profile data'))
         },
         fileHandler (e) {
+            let maxSize = 2 * 1024 * 1024
+
             let files = e.target.files
             if (!files.length) { return }
+            if (files[0].size > maxSize) {
+                this.$toasted.error('The profile picture exceeds the maximum file size of 2MB.')
+                return
+            }
 
-            this.file = files[0]
-
-            let formData = new FormData()
-            formData.append('file', this.file)
-
-            userAPI.updateProfilePicture(formData)
-                .then(_ => { this.setClientProfilePicture(this.file) })
-                .catch(_ => { this.$toasted.error('Something went wrong while uploading your profile picture.') })
-        },
-        setClientProfilePicture (imageFile) {
             var reader = new FileReader()
             var vm = this
 
             reader.onload = (e) => {
-                vm.profileImage = e.target.result
+                console.log('$$$%%% HERE')
+                var image = new Image()
+                console.log(image)
+                image.src = e.target.result
+                image.onload = function () {
+                    if (image.height !== image.width) {
+                        vm.$toasted.error('The profile picture should be a square image!')
+                    } else {
+                        // Image is the correct size and is symmetrical, lets send it to the backend.
+
+
+                        userAPI.updateProfilePicture(formData)
+                            .then(_ => { reader.readAsDataURL(image) })
+                            .catch(_ => { vm.$toasted.error('Something went wrong while uploading your profile picture.') })
+                    }
+                }
             }
-            reader.readAsDataURL(imageFile)
         },
         downloadUserData () {
             userAPI.getUserData(this.id).then(data => {
