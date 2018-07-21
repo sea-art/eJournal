@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 import VLE.views.responses as response
 from VLE.serializers import CourseSerializer
 from VLE.serializers import UserSerializer
-from VLE.models import Course, User, Role, Journal
+from VLE.models import Course, User, Role, Journal, Participation
 import VLE.permissions as permissions
 import VLE.utils as utils
 import VLE.factory as factory
@@ -268,13 +268,19 @@ class CourseView(viewsets.ViewSet):
         serializer = CourseSerializer(courses, many=True)
         return response.success(serializer.data)
 
-    @action(methods=['patch'], detail=True)
+    @action(methods=['patch, post'], detail=True)
+    def user(self, request, pk):
+        if request.method == 'PATCH':
+            update_user(request, pk)
+        elif request.method == 'POST':
+            add_user(request, pk)
+
     def add_user(self, request, pk):
         """Add a user to a course.
 
         Arguments:
         request -- request data
-            uID -- student ID given with the request
+            uID -- user ID
             role -- name of the role (default: Student)
 
         Returns:
@@ -324,3 +330,37 @@ class CourseView(viewsets.ViewSet):
                 if not Journal.objects.filter(assignment=assignment, user=user).exists():
                     factory.make_journal(assignment, user)
         return response.success(message='Succesfully added student to course')
+
+    def update_user(self, request, course_id):
+        """Update user role in a course.
+
+        Arguments:
+        request -- request data
+            uID -- user ID
+            role -- name of the role (default: Student)
+        course_id -- course ID
+
+        Returns a json string for if it is successful or not.
+        """
+        try:
+            user_id = utils.required_params(request.data, 'uID')
+            role_name = utils.optional_params(request.data, 'role') or 'Student'
+        except KeyError:
+            return response.keyerror("role", "uID", "cID")
+
+        try:
+            course = Course.objects.get(pk=course_id)
+            participation = Participation.objects.get(user=user_id, course=course_id)
+        except (Participation.DoesNotExist, Role.DoesNotExist, Course.DoesNotExist):
+            return response.not_found('Participation, Role or Course does not exist.')
+
+        role = permissions.get_role(request.user, course)
+        if role is None:
+            return response.forbidden('You are not in this course.')
+        elif not role.can_edit_course_roles:
+            return response.forbidden('You cannot edit the roles of this course.')
+
+        participation.role = Role.objects.get(name=role_name, course=course_id)
+
+        participation.save()
+        return response.success(participation.role.name)
