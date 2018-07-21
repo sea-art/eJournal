@@ -67,7 +67,7 @@ export default {
             var routerRoutes = this.$router.options.routes
             routerRoutes.sort((a, b) => a.path.length - b.path.length)
 
-            // Add every mathed (sub)route with params substituted
+            // Add every matched (sub)route with params substituted to use as key
             for (var route of routerRoutes.slice(1)) {
                 if (routeMatched.startsWith(route.path)) {
                     var fullpath = route.path
