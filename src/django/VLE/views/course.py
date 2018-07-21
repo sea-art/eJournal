@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 import VLE.views.responses as response
 from VLE.serializers import CourseSerializer
 from VLE.serializers import UserSerializer
-from VLE.models import Course, User, Role, Journal, Participation
+from VLE.models import Course
 import VLE.permissions as permissions
 import VLE.utils as utils
 import VLE.factory as factory
@@ -43,7 +43,7 @@ class CourseView(viewsets.ViewSet):
         Arguments:
         request -- request data
             name -- name of the course
-            abbr -- abbreviation of the course
+            abbreviation -- abbreviation of the course
             startdate -- (optional) date when the course starts
             enddate -- (optional) date when the course ends
             lti_id -- (optional) lti_id to link the course to
@@ -64,10 +64,10 @@ class CourseView(viewsets.ViewSet):
             return response.forbidden('You have no permissions to create a course.')
 
         try:
-            name, abbr = utils.required_params(request.data, 'name', 'abbr')
+            name, abbr = utils.required_params(request.data, 'name', 'abbreviation')
             startdate, enddate, lti_id = utils.optional_params(request.data, 'startdate', 'enddate', 'lti_id')
         except KeyError:
-            return response.keyerror('name', 'abbr')
+            return response.keyerror('name', 'abbreviation')
 
         course = factory.make_course(name, abbr, startdate, enddate, request.user, lti_id)
 
@@ -162,9 +162,10 @@ class CourseView(viewsets.ViewSet):
         On success:
             success -- with a message that the course was deleted
         """
-        pk = kwargs.get('pk')
+        print(request.user)
         if not request.user.is_authenticated:
             return response.unauthorized()
+        pk = kwargs.get('pk')
 
         try:
             course = Course.objects.get(pk=pk)
@@ -178,7 +179,7 @@ class CourseView(viewsets.ViewSet):
             return response.forbidden(description="You are unauthorized to delete this course.")
 
         course.delete()
-        return response.deleted('course')
+        return response.deleted(obj='course')
 
     @action(methods=['get'], detail=False)
     def linkable(self, request):
@@ -211,42 +212,6 @@ class CourseView(viewsets.ViewSet):
         serializer = UserSerializer(unlinked_courses, many=True)
         return response.success(serializer.data)
 
-    @action(methods=['get'], detail=True)
-    def users(self, request, pk=None):
-        """Get all users and their roles for a given course.
-
-        Arguments:
-        request -- request data
-        pk -- course ID
-
-        Returns:
-        On failure:
-            unauthorized -- when the user is not logged in
-            not found -- when the course does not exists
-            forbidden -- when the user is not in the course
-            forbidden -- when the user is unauthorized to view its participants
-        On success:
-            success -- list of all the users and their role
-        """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
-        try:
-            course = Course.objects.get(pk=pk)
-        except Course.DoesNotExist:
-            return response.not_found('Course')
-
-        role = permissions.get_role(request.user, course)
-        if role is None:
-            return response.forbidden('You are not in this course.')
-        elif not role.can_view_course_participants:
-            return response.forbidden('You cannot view participants in this course.')
-
-        queryset = course.users
-        serializer = UserSerializer(queryset, many=True)
-        # TODO: Include role of participation
-        return response.success(serializer.data)
-
     @action(methods=['get'], detail=False)
     def is_teacher(self, request):
         """Get all the courses where the user is a teacher.
@@ -267,100 +232,3 @@ class CourseView(viewsets.ViewSet):
                                         participation__role__can_edit_course=True)
         serializer = CourseSerializer(courses, many=True)
         return response.success(serializer.data)
-
-    @action(methods=['patch, post'], detail=True)
-    def user(self, request, pk):
-        if request.method == 'PATCH':
-            update_user(request, pk)
-        elif request.method == 'POST':
-            add_user(request, pk)
-
-    def add_user(self, request, pk):
-        """Add a user to a course.
-
-        Arguments:
-        request -- request data
-            uID -- user ID
-            role -- name of the role (default: Student)
-
-        Returns:
-        On failure:
-            unauthorized -- when the user is not logged in
-            not found -- when course or user is not found
-            forbidden -- when the logged in user is not connected to the course
-            bad request -- when the new user is already connected to the course
-            not found -- when the role doesnt exist
-        On success:
-            success -- success message
-        """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
-        try:
-            user_id = utils.required_params(request.data, 'uID')
-            role_name = utils.optional_params(request.data, 'role') or 'Student'
-        except KeyError:
-            return response.keyerror('uID')
-
-        try:
-            user = User.objects.get(pk=user_id)
-            course = Course.objects.get(pk=pk)
-        except (User.DoesNotExist, Course.DoesNotExist):
-            return response.not_found('user or course')
-
-        role = permissions.get_role(request.user, course)
-        if role is None:
-            return response.forbidden('You are not in this course.')
-        elif not role.can_add_course_participants:
-            return response.forbidden('You cannot add users to this course.')
-
-        if permissions.is_user_in_course(user, course):
-            return response.bad_request('User already participates in the course.')
-
-        try:
-            role = Role.objects.get(name=role_name, course=course)
-        except Role.DoesNotExist:
-            return response.not_found()
-        factory.make_participation(user, course, role)
-
-        assignments = course.assignment_set.all()
-        role = permissions.get_role(user, pk)
-        if role.can_edit_journal:
-            for assignment in assignments:
-                if not Journal.objects.filter(assignment=assignment, user=user).exists():
-                    factory.make_journal(assignment, user)
-        return response.success(message='Succesfully added student to course')
-
-    def update_user(self, request, course_id):
-        """Update user role in a course.
-
-        Arguments:
-        request -- request data
-            uID -- user ID
-            role -- name of the role (default: Student)
-        course_id -- course ID
-
-        Returns a json string for if it is successful or not.
-        """
-        try:
-            user_id = utils.required_params(request.data, 'uID')
-            role_name = utils.optional_params(request.data, 'role') or 'Student'
-        except KeyError:
-            return response.keyerror("role", "uID", "cID")
-
-        try:
-            course = Course.objects.get(pk=course_id)
-            participation = Participation.objects.get(user=user_id, course=course_id)
-        except (Participation.DoesNotExist, Role.DoesNotExist, Course.DoesNotExist):
-            return response.not_found('Participation, Role or Course does not exist.')
-
-        role = permissions.get_role(request.user, course)
-        if role is None:
-            return response.forbidden('You are not in this course.')
-        elif not role.can_edit_course_roles:
-            return response.forbidden('You cannot edit the roles of this course.')
-
-        participation.role = Role.objects.get(name=role_name, course=course_id)
-
-        participation.save()
-        return response.success(participation.role.name)

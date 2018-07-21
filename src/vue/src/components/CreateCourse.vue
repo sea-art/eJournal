@@ -1,17 +1,17 @@
 <template>
     <div>
-        <b-form @submit.prevent="onSubmit" @reset.prevent="onReset" :v-model="form.ltiCourseID">
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseName" placeholder="Course name" required/>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.courseAbbr" maxlength="10" placeholder="Course Abbreviation (Max 10 letters)" required/>
+        <b-form @submit.prevent="onSubmit" @reset.prevent="onReset" :v-model="form.lti_id">
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.name" placeholder="Course name" required/>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form" v-model="form.abbreviation" maxlength="10" placeholder="Course Abbreviation (Max 10 letters)" required/>
             <b-row>
                 <b-col cols="6">
                     <b-form-group label="From:">
-                        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input" v-model="form.courseStartdate" type="date" placeholder="From" required/>
+                        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input" v-model="form.startdate" type="date" placeholder="From" required/>
                     </b-form-group>
                 </b-col>
                 <b-col cols="6">
                     <b-form-group label="To:">
-                        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input" v-model="form.courseEnddate" type="date" placeholder="To" required/>
+                        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input" v-model="form.enddate" type="date" placeholder="To" required/>
                     </b-form-group>
                 </b-col>
             </b-row>
@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import courseApi from '@/api/course.js'
+import auth from '@/api/auth.js'
 
 export default {
     name: 'CreateCourse',
@@ -40,13 +40,10 @@ export default {
     },
     methods: {
         onSubmit () {
-            courseApi.create_new_course(this.form.courseName,
-                this.form.courseAbbr, this.form.courseStartdate,
-                this.form.courseEnddate,
-                this.form.ltiCourseID)
+            auth.create('courses', this.form)
                 .then(response => {
                     this.onReset(undefined)
-                    this.$emit('handleAction', response.course.cID)
+                    this.$emit('handleAction', response.id)
                 })
         },
         onReset (evt) {

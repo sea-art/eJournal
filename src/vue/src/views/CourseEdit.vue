@@ -9,7 +9,7 @@
                          placeholder="Course name"
                          required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
-                         v-model="course.abbr"
+                         v-model="course.abbreviation"
                          maxlength="10"
                          placeholder="Course Abbreviation (Max 10 letters)"
                          required/>
@@ -67,27 +67,26 @@
                 </b-row>
         </b-card>
 
-        <!-- TODO PROVIDE FULL NAME AND STUDENTNUMBER DATABASE BOYS -->
         <course-participant-card v-if="selectedView == 'enrolled'"
                                  @delete-participant="deleteParticipantLocally"
                                  v-for="(p, i) in filteredUsers"
-            :key="p.uID"
+            :key="p.id"
             :cID="cID"
-            :uID="p.uID"
+            :uID="p.id"
             :index="i"
-            :studentNumber="p.name"
+            :studentNumber="p.username"
             :name="p.first_name + ' ' + p.last_name"
-            :portraitPath="p.picture"
+            :portraitPath="p.profile_picture"
             :role="p.role"/>
 
         <add-user-card v-if="selectedView == 'unenrolled'"
                                  @add-participant="addParticipantLocally"
                                  v-for="p in filteredUsers"
-             :key="p.uID"
+             :key="p.id"
              :cID="cID"
-             :uID="p.uID"
-             :name="p.name"
-             :portraitPath="p.picture"/>
+             :uID="p.id"
+             :name="p.username"
+             :portraitPath="p.profile_picture"/>
 
     </content-single-column>
 </template>
@@ -97,7 +96,8 @@ import addUsersToCourseCard from '@/components/AddUsersToCourseCard.vue'
 import breadCrumb from '@/components/BreadCrumb.vue'
 import contentSingleColumn from '@/components/ContentSingleColumn.vue'
 import courseParticipantCard from '@/components/CourseParticipantCard.vue'
-import courseApi from '@/api/course.js'
+
+import auth from '@/api/auth.js'
 import store from '@/Store'
 
 export default {
@@ -120,27 +120,18 @@ export default {
         }
     },
     created () {
-        courseApi.get_course_data(this.cID)
-            .then(response => {
-                this.course = response
-            })
-
-        courseApi.get_users(this.cID)
-            .then(response => {
-                this.participants = response.users
-            })
+        auth.get('courses/' + this.cID)
+            .then(response => { this.course = response })
+        auth.get('participations/?cID=' + this.cID)
+            .then(response => { this.participants = response })
     },
     methods: {
         onSubmit () {
-            courseApi.update_course(this.cID,
-                this.course.name,
-                this.course.abbr,
-                this.course.startdate,
-                this.course.enddate)
+            auth.update('courses/' + this.cID, this.course)
                 .then(response => {
                     this.course = response
                     this.pageName = this.course.name
-                    this.$toasted.success('Updated course')
+                    this.$toasted.success(response.description)
                     store.clearCache()
                     this.$router.push({
                         name: 'Course',
@@ -152,11 +143,12 @@ export default {
         },
         deleteCourse () {
             if (confirm('Are you sure you want to delete ' + this.course.name + '?')) {
-                courseApi.delete_course(this.cID)
+                auth.delete('courses/' + this.cID)
                     .then(response => {
                         this.$router.push({name: 'Home'})
-                        this.$toasted.success('Deleted course')
+                        this.$toasted.success(response.description)
                     })
+                    .catch(_ => this.$toasted.error('Could not deleted course.'))
             }
         },
         deleteParticipantLocally (role, name, picture, uID) {
@@ -180,10 +172,8 @@ export default {
                 'uID': uID })
         },
         loadUnenrolledStudents () {
-            courseApi.get_unenrolled_users(this.cID)
-                .then(response => {
-                    this.unenrolledStudents = response
-                })
+            auth.get('participations/?cID=' + this.cID)
+                .then(response => { this.unenrolledStudents = response })
             this.unenrolledLoaded = !this.unenrolledLoaded
         },
         routeToEditCourseRoles () {
@@ -214,15 +204,11 @@ export default {
             }
 
             function checkFilter (user) {
-                var userName = user.name.toLowerCase()
+                var userName = user.username.toLowerCase()
                 var userID = String(user.uID).toLowerCase()
 
-                if (userName.includes(self.searchVariable.toLowerCase()) ||
-                    userID.includes(self.searchVariable)) {
-                    return true
-                } else {
-                    return false
-                }
+                return userName.includes(self.searchVariable.toLowerCase()) ||
+                       userID.includes(self.searchVariable)
             }
 
             /* Filter list on teachers. */

@@ -124,7 +124,7 @@ export default {
             if (ref === 'createCourseRef') {
                 this.loadCourses()
             } else if (ref === 'editCourseRef') {
-                // TODO: Handle edit assignment
+                // TODO: Handle edit course
             }
 
             this.hideModal(ref)

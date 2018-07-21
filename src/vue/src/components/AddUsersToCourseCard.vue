@@ -15,7 +15,8 @@
                 </b-button>
             </b-col>
         </b-row>
-    </b-card></template>
+    </b-card>
+</template>
 
 <script>
 import courseApi from '@/api/course.js'

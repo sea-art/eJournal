@@ -70,9 +70,8 @@ function handleResponse (response, noRedirect = true) {
         } else {
             Vue.toasted.error(response.data.result)
         }
-    } else {
-        throw response
     }
+    throw response
 }
 
 /*
@@ -147,15 +146,15 @@ export default {
         return connection.conn.patch(url, data, getAuthorizationHeader())
             .then(response => response.data)
             .catch(error => refresh(error)
-                .then(_ => connection.conn.post(url, data, getAuthorizationHeader())))
+                .then(_ => connection.conn.patch(url, data, getAuthorizationHeader())))
             .catch(error => handleResponse(error, noRedirect))
     },
-    delete (url,  noRedirect = false) {
+    delete (url, noRedirect = false) {
         if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
-        return connection.conn.delete(url, {}, getAuthorizationHeader())
+        return connection.conn.delete(url, getAuthorizationHeader())
             .then(response => response.data)
             .catch(error => refresh(error)
-                .then(_ => connection.conn.post(url, {}, getAuthorizationHeader())))
+                .then(_ => connection.conn.delete(url, getAuthorizationHeader())))
             .catch(error => handleResponse(error, noRedirect))
     }
 }

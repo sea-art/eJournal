@@ -110,7 +110,7 @@ class RoleView(viewsets.ViewSet):
             if int(pk) > 0:
                 Course.objects.get(pk=pk)
         except Course.DoesNotExist:
-            return response.not_found('asdfCourse')
+            return response.not_found('Course')
 
         roleDict = permissions.get_permissions(request.user, int(pk))
         if not roleDict:
