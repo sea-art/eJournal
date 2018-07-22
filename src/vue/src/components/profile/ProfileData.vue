@@ -64,7 +64,7 @@ export default {
                 vm.profileImage = e.target.result
             }
             reader.readAsDataURL(imageFile)
-        },
+        }
         // downloadUserData () {
         //     userAPI.getUserData(this.id).then(data => {
         //         /* This is a way to download data. */

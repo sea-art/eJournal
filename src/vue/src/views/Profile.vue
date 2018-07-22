@@ -1,5 +1,5 @@
 <template>
-    <content-columns>
+    <content-single-column>
         <profile-card slot="main-content-column"
             :uname="profile.username"
             :first="profile.first_name"
@@ -7,8 +7,7 @@
             :image="profile.profile_picture"
             :id="profile.id"
             :gradeUpdate="profile.grade_notifications"
-            :commentUpdate="profile.comment_notifications">
-        </profile-card>
+            :commentUpdate="profile.comment_notifications" />
     </content-single-column>
 </template>
 

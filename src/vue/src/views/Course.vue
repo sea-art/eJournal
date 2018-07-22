@@ -65,7 +65,6 @@ import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import assignmentCard from '@/components/assignment/AssignmentCard.vue'
 import todoCard from '@/components/assets/TodoCard.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
-import assignment from '@/api/assignment.js'
 import mainCard from '@/components/assets/MainCard.vue'
 import createAssignment from '@/components/assignment/CreateAssignment.vue'
 
