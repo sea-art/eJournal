@@ -9,7 +9,7 @@
 
                 <img class="profile-picture no-hover" :src="comment.author.picture">
                 <b-card class="no-hover comment-card" :class="$root.getBorderClass($route.params.cID)">
-                    <b-button class="ml-2 delete-button float-right" @click="deleteComment(comment.ecID)">
+                    <b-button v-if="authorData && authorData.uID == comment.author.uID" class="ml-2 delete-button float-right" @click="deleteComment(comment.ecID)">
                         <icon name="trash"/>
                         Delete
                     </b-button>
@@ -23,9 +23,9 @@
             </div>
         </div>
         <div v-if="$root.canCommentJournal()" class="comment-section">
-            <img class="profile-picture no-hover" :src="userData.picture">
+            <img class="profile-picture no-hover" :src="authorData.picture">
             <b-card class="no-hover new-comment">
-                <b-textarea class="theme-input" v-model="tempComment" placeholder="Write a comment" :class="$root.getBorderClass($route.params.cID)"/>
+                <b-textarea class="theme-input multi-form full-width" v-model="tempComment" placeholder="Write a comment" :class="$root.getBorderClass($route.params.cID)"/>
                 <b-button class="send-button" @click="addComment">
                     <icon name="paper-plane"/>
                 </b-button>
@@ -47,7 +47,7 @@ export default {
     data () {
         return {
             tempComment: '',
-            userData: '',
+            authorData: '',
             commentObject: null
         }
     },
@@ -58,13 +58,13 @@ export default {
         }
     },
     created () {
-        this.getAuthorID()
+        this.getAuthorData()
         this.getEntryComments()
     },
     methods: {
-        getAuthorID () {
+        getAuthorData () {
             userApi.getOwnUserData()
-                .then(response => { this.userData = response })
+                .then(response => { this.authorData = response })
         },
         getEntryComments () {
             entryApi.getEntryComments(this.eID)
@@ -74,7 +74,7 @@ export default {
         },
         addComment () {
             if (this.tempComment !== '') {
-                entryApi.createEntryComment(this.eID, this.userData.uID, this.tempComment)
+                entryApi.createEntryComment(this.eID, this.authorData.uID, this.tempComment)
                     .then(_ => {
                         this.getEntryComments()
                         this.tempComment = ''
@@ -97,18 +97,21 @@ export default {
 @import '~sass/modules/colors.sass'
 .comment-section
     display: flex
-    transition: all 0.6s cubic-bezier(.25,.8,.25,1)
     .profile-picture
         margin: 0px 12px
         display: inline
     .new-comment .card-body
         display: flex
-    .card, textarea
+        flex-wrap: wrap
+    .card
         flex: 1 1 auto
+        overflow: hidden
     .comment-card
         .card-body
             padding-bottom: 5px
         hr
+            width: 120%
+            margin-left: -10px !important
             border-color: $theme-dark-grey
             margin: 30px 0px 5px 0px
     .timestamp
