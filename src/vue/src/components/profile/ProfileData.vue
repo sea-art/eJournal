@@ -67,9 +67,7 @@ export default {
                         vm.$toasted.error('The profile picture should be a square image!')
                     } else {
                         // Image is the correct size and is symmetrical, lets send it to the backend.
-
-
-                        userAPI.updateProfilePicture(formData)
+                        userAPI.updateProfilePicture(image)
                             .then(_ => { reader.readAsDataURL(image) })
                             .catch(_ => { vm.$toasted.error('Something went wrong while uploading your profile picture.') })
                     }
