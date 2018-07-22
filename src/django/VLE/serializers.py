@@ -261,6 +261,7 @@ def entrycomment_to_dict(entrycomment):
         'eID': entrycomment.entry.id,
         'author': user_to_dict(entrycomment.author),
         'text': entrycomment.text,
+        'timestamp': entrycomment.timestamp
     } if entrycomment else None
 
 

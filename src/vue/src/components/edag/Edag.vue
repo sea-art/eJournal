@@ -99,6 +99,7 @@ export default {
     height: 100%
     @include lg-max
         max-height: 50vh
+        background-color: white
 
 @include xl
     #edag-outer[style]

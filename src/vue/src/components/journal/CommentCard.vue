@@ -8,13 +8,17 @@
             <div v-for="(comment, index) in commentObject.entrycomments" class="comment-section" :key="index">
 
                 <img class="profile-picture no-hover" :src="comment.author.picture">
-                <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-                    <b-button class="delete-button float-right" @click="deleteComment(comment.ecID)">
+                <b-card class="no-hover comment-card" :class="$root.getBorderClass($route.params.cID)">
+                    <b-button class="ml-2 delete-button float-right" @click="deleteComment(comment.ecID)">
                         <icon name="trash"/>
                         Delete
                     </b-button>
-                    <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b><br/>
                     <span class="show-enters">{{ comment.text }}</span>
+                    <hr/>
+                    <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b>
+                    <span class="timestamp">
+                        {{ $root.beautifyDate(comment.timestamp) }}<br/>
+                    </span>
                 </b-card>
             </div>
         </div>
@@ -101,6 +105,16 @@ export default {
         display: flex
     .card, textarea
         flex: 1 1 auto
+    .comment-card
+        .card-body
+            padding-bottom: 5px
+        hr
+            border-color: $theme-dark-grey
+            margin: 30px 0px 5px 0px
+    .timestamp
+        float: right
+        font-family: 'Roboto Condensed', sans-serif
+        color: $theme-dark-grey
     textarea
         margin-right: 10px
 </style>
