@@ -256,7 +256,7 @@ class UpdateApiTests(TestCase):
 
         login = test.logging_in(self, self.rein_user, self.rein_pass)
 
-        update_dict = {'entrycommentID': entrycomment.pk, 'text': 'Bad!'}
+        update_dict = {'ecID': entrycomment.pk, 'text': 'Bad!'}
         test.api_post_call(self, '/update_entrycomment/', update_dict, login)
 
         q_entrycomment = EntryComment.objects.get(pk=entrycomment.pk)

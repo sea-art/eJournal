@@ -222,21 +222,21 @@ def create_entrycomment(request):
 
     Arguments:
     request -- the request that was send with
-        entryID -- the entry id
-        authorID -- the author id
+        eID -- the entry id
+        uID -- the author id
         text -- the comment
     """
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
     try:
-        entryID, authorID, text = utils.required_params(request.data, "entryID", "authorID", "text")
+        eID, uID, text = utils.required_params(request.data, "eID", "uID", "text")
     except KeyError:
-        return responses.keyerror("entryID", "authorID", "text")
+        return responses.keyerror("eID", "uID", "text")
 
     try:
-        author = User.objects.get(pk=authorID)
-        entry = Entry.objects.get(pk=entryID)
+        author = User.objects.get(pk=uID)
+        entry = Entry.objects.get(pk=eID)
     except (User.DoesNotExist, Entry.DoesNotExist):
         return responses.not_found('User or Entry does not exist.')
 

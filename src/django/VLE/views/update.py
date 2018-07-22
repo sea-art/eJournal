@@ -599,7 +599,7 @@ def update_entrycomment(request):
 
     Arguments:
     request -- the request that was send with
-        entrycommentID -- The ID of the entrycomment.
+        ecID -- The ID of the entrycomment.
         text -- The updated text.
     Returns a json string for if it is successful or not.
     """
@@ -607,12 +607,12 @@ def update_entrycomment(request):
         return responses.unauthorized()
 
     try:
-        entrycommentID, text = utils.required_params(request.data, "entrycommentID", "text")
+        ecID, text = utils.required_params(request.data, "ecID", "text")
     except KeyError:
-        return responses.keyerror("entrycommentID")
+        return responses.keyerror("ecID")
 
     try:
-        comment = EntryComment.objects.get(pk=entrycommentID)
+        comment = EntryComment.objects.get(pk=ecID)
     except EntryComment.DoesNotExist:
         return responses.not_found('Entrycomment does not exist.')
 

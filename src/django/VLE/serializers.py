@@ -257,6 +257,7 @@ def preset_to_dict(preset):
 def entrycomment_to_dict(entrycomment):
     """Convert entrycomment to dictionary."""
     return {
+        'ecID': entrycomment.id,
         'eID': entrycomment.entry.id,
         'author': user_to_dict(entrycomment.author),
         'text': entrycomment.text,

@@ -4,11 +4,15 @@
 -->
 <template>
     <div>
-        <div v-if="commentObject !== null">
+        <div v-if="commentObject">
             <div v-for="(comment, index) in commentObject.entrycomments" class="comment-section" :key="index">
 
                 <img class="profile-picture no-hover" :src="comment.author.picture">
                 <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+                    <b-button class="delete-button float-right" @click="deleteComment(comment.ecID)">
+                        <icon name="trash"/>
+                        Delete
+                    </b-button>
                     <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b><br/>
                     <span class="show-enters">{{ comment.text }}</span>
                 </b-card>
@@ -54,26 +58,27 @@ export default {
         this.getEntryComments()
     },
     methods: {
-        getAuthorID: function () {
+        getAuthorID () {
             userApi.getOwnUserData()
                 .then(response => { this.userData = response })
         },
-        getEntryComments: function () {
-            entryApi.getEntryComments(this.eID).then(response => { this.commentObject = response })
+        getEntryComments () {
+            entryApi.getEntryComments(this.eID)
+                .then(response => {
+                    this.commentObject = response
+                })
         },
-        addComment: function () {
+        addComment () {
             if (this.tempComment !== '') {
                 entryApi.createEntryComment(this.eID, this.userData.uID, this.tempComment)
-                this.commentObject.entrycomments.push({
-                    entrtyID: this.eID,
-                    author: {
-                        first_name: this.userData.first_name,
-                        last_name: this.userData.last_name,
-                        picture: this.userData.picture
-                    },
-                    text: this.tempComment
-                })
+                this.getEntryComments()
                 this.tempComment = ''
+            }
+        },
+        deleteComment (ecID) {
+            if (confirm('Are you sure you want to delete this comment?')) {
+                entryApi.deleteEntryComment(ecID)
+                this.getEntryComments(this.eID)
             }
         }
     }
@@ -84,6 +89,7 @@ export default {
 @import '~sass/modules/colors.sass'
 .comment-section
     display: flex
+    transition: all 0.6s cubic-bezier(.25,.8,.25,1)
     .profile-picture
         margin: 0px 12px
         display: inline
