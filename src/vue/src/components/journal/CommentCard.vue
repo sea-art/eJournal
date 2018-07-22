@@ -71,7 +71,7 @@ export default {
         addComment () {
             if (this.tempComment !== '') {
                 entryApi.createEntryComment(this.eID, this.userData.uID, this.tempComment)
-                    .then (_ => {
+                    .then(_ => {
                         this.getEntryComments()
                         this.tempComment = ''
                     })
