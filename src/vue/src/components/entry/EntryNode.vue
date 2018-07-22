@@ -62,7 +62,7 @@
                 if possible the already filled in entry.
             -->
             <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
-                <div v-if="field.title != ''">
+                <div v-if="field.title">
                     <b>{{ field.title }}</b>
                 </div>
                 <div v-if="field.type=='t'">
