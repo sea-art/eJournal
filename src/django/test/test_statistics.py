@@ -38,7 +38,7 @@ class StatisticsTests(TestCase):
                 entries[i].grade = 1
                 entries[i].published = True
                 entries[i].save()
-        self.assertEquals(utils.get_acquired_grade(entries, journal), 3)
+        self.assertEquals(utils.get_acquired_points(entries), 3)
         self.assertEquals(utils.get_max_points(journal), 5)
         self.assertEquals(utils.get_submitted_count(entries), 4)
         self.assertEquals(utils.get_graded_count(entries), 3)

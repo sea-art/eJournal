@@ -11,6 +11,12 @@ export default {
             .catch(error => { throw error })
     },
 
+    get_journal (jID) {
+        return auth.authenticatedGet('/get_journal/' + jID + '/')
+            .then(response => response.data)
+            .catch(error => { throw error })
+    },
+
     get_nodes (jID) {
         return auth.authenticatedGet('/get_nodes/' + jID + '/')
             .then(response => response.data)

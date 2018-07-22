@@ -6,100 +6,80 @@
     needed privileges.
  -->
 <template>
-    <div class="entry-template">
-        <b-row>
-            <b-col id="main-card-left-column" cols="12">
-                <div v-if="saveEditMode == 'Save'">
-                    <!-- Edit mode. -->
-                    <b-card class="card main-card no-hover" :class="'pink-border'">
-                        <b-row>
-                            <b-col id="main-card-left-column" cols="9" lg-cols="12">
-                                <h2>{{entryNode.entry.template.name}}</h2>
-                            </b-col>
-                            <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
-                                <div v-if="entryNode.entry.published">
-                                    Points: {{ entryNode.entry.grade }}
-                                </div>
-                                <div v-else>
-                                    To be graded
-                                </div>
-                            </b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col id="main-card-left-column" cols="12" lg-cols="12">
-                                <!--
-                                    Shows every field description and
-                                    a corresponding form.
-                                -->
-                                <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
-                                    <div v-if="field.title != ''">
-                                        <b>{{ field.title }}</b>
-                                    </div>
+    <div>
+        <!-- Edit mode. -->
+        <b-card v-if="saveEditMode == 'Save'" class="entry-card no-hover" :class="$root.getBorderClass(cID)">
+            <div class="grade-section shadow">
+                <span v-if="entryNode.entry.published">
+                    {{ entryNode.entry.grade }}
+                </span>
+                <span v-else>
+                    <icon name="hourglass-half"/>
+                </span>
+            </div>
+            <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
+            <!--
+                Shows every field description and
+                a corresponding form.
+            -->
+            <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
+                <div v-if="field.title">
+                    <b>{{ field.title }}</b>
+                </div>
 
-                                    <div v-if="field.type=='t'">
-                                        <b-textarea v-model="completeContent[i].data"></b-textarea><br><br>
-                                    </div>
-                                    <div v-else-if="field.type=='i'">
-                                        <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
-                                    </div>
-                                    <div v-else-if="field.type=='f'">
-                                        <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
-                                    </div>
-                                </div>
-                                <b-button class="add-button" @click="saveEdit">{{ saveEditMode }} </b-button>
-                                <b-button class="change-button" @click="cancel">Cancel</b-button>
-                            </b-col>
-                        </b-row>
-                    </b-card>
+                <div v-if="field.type=='t'">
+                    <b-textarea class="theme-input" v-model="completeContent[i].data"></b-textarea><br>
                 </div>
-                <div v-else>
-                    <!-- Overview mode. -->
-                    <b-card class="card main-card no-hover" :class="this.$root.getBorderClass(cID)">
-                        <b-row>
-                            <b-col id="main-card-left-column" cols="9" lg-cols="12">
-                                <h2>{{entryNode.entry.template.name}}</h2>
-                            </b-col>
-                            <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
-                                <div v-if="entryNode.entry.published">
-                                    Points: {{ entryNode.entry.grade }}
-                                </div>
-                                <div v-else>
-                                    <div v-if="entryNode.entry.editable">
-                                        To be graded
-                                    </div>
-                                    <div v-else>
-                                        Grade is not visible
-                                    </div>
-                                </div>
-                            </b-col>
-                        </b-row>
-                        <b-row>
-                            <b-col id="main-card-left-column" cols="12" lg-cols="12">
-                                <!--
-                                    Gives a view of every templatefield and
-                                    if possible the already filled in entry.
-                                -->
-                                <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
-                                    <div v-if="field.title != ''">
-                                        <b>{{ field.title }}</b>
-                                    </div>
-                                    <div v-if="field.type=='t'">
-                                        <span class="show-enters">{{ completeContent[i].data }}</span><br><br>
-                                    </div>
-                                    <div v-else-if="field.type=='i'">
-                                        {{ completeContent[i].data }}<br><br>
-                                    </div>
-                                    <div v-else-if="field.type=='f'">
-                                        {{ completeContent[i].data }}<br><br>
-                                    </div>
-                                </div>
-                                <b-button v-if="entryNode.entry.editable" @click="saveEdit">{{ saveEditMode }} </b-button>
-                            </b-col>
-                        </b-row>
-                    </b-card>
+                <div v-else-if="field.type=='i'">
+                    <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br>
                 </div>
-            </b-col>
-        </b-row>
+                <div v-else-if="field.type=='f'">
+                    <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br>
+                </div>
+            </div>
+            <b-button class="add-button float-right" @click="saveEdit">
+                <icon name="save"/>
+                Save
+            </b-button>
+            <b-button class="delete-button" @click="cancel">
+                <icon name="ban"/>
+                Cancel
+            </b-button>
+        </b-card>
+        <!-- Overview mode. -->
+        <b-card v-else class="entry-card no-hover" :class="$root.getBorderClass(cID)">
+            <div class="grade-section shadow">
+                <span v-if="entryNode.entry.published">
+                    {{ entryNode.entry.grade }}
+                </span>
+                <span v-else>
+                    <icon name="hourglass-half"/>
+                </span>
+            </div>
+            <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
+            <!--
+                Gives a view of every templatefield and
+                if possible the already filled in entry.
+            -->
+            <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
+                <div v-if="field.title">
+                    <b>{{ field.title }}</b>
+                </div>
+                <div v-if="field.type=='t'">
+                    <span class="show-enters">{{ completeContent[i].data }}</span><br>
+                </div>
+                <div v-else-if="field.type=='i'">
+                    {{ completeContent[i].data }}<br>
+                </div>
+                <div v-else-if="field.type=='f'">
+                    {{ completeContent[i].data }}<br>
+                </div>
+            </div>
+            <b-button v-if="entryNode.entry.editable" class="change-button float-right" @click="saveEdit">
+                <icon name="edit"/>
+                Edit
+            </b-button>
+        </b-card>
 
         <comment-card :eID="entryNode.entry.eID"/>
     </div>
@@ -107,6 +87,7 @@
 
 <script>
 import commentCard from '@/components/journal/CommentCard.vue'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     props: ['entryNode', 'cID'],
@@ -174,8 +155,8 @@ export default {
         }
     },
     components: {
-        'comment-card': commentCard
+        'comment-card': commentCard,
+        'icon': icon
     }
 }
-
 </script>

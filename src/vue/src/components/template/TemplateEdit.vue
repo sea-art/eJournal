@@ -12,7 +12,7 @@
                             </b-col>
                             <b-col cols="12" sm="2" lg="1" class="icon-box">
                                 <div class="handle d-inline d-sm-block">
-                                    <icon class="move-icon" name="arrows" scale="1.75"></icon>
+                                    <icon class="move-icon" name="arrows" scale="1.75"/>
                                 </div>
                                 <icon class="trash-icon" @click.native="removeField(field.location)" name="trash" scale="1.75"/>
                             </b-col>
@@ -21,7 +21,10 @@
                 </div>
                 <div class="invisible"></div>
             </draggable>
-            <b-card class="hover add-button" @click="addField">+ Add field</b-card>
+            <b-button class="add-button full-width" @click="addField">
+                <icon name="plus"/>
+                Add field
+            </b-button>
         </b-card>
     </div>
 </template>
@@ -67,7 +70,7 @@ export default {
             this.template.fields.push(newField)
         },
         removeField (location) {
-            if (confirm('Are you sure you want to remove \'' + this.template.fields[location].title + '\'?')) {
+            if (confirm('Are you sure you want to remove "' + this.template.fields[location].title + '" from this template?')) {
                 this.template.fields.splice(location, 1)
             }
 
@@ -119,7 +122,7 @@ export default {
     fill: $theme-blue !important
 
 .field-card:hover .trash-icon:hover
-    fill: $theme-negative-selected !important
+    fill: $theme-red !important
 
 @include sm-max
     .icon-box

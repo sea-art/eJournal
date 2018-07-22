@@ -49,6 +49,7 @@ urlpatterns = [
     path('get_user_courses/', get.get_user_courses, name='get_user_courses'),
     path('get_course_assignments/<int:cID>/', get.get_course_assignments, name='get_course_assignments'),
     path('get_assignment_journals/<int:aID>/', get.get_assignment_journals, name='get_assignment_journals'),
+    path('get_journal/<int:jID>/', get.get_journal, name='get_journal'),
     path('get_upcoming_deadlines/', get.get_upcoming_deadlines, name='get_upcoming_deadlines'),
     path('get_course_permissions/<str:cID>/', get.get_course_permissions, name='get_course_permissions'),
     path('get_upcoming_course_deadlines/<int:cID>/', get.get_upcoming_course_deadlines,

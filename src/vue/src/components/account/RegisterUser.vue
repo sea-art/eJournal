@@ -3,13 +3,19 @@
         <b-card class="blue-border no-hover card-last-elem-button">
             <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.username" placeholder="Username" required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"  v-model="form.firstname" placeholder="Firstname" required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"  v-model="form.lastname" placeholder="Lastname" required/>
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"  v-model="form.firstname" placeholder="First name" required/>
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"  v-model="form.lastname" placeholder="Last name" required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.password" type="password" placeholder="Password" required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.password2" type="password" placeholder="Password (again)" required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"  v-model="form.email" placeholder="Email" required/>
-                <b-button class="float-right" type="reset">Reset</b-button>
-                <b-button class="float-right" type="submit">Register</b-button>
+                <b-button class="float-left change-button multi-form" type="reset">
+                    <icon name="undo"/>
+                    Reset
+                </b-button>
+                <b-button class="float-right multi-form" type="submit">
+                    <icon name="user-plus"/>
+                    Register
+                </b-button>
             </b-form>
         </b-card>
     </div>
@@ -18,6 +24,7 @@
 <script>
 import auth from '@/api/auth.js'
 import userApi from '@/api/user.js'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     name: 'RegisterUser',
@@ -65,7 +72,7 @@ export default {
                                         code: '511',
                                         message: 'Network authorization required',
                                         description: `Invalid credentials for logging in.
-                                                      Please contact your system administrator.`
+                                                      Please contact the system administrator.`
                                     }
                                 })
                             })
@@ -100,6 +107,9 @@ export default {
             this.form.email = this.lti.email
             this.form.ltiJWT = this.lti.ltiJWT
         }
+    },
+    components: {
+        'icon': icon
     }
 }
 </script>

@@ -88,7 +88,7 @@ def journal_to_dict(journal):
         'jID': journal.id,
         'student': user_to_dict(journal.user),
         'stats': {
-            'acquired_points': utils.get_acquired_grade(entries, journal),
+            'acquired_points': utils.get_acquired_points(entries),
             'graded': utils.get_graded_count(entries),
             'submitted': utils.get_submitted_count(entries),
             'total_points': utils.get_max_points(journal),

@@ -7,7 +7,7 @@
 
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
             <b-link tag="b-button" :to="assignmentRoute(cID, a.aID, a.name, a.journal)">
-                <assignment-card :line1="a.name" :color="$root.colors[cID % $root.colors.length]">
+                <assignment-card :line1="a.name">
                     <progress-bar
                         v-if="a.journal && a.journal.stats"
                         :currentPoints="a.journal.stats.acquired_points"
@@ -16,22 +16,23 @@
             </b-link>
         </div>
 
-        <main-card slot="main-content-column" v-if="$root.canAddAssignment()" class="hover add-button" v-on:click.native="showModal('createAssignmentRef')" :line1="'+ Add assignment'"/>
+        <b-button v-if="$root.canAddAssignment()"
+            slot="main-content-column"
+            class="add-button grey-background full-width"
+            @click="showModal('createAssignmentRef')">
+            <icon name="plus"/>
+            Create New Assignment
+        </b-button>
 
         <h3 slot="right-content-column">Upcoming</h3>
 
         <b-card v-if="this.$root.canViewAssignmentParticipants()"
                 class="no-hover"
                 slot="right-content-column">
-                <b-row>
-                    <b-col lg="6" sm="6">
-                        <b-form-select v-model="selectedSortOption" :select-size="1">
-                           <option :value="null">Sort by ...</option>
-                           <option value="sortDate">Sort by date</option>
-                           <option value="sortNeedsMarking">Sort by markings needed</option>
-                        </b-form-select>
-                    </b-col>
-                </b-row>
+            <b-form-select v-model="selectedSortOption" :select-size="1">
+                <option value="sortDate">Sort by date</option>
+                <option value="sortNeedsMarking">Sort by marking needed</option>
+            </b-form-select>
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
@@ -42,15 +43,14 @@
                     :minutes="d.deadline.Minutes"
                     :name="d.name"
                     :abbr="d.courseAbbr"
-                    :totalNeedsMarking="d.totalNeedsMarking"
-                    :color="$root.colors[d.cID % $root.colors.length]">
+                    :totalNeedsMarking="d.totalNeedsMarking">
                 </todo-card>
             </b-link>
         </div>
         <b-modal
             slot="main-content-column"
             ref="createAssignmentRef"
-            title="Create assignment"
+            title="New Assignment"
             size="lg"
             hide-footer>
                 <create-assignment @handleAction="handleConfirm('createAssignmentRef')"></create-assignment>
@@ -67,6 +67,7 @@ import todoCard from '@/components/assets/TodoCard.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
 import assignment from '@/api/assignment.js'
 import mainCard from '@/components/assets/MainCard.vue'
+import icon from 'vue-awesome/components/Icon'
 import createAssignment from '@/components/assignment/CreateAssignment.vue'
 import courseApi from '@/api/course.js'
 
@@ -84,7 +85,7 @@ export default {
             cardColor: '',
             post: null,
             error: null,
-            selectedSortOption: null,
+            selectedSortOption: 'sortDate',
             deadlines: [],
             needsMarkingStats: []
         }
@@ -96,7 +97,8 @@ export default {
         'todo-card': todoCard,
         'progress-bar': progressBar,
         'main-card': mainCard,
-        'create-assignment': createAssignment
+        'create-assignment': createAssignment,
+        'icon': icon
     },
     created () {
         this.loadAssignments()
@@ -194,7 +196,7 @@ export default {
                 return new Date(a.deadline.Date) - new Date(b.deadline.Date)
             }
 
-            function compareMarkingsNeeded (a, b) {
+            function compareMarkingNeeded (a, b) {
                 if (a.totalNeedsMarking > b.totalNeedsMarking) { return -1 }
                 if (a.totalNeedsMarking < b.totalNeedsMarking) { return 1 }
                 return 0
@@ -211,7 +213,7 @@ export default {
             if (this.selectedSortOption === 'sortDate') {
                 return this.deadlines.slice().sort(compareDate).filter(filterTop)
             } else if (this.selectedSortOption === 'sortNeedsMarking') {
-                return this.deadlines.slice().sort(compareMarkingsNeeded).filter(filterTop).filter(filterNoEntries)
+                return this.deadlines.slice().sort(compareMarkingNeeded).filter(filterTop).filter(filterNoEntries)
             } else {
                 return this.deadlines.slice().sort(compareDate).filter(filterTop)
             }

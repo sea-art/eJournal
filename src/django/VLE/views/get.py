@@ -302,7 +302,7 @@ def get_assignment_journals(request, aID):
 
     Arguments:
     request -- the request that was send with
-    cID -- the course ID to get the assignments from
+    aID -- the assignment ID to get the journals from
 
     Returns a json string with the journals
     """
@@ -329,11 +329,34 @@ def get_assignment_journals(request, aID):
         stats['needsMarking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
         points = [x['stats']['acquired_points'] for x in journals]
         stats['avgPoints'] = round(st.mean(points), 2)
-        stats['medianPoints'] = st.median(points)
-        stats['avgEntries'] = round(
-            st.mean([x['stats']['submitted'] for x in journals]), 2)
 
     return responses.success(payload={'stats': stats if stats else None, 'journals': journals})
+
+
+@api_view(['GET'])
+def get_journal(request, jID):
+    """Get a student submitted journal.
+
+    Arguments:
+    request -- the request that was send with
+    jID -- the journal ID to get
+
+    Returns a journal.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    try:
+        journal = Journal.objects.get(pk=jID)
+    except journal.DoesNotExist:
+        return responses.not_found('Journal')
+
+    if not (journal.user == user or permissions.has_assignment_permission(user, journal.assignment,
+                                                                          'can_view_assignment_participants')):
+        return responses.forbidden('You are not allowed to view this journal.')
+
+    return responses.success(payload={'journal': serialize.journal_to_dict(journal)})
 
 
 def create_teacher_assignment_deadline(course, assignment):
