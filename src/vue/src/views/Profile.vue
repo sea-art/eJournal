@@ -1,33 +1,33 @@
 <template>
-    <content-columns>
-        <bread-crumb @eye-click="customisePage" slot="main-content-column"/>
-        <profile-card slot="main-content-column"
-                      :uname="profile.name"
-                      :first="profile.first_name"
-                      :last="profile.last_name"
-                      :image="profile.picture"
-                      :id="profile.uID"
-                      :gradeUpdate="profile.grade_notifications"
-                      :commentUpdate="profile.comment_notifications">
+    <content-single-column>
+        <bread-crumb @eye-click="customisePage"/>
+        <profile-card v-if="profile"
+            :uname="profile.name"
+            :first="profile.first_name"
+            :last="profile.last_name"
+            :image="profile.picture"
+            :id="profile.uID"
+            :gradeUpdate="profile.grade_notifications"
+            :commentUpdate="profile.comment_notifications">
         </profile-card>
-    </content-columns>
+    </content-single-column>
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
-import profileCard from '@/components/ProfileCard.vue'
+import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import profileCard from '@/components/profile/ProfileCard.vue'
 import userAPI from '@/api/user.js'
 
 export default {
     name: 'Profile',
     data () {
         return {
-            profile: {}
+            profile: null
         }
     },
     components: {
-        'content-columns': contentColumns,
+        'content-single-column': contentSingleColumn,
         'bread-crumb': breadCrumb,
         'profile-card': profileCard
     },
@@ -37,7 +37,10 @@ export default {
         }
     },
     created () {
-        userAPI.getOwnUserData().then(user => { this.profile = user })
+        userAPI.getOwnUserData()
+            .then(user => {
+                this.profile = user
+            })
     }
 }
 </script>

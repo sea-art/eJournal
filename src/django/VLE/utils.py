@@ -6,6 +6,7 @@ A library with useful functions.
 from VLE.models import Entry, Node, EntryTemplate, PresetNode
 import VLE.factory as factory
 import VLE.views.responses as responses
+import os
 
 
 # START: API-POST functions
@@ -49,26 +50,18 @@ def get_max_points(journal):
     return journal.assignment.format.max_points
 
 
-def get_acquired_grade(entries, journal):
-    """Get the number of acquired points in an journal.
+def get_acquired_points(entries):
+    """Get the number of acquired points from a set of entries.
 
-    - journal: the journal in question.
+    - entries: the journal in question.
 
     Returns the total number of points depending on the grade type.
     """
-    format = journal.assignment.format
     total_grade = 0
-    if format.grade_type == 'GR':
-        count_graded = 0
-        for entry in entries:
-            if entry.published:
-                count_graded += 1
-                total_grade += entry.grade if entry.grade is not None else 0
-        return total_grade
-    else:
-        for entry in entries:
+    for entry in entries:
+        if entry.published:
             total_grade += entry.grade if entry.grade is not None else 0
-        return total_grade
+    return total_grade
 
 
 def get_submitted_count(entries):
@@ -245,3 +238,20 @@ def delete_templates(templates, remove_templates):
         tIDs.append(template['tID'])
 
     templates.filter(pk__in=tIDs).delete()
+
+
+def handle_uploaded_file(f, path, userID):
+    root = os.getcwd()
+    paths = {
+        'user_file': '/{}/src/vue/static/uploads/users/{}/files/'.format(root, userID),
+        'profile_picture': '/{}/src/vue/static/uploads/users/{}/profile_pictures/'.format(root, userID)
+    }
+    os.makedirs(os.path.dirname(paths[path]), exist_ok=True)
+
+    fullFilePath = paths[path] + str(f)
+
+    with open(fullFilePath, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+
+    return fullFilePath

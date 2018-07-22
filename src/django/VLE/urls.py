@@ -18,6 +18,9 @@ Including another URLconf
 
 """
 
+from django.conf import settings
+from django.conf.urls.static import static
+
 from django.contrib import admin
 from django.urls import path
 
@@ -46,6 +49,7 @@ urlpatterns = [
     path('get_user_courses/', get.get_user_courses, name='get_user_courses'),
     path('get_course_assignments/<int:cID>/', get.get_course_assignments, name='get_course_assignments'),
     path('get_assignment_journals/<int:aID>/', get.get_assignment_journals, name='get_assignment_journals'),
+    path('get_journal/<int:jID>/', get.get_journal, name='get_journal'),
     path('get_upcoming_deadlines/', get.get_upcoming_deadlines, name='get_upcoming_deadlines'),
     path('get_course_permissions/<str:cID>/', get.get_course_permissions, name='get_course_permissions'),
     path('get_upcoming_course_deadlines/<int:cID>/', get.get_upcoming_course_deadlines,
@@ -69,6 +73,8 @@ urlpatterns = [
     path('create_lti_user/', create.create_lti_user, name='create_lti_user'),
     path('create_journal/', create.create_journal, name='create_journal'),
 
+    path('update_user_profile_picture/', update.update_user_profile_picture, name='update_user_profile_picture'),
+    path('update_user_image/', update.update_user_image, name='update_user_image'),
     path('update_user_data/', update.update_user_data, name='update_user_data'),
     path('update_course/', update.update_course, name='update_course'),
     path('connect_course_lti/', update.connect_course_lti, name='connect_course_lti'),
@@ -101,3 +107,6 @@ urlpatterns = [
     path('lti/launch', get.lti_launch, name='lti_launch'),
     path('get_lti_params_from_jwt/<str:jwt_params>/', get.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),
 ]
+
+if settings.DEBUG is True:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

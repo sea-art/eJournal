@@ -1,25 +1,24 @@
 <template>
-    <content-columns>
-        <bread-crumb slot="main-content-column" :currentPage="'Assignments'"></bread-crumb>
+    <content-single-column>
+        <bread-crumb :currentPage="'Assignments'"></bread-crumb>
 
-        <b-card class="no-hover settings-card" slot="main-content-column">
+        <b-card class="no-hover">
                 <b-row>
-                    <b-col lg="4" sm="6">
+                    <b-col sm="6">
                         <b-form-select v-model="selectedSortOption" :select-size="1">
-                           <option :value="null">Sort by ...</option>
                            <option value="sortDate">Sort by date</option>
                            <option value="sortName">Sort by name</option>
                            <option v-if="this.$root.canAddCourse()"
-                                   value="sortNeedsMarking">Sort by markings needed</option>
+                                   value="sortNeedsMarking">Sort by marking needed</option>
                         </b-form-select>
                     </b-col>
-                    <b-col cols="6">
-                        <input type="text" v-model="searchVariable" placeholder="Search .."/>
+                    <b-col sm="6">
+                        <input class="theme-input full-width" type="text" v-model="searchVariable" placeholder="Search .."/>
                     </b-col>
                 </b-row>
         </b-card>
 
-        <div v-for="(d, i) in computedDeadlines" :key="i" slot="main-content-column">
+        <div v-for="(d, i) in computedDeadlines" :key="i">
             <b-link tag="b-button" :to="journalRoute(d.cID, d.aID, d.jID, d.name)">
                 <todo-card
                     :date="d.deadline.Date"
@@ -28,26 +27,26 @@
                     :name="d.name"
                     :abbr="d.courseAbbr"
                     :totalNeedsMarking="d.totalNeedsMarking"
-                    :color="$root.colors[d.cID % $root.colors.length]">
+                    :class="$root.getBorderClass(d.cID)">
                 </todo-card>
             </b-link>
         </div>
-    </content-columns>
+    </content-single-column>
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
-import mainCard from '@/components/MainCard.vue'
+import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import mainCard from '@/components/assets/MainCard.vue'
 import assignmentApi from '@/api/assignment.js'
-import todoCard from '@/components/TodoCard.vue'
+import todoCard from '@/components/assets/TodoCard.vue'
 
 export default {
     name: 'AssignmentsOverview',
     data () {
         return {
             deadlines: [],
-            selectedSortOption: null,
+            selectedSortOption: 'sortDate',
             searchVariable: ''
 
         }
@@ -60,7 +59,7 @@ export default {
             .catch(_ => this.$toasted.error('Error while loading deadlines'))
     },
     components: {
-        'content-columns': contentColumns,
+        'content-single-column': contentSingleColumn,
         'bread-crumb': breadCrumb,
         'main-card': mainCard,
         'todo-card': todoCard
@@ -103,14 +102,16 @@ export default {
                 return new Date(a.deadline.Date) - new Date(b.deadline.Date)
             }
 
-            function compareMarkingsNeeded (a, b) {
+            function compareMarkingNeeded (a, b) {
                 if (a.totalNeedsMarking > b.totalNeedsMarking) { return -1 }
                 if (a.totalNeedsMarking < b.totalNeedsMarking) { return 1 }
                 return 0
             }
 
-            function searchFilter (course) {
-                return course.name.toLowerCase().includes(self.searchVariable.toLowerCase())
+            function searchFilter (assignment) {
+                var searchVariable = self.searchVariable.toLowerCase()
+                return (assignment.name.toLowerCase().includes(searchVariable) ||
+                        assignment.courseAbbr.toLowerCase().includes(searchVariable))
             }
 
             if (this.selectedSortOption === 'sortName') {
@@ -118,7 +119,7 @@ export default {
             } else if (this.selectedSortOption === 'sortDate') {
                 return this.deadlines.filter(searchFilter).slice().sort(compareDate)
             } else if (this.selectedSortOption === 'sortNeedsMarking') {
-                return this.deadlines.filter(searchFilter).slice().sort(compareMarkingsNeeded)
+                return this.deadlines.filter(searchFilter).slice().sort(compareMarkingNeeded)
             } else {
                 return this.deadlines.filter(searchFilter).slice()
             }

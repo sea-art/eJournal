@@ -1,0 +1,34 @@
+@import '~sass/modules/colors.sass'
+@import '~sass/modules/breakpoints.sass'
+
+.left-content-edag-page
+    padding: 0px
+    @include xl
+        height: 100%
+        overflow: hidden
+
+.main-content-edag-page
+    background-color: $theme-medium-grey
+    padding: 10px 0px 0px 0px
+    flex-grow: 1
+    @include xl
+        height: 100%
+
+.right-content-edag-page
+    @include xl
+        height: 100%
+
+.outer-container-edag-page-edag-page
+    @include xl
+        height: 100%
+        overflow: hidden
+
+.inner-container-edag-page
+    display: flex
+    min-height: 100%
+    flex-direction: row
+    flex-wrap: wrap
+    @include lg
+        flex-direction: column
+    @include xl
+        flex-direction: row

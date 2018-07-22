@@ -17,6 +17,26 @@ import 'vue-awesome/icons/times'
 import 'vue-awesome/icons/exclamation'
 import 'vue-awesome/icons/plus'
 import 'vue-awesome/icons/list-ul'
+import 'vue-awesome/icons/paper-plane'
+import 'vue-awesome/icons/save'
+import 'vue-awesome/icons/upload'
+import 'vue-awesome/icons/download'
+import 'vue-awesome/icons/arrow-right'
+import 'vue-awesome/icons/arrow-left'
+import 'vue-awesome/icons/user'
+import 'vue-awesome/icons/users'
+import 'vue-awesome/icons/shield'
+import 'vue-awesome/icons/user-times'
+import 'vue-awesome/icons/user-plus'
+import 'vue-awesome/icons/edit'
+import 'vue-awesome/icons/undo'
+import 'vue-awesome/icons/sign-in'
+import 'vue-awesome/icons/sign-out'
+import 'vue-awesome/icons/ban'
+import 'vue-awesome/icons/link'
+import 'vue-awesome/icons/envelope'
+import 'vue-awesome/icons/home'
+import 'vue-awesome/icons/calendar'
 
 import Toasted from 'vue-toasted'
 
@@ -33,9 +53,33 @@ new Vue({
         colors: ['pink-border', 'peach-border', 'blue-border'],
         permissions: {},
         validToken: false,
-        previousPage: null
+        previousPage: null,
+        windowWidth: 0
+    },
+    mounted () {
+        this.$nextTick(function () {
+            window.addEventListener('resize', this.getWindowWidth)
+
+            this.getWindowWidth()
+        })
+    },
+    beforeDestroy () {
+        window.removeEventListener('resize', this.getWindowWidth)
     },
     methods: {
+        getWindowWidth () {
+            this.windowWidth = window.innerWidth
+        },
+        /* Bootstrap breakpoints for custom events. */
+        // TODO Figure out how to get these from the dedicated sass file (more webpack fun)
+        sm () { return this.windowWidth > 575 },
+        md () { return this.windowWidth > 767 },
+        lg () { return this.windowWidth > 991 },
+        xl () { return this.windowWidth > 1199 },
+        xsMax () { return this.windowWidth < 576 },
+        smMax () { return this.windowWidth < 769 },
+        mdMax () { return this.windowWidth < 992 },
+        lgMax () { return this.windowWidth < 1200 },
         timeLeft (date) {
             /* Date format is:
              * Returns the remaining time left as:
@@ -45,6 +89,18 @@ new Vue({
         },
         getBorderClass (cID) {
             return this.colors[cID % this.colors.length]
+        },
+        beautifyDeadline (deadline) {
+            if (!deadline) {
+                return ''
+            }
+
+            var year = deadline.substring(0, 4)
+            var month = deadline.substring(5, 7)
+            var day = deadline.substring(8, 10)
+            var time = deadline.substring(11, 16)
+
+            return day + '-' + month + '-' + year + ' ' + time
         },
 
         /* #############################################################

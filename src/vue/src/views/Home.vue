@@ -12,30 +12,27 @@
                 <main-card
                     :line1="c.name"
                     :line2="c.startdate.substring(0, 4) + '-' + c.enddate.substring(0, 4)"
-                    :color="$root.colors[c.cID % $root.colors.length]">
+                    :class="$root.getBorderClass(c.cID)">
                 </main-card>
             </b-link>
         </div>
-        <main-card
-            v-if="this.$root.canAddCourse()"
+        <b-button v-if="$root.canAddCourse()"
             slot="main-content-column"
-            class="hover add-button"
-            @click.native="showModal('createCourseRef')"
-            :line1="'+ Add course'"/>
+            class="add-button grey-background full-width"
+            @click="showModal('createCourseRef')">
+            <icon name="plus"/>
+            Create New Course
+        </b-button>
 
         <h3 slot="right-content-column">Upcoming</h3>
+        <!-- TODO: This seems like an inappropriate permission check. Will have to be reconsidered in the rework. -->
         <b-card v-if="this.$root.canAddCourse()"
-                class="no-hover settings-card"
+                class="no-hover"
                 slot="right-content-column">
-                <b-row>
-                    <b-col lg="6" sm="6">
-                        <b-form-select v-model="selectedSortOption" :select-size="1">
-                           <option :value="null">Sort by ...</option>
-                           <option value="sortDate">Sort by date</option>
-                           <option value="sortNeedsMarking">Sort by markings needed</option>
-                        </b-form-select>
-                    </b-col>
-                </b-row>
+            <b-form-select v-model="selectedSortOption" :select-size="1">
+                <option value="sortDate">Sort by date</option>
+                <option value="sortNeedsMarking">Sort by marking needed</option>
+            </b-form-select>
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
@@ -47,7 +44,7 @@
                     :name="d.name"
                     :abbr="d.courseAbbr"
                     :totalNeedsMarking="d.totalNeedsMarking"
-                    :color="$root.colors[d.cID % $root.colors.length]">
+                    :class="$root.getBorderClass(d.cID)">
                 </todo-card>
             </b-link>
         </div>
@@ -55,7 +52,7 @@
         <b-modal
             slot="main-content-column"
             ref="editCourseRef"
-            title="Global changes"
+            title="Global Changes"
             size="lg"
             hide-footer>
                 <edit-home @handleAction="handleConfirm('editCourseRef')"></edit-home>
@@ -64,7 +61,7 @@
         <b-modal
             slot="main-content-column"
             ref="createCourseRef"
-            title="Create course"
+            title="New Course"
             size="lg"
             hide-footer>
                 <create-course @handleAction="handleConfirm('createCourseRef')"></create-course>
@@ -73,12 +70,13 @@
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
-import mainCard from '@/components/MainCard.vue'
-import todoCard from '@/components/TodoCard.vue'
-import createCourse from '@/components/CreateCourse.vue'
-import editHome from '@/components/EditHome.vue'
+import contentColumns from '@/components/columns/ContentColumns.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import mainCard from '@/components/assets/MainCard.vue'
+import todoCard from '@/components/assets/TodoCard.vue'
+import createCourse from '@/components/course/CreateCourse.vue'
+import editHome from '@/components/home/EditHome.vue'
+import icon from 'vue-awesome/components/Icon'
 import course from '@/api/course'
 import assignmentApi from '@/api/assignment.js'
 
@@ -88,7 +86,7 @@ export default {
         return {
             intituteName: 'Universiteit van Amsterdam (UvA)',
             courses: [],
-            selectedSortOption: null,
+            selectedSortOption: 'sortDate',
             deadlines: []
         }
     },
@@ -98,7 +96,8 @@ export default {
         'main-card': mainCard,
         'todo-card': todoCard,
         'create-course': createCourse,
-        'edit-home': editHome
+        'edit-home': editHome,
+        'icon': icon
     },
     created () {
         this.loadCourses()
@@ -168,7 +167,7 @@ export default {
                 return new Date(a.deadline.Date) - new Date(b.deadline.Date)
             }
 
-            function compareMarkingsNeeded (a, b) {
+            function compareMarkingNeeded (a, b) {
                 if (a.totalNeedsMarking > b.totalNeedsMarking) { return -1 }
                 if (a.totalNeedsMarking < b.totalNeedsMarking) { return 1 }
                 return 0
@@ -185,7 +184,7 @@ export default {
             if (this.selectedSortOption === 'sortDate') {
                 return this.deadlines.slice().sort(compareDate).filter(filterTop)
             } else if (this.selectedSortOption === 'sortNeedsMarking') {
-                return this.deadlines.slice().sort(compareMarkingsNeeded).filter(filterTop).filter(filterNoEntries)
+                return this.deadlines.slice().sort(compareMarkingNeeded).filter(filterTop).filter(filterNoEntries)
             } else {
                 return this.deadlines.slice().sort(compareDate).filter(filterTop)
             }

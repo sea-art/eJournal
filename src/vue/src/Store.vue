@@ -2,13 +2,13 @@
 export default {
     debug: false,
     state: {
-        cachedMap: [],
+        cachedMap: {},
         format: { templatePool: [], nodes: [] },
         filteredJournals: []
     },
     setCachedMap (cachedMap) {
         if (this.debug) { console.log('setCachedMap triggered with', cachedMap) }
-        this.state.cachedMap = cachedMap.slice()
+        this.state.cachedMap = cachedMap
     },
     setFormat (templatePool, nodes) {
         if (this.debug) { console.log('setFormat triggered with', templatePool, nodes) }

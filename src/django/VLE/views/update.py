@@ -11,8 +11,8 @@ import VLE.serializers as serialize
 import VLE.utils as utils
 import VLE.permissions as permissions
 import VLE.factory as factory
-from VLE.models import Course, EntryComment, Assignment, Participation, Role, Entry, \
-    User, Journal
+from VLE.models import Course, EntryComment, Assignment, Participation, Role, \
+    Entry, User, Journal
 import VLE.lti_grade_passback as lti_grade
 from django.conf import settings
 import re
@@ -623,6 +623,50 @@ def update_entrycomment(request):
     comment.text = text
     comment.save()
     return responses.success()
+
+
+@api_view(['POST'])
+def update_user_profile_picture(request):
+    """Update user profile picture.
+
+    Arguments:
+    request -- the update request that was send with
+        request.FILES should contain the user uploaded file
+
+    Returns a json string for if it is successful or not.
+    """
+    # TODO CHECKS for file integrety
+    # Set default profile picture to the new one on success
+
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    utils.handle_uploaded_file(request.FILES['file'], 'profile_picture', user.id)
+
+    return responses.success()
+
+
+@api_view(['POST'])
+def update_user_image(request):
+    """Update user image directory.
+
+    Arguments:
+    request -- the update request that was send with
+        request.FILES should contain the user uploaded file
+
+    Returns a json string for if it is successful or not.
+    """
+    # TODO CHECKS for file integrety
+    # Set default profile picture to the new one on success
+
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    fullPath = utils.handle_uploaded_file(request.FILES['file'], 'user_file', user.id)
+
+    return responses.success({'location': fullPath})
 
 
 @api_view(['POST'])

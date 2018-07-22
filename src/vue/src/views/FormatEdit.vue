@@ -6,82 +6,96 @@
 -->
 
 <template>
-    <b-row class="outer-container" no-gutters>
-        <b-col v-if="bootstrapLg()" cols="12">
-            <bread-crumb v-if="bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
-            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :isInEditFormatPage="true"/>
+    <b-row class="outer-container-edag-page" no-gutters>
+        <b-col md="12" lg="8" xl="9" class="inner-container-edag-page">
+            <b-col md="12" lg="auto" xl="4" class="left-content-edag-page">
+                <bread-crumb v-if="$root.lgMax()" class="main-content">&nbsp;</bread-crumb>
+                <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :isInEditFormatPage="true"/>
+            </b-col>
+
+            <b-col md="12" lg="auto" xl="8" class="main-content-edag-page">
+                <bread-crumb v-if="$root.xl()" class="main-content">&nbsp;</bread-crumb>
+                <!--
+                    Fill in the template using the corresponding data
+                    of the entry
+                . -->
+                <selected-node-card
+                    :class="{ 'fmt-disabled' : saveRequestInFlight }"
+                    v-if="nodes.length > 0"
+                    ref="entry-template-card"
+                    :currentPreset="nodes[currentNode]"
+                    :templates="templatePool"
+                    @deadline-changed="sortList"
+                    @delete-preset="deletePreset"
+                    @changed="isChanged = true"/>
+                <main-card v-else class="no-hover" :line1="'No presets in format'" :class="'grey-border'"/>
+
+                <b-button :class="{ 'fmt-disabled' : saveRequestInFlight }" class="add-button grey-background full-width" @click="addNode">
+                    <icon name="plus"/>
+                    Add New Preset to Format
+                </b-button>
+
+                <b-modal
+                    ref="modal"
+                    size="lg"
+                    ok-only
+                    hide-header>
+                        <span slot="modal-ok">
+                            Back
+                        </span>
+                        <template-editor :template="templateBeingEdited">
+                        </template-editor>
+                </b-modal>
+            </b-col>
         </b-col>
-        <b-col v-else xl="3" class="left-content-format-edit">
-            <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :isInEditFormatPage="true"/>
-        </b-col>
 
-        <b-col lg="12" xl="6" order="3" order-xl="2" class="main-content-format-edit">
-            <bread-crumb v-if="!bootstrapLg()" @eye-click="customisePage" :currentPage="$route.params.assignmentName" :course="$route.params.courseName"/>
-            <!--
-                Fill in the template using the corresponding data
-                of the entry
-            . -->
-
-            <div v-if="nodes.length > 0" :class="{ grayed : saveRequestInFlight }">
-                <selected-node-card ref="entry-template-card" :currentPreset="nodes[currentNode]" :templates="templatePool" @deadline-changed="sortList" @delete-preset="deletePreset" @changed="isChanged = true" :color="$root.colors[cID % $root.colors.length]"/>
-            </div>
-            <div v-else>
-                <p>No presets yet</p>
-            </div>
-
-            <b-modal
-                ref="modal"
-                size="lg"
-                ok-only
-                hide-header>
-                    <span slot="modal-ok">Back</span>
-                    <template-editor :template="templateBeingEdited">
-                    </template-editor>
-            </b-modal>
-        </b-col>
-        <b-col cols="12" xl="3" order="2" order-xl="3" class="right-content-format-edit">
-            <h3>Format</h3>
-            <div :class="{ grayed : saveRequestInFlight }">
-                <b-card @click.prevent.stop="addNode" class="card hover add-button" :class="'grey-border'" style="">
-                    <b>+ Add Preset to Format</b>
-                </b-card>
-                <b-card class="no-hover">
-                    <b>Point Maximum</b>
-                    <input v-model="max_points" placeholder="Point Maximum" type="number">
-                </b-card>
-                <b-card @click.prevent.stop="saveFormat" class="card hover add-button" :class="'grey-border'" style="">
-                    <b v-if="saveRequestInFlight">Saving...</b>
-                    <b v-else>Save Format</b>
-                </b-card>
-                <br/>
-            </div>
-
-            <h3>Template Pool</h3>
-            <div :class="{ grayed : saveRequestInFlight }">
-                <template-todo-card class="hover" v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate" :color="$root.colors[cID % $root.colors.length]"/>
-                <b-card @click="showModal(newTemplate())" class="hover add-button" :class="'grey-border'" style="">
-                    <b>+ Add Template</b>
-                </b-card>
-            </div>
+        <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
+            <b-row>
+                <b-col md="6" lg="12">
+                    <h3>Assignment Format</h3>
+                    <div :class="{ 'fmt-disabled' : saveRequestInFlight }">
+                        <b-card class="no-hover settings-card mb-4" :class="$root.getBorderClass($route.params.cID)">
+                            <div class="point-maximum multi-form">
+                                <b>Point Maximum</b>
+                                <input class="theme-input" v-model="max_points" placeholder="Points" type="number">
+                            </div>
+                            <b-button @click.prevent.stop="saveFormat" class="add-button full-width">
+                                <icon name="save"/>
+                                Save Format
+                            </b-button>
+                        </b-card>
+                    </div>
+                </b-col>
+                <b-col md="6" lg="12">
+                    <h3>Entry Templates</h3>
+                    <div :class="{ 'fmt-disabled' : saveRequestInFlight }">
+                        <available-template-card v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate"/>
+                        <b-button class="add-button grey-background full-width" @click="showModal(newTemplate())">
+                            <icon name="plus"/>
+                            Create New Template
+                        </b-button>
+                    </div>
+                </b-col>
+            </b-row>
         </b-col>
     </b-row>
 
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
-import edag from '@/components/Edag.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
-import formatEditAvailableTemplateCard from '@/components/FormatEditAvailableTemplateCard.vue'
-import formatEditSelectTemplateCard from '@/components/FormatEditSelectTemplateCard.vue'
+import contentColumns from '@/components/columns/ContentColumns.vue'
+import mainCard from '@/components/assets/MainCard.vue'
+import edag from '@/components/edag/Edag.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import formatEditAvailableTemplateCard from '@/components/format/FormatEditAvailableTemplateCard.vue'
+import formatEditSelectTemplateCard from '@/components/format/FormatEditSelectTemplateCard.vue'
 import journalAPI from '@/api/journal.js'
-import templateEdit from '@/components/TemplateEdit.vue'
+import templateEdit from '@/components/template/TemplateEdit.vue'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     name: 'FormatEdit',
-
     props: ['cID', 'aID', 'editedTemplate'],
-
     /* Main data representations:
        templates, presets, unused templates: as received.
        templatePool: the list of used templates. Elements are meta objects with a t field storing the template,
@@ -94,7 +108,6 @@ export default {
     */
     data () {
         return {
-            windowWidth: 0,
             currentNode: 0,
 
             templates: [],
@@ -120,7 +133,6 @@ export default {
             max_points: 0
         }
     },
-
     created () {
         journalAPI.get_format(this.aID)
             .then(data => {
@@ -137,14 +149,12 @@ export default {
             }
         })
     },
-
     watch: {
         templatePool: {
             handler: function () { this.isChanged = true },
             deep: true
         }
     },
-
     methods: {
         deletePreset () {
             if (typeof this.nodes[this.currentNode].pID !== 'undefined') {
@@ -195,34 +205,23 @@ export default {
             return new Date().toISOString().split('T')[0].slice(0, 10) + ' ' + new Date().toISOString().split('T')[1].slice(0, 5)
         },
         addNode () {
-            if (this.nodes.length === 0) {
-                this.nodes.push({
-                    'type': 'p',
-                    'deadline': this.newDate(),
-                    'target': 0
-                })
-                this.isChanged = true
-                return
-            }
-
             var newNode = {
-                'type': this.nodes[this.currentNode].type,
-                'deadline': this.nodes[this.currentNode].deadline
-            }
-
-            if (newNode.type === 'd') {
-                this.$set(newNode, 'template', this.nodes[this.currentNode].template)
-            } else {
-                this.$set(newNode, 'target', this.nodes[this.currentNode].target)
+                'type': 'p',
+                'deadline': this.newDate(),
+                'target': this.max_points
             }
 
             this.nodes.push(newNode)
             this.currentNode = this.nodes.indexOf(newNode)
             this.sortList()
             this.isChanged = true
+
+            this.$toasted.success('Added new node to format.')
         },
         // Do client side validation and save to DB
         saveFormat () {
+            var missingPointMax = false
+
             var invalidDate = false
             var invalidTemplate = false
             var invalidTarget = false
@@ -234,6 +233,12 @@ export default {
             for (var template of this.templatePool) {
                 templatePoolIds.push(template.t.tID)
             }
+
+            if (!missingPointMax && isNaN(parseInt(this.max_points))) {
+                missingPointMax = true
+                this.$toasted.error('Point maximum is missing. Please check the format and try again.')
+            }
+
             for (var node of this.nodes) {
                 if (!targetsOutOfOrder && node.type === 'p') {
                     if (lastTarget && node.target < lastTarget) {
@@ -245,27 +250,23 @@ export default {
 
                 if (!invalidDate && isNaN(Date.parse(node.deadline))) {
                     invalidDate = true
-                    this.$toasted.error('One or more presets has an invalid deadline. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have an invalid deadline. Please check the format and try again.')
                 }
                 if (!invalidTemplate && node.type === 'd' && typeof node.template.tID === 'undefined') {
                     invalidTemplate = true
-                    this.$toasted.error('One or more presets has an invalid template. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have an invalid template. Please check the format and try again.')
                 }
                 if (!invalidTemplate && node.type === 'd' && node.template.tID && !templatePoolIds.includes(node.template.tID)) {
                     invalidTemplate = true
-                    this.$toasted.error('One or more presets has an invalid template. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have an invalid template. Please check the format and try again.')
                 }
                 if (!invalidTarget && node.type === 'p' && isNaN(parseInt(node.target))) {
                     invalidTarget = true
-                    this.$toasted.error('One or more presets has an invalid target. Please check the format and try again.')
-                }
-                if (!invalidTarget && node.type === 'p' && isNaN(parseInt(node.target))) {
-                    invalidTarget = true
-                    this.$toasted.error('One or more presets has an invalid target. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have an invalid target. Please check the format and try again.')
                 }
             }
 
-            if (invalidDate | invalidTemplate | invalidTarget | targetsOutOfOrder) {
+            if (missingPointMax | invalidDate | invalidTemplate | invalidTarget | targetsOutOfOrder) {
                 return
             }
 
@@ -281,22 +282,6 @@ export default {
                     this.saveRequestInFlight = false
                     this.$toasted.success('New format saved')
                 })
-        },
-        // Used for responsiveness
-        getWindowWidth (event) {
-            this.windowWidth = document.documentElement.clientWidth
-        },
-        // Used for responsiveness
-        getWindowHeight (event) {
-            this.windowHeight = document.documentElement.clientHeight
-        },
-        // Used for responsiveness
-        bootstrapLg () {
-            return this.windowHeight < 1200
-        },
-        // Used for responsiveness
-        bootstrapMd () {
-            return this.windowHeight < 922
         },
         customisePage () {
             this.$toasted.info('Wishlist: Customise page')
@@ -354,28 +339,15 @@ export default {
             }
         }
     },
-
-    // Used for responsiveness
-    mounted () {
-        this.$nextTick(function () {
-            window.addEventListener('resize', this.getWindowWidth)
-
-            this.getWindowWidth()
-        })
-    },
-
-    // Used for responsiveness
-    beforeDestroy () {
-        window.removeEventListener('resize', this.getWindowWidth)
-    },
-
     components: {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'edag': edag,
-        'template-todo-card': formatEditAvailableTemplateCard,
+        'available-template-card': formatEditAvailableTemplateCard,
         'selected-node-card': formatEditSelectTemplateCard,
-        'template-editor': templateEdit
+        'template-editor': templateEdit,
+        'icon': icon,
+        'main-card': mainCard
     },
 
     // Prompts user
@@ -390,69 +362,22 @@ export default {
 }
 </script>
 
-<style>
-.grayed {
-    opacity: 0.5;
-    pointer-events: none;
-}
+<style lang="sass">
+@import '~sass/partials/edag-page-layout.sass'
+.fmt-disabled
+    opacity: 0.5
+    pointer-events: none
 
-.left-content-format-edit {
-    padding: 0px 30px !important;
-    flex: 0 0 auto;
-}
-
-.main-content-format-edit {
-    padding-top: 40px !important;
-    background-color: var(--theme-medium-grey);
-    flex: 1 1 auto;
-    overflow-x: hidden;
-}
-
-.right-content-format-edit {
-    flex: 0 0 auto;
-    padding-top: 30px !important;
-    padding-left: 30px !important;
-    padding-right: 30px !important;
-}
-
-@media (min-width: 1200px) {
-    .outer-container {
-        height: 100%;
-        overflow: hidden;
-    }
-
-    .left-content-format-edit {
-        height: 100%;
-        overflow: hidden;
-    }
-
-    .main-content-format-edit, .right-content-format-edit {
-        height: 100%;
-        overflow-y: scroll;
-    }
-}
-
-@media (max-width: 1200px) {
-    .right-content-format-edit {
-        padding: 30px !important;
-    }
-
-    .main-content-format-edit {
-        padding: 30px !important;
-    }
-}
-
-@media (max-width: 576px) {
-    .left-content-format-edit {
-        padding: 0px !important;
-    }
-
-    .right-content-format-edit {
-        padding: 30px 0px !important;
-    }
-
-    .main-content-format-edit {
-        padding: 30px 0px !important;
-    }
-}
+.point-maximum
+    display: flex
+    align-items: center
+    b
+        flex-grow: 1
+    .theme-input
+        float: right
+        width: 4em
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button
+        -webkit-appearance: none
+        margin: 0
 </style>

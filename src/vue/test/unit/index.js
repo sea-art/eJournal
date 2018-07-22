@@ -14,5 +14,10 @@ testsContext.keys().forEach(testsContext)
 // require all src files except main.js for coverage.
 // you can also change this to match only the subset of files that
 // you want coverage for.
-const srcContext = require.context('../../src', true, /^\.\/(?!main(\.js)?$)/)
-srcContext.keys().forEach(srcContext)
+
+// TODO Set proper subsets of files to test add handler for md and sass, currently
+// All files are tested pointlessly
+
+/* Skips main.js, *.sass *.md */
+// const srcContext = require.context('../../src', true, /^\.\/(?!(main(\.js)?$)|.*(\.sass)$|.*(\.md)$)/)
+// srcContext.keys().forEach(srcContext)
