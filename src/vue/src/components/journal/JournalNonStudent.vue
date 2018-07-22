@@ -9,20 +9,14 @@
             <b-col md="12" lg="auto" xl="8" class="main-content-edag-page">
                 <bread-crumb v-if="$root.xl()" class="main-content">&nbsp;</bread-crumb>
                 <div v-if="nodes.length > currentNode">
-                    <div v-if="nodes[currentNode].type == 'e'">
+                    <div v-if="nodes[currentNode].type == 'e' || nodes[currentNode].type == 'd'">
                         <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
                     </div>
-                    <div v-else-if="nodes[currentNode].type == 'd'">
-                        <entry-non-student-preview v-if="nodes[currentNode].entry !== null" ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
-                        <b-card v-else class="no-hover">
-                            <b>No entry submitted yet</b>
-                        </b-card>
-                    </div>
                     <div v-else-if="nodes[currentNode].type == 'p'">
-                        <b-card class="card main-card no-hover" :class="'pink-border'">
-                            <h2>Needed progress</h2>
-                            Has reached {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
-                            before {{nodes[currentNode].deadline}}.
+                        <b-card class="no-hover" :class="'pink-border'">
+                            <h2 class="mb-2">Progress: {{nodes[currentNode].target}} points</h2>
+                            {{progressNodes[nodes[currentNode].nID]}} out of {{nodes[currentNode].target}} points.<br/>
+                            {{nodes[currentNode].target - progressNodes[nodes[currentNode].nID]}} more required before {{$root.beautifyDeadline(nodes[currentNode].deadline)}}.
                         </b-card>
                     </div>
                 </div>
@@ -30,22 +24,45 @@
         </b-col>
 
         <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
-            <h3>Journal</h3>
-            <b-card class="no-hover">
-                <b-button
-                    tag="b-button"
-                    v-if="filteredJournals.length !== 0"
-                    :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.jID }, query: query }">
-                    Previous
-                </b-button>
-                <b-button
-                    tag="b-button"
-                    v-if="filteredJournals.length !== 0"
-                    :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: nextJournal.jID }, query: query }">
-                    Next
-                </b-button>
-                <b-button @click="publishGradesJournal">Publish Grades</b-button>
-            </b-card>
+            <b-row>
+                <b-col md="6" lg="12">
+                    <h3>Journal</h3>
+                    <student-card
+                        v-if="journal"
+                        :student="journal.student"
+                        :stats="journal.stats"
+                        :hideTodo="true"
+                        :fullWidthProgress="true"
+                        :class="'mb-4'"/>
+                </b-col>
+                <b-col md="6" lg="12">
+                    <h3>Controls</h3>
+                    <b-card class="no-hover settings-card" :class="$root.getBorderClass($route.params.cID)">
+                        <div class="d-flex">
+                            <b-button
+                                class="multi-form flex-grow-1"
+                                tag="b-button"
+                                v-if="filteredJournals.length !== 0"
+                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.jID }, query: query }">
+                                <icon name="arrow-left"/>
+                                Previous
+                            </b-button>
+                            <b-button
+                                class="multi-form flex-grow-1"
+                                tag="b-button"
+                                v-if="filteredJournals.length !== 0"
+                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: nextJournal.jID }, query: query }">
+                                Next
+                                <icon name="arrow-right"/>
+                            </b-button>
+                        </div>
+                        <b-button class="add-button flex-grow-1 full-width" @click="publishGradesJournal">
+                            <icon name="upload"/>
+                            Publish All Grades
+                        </b-button>
+                    </b-card>
+                </b-col>
+            </b-row>
         </b-col>
     </b-row>
 </template>
@@ -55,8 +72,11 @@ import contentColumns from '@/components/columns/ContentColumns.vue'
 import entryNonStudentPreview from '@/components/entry/EntryNonStudentPreview.vue'
 import addCard from '@/components/journal/AddCard.vue'
 import edag from '@/components/edag/Edag.vue'
+import studentCard from '@/components/assignment/StudentCard.vue'
+import icon from 'vue-awesome/components/Icon'
+import progressBar from '@/components/assets/ProgressBar.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import journal from '@/api/journal'
+import journalApi from '@/api/journal'
 import store from '@/Store.vue'
 
 export default {
@@ -68,13 +88,14 @@ export default {
             nodes: [],
             progressNodes: {},
             assignmentJournals: [],
-            selectedSortOption: 'sortName',
+            journal: null,
+            selectedSortOption: 'sortUserName',
             searchVariable: '',
             query: {}
         }
     },
     created () {
-        journal.get_nodes(this.jID)
+        journalApi.get_nodes(this.jID)
             .then(response => {
                 this.nodes = response.nodes
                 if (this.$route.query.nID !== undefined) {
@@ -88,17 +109,21 @@ export default {
                 }
             })
 
+        journalApi.get_journal(this.jID)
+            .then(response => {
+                this.journal = response.journal
+            })
+
         if (store.state.filteredJournals.length === 0) {
-            console.log(this.cID)
             if (this.$router.app.canViewAssignmentParticipants()) {
-                journal.get_assignment_journals(this.aID)
+                journalApi.get_assignment_journals(this.aID)
                     .then(response => {
                         this.assignmentJournals = response.journals
                     })
             }
 
-            if (this.$route.query.sort === 'sortName' ||
-                this.$route.query.sort === 'sortID' ||
+            if (this.$route.query.sort === 'sortFullName' ||
+                this.$route.query.sort === 'sortUsername' ||
                 this.$route.query.sort === 'sortMarking') {
                 this.selectedSortOption = this.$route.query.sort
             }
@@ -124,7 +149,7 @@ export default {
         selectNode ($event) {
             /* Function that prevents you from instant leaving an EntryNode
              * or a DeadlineNode when clicking on a different node in the
-             * tree. */
+             * timeline. */
             if ($event === this.currentNode) {
                 return this.currentNode
             }
@@ -144,8 +169,8 @@ export default {
             this.currentNode = $event
         },
         addNode (infoEntry) {
-            journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
-                .then(_ => journal.get_nodes(this.jID)
+            journalApi.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
+                .then(_ => journalApi.get_nodes(this.jID)
                     .then(response => { this.nodes = response.nodes })
                     .catch(_ => this.$toasted.error('Error while loading nodes.')))
         },
@@ -175,20 +200,32 @@ export default {
                     this.progressPoints(node)
                 }
             }
+
+            journalApi.get_journal(this.jID)
+                .then(response => {
+                    this.journal = response.journal
+                })
         },
         publishGradesJournal () {
-            journal.update_publish_grades_journal(this.jID, 1)
-                .then(_ => {
-                    this.$toasted.success('All the grades for this journal are published.')
-                })
-                .catch(_ => {
-                    this.$toasted.error('Error publishing all grades for this journal')
-                })
+            if (confirm('Are you sure you want to publish all grades for this journal?')) {
+                journalApi.update_publish_grades_journal(this.jID, 1)
+                    .then(_ => {
+                        this.$toasted.success('Published all grades for this journal.')
 
-            for (var node of this.nodes) {
-                if (node.type === 'e' || node.type === 'd') {
-                    node.entry.published = true
-                }
+                        for (var node of this.nodes) {
+                            if ((node.type === 'e' || node.type === 'd') && node.entry) {
+                                node.entry.published = true
+                            }
+                        }
+
+                        journalApi.get_journal(this.jID)
+                            .then(response => {
+                                this.journal = response.journal
+                            })
+                    })
+                    .catch(_ => {
+                        this.$toasted.error('Error while publishing all grades for this journal.')
+                    })
             }
         },
         findEntryNode (nodeID) {
@@ -210,12 +247,12 @@ export default {
         },
         findIndex (array, property, value) {
             for (var i = 0; i < array.length; i++) {
-                if (array[i][property] === value) {
+                if (String(array[i][property]) === String(value)) {
                     return i
                 }
             }
 
-            return -1
+            return false
         }
     },
     components: {
@@ -224,22 +261,27 @@ export default {
         'bread-crumb': breadCrumb,
         'add-card': addCard,
         'edag': edag,
-        'store': store
+        'store': store,
+        'student-card': studentCard,
+        'icon': icon,
+        'progress-bar': progressBar
     },
     computed: {
         filteredJournals: function () {
             let self = this
 
-            // TODO: add better compare functions
-            function compareName (a, b) {
-                if (a.student.name < b.student.name) { return -1 }
-                if (a.student.name > b.student.name) { return 1 }
+            function compareFullName (a, b) {
+                var fullNameA = a.student.first_name + ' ' + a.student.last_name
+                var fullNameB = b.student.first_name + ' ' + b.student.last_name
+
+                if (fullNameA < fullNameB) { return -1 }
+                if (fullNameA > fullNameB) { return 1 }
                 return 0
             }
 
-            function compareID (a, b) {
-                if (a.student.uID < b.student.uID) { return -1 }
-                if (a.student.uID > b.student.uID) { return 1 }
+            function compareUsername (a, b) {
+                if (a.student.name < b.student.name) { return -1 }
+                if (a.student.name > b.student.name) { return 1 }
                 return 0
             }
 
@@ -250,11 +292,12 @@ export default {
             }
 
             function checkFilter (user) {
-                var userName = user.student.name.toLowerCase()
-                var userID = String(user.student.uID).toLowerCase()
+                var username = user.student.name.toLowerCase()
+                var fullName = user.student.first_name.toLowerCase() + ' ' + user.student.last_name.toLowerCase()
+                var searchVariable = self.searchVariable.toLowerCase()
 
-                if (userName.includes(self.searchVariable.toLowerCase()) ||
-                userID.includes(self.searchVariable)) {
+                if (username.includes(searchVariable) ||
+                    fullName.includes(searchVariable)) {
                     return true
                 } else {
                     return false
@@ -263,10 +306,10 @@ export default {
 
             if (store.state.filteredJournals.length === 0) {
                 /* Filter list based on search input. */
-                if (this.selectedSortOption === 'sortName') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareName))
-                } else if (this.selectedSortOption === 'sortID') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareID))
+                if (this.selectedSortOption === 'sortFullName') {
+                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareFullName))
+                } else if (this.selectedSortOption === 'sortUsername') {
+                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareUsername))
                 } else if (this.selectedSortOption === 'sortMarking') {
                     store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded))
                 }

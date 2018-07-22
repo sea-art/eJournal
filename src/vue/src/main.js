@@ -17,6 +17,26 @@ import 'vue-awesome/icons/times'
 import 'vue-awesome/icons/exclamation'
 import 'vue-awesome/icons/plus'
 import 'vue-awesome/icons/list-ul'
+import 'vue-awesome/icons/paper-plane'
+import 'vue-awesome/icons/save'
+import 'vue-awesome/icons/upload'
+import 'vue-awesome/icons/download'
+import 'vue-awesome/icons/arrow-right'
+import 'vue-awesome/icons/arrow-left'
+import 'vue-awesome/icons/user'
+import 'vue-awesome/icons/users'
+import 'vue-awesome/icons/shield'
+import 'vue-awesome/icons/user-times'
+import 'vue-awesome/icons/user-plus'
+import 'vue-awesome/icons/edit'
+import 'vue-awesome/icons/undo'
+import 'vue-awesome/icons/sign-in'
+import 'vue-awesome/icons/sign-out'
+import 'vue-awesome/icons/ban'
+import 'vue-awesome/icons/link'
+import 'vue-awesome/icons/envelope'
+import 'vue-awesome/icons/home'
+import 'vue-awesome/icons/calendar'
 
 import Toasted from 'vue-toasted'
 
@@ -69,6 +89,18 @@ new Vue({
         },
         getBorderClass (cID) {
             return this.colors[cID % this.colors.length]
+        },
+        beautifyDeadline (deadline) {
+            if (!deadline) {
+                return ''
+            }
+
+            var year = deadline.substring(0, 4)
+            var month = deadline.substring(5, 7)
+            var day = deadline.substring(8, 10)
+            var time = deadline.substring(11, 16)
+
+            return day + '-' + month + '-' + year + ' ' + time
         },
 
         /* #############################################################

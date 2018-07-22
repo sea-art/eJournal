@@ -14,41 +14,49 @@
                             ref="entry-template-card"
                             @edit-node="adaptData"
                             :cID="cID"
-                            :entryNode="nodes[currentNode]"
-                            :color="$root.colors[cID % $root.colors.length]"/>
+                            :entryNode="nodes[currentNode]"/>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'd'">
                         <div v-if="nodes[currentNode].entry !== null">
                             <entry-node :cID="cID" ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                         </div>
                         <div v-else>
-                            <div v-if="checkDeadline()">
-                                <entry-preview ref="entry-template-card" @content-template="fillDeadline" :template="nodes[currentNode].template"/>
-                            </div>
-                            <div v-else>
-                                The deadline has passed, you can't make another submission
-                            </div>
+                            <entry-preview v-if="checkDeadline()" ref="entry-template-card" @content-template="fillDeadline" :template="nodes[currentNode].template"/>
+                            <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+                                <h2 class="mb-2">{{nodes[currentNode].template.name}}</h2>
+                                <b>The deadline has passed. You can not submit an entry anymore.</b>
+                            </b-card>
                         </div>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'a'">
-                        <add-card @info-entry="addNode" :addNode="nodes[currentNode]" :color="$root.colors[cID % $root.colors.length]"/>
+                        <add-card @info-entry="addNode" :addNode="nodes[currentNode]"/>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'p'">
-                        <b-card class="card main-card no-hover" :class="'pink-border'">
-                            <h2>Needed progress</h2>
-                            You have {{progressNodes[nodes[currentNode].nID]}} points out of the {{nodes[currentNode].target}}
-                            needed points before {{nodes[currentNode].deadline}}.
+                        <b-card class="no-hover" :class="'pink-border'">
+                            <h2 class="mb-2">Progress: {{nodes[currentNode].target}} points</h2>
+                            {{ progressNodes[nodes[currentNode].nID] }} out of {{ nodes[currentNode].target }} points.<br/>
+                            {{ nodes[currentNode].target - progressNodes[nodes[currentNode].nID] }} more required before {{ $root.beautifyDeadline(nodes[currentNode].deadline) }}.
                         </b-card>
                     </div>
                 </div>
             </b-col>
         </b-col>
 
-        <b-col md="12" lg="4" xl="3" class="right-content-journal right-content">
-            <h3>Assignment Description</h3>
-            <b-card class="no-hover" :class="'grey-border'">
-                {{ assignmentDescription }}
-            </b-card>
+        <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
+            <b-row>
+                <b-col md="6" lg="12">
+                    <h3>Description</h3>
+                    <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+                        {{ assignmentDescription }}
+                    </b-card>
+                </b-col>
+                <b-col md="6" lg="12">
+                    <h3>Progress</h3>
+                    <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+                        <progress-bar v-if="journal.stats" :currentPoints="journal.stats.acquired_points" :totalPoints="journal.stats.total_points"/>
+                    </b-card>
+                </b-col>
+            </b-row>
         </b-col>
     </b-row>
 </template>
@@ -56,11 +64,12 @@
 <script>
 import contentColumns from '@/components/columns/ContentColumns.vue'
 import entryNode from '@/components/entry/EntryNode.vue'
+import entryPreview from '@/components/entry/EntryPreview.vue'
 import addCard from '@/components/journal/AddCard.vue'
 import edag from '@/components/edag/Edag.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import journal from '@/api/journal'
-import entryPreview from '@/components/entry/EntryPreview.vue'
+import progressBar from '@/components/assets/ProgressBar.vue'
+import journalApi from '@/api/journal'
 import assignmentApi from '@/api/assignment.js'
 
 export default {
@@ -70,12 +79,14 @@ export default {
             currentNode: 0,
             editedData: ['', ''],
             nodes: [],
+            journal: {},
             progressNodes: {},
+            assignmentName: '',
             assignmentDescription: ''
         }
     },
     created () {
-        journal.get_nodes(this.jID)
+        journalApi.get_nodes(this.jID)
             .then(response => {
                 this.nodes = response.nodes
                 if (this.$route.query.nID !== undefined) {
@@ -90,8 +101,15 @@ export default {
             })
             .catch(_ => this.$toasted.error('Error while loading nodes.'))
 
+        journalApi.get_journal(this.jID)
+            .then(response => {
+                this.journal = response.journal
+            })
+            .catch(_ => this.$toasted.error('Error while loading journal data.'))
+
         assignmentApi.get_assignment_data(this.cID, this.aID)
             .then(response => {
+                this.assignmentName = response.name
                 this.assignmentDescription = response.description
             })
             .catch(_ => this.$toasted.error('Error while loading assignment description.'))
@@ -106,7 +124,7 @@ export default {
     methods: {
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData
-            journal.create_entry(this.jID, this.nodes[this.currentNode].entry.template.tID, editedData.entry.content, this.nodes[this.currentNode].nID)
+            journalApi.create_entry(this.jID, this.nodes[this.currentNode].entry.template.tID, editedData.entry.content, this.nodes[this.currentNode].nID)
                 .then(response => {
                     this.nodes = response.nodes
                     this.currentNode = response.added
@@ -115,7 +133,7 @@ export default {
         selectNode ($event) {
             /* Function that prevents you from instant leaving an EntryNode
              * or a DeadlineNode when clicking on a different node in the
-             * tree. */
+             * timeline. */
             if ($event === this.currentNode) {
                 return this.currentNode
             }
@@ -135,14 +153,14 @@ export default {
             this.currentNode = $event
         },
         addNode (infoEntry) {
-            journal.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
+            journalApi.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
                 .then(response => {
                     this.nodes = response.nodes
                     this.currentNode = response.added
                 })
         },
         fillDeadline (data) {
-            journal.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data, this.nodes[this.currentNode].nID)
+            journalApi.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data, this.nodes[this.currentNode].nID)
                 .then(response => {
                     this.nodes = response.nodes
                     this.currentNode = response.added
@@ -188,7 +206,8 @@ export default {
         'add-card': addCard,
         'edag': edag,
         'entry-node': entryNode,
-        'entry-preview': entryPreview
+        'entry-preview': entryPreview,
+        'progress-bar': progressBar
     }
 }
 </script>

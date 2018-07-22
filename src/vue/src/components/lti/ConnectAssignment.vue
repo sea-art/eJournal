@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-for="a in assignments" :key="a.aID">
-            <assignment-card @click.native="connectAssignment(a.aID)" :line1="a.name" :color="$root.colors[a.aID % $root.colors.length]">
+            <assignment-card @click.native="connectAssignment(a.aID)" :line1="a.name">
                 <progress-bar v-if="a.journal && a.journal.stats" :currentPoints="a.journal.stats.acquired_points" :totalPoints="a.journal.stats.total_points"></progress-bar>
             </assignment-card>
         </div>

@@ -11,14 +11,23 @@
             </div>
         </b-col>
         <b-col cols="12">
-            <b-button :to="{name: 'Home'}">Home</b-button>
+            <b-button :to="{name: 'Home'}">
+                <icon name="home"/>
+                Home
+            </b-button>
             <!-- TODO: Add mailto or similar. -->
-            <b-button :to="{name: 'Home'}">Contact</b-button>
+            <b-button :to="{name: 'Home'}"
+                      class="change-button">
+                <icon name="envelope"/>
+                Contact
+            </b-button>
         </b-col>
     </b-row>
 </template>
 
 <script>
+import icon from 'vue-awesome/components/Icon'
+
 export default {
     name: 'Error',
     props: {
@@ -31,6 +40,9 @@ export default {
         description: {
             type: String
         }
+    },
+    components: {
+        'icon': icon
     }
 }
 </script>

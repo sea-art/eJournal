@@ -1,5 +1,5 @@
 <template>
-    <b-card class="card" :class="color">
+    <b-card :class="$root.getBorderClass($route.params.cID)">
         <b-row align-h="between">
             <b-col cols="12" lg="6">
                 <h2>{{ line1 }}</h2>
@@ -14,6 +14,6 @@
 
 <script>
 export default {
-    props: ['line1', 'line2', 'color']
+    props: ['line1', 'line2']
 }
 </script>

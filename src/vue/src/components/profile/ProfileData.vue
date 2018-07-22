@@ -1,30 +1,35 @@
 <template>
     <b-row>
         <b-col md="5" sm="12" class="text-center">
-            <img class="profile-portrait" :src="profileImage">
+            <div class="profile-portrait small-shadow">
+                <img :src="image">
+                <!-- TODO handle file upload. The original profile picture upload did not work yet. -->
+                <b-button>
+                    <icon name="upload"/>
+                    Upload
+                </b-button>
+            </div>
         </b-col>
         <b-col md="7" sm="12">
-            <h2 class="mb-2">User data</h2>
-            <b-form-input class="theme-input" v-model="uname" type="text"/>
-            <b-form-input class="theme-input" v-model="first" type="text"/>
-            <b-form-input class="theme-input" v-model="last" type="text"/>
-            <b-form-file
-                ref="file"
-                accept="image/*"
-                class="fileinput"
-                @change="fileHandler"
-                v-model="file"
-                :state="Boolean(file)"
-                placeholder="Change picture"/>
-
-            <b-button class="add-button" @click="saveUserdata">Save</b-button>
-            <b-button @click="downloadUserData">Download Data</b-button>
+            <h2 class="mb-2">User details</h2>
+            <b-form-input class="theme-input multi-form" v-model="uname" type="text"/>
+            <b-form-input class="theme-input multi-form" v-model="first" type="text"/>
+            <b-form-input class="theme-input multi-form" v-model="last" type="text"/>
+            <b-button class="add-button multi-form float-right" @click="saveUserdata">
+                <icon name="save"/>
+                Save
+            </b-button>
+            <b-button class="multi-form" @click="downloadUserData">
+                <icon name="download"/>
+                Download Data
+            </b-button>
         </b-col>
     </b-row>
 </template>
 
 <script>
 import userAPI from '@/api/user.js'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     props: ['uname', 'first', 'last', 'id', 'image'],
@@ -92,6 +97,9 @@ export default {
             })
         }
     },
+    components: {
+        'icon': icon
+    },
     created () {
         this.profileImage = this.image
     }
@@ -99,10 +107,31 @@ export default {
 </script>
 
 <style lang="sass">
-@import '~sass/modules/colors.sass'
-
 .profile-portrait
+    display: inline-block
+    position: relative
+    width: 100%
     max-width: 250px
     margin-bottom: 20px
     border-radius: 50% !important
+    overflow: hidden
+    img
+        position: absolute
+        height: 100%
+        width: 100%
+    .btn
+        position: absolute
+        width: 100%
+        height: 25%
+        bottom: -25%
+        opacity: 0
+    &:hover
+        .btn
+            bottom: 0px
+            opacity: 1
+
+.profile-portrait:after
+    content: ""
+    display: block
+    padding-bottom: 100%
 </style>

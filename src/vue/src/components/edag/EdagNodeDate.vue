@@ -4,30 +4,29 @@
 -->
 
 <template>
-    <span :style="styleObject">{{ dateText }}</span>
+    <span v-if="date" class="date-text" :class="dateClass"><u>{{ $root.beautifyDeadline(date) }}</u></span>
 </template>
 
 <script>
 export default {
     props: ['date', 'selected'],
     computed: {
-        color () {
-            // TODO Solve with variables as return theme dark and med gray
-            return (this.selected) ? '#BBBBBB' : '#DEDEDE'
-        },
-        dateText () {
-            // prettify date
-            if (!this.date) {
-                return ''
-            }
-
-            return this.date
-        },
-        styleObject () {
-            return {
-                color: this.color
-            }
+        dateClass () {
+            return (this.selected) ? 'date-selected' : 'date-unselected'
         }
     }
 }
 </script>
+
+<style lang="sass">
+@import '~sass/modules/colors.sass'
+
+.date-selected
+    opacity: 1
+
+.date-unselected
+    opacity: 0.5
+
+.date-text
+    text-align: right
+</style>

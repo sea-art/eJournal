@@ -1,29 +1,29 @@
 <!--
     Breadcrumb vue component
-    Uses the current router to create breadcrumb
-    Caches named page names in store
-    Aliases and page extensions can be defined in data
+    Breadcrumb mirrors the current router link
+    Caches named view names in store
+    Settings object allows aliasing of page names and creation of new named routes
 -->
 
 <template>
     <div class="breadcrumb-container">
-        <b-row>
-            <b-col cols="12" md="12">
-                <h4>
-                    <!-- Assumes on a page above guest page (guest page matches every page first) -->
-                    <span v-for="breadcrumb in breadedCrumbs.slice(1, -1)" :key="breadcrumb.name">
-                        <b-link tag="b-button" :to="breadcrumb.route">{{ breadcrumb.display }}</b-link> /
-                    </span>
-                </h4>
-                <h1>
-                    {{ breadedCrumbs.slice(-1)[0].display }}
-                    <slot>
-                        <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
-                        <b-button v-if="canEdit()" @click="editClick()" class="float-right change-button"> Edit</b-button>
-                    </slot>
-                </h1>
-            </b-col>
-        </b-row>
+        <b-button v-if="canEdit()" @click="editClick()" class="float-right change-button multi-form">
+            <icon name="edit"/>
+            Edit
+        </b-button>
+        <div>
+            <h4>
+                <span v-for="crumb in crumbs.slice(0, -1)" :key="crumb.route">
+                    <b-link tag="b-button" :to="{ name: crumb.routeName }">{{ crumb.displayName }}</b-link> /
+                </span>
+            </h4>
+            <h1>
+                {{ crumbs.slice(-1)[0].displayName }}
+                <slot>
+                    <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
+                </slot>
+            </h1>
+        </div>
     </div>
 </template>
 
@@ -34,82 +34,81 @@ import store from '@/Store.vue'
 
 export default {
     components: {
-        icon
+        'icon': icon
     },
     /*
-        cachedMap: list of crumb objects of named pages, with displayname, synced with the store
-        aliases: aliases for non named pages
-        paramMap: translation table for router params and names
-        crumbs: list of crumb objects in the path, without displayname
-        (computed) breadedCrumbs: data used to display the breadcrumb on the page
+        aliases: aliases for unnamed vews
+        namedViews: list of named views, with associated data field in get_names and primary parameter
     */
     data () {
         return {
-            cachedMap: [],
-            aliases: {
-                'Home': 'Courses',
-                'FormatEdit': 'Format Editor',
-                'CourseEdit': 'Course Editor',
-                'AssignmentEdit': 'Assignment Editor',
-                'AssignmentsOverview': 'Assignment Overview',
-                'UserRoleConfiguration': 'User Role Configuration'
+            settings: {
+                aliases: {
+                    'Home': 'Courses',
+                    'FormatEdit': 'Format Editor',
+                    'CourseEdit': 'Course Editor',
+                    'AssignmentEdit': 'Assignment Editor',
+                    'AssignmentsOverview': 'Assignments',
+                    'UserRoleConfiguration': 'User Role Configuration'
+                },
+                namedViews: {
+                    'Course': { apiReturnValue: 'course', primaryParam: 'cID' },
+                    'Assignment': { apiReturnValue: 'assignment', primaryParam: 'aID' },
+                    'Journal': { apiReturnValue: 'journal', primaryParam: 'jID' }
+                }
             },
-            paramMap: {
-                'Course': 'cID',
-                'cID': 'Course',
-                'Assignment': 'aID',
-                'aID': 'Assignment',
-                'Journal': 'jID',
-                'jID': 'Journal'
-            },
+            cachedMap: {},
             crumbs: []
         }
     },
     methods: {
-        // finds segments of the current path
-        findCrumbs () {
-            // grab route matched object
+        // Match routes that prepend the current path, create incomplete crumbs
+        findRoutes () {
             var routeMatched = this.$route.matched[0].path
-            var params = this.$route.params
-
-            // grab router
             var routerRoutes = this.$router.options.routes
             routerRoutes.sort((a, b) => a.path.length - b.path.length)
 
-            // match routes that prepend the current path, push partial crumbs
-            for (var route of routerRoutes) {
+            // Add every matched (sub)route with params substituted to use as key
+            for (var route of routerRoutes.slice(1)) {
                 if (routeMatched.startsWith(route.path)) {
-                    this.crumbs.push({ name: route.name, param: params[this.paramMap[route.name]], paramName: this.paramMap[route.name] })
+                    var fullpath = route.path
+                    for (var kvpair of Object.entries(this.$route.params)) {
+                        fullpath = fullpath.replace(':' + kvpair[0], kvpair[1])
+                    }
+                    this.crumbs.push({ route: fullpath, routeName: route.name, displayName: null })
                 }
             }
         },
-        // fills currently missing parts in the cache
-        fillCache () {
-            // get cached map
-            this.cachedMap = store.state.cachedMap.slice()
+        // Load the displayname map from cache, complete crumbs from cache where possible, do aliasing
+        addDisplayNames () {
+            this.cachedMap = store.state.cachedMap
 
-            // fill missing parts of the request
-            var request = {}
             for (var crumb of this.crumbs) {
-                if (!(typeof crumb.param === 'undefined')) {
-                    if (this.cachedMap.filter(map => map.name === crumb.name && map.param === crumb.param).length === 0) {
-                        request[crumb.paramName] = crumb.param
-                    }
+                if (!this.settings.namedViews[crumb.routeName]) {
+                    crumb.displayName = this.settings.aliases[crumb.routeName] || crumb.routeName
+                } else {
+                    crumb.displayName = this.cachedMap[crumb.route] || null
                 }
             }
-            // fill the displaymap cache
-            if (!(Object.keys(request).length === 0 && request.constructor === Object)) {
+        },
+        // If any are still missing display names (not in cache), request the names and set them in cache
+        fillCache () {
+            var crumbsMissingDisplayName = this.crumbs.filter(crumb => !crumb.displayName)
+
+            // Incrementally build request
+            var request = {}
+            for (var crumb of crumbsMissingDisplayName) {
+                var paramName = this.settings.namedViews[crumb.routeName].primaryParam
+                request[paramName] = this.$route.params[paramName]
+            }
+
+            if (crumbsMissingDisplayName.length > 0) {
                 commonAPI.get_names(request).then(data => {
-                    var localMap = {
-                        'cID': 'course',
-                        'aID': 'assignment',
-                        'jID': 'journal'
-                    }
-                    for (var entry of Object.entries(request)) {
-                        this.cachedMap.push({ name: this.paramMap[entry[0]], param: entry[1], paramName: entry[0], display: data[localMap[entry[0]]] })
+                    for (var crumb of crumbsMissingDisplayName) {
+                        crumb.displayName = data[this.settings.namedViews[crumb.routeName].apiReturnValue]
+                        this.cachedMap[crumb.route] = crumb.displayName
                     }
                 }).then(_ => {
-                    // set the cached map
                     store.setCachedMap(this.cachedMap)
                 })
             }
@@ -130,45 +129,9 @@ export default {
             }
         }
     },
-    computed: {
-        // display-ready version of the crumb list, created from the crumb list combined with the cached displaymap
-        breadedCrumbs () {
-            var breadedCrumbs = []
-            for (var crumb of this.crumbs) {
-                // set the displayname per breadcrumb
-                var display
-                if (typeof crumb.param === 'undefined') {
-                    // use alias if regular page and applicable
-                    if (this.aliases[crumb.name]) {
-                        display = this.aliases[crumb.name]
-                    } else {
-                        display = crumb.name
-                    }
-                } else {
-                    // get the display from cache, cachedmap is watched here so this happens before and after async
-                    display = this.cachedMap.filter(map => map.name === crumb.name && map.param === crumb.param)[0]
-                    if (typeof display === 'undefined') {
-                        display = ''
-                    } else {
-                        display = display.display
-                    }
-                }
-                breadedCrumbs.push({
-                    display: display,
-                    route: {
-                        name: crumb.name,
-                        params: this.$route.params
-                    }
-                })
-            }
-            return breadedCrumbs
-        }
-    },
     created () {
-        // find current path segments
-        this.findCrumbs()
-
-        // request missing parts
+        this.findRoutes()
+        this.addDisplayNames()
         this.fillCache()
     }
 }

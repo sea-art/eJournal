@@ -55,7 +55,7 @@ export default {
                     code: '511',
                     message: 'Network authorization required',
                     description: `Invalid credentials from the LTI environment.
-                                  Please contact your system administrator.`
+                                  Please contact the system administrator.`
                 }
             })
         } else {
@@ -95,7 +95,7 @@ export default {
                         message: 'Internal Server Error',
                         description: `Received invalid state from the server
                                       when trying to integrate the new user.
-                                      Please contact your system administrator
+                                      Please contact the system administrator
                                       for more information. Further integration
                                       is not possible.`
                     }

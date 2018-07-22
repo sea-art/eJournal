@@ -4,10 +4,11 @@
 -->
 
 <template>
-    <div class="edag-node-circle d-flex align-items-center justify-content-center" :class="classObject">
-        <div v-if="this.entrystate === 'empty'" class="edag-node-circle-inner" :class="classObject"></div>
-        <icon v-else-if="this.entrystate != ''" :name="iconName" class="edag-node-circle-icon fill-white" :scale="iconScale"></icon>
-        <div v-else class="text-white">{{ text }}</div>
+    <div class="edag-node-circle-border">
+        <div class="edag-node-circle unselectable" :class="nodeClass">
+            <icon v-if="this.entrystate !== ''" :name="iconName" :class="iconClass" :scale="iconScale"/>
+            <div v-else class="edag-node-circle-text">{{ text }}</div>
+        </div>
     </div>
 </template>
 
@@ -17,7 +18,7 @@ import icon from 'vue-awesome/components/Icon'
 export default {
     props: ['type', 'text', 'selected', 'entrystate'],
     computed: {
-        classObject () {
+        nodeClass () {
             return {
                 'enc-entry': this.type === 'e',
                 'enc-deadline': this.type === 'd',
@@ -28,32 +29,50 @@ export default {
         },
         iconName () {
             switch (this.entrystate) {
-            case 'grading':
-                return 'hourglass-half'
             case 'graded':
-                return 'check'
-            case 'fulfilled':
                 return 'check'
             case 'failed':
                 return 'times'
-            case 'needsgrading':
+            case 'empty':
+                return 'calendar'
+            case 'awaiting_grade':
+                return 'hourglass-half'
+            case 'needs_grading':
                 return 'exclamation'
+            case 'needs_publishing':
+                return 'eye'
             case 'addNode':
                 return 'plus'
             default:
                 return ''
             }
         },
+        iconClass () {
+            switch (this.entrystate) {
+            case 'graded':
+                return 'fill-positive'
+            case 'failed':
+                return 'fill-negative'
+            case 'empty':
+            case 'awaiting_grade':
+            case 'needs_grading':
+            case 'needs_publishing':
+            case 'addNode':
+                return 'fill-white'
+            default:
+                return ''
+            }
+        },
         iconScale () {
-            if (this.entrystate === 'addNode') {
+            if (this.type === 'a') {
                 if (this.selected) {
-                    return '2'
+                    return '1.5'
                 } else {
                     return '1'
                 }
             }
             if (this.selected) {
-                return '2.5'
+                return '2'
             } else {
                 return '1.5'
             }
@@ -67,78 +86,58 @@ export default {
 
 <style lang="sass">
 @import '~sass/modules/colors.sass'
+@import '~sass/partials/shadows.sass'
+
 .text-white
     color: white
 
 .fill-white
     fill: white
 
-.edag-node-circle
-    width: 4em
-    height: 4em
+.fill-negative
+    fill: $theme-red
+
+.fill-positive
+    fill: $theme-green
+
+.edag-node-circle-border
     border-radius: 50% !important
-    border-style: solid
-    border-width: 5px
-    border-color: white
-
-.edag-node-circle.enc-selected
-    width: 5em
-    height: 5em
-
-.edag-node-circle-inner
-    width: 2em
-    height: 2em
     background-color: white
+    padding: 5px
+
+.edag-node-circle
+    @extend .small-shadow
+    width: 55px
+    height: 55px
     border-radius: 50% !important
-    border-style: solid
-    border-width: 5px
-    border-color: white
-
-.edag-node-circle-inner.enc-selected
-    width: 3em
-    height: 3em
-
-.edag-node-circle.enc-add
-    width: 3em
-    height: 3em
-
-.edag-node-circle.enc-selected.enc-add
-    width: 4em
-    height: 4em
-
-.edag-node-circle.enc-entry
-    background-color: $theme-medium-grey
-
-.edag-node-circle.enc-entry:hover
-    background-color: $theme-dark-grey
-
-.edag-node-circle.enc-entry.enc-selected
-    background-color: $theme-dark-grey
-
-.edag-node-circle.enc-deadline
-    background-color: $theme-change-selected
-
-.edag-node-circle.enc-deadline:hover
-    background-color: $theme-change-hover
-
-.edag-node-circle.enc-deadline.enc-selected
-    background-color: $theme-change-hover
-
-.edag-node-circle.enc-progress
-    background-color: $theme-negative-selected
-
-.edag-node-circle.enc-progress:hover
-    background-color: $theme-red
-
-.edag-node-circle.enc-progress.enc-selected
-    background-color: $theme-red
-
-.edag-node-circle.enc-add
-    background-color: $theme-blue
-
-.edag-node-circle.enc-add:hover
-    background-color: $theme-dark-blue
-
-.edag-node-circle.enc-add.enc-selected
-    background-color: $theme-dark-blue
+    display: flex
+    align-items: center
+    justify-content: center
+    transition: all 0.6s cubic-bezier(.25,.8,.25,1)
+    &:not(.enc-selected)
+        cursor: pointer
+    &.enc-selected
+        width: 75px
+        height: 75px
+    &.enc-add
+        width: 45px
+        height: 45px
+    &.enc-selected.enc-add
+        width: 55px
+        height: 55px
+    &.enc-entry, &.enc-deadline
+        background-color: $theme-dark-grey
+    &.enc-selected
+        background-color: $theme-dark-blue
+    &.enc-add
+        background-color: $theme-blue
+    &.enc-progress
+        background-color: $theme-red
+    svg
+        transition: all 0.6s cubic-bezier(.25,.8,.25,1)
+    .edag-node-circle-text
+        color: white
+        font-family: 'Roboto Condensed', sans-serif
+        font-weight: bold
+        font-size: 1.5em
 </style>
