@@ -35,7 +35,6 @@ migrate-back:
 	bash -c "source ./venv/bin/activate && cd ./src/django && (rm VLE.db || echo "0") && python3.6 manage.py makemigrations VLE && python3.6 manage.py migrate && deactivate"
 
 run-front:
-	python -mwebbrowser http://localhost:8080
 	bash -c "source ./venv/bin/activate && npm run dev --prefix ./src/vue && deactivate"
 
 run-back:

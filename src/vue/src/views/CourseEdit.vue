@@ -1,23 +1,23 @@
 <template>
     <content-single-column>
         <bread-crumb>&nbsp;</bread-crumb>
-        <b-card class="no-hover settings-card">
+        <b-card class="no-hover">
             <h2>Manage course data</h2>
             <b-form @submit.prevent="onSubmit">
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                          v-model="course.name"
                          placeholder="Course name"
                          required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                          v-model="course.abbreviation"
                          maxlength="10"
                          placeholder="Course Abbreviation (Max 10 letters)"
                          required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                          v-model="course.startdate"
                          type="date"
                          required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                          v-model="course.enddate"
                          type="date"
                          required/>
@@ -44,7 +44,7 @@
             </b-form>
         </b-card>
 
-        <b-card class="no-hover settings-card">
+        <b-card class="no-hover">
             <h2>Manage course students</h2>
                 <b-row>
                     <b-col lg="3" sm="6">
@@ -62,7 +62,7 @@
                     </b-col>
 
                     <b-col cols="6">
-                        <input type="text" v-model="searchVariable" placeholder="Search .."/>
+                        <input class="theme-input" type="text" v-model="searchVariable" placeholder="Search .."/>
                     </b-col>
                 </b-row>
         </b-card>
@@ -92,10 +92,10 @@
 </template>
 
 <script>
-import addUsersToCourseCard from '@/components/AddUsersToCourseCard.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
-import contentSingleColumn from '@/components/ContentSingleColumn.vue'
-import courseParticipantCard from '@/components/CourseParticipantCard.vue'
+import addUsersToCourseCard from '@/components/course/AddUsersToCourseCard.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import courseParticipantCard from '@/components/course/CourseParticipantCard.vue'
 
 import auth from '@/api/auth.js'
 import store from '@/Store'
@@ -241,9 +241,3 @@ export default {
     }
 }
 </script>
-
-<style>
-#pushBot {
-    margin-bottom: 10px;
-}
-</style>

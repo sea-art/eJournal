@@ -21,7 +21,7 @@
         <h3 slot="right-content-column">Upcoming</h3>
 
         <b-card v-if="this.$root.canViewAssignmentParticipants()"
-                class="no-hover settings-card"
+                class="no-hover"
                 slot="right-content-column">
                 <b-row>
                     <b-col lg="6" sm="6">
@@ -60,13 +60,14 @@
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
-import assignmentCard from '@/components/AssignmentCard.vue'
-import todoCard from '@/components/TodoCard.vue'
-import progressBar from '@/components/ProgressBar.vue'
-import mainCard from '@/components/MainCard.vue'
-import createAssignment from '@/components/CreateAssignment.vue'
+import contentColumns from '@/components/columns/ContentColumns.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import assignmentCard from '@/components/assignment/AssignmentCard.vue'
+import todoCard from '@/components/assets/TodoCard.vue'
+import progressBar from '@/components/assets/ProgressBar.vue'
+import assignment from '@/api/assignment.js'
+import mainCard from '@/components/assets/MainCard.vue'
+import createAssignment from '@/components/assignment/CreateAssignment.vue'
 
 import auth from '@/api/auth.js'
 

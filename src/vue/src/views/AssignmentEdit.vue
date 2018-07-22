@@ -3,11 +3,11 @@
         <bread-crumb>&nbsp;</bread-crumb>
         <b-card class="no-hover">
             <b-form @submit.prevent="onSubmit">
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form"
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                          v-model="assignment.name"
                          placeholder="Assignment name"
                          required/>
-                <b-form-textarea class="descriptionTextArea"
+                <b-form-textarea class="description-text-area"
                                  :rows="3"
                                  :max-rows="6"
                                  v-model="assignment.description"
@@ -22,8 +22,8 @@
 </template>
 
 <script>
-import contentSingleColumn from '@/components/ContentSingleColumn.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
+import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import assignmentApi from '@/api/assignment.js'
 import store from '@/Store'
 
@@ -91,8 +91,7 @@ export default {
 }
 </script>
 
-<style>
-.descriptionTextArea {
-    margin-bottom: 10px;
-}
+<style lang="sass">
+.description-text-area
+    margin-bottom: 10px
 </style>

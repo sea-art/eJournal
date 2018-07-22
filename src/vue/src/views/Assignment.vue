@@ -1,7 +1,7 @@
 <template>
     <content-columns>
         <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
-        <b-card slot="main-content-column" class="settings-card no-hover">
+        <b-card slot="main-content-column" class="no-hover">
             <b-row>
                 <b-col lg="3" md="3">
                     <b-button
@@ -21,7 +21,7 @@
                     </b-form-select>
                 </b-col>
                 <b-col lg="5" md="12">
-                    <input type="text" v-model="searchVariable" placeholder="Search .."/>
+                    <input class="theme-input" type="text" v-model="searchVariable" placeholder="Search .."/>
                 </b-col>
             </b-row>
             <b-row>
@@ -71,10 +71,10 @@
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
-import studentCard from '@/components/StudentCard.vue'
-import statisticsCard from '@/components/StatisticsCard.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
+import contentColumns from '@/components/columns/ContentColumns.vue'
+import studentCard from '@/components/assignment/StudentCard.vue'
+import statisticsCard from '@/components/assignment/StatisticsCard.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
 
 import store from '@/Store.vue'
 import auth from '@/api/auth'

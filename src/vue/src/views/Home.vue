@@ -25,7 +25,7 @@
 
         <h3 slot="right-content-column">Upcoming</h3>
         <b-card v-if="this.$root.canAddCourse()"
-                class="no-hover settings-card"
+                class="no-hover"
                 slot="right-content-column">
                 <b-row>
                     <b-col lg="6" sm="6">
@@ -73,12 +73,13 @@
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
-import mainCard from '@/components/MainCard.vue'
-import todoCard from '@/components/TodoCard.vue'
-import createCourse from '@/components/CreateCourse.vue'
-import editHome from '@/components/EditHome.vue'
+import contentColumns from '@/components/columns/ContentColumns.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import mainCard from '@/components/assets/MainCard.vue'
+import todoCard from '@/components/assets/TodoCard.vue'
+import createCourse from '@/components/course/CreateCourse.vue'
+import editHome from '@/components/home/EditHome.vue'
+
 import auth from '@/api/auth'
 
 export default {

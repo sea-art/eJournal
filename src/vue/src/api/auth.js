@@ -156,5 +156,11 @@ export default {
             .catch(error => refresh(error)
                 .then(_ => connection.conn.delete(url, getAuthorizationHeader())))
             .catch(error => handleResponse(error, noRedirect))
+    },
+    uploadFile (url, data, noRedirect = false) {
+        return connection.connFile.post(url, data, getAuthorizationHeader())
+            .catch(error => refresh(error)
+                .then(_ => connection.connFile.post(url, data, getAuthorizationHeader())))
+            .catch(error => handleResponse(error, noRedirect))
     }
 }

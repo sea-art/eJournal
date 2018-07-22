@@ -32,14 +32,23 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
-    url(r'^token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    url(r'^token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    url(r'^token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-
     url(r'^', include(('VLE.views.urls', 'VLE.views'), namespace='VLE')),
 
+    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+
     path('names/<int:cID>/<int:aID>/<int:jID>/', extra.names, name='names'),
-    # url('names/', extra.names, name='namestest')
+
+
+
+
+
+    # path('admin/', admin.site.urls),
+    #
+    # path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    # path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
     #
     # path('get_own_user_data/', get.get_own_user_data, name='get_own_user_data'),
     # path('get_course_data/<int:cID>/', get.get_course_data, name='get_course_data'),
@@ -71,6 +80,8 @@ urlpatterns = [
     # path('create_lti_user/', create.create_lti_user, name='create_lti_user'),
     # path('create_journal/', create.create_journal, name='create_journal'),
     #
+    # path('update_user_profile_picture/', update.update_user_profile_picture, name='update_user_profile_picture'),
+    # path('update_user_image/', update.update_user_image, name='update_user_image'),
     # path('update_user_data/', update.update_user_data, name='update_user_data'),
     # path('update_course/', update.update_course, name='update_course'),
     # path('connect_course_lti/', update.connect_course_lti, name='connect_course_lti'),
@@ -103,3 +114,6 @@ urlpatterns = [
     # path('lti/launch', get.lti_launch, name='lti_launch'),
     # path('get_lti_params_from_jwt/<str:jwt_params>/', get.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),
 ]
+
+# if settings.DEBUG is True:
+#     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

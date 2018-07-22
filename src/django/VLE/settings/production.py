@@ -23,6 +23,7 @@ BASELINK = '{{BASELINK}}'
 CORS_ORIGIN_ALLOW_ALL = True
 
 MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware'] + MIDDLEWARE
+# TODO More select selection, only allow our host directly to avoid cross site securiy flaws
 ALLOWED_HOSTS = ['*']
 
 SESSION_COOKIE_SECURE = True

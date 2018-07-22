@@ -1,32 +1,33 @@
 <template>
     <content-columns>
         <profile-card slot="main-content-column"
-                      :uname="profile.username"
-                      :first="profile.first_name"
-                      :last="profile.last_name"
-                      :image="profile.profile_picture"
-                      :id="profile.id"
-                      :gradeUpdate="profile.grade_notifications"
-                      :commentUpdate="profile.comment_notifications">
+            :uname="profile.username"
+            :first="profile.first_name"
+            :last="profile.last_name"
+            :image="profile.profile_picture"
+            :id="profile.id"
+            :gradeUpdate="profile.grade_notifications"
+            :commentUpdate="profile.comment_notifications">
         </profile-card>
-    </content-columns>
+    </content-single-column>
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
-import profileCard from '@/components/ProfileCard.vue'
+import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import profileCard from '@/components/profile/ProfileCard.vue'
+
 import auth from '@/api/auth.js'
 
 export default {
     name: 'Profile',
     data () {
         return {
-            profile: {}
+            profile: null
         }
     },
     components: {
-        'content-columns': contentColumns,
+        'content-single-column': contentSingleColumn,
         'bread-crumb': breadCrumb,
         'profile-card': profileCard
     },
