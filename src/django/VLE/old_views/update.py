@@ -10,12 +10,8 @@ import VLE.views.responses as responses
 import VLE.serializers as serialize
 import VLE.utils as utils
 import VLE.permissions as permissions
-from VLE.models import Comment, Assignment, Entry, \
-    User, Journal
+from VLE.models import Comment, Assignment, Entry, Journal
 import VLE.lti_grade_passback as lti_grade
-from django.conf import settings
-import jwt
-import json
 
 # Think this one works already
 # @api_view(['POST'])

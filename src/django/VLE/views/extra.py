@@ -9,7 +9,6 @@ from rest_framework.decorators import api_view
 import VLE.views.responses as response
 from VLE.models import Course, Journal, Assignment, EntryTemplate
 import VLE.permissions as permissions
-import VLE.utils as utils
 
 
 @api_view(['GET'])

@@ -7,8 +7,6 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import JSONParser
 
 from django.utils.timezone import now
-from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
 
 import VLE.serializers as serialize
 import VLE.factory as factory
@@ -19,11 +17,6 @@ import VLE.lti_grade_passback as lti_grade
 
 import VLE.views.responses as responses
 import VLE.permissions as permissions
-
-import re
-import jwt
-import json
-from django.conf import settings
 
 
 @api_view(['POST'])
