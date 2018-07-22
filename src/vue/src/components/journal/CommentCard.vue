@@ -26,9 +26,14 @@
             <img class="profile-picture no-hover" :src="authorData.picture">
             <b-card class="no-hover new-comment">
                 <b-textarea class="theme-input multi-form full-width" v-model="tempComment" placeholder="Write a comment" :class="$root.getBorderClass($route.params.cID)"/>
-                <b-button class="send-button" @click="addComment">
-                    <icon name="paper-plane"/>
-                </b-button>
+                <div class="d-flex full-width justify-content-end align-items-center">
+                    <b-form-checkbox v-if="$root.canGradeJournal() && !entryGradePublished" v-model="publishWithGrade" value=true unchecked-value=false>
+                        Publish after grade
+                    </b-form-checkbox>
+                    <b-button class="send-button" @click="addComment">
+                        <icon name="paper-plane"/>
+                    </b-button>
+                </div>
             </b-card>
         </div>
     </div>
@@ -40,7 +45,15 @@ import entryApi from '@/api/entry.js'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
-    props: ['eID'],
+    props: {
+        eID: {
+            required: true
+        },
+        entryGradePublished: {
+            type: Boolean,
+            default: false
+        }
+    },
     components: {
         icon
     },
@@ -48,7 +61,8 @@ export default {
         return {
             tempComment: '',
             authorData: '',
-            commentObject: null
+            commentObject: null,
+            publishWithGrade: true
         }
     },
     watch: {
@@ -117,7 +131,5 @@ export default {
     .timestamp
         float: right
         font-family: 'Roboto Condensed', sans-serif
-        color: $theme-dark-grey
-    textarea
-        margin-right: 10px
+        color: grey
 </style>
