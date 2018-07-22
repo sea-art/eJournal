@@ -71,14 +71,18 @@ export default {
         addComment () {
             if (this.tempComment !== '') {
                 entryApi.createEntryComment(this.eID, this.userData.uID, this.tempComment)
-                this.getEntryComments()
-                this.tempComment = ''
+                    .then (_ => {
+                        this.getEntryComments()
+                        this.tempComment = ''
+                    })
+                    .catch(_ => { this.$toasted.error('Something went wrong whilst posting your comment, please try again!') })
             }
         },
         deleteComment (ecID) {
             if (confirm('Are you sure you want to delete this comment?')) {
                 entryApi.deleteEntryComment(ecID)
-                this.getEntryComments(this.eID)
+                    .then(_ => { this.getEntryComments(this.eID) })
+                    .catch(_ => { this.$toasted.error('Something went wrong whilst deleting the comment, please try again!') })
             }
         }
     }
