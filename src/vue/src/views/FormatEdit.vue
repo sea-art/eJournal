@@ -20,6 +20,7 @@
                     of the entry
                 . -->
                 <selected-node-card
+                    :class="{ 'fmt-disabled' : saveRequestInFlight }"
                     v-if="nodes.length > 0"
                     ref="entry-template-card"
                     :currentPreset="nodes[currentNode]"
@@ -29,7 +30,7 @@
                     @changed="isChanged = true"/>
                 <main-card v-else class="no-hover" :line1="'No presets in format'" :class="'grey-border'"/>
 
-                <b-button class="add-button grey-background full-width" @click="addNode">
+                <b-button :class="{ 'fmt-disabled' : saveRequestInFlight }" class="add-button grey-background full-width" @click="addNode">
                     <icon name="plus"/>
                     Add New Preset to Format
                 </b-button>
@@ -52,24 +53,28 @@
             <b-row>
                 <b-col md="6" lg="12">
                     <h3>Assignment Format</h3>
-                    <b-card class="no-hover settings-card mb-4" :class="$root.getBorderClass($route.params.cID)">
-                        <div class="point-maximum multi-form">
-                            <b>Point Maximum</b>
-                            <input class="theme-input" v-model="max_points" placeholder="Points" type="number">
-                        </div>
-                        <b-button @click.prevent.stop="saveFormat" class="add-button full-width">
-                            <icon name="save"/>
-                            Save Format
-                        </b-button>
-                    </b-card>
+                    <div :class="{ 'fmt-disabled' : saveRequestInFlight }">
+                        <b-card class="no-hover settings-card mb-4" :class="$root.getBorderClass($route.params.cID)">
+                            <div class="point-maximum multi-form">
+                                <b>Point Maximum</b>
+                                <input class="theme-input" v-model="max_points" placeholder="Points" type="number">
+                            </div>
+                            <b-button @click.prevent.stop="saveFormat" class="add-button full-width">
+                                <icon name="save"/>
+                                Save Format
+                            </b-button>
+                        </b-card>
+                    </div>
                 </b-col>
                 <b-col md="6" lg="12">
                     <h3>Entry Templates</h3>
-                    <available-template-card v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate"/>
-                    <b-button class="add-button grey-background full-width" @click="showModal(newTemplate())">
-                        <icon name="plus"/>
-                        Create New Template
-                    </b-button>
+                    <div :class="{ 'fmt-disabled' : saveRequestInFlight }">
+                        <available-template-card v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate"/>
+                        <b-button class="add-button grey-background full-width" @click="showModal(newTemplate())">
+                            <icon name="plus"/>
+                            Create New Template
+                        </b-button>
+                    </div>
                 </b-col>
             </b-row>
         </b-col>
@@ -98,6 +103,8 @@ export default {
        nodes: processed copy of presets.
        deletedTemplates, deletedPresets: stores deleted objects for db communication
        isChanged: stores whether the user has made any changes
+       saveRequestInFlight: stores whether a request to save is in flight, should not allow changes as that would
+            create desync between server and local (format is reloaded after save response, local changes lost)
     */
     data () {
         return {
@@ -111,6 +118,7 @@ export default {
             nodes: [],
 
             isChanged: false,
+            saveRequestInFlight: false,
 
             templateBeingEdited: {
                 'fields': [],
@@ -128,10 +136,7 @@ export default {
     created () {
         journalAPI.get_format(this.aID)
             .then(data => {
-                this.templates = data.format.templates
-                this.max_points = data.format.max_points
-                this.presets = data.format.presets
-                this.unused_templates = data.format.unused_templates
+                this.saveFromDB(data)
                 this.convertFromDB()
             })
             .then(_ => { this.isChanged = false })
@@ -215,6 +220,8 @@ export default {
         },
         // Do client side validation and save to DB
         saveFormat () {
+            var missingPointMax = false
+
             var invalidDate = false
             var invalidTemplate = false
             var invalidTarget = false
@@ -226,6 +233,12 @@ export default {
             for (var template of this.templatePool) {
                 templatePoolIds.push(template.t.tID)
             }
+
+            if (!missingPointMax && isNaN(parseInt(this.max_points))) {
+                missingPointMax = true
+                this.$toasted.error('Point maximum is missing. Please check the format and try again.')
+            }
+
             for (var node of this.nodes) {
                 if (!targetsOutOfOrder && node.type === 'p') {
                     if (lastTarget && node.target < lastTarget) {
@@ -253,27 +266,32 @@ export default {
                 }
             }
 
-            if (invalidDate | invalidTemplate | invalidTarget | targetsOutOfOrder) {
+            if (missingPointMax | invalidDate | invalidTemplate | invalidTarget | targetsOutOfOrder) {
                 return
             }
 
+            this.saveRequestInFlight = true
             this.convertToDB()
             journalAPI.update_format(this.aID, this.templates, this.max_points, this.presets, this.unused_templates, this.deletedTemplates, this.deletedPresets)
                 .then(data => {
-                    this.templates = data.format.templates
-                    this.presets = data.format.presets
-                    this.unused_templates = data.format.unused_templates
-                    this.deletedTemplates = []
-                    this.deletedPresets = []
+                    this.saveFromDB(data)
                     this.convertFromDB()
                 })
                 .then(_ => {
                     this.isChanged = false
+                    this.saveRequestInFlight = false
                     this.$toasted.success('New format saved')
                 })
         },
         customisePage () {
             this.$toasted.info('Wishlist: Customise page')
+        },
+        saveFromDB (data) {
+            this.templates = data.format.templates
+            this.presets = data.format.presets
+            this.unused_templates = data.format.unused_templates
+            this.deletedTemplates = []
+            this.deletedPresets = []
         },
         // Utility func to translate from db format to internal
         convertFromDB () {
@@ -346,6 +364,9 @@ export default {
 
 <style lang="sass">
 @import '~sass/partials/edag-page-layout.sass'
+.fmt-disabled
+    opacity: 0.5
+    pointer-events: none
 
 .point-maximum
     display: flex
