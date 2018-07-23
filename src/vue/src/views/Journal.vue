@@ -1,6 +1,6 @@
 <template>
-    <journal-student v-if="$root.canEditJournal()" :cID="cID" :aID="aID" :jID="jID"/>
-    <journal-non-student v-else-if="!$root.canEditJournal() && $root.canEditJournal() != null" :cID="cID" :aID="aID" :jID="jID"/>
+    <journal-non-student v-if="$root.canViewAssignmentParticipants()" :cID="cID" :aID="aID" :jID="jID"/>
+    <journal-student v-else-if="$root.canEditJournal()" :cID="cID" :aID="aID" :jID="jID"/>
 </template>
 
 <script>

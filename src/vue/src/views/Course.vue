@@ -140,30 +140,19 @@ export default {
             })
         },
         assignmentRoute (cID, aID, name, journal) {
-            if (this.$root.canViewAssignmentParticipants()) {
-                return {
-                    name: 'Assignment',
-                    params: {
-                        cID: cID,
-                        aID: aID,
-                        assignmentName: name
-                    }
+            var obj = {
+                name: 'Assignment',
+                params: {
+                    cID: cID,
+                    aID: aID,
+                    assignmentName: name
                 }
-            } else {
-                var obj = {
-                    name: 'Journal',
-                    params: {
-                        cID: cID,
-                        aID: aID,
-                        assignmentName: name
-                    }
-                }
-                if (journal) {
-                    obj.params.jID = journal.jID
-                }
-
-                return obj
             }
+            if (journal) {
+                obj.params.jID = journal.jID
+            }
+
+            return obj
         },
         journalRoute (cID, aID, jID, name) {
             if (this.$root.canViewAssignmentParticipants()) {

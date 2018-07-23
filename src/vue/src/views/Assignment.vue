@@ -56,7 +56,6 @@ import mainCard from '@/components/assets/MainCard.vue'
 import statisticsCard from '@/components/assignment/StatisticsCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import journal from '@/api/journal.js'
-import permissionsApi from '@/api/permissions.js'
 import store from '@/Store.vue'
 import icon from 'vue-awesome/components/Icon'
 
@@ -69,6 +68,7 @@ export default {
         aID: {
             required: true
         },
+        jID: '',
         assignmentName: ''
     },
     data () {
@@ -90,18 +90,20 @@ export default {
         'main-card': mainCard
     },
     created () {
-        permissionsApi.get_course_permissions(this.cID)
-            .then(response => {
-                if (!this.$router.app.canViewAssignmentParticipants()) {
-                    this.$router.push({name: 'Course', params: {cID: this.cID}})
-                    return
-                }
+        if (!this.$root.canViewAssignmentParticipants()) {
+            if (this.jID) {
+                this.$router.push({name: 'Journal', params: {cID: this.cID, aID: this.aID, jID: this.jID}})
+            } else {
+                this.$router.push({name: 'Course', params: {cID: this.cID}})
+            }
 
-                journal.get_assignment_journals(this.aID)
-                    .then(response => {
-                        this.assignmentJournals = response.journals
-                        this.stats = response.stats
-                    })
+            return
+        }
+
+        journal.get_assignment_journals(this.aID)
+            .then(response => {
+                this.assignmentJournals = response.journals
+                this.stats = response.stats
             })
 
         if (this.$route.query.sort === 'sortFullName' ||

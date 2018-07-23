@@ -104,6 +104,7 @@ var router = new Router({
 })
 
 router.beforeEach((to, from, next) => {
+    console.log('beforeEach')
     // TODO Caching for permissions, how to handle permission changes when role is altered by teacher
     router.app.previousPage = from
 
@@ -127,7 +128,7 @@ router.beforeEach((to, from, next) => {
                 .then(_ => next({name: 'Home'}))
                 .catch(_ => next())
         }
-    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage', 'Assignment'].includes(to.name)) {
+    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage'].includes(to.name)) {
         return next()
     }
 
@@ -140,12 +141,22 @@ router.beforeEach((to, from, next) => {
         params = -1
     }
 
+    if (to.params.aID) {
+        permissionsApi.get_assignment_permissions(to.params.aID)
+            .then(response => {
+                router.app.assignmentPermissions = response
+            })
+            .catch(_ => {
+                router.app.$toasted.error('Error while loading assignment permissions.')
+            })
+    }
+
     permissionsApi.get_course_permissions(params)
         .then(response => {
-            router.app.permissions = response
+            router.app.generalPermissions = response
         })
         .catch(_ => {
-            router.app.$toasted.error('Error while loading permissions.')
+            router.app.$toasted.error('Error while loading course permissions.')
         })
 
     next()
