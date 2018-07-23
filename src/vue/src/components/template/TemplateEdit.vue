@@ -45,7 +45,8 @@ export default {
             fieldTypes: {
                 'i': 'Image',
                 't': 'Text',
-                'f': 'File'
+                'f': 'File',
+                'v': 'Video'
             }
         }
     },
