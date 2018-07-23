@@ -92,8 +92,8 @@ class CreateApiTests(TestCase):
         login = test.logging_in(self, self.username, self.password)
 
         create_entrycomment_dict = {
-            'entryID': entry.pk,
-            'authorID': commentator.pk,
+            'eID': entry.pk,
+            'uID': commentator.pk,
             'text': 'Wow! This is bad/good',
             'published': True
         }
