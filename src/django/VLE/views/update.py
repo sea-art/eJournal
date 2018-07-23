@@ -465,6 +465,9 @@ def update_grade_entry(request):
     entry.published = published
     entry.save()
 
+    if entry.published:
+        EntryComment.objects.filter(entry_id=eID).update(published=True)
+
     if entry.published and journal.sourcedid is not None and journal.grade_url is not None:
         payload = lti_grade.replace_result(journal)
     else:
@@ -505,6 +508,9 @@ def update_publish_grade_entry(request):
 
     entry.published = published
     entry.save()
+
+    if entry.published:
+        EntryComment.objects.filter(entry_id=eID).update(published=True)
 
     if published and journal.sourcedid is not None and journal.grade_url is not None:
         payload = lti_grade.replace_result(journal)
@@ -579,7 +585,7 @@ def update_publish_grades_journal(request):
         return responses.DoesNotExist('Journal')
 
     if not permissions.has_assignment_permission(request.user, journ.assignment, 'can_publish_journal_grades'):
-        return responses.forbidden('You cannot publish assignments.')
+        return responses.forbidden('You are not allowed to publish journal grades.')
 
     utils.publish_all_journal_grades(journ, published)
 

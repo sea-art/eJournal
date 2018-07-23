@@ -261,6 +261,7 @@ def entrycomment_to_dict(entrycomment):
         'eID': entrycomment.entry.id,
         'author': user_to_dict(entrycomment.author),
         'text': entrycomment.text,
+        'published': entrycomment.published,
         'timestamp': entrycomment.timestamp
     } if entrycomment else None
 
@@ -278,7 +279,7 @@ def role_to_dict(role):
             'can_add_assignment': int(role.can_add_assignment),
             'can_view_assignment_participants': int(role.can_view_assignment_participants),
             'can_delete_assignment': int(role.can_delete_assignment),
-            'can_publish_assigment_grades': int(role.can_publish_assigment_grades),
+            'can_publish_assignment_grades': int(role.can_publish_assignment_grades),
             'can_grade_journal': int(role.can_grade_journal),
             'can_publish_journal_grades': int(role.can_publish_journal_grades),
             'can_edit_journal': int(role.can_edit_journal),

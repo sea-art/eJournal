@@ -6,7 +6,6 @@
     <div>
         <div v-if="commentObject">
             <div v-for="(comment, index) in commentObject.entrycomments" class="comment-section" :key="index">
-
                 <img class="profile-picture no-hover" :src="comment.author.picture">
                 <b-card class="no-hover comment-card" :class="$root.getBorderClass($route.params.cID)">
                     <b-button v-if="authorData && authorData.uID == comment.author.uID" class="ml-2 delete-button float-right" @click="deleteComment(comment.ecID)">
@@ -16,8 +15,12 @@
                     <span class="show-enters">{{ comment.text }}</span>
                     <hr/>
                     <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b>
-                    <span class="timestamp">
+                    <span v-if="comment.published" class="timestamp">
                         {{ $root.beautifyDate(comment.timestamp) }}<br/>
+                    </span>
+                    <span v-else class="timestamp">
+                        <icon name="hourglass-half" scale="0.8"/>
+                        Will be published after grade<br/>
                     </span>
                 </b-card>
             </div>
@@ -27,7 +30,7 @@
             <b-card class="no-hover new-comment">
                 <b-textarea class="theme-input multi-form full-width" v-model="tempComment" placeholder="Write a comment" :class="$root.getBorderClass($route.params.cID)"/>
                 <div class="d-flex full-width justify-content-end align-items-center">
-                    <b-form-checkbox v-if="$root.canGradeJournal() && !entryGradePublished" v-model="publishWithGrade" value=true unchecked-value=false>
+                    <b-form-checkbox v-if="$root.canGradeJournal() && !entryGradePublished" v-model="publishAfterGrade" value=true unchecked-value=false>
                         Publish after grade
                     </b-form-checkbox>
                     <b-button class="send-button" @click="addComment">
@@ -62,12 +65,15 @@ export default {
             tempComment: '',
             authorData: '',
             commentObject: null,
-            publishWithGrade: true
+            publishAfterGrade: true
         }
     },
     watch: {
-        eID: function () {
+        eID () {
             this.tempComment = ''
+            entryApi.getEntryComments(this.eID).then(response => { this.commentObject = response })
+        },
+        entryGradePublished () {
             entryApi.getEntryComments(this.eID).then(response => { this.commentObject = response })
         }
     },
@@ -88,7 +94,7 @@ export default {
         },
         addComment () {
             if (this.tempComment !== '') {
-                entryApi.createEntryComment(this.eID, this.authorData.uID, this.tempComment)
+                entryApi.createEntryComment(this.eID, this.authorData.uID, this.tempComment, this.entryGradePublished, this.publishAfterGrade)
                     .then(_ => {
                         this.getEntryComments()
                         this.tempComment = ''
@@ -132,4 +138,6 @@ export default {
         float: right
         font-family: 'Roboto Condensed', sans-serif
         color: grey
+        svg
+            fill: grey
 </style>

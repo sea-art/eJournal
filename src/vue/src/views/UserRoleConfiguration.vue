@@ -17,7 +17,7 @@
                     <tr>
                         <th/>
                         <th v-for="role in roles" :key="'th-' + role">
-                            <b-button v-if="!undeleteableRoles.includes(role)" @click="deleteRole(role)" class="delete-button float-right">
+                            <b-button v-if="!undeleteableRoles.includes(role)" @click="deleteRole(role)" class="delete-button">
                                 {{ role }}
                                 <icon name="trash"/>
                             </b-button>

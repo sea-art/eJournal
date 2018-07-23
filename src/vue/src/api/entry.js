@@ -6,12 +6,15 @@ export default {
         return auth.authenticatedGet('/get_entrycomments/' + eID + '/')
             .then(response => response.data)
     },
-    /* Create Entry Comment with given text, author and entry. */
-    createEntryComment (eID, uID, text) {
+    /* Create Entry Comment with given text, author and entry.
+       Decide wether to publish straight away based on the current state
+       of the grade corresponding to the entry. */
+    createEntryComment (eID, uID, text, entryGradePublished, publishAfterGrade) {
         return auth.authenticatedPost('/create_entrycomment/', {
             eID: eID,
             uID: uID,
-            text: text
+            text: text,
+            published: entryGradePublished || !publishAfterGrade
         })
             .then(response => response.data)
     },

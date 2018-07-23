@@ -225,14 +225,15 @@ def create_entrycomment(request):
         eID -- the entry id
         uID -- the author id
         text -- the comment
+        published -- the comment's publishment state
     """
     if not request.user.is_authenticated:
         return responses.unauthorized()
 
     try:
-        eID, uID, text = utils.required_params(request.data, "eID", "uID", "text")
+        eID, uID, text, published = utils.required_params(request.data, "eID", "uID", "text", "published")
     except KeyError:
-        return responses.keyerror("eID", "uID", "text")
+        return responses.keyerror("eID", "uID", "text", "published")
 
     try:
         author = User.objects.get(pk=uID)
@@ -240,7 +241,7 @@ def create_entrycomment(request):
     except (User.DoesNotExist, Entry.DoesNotExist):
         return responses.not_found('User or Entry does not exist.')
 
-    entrycomment = factory.make_entrycomment(entry, author, text)
+    entrycomment = factory.make_entrycomment(entry, author, text, published)
     return responses.created(payload={'comment': serialize.entrycomment_to_dict(entrycomment)})
 
 

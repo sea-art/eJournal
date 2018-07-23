@@ -94,7 +94,8 @@ class CreateApiTests(TestCase):
         create_entrycomment_dict = {
             'entryID': entry.pk,
             'authorID': commentator.pk,
-            'text': 'Wow! This is bad/good'
+            'text': 'Wow! This is bad/good',
+            'published': True
         }
 
         test.api_post_call(self, '/create_entrycomment/', create_entrycomment_dict, login, 201)

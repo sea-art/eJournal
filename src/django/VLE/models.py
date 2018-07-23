@@ -123,7 +123,7 @@ class Role(models.Model):
     can_edit_assignment = models.BooleanField(default=False)
     can_view_assignment_participants = models.BooleanField(default=False)
     can_delete_assignment = models.BooleanField(default=False)
-    can_publish_assigment_grades = models.BooleanField(default=False)
+    can_publish_assignment_grades = models.BooleanField(default=False)
 
     # Journal permissions.
     can_grade_journal = models.BooleanField(default=False)
@@ -528,3 +528,6 @@ class EntryComment(models.Model):
     )
     text = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    published = models.BooleanField(
+        default=True
+    )
