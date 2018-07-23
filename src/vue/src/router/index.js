@@ -119,7 +119,7 @@ router.beforeEach((to, from, next) => {
     /* If valid token, redirect to Home, if not currently valid, look to see if it is valid.
      * If now valid, redirect as well, otherwise continue to guest page.
      */
-    if (to.name === 'Guest') {
+    if (to.name === 'Guest' || to.name === 'Register') {
         if (router.app.validToken) {
             return next({name: 'Home'})
         } else {
