@@ -141,25 +141,29 @@ router.beforeEach((to, from, next) => {
         params = -1
     }
 
-    if (to.params.aID) {
-        permissionsApi.get_assignment_permissions(to.params.aID)
-            .then(response => {
-                router.app.assignmentPermissions = response
-            })
-            .catch(_ => {
-                router.app.$toasted.error('Error while loading assignment permissions.')
-            })
-    }
-
     permissionsApi.get_course_permissions(params)
         .then(response => {
             router.app.generalPermissions = response
+
+            if (to.params.aID) {
+                permissionsApi.get_assignment_permissions(to.params.aID)
+                    .then(response => {
+                        router.app.assignmentPermissions = response
+                        console.log('Got assignment permissions from: ' + from.name + ' to: ' + to.name)
+                        return next()
+                    })
+                    .catch(_ => {
+                        router.app.$toasted.error('Error while loading assignment permissions.')
+                    })
+            } else {
+                console.log('Did not get assignment permissions from: ' + from.name + ' to: ' + to.name)
+                return next()
+            }
         })
         .catch(_ => {
             router.app.$toasted.error('Error while loading course permissions.')
         })
-
-    next()
+    console.log('Did not get any permissions')
 })
 
 export default router
