@@ -227,7 +227,8 @@ def create_entrycomment(request):
         text -- the comment
         published -- the comment's publishment state
     """
-    if not request.user.is_authenticated:
+    user = request.user
+    if not user.is_authenticated:
         return responses.unauthorized()
 
     try:
@@ -238,8 +239,14 @@ def create_entrycomment(request):
     try:
         author = User.objects.get(pk=uID)
         entry = Entry.objects.get(pk=eID)
+        assignment = Assignment.objects.get(journal__node__entry=entry)
     except (User.DoesNotExist, Entry.DoesNotExist):
-        return responses.not_found('User or Entry does not exist.')
+        return responses.not_found('User or Entry')
+
+    if not (author == user):
+        return responses.forbidden('You are not allowed to write comments for others.')
+
+    published = published or not permissions.has_assignment_permission(user, assignment, 'can_grade_journal')
 
     entrycomment = factory.make_entrycomment(entry, author, text, published)
     return responses.created(payload={'comment': serialize.entrycomment_to_dict(entrycomment)})

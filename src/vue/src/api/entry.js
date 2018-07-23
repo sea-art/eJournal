@@ -10,6 +10,7 @@ export default {
        Decide wether to publish straight away based on the current state
        of the grade corresponding to the entry. */
     createEntryComment (eID, uID, text, entryGradePublished, publishAfterGrade) {
+        console.log('createEntryComment')
         return auth.authenticatedPost('/create_entrycomment/', {
             eID: eID,
             uID: uID,

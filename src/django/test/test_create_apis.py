@@ -88,12 +88,11 @@ class CreateApiTests(TestCase):
         entry = factory.make_entry(template)
         factory.make_node(journal, entry)
 
-        commentator = factory.make_user('Commentator', 'pass')
         login = test.logging_in(self, self.username, self.password)
 
         create_entrycomment_dict = {
             'eID': entry.pk,
-            'uID': commentator.pk,
+            'uID': self.user.pk,
             'text': 'Wow! This is bad/good',
             'published': True
         }

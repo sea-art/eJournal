@@ -171,7 +171,7 @@ def test_unauthorized_api_get_call(obj, url):
 
 
 def api_post_call(obj, url, params, login, status=200):
-    """Send an get api call.
+    """Send and get api call.
 
     Arguments:
     url -- url to send the call to
