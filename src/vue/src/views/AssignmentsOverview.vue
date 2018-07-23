@@ -13,7 +13,7 @@
                         </b-form-select>
                     </b-col>
                     <b-col sm="6">
-                        <input class="theme-input full-width" type="text" v-model="searchVariable" placeholder="Search .."/>
+                        <input class="theme-input full-width" type="text" v-model="searchVariable" placeholder="Search..."/>
                     </b-col>
                 </b-row>
         </b-card>

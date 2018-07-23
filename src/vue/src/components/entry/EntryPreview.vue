@@ -21,7 +21,7 @@
                     <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
                 </div>
                 <div v-else-if="field.type=='v'">
-                    <b-input class="theme-input" @input="completeContent[i].data = youtubeEmbedFromURL($event)" placeholder="Add YouTube URL..."></b-input><br>
+                    <b-input class="theme-input" @input="completeContent[i].data = youtubeEmbedFromURL($event)" placeholder="Enter YouTube URL..."></b-input><br>
                 </div>
             </div>
 

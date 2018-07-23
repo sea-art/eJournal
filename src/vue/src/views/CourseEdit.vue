@@ -64,7 +64,7 @@
                         </b-form-select>
                     </b-col>
                 </b-row>
-                <input class="multi-form theme-input full-width" type="text" v-model="searchVariable" placeholder="Search .."/>
+                <input class="multi-form theme-input full-width" type="text" v-model="searchVariable" placeholder="Search..."/>
         </b-card>
 
         <course-participant-card v-if="selectedView == 'enrolled'"

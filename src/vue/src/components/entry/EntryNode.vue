@@ -42,7 +42,7 @@
                     (since it is an entire URL, replacement is preferable over editing).
                 -->
                 <div v-else-if="field.type=='v'">
-                    <b-input class="theme-input" @input="completeContent[i].data = youtubeEmbedFromURL($event)" placeholder="Add YouTube URL..."></b-input><br>
+                    <b-input class="theme-input" @input="completeContent[i].data = youtubeEmbedFromURL($event)" placeholder="Enter YouTube URL..."></b-input><br>
                 </div>
             </div>
             <b-alert :show="dismissCountDown" dismissible variant="secondary"
