@@ -46,7 +46,7 @@ export default {
                 'i': 'Image',
                 't': 'Text',
                 'f': 'File',
-                'v': 'Video'
+                'v': 'YouTube Video'
             }
         }
     },

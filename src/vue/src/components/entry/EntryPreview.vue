@@ -21,7 +21,7 @@
                     <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
                 </div>
                 <div v-else-if="field.type=='v'">
-                    <b-input class="theme-input" @input="completeContent[i].data = youtubeEmbedFromURL($event)"></b-input><br>
+                    <b-input class="theme-input" @input="completeContent[i].data = youtubeEmbedFromURL($event)" placeholder="Add YouTube URL..."></b-input><br>
                 </div>
             </div>
 
@@ -89,7 +89,7 @@ export default {
             var regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
             var match = url.match(regExp)
             if (match && match[2].length === 11) {
-                return 'https://www.youtube.com/embed/' + match[2] + '?rel=0&amp;showinfo=0" frameborder="0" allow="autoplay; encrypted-media'
+                return 'https://www.youtube.com/embed/' + match[2] + '?rel=0&amp;showinfo=0'
             } else {
                 return null
             }
