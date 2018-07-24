@@ -13,10 +13,12 @@
                         <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'p'">
-                        <b-card class="no-hover" :class="'pink-border'">
-                            <h2 class="mb-2">Progress: {{nodes[currentNode].target}} points</h2>
-                            {{progressNodes[nodes[currentNode].nID]}} out of {{nodes[currentNode].target}} points.<br/>
-                            {{nodes[currentNode].target - progressNodes[nodes[currentNode].nID]}} more required before {{$root.beautifyDeadline(nodes[currentNode].deadline)}}.
+                        <b-card class="no-hover" :class="getProgressBorderClass()">
+                            <h2 class="mb-2">Progress: {{ nodes[currentNode].target }} points</h2>
+                            <span v-if="progressPointsLeft > 0">
+                                <b>{{ progressNodes[nodes[currentNode].nID] }}</b> out of <b>{{ nodes[currentNode].target }}</b> points.<br/>
+                                <b>{{ progressPointsLeft }}</b> more required before <b>{{ $root.beautifyDeadline(nodes[currentNode].deadline) }}</b>.
+                            </span>
                         </b-card>
                     </div>
                 </div>
@@ -87,6 +89,7 @@ export default {
             editedData: ['', ''],
             nodes: [],
             progressNodes: {},
+            progressPointsLeft: 0,
             assignmentJournals: [],
             journal: null,
             selectedSortOption: 'sortUserName',
@@ -139,6 +142,7 @@ export default {
         currentNode: function () {
             if (this.nodes[this.currentNode].type === 'p') {
                 this.progressPoints(this.nodes[this.currentNode])
+                this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].nID]
             }
         }
     },
@@ -193,6 +197,9 @@ export default {
             }
 
             this.progressNodes[progressNode.nID] = tempProgress.toString()
+        },
+        getProgressBorderClass () {
+            return this.progressPointsLeft > 0 ? 'red-border' : 'green-border'
         },
         updatedGrade () {
             for (var node of this.nodes) {

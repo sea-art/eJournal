@@ -132,7 +132,7 @@ export default {
     &.enc-add
         background-color: $theme-blue
     &.enc-progress
-        background-color: $theme-red
+        background-color: $theme-orange
     svg
         transition: all 0.6s cubic-bezier(.25,.8,.25,1)
     .edag-node-circle-text
