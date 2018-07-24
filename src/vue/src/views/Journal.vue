@@ -22,9 +22,6 @@ export default {
         'bread-crumb': breadCrumb,
         'journal-student': journalStudent,
         'journal-non-student': journalNonStudent
-    },
-    beforeCreated () {
-        console.log('Journal Created')
     }
 }
 </script>

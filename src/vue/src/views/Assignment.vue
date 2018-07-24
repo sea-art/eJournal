@@ -1,5 +1,5 @@
 <template>
-    <content-columns>
+    <content-columns v-if="this.$root.canViewAssignmentParticipants()">
         <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
         <b-card slot="main-content-column" class="no-hover settings-card">
             <b-row>
@@ -23,7 +23,7 @@
             </b-button>
         </b-card>
 
-        <div v-if="assignmentJournals.length > 0" v-for="journal in filteredJournals" :key="journal.student.uID" slot="main-content-column">
+        <div v-if="filteredJournals.length !== 0" v-for="journal in filteredJournals" :key="journal.student.uID" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {
                                               cID: cID,
@@ -39,9 +39,9 @@
 
             </b-link>
         </div>
-        <main-card v-if="assignmentJournals.length === 0" slot="main-content-column" class="no-hover" :line1="'No journals found'"/>
+        <main-card v-else slot="main-content-column" class="no-hover" :line1="'No journals found'"/>
 
-        <div v-if="stats" slot="right-content-column">
+        <div v-if="stats.length > 0" slot="right-content-column">
             <h3>Insights</h3>
             <statistics-card :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>
             <statistics-card :subject="'Average points'" :num="stats.avgPoints"></statistics-card>
@@ -90,16 +90,13 @@ export default {
         'main-card': mainCard
     },
     created () {
-        console.log('Created assignment')
         if (!this.$root.canViewAssignmentParticipants()) {
             if (this.jID) {
-                console.log('push journal')
                 return this.$router.push({name: 'Journal', params: {cID: this.cID, aID: this.aID, jID: this.jID}})
             } else {
                 return this.$router.push({name: 'Course', params: {cID: this.cID}})
             }
         }
-
         journal.get_assignment_journals(this.aID)
             .then(response => {
                 this.assignmentJournals = response.journals
@@ -152,7 +149,9 @@ export default {
                 this.query = {sort: this.selectedSortOption}
             }
 
-            this.$router.replace({ query: this.query })
+            if (this.$route.query !== this.query) {
+                this.$router.replace({ query: this.query })
+            }
         }
     },
     computed: {
