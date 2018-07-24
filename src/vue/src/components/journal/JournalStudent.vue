@@ -81,7 +81,6 @@ export default {
             nodes: [],
             journal: {},
             progressNodes: {},
-            assignmentName: '',
             assignmentDescription: ''
         }
     },
@@ -109,7 +108,6 @@ export default {
 
         assignmentApi.get_assignment_data(this.cID, this.aID)
             .then(response => {
-                this.assignmentName = response.name
                 this.assignmentDescription = response.description
             })
             .catch(_ => this.$toasted.error('Error while loading assignment description.'))

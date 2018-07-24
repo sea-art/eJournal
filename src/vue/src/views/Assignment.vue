@@ -68,8 +68,7 @@ export default {
         aID: {
             required: true
         },
-        jID: '',
-        assignmentName: ''
+        jID: ''
     },
     data () {
         return {
