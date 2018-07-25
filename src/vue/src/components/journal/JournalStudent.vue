@@ -35,7 +35,7 @@
                         <b-card class="no-hover" :class="'pink-border'">
                             <h2 class="mb-2">Progress: {{nodes[currentNode].target}} points</h2>
                             {{ progressNodes[nodes[currentNode].nID] }} out of {{ nodes[currentNode].target }} points.<br/>
-                            {{ nodes[currentNode].target - progressNodes[nodes[currentNode].nID] }} more required before {{ $root.beautifyDeadline(nodes[currentNode].deadline) }}.
+                            {{ nodes[currentNode].target - progressNodes[nodes[currentNode].nID] }} more required before {{ $root.beautifyDate(nodes[currentNode].deadline) }}.
                         </b-card>
                     </div>
                 </div>

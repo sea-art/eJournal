@@ -103,6 +103,7 @@ urlpatterns = [
     path('delete_assignment/', delete.delete_assignment, name='delete_assignment'),
     path('delete_user_from_course/', delete.delete_user_from_course, name='delete_user_from_course'),
     path('delete_course_role/', delete.delete_course_role, name='delete_course_role'),
+    path('delete_entrycomment/', delete.delete_entrycomment, name='delete_entrycomment'),
 
     path('lti/launch', get.lti_launch, name='lti_launch'),
     path('get_lti_params_from_jwt/<str:jwt_params>/', get.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),

@@ -16,7 +16,7 @@
                         <b-card class="no-hover" :class="'pink-border'">
                             <h2 class="mb-2">Progress: {{nodes[currentNode].target}} points</h2>
                             {{progressNodes[nodes[currentNode].nID]}} out of {{nodes[currentNode].target}} points.<br/>
-                            {{nodes[currentNode].target - progressNodes[nodes[currentNode].nID]}} more required before {{$root.beautifyDeadline(nodes[currentNode].deadline)}}.
+                            {{nodes[currentNode].target - progressNodes[nodes[currentNode].nID]}} more required before {{$root.beautifyDate(nodes[currentNode].deadline)}}.
                         </b-card>
                     </div>
                 </div>
@@ -56,7 +56,7 @@
                                 <icon name="arrow-right"/>
                             </b-button>
                         </div>
-                        <b-button class="add-button flex-grow-1 full-width" @click="publishGradesJournal">
+                        <b-button v-if="this.$root.canPublishAssignmentGrades()" class="add-button flex-grow-1 full-width" @click="publishGradesJournal">
                             <icon name="upload"/>
                             Publish All Grades
                         </b-button>
@@ -217,6 +217,11 @@ export default {
                                 node.entry.published = true
                             }
                         }
+
+                        journalApi.get_nodes(this.jID)
+                            .then(response => {
+                                this.nodes = response.nodes
+                            })
 
                         journalApi.get_journal(this.jID)
                             .then(response => {

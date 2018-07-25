@@ -706,7 +706,11 @@ def get_entrycomments(request, eID):
             entry.node.journal.assignment, 'can_view_assignment_participants')):
         return responses.forbidden('You are not allowed to view journals of other participants.')
 
-    entrycomments = EntryComment.objects.filter(entry=entry)
+    if permissions.has_assignment_permission(user, entry.node.journal.assignment,
+                                             'can_grade_journal'):
+        entrycomments = EntryComment.objects.filter(entry=entry)
+    else:
+        entrycomments = EntryComment.objects.filter(entry=entry, published=True)
 
     return responses.success(payload={
         'entrycomments': [serialize.entrycomment_to_dict(comment) for comment in entrycomments]
