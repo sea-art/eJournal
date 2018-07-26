@@ -5,7 +5,7 @@ API functions that handle the delete requests.
 """
 from rest_framework.decorators import api_view
 
-from VLE.models import Assignment, Course, Participation, User, Role
+from VLE.models import Assignment, Course, EntryComment, Participation, User, Role
 
 import VLE.views.responses as responses
 import VLE.utils as utils
@@ -149,3 +149,33 @@ def delete_course_role(request):
 
     Role.objects.get(name=name, course=cID).delete()
     return responses.success(message='Succesfully deleted role from course')
+
+
+@api_view(['POST'])
+def delete_entrycomment(request):
+    """Delete an entrycomment.
+
+    Arguments:
+    request -- the request that was send with
+        ecID -- the entrycomment ID
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    try:
+        ecID = utils.required_params(request.data, "ecID")[0]
+    except KeyError:
+        return responses.keyerror("ecID")
+
+    try:
+        entrycomment = EntryComment.objects.get(pk=ecID)
+        entryAuthor = User.objects.get(pk=entrycomment.author.id)
+    except (EntryComment.DoesNotExist, User.DoesNotExist):
+        return responses.not_found('Comment or Author does not exist.')
+
+    if not user == entryAuthor:
+        return responses.forbidden()
+
+    EntryComment.objects.get(id=ecID).delete()
+    return responses.success(message='Succesfully deleted comment')

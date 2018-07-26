@@ -100,7 +100,7 @@
             </b-button>
         </b-card>
 
-        <comment-card :eID="entryNode.entry.eID"/>
+        <comment-card :eID="entryNode.entry.eID" :entryGradePublished="entryNode.entry.published"/>
     </div>
 </template>
 

@@ -54,7 +54,7 @@ def get_permissions(user, cID=-1):
             "can_edit_assignment": True,
             "can_view_assignment_participants": True,
             "can_delete_assignment": True,
-            "can_publish_assigment_grades": False,
+            "can_publish_assignment_grades": False,
 
             "can_grade_journal": False,
             "can_publish_journal_grades": False,
@@ -78,7 +78,7 @@ def get_permissions(user, cID=-1):
             "can_edit_assignment": False,
             "can_view_assignment_participants": False,
             "can_delete_assignment": False,
-            "can_publish_assigment_grades": False,
+            "can_publish_assignment_grades": False,
 
             "can_grade_journal": False,
             "can_publish_journal_grades": False,
@@ -192,7 +192,7 @@ def edit_permissions(role, can_edit_course_roles=False, can_view_course_particip
                      can_edit_course=False, can_delete_course=False,
                      can_add_assignment=False, can_view_assignment_participants=False,
                      can_edit_assignment=False,
-                     can_delete_assignment=False, can_publish_assigment_grades=False,
+                     can_delete_assignment=False, can_publish_assignment_grades=False,
                      can_grade_journal=False, can_publish_journal_grades=False,
                      can_edit_journal=False, can_comment_journal=False):
     """Edit the name and permissions of an existing role."""
@@ -206,7 +206,7 @@ def edit_permissions(role, can_edit_course_roles=False, can_view_course_particip
     role.can_edit_assignment = can_edit_assignment
     role.can_view_assignment_participants = can_view_assignment_participants
     role.can_delete_assignment = can_delete_assignment
-    role.can_publish_assigment_grades = can_publish_assigment_grades
+    role.can_publish_assignment_grades = can_publish_assignment_grades
 
     role.can_grade_journal = can_grade_journal
     role.can_publish_journal_grades = can_publish_journal_grades

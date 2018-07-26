@@ -329,7 +329,7 @@ class GetApiTests(TestCase):
         journal = factory.make_journal(assignment, student)
         entry = factory.make_entry(template)
         factory.make_node(journal, entry)
-        factory.make_entrycomment(entry, self.rein, 'Excellent!')
+        factory.make_entrycomment(entry, self.rein, 'Excellent!', True)
 
         login = test.logging_in(self, student_user, student_pass)
 
