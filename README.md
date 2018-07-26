@@ -1,16 +1,20 @@
-# Incremental Long-Term Assignments for Canvas VLE [![Build Status](https://travis-ci.com/Rickyboy320/PSE_Hokkies.svg?token=r1oSN27zZYdQJnbijrgR&branch=develop)](https://travis-ci.com/Rickyboy320/PSE_Hokkies)
+<p align="center">
+    <h1>eJournal</h1>
+    <a href="https://travis-ci.org/eJourn-al/eJournal">
+        <img src="https://travis-ci.com/eJourn-al/eJournal.svg?branch=develop"
+            alt="Build Status" title="Build Status">
+    </a>
+</p>
 
-Canvas VLE integration
+## Incremental Long-Term Assignments for Virtual Learning Environments
 
-During the first and second years of the Bachelor Informatics at the University of Amsterdam, students follow a course called PAV (practicum academische vaardigheden or practicum academic competencies). One part of the PAV course is the colloquium journal; students are required to attend events related to their field of study and report on their experiences. Each event can be worth one or more points and students are required to acquire at least ten points by the end of their second year of study. The students' reports are evaluated by a tutor and assigned points on a regular basis.
-
-[Full description](https://www.overleaf.com/read/hxzqgqqmzvwc)
+eJournal is a platform for online journalling and long term assignments, especially developed for education. It can be easily connected to virtual learning environments through LTI.
 
 ## Setting up the Development Environment
 
 ```bash
-git clone git@github.com:Rickyboy320/PSE_Hokkies.git
-cd PSE_Hokkies
+git clone git@github.com:eJourn-al/eJournal.git
+cd eJournal
 make setup
 ```
 
@@ -25,14 +29,14 @@ The first step downloads the full repository.
 #### Frontend
 
 Files are stored in `src/vue`.
-To start the development vue server type `make run-front` in the `PSE_Hokkies` folder. The Frontend is dependent on the Backend to work properly with requesting data, so make sure to also run the backend.
+To start the development vue server type `make run-front` in the `eJournal` folder. The Frontend is dependent on the Backend to work properly with requesting data, so make sure to also run the backend.
 
 `npm` should always be run in this directory, as the `node_modules` folder is stored here. For the actual source files, view the `src/vue/src` folder.
 
 #### Backend
 
 Files are stored in `src/django`.
-To start the development django server type `make run-back` in the `PSE_Hokkies` folder.
+To start the development django server type `make run-back` in the `eJournal` folder.
 
 ## Testing
 
@@ -129,20 +133,20 @@ Make sure to use a strong password, as these credentials will be able to manipul
 
 ## Troubleshooting
 
-May the setup or deployment fail, [open an issue on github](https://github.com/Rickyboy320/PSE_Hokkies/issues/new).
+May the setup or deployment fail, [open an issue on github](https://github.com/eJourn-al/eJournal/issues/new).
 The setup and deployment scripts have been built for ubuntu, and may not work on any other linux distributions. May the need for this arise, the scripts can be altered to support additional distributions.
 
 ## Contributors
 
-Jeroen van Bennekum: Scrum Master, Database Design & Implementation  
-Xavier van Dommelen: Design, Front-end & EDAG  
-Engel Hamer: Design, Front-end  
-Hendrik Huang: Design, Front-end & EDAG  
-Maarten van Keulen: Design, Front-end  
-Zi Long Zhu: Database Design, Back-end, Testing  
-Joey Lai: Front-end, Back-end, Testing  
-Teun Mathijssen: Back-end, Database Specialist, Testing  
-Lars van Hijfte: Project Structure, Back-end, Project Deployment, Server Master  
-Rick Watertor: Project Structure, Back-end, Project Deployment, Git Master  
-Okke van Eck: Front-end & LTI  
-Dennis Wind: LTI Specialist  
+Jeroen van Bennekum, 
+Xavier van Dommelen, 
+Okke van Eck, 
+Engel Hamer, 
+Lars van Hijfte, 
+Hendrik Huang, 
+Maarten van Keulen, 
+Joey Lai, 
+Teun Mathijssen, 
+Rick Watertor, 
+Dennis Wind, 
+Zi Long Zhu.
