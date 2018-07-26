@@ -1,12 +1,4 @@
-<p align="center">
-    <h1>eJournal</h1>
-    <a href="https://travis-ci.org/eJourn-al/eJournal">
-        <img src="https://travis-ci.com/eJourn-al/eJournal.svg?branch=develop"
-            alt="Build Status" title="Build Status">
-    </a>
-</p>
-
-## Incremental Long-Term Assignments for Virtual Learning Environments
+# eJournal [![Build Status](https://travis-ci.com/eJourn-al/eJournal.svg?branch=develop)](https://travis-ci.com/eJourn-al/eJournal)
 
 eJournal is a platform for online journalling and long term assignments, especially developed for education. It can be easily connected to virtual learning environments through LTI.
 
