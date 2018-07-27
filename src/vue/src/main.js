@@ -91,15 +91,15 @@ new Vue({
         getBorderClass (cID) {
             return this.colors[cID % this.colors.length]
         },
-        beautifyDeadline (deadline) {
-            if (!deadline) {
+        beautifyDate (date) {
+            if (!date) {
                 return ''
             }
 
-            var year = deadline.substring(0, 4)
-            var month = deadline.substring(5, 7)
-            var day = deadline.substring(8, 10)
-            var time = deadline.substring(11, 16)
+            var year = date.substring(0, 4)
+            var month = date.substring(5, 7)
+            var day = date.substring(8, 10)
+            var time = date.substring(11, 16)
 
             return day + '-' + month + '-' + year + ' ' + time
         },

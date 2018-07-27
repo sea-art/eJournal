@@ -527,3 +527,7 @@ class EntryComment(models.Model):
         null=True
     )
     text = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    published = models.BooleanField(
+        default=True
+    )

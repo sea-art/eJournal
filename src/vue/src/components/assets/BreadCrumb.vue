@@ -12,7 +12,7 @@
             Edit
         </b-button>
         <div>
-            <h4>
+            <h4 v-if="crumbs.length > 1">
                 <span v-for="crumb in crumbs.slice(0, -1)" :key="crumb.route">
                     <b-link tag="b-button" :to="{ name: crumb.routeName }">{{ crumb.displayName }}</b-link> /
                 </span>

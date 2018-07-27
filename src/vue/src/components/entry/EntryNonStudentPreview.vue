@@ -40,7 +40,7 @@
             </div>
         </b-card>
 
-        <comment-card :eID="entryNode.entry.eID"/>
+        <comment-card :eID="entryNode.entry.eID" :entryGradePublished="entryNode.entry.published"/>
     </div>
     <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
         <h2 class="mb-2">{{entryNode.template.name}}</h2>

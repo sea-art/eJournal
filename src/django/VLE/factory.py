@@ -314,7 +314,7 @@ def make_role_teacher(name, course):
     return make_role_default_all_perms(name, course, can_edit_journal=False)
 
 
-def make_entrycomment(entry, author, text):
+def make_entrycomment(entry, author, text, published):
     """Make an Entry Comment.
 
     Make an Entry Comment for an entry based on its ID.
@@ -323,9 +323,11 @@ def make_entrycomment(entry, author, text):
     entry -- entry where the comment belongs to
     author -- author of the comment
     text -- content of the comment
+    published -- publishment state of the comment
     """
     return EntryComment.objects.create(
         entry=entry,
         author=author,
-        text=text
+        text=text,
+        published=published
     )

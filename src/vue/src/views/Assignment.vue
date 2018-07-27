@@ -15,7 +15,7 @@
                 </b-col>
             </b-row>
             <b-button
-                v-if="$root.canGradeJournal()"
+                v-if="$root.canPublishAssignmentGrades()"
                 class="add-button"
                 @click="publishGradesAssignment">
                 <icon name="upload"/>

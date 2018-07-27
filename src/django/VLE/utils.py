@@ -3,7 +3,7 @@ Utilities.
 
 A library with useful functions.
 """
-from VLE.models import Entry, Node, EntryTemplate, PresetNode
+from VLE.models import Entry, Node, EntryTemplate, EntryComment, PresetNode
 import VLE.factory as factory
 import VLE.views.responses as responses
 import os
@@ -93,6 +93,9 @@ def publish_all_assignment_grades(assignment, published):
     - published: either True or False. If True show the grade to student.
     """
     Entry.objects.filter(node__journal__assignment=assignment).exclude(grade=None).update(published=published)
+    if published:
+        (EntryComment.objects.filter(entry__node__journal__assignment=assignment)
+         .exclude(entry__grade=None).update(published=True))
 
 
 def publish_all_journal_grades(journal, published):
@@ -102,6 +105,8 @@ def publish_all_journal_grades(journal, published):
     - published: either True or False. If True show the grade to student.
     """
     Entry.objects.filter(node__journal=journal).exclude(grade=None).update(published=published)
+    if published:
+        EntryComment.objects.filter(entry__node__journal=journal).exclude(entry__grade=None).update(published=True)
 # END grading functions
 
 
