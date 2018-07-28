@@ -2,7 +2,7 @@
     <b-row>
         <b-col md="5" sm="12" class="text-center">
             <div class="profile-portrait small-shadow">
-                <img :src="image">
+                <img :src="profileImageDataURL">
                 <!-- TODO handle file upload. The original profile picture upload did not work yet. -->
                 <b-button>
                     <icon name="upload"/>
@@ -15,6 +15,15 @@
             <b-form-input class="theme-input multi-form" v-model="uname" type="text"/>
             <b-form-input class="theme-input multi-form" v-model="first" type="text"/>
             <b-form-input class="theme-input multi-form" v-model="last" type="text"/>
+            <b-form-file
+                ref="file"
+                accept="image/*"
+                class="fileinput"
+                @change="fileHandler"
+                v-model="file"
+                :state="Boolean(file)"
+                placeholder="Change picture"/>
+
             <b-button class="add-button multi-form float-right" @click="saveUserdata">
                 <icon name="save"/>
                 Save
@@ -36,7 +45,7 @@ export default {
     data () {
         return {
             file: null,
-            profileImage: null
+            profileImageDataURL: null
         }
     },
     methods: {
@@ -48,31 +57,62 @@ export default {
             let maxSize = 2 * 1024 * 1024
 
             let files = e.target.files
+
             if (!files.length) { return }
             if (files[0].size > maxSize) {
                 this.$toasted.error('The profile picture exceeds the maximum file size of 2MB.')
                 return
             }
 
-            var reader = new FileReader()
             var vm = this
+            var reader = new FileReader()
 
-            reader.onload = (e) => {
-                console.log('$$$%%% HERE')
-                var image = new Image()
-                console.log(image)
-                image.src = e.target.result
-                image.onload = function () {
-                    if (image.height !== image.width) {
-                        vm.$toasted.error('The profile picture should be a square image!')
-                    } else {
-                        // Image is the correct size and is symmetrical, lets send it to the backend.
-                        userAPI.updateProfilePicture(image)
-                            .then(_ => { reader.readAsDataURL(image) })
-                            .catch(_ => { vm.$toasted.error('Something went wrong while uploading your profile picture.') })
-                    }
+            reader.onload = () => {
+                var dataURL = reader.result
+                console.log(dataURL)
+                if (vm.validateSelectedImage(dataURL)) {
+                    // var formData = new FormData()
+                    // formData.append('file', dataURL)
+
+                    userAPI.updateFile(dataURL)
+                        .then(response => {
+                            vm.profileImageDataURL = dataURL
+                            console.log(response.data)
+                            console.log(response.data.result.file.length)
+                            // Testing delete below here within the block
+                            // JSON.parse(response.data.file)
+                            let blob = new Blob([JSON.parse(response.data.result.file)], { type: 'image/png' })
+                            // let url = window.URL.createObjectURL(blob)
+                            // window.open(url)
+                            //
+                            // console.log(blob)
+
+                            let link = document.createElement('a')
+                            link.href = window.URL.createObjectURL(blob)
+                            link.download = 'Image.png'
+
+                            const clickEvent = document.createEvent('MouseEvents')
+                            clickEvent.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
+                            link.dispatchEvent(clickEvent)
+
+                            // vm.profileImageDataURL = 'data:image/png;base64,' + vm.hexToBase64(response.data)
+                        })
+                        .catch(_ => { this.$toasted.error('Something went wrong while uploading your profile picture.') })
                 }
             }
+            reader.readAsDataURL(files[0])
+        },
+        validateSelectedImage (dataURL) {
+            var img = new Image()
+            img.src = dataURL
+
+            // TODO Figure out why this is zero initially, and thus uselesss
+            if (img.width !== img.height) {
+                this.$toasted.error('Please submit a square image.')
+                return false
+            }
+
+            return true
         },
         downloadUserData () {
             userAPI.getUserData(this.id).then(data => {
@@ -99,7 +139,7 @@ export default {
         'icon': icon
     },
     created () {
-        this.profileImage = this.image
+        this.profileImageDataURL = this.image
     }
 }
 </script>

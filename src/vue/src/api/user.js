@@ -49,8 +49,8 @@ export default {
     },
 
     /* Upload an image to user directory. */
-    updateImage (formData) {
-        return auth.authenticatedPostFile('/update_user_image/', formData)
+    updateFile (file) {
+        return auth.authenticatedPost('/update_user_profile_picture/', { file: file })
     },
 
     /* Change whether the user gets grade notification or not.

@@ -7,6 +7,14 @@ to receive the appropriate error code.
 """
 from django.http import JsonResponse
 
+from django.http import FileResponse
+from django.http import HttpResponse
+from django.http import StreamingHttpResponse
+from wsgiref.util import FileWrapper
+from VLE.settings.base import *
+import os
+import magic
+
 
 def success(message='success', payload={}):
     """Return a success response header.
@@ -98,3 +106,31 @@ def keyerror(*keys):
         return bad_request('Field {0} is required but is missing.'.format(keys))
     else:
         return bad_request('Fields {0} are required but one or more are missing.'.format(keys))
+
+
+def file_response(relative_file_path):
+    file_path = os.path.join(MEDIA_ROOT, relative_file_path)
+    response = FileResponse(open(file_path, 'rb'))
+
+    print(response)
+    return response
+
+
+def file_attachment(file_name, relative_file_path):
+    file_path = os.path.join(MEDIA_ROOT, relative_file_path)
+    FilePointer = open(file_path, "rb")
+    response = HttpResponse(FilePointer, content_type=magic.from_file(file_path, mime=True))
+    response['Content-Disposition'] = 'attachment; filename="{}"'.format(file_name)
+
+    return response
+
+
+def download_file(relative_file_path):
+    file_path = os.path.join(MEDIA_ROOT, relative_file_path)
+    filename = os.path.basename(file_path)
+    chunk_size = 8192
+    response = StreamingHttpResponse(FileWrapper(open(file_path, 'rb'), chunk_size),
+                                     content_type=magic.from_file(file_path, mime=True))
+    response['Content-Length'] = os.path.getsize(file_path)
+    response['Content-Disposition'] = "attachment; filename=%s" % filename
+    return response

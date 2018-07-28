@@ -241,6 +241,7 @@ def delete_templates(templates, remove_templates):
 
 
 def handle_uploaded_file(f, path, userID):
+    # TODO Delete once media root handles all uploads
     root = os.getcwd()
     paths = {
         'user_file': '/{}/src/vue/static/uploads/users/{}/files/'.format(root, userID),

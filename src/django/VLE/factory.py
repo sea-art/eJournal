@@ -331,7 +331,7 @@ def make_entrycomment(entry, author, text):
 
 
 def make_profile_picture(image, author):
-    """Make an Entry Comment.
+    """Make Profile picture object.
 
     Make a Profile Picture for a user.
     Arguments:
