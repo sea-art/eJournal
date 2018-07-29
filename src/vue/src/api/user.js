@@ -48,9 +48,9 @@ export default {
         return auth.authenticatedPostFile('/update_user_profile_picture/', formData)
     },
 
-    /* Upload an image to user directory. */
-    updateFile (file) {
-        return auth.authenticatedPost('/update_user_profile_picture/', { file: file })
+    /* Upload an image that is base64 encoded. */
+    updateProfilePictureBase64 (urlData) {
+        return auth.authenticatedPost('/update_user_profile_picture/', { urlData: urlData })
     },
 
     /* Change whether the user gets grade notification or not.

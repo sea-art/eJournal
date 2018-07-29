@@ -18,6 +18,7 @@
             <b-form-file
                 ref="file"
                 accept="image/*"
+                enctype="multipart/form-data"
                 class="fileinput"
                 @change="fileHandler"
                 v-model="file"
@@ -65,54 +66,40 @@ export default {
             }
 
             var vm = this
-            var reader = new FileReader()
 
+            var reader = new FileReader()
             reader.onload = () => {
                 var dataURL = reader.result
-                console.log(dataURL)
-                if (vm.validateSelectedImage(dataURL)) {
-                    // var formData = new FormData()
-                    // formData.append('file', dataURL)
 
-                    userAPI.updateFile(dataURL)
-                        .then(response => {
-                            vm.profileImageDataURL = dataURL
-                            console.log(response.data)
-                            console.log(response.data.result.file.length)
-                            // Testing delete below here within the block
-                            // JSON.parse(response.data.file)
-                            let blob = new Blob([JSON.parse(response.data.result.file)], { type: 'image/png' })
-                            // let url = window.URL.createObjectURL(blob)
-                            // window.open(url)
-                            //
-                            // console.log(blob)
+                var img = new Image()
+                img.onload = () => {
+                    if (img.width !== img.height) {
+                        this.$toasted.error('Please submit a square image.')
+                    } else {
+                        var formData = new FormData()
+                        formData.append('file', files[0])
 
-                            let link = document.createElement('a')
-                            link.href = window.URL.createObjectURL(blob)
-                            link.download = 'Image.png'
+                        userAPI.updateProfilePicture(formData)
+                            .then(response => {
+                                console.log(files[0])
+                                console.log(response)
 
-                            const clickEvent = document.createEvent('MouseEvents')
-                            clickEvent.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
-                            link.dispatchEvent(clickEvent)
+                                var binaryData = []
+                                binaryData.push(response.data)
+                                var imageUrl = window.URL.createObjectURL(new Blob(binaryData, {type: 'image/png'}))
 
-                            // vm.profileImageDataURL = 'data:image/png;base64,' + vm.hexToBase64(response.data)
-                        })
-                        .catch(_ => { this.$toasted.error('Something went wrong while uploading your profile picture.') })
+                                console.log(imageUrl)
+                                vm.profileImageDataURL = imageUrl
+                            })
+                            .catch(e => {
+                                console.log(e)
+                                this.$toasted.error('Something went wrong while uploading your profile picture.')
+                            })
+                    }
                 }
+                img.src = dataURL
             }
             reader.readAsDataURL(files[0])
-        },
-        validateSelectedImage (dataURL) {
-            var img = new Image()
-            img.src = dataURL
-
-            // TODO Figure out why this is zero initially, and thus uselesss
-            if (img.width !== img.height) {
-                this.$toasted.error('Please submit a square image.')
-                return false
-            }
-
-            return true
         },
         downloadUserData () {
             userAPI.getUserData(this.id).then(data => {

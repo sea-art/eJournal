@@ -631,6 +631,7 @@ def update_entrycomment(request):
     comment.save()
     return responses.success()
 
+
 @api_view(['POST'])
 def update_user_profile_picture(request):
     """Update user profile picture.
@@ -644,34 +645,25 @@ def update_user_profile_picture(request):
     # TODO Set default profile picture to the new one on success
     # TODO Duplicate check
 
-    print('Update user profile picture')
-    print(len(request.data['file']))
-    # print(json.loads(request.text))
-    return responses.success(request.data)
+    print('\nUpdate user profile picture')
 
     user = request.user
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    print(request.file)
-
-    # if not request.FILES:
-    #     return responses.bad_request()
+    if not request.data['file']:
+        return responses.bad_request()
 
     validators.validate_profile_picture(request.FILES['file'])
 
     profile_picture = factory.make_profile_picture(request.FILES['file'], user)
-    # file_path = os.path.join(MEDIA_ROOT, profile_picture.profile_picture_file.name)
 
     print(request.FILES['file'])
     print(request.FILES['file'].content_type)
     print(profile_picture)
-    print(profile_picture.profile_picture_file.size)
+    print(profile_picture.profile_picture_file)
 
-    response = HttpResponse(content_type='image/png')
-    profile_picture.profile_picture_file.save(response, "png")
-    response['Content-Disposition'] = 'attachment; filename="ab.png"'
-    return response
+    return responses.image_response2(str(profile_picture))
 
     # return HttpResponse(profile_picture.profile_picture_file, content_type='application/octet-stream')
 

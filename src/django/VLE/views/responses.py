@@ -11,6 +11,8 @@ from django.http import FileResponse
 from django.http import HttpResponse
 from django.http import StreamingHttpResponse
 from wsgiref.util import FileWrapper
+
+from PIL import Image
 from VLE.settings.base import *
 import os
 import magic
@@ -106,6 +108,23 @@ def keyerror(*keys):
         return bad_request('Field {0} is required but is missing.'.format(keys))
     else:
         return bad_request('Fields {0} are required but one or more are missing.'.format(keys))
+
+
+def image_response(relative_file_path):
+    file_path = os.path.join(MEDIA_ROOT, relative_file_path)
+
+    response = HttpResponse(content_type='image/png')
+    img = Image.open(file_path)
+    img.save(response, 'png')
+
+    return response
+
+
+def image_response2(relative_file_path):
+    file_path = os.path.join(MEDIA_ROOT, relative_file_path)
+
+    image_data = open(file_path, "rb").read()
+    return HttpResponse(image_data, content_type="image/png")
 
 
 def file_response(relative_file_path):
