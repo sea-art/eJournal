@@ -13,18 +13,12 @@ import VLE.permissions as permissions
 import VLE.factory as factory
 import VLE.validators as validators
 from VLE.models import Course, EntryComment, Assignment, Participation, Role, \
-    Entry, User, Journal, ProfilePicture
+    Entry, User, Journal
 import VLE.lti_grade_passback as lti_grade
 from django.conf import settings
 import re
 import jwt
 import json
-
-from PIL import Image
-from django.http import HttpResponse
-import os
-from VLE.settings.base import *
-
 
 
 @api_view(['POST'])
@@ -638,65 +632,25 @@ def update_user_profile_picture(request):
 
     Arguments:
     request -- the update request that was send with
-        request.FILES should contain the user uploaded file
+        is expected to contain a base64 encoded image.
 
     Returns a json string for if it is successful or not.
     """
-    # TODO Set default profile picture to the new one on success
-    # TODO Duplicate check
-
-    print('\nUpdate user profile picture')
-
     user = request.user
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    if not request.data['file']:
+    print(request.data)
+
+    if not request.data['urlData']:
         return responses.bad_request()
 
-    validators.validate_profile_picture(request.FILES['file'])
+    validators.validate_profile_picture_base64(request.data['urlData'])
 
-    profile_picture = factory.make_profile_picture(request.FILES['file'], user)
+    user.profile_picture = request.data['urlData']
+    user.save()
 
-    print(request.FILES['file'])
-    print(request.FILES['file'].content_type)
-    print(profile_picture)
-    print(profile_picture.profile_picture_file)
-
-    return responses.image_response2(str(profile_picture))
-
-    # return HttpResponse(profile_picture.profile_picture_file, content_type='application/octet-stream')
-
-    # return responses.file_response(profile_picture.profile_picture_file.name)
-
-    # serialize to HTTP response
-    # return responses.file_response(profile_picture.profile_picture_file)
-    # return responses.download_file(profile_picture.profile_picture_file.name)
-    return responses.file_attachment(file_name=request.FILES['file'].name,
-                                     relative_file_path=profile_picture.profile_picture_file.name)
-    # return responses.success()
-
-
-@api_view(['POST'])
-def update_user_image(request):
-    """Update user image directory.
-
-    Arguments:
-    request -- the update request that was send with
-        request.FILES should contain the user uploaded file
-
-    Returns a json string for if it is successful or not.
-    """
-    # TODO CHECKS for file integrety
-    # Set default profile picture to the new one on success
-
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    fullPath = utils.handle_uploaded_file(request.FILES['file'], 'user_file', user.id)
-
-    return responses.success({'location': fullPath})
+    return responses.success()
 
 
 @api_view(['POST'])

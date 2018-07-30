@@ -34,6 +34,7 @@ import 'tinymce/plugins/lists'
 import 'tinymce/plugins/nonbreaking'
 import 'tinymce/plugins/media'
 import 'tinymce/plugins/preview'
+import 'tinymce/plugins/paste'
 import 'tinymce/plugins/print'
 import 'tinymce/plugins/hr'
 import 'tinymce/plugins/searchreplace'
@@ -74,6 +75,13 @@ export default {
                 init_instance_callback: this.editorInit,
                 setup: this.editorSetup,
 
+                paste_data_images: true,
+                /* https://www.tiny.cloud/docs/configure/file-image-upload/#images_dataimg_filter
+                 * Disables conversion of base64 images into blobs, only used when pasting an image. */
+                images_dataimg_filter: function (img) {
+                    return img.hasAttribute('internal-blob')
+                },
+
                 menubar: true,
                 branding: false,
                 statusbar: true,
@@ -83,26 +91,24 @@ export default {
                 autosave_ask_before_unload: true,
                 autosave_interval: '10s',
                 autosave_restore_when_empty: true,
-                // autosave_retention: '30m',
 
                 /* Custom styling applied to the editor */
                 content_css: ['//fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700'],
 
                 file_picker_types: 'image',
-                file_picker_callback: this.handleFilePicking,
-                images_upload_handler: this.handleImageUpload
+                file_picker_callback: this.insertDataURL
             },
             basicConfig: {
                 toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify | forecolor backcolor restoredraft | formatselect | bullist numlist | image media table | removeformat fullscreentoggle',
                 plugins: [
-                    'autoresize textcolor image lists wordcount autolink autosave',
+                    'autoresize paste textcolor image lists wordcount autolink autosave',
                     'table media fullscreen'
                 ]
             },
             extensiveConfig: {
                 toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify | forecolor backcolor | formatselect | bullist numlist | image media table | removeformat fullscreentoggle',
                 plugins: [
-                    'link media preview print hr lists advlist wordcount autolink autosave',
+                    'link media preview paste print hr lists advlist wordcount autolink autosave',
                     'autoresize code fullscreen image imagetools',
                     'textcolor searchreplace table toc'
                 ]
@@ -157,6 +163,8 @@ export default {
                 editor.execCommand('fontName', false, 'roboto condensed')
             })
         },
+        /* Disabled as images are encoded as base64 and saved with the content of the editor.
+         * Can be enabled by adding images_upload_handler: this.handleImageUpload to the config. */
         handleImageUpload (blobInfo, success, failure) {
             let formData = new FormData()
             formData.append('file', blobInfo.blob())
@@ -169,6 +177,32 @@ export default {
                     success('../../../' + staticPath)
                 })
                 .catch(_ => { this.$toasted.error('Something went wrong while uploading your requested image.') })
+        },
+        insertDataURL () {
+            var input = document.createElement('input')
+            input.setAttribute('type', 'file')
+            input.setAttribute('accept', 'image/*')
+            var vm = this
+
+            input.onchange = function () {
+                var files = this.files
+                if (!files.length) { return }
+
+                let maxSize = 2 * 1024 * 1024
+                var file = files[0]
+                if (files[0].size > maxSize) {
+                    this.$toasted.error('The selected image exceeds the maximum file size of 2MB.')
+                    return
+                }
+
+                var reader = new FileReader()
+                reader.onload = function () {
+                    var dataURL = reader.result
+                    vm.editor.insertContent('<img src="' + dataURL + '"/>')
+                }
+                reader.readAsDataURL(file)
+            }
+            input.click()
         },
         handleFilePicking (cb, value, meta) {
             /* Client side allows for handling of files more than image types, which a plugin aslo handles.
@@ -195,7 +229,6 @@ export default {
                 }
                 reader.readAsDataURL(file)
             }
-
             input.click()
         },
         setCustomColors () {

@@ -1,10 +1,10 @@
 from django.core.exceptions import ValidationError
 
 
-# https://www.programcreek.com/python/example/97557/magic.from_buffer
-def validate_profile_picture(uploadedFile):
-    """Checks if the blob size does not exceed 2MB."""
+# Base 64 image is roughly 37% larger than a plain image
+def validate_profile_picture_base64(urlData):
+    """Checks if the original size does not exceed 2MB after encoding."""
     limit_mb = 2
 
-    if uploadedFile.size > limit_mb * 1024 * 1024:
+    if len(urlData) > limit_mb * 1024 * 1024 * 1.37:
         raise ValidationError("Max size of file is %s MB" % limit_mb)

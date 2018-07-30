@@ -8,25 +8,6 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
 
 
-class ProfilePicture(models.Model):
-    profile_picture_file = models.ImageField(
-        null=False,
-        upload_to='profile_pictures'
-    )
-    author = models.ForeignKey(
-        'User',
-        on_delete=models.CASCADE,
-        null=False
-    )
-    creation_date = models.DateTimeField(
-        auto_now_add=True
-    )
-
-    def __str__(self):
-        """toString."""
-        return self.profile_picture_file.name
-
-
 class User(AbstractUser):
     """User.
 

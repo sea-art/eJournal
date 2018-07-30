@@ -3,11 +3,19 @@
         <b-col md="5" sm="12" class="text-center">
             <div class="profile-portrait small-shadow">
                 <img :src="profileImageDataURL">
-                <!-- TODO handle file upload. The original profile picture upload did not work yet. -->
-                <b-button>
+                <!-- TODO Add cropping tool to help with the square aspect ratio Croppa seems most active and a solid choice -->
+                <b-button @click="$refs.file.click()">
                     <icon name="upload"/>
                     Upload
                 </b-button>
+                <input
+                    class="fileinput"
+                    @change="fileHandler"
+                    ref="file"
+                    accept="image/*"
+                    style="display: none"
+                    type="file"/>
+
             </div>
         </b-col>
         <b-col md="7" sm="12">
@@ -15,15 +23,6 @@
             <b-form-input class="theme-input multi-form" v-model="uname" type="text"/>
             <b-form-input class="theme-input multi-form" v-model="first" type="text"/>
             <b-form-input class="theme-input multi-form" v-model="last" type="text"/>
-            <b-form-file
-                ref="file"
-                accept="image/*"
-                enctype="multipart/form-data"
-                class="fileinput"
-                @change="fileHandler"
-                v-model="file"
-                :state="Boolean(file)"
-                placeholder="Change picture"/>
 
             <b-button class="add-button multi-form float-right" @click="saveUserdata">
                 <icon name="save"/>
@@ -76,23 +75,11 @@ export default {
                     if (img.width !== img.height) {
                         this.$toasted.error('Please submit a square image.')
                     } else {
-                        var formData = new FormData()
-                        formData.append('file', files[0])
-
-                        userAPI.updateProfilePicture(formData)
+                        userAPI.updateProfilePictureBase64(dataURL)
                             .then(response => {
-                                console.log(files[0])
-                                console.log(response)
-
-                                var binaryData = []
-                                binaryData.push(response.data)
-                                var imageUrl = window.URL.createObjectURL(new Blob(binaryData, {type: 'image/png'}))
-
-                                console.log(imageUrl)
-                                vm.profileImageDataURL = imageUrl
+                                vm.profileImageDataURL = dataURL
                             })
-                            .catch(e => {
-                                console.log(e)
+                            .catch(_ => {
                                 this.$toasted.error('Something went wrong while uploading your profile picture.')
                             })
                     }
