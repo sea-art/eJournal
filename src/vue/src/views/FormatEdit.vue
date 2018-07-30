@@ -292,6 +292,7 @@ export default {
             this.unused_templates = data.format.unused_templates
             this.deletedTemplates = []
             this.deletedPresets = []
+            this.max_points = data.format.max_points
         },
         // Utility func to translate from db format to internal
         convertFromDB () {
