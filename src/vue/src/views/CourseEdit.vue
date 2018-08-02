@@ -47,47 +47,49 @@
             </b-form>
         </b-card>
 
-        <b-card class="no-hover">
-            <h2 class="mb-2">Manage course members</h2>
-                <b-row>
-                    <b-col sm="6" class="d-flex flex-wrap">
-                        <b-form-select class="flex-grow-1 multi-form" v-model="selectedSortOption" :select-size="1">
-                           <option :value="null">Sort by ...</option>
-                           <option value="sortFullName">Sort by name</option>
-                           <option value="sortUsername">Sort by username</option>
-                        </b-form-select>
-                    </b-col>
-                    <b-col sm="6" class="d-flex flex-wrap">
-                        <b-form-select class="flex-grow-1 multi-form" v-model="selectedView" :select-size="1">
-                            <option value="enrolled">Enrolled</option>
-                            <option value="unenrolled">Unenrolled</option>
-                        </b-form-select>
-                    </b-col>
-                </b-row>
-                <input class="multi-form theme-input full-width" type="text" v-model="searchVariable" placeholder="Search .."/>
-        </b-card>
+        <div v-if="$root.canViewCourseParticipants()">
+            <b-card class="no-hover">
+                <h2 class="mb-2">Manage course members</h2>
+                    <b-row>
+                        <b-col sm="6" class="d-flex flex-wrap">
+                            <b-form-select class="flex-grow-1 multi-form" v-model="selectedSortOption" :select-size="1">
+                               <option :value="null">Sort by ...</option>
+                               <option value="sortFullName">Sort by name</option>
+                               <option value="sortUsername">Sort by username</option>
+                            </b-form-select>
+                        </b-col>
+                        <b-col sm="6" class="d-flex flex-wrap">
+                            <b-form-select class="flex-grow-1 multi-form" v-model="selectedView" :select-size="1">
+                                <option value="enrolled">Enrolled</option>
+                                <option value="unenrolled">Unenrolled</option>
+                            </b-form-select>
+                        </b-col>
+                    </b-row>
+                    <input class="multi-form theme-input full-width" type="text" v-model="searchVariable" placeholder="Search .."/>
+            </b-card>
 
-        <course-participant-card v-if="selectedView == 'enrolled'"
-            @delete-participant="deleteParticipantLocally"
-            v-for="(p, i) in filteredUsers"
-            :key="p.uID"
-            :cID="cID"
-            :uID="p.uID"
-            :index="i"
-            :username="p.name"
-            :fullName="p.first_name + ' ' + p.last_name"
-            :portraitPath="p.picture"
-            :role="p.role"/>
+            <course-participant-card v-if="selectedView === 'enrolled'"
+                @delete-participant="deleteParticipantLocally"
+                v-for="(p, i) in filteredUsers"
+                :key="p.uID"
+                :cID="cID"
+                :uID="p.uID"
+                :index="i"
+                :username="p.role"
+                :fullName="p.first_name + ' ' + p.last_name"
+                :portraitPath="p.picture"
+                :role="p.role"/>
 
-        <add-user-card v-if="selectedView == 'unenrolled'"
-            @add-participant="addParticipantLocally"
-            v-for="p in filteredUsers"
-            :key="p.uID"
-            :cID="cID"
-            :uID="p.uID"
-            :username="p.name"
-            :fullName="p.first_name + ' ' + p.last_name"
-            :portraitPath="p.picture"/>
+            <add-user-card v-if="selectedView === 'unenrolled'"
+                @add-participant="addParticipantLocally"
+                v-for="p in filteredUsers"
+                :key="p.uID"
+                :cID="cID"
+                :uID="p.uID"
+                :username="p.name"
+                :fullName="p.first_name + ' ' + p.last_name"
+                :portraitPath="p.picture"/>
+        </div>
 
     </content-single-column>
 </template>
@@ -126,10 +128,12 @@ export default {
                 this.course = response
             })
 
-        courseApi.get_users(this.cID)
+        if (this.$root.canViewCourseParticipants()) {
+            courseApi.get_users(this.cID)
             .then(response => {
                 this.participants = response.users
             })
+        }
     },
     methods: {
         onSubmit () {
