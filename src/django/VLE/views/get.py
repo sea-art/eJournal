@@ -288,7 +288,7 @@ def get_assignment_data(request, cID, aID):
     try:
         assignment = Assignment.objects.get(pk=aID)
     except Assignment.DoesNotExist:
-        return responses.not_found('Assignment does not exist.')
+        return responses.not_found('Assignment')
 
     if role.can_grade_journal:
         return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
@@ -499,7 +499,7 @@ def get_upcoming_course_deadlines(request, cID):
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
-        return responses.not_found('Course does not exist.')
+        return responses.not_found('Course')
 
     for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
         role = permissions.get_role(user, course)
@@ -545,6 +545,31 @@ def get_course_permissions(request, cID):
 
 
 @api_view(['GET'])
+def get_assignment_permissions(request, aID):
+    """Get the permissions of an assignment.
+
+    Arguments:
+    request -- the request that was sent
+    aID     -- the assignment id (string)
+
+    """
+    if not request.user.is_authenticated:
+        return responses.unauthorized()
+
+    try:
+        if int(aID) >= 0:
+            Assignment.objects.get(pk=aID)
+    except Assignment.DoesNotExist:
+        return responses.not_found('Assignment')
+
+    roleDict = permissions.get_assignment_id_permissions(request.user, int(aID))
+    if not roleDict:
+        return responses.forbidden('You are not participating in any courses with this assignment')
+
+    return responses.success(payload={'permissions': roleDict})
+
+
+@api_view(['GET'])
 def get_nodes(request, jID):
     """Get all nodes contained within a journal.
 
@@ -561,7 +586,7 @@ def get_nodes(request, jID):
     try:
         journal = Journal.objects.get(pk=jID)
     except Journal.DoesNotExist:
-        return responses.not_found("Journal")
+        return responses.not_found('Journal')
 
     if not (journal.user == user or permissions.has_assignment_permission(user,
             journal.assignment, 'can_view_assignment_participants')):
@@ -685,7 +710,7 @@ def get_names(request):
             result['journal'] = journal.user.first_name + " " + journal.user.last_name
 
     except (Course.DoesNotExist, Assignment.DoesNotExist, Journal.DoesNotExist, EntryTemplate.DoesNotExist):
-        return responses.not_found('Course, Assignment, Journal or Template does not exist.')
+        return responses.not_found('Course, Assignment, Journal or Template')
 
     return responses.success(payload=result)
 
@@ -803,7 +828,7 @@ def get_lti_params_from_jwt(request, jwt_params):
             return responses.success(payload={'params': payload})
         else:
             return responses.not_found(description='The assignment you are looking for cannot be found. \
-                <br>Note it might still be reachable though the assignment section')
+                <br>Note: it might still be reachable through the assignment section')
 
     assignment = lti.check_assignment_lti(lti_params)
     if assignment is None:
@@ -819,7 +844,7 @@ def get_lti_params_from_jwt(request, jwt_params):
             return responses.success(payload={'params': payload})
         else:
             return responses.not_found(description='The assignment you are looking for cannot be found. \
-                <br>Note it might still be reachable though the assignment section')
+                <br>Note: it might still be reachable through the assignment section')
 
     journal = lti.select_create_journal(lti_params, user, assignment, roles)
     jID = journal.pk if journal is not None else None

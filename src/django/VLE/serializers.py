@@ -277,6 +277,7 @@ def role_to_dict(role):
             'can_edit_course': int(role.can_edit_course),
             'can_delete_course': int(role.can_delete_course),
             'can_add_assignment': int(role.can_add_assignment),
+            'can_edit_assignment': int(role.can_edit_assignment),
             'can_view_assignment_participants': int(role.can_view_assignment_participants),
             'can_delete_assignment': int(role.can_delete_assignment),
             'can_publish_assignment_grades': int(role.can_publish_assignment_grades),

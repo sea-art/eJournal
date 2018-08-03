@@ -32,10 +32,12 @@
                         <add-card @info-entry="addNode" :addNode="nodes[currentNode]"/>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'p'">
-                        <b-card class="no-hover" :class="'pink-border'">
-                            <h2 class="mb-2">Progress: {{nodes[currentNode].target}} points</h2>
-                            {{ progressNodes[nodes[currentNode].nID] }} out of {{ nodes[currentNode].target }} points.<br/>
-                            {{ nodes[currentNode].target - progressNodes[nodes[currentNode].nID] }} more required before {{ $root.beautifyDate(nodes[currentNode].deadline) }}.
+                        <b-card class="no-hover" :class="getProgressBorderClass()">
+                            <h2 class="mb-2">Progress: {{ nodes[currentNode].target }} points</h2>
+                            <span v-if="progressPointsLeft > 0">
+                                <b>{{ progressNodes[nodes[currentNode].nID] }}</b> out of <b>{{ nodes[currentNode].target }}</b> points.<br/>
+                                <b>{{ progressPointsLeft }}</b> more required before <b>{{ $root.beautifyDate(nodes[currentNode].deadline) }}</b>.
+                            </span>
                         </b-card>
                     </div>
                 </div>
@@ -81,7 +83,7 @@ export default {
             nodes: [],
             journal: {},
             progressNodes: {},
-            assignmentName: '',
+            progressPointsLeft: 0,
             assignmentDescription: ''
         }
     },
@@ -109,7 +111,6 @@ export default {
 
         assignmentApi.get_assignment_data(this.cID, this.aID)
             .then(response => {
-                this.assignmentName = response.name
                 this.assignmentDescription = response.description
             })
             .catch(_ => this.$toasted.error('Error while loading assignment description.'))
@@ -118,6 +119,7 @@ export default {
         currentNode: function () {
             if (this.nodes[this.currentNode].type === 'p') {
                 this.progressPoints(this.nodes[this.currentNode])
+                this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].nID]
             }
         }
     },
@@ -184,6 +186,9 @@ export default {
             }
 
             this.progressNodes[progressNode.nID] = tempProgress
+        },
+        getProgressBorderClass () {
+            return this.progressPointsLeft > 0 ? 'red-border' : 'green-border'
         },
         findEntryNode (nodeID) {
             for (var i = 0; i < this.nodes.length; i++) {

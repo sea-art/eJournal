@@ -13,12 +13,12 @@
                                  v-model="assignment.description"
                                  placeholder="Description"
                                  required/>
-                <b-button @click.prevent.stop="deleteAssignment()" class="delete-button multi-form float-left">
+                <b-button v-if="$root.canDeleteAssignment()" @click.prevent.stop="deleteAssignment()" class="delete-button multi-form float-left">
                     <icon name="trash"/>
                     Delete Assignment
                 </b-button>
                 <b-button
-                    v-if="$root.canAddAssignment()"
+                    v-if="$root.canEditAssignment()"
                     class="change-button multi-form float-left"
                     :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">
                     <icon name="edit"/>
