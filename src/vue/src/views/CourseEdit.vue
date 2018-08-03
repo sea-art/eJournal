@@ -47,7 +47,7 @@
             </b-form>
         </b-card>
 
-        <div v-if="$root.canViewCourseParticipants()">
+        <div v-if="this.participants.length > 0">
             <b-card class="no-hover">
                 <h2 class="mb-2">Manage course members</h2>
                     <b-row>
@@ -130,9 +130,9 @@ export default {
 
         if (this.$root.canViewCourseParticipants()) {
             courseApi.get_users(this.cID)
-            .then(response => {
-                this.participants = response.users
-            })
+                .then(response => {
+                    this.participants = response.users
+                })
         }
     },
     methods: {
