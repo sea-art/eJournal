@@ -36,7 +36,7 @@
                             <h2 class="mb-2">Progress: {{ nodes[currentNode].target }} points</h2>
                             <span v-if="progressPointsLeft > 0">
                                 <b>{{ progressNodes[nodes[currentNode].nID] }}</b> out of <b>{{ nodes[currentNode].target }}</b> points.<br/>
-                                <b>{{ progressPointsLeft }}</b> more required before <b>{{ $root.beautifyDeadline(nodes[currentNode].deadline) }}</b>.
+                                <b>{{ progressPointsLeft }}</b> more required before <b>{{ $root.beautifyDate(nodes[currentNode].deadline) }}</b>.
                             </span>
                         </b-card>
                     </div>
