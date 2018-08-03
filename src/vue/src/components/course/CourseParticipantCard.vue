@@ -79,6 +79,20 @@ export default {
                     })
                     .catch(_ => this.$toasted.error('Error while removing user from course'))
             }
+        },
+        checkPermission () {
+            permissions.get_course_permissions(this.cID)
+                .then(response => {
+                    this.$root.generalPermissions = response
+                    if (!this.$root.canEditCourse()) {
+                        this.$router.push({
+                            name: 'Home'
+                        })
+                    }
+                })
+                .catch(_ => {
+                    this.$toasted.error('Error while loading course permissions.')
+                })
         }
     },
     watch: {
@@ -87,11 +101,14 @@ export default {
                 this.init = false
             } else {
                 this.selectedRole = val
+                this.$emit('update:role', val)
                 courseApi.update_user_role_course(
                     this.uID,
                     this.cID,
                     this.selectedRole)
-                    .then(response => {})
+                    .then(_ => {
+                        this.checkPermission()
+                    })
             }
         }
     },

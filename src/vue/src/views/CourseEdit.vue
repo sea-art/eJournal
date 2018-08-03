@@ -71,6 +71,7 @@
             <course-participant-card v-if="selectedView === 'enrolled'"
                 @delete-participant="deleteParticipantLocally"
                 v-for="(p, i) in filteredUsers"
+                :class="{ 'input-disabled': p.role === 'Teacher' && numTeachers <= 1 }"
                 :key="p.uID"
                 :cID="cID"
                 :uID="p.uID"
@@ -78,7 +79,7 @@
                 :username="p.role"
                 :fullName="p.first_name + ' ' + p.last_name"
                 :portraitPath="p.picture"
-                :role="p.role"/>
+                :role.sync="p.role"/>
 
             <add-user-card v-if="selectedView === 'unenrolled'"
                 @add-participant="addParticipantLocally"
@@ -119,7 +120,16 @@ export default {
             selectedSortOption: null,
             searchVariable: '',
             selectedView: 'enrolled',
-            unenrolledLoaded: false
+            unenrolledLoaded: false,
+            numTeachers: 0
+        }
+    },
+    watch: {
+        participants: {
+            handler: function (val, _) {
+                this.numTeachers = val.filter(p => p.role === 'Teacher').length
+            },
+            deep: true
         }
     },
     created () {
