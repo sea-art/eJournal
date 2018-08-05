@@ -5,7 +5,7 @@
 <template>
     <div>
         <b-card class="no-hover" :class="$root.getBorderClass(cID)">
-            <h2 class="mb-2">{{template.name}}</h2>
+            <h2 class="mb-2">{{ template.name }}</h2>
             <div v-for="(field, i) in template.fields" :key="field.eID">
                 <div v-if="field.title != ''">
                     <b>{{ field.title }}</b>
