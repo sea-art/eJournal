@@ -6,7 +6,7 @@
             @edit-click="handleEdit()"/>
 
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
-            <b-link tag="b-button" :to="assignmentRoute(cID, a.aID, a.name, a.journal)">
+            <b-link tag="b-button" :to="assignmentRoute(cID, a.aID, a.journal)">
                 <assignment-card :line1="a.name">
                     <progress-bar
                         v-if="a.journal && a.journal.stats"
@@ -36,7 +36,7 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="journalRoute(d.cID, d.aID, d.jID, d.name)">
+            <b-link tag="b-button" :to="assignmentRoute(d.cID, d.aID, d.journal)">
                 <todo-card
                     :date="d.deadline.Date"
                     :hours="d.deadline.Hours"
@@ -139,53 +139,20 @@ export default {
                 }
             })
         },
-        assignmentRoute (cID, aID, name, journal) {
-            if (this.$root.canViewAssignmentParticipants()) {
-                return {
-                    name: 'Assignment',
-                    params: {
-                        cID: cID,
-                        aID: aID,
-                        assignmentName: name
-                    }
+        assignmentRoute (cID, aID, journal) {
+            var route = {
+                name: 'Assignment',
+                params: {
+                    cID: cID,
+                    aID: aID
                 }
-            } else {
-                var obj = {
-                    name: 'Journal',
-                    params: {
-                        cID: cID,
-                        aID: aID,
-                        assignmentName: name
-                    }
-                }
-                if (journal) {
-                    obj.params.jID = journal.jID
-                }
+            }
 
-                return obj
+            if (journal) {
+                route.params.jID = journal.jID
             }
-        },
-        journalRoute (cID, aID, jID, name) {
-            if (this.$root.canViewAssignmentParticipants()) {
-                return {
-                    name: 'Assignment',
-                    params: {
-                        cID: cID,
-                        aID: aID,
-                        assignmentName: name
-                    }
-                }
-            } else {
-                return {
-                    name: 'Journal',
-                    params: {
-                        cID: cID,
-                        aID: aID,
-                        jID: jID,
-                        assignmentName: name
-                    }
-                }
-            }
+
+            return route
         }
     },
     computed: {

@@ -36,7 +36,7 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="journalRoute(d.cID, d.aID, d.jID, d.name)">
+            <b-link tag="b-button" :to="assignmentRoute(d.cID, d.aID, d.jID)">
                 <todo-card
                     :date="d.deadline.Date"
                     :hours="d.deadline.Hours"
@@ -136,27 +136,20 @@ export default {
         customisePage () {
             this.$toasted.info('Wishlist: Customise page')
         },
-        journalRoute (cID, aID, jID, name) {
-            if (this.$root.canAddCourse()) {
-                return {
-                    name: 'Assignment',
-                    params: {
-                        cID: cID,
-                        aID: aID,
-                        assignmentName: name
-                    }
-                }
-            } else {
-                return {
-                    name: 'Journal',
-                    params: {
-                        cID: cID,
-                        aID: aID,
-                        jID: jID,
-                        assignmentName: name
-                    }
+        assignmentRoute (cID, aID, jID) {
+            var route = {
+                name: 'Assignment',
+                params: {
+                    cID: cID,
+                    aID: aID
                 }
             }
+
+            if (jID) {
+                route.params.jID = jID
+            }
+
+            return route
         }
     },
     computed: {
