@@ -230,7 +230,7 @@ def make_role_default_no_perms(name, course, can_edit_course_roles=False, can_vi
                                can_edit_course=False, can_delete_course=False,
                                can_add_assignment=False, can_edit_assignment=False,
                                can_view_assignment_participants=False,
-                               can_delete_assignment=False, can_publish_assigment_grades=False,
+                               can_delete_assignment=False, can_publish_assignment_grades=False,
                                can_grade_journal=False, can_publish_journal_grades=False,
                                can_edit_journal=False, can_comment_journal=False):
     """Make a role using the given permissions.
@@ -256,7 +256,7 @@ def make_role_default_no_perms(name, course, can_edit_course_roles=False, can_vi
         can_edit_assignment=can_edit_assignment,
         can_view_assignment_participants=can_view_assignment_participants,
         can_delete_assignment=can_delete_assignment,
-        can_publish_assigment_grades=can_publish_assigment_grades,
+        can_publish_assignment_grades=can_publish_assignment_grades,
 
         can_grade_journal=can_grade_journal,
         can_publish_journal_grades=can_publish_journal_grades,
@@ -272,7 +272,7 @@ def make_role_default_all_perms(name, course, can_edit_course_roles=True, can_vi
                                 can_edit_course=True, can_delete_course=True,
                                 can_add_assignment=True, can_edit_assignment=True,
                                 can_view_assignment_participants=True,
-                                can_delete_assignment=True, can_publish_assigment_grades=True,
+                                can_delete_assignment=True, can_publish_assignment_grades=True,
                                 can_grade_journal=True, can_publish_journal_grades=True,
                                 can_edit_journal=True, can_comment_journal=True):
     """Make a role where at default all permissions are given.
@@ -285,7 +285,7 @@ def make_role_default_all_perms(name, course, can_edit_course_roles=True, can_vi
                                       can_add_course_participants,
                                       can_edit_course, can_delete_course,
                                       can_add_assignment, can_edit_assignment, can_view_assignment_participants,
-                                      can_delete_assignment, can_publish_assigment_grades,
+                                      can_delete_assignment, can_publish_assignment_grades,
                                       can_grade_journal, can_publish_journal_grades,
                                       can_edit_journal, can_comment_journal)
 
@@ -314,7 +314,7 @@ def make_role_teacher(name, course):
     return make_role_default_all_perms(name, course, can_edit_journal=False)
 
 
-def make_entrycomment(entry, author, text):
+def make_entrycomment(entry, author, text, published):
     """Make an Entry Comment.
 
     Make an Entry Comment for an entry based on its ID.
@@ -323,9 +323,11 @@ def make_entrycomment(entry, author, text):
     entry -- entry where the comment belongs to
     author -- author of the comment
     text -- content of the comment
+    published -- publishment state of the comment
     """
     return Comment.objects.create(
         entry=entry,
         author=author,
-        text=text
+        text=text,
+        published=published
     )

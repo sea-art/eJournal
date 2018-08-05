@@ -1,26 +1,25 @@
 <template>
-    <content-columns>
-        <bread-crumb slot="main-content-column" :currentPage="'Assignments'"></bread-crumb>
+    <content-single-column>
+        <bread-crumb :currentPage="'Assignments'"></bread-crumb>
 
-        <b-card class="no-hover" slot="main-content-column">
+        <b-card class="no-hover">
                 <b-row>
-                    <b-col lg="4" sm="6">
+                    <b-col sm="6">
                         <b-form-select v-model="selectedSortOption" :select-size="1">
-                           <option :value="null">Sort by ...</option>
                            <option value="sortDate">Sort by date</option>
                            <option value="sortName">Sort by name</option>
                            <option v-if="this.$root.canAddCourse()"
-                                   value="sortNeedsMarking">Sort by markings needed</option>
+                                   value="sortNeedsMarking">Sort by marking needed</option>
                         </b-form-select>
                     </b-col>
-                    <b-col cols="6">
-                        <input class="theme-input" type="text" v-model="searchVariable" placeholder="Search .."/>
+                    <b-col sm="6">
+                        <input class="theme-input full-width" type="text" v-model="searchVariable" placeholder="Search .."/>
                     </b-col>
                 </b-row>
         </b-card>
 
-        <div v-for="(d, i) in computedDeadlines" :key="i" slot="main-content-column">
-            <b-link tag="b-button" :to="journalRoute(d.cID, d.aID, d.jID, d.name)">
+        <div v-for="(d, i) in computedDeadlines" :key="i">
+            <b-link tag="b-button" :to="assignmentRoute(d.cID, d.aID, d.jID)">
                 <todo-card
                     :date="d.deadline.Date"
                     :hours="d.deadline.Hours"
@@ -28,15 +27,15 @@
                     :name="d.name"
                     :abbr="d.courseAbbr"
                     :totalNeedsMarking="d.totalNeedsMarking"
-                    :color="$root.colors[d.cID % $root.colors.length]">
+                    :class="$root.getBorderClass(d.cID)">
                 </todo-card>
             </b-link>
         </div>
-    </content-columns>
+    </content-single-column>
 </template>
 
 <script>
-import contentColumns from '@/components/columns/ContentColumns.vue'
+import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import mainCard from '@/components/assets/MainCard.vue'
 import assignmentApi from '@/api/assignment.js'
@@ -47,7 +46,7 @@ export default {
     data () {
         return {
             deadlines: [],
-            selectedSortOption: null,
+            selectedSortOption: 'sortDate',
             searchVariable: ''
 
         }
@@ -60,33 +59,26 @@ export default {
             .catch(_ => this.$toasted.error('Error while loading deadlines'))
     },
     components: {
-        'content-columns': contentColumns,
+        'content-single-column': contentSingleColumn,
         'bread-crumb': breadCrumb,
         'main-card': mainCard,
         'todo-card': todoCard
     },
     methods: {
-        journalRoute (cID, aID, jID, name) {
-            if (this.$root.canAddCourse()) {
-                return {
-                    name: 'Assignment',
-                    params: {
-                        cID: cID,
-                        aID: aID,
-                        assignmentName: name
-                    }
-                }
-            } else {
-                return {
-                    name: 'Journal',
-                    params: {
-                        cID: cID,
-                        aID: aID,
-                        jID: jID,
-                        assignmentName: name
-                    }
+        assignmentRoute (cID, aID, jID) {
+            var route = {
+                name: 'Assignment',
+                params: {
+                    cID: cID,
+                    aID: aID
                 }
             }
+
+            if (jID) {
+                route.params.jID = jID
+            }
+
+            return route
         }
     },
     computed: {
@@ -103,14 +95,16 @@ export default {
                 return new Date(a.deadline.Date) - new Date(b.deadline.Date)
             }
 
-            function compareMarkingsNeeded (a, b) {
+            function compareMarkingNeeded (a, b) {
                 if (a.totalNeedsMarking > b.totalNeedsMarking) { return -1 }
                 if (a.totalNeedsMarking < b.totalNeedsMarking) { return 1 }
                 return 0
             }
 
-            function searchFilter (course) {
-                return course.name.toLowerCase().includes(self.searchVariable.toLowerCase())
+            function searchFilter (assignment) {
+                var searchVariable = self.searchVariable.toLowerCase()
+                return (assignment.name.toLowerCase().includes(searchVariable) ||
+                        assignment.courseAbbr.toLowerCase().includes(searchVariable))
             }
 
             if (this.selectedSortOption === 'sortName') {
@@ -118,7 +112,7 @@ export default {
             } else if (this.selectedSortOption === 'sortDate') {
                 return this.deadlines.filter(searchFilter).slice().sort(compareDate)
             } else if (this.selectedSortOption === 'sortNeedsMarking') {
-                return this.deadlines.filter(searchFilter).slice().sort(compareMarkingsNeeded)
+                return this.deadlines.filter(searchFilter).slice().sort(compareMarkingNeeded)
             } else {
                 return this.deadlines.filter(searchFilter).slice()
             }

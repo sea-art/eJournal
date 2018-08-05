@@ -15,14 +15,21 @@
                     </b-form-group>
                 </b-col>
             </b-row>
-            <b-button class="float-right" type="reset">Reset</b-button>
-            <b-button class="float-right" type="submit">Create</b-button>
+            <b-button class="float-left change-button" type="reset">
+                <icon name="undo"/>
+                Reset
+            </b-button>
+            <b-button class="float-right add-button" type="submit">
+                <icon name="plus-square"/>
+                Create
+            </b-button>
         </b-form>
     </div>
 </template>
 
 <script>
 import auth from '@/api/auth.js'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     name: 'CreateCourse',
@@ -73,6 +80,9 @@ export default {
             this.form.courseAbbr = this.lti.ltiCourseAbbr
             this.form.ltiCourseID = this.lti.ltiCourseID
         }
+    },
+    components: {
+        'icon': icon
     }
 }
 </script>

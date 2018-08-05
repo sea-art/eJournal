@@ -40,16 +40,6 @@ urlpatterns = [
 
     path('names/<int:cID>/<int:aID>/<int:jID>/', extra.names, name='names'),
 
-
-
-
-
-    # path('admin/', admin.site.urls),
-    #
-    # path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    # path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    # path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
-    #
     # path('get_own_user_data/', get.get_own_user_data, name='get_own_user_data'),
     # path('get_course_data/<int:cID>/', get.get_course_data, name='get_course_data'),
     # path('get_assignment_data/<int:cID>/<int:aID>/', get.get_assignment_data, name='get_assignment_data'),
@@ -57,8 +47,10 @@ urlpatterns = [
     # path('get_user_courses/', get.get_user_courses, name='get_user_courses'),
     # path('get_course_assignments/<int:cID>/', get.get_course_assignments, name='get_course_assignments'),
     # path('get_assignment_journals/<int:aID>/', get.get_assignment_journals, name='get_assignment_journals'),
+    # path('get_journal/<int:jID>/', get.get_journal, name='get_journal'),
     # path('get_upcoming_deadlines/', get.get_upcoming_deadlines, name='get_upcoming_deadlines'),
     # path('get_course_permissions/<str:cID>/', get.get_course_permissions, name='get_course_permissions'),
+    # path('get_assignment_permissions/<str:aID>/', get.get_assignment_permissions, name='get_assignment_permissions'),
     # path('get_upcoming_course_deadlines/<int:cID>/', get.get_upcoming_course_deadlines,
     #      name='get_upcoming_course_deadlines'),
     # path('get_nodes/<int:jID>/', get.get_nodes, name='get_nodes'),
@@ -110,6 +102,7 @@ urlpatterns = [
     # path('delete_assignment/', delete.delete_assignment, name='delete_assignment'),
     # path('delete_user_from_course/', delete.delete_user_from_course, name='delete_user_from_course'),
     # path('delete_course_role/', delete.delete_course_role, name='delete_course_role'),
+    # path('delete_entrycomment/', delete.delete_entrycomment, name='delete_entrycomment'),
     #
     # path('lti/launch', get.lti_launch, name='lti_launch'),
     # path('get_lti_params_from_jwt/<str:jwt_params>/', get.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),

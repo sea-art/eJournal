@@ -5,57 +5,53 @@
 -->
 <template>
     <div v-if="entryNode.entry !== null">
-        <b-card class="card main-card no-hover" :class="$root.getBorderClass($route.params.cID)">
-            <b-row>
-                <b-col id="main-card-left-column" cols="9" lg-cols="12">
-                    <h2>{{entryNode.entry.template.name}}</h2>
-                </b-col>
-                <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
-                </b-col>
-            </b-row>
-            <b-row>
-                <b-col id="main-card-left-column" cols="12" lg-cols="12">
-                    <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
-                        <div v-if="field.title != ''">
-                            <b>{{ field.title }}</b>
-                        </div>
-                        <div v-if="field.type=='t'">
-                            <span class="show-enters">{{ completeContent[i].data }}</span><br><br>
-                        </div>
-                        <div v-else-if="field.type=='i'">
-                        </div>
-                        <div v-else-if="field.type=='f'">
-                        </div>
-                    </div>
+        <b-card class="entry-card no-hover entry-card-teacher" :class="$root.getBorderClass($route.params.cID)">
+            <div v-if="$root.canGradeJournal()" class="grade-section shadow">
+                <b-form-input class="theme-input" type="number" size="2" v-model="grade" placeholder="0" min=0></b-form-input>
+                <b-form-checkbox v-model="published" value=true unchecked-value=false data-toggle="tooltip" title="Show grade to student">
+                    Publish
+                </b-form-checkbox>
+                <b-button class="add-button" @click="commitGrade">
+                    <icon name="save" scale="1"/>
+                    Save
+                </b-button>
+            </div>
+            <div v-else class="grade-section shadow">
+                <span v-if="tempNode.entry.published">
+                    {{ entryNode.entry.grade }}
+                </span>
+                <span v-else>
+                    <icon name="hourglass-half"/>
+                </span>
+            </div>
+            <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
 
-                    <div v-if="$root.canGradeJournal()">
-                        <br>
-                        Fill in the grade:<br>
-                        <b-form-input class="theme-input" type="number" v-model="grade" placeholder="Grade" min=0></b-form-input>
-                        <b-form-checkbox v-model="status" value=true unchecked-value=false>
-                            Show grade to student
-                        </b-form-checkbox><br>
-                        <b-button @click="commitGrade">Grade</b-button>
-                    </div>
-                    <div v-else>
-                        <div v-if="tempNode.entry.published">
-                            Points: {{ entryNode.entry.grade }}
-                        </div>
-                        <div v-else>
-                            To be graded
-                        </div>
-                    </div>
-                </b-col>
-            </b-row>
+            <div v-for="(field, i) in entryNode.entry.template.fields" class="entry-field" :key="field.eID">
+                <div v-if="field.title != ''">
+                    <b>{{ field.title }}</b>
+                </div>
+                <div v-if="field.type=='t'">
+                    <span class="show-enters">{{ completeContent[i].data }}</span><br><br>
+                </div>
+                <div v-else-if="field.type=='i'">
+                </div>
+                <div v-else-if="field.type=='f'">
+                </div>
+            </div>
         </b-card>
 
-        <comment-card :eID="entryNode.entry.eID"/>
+        <comment-card :eID="entryNode.entry.eID" :entryGradePublished="entryNode.entry.published"/>
     </div>
+    <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+        <h2 class="mb-2">{{entryNode.template.name}}</h2>
+        <b>No submission for this student</b>
+    </b-card>
 </template>
 
 <script>
 import commentCard from '@/components/journal/CommentCard.vue'
 import journalApi from '@/api/journal.js'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     props: ['entryNode'],
@@ -63,30 +59,35 @@ export default {
         return {
             tempNode: this.entryNode,
             completeContent: [],
-            grade: this.entryNode.entry.grade,
-            status: this.entryNode.entry.published
+            grade: null,
+            published: null
         }
     },
     watch: {
-        entryNode: function () {
+        entryNode () {
             this.completeContent = []
             this.setContent()
             this.tempNode = this.entryNode
 
             if (this.entryNode.entry !== null) {
                 this.grade = this.entryNode.entry.grade
-                this.status = this.entryNode.entry.published
+                this.published = this.entryNode.entry.published
             } else {
                 this.grade = null
-                this.status = true
+                this.published = true
             }
         }
     },
     created () {
         this.setContent()
+
+        if (this.entryNode.entry) {
+            this.grade = this.entryNode.entry.grade
+            this.published = this.entryNode.entry.published
+        }
     },
     methods: {
-        setContent: function () {
+        setContent () {
             /* Loads in the data of an entry in the right order by matching
              * the different data-fields with the corresponding template-IDs. */
             var checkFound = false
@@ -116,12 +117,12 @@ export default {
                 }
             }
         },
-        commitGrade: function () {
+        commitGrade () {
             if (this.grade !== null) {
                 this.tempNode.entry.grade = this.grade
-                this.tempNode.entry.published = (this.status === 'true' || this.status === true)
+                this.tempNode.entry.published = (this.published === 'true' || this.published === true)
 
-                if (this.status === 'true' || this.status === true) {
+                if (this.published === 'true' || this.published === true) {
                     journalApi.update_grade_entry(this.entryNode.entry.eID, this.grade, 1)
                         .then(_ => {
                             this.$toasted.success('Grade updated and published.')
@@ -145,7 +146,8 @@ export default {
         }
     },
     components: {
-        'comment-card': commentCard
+        'comment-card': commentCard,
+        'icon': icon
     }
 }
 </script>

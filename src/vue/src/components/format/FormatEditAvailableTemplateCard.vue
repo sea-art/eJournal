@@ -3,19 +3,33 @@
 -->
 
 <template>
-    <b-card class="card no-hover" :class="color">
-        <b>{{ template.t.name }}</b>
-        <icon @click.native.stop="emitDeleteTemplate" class="trash-icon ml-10 float-right" name="trash" scale="1.75"></icon>
-        <toggle-switch @click.native.stop class="template-todo-card-switch" :isActive="isActive" @parentActive="template.available = $event"/>
+    <b-card :class="$root.getBorderClass($route.params.cID)">
+        <div class="float-right ml-2">
+            <b-button v-on:click.stop v-if="!template.available" @click="toggleActive" class="delete-button full-width">
+                <icon name="times"/>
+                Disabled
+            </b-button>
+            <b-button v-on:click.stop v-if="template.available" @click="toggleActive" class="add-button full-width">
+                <icon name="check"/>
+                Enabled
+            </b-button><br>
+            <b-button v-on:click.stop @click="emitDeleteTemplate" class="delete-button button-top-border full-width">
+                <icon name="trash"/>
+                Delete
+            </b-button>
+        </div>
+        <span>
+            <icon name="edit" class="edit-template-icon"/>
+            <b clas>{{ template.t.name }}</b>
+        </span>
     </b-card>
 </template>
 
 <script>
-import Switch from '@/components/assets/SwitchComponent.vue'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
-    props: ['template', 'color'],
+    props: ['template'],
     data () {
         return {
             isActive: this.template.available
@@ -23,21 +37,22 @@ export default {
     },
     methods: {
         emitDeleteTemplate () {
-            if (confirm('Are you sure you wish to delete this template?')) {
+            if (confirm('Are you sure you want to delete template "' + this.template + '" from this format?')) {
                 this.$emit('delete-template', this.template)
             }
+        },
+        toggleActive () {
+            this.template.available = !this.template.available
         }
     },
     components: {
-        'icon': icon,
-        'toggle-switch': Switch
+        'icon': icon
     }
 }
 </script>
 
 <style lang="sass">
-.template-todo-card-switch
-    float: right
-    text-align: center
-    margin-top: 2px
+.edit-template-icon
+    position: relative
+    top: 2px
 </style>

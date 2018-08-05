@@ -252,11 +252,11 @@ class UpdateApiTests(TestCase):
         journal = factory.make_journal(assignment, student)
         entry = factory.make_entry(template)
         factory.make_node(journal, entry)
-        entrycomment = factory.make_entrycomment(entry, self.rein, 'Excellent!')
+        entrycomment = factory.make_entrycomment(entry, self.rein, 'Excellent!', True)
 
         login = test.logging_in(self, self.rein_user, self.rein_pass)
 
-        update_dict = {'entrycommentID': entrycomment.pk, 'text': 'Bad!'}
+        update_dict = {'ecID': entrycomment.pk, 'text': 'Bad!'}
         test.api_post_call(self, '/update_entrycomment/', update_dict, login)
 
         q_entrycomment = Comment.objects.get(pk=entrycomment.pk)

@@ -5,19 +5,19 @@
 -->
 
 <template>
-    <div class="entry-template">
+    <div>
         <b-row>
-            <b-col id="main-card-left-column" cols="12">
-                <b-card class="card main-card no-hover" :class="color">
+            <b-col cols="12">
+                <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                     <b-row>
-                        <b-col id="main-card-left-column" cols="9" lg-cols="12">
-                            <h2>Preset Deadline</h2>
+                        <b-col cols="9" lg-cols="12">
+                            <h2 class="mb-2">Preset Deadline</h2>
                             <b-input class="mb-2 mr-sm-2 mb-sm-0 theme-input" v-model="deadlineDate" type="date" @change="$emit('changed')"/>
                             <br/>
                             <b-input class="mb-2 mr-sm-2 mb-sm-0 theme-input" v-model="deadlineTime" type="time" @change="$emit('changed')"/>
                             <br/>
 
-                            <h2>Preset Type</h2>
+                            <h2 class="mb-2">Preset Type</h2>
                             <b-form-select v-model="currentPreset.type" @change="onChangePresetType">
                                 <option :value="'d'">Entry</option>
                                 <option :value="'p'">Progress Check</option>
@@ -26,7 +26,7 @@
                             <br/>
 
                             <div v-if="currentPreset.type === 'd'">
-                                <h2>Preset Template</h2>
+                                <h2 class="mb-2">Preset Template</h2>
                                 <b-form-select v-model="currentPreset.template" @change="$emit('changed')">
                                     <option disabled value="">Please select a template</option>
                                     <option v-for="template in templates" :key="template.t.tID" :value="template.t">
@@ -35,17 +35,20 @@
                                 </b-form-select>
                                 <br><br>
                                 <div v-if="currentPreset !== null">
-                                    <h2>Preview</h2>
+                                    <h2 class="mb-2">Preview</h2>
                                     <template-preview :template="currentPreset.template"/>
                                 </div>
                             </div>
                             <div v-else-if="currentPreset.type === 'p'">
-                                <h2>Point Target</h2>
-                                <b-input class="mb-2 mr-sm-2 mb-sm-0 theme-input" v-model="currentPreset.target" placeholder="Amount of points" @change="$emit('changed')"/>
+                                <h2 class="mb-2">Point Target</h2>
+                                <b-input type="number" class="mb-2 mr-sm-2 mb-sm-0 theme-input" v-model="currentPreset.target" placeholder="Amount of points" @change="$emit('changed')"/>
                             </div>
                         </b-col>
-                        <b-col id="main-card-right-column" cols="3" lg-cols="12">
-                            <b-button @click.prevent="emitDeletePreset" class="delete-button float-right">Delete</b-button>
+                        <b-col cols="3" lg-cols="12">
+                            <b-button @click.prevent="emitDeletePreset" class="delete-button float-right">
+                                <icon name="trash"/>
+                                Remove
+                            </b-button>
                         </b-col>
                     </b-row>
                 </b-card>
@@ -56,16 +59,15 @@
 
 <script>
 import templatePreview from '@/components/template/TemplatePreview.vue'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
-    props: ['currentPreset', 'templates', 'color'],
-
+    props: ['currentPreset', 'templates'],
     data () {
         return {
             templateNames: []
         }
     },
-
     // Get/set for the preset deadline.
     computed: {
         deadlineDate: {
@@ -77,11 +79,10 @@ export default {
             set: function (val) { this.currentPreset.deadline = this.currentPreset.deadline.split(' ')[0] + ' ' + val; this.$emit('deadline-changed') }
         }
     },
-
     methods: {
         emitDeletePreset () {
             this.$emit('changed')
-            if (confirm('Are you sure you wish to delete this preset?')) {
+            if (confirm('Are you sure you want to remove this preset from this format?')) {
                 this.$emit('delete-preset')
             }
         },
@@ -100,9 +101,9 @@ export default {
             }
         }
     },
-
     components: {
-        'template-preview': templatePreview
+        'template-preview': templatePreview,
+        'icon': icon
     }
 }
 </script>

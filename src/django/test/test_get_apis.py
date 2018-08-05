@@ -205,8 +205,6 @@ class GetApiTests(TestCase):
         self.assertEquals(len(result['journals']), 2)
         self.assertEquals(result['stats']['needsMarking'], 8)
         self.assertEquals(result['stats']['avgPoints'], 0)
-        self.assertEquals(result['stats']['medianPoints'], 0)
-        self.assertEquals(result['stats']['avgEntries'], 4)
 
         # permissions and authorization check for the api call.
         login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
@@ -331,7 +329,7 @@ class GetApiTests(TestCase):
         journal = factory.make_journal(assignment, student)
         entry = factory.make_entry(template)
         factory.make_node(journal, entry)
-        factory.make_entrycomment(entry, self.rein, 'Excellent!')
+        factory.make_entrycomment(entry, self.rein, 'Excellent!', True)
 
         login = test.logging_in(self, student_user, student_pass)
 

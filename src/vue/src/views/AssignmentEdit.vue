@@ -1,21 +1,33 @@
 <template>
     <content-single-column>
         <bread-crumb>&nbsp;</bread-crumb>
-        <b-card class="no-hover">
+        <b-card class="no-hover settings-card">
             <b-form @submit.prevent="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                          v-model="assignment.name"
                          placeholder="Assignment name"
                          required/>
-                <b-form-textarea class="description-text-area"
+                <b-form-textarea class="multi-form theme-input"
                                  :rows="3"
                                  :max-rows="6"
                                  v-model="assignment.description"
                                  placeholder="Description"
                                  required/>
-
-                <b-button type="submit" class="change-button">Update Assignment</b-button>
-                <b-button @click.prevent.stop="deleteAssignment()" class="delete-button">Delete Assignment</b-button>
+                <b-button v-if="$root.canDeleteAssignment()" @click.prevent.stop="deleteAssignment()" class="delete-button multi-form float-left">
+                    <icon name="trash"/>
+                    Delete Assignment
+                </b-button>
+                <b-button
+                    v-if="$root.canEditAssignment()"
+                    class="change-button multi-form float-left"
+                    :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">
+                    <icon name="edit"/>
+                    Edit Assignment Format
+                </b-button>
+                <b-button type="submit" class="add-button float-right">
+                    <icon name="save"/>
+                    Save
+                </b-button>
             </b-form>
         </b-card>
     </content-single-column>
@@ -26,6 +38,7 @@ import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import assignmentApi from '@/api/assignment.js'
 import store from '@/Store'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     name: 'AssignmentEdit',
@@ -86,12 +99,8 @@ export default {
     },
     components: {
         'content-single-column': contentSingleColumn,
-        'bread-crumb': breadCrumb
+        'bread-crumb': breadCrumb,
+        'icon': icon
     }
 }
 </script>
-
-<style lang="sass">
-.description-text-area
-    margin-bottom: 10px
-</style>

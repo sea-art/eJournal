@@ -125,7 +125,7 @@ router.beforeEach((to, from, next) => {
     /* If valid token, redirect to Home, if not currently valid, look to see if it is valid.
      * If now valid, redirect as well, otherwise continue to guest page.
      */
-    if (to.name === 'Guest') {
+    if (to.name === 'Guest' || to.name === 'Register') {
         if (router.app.validToken) {
             return next({name: 'Home'})
         } else {
@@ -148,13 +148,24 @@ router.beforeEach((to, from, next) => {
 
     auth.get('roles/' + cID)
         .then(response => {
-            router.app.permissions = response
+            router.app.generalPermissions = response
+
+            if (to.params.aID) {
+                permissionsApi.get_assignment_permissions(to.params.aID)
+                    .then(response => {
+                        router.app.assignmentPermissions = response
+                        return next()
+                    })
+                    .catch(_ => {
+                        router.app.$toasted.error('Error while loading assignment permissions.')
+                    })
+            } else {
+                return next()
+            }
         })
         .catch(_ => {
-            router.app.$toasted.error('Error while loading permissions.')
+            router.app.$toasted.error('Error while loading course permissions.')
         })
-
-    next()
 })
 
 export default router

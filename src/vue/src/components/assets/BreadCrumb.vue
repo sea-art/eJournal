@@ -7,22 +7,23 @@
 
 <template>
     <div class="breadcrumb-container">
-        <b-row>
-            <b-col cols="12" md="12">
-                <h4>
-                    <span v-for="crumb in crumbs.slice(0, -1)" :key="crumb.route">
-                        <b-link tag="b-button" :to="{ name: crumb.routeName }">{{ crumb.displayName }}</b-link> /
-                    </span>
-                </h4>
-                <h1>
-                    {{ crumbs.slice(-1)[0].displayName }}
-                    <slot>
-                        <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
-                        <b-button v-if="canEdit()" @click="editClick()" class="float-right change-button"> Edit</b-button>
-                    </slot>
-                </h1>
-            </b-col>
-        </b-row>
+        <b-button v-if="canEdit()" @click="editClick()" class="float-right change-button multi-form">
+            <icon name="edit"/>
+            Edit
+        </b-button>
+        <div>
+            <h4 v-if="crumbs.length > 1">
+                <span v-for="crumb in crumbs.slice(0, -1)" :key="crumb.route">
+                    <b-link tag="b-button" :to="{ name: crumb.routeName }">{{ crumb.displayName }}</b-link> /
+                </span>
+            </h4>
+            <h1>
+                {{ crumbs.slice(-1)[0].displayName }}
+                <slot>
+                    <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
+                </slot>
+            </h1>
+        </div>
     </div>
 </template>
 
@@ -33,7 +34,7 @@ import store from '@/Store.vue'
 
 export default {
     components: {
-        icon
+        'icon': icon
     },
     /*
         aliases: aliases for unnamed vews
@@ -47,7 +48,7 @@ export default {
                     'FormatEdit': 'Format Editor',
                     'CourseEdit': 'Course Editor',
                     'AssignmentEdit': 'Assignment Editor',
-                    'AssignmentsOverview': 'Assignment Overview',
+                    'AssignmentsOverview': 'Assignments',
                     'UserRoleConfiguration': 'User Role Configuration'
                 },
                 namedViews: {
@@ -123,7 +124,7 @@ export default {
 
             if ((pageName === 'Home' && this.$root.isAdmin()) ||
                (pageName === 'Course' && this.$root.canEditCourse()) ||
-               (pageName === 'Assignment' && this.$root.canEditCourse())) {
+               (pageName === 'Assignment' && this.$root.canEditAssignment())) {
                 return true
             }
         }

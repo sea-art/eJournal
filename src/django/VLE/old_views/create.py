@@ -182,23 +182,31 @@ def create_entrycomment(request):
 
     Arguments:
     request -- the request that was send with
-        entryID -- the entry id
-        authorID -- the author id
+        eID -- the entry id
+        uID -- the author id
         text -- the comment
+        published -- the comment's publishment state
     """
-    if not request.user.is_authenticated:
+    user = request.user
+    if not user.is_authenticated:
         return responses.unauthorized()
 
     try:
-        entryID, authorID, text = utils.required_params(request.data, "entryID", "authorID", "text")
+        eID, uID, text, published = utils.required_params(request.data, "eID", "uID", "text", "published")
     except KeyError:
-        return responses.keyerror("entryID", "authorID", "text")
+        return responses.keyerror("eID", "uID", "text", "published")
 
     try:
-        author = User.objects.get(pk=authorID)
-        entry = Entry.objects.get(pk=entryID)
+        author = User.objects.get(pk=uID)
+        entry = Entry.objects.get(pk=eID)
+        assignment = Assignment.objects.get(journal__node__entry=entry)
     except (User.DoesNotExist, Entry.DoesNotExist):
-        return responses.not_found('User or Entry does not exist.')
+        return responses.not_found('User or Entry')
 
-    entrycomment = factory.make_entrycomment(entry, author, text)
+    if not (author == user):
+        return responses.forbidden('You are not allowed to write comments for others.')
+
+    published = published or not permissions.has_assignment_permission(user, assignment, 'can_grade_journal')
+
+    entrycomment = factory.make_entrycomment(entry, author, text, published)
     return responses.created(payload={'comment': serialize.entrycomment_to_dict(entrycomment)})

@@ -1,25 +1,21 @@
 <template>
-    <b-card :class="$root.colors[uID % $root.colors.length]" class="no-hover">
-        <b-row>
-            <b-col cols="4" order-sm="2" sm="4">
-                StudentID: {{ uID }}
-            </b-col>
-            <b-col cols="4" order-sm="2" sm="4">
-                Name: {{ name }}
-            </b-col>
-            <b-col cols="4" order-sm="3" sm="3">
-                <b-button v-if="this.$root.canEditCourse"
-                          @click.prevent.stop="addUserToCourse()"
-                          class="add-button full-width">
-                    Add
-                </b-button>
-            </b-col>
-        </b-row>
+    <b-card :class="$root.getBorderClass(uID)" class="no-hover">
+        <div class="float-left">
+            <b>{{ fullName }}</b><br>
+            {{ username }}
+        </div>
+        <b-button v-if="this.$root.canEditCourse"
+                  @click.prevent.stop="addUserToCourse()"
+                  class="add-button float-right">
+            <icon name="user-plus"/>
+                Add
+        </b-button>
     </b-card>
 </template>
 
 <script>
 import courseApi from '@/api/course.js'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     props: {
@@ -29,7 +25,10 @@ export default {
         uID: {
             required: true
         },
-        name: {
+        username: {
+            required: true
+        },
+        fullName: {
             required: true
         },
         portraitPath: {
@@ -38,16 +37,19 @@ export default {
     },
     methods: {
         addUserToCourse () {
-            if (confirm('Are you sure you want to add ' + this.name + ' to the course?')) {
+            if (confirm('Are you sure you want to add "' + this.fullName + '" to this course?')) {
                 courseApi.update_course_with_student(this.uID, this.cID)
                     .then(response => {
                         this.$emit('add-participant', 'Student',
-                            this.name,
+                            this.username,
                             this.portraitPath,
                             this.uID)
                     })
             }
         }
+    },
+    components: {
+        'icon': icon
     }
 }
 </script>

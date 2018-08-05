@@ -17,6 +17,26 @@ import 'vue-awesome/icons/times'
 import 'vue-awesome/icons/exclamation'
 import 'vue-awesome/icons/plus'
 import 'vue-awesome/icons/list-ul'
+import 'vue-awesome/icons/paper-plane'
+import 'vue-awesome/icons/save'
+import 'vue-awesome/icons/upload'
+import 'vue-awesome/icons/download'
+import 'vue-awesome/icons/arrow-right'
+import 'vue-awesome/icons/arrow-left'
+import 'vue-awesome/icons/user'
+import 'vue-awesome/icons/users'
+import 'vue-awesome/icons/shield'
+import 'vue-awesome/icons/user-times'
+import 'vue-awesome/icons/user-plus'
+import 'vue-awesome/icons/edit'
+import 'vue-awesome/icons/undo'
+import 'vue-awesome/icons/sign-in'
+import 'vue-awesome/icons/sign-out'
+import 'vue-awesome/icons/ban'
+import 'vue-awesome/icons/link'
+import 'vue-awesome/icons/envelope'
+import 'vue-awesome/icons/home'
+import 'vue-awesome/icons/calendar'
 
 import Toasted from 'vue-toasted'
 
@@ -31,7 +51,8 @@ new Vue({
     components: { App },
     data: {
         colors: ['pink-border', 'peach-border', 'blue-border'],
-        permissions: {},
+        generalPermissions: {},
+        assignmentPermissions: {},
         validToken: false,
         previousPage: null,
         windowWidth: 0
@@ -70,6 +91,18 @@ new Vue({
         getBorderClass (cID) {
             return this.colors[cID % this.colors.length]
         },
+        beautifyDate (date) {
+            if (!date) {
+                return ''
+            }
+
+            var year = date.substring(0, 4)
+            var month = date.substring(5, 7)
+            var day = date.substring(8, 10)
+            var time = date.substring(11, 16)
+
+            return day + '-' + month + '-' + year + ' ' + time
+        },
 
         /* #############################################################
          *              Permissions,
@@ -82,11 +115,11 @@ new Vue({
 
         /* Site-wide permissions */
         isAdmin () {
-            return this.permissions.is_superuser
+            return this.generalPermissions.is_superuser
         },
         /* Institute wide settings, think institute name/abbreviation logo. */
         canEditInstitute () {
-            return this.permissions.can_edit_institute
+            return this.generalPermissions.can_edit_institute
         },
 
         /* Course level based permissions. These permissions are enabled and
@@ -94,53 +127,53 @@ new Vue({
 
         /* Course permissions. */
         canEditCourseRoles () {
-            return this.permissions.can_edit_course_roles
+            return this.generalPermissions.can_edit_course_roles
         },
         canAddCourse () {
-            return this.permissions.can_add_course
+            return this.generalPermissions.can_add_course
         },
         canViewCourseParticipants () {
-            return this.permissions.can_view_course_participants
+            return this.generalPermissions.can_view_course_participants
         },
         canAddCourseParticipants () {
-            return this.permissions.can_add_course_participants
+            return this.generalPermissions.can_add_course_participants
         },
         canEditCourse () {
-            return this.permissions.can_edit_course
+            return this.generalPermissions.can_edit_course
         },
         canDeleteCourse () {
-            return this.permissions.can_delete_course
+            return this.generalPermissions.can_delete_course
+        },
+        canAddAssignment () {
+            return this.generalPermissions.can_add_assignment
         },
 
         /* Assignment permissions. */
-        canAddAssignment () {
-            return this.permissions.can_add_assignment
-        },
         canEditAssignment () {
-            return this.permissions.can_edit_assignment
+            return this.assignmentPermissions.can_edit_assignment
         },
         canViewAssignmentParticipants () {
-            return this.permissions.can_view_assignment_participants
+            return this.assignmentPermissions.can_view_assignment_participants
         },
         canDeleteAssignment () {
-            return this.permissions.can_delete_assignment
+            return this.assignmentPermissions.can_delete_assignment
         },
         canPublishAssignmentGrades () {
-            return this.permissions.can_publish_assignment_grades
+            return this.assignmentPermissions.can_publish_assignment_grades
         },
 
         /* Grade permissions. */
         canGradeJournal () {
-            return this.permissions.can_grade_journal
+            return this.assignmentPermissions.can_grade_journal
         },
         canPublishJournalGrades () {
-            return this.permissions.can_publish_journal_grades
+            return this.assignmentPermissions.can_publish_journal_grades
         },
         canEditJournal () {
-            return this.permissions.can_edit_journal
+            return this.assignmentPermissions.can_edit_journal
         },
         canCommentJournal () {
-            return this.permissions.can_comment_journal
+            return this.assignmentPermissions.can_comment_journal
         }
     },
     template: '<App/>'

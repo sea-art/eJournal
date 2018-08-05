@@ -1,46 +1,42 @@
 <!--
     Loads a preview of an Entry-Template and returns the filled in data to
-    the parrent once it's saved.
+    the parent once it's saved.
 -->
 <template>
-    <b-card class="card main-card no-hover" :class="$root.getBorderClass($route.params.cID)">
-        <b-row>
-            <b-col id="main-card-left-column" cols="9" lg-cols="12">
-                <h2>{{template.name}}</h2>
-            </b-col>
-            <b-col id="main-card-right-column" cols="3" lg-cols="12" class="right-content">
-            </b-col>
-        </b-row>
-        <b-row>
-            <b-col id="main-card-left-column" cols="12" lg-cols="12">
-                <div v-for="(field, i) in template.fields" :key="field.eID">
-                    <div v-if="field.title != ''">
-                        <b>{{ field.title }}</b>
-                    </div>
-
-                    <div v-if="field.type=='t'">
-                        <b-textarea v-model="completeContent[i].data"></b-textarea><br><br>
-                    </div>
-                    <div v-else-if="field.type=='i'">
-                        <br>
-                        <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
-                    </div>
-                    <div v-else-if="field.type=='f'">
-                        <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
-                    </div>
+    <div>
+        <h2 class="mb-2">{{template.name}}</h2>
+        <b-card class="no-hover">
+            <div v-for="(field, i) in template.fields" :key="field.eID">
+                <div v-if="field.title != ''">
+                    <b>{{ field.title }}</b>
                 </div>
 
-                <b-alert :show="dismissCountDown" dismissible variant="secondary"
-                    @dismissed="dismissCountDown=0">
-                    Please fill in every field.
-                </b-alert>
-                <b-button class="add-button" @click="save">Post Entry</b-button>
-            </b-col>
-        </b-row>
-    </b-card>
+                <div v-if="field.type=='t'">
+                    <b-textarea class="theme-input" v-model="completeContent[i].data"></b-textarea><br>
+                </div>
+                <div v-else-if="field.type=='i'">
+                    <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
+                </div>
+                <div v-else-if="field.type=='f'">
+                    <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
+                </div>
+            </div>
+
+            <b-alert :show="dismissCountDown" dismissible variant="secondary"
+                @dismissed="dismissCountDown=0">
+                Please fill in every field.
+            </b-alert>
+            <b-button class="add-button float-right" @click="save">
+                <icon name="paper-plane"/>
+                Post Entry
+            </b-button>
+        </b-card>
+    </div>
 </template>
 
 <script>
+import icon from 'vue-awesome/components/Icon'
+
 export default {
     props: ['template'],
     data () {
@@ -85,6 +81,9 @@ export default {
                 this.dismissCountDown = this.dismissSecs
             }
         }
+    },
+    components: {
+        'icon': icon
     }
 }
 </script>

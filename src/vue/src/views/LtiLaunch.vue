@@ -129,7 +129,7 @@ export default {
                 this.handleAssignmentChoice = true
                 break
             case this.states.create_assign:
-                this.currentPage = 'Assigment Integration'
+                this.currentPage = 'Assignment Integration'
                 this.createAssignment = true
                 break
             case this.states.check_assign:
@@ -190,7 +190,7 @@ export default {
                         code: '404',
                         message: err,
                         description: `Error while loading LTI information.
-                                        Please contact your system administrator
+                                        Please contact the system administrator
                                         for more information. Further integration
                                         is not possible.`
                     }
@@ -204,7 +204,7 @@ export default {
                     code: '511',
                     message: 'Network authorization required',
                     description: `Invalid credentials from the LTI environment.
-                                  Please contact your system administrator.`
+                                  Please contact the system administrator.`
                 }
             })
         } else if (this.states.state === this.states.no_course) {

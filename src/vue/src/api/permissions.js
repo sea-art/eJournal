@@ -7,6 +7,11 @@ export default {
             .then(response => response.data.permissions)
     },
 
+    get_assignment_permissions (aID) {
+        return auth.authenticatedGet('/get_assignment_permissions/' + aID + '/')
+            .then(response => response.data.permissions)
+    },
+
     get_course_roles (cID) {
         return auth.authenticatedGet('/get_course_roles/' + cID + '/')
             .then(response => response.data.roles)

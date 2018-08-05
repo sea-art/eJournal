@@ -3,7 +3,7 @@ Utilities.
 
 A library with useful functions.
 """
-from VLE.models import Entry, Node, EntryTemplate, PresetNode
+from VLE.models import Entry, Node, EntryTemplate, EntryComment, PresetNode
 import VLE.factory as factory
 import VLE.views.responses as responses
 import os
@@ -50,26 +50,18 @@ def get_max_points(journal):
     return journal.assignment.format.max_points
 
 
-def get_acquired_grade(entries, journal):
-    """Get the number of acquired points in an journal.
+def get_acquired_points(entries):
+    """Get the number of acquired points from a set of entries.
 
-    - journal: the journal in question.
+    - entries: the journal in question.
 
     Returns the total number of points depending on the grade type.
     """
-    format = journal.assignment.format
     total_grade = 0
-    if format.grade_type == 'GR':
-        count_graded = 0
-        for entry in entries:
-            if entry.published:
-                count_graded += 1
-                total_grade += entry.grade if entry.grade is not None else 0
-        return total_grade
-    else:
-        for entry in entries:
+    for entry in entries:
+        if entry.published:
             total_grade += entry.grade if entry.grade is not None else 0
-        return total_grade
+    return total_grade
 
 
 def get_submitted_count(entries):
@@ -101,6 +93,9 @@ def publish_all_assignment_grades(assignment, published):
     - published: either True or False. If True show the grade to student.
     """
     Entry.objects.filter(node__journal__assignment=assignment).exclude(grade=None).update(published=published)
+    if published:
+        (EntryComment.objects.filter(entry__node__journal__assignment=assignment)
+         .exclude(entry__grade=None).update(published=True))
 
 
 def publish_all_journal_grades(journal, published):
@@ -110,6 +105,8 @@ def publish_all_journal_grades(journal, published):
     - published: either True or False. If True show the grade to student.
     """
     Entry.objects.filter(node__journal=journal).exclude(grade=None).update(published=published)
+    if published:
+        EntryComment.objects.filter(entry__node__journal=journal).exclude(entry__grade=None).update(published=True)
 # END grading functions
 
 
