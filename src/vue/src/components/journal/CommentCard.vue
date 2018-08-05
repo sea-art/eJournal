@@ -30,7 +30,7 @@
             <b-card class="no-hover new-comment">
                 <b-textarea class="theme-input multi-form full-width" v-model="tempComment" placeholder="Write a comment" :class="$root.getBorderClass($route.params.cID)"/>
                 <div class="d-flex full-width justify-content-end align-items-center">
-                    <b-form-checkbox v-if="$root.canGradeJournal() && !entryGradePublished" v-model="publishAfterGrade" value=true unchecked-value=false>
+                    <b-form-checkbox v-if="$root.canGradeJournal() && !entryGradePublished" v-model="publishAfterGrade">
                         Publish after grade
                     </b-form-checkbox>
                     <b-button class="send-button" @click="addComment">
