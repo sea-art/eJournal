@@ -23,17 +23,17 @@
             </b-button>
         </b-card>
 
-        <div v-if="filteredJournals.length !== 0" v-for="journal in filteredJournals" :key="journal.student.uID" slot="main-content-column">
+        <div v-if="filteredJournals.length !== 0" v-for="journal in filteredJournals" :key="journal.user" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {
                                               cID: cID,
                                               aID: aID,
-                                              jID: journal.jID
+                                              jID: journal.id
                                           }, query: query
                                         }">
 
                 <student-card
-                    :student="journal.student"
+                    :student="journal.user"
                     :stats="journal.stats">
                 </student-card>
 

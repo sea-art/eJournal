@@ -130,9 +130,8 @@ export default {
         if (url.slice(-1) !== '/') url += '/'
         if (data) {
             url += '?'
-            for (var key in data) {
+            for (var key in data)
                 url += key + '=' + data[key] + '&'
-            }
             url = url.slice(0, -1)
         }
         return connection.conn.get(url, getAuthorizationHeader())

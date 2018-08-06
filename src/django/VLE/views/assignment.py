@@ -36,22 +36,27 @@ class AssignmentView(viewsets.ViewSet):
         try:
             cID = request.query_params['cID']
         except KeyError:
-            return response.keyerror("cID")
+            cID = None
         try:
-            course = Course.objects.get(pk=cID)
+            if cID:
+                course = Course.objects.get(pk=cID)
         except Course.DoesNotExist:
             return response.not_found('Course')
 
-        role = permissions.get_role(request.user, course)
-        if role is None:
-            return response.forbidden('You are not in this course.')
+        if cID:
+            role = permissions.get_role(request.user, course)
+            if role is None:
+                return response.forbidden('You are not in this course.')
 
-        if not role.can_grade_journal:
-            queryset = course.assignment_set.all()
-            serializer = StudentAssignmentSerializer(queryset, many=True)
+            if not role.can_grade_journal:
+                queryset = course.assignment_set.all()
+                serializer = StudentAssignmentSerializer(queryset, many=True)
+            else:
+                queryset = Assignment.objects.filter(courses=course, journal__user=request.user)
+                serializer = TeacherAssignmentSerializer(queryset, many=True)
         else:
-            queryset = Assignment.objects.filter(courses=course, journal__user=request.user)
-            serializer = TeacherAssignmentSerializer(queryset, many=True)
+            # TODO: change query to a query that selects all (upcomming) assignments connected to the user.
+            serializer = StudentAssignmentSerializer(Assignment.objects.all())
 
         return response.success(serializer.data)
 
@@ -134,8 +139,9 @@ class AssignmentView(viewsets.ViewSet):
             return response.forbidden("You cannot view this assignment.")
 
         serializer = self.serializer_class(assignment)
-        serializer.data['journals'] = JournalSerializer(Journal.objects.filter(assignment=assignment), many=True)
-        return response.success(serializer.data)
+        data = serializer.data
+        data['journals'] = JournalSerializer(Journal.objects.filter(assignment=assignment), many=True).data
+        return response.success(data)
 
     def update(self, request, *args, **kwargs):
         pass

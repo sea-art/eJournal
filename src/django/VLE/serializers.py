@@ -67,10 +67,11 @@ class RoleSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('id', )
 
+
 class JournalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Journal
-        field = '__all__'
+        fields = '__all__'
         read_only_fields = ('id', )
 
 # def user_to_dict(user):
