@@ -576,9 +576,9 @@ def get_entrycomments(request, eID):
 
     if permissions.has_assignment_permission(user, entry.node.journal.assignment,
                                              'can_grade_journal'):
-        entrycomments = EntryComment.objects.filter(entry=entry)
+        entrycomments = Comment.objects.filter(entry=entry)
     else:
-        entrycomments = EntryComment.objects.filter(entry=entry, published=True)
+        entrycomments = Comment.objects.filter(entry=entry, published=True)
 
     return responses.success(payload={
         'entrycomments': [serialize.entrycomment_to_dict(comment) for comment in entrycomments]

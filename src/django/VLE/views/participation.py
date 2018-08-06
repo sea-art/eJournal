@@ -46,7 +46,7 @@ class ParticipationView(viewsets.ViewSet):
 
             queryset = course.users
             role = permissions.get_role(request.user, course)
-            print(role)
+
             # TODO: Improve how the addition of roles is done
             resp = UserSerializer(queryset, many=True).data
             for r in resp:

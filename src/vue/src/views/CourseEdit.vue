@@ -124,7 +124,7 @@ export default {
     created () {
         auth.get('courses/' + this.cID)
             .then(response => { this.course = response })
-        auth.get('participations/?cID=' + this.cID)
+        auth.get('participations/', { cID: this.cID })
             .then(response => { this.participants = response })
     },
     methods: {
@@ -175,7 +175,7 @@ export default {
             })
         },
         loadUnenrolledStudents () {
-            auth.get('participations/?cID=' + this.cID)
+            auth.get('participations/', { cID: this.cID })
                 .then(response => { this.unenrolledStudents = response })
             this.unenrolledLoaded = !this.unenrolledLoaded
         },

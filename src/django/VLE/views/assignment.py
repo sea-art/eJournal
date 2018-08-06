@@ -5,8 +5,8 @@ In this file are all the assignment api requests.
 """
 from rest_framework import viewsets
 
-from VLE.serializers import StudentAssignmentSerializer, TeacherAssignmentSerializer
-from VLE.models import Assignment, Course
+from VLE.serializers import StudentAssignmentSerializer, TeacherAssignmentSerializer, JournalSerializer
+from VLE.models import Assignment, Course, Journal
 import VLE.views.responses as response
 import VLE.permissions as permissions
 import VLE.factory as factory
@@ -134,6 +134,7 @@ class AssignmentView(viewsets.ViewSet):
             return response.forbidden("You cannot view this assignment.")
 
         serializer = self.serializer_class(assignment)
+        serializer.data['journals'] = JournalSerializer(Journal.objects.filter(assignment=assignment), many=True)
         return response.success(serializer.data)
 
     def update(self, request, *args, **kwargs):

@@ -11,7 +11,7 @@ import VLE.serializers as serialize
 import VLE.utils as utils
 import VLE.permissions as permissions
 import VLE.factory as factory
-from VLE.models import Course, EntryComment, Assignment, Participation, Role, \
+from VLE.models import Course, Comment, Assignment, Participation, Role, \
     Entry, User, Journal
 import VLE.lti_grade_passback as lti_grade
 from django.conf import settings
@@ -466,7 +466,7 @@ def update_grade_entry(request):
     entry.save()
 
     if entry.published:
-        EntryComment.objects.filter(entry_id=eID).update(published=True)
+        Comment.objects.filter(entry_id=eID).update(published=True)
 
     if entry.published and journal.sourcedid is not None and journal.grade_url is not None:
         payload = lti_grade.replace_result(journal)
@@ -510,7 +510,7 @@ def update_publish_grade_entry(request):
     entry.save()
 
     if entry.published:
-        EntryComment.objects.filter(entry_id=eID).update(published=True)
+        Comment.objects.filter(entry_id=eID).update(published=True)
 
     if published and journal.sourcedid is not None and journal.grade_url is not None:
         payload = lti_grade.replace_result(journal)
@@ -618,8 +618,8 @@ def update_entrycomment(request):
         return responses.keyerror("ecID")
 
     try:
-        comment = EntryComment.objects.get(pk=ecID)
-    except EntryComment.DoesNotExist:
+        comment = Comment.objects.get(pk=ecID)
+    except Comment.DoesNotExist:
         return responses.not_found('Entrycomment does not exist.')
 
     if not permissions.has_assignment_permission(request.user, comment.entry.node.journal.assignment,

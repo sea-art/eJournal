@@ -146,12 +146,12 @@ router.beforeEach((to, from, next) => {
         cID = -1
     }
 
-    auth.get('roles/' + cID)
+    auth.get('/roles/0', { cID: cID })
         .then(response => {
             router.app.generalPermissions = response
 
             if (to.params.aID) {
-                permissionsApi.get_assignment_permissions(to.params.aID)
+                auth.get('/roles/0', { aID: to.params.aID })
                     .then(response => {
                         router.app.assignmentPermissions = response
                         return next()

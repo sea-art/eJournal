@@ -125,8 +125,16 @@ export default {
         return this.get('courses')
     },
 
-    get (url, noRedirect = false) {
-        if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
+    get (url, data = null, noRedirect = false) {
+        if (url[0] !== '/') url = '/' + url
+        if (url.slice(-1) !== '/') url += '/'
+        if (data) {
+            url += '?'
+            for (var key in data) {
+                url += key + '=' + data[key] + '&'
+            }
+            url = url.slice(0, -1)
+        }
         return connection.conn.get(url, getAuthorizationHeader())
             .then(response => response.data.result)
             .catch(error => refresh(error)
@@ -134,6 +142,7 @@ export default {
             .catch(error => handleResponse(error, noRedirect))
     },
     create (url, data, noRedirect = false) {
+        if (url[0] !== '/') url = '/' + url
         if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
         return connection.conn.post(url, data, getAuthorizationHeader())
             .then(response => response.data)
@@ -142,6 +151,7 @@ export default {
             .catch(error => handleResponse(error, noRedirect))
     },
     update (url, data, noRedirect = false) {
+        if (url[0] !== '/') url = '/' + url
         if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
         return connection.conn.patch(url, data, getAuthorizationHeader())
             .then(response => response.data)
@@ -150,6 +160,7 @@ export default {
             .catch(error => handleResponse(error, noRedirect))
     },
     delete (url, noRedirect = false) {
+        if (url[0] !== '/') url = '/' + url
         if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
         return connection.conn.delete(url, getAuthorizationHeader())
             .then(response => response.data)

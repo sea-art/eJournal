@@ -6,7 +6,7 @@
             @edit-click="handleEdit()"/>
 
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
-            <b-link tag="b-button" :to="assignmentRoute(cID, a.aID, a.journal)">
+            <b-link tag="b-button" :to="assignmentRoute(cID, a.id, a.journal)">
                 <assignment-card :line1="a.name">
                     <progress-bar
                         v-if="a.journal && a.journal.stats"
@@ -110,7 +110,7 @@ export default {
     },
     methods: {
         loadAssignments () {
-            auth.get('assignments/?cID=' + this.cID)
+            auth.get('assignments', { cID: this.cID })
                 .then(response => { this.assignments = response })
         },
         showModal (ref) {

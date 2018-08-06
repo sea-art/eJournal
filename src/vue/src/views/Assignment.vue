@@ -129,18 +129,19 @@ export default {
         },
         publishGradesAssignment () {
             if (confirm('Are you sure you want to publish all grades for each journal?')) {
-                journal.update_publish_grades_assignment(this.aID, 1)
-                    .then(_ => {
-                        this.$toasted.success('Published all grades for this assignment.')
-                        journal.get_assignment_journals(this.aID)
-                            .then(response => {
-                                this.assignmentJournals = response.journals
-                                this.stats = response.stats
-                            })
-                    })
-                    .catch(_ => {
-                        this.$toasted.error('Error while publishing all grades for this assignment.')
-                    })
+                alert('Not implemented yet')
+                // journal.update_publish_grades_assignment(this.aID, 1)
+                //     .then(_ => {
+                //         this.$toasted.success('Published all grades for this assignment.')
+                //         journal.get_assignment_journals(this.aID)
+                //             .then(response => {
+                //                 this.assignmentJournals = response.journals
+                //                 this.stats = response.stats
+                //             })
+                //     })
+                //     .catch(_ => {
+                //         this.$toasted.error('Error while publishing all grades for this assignment.')
+                //     })
             }
         },
         updateQuery () {

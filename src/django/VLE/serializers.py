@@ -6,7 +6,7 @@ Functions to convert certain data to other formats.
 from rest_framework import serializers
 # import VLE.utils as utils
 # import VLE.permissions as permissions
-from VLE.models import User, Course, Node, Comment, Assignment, Role
+from VLE.models import User, Course, Node, Comment, Assignment, Role, Journal
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -65,6 +65,12 @@ class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
         fields = '__all__'
+        read_only_fields = ('id', )
+
+class JournalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Journal
+        field = '__all__'
         read_only_fields = ('id', )
 
 # def user_to_dict(user):
@@ -251,7 +257,7 @@ class RoleSerializer(serializers.ModelSerializer):
 #
 #     # Add the comments.
 #     comments = [{entrycomment.author.username: entrycomment.text}
-#                 for entrycomment in EntryComment.objects.filter(entry=entry)]
+#                 for entrycomment in Comment.objects.filter(entry=entry)]
 #     data.update({'comments': comments})
 #
 #     return data

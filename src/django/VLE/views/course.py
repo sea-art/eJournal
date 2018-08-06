@@ -162,7 +162,6 @@ class CourseView(viewsets.ViewSet):
         On success:
             success -- with a message that the course was deleted
         """
-        print(request.user)
         if not request.user.is_authenticated:
             return response.unauthorized()
         pk = kwargs.get('pk')

@@ -4,17 +4,17 @@ from rest_framework import viewsets
 import VLE.permissions as permissions
 import VLE.views.responses as response
 from VLE.serializers import RoleSerializer
-from VLE.models import Course, Role
+from VLE.models import Course, Role, Assignment, User
 import VLE.factory as factory
 
 
 class RoleView(viewsets.ViewSet):
-    def list(self, request, pk):
+    def list(self, request):
         """Get course roles.
 
         Arguments:
         request -- request data
-        pk -- course ID
+            pk -- course ID
 
         Returns:
         On failure:
@@ -27,8 +27,13 @@ class RoleView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
+
         try:
-            course = Course.objects.get(pk=pk)
+            course_id = request.query_params['cID']
+        except KeyError:
+            return response.keyerror('cID')
+        try:
+            course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
             return response.not_found('Course')
 
@@ -38,7 +43,7 @@ class RoleView(viewsets.ViewSet):
         elif not role.can_edit_course_roles:
             return response.forbidden('You are not allowed to edit course roles.')
 
-        roles = Role.objects.filter(course=pk)
+        roles = Role.objects.filter(course=course_id)
         serializer = RoleSerializer(roles, many=True)
         return response.success(serializer.data)
 
@@ -88,12 +93,14 @@ class RoleView(viewsets.ViewSet):
             resp.append(serializer.data)
         return response.success(resp)
 
-    def retrieve(self, request, pk):
-        """Get the permissions of a course.
+    def retrieve(self, request, pk=0):
+        """Get the permissions of a user connected to a course / assignment.
 
         Arguments:
         request -- the request that was sent
-        pk -- course ID
+            cID -- course ID
+            aID -- assignment ID
+        pk -- user ID (0 = logged in user)
 
         Returns:
         On failure:
@@ -107,12 +114,34 @@ class RoleView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            if int(pk) > 0:
-                Course.objects.get(pk=pk)
+            user = request.user if int(pk) == 0 else User.objects.get(int(pk))
+        except User.DoesNotExist:
+            return response.not_found('User')
+
+        try:
+            course_id = request.query_params['cID']
+        except KeyError:
+            try:
+                assignment_id = request.query_params['aID']
+                try:
+                    assignment = Assignment.objects.get(pk=assignment_id)
+                    result = {}
+                    for course in assignment.courses.all():
+                        result = {key: value or (result[key] if key in result and result[key] else False)
+                                  for key, value in permissions.get_permissions(user, course.pk).items()}
+                    return response.success(result)
+                except Course.DoesNotExist:
+                    return response.not_found('Course')
+            except KeyError:
+                return response.keyerror('cID or aID')
+
+        try:
+            if int(course_id) > 0:
+                Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
             return response.not_found('Course')
 
-        roleDict = permissions.get_permissions(request.user, int(pk))
+        roleDict = permissions.get_permissions(user, int(course_id))
         if not roleDict:
             return response.forbidden('You are not participating in this course')
 

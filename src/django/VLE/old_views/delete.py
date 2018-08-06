@@ -137,13 +137,13 @@ def delete_entrycomment(request):
         return responses.keyerror("ecID")
 
     try:
-        entrycomment = EntryComment.objects.get(pk=ecID)
+        entrycomment = Comment.objects.get(pk=ecID)
         entryAuthor = User.objects.get(pk=entrycomment.author.id)
-    except (EntryComment.DoesNotExist, User.DoesNotExist):
+    except (Comment.DoesNotExist, User.DoesNotExist):
         return responses.not_found('Comment or Author does not exist.')
 
     if not user == entryAuthor:
         return responses.forbidden()
 
-    EntryComment.objects.get(id=ecID).delete()
+    Comment.objects.get(id=ecID).delete()
     return responses.success(message='Succesfully deleted comment')
