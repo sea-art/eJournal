@@ -202,7 +202,7 @@ class AssignmentView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
-        a_pk -- assignment ID
+        pk -- assignment ID
 
         Returns:
         On failure:
@@ -215,18 +215,18 @@ class AssignmentView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        pk = kwargs.get('a_pk')
+        assignment_id = kwargs.get('pk')
 
         try:
-            [cID] = utils.required_params(request.data, 'cID')
+            course_id = int(request.query_params['cID'])
         except KeyError:
             return response.keyerror('cID')
 
         try:
-            assignment = Assignment.objects.get(pk=pk)
-            course = Course.objects.get(pk=cID)
+            assignment = Assignment.objects.get(pk=assignment_id)
+            course = Course.objects.get(pk=course_id)
         except (Assignment.DoesNotExist, Course.DoesNotExist):
-            return response.not_found('Assignment or course')
+            return response.not_found('course or ssignment')
 
         # Assignments can only be deleted with can_delete_assignment permission.
         role = permissions.get_role(request.user, course)

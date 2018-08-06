@@ -40,7 +40,7 @@
         </div>
         <main-card v-else slot="main-content-column" class="no-hover" :line1="'No journals found'"/>
 
-        <div v-if="stats && stats.length > 0" slot="right-content-column">
+        <div v-if="stats" slot="right-content-column">
             <h3>Insights</h3>
             <statistics-card :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>
             <statistics-card :subject="'Average points'" :num="stats.avgPoints"></statistics-card>

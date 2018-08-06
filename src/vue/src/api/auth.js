@@ -157,9 +157,14 @@ export default {
                 .then(_ => connection.conn.patch(url, data, getAuthorizationHeader())))
             .catch(error => handleResponse(error, noRedirect))
     },
-    delete (url, noRedirect = false) {
+    delete (url, data = null, noRedirect = false) {
         if (url[0] !== '/') url = '/' + url
         if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
+        if (data) {
+            url += '?'
+            for (var key in data) { url += key + '=' + data[key] + '&' }
+            url = url.slice(0, -1)
+        }
         return connection.conn.delete(url, getAuthorizationHeader())
             .then(response => response.data)
             .catch(error => refresh(error)

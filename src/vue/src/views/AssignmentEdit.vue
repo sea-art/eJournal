@@ -83,7 +83,7 @@ export default {
         },
         deleteAssignment () {
             if (confirm('Are you sure you want to delete ' + this.assignment.name + '?')) {
-                assignmentApi.delete_assignment(this.cID, this.aID)
+                auth.delete('assignments/' + this.aID, { cID: this.cID })
                     .then(response => {
                         this.$router.push({name: 'Course',
                             params: {
