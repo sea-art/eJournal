@@ -36,9 +36,9 @@
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import assignmentApi from '@/api/assignment.js'
 import store from '@/Store'
 import icon from 'vue-awesome/components/Icon'
+import auth from '@/api/auth'
 
 export default {
     name: 'AssignmentEdit',
@@ -58,7 +58,7 @@ export default {
         }
     },
     created () {
-        assignmentApi.get_assignment_data(this.cID, this.aID)
+        auth.get('assignments/' + this.aID)
             .then(response => {
                 this.assignment = response
                 this.pageName = this.assignment.name
@@ -66,9 +66,7 @@ export default {
     },
     methods: {
         onSubmit (evt) {
-            assignmentApi.update_assignment(this.aID,
-                this.assignment.name,
-                this.assignment.description)
+            auth.update('assignments/' + this.aID, this.assignment)
                 .then(response => {
                     this.assignments = response
                     this.pageName = this.assignment.name

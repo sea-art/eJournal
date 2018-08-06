@@ -5,7 +5,7 @@ In this file are all the assignment api requests.
 """
 from rest_framework import viewsets
 
-from VLE.serializers import StudentAssignmentSerializer, TeacherAssignmentSerializer, JournalSerializer
+from VLE.serializers import StudentAssignmentSerializer, TeacherAssignmentSerializer, JournalSerializer, UserSerializer
 from VLE.models import Assignment, Course, Journal
 import VLE.views.responses as response
 import VLE.permissions as permissions
@@ -108,6 +108,7 @@ class AssignmentView(viewsets.ViewSet):
         serializer = TeacherAssignmentSerializer(assignment)
         return response.created(serializer.data, obj='assignment')
 
+    # TODO: Add course ID to only get the information about the assignment from that course.
     def retrieve(self, request, pk=None):
         """Retrieve an assignment.
 
@@ -140,7 +141,20 @@ class AssignmentView(viewsets.ViewSet):
 
         serializer = self.serializer_class(assignment)
         data = serializer.data
-        data['journals'] = JournalSerializer(Journal.objects.filter(assignment=assignment), many=True).data
+        journals = Journal.objects.filter(assignment=assignment)
+        data['journals'] = JournalSerializer(journals, many=True).data
+        for i, journal in enumerate(journals):
+            entries = utils.get_journal_entries(journal)
+            data['journals'][i]['stats'] = {
+                'acquired_points': utils.get_acquired_points(entries),
+                'graded': utils.get_graded_count(entries),
+                'submitted': utils.get_submitted_count(entries),
+                'total_points': utils.get_max_points(journal),
+            }
+            try:
+                data['journals'][i]['student'] = UserSerializer(journal.user).data
+            except Journal.DoesNotExist:
+                continue
         return response.success(data)
 
     def update(self, request, *args, **kwargs):

@@ -23,7 +23,7 @@
             </b-button>
         </b-card>
 
-        <div v-if="filteredJournals.length !== 0" v-for="journal in filteredJournals" :key="journal.user" slot="main-content-column">
+        <div v-if="filteredJournals.length !== 0" v-for="journal in filteredJournals" :key="journal.student" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {
                                               cID: cID,
@@ -33,15 +33,14 @@
                                         }">
 
                 <student-card
-                    :student="journal.user"
+                    :student="journal.student"
                     :stats="journal.stats">
                 </student-card>
-
             </b-link>
         </div>
         <main-card v-else slot="main-content-column" class="no-hover" :line1="'No journals found'"/>
 
-        <div v-if="stats.length > 0" slot="right-content-column">
+        <div v-if="stats && stats.length > 0" slot="right-content-column">
             <h3>Insights</h3>
             <statistics-card :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>
             <statistics-card :subject="'Average points'" :num="stats.avgPoints"></statistics-card>
@@ -70,7 +69,7 @@ export default {
         aID: {
             required: true
         },
-        jID: ''
+        jID: 0
     },
     data () {
         return {
@@ -182,7 +181,7 @@ export default {
             }
 
             function checkFilter (user) {
-                var username = user.student.name.toLowerCase()
+                var username = user.student.username.toLowerCase()
                 var fullName = user.student.first_name.toLowerCase() + ' ' + user.student.last_name.toLowerCase()
                 var searchVariable = self.searchVariable.toLowerCase()
 
