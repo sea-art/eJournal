@@ -34,17 +34,36 @@ class CourseSerializer(serializers.ModelSerializer):
 
 
 class StudentAssignmentSerializer(serializers.ModelSerializer):
+    deadline = serializers.SerializerMethodField()
+
     class Meta:
         model = Assignment
         fields = '__all__'
         read_only_fields = ('id', )
+
+    # TODO: add personalized deadline
+    def get_deadline(self, assignment):
+        deadline = assignment.format.presetnode_set.all().order_by('deadline')[0].deadline
+        return {
+            'date': '{:02d}-{:02d}'.format(deadline.day, deadline.month),
+            'time': '{:02d}:{:02d}'.format(deadline.hour, deadline.minute)
+        }
 
 
 class TeacherAssignmentSerializer(serializers.ModelSerializer):
+    deadline = serializers.SerializerMethodField()
+
     class Meta:
         model = Assignment
         fields = '__all__'
         read_only_fields = ('id', )
+
+    def get_deadline(self, assignment):
+        deadline = assignment.format.presetnode_set.all().order_by('deadline')[0].deadline
+        return {
+            'date': '{:02d}-{:02d}'.format(deadline.day, deadline.month),
+            'time': '{:02d}:{:02d}'.format(deadline.hour, deadline.minute)
+        }
 
 
 class NodeSerializer(serializers.ModelSerializer):

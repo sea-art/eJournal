@@ -4,6 +4,7 @@ assignment.py.
 In this file are all the assignment api requests.
 """
 from rest_framework import viewsets
+from rest_framework.decorators import action
 
 from VLE.serializers import StudentAssignmentSerializer, TeacherAssignmentSerializer, JournalSerializer, UserSerializer
 from VLE.models import Assignment, Course, Journal
@@ -21,7 +22,7 @@ class AssignmentView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
-            cID -- the ID of the course
+            cID -- course ID
 
         Returns:
         On failure:
@@ -64,7 +65,7 @@ class AssignmentView(viewsets.ViewSet):
         """Create a new assignment.
 
         Arguments:
-        request -- the request that was send with
+        request -- request data
             name -- name of the assignment
             description -- description of the assignment
             cID -- id of the course the assignment belongs to
@@ -109,12 +110,13 @@ class AssignmentView(viewsets.ViewSet):
         return response.created(serializer.data, obj='assignment')
 
     # TODO: Add course ID to only get the information about the assignment from that course.
+    # TODO: Create a better serializer
     def retrieve(self, request, pk=None):
         """Retrieve an assignment.
 
         Arguments:
-        request -- the request that was send with
-        pk -- the assignment ID
+        request -- request data
+        pk -- assignment ID
 
         Returns:
         On failure:
@@ -206,6 +208,7 @@ class AssignmentView(viewsets.ViewSet):
 
         Returns:
         On failure:
+            unauthorized -- when the user is not logged in
             not found -- when the assignment or course does not exists
             unauthorized -- when the user is not logged in
             forbidden -- when the user cannot delete the assignment
@@ -244,3 +247,49 @@ class AssignmentView(viewsets.ViewSet):
             data['removed_completely'] = True
 
         return response.success(data, description='Removed assignment')
+
+    @action(methods=['get'], detail=False)
+    def upcomming(self, request):
+        """Get upcoming deadlines for the requested user.
+
+        Arguments:
+        request -- request data
+            cID -- course ID
+
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+            not found -- when the course does not exists
+        On success:
+            success -- upcomming assignments
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+
+        try:
+            courses = [Course.objects.get(pk=int(request.query_params['cID']))]
+        except KeyError:
+            courses = request.user.participations.all()
+        except Course.DoesNotExist:
+            return response.not_found('coruse')
+
+        deadline_list = []
+
+        for course in courses:
+            if permissions.get_role(request.user, course):
+                for assignment in Assignment.objects.filter(courses=course.id).all():
+                    deadline_list.append(self.serializer_class(assignment).data)
+
+            # TODO: Specify for teacher and student seperatly, this can be done after a better serializer
+            # if role.can_grade_journal:
+            #     for assignment in Assignment.objects.filter(courses=course.id).all():
+            #         deadline = create_teacher_assignment_deadline(course, assignment)
+            #         if deadline:
+            #             deadline_list.append(deadline)
+            # else:
+            #     for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
+            #         deadline = create_student_assignment_deadline(user, course, assignment)
+            #         if deadline:
+            #             deadline_list.append(deadline)
+
+        return response.success(deadline_list)

@@ -5,7 +5,7 @@
             @eye-click="customisePage"
             @edit-click="handleEdit()"/>
 
-        <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
+        <div slot="main-content-column" v-for="a in assignments" :key="a.id">
             <b-link tag="b-button" :to="assignmentRoute(cID, a.id, a.journal)">
                 <assignment-card :line1="a.name">
                     <progress-bar
@@ -36,11 +36,10 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="assignmentRoute(d.cID, d.aID, d.journal)">
+            <b-link tag="b-button" :to="assignmentRoute(d.courses[0], d.id, d.journal)">
                 <todo-card
-                    :date="d.deadline.Date"
-                    :hours="d.deadline.Hours"
-                    :minutes="d.deadline.Minutes"
+                    :date="d.deadline.date"
+                    :time="d.deadline.time"
                     :name="d.name"
                     :abbr="d.courseAbbr"
                     :totalNeedsMarking="d.totalNeedsMarking">
@@ -103,10 +102,8 @@ export default {
     created () {
         this.loadAssignments()
 
-        // courseApi.get_upcoming_course_deadlines(this.cID)
-        //     .then(response => {
-        //         this.deadlines = response
-        //     })
+        auth.get('assignments/upcomming', { cID: this.cID })
+            .then(response => { this.deadlines = response })
     },
     methods: {
         loadAssignments () {

@@ -75,11 +75,12 @@ import entryNonStudentPreview from '@/components/entry/EntryNonStudentPreview.vu
 import addCard from '@/components/journal/AddCard.vue'
 import edag from '@/components/edag/Edag.vue'
 import studentCard from '@/components/assignment/StudentCard.vue'
-import icon from 'vue-awesome/components/Icon'
 import progressBar from '@/components/assets/ProgressBar.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import journalApi from '@/api/journal'
+
+import icon from 'vue-awesome/components/Icon'
 import store from '@/Store.vue'
+import auth from '@/api/auth.js'
 
 export default {
     props: ['cID', 'aID', 'jID'],
@@ -98,7 +99,7 @@ export default {
         }
     },
     created () {
-        journalApi.get_nodes(this.jID)
+        auth.get('nodes', { jID: this.jID })
             .then(response => {
                 this.nodes = response.nodes
                 if (this.$route.query.nID !== undefined) {

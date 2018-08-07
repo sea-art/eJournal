@@ -8,11 +8,11 @@
         </bread-crumb>
 
         <div v-for="c in courses" :key="c.id" slot="main-content-column">
-            <b-link :to="{name: 'Course', params: {cID: c.id, courseName: c.name}}">
+            <b-link :to="{ name: 'Course', params: { cID: c.id, courseName: c.name } }">
                 <main-card
                     :line1="c.name"
                     :line2="c.startdate ? (c.startdate.substring(0, 4) + (c.enddate ? ' - ' + c.enddate.substring(0, 4) : '')) : ''"
-                    :color="$root.getBorderClass(c.cID)">
+                    :color="$root.getBorderClass(c.id)">
                 </main-card>
             </b-link>
         </div>
@@ -36,15 +36,14 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="assignmentRoute(d.cID, d.aID, d.jID)">
+            <b-link tag="b-button" :to="assignmentRoute(d.courses[0], d.id, d.jID)">
                 <todo-card
-                    :date="d.deadline.Date"
-                    :hours="d.deadline.Hours"
-                    :minutes="d.deadline.Minutes"
+                    :date="d.deadline.date"
+                    :time="d.deadline.time"
                     :name="d.name"
                     :abbr="d.courseAbbr"
                     :totalNeedsMarking="d.totalNeedsMarking"
-                    :class="$root.getBorderClass(d.cID)">
+                    :class="$root.getBorderClass(d.courses[0])">
                 </todo-card>
             </b-link>
         </div>
@@ -103,11 +102,9 @@ export default {
     created () {
         this.loadCourses()
 
-        // assignmentApi.get_upcoming_deadlines()
-        //     .then(response => {
-        //         this.deadlines = response
-        //     })
-        //     .catch(_ => this.$toasted.error('Error while loading deadlines'))
+        auth.get('assignments/upcomming')
+            .then(response => { this.deadlines = response })
+            .catch(_ => this.$toasted.error('Error while loading deadlines'))
     },
     methods: {
         loadCourses () {
