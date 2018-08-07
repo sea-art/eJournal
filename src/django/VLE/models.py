@@ -470,10 +470,12 @@ class Field(models.Model):
     TEXT = 't'
     IMG = 'i'
     FILE = 'f'
+    VIDEO = 'v'
     TYPES = (
         (TEXT, 'text'),
         (IMG, 'img'),
         (FILE, 'file'),
+        (VIDEO, 'vid')
     )
     type = models.TextField(
         max_length=4,

@@ -37,6 +37,13 @@
                 </div>
                 <div v-else-if="field.type=='f'">
                 </div>
+                <div v-else-if="field.type=='v'">
+                    <b-embed type="iframe"
+                             aspect="16by9"
+                             :src="completeContent[i].data"
+                             allowfullscreen
+                    ></b-embed><br>
+                </div>
             </div>
         </b-card>
 
