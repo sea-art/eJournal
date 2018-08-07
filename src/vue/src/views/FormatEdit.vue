@@ -20,7 +20,7 @@
                     of the entry
                 . -->
                 <selected-node-card
-                    :class="{ 'fmt-disabled' : saveRequestInFlight }"
+                    :class="{ 'input-disabled' : saveRequestInFlight }"
                     v-if="nodes.length > 0"
                     ref="entry-template-card"
                     :currentPreset="nodes[currentNode]"
@@ -30,7 +30,7 @@
                     @changed="isChanged = true"/>
                 <main-card v-else class="no-hover" :line1="'No presets in format'" :class="'grey-border'"/>
 
-                <b-button :class="{ 'fmt-disabled' : saveRequestInFlight }" class="add-button grey-background full-width" @click="addNode">
+                <b-button :class="{ 'input-disabled' : saveRequestInFlight }" class="add-button grey-background full-width" @click="addNode">
                     <icon name="plus"/>
                     Add New Preset to Format
                 </b-button>
@@ -53,7 +53,7 @@
             <b-row>
                 <b-col md="6" lg="12">
                     <h3>Assignment Format</h3>
-                    <div :class="{ 'fmt-disabled' : saveRequestInFlight }">
+                    <div :class="{ 'input-disabled' : saveRequestInFlight }">
                         <b-card class="no-hover settings-card mb-4" :class="$root.getBorderClass($route.params.cID)">
                             <div class="point-maximum multi-form">
                                 <b>Point Maximum</b>
@@ -68,7 +68,7 @@
                 </b-col>
                 <b-col md="6" lg="12">
                     <h3>Entry Templates</h3>
-                    <div :class="{ 'fmt-disabled' : saveRequestInFlight }">
+                    <div :class="{ 'input-disabled' : saveRequestInFlight }">
                         <available-template-card v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate"/>
                         <b-button class="add-button grey-background full-width" @click="showModal(newTemplate())">
                             <icon name="plus"/>
@@ -292,6 +292,7 @@ export default {
             this.unused_templates = data.format.unused_templates
             this.deletedTemplates = []
             this.deletedPresets = []
+            this.max_points = data.format.max_points
         },
         // Utility func to translate from db format to internal
         convertFromDB () {
@@ -364,10 +365,6 @@ export default {
 
 <style lang="sass">
 @import '~sass/partials/edag-page-layout.sass'
-.fmt-disabled
-    opacity: 0.5
-    pointer-events: none
-
 .point-maximum
     display: flex
     align-items: center

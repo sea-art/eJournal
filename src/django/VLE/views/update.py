@@ -129,7 +129,7 @@ def update_course_roles(request):
         return responses.forbidden('You cannot edit roles of this course.')
 
     for role in request.data['roles']:
-        db_role = Role.objects.filter(name=role['name'])
+        db_role = Role.objects.filter(name=role['name'], course__id=cID)
         if not db_role:
             factory.make_role_default_no_perms(role['name'], Course.objects.get(pk=cID), **role['permissions'])
         else:
