@@ -52,6 +52,7 @@ urlpatterns = [
     path('get_journal/<int:jID>/', get.get_journal, name='get_journal'),
     path('get_upcoming_deadlines/', get.get_upcoming_deadlines, name='get_upcoming_deadlines'),
     path('get_course_permissions/<str:cID>/', get.get_course_permissions, name='get_course_permissions'),
+    path('get_assignment_permissions/<str:aID>/', get.get_assignment_permissions, name='get_assignment_permissions'),
     path('get_upcoming_course_deadlines/<int:cID>/', get.get_upcoming_course_deadlines,
          name='get_upcoming_course_deadlines'),
     path('get_nodes/<int:jID>/', get.get_nodes, name='get_nodes'),
@@ -102,6 +103,7 @@ urlpatterns = [
     path('delete_assignment/', delete.delete_assignment, name='delete_assignment'),
     path('delete_user_from_course/', delete.delete_user_from_course, name='delete_user_from_course'),
     path('delete_course_role/', delete.delete_course_role, name='delete_course_role'),
+    path('delete_entrycomment/', delete.delete_entrycomment, name='delete_entrycomment'),
 
     path('lti/launch', get.lti_launch, name='lti_launch'),
     path('get_lti_params_from_jwt/<str:jwt_params>/', get.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),

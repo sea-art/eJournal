@@ -13,13 +13,13 @@
                         </b-form-select>
                     </b-col>
                     <b-col sm="6">
-                        <input class="theme-input full-width" type="text" v-model="searchVariable" placeholder="Search .."/>
+                        <input class="theme-input full-width" type="text" v-model="searchVariable" placeholder="Search..."/>
                     </b-col>
                 </b-row>
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i">
-            <b-link tag="b-button" :to="journalRoute(d.cID, d.aID, d.jID, d.name)">
+            <b-link tag="b-button" :to="assignmentRoute(d.cID, d.aID, d.jID)">
                 <todo-card
                     :date="d.deadline.Date"
                     :hours="d.deadline.Hours"
@@ -65,27 +65,20 @@ export default {
         'todo-card': todoCard
     },
     methods: {
-        journalRoute (cID, aID, jID, name) {
-            if (this.$root.canAddCourse()) {
-                return {
-                    name: 'Assignment',
-                    params: {
-                        cID: cID,
-                        aID: aID,
-                        assignmentName: name
-                    }
-                }
-            } else {
-                return {
-                    name: 'Journal',
-                    params: {
-                        cID: cID,
-                        aID: aID,
-                        jID: jID,
-                        assignmentName: name
-                    }
+        assignmentRoute (cID, aID, jID) {
+            var route = {
+                name: 'Assignment',
+                params: {
+                    cID: cID,
+                    aID: aID
                 }
             }
+
+            if (jID) {
+                route.params.jID = jID
+            }
+
+            return route
         }
     },
     computed: {

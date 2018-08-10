@@ -123,7 +123,7 @@ class Role(models.Model):
     can_edit_assignment = models.BooleanField(default=False)
     can_view_assignment_participants = models.BooleanField(default=False)
     can_delete_assignment = models.BooleanField(default=False)
-    can_publish_assigment_grades = models.BooleanField(default=False)
+    can_publish_assignment_grades = models.BooleanField(default=False)
 
     # Journal permissions.
     can_grade_journal = models.BooleanField(default=False)
@@ -470,10 +470,12 @@ class Field(models.Model):
     TEXT = 't'
     IMG = 'i'
     FILE = 'f'
+    VIDEO = 'v'
     TYPES = (
         (TEXT, 'text'),
         (IMG, 'img'),
         (FILE, 'file'),
+        (VIDEO, 'vid')
     )
     type = models.TextField(
         max_length=4,
@@ -527,3 +529,7 @@ class EntryComment(models.Model):
         null=True
     )
     text = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    published = models.BooleanField(
+        default=True
+    )

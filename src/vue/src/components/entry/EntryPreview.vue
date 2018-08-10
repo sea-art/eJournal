@@ -4,8 +4,8 @@
 -->
 <template>
     <div>
-        <h2 class="mb-2">{{template.name}}</h2>
-        <b-card class="no-hover">
+        <b-card class="no-hover" :class="$root.getBorderClass(cID)">
+            <h2 class="mb-2">{{ template.name }}</h2>
             <div v-for="(field, i) in template.fields" :key="field.eID">
                 <div v-if="field.title != ''">
                     <b>{{ field.title }}</b>
@@ -20,11 +20,14 @@
                 <div v-else-if="field.type=='f'">
                     <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
                 </div>
+                <div v-else-if="field.type=='v'">
+                    <b-input class="theme-input" @input="completeContent[i].data = youtubeEmbedFromURL($event)" placeholder="Enter YouTube URL..."></b-input><br>
+                </div>
             </div>
 
             <b-alert :show="dismissCountDown" dismissible variant="secondary"
                 @dismissed="dismissCountDown=0">
-                Please fill in every field.
+                Some fields are empty or incorrectly formatted.
             </b-alert>
             <b-button class="add-button float-right" @click="save">
                 <icon name="paper-plane"/>
@@ -38,7 +41,7 @@
 import icon from 'vue-awesome/components/Icon'
 
 export default {
-    props: ['template'],
+    props: ['template', 'cID'],
     data () {
         return {
             completeContent: [],
@@ -67,7 +70,7 @@ export default {
         },
         checkFilled: function () {
             for (var content of this.completeContent) {
-                if (content.data === null) {
+                if (!content.data) {
                     return false
                 }
             }
@@ -79,6 +82,16 @@ export default {
                 this.$emit('content-template', this.completeContent)
             } else {
                 this.dismissCountDown = this.dismissSecs
+            }
+        },
+        // from https://stackoverflow.com/a/9102270
+        youtubeEmbedFromURL (url) {
+            var regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+            var match = url.match(regExp)
+            if (match && match[2].length === 11) {
+                return 'https://www.youtube.com/embed/' + match[2] + '?rel=0&amp;showinfo=0'
+            } else {
+                return null
             }
         }
     },

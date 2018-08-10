@@ -129,7 +129,7 @@ export default {
                 this.handleAssignmentChoice = true
                 break
             case this.states.create_assign:
-                this.currentPage = 'Assigment Integration'
+                this.currentPage = 'Assignment Integration'
                 this.createAssignment = true
                 break
             case this.states.check_assign:

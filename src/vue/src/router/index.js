@@ -127,7 +127,7 @@ router.beforeEach((to, from, next) => {
                 .then(_ => next({name: 'Home'}))
                 .catch(_ => next())
         }
-    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage', 'Assignment'].includes(to.name)) {
+    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage'].includes(to.name)) {
         return next()
     }
 
@@ -142,13 +142,24 @@ router.beforeEach((to, from, next) => {
 
     permissionsApi.get_course_permissions(params)
         .then(response => {
-            router.app.permissions = response
+            router.app.generalPermissions = response
+
+            if (to.params.aID) {
+                permissionsApi.get_assignment_permissions(to.params.aID)
+                    .then(response => {
+                        router.app.assignmentPermissions = response
+                        return next()
+                    })
+                    .catch(_ => {
+                        router.app.$toasted.error('Error while loading assignment permissions.')
+                    })
+            } else {
+                return next()
+            }
         })
         .catch(_ => {
-            router.app.$toasted.error('Error while loading permissions.')
+            router.app.$toasted.error('Error while loading course permissions.')
         })
-
-    next()
 })
 
 export default router

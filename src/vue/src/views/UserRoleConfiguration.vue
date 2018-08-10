@@ -17,7 +17,7 @@
                     <tr>
                         <th/>
                         <th v-for="role in roles" :key="'th-' + role">
-                            <b-button v-if="!undeleteableRoles.includes(role)" @click="deleteRole(role)" class="delete-button float-right">
+                            <b-button v-if="!undeleteableRoles.includes(role)" @click="deleteRole(role)" class="delete-button">
                                 {{ role }}
                                 <icon name="trash"/>
                             </b-button>
@@ -38,6 +38,7 @@
                         <td class="permission-column">{{ formatPermissionString(permission) }}</td>
                         <td v-for="role in roles" :key="role + '-' + permission">
                             <custom-checkbox
+                            :class="{ 'input-disabled': essentialPermission(role, permission) }"
                             @checkbox-toggle="updateRole"
                             :role="role"
                             :permission="permission"
@@ -103,10 +104,14 @@ export default {
             undeleteableRoles: ['Student', 'TA', 'Teacher'],
             selectedRole: null,
             modalShow: false,
-            newRole: ''
+            newRole: '',
+            essentialPermissions: {'Teacher': ['can_edit_course_roles']}
         }
     },
     methods: {
+        essentialPermission (role, permission) {
+            return this.essentialPermissions[role] && this.essentialPermissions[role].includes(permission)
+        },
         updateRole (list) {
             var role = list[0]
             var permission = list[1]
@@ -185,6 +190,7 @@ export default {
                     this.originalRoleConfig = this.deepCopyRoles(this.roleConfig)
                     this.defaultRoles = Array.from(this.roles)
                     this.$toasted.success('Course roles succesfully updated.')
+                    this.checkPermission()
                 })
                 .catch(_ => this.$toasted.error('Something went wrong when updating the permissions'))
         },
@@ -220,6 +226,20 @@ export default {
             this.originalRoleConfig.splice(i, 1)
             i = this.defaultRoles.findIndex(p => p === role)
             this.defaultRoles.splice(i, 1)
+        },
+        checkPermission () {
+            permissions.get_course_permissions(this.cID)
+                .then(response => {
+                    this.$root.generalPermissions = response
+                    if (!this.$root.canEditCourseRoles()) {
+                        this.$router.push({
+                            name: 'Home'
+                        })
+                    }
+                })
+                .catch(_ => {
+                    this.$toasted.error('Error while loading course permissions.')
+                })
         }
     },
     created () {

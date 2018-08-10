@@ -36,7 +36,19 @@
                 <div v-else-if="field.type=='f'">
                     <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br>
                 </div>
+                <!--
+                    We use @input here instead of v-model so we can format the data differently (and make use of existing checks),
+                    and because it is not needed to reload the data into the input field upon editing
+                    (since it is an entire URL, replacement is preferable over editing).
+                -->
+                <div v-else-if="field.type=='v'">
+                    <b-input class="theme-input" @input="completeContent[i].data = youtubeEmbedFromURL($event)" placeholder="Enter YouTube URL..."></b-input><br>
+                </div>
             </div>
+            <b-alert :show="dismissCountDown" dismissible variant="secondary"
+                @dismissed="dismissCountDown=0">
+                Some fields are empty or incorrectly formatted.
+            </b-alert>
             <b-button class="add-button float-right" @click="saveEdit">
                 <icon name="save"/>
                 Save
@@ -74,6 +86,13 @@
                 <div v-else-if="field.type=='f'">
                     {{ completeContent[i].data }}<br>
                 </div>
+                <div v-else-if="field.type=='v'">
+                    <b-embed type="iframe"
+                             aspect="16by9"
+                             :src="completeContent[i].data"
+                             allowfullscreen
+                    ></b-embed><br>
+                </div>
             </div>
             <b-button v-if="entryNode.entry.editable" class="change-button float-right" @click="saveEdit">
                 <icon name="edit"/>
@@ -81,7 +100,7 @@
             </b-button>
         </b-card>
 
-        <comment-card :eID="entryNode.entry.eID"/>
+        <comment-card :eID="entryNode.entry.eID" :entryGradePublished="entryNode.entry.published"/>
     </div>
 </template>
 
@@ -96,7 +115,11 @@ export default {
             saveEditMode: 'Edit',
             tempNode: this.entryNode,
             matchEntry: 0,
-            completeContent: []
+            completeContent: [],
+
+            dismissSecs: 3,
+            dismissCountDown: 0,
+            showDismissibleAlert: false
         }
     },
     watch: {
@@ -112,9 +135,13 @@ export default {
     methods: {
         saveEdit: function () {
             if (this.saveEditMode === 'Save') {
-                this.saveEditMode = 'Edit'
-                this.tempNode.entry.content = this.completeContent
-                this.$emit('edit-node', this.tempNode)
+                if (this.checkFilled()) {
+                    this.saveEditMode = 'Edit'
+                    this.tempNode.entry.content = this.completeContent
+                    this.$emit('edit-node', this.tempNode)
+                } else {
+                    this.dismissCountDown = this.dismissSecs
+                }
             } else {
                 this.saveEditMode = 'Save'
                 this.completeContent = []
@@ -151,6 +178,25 @@ export default {
                         tag: templateField.tag
                     })
                 }
+            }
+        },
+        checkFilled: function () {
+            for (var content of this.completeContent) {
+                if (!content.data) {
+                    return false
+                }
+            }
+
+            return true
+        },
+        // from https://stackoverflow.com/a/9102270
+        youtubeEmbedFromURL (url) {
+            var regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+            var match = url.match(regExp)
+            if (match && match[2].length === 11) {
+                return 'https://www.youtube.com/embed/' + match[2] + '?rel=0&amp;showinfo=0'
+            } else {
+                return null
             }
         }
     },

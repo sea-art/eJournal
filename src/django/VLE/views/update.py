@@ -130,7 +130,7 @@ def update_course_roles(request):
         return responses.forbidden('You cannot edit roles of this course.')
 
     for role in request.data['roles']:
-        db_role = Role.objects.filter(name=role['name'])
+        db_role = Role.objects.filter(name=role['name'], course__id=cID)
         if not db_role:
             factory.make_role_default_no_perms(role['name'], Course.objects.get(pk=cID), **role['permissions'])
         else:
@@ -466,6 +466,9 @@ def update_grade_entry(request):
     entry.published = published
     entry.save()
 
+    if entry.published:
+        EntryComment.objects.filter(entry_id=eID).update(published=True)
+
     if entry.published and journal.sourcedid is not None and journal.grade_url is not None:
         payload = lti_grade.replace_result(journal)
     else:
@@ -506,6 +509,9 @@ def update_publish_grade_entry(request):
 
     entry.published = published
     entry.save()
+
+    if entry.published:
+        EntryComment.objects.filter(entry_id=eID).update(published=True)
 
     if published and journal.sourcedid is not None and journal.grade_url is not None:
         payload = lti_grade.replace_result(journal)
@@ -580,7 +586,7 @@ def update_publish_grades_journal(request):
         return responses.DoesNotExist('Journal')
 
     if not permissions.has_assignment_permission(request.user, journ.assignment, 'can_publish_journal_grades'):
-        return responses.forbidden('You cannot publish assignments.')
+        return responses.forbidden('You are not allowed to publish journal grades.')
 
     utils.publish_all_journal_grades(journ, published)
 
@@ -600,7 +606,7 @@ def update_entrycomment(request):
 
     Arguments:
     request -- the request that was send with
-        entrycommentID -- The ID of the entrycomment.
+        ecID -- The ID of the entrycomment.
         text -- The updated text.
     Returns a json string for if it is successful or not.
     """
@@ -608,12 +614,12 @@ def update_entrycomment(request):
         return responses.unauthorized()
 
     try:
-        entrycommentID, text = utils.required_params(request.data, "entrycommentID", "text")
+        ecID, text = utils.required_params(request.data, "ecID", "text")
     except KeyError:
-        return responses.keyerror("entrycommentID")
+        return responses.keyerror("ecID")
 
     try:
-        comment = EntryComment.objects.get(pk=entrycommentID)
+        comment = EntryComment.objects.get(pk=ecID)
     except EntryComment.DoesNotExist:
         return responses.not_found('Entrycomment does not exist.')
 

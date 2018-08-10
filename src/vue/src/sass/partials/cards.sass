@@ -7,12 +7,23 @@
     background-color: $theme-light-grey
     border-width: 0px
     border-left-width: 15px
+    transition: background-color 0.6s cubic-bezier(.25,.8,.25,1) !important
     border-radius: 0px
     .card
-        border: 2px solid $theme-dark-grey !important
+        border-width: 2px
     &:hover:not(.no-hover)
         cursor: pointer
         background-color: $theme-medium-grey
+    &.pink-border
+        border-left-color: $theme-pink
+    &.peach-border
+        border-left-color: $theme-peach
+    &.blue-border
+        border-left-color: $theme-blue
+    &.red-border
+        border-left-color: $theme-red
+    &.green-border
+        border-left-color: $theme-green
 
 .settings-card
     display: flex
@@ -25,12 +36,3 @@
 
 .card-last-elem-button .card-body
     padding-bottom: 2px !important
-
-.card.pink-border
-    border-left-color: $theme-pink
-
-.card.peach-border
-    border-left-color: $theme-peach
-
-.card.blue-border
-    border-left-color: $theme-blue

@@ -37,10 +37,17 @@
                 </div>
                 <div v-else-if="field.type=='f'">
                 </div>
+                <div v-else-if="field.type=='v'">
+                    <b-embed type="iframe"
+                             aspect="16by9"
+                             :src="completeContent[i].data"
+                             allowfullscreen
+                    ></b-embed><br>
+                </div>
             </div>
         </b-card>
 
-        <comment-card :eID="entryNode.entry.eID"/>
+        <comment-card :eID="entryNode.entry.eID" :entryGradePublished="entryNode.entry.published"/>
     </div>
     <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
         <h2 class="mb-2">{{entryNode.template.name}}</h2>
