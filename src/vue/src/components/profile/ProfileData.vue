@@ -24,6 +24,13 @@
             <b-form-input class="theme-input multi-form" v-model="first" type="text"/>
             <b-form-input class="theme-input multi-form" v-model="last" type="text"/>
 
+            <input
+                class="fileinput"
+                @change="fileHandlerPDF"
+                ref="file"
+                accept="application/pdf"
+                type="file"/>
+
             <b-button class="add-button multi-form float-right" @click="saveUserdata">
                 <icon name="save"/>
                 Save
@@ -87,6 +94,38 @@ export default {
                 img.src = dataURL
             }
             reader.readAsDataURL(files[0])
+        },
+        fileHandlerPDF (e) {
+            let maxSize = 2 * 1024 * 1024
+
+            let files = e.target.files
+
+            if (!files.length) { return }
+            if (files[0].size > maxSize) {
+                this.$toasted.error('The selected file exceeds the maximum file size of 2MB.')
+                return
+            }
+
+            let formData = new FormData()
+            formData.append('file', files[0])
+
+            userAPI.updateUserFile(formData)
+                .then(response => {
+                    console.log(response)
+                    let blob = new Blob([response.data], { type:   'application/pdf' } )
+                    let link = document.createElement('a')
+                    link.href = window.URL.createObjectURL(blob)
+                    link.download = 'Report.pdf'
+                    link.click()
+                })
+                .catch(_ => {
+                    this.$toasted.error('Something went wrong uploading your file')
+                })
+
+            console.log(files[0])
+
+            var vm = this
+            console.log(vm)
         },
         downloadUserData () {
             userAPI.getUserData(this.id).then(data => {

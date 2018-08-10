@@ -43,9 +43,9 @@ export default {
         })
     },
 
-    /* Update profile picture. */
-    updateProfilePicture (formData) {
-        return auth.authenticatedPostFile('/update_user_profile_picture/', formData)
+    /* Update user file. */
+    updateUserFile (formData) {
+        return auth.authenticatedPostFile('/update_user_file/', formData)
     },
 
     /* Upload an image that is base64 encoded. */

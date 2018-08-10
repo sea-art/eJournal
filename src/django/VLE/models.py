@@ -8,6 +8,28 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
 
 
+class UserFile(models.Model):
+    file = models.FileField(
+        null=False,
+        upload_to='files'
+    )
+    author = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+        null=False
+    )
+    creation_date = models.DateTimeField(
+        auto_now_add=True
+    )
+    content_type = models.TextField(
+        null=False
+    )
+
+    def __str__(self):
+        """toString."""
+        return self.file.name
+
+
 class User(AbstractUser):
     """User.
 

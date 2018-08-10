@@ -15,7 +15,9 @@ import VLE.validators as validators
 from VLE.models import Course, EntryComment, Assignment, Participation, Role, \
     Entry, User, Journal
 import VLE.lti_grade_passback as lti_grade
+from VLE.settings.base import USER_MAX_FILE_SIZE_MB, USER_MAX_TOTAL_STORAGE_MB
 from django.conf import settings
+from django.core.exceptions import ValidationError
 import re
 import jwt
 import json
@@ -633,6 +635,49 @@ def update_entrycomment(request):
 
 
 @api_view(['POST'])
+def update_user_file(request):
+    """Update user profile picture.
+
+    Arguments:
+    request -- the update request that was send with
+        is expected to contain a base64 encoded image.
+
+    No validation is performed beyond a size check.
+
+    Returns a json string for if it is successful or not.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    if not request.FILES or not request.FILES['file']:
+        return responses.bad_request()
+
+    try:
+        validators.validate_user_file(request.FILES['file'])
+    except ValidationError:
+        return responses.bad_request('The selected file exceeds the file limit.')
+
+    user_files = user.userfile_set.all()
+
+    # Fast check for allowed user storage space
+    if not ((USER_MAX_TOTAL_STORAGE_MB - (len(user_files) * USER_MAX_FILE_SIZE_MB)) * 1024 * 1024 >
+            request.FILES['file'].size):
+        # Slow check for allowed user storage space
+        file_size_sum = 0
+        for user_file in user_files:
+            file_size_sum += user_file.file.size
+        if file_size_sum > USER_MAX_TOTAL_STORAGE_MB * 1024 * 1024:
+            return responses.bad_request('You have passed the user file storage limit.')
+
+    user_file = factory.make_user_file(request.FILES['file'], user)
+
+    return responses.file(user_file)
+
+    return responses.success()
+
+
+@api_view(['POST'])
 def update_user_profile_picture(request):
     """Update user profile picture.
 
@@ -645,8 +690,6 @@ def update_user_profile_picture(request):
     user = request.user
     if not user.is_authenticated:
         return responses.unauthorized()
-
-    print(request.data)
 
     if not request.data['urlData']:
         return responses.bad_request()

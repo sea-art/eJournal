@@ -5,7 +5,7 @@ The facory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
 from VLE.models import User, Participation, Course, Assignment, Role, JournalFormat, PresetNode, Node, EntryComment, \
-    Entry, EntryTemplate, Field, Content, Journal
+    Entry, EntryTemplate, Field, Content, Journal, UserFile
 import django.utils.timezone as timezone
 
 
@@ -329,4 +329,13 @@ def make_entrycomment(entry, author, text, published):
         author=author,
         text=text,
         published=published
+    )
+
+
+def make_user_file(uploaded_file, author):
+    """Make a user file from an UploadedFile in memory."""
+    return UserFile.objects.create(
+        file=uploaded_file,
+        author=author,
+        content_type=uploaded_file.content_type
     )

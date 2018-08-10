@@ -6,6 +6,10 @@ using JsonResponses. These functions should be used whenever the client needs
 to receive the appropriate error code.
 """
 from django.http import JsonResponse
+from django.http import HttpResponse
+
+import os
+from VLE.settings.base import MEDIA_ROOT
 
 
 def success(message='success', payload={}):
@@ -98,3 +102,14 @@ def keyerror(*keys):
         return bad_request('Field {0} is required but is missing.'.format(keys))
     else:
         return bad_request('Fields {0} are required but one or more are missing.'.format(keys))
+
+
+def file(user_file):
+    file_path = os.path.join(MEDIA_ROOT, user_file.file.name)
+    if os.path.exists(file_path):
+        with open(file_path, 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type=user_file.content_type)
+            response['Content-Disposition'] = 'attachment; filename=' + os.path.basename(file_path)
+            return response
+    else:
+        return not_found()
