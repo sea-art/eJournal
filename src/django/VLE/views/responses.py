@@ -5,8 +5,7 @@ This file contains functions to easily generate common HTTP error responses
 using JsonResponses. These functions should be used whenever the client needs
 to receive the appropriate error code.
 """
-from django.http import JsonResponse
-from django.http import HttpResponse
+from django.http import JsonResponse, HttpResponse, FileResponse
 
 import os
 from VLE.settings.base import MEDIA_ROOT
@@ -105,6 +104,7 @@ def keyerror(*keys):
 
 
 def file(user_file):
+    """Return a file as blob if found, otherwise returns a not found error."""
     file_path = os.path.join(MEDIA_ROOT, user_file.file.name)
     if os.path.exists(file_path):
         with open(file_path, 'rb') as fh:
@@ -112,4 +112,15 @@ def file(user_file):
             response['Content-Disposition'] = 'attachment; filename=' + os.path.basename(file_path)
             return response
     else:
+        return not_found()
+
+
+def file2(user_file):
+    """Return a file as blob if found, otherwise returns a not found error."""
+    file_path = os.path.join(MEDIA_ROOT, user_file.file.name)
+    try:
+        response = FileResponse(open(file_path, 'rb'), content_type=user_file.content_type)
+        print(response.header)
+        return response
+    except FileNotFoundError:
         return not_found()

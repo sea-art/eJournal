@@ -56,6 +56,15 @@ export default {
         }
     },
     methods: {
+        base64ToArrayBuffer (base64) {
+            var binaryString = window.atob(base64)
+            var len = binaryString.length
+            var bytes = new Uint8Array(len)
+            for (var i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i)
+            }
+            return bytes.buffer
+        },
         saveUserdata () {
             userAPI.updateUserData(this.uname, this.first, this.last)
                 .then(this.$toasted.success('Saved profile data'))
@@ -112,11 +121,21 @@ export default {
             userAPI.updateUserFile(formData)
                 .then(response => {
                     console.log(response)
-                    let blob = new Blob([response.data], { type:   'application/pdf' } )
+                    let blob = new Blob([response.data], { type: 'application/pdf' })
                     let link = document.createElement('a')
                     link.href = window.URL.createObjectURL(blob)
                     link.download = 'Report.pdf'
                     link.click()
+                    // try {
+                    //     var file = window.URL.createObjectURL(response)
+                    //     var a = document.createElement('a')
+                    //     a.href = file
+                    //     a.download = 'detailPDF'
+                    //     document.body.appendChild(a)
+                    //     a.click()
+                    // } catch (e) {
+                    //     console.log(e)
+                    // }
                 })
                 .catch(_ => {
                     this.$toasted.error('Something went wrong uploading your file')
