@@ -1,6 +1,5 @@
 <template>
     <b-form-file
-        :ref="'file' + id"
         :accept="acceptedFiletype"
         class="fileinput"
         @change="fileHandler"
@@ -14,10 +13,6 @@ import userAPI from '@/api/user.js'
 
 export default {
     props: {
-        id: {
-            required: true,
-            String
-        },
         acceptedFiletype: {
             required: true,
             String

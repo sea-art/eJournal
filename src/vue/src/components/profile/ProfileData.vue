@@ -24,14 +24,6 @@
             <b-form-input class="theme-input multi-form" v-model="first" type="text"/>
             <b-form-input class="theme-input multi-form" v-model="last" type="text"/>
 
-            <file-upload-input :id="'test12'" :acceptedFiletype="'*/*'" :maxSizeBytes="2 * 1024 * 1024"/>
-            <!-- <input
-                class="fileinput"
-                @change="fileHandlerPDF"
-                ref="file"
-                accept="application/pdf"
-                type="file"/> -->
-
             <b-button class="add-button multi-form float-right" @click="saveUserdata">
                 <icon name="save"/>
                 Save
@@ -47,10 +39,12 @@
 <script>
 import userAPI from '@/api/user.js'
 import icon from 'vue-awesome/components/Icon'
-import fileUploadInput from '@/components/assets/FileUploadInput.vue'
 
 export default {
     props: ['uname', 'first', 'last', 'id', 'image'],
+    components: {
+        'icon': icon
+    },
     data () {
         return {
             file: null,
@@ -58,15 +52,6 @@ export default {
         }
     },
     methods: {
-        base64ToArrayBuffer (base64) {
-            var binaryString = window.atob(base64)
-            var len = binaryString.length
-            var bytes = new Uint8Array(len)
-            for (var i = 0; i < len; i++) {
-                bytes[i] = binaryString.charCodeAt(i)
-            }
-            return bytes.buffer
-        },
         saveUserdata () {
             userAPI.updateUserData(this.uname, this.first, this.last)
                 .then(this.$toasted.success('Saved profile data'))
@@ -122,21 +107,11 @@ export default {
 
             userAPI.updateUserFile(formData)
                 .then(response => {
-                    console.log(response)
-                    let blob = new Blob([this.base64ToArrayBuffer(response.data)], { type: 'application/pdf' })
-                    let link = document.createElement('a')
-                    link.href = window.URL.createObjectURL(blob)
-                    link.download = 'Report.pdf'
-                    link.click()
+                    this.$toasted.success('File upload success.')
                 })
                 .catch(_ => {
-                    this.$toasted.error('Something went wrong uploading your file')
+                    this.$toasted.error('Something went wrong uploading your file.')
                 })
-
-            console.log(files[0])
-
-            var vm = this
-            console.log(vm)
         },
         downloadUserData () {
             userAPI.getUserData(this.id).then(data => {
@@ -158,10 +133,6 @@ export default {
                 downloadElement.dispatchEvent(clickEvent)
             })
         }
-    },
-    components: {
-        'icon': icon,
-        'file-upload-input': fileUploadInput
     },
     created () {
         this.profileImageDataURL = this.image

@@ -17,7 +17,7 @@ import VLE.lti_launch as lti
 import VLE.edag as edag
 import VLE.utils as utils
 from VLE.models import Assignment, Course, Journal, EntryTemplate, EntryComment, User, Node, \
-    Role, Entry
+    Role, Entry, UserFile
 import VLE.serializers as serialize
 import VLE.permissions as permissions
 import VLE.views.responses as responses
@@ -906,3 +906,21 @@ def lti_launch(request):
                                                   [lti_params, access, refresh, LOGGED_IN]))
 
     return redirect(lti.create_lti_query_link(['state'], [BAD_AUTH]))
+
+
+@api_view(['GET'])
+def get_user_file(request, file_name):
+    """Get a user file by name if it exists.
+
+    Arguments:
+    request -- the request that was sent
+    file_name -- the name of the file without any specified path.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    try:
+        return responses.fileb64(UserFile.objects.get(author=user, file_name=file_name))
+    except UserFile.DoesNotExist:
+        return responses.not_found(file_name)

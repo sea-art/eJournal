@@ -111,6 +111,8 @@ def fileb64(user_file):
         with open(file_path, 'rb') as fp:
             response = HttpResponse(base64.b64encode(fp.read()), content_type=user_file.content_type)
             response['Content-Disposition'] = 'attachment; filename=' + os.path.basename(file_path)
+            # Exposes headers to the response in javascript lowercase recommended
+            response['access-control-expose-headers'] = 'content-disposition, content-type'
             return response
     else:
         return not_found()

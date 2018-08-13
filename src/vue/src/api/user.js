@@ -14,13 +14,6 @@ export default {
         }).then(response => response.data.user)
     },
 
-    /* Update user data with lti credentials. */
-    updateLtiIdToUser (jwtParams) {
-        return auth.authenticatedPost('/update_lti_id_to_user/', {
-            jwt_params: jwtParams
-        }).then(response => response.data.user)
-    },
-
     /* Get own user data. */
     getOwnUserData () {
         return auth.authenticatedGet('/get_own_user_data/')
@@ -32,6 +25,12 @@ export default {
     getUserData (uID) {
         return auth.authenticatedGet('/get_user_data/' + uID + '/')
             .then(response => response.data)
+    },
+
+    /* Get user file. */
+    getUserFile (fileName) {
+        return auth.authenticatedGet('/get_user_file/' + fileName + '/')
+            .then(response => response)
     },
 
     /* Update user data. */
@@ -73,5 +72,12 @@ export default {
         return auth.authenticatedPost('/update_comment_notification/', {
             new_value: getsNotified
         }).then(r => r.data.new_value)
+    },
+
+    /* Update user data with lti credentials. */
+    updateLtiIdToUser (jwtParams) {
+        return auth.authenticatedPost('/update_lti_id_to_user/', {
+            jwt_params: jwtParams
+        }).then(response => response.data.user)
     }
 }
