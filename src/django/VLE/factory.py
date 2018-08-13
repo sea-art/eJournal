@@ -336,6 +336,7 @@ def make_user_file(uploaded_file, author):
     """Make a user file from an UploadedFile in memory."""
     return UserFile.objects.create(
         file=uploaded_file,
+        file_name=uploaded_file.name,
         author=author,
         content_type=uploaded_file.content_type
     )

@@ -13,12 +13,16 @@ class UserFile(models.Model):
 
     UserFile is a file uploaded by the user stored in MEDIA_ROOT/files/...
     - author: The user who uploaded the file.
+    - file_name: The name of the file (no parts of the path to the file included).
     - creation_date: The time and date the file was uploaded.
     - content_type: The mimetype supplied by the user (unvalidated).
     """
     file = models.FileField(
         null=False,
         upload_to='files'
+    )
+    file_name = models.TextField(
+        null=False
     )
     author = models.ForeignKey(
         'User',
@@ -34,7 +38,7 @@ class UserFile(models.Model):
 
     def __str__(self):
         """toString."""
-        return self.file.name
+        return self.file_name
 
 
 class User(AbstractUser):

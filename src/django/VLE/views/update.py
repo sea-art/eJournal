@@ -13,7 +13,7 @@ import VLE.permissions as permissions
 import VLE.factory as factory
 import VLE.validators as validators
 from VLE.models import Course, EntryComment, Assignment, Participation, Role, \
-    Entry, User, Journal
+    Entry, User, Journal, UserFile
 import VLE.lti_grade_passback as lti_grade
 from VLE.settings.base import USER_MAX_FILE_SIZE_BYTES, USER_MAX_TOTAL_STORAGE_BYTES
 from django.conf import settings
@@ -668,6 +668,17 @@ def update_user_file(request):
             file_size_sum += user_file.file.size
         if file_size_sum > USER_MAX_TOTAL_STORAGE_BYTES:
             return responses.bad_request('You have passed the user file storage limit.')
+
+    # Bind the filename to the user by <user_id>-<file_name>
+    request.FILES['file'].name = str(user.id) + '-' + request.FILES['file'].name
+
+    # Ensure an old copy of the file is removed when updating a file with the same name.
+    try:
+        old_user_file = user_files.get(file_name=request.FILES['file'].name)
+        old_user_file.file.delete()
+        old_user_file.delete()
+    except UserFile.DoesNotExist:
+        pass
 
     factory.make_user_file(request.FILES['file'], user)
 
