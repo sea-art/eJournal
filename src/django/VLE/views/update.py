@@ -753,9 +753,6 @@ def update_user_file(request):
         if file_size_sum > USER_MAX_TOTAL_STORAGE_BYTES:
             return responses.bad_request('You have passed the user file storage limit.')
 
-    # Bind the filename to the user by <user_id>-<file_name>
-    request.FILES['file'].name = str(user.id) + '-' + request.FILES['file'].name
-
     # Ensure an old copy of the file is removed when updating a file with the same name.
     try:
         old_user_file = user_files.get(file_name=request.FILES['file'].name)

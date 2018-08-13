@@ -8,10 +8,15 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
 
 
+def get_path(instance, filename):
+    """Upload user files into their respective directories. Following MEDIA_ROOT/files/uID/..."""
+    return 'files/' + str(instance.author.id) + '/' + filename
+
+
 class UserFile(models.Model):
     """UserFile
 
-    UserFile is a file uploaded by the user stored in MEDIA_ROOT/files/...
+    UserFile is a file uploaded by the user stored in MEDIA_ROOT/files/uID/...
     - author: The user who uploaded the file.
     - file_name: The name of the file (no parts of the path to the file included).
     - creation_date: The time and date the file was uploaded.
@@ -19,7 +24,7 @@ class UserFile(models.Model):
     """
     file = models.FileField(
         null=False,
-        upload_to='files'
+        upload_to=get_path
     )
     file_name = models.TextField(
         null=False

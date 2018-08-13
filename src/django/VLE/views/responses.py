@@ -108,8 +108,8 @@ def fileb64(user_file):
     """Return a file as base64 encoded binary string if found, otherwise returns a not found error."""
     file_path = os.path.join(MEDIA_ROOT, user_file.file.name)
     if os.path.exists(file_path):
-        with open(file_path, 'rb') as fh:
-            response = HttpResponse(base64.b64encode(fh.read()), content_type=user_file.content_type)
+        with open(file_path, 'rb') as fp:
+            response = HttpResponse(base64.b64encode(fp.read()), content_type=user_file.content_type)
             response['Content-Disposition'] = 'attachment; filename=' + os.path.basename(file_path)
             return response
     else:
