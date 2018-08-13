@@ -15,7 +15,7 @@ import VLE.validators as validators
 from VLE.models import Course, EntryComment, Assignment, Participation, Role, \
     Entry, User, Journal
 import VLE.lti_grade_passback as lti_grade
-from VLE.settings.base import USER_MAX_FILE_SIZE_MB, USER_MAX_TOTAL_STORAGE_MB
+from VLE.settings.base import USER_MAX_FILE_SIZE_BYTES, USER_MAX_TOTAL_STORAGE_BYTES
 from django.conf import settings
 from django.core.exceptions import ValidationError
 import re
@@ -639,12 +639,12 @@ def update_user_file(request):
     """Update user profile picture.
 
     Arguments:
-    request -- the update request that was send with
-        is expected to contain a base64 encoded image.
+    request -- The update request that was send.
+        The request is expected to contain filelike data on the key 'file'
 
-    No validation is performed beyond a size check.
+    No validation is performed beyond a size check of the file and the available space for the user.
 
-    Returns a json string for if it is successful or not.
+    Returns a json string containing the upload was successful or not.
     """
     user = request.user
     if not user.is_authenticated:
@@ -661,18 +661,15 @@ def update_user_file(request):
     user_files = user.userfile_set.all()
 
     # Fast check for allowed user storage space
-    if not ((USER_MAX_TOTAL_STORAGE_MB - (len(user_files) * USER_MAX_FILE_SIZE_MB)) * 1024 * 1024 >
-            request.FILES['file'].size):
+    if not ((USER_MAX_TOTAL_STORAGE_BYTES - (len(user_files) * USER_MAX_FILE_SIZE_BYTES)) > request.FILES['file'].size):
         # Slow check for allowed user storage space
         file_size_sum = 0
         for user_file in user_files:
             file_size_sum += user_file.file.size
-        if file_size_sum > USER_MAX_TOTAL_STORAGE_MB * 1024 * 1024:
+        if file_size_sum > USER_MAX_TOTAL_STORAGE_BYTES:
             return responses.bad_request('You have passed the user file storage limit.')
 
-    user_file = factory.make_user_file(request.FILES['file'], user)
-
-    return responses.fileb64(user_file)
+    factory.make_user_file(request.FILES['file'], user)
 
     return responses.success()
 
@@ -685,7 +682,7 @@ def update_user_profile_picture(request):
     request -- the update request that was send with
         is expected to contain a base64 encoded image.
 
-    Returns a json string for if it is successful or not.
+    Returns a json string containing the upload was successful or not.
     """
     user = request.user
     if not user.is_authenticated:

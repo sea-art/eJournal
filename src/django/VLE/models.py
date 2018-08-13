@@ -9,6 +9,13 @@ from django.utils.timezone import now
 
 
 class UserFile(models.Model):
+    """UserFile
+
+    UserFile is a file uploaded by the user stored in MEDIA_ROOT/files/...
+    - author: The user who uploaded the file.
+    - creation_date: The time and date the file was uploaded.
+    - content_type: The mimetype supplied by the user (unvalidated).
+    """
     file = models.FileField(
         null=False,
         upload_to='files'
