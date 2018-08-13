@@ -24,12 +24,13 @@
             <b-form-input class="theme-input multi-form" v-model="first" type="text"/>
             <b-form-input class="theme-input multi-form" v-model="last" type="text"/>
 
-            <input
+            <file-upload-input :id="'test12'" :acceptedFiletype="'*/*'" :maxSizeBytes="2 * 1024 * 1024"/>
+            <!-- <input
                 class="fileinput"
                 @change="fileHandlerPDF"
                 ref="file"
                 accept="application/pdf"
-                type="file"/>
+                type="file"/> -->
 
             <b-button class="add-button multi-form float-right" @click="saveUserdata">
                 <icon name="save"/>
@@ -46,6 +47,7 @@
 <script>
 import userAPI from '@/api/user.js'
 import icon from 'vue-awesome/components/Icon'
+import fileUploadInput from '@/components/assets/FileUploadInput.vue'
 
 export default {
     props: ['uname', 'first', 'last', 'id', 'image'],
@@ -158,7 +160,8 @@ export default {
         }
     },
     components: {
-        'icon': icon
+        'icon': icon,
+        'file-upload-input': fileUploadInput
     },
     created () {
         this.profileImageDataURL = this.image

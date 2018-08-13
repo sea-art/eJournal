@@ -2,7 +2,7 @@
     <input
         class="fileinput"
         @change="fileHandler"
-        :ref="'file' + {{ id }}"
+        :ref="'file' + id"
         :accept="acceptedFiletype"
         type="file"/>
 </template>
@@ -20,9 +20,9 @@ export default {
             required: true,
             String
         },
-        maxSizeBytes {
+        maxSizeBytes: {
             required: true,
-            String
+            Number
         }
     },
     methods: {
@@ -31,7 +31,7 @@ export default {
 
             if (!files.length) { return }
             if (files[0].size > this.maxSizeBytes) {
-                this.$toasted.error('The selected file exceeds the maximum file size of: ' + maxSizeBytes + ' bytes.')
+                this.$toasted.error('The selected file exceeds the maximum file size of: ' + this.maxSizeBytes + ' bytes.')
                 return
             }
 

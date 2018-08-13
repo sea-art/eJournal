@@ -105,7 +105,7 @@ def keyerror(*keys):
 
 
 def fileb64(user_file):
-    """Return a file as blob if found, otherwise returns a not found error."""
+    """Return a file as base64 encoded binary string if found, otherwise returns a not found error."""
     file_path = os.path.join(MEDIA_ROOT, user_file.file.name)
     if os.path.exists(file_path):
         with open(file_path, 'rb') as fh:
