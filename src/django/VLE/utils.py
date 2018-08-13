@@ -243,21 +243,3 @@ def delete_templates(templates, remove_templates):
         tIDs.append(template['tID'])
 
     templates.filter(pk__in=tIDs).delete()
-
-
-def handle_uploaded_file(f, path, userID):
-    # TODO Delete once media root handles all uploads
-    root = os.getcwd()
-    paths = {
-        'user_file': '/{}/src/vue/static/uploads/users/{}/files/'.format(root, userID),
-        'profile_picture': '/{}/src/vue/static/uploads/users/{}/profile_pictures/'.format(root, userID)
-    }
-    os.makedirs(os.path.dirname(paths[path]), exist_ok=True)
-
-    fullFilePath = paths[path] + str(f)
-
-    with open(fullFilePath, 'wb+') as destination:
-        for chunk in f.chunks():
-            destination.write(chunk)
-
-    return fullFilePath

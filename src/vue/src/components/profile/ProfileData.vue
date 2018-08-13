@@ -91,28 +91,6 @@ export default {
             }
             reader.readAsDataURL(files[0])
         },
-        fileHandlerPDF (e) {
-            let maxSize = 2 * 1024 * 1024
-
-            let files = e.target.files
-
-            if (!files.length) { return }
-            if (files[0].size > maxSize) {
-                this.$toasted.error('The selected file exceeds the maximum file size of 2MB.')
-                return
-            }
-
-            let formData = new FormData()
-            formData.append('file', files[0])
-
-            userAPI.updateUserFile(formData)
-                .then(response => {
-                    this.$toasted.success('File upload success.')
-                })
-                .catch(_ => {
-                    this.$toasted.error('Something went wrong uploading your file.')
-                })
-        },
         downloadUserData () {
             userAPI.getUserData(this.id).then(data => {
                 /* This is a way to download data. */
