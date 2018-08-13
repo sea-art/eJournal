@@ -9,6 +9,7 @@ from django.http import JsonResponse, HttpResponse, FileResponse
 
 import os
 from VLE.settings.base import MEDIA_ROOT
+import base64
 
 
 def success(message='success', payload={}):
@@ -103,24 +104,23 @@ def keyerror(*keys):
         return bad_request('Fields {0} are required but one or more are missing.'.format(keys))
 
 
-def file(user_file):
+def fileb64(user_file):
     """Return a file as blob if found, otherwise returns a not found error."""
     file_path = os.path.join(MEDIA_ROOT, user_file.file.name)
     if os.path.exists(file_path):
         with open(file_path, 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type=user_file.content_type)
+            response = HttpResponse(base64.b64encode(fh.read()), content_type=user_file.content_type)
             response['Content-Disposition'] = 'attachment; filename=' + os.path.basename(file_path)
             return response
     else:
         return not_found()
 
 
-def file2(user_file):
+def file(user_file):
     """Return a file as blob if found, otherwise returns a not found error."""
     file_path = os.path.join(MEDIA_ROOT, user_file.file.name)
     try:
-        response = FileResponse(open(file_path, 'rb'), content_type=user_file.content_type)
-        print(response.header)
+        response = FileResponse(open(file_path, 'rb'), as_attachment=True)
         return response
     except FileNotFoundError:
         return not_found()

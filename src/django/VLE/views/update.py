@@ -672,7 +672,7 @@ def update_user_file(request):
 
     user_file = factory.make_user_file(request.FILES['file'], user)
 
-    return responses.file2(user_file)
+    return responses.fileb64(user_file)
 
     return responses.success()
 

@@ -121,21 +121,11 @@ export default {
             userAPI.updateUserFile(formData)
                 .then(response => {
                     console.log(response)
-                    let blob = new Blob([response.data], { type: 'application/pdf' })
+                    let blob = new Blob([this.base64ToArrayBuffer(response.data)], { type: 'application/pdf' })
                     let link = document.createElement('a')
                     link.href = window.URL.createObjectURL(blob)
                     link.download = 'Report.pdf'
                     link.click()
-                    // try {
-                    //     var file = window.URL.createObjectURL(response)
-                    //     var a = document.createElement('a')
-                    //     a.href = file
-                    //     a.download = 'detailPDF'
-                    //     document.body.appendChild(a)
-                    //     a.click()
-                    // } catch (e) {
-                    //     console.log(e)
-                    // }
                 })
                 .catch(_ => {
                     this.$toasted.error('Something went wrong uploading your file')
