@@ -1,10 +1,12 @@
 <template>
-    <input
-        class="fileinput"
-        @change="fileHandler"
+    <b-form-file
         :ref="'file' + id"
         :accept="acceptedFiletype"
-        type="file"/>
+        class="fileinput"
+        @change="fileHandler"
+        v-model="file"
+        :state="Boolean(file)"
+        placeholder="Select a file."/>
 </template>
 
 <script>
@@ -23,6 +25,11 @@ export default {
         maxSizeBytes: {
             required: true,
             Number
+        }
+    },
+    data () {
+        return {
+            file: null
         }
     },
     methods: {
@@ -49,6 +56,3 @@ export default {
     }
 }
 </script>
-
-<style lang="sass">
-</style>
