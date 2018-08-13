@@ -635,82 +635,6 @@ def update_entrycomment(request):
 
 
 @api_view(['POST'])
-def update_user_file(request):
-    """Update user profile picture.
-
-    Arguments:
-    request -- The update request that was send.
-        The request is expected to contain filelike data on the key 'file'
-
-    No validation is performed beyond a size check of the file and the available space for the user.
-
-    Returns a json string containing the upload was successful or not.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    if not request.FILES or not request.FILES['file']:
-        return responses.bad_request()
-
-    try:
-        validators.validate_user_file(request.FILES['file'])
-    except ValidationError:
-        return responses.bad_request('The selected file exceeds the file limit.')
-
-    user_files = user.userfile_set.all()
-
-    # Fast check for allowed user storage space
-    if not ((USER_MAX_TOTAL_STORAGE_BYTES - (len(user_files) * USER_MAX_FILE_SIZE_BYTES)) > request.FILES['file'].size):
-        # Slow check for allowed user storage space
-        file_size_sum = 0
-        for user_file in user_files:
-            file_size_sum += user_file.file.size
-        if file_size_sum > USER_MAX_TOTAL_STORAGE_BYTES:
-            return responses.bad_request('You have passed the user file storage limit.')
-
-    # Bind the filename to the user by <user_id>-<file_name>
-    request.FILES['file'].name = str(user.id) + '-' + request.FILES['file'].name
-
-    # Ensure an old copy of the file is removed when updating a file with the same name.
-    try:
-        old_user_file = user_files.get(file_name=request.FILES['file'].name)
-        old_user_file.file.delete()
-        old_user_file.delete()
-    except UserFile.DoesNotExist:
-        pass
-
-    factory.make_user_file(request.FILES['file'], user)
-
-    return responses.success()
-
-
-@api_view(['POST'])
-def update_user_profile_picture(request):
-    """Update user profile picture.
-
-    Arguments:
-    request -- the update request that was send with
-        is expected to contain a base64 encoded image.
-
-    Returns a json string containing the upload was successful or not.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    if not request.data['urlData']:
-        return responses.bad_request()
-
-    validators.validate_profile_picture_base64(request.data['urlData'])
-
-    user.profile_picture = request.data['urlData']
-    user.save()
-
-    return responses.success()
-
-
-@api_view(['POST'])
 def update_user_data(request):
     """Update user data.
 
@@ -792,3 +716,79 @@ def update_lti_id_to_user(request):
     user.save()
 
     return responses.success(payload={'user': serialize.user_to_dict(user)})
+
+
+@api_view(['POST'])
+def update_user_file(request):
+    """Update user profile picture.
+
+    Arguments:
+    request -- The update request that was send.
+        The request is expected to contain filelike data on the key 'file'
+
+    No validation is performed beyond a size check of the file and the available space for the user.
+
+    Returns a json string indicating wether the upload was successful or not.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    if not request.FILES or not request.FILES['file']:
+        return responses.bad_request()
+
+    try:
+        validators.validate_user_file(request.FILES['file'])
+    except ValidationError:
+        return responses.bad_request('The selected file exceeds the file limit.')
+
+    user_files = user.userfile_set.all()
+
+    # Fast check for allowed user storage space
+    if not ((USER_MAX_TOTAL_STORAGE_BYTES - (len(user_files) * USER_MAX_FILE_SIZE_BYTES)) > request.FILES['file'].size):
+        # Slow check for allowed user storage space
+        file_size_sum = 0
+        for user_file in user_files:
+            file_size_sum += user_file.file.size
+        if file_size_sum > USER_MAX_TOTAL_STORAGE_BYTES:
+            return responses.bad_request('You have passed the user file storage limit.')
+
+    # Bind the filename to the user by <user_id>-<file_name>
+    request.FILES['file'].name = str(user.id) + '-' + request.FILES['file'].name
+
+    # Ensure an old copy of the file is removed when updating a file with the same name.
+    try:
+        old_user_file = user_files.get(file_name=request.FILES['file'].name)
+        old_user_file.file.delete()
+        old_user_file.delete()
+    except UserFile.DoesNotExist:
+        pass
+
+    factory.make_user_file(request.FILES['file'], user)
+
+    return responses.success()
+
+
+@api_view(['POST'])
+def update_user_profile_picture(request):
+    """Update user profile picture.
+
+    Arguments:
+    request -- the update request that was send with
+        is expected to contain a base64 encoded image.
+
+    Returns a json string indicating wether the upload was successful or not.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    if not request.data['urlData']:
+        return responses.bad_request()
+
+    validators.validate_profile_picture_base64(request.data['urlData'])
+
+    user.profile_picture = request.data['urlData']
+    user.save()
+
+    return responses.success()
