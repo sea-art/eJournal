@@ -6,7 +6,6 @@ A library with useful functions.
 from VLE.models import Entry, Node, EntryTemplate, EntryComment, PresetNode
 import VLE.factory as factory
 import VLE.views.responses as responses
-import os
 
 
 # START: API-POST functions
