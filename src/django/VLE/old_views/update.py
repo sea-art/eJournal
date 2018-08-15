@@ -14,6 +14,7 @@ from VLE.models import Comment, Assignment, Entry, Journal
 import VLE.lti_grade_passback as lti_grade
 
 # Think this one works already
+# TODO: CHECK if it works
 # @api_view(['POST'])
 # def connect_assignment_lti(request):
 #     """Connect an existing assignment to an lti assignment.

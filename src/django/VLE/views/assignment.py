@@ -15,6 +15,16 @@ import VLE.utils as utils
 
 
 class AssignmentView(viewsets.ViewSet):
+    """Assignment view.
+
+    This class creates the following api paths:
+    GET /assignments/ -- gets all the assignments
+    POST /assignments/ -- create a new assignment
+    PATCH /assignments/<pk> -- partially update an assignment
+    DEL /assignments/<pk> -- delete an assignment
+    GET /assignments/upcomming/ -- get the upcomming assignments of the logged in user
+    """
+
     serializer_class = StudentAssignmentSerializer
 
     def list(self, request):
@@ -106,16 +116,23 @@ class AssignmentView(viewsets.ViewSet):
                                              author=request.user, lti_id=lti_id,
                                              points_possible=points_possible)
 
+        for user in course.users.all():
+            role = permissions.get_role(user, cID)
+            if role.can_edit_journal:
+                factory.make_journal(assignment, user)
+
         serializer = TeacherAssignmentSerializer(assignment)
         return response.created(serializer.data, obj='assignment')
 
     # TODO: Add course ID to only get the information about the assignment from that course.
     # TODO: Create a better serializer
+    # TODO: split the
     def retrieve(self, request, pk=None):
         """Retrieve an assignment.
 
         Arguments:
         request -- request data
+            lti -- if this is set, the pk is an lti_id, not a 'normal' id
         pk -- assignment ID
 
         Returns:
@@ -130,37 +147,40 @@ class AssignmentView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        if pk is None:
-            return response.bad_request('pk is missing')
-
         try:
-            assignment = Assignment.objects.get(pk=pk)
+            if 'lti' in request.query_params:
+                assignment = Assignment.objects.get(lti_id=pk)
+            else:
+                assignment = Assignment.objects.get(pk=pk)
         except Assignment.DoesNotExist:
             return response.not_found('Assignment')
 
-        if not Assignment.objects.filter(courses__users=request.user, pk=pk):
+        if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
             return response.forbidden("You cannot view this assignment.")
 
-        serializer = self.serializer_class(assignment)
+        if not role.can_grade_journal:
+            serializer = StudentAssignmentSerializer(assignment)
+        else:
+            serializer = TeacherAssignmentSerializer(assignment)
         data = serializer.data
-        journals = Journal.objects.filter(assignment=assignment)
-        data['journals'] = JournalSerializer(journals, many=True).data
-        for i, journal in enumerate(journals):
-            entries = utils.get_journal_entries(journal)
-            data['journals'][i]['stats'] = {
-                'acquired_points': utils.get_acquired_points(entries),
-                'graded': utils.get_graded_count(entries),
-                'submitted': utils.get_submitted_count(entries),
-                'total_points': utils.get_max_points(journal),
-            }
-            try:
-                data['journals'][i]['student'] = UserSerializer(journal.user).data
-            except Journal.DoesNotExist:
-                continue
-        return response.success(data)
 
-    def update(self, request, *args, **kwargs):
-        pass
+        if role.can_grade_journal:
+            journals = Journal.objects.filter(assignment=assignment)
+            data['journals'] = JournalSerializer(journals, many=True).data
+            for i, journal in enumerate(journals):
+                entries = utils.get_journal_entries(journal)
+                data['journals'][i]['stats'] = {
+                    'acquired_points': utils.get_acquired_points(entries),
+                    'graded': utils.get_graded_count(entries),
+                    'submitted': utils.get_submitted_count(entries),
+                    'total_points': utils.get_max_points(journal),
+                }
+                try:
+                    data['journals'][i]['student'] = UserSerializer(journal.user).data
+                except Journal.DoesNotExist:
+                    continue
+
+        return response.success(data)
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing assignment.

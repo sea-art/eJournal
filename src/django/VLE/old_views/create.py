@@ -18,58 +18,6 @@ import VLE.lti_grade_passback as lti_grade
 import VLE.views.responses as responses
 import VLE.permissions as permissions
 
-
-@api_view(['POST'])
-def create_new_assignment(request):
-    """Create a new assignment.
-
-    Arguments:
-    request -- the request that was send with
-        name -- name of the assignment
-        description -- description of the assignment
-        cID -- id of the course the assignment belongs to
-
-    On success, returns a json string containing the assignment.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        name, description, cID = utils.required_params(request.data, "name", "description", "cID")
-        points_possible, lti_id = utils.optional_params(request.data, "points_possible", "lti_id")
-    except KeyError:
-        return responses.keyerror("name", "description", "cID")
-
-    # Assignments can only be created with can_create_assignment permission.
-    role = permissions.get_role(user, cID)
-    if role is None:
-        return responses.unauthorized("You have no access to this course.")
-    elif not role.can_add_assignment:
-        return responses.forbidden("You have no permissions to create a new assignment.")
-
-    try:
-        course = Course.objects.get(pk=cID)
-    except Course.DoesNotExist:
-        return responses.not_found('Course does not exist.')
-
-    assignment = factory.make_assignment(name, description, cIDs=[cID],
-                                         author=request.user, lti_id=lti_id,
-                                         points_possible=points_possible)
-
-    try:
-        course = Course.objects.get(pk=cID)
-    except Course.DoesNotExist:
-        return responses.not_found('Course does not exist.')
-
-    for user in course.users.all():
-        role = permissions.get_role(user, cID)
-        if role.can_edit_journal:
-            factory.make_journal(assignment, user)
-
-    return responses.created(payload={'assignment': serialize.assignment_to_dict(assignment)})
-
-
 @api_view(['POST'])
 def create_journal(request):
     """Create a new journal.

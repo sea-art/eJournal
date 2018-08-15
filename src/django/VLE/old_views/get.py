@@ -38,25 +38,6 @@ GRADE_CENTER = '6'
 
 
 @api_view(['GET'])
-def get_own_user_data(request):
-    """Get the data linked to the logged in user.
-
-    Arguments:
-    request -- the request that was send with
-
-    Returns a json string with user data
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    user_dict = serialize.user_to_dict(user)
-    user_dict['grade_notifications'] = user.grade_notifications
-    user_dict['comment_notifications'] = user.comment_notifications
-    return responses.success(payload={'user': user_dict})
-
-
-@api_view(['GET'])
 def get_unenrolled_users(request, cID):
     """Get all users not connected to a given course.
 
@@ -85,107 +66,6 @@ def get_unenrolled_users(request, cID):
     result = User.objects.all().exclude(id__in=ids_in_course)
 
     return responses.success(payload={'users': [serialize.user_to_dict(user) for user in result]})
-
-
-def get_teacher_course_assignments(user, course):
-    """Get the assignments from the course ID with extra information for the teacher.
-
-    Arguments:
-    user -- user that requested the assignments, this is to validate the request
-    cID -- the course ID to get the assignments from
-
-    Returns a json string with the assignments for the requested user
-    """
-    # TODO: Extra information for the teacher.
-
-    assignments = []
-    for assignment in course.assignment_set.all():
-        assignments.append(serialize.assignment_to_dict(assignment))
-
-    return assignments
-
-
-def get_student_course_assignments(user, course):
-    """Get the assignments from the course ID with extra information for the student.
-
-    Arguments:
-    user -- user that requested the assignments, this is to validate the request
-    cID -- the course ID to get the assignments from
-
-    Returns a json string with the assignments for the requested user
-    """
-    assignments = []
-    for assignment in Assignment.objects.filter(courses=course, journal__user=user):
-        assignments.append(serialize.student_assignment_to_dict(assignment, user))
-
-    return assignments
-
-
-@api_view(['GET'])
-def get_course_assignments(request, cID):
-    """Get the assignments from the course ID with extra information for the requested user.
-
-    Arguments:
-    request -- the request that was send with
-    cID -- the course ID to get the assignments from
-
-    Returns a json string with the assignments for the requested user
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        course = Course.objects.get(pk=cID)
-    except Course.DoesNotExist:
-        return responses.not_found('Course')
-
-    role = permissions.get_role(user, course)
-    if role is None:
-        return responses.forbidden('You are not in this course.')
-
-    # Check whether the user can grade a journal in the course.
-    if role.can_grade_journal:
-        return responses.success(payload={'assignments': get_teacher_course_assignments(user, course)})
-    else:
-        return responses.success(payload={'assignments': get_student_course_assignments(user, course)})
-
-
-@api_view(['GET'])
-def get_assignment_data(request, cID, aID):
-    """Get the data linked to an assignment ID.
-
-    Arguments:
-    request -- the request that was send with
-    cID -- course ID given with the request
-    aID -- assignment ID given with the request
-
-    Returns a json string with the assignment data for the requested user.
-    Depending on the permissions, return all student journals or a specific
-    student's journal.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        course = Course.objects.get(pk=cID)
-    except Course.DoesNotExist:
-        return responses.not_found('Course')
-
-    role = permissions.get_role(user, course)
-    if role is None:
-        return responses.forbidden('You are not in this course.')
-
-    try:
-        assignment = Assignment.objects.get(pk=aID)
-    except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
-
-    if role.can_grade_journal:
-        return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
-    else:
-        return responses.success(payload={'assignment': serialize.student_assignment_to_dict(assignment, request.user)})
 
 
 @api_view(['GET'])
@@ -330,45 +210,6 @@ def create_student_assignment_deadline(user, course, assignment):
             'jID': journal.id,
             'deadline': future_deadline,
             'totalNeedsMarking': 0}
-
-
-@api_view(['GET'])
-def get_upcoming_deadlines(request):
-    """Get upcoming deadlines for the requested user.
-
-    Arguments:
-    request -- the request that was send with
-
-    Returns a json string with the deadlines
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    courses = []
-    deadline_list = []
-
-    for course in user.participations.all():
-        courses.append(course)
-
-    for course in courses:
-        role = permissions.get_role(user, course)
-
-        if role is None:
-            return responses.forbidden('You are not in this course.')
-
-        if role.can_grade_journal:
-            for assignment in Assignment.objects.filter(courses=course.id).all():
-                deadline = create_teacher_assignment_deadline(course, assignment)
-                if deadline:
-                    deadline_list.append(deadline)
-        else:
-            for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
-                deadline = create_student_assignment_deadline(user, course, assignment)
-                if deadline:
-                    deadline_list.append(deadline)
-
-    return responses.success(payload={'deadlines': deadline_list})
 
 
 @api_view(['GET'])
@@ -585,58 +426,60 @@ def get_entrycomments(request, eID):
         })
 
 
-@api_view(['GET'])
-def get_user_data(request, uID):
-    """Get the user data of the given user.
+# TODO: Check if this is necessery
+# @api_view(['GET'])
+# def get_user_data(request, uID):
+#     """Get the user data of the given user.
+#
+#     Get his/her profile data and posted entries with the titles of the journals of the user based on the uID.
+#     """
+#     if not request.user.is_authenticated:
+#         return responses.unauthorized()
+#
+#     user = User.objects.get(pk=uID)
+#
+#     # Check the right permissions to get this users data, either be the user of the data or be an admin.
+#     permission = permissions.get_permissions(user, cID=-1)
+#     if not (permission['is_superuser'] or request.user.id == uID):
+#         return responses.forbidden('You cannot view this users data.')
+#
+#     profile = serialize.user_to_dict(user)
+#     # Don't send the user id with it.
+#     del profile['uID']
+#
+#     journals = Journal.objects.filter(user=uID)
+#     journal_dict = {}
+#     for journal in journals:
+#         # Select the nodes of this journal but only the ones with entries.
+#         nodes_of_journal_with_entries = Node.objects.filter(journal=journal).exclude(entry__isnull=True)
+#         # Serialize all entries and put them into the entries dictionary with the assignment name key.
+#         entries_of_journal = [serialize.export_entry_to_dict(node.entry) for node in nodes_of_journal_with_entries]
+#         journal_dict.update({journal.assignment.name: entries_of_journal})
+#
+#     return responses.success(payload={'profile': profile, 'journals': journal_dict})
 
-    Get his/her profile data and posted entries with the titles of the journals of the user based on the uID.
-    """
-    if not request.user.is_authenticated:
-        return responses.unauthorized()
 
-    user = User.objects.get(pk=uID)
-
-    # Check the right permissions to get this users data, either be the user of the data or be an admin.
-    permission = permissions.get_permissions(user, cID=-1)
-    if not (permission['is_superuser'] or request.user.id == uID):
-        return responses.forbidden('You cannot view this users data.')
-
-    profile = serialize.user_to_dict(user)
-    # Don't send the user id with it.
-    del profile['uID']
-
-    journals = Journal.objects.filter(user=uID)
-    journal_dict = {}
-    for journal in journals:
-        # Select the nodes of this journal but only the ones with entries.
-        nodes_of_journal_with_entries = Node.objects.filter(journal=journal).exclude(entry__isnull=True)
-        # Serialize all entries and put them into the entries dictionary with the assignment name key.
-        entries_of_journal = [serialize.export_entry_to_dict(node.entry) for node in nodes_of_journal_with_entries]
-        journal_dict.update({journal.assignment.name: entries_of_journal})
-
-    return responses.success(payload={'profile': profile, 'journals': journal_dict})
-
-
-@api_view(['GET'])
-def get_assignment_by_lti_id(request, lti_id):
-    """Get an assignment if it exists.
-
-    Arguments:
-    request -- the request that was sent
-    lti_id -- lti_id of the assignment
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-    try:
-        assignment = Assignment.objects.get(lti_id=lti_id)
-    except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
-
-    if not permissions.has_assignment_permission(user, assignment, 'can_edit_course'):
-        return responses.forbidden('You are not allowed to edit the courses.')
-
-    return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
+# TODO: Test is current implementation in recieve in views/assignment.py works
+# @api_view(['GET'])
+# def get_assignment_by_lti_id(request, lti_id):
+#     """Get an assignment if it exists.
+#
+#     Arguments:
+#     request -- the request that was sent
+#     lti_id -- lti_id of the assignment
+#     """
+#     user = request.user
+#     if not user.is_authenticated:
+#         return responses.unauthorized()
+#     try:
+#         assignment = Assignment.objects.get(lti_id=lti_id)
+#     except Assignment.DoesNotExist:
+#         return responses.not_found('Assignment')
+#
+#     if not permissions.has_assignment_permission(user, assignment, 'can_edit_course'):
+#         return responses.forbidden('You are not allowed to edit the courses.')
+#
+#     return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
 
 
 @api_view(['GET'])
