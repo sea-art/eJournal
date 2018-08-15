@@ -15,7 +15,7 @@ import VLE.validators as validators
 from VLE.models import Course, EntryComment, Assignment, Participation, Role, \
     Entry, User, Journal, UserFile
 import VLE.lti_grade_passback as lti_grade
-from VLE.settings.base import USER_MAX_FILE_SIZE_BYTES, USER_MAX_TOTAL_STORAGE_BYTES
+from VLE.settings.production import USER_MAX_FILE_SIZE_BYTES, USER_MAX_TOTAL_STORAGE_BYTES
 from django.conf import settings
 from django.core.exceptions import ValidationError
 import re
@@ -745,13 +745,13 @@ def update_user_file(request):
     user_files = user.userfile_set.all()
 
     # Fast check for allowed user storage space
-    if not ((USER_MAX_TOTAL_STORAGE_BYTES - (len(user_files) * USER_MAX_FILE_SIZE_BYTES)) > request.FILES['file'].size):
+    if ((USER_MAX_TOTAL_STORAGE_BYTES - (len(user_files) * USER_MAX_FILE_SIZE_BYTES)) <= request.FILES['file'].size):
         # Slow check for allowed user storage space
         file_size_sum = 0
         for user_file in user_files:
             file_size_sum += user_file.file.size
         if file_size_sum > USER_MAX_TOTAL_STORAGE_BYTES:
-            return responses.bad_request('You have passed the user file storage limit.')
+            return responses.bad_request('Unsufficient user storage space.')
 
     # Ensure an old copy of the file is removed when updating a file with the same name.
     try:

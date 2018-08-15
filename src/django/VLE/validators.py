@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from VLE.settings.base import USER_MAX_FILE_SIZE_BYTES
+from VLE.settings.production import USER_MAX_FILE_SIZE_BYTES
 
 
 # Base 64 image is roughly 37% larger than a plain image

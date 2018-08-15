@@ -41,11 +41,11 @@ export default {
             formData.append('file', files[0])
 
             userAPI.updateUserFile(formData)
-                .then(response => {
+                .then(_ => {
                     this.$toasted.success('File upload success.')
                 })
-                .catch(_ => {
-                    this.$toasted.error('Something went wrong uploading your file')
+                .catch(response => {
+                    this.$toasted.error(response.description)
                 })
         }
     }

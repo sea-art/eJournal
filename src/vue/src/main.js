@@ -55,7 +55,8 @@ new Vue({
         assignmentPermissions: {},
         validToken: false,
         previousPage: null,
-        windowWidth: 0
+        windowWidth: 0,
+        maxFileSizeBytes: 2097152
     },
     mounted () {
         this.$nextTick(function () {

@@ -188,10 +188,9 @@ export default {
                 var files = this.files
                 if (!files.length) { return }
 
-                let maxSize = 2 * 1024 * 1024
                 var file = files[0]
-                if (files[0].size > maxSize) {
-                    this.$toasted.error('The selected image exceeds the maximum file size of 2MB.')
+                if (files[0].size > vm.$root.maxFileSizeBytes) {
+                    this.$toasted.error('The selected image exceeds the maximum file size of ' + vm.$root.maxFileSizeBytes + ' bytes.')
                     return
                 }
 

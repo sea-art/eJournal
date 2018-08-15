@@ -39,8 +39,8 @@ export default {
                     link.download = /filename=(.*)/.exec(response.headers['content-disposition'])[1]
                     link.click()
                 })
-                .catch(_ => {
-                    this.$toasted.error('Something went wrong while downloading your file.')
+                .catch(response => {
+                    this.$toasted.error(response.description)
                 })
         }
     }

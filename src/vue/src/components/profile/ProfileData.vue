@@ -57,13 +57,11 @@ export default {
                 .then(this.$toasted.success('Saved profile data'))
         },
         fileHandler (e) {
-            let maxSize = 2 * 1024 * 1024
-
             let files = e.target.files
 
             if (!files.length) { return }
-            if (files[0].size > maxSize) {
-                this.$toasted.error('The profile picture exceeds the maximum file size of 2MB.')
+            if (files[0].size > this.$root.maxFileSizeBytes) {
+                this.$toasted.error('The profile picture exceeds the maximum file size of ' + this.$root.maxFileSizeBytes + ' bytes.')
                 return
             }
 
@@ -79,11 +77,11 @@ export default {
                         this.$toasted.error('Please submit a square image.')
                     } else {
                         userAPI.updateProfilePictureBase64(dataURL)
-                            .then(response => {
+                            .then(_ => {
                                 vm.profileImageDataURL = dataURL
                             })
-                            .catch(_ => {
-                                this.$toasted.error('Something went wrong while uploading your profile picture.')
+                            .catch(response => {
+                                this.$toasted.error(response.description)
                             })
                     }
                 }

@@ -66,7 +66,7 @@ def forbidden(description='You have no access to this page'):
     return response(403, 'Forbidden', description=description)
 
 
-def not_found(description='The page or file you requested was not found.'):
+def not_found(description='The page or file you requested was '):
     """Return a not found response header.
 
     Arguments:
