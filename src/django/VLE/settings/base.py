@@ -19,8 +19,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
-USER_MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024
-USER_MAX_TOTAL_STORAGE_BYTES = 100 * 1024 * 1024
 # TODO Whitelist image extensions
 # TODO Define profile picture max size, user file max size and max total files
 
