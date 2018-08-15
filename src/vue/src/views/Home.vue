@@ -7,6 +7,12 @@
             :currentPage="'Courses'">
         </bread-crumb>
 
+        <b-button
+            @click="test"
+            slot="main-content-column">
+            Test
+        </b-button>
+
         <div v-for="c in courses" :key="c.cID" slot="main-content-column">
             <b-link :to="{name: 'Course', params: {cID: c.cID, courseName: c.name}}">
                 <main-card
@@ -109,6 +115,10 @@ export default {
             .catch(_ => this.$toasted.error('Error while loading deadlines'))
     },
     methods: {
+        test () {
+            console.log(this.$store)
+            console.log(this.$store.getters['user/username'])
+        },
         loadCourses () {
             course.get_user_courses()
                 .then(response => { this.courses = response })

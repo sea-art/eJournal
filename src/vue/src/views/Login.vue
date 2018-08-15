@@ -9,7 +9,6 @@
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import loginForm from '@/components/account/LoginForm.vue'
-import auth from '@/api/auth.js'
 
 export default {
     name: 'Login',
@@ -26,15 +25,6 @@ export default {
             } else {
                 this.$router.push({name: this.$root.previousPage.name, params: this.$root.previousPage.params})
             }
-        },
-        handleLogin () {
-            auth.login(this.username, this.password)
-                .then(_ => {
-                    this.handleLoginSucces()
-                })
-                .catch(_ => {
-                    this.$toasted.error('Could not login')
-                })
         }
     },
     components: {
