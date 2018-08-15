@@ -7,6 +7,8 @@
             :currentPage="'Courses'">
         </bread-crumb>
 
+        <pdf-display slot="main-content-column" :fileName="'Eerste_response_van_wijk.pdf'"/>
+
         <div v-for="c in courses" :key="c.cID" slot="main-content-column">
             <b-link :to="{name: 'Course', params: {cID: c.cID, courseName: c.name}}">
                 <main-card
@@ -80,6 +82,8 @@ import icon from 'vue-awesome/components/Icon'
 import course from '@/api/course'
 import assignmentApi from '@/api/assignment.js'
 
+import pdfDisplay from '@/components/assets/PdfDisplay.vue'
+
 export default {
     name: 'Home',
     data () {
@@ -97,7 +101,8 @@ export default {
         'todo-card': todoCard,
         'create-course': createCourse,
         'edit-home': editHome,
-        'icon': icon
+        'icon': icon,
+        'pdf-display': pdfDisplay
     },
     created () {
         this.loadCourses()
