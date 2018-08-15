@@ -3,7 +3,7 @@ Serializers.
 
 Functions to convert certain data to other formats.
 """
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
 from VLE.models import Journal, Node, EntryComment
 

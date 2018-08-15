@@ -10,7 +10,7 @@ from VLE.models import Journal
 
 import VLE.factory as factory
 import test.test_utils as test
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
 
 
 class StatisticsTests(TestCase):

@@ -30,7 +30,6 @@ export default {
     /* Get user file. */
     getUserFile (fileName) {
         return auth.authenticatedGet('/get_user_file/' + fileName + '/')
-            .then(response => response)
     },
 
     /* Update user data. */

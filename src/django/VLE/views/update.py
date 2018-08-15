@@ -8,7 +8,7 @@ from rest_framework.parsers import JSONParser
 
 import VLE.views.responses as responses
 import VLE.serializers as serialize
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
 import VLE.factory as factory
 import VLE.validators as validators

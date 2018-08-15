@@ -12,7 +12,7 @@ from django.core.exceptions import ValidationError
 
 import VLE.serializers as serialize
 import VLE.factory as factory
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
 from VLE.models import User, Journal, EntryTemplate, Node, Assignment, Field, Entry, Content, Course
 import VLE.edag as edag
 import VLE.lti_grade_passback as lti_grade
