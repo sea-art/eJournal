@@ -5,7 +5,11 @@ This file contains functions to easily generate common HTTP error responses
 using JsonResponses. These functions should be used whenever the client needs
 to receive the appropriate error code.
 """
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse, FileResponse
+
+import os
+from VLE.settings.base import MEDIA_ROOT
+import base64
 
 
 def success(message='success', payload={}):
@@ -62,7 +66,7 @@ def forbidden(description='You have no access to this page'):
     return response(403, 'Forbidden', description=description)
 
 
-def not_found(description='The page or file you requested was not found.'):
+def not_found(description='The page or file you requested was '):
     """Return a not found response header.
 
     Arguments:
@@ -98,3 +102,27 @@ def keyerror(*keys):
         return bad_request('Field {0} is required but is missing.'.format(keys))
     else:
         return bad_request('Fields {0} are required but one or more are missing.'.format(keys))
+
+
+def fileb64(user_file):
+    """Return a file as base64 encoded binary string if found, otherwise returns a not found error."""
+    file_path = os.path.join(MEDIA_ROOT, user_file.file.name)
+    if os.path.exists(file_path):
+        with open(file_path, 'rb') as fp:
+            response = HttpResponse(base64.b64encode(fp.read()), content_type=user_file.content_type)
+            response['Content-Disposition'] = 'attachment; filename=' + os.path.basename(file_path)
+            # Exposes headers to the response in javascript lowercase recommended
+            response['access-control-expose-headers'] = 'content-disposition, content-type'
+            return response
+    else:
+        return not_found()
+
+
+def file(user_file):
+    """Return a file as blob if found, otherwise returns a not found error."""
+    file_path = os.path.join(MEDIA_ROOT, user_file.file.name)
+    try:
+        response = FileResponse(open(file_path, 'rb'), as_attachment=True)
+        return response
+    except FileNotFoundError:
+        return not_found()

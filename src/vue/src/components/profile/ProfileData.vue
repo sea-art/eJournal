@@ -2,12 +2,20 @@
     <b-row>
         <b-col md="5" sm="12" class="text-center">
             <div class="profile-portrait small-shadow">
-                <img :src="image">
-                <!-- TODO handle file upload. The original profile picture upload did not work yet. -->
-                <b-button>
+                <img :src="profileImageDataURL">
+                <!-- TODO Add cropping tool to help with the square aspect ratio Croppa seems most active and a solid choice -->
+                <b-button @click="$refs.file.click()">
                     <icon name="upload"/>
                     Upload
                 </b-button>
+                <input
+                    class="fileinput"
+                    @change="fileHandler"
+                    ref="file"
+                    accept="image/*"
+                    style="display: none"
+                    type="file"/>
+
             </div>
         </b-col>
         <b-col md="7" sm="12">
@@ -15,6 +23,7 @@
             <b-form-input class="theme-input multi-form" v-model="uname" type="text"/>
             <b-form-input class="theme-input multi-form" v-model="first" type="text"/>
             <b-form-input class="theme-input multi-form" v-model="last" type="text"/>
+
             <b-button class="add-button multi-form float-right" @click="saveUserdata">
                 <icon name="save"/>
                 Save
@@ -33,10 +42,13 @@ import icon from 'vue-awesome/components/Icon'
 
 export default {
     props: ['uname', 'first', 'last', 'id', 'image'],
+    components: {
+        'icon': icon
+    },
     data () {
         return {
             file: null,
-            profileImage: null
+            profileImageDataURL: null
         }
     },
     methods: {
@@ -46,25 +58,36 @@ export default {
         },
         fileHandler (e) {
             let files = e.target.files
+
             if (!files.length) { return }
+            if (files[0].size > this.$root.maxFileSizeBytes) {
+                this.$toasted.error('The profile picture exceeds the maximum file size of ' + this.$root.maxFileSizeBytes + ' bytes.')
+                return
+            }
 
-            this.file = files[0]
-
-            let formData = new FormData()
-            formData.append('file', this.file)
-
-            userAPI.updateProfilePicture(formData)
-                .then(_ => { this.setClientProfilePicture(this.file) })
-                .catch(_ => { this.$toasted.error('Something went wrong while uploading your profile picture.') })
-        },
-        setClientProfilePicture (imageFile) {
-            var reader = new FileReader()
             var vm = this
 
-            reader.onload = (e) => {
-                vm.profileImage = e.target.result
+            var reader = new FileReader()
+            reader.onload = () => {
+                var dataURL = reader.result
+
+                var img = new Image()
+                img.onload = () => {
+                    if (img.width !== img.height) {
+                        this.$toasted.error('Please submit a square image.')
+                    } else {
+                        userAPI.updateProfilePictureBase64(dataURL)
+                            .then(_ => {
+                                vm.profileImageDataURL = dataURL
+                            })
+                            .catch(response => {
+                                this.$toasted.error(response.description)
+                            })
+                    }
+                }
+                img.src = dataURL
             }
-            reader.readAsDataURL(imageFile)
+            reader.readAsDataURL(files[0])
         },
         downloadUserData () {
             userAPI.getUserData(this.id).then(data => {
@@ -87,11 +110,8 @@ export default {
             })
         }
     },
-    components: {
-        'icon': icon
-    },
     created () {
-        this.profileImage = this.image
+        this.profileImageDataURL = this.image
     }
 }
 </script>

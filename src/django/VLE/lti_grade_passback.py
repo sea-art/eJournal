@@ -2,7 +2,7 @@ import xml.etree.cElementTree as ET
 import oauth2
 """Package for oauth authentication in python"""
 
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
 from django.conf import settings
 from VLE.models import Counter
 

@@ -6,6 +6,40 @@ Database file
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
+from VLE.utils.file_handling import get_path
+
+
+class UserFile(models.Model):
+    """UserFile
+
+    UserFile is a file uploaded by the user stored in MEDIA_ROOT/files/uID/...
+    - author: The user who uploaded the file.
+    - file_name: The name of the file (no parts of the path to the file included).
+    - creation_date: The time and date the file was uploaded.
+    - content_type: The mimetype supplied by the user (unvalidated).
+    """
+    file = models.FileField(
+        null=False,
+        upload_to=get_path
+    )
+    file_name = models.TextField(
+        null=False
+    )
+    author = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+        null=False
+    )
+    creation_date = models.DateTimeField(
+        auto_now_add=True
+    )
+    content_type = models.TextField(
+        null=False
+    )
+
+    def __str__(self):
+        """toString."""
+        return self.file_name
 
 
 class User(AbstractUser):

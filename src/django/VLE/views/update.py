@@ -8,13 +8,16 @@ from rest_framework.parsers import JSONParser
 
 import VLE.views.responses as responses
 import VLE.serializers as serialize
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
 import VLE.factory as factory
+import VLE.validators as validators
 from VLE.models import Course, EntryComment, Assignment, Participation, Role, \
-    Entry, User, Journal
+    Entry, User, Journal, UserFile
 import VLE.lti_grade_passback as lti_grade
+from VLE.settings.production import USER_MAX_FILE_SIZE_BYTES, USER_MAX_TOTAL_STORAGE_BYTES
 from django.conf import settings
+from django.core.exceptions import ValidationError
 import re
 import jwt
 import json
@@ -632,50 +635,6 @@ def update_entrycomment(request):
 
 
 @api_view(['POST'])
-def update_user_profile_picture(request):
-    """Update user profile picture.
-
-    Arguments:
-    request -- the update request that was send with
-        request.FILES should contain the user uploaded file
-
-    Returns a json string for if it is successful or not.
-    """
-    # TODO CHECKS for file integrety
-    # Set default profile picture to the new one on success
-
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    utils.handle_uploaded_file(request.FILES['file'], 'profile_picture', user.id)
-
-    return responses.success()
-
-
-@api_view(['POST'])
-def update_user_image(request):
-    """Update user image directory.
-
-    Arguments:
-    request -- the update request that was send with
-        request.FILES should contain the user uploaded file
-
-    Returns a json string for if it is successful or not.
-    """
-    # TODO CHECKS for file integrety
-    # Set default profile picture to the new one on success
-
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    fullPath = utils.handle_uploaded_file(request.FILES['file'], 'user_file', user.id)
-
-    return responses.success({'location': fullPath})
-
-
-@api_view(['POST'])
 def update_user_data(request):
     """Update user data.
 
@@ -757,3 +716,76 @@ def update_lti_id_to_user(request):
     user.save()
 
     return responses.success(payload={'user': serialize.user_to_dict(user)})
+
+
+@api_view(['POST'])
+def update_user_file(request):
+    """Update user profile picture.
+
+    Arguments:
+    request -- The update request that was send.
+        The request is expected to contain filelike data on the key 'file'
+
+    No validation is performed beyond a size check of the file and the available space for the user.
+
+    Returns a json string indicating wether the upload was successful or not.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    if not request.FILES or not request.FILES['file']:
+        return responses.bad_request()
+
+    try:
+        validators.validate_user_file(request.FILES['file'])
+    except ValidationError:
+        return responses.bad_request('The selected file exceeds the file limit.')
+
+    user_files = user.userfile_set.all()
+
+    # Fast check for allowed user storage space
+    if ((USER_MAX_TOTAL_STORAGE_BYTES - (len(user_files) * USER_MAX_FILE_SIZE_BYTES)) <= request.FILES['file'].size):
+        # Slow check for allowed user storage space
+        file_size_sum = 0
+        for user_file in user_files:
+            file_size_sum += user_file.file.size
+        if file_size_sum > USER_MAX_TOTAL_STORAGE_BYTES:
+            return responses.bad_request('Unsufficient user storage space.')
+
+    # Ensure an old copy of the file is removed when updating a file with the same name.
+    try:
+        old_user_file = user_files.get(file_name=request.FILES['file'].name)
+        old_user_file.file.delete()
+        old_user_file.delete()
+    except UserFile.DoesNotExist:
+        pass
+
+    factory.make_user_file(request.FILES['file'], user)
+
+    return responses.success()
+
+
+@api_view(['POST'])
+def update_user_profile_picture(request):
+    """Update user profile picture.
+
+    Arguments:
+    request -- the update request that was send with
+        is expected to contain a base64 encoded image.
+
+    Returns a json string indicating wether the upload was successful or not.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    if not request.data['urlData']:
+        return responses.bad_request()
+
+    validators.validate_profile_picture_base64(request.data['urlData'])
+
+    user.profile_picture = request.data['urlData']
+    user.save()
+
+    return responses.success()
