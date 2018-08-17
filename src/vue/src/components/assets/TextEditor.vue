@@ -185,14 +185,17 @@ export default {
 
             editor.theme.panel.find('toolbar')[0].$el.hide()
             editor.theme.panel.find('menubar')[0].$el.hide()
+            editor.theme.panel.find('#statusbar')[0].$el.hide()
 
             editor.on('focus', function () {
                 editor.theme.panel.find('menubar')[0].$el.show()
                 editor.theme.panel.find('toolbar')[0].$el.show()
+                editor.theme.panel.find('#statusbar')[0].$el.show()
             })
             editor.on('blur', function () {
                 editor.theme.panel.find('menubar')[0].$el.hide()
                 editor.theme.panel.find('toolbar')[0].$el.hide()
+                editor.theme.panel.find('#statusbar')[0].$el.hide()
             })
         },
         /* Disabled as images are encoded as base64 and saved with the content of the editor.
@@ -338,6 +341,7 @@ export default {
 <style lang="sass">
 .editor-container
     padding: 0px 3px
+    width: 100%
 
 .mce-fullscreen
     padding-top: 70px
