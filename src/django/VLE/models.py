@@ -12,7 +12,7 @@ from VLE.utils.file_handling import get_path
 class UserFile(models.Model):
     """UserFile
 
-    UserFile is a file uploaded by the user stored in MEDIA_ROOT/files/uID/...
+    UserFile is a file uploaded by the user stored in MEDIA_ROOT/files/uID/aID/...
     - author: The user who uploaded the file.
     - file_name: The name of the file (no parts of the path to the file included).
     - creation_date: The time and date the file was uploaded.
@@ -37,8 +37,8 @@ class UserFile(models.Model):
     content_type = models.TextField(
         null=False
     )
-    journal = models.ForeignKey(
-        'Journal',
+    assignment = models.ForeignKey(
+        'Assignment',
         on_delete=models.CASCADE,
         null=False
     )

@@ -29,7 +29,7 @@
                         :maxSizeBytes="$root.maxFileSizeBytes"
                         :autoUpload="true"
                         @fileUploadSuccess="completeContent[i].data = $event"
-                        :jID="$route.params.jID"
+                        :aID="$route.params.aID"
                     />
                 </div>
             </div>

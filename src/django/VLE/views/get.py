@@ -909,7 +909,7 @@ def lti_launch(request):
 
 
 @api_view(['GET'])
-def get_user_file(request, file_name):
+def get_user_file(request, file_name, author_uID):
     """Get a user file by name if it exists.
 
     Arguments:
@@ -921,6 +921,12 @@ def get_user_file(request, file_name):
         return responses.unauthorized()
 
     try:
-        return responses.fileb64(UserFile.objects.get(author=user, file_name=file_name))
+        user_file = UserFile.objects.get(author=int(author_uID), file_name=file_name)
     except UserFile.DoesNotExist:
         return responses.bad_request(file_name + ' was not found.')
+
+    if user_file.author.id is user.id or \
+       permissions.has_assignment_permission(user, user_file.assignment, 'can_view_assignment_participants'):
+        return responses.fileb64(user_file)
+    else:
+        return responses.unauthorized('Unauthorized to view: %s by author ID: %s.' % (file_name, author_uID))

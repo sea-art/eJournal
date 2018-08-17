@@ -45,9 +45,10 @@
                     ></b-embed><br>
                 </div>
                 <div v-else-if="field.type == 'p'">
-                    <b-button @click="log">LOG</b-button>
-                    <pdf-display :fileName="completeContent[i].data"/>
-                    <h2>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ENTRY NON STUDENT PREVIEW %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</h2>
+                    <pdf-display
+                        :fileName="completeContent[i].data"
+                        :authorUID="$parent.journal.student.uID"
+                    />
                 </div>
             </div>
         </b-card>
@@ -100,10 +101,6 @@ export default {
         }
     },
     methods: {
-        log () {
-            console.log(this.tempNode)
-            console.log(this.completeContent)
-        },
         setContent () {
             /* Loads in the data of an entry in the right order by matching
              * the different data-fields with the corresponding template-IDs. */

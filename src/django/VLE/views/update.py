@@ -734,7 +734,7 @@ def update_user_file(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    if not request.FILES or not request.FILES['file'] or not request.POST['jID']:
+    if not request.FILES or not request.FILES['file'] or not request.POST['aID']:
         return responses.bad_request()
 
     try:
@@ -762,11 +762,11 @@ def update_user_file(request):
         pass
 
     try:
-        journal = Journal.objects.get(pk=request.POST['jID'])
+        assignment = Assignment.objects.get(pk=request.POST['aID'])
     except Journal.DoesNotExist:
-        return responses.bad_request('Journal with id ' + request.POST['jID'] + ' was not found.')
+        return responses.bad_request('Journal with id ' + request.POST['aID'] + ' was not found.')
 
-    factory.make_user_file(request.FILES['file'], user, journal)
+    factory.make_user_file(request.FILES['file'], user, assignment)
 
     return responses.success()
 

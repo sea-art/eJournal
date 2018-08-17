@@ -51,6 +51,10 @@ export default {
             required: true,
             String
         },
+        authorUID: {
+            required: true,
+            String
+        },
         display: {
             default: false
         }
@@ -97,7 +101,7 @@ export default {
             return bytes.buffer
         },
         fileDownload () {
-            userAPI.getUserFile(this.fileName)
+            userAPI.getUserFile(this.fileName, this.authorUID)
                 .then(response => {
                     let blob = new Blob([this.base64ToArrayBuffer(response.data)], { type: response.headers['content-type'] })
                     this.fileURL = window.URL.createObjectURL(blob)

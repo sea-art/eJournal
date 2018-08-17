@@ -45,7 +45,14 @@
                     <b-input class="theme-input" @input="completeContent[i].data = youtubeEmbedFromURL($event)" placeholder="Enter YouTube URL..."></b-input><br>
                 </div>
                 <div v-else-if="field.type == 'p'">
-                    <h2>#######################################################################################</h2>
+                    <file-upload-input
+                        :placeholder="completeContent[i].data"
+                        :acceptedFiletype="'application/pdf'"
+                        :maxSizeBytes="$root.maxFileSizeBytes"
+                        :autoUpload="true"
+                        @fileUploadSuccess="completeContent[i].data = $event"
+                        :aID="$route.params.aID"
+                    />
                 </div>
             </div>
             <b-alert :show="dismissCountDown" dismissible variant="secondary"
@@ -97,7 +104,10 @@
                     ></b-embed><br>
                 </div>
                 <div v-else-if="field.type == 'p'">
-                    <pdf-display :fileName="completeContent[i].data"/>
+                    <pdf-display
+                        :fileName="completeContent[i].data"
+                        :authorUID="$parent.journal.student.uID"
+                    />
                 </div>
             </div>
             <b-button v-if="entryNode.entry.editable" class="change-button float-right" @click="saveEdit">
@@ -112,6 +122,7 @@
 
 <script>
 import commentCard from '@/components/journal/CommentCard.vue'
+import fileUploadInput from '@/components/assets/file_handling/FileUploadInput.vue'
 import pdfDisplay from '@/components/assets/PdfDisplay.vue'
 import icon from 'vue-awesome/components/Icon'
 
@@ -210,6 +221,7 @@ export default {
     components: {
         'comment-card': commentCard,
         'pdf-display': pdfDisplay,
+        'file-upload-input': fileUploadInput,
         'icon': icon
     }
 }

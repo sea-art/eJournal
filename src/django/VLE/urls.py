@@ -108,7 +108,7 @@ urlpatterns = [
     path('get_lti_params_from_jwt/<str:jwt_params>/', get.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),
     path('update_user_profile_picture/', update.update_user_profile_picture, name='update_user_profile_picture'),
     path('update_user_file/', update.update_user_file, name='update_user_file'),
-    path('get_user_file/<str:file_name>/', get.get_user_file, name='get_user_file'),
+    path('get_user_file/<str:file_name>/<str:author_uID>/', get.get_user_file, name='get_user_file'),
 ]
 
 if settings.DEBUG is True:
