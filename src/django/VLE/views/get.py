@@ -15,7 +15,7 @@ import jwt
 
 import VLE.lti_launch as lti
 import VLE.edag as edag
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
 from VLE.models import Assignment, Course, Journal, EntryTemplate, EntryComment, User, Node, \
     Role, Entry, UserFile
 import VLE.serializers as serialize
