@@ -34,8 +34,16 @@
                     <span class="show-enters">{{ completeContent[i].data }}</span><br><br>
                 </div>
                 <div v-else-if="field.type=='i'">
+                    <image-file-display
+                        :fileName="completeContent[i].data"
+                        :authorUID="$parent.journal.student.uID"
+                    />
                 </div>
                 <div v-else-if="field.type=='f'">
+                    <file-download-button
+                        :fileName="completeContent[i].data"
+                        :authorUID="$parent.journal.student.uID"
+                    />
                 </div>
                 <div v-else-if="field.type=='v'">
                     <b-embed type="iframe"
@@ -64,6 +72,8 @@
 <script>
 import commentCard from '@/components/journal/CommentCard.vue'
 import pdfDisplay from '@/components/assets/PdfDisplay.vue'
+import fileDownloadButton from '@/components/assets/file_handling/FileDownloadButton.vue'
+import imageFileDisplay from '@/components/assets/file_handling/ImageFileDisplay.vue'
 import journalApi from '@/api/journal.js'
 import icon from 'vue-awesome/components/Icon'
 
@@ -161,7 +171,9 @@ export default {
     },
     components: {
         'comment-card': commentCard,
+        'file-download-button': fileDownloadButton,
         'pdf-display': pdfDisplay,
+        'image-file-display': imageFileDisplay,
         'icon': icon
     }
 }

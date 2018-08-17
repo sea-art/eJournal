@@ -15,10 +15,22 @@
                     <b-textarea class="theme-input" v-model="completeContent[i].data"></b-textarea><br>
                 </div>
                 <div v-else-if="field.type=='i'">
-                    <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
+                    <file-upload-input
+                        :acceptedFiletype="'image/*'"
+                        :maxSizeBytes="$root.maxFileSizeBytes"
+                        :autoUpload="true"
+                        @fileUploadSuccess="completeContent[i].data = $event"
+                        :aID="$route.params.aID"
+                    />
                 </div>
                 <div v-else-if="field.type=='f'">
-                    <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
+                    <file-upload-input
+                        :acceptedFiletype="'*/*'"
+                        :maxSizeBytes="$root.maxFileSizeBytes"
+                        :autoUpload="true"
+                        @fileUploadSuccess="completeContent[i].data = $event"
+                        :aID="$route.params.aID"
+                    />
                 </div>
                 <div v-else-if="field.type=='v'">
                     <b-input class="theme-input" @input="completeContent[i].data = youtubeEmbedFromURL($event)" placeholder="Enter YouTube URL..."></b-input><br>
