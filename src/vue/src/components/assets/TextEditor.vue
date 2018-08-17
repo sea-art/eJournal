@@ -3,7 +3,7 @@
 
 <template>
     <div class="editor-container">
-        <textarea :id="uID"/>
+        <textarea :id="id"/>
     </div>
 </template>
 
@@ -61,9 +61,16 @@ export default {
             default: false
         },
         /* Used to bind the editor to the components text area. */
-        uID: {
+        id: {
             type: String,
             required: true
+        },
+        givenContent: {
+            type: String,
+            default: ''
+        },
+        displayInline: {
+            default: false
         }
     },
     data () {
@@ -71,7 +78,7 @@ export default {
             content: '',
             editor: null,
             config: {
-                selector: '#' + this.uID,
+                selector: '#' + this.id,
                 init_instance_callback: this.editorInit,
                 setup: this.editorSetup,
 
@@ -125,13 +132,22 @@ export default {
             }
         }
     },
+    watch: {
+        content: function (newVal) { this.$emit('content-update', this.content) }
+    },
     methods: {
         editorInit (editor) {
             var vm = this
             this.editor = editor
+            this.content = this.givenContent
+            editor.setContent(this.content)
+
+            if (this.displayInline) {
+                this.setupInlineDisplay(editor)
+            }
 
             editor.on('init', (e) => {
-                editor.setContent(this.content)
+                editor.setContent(vm.content)
             })
 
             editor.on('Change', (e) => {
@@ -161,6 +177,22 @@ export default {
             /* Set default font in the editor instance */
             editor.on('init', function (e) {
                 editor.execCommand('fontName', false, 'roboto condensed')
+            })
+        },
+        setupInlineDisplay (editor) {
+            // Disables auto focus of the editor
+            editor.execCommand('mceInlineCommentIsDirty', false, {skip_focus: true})
+
+            editor.theme.panel.find('toolbar')[0].$el.hide()
+            editor.theme.panel.find('menubar')[0].$el.hide()
+
+            editor.on('focus', function () {
+                editor.theme.panel.find('menubar')[0].$el.show()
+                editor.theme.panel.find('toolbar')[0].$el.show()
+            })
+            editor.on('blur', function () {
+                editor.theme.panel.find('menubar')[0].$el.hide()
+                editor.theme.panel.find('toolbar')[0].$el.hide()
             })
         },
         /* Disabled as images are encoded as base64 and saved with the content of the editor.
