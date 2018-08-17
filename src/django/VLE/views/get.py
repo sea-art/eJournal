@@ -923,4 +923,4 @@ def get_user_file(request, file_name):
     try:
         return responses.fileb64(UserFile.objects.get(author=user, file_name=file_name))
     except UserFile.DoesNotExist:
-        return responses.not_found(file_name)
+        return responses.bad_request(file_name + ' was not found.')

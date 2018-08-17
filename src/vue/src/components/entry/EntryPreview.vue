@@ -23,6 +23,15 @@
                 <div v-else-if="field.type=='v'">
                     <b-input class="theme-input" @input="completeContent[i].data = youtubeEmbedFromURL($event)" placeholder="Enter YouTube URL..."></b-input><br>
                 </div>
+                <div v-else-if="field.type == 'p'">
+                    <file-upload-input
+                        :acceptedFiletype="'application/pdf'"
+                        :maxSizeBytes="$root.maxFileSizeBytes"
+                        :autoUpload="true"
+                        @fileUploadSuccess="completeContent[i].data = $event"
+                        :jID="$route.params.jID"
+                    />
+                </div>
             </div>
 
             <b-alert :show="dismissCountDown" dismissible variant="secondary"
@@ -39,6 +48,7 @@
 
 <script>
 import icon from 'vue-awesome/components/Icon'
+import fileUploadInput from '@/components/assets/file_handling/FileUploadInput.vue'
 
 export default {
     props: ['template', 'cID'],
@@ -60,6 +70,9 @@ export default {
         this.setContent()
     },
     methods: {
+        log (e) {
+            console.log(e)
+        },
         setContent: function () {
             for (var field of this.template.fields) {
                 this.completeContent.push({
@@ -96,7 +109,8 @@ export default {
         }
     },
     components: {
-        'icon': icon
+        'icon': icon,
+        'file-upload-input': fileUploadInput
     }
 }
 </script>

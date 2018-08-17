@@ -3,7 +3,6 @@
         :accept="acceptedFiletype"
         class="fileinput"
         @change="fileHandler"
-        v-model="file"
         :state="Boolean(file)"
         placeholder="Select a file."/>
 </template>
@@ -20,6 +19,13 @@ export default {
         maxSizeBytes: {
             required: true,
             Number
+        },
+        jID: {
+            required: true,
+            String
+        },
+        autoUpload: {
+            default: false
         }
     },
     data () {
@@ -37,15 +43,26 @@ export default {
                 return
             }
 
+            this.file = files[0]
+
+            this.$emit('fileSelect', this.file.name)
+
+            if (this.autoUpload) { this.uploadFile() }
+        },
+        uploadFile () {
             let formData = new FormData()
-            formData.append('file', files[0])
+            formData.append('file', this.file)
+            formData.append('jID', this.jID)
 
             userAPI.updateUserFile(formData)
                 .then(_ => {
+                    this.$emit('fileUploadSuccess', this.file.name)
                     this.$toasted.success('File upload success.')
                 })
                 .catch(response => {
+                    this.$emit('fileUploadFailed', [this.file.name, response.description])
                     this.$toasted.error(response.description)
+                    this.file = null
                 })
         }
     }

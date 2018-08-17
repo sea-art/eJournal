@@ -44,6 +44,9 @@
                 <div v-else-if="field.type=='v'">
                     <b-input class="theme-input" @input="completeContent[i].data = youtubeEmbedFromURL($event)" placeholder="Enter YouTube URL..."></b-input><br>
                 </div>
+                <div v-else-if="field.type == 'p'">
+                    <h2>#######################################################################################</h2>
+                </div>
             </div>
             <b-alert :show="dismissCountDown" dismissible variant="secondary"
                 @dismissed="dismissCountDown=0">
@@ -93,6 +96,9 @@
                              allowfullscreen
                     ></b-embed><br>
                 </div>
+                <div v-else-if="field.type == 'p'">
+                    <pdf-display :fileName="completeContent[i].data"/>
+                </div>
             </div>
             <b-button v-if="entryNode.entry.editable" class="change-button float-right" @click="saveEdit">
                 <icon name="edit"/>
@@ -106,6 +112,7 @@
 
 <script>
 import commentCard from '@/components/journal/CommentCard.vue'
+import pdfDisplay from '@/components/assets/PdfDisplay.vue'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
@@ -202,6 +209,7 @@ export default {
     },
     components: {
         'comment-card': commentCard,
+        'pdf-display': pdfDisplay,
         'icon': icon
     }
 }

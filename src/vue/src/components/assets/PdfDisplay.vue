@@ -52,7 +52,7 @@ export default {
             String
         },
         display: {
-            default: true
+            default: false
         }
     },
     components: {

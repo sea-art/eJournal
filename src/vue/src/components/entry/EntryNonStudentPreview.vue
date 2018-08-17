@@ -44,6 +44,11 @@
                              allowfullscreen
                     ></b-embed><br>
                 </div>
+                <div v-else-if="field.type == 'p'">
+                    <b-button @click="log">LOG</b-button>
+                    <pdf-display :fileName="completeContent[i].data"/>
+                    <h2>%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% ENTRY NON STUDENT PREVIEW %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%</h2>
+                </div>
             </div>
         </b-card>
 
@@ -57,6 +62,7 @@
 
 <script>
 import commentCard from '@/components/journal/CommentCard.vue'
+import pdfDisplay from '@/components/assets/PdfDisplay.vue'
 import journalApi from '@/api/journal.js'
 import icon from 'vue-awesome/components/Icon'
 
@@ -94,6 +100,10 @@ export default {
         }
     },
     methods: {
+        log () {
+            console.log(this.tempNode)
+            console.log(this.completeContent)
+        },
         setContent () {
             /* Loads in the data of an entry in the right order by matching
              * the different data-fields with the corresponding template-IDs. */
@@ -154,6 +164,7 @@ export default {
     },
     components: {
         'comment-card': commentCard,
+        'pdf-display': pdfDisplay,
         'icon': icon
     }
 }
