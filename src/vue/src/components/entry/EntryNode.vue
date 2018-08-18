@@ -32,7 +32,7 @@
                 </div>
                 <div v-else-if="field.type=='i'">
                     <file-upload-input
-                        :placeholderText="completeContent[i].data"
+                        :placeholder="completeContent[i].data"
                         :acceptedFiletype="'image/*'"
                         :maxSizeBytes="$root.maxFileSizeBytes"
                         :autoUpload="true"
@@ -42,7 +42,7 @@
                 </div>
                 <div v-else-if="field.type=='f'">
                     <file-upload-input
-                        :placeholderText="completeContent[i].data"
+                        :placeholder="completeContent[i].data"
                         :acceptedFiletype="'*/*'"
                         :maxSizeBytes="$root.maxFileSizeBytes"
                         :autoUpload="true"
@@ -60,7 +60,7 @@
                 </div>
                 <div v-else-if="field.type == 'p'">
                     <file-upload-input
-                        :placeholderText="completeContent[i].data"
+                        :placeholder="completeContent[i].data"
                         :acceptedFiletype="'application/pdf'"
                         :maxSizeBytes="$root.maxFileSizeBytes"
                         :autoUpload="true"
