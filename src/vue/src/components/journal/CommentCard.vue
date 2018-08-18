@@ -31,7 +31,6 @@
                 <text-editor
                     :id="'comment-text-editor'"
                     @content-update="tempComment = $event"
-                    :displayInline="true"
                 />
                 <!-- <b-textarea class="theme-input multi-form full-width" v-model="tempComment" placeholder="Write a comment" :class="$root.getBorderClass($route.params.cID)"/> -->
                 <div class="d-flex full-width justify-content-end align-items-center">

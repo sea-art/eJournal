@@ -1,6 +1,9 @@
 <!-- Custom wrapper for tinymce editor -->
 <!-- If more events are desired, here is an overview: https://www.tiny.cloud/docs/advanced/events/ -->
 
+<!-- TODO Text placeholder functionality (not working with a content inject when not required.) -->
+<!-- TODO displayInline functionality not compatible with launching the editor from a modal -->
+
 <template>
     <div class="editor-container">
         <textarea :id="id"/>
@@ -71,6 +74,9 @@ export default {
         },
         displayInline: {
             default: false
+        },
+        footer: {
+            default: true
         }
     },
     data () {
@@ -101,6 +107,11 @@ export default {
 
                 /* Custom styling applied to the editor */
                 content_css: ['//fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700'],
+                content_style: `
+                    @import url('https://fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700');
+                    body {
+                        font-family: "Roboto Condensed"
+                    } `,
 
                 file_picker_types: 'image',
                 file_picker_callback: this.insertDataURL
@@ -139,16 +150,20 @@ export default {
         editorInit (editor) {
             var vm = this
             this.editor = editor
+
+            /* Set default font in the editor instance */
+            editor.execCommand('fontName', false, 'roboto condensed')
+
             this.content = this.givenContent
-            editor.setContent(this.content)
+            /* set content resets the default font for some reason */
+            editor.setContent(this.givenContent)
+
+            /* Set default font in the editor instance */
+            editor.execCommand('fontName', false, 'roboto condensed')
 
             if (this.displayInline) {
                 this.setupInlineDisplay(editor)
             }
-
-            editor.on('init', (e) => {
-                editor.setContent(vm.content)
-            })
 
             editor.on('Change', (e) => {
                 vm.content = this.editor.getContent()
@@ -173,14 +188,9 @@ export default {
                     })
                 }
             })
-
-            /* Set default font in the editor instance */
-            editor.on('init', function (e) {
-                editor.execCommand('fontName', false, 'roboto condensed')
-            })
         },
         setupInlineDisplay (editor) {
-            // Disables auto focus of the editor
+            /* Disables auto focus of the editor. */
             editor.execCommand('mceInlineCommentIsDirty', false, {skip_focus: true})
 
             editor.theme.panel.find('toolbar')[0].$el.hide()
@@ -192,11 +202,17 @@ export default {
                 editor.theme.panel.find('toolbar')[0].$el.show()
                 editor.theme.panel.find('#statusbar')[0].$el.show()
             })
+
             editor.on('blur', function () {
                 editor.theme.panel.find('menubar')[0].$el.hide()
                 editor.theme.panel.find('toolbar')[0].$el.hide()
                 editor.theme.panel.find('#statusbar')[0].$el.hide()
             })
+        },
+        /* Appends <span style="font-family: 'roboto condensed';"> to all <p> elements. */
+        paragraphsInludeRoboto (input) {
+            input = input.replace(new RegExp(/<p>/, 'g'), '<p><span style="font-family: "roboto condensed";">')
+            return input.replace(new RegExp(/<\/p>/, 'g'), '</span></p>')
         },
         /* Disabled as images are encoded as base64 and saved with the content of the editor.
          * Can be enabled by adding images_upload_handler: this.handleImageUpload to the config. */
@@ -314,6 +330,8 @@ export default {
         }
     },
     mounted () {
+        this.config.statusbar = this.footer
+
         if (this.basic) {
             this.setBasicConfig()
         } else {
@@ -340,9 +358,13 @@ export default {
 
 <style lang="sass">
 .editor-container
-    padding: 0px 3px
+    padding-right: 1px
     width: 100%
 
 .mce-fullscreen
     padding-top: 70px
+
+// Assume we're in a modal
+form .mce-fullscreen
+    padding-top: 0px
 </style>

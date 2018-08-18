@@ -7,12 +7,12 @@
                          v-model="assignment.name"
                          placeholder="Assignment name"
                          required/>
-                <b-form-textarea class="multi-form theme-input"
-                                 :rows="3"
-                                 :max-rows="6"
-                                 v-model="assignment.description"
-                                 placeholder="Description"
-                                 required/>
+                <text-editor
+                    :id="'text-editor-assignment-edit-description'"
+                    :givenContent="assignment.description"
+                    @content-update="assignment.description = $event"
+                    :footer="false"
+                 />
                 <b-button v-if="$root.canDeleteAssignment()" @click.prevent.stop="deleteAssignment()" class="delete-button multi-form float-left">
                     <icon name="trash"/>
                     Delete Assignment
@@ -36,6 +36,7 @@
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import textEditor from '@/components/assets/TextEditor.vue'
 import assignmentApi from '@/api/assignment.js'
 import store from '@/Store'
 import icon from 'vue-awesome/components/Icon'
@@ -100,6 +101,7 @@ export default {
     components: {
         'content-single-column': contentSingleColumn,
         'bread-crumb': breadCrumb,
+        'text-editor': textEditor,
         'icon': icon
     }
 }

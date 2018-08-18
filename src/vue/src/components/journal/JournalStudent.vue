@@ -49,7 +49,7 @@
                 <b-col md="6" lg="12">
                     <h3>Description</h3>
                     <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-                        {{ assignmentDescription }}
+                        <div v-html="assignmentDescription"/>
                     </b-card>
                 </b-col>
                 <b-col md="6" lg="12">

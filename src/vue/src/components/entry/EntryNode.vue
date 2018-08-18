@@ -81,11 +81,11 @@
                 @dismissed="dismissCountDown=0">
                 Some fields are empty or incorrectly formatted.
             </b-alert>
-            <b-button class="add-button float-right" @click="saveEdit">
+            <b-button class="add-button float-right mt-2" @click="saveEdit">
                 <icon name="save"/>
                 Save
             </b-button>
-            <b-button class="delete-button" @click="cancel">
+            <b-button class="delete-button mt-2" @click="cancel">
                 <icon name="ban"/>
                 Cancel
             </b-button>
