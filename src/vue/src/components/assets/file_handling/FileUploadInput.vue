@@ -4,7 +4,7 @@
         class="fileinput"
         @change="fileHandler"
         :state="Boolean(file)"
-        :placeholder="placeholder"/>
+        :placeholder="placeholderText"/>
 </template>
 
 <script>
@@ -27,7 +27,7 @@ export default {
         autoUpload: {
             default: false
         },
-        placeholder: {
+        placeholderText: {
             default: 'Select a file.'
         }
     },
@@ -71,7 +71,7 @@ export default {
     },
     created () {
         // Assume the given file is present in the backend
-        if (this.placeholder !== 'Select a file.') {
+        if (this.placeholderText !== 'Select a file.') {
             this.file = true
         }
     }
