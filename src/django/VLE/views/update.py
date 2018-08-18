@@ -794,3 +794,29 @@ def update_user_profile_picture(request):
     user.save()
 
     return responses.success()
+
+
+@api_view(['POST'])
+def forgot_password(request):
+    """Handles a forgot password request.
+    """
+    user = None
+
+    if request.data['username']:
+        try:
+            user = User.objects.get(username=request.data['username'])
+        except User.DoesNotExist:
+            pass
+    elif request.data['email']:
+        try:
+            user = User.objects.get(email=request.data['email'])
+        except User.DoesNotExist:
+            pass
+
+    if user:
+        print('sent recovery email')
+    else:
+        return responses.bad_request('No user found with that username or password.')
+
+    return responses.success('A verification email was sent to %s, please follow the email for instructions.'
+                             % user.email)

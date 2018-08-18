@@ -11,7 +11,7 @@ from VLE.models import Journal, Node, EntryComment
 def user_to_dict(user):
     """Convert user object to dictionary."""
     return {
-        'name': user.username,
+        'username': user.username,
         'email': user.email,
         'lti_id': user.lti_id,
         'is_superuser': user.is_superuser,

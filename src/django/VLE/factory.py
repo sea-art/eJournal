@@ -9,7 +9,7 @@ from VLE.models import User, Participation, Course, Assignment, Role, JournalFor
 import django.utils.timezone as timezone
 
 
-def make_user(username, password, email=None, lti_id=None, profile_picture=None,
+def make_user(username, password, email, lti_id=None, profile_picture=None,
               is_superuser=False, is_teacher=False, first_name=None, last_name=None):
     """Create a user.
 

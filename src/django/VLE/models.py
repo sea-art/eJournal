@@ -59,8 +59,6 @@ class User(AbstractUser):
     """
 
     email = models.EmailField(
-        null=True,
-        blank=True,
         unique=True,
     )
     lti_id = models.TextField(

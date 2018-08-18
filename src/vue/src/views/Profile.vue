@@ -1,45 +1,40 @@
 <template>
     <content-single-column>
-        <bread-crumb @eye-click="customisePage"/>
-        <profile-card v-if="profile"
-            :uname="profile.name"
-            :first="profile.first_name"
-            :last="profile.last_name"
-            :image="profile.picture"
-            :id="profile.uID"
-            :gradeUpdate="profile.grade_notifications"
-            :commentUpdate="profile.comment_notifications">
-        </profile-card>
+        <bread-crumb>&nbsp;</bread-crumb>
+        <b-card v-if="userData" class="no-hover blue-border">
+            <profile-data :userData="userData"/>
+            <notification-card :userData="userData"/>
+            <password-card/>
+        </b-card>
     </content-single-column>
 </template>
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import profileData from '@/components/profile/ProfileData.vue'
+import notificationCard from '@/components/profile/NotificationCard.vue'
+import passwordCard from '@/components/profile/PasswordCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import profileCard from '@/components/profile/ProfileCard.vue'
 import userAPI from '@/api/user.js'
 
 export default {
     name: 'Profile',
     data () {
         return {
-            profile: null
+            userData: null
         }
     },
     components: {
         'content-single-column': contentSingleColumn,
         'bread-crumb': breadCrumb,
-        'profile-card': profileCard
-    },
-    methods: {
-        customisePage () {
-            this.$toasted.info('Wishlist: Customise page')
-        }
+        'profile-data': profileData,
+        'notification-card': notificationCard,
+        'password-card': passwordCard
     },
     created () {
         userAPI.getOwnUserData()
-            .then(user => {
-                this.profile = user
+            .then(userData => {
+                this.userData = userData
             })
     }
 }
