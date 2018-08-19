@@ -16,6 +16,7 @@ from VLE.models import Course, EntryComment, Assignment, Participation, Role, \
     Entry, User, Journal, UserFile
 import VLE.lti_grade_passback as lti_grade
 from VLE.settings.production import USER_MAX_FILE_SIZE_BYTES, USER_MAX_TOTAL_STORAGE_BYTES
+from VLE.settings.development import BASELINK
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -830,10 +831,10 @@ def forgot_password(request):
 
     token_generator = PasswordResetTokenGenerator()
     token = token_generator.make_token(user)
-    recovery_link = 'http://localhost:8080/PasswordRecovery/%s/%s' % (user.username, token)
+    recovery_link = '%s/PasswordRecovery/%s/%s' % (BASELINK, user.username, token)
     email_body = 'Please visit the link below and set a new password\n\n%s' % recovery_link
 
-    EmailMessage('eJourn.al password recovery', email_body, to=['thamj@msn.com']).send()
+    EmailMessage('eJourn.al password recovery', email_body, to=[user.email]).send()
 
     return responses.success('A verification email was sent to %s, please follow the email for instructions.'
                              % user.email)

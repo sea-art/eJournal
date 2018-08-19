@@ -78,7 +78,6 @@ export default {
     },
     mounted () {
         if (this.$root.previousPage && this.$root.previousPage.name === 'PasswordRecovery') {
-            console.log('Chaning username')
             this.username = this.$root.previousPage.params.username
         }
     },

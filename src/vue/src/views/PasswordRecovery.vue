@@ -59,9 +59,6 @@ export default {
                     })
                     .catch(response => {
                         this.$toasted.error(response.response.data.description)
-                        console.log(response.response.status)
-                        console.log(response.response.data.result)
-                        console.log(response.response.data.description)
                         this.$router.push({
                             name: 'ErrorPage',
                             params: {
