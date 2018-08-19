@@ -639,7 +639,7 @@ def update_user_data(request):
     """Update user data.
 
     Arguments:
-    request -- the update request that was send with
+        request -- the update request that was send
         username -- new password of the user
         picture -- current password of the user
 
@@ -649,11 +649,9 @@ def update_user_data(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    if 'username' in request.data:
-        username = request.data['username']
-        if User.objects.filter(username=username).exists():
-            return responses.bad_request('User with this username already exists.')
-        user.username = username
+    if user.lti_id:
+        return responses.unauthorized('Your user data is locked as it is coupled with LTI.')
+
     if 'picture' in request.data:
         user.profile_picture = request.data['picture']
     if 'first_name' in request.data:

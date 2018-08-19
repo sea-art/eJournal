@@ -20,11 +20,11 @@
         </b-col>
         <b-col md="7" sm="12">
             <h2 class="mb-2">User details</h2>
-            <b-form-input disabled class="theme-input multi-form" v-model="userData.username" type="text"/>
-            <b-form-input class="theme-input multi-form" v-model="userData.first_name" type="text"/>
-            <b-form-input class="theme-input multi-form" v-model="userData.last_name" type="text"/>
+            <b-form-input :readonly="true" class="theme-input multi-form" v-model="userData.username" type="text"/>
+            <b-form-input :readonly="(userData.lti_id) ? true : false" class="theme-input multi-form" v-model="userData.first_name" type="text"/>
+            <b-form-input :readonly="(userData.lti_id) ? true : false" class="theme-input multi-form" v-model="userData.last_name" type="text"/>
 
-            <b-button class="add-button multi-form float-right" @click="saveUserdata">
+            <b-button v-if="!userData.lti_id" class="add-button multi-form float-right" @click="saveUserdata">
                 <icon name="save"/>
                 Save
             </b-button>
@@ -53,7 +53,7 @@ export default {
     },
     methods: {
         saveUserdata () {
-            userAPI.updateUserData(this.userData.username, this.userData.first_name, this.userData.last_name)
+            userAPI.updateUserData(this.userData.first_name, this.userData.last_name)
                 .then(this.$toasted.success('Saved profile data'))
         },
         fileHandler (e) {
