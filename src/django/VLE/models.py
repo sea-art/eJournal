@@ -12,11 +12,12 @@ from VLE.utils.file_handling import get_path
 class UserFile(models.Model):
     """UserFile
 
-    UserFile is a file uploaded by the user stored in MEDIA_ROOT/files/uID/...
+    UserFile is a file uploaded by the user stored in MEDIA_ROOT/files/uID/aID/...
     - author: The user who uploaded the file.
     - file_name: The name of the file (no parts of the path to the file included).
     - creation_date: The time and date the file was uploaded.
     - content_type: The mimetype supplied by the user (unvalidated).
+    - assignment: The assignment that the UserFile is linked to.
     """
     file = models.FileField(
         null=False,
@@ -34,6 +35,11 @@ class UserFile(models.Model):
         auto_now_add=True
     )
     content_type = models.TextField(
+        null=False
+    )
+    assignment = models.ForeignKey(
+        'Assignment',
+        on_delete=models.CASCADE,
         null=False
     )
 
@@ -502,12 +508,16 @@ class Field(models.Model):
     """
 
     TEXT = 't'
+    RICH_TEXT = 'rt'
     IMG = 'i'
     FILE = 'f'
     VIDEO = 'v'
+    PDF = 'p'
     TYPES = (
         (TEXT, 'text'),
+        (RICH_TEXT, 'rich text'),
         (IMG, 'img'),
+        (PDF, 'pdf'),
         (FILE, 'file'),
         (VIDEO, 'vid')
     )
@@ -543,6 +553,7 @@ class Content(models.Model):
         on_delete=models.SET_NULL,
         null=True
     )
+    # TODO Consider a size limit 10MB unencoded posts? so 10 * 1024 * 1024 * 1.37?
     data = models.TextField()
 
 
