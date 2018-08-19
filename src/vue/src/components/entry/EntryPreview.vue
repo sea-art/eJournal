@@ -82,9 +82,6 @@ export default {
         this.setContent()
     },
     methods: {
-        log (e) {
-            console.log(e)
-        },
         setContent: function () {
             for (var field of this.template.fields) {
                 this.completeContent.push({
