@@ -16,11 +16,15 @@ from VLE.models import Course, EntryComment, Assignment, Participation, Role, \
     Entry, User, Journal, UserFile
 import VLE.lti_grade_passback as lti_grade
 from VLE.settings.production import USER_MAX_FILE_SIZE_BYTES, USER_MAX_TOTAL_STORAGE_BYTES
+from VLE.settings.development import BASELINK
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 import re
 import jwt
 import json
+
+from django.core.mail import EmailMessage
 
 
 @api_view(['POST'])
@@ -639,7 +643,7 @@ def update_user_data(request):
     """Update user data.
 
     Arguments:
-    request -- the update request that was send with
+        request -- the update request that was send
         username -- new password of the user
         picture -- current password of the user
 
@@ -649,11 +653,9 @@ def update_user_data(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    if 'username' in request.data:
-        username = request.data['username']
-        if User.objects.filter(username=username).exists():
-            return responses.bad_request('User with this username already exists.')
-        user.username = username
+    if user.lti_id:
+        return responses.unauthorized('Your user data is locked as it is coupled with LTI.')
+
     if 'picture' in request.data:
         user.profile_picture = request.data['picture']
     if 'first_name' in request.data:
@@ -734,7 +736,7 @@ def update_user_file(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    if not request.FILES or not request.FILES['file'] or not request.POST['aID']:
+    if not request.FILES or 'file' not in request.FILES or 'aID' not in request.POST:
         return responses.bad_request()
 
     try:
@@ -785,7 +787,7 @@ def update_user_profile_picture(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    if not request.data['urlData']:
+    if 'urlData' not in request.data:
         return responses.bad_request()
 
     validators.validate_profile_picture_base64(request.data['urlData'])
@@ -794,3 +796,84 @@ def update_user_profile_picture(request):
     user.save()
 
     return responses.success()
+
+
+@api_view(['POST'])
+def forgot_password(request):
+    """Handles a forgot password request.
+
+    Arguments:
+        username -- User claimed username
+        email -- User claimed email
+        token -- Django stateless token, invalidated after password change or after a set time (by default three days).
+
+    Generates a recovery token if a matching user can be found by either the prodived username or email.
+    """
+    user = None
+
+    try:
+        utils.required_params(request.data, 'username', 'email')
+    except KeyError:
+        return responses.KeyError('username', 'email')
+
+    # We are retrieving the username based on either the username or password
+    try:
+        user = User.objects.get(username=request.data['username'])
+    except User.DoesNotExist:
+        pass
+    try:
+        user = User.objects.get(email=request.data['email'])
+    except User.DoesNotExist:
+        pass
+
+    if not user:
+        return responses.bad_request('No user found with that username or password.')
+
+    token_generator = PasswordResetTokenGenerator()
+    token = token_generator.make_token(user)
+    recovery_link = '%s/PasswordRecovery/%s/%s' % (BASELINK, user.username, token)
+    email_body = 'Please visit the link below and set a new password\n\n%s' % recovery_link
+
+    EmailMessage('eJourn.al password recovery', email_body, to=[user.email]).send()
+
+    return responses.success('A verification email was sent to %s, please follow the email for instructions.'
+                             % user.email)
+
+
+@api_view(['POST'])
+def recover_password(request):
+    """Handles a reset password request.
+
+    Arguments:
+        username -- User claimed username
+        recovery_token -- Django stateless token, invalidated after password change or after a set time
+            (by default three days).
+        new_password -- The new user desired password
+
+    Updates password if the recovery_token is valid.
+    """
+    try:
+        utils.required_params(request.data, 'username', 'recovery_token', 'new_password')
+    except KeyError:
+        return responses.KeyError('username', 'recovery_token', 'new_password')
+
+    try:
+        user = User.objects.get(username=request.data['username'])
+    except User.DoesNotExist:
+        return responses.not_found('The username is unkown.')
+
+    token_generator = PasswordResetTokenGenerator()
+
+    if not token_generator.check_token(user, request.data['recovery_token']):
+        return responses.bad_request('Invalid recovery token.')
+
+    if len(request.data['new_password']) < 8:
+        return responses.bad_request('Password needs to contain at least 8 characters.')
+    if request.data['new_password'] == request.data['new_password'].lower():
+        return responses.bad_request('Password needs to contain at least 1 capital letter.')
+    if re.match(r'^\w+$', request.data['new_password']):
+        return responses.bad_request('Password needs to contain a special character.')
+
+    user.set_password(request.data['new_password'])
+    user.save()
+    return responses.success(message='Succesfully changed the password, please login.')

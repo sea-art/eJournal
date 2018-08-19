@@ -10,9 +10,10 @@ import test.test_utils as test
 class UpdateApiTests(TestCase):
     def setUp(self):
         """Setup"""
-        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123')
-        self.rein_user, self.rein_pass, self.rein = test.set_up_user_and_auth("Rein", "123")
-        self.no_perm_user, self.no_perm_pass, self.no_permission_user = test.set_up_user_and_auth("no_perm", "123")
+        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123', 'tt@tt.com')
+        self.rein_user, self.rein_pass, self.rein = test.set_up_user_and_auth("Rein", "123", 'rr@rr.com')
+        self.no_perm_user, self.no_perm_pass, self.no_permission_user = test.set_up_user_and_auth("no_perm", "123",
+                                                                                                  'sigh@sigh.com')
         self.course = factory.make_course("Beeldbewerken", "BB")
 
     def test_connect_course_lti(self):
@@ -58,7 +59,7 @@ class UpdateApiTests(TestCase):
 
     def test_update_course_roles(self):
         """Test update course roles"""
-        teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('Teacher', 'pass')
+        teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('Teacher', 'pass', 'teach@teach.com')
         teacher_role = factory.make_role_teacher("TE", self.course)
 
         factory.make_role_ta('TA2', self.course)
@@ -101,7 +102,7 @@ class UpdateApiTests(TestCase):
         teacher_role = Role.objects.get(name='Teacher', course=course)
 
         factory.make_participation(self.user, course, teacher_role)
-        student = factory.make_user("Rick", "pass")
+        student = factory.make_user("Rick", "pass", "r@r.com")
 
         test.api_post_call(
             self,
@@ -116,7 +117,7 @@ class UpdateApiTests(TestCase):
 
     def test_update_assignment(self):
         """Test update assignment"""
-        teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('Teacher', 'pass')
+        teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('Teacher', 'pass', 'teach@teach.com')
         teacher_role = factory.make_role_default_all_perms("TE", self.course)
 
         factory.make_participation(teacher, self.course, teacher_role)
@@ -167,7 +168,7 @@ class UpdateApiTests(TestCase):
         ta_role = Role.objects.get(name='TA', course=course)
         student_role = factory.make_role_student(name='SD', course=course)
 
-        self.user_role = factory.make_user("test123", "test")
+        self.user_role = factory.make_user("test123", "test", "testq@test.com")
         factory.make_participation(self.user_role, course, ta_role)
         factory.make_participation(self.user, course, student_role)
 
@@ -185,7 +186,7 @@ class UpdateApiTests(TestCase):
 
     def test_grade_publish(self):
         """Test the grade publish api functions."""
-        teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('Teacher', 'pass')
+        teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('Teacher', 'pass', 'teach@teach.com')
         students = test.set_up_users('student', 2)
         course1 = factory.make_course("BeeldBewerken", "BB", author=teacher)
         course2 = factory.make_course("Portfolio Academische Vaardigheden", "PAV", author=teacher)
@@ -247,7 +248,7 @@ class UpdateApiTests(TestCase):
         template = factory.make_entry_template('template')
         format = factory.make_format([template], 10)
         assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course])
-        student_user, student_pass, student = test.set_up_user_and_auth('student', 'pass')
+        student_user, student_pass, student = test.set_up_user_and_auth('student', 'pass', 'student@student.com')
         test.set_up_participation(student, course, 'Student')
         journal = factory.make_journal(assignment, student)
         entry = factory.make_entry(template)

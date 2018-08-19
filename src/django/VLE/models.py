@@ -10,7 +10,7 @@ from VLE.utils.file_handling import get_path
 
 
 class UserFile(models.Model):
-    """UserFile
+    """UserFile.
 
     UserFile is a file uploaded by the user stored in MEDIA_ROOT/files/uID/aID/...
     - author: The user who uploaded the file.
@@ -59,8 +59,6 @@ class User(AbstractUser):
     """
 
     email = models.EmailField(
-        null=True,
-        blank=True,
         unique=True,
     )
     lti_id = models.TextField(

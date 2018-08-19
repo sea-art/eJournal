@@ -17,7 +17,7 @@ class StatisticsTests(TestCase):
     """Test statistics functions."""
     def setUp(self):
         """Set up the test file."""
-        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123')
+        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123', 'tt@tt.com')
         self.teacher = test.set_up_users('teacher', 1)[0]
 
     def test_journal_stats(self):

@@ -20,11 +20,11 @@
         </b-col>
         <b-col md="7" sm="12">
             <h2 class="mb-2">User details</h2>
-            <b-form-input class="theme-input multi-form" v-model="uname" type="text"/>
-            <b-form-input class="theme-input multi-form" v-model="first" type="text"/>
-            <b-form-input class="theme-input multi-form" v-model="last" type="text"/>
+            <b-form-input :readonly="true" class="theme-input multi-form" v-model="userData.username" type="text"/>
+            <b-form-input :readonly="(userData.lti_id) ? true : false" class="theme-input multi-form" v-model="userData.first_name" type="text"/>
+            <b-form-input :readonly="(userData.lti_id) ? true : false" class="theme-input multi-form" v-model="userData.last_name" type="text"/>
 
-            <b-button class="add-button multi-form float-right" @click="saveUserdata">
+            <b-button v-if="!userData.lti_id" class="add-button multi-form float-right" @click="saveUserdata">
                 <icon name="save"/>
                 Save
             </b-button>
@@ -41,7 +41,7 @@ import userAPI from '@/api/user.js'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
-    props: ['uname', 'first', 'last', 'id', 'image'],
+    props: ['userData'],
     components: {
         'icon': icon
     },
@@ -53,7 +53,7 @@ export default {
     },
     methods: {
         saveUserdata () {
-            userAPI.updateUserData(this.uname, this.first, this.last)
+            userAPI.updateUserData(this.userData.first_name, this.userData.last_name)
                 .then(this.$toasted.success('Saved profile data'))
         },
         fileHandler (e) {
@@ -90,7 +90,7 @@ export default {
             reader.readAsDataURL(files[0])
         },
         downloadUserData () {
-            userAPI.getUserData(this.id).then(data => {
+            userAPI.getUserData(this.userData.uID).then(data => {
                 /* This is a way to download data. */
                 /* Stringify the data and create a data blob of it. */
                 data = JSON.stringify(data)
@@ -98,7 +98,7 @@ export default {
 
                 /* Create a link to download the data and bind the data to it. */
                 var downloadElement = document.createElement('a')
-                downloadElement.download = 'userdata_of_' + this.uname + '.json'
+                downloadElement.download = 'userdata_of_' + this.userData.username + '.json'
                 downloadElement.href = window.URL.createObjectURL(blob)
                 downloadElement.dataset.downloadurl = ['text/json',
                     downloadElement.download, downloadElement.href].join(':')
@@ -110,8 +110,8 @@ export default {
             })
         }
     },
-    created () {
-        this.profileImageDataURL = this.image
+    mounted () {
+        this.profileImageDataURL = this.userData.picture
     }
 }
 </script>

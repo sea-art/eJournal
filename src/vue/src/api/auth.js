@@ -107,6 +107,17 @@ export default {
         return this.authenticatedPost('/update_password/', {new_password: newPassword, old_password: oldPassword})
     },
 
+    /* Forgot password.
+     * Checks if a user is known by the given email or username. Sends an email with a link to reset the password. */
+    forgotPassword (username, email) {
+        return connection.conn.post('/forgot_password/', {username: username, email: email})
+    },
+
+    /* Password reset */
+    recoverPassword (username, recoveryToken, newPassword) {
+        return connection.conn.post('/recover_password/', {username: username, recovery_token: recoveryToken, new_password: newPassword})
+    },
+
     /* Check if the stored token is valid. */
     testValidToken () {
         if (localStorage.getItem('jwt_access') == null && localStorage.getItem('jwt_refresh') == null) {
