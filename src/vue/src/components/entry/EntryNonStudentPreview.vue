@@ -58,6 +58,7 @@
                         :authorUID="$parent.journal.student.uID"
                     />
                 </div>
+                <div v-else-if="field.type == 'rt'" v-html="completeContent[i].data"/>
             </div>
         </b-card>
 

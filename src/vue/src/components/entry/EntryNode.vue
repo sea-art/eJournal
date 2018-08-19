@@ -68,16 +68,24 @@
                         :aID="$route.params.aID"
                     />
                 </div>
+                <div v-else-if="field.type == 'rt'">
+                    <text-editor
+                        :id="'rich-text-editor-' + i"
+                        :givenContent="completeContent[i].data"
+                        @content-update="completeContent[i].data = $event"
+                    />
+                </div>
+
             </div>
             <b-alert :show="dismissCountDown" dismissible variant="secondary"
                 @dismissed="dismissCountDown=0">
                 Some fields are empty or incorrectly formatted.
             </b-alert>
-            <b-button class="add-button float-right" @click="saveEdit">
+            <b-button class="add-button float-right mt-2" @click="saveEdit">
                 <icon name="save"/>
                 Save
             </b-button>
-            <b-button class="delete-button" @click="cancel">
+            <b-button class="delete-button mt-2" @click="cancel">
                 <icon name="ban"/>
                 Cancel
             </b-button>
@@ -129,6 +137,7 @@
                         :authorUID="$parent.journal.student.uID"
                     />
                 </div>
+                <div v-else-if="field.type == 'rt'" v-html="completeContent[i].data"/>
             </div>
             <b-button v-if="entryNode.entry.editable" class="change-button float-right mt-2" @click="saveEdit">
                 <icon name="edit"/>
@@ -146,6 +155,7 @@ import fileUploadInput from '@/components/assets/file_handling/FileUploadInput.v
 import fileDownloadButton from '@/components/assets/file_handling/FileDownloadButton.vue'
 import imageFileDisplay from '@/components/assets/file_handling/ImageFileDisplay.vue'
 import pdfDisplay from '@/components/assets/PdfDisplay.vue'
+import textEditor from '@/components/assets/TextEditor.vue'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
@@ -246,6 +256,7 @@ export default {
         'file-upload-input': fileUploadInput,
         'file-download-button': fileDownloadButton,
         'image-file-display': imageFileDisplay,
+        'text-editor': textEditor,
         'icon': icon
     }
 }

@@ -12,7 +12,7 @@
                         <icon name="trash"/>
                         Delete
                     </b-button>
-                    <span class="show-enters">{{ comment.text }}</span>
+                    <div v-html="comment.text"/>
                     <hr/>
                     <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b>
                     <span v-if="comment.published" class="timestamp">
@@ -28,12 +28,16 @@
         <div v-if="$root.canCommentJournal()" class="comment-section">
             <img class="profile-picture no-hover" :src="authorData.picture">
             <b-card class="no-hover new-comment">
-                <b-textarea class="theme-input multi-form full-width" v-model="tempComment" placeholder="Write a comment" :class="$root.getBorderClass($route.params.cID)"/>
+                <text-editor
+                    :id="'comment-text-editor'"
+                    @content-update="tempComment = $event"
+                />
+                <!-- <b-textarea class="theme-input multi-form full-width" v-model="tempComment" placeholder="Write a comment" :class="$root.getBorderClass($route.params.cID)"/> -->
                 <div class="d-flex full-width justify-content-end align-items-center">
                     <b-form-checkbox v-if="$root.canGradeJournal() && !entryGradePublished" v-model="publishAfterGrade">
                         Publish after grade
                     </b-form-checkbox>
-                    <b-button class="send-button" @click="addComment">
+                    <b-button class="send-button mt-2" @click="addComment">
                         <icon name="paper-plane"/>
                     </b-button>
                 </div>
@@ -46,6 +50,7 @@
 import userApi from '@/api/user.js'
 import entryApi from '@/api/entry.js'
 import icon from 'vue-awesome/components/Icon'
+import textEditor from '@/components/assets/TextEditor.vue'
 
 export default {
     props: {
@@ -58,6 +63,7 @@ export default {
         }
     },
     components: {
+        'text-editor': textEditor,
         icon
     },
     data () {
