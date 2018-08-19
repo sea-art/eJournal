@@ -16,15 +16,11 @@ from VLE.models import Course, EntryComment, Assignment, Participation, Role, \
     Entry, User, Journal, UserFile
 import VLE.lti_grade_passback as lti_grade
 from VLE.settings.production import USER_MAX_FILE_SIZE_BYTES, USER_MAX_TOTAL_STORAGE_BYTES
-from VLE.settings.development import BASELINK
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-import re
 import jwt
 import json
-
-from django.core.mail import EmailMessage
 
 
 @api_view(['POST'])
@@ -288,12 +284,10 @@ def update_password(request):
     if not user.is_authenticated or not user.check_password(old_password):
         return responses.unauthorized('Wrong password.')
 
-    if len(new_password) < 8:
-        return responses.bad_request('Password needs to contain at least 8 characters.')
-    if new_password == new_password.lower():
-        return responses.bad_request('Password needs to contain at least 1 capital letter.')
-    if re.match(r'^\w+$', new_password):
-        return responses.bad_request('Password needs to contain a special character.')
+    try:
+        validators.validate_password(new_password)
+    except ValidationError:
+        return responses.bad_request('Invalid password format.')
 
     user.set_password(new_password)
     user.save()
@@ -692,7 +686,7 @@ def update_lti_id_to_user(request):
 
     lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
 
-    user_id, user_image = lti_params['user_id'], lti_params['user_image']
+    lti_id, user_image = lti_params['user_id'], lti_params['user_image']
     is_teacher = json.load(open('config.json'))['Teacher'] == lti_params['roles']
     first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
 
@@ -710,10 +704,10 @@ def update_lti_id_to_user(request):
     if is_teacher:
         user.is_teacher = is_teacher
 
-    if User.objects.filter(lti_id=user_id).exists():
+    if User.objects.filter(lti_id=lti_id).exists():
         return responses.bad_request('User with this lti id already exists.')
 
-    user.lti_id = user_id
+    user.lti_id = lti_id
 
     user.save()
 
@@ -829,12 +823,7 @@ def forgot_password(request):
     if not user:
         return responses.bad_request('No user found with that username or password.')
 
-    token_generator = PasswordResetTokenGenerator()
-    token = token_generator.make_token(user)
-    recovery_link = '%s/PasswordRecovery/%s/%s' % (BASELINK, user.username, token)
-    email_body = 'Please visit the link below and set a new password\n\n%s' % recovery_link
-
-    EmailMessage('eJourn.al password recovery', email_body, to=[user.email]).send()
+    utils.send_password_recovery_link(user)
 
     return responses.success('A verification email was sent to %s, please follow the email for instructions.'
                              % user.email)
@@ -865,15 +854,60 @@ def recover_password(request):
     token_generator = PasswordResetTokenGenerator()
 
     if token_generator.check_token(user, request.data['recovery_token']):
-        if len(request.data['new_password']) < 8:
-            return responses.bad_request('Password needs to contain at least 8 characters.')
-        if request.data['new_password'] == request.data['new_password'].lower():
-            return responses.bad_request('Password needs to contain at least 1 capital letter.')
-        if re.match(r'^\w+$', request.data['new_password']):
-            return responses.bad_request('Password needs to contain a special character.')
+        try:
+            validators.validate_password(request.data['new_password'])
+        except ValidationError:
+            return responses.bad_request('Invalid password format.')
 
         user.set_password(request.data['new_password'])
         user.save()
+
         return responses.success(message='Succesfully changed the password, please login.')
     else:
         return responses.bad_request('Invalid recovery token.')
+
+
+@api_view(['POST'])
+def verify_email(request):
+    """Handles an email verification request.
+
+    Arguments:
+        token -- User claimed email verification token.
+
+    Updates the email verification status.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    if user.verified_email:
+        return responses.success(message='Email address already verified.')
+
+    try:
+        utils.required_params(request.data, 'token')
+    except KeyError:
+        return responses.KeyError('token')
+
+    token_generator = PasswordResetTokenGenerator()
+    if not token_generator.check_token(user, request.data['token']):
+        return responses.bad_request('Invalid email recovery token.')
+
+    user.verify_email = True
+    user.save()
+    return responses.success(message='Succesfully verified your email address.')
+
+
+@api_view(['POST'])
+def request_email_verification(request):
+    """Request an email with a verifcation link for the users email address."""
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    if user.verified_email:
+        return responses.bad_request('Email address already verified.')
+
+    utils.send_email_verification_link(user)
+
+    return responses.success(message='A verification email was sent to %s, please follow the email for instructions.'
+                             % user.email)

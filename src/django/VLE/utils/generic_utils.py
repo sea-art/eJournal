@@ -6,6 +6,9 @@ A library with useful functions.
 from VLE.models import Entry, Node, EntryTemplate, EntryComment, PresetNode
 import VLE.factory as factory
 import VLE.views.responses as responses
+from django.conf import settings
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.core.mail import EmailMessage
 
 
 # START: API-POST functions
@@ -242,3 +245,26 @@ def delete_templates(templates, remove_templates):
         tIDs.append(template['tID'])
 
     templates.filter(pk__in=tIDs).delete()
+
+
+def send_email_verification_link(user):
+    """Sends an email verification link to the users email adress."""
+    token_generator = PasswordResetTokenGenerator()
+    token = token_generator.make_token(user)
+
+    recovery_link = '%s/EmailVerification/%s' % (settings.BASELINK, token)
+    email_body = 'Please visit the link below to verify your email address.\n\n%s' % recovery_link
+    email_body += '\n\nOr copy the token manually: %s' % token
+
+    EmailMessage('eJourn.al email verification', email_body, to=[user.email]).send()
+
+
+def send_password_recovery_link(user):
+    """Sends an email verification link to the users email address.."""
+    token_generator = PasswordResetTokenGenerator()
+    token = token_generator.make_token(user)
+
+    recovery_link = '%s/PasswordRecovery/%s/%s' % (settings.BASELINK, user.username, token)
+    email_body = 'Please visit the link below and set a new password\n\n%s' % recovery_link
+
+    EmailMessage('eJourn.al password recovery', email_body, to=[user.email]).send()

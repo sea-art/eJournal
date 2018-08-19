@@ -113,7 +113,7 @@ export default {
         return connection.conn.post('/forgot_password/', {username: username, email: email})
     },
 
-    /* Password reset */
+    /* Recover password */
     recoverPassword (username, recoveryToken, newPassword) {
         return connection.conn.post('/recover_password/', {username: username, recovery_token: recoveryToken, new_password: newPassword})
     },

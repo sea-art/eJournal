@@ -77,5 +77,15 @@ export default {
         return auth.authenticatedPost('/update_lti_id_to_user/', {
             jwt_params: jwtParams
         }).then(response => response.data.user)
-    }
+    },
+
+    /* Verify email adress using a given token. */
+    verifyEmail (token) {
+        return auth.authenticatedPost('/verify_email/', {
+            token: token
+        })
+    },
+
+    /* Request an email verification token for the given users email adress. */
+    requestEmailVerification () { return auth.authenticatedPost('/request_email_verification/') }
 }
