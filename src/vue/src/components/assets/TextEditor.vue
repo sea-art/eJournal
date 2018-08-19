@@ -209,11 +209,6 @@ export default {
                 editor.theme.panel.find('#statusbar')[0].$el.hide()
             })
         },
-        /* Appends <span style="font-family: 'roboto condensed';"> to all <p> elements. */
-        paragraphsInludeRoboto (input) {
-            input = input.replace(new RegExp(/<p>/, 'g'), '<p><span style="font-family: "roboto condensed";">')
-            return input.replace(new RegExp(/<\/p>/, 'g'), '</span></p>')
-        },
         /* Disabled as images are encoded as base64 and saved with the content of the editor.
          * Can be enabled by adding images_upload_handler: this.handleImageUpload to the config. */
         handleImageUpload (blobInfo, success, failure) {
