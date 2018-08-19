@@ -864,16 +864,17 @@ def recover_password(request):
 
     token_generator = PasswordResetTokenGenerator()
 
-    if token_generator.check_token(user, request.data['recovery_token']):
-        if len(request.data['new_password']) < 8:
-            return responses.bad_request('Password needs to contain at least 8 characters.')
-        if request.data['new_password'] == request.data['new_password'].lower():
-            return responses.bad_request('Password needs to contain at least 1 capital letter.')
-        if re.match(r'^\w+$', request.data['new_password']):
-            return responses.bad_request('Password needs to contain a special character.')
-
-        user.set_password(request.data['new_password'])
-        user.save()
-        return responses.success(message='Succesfully changed the password, please login.')
-    else:
+    
+    if not token_generator.check_token(user, request.data['recovery_token']):
         return responses.bad_request('Invalid recovery token.')
+    
+    if len(request.data['new_password']) < 8:
+        return responses.bad_request('Password needs to contain at least 8 characters.')
+    if request.data['new_password'] == request.data['new_password'].lower():
+        return responses.bad_request('Password needs to contain at least 1 capital letter.')
+    if re.match(r'^\w+$', request.data['new_password']):
+        return responses.bad_request('Password needs to contain a special character.')
+
+    user.set_password(request.data['new_password'])
+    user.save()
+    return responses.success(message='Succesfully changed the password, please login.')
