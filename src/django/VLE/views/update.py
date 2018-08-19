@@ -864,10 +864,9 @@ def recover_password(request):
 
     token_generator = PasswordResetTokenGenerator()
 
-    
     if not token_generator.check_token(user, request.data['recovery_token']):
         return responses.bad_request('Invalid recovery token.')
-    
+
     if len(request.data['new_password']) < 8:
         return responses.bad_request('Password needs to contain at least 8 characters.')
     if request.data['new_password'] == request.data['new_password'].lower():
