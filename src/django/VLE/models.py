@@ -17,7 +17,7 @@ class UserFile(models.Model):
     - file_name: The name of the file (no parts of the path to the file included).
     - creation_date: The time and date the file was uploaded.
     - content_type: The mimetype supplied by the user (unvalidated).
-    - journal: The journal that the UserFile is linked to.
+    - assignment: The assignment that the UserFile is linked to.
     """
     file = models.FileField(
         null=False,

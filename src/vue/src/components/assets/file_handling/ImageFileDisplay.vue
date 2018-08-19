@@ -4,6 +4,7 @@
             {{ fileName }}
             <icon v-if="!show" @click.native="handleDownload" name="eye" class="action-icon"/>
             <icon v-if="show" @click.native="handleDownload" name="ban" class="crossed-icon"/>
+            <icon v-if="show && fileURL" @click.native="downloadLink.click()" name="save" class="action-icon"/>
         </h5>
         <img v-if="show && fileURL" :src="fileURL">
     </div>
@@ -33,7 +34,8 @@ export default {
     data () {
         return {
             show: false,
-            fileURL: null
+            fileURL: null,
+            downloadLink: null
         }
     },
     methods: {
@@ -58,6 +60,10 @@ export default {
                 .then(response => {
                     let blob = new Blob([this.base64ToArrayBuffer(response.data)], { type: response.headers['content-type'] })
                     this.fileURL = window.URL.createObjectURL(blob)
+
+                    this.downloadLink = document.createElement('a')
+                    this.downloadLink.href = this.fileURL
+                    this.downloadLink.download = /filename=(.*)/.exec(response.headers['content-disposition'])[1]
                 })
                 .catch(response => {
                     this.$toasted.error(response.description)

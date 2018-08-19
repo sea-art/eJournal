@@ -13,6 +13,7 @@
             <!-- <button @click="rotate += 90">&#x27F3;</button> -->
             <!-- <button @click="rotate -= 90">&#x27F2;</button> -->
             <icon name="print" @click.native="print" class="action-icon"/>
+            <icon @click.native="downloadLink.click()" name="save" class="action-icon"/>
             {{ page }} / {{ numPages }}
             <input v-model.number="page" type="number" min="1" :max="numPages">
         </div>
@@ -71,7 +72,8 @@ export default {
             page: 1,
             numPages: 0,
             rotate: 0,
-            loaded: false
+            loaded: false,
+            downloadLink: null
         }
     },
     methods: {
@@ -105,6 +107,10 @@ export default {
                 .then(response => {
                     let blob = new Blob([this.base64ToArrayBuffer(response.data)], { type: response.headers['content-type'] })
                     this.fileURL = window.URL.createObjectURL(blob)
+
+                    this.downloadLink = document.createElement('a')
+                    this.downloadLink.href = this.fileURL
+                    this.downloadLink.download = /filename=(.*)/.exec(response.headers['content-disposition'])[1]
                 })
                 .catch(response => {
                     this.$toasted.error(response.description)
