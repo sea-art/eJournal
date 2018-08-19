@@ -1,13 +1,12 @@
 <template>
     <content-single-column>
-        <bread-crumb>&nbsp;</bread-crumb>
+        <h1>Login</h1>
         <login-form @handleAction="handleLoginSucces"/>
     </content-single-column>
 </template>
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
-import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import loginForm from '@/components/account/LoginForm.vue'
 import auth from '@/api/auth.js'
 
@@ -39,7 +38,6 @@ export default {
     },
     components: {
         'content-single-column': contentSingleColumn,
-        'bread-crumb': breadCrumb,
         'login-form': loginForm
     }
 }

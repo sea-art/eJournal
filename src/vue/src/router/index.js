@@ -7,6 +7,7 @@ import Course from '@/views/Course'
 import Profile from '@/views/Profile'
 import Guest from '@/views/Guest'
 import Login from '@/views/Login'
+import PasswordRecovery from '@/views/PasswordRecovery'
 import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
 import AssignmentsOverview from '@/views/AssignmentsOverview'
@@ -33,9 +34,14 @@ var router = new Router({
         name: 'Home',
         component: Home
     }, {
-        path: '/Login',
+        path: '/Login/',
         name: 'Login',
         component: Login
+    }, {
+        path: '/PasswordRecovery/:username/:recoveryToken',
+        name: 'PasswordRecovery',
+        component: PasswordRecovery,
+        props: true
     }, {
         path: '/Register',
         name: 'Register',
@@ -127,7 +133,7 @@ router.beforeEach((to, from, next) => {
                 .then(_ => next({name: 'Home'}))
                 .catch(_ => next())
         }
-    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage'].includes(to.name)) {
+    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage', 'PasswordRecovery'].includes(to.name)) {
         return next()
     }
 

@@ -110,6 +110,7 @@ urlpatterns = [
     path('update_user_file/', update.update_user_file, name='update_user_file'),
     path('get_user_file/<str:file_name>/<str:author_uID>/', get.get_user_file, name='get_user_file'),
     path('forgot_password/', update.forgot_password, name='forgot_password'),
+    path('recover_password/', update.recover_password, name='recover_password'),
 ]
 
 if settings.DEBUG is True:

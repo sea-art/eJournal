@@ -12,6 +12,12 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 SECRET_KEY = '@a4c3cpgfe0@8s!be=23d5+3e30vyj7!q%tolqpewafp^-@=br'
 
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'ejourn.al.trial@gmail.com'
+EMAIL_HOST_PASSWORD = 'M@@rten1523'
+EMAIL_PORT = 587
+
 from VLE.settings.base import *
 
 LTI_SECRET = '4339900ae5861f3086861ea492772864'

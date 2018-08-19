@@ -18,9 +18,12 @@ import VLE.lti_grade_passback as lti_grade
 from VLE.settings.production import USER_MAX_FILE_SIZE_BYTES, USER_MAX_TOTAL_STORAGE_BYTES
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 import re
 import jwt
 import json
+
+from django.core.mail import EmailMessage
 
 
 @api_view(['POST'])
@@ -732,7 +735,7 @@ def update_user_file(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    if not request.FILES or not request.FILES['file'] or not request.POST['aID']:
+    if not request.FILES or 'file' not in request.FILES or 'aID' not in request.POST:
         return responses.bad_request()
 
     try:
@@ -783,7 +786,7 @@ def update_user_profile_picture(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    if not request.data['urlData']:
+    if 'urlData' not in request.data:
         return responses.bad_request()
 
     validators.validate_profile_picture_base64(request.data['urlData'])
@@ -797,24 +800,74 @@ def update_user_profile_picture(request):
 @api_view(['POST'])
 def forgot_password(request):
     """Handles a forgot password request.
+
+    token -- Django stateless token, invalidated after password change or after a set time (by default three days).
+             https://github.com/django/django/blob/master/django/contrib/auth/tokens.py
     """
     user = None
 
-    if request.data['username']:
-        try:
-            user = User.objects.get(username=request.data['username'])
-        except User.DoesNotExist:
-            pass
-    elif request.data['email']:
-        try:
-            user = User.objects.get(email=request.data['email'])
-        except User.DoesNotExist:
-            pass
+    try:
+        utils.required_params(request.data, 'username', 'email')
+    except KeyError:
+        return responses.KeyError('username', 'email')
 
-    if user:
-        print('sent recovery email')
-    else:
+    # We are retrieving the username based on either the username or password
+    try:
+        user = User.objects.get(username=request.data['username'])
+    except User.DoesNotExist:
+        pass
+    try:
+        user = User.objects.get(email=request.data['email'])
+    except User.DoesNotExist:
+        pass
+
+    if not user:
         return responses.bad_request('No user found with that username or password.')
+
+    token_generator = PasswordResetTokenGenerator()
+    token = token_generator.make_token(user)
+    recovery_link = 'http://localhost:8080/PasswordRecovery/%s/%s' % (user.username, token)
+    email_body = 'Please visit the link below and set a new password\n\n%s' % recovery_link
+
+    # TODO Desired, timeout after succesfull send per connection to prevent load
+    EmailMessage('eJourn.al password recovery', email_body, to=['thamj@msn.com']).send()
 
     return responses.success('A verification email was sent to %s, please follow the email for instructions.'
                              % user.email)
+
+
+@api_view(['POST'])
+def recover_password(request):
+    """Handles a reset password request.
+
+    username -- User claimed username
+    recovery_token -- Django stateless token, invalidated after password change or after a set time
+        (by default three days).
+        https://github.com/django/django/blob/master/django/contrib/auth/tokens.py
+    new_password -- The new user desired password
+    """
+    try:
+        utils.required_params(request.data, 'username', 'recovery_token', 'new_password')
+    except KeyError:
+        return responses.KeyError('username', 'recovery_token', 'new_password')
+
+    try:
+        user = User.objects.get(username=request.data['username'])
+    except User.DoesNotExist:
+        return responses.not_found('The username is unkown.')
+
+    token_generator = PasswordResetTokenGenerator()
+
+    if token_generator.check_token(user, request.data['recovery_token']):
+        if len(request.data['new_password']) < 8:
+            return responses.bad_request('Password needs to contain at least 8 characters.')
+        if request.data['new_password'] == request.data['new_password'].lower():
+            return responses.bad_request('Password needs to contain at least 1 capital letter.')
+        if re.match(r'^\w+$', request.data['new_password']):
+            return responses.bad_request('Password needs to contain a special character.')
+
+        user.set_password(request.data['new_password'])
+        user.save()
+        return responses.success(message='Succesfully changed the password.')
+    else:
+        return responses.bad_request('Invalid recovery token.')
