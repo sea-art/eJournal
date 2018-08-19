@@ -48,29 +48,6 @@ class UserFile(models.Model):
         return self.file_name
 
 
-class PasswordResetToken(models.Model):
-    """PasswordResetToken.
-
-    PasswordResetToken is used for password recovery, each User can only have one password reset token.
-    - token: Randomly generated string used for password recovery
-    - creation_date: Creation data of
-    """
-
-    user = models.OneToOneField(
-        'User',
-        on_delete=models.CASCADE
-    )
-    token = models.TextField(
-        null=True,
-        blank=True,
-    )
-    creation_date = models.DateTimeField(
-        null=True,
-        blank=True,
-        auto_now_add=True
-    )
-
-
 class User(AbstractUser):
     """User.
 

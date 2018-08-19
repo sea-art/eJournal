@@ -801,8 +801,12 @@ def update_user_profile_picture(request):
 def forgot_password(request):
     """Handles a forgot password request.
 
-    token -- Django stateless token, invalidated after password change or after a set time (by default three days).
-             https://github.com/django/django/blob/master/django/contrib/auth/tokens.py
+    Arguments:
+        username -- User claimed username
+        email -- User claimed email
+        token -- Django stateless token, invalidated after password change or after a set time (by default three days).
+
+    Generates a recovery token if a matching user can be found by either the prodived username or email.
     """
     user = None
 
@@ -829,7 +833,6 @@ def forgot_password(request):
     recovery_link = 'http://localhost:8080/PasswordRecovery/%s/%s' % (user.username, token)
     email_body = 'Please visit the link below and set a new password\n\n%s' % recovery_link
 
-    # TODO Desired, timeout after succesfull send per connection to prevent load
     EmailMessage('eJourn.al password recovery', email_body, to=['thamj@msn.com']).send()
 
     return responses.success('A verification email was sent to %s, please follow the email for instructions.'
@@ -840,11 +843,13 @@ def forgot_password(request):
 def recover_password(request):
     """Handles a reset password request.
 
-    username -- User claimed username
-    recovery_token -- Django stateless token, invalidated after password change or after a set time
-        (by default three days).
-        https://github.com/django/django/blob/master/django/contrib/auth/tokens.py
-    new_password -- The new user desired password
+    Arguments:
+        username -- User claimed username
+        recovery_token -- Django stateless token, invalidated after password change or after a set time
+            (by default three days).
+        new_password -- The new user desired password
+
+    Updates password if the recovery_token is valid.
     """
     try:
         utils.required_params(request.data, 'username', 'recovery_token', 'new_password')
@@ -868,6 +873,6 @@ def recover_password(request):
 
         user.set_password(request.data['new_password'])
         user.save()
-        return responses.success(message='Succesfully changed the password.')
+        return responses.success(message='Succesfully changed the password, please login.')
     else:
         return responses.bad_request('Invalid recovery token.')

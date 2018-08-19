@@ -47,19 +47,31 @@ export default {
                 this.$toasted.error('Password needs to contain a special character.')
                 return false
             }
+
+            return true
         },
         recoverPassword () {
-            // if (this.validatePassword()) {
-            authAPI.recoverPassword(this.username, this.recoveryToken, this.password)
-                .then(response => {
-                    this.validated = true
-                    console.log(response)
-                })
-                .catch(response => {
-                    this.$toasted.error(response.response.data.description)
-                    // this.$router.push({name: 'Login'})
-                })
-            // }
+            if (this.validatePassword()) {
+                authAPI.recoverPassword(this.username, this.recoveryToken, this.password)
+                    .then(response => {
+                        this.$toasted.success(response.data.result)
+                        this.$router.push({ name: 'Login' })
+                    })
+                    .catch(response => {
+                        this.$toasted.error(response.response.data.description)
+                        console.log(response.response.status)
+                        console.log(response.response.data.result)
+                        console.log(response.response.data.description)
+                        this.$router.push({
+                            name: 'ErrorPage',
+                            params: {
+                                code: response.response.status,
+                                message: response.response.data.result,
+                                description: response.response.data.description
+                            }
+                        })
+                    })
+            }
         }
     },
     components: {
@@ -68,11 +80,3 @@ export default {
     }
 }
 </script>
-
-<style lang="sass">
-.validating-box
-    text-align: center
-
-.validating-box h2
-    text-align: center
-</style>

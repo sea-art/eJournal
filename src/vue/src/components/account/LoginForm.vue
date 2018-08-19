@@ -76,6 +76,12 @@ export default {
                 .catch(_ => { this.$toasted.error('Could not login') })
         }
     },
+    mounted () {
+        if (this.$root.previousPage && this.$root.previousPage.name === 'PasswordRecovery') {
+            console.log('Chaning username')
+            this.username = this.$root.previousPage.params.username
+        }
+    },
     components: {
         'icon': icon
     }

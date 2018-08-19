@@ -20,7 +20,7 @@ class JWTTests(TestCase):
 
     def setUp(self):
         """Setup."""
-        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123')
+        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123', 'tt@tt.com')
 
     def test_get_auth(self):
         """Test simple authentication with JWT keys."""
