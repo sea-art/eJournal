@@ -15,7 +15,6 @@
                     accept="image/*"
                     style="display: none"
                     type="file"/>
-
             </div>
         </b-col>
         <b-col md="7" sm="12">
@@ -24,29 +23,7 @@
             <b-form-input :readonly="(userData.lti_id) ? true : false" class="theme-input multi-form" v-model="userData.first_name" type="text"/>
             <b-form-input :readonly="(userData.lti_id) ? true : false" class="theme-input multi-form" v-model="userData.last_name" type="text"/>
 
-            <b-form-input v-if="userData.verified_email" readonly class="theme-input multi-form" v-model="userData.email" type="text"/>
-            <b-button
-                v-b-tooltip.hover
-                :title="(showEmailValidationInput) ? 'Enter the email verification token below.' : 'Click to verify your email!'"
-                v-if="!userData.verified_email"
-                @click="requestEmailVerification"
-                class="delete-button full-width multi-form">
-                {{ userData.email }}
-                <icon name="times"/>
-            </b-button>
-
-            <b-form v-if="!userData.verified_email && showEmailValidationInput" @submit.prevent="verifyEmail">
-                <b-form-input
-                    required
-                    v-model="emailVerificationToken"
-                    placeholder="Enter the email verification token."
-                    class="multi-form"
-                />
-                <b-button class="add-button multi-form full-width" type="submit">
-                    <icon name="check"/>
-                    Validate
-                </b-button>
-            </b-form>
+            <email :userData="userData"/>
 
             <b-button v-if="!userData.lti_id" class="add-button multi-form float-right" @click="saveUserdata">
                 <icon name="save"/>
@@ -63,52 +40,27 @@
 <script>
 import userAPI from '@/api/user.js'
 import icon from 'vue-awesome/components/Icon'
+import email from '@/components/profile/Email.vue'
 
 export default {
     props: ['userData'],
     components: {
-        'icon': icon
+        icon,
+        email
     },
     data () {
         return {
             file: null,
             profileImageDataURL: null,
-            // TODO should be false by default
             showEmailValidationInput: true,
-            emailVerificationToken: null
+            emailVerificationToken: null,
+            emailVerificationTokenMessage: null
         }
     },
     methods: {
         saveUserdata () {
             userAPI.updateUserData(this.userData.first_name, this.userData.last_name)
                 .then(this.$toasted.success('Saved profile data'))
-        },
-        requestEmailVerification () {
-            if (!this.showEmailValidationInput) {
-                userAPI.requestEmailVerification()
-                    .then(response => {
-                        this.showEmailValidationInput = true
-                        this.$toasted.success(response.data.result)
-                    })
-                    .catch(response => {
-                        console.log('HUH')
-                        this.$toasted.error(response.response.data.description)
-                    })
-            }
-        },
-        verifyEmail () {
-            userAPI.verifyEmail(this.emailVerificationToken)
-                .then(response => {
-                    console.log('THEN')
-                    console.log(JSON.stringify(response))
-                    // TODO uncomment
-                    // this.userData.verified_email = true
-                    // this.showEmailValidationInput = false
-                })
-                .catch(response => {
-                    console.log('Catch')
-                    console.log(JSON.stringify(response))
-                })
         },
         fileHandler (e) {
             let files = e.target.files

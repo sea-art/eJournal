@@ -12,6 +12,7 @@ from VLE.settings.base import MEDIA_ROOT
 import base64
 
 
+# TODO Response message is not required as a response is followed by a statusText by default
 def success(message='success', payload={}):
     """Return a success response header.
 

@@ -25,13 +25,12 @@ export default {
                 this.$router.push({ name: 'Home' })
             })
             .catch(response => {
-                this.$toasted.error(response.response.data.description)
                 this.$router.push({
                     name: 'ErrorPage',
                     params: {
-                        code: response.response.status,
-                        message: response.response.data.result,
-                        description: response.response.data.description
+                        code: response.status,
+                        message: response.data.result,
+                        description: response.data.description
                     }
                 })
             })

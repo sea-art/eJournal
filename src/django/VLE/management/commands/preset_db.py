@@ -76,7 +76,7 @@ class Command(BaseCommand):
             self.users.append(factory.make_user(u['username'], u['pass'], u['first_name'] + '@eJourn.al',
                                                 is_superuser=is_superuser, is_teacher=is_teacher,
                                                 first_name=u['first_name'], last_name=u['last_name'],
-                                                verified_email=u['verified_email']))
+                                                verified_email=True))
 
     def gen_courses(self):
         """Generate courses."""
