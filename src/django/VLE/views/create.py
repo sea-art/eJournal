@@ -241,7 +241,7 @@ def create_entrycomment(request):
         entry = Entry.objects.get(pk=eID)
         assignment = Assignment.objects.get(journal__node__entry=entry)
     except (User.DoesNotExist, Entry.DoesNotExist):
-        return responses.not_found('User or Entry')
+        return responses.not_found('User or Entry does not exist.')
 
     if not (author == user):
         return responses.forbidden('You are not allowed to write comments for others.')
@@ -306,4 +306,4 @@ def create_lti_user(request):
     if lti_id is None:
         utils.send_email_verification_link(user)
 
-    return responses.created(message='User successfully created', payload={'user': serialize.user_to_dict(user)})
+    return responses.created(description='User successfully created', payload={'user': serialize.user_to_dict(user)})

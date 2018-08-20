@@ -41,7 +41,7 @@ def delete_course(request):
     course = Course.objects.get(pk=cID)
     course.delete()
 
-    return responses.success(message='Succesfully deleted course')
+    return responses.success(description='Succesfully deleted course')
 
 
 @api_view(['POST'])
@@ -83,7 +83,7 @@ def delete_assignment(request):
         assignment.delete()
         response['removed_completely'] = True
 
-    return responses.success(message='Succesfully deleted assignment', payload=response)
+    return responses.success(description='Succesfully deleted assignment', payload=response)
 
 
 @api_view(['POST'])
@@ -121,7 +121,7 @@ def delete_user_from_course(request):
         return responses.not_found(description='User, Course or Participation does not exist.')
 
     participation.delete()
-    return responses.success(message='Succesfully deleted student from course')
+    return responses.success(description='Succesfully deleted student from course')
 
 
 @api_view(['POST'])
@@ -148,7 +148,7 @@ def delete_course_role(request):
         return responses.forbidden()
 
     Role.objects.get(name=name, course=cID).delete()
-    return responses.success(message='Succesfully deleted role from course')
+    return responses.success(description='Succesfully deleted role from course')
 
 
 @api_view(['POST'])
@@ -178,4 +178,4 @@ def delete_entrycomment(request):
         return responses.forbidden()
 
     EntryComment.objects.get(id=ecID).delete()
-    return responses.success(message='Succesfully deleted comment')
+    return responses.success(description='Succesfully deleted comment')

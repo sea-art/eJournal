@@ -46,7 +46,7 @@ def connect_course_lti(request):
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
-        return responses.not_found('Course')
+        return responses.not_found('Course not found.')
 
     role = permissions.get_role(user, course)
     if role is None:
@@ -86,7 +86,7 @@ def update_course(request):
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
-        return responses.not_found('Course')
+        return responses.not_found('Course not found.')
 
     role = permissions.get_role(user, course)
     if role is None:
@@ -123,7 +123,7 @@ def update_course_roles(request):
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
-        return responses.not_found('Course')
+        return responses.not_found('Course not found.')
 
     role = permissions.get_role(user, course)
     if role is None:
@@ -165,7 +165,7 @@ def connect_assignment_lti(request):
     try:
         assignment = Assignment.objects.get(pk=aID)
     except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
+        return responses.not_found('Assignment not found.')
 
     if not permissions.has_assignment_permission(user, assignment, 'can_edit_assignment'):
         return responses.forbidden('You are not allowed to edit the assignment.')
@@ -225,7 +225,7 @@ def update_course_with_student(request):
                 factory.make_journal(assignment, q_user)
 
     participation.save()
-    return responses.success(message='Succesfully added student to course')
+    return responses.success(description='Succesfully added student to course')
 
 
 @api_view(['POST'])
@@ -252,7 +252,7 @@ def update_assignment(request):
     try:
         assignment = Assignment.objects.get(pk=aID)
     except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
+        return responses.not_found('Assignment not found.')
 
     if not permissions.has_assignment_permission(user, assignment, 'can_edit_assignment'):
         return responses.forbidden('You are not allowed to edit this assignment.')
@@ -291,7 +291,7 @@ def update_password(request):
 
     user.set_password(new_password)
     user.save()
-    return responses.success(message='Succesfully changed the password.')
+    return responses.success(description='Succesfully changed the password.')
 
 
 @api_view(['POST'])
@@ -374,7 +374,7 @@ def update_format(request):
         assignment = Assignment.objects.get(pk=aID)
         format = assignment.format
     except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
+        return responses.not_found('Assignment not found.')
 
     if not permissions.has_assignment_permission(request.user, assignment, 'can_edit_assignment'):
         return responses.forbidden('You are not allowed to edit this assignment.')
@@ -456,7 +456,7 @@ def update_grade_entry(request):
     try:
         entry = Entry.objects.get(pk=eID)
     except Entry.DoesNotExist:
-        return responses.not_found('Entry')
+        return responses.not_found('Entry not found.')
 
     journal = entry.node.journal
     if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_grade_journal'):
@@ -501,7 +501,7 @@ def update_publish_grade_entry(request):
     try:
         entry = Entry.objects.get(pk=eID)
     except Entry.DoesNotExist:
-        return responses.not_found('Entry')
+        return responses.not_found('Entry not found.')
 
     journal = entry.node.journal
     if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_journal_grades'):
@@ -544,7 +544,7 @@ def update_publish_grades_assignment(request):
     try:
         assign = Assignment.objects.get(pk=aID)
     except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
+        return responses.not_found('Assignment not found.')
 
     if not permissions.has_assignment_permission(request.user, assign, 'can_publish_journal_grades'):
         return responses.forbidden('You cannot publish assignments.')
@@ -808,6 +808,9 @@ def forgot_password(request):
     """
     user = None
 
+    from django.http import JsonResponse
+    return JsonResponse(data={'a': 'b'}, content_type=None, status=None, reason=None, charset=None)
+
     try:
         utils.required_params(request.data, 'username', 'email')
     except KeyError:
@@ -828,7 +831,7 @@ def forgot_password(request):
 
     utils.send_password_recovery_link(user)
 
-    return responses.success('A verification email was sent to %s, please follow the email for instructions.'
+    return responses.success(description='An email was sent to %s, please follow the email for instructions.'
                              % user.email)
 
 
@@ -866,7 +869,7 @@ def recover_password(request):
     user.set_password(request.data['new_password'])
     user.save()
 
-    return responses.success(message='Succesfully changed the password, please login.')
+    return responses.success(description='Succesfully changed the password, please login.')
 
 
 @api_view(['POST'])
@@ -883,7 +886,7 @@ def verify_email(request):
         return responses.unauthorized()
 
     if user.verified_email:
-        return responses.success(message='Email address already verified.')
+        return responses.success(description='Email address already verified.')
 
     try:
         utils.required_params(request.data, 'token')
@@ -896,7 +899,7 @@ def verify_email(request):
 
     user.verify_email = True
     user.save()
-    return responses.success(message='Succesfully verified your email address.')
+    return responses.success(description='Succesfully verified your email address.')
 
 
 @api_view(['POST'])
@@ -911,5 +914,5 @@ def request_email_verification(request):
 
     utils.send_email_verification_link(user)
 
-    return responses.success(message='A verification email was sent to %s, please follow the email for instructions.'
+    return responses.success(description='An email was sent to %s, please follow the email for instructions.'
                              % user.email)

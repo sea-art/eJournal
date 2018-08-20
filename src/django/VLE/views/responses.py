@@ -12,77 +12,76 @@ from VLE.settings.base import MEDIA_ROOT
 import base64
 
 
-# TODO Response message is not required as a response is followed by a statusText by default
-def success(message='success', payload={}):
-    """Return a success response header.
+def success(payload={}, description=''):
+    """Calls a json_response with status 200: Ok.
 
     Arguments:
-    payload -- payload to deliver on success
+        payload      -- Data to send with the request, should be dict instance.
+        description  -- Additional information about the reason of the response, included in the data payload.
+                        This serves in addition to the HTTP default reason phrase 'Ok'.
     """
-    return response(200, message, payload=payload)
+    return json_response(payload=payload, description=description, status=200)
 
 
-def created(message='success', payload={}):
-    """Return a created response header.
+def created(payload={}, description=''):
+    """Calls a json_response with status 201: Created.
 
     Arguments:
-    payload -- payload to deliver after creation
+        payload      -- Data to send with the request, should be dict instance.
+        description  -- Additional information about the reason of the response, included in the data payload.
+                        This serves in addition to the HTTP default reason phrase 'Created'.
     """
-    return response(201, message, payload=payload)
-
-
-def no_content(description='Request succeeded.'):
-    """Return a no content header.
-
-    Arguments:
-    description -- header description (usable for example in the front end)
-    """
-    return response(204, 'No Content', description=description)
+    return json_response(payload=payload, description=description, status=201)
 
 
 def bad_request(description='Your browser performed a bad request.'):
-    """Return a bad request response header.
+    """Calls a json_response with status 400: Bad Request.
 
     Arguments:
-    description -- header description (usable for example in the front end)
+        description  -- Additional information about the reason of the response, included in the data payload.
+                        This serves in addition to the HTTP default reason phrase 'Bad Request'.
     """
-    return response(400, 'Bad Request', description=description)
+    return json_response(description=description, status=400)
 
 
 def unauthorized(description='You are not authenticated.'):
-    """Return an unauthorized response header.
+    """Calls a json_response with status 401: Unauthorized.
 
     Arguments:
-    description -- header description (usable for example in the front end)
+        description  -- Additional information about the reason of the response, included in the data payload.
+                        This serves in addition to the HTTP default reason phrase 'Unauthorized'.
     """
-    return response(401, 'Authentication Error', description=description)
+    return json_response(description=description, status=401)
 
 
 def forbidden(description='You have no access to this page'):
-    """Return a forbidden response header.
+    """Calls a json_response with status 403: Forbidden.
 
     Arguments:
-    description -- header description (usable for example in the front end)
+        description  -- Additional information about the reason of the response, included in the data payload.
+                        This serves in addition to the HTTP default reason phrase 'Forbidden'.
     """
-    return response(403, 'Forbidden', description=description)
+    return json_response(description=description, status=403)
 
 
-def not_found(description='The page or file you requested was '):
-    """Return a not found response header.
+def not_found(description='The page or file you requested was not found.'):
+    """Calls a json_response with status 404: Not Found.
 
     Arguments:
-    description -- header description (usable for example in the front end)
+        description  -- Additional information about the reason of the response, included in the data payload.
+                        This serves in addition to the HTTP default reason phrase 'Not Found'.
     """
-    return response(404, 'Not Found', description='{} not found.'.format(description))
+    return json_response(description=description, status=404)
 
 
 def internal_server_error(description='Oops! The server experienced internal hiccups.'):
-    """Return an internal server error response header.
+    """Calls a json_response with status 500: Internal Server Error.
 
     Arguments:
-    description -- header description (usable for example in the front end)
+        description  -- Additional information about the reason of the response, included in the data payload.
+                        This serves in addition to the HTTP default reason phrase 'Internal Server Error'.
     """
-    return response(500, '500 Internal Server Error', description=description)
+    return json_response(description=description, status=500)
 
 
 def response(status, message, description='', payload={}):
@@ -97,16 +96,49 @@ def response(status, message, description='', payload={}):
     return JsonResponse({'result': message, 'description': description, **payload}, status=status)
 
 
+def http_response(content=b'', content_type=None, status=None, reason=None, charset=None):
+    """Returns a HttpResponse.
+
+    Arguments:
+    content      -- Data to send with the request, should be byte string.
+    content_type -- Sets the HTTP MIMI type of the request body.
+                    Default: django.conf settings.DEFAULT_CHARSET = text/html
+    status       -- HTTP status code for the response.
+    reason       -- HTTP response phrase. If not provided, a default phrase will be used. Keyed as statusText.
+    charset      -- A string denoting the charset in which the response will be encodedself.
+                    Default: django.conf settings.DEFAULT_CHARSET = utf-8
+
+    Additional headers can be set by treating the response as a dictionary.
+    """
+    return HttpResponse(content=content, content_type=content_type, status=status, reason=reason, charset=None)
+
+
+def json_response(payload={}, description='', status=None, reason=None, charset=None):
+    """Returns a JsonResponse with HTTP Content-Type header: Application/json.
+
+    Arguments:
+    payload      -- Data to send with the request, should be dict instance.
+                    Will be serialized by DjangoJSONencoder by default. Keyed as data.
+    description  -- Additional information about the reason of the response, included in the data payload.
+    status       -- HTTP status code for the response.
+    reason       -- HTTP response phrase. If not provided, a default phrase will be used. Keyed as statusText.
+    charset      -- A string denoting the charset in which the response will be encodedself.
+                    Default: django.conf settings.DEFAULT_CHARSET = utf-8
+    """
+    return JsonResponse(data={**payload, 'description': description}, status=status, reason=reason, charset=None)
+
+
 def keyerror(*keys):
-    """Generate a bad request response when the input JSON has keyerror(s)."""
+    """Generate a bad request response with each given key formatted in the description."""
     if len(keys) == 1:
-        return bad_request('Field {0} is required but is missing.'.format(keys))
+        return bad_request(description='Field {0} is required but is missing.'.format(keys))
     else:
-        return bad_request('Fields {0} are required but one or more are missing.'.format(keys))
+        print('{0}'.format(keys))
+        return bad_request(description='Fields {0} are required but one or more are missing.'.format(keys))
 
 
 def fileb64(user_file):
-    """Return a file as base64 encoded binary string if found, otherwise returns a not found error."""
+    """Return a file as base64 encoded binary string if found, otherwise returns a not found response."""
     file_path = os.path.join(MEDIA_ROOT, user_file.file.name)
     if os.path.exists(file_path):
         with open(file_path, 'rb') as fp:
@@ -116,14 +148,14 @@ def fileb64(user_file):
             response['access-control-expose-headers'] = 'content-disposition, content-type'
             return response
     else:
-        return not_found()
+        return not_found(description='File not found.')
 
 
 def file(user_file):
-    """Return a file as blob if found, otherwise returns a not found error."""
+    """Return a file as blob if found, otherwise returns a not found response."""
     file_path = os.path.join(MEDIA_ROOT, user_file.file.name)
     try:
         response = FileResponse(open(file_path, 'rb'), as_attachment=True)
         return response
     except FileNotFoundError:
-        return not_found()
+        return not_found(description='File not found.')

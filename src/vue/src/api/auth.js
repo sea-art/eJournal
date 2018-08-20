@@ -38,6 +38,7 @@ function refresh (error) {
 // TODO CLEAN THIS MESS, if the response is not thrown the outer catch will never be reached...
 function handleResponse (response, noRedirect = false) {
     response = response.response
+
     if (response.status === 401) { // Unauthorized
         if (!noRedirect) {
             router.push({name: 'Login'})
