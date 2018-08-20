@@ -784,7 +784,10 @@ def update_user_profile_picture(request):
     if 'urlData' not in request.data:
         return responses.bad_request()
 
-    validators.validate_profile_picture_base64(request.data['urlData'])
+    try:
+        validators.validate_profile_picture_base64(request.data['urlData'])
+    except ValidationError:
+        return responses.bad_request('Profile picture did not pass validation!')
 
     user.profile_picture = request.data['urlData']
     user.save()
@@ -852,19 +855,18 @@ def recover_password(request):
         return responses.not_found('The username is unkown.')
 
     token_generator = PasswordResetTokenGenerator()
-
-    if token_generator.check_token(user, request.data['recovery_token']):
-        try:
-            validators.validate_password(request.data['new_password'])
-        except ValidationError:
-            return responses.bad_request('Invalid password format.')
-
-        user.set_password(request.data['new_password'])
-        user.save()
-
-        return responses.success(message='Succesfully changed the password, please login.')
-    else:
+    if not token_generator.check_token(user, request.data['recovery_token']):
         return responses.bad_request('Invalid recovery token.')
+
+    try:
+        validators.validate_password(request.data['new_password'])
+    except ValidationError:
+        return responses.bad_request('Invalid password format.')
+
+    user.set_password(request.data['new_password'])
+    user.save()
+
+    return responses.success(message='Succesfully changed the password, please login.')
 
 
 @api_view(['POST'])
