@@ -64,7 +64,7 @@ export default {
                 userAPI.requestEmailVerification()
                     .then(response => {
                         this.showEmailValidationInput = true
-                        this.$toasted.success(response.data.result)
+                        this.$toasted.success(response.statusText)
                     })
                     .catch(response => {
                         this.$toasted.error(response.response.data.description)
@@ -74,7 +74,7 @@ export default {
         verifyEmail () {
             userAPI.verifyEmail(this.emailVerificationToken)
                 .then(response => {
-                    this.$toasted.success(response.data.result)
+                    this.$toasted.success(response.statusText)
                     this.userData.verified_email = true
                     this.showEmailValidationInput = false
                 })

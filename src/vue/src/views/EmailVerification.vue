@@ -21,7 +21,7 @@ export default {
     mounted () {
         userAPI.verifyEmail(this.token)
             .then(response => {
-                this.$toasted.success(response.data.result)
+                this.$toasted.success(response.statusText)
                 this.$router.push({ name: 'Home' })
             })
             .catch(response => {
@@ -29,7 +29,7 @@ export default {
                     name: 'ErrorPage',
                     params: {
                         code: response.status,
-                        message: response.data.result,
+                        reasonPhrase: response.statusText,
                         description: response.data.description
                     }
                 })

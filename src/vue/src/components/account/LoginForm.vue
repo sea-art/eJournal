@@ -64,7 +64,7 @@ export default {
             authAPI.forgotPassword(username, emailAdress)
                 .then(response => {
                     this.$refs.forgotPasswordModalRef.hide()
-                    this.$toasted.success(response.data.result)
+                    this.$toasted.success(response.statusText)
                 })
                 .catch(response => {
                     this.$toasted.error('No user known by the given information.')

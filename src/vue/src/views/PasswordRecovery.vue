@@ -54,7 +54,7 @@ export default {
             if (this.validatePassword()) {
                 authAPI.recoverPassword(this.username, this.recoveryToken, this.password)
                     .then(response => {
-                        this.$toasted.success(response.data.result)
+                        this.$toasted.success(response.statusText)
                         this.$router.push({ name: 'Login' })
                     })
                     .catch(response => {
@@ -63,7 +63,7 @@ export default {
                             name: 'ErrorPage',
                             params: {
                                 code: response.response.status,
-                                message: response.response.data.result,
+                                reasonPhrase: response.response.statusText,
                                 description: response.response.data.description
                             }
                         })

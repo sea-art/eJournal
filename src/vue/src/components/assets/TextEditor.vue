@@ -11,8 +11,6 @@
 </template>
 
 <script>
-import userAPI from '@/api/user.js'
-
 // TODO Figure out why importing tinymce gives a warning transferred with MIME type 2x
 import tinymce from 'tinymce/tinymce'
 import 'tinymce/themes/modern/theme'
@@ -208,21 +206,6 @@ export default {
                 editor.theme.panel.find('toolbar')[0].$el.hide()
                 editor.theme.panel.find('#statusbar')[0].$el.hide()
             })
-        },
-        /* Disabled as images are encoded as base64 and saved with the content of the editor.
-         * Can be enabled by adding images_upload_handler: this.handleImageUpload to the config. */
-        handleImageUpload (blobInfo, success, failure) {
-            let formData = new FormData()
-            formData.append('file', blobInfo.blob())
-
-            // TODO Create proper backend structure for serving files, this solution is dirty and should be treated as a proof of concept. */
-            userAPI.updateImage(formData)
-                .then(response => {
-                    let fullFilePath = response.data.result.location
-                    let staticPath = fullFilePath.match(/static\/.*(\..*)$/)[0]
-                    success('../../../' + staticPath)
-                })
-                .catch(_ => { this.$toasted.error('Something went wrong while uploading your requested image.') })
         },
         insertDataURL () {
             var input = document.createElement('input')

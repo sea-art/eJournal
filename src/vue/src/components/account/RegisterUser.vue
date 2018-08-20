@@ -79,7 +79,7 @@ export default {
                                     name: 'ErrorPage',
                                     params: {
                                         code: '511',
-                                        message: 'Network authorization required',
+                                        reasonPhrase: 'Network authorization required',
                                         description: `Invalid credentials for logging in.
                                                       Please contact the system administrator.`
                                     }
@@ -87,7 +87,7 @@ export default {
                             })
                     })
                     .catch(error => {
-                        this.$toasted.error(error.response.data.result + ': ' + error.response.data.description)
+                        this.$toasted.error(error.response.statusText + ': ' + error.response.data.description)
                     })
             }
         },

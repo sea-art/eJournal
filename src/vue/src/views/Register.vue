@@ -39,19 +39,8 @@ export default {
         verifyEmail () {
             userAPI.verifyEmail(this.emailVerificationToken)
                 .then(response => {
-                    this.$toasted.success(response.data.result)
+                    this.$toasted.success(response.statusText)
                     this.$router.push({ name: 'Home' })
-                })
-                .catch(response => {
-                    this.$toasted.error(response.response.data.description)
-                    this.$router.push({
-                        name: 'ErrorPage',
-                        params: {
-                            code: response.response.status,
-                            message: response.response.data.result,
-                            description: response.response.data.description
-                        }
-                    })
                 })
         }
     }

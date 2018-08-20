@@ -188,7 +188,7 @@ export default {
                     name: 'ErrorPage',
                     params: {
                         code: '404',
-                        message: err,
+                        reasonPhrase: err,
                         description: `Error while loading LTI information.
                                         Please contact the system administrator
                                         for more information. Further integration
@@ -202,7 +202,7 @@ export default {
                 name: 'ErrorPage',
                 params: {
                     code: '511',
-                    message: 'Network authorization required',
+                    reasonPhrase: 'Network authorization required',
                     description: `Invalid credentials from the LTI environment.
                                   Please contact the system administrator.`
                 }
@@ -212,7 +212,7 @@ export default {
                 name: 'ErrorPage',
                 params: {
                     code: '404',
-                    message: 'No course found with given ID',
+                    reasonPhrase: 'No course found with given ID',
                     description: `The requested course is not available on
                                   ejournal. Wait for it to become availible or
                                   contact your teacher for more information.`
@@ -223,7 +223,7 @@ export default {
                 name: 'ErrorPage',
                 params: {
                     code: '404',
-                    message: 'No assignment found with given ID',
+                    reasonPhrase: 'No assignment found with given ID',
                     description: `The requested assignment is not available on
                                   ejournal. Wait for it to become availible or
                                   contact your teacher for more information.`
