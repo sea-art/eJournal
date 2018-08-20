@@ -167,8 +167,8 @@ export default {
             }
 
             function compareUsername (a, b) {
-                if (a.student.name < b.student.name) { return -1 }
-                if (a.student.name > b.student.name) { return 1 }
+                if (a.student.username < b.student.username) { return -1 }
+                if (a.student.username > b.student.username) { return 1 }
                 return 0
             }
 
@@ -179,7 +179,7 @@ export default {
             }
 
             function checkFilter (user) {
-                var username = user.student.name.toLowerCase()
+                var username = user.student.username.toLowerCase()
                 var fullName = user.student.first_name.toLowerCase() + ' ' + user.student.last_name.toLowerCase()
                 var searchVariable = self.searchVariable.toLowerCase()
 

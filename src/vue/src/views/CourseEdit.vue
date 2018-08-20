@@ -229,7 +229,7 @@ export default {
             }
 
             function checkFilter (user) {
-                var username = user.name.toLowerCase()
+                var username = user.username.toLowerCase()
                 var fullName = user.first_name.toLowerCase() + ' ' + user.last_name.toLowerCase()
                 var searchVariable = self.searchVariable.toLowerCase()
 
