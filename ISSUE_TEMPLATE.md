@@ -17,7 +17,7 @@ What incorrect behavior did you encounter?
 What should be implemented and why?
 
 ## User story
-How would you describe this feature front a users point of view?
+How would you describe this feature front a user's point of view?
 
 ## User interface
 Screenshot or description of user interface changes
