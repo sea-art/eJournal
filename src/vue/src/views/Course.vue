@@ -104,14 +104,14 @@ export default {
         this.loadAssignments()
 
         courseApi.get_upcoming_course_deadlines(this.cID)
-            .then(response => {
-                this.deadlines = response
-            })
+            .then(deadlines => { this.deadlines = deadlines })
+            .catch(response => { this.$toasted.error(response.data.description) })
     },
     methods: {
         loadAssignments () {
             assignment.get_course_assignments(this.cID)
-                .then(response => { this.assignments = response })
+                .then(assignments => { this.assignments = assignments })
+                .catch(response => { this.$toasted.error(response.data.description) })
         },
         showModal (ref) {
             this.$refs[ref].show()

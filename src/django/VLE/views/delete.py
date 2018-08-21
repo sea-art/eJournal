@@ -71,19 +71,18 @@ def delete_assignment(request):
     if role is None:
         return responses.forbidden(description="You have no access to this course")
     elif not role.can_delete_assignment:
-        return responses.forbidden(description="You have no permissions to delete a assignment.")
+        return responses.forbidden(description="You have no permissions to delete this assignment.")
 
     response = {'removed_completely': False}
     course = Course.objects.get(pk=cID)
     assignment = Assignment.objects.get(pk=aID)
     assignment.courses.remove(course)
     assignment.save()
-    response['removed_from_course'] = True
     if assignment.courses.count() == 0:
         assignment.delete()
         response['removed_completely'] = True
 
-    return responses.success(description='Succesfully deleted assignment', payload=response)
+    return responses.success(description='Succesfully deleted the assignment.', payload=response)
 
 
 @api_view(['POST'])
@@ -109,7 +108,7 @@ def delete_user_from_course(request):
     # Users can only be deleted from the course with can_view_course_participants
     role = permissions.get_role(user, cID)
     if role is None:
-        return responses.unauthorized(description="You have no access to this course")
+        return responses.unauthorized(description="You have no access to this course.")
     elif not role.can_view_course_participants:
         return responses.forbidden(description="Uou have no permissions to delete this user.")
 
@@ -121,7 +120,7 @@ def delete_user_from_course(request):
         return responses.not_found(description='User, Course or Participation does not exist.')
 
     participation.delete()
-    return responses.success(description='Succesfully deleted student from course')
+    return responses.success(description='Succesfully deleted student from course.')
 
 
 @api_view(['POST'])
@@ -138,7 +137,7 @@ def delete_course_role(request):
     # Users can only delete course roles with can_edit_course_roles
     role = permissions.get_role(user, cID)
     if role is None:
-        return responses.unauthorized(description="You have no access to this course")
+        return responses.unauthorized(description="You have no access to this course.")
     elif not role.can_edit_course_roles:
         return responses.forbidden(description="You have no permissions to delete this course role.")
 
@@ -148,7 +147,7 @@ def delete_course_role(request):
         return responses.forbidden()
 
     Role.objects.get(name=name, course=cID).delete()
-    return responses.success(description='Succesfully deleted role from course')
+    return responses.success(description='Succesfully deleted role from course.')
 
 
 @api_view(['POST'])
@@ -178,4 +177,4 @@ def delete_entrycomment(request):
         return responses.forbidden()
 
     EntryComment.objects.get(id=ecID).delete()
-    return responses.success(description='Succesfully deleted comment')
+    return responses.success(description='Succesfully deleted comment.')

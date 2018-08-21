@@ -39,11 +39,14 @@ export default {
         addUserToCourse () {
             if (confirm('Are you sure you want to add "' + this.fullName + '" to this course?')) {
                 courseApi.update_course_with_student(this.uID, this.cID)
-                    .then(response => {
+                    .then(_ => {
                         this.$emit('add-participant', 'Student',
                             this.username,
                             this.portraitPath,
                             this.uID)
+                    })
+                    .catch(data => {
+                        this.$toasted.error(data.description)
                     })
             }
         }

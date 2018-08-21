@@ -153,8 +153,8 @@ export default {
                             this.$toasted.success('Grade updated and published.')
                             this.$emit('check-grade')
                         })
-                        .catch(_ => {
-                            this.$toasted.error('Something went wrong with updating the grade.')
+                        .catch(response => {
+                            this.$toasted.error(response.data.description)
                         })
                 } else {
                     journalApi.update_grade_entry(this.entryNode.entry.eID,
@@ -163,8 +163,8 @@ export default {
                             this.$toasted.success('Grade updated but not published.')
                             this.$emit('check-grade')
                         })
-                        .catch(_ => {
-                            this.$toasted.error('Something went wrong with updating the grade.')
+                        .catch(response => {
+                            this.$toasted.error(response.data.description)
                         })
                 }
             }

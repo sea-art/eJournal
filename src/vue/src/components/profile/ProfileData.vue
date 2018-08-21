@@ -60,7 +60,8 @@ export default {
     methods: {
         saveUserdata () {
             userAPI.updateUserData(this.userData.first_name, this.userData.last_name)
-                .then(this.$toasted.success('Saved profile data'))
+                .then(_ => { this.$toasted.success('Saved profile data') })
+                .catch(response => { this.$toasted.error(response.data.description) })
         },
         fileHandler (e) {
             let files = e.target.files
@@ -83,12 +84,8 @@ export default {
                         this.$toasted.error('Please submit a square image.')
                     } else {
                         userAPI.updateProfilePictureBase64(dataURL)
-                            .then(_ => {
-                                vm.profileImageDataURL = dataURL
-                            })
-                            .catch(response => {
-                                this.$toasted.error(response.description)
-                            })
+                            .then(_ => { vm.profileImageDataURL = dataURL })
+                            .catch(response => { this.$toasted.error(response.data.description) })
                     }
                 }
                 img.src = dataURL
@@ -96,24 +93,27 @@ export default {
             reader.readAsDataURL(files[0])
         },
         downloadUserData () {
-            userAPI.getUserData(this.userData.uID).then(data => {
-                /* This is a way to download data. */
-                /* Stringify the data and create a data blob of it. */
-                data = JSON.stringify(data)
-                const blob = new Blob([data], {type: 'text/plain'})
+            userAPI.getUserData(this.userData.uID)
+                // TODO Implement a complete version, including a zip of all user files.
+                .then(data => {
+                    /* This is a way to download data. */
+                    /* Stringify the data and create a data blob of it. */
+                    data = JSON.stringify(data)
+                    const blob = new Blob([data], {type: 'text/plain'})
 
-                /* Create a link to download the data and bind the data to it. */
-                var downloadElement = document.createElement('a')
-                downloadElement.download = 'userdata_of_' + this.userData.username + '.json'
-                downloadElement.href = window.URL.createObjectURL(blob)
-                downloadElement.dataset.downloadurl = ['text/json',
-                    downloadElement.download, downloadElement.href].join(':')
+                    /* Create a link to download the data and bind the data to it. */
+                    var downloadElement = document.createElement('a')
+                    downloadElement.download = 'userdata_of_' + this.userData.username + '.json'
+                    downloadElement.href = window.URL.createObjectURL(blob)
+                    downloadElement.dataset.downloadurl = ['text/json',
+                        downloadElement.download, downloadElement.href].join(':')
 
-                /* Create a click event and click on the download link to download the code. */
-                const clickEvent = document.createEvent('MouseEvents')
-                clickEvent.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
-                downloadElement.dispatchEvent(clickEvent)
-            })
+                    /* Create a click event and click on the download link to download the code. */
+                    const clickEvent = document.createEvent('MouseEvents')
+                    clickEvent.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
+                    downloadElement.dispatchEvent(clickEvent)
+                })
+                .catch(response => { this.$toasted.error(response.data.description) })
         }
     },
     mounted () {

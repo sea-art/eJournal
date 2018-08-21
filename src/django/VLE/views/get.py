@@ -76,7 +76,7 @@ def get_course_data(request, cID):
         return responses.not_found('Course not found.')
 
     if not permissions.is_user_in_course(user, q_course):
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
 
     course = serialize.course_to_dict(q_course)
 
@@ -104,9 +104,9 @@ def get_course_users(request, cID):
 
     role = permissions.get_role(user, course)
     if role is None:
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
     elif not role.can_view_course_participants:
-        return responses.forbidden('You cannot view participants in this course.')
+        return responses.forbidden('You cannot view the participants in this course.')
 
     participations = course.participation_set.all()
     return responses.success(payload={'users': [serialize.participation_to_dict(participation)
@@ -134,9 +134,9 @@ def get_unenrolled_users(request, cID):
 
     role = permissions.get_role(user, course)
     if role is None:
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
     elif not role.can_view_course_participants:
-        return responses.forbidden('You cannot view participants in this course.')
+        return responses.forbidden('You cannot view the participants in this course.')
 
     ids_in_course = course.participation_set.all().values('user__id')
     result = User.objects.all().exclude(id__in=ids_in_course)
@@ -250,7 +250,7 @@ def get_course_assignments(request, cID):
 
     role = permissions.get_role(user, course)
     if role is None:
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
 
     # Check whether the user can grade a journal in the course.
     if role.can_grade_journal:
@@ -283,7 +283,7 @@ def get_assignment_data(request, cID, aID):
 
     role = permissions.get_role(user, course)
     if role is None:
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
 
     try:
         assignment = Assignment.objects.get(pk=aID)
@@ -463,7 +463,7 @@ def get_upcoming_deadlines(request):
         role = permissions.get_role(user, course)
 
         if role is None:
-            return responses.forbidden('You are not in this course.')
+            return responses.forbidden('You are not a participant of this course.')
 
         if role.can_grade_journal:
             for assignment in Assignment.objects.filter(courses=course.id).all():
@@ -505,7 +505,7 @@ def get_upcoming_course_deadlines(request, cID):
         role = permissions.get_role(user, course)
 
         if role is None:
-            return responses.forbidden('You are not in this course.')
+            return responses.forbidden('You are not a participant of this course.')
 
         if role.can_grade_journal:
             deadline = create_teacher_assignment_deadline(course, assignment)
@@ -791,7 +791,7 @@ def get_assignment_by_lti_id(request, lti_id):
         return responses.not_found('Assignment not found.')
 
     if not permissions.has_assignment_permission(user, assignment, 'can_edit_course'):
-        return responses.forbidden('You are not allowed to edit the courses.')
+        return responses.forbidden('You are not allowed to edit the course.')
 
     return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
 

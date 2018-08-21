@@ -14,6 +14,7 @@
 <script>
 import auth from '@/api/auth'
 import icon from 'vue-awesome/components/Icon'
+import validation from '@/utils/validation.js'
 
 export default {
     data () {
@@ -25,22 +26,16 @@ export default {
         }
     },
     methods: {
-        changePassword: function () {
-            if (this.newPass === this.newPassRepeat) {
+        changePassword () {
+            if (validation.validatePassword(this.newPass, this.newPassRepeat)) {
                 auth.changePassword(this.newPass, this.oldPass)
-                    .then(response => {
-                        this.$toasted.success('Password updated successfully')
-                    })
-                    .catch(response => {
-                        this.$toasted.error('Something went wrong updating your password, please try again.')
-                    })
-            } else {
-                this.$toasted.error('Passwords do not match')
+                    .then(response => { this.$toasted.success(response.data.description) })
+                    .catch(response => { this.$toasted.error(response.data.description) })
             }
         }
     },
     components: {
-        'icon': icon
+        icon
     }
 }
 </script>

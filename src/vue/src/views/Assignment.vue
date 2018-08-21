@@ -97,10 +97,11 @@ export default {
             }
         }
         journal.get_assignment_journals(this.aID)
-            .then(response => {
-                this.assignmentJournals = response.journals
-                this.stats = response.stats
+            .then(data => {
+                this.assignmentJournals = data.journals
+                this.stats = data.stats
             })
+            .catch(response => { this.$toasted.error(response.data.description) })
 
         if (this.$route.query.sort === 'sortFullName' ||
             this.$route.query.sort === 'sortUsername' ||

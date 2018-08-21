@@ -71,7 +71,6 @@ export default {
             defaultProfileImg: '../static/unknown-profile.png',
             profileImg: '',
             username: '',
-            password: '',
             profile: '',
             profileFetchAttempts: 0
         }
@@ -93,9 +92,7 @@ export default {
                     this.profile = user
                     this.setProfileImg()
                 })
-                .catch(_ => {
-                    this.$toasted.error('Something went wrong retrieving user data')
-                })
+                .catch(response => { this.$toasted.error(response.data.description) })
         },
         setProfileImg () {
             /* Sets the profile img if found, else a default is set.

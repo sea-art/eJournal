@@ -18,6 +18,7 @@
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import icon from 'vue-awesome/components/Icon'
 import authAPI from '@/api/auth.js'
+import validation from '@/utils/validation.js'
 
 export default {
     name: 'PasswordRecovery',
@@ -29,29 +30,8 @@ export default {
         }
     },
     methods: {
-        validatePassword () {
-            if (this.password !== this.passwordRepeated) {
-                this.$toasted.error('Passwords do not match!')
-                return false
-            }
-            if (this.password.length < 8) {
-                this.$toasted.error('Password needs to contain at least 8 characters.')
-                return false
-            }
-            if (this.password.toLowerCase() === this.password) {
-                this.$toasted.error('Password needs to contain at least 1 capital letter.')
-                return false
-            }
-            let re = /[ !@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/
-            if (!re.test(this.password)) {
-                this.$toasted.error('Password needs to contain a special character.')
-                return false
-            }
-
-            return true
-        },
         recoverPassword () {
-            if (this.validatePassword()) {
+            if (validation.validatePassword(this.password, this.passwordRepeated)) {
                 authAPI.recoverPassword(this.username, this.recoveryToken, this.password)
                     .then(response => {
                         this.$toasted.success(response.statusText)

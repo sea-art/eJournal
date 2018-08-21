@@ -50,7 +50,7 @@ def connect_course_lti(request):
 
     role = permissions.get_role(user, course)
     if role is None:
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
     elif not role.can_edit_course:
         return responses.forbidden('You cannot edit this course.')
 
@@ -90,7 +90,7 @@ def update_course(request):
 
     role = permissions.get_role(user, course)
     if role is None:
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
     elif not role.can_edit_course:
         return responses.forbidden('You cannot edit this course.')
 
@@ -127,9 +127,9 @@ def update_course_roles(request):
 
     role = permissions.get_role(user, course)
     if role is None:
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
     elif not role.can_edit_course_roles:
-        return responses.forbidden('You cannot edit roles of this course.')
+        return responses.forbidden('You cannot edit the roles of this course.')
 
     for role in request.data['roles']:
         db_role = Role.objects.filter(name=role['name'], course__id=cID)
@@ -206,7 +206,7 @@ def update_course_with_student(request):
 
     role = permissions.get_role(user, course)
     if role is None:
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
     elif not role.can_add_course_participants:
         return responses.forbidden('You cannot add users to this course.')
 
@@ -287,7 +287,7 @@ def update_password(request):
     try:
         validators.validate_password(new_password)
     except ValidationError:
-        return responses.bad_request('Invalid password format.')
+        return responses.bad_request('The given password does not meet the requirements!')
 
     user.set_password(new_password)
     user.save()
@@ -423,7 +423,7 @@ def update_user_role_course(request):
 
     q_role = permissions.get_role(request.user, course)
     if q_role is None:
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
     elif not q_role.can_edit_course_roles:
         return responses.forbidden('You cannot edit the roles of this course.')
 
@@ -781,8 +781,10 @@ def update_user_profile_picture(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    if 'urlData' not in request.data:
-        return responses.bad_request()
+    try:
+        utils.required_params(request.data, 'urlData')
+    except KeyError:
+        return responses.KeyError('urlData')
 
     try:
         validators.validate_profile_picture_base64(request.data['urlData'])
@@ -910,7 +912,7 @@ def request_email_verification(request):
         return responses.unauthorized()
 
     if user.verified_email:
-        return responses.bad_request('Email address already verified.')
+        return responses.bad_request(description='Email address already verified.')
 
     utils.send_email_verification_link(user)
 

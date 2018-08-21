@@ -142,6 +142,7 @@ export default {
                             this.states.state = this.states.finish_t
                         }
                     })
+                    .catch(response => { this.$toasted.error(response.data.description) })
                 break
             case this.states.grade_center:
                 this.$router.push({

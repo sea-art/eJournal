@@ -39,9 +39,10 @@ export default {
         verifyEmail () {
             userAPI.verifyEmail(this.emailVerificationToken)
                 .then(response => {
-                    this.$toasted.success(response.statusText)
+                    this.$toasted.success(response.data.description)
                     this.$router.push({ name: 'Home' })
                 })
+                .catch(response => { this.$toasted.error(response.data.description) })
         }
     }
 }

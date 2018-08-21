@@ -51,9 +51,12 @@ export default {
             assignmentApi.create_new_assignment(this.form.assignmentName,
                 this.form.assignmentDescription, this.form.courseID,
                 this.form.ltiAssignID, this.form.pointsPossible)
-                .then(response => {
-                    this.$emit('handleAction', response.assignment.aID)
+                .then(assignment => {
+                    this.$emit('handleAction', assignment.aID)
                     this.onReset(undefined)
+                })
+                .catch(response => {
+                    this.$toasted.error(response.data.description)
                 })
         },
         onReset (evt) {

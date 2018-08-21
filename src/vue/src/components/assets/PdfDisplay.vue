@@ -85,7 +85,7 @@ export default {
             }
         },
         password (updatePassword, reason) {
-            updatePassword(prompt('password is "test"'))
+            this.$toasted.error('Password handling is not implemented.')
         },
         error (err) {
             this.$toasted.error(err)

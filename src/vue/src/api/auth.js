@@ -36,12 +36,13 @@ function refresh (error) {
 }
 
 /*
-  * Redirects the following unsuccessfull request responses:
-  * UNAUTHORIZED to Login.
-  * FORBIDDEN, NOT_FOUND, INTERNAL_SERVER_ERROR to Error page.
-  *
-  * If nothing is matched or no redirect is True, the response is thrown and further promise handling should take place.
-*/
+ * Redirects the following unsuccessfull request responses:
+ * UNAUTHORIZED to Login.
+ * FORBIDDEN, NOT_FOUND, INTERNAL_SERVER_ERROR to Error page.
+ *
+ * If nothing is matched or no redirect is True, the response is thrown and further promise handling should take place.
+ * This because this is generic response handling, and we dont know what should happen in case of an error.
+ */
 function handleResponse (response, noRedirect = false) {
     response = response.response
     const status = response.status
