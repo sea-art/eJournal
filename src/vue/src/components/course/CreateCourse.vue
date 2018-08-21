@@ -51,9 +51,12 @@ export default {
                 this.form.courseAbbr, this.form.courseStartdate,
                 this.form.courseEnddate,
                 this.form.ltiCourseID)
-                .then(response => {
+                .then(course => {
                     this.onReset(undefined)
-                    this.$emit('handleAction', response.course.cID)
+                    this.$emit('handleAction', course.cID)
+                })
+                .catch(response => {
+                    this.$toasted.error(response.data.description)
                 })
         },
         onReset (evt) {

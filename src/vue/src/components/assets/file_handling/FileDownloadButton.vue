@@ -15,6 +15,10 @@ export default {
         fileName: {
             required: true,
             String
+        },
+        authorUID: {
+            required: true,
+            String
         }
     },
     components: {
@@ -31,7 +35,7 @@ export default {
             return bytes.buffer
         },
         fileDownload (e) {
-            userAPI.getUserFile(this.fileName)
+            userAPI.getUserFile(this.fileName, this.authorUID)
                 .then(response => {
                     let blob = new Blob([this.base64ToArrayBuffer(response.data)], { type: response.headers['content-type'] })
                     let link = document.createElement('a')
@@ -39,8 +43,8 @@ export default {
                     link.download = /filename=(.*)/.exec(response.headers['content-disposition'])[1]
                     link.click()
                 })
-                .catch(_ => {
-                    this.$toasted.error('Something went wrong while downloading your file.')
+                .catch(response => {
+                    this.$toasted.error(response.description)
                 })
         }
     }

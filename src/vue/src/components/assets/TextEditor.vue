@@ -1,15 +1,16 @@
 <!-- Custom wrapper for tinymce editor -->
 <!-- If more events are desired, here is an overview: https://www.tiny.cloud/docs/advanced/events/ -->
 
+<!-- TODO Text placeholder functionality (not working with a content inject when not required.) -->
+<!-- TODO displayInline functionality not compatible with launching the editor from a modal -->
+
 <template>
     <div class="editor-container">
-        <textarea :id="uID"/>
+        <textarea :id="id"/>
     </div>
 </template>
 
 <script>
-import userAPI from '@/api/user.js'
-
 // TODO Figure out why importing tinymce gives a warning transferred with MIME type 2x
 import tinymce from 'tinymce/tinymce'
 import 'tinymce/themes/modern/theme'
@@ -61,9 +62,19 @@ export default {
             default: false
         },
         /* Used to bind the editor to the components text area. */
-        uID: {
+        id: {
             type: String,
             required: true
+        },
+        givenContent: {
+            type: String,
+            default: ''
+        },
+        displayInline: {
+            default: false
+        },
+        footer: {
+            default: true
         }
     },
     data () {
@@ -71,7 +82,7 @@ export default {
             content: '',
             editor: null,
             config: {
-                selector: '#' + this.uID,
+                selector: '#' + this.id,
                 init_instance_callback: this.editorInit,
                 setup: this.editorSetup,
 
@@ -94,6 +105,11 @@ export default {
 
                 /* Custom styling applied to the editor */
                 content_css: ['//fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700'],
+                content_style: `
+                    @import url('https://fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700');
+                    body {
+                        font-family: "Roboto Condensed"
+                    } `,
 
                 file_picker_types: 'image',
                 file_picker_callback: this.insertDataURL
@@ -125,14 +141,27 @@ export default {
             }
         }
     },
+    watch: {
+        content: function (newVal) { this.$emit('content-update', this.content) }
+    },
     methods: {
         editorInit (editor) {
             var vm = this
             this.editor = editor
 
-            editor.on('init', (e) => {
-                editor.setContent(this.content)
-            })
+            /* Set default font in the editor instance */
+            editor.execCommand('fontName', false, 'roboto condensed')
+
+            this.content = this.givenContent
+            /* set content resets the default font for some reason */
+            editor.setContent(this.givenContent)
+
+            /* Set default font in the editor instance */
+            editor.execCommand('fontName', false, 'roboto condensed')
+
+            if (this.displayInline) {
+                this.setupInlineDisplay(editor)
+            }
 
             editor.on('Change', (e) => {
                 vm.content = this.editor.getContent()
@@ -157,26 +186,26 @@ export default {
                     })
                 }
             })
-
-            /* Set default font in the editor instance */
-            editor.on('init', function (e) {
-                editor.execCommand('fontName', false, 'roboto condensed')
-            })
         },
-        /* Disabled as images are encoded as base64 and saved with the content of the editor.
-         * Can be enabled by adding images_upload_handler: this.handleImageUpload to the config. */
-        handleImageUpload (blobInfo, success, failure) {
-            let formData = new FormData()
-            formData.append('file', blobInfo.blob())
+        setupInlineDisplay (editor) {
+            /* Disables auto focus of the editor. */
+            editor.execCommand('mceInlineCommentIsDirty', false, {skip_focus: true})
 
-            // TODO Create proper backend structure for serving files, this solution is dirty and should be treated as a proof of concept. */
-            userAPI.updateImage(formData)
-                .then(response => {
-                    let fullFilePath = response.data.result.location
-                    let staticPath = fullFilePath.match(/static\/.*(\..*)$/)[0]
-                    success('../../../' + staticPath)
-                })
-                .catch(_ => { this.$toasted.error('Something went wrong while uploading your requested image.') })
+            editor.theme.panel.find('toolbar')[0].$el.hide()
+            editor.theme.panel.find('menubar')[0].$el.hide()
+            editor.theme.panel.find('#statusbar')[0].$el.hide()
+
+            editor.on('focus', function () {
+                editor.theme.panel.find('menubar')[0].$el.show()
+                editor.theme.panel.find('toolbar')[0].$el.show()
+                editor.theme.panel.find('#statusbar')[0].$el.show()
+            })
+
+            editor.on('blur', function () {
+                editor.theme.panel.find('menubar')[0].$el.hide()
+                editor.theme.panel.find('toolbar')[0].$el.hide()
+                editor.theme.panel.find('#statusbar')[0].$el.hide()
+            })
         },
         insertDataURL () {
             var input = document.createElement('input')
@@ -188,10 +217,9 @@ export default {
                 var files = this.files
                 if (!files.length) { return }
 
-                let maxSize = 2 * 1024 * 1024
                 var file = files[0]
-                if (files[0].size > maxSize) {
-                    this.$toasted.error('The selected image exceeds the maximum file size of 2MB.')
+                if (files[0].size > vm.$root.maxFileSizeBytes) {
+                    this.$toasted.error('The selected image exceeds the maximum file size of ' + vm.$root.maxFileSizeBytes + ' bytes.')
                     return
                 }
 
@@ -280,6 +308,8 @@ export default {
         }
     },
     mounted () {
+        this.config.statusbar = this.footer
+
         if (this.basic) {
             this.setBasicConfig()
         } else {
@@ -306,8 +336,13 @@ export default {
 
 <style lang="sass">
 .editor-container
-    padding: 0px 3px
+    padding-right: 1px
+    width: 100%
 
 .mce-fullscreen
     padding-top: 70px
+
+// Assume we're in a modal
+form .mce-fullscreen
+    padding-top: 0px
 </style>

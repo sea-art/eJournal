@@ -6,21 +6,18 @@ Database file
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
-
-
-def get_path(instance, filename):
-    """Upload user files into their respective directories. Following MEDIA_ROOT/files/uID/..."""
-    return 'files/' + str(instance.author.id) + '/' + filename
+from VLE.utils.file_handling import get_path
 
 
 class UserFile(models.Model):
-    """UserFile
+    """UserFile.
 
-    UserFile is a file uploaded by the user stored in MEDIA_ROOT/files/uID/...
+    UserFile is a file uploaded by the user stored in MEDIA_ROOT/files/uID/aID/...
     - author: The user who uploaded the file.
     - file_name: The name of the file (no parts of the path to the file included).
     - creation_date: The time and date the file was uploaded.
     - content_type: The mimetype supplied by the user (unvalidated).
+    - assignment: The assignment that the UserFile is linked to.
     """
     file = models.FileField(
         null=False,
@@ -40,6 +37,11 @@ class UserFile(models.Model):
     content_type = models.TextField(
         null=False
     )
+    assignment = models.ForeignKey(
+        'Assignment',
+        on_delete=models.CASCADE,
+        null=False
+    )
 
     def __str__(self):
         """toString."""
@@ -51,15 +53,17 @@ class User(AbstractUser):
 
     User is an entity in the database with the following features:
     - email: email of the user.
+    - verified_email: Boolean to indicate if the user has validated their email adress.
     - USERNAME_FIELD: username of the username.
     - password: the hash of the password of the user.
     - lti_id: the DLO id of the user.
     """
 
     email = models.EmailField(
-        null=True,
-        blank=True,
         unique=True,
+    )
+    verified_email = models.BooleanField(
+        default=False
     )
     lti_id = models.TextField(
         null=True,
@@ -506,12 +510,16 @@ class Field(models.Model):
     """
 
     TEXT = 't'
+    RICH_TEXT = 'rt'
     IMG = 'i'
     FILE = 'f'
     VIDEO = 'v'
+    PDF = 'p'
     TYPES = (
         (TEXT, 'text'),
+        (RICH_TEXT, 'rich text'),
         (IMG, 'img'),
+        (PDF, 'pdf'),
         (FILE, 'file'),
         (VIDEO, 'vid')
     )
@@ -547,6 +555,7 @@ class Content(models.Model):
         on_delete=models.SET_NULL,
         null=True
     )
+    # TODO Consider a size limit 10MB unencoded posts? so 10 * 1024 * 1024 * 1.37?
     data = models.TextField()
 
 

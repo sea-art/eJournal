@@ -3,11 +3,11 @@
         <b-card class="blue-border no-hover card-last-elem-button">
             <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.username" placeholder="Username" required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"  v-model="form.firstname" placeholder="First name" required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"  v-model="form.lastname" placeholder="Last name" required/>
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.firstname" placeholder="First name" required/>
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.lastname" placeholder="Last name" required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.password" type="password" placeholder="Password" required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.password2" type="password" placeholder="Password (again)" required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"  v-model="form.email" placeholder="Email" required/>
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.email" placeholder="Email" required/>
                 <b-button class="float-left change-button multi-form" type="reset">
                     <icon name="undo"/>
                     Reset
@@ -25,6 +25,7 @@
 import auth from '@/api/auth.js'
 import userApi from '@/api/user.js'
 import icon from 'vue-awesome/components/Icon'
+import validation from '@/utils/validation.js'
 
 export default {
     name: 'RegisterUser',
@@ -43,43 +44,19 @@ export default {
         }
     },
     methods: {
-        checkInput () {
-            var correctInput = true
-
-            if (this.form.password !== this.form.password2) {
-                this.$toasted.error('The given passwords do not match!')
-                correctInput = false
-            }
-
-            return correctInput
-        },
         onSubmit () {
-            var correctInput = this.checkInput()
-
-            if (correctInput) {
-                userApi.createUser(this.form.username, this.form.password,
-                    this.form.firstname, this.form.lastname,
+            if (validation.validatePassword(this.form.password, this.form.password2)) {
+                userApi.createUser(this.form.username, this.form.password, this.form.firstname, this.form.lastname,
                     this.form.email, this.form.ltiJWT)
                     .then(_ => {
+                        if (!this.lti) {
+                            this.$toasted.success('Registration successfull! Please follow the instructions sent to ' + this.email +
+                                                  ' to confirm your email address.')
+                        }
                         auth.login(this.form.username, this.form.password)
-                            .then(_ => {
-                                this.$emit('handleAction')
-                            })
-                            .catch(_ => {
-                                this.$router.push({
-                                    name: 'ErrorPage',
-                                    params: {
-                                        code: '511',
-                                        message: 'Network authorization required',
-                                        description: `Invalid credentials for logging in.
-                                                      Please contact the system administrator.`
-                                    }
-                                })
-                            })
+                            .then(_ => { this.$emit('handleAction') })
                     })
-                    .catch(error => {
-                        this.$toasted.error(error.response.data.result + ': ' + error.response.data.description)
-                    })
+                    .catch(response => { this.$toasted.error(response.data.description) })
             }
         },
         onReset (evt) {

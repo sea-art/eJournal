@@ -43,8 +43,10 @@ export default {
     data () {
         return {
             fieldTypes: {
-                'i': 'Image',
                 't': 'Text',
+                'rt': 'Rich Text',
+                'i': 'Image',
+                'p': 'PDF',
                 'f': 'File',
                 'v': 'YouTube Video'
             }

@@ -1,6 +1,6 @@
 import connection from '@/api/connection'
+import statuses from '@/utils/status_codes.js'
 import router from '@/router'
-import Vue from 'vue'
 
 /* Utility function to get the Authorization header with
  * the JWT token.
@@ -35,39 +35,28 @@ function refresh (error) {
     }
 }
 
+/*
+ * Redirects the following unsuccessfull request responses:
+ * UNAUTHORIZED to Login.
+ * FORBIDDEN, NOT_FOUND, INTERNAL_SERVER_ERROR to Error page.
+ *
+ * If nothing is matched or no redirect is True, the response is thrown and further promise handling should take place.
+ * This because this is generic response handling, and we dont know what should happen in case of an error.
+ */
 function handleResponse (response, noRedirect = false) {
     response = response.response
-    if (response.status === 401) { // Unauthorized
-        if (!noRedirect) {
-            router.push({name: 'Login'})
-        }
-    } else if (response.status === 403 || // Forbidden
-          response.status === 404) { // Not found)
-        if (!noRedirect) {
-            router.push({name: 'ErrorPage',
-                params: {
-                    code: response.status,
-                    message: response.data.result,
-                    description: response.data.description
-                }
-            })
-        }
-    } else if (response.status === 500) { // Internal server error
-        if (!noRedirect) {
-            router.push({name: 'ErrorPage',
-                params: {
-                    code: response.status,
-                    message: 'Internal Server Error',
-                    description: response.data.description
-                }
-            })
-        }
-    } else if (response.status === 400) { // Bad request
-        if (response.data.description) {
-            Vue.toasted.error(response.data.result + ': ' + response.data.description)
-        } else {
-            Vue.toasted.error(response.data.result)
-        }
+    const status = response.status
+
+    if (!noRedirect && status === statuses.UNAUTHORIZED) {
+        router.push({name: 'Login'})
+    } else if (!noRedirect && (status === statuses.FORBIDDEN || status === statuses.NOT_FOUND || status === statuses.INTERNAL_SERVER_ERROR)) {
+        router.push({name: 'ErrorPage',
+            params: {
+                code: status,
+                reasonPhrase: response.statusText,
+                description: (response.data.description != null) ? response.data.description : ''
+            }
+        })
     } else {
         throw response
     }
@@ -105,6 +94,17 @@ export default {
     /* Change password. */
     changePassword (newPassword, oldPassword) {
         return this.authenticatedPost('/update_password/', {new_password: newPassword, old_password: oldPassword})
+    },
+
+    /* Forgot password.
+     * Checks if a user is known by the given email or username. Sends an email with a link to reset the password. */
+    forgotPassword (username, email) {
+        return connection.conn.post('/forgot_password/', {username: username, email: email})
+    },
+
+    /* Recover password */
+    recoverPassword (username, recoveryToken, newPassword) {
+        return connection.conn.post('/recover_password/', {username: username, recovery_token: recoveryToken, new_password: newPassword})
     },
 
     /* Check if the stored token is valid. */
@@ -145,7 +145,7 @@ export default {
      */
     authenticatedGet (url, noRedirect = false) {
         return connection.conn.get(url, getAuthorizationHeader())
-            .catch(error => refresh(error, url)
+            .catch(error => refresh(error)
                 .then(_ => connection.conn.get(url, getAuthorizationHeader())))
             .catch(error => handleResponse(error, noRedirect))
     }

@@ -15,13 +15,40 @@
                     <b-textarea class="theme-input" v-model="completeContent[i].data"></b-textarea><br>
                 </div>
                 <div v-else-if="field.type=='i'">
-                    <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
+                    <file-upload-input
+                        :acceptedFiletype="'image/*'"
+                        :maxSizeBytes="$root.maxFileSizeBytes"
+                        :autoUpload="true"
+                        @fileUploadSuccess="completeContent[i].data = $event"
+                        :aID="$route.params.aID"
+                    />
                 </div>
                 <div v-else-if="field.type=='f'">
-                    <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br><br>
+                    <file-upload-input
+                        :acceptedFiletype="'*/*'"
+                        :maxSizeBytes="$root.maxFileSizeBytes"
+                        :autoUpload="true"
+                        @fileUploadSuccess="completeContent[i].data = $event"
+                        :aID="$route.params.aID"
+                    />
                 </div>
                 <div v-else-if="field.type=='v'">
                     <b-input class="theme-input" @input="completeContent[i].data = youtubeEmbedFromURL($event)" placeholder="Enter YouTube URL..."></b-input><br>
+                </div>
+                <div v-else-if="field.type == 'p'">
+                    <file-upload-input
+                        :acceptedFiletype="'application/pdf'"
+                        :maxSizeBytes="$root.maxFileSizeBytes"
+                        :autoUpload="true"
+                        @fileUploadSuccess="completeContent[i].data = $event"
+                        :aID="$route.params.aID"
+                    />
+                </div>
+                <div v-else-if="field.type == 'rt'">
+                    <text-editor
+                        :id="'rich-text-editor-' + i"
+                        @content-update="completeContent[i].data = $event"
+                    />
                 </div>
             </div>
 
@@ -29,7 +56,7 @@
                 @dismissed="dismissCountDown=0">
                 Some fields are empty or incorrectly formatted.
             </b-alert>
-            <b-button class="add-button float-right" @click="save">
+            <b-button class="add-button float-right mt-2" @click="save">
                 <icon name="paper-plane"/>
                 Post Entry
             </b-button>
@@ -39,6 +66,8 @@
 
 <script>
 import icon from 'vue-awesome/components/Icon'
+import fileUploadInput from '@/components/assets/file_handling/FileUploadInput.vue'
+import textEditor from '@/components/assets/TextEditor.vue'
 
 export default {
     props: ['template', 'cID'],
@@ -96,7 +125,9 @@ export default {
         }
     },
     components: {
-        'icon': icon
+        'icon': icon,
+        'file-upload-input': fileUploadInput,
+        'text-editor': textEditor
     }
 }
 </script>

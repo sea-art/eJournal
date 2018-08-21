@@ -68,6 +68,7 @@ export default {
                     this.hideModal('connectUserRef')
                     this.signal(['userIntegrated'])
                 })
+                .catch(response => { this.$toasted.error(response.data.description) })
         }
     }
 }

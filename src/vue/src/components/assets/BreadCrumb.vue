@@ -103,14 +103,15 @@ export default {
             }
 
             if (crumbsMissingDisplayName.length > 0) {
-                commonAPI.get_names(request).then(data => {
-                    for (var crumb of crumbsMissingDisplayName) {
-                        crumb.displayName = data[this.settings.namedViews[crumb.routeName].apiReturnValue]
-                        this.cachedMap[crumb.route] = crumb.displayName
-                    }
-                }).then(_ => {
-                    store.setCachedMap(this.cachedMap)
-                })
+                commonAPI.get_names(request)
+                    .then(data => {
+                        for (var crumb of crumbsMissingDisplayName) {
+                            crumb.displayName = data[this.settings.namedViews[crumb.routeName].apiReturnValue]
+                            this.cachedMap[crumb.route] = crumb.displayName
+                        }
+                    })
+                    .then(_ => { store.setCachedMap(this.cachedMap) })
+                    .catch(data => { this.$toasted.error(data.description) })
             }
         },
         eyeClick () {

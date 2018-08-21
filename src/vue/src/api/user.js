@@ -28,15 +28,13 @@ export default {
     },
 
     /* Get user file. */
-    getUserFile (fileName) {
-        return auth.authenticatedGet('/get_user_file/' + fileName + '/')
-            .then(response => response)
+    getUserFile (fileName, authorUID) {
+        return auth.authenticatedGet('/get_user_file/' + fileName + '/' + authorUID + '/')
     },
 
     /* Update user data. */
-    updateUserData (username, firstName, lastName) {
+    updateUserData (firstName, lastName) {
         return auth.authenticatedPost('/update_user_data/', {
-            username: username,
             first_name: firstName,
             last_name: lastName
         })
@@ -79,5 +77,15 @@ export default {
         return auth.authenticatedPost('/update_lti_id_to_user/', {
             jwt_params: jwtParams
         }).then(response => response.data.user)
-    }
+    },
+
+    /* Verify email adress using a given token. */
+    verifyEmail (token) {
+        return auth.authenticatedPost('/verify_email/', {
+            token: token
+        })
+    },
+
+    /* Request an email verification token for the given users email adress. */
+    requestEmailVerification () { return auth.authenticatedPost('/request_email_verification/') }
 }

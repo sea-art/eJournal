@@ -69,29 +69,30 @@ export default {
     },
     methods: {
         removeFromCourse () {
-            if (confirm('Are you sure you want to remove "' + name + '" from this course?')) {
+            if (confirm('Are you sure you want to remove "' + this.fullName + '" from this course?')) {
                 courseApi.delete_user_from_course(this.uID, this.cID)
-                    .then(response => {
+                    .then(data => {
+                        this.$toasted.success(data.description)
                         this.$emit('delete-participant', this.role,
                             this.username,
                             this.portraitPath,
                             this.uID)
                     })
-                    .catch(_ => this.$toasted.error('Error while removing user from course'))
+                    .catch(response => { this.$toasted.error(response.data.description) })
             }
         },
         checkPermission () {
             permissions.get_course_permissions(this.cID)
-                .then(response => {
-                    this.$root.generalPermissions = response
+                .then(permissions => {
+                    this.$root.generalPermissions = permissions
                     if (!this.$root.canEditCourse()) {
                         this.$router.push({
                             name: 'Home'
                         })
                     }
                 })
-                .catch(_ => {
-                    this.$toasted.error('Error while loading course permissions.')
+                .catch(response => {
+                    this.$toasted.error(response.data.description)
                 })
         }
     },
@@ -102,12 +103,12 @@ export default {
             } else {
                 this.selectedRole = val
                 this.$emit('update:role', val)
-                courseApi.update_user_role_course(
-                    this.uID,
-                    this.cID,
-                    this.selectedRole)
+                courseApi.update_user_role_course(this.uID, this.cID, this.selectedRole)
                     .then(_ => {
                         this.checkPermission()
+                    })
+                    .catch(response => {
+                        this.$toasted.error(response.data.description)
                     })
             }
         }
@@ -116,8 +117,11 @@ export default {
         this.selectedRole = this.role
 
         permissions.get_course_roles(this.cID)
-            .then(response => {
-                this.roles = response
+            .then(roles => {
+                this.roles = roles
+            })
+            .catch(response => {
+                this.$toasted.error(response.data.description)
             })
     },
     components: {

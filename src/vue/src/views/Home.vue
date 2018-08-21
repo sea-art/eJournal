@@ -109,10 +109,8 @@ export default {
         this.loadCourses()
 
         assignmentApi.get_upcoming_deadlines()
-            .then(response => {
-                this.deadlines = response
-            })
-            .catch(_ => this.$toasted.error('Error while loading deadlines'))
+            .then(deadlines => { this.deadlines = deadlines })
+            .catch(response => { this.$toasted.error(response.data.description) })
     },
     methods: {
         test () {
@@ -121,12 +119,8 @@ export default {
         },
         loadCourses () {
             course.get_user_courses()
-                .then(response => { this.courses = response })
-        },
-        deleteCourse (courseID, courseName) {
-            if (confirm('Are you sure you want to delete ' + courseName + '?')) {
-                // TODO: Implement delete this course ID after privy check
-            }
+                .then(courses => { this.courses = courses })
+                .catch(response => { this.$toasted.error(response.data.description) })
         },
         showModal (ref) {
             this.$refs[ref].show()
