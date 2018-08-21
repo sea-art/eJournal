@@ -261,7 +261,7 @@ export default {
         'content-single-table-column': contentSingleTableColumn,
         'bread-crumb': breadCrumb,
         'custom-checkbox': customCheckbox,
-        'icon': icon
+        icon
     }
 }
 </script>

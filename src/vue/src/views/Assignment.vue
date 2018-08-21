@@ -84,8 +84,8 @@ export default {
         'student-card': studentCard,
         'statistics-card': statisticsCard,
         'bread-crumb': breadCrumb,
-        'store': store,
-        'icon': icon,
+        store,
+        icon,
         'main-card': mainCard
     },
     created () {

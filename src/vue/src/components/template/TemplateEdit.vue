@@ -54,7 +54,7 @@ export default {
     },
     components: {
         'content-single-column': ContentSingleColumn,
-        'icon': icon,
+        icon,
         'draggable': draggable
     },
     methods: {

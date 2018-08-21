@@ -94,7 +94,7 @@ export default {
         'content-single-column': contentSingleColumn,
         'bread-crumb': breadCrumb,
         'text-editor': textEditor,
-        'icon': icon
+        icon
     }
 }
 </script>

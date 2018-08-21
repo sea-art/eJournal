@@ -88,7 +88,7 @@ export default {
         }
     },
     components: {
-        'icon': icon
+        icon
     }
 }
 </script>

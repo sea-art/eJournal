@@ -345,11 +345,11 @@ export default {
     components: {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
-        'edag': edag,
+        edag,
         'available-template-card': formatEditAvailableTemplateCard,
         'selected-node-card': formatEditSelectTemplateCard,
         'template-editor': templateEdit,
-        'icon': icon,
+        icon,
         'main-card': mainCard
     },
 

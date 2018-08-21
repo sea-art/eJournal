@@ -45,7 +45,7 @@ export default {
     components: {
         'create-course': createCourse,
         'connect-course': connectCourse,
-        'icon': icon
+        icon
     },
     methods: {
         signal (msg) {

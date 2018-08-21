@@ -34,7 +34,7 @@ import store from '@/Store.vue'
 
 export default {
     components: {
-        'icon': icon
+        icon
     },
     /*
         aliases: aliases for unnamed vews

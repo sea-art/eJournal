@@ -3,7 +3,7 @@
         <h1>Email Verification</h1>
         <b-card class="blue-border no-hover">
             <div class="center-content">
-                <h2>Verifying</h2><br/>
+                <h2 class="center-content">Verifying</h2><br/>
                 <icon name="spinner" pulse scale="1.5"/>
             </div>
         </b-card>
@@ -21,7 +21,7 @@ export default {
     mounted () {
         userAPI.verifyEmail(this.token)
             .then(response => {
-                this.$toasted.success(response.statusText)
+                this.$toasted.success(response.data.description)
                 this.$router.push({ name: 'Home' })
             })
             .catch(response => {
@@ -41,11 +41,3 @@ export default {
     }
 }
 </script>
-
-<style lang="sass">
-.center-content
-    text-align: center
-
-.center-content h2
-    text-align: center
-</style>

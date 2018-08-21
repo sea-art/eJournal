@@ -11,7 +11,8 @@ export default {
             last_name: lastname,
             email: email,
             jwt_params: jwtParams
-        }).then(response => response.data.user)
+        })
+            .then(response => response.data.user)
     },
 
     /* Get own user data. */

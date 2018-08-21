@@ -265,10 +265,10 @@ export default {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'add-card': addCard,
-        'edag': edag,
-        'store': store,
+        edag,
+        store,
         'student-card': studentCard,
-        'icon': icon,
+        icon,
         'progress-bar': progressBar
     },
     computed: {

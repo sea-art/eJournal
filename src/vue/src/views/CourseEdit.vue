@@ -255,7 +255,7 @@ export default {
         'bread-crumb': breadCrumb,
         'content-single-column': contentSingleColumn,
         'course-participant-card': courseParticipantCard,
-        'icon': icon
+        icon
     }
 }
 </script>

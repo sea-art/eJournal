@@ -56,7 +56,9 @@ export default {
                         auth.login(this.form.username, this.form.password)
                             .then(_ => { this.$emit('handleAction') })
                     })
-                    .catch(response => { this.$toasted.error(response.data.description) })
+                    .catch(response => {
+                        this.$toasted.error(response.data.description)
+                    })
             }
         },
         onReset (evt) {
@@ -86,7 +88,7 @@ export default {
         }
     },
     components: {
-        'icon': icon
+        icon
     }
 }
 </script>

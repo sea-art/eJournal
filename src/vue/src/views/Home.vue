@@ -80,6 +80,8 @@ import icon from 'vue-awesome/components/Icon'
 import course from '@/api/course'
 import assignmentApi from '@/api/assignment.js'
 
+import userApi from '@/api/user.js'
+
 export default {
     name: 'Home',
     data () {
@@ -97,7 +99,7 @@ export default {
         'todo-card': todoCard,
         'create-course': createCourse,
         'edit-home': editHome,
-        'icon': icon
+        icon
     },
     created () {
         this.loadCourses()

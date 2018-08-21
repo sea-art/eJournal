@@ -46,7 +46,7 @@ export default {
     components: {
         'register-user': registerUser,
         'login-form': loginForm,
-        'icon': icon
+        icon
     },
     methods: {
         signal (msg) {

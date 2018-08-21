@@ -44,7 +44,7 @@ export default {
     components: {
         'content-single-columns': ContentSingleColumn,
         'text-editor': textEditor,
-        'icon': icon
+        icon
     },
     methods: {
         onSubmit () {

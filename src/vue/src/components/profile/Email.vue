@@ -49,7 +49,7 @@ import icon from 'vue-awesome/components/Icon'
 export default {
     props: ['userData'],
     components: {
-        'icon': icon
+        icon
     },
     data () {
         return {

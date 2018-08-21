@@ -175,7 +175,7 @@ export default {
         'file-download-button': fileDownloadButton,
         'pdf-display': pdfDisplay,
         'image-file-display': imageFileDisplay,
-        'icon': icon
+        icon
     }
 }
 </script>

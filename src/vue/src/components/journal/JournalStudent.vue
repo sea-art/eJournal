@@ -212,7 +212,7 @@ export default {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'add-card': addCard,
-        'edag': edag,
+        edag,
         'entry-node': entryNode,
         'entry-preview': entryPreview,
         'progress-bar': progressBar

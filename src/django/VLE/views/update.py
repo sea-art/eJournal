@@ -897,7 +897,7 @@ def verify_email(request):
 
     token_generator = PasswordResetTokenGenerator()
     if not token_generator.check_token(user, request.data['token']):
-        return responses.bad_request('Invalid email recovery token.')
+        return responses.bad_request(description='Invalid email recovery token.')
 
     user.verify_email = True
     user.save()

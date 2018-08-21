@@ -98,7 +98,7 @@ export default {
         'progress-bar': progressBar,
         'main-card': mainCard,
         'create-assignment': createAssignment,
-        'icon': icon
+        icon
     },
     created () {
         this.loadAssignments()

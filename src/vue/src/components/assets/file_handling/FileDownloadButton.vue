@@ -22,7 +22,7 @@ export default {
         }
     },
     components: {
-        'icon': icon
+        icon
     },
     methods: {
         base64ToArrayBuffer (base64) {
@@ -44,7 +44,7 @@ export default {
                     link.click()
                 })
                 .catch(response => {
-                    this.$toasted.error(response.description)
+                    this.$toasted.error(response.data.description)
                 })
         }
     }

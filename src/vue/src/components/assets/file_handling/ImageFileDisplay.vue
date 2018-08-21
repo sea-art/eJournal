@@ -66,7 +66,7 @@ export default {
                     this.downloadLink.download = /filename=(.*)/.exec(response.headers['content-disposition'])[1]
                 })
                 .catch(response => {
-                    this.$toasted.error(response.description)
+                    this.$toasted.error(response.data.description)
                 })
         }
     },
