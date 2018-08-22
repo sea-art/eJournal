@@ -31,13 +31,13 @@ export default {
     name: 'Error',
     props: {
         code: {
-            default: ''
+            default: '520'
         },
         reasonPhrase: {
-            default: ''
+            default: 'Unknown Error'
         },
         description: {
-            default: 'An error occurred.'
+            default: 'We are sorry, but an unkown error has brought you here.'
         }
     },
     components: {
