@@ -135,12 +135,12 @@ export default {
     created () {
         courseApi.get_course_data(this.cID)
             .then(course => { this.course = course })
-            .catch(response => { this.$toasted.error(response.data.description) })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
 
         if (this.$root.canViewCourseParticipants()) {
             courseApi.get_course_users(this.cID)
                 .then(users => { this.participants = users })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     },
     methods: {
@@ -151,7 +151,7 @@ export default {
                     this.$toasted.success('Succesfully updated the course.')
                     store.clearCache()
                 })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         deleteCourse () {
             if (confirm('Are you sure you want to delete ' + this.course.name + '?')) {
@@ -160,7 +160,7 @@ export default {
                         this.$router.push({name: 'Home'})
                         this.$toasted.success(response.data.description)
                     })
-                    .catch(response => { this.$toasted.error(response.data.description) })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         },
         deleteParticipantLocally (role, name, picture, uID) {
@@ -187,7 +187,7 @@ export default {
         loadUnenrolledStudents () {
             courseApi.get_unenrolled_users(this.cID)
                 .then(users => { this.unenrolledStudents = users })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
             this.unenrolledLoaded = !this.unenrolledLoaded
         },
         routeToEditCourseRoles () {

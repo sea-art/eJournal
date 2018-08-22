@@ -810,9 +810,6 @@ def forgot_password(request):
     """
     user = None
 
-    from django.http import JsonResponse
-    return JsonResponse(data={'a': 'b'}, content_type=None, status=None, reason=None, charset=None)
-
     try:
         utils.required_params(request.data, 'username', 'email')
     except KeyError:
@@ -829,7 +826,7 @@ def forgot_password(request):
         pass
 
     if not user:
-        return responses.bad_request('No user found with that username or password.')
+        return responses.bad_request('No user found with that username or email.')
 
     utils.send_password_recovery_link(user)
 

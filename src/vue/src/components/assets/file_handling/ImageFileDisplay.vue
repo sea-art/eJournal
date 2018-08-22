@@ -13,6 +13,7 @@
 <script>
 import userAPI from '@/api/user.js'
 import icon from 'vue-awesome/components/Icon'
+import dataHandling from '@/utils/data_handling.js'
 
 export default {
     props: {
@@ -46,27 +47,20 @@ export default {
                 this.fileDownload()
             }
         },
-        base64ToArrayBuffer (base64) {
-            var binaryString = window.atob(base64)
-            var len = binaryString.length
-            var bytes = new Uint8Array(len)
-            for (var i = 0; i < len; i++) {
-                bytes[i] = binaryString.charCodeAt(i)
-            }
-            return bytes.buffer
-        },
         fileDownload () {
             userAPI.getUserFile(this.fileName, this.authorUID)
                 .then(response => {
-                    let blob = new Blob([this.base64ToArrayBuffer(response.data)], { type: response.headers['content-type'] })
+                    let blob = new Blob([dataHandling.base64ToArrayBuffer(response.data)], { type: response.headers['content-type'] })
                     this.fileURL = window.URL.createObjectURL(blob)
 
                     this.downloadLink = document.createElement('a')
                     this.downloadLink.href = this.fileURL
                     this.downloadLink.download = /filename=(.*)/.exec(response.headers['content-disposition'])[1]
+                }, error => {
+                    this.$toasted.error(error.response.data.description)
                 })
-                .catch(response => {
-                    this.$toasted.error(response.data.description)
+                .catch(_ => {
+                    this.$toasted.error('Error creating file.')
                 })
         }
     },

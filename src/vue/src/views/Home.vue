@@ -80,8 +80,6 @@ import icon from 'vue-awesome/components/Icon'
 import course from '@/api/course'
 import assignmentApi from '@/api/assignment.js'
 
-import userApi from '@/api/user.js'
-
 export default {
     name: 'Home',
     data () {
@@ -106,13 +104,13 @@ export default {
 
         assignmentApi.get_upcoming_deadlines()
             .then(deadlines => { this.deadlines = deadlines })
-            .catch(response => { this.$toasted.error(response.data.description) })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         loadCourses () {
             course.get_user_courses()
                 .then(courses => { this.courses = courses })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         showModal (ref) {
             this.$refs[ref].show()

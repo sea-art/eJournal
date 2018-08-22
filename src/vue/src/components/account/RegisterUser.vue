@@ -23,7 +23,6 @@
 
 <script>
 import auth from '@/api/auth.js'
-import userApi from '@/api/user.js'
 import icon from 'vue-awesome/components/Icon'
 import validation from '@/utils/validation.js'
 
@@ -46,7 +45,7 @@ export default {
     methods: {
         onSubmit () {
             if (validation.validatePassword(this.form.password, this.form.password2)) {
-                userApi.createUser(this.form.username, this.form.password, this.form.firstname, this.form.lastname,
+                auth.register(this.form.username, this.form.password, this.form.firstname, this.form.lastname,
                     this.form.email, this.form.ltiJWT)
                     .then(_ => {
                         if (!this.lti) {
@@ -55,9 +54,10 @@ export default {
                         }
                         auth.login(this.form.username, this.form.password)
                             .then(_ => { this.$emit('handleAction') })
+                            .catch(_ => { this.$toasted.error('Error logging in with your newly created account, please contact a system administrator or try registering again.') })
                     })
-                    .catch(response => {
-                        this.$toasted.error(response.data.description)
+                    .catch(error => {
+                        this.$toasted.error(error.response.data.description)
                     })
             }
         },

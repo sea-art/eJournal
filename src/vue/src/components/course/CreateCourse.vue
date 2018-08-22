@@ -55,9 +55,7 @@ export default {
                     this.onReset(undefined)
                     this.$emit('handleAction', course.cID)
                 })
-                .catch(response => {
-                    this.$toasted.error(response.data.description)
-                })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         onReset (evt) {
             if (evt !== undefined) {

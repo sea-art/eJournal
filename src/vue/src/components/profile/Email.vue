@@ -66,9 +66,7 @@ export default {
                         this.showEmailValidationInput = true
                         this.$toasted.success(response.data.description)
                     })
-                    .catch(response => {
-                        this.$toasted.error(response.data.description)
-                    })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         },
         verifyEmail () {

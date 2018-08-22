@@ -29,12 +29,12 @@ export default {
         loadCourses () {
             courseApi.get_user_teacher_courses()
                 .then(courses => { this.courses = courses })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         connectCourse (cID) {
             courseApi.connect_course_lti(cID, this.lti.ltiCourseID)
                 .then(course => { this.$emit('handleAction', course.cID) })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     },
     created () {

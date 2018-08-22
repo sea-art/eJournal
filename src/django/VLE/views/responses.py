@@ -12,7 +12,7 @@ from VLE.settings.base import MEDIA_ROOT
 import base64
 
 
-def success(payload={}, description=None):
+def success(payload={}, description=''):
     """Calls a json_response with status 200: Ok.
 
     Arguments:

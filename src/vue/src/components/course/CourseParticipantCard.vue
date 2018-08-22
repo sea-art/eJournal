@@ -78,7 +78,7 @@ export default {
                             this.portraitPath,
                             this.uID)
                     })
-                    .catch(response => { this.$toasted.error(response.data.description) })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         },
         checkPermission () {
@@ -91,9 +91,7 @@ export default {
                         })
                     }
                 })
-                .catch(response => {
-                    this.$toasted.error(response.data.description)
-                })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     },
     watch: {
@@ -107,9 +105,7 @@ export default {
                     .then(_ => {
                         this.checkPermission()
                     })
-                    .catch(response => {
-                        this.$toasted.error(response.data.description)
-                    })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         }
     },
@@ -120,9 +116,7 @@ export default {
             .then(roles => {
                 this.roles = roles
             })
-            .catch(response => {
-                this.$toasted.error(response.data.description)
-            })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     components: {
         icon

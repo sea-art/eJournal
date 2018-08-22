@@ -66,8 +66,8 @@ export default {
                     this.$refs.forgotPasswordModalRef.hide()
                     this.$toasted.success(response.statusText)
                 })
-                .catch(response => {
-                    this.$toasted.error('No user known by the given information.')
+                .catch(error => {
+                    this.$toasted.error(error.response.data.description)
                 })
         },
         handleLogin () {

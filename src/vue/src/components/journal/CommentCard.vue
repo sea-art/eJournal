@@ -79,12 +79,12 @@ export default {
             this.tempComment = ''
             entryApi.getEntryComments(this.eID)
                 .then(data => { this.commentObject = data })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         entryGradePublished () {
             entryApi.getEntryComments(this.eID)
                 .then(data => { this.commentObject = data })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     },
     created () {
@@ -99,7 +99,7 @@ export default {
         getEntryComments () {
             entryApi.getEntryComments(this.eID)
                 .then(data => { this.commentObject = data })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         addComment () {
             if (this.tempComment !== '') {
@@ -109,7 +109,7 @@ export default {
                         this.getEntryComments()
                         this.tempComment = ''
                     })
-                    .catch(response => { this.$toasted.error(response.data.description) })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         },
         deleteComment (ecID) {
@@ -117,7 +117,7 @@ export default {
                 entryApi.deleteEntryComment(ecID)
                     // TODO Remove comment locally rather than firing a new request for all entry comments
                     .then(_ => { this.getEntryComments(this.eID) })
-                    .catch(response => { this.$toasted.error(response.data.description) })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         }
     }

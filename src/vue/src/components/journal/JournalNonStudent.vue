@@ -111,17 +111,17 @@ export default {
                     }
                 }
             })
-            .catch(response => { this.$toasted.error(response.data.description) })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
 
         journalApi.get_journal(this.jID)
             .then(data => { this.journal = data.journal })
-            .catch(response => { this.$toasted.error(response.data.description) })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
 
         if (store.state.filteredJournals.length === 0) {
             if (this.$router.app.canViewAssignmentParticipants()) {
                 journalApi.get_assignment_journals(this.aID)
                     .then(data => { this.assignmentJournals = data.journals })
-                    .catch(response => { this.$toasted.error(response.data.description) })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
 
             if (this.$route.query.sort === 'sortFullName' ||
@@ -175,7 +175,7 @@ export default {
             journalApi.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
                 .then(_ => { journalApi.get_nodes(this.jID) })
                 .then(data => { this.nodes = data.nodes })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         progressPoints (progressNode) {
             /* The function will update a given progressNode by
@@ -209,7 +209,7 @@ export default {
 
             journalApi.get_journal(this.jID)
                 .then(data => { this.journal = data.journal })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         publishGradesJournal () {
             if (confirm('Are you sure you want to publish all grades for this journal?')) {

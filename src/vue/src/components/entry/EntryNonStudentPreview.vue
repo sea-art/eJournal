@@ -153,9 +153,7 @@ export default {
                             this.$toasted.success('Grade updated and published.')
                             this.$emit('check-grade')
                         })
-                        .catch(response => {
-                            this.$toasted.error(response.data.description)
-                        })
+                        .catch(error => { this.$toasted.error(error.response.data.description) })
                 } else {
                     journalApi.update_grade_entry(this.entryNode.entry.eID,
                         this.grade, 0)
@@ -163,9 +161,7 @@ export default {
                             this.$toasted.success('Grade updated but not published.')
                             this.$emit('check-grade')
                         })
-                        .catch(response => {
-                            this.$toasted.error(response.data.description)
-                        })
+                        .catch(error => { this.$toasted.error(error.response.data.description) })
                 }
             }
         }

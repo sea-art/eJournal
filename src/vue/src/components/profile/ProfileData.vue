@@ -61,7 +61,7 @@ export default {
         saveUserdata () {
             userAPI.updateUserData(this.userData.first_name, this.userData.last_name)
                 .then(_ => { this.$toasted.success('Saved profile data') })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         fileHandler (e) {
             let files = e.target.files
@@ -85,7 +85,7 @@ export default {
                     } else {
                         userAPI.updateProfilePictureBase64(dataURL)
                             .then(_ => { vm.profileImageDataURL = dataURL })
-                            .catch(response => { this.$toasted.error(response.data.description) })
+                            .catch(error => { this.$toasted.error(error.response.data.description) })
                     }
                 }
                 img.src = dataURL
@@ -113,7 +113,7 @@ export default {
                     clickEvent.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
                     downloadElement.dispatchEvent(clickEvent)
                 })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     },
     mounted () {

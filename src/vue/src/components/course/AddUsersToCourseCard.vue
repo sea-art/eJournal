@@ -45,9 +45,7 @@ export default {
                             this.portraitPath,
                             this.uID)
                     })
-                    .catch(data => {
-                        this.$toasted.error(data.description)
-                    })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         }
     },

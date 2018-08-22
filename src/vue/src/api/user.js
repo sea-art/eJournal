@@ -1,20 +1,6 @@
 import auth from '@/api/auth'
-import connection from '@/api/connection'
 
 export default {
-    /* Create a user and add it to the database. */
-    createUser (username, password, firstname, lastname, email, jwtParams = null) {
-        return connection.conn.post('/create_lti_user/', {
-            username: username,
-            password: password,
-            first_name: firstname,
-            last_name: lastname,
-            email: email,
-            jwt_params: jwtParams
-        })
-            .then(response => response.data.user)
-    },
-
     /* Get own user data. */
     getOwnUserData () {
         return auth.authenticatedGet('/get_own_user_data/')

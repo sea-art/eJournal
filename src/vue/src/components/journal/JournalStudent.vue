@@ -101,7 +101,7 @@ export default {
                     }
                 }
             })
-            .catch(response => { this.$toasted.error(response.data.description) })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
 
         journalApi.get_journal(this.jID)
             .then(data => {
@@ -131,7 +131,7 @@ export default {
                     this.nodes = data.nodes
                     this.currentNode = data.added
                 })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         selectNode ($event) {
             /* Function that prevents you from instant leaving an EntryNode
@@ -161,7 +161,7 @@ export default {
                     this.nodes = data.nodes
                     this.currentNode = data.added
                 })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         fillDeadline (data) {
             journalApi.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data, this.nodes[this.currentNode].nID)
@@ -169,7 +169,7 @@ export default {
                     this.nodes = data.nodes
                     this.currentNode = data.added
                 })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         progressPoints (progressNode) {
             /* The function will update a given progressNode by

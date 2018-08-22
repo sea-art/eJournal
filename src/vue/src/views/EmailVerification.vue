@@ -24,13 +24,13 @@ export default {
                 this.$toasted.success(response.data.description)
                 this.$router.push({ name: 'Home' })
             })
-            .catch(response => {
+            .catch(error => {
                 this.$router.push({
                     name: 'ErrorPage',
                     params: {
-                        code: response.status,
-                        reasonPhrase: response.statusText,
-                        description: response.data.description
+                        code: error.response.status,
+                        reasonPhrase: error.response.statusText,
+                        description: error.response.data.description
                     }
                 })
             })

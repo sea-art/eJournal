@@ -62,9 +62,9 @@ export default {
                     this.$emit('fileUploadSuccess', this.file.name)
                     this.$toasted.success('File upload success.')
                 })
-                .catch(response => {
-                    this.$emit('fileUploadFailed', [this.file.name, response.data.description])
-                    this.$toasted.error(response.data.description)
+                .catch(error => {
+                    this.$emit('fileUploadFailed', this.file.name)
+                    this.$toasted.error(error.response.data.description)
                     this.file = null
                 })
         }
