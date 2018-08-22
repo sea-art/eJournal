@@ -103,14 +103,14 @@ export default {
         'todo-card': todoCard,
         'create-course': createCourse,
         'edit-home': editHome,
-        'icon': icon
+        icon
     },
     created () {
         this.loadCourses()
 
         assignmentApi.get_upcoming_deadlines()
             .then(deadlines => { this.deadlines = deadlines })
-            .catch(response => { this.$toasted.error(response.data.description) })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         test () {
@@ -120,7 +120,7 @@ export default {
         loadCourses () {
             course.get_user_courses()
                 .then(courses => { this.courses = courses })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         showModal (ref) {
             this.$refs[ref].show()

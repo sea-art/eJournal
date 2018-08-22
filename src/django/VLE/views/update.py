@@ -9,6 +9,7 @@ from rest_framework.parsers import JSONParser
 import VLE.views.responses as responses
 import VLE.serializers as serialize
 import VLE.utils.generic_utils as utils
+import VLE.utils.email_handling as email_handling
 import VLE.permissions as permissions
 import VLE.factory as factory
 import VLE.validators as validators
@@ -810,9 +811,6 @@ def forgot_password(request):
     """
     user = None
 
-    from django.http import JsonResponse
-    return JsonResponse(data={'a': 'b'}, content_type=None, status=None, reason=None, charset=None)
-
     try:
         utils.required_params(request.data, 'username', 'email')
     except KeyError:
@@ -829,9 +827,9 @@ def forgot_password(request):
         pass
 
     if not user:
-        return responses.bad_request('No user found with that username or password.')
+        return responses.bad_request('No user found with that username or email.')
 
-    utils.send_password_recovery_link(user)
+    email_handling.send_password_recovery_link(user)
 
     return responses.success(description='An email was sent to %s, please follow the email for instructions.'
                              % user.email)
@@ -897,7 +895,7 @@ def verify_email(request):
 
     token_generator = PasswordResetTokenGenerator()
     if not token_generator.check_token(user, request.data['token']):
-        return responses.bad_request('Invalid email recovery token.')
+        return responses.bad_request(description='Invalid email recovery token.')
 
     user.verify_email = True
     user.save()
@@ -914,7 +912,7 @@ def request_email_verification(request):
     if user.verified_email:
         return responses.bad_request(description='Email address already verified.')
 
-    utils.send_email_verification_link(user)
+    email_handling.send_email_verification_link(user)
 
     return responses.success(description='An email was sent to %s, please follow the email for instructions.'
                              % user.email)

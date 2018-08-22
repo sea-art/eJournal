@@ -92,7 +92,7 @@ export default {
                     this.profile = user
                     this.setProfileImg()
                 })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         setProfileImg () {
             /* Sets the profile img if found, else a default is set.

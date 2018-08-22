@@ -38,7 +38,7 @@ export default {
                     this.userData.grade_notifications = isActive
                     this.$toasted.success('Grade notification setting updated succesfully.')
                 })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         getCommentNotification (isActive) {
             userAPI.updateCommentNotification(isActive)
@@ -46,7 +46,7 @@ export default {
                     this.userData.comment_notifications = isActive
                     this.$toasted.success('Comment notification setting updated succesfully.')
                 })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     }
 }

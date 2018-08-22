@@ -30,7 +30,7 @@ export default {
             if (validation.validatePassword(this.newPass, this.newPassRepeat)) {
                 auth.changePassword(this.newPass, this.oldPass)
                     .then(response => { this.$toasted.success(response.data.description) })
-                    .catch(response => { this.$toasted.error(response.data.description) })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         }
     },

@@ -63,7 +63,7 @@ export default {
             .then(assignment => {
                 this.assignment = assignment
             })
-            .catch(response => { this.$toasted.error(response.data.description) })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         onSubmit (evt) {
@@ -73,7 +73,7 @@ export default {
                     this.$toasted.success('Updated assignment.')
                     store.clearCache()
                 })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         deleteAssignment () {
             if (confirm('Are you sure you want to delete ' + this.assignment.name + '?')) {
@@ -86,7 +86,7 @@ export default {
                             }})
                         this.$toasted.success('Deleted assignment')
                     })
-                    .catch(response => { this.$toasted.error(response.data.description) })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         }
     },
@@ -94,7 +94,7 @@ export default {
         'content-single-column': contentSingleColumn,
         'bread-crumb': breadCrumb,
         'text-editor': textEditor,
-        'icon': icon
+        icon
     }
 }
 </script>

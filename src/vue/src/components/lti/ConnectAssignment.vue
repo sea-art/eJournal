@@ -27,12 +27,12 @@ export default {
         loadAssignments () {
             assignApi.get_course_assignments(this.page.cID)
                 .then(assignments => { this.assignments = assignments })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         connectAssignment (aID) {
             assignApi.connect_assignment_lti(aID, this.lti.ltiAssignID, this.lti.ltiPointsPossible)
                 .then(assignment => { this.$emit('handleAction', assignment.aID) })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     },
     created () {

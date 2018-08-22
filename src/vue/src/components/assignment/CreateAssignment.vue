@@ -44,7 +44,7 @@ export default {
     components: {
         'content-single-columns': ContentSingleColumn,
         'text-editor': textEditor,
-        'icon': icon
+        icon
     },
     methods: {
         onSubmit () {
@@ -55,9 +55,7 @@ export default {
                     this.$emit('handleAction', assignment.aID)
                     this.onReset(undefined)
                 })
-                .catch(response => {
-                    this.$toasted.error(response.data.description)
-                })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         onReset (evt) {
             if (evt !== undefined) {

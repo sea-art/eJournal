@@ -192,7 +192,7 @@ export default {
                     this.$toasted.success('Course roles succesfully updated.')
                     this.checkPermission()
                 })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         formatPermissionString (str) {
             /* Converts underscores to spaces and capatilises the first letter. */
@@ -237,7 +237,7 @@ export default {
                         })
                     }
                 })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     },
     created () {
@@ -255,13 +255,13 @@ export default {
 
                 this.originalRoleConfig = this.deepCopyRoles(roleConfig)
             })
-            .catch(response => { this.$toasted.error(response.data.description) })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     components: {
         'content-single-table-column': contentSingleTableColumn,
         'bread-crumb': breadCrumb,
         'custom-checkbox': customCheckbox,
-        'icon': icon
+        icon
     }
 }
 </script>

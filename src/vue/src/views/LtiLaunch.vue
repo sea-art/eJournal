@@ -142,7 +142,7 @@ export default {
                             this.states.state = this.states.finish_t
                         }
                     })
-                    .catch(response => { this.$toasted.error(response.data.description) })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
                 break
             case this.states.grade_center:
                 this.$router.push({
@@ -184,16 +184,13 @@ export default {
     async mounted () {
         this.ltiJWT = this.$route.query.ltiJWT
         await this.loadLtiData()
-            .catch(err => {
-                router.push({
+            .catch(error => {
+                this.$router.push({
                     name: 'ErrorPage',
                     params: {
-                        code: '404',
-                        reasonPhrase: err,
-                        description: `Error while loading LTI information.
-                                        Please contact the system administrator
-                                        for more information. Further integration
-                                        is not possible.`
+                        code: error.response.status,
+                        reasonPhrase: error.response.statusText,
+                        description: error.response.data.description
                     }
                 })
             })

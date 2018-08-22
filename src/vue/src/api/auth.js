@@ -43,8 +43,8 @@ function refresh (error) {
  * If nothing is matched or no redirect is True, the response is thrown and further promise handling should take place.
  * This because this is generic response handling, and we dont know what should happen in case of an error.
  */
-function handleResponse (response, noRedirect = false) {
-    response = response.response
+function handleError (error, noRedirect = false) {
+    const response = error.response
     const status = response.status
 
     if (!noRedirect && status === statuses.UNAUTHORIZED) {
@@ -58,7 +58,7 @@ function handleResponse (response, noRedirect = false) {
             }
         })
     } else {
-        throw response
+        throw error
     }
 }
 
@@ -89,6 +89,19 @@ export default {
         localStorage.removeItem('jwt_access')
         localStorage.removeItem('jwt_refresh')
         router.app.validToken = false
+    },
+
+    /* Create a user and add it to the database. */
+    register (username, password, firstname, lastname, email, jwtParams = null) {
+        return connection.conn.post('/create_lti_user/', {
+            username: username,
+            password: password,
+            first_name: firstname,
+            last_name: lastname,
+            email: email,
+            jwt_params: jwtParams
+        })
+            .then(response => { return response.data.user })
     },
 
     /* Change password. */
@@ -128,14 +141,14 @@ export default {
         return connection.conn.post(url, data, getAuthorizationHeader())
             .catch(error => refresh(error)
                 .then(_ => connection.conn.post(url, data, getAuthorizationHeader())))
-            .catch(error => handleResponse(error, noRedirect))
+            .catch(error => handleError(error, noRedirect))
     },
 
     authenticatedPostFile (url, data, noRedirect = false) {
         return connection.connFile.post(url, data, getAuthorizationHeader())
             .catch(error => refresh(error)
                 .then(_ => connection.connFile.post(url, data, getAuthorizationHeader())))
-            .catch(error => handleResponse(error, noRedirect))
+            .catch(error => handleError(error, noRedirect))
     },
 
     /* Run an authenticated get request.
@@ -147,7 +160,6 @@ export default {
         return connection.conn.get(url, getAuthorizationHeader())
             .catch(error => refresh(error)
                 .then(_ => connection.conn.get(url, getAuthorizationHeader())))
-            .catch(error => handleResponse(error, noRedirect))
+            .catch(error => handleError(error, noRedirect))
     }
-
 }

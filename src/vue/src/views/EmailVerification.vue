@@ -3,7 +3,7 @@
         <h1>Email Verification</h1>
         <b-card class="blue-border no-hover">
             <div class="center-content">
-                <h2>Verifying</h2><br/>
+                <h2 class="center-content">Verifying</h2><br/>
                 <icon name="spinner" pulse scale="1.5"/>
             </div>
         </b-card>
@@ -21,16 +21,16 @@ export default {
     mounted () {
         userAPI.verifyEmail(this.token)
             .then(response => {
-                this.$toasted.success(response.statusText)
+                this.$toasted.success(response.data.description)
                 this.$router.push({ name: 'Home' })
             })
-            .catch(response => {
+            .catch(error => {
                 this.$router.push({
                     name: 'ErrorPage',
                     params: {
-                        code: response.status,
-                        reasonPhrase: response.statusText,
-                        description: response.data.description
+                        code: error.response.status,
+                        reasonPhrase: error.response.statusText,
+                        description: error.response.data.description
                     }
                 })
             })
@@ -41,11 +41,3 @@ export default {
     }
 }
 </script>
-
-<style lang="sass">
-.center-content
-    text-align: center
-
-.center-content h2
-    text-align: center
-</style>

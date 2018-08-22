@@ -34,7 +34,7 @@ import store from '@/Store.vue'
 
 export default {
     components: {
-        'icon': icon
+        icon
     },
     /*
         aliases: aliases for unnamed vews
@@ -110,8 +110,8 @@ export default {
                             this.cachedMap[crumb.route] = crumb.displayName
                         }
                     })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
                     .then(_ => { store.setCachedMap(this.cachedMap) })
-                    .catch(data => { this.$toasted.error(data.description) })
             }
         },
         eyeClick () {

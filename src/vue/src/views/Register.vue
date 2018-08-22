@@ -42,7 +42,7 @@ export default {
                     this.$toasted.success(response.data.description)
                     this.$router.push({ name: 'Home' })
                 })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     }
 }

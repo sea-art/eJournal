@@ -98,20 +98,20 @@ export default {
         'progress-bar': progressBar,
         'main-card': mainCard,
         'create-assignment': createAssignment,
-        'icon': icon
+        icon
     },
     created () {
         this.loadAssignments()
 
         courseApi.get_upcoming_course_deadlines(this.cID)
             .then(deadlines => { this.deadlines = deadlines })
-            .catch(response => { this.$toasted.error(response.data.description) })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         loadAssignments () {
             assignment.get_course_assignments(this.cID)
                 .then(assignments => { this.assignments = assignments })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         showModal (ref) {
             this.$refs[ref].show()

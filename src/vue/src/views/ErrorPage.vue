@@ -6,7 +6,7 @@
             </h1>
         </b-col>
         <b-col cols="12" >
-            <div class="description-container" v-if="description">
+            <div class="description-container">
                 {{ description }}
             </div>
         </b-col>
@@ -16,8 +16,7 @@
                 Home
             </b-button>
             <!-- TODO: Add mailto or similar. -->
-            <b-button :to="{name: 'Home'}"
-                      class="change-button">
+            <b-button :to="{name: 'Home'}" class="change-button">
                 <icon name="envelope"/>
                 Contact
             </b-button>
@@ -32,17 +31,17 @@ export default {
     name: 'Error',
     props: {
         code: {
-            default: ''
+            default: '520'
         },
         reasonPhrase: {
-            default: ''
+            default: 'Unknown Error'
         },
         description: {
-            default: ''
+            default: 'We are sorry, but an unkown error has brought you here.'
         }
     },
     components: {
-        'icon': icon
+        icon
     }
 }
 </script>

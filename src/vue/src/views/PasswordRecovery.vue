@@ -34,17 +34,17 @@ export default {
             if (validation.validatePassword(this.password, this.passwordRepeated)) {
                 authAPI.recoverPassword(this.username, this.recoveryToken, this.password)
                     .then(response => {
-                        this.$toasted.success(response.statusText)
+                        this.$toasted.success(response.description)
                         this.$router.push({ name: 'Login' })
                     })
-                    .catch(response => {
-                        this.$toasted.error(response.response.data.description)
+                    .catch(error => {
+                        this.$toasted.error(error.response.data.description)
                         this.$router.push({
                             name: 'ErrorPage',
                             params: {
-                                code: response.response.status,
-                                reasonPhrase: response.response.statusText,
-                                description: response.response.data.description
+                                code: error.response.status,
+                                reasonPhrase: error.response.statusText,
+                                description: error.response.data.description
                             }
                         })
                     })

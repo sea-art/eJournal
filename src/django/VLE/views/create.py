@@ -13,6 +13,7 @@ from django.core.exceptions import ValidationError
 import VLE.serializers as serialize
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
+import VLE.utils.email_handling as email_handling
 from VLE.models import User, Journal, EntryTemplate, Node, Assignment, Field, Entry, Content, Course
 import VLE.edag as edag
 import VLE.lti_grade_passback as lti_grade
@@ -304,6 +305,6 @@ def create_lti_user(request):
                              first_name=first_name, last_name=last_name, profile_picture=user_image)
 
     if lti_id is None:
-        utils.send_email_verification_link(user)
+        email_handling.send_email_verification_link(user)
 
     return responses.created(description='User successfully created', payload={'user': serialize.user_to_dict(user)})

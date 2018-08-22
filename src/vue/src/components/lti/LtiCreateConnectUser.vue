@@ -46,7 +46,7 @@ export default {
     components: {
         'register-user': registerUser,
         'login-form': loginForm,
-        'icon': icon
+        icon
     },
     methods: {
         signal (msg) {
@@ -68,7 +68,7 @@ export default {
                     this.hideModal('connectUserRef')
                     this.signal(['userIntegrated'])
                 })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     }
 }

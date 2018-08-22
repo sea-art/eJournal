@@ -140,7 +140,7 @@ export default {
                 this.convertFromDB()
             })
             .then(_ => { this.isChanged = false })
-            .catch(response => { this.$toasted.error(response.data.description) })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
 
         window.addEventListener('beforeunload', e => {
             if (this.$route.name === 'FormatEdit' && this.isChanged) {
@@ -283,7 +283,7 @@ export default {
                     this.saveRequestInFlight = false
                     this.$toasted.success('New format saved')
                 })
-                .catch(response => { this.$toasted.error(response.data.description) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         customisePage () {
             this.$toasted.info('Wishlist: Customise page')
@@ -345,11 +345,11 @@ export default {
     components: {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
-        'edag': edag,
+        edag,
         'available-template-card': formatEditAvailableTemplateCard,
         'selected-node-card': formatEditSelectTemplateCard,
         'template-editor': templateEdit,
-        'icon': icon,
+        icon,
         'main-card': mainCard
     },
 

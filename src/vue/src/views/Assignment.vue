@@ -84,8 +84,8 @@ export default {
         'student-card': studentCard,
         'statistics-card': statisticsCard,
         'bread-crumb': breadCrumb,
-        'store': store,
-        'icon': icon,
+        store,
+        icon,
         'main-card': mainCard
     },
     created () {
@@ -101,7 +101,7 @@ export default {
                 this.assignmentJournals = data.journals
                 this.stats = data.stats
             })
-            .catch(response => { this.$toasted.error(response.data.description) })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
 
         if (this.$route.query.sort === 'sortFullName' ||
             this.$route.query.sort === 'sortUsername' ||
