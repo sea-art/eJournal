@@ -41,6 +41,7 @@
 import userAPI from '@/api/user.js'
 import icon from 'vue-awesome/components/Icon'
 import email from '@/components/profile/Email.vue'
+import dataHandling from '@/utils/data_handling.js'
 
 export default {
     props: ['userData'],
@@ -94,26 +95,18 @@ export default {
         },
         downloadUserData () {
             userAPI.getUserData(this.userData.uID)
-                // TODO Implement a complete version, including a zip of all user files.
-                .then(data => {
-                    /* This is a way to download data. */
-                    /* Stringify the data and create a data blob of it. */
-                    data = JSON.stringify(data)
-                    const blob = new Blob([data], {type: 'text/plain'})
-
-                    /* Create a link to download the data and bind the data to it. */
-                    var downloadElement = document.createElement('a')
-                    downloadElement.download = 'userdata_of_' + this.userData.username + '.json'
-                    downloadElement.href = window.URL.createObjectURL(blob)
-                    downloadElement.dataset.downloadurl = ['text/json',
-                        downloadElement.download, downloadElement.href].join(':')
-
-                    /* Create a click event and click on the download link to download the code. */
-                    const clickEvent = document.createEvent('MouseEvents')
-                    clickEvent.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
-                    downloadElement.dispatchEvent(clickEvent)
+                .then(response => {
+                    let blob = new Blob([dataHandling.base64ToArrayBuffer(response.data)], { type: response.headers['content-type'] })
+                    let link = document.createElement('a')
+                    link.href = window.URL.createObjectURL(blob)
+                    link.download = /filename=(.*)/.exec(response.headers['content-disposition'])[1]
+                    link.click()
+                }, error => {
+                    this.$toasted.error(error.response.data.description)
                 })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
+                .catch(_ => {
+                    this.$toasted.error('Error creating file.')
+                })
         }
     },
     mounted () {

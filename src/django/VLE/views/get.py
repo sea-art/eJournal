@@ -16,6 +16,7 @@ import jwt
 import VLE.lti_launch as lti
 import VLE.edag as edag
 import VLE.utils.generic_utils as utils
+import VLE.utils.file_handling as file_handling
 from VLE.models import Assignment, Course, Journal, EntryTemplate, EntryComment, User, Node, \
     Role, Entry, UserFile
 import VLE.serializers as serialize
@@ -746,7 +747,8 @@ def get_entrycomments(request, eID):
 def get_user_data(request, uID):
     """Get the user data of the given user.
 
-    Get his/her profile data and posted entries with the titles of the journals of the user based on the uID.
+    Get the users profile data and posted entries with the titles of the journals of the user based on the uID. As well
+    as all the user uploaded files.
     """
     if not request.user.is_authenticated:
         return responses.unauthorized()
@@ -771,7 +773,10 @@ def get_user_data(request, uID):
         entries_of_journal = [serialize.export_entry_to_dict(node.entry) for node in nodes_of_journal_with_entries]
         journal_dict.update({journal.assignment.name: entries_of_journal})
 
-    return responses.success(payload={'profile': profile, 'journals': journal_dict})
+    archive_path, content_type = file_handling.compress_all_user_data(user,
+                                                                      {'profile': profile, 'journals': journal_dict})
+
+    return responses.file_b64(archive_path, content_type)
 
 
 @api_view(['GET'])
@@ -927,6 +932,6 @@ def get_user_file(request, file_name, author_uID):
 
     if user_file.author.id is user.id or \
        permissions.has_assignment_permission(user, user_file.assignment, 'can_view_assignment_participants'):
-        return responses.fileb64(user_file)
+        return responses.user_file_b64(user_file)
     else:
         return responses.unauthorized('Unauthorized to view: %s by author ID: %s.' % (file_name, author_uID))
