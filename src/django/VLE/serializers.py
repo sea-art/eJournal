@@ -7,6 +7,9 @@ from rest_framework import serializers
 # import VLE.utils as utils
 # import VLE.permissions as permissions
 from VLE.models import User, Course, Node, Comment, Assignment, Role, Journal
+import VLE.utils as utils
+
+import statistics as st
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -33,6 +36,7 @@ class CourseSerializer(serializers.ModelSerializer):
         depth = 1
 
 
+# TODO: Merge teacher and student into 1 serializer, this prob can be done
 class StudentAssignmentSerializer(serializers.ModelSerializer):
     deadline = serializers.SerializerMethodField()
     journal = serializers.SerializerMethodField()
@@ -70,6 +74,7 @@ class StudentAssignmentSerializer(serializers.ModelSerializer):
 
 class TeacherAssignmentSerializer(serializers.ModelSerializer):
     deadline = serializers.SerializerMethodField()
+    stats = serializers.SerializerMethodField()
 
     class Meta:
         model = Assignment
@@ -82,6 +87,15 @@ class TeacherAssignmentSerializer(serializers.ModelSerializer):
             'date': '{:02d}-{:02d}'.format(deadline.day, deadline.month),
             'time': '{:02d}:{:02d}'.format(deadline.hour, deadline.minute)
         }
+
+    def get_stats(self, assignment):
+        journals = JournalSerializer(assignment.journal_set.all(), many=True).data
+        stats = {}
+        stats['needsMarking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
+        points = [x['stats']['acquired_points'] for x in journals]
+        stats['avgPoints'] = round(st.mean(points), 2)
+        print(stats)
+        return stats
 
 
 class NodeSerializer(serializers.ModelSerializer):
@@ -106,10 +120,25 @@ class RoleSerializer(serializers.ModelSerializer):
 
 
 class JournalSerializer(serializers.ModelSerializer):
+    stats = serializers.SerializerMethodField()
+    student = serializers.SerializerMethodField()
+
     class Meta:
         model = Journal
         fields = '__all__'
         read_only_fields = ('id', )
+
+    def get_student(self, journal):
+        return UserSerializer(journal.user).data
+
+    def get_stats(self, journal):
+        entries = utils.get_journal_entries(journal)
+        return {
+            'acquired_points': utils.get_acquired_points(entries),
+            'graded': utils.get_graded_count(entries),
+            'submitted': utils.get_submitted_count(entries),
+            'total_points': utils.get_max_points(journal),
+        }
 
 # def user_to_dict(user):
 #     """Convert user object to dictionary."""
@@ -190,12 +219,12 @@ class JournalSerializer(serializers.ModelSerializer):
 #     return {
 #         'jID': journal.id,
 #         'student': user_to_dict(journal.user),
-#         'stats': {
-#             'acquired_points': utils.get_acquired_points(entries),
-#             'graded': utils.get_graded_count(entries),
-#             'submitted': utils.get_submitted_count(entries),
-#             'total_points': utils.get_max_points(journal),
-#         }
+        # 'stats': {
+        #     'acquired_points': utils.get_acquired_points(entries),
+        #     'graded': utils.get_graded_count(entries),
+        #     'submitted': utils.get_submitted_count(entries),
+        #     'total_points': utils.get_max_points(journal),
+        # }
 #     } if journal else None
 #
 #

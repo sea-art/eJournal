@@ -6,7 +6,7 @@ In this file are all the assignment api requests.
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from VLE.serializers import StudentAssignmentSerializer, TeacherAssignmentSerializer, JournalSerializer, UserSerializer
+from VLE.serializers import StudentAssignmentSerializer, TeacherAssignmentSerializer, JournalSerializer
 from VLE.models import Assignment, Course, Journal
 import VLE.views.responses as response
 import VLE.permissions as permissions
@@ -43,31 +43,34 @@ class AssignmentView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
         try:
-            cID = request.query_params['cID']
+            course_id = request.query_params['cID']
         except KeyError:
-            cID = None
+            course_id = None
         try:
-            if cID:
-                course = Course.objects.get(pk=cID)
+            if course_id:
+                course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
             return response.not_found('Course')
 
-        if cID:
+        if course_id:
             role = permissions.get_role(request.user, course)
             if role is None:
                 return response.forbidden('You are not in this course.')
 
-            if not role.can_grade_journal:
-                queryset = course.assignment_set.all()
-                serializer = StudentAssignmentSerializer(queryset, many=True, context={'request': request})
-            else:
+            if role.can_grade_journal:
                 queryset = Assignment.objects.filter(courses=course, journal__user=request.user)
                 serializer = TeacherAssignmentSerializer(queryset, many=True)
+                resp = serializer.data
+                print(resp)
+            else:
+                queryset = course.assignment_set.all()
+                serializer = StudentAssignmentSerializer(queryset, many=True, context={'request': request})
+                resp = serializer.data
         else:
             # TODO: change query to a query that selects all (upcomming) assignments connected to the user.
             serializer = StudentAssignmentSerializer(Assignment.objects.all(), context={'request': request})
-
-        return response.success(serializer.data)
+            resp = serializer.data
+        return response.success(resp)
 
     def create(self, request):
         """Create a new assignment.
@@ -156,27 +159,14 @@ class AssignmentView(viewsets.ViewSet):
             return response.forbidden("You cannot view this assignment.")
 
         role = permissions.get_assignment_permissions(request.user, assignment)
-        if not role['can_grade_journal']:
-            serializer = StudentAssignmentSerializer(assignment, context={'request': request})
-        else:
-            serializer = TeacherAssignmentSerializer(assignment)
-        data = serializer.data
-
         if role['can_grade_journal']:
+            serializer = TeacherAssignmentSerializer(assignment)
             journals = Journal.objects.filter(assignment=assignment)
+            data = serializer.data
             data['journals'] = JournalSerializer(journals, many=True).data
-            for i, journal in enumerate(journals):
-                entries = utils.get_journal_entries(journal)
-                data['journals'][i]['stats'] = {
-                    'acquired_points': utils.get_acquired_points(entries),
-                    'graded': utils.get_graded_count(entries),
-                    'submitted': utils.get_submitted_count(entries),
-                    'total_points': utils.get_max_points(journal),
-                }
-                try:
-                    data['journals'][i]['student'] = UserSerializer(journal.user).data
-                except Journal.DoesNotExist:
-                    continue
+        else:
+            serializer = StudentAssignmentSerializer(assignment, context={'request': request})
+            data = serializer.data
 
         return response.success(data)
 
@@ -256,7 +246,10 @@ class AssignmentView(viewsets.ViewSet):
         if not role.can_delete_assignment:
             return response.forbidden(description="You have no permissions to delete this assignment.")
 
-        data = {'removed_completely': False}
+        data = {
+            'removed_completely': False,
+            'removed_from_course': True
+        }
         assignment.courses.remove(course)
         assignment.save()
         data['removed_from_course'] = True
@@ -296,10 +289,13 @@ class AssignmentView(viewsets.ViewSet):
         for course in courses:
             if permissions.get_role(request.user, course):
                 for assignment in Assignment.objects.filter(courses=course.id).all():
-                    deadline_list.append(StudentAssignmentSerializer(assignment, context={'request': request}).data)
+                    role = permissions.get_assignment_permissions(request.user, assignment)
+                    if role['can_grade_journal']:
+                        deadline_list.append(TeacherAssignmentSerializer(assignment))
+                    else:
+                        deadline_list.append(StudentAssignmentSerializer(assignment, context={'request': request}).data)
 
             # TODO: Specify for teacher and student seperatly, this can be done after a better serializer
-            # if role.can_grade_journal:
             #     for assignment in Assignment.objects.filter(courses=course.id).all():
             #         deadline = create_teacher_assignment_deadline(course, assignment)
             #         if deadline:
