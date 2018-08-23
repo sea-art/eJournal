@@ -1,5 +1,5 @@
 import connection from '@/api/connection'
-import statuses from '@/utils/status_codes.js'
+import statuses from '@/utils/constants/status_codes.js'
 import router from '@/router'
 
 /* Utility function to get the Authorization header with
