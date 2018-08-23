@@ -37,7 +37,7 @@
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
             <b-link tag="b-button" :to="assignmentRoute(cID, d.id, d.journal)">
-                <todo-card
+                <todo-card :if="d.deadline"
                     :date="d.deadline.date"
                     :time="d.deadline.time"
                     :name="d.name"
@@ -152,6 +152,8 @@ export default {
             var counter = 0
 
             function compareDate (a, b) {
+                if (!a.deadline) { return b.deadline }
+                if (!b.deadline) { return a.deadline }
                 return new Date(a.deadline.Date) - new Date(b.deadline.Date)
             }
 

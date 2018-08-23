@@ -58,12 +58,11 @@ class AssignmentView(viewsets.ViewSet):
                 return response.forbidden('You are not in this course.')
 
             if role.can_grade_journal:
-                queryset = Assignment.objects.filter(courses=course, journal__user=request.user)
+                queryset = course.assignment_set.all()
                 serializer = TeacherAssignmentSerializer(queryset, many=True)
                 resp = serializer.data
-                print(resp)
             else:
-                queryset = course.assignment_set.all()
+                queryset = Assignment.objects.filter(courses=course, journal__user=request.user)
                 serializer = StudentAssignmentSerializer(queryset, many=True, context={'request': request})
                 resp = serializer.data
         else:
@@ -291,7 +290,7 @@ class AssignmentView(viewsets.ViewSet):
                 for assignment in Assignment.objects.filter(courses=course.id).all():
                     role = permissions.get_assignment_permissions(request.user, assignment)
                     if role['can_grade_journal']:
-                        deadline_list.append(TeacherAssignmentSerializer(assignment))
+                        deadline_list.append(TeacherAssignmentSerializer(assignment).data)
                     else:
                         deadline_list.append(StudentAssignmentSerializer(assignment, context={'request': request}).data)
 

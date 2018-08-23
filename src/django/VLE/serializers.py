@@ -50,7 +50,10 @@ class StudentAssignmentSerializer(serializers.ModelSerializer):
     def get_deadline(self, assignment):
         if 'request' not in self.context:
             return None
-        deadline = assignment.format.presetnode_set.all().order_by('deadline')[0].deadline
+        nodes = assignment.format.presetnode_set.all().order_by('deadline')
+        if not nodes:
+            return None
+        deadline = nodes[0].deadline
         return {
             'date': '{:02d}-{:02d}'.format(deadline.day, deadline.month),
             'time': '{:02d}:{:02d}'.format(deadline.hour, deadline.minute)
@@ -82,7 +85,12 @@ class TeacherAssignmentSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', )
 
     def get_deadline(self, assignment):
-        deadline = assignment.format.presetnode_set.all().order_by('deadline')[0].deadline
+        if 'request' not in self.context:
+            return None
+        nodes = assignment.format.presetnode_set.all().order_by('deadline')
+        if not nodes:
+            return None
+        deadline = nodes[0].deadline
         return {
             'date': '{:02d}-{:02d}'.format(deadline.day, deadline.month),
             'time': '{:02d}:{:02d}'.format(deadline.hour, deadline.minute)
@@ -94,7 +102,6 @@ class TeacherAssignmentSerializer(serializers.ModelSerializer):
         stats['needsMarking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
         points = [x['stats']['acquired_points'] for x in journals]
         stats['avgPoints'] = round(st.mean(points), 2)
-        print(stats)
         return stats
 
 

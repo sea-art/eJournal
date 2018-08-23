@@ -94,9 +94,9 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
         format.save()
     assign = Assignment(name=name, description=description, author=author, format=format)
     assign.save()
-    if cIDs:
-        for cID in cIDs:
-            assign.courses.add(Course.objects.get(pk=cID))
+    if course_ids:
+        for course_id in course_ids:
+            assign.courses.add(Course.objects.get(pk=course_id))
     if courses:
         for course in courses:
             assign.courses.add(course)
