@@ -133,7 +133,6 @@ def keyerror(*keys):
     if len(keys) == 1:
         return bad_request(description='Field {0} is required but is missing.'.format(keys))
     else:
-        print('{0}'.format(keys))
         return bad_request(description='Fields {0} are required but one or more are missing.'.format(keys))
 
 

@@ -44,7 +44,7 @@ export default {
     },
     methods: {
         onSubmit () {
-            if (validation.validatePassword(this.form.password, this.form.password2)) {
+            if (validation.validatePassword(this.form.password, this.form.password2) && validation.validateEmail(this.form.email)) {
                 auth.register(this.form.username, this.form.password, this.form.firstname, this.form.lastname,
                     this.form.email, this.form.ltiJWT)
                     .then(_ => {
