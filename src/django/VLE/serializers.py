@@ -35,6 +35,7 @@ class CourseSerializer(serializers.ModelSerializer):
 
 class StudentAssignmentSerializer(serializers.ModelSerializer):
     deadline = serializers.SerializerMethodField()
+    journal = serializers.SerializerMethodField()
 
     class Meta:
         model = Assignment
@@ -43,11 +44,28 @@ class StudentAssignmentSerializer(serializers.ModelSerializer):
 
     # TODO: add personalized deadline
     def get_deadline(self, assignment):
+        if 'request' not in self.context:
+            return None
         deadline = assignment.format.presetnode_set.all().order_by('deadline')[0].deadline
         return {
             'date': '{:02d}-{:02d}'.format(deadline.day, deadline.month),
             'time': '{:02d}:{:02d}'.format(deadline.hour, deadline.minute)
         }
+
+    def get_journal(self, assignment):
+        if 'request' not in self.context:
+            return None
+
+        user = self.context['request'].user
+        try:
+            journal = Journal.objects.get(assignment=assignment, user=user)
+        except Journal.DoesNotExist:
+            journal = None
+
+        return journal.pk
+
+    def get_serializer_context(self):
+        return {'request': self.request}
 
 
 class TeacherAssignmentSerializer(serializers.ModelSerializer):

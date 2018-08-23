@@ -25,8 +25,6 @@ class AssignmentView(viewsets.ViewSet):
     GET /assignments/upcomming/ -- get the upcomming assignments of the logged in user
     """
 
-    serializer_class = StudentAssignmentSerializer
-
     def list(self, request):
         """Get the assignments from a course for the user.
 
@@ -61,13 +59,13 @@ class AssignmentView(viewsets.ViewSet):
 
             if not role.can_grade_journal:
                 queryset = course.assignment_set.all()
-                serializer = StudentAssignmentSerializer(queryset, many=True)
+                serializer = StudentAssignmentSerializer(queryset, many=True, context={'request': request})
             else:
                 queryset = Assignment.objects.filter(courses=course, journal__user=request.user)
                 serializer = TeacherAssignmentSerializer(queryset, many=True)
         else:
             # TODO: change query to a query that selects all (upcomming) assignments connected to the user.
-            serializer = StudentAssignmentSerializer(Assignment.objects.all())
+            serializer = StudentAssignmentSerializer(Assignment.objects.all(), context={'request': request})
 
         return response.success(serializer.data)
 
@@ -95,29 +93,28 @@ class AssignmentView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            name, description, cID = utils.required_params(request.data, "name", "description", "cID")
+            name, description, course_id = utils.required_params(request.data, "name", "description", "cID")
             points_possible, lti_id = utils.optional_params(request.data, "points_possible", "lti_id")
         except KeyError:
             return response.keyerror("name", "description", "cID")
 
         try:
-            Course.objects.get(pk=cID)
+            course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
             return response.not_found('Course')
 
-        role = permissions.get_role(request.user, cID)
-
+        role = permissions.get_role(request.user, course_id)
         if role is None:
             return response.forbidden("You have no access to this course.")
         elif not role.can_add_assignment:
             return response.forbidden('You have no permissions to create an assignment.')
 
-        assignment = factory.make_assignment(name, description, cIDs=[cID],
+        assignment = factory.make_assignment(name, description, course_ids=[course_id],
                                              author=request.user, lti_id=lti_id,
                                              points_possible=points_possible)
 
         for user in course.users.all():
-            role = permissions.get_role(user, cID)
+            role = permissions.get_role(user, course_id)
             if role.can_edit_journal:
                 factory.make_journal(assignment, user)
 
@@ -158,13 +155,14 @@ class AssignmentView(viewsets.ViewSet):
         if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
             return response.forbidden("You cannot view this assignment.")
 
-        if not role.can_grade_journal:
-            serializer = StudentAssignmentSerializer(assignment)
+        role = permissions.get_assignment_permissions(request.user, assignment)
+        if not role['can_grade_journal']:
+            serializer = StudentAssignmentSerializer(assignment, context={'request': request})
         else:
             serializer = TeacherAssignmentSerializer(assignment)
         data = serializer.data
 
-        if role.can_grade_journal:
+        if role['can_grade_journal']:
             journals = Journal.objects.filter(assignment=assignment)
             data['journals'] = JournalSerializer(journals, many=True).data
             for i, journal in enumerate(journals):
@@ -298,7 +296,7 @@ class AssignmentView(viewsets.ViewSet):
         for course in courses:
             if permissions.get_role(request.user, course):
                 for assignment in Assignment.objects.filter(courses=course.id).all():
-                    deadline_list.append(self.serializer_class(assignment).data)
+                    deadline_list.append(StudentAssignmentSerializer(assignment, context={'request': request}).data)
 
             # TODO: Specify for teacher and student seperatly, this can be done after a better serializer
             # if role.can_grade_journal:

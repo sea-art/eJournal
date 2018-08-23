@@ -36,7 +36,7 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="assignmentRoute(d.courses[0], d.id, d.journal)">
+            <b-link tag="b-button" :to="assignmentRoute(cID, d.id, d.journal)">
                 <todo-card
                     :date="d.deadline.date"
                     :time="d.deadline.time"
@@ -136,20 +136,15 @@ export default {
                 }
             })
         },
-        assignmentRoute (cID, aID, journal) {
-            var route = {
+        assignmentRoute (cID, aID, jID = 0) {
+            return {
                 name: 'Assignment',
                 params: {
                     cID: cID,
-                    aID: aID
+                    aID: aID,
+                    jID: jID
                 }
             }
-
-            if (journal) {
-                route.params.jID = journal.jID
-            }
-
-            return route
         }
     },
     computed: {
@@ -167,7 +162,7 @@ export default {
             }
 
             function filterTop () {
-                return (++counter <= 5)
+                return ++counter <= 5
             }
 
             function filterNoEntries (deadline) {

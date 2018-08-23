@@ -101,7 +101,8 @@ export default {
     created () {
         auth.get('nodes', { jID: this.jID })
             .then(response => {
-                this.nodes = response.nodes
+                console.log(response)
+                this.nodes = response
                 if (this.$route.query.nID !== undefined) {
                     this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
                 }
@@ -113,17 +114,13 @@ export default {
                 }
             })
 
-        journalApi.get_journal(this.jID)
-            .then(response => {
-                this.journal = response.journal
-            })
+        auth.get('journals/' + this.jID)
+            .then(response => { this.journal = response.journal })
 
         if (store.state.filteredJournals.length === 0) {
             if (this.$router.app.canViewAssignmentParticipants()) {
-                journalApi.get_assignment_journals(this.aID)
-                    .then(response => {
-                        this.assignmentJournals = response.journals
-                    })
+                auth.get('journals', { aID: this.aID })
+                    .then(response => { this.assignmentJournals = response.journals })
             }
 
             if (this.$route.query.sort === 'sortFullName' ||
@@ -174,10 +171,10 @@ export default {
             this.currentNode = $event
         },
         addNode (infoEntry) {
-            journalApi.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
-                .then(_ => journalApi.get_nodes(this.jID)
-                    .then(response => { this.nodes = response.nodes })
-                    .catch(_ => this.$toasted.error('Error while loading nodes.')))
+            // journalApi.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
+            //     .then(_ => auth.get('nodes', { jID: this.jID })
+            //         .then(response => { this.nodes = response.nodes })
+            //         .catch(_ => this.$toasted.error('Error while loading nodes.')))
         },
         progressPoints (progressNode) {
             /* The function will update a given progressNode by
@@ -209,36 +206,34 @@ export default {
                 }
             }
 
-            journalApi.get_journal(this.jID)
-                .then(response => {
-                    this.journal = response.journal
-                })
+            auth.get('journals/' + this.jID)
+                .then(response => { this.journal = response.journal })
         },
         publishGradesJournal () {
             if (confirm('Are you sure you want to publish all grades for this journal?')) {
-                journalApi.update_publish_grades_journal(this.jID, 1)
-                    .then(_ => {
-                        this.$toasted.success('Published all grades for this journal.')
-
-                        for (var node of this.nodes) {
-                            if ((node.type === 'e' || node.type === 'd') && node.entry) {
-                                node.entry.published = true
-                            }
-                        }
-
-                        journalApi.get_nodes(this.jID)
-                            .then(response => {
-                                this.nodes = response.nodes
-                            })
-
-                        journalApi.get_journal(this.jID)
-                            .then(response => {
-                                this.journal = response.journal
-                            })
-                    })
-                    .catch(_ => {
-                        this.$toasted.error('Error while publishing all grades for this journal.')
-                    })
+                // journalApi.update_publish_grades_journal(this.jID, 1)
+                //     .then(_ => {
+                //         this.$toasted.success('Published all grades for this journal.')
+                //
+                //         for (var node of this.nodes) {
+                //             if ((node.type === 'e' || node.type === 'd') && node.entry) {
+                //                 node.entry.published = true
+                //             }
+                //         }
+                //
+                //         auth.get('nodes', { jID: this.jID })
+                //             .then(response => {
+                //                 this.nodes = response.nodes
+                //             })
+                //
+                //         auth.get('journals/' + this.jID)
+                //             .then(response => {
+                //                 this.journal = response.journal
+                //             })
+                //     })
+                //     .catch(_ => {
+                //         this.$toasted.error('Error while publishing all grades for this journal.')
+                //     })
             }
         },
         findEntryNode (nodeID) {

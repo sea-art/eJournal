@@ -12,8 +12,7 @@
                 <main-card
                     :line1="c.name"
                     :line2="c.startdate ? (c.startdate.substring(0, 4) + (c.enddate ? ' - ' + c.enddate.substring(0, 4) : '')) : ''"
-                    :color="$root.getBorderClass(c.id)">
-                </main-card>
+                    :color="$root.getBorderClass(c.id)" />
             </b-link>
         </div>
         <b-button v-if="$root.canAddCourse()"
