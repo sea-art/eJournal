@@ -167,21 +167,22 @@ export default {
             })
         },
         setupInlineDisplay (editor) {
+            var vm = this
             /* Disables auto focus of the editor. */
             editor.execCommand('mceInlineCommentIsDirty', false, {skip_focus: true})
 
             editor.theme.panel.find('toolbar')[0].$el.hide()
-            editor.theme.panel.find('menubar')[0].$el.hide()
+            if (!this.basic) { editor.theme.panel.find('menubar')[0].$el.hide() }
             editor.theme.panel.find('#statusbar')[0].$el.hide()
 
             editor.on('focus', function () {
-                editor.theme.panel.find('menubar')[0].$el.show()
+                if (!vm.basic) { editor.theme.panel.find('menubar')[0].$el.show() }
                 editor.theme.panel.find('toolbar')[0].$el.show()
                 editor.theme.panel.find('#statusbar')[0].$el.show()
             })
 
             editor.on('blur', function () {
-                editor.theme.panel.find('menubar')[0].$el.hide()
+                if (!vm.basic) { editor.theme.panel.find('menubar')[0].$el.hide() }
                 editor.theme.panel.find('toolbar')[0].$el.hide()
                 editor.theme.panel.find('#statusbar')[0].$el.hide()
             })
