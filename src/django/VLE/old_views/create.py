@@ -18,37 +18,6 @@ import VLE.lti_grade_passback as lti_grade
 import VLE.views.responses as responses
 import VLE.permissions as permissions
 
-@api_view(['POST'])
-def create_journal(request):
-    """Create a new journal.
-
-    Arguments:
-    request -- the request that was send with
-    aID -- the assignment id
-
-    On success, returns a json string containing the journal.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        [aID] = utils.required_params(request.data, "aID")
-    except KeyError:
-        return responses.keyerror("aID")
-
-    role = permissions.get_assignment_id_permissions(user, aID)
-
-    if role == {}:
-        return responses.forbidden("You have no permissions within this course.")
-    elif not role["can_edit_journal"]:
-        return responses.forbidden("You have no permissions to create a journal.")
-
-    assignment = Assignment.objects.get(pk=aID)
-    journal = factory.make_journal(assignment, request.user)
-
-    return responses.created(payload={'journal': serialize.journal_to_dict(journal)})
-
 
 @api_view(['POST'])
 @parser_classes([JSONParser])
@@ -122,39 +91,3 @@ def create_entry(request):
                                  'nodes': edag.get_nodes_dict(journal, request.user)})
     except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
         return responses.not_found('Journal, Template or Node does not exist.')
-
-
-@api_view(['POST'])
-def create_entrycomment(request):
-    """Create a new entrycomment.
-
-    Arguments:
-    request -- the request that was send with
-        eID -- the entry id
-        uID -- the author id
-        text -- the comment
-        published -- the comment's publishment state
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        eID, uID, text, published = utils.required_params(request.data, "eID", "uID", "text", "published")
-    except KeyError:
-        return responses.keyerror("eID", "uID", "text", "published")
-
-    try:
-        author = User.objects.get(pk=uID)
-        entry = Entry.objects.get(pk=eID)
-        assignment = Assignment.objects.get(journal__node__entry=entry)
-    except (User.DoesNotExist, Entry.DoesNotExist):
-        return responses.not_found('User or Entry')
-
-    if not (author == user):
-        return responses.forbidden('You are not allowed to write comments for others.')
-
-    published = published or not permissions.has_assignment_permission(user, assignment, 'can_grade_journal')
-
-    entrycomment = factory.make_entrycomment(entry, author, text, published)
-    return responses.created(payload={'comment': serialize.entrycomment_to_dict(entrycomment)})

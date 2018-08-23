@@ -3,17 +3,28 @@ course.py.
 
 In this file are all the course api requests.
 """
-import statistics as st
-
 from rest_framework import viewsets
 
 import VLE.views.responses as response
 from VLE.serializers import JournalSerializer
 from VLE.models import Journal, Assignment
 import VLE.permissions as permissions
+import VLE.utils as utils
+import VLE.factory as factory
+import VLE.serializers as serialize
 
 
 class JournalView(viewsets.ViewSet):
+    """Journal view.
+
+    This class creates the following api paths:
+    GET /journals/ -- gets all the journals
+    POST /journals/ -- create a new journal
+    GET /journals/<pk> -- gets a specific journal
+    PATCH /journals/<pk> -- partially update an journal
+    DEL /journals/<pk> -- delete an journal
+    """
+
     serializer_class = JournalSerializer
 
     def list(self, request):
@@ -31,6 +42,7 @@ class JournalView(viewsets.ViewSet):
             forbidden -- when the user has no permission to view the journals of the assignment
         On succes:
             success -- with journals and stats about the journals
+
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
@@ -63,9 +75,6 @@ class JournalView(viewsets.ViewSet):
             'journals': journals
         })
 
-    def create(self, request):
-        pass
-
     def retrieve(self, request, pk):
         """Get a student submitted journal.
 
@@ -80,6 +89,7 @@ class JournalView(viewsets.ViewSet):
             forbidden -- when the user has no permission to view the journal
         On succes:
             success -- with journals and stats about the journals
+
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
@@ -95,6 +105,45 @@ class JournalView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to view this journal.')
 
         return response.success(self.serializer_class(journal).data)
+
+    def create(self, request):
+        """Create a new assignment.
+
+        Arguments:
+        request -- request data
+            aID -- assignment ID
+
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+            not_found -- could not find the course with the given id
+            key_error -- missing keys
+            forbidden -- the user is not allowed to create assignments in this course
+
+        On success:
+            succes -- with the journal data
+
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+
+        try:
+            [aID] = utils.required_params(request.data, "aID")
+        except KeyError:
+            return response.keyerror("aID")
+
+        role = permissions.get_assignment_id_permissions(request.user, aID)
+
+        if role == {}:
+            return response.forbidden("You have no permissions within this course.")
+        elif not role["can_edit_journal"]:
+            return response.forbidden("You have no permissions to create a journal.")
+
+        assignment = Assignment.objects.get(pk=aID)
+        journal = factory.make_journal(assignment, request.user)
+
+        return response.created(payload={'journal': serialize.journal_to_dict(journal)})
+
 
     def update(self, request, *args, **kwargs):
         pass

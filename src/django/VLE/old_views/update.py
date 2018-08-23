@@ -269,37 +269,6 @@ def update_publish_grades_journal(request):
     return responses.success(payload=payload)
 
 
-@api_view(['POST'])
-def update_entrycomment(request):
-    """
-    Update a comment to an entry.
-
-    Arguments:
-    request -- the request that was send with
-        entrycommentID -- The ID of the entrycomment.
-        text -- The updated text.
-    Returns a json string for if it is successful or not.
-    """
-    if not request.user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        entrycommentID, text = utils.required_params(request.data, "entrycommentID", "text")
-    except KeyError:
-        return responses.keyerror("entrycommentID")
-
-    try:
-        comment = Comment.objects.get(pk=entrycommentID)
-    except Comment.DoesNotExist:
-        return responses.not_found('Entrycomment does not exist.')
-
-    if not permissions.has_assignment_permission(request.user, comment.entry.node.journal.assignment,
-                                                 'can_comment_journal'):
-        return responses.forbidden('You cannot comment on entries.')
-
-    comment.text = text
-    comment.save()
-    return responses.success()
 
 # TODO: Test if lti works!
 # @api_view(['POST'])

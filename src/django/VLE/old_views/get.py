@@ -68,69 +68,6 @@ def get_unenrolled_users(request, cID):
     return responses.success(payload={'users': [serialize.user_to_dict(user) for user in result]})
 
 
-@api_view(['GET'])
-def get_assignment_journals(request, aID):
-    """Get the student submitted journals of one assignment.
-
-    Arguments:
-    request -- the request that was send with
-    aID -- the assignment ID to get the journals from
-
-    Returns a json string with the journals
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        assignment = Assignment.objects.get(pk=aID)
-    except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
-
-    if not permissions.has_assignment_permission(user, assignment, 'can_view_assignment_participants'):
-        return responses.forbidden('You are not allowed to view assignment participants.')
-
-    journals = []
-
-    for journal in assignment.journal_set.all():
-        journals.append(serialize.journal_to_dict(journal))
-
-    stats = {}
-    if journals:
-        # TODO: Maybe make this efficient for minimal delay?
-        stats['needsMarking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
-        points = [x['stats']['acquired_points'] for x in journals]
-        stats['avgPoints'] = round(st.mean(points), 2)
-
-    return responses.success(payload={'stats': stats if stats else None, 'journals': journals})
-
-
-@api_view(['GET'])
-def get_journal(request, jID):
-    """Get a student submitted journal.
-
-    Arguments:
-    request -- the request that was send with
-    jID -- the journal ID to get
-
-    Returns a journal.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        journal = Journal.objects.get(pk=jID)
-    except journal.DoesNotExist:
-        return responses.not_found('Journal')
-
-    if not (journal.user == user or permissions.has_assignment_permission(user, journal.assignment,
-                                                                          'can_view_assignment_participants')):
-        return responses.forbidden('You are not allowed to view this journal.')
-
-    return responses.success(payload={'journal': serialize.journal_to_dict(journal)})
-
-
 def create_teacher_assignment_deadline(course, assignment):
     """Creates and returns the earliest deadline with data of an assignment
        from a teacher.
@@ -303,32 +240,6 @@ def get_assignment_permissions(request, aID):
 
 
 @api_view(['GET'])
-def get_nodes(request, jID):
-    """Get all nodes contained within a journal.
-
-    Arguments:
-    request -- the request that was sent
-    jID     -- the journal id
-
-    Returns a json string containing all entry and deadline nodes.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        journal = Journal.objects.get(pk=jID)
-    except Journal.DoesNotExist:
-        return responses.not_found('Journal')
-
-    if not (journal.user == user or permissions.has_assignment_permission(user,
-            journal.assignment, 'can_view_assignment_participants')):
-        return responses.forbidden('You are not allowed to view journals of other participants.')
-
-    return responses.success(payload={'nodes': edag.get_nodes_dict(journal, request.user)})
-
-
-@api_view(['GET'])
 def get_format(request, aID):
     """Get the format attached to an assignment.
 
@@ -352,78 +263,6 @@ def get_format(request, aID):
 
     return responses.success(payload={'format': serialize.format_to_dict(assignment.format)})
 
-
-@api_view(['POST'])
-def get_names(request):
-    """Get names of course, assignment, journal.
-
-    Arguments:
-    request -- the request that was sent
-        cID -- optionally the course id
-        aID -- optionally the assignment id
-        jID -- optionally the journal id
-
-    Returns a json string containing the names of the set fields.
-    cID populates 'course', aID populates 'assignment', tID populates
-    'template' and jID populates 'journal' with the users' name.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    cID, aID, jID = utils.optional_params(request.data, "cID", "aID", "jID")
-    result = {}
-
-    try:
-        if cID:
-            course = Course.objects.get(pk=cID)
-            role = permissions.get_role(user, course)
-            if role is None:
-                return responses.forbidden('You are not allowed to view this course.')
-            result['course'] = course.name
-        if aID:
-            assignment = Assignment.objects.get(pk=aID)
-            if not (assignment.courses.all() & user.participations.all()):
-                return responses.forbidden('You are not allowed to view this assignment.')
-            result['assignment'] = assignment.name
-        if jID:
-            journal = Journal.objects.get(pk=jID)
-            if not (journal.user == user or permissions.has_assignment_permission(user,
-                    journal.assignment, 'can_view_assignment_participants')):
-                return responses.forbidden('You are not allowed to view journals of other participants.')
-            result['journal'] = journal.user.first_name + " " + journal.user.last_name
-
-    except (Course.DoesNotExist, Assignment.DoesNotExist, Journal.DoesNotExist, EntryTemplate.DoesNotExist):
-        return responses.not_found('Course, Assignment, Journal or Template')
-
-    return responses.success(payload=result)
-
-
-@api_view(['GET'])
-def get_entrycomments(request, eID):
-    """Get the comments belonging to the specified entry based on its eID."""
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        entry = Entry.objects.get(pk=eID)
-    except Entry.DoesNotExist:
-        return responses.not_found('Entry')
-
-    if not (entry.node.journal.user == user or permissions.has_assignment_permission(user,
-            entry.node.journal.assignment, 'can_view_assignment_participants')):
-        return responses.forbidden('You are not allowed to view journals of other participants.')
-
-    if permissions.has_assignment_permission(user, entry.node.journal.assignment,
-                                             'can_grade_journal'):
-        entrycomments = Comment.objects.filter(entry=entry)
-    else:
-        entrycomments = Comment.objects.filter(entry=entry, published=True)
-
-    return responses.success(payload={
-        'entrycomments': [serialize.entrycomment_to_dict(comment) for comment in entrycomments]
-        })
 
 
 # TODO: Check if this is necessery
