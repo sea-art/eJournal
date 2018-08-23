@@ -13,14 +13,15 @@ from django.core.exceptions import ValidationError
 import VLE.serializers as serialize
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
+import VLE.utils.email_handling as email_handling
 from VLE.models import User, Journal, EntryTemplate, Node, Assignment, Field, Entry, Content, Course
 import VLE.edag as edag
 import VLE.lti_grade_passback as lti_grade
+import VLE.validators as validators
 
 import VLE.views.responses as responses
 import VLE.permissions as permissions
 
-import re
 import jwt
 import json
 from django.conf import settings
@@ -241,7 +242,7 @@ def create_entrycomment(request):
         entry = Entry.objects.get(pk=eID)
         assignment = Assignment.objects.get(journal__node__entry=entry)
     except (User.DoesNotExist, Entry.DoesNotExist):
-        return responses.not_found('User or Entry')
+        return responses.not_found('User or Entry does not exist.')
 
     if not (author == user):
         return responses.forbidden('You are not allowed to write comments for others.')
@@ -270,10 +271,10 @@ def create_lti_user(request):
     """
     if request.data['jwt_params'] is not '':
         lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
-        user_id, user_image = lti_params['user_id'], lti_params['user_image']
+        lti_id, user_image = lti_params['user_id'], lti_params['user_image']
         is_teacher = json.load(open('config.json'))['Teacher'] in lti_params['roles']
     else:
-        user_id, user_image, is_teacher = None, None, False
+        lti_id, user_image, is_teacher = None, None, False
 
     try:
         username, password = utils.required_params(request.data, 'username', 'password')
@@ -287,22 +288,23 @@ def create_lti_user(request):
     if User.objects.filter(username=username).exists():
         return responses.bad_request('User with this username already exists.')
 
-    if user_id is not None and User.objects.filter(lti_id=user_id).exists():
+    if lti_id is not None and User.objects.filter(lti_id=lti_id).exists():
         return responses.bad_request('User with this lti id already exists.')
 
-    if len(password) < 8:
-        return responses.bad_request('Password needs to contain at least 8 characters.')
-    if password == password.lower():
-        return responses.bad_request('Password needs to contain at least 1 capital letter.')
-    if re.match(r'^\w+$', password):
-        return responses.bad_request('Password needs to contain a special character.')
+    try:
+        validators.validate_password(password)
+    except ValidationError as e:
+        return responses.bad_request(e.args[0])
 
     try:
         validate_email(email)
     except ValidationError:
         return responses.bad_request('Invalid email address.')
 
-    user = factory.make_user(username, password, email=email, lti_id=user_id, is_teacher=is_teacher,
+    user = factory.make_user(username, password, email=email, lti_id=lti_id, is_teacher=is_teacher,
                              first_name=first_name, last_name=last_name, profile_picture=user_image)
 
-    return responses.created(message='User successfully created', payload={'user': serialize.user_to_dict(user)})
+    if lti_id is None:
+        email_handling.send_email_verification_link(user)
+
+    return responses.created(description='User successfully created', payload={'user': serialize.user_to_dict(user)})

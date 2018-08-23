@@ -48,7 +48,7 @@ class JWTTests(TestCase):
                                  HTTP_AUTHORIZATION='Bearer {0}'.format(result.json()['access']))
 
         self.assertEquals(result.status_code, 200)
-        self.assertEquals(result.json()['result'], 'success')
+        self.assertEquals(result.json()['description'], '')
         self.assertEquals(result.json()['courses'], [])
 
     def test_auth_without_password(self):

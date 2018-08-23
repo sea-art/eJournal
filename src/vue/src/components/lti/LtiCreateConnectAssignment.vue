@@ -45,7 +45,7 @@ export default {
     components: {
         'create-assignment': createAssignment,
         'connect-assignment': connectAssignment,
-        'icon': icon
+        icon
     },
     methods: {
         signal (msg) {

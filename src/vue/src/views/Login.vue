@@ -19,7 +19,8 @@ export default {
     },
     methods: {
         handleLoginSucces () {
-            if (this.$root.previousPage === null || this.$root.previousPage.name === 'PasswordRecovery') {
+            if (this.$root.previousPage === null || this.$root.previousPage.name === 'PasswordRecovery' ||
+                this.$root.previousPage.name === 'ErrorPage') {
                 this.$router.push({name: 'Home'})
             } else {
                 this.$router.push({name: this.$root.previousPage.name, params: this.$root.previousPage.params})

@@ -13,6 +13,7 @@ def user_to_dict(user):
     return {
         'username': user.username,
         'email': user.email,
+        'verified_email': user.verified_email,
         'lti_id': user.lti_id,
         'is_superuser': user.is_superuser,
         'grade_notifications': user.grade_notifications,

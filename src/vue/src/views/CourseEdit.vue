@@ -134,44 +134,33 @@ export default {
     },
     created () {
         courseApi.get_course_data(this.cID)
-            .then(response => {
-                this.course = response
-            })
+            .then(course => { this.course = course })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
 
         if (this.$root.canViewCourseParticipants()) {
-            courseApi.get_users(this.cID)
-                .then(response => {
-                    this.participants = response.users
-                })
+            courseApi.get_course_users(this.cID)
+                .then(users => { this.participants = users })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     },
     methods: {
         onSubmit () {
-            courseApi.update_course(this.cID,
-                this.course.name,
-                this.course.abbr,
-                this.course.startdate,
-                this.course.enddate)
-                .then(response => {
-                    this.course = response
-                    this.pageName = this.course.name
-                    this.$toasted.success('Updated course')
+            courseApi.update_course(this.cID, this.course.name, this.course.abbr, this.course.startdate, this.course.enddate)
+                .then(course => {
+                    this.course = course
+                    this.$toasted.success('Succesfully updated the course.')
                     store.clearCache()
-                    this.$router.push({
-                        name: 'Course',
-                        params: {
-                            cID: this.cID
-                        }
-                    })
                 })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         deleteCourse () {
             if (confirm('Are you sure you want to delete ' + this.course.name + '?')) {
                 courseApi.delete_course(this.cID)
                     .then(response => {
                         this.$router.push({name: 'Home'})
-                        this.$toasted.success('Deleted course')
+                        this.$toasted.success(response.data.description)
                     })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         },
         deleteParticipantLocally (role, name, picture, uID) {
@@ -197,9 +186,8 @@ export default {
         },
         loadUnenrolledStudents () {
             courseApi.get_unenrolled_users(this.cID)
-                .then(response => {
-                    this.unenrolledStudents = response
-                })
+                .then(users => { this.unenrolledStudents = users })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
             this.unenrolledLoaded = !this.unenrolledLoaded
         },
         routeToEditCourseRoles () {
@@ -229,7 +217,7 @@ export default {
             }
 
             function checkFilter (user) {
-                var username = user.name.toLowerCase()
+                var username = user.username.toLowerCase()
                 var fullName = user.first_name.toLowerCase() + ' ' + user.last_name.toLowerCase()
                 var searchVariable = self.searchVariable.toLowerCase()
 
@@ -267,7 +255,7 @@ export default {
         'bread-crumb': breadCrumb,
         'content-single-column': contentSingleColumn,
         'course-participant-card': courseParticipantCard,
-        'icon': icon
+        icon
     }
 }
 </script>

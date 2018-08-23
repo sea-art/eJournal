@@ -53,6 +53,7 @@ class User(AbstractUser):
 
     User is an entity in the database with the following features:
     - email: email of the user.
+    - verified_email: Boolean to indicate if the user has validated their email adress.
     - USERNAME_FIELD: username of the username.
     - password: the hash of the password of the user.
     - lti_id: the DLO id of the user.
@@ -60,6 +61,9 @@ class User(AbstractUser):
 
     email = models.EmailField(
         unique=True,
+    )
+    verified_email = models.BooleanField(
+        default=False
     )
     lti_id = models.TextField(
         null=True,

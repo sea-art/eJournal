@@ -125,7 +125,7 @@ export default {
         }
     },
     components: {
-        'icon': icon,
+        icon,
         'file-upload-input': fileUploadInput,
         'text-editor': textEditor
     }

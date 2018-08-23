@@ -44,17 +44,18 @@ export default {
     components: {
         'content-single-columns': ContentSingleColumn,
         'text-editor': textEditor,
-        'icon': icon
+        icon
     },
     methods: {
         onSubmit () {
             assignmentApi.create_new_assignment(this.form.assignmentName,
                 this.form.assignmentDescription, this.form.courseID,
                 this.form.ltiAssignID, this.form.pointsPossible)
-                .then(response => {
-                    this.$emit('handleAction', response.assignment.aID)
+                .then(assignment => {
+                    this.$emit('handleAction', assignment.aID)
                     this.onReset(undefined)
                 })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         onReset (evt) {
             if (evt !== undefined) {

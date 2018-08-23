@@ -73,10 +73,10 @@ def get_course_data(request, cID):
     try:
         q_course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
-        return responses.not_found('Course')
+        return responses.not_found('Course not found.')
 
     if not permissions.is_user_in_course(user, q_course):
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
 
     course = serialize.course_to_dict(q_course)
 
@@ -100,13 +100,13 @@ def get_course_users(request, cID):
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
-        return responses.not_found('Course')
+        return responses.not_found('Course not found.')
 
     role = permissions.get_role(user, course)
     if role is None:
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
     elif not role.can_view_course_participants:
-        return responses.forbidden('You cannot view participants in this course.')
+        return responses.forbidden('You cannot view the participants in this course.')
 
     participations = course.participation_set.all()
     return responses.success(payload={'users': [serialize.participation_to_dict(participation)
@@ -130,13 +130,13 @@ def get_unenrolled_users(request, cID):
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
-        return responses.not_found('Course')
+        return responses.not_found('Course not found.')
 
     role = permissions.get_role(user, course)
     if role is None:
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
     elif not role.can_view_course_participants:
-        return responses.forbidden('You cannot view participants in this course.')
+        return responses.forbidden('You cannot view the participants in this course.')
 
     ids_in_course = course.participation_set.all().values('user__id')
     result = User.objects.all().exclude(id__in=ids_in_course)
@@ -246,11 +246,11 @@ def get_course_assignments(request, cID):
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
-        return responses.not_found('Course')
+        return responses.not_found('Course not found.')
 
     role = permissions.get_role(user, course)
     if role is None:
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
 
     # Check whether the user can grade a journal in the course.
     if role.can_grade_journal:
@@ -279,16 +279,16 @@ def get_assignment_data(request, cID, aID):
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
-        return responses.not_found('Course')
+        return responses.not_found('Course not found.')
 
     role = permissions.get_role(user, course)
     if role is None:
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
 
     try:
         assignment = Assignment.objects.get(pk=aID)
     except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
+        return responses.not_found('Assignment not found.')
 
     if role.can_grade_journal:
         return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
@@ -313,7 +313,7 @@ def get_assignment_journals(request, aID):
     try:
         assignment = Assignment.objects.get(pk=aID)
     except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
+        return responses.not_found('Assignment not found.')
 
     if not permissions.has_assignment_permission(user, assignment, 'can_view_assignment_participants'):
         return responses.forbidden('You are not allowed to view assignment participants.')
@@ -350,7 +350,7 @@ def get_journal(request, jID):
     try:
         journal = Journal.objects.get(pk=jID)
     except journal.DoesNotExist:
-        return responses.not_found('Journal')
+        return responses.not_found('Journal not found.')
 
     if not (journal.user == user or permissions.has_assignment_permission(user, journal.assignment,
                                                                           'can_view_assignment_participants')):
@@ -463,7 +463,7 @@ def get_upcoming_deadlines(request):
         role = permissions.get_role(user, course)
 
         if role is None:
-            return responses.forbidden('You are not in this course.')
+            return responses.forbidden('You are not a participant of this course.')
 
         if role.can_grade_journal:
             for assignment in Assignment.objects.filter(courses=course.id).all():
@@ -499,13 +499,13 @@ def get_upcoming_course_deadlines(request, cID):
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
-        return responses.not_found('Course')
+        return responses.not_found('Course not found.')
 
     for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
         role = permissions.get_role(user, course)
 
         if role is None:
-            return responses.forbidden('You are not in this course.')
+            return responses.forbidden('You are not a participant of this course.')
 
         if role.can_grade_journal:
             deadline = create_teacher_assignment_deadline(course, assignment)
@@ -535,7 +535,7 @@ def get_course_permissions(request, cID):
         if int(cID) >= 0:
             Course.objects.get(pk=cID)
     except Course.DoesNotExist:
-        return responses.not_found('Course')
+        return responses.not_found('Course not found.')
 
     roleDict = permissions.get_permissions(request.user, int(cID))
     if not roleDict:
@@ -560,7 +560,7 @@ def get_assignment_permissions(request, aID):
         if int(aID) >= 0:
             Assignment.objects.get(pk=aID)
     except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
+        return responses.not_found('Assignment not found.')
 
     roleDict = permissions.get_assignment_id_permissions(request.user, int(aID))
     if not roleDict:
@@ -586,7 +586,7 @@ def get_nodes(request, jID):
     try:
         journal = Journal.objects.get(pk=jID)
     except Journal.DoesNotExist:
-        return responses.not_found('Journal')
+        return responses.not_found('Journal not found.')
 
     if not (journal.user == user or permissions.has_assignment_permission(user,
             journal.assignment, 'can_view_assignment_participants')):
@@ -612,7 +612,7 @@ def get_format(request, aID):
     try:
         assignment = Assignment.objects.get(pk=aID)
     except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
+        return responses.not_found('Assignment not found.')
 
     if not (assignment.courses.all() & user.participations.all()):
         return responses.forbidden('You are not allowed to view this assignment.')
@@ -634,7 +634,7 @@ def get_course_roles(request, cID):
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
-        return responses.not_found('Course')
+        return responses.not_found('Course not found.')
 
     role = permissions.get_role(user, course)
     if role is None:
@@ -725,7 +725,7 @@ def get_entrycomments(request, eID):
     try:
         entry = Entry.objects.get(pk=eID)
     except Entry.DoesNotExist:
-        return responses.not_found('Entry')
+        return responses.not_found('Entry not found.')
 
     if not (entry.node.journal.user == user or permissions.has_assignment_permission(user,
             entry.node.journal.assignment, 'can_view_assignment_participants')):
@@ -788,10 +788,10 @@ def get_assignment_by_lti_id(request, lti_id):
     try:
         assignment = Assignment.objects.get(lti_id=lti_id)
     except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
+        return responses.not_found('Assignment not found.')
 
     if not permissions.has_assignment_permission(user, assignment, 'can_edit_course'):
-        return responses.forbidden('You are not allowed to edit the courses.')
+        return responses.forbidden('You are not allowed to edit the course.')
 
     return responses.success(payload={'assignment': serialize.assignment_to_dict(assignment)})
 

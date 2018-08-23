@@ -25,16 +25,14 @@ class ResponsesTests(TestCase):
 
     def test_response_fields(self):
         """Test whether the response fields get filled in the correct way."""
-        message = "Test message"
         description = "Test description"
         test_key = "miscellaneous"
         test_value = "Test payload"
-        response = responses.response(400, message, description=description, payload={test_key: test_value})
+        response = responses.json_response(payload={test_key: test_value}, description=description, status=400)
 
         content = json.loads(response.content)
 
         self.assertEqual(response.status_code, 400)
-        self.assertEqual(content["result"], message)
         self.assertEqual(content["description"], description)
         self.assertEqual(content[test_key], test_value)
 
