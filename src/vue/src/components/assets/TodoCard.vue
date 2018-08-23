@@ -1,7 +1,7 @@
 <template>
     <b-card :class="$root.getBorderClass($route.params.cID)">
         <todo-square v-if="checkPermissions() && totalNeedsMarking > 0" :num="totalNeedsMarking" class="float-right" />
-        <h6>{{ date }} {{ hours }}:{{ minutes }}</h6>
+        <h6>{{ $root.beautifyDate(deadline)}}</h6>
         <h5>{{ name }}</h5>
         {{ abbr }}
     </b-card>
@@ -11,7 +11,7 @@
 import todoSquare from '@/components/assets/TodoSquare.vue'
 
 export default {
-    props: ['date', 'hours', 'minutes', 'name', 'abbr', 'totalNeedsMarking'],
+    props: ['deadline', 'name', 'abbr', 'totalNeedsMarking'],
     components: {
         'todo-square': todoSquare
     },
