@@ -75,7 +75,8 @@ import todoCard from '@/components/assets/TodoCard.vue'
 import createCourse from '@/components/course/CreateCourse.vue'
 import editHome from '@/components/home/EditHome.vue'
 
-import auth from '@/api/auth'
+import courseAPI from '@/api/course.js'
+import assignmentPI from '@/api/assignment.js'
 
 import icon from 'vue-awesome/components/Icon'
 
@@ -101,13 +102,13 @@ export default {
     created () {
         this.loadCourses()
 
-        auth.get('assignments/upcomming')
+        assignmentAPI.getUpcomming()
             .then(deadlines => { this.deadlines = deadlines })
             .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         loadCourses () {
-            auth.get('courses')
+            courseAPI.getEnrolled()
                 .then(courses => { this.courses = courses })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },

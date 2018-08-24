@@ -4,10 +4,10 @@ Serializers.
 Functions to convert certain data to other formats.
 """
 from rest_framework import serializers
-# import VLE.utils as utils
+# import VLE.utils.generic_utils as utils
 # import VLE.permissions as permissions
 from VLE.models import User, Course, Node, Comment, Assignment, Role, Journal
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
 
 import statistics as st
 

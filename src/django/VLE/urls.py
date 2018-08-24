@@ -38,7 +38,6 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
-    path('update_user_profile_picture/', email.update_user_profile_picture, name='update_user_profile_picture'),
     path('forgot_password/', email.forgot_password, name='forgot_password'),
     path('recover_password/', email.recover_password, name='recover_password'),
     path('verify_email/', email.verify_email, name='verify_email'),

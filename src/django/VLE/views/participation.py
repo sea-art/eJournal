@@ -2,7 +2,7 @@ from rest_framework import viewsets
 
 from VLE.models import Course, User, Role, Journal, Participation
 import VLE.permissions as permissions
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
 import VLE.factory as factory
 import VLE.views.responses as response
 from VLE.serializers import UserSerializer
@@ -32,7 +32,7 @@ class ParticipationView(viewsets.ViewSet):
         try:
             cID = request.query_params['cID']
         except KeyError:
-            return response.keyerror("cID")
+            return response.keyerror('cID')
         try:
             course = Course.objects.get(pk=cID)
         except Course.DoesNotExist:
@@ -108,7 +108,7 @@ class ParticipationView(viewsets.ViewSet):
             for assignment in assignments:
                 if not Journal.objects.filter(assignment=assignment, user=user).exists():
                     factory.make_journal(assignment, user)
-        return response.success(message='Succesfully added student to course')
+        return response.success(message='Succesfully added student to course.')
 
     def update(self, request, course_id):
         """Update user role in a course.
@@ -138,10 +138,11 @@ class ParticipationView(viewsets.ViewSet):
             return response.keyerror("uID")
 
         try:
+            user = User.objects.get(pk=user_id)
             course = Course.objects.get(pk=course_id)
-            participation = Participation.objects.get(user=user_id, course=course_id)
+            participation = Participation.objects.get(user=user, course=course)
         except (Participation.DoesNotExist, Role.DoesNotExist, Course.DoesNotExist):
-            return response.not_found('Participation, Role or Course')
+            return response.not_found('Participation, Role or Course does not exists.')
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -149,12 +150,12 @@ class ParticipationView(viewsets.ViewSet):
         elif not role.can_edit_course_roles:
             return response.forbidden('You cannot edit the roles of this course.')
 
-        participation.role = Role.objects.get(name=role_name, course=course_id)
+        participation.role = Role.objects.get(name=role_name, course=course)
 
         participation.save()
-        return response.success(participation.role.name)
+        return response.success({'role': RoleSerializer(participation.role)}, description='Succesfully updates role')
 
-    def destroy(self, pk):
+    def destroy(self, request, course_id):
         """Remove a user from the course.
 
         request -- request data
@@ -166,20 +167,21 @@ class ParticipationView(viewsets.ViewSet):
         try:
             user_id = utils.required_params(request.data, 'uID')
         except KeyError:
-            return response.keyerror("uID")
+            return response.keyerror('uID')
 
         try:
+            user = User.objects.get(pk=user_id)
             course = Course.objects.get(pk=course_id)
-            participation = Participation.objects.get(user=user_id, course=course_id)
+            participation = Participation.objects.get(user=user, course=course)
         except (Participation.DoesNotExist, Role.DoesNotExist, Course.DoesNotExist):
             return response.not_found('Participation or Course')
 
         # Users can only be deleted from the course with can_view_course_participants
-        role = permissions.get_role(request.user, cID)
+        role = permissions.get_role(request.user, course_id)
         if role is None:
-            return responses.unauthorized(description="You have no access to this course")
+            return response.unauthorized(description="You have no access to this course")
         elif not role.can_view_course_participants:
-            return responses.forbidden(description="Uou have no permissions to delete this user.")
+            return response.forbidden(description="You have no permissions to delete this user.")
 
         participation.delete()
-        return responses.success(message='Removed user from course')
+        return response.success(message='Sucesfully removed user from course.')

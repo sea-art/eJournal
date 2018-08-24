@@ -43,6 +43,8 @@ import icon from 'vue-awesome/components/Icon'
 import email from '@/components/profile/Email.vue'
 import dataHandling from '@/utils/data_handling.js'
 
+import auth from '@/api/auth.js'
+
 export default {
     props: ['userData'],
     components: {

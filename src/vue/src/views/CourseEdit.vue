@@ -144,7 +144,7 @@ export default {
     methods: {
         onSubmit () {
             auth.update('courses/' + this.cID, this.course)
-                .then(response => {
+                .then(course => {
                     this.course = course
                     this.$toasted.success('Succesfully updated the course.')
                     store.clearCache()

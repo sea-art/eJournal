@@ -11,7 +11,7 @@ from VLE.models import Assignment, Course, Journal
 import VLE.views.responses as response
 import VLE.permissions as permissions
 import VLE.factory as factory
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
 
 
 class AssignmentView(viewsets.ViewSet):
@@ -69,7 +69,7 @@ class AssignmentView(viewsets.ViewSet):
             # TODO: change query to a query that selects all (upcomming) assignments connected to the user.
             serializer = StudentAssignmentSerializer(Assignment.objects.all(), context={'request': request})
             resp = serializer.data
-        return response.success(resp)
+        return response.success({'assignments': resp})
 
     def create(self, request):
         """Create a new assignment.
@@ -108,7 +108,7 @@ class AssignmentView(viewsets.ViewSet):
         role = permissions.get_role(request.user, course_id)
         if role is None:
             return response.forbidden("You have no access to this course.")
-        elif not role.can_add_assignment:
+        elif not role['can_add_assignment']:
             return response.forbidden('You have no permissions to create an assignment.')
 
         assignment = factory.make_assignment(name, description, course_ids=[course_id],
@@ -121,7 +121,7 @@ class AssignmentView(viewsets.ViewSet):
                 factory.make_journal(assignment, user)
 
         serializer = TeacherAssignmentSerializer(assignment)
-        return response.created(serializer.data, obj='assignment')
+        return response.created({'assignment': serializer.data})
 
     # TODO: Add course ID to only get the information about the assignment from that course.
     # TODO: Create a better serializer
@@ -167,7 +167,7 @@ class AssignmentView(viewsets.ViewSet):
             serializer = StudentAssignmentSerializer(assignment, context={'request': request})
             data = serializer.data
 
-        return response.success(data)
+        return response.success({'assignment': data})
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing assignment.
@@ -204,7 +204,7 @@ class AssignmentView(viewsets.ViewSet):
         if not serializer.is_valid():
             response.bad_request()
         serializer.save()
-        return response.success(serializer.data)
+        return response.success({'assignment': serializer.data})
 
     def destroy(self, request, *args, **kwargs):
         """Delete an existing assignment from a course.
@@ -256,7 +256,7 @@ class AssignmentView(viewsets.ViewSet):
             assignment.delete()
             data['removed_completely'] = True
 
-        return response.success(data, description='Removed assignment')
+        return response.success(data, description='Succesfully deleted the assignment.')
 
     @action(methods=['get'], detail=False)
     def upcomming(self, request):
@@ -305,4 +305,4 @@ class AssignmentView(viewsets.ViewSet):
             #         if deadline:
             #             deadline_list.append(deadline)
 
-        return response.success(deadline_list)
+        return response.success({'deadlines': deadline_list})

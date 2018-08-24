@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view
 from VLE.models import Assignment, Course, Participation, User
 
 import VLE.views.responses as responses
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
 
 

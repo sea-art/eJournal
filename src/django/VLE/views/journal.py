@@ -3,14 +3,14 @@ course.py.
 
 In this file are all the course api requests.
 """
-import statistics as st
-
 from rest_framework import viewsets
 
-import VLE.views.responses as response
 from VLE.serializers import JournalSerializer
 from VLE.models import Journal, Assignment
 import VLE.permissions as permissions
+import VLE.views.responses as response
+import VLE.utils.generic_utils as utils
+import VLE.factory as factory
 
 
 class JournalView(viewsets.ViewSet):
@@ -64,7 +64,24 @@ class JournalView(viewsets.ViewSet):
         })
 
     def create(self, request):
-        pass
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+
+        try:
+            [aID] = utils.required_params(request.data, "aID")
+        except KeyError:
+            return response.keyerror("aID")
+
+        role = permissions.get_assignment_id_permissions(request.user, aID)
+        if not role:
+            return response.forbidden("You have no permissions within this course.")
+        elif not role["can_edit_journal"]:
+            return response.forbidden("You have no permissions to create a journal.")
+
+        assignment = Assignment.objects.get(pk=aID)
+        journal = factory.make_journal(assignment, request.user)
+        serializer = self.serializer_class(journal, many=False)
+        return response.created({'journal': serializer.data})
 
     def retrieve(self, request, pk):
         """Get a student submitted journal.
@@ -94,7 +111,7 @@ class JournalView(viewsets.ViewSet):
                                                      'can_view_assignment_participants'):
             return response.forbidden('You are not allowed to view this journal.')
 
-        return response.success(self.serializer_class(journal).data)
+        return response.success({'journal': self.serializer_class(journal).data})
 
     def update(self, request, *args, **kwargs):
         pass
