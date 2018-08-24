@@ -20,6 +20,7 @@ class AssignmentView(viewsets.ViewSet):
     This class creates the following api paths:
     GET /assignments/ -- gets all the assignments
     POST /assignments/ -- create a new assignment
+    GET /assignments/<pk> -- gets a specific assignment
     PATCH /assignments/<pk> -- partially update an assignment
     DEL /assignments/<pk> -- delete an assignment
     GET /assignments/upcomming/ -- get the upcomming assignments of the logged in user
@@ -39,6 +40,7 @@ class AssignmentView(viewsets.ViewSet):
             forbidden -- when the user is not part of the course
         On succes:
             success -- with the assignment data
+
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
@@ -90,6 +92,7 @@ class AssignmentView(viewsets.ViewSet):
 
         On success:
             succes -- with the assignment data
+
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
@@ -142,6 +145,7 @@ class AssignmentView(viewsets.ViewSet):
 
         On success:
             succes -- with the assignment data
+
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
@@ -186,6 +190,7 @@ class AssignmentView(viewsets.ViewSet):
             bad_request -- when there is invalid data in the request
         On success:
             success -- with the new assignment data
+
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
@@ -211,6 +216,7 @@ class AssignmentView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
+            cID -- the course ID of course this assignment belongs to
         pk -- assignment ID
 
         Returns:
@@ -221,6 +227,7 @@ class AssignmentView(viewsets.ViewSet):
             forbidden -- when the user cannot delete the assignment
         On success:
             success -- with a message that the course was deleted
+
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
@@ -236,7 +243,7 @@ class AssignmentView(viewsets.ViewSet):
             assignment = Assignment.objects.get(pk=assignment_id)
             course = Course.objects.get(pk=course_id)
         except (Assignment.DoesNotExist, Course.DoesNotExist):
-            return response.not_found('course or ssignment')
+            return response.not_found('course or assignment')
 
         # Assignments can only be deleted with can_delete_assignment permission.
         role = permissions.get_role(request.user, course)
@@ -272,6 +279,7 @@ class AssignmentView(viewsets.ViewSet):
             not found -- when the course does not exists
         On success:
             success -- upcomming assignments
+
         """
         if not request.user.is_authenticated:
             return response.unauthorized()

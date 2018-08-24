@@ -20,9 +20,6 @@ import VLE.validators as validators
 import VLE.views.responses as responses
 import VLE.permissions as permissions
 
-import jwt
-import json
-from django.conf import settings
 
 @api_view(['POST'])
 @parser_classes([JSONParser])

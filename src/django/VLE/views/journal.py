@@ -14,6 +14,16 @@ import VLE.factory as factory
 
 
 class JournalView(viewsets.ViewSet):
+    """Journal view.
+
+    This class creates the following api paths:
+    GET /journals/ -- gets all the journals
+    POST /journals/ -- create a new journal
+    GET /journals/<pk> -- gets a specific journal
+    PATCH /journals/<pk> -- partially update an journal
+    DEL /journals/<pk> -- delete an journal
+    """
+
     serializer_class = JournalSerializer
 
     def list(self, request):
@@ -31,6 +41,7 @@ class JournalView(viewsets.ViewSet):
             forbidden -- when the user has no permission to view the journals of the assignment
         On succes:
             success -- with journals and stats about the journals
+
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
@@ -64,6 +75,23 @@ class JournalView(viewsets.ViewSet):
         })
 
     def create(self, request):
+        """Create a new assignment.
+
+        Arguments:
+        request -- request data
+            aID -- assignment ID
+
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+            not_found -- could not find the course with the given id
+            key_error -- missing keys
+            forbidden -- the user is not allowed to create assignments in this course
+
+        On success:
+            succes -- with the journal data
+
+        """
         if not request.user.is_authenticated:
             return response.unauthorized()
 
@@ -97,6 +125,7 @@ class JournalView(viewsets.ViewSet):
             forbidden -- when the user has no permission to view the journal
         On succes:
             success -- with journals and stats about the journals
+
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
