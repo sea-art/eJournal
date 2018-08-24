@@ -31,17 +31,61 @@
                     <b-textarea class="theme-input" v-model="completeContent[i].data"></b-textarea><br>
                 </div>
                 <div v-else-if="field.type=='i'">
-                    <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br>
+                    <file-upload-input
+                        :placeholder="completeContent[i].data"
+                        :acceptedFiletype="'image/*'"
+                        :maxSizeBytes="$root.maxFileSizeBytes"
+                        :autoUpload="true"
+                        @fileUploadSuccess="completeContent[i].data = $event"
+                        :aID="$route.params.aID"
+                    />
                 </div>
                 <div v-else-if="field.type=='f'">
-                    <b-form-file v-model="completeContent[i].data" :state="Boolean(completeContent[i].data)" placeholder="Choose a file..."></b-form-file><br>
+                    <file-upload-input
+                        :placeholder="completeContent[i].data"
+                        :acceptedFiletype="'*/*'"
+                        :maxSizeBytes="$root.maxFileSizeBytes"
+                        :autoUpload="true"
+                        @fileUploadSuccess="completeContent[i].data = $event"
+                        :aID="$route.params.aID"
+                    />
                 </div>
+                <!--
+                    We use @input here instead of v-model so we can format the data differently (and make use of existing checks),
+                    and because it is not needed to reload the data into the input field upon editing
+                    (since it is an entire URL, replacement is preferable over editing).
+                -->
+                <div v-else-if="field.type=='v'">
+                    <b-input class="theme-input" @input="completeContent[i].data = youtubeEmbedFromURL($event)" placeholder="Enter YouTube URL..."></b-input><br>
+                </div>
+                <div v-else-if="field.type == 'p'">
+                    <file-upload-input
+                        :placeholder="completeContent[i].data"
+                        :acceptedFiletype="'application/pdf'"
+                        :maxSizeBytes="$root.maxFileSizeBytes"
+                        :autoUpload="true"
+                        @fileUploadSuccess="completeContent[i].data = $event"
+                        :aID="$route.params.aID"
+                    />
+                </div>
+                <div v-else-if="field.type == 'rt'">
+                    <text-editor
+                        :id="'rich-text-editor-' + i"
+                        :givenContent="completeContent[i].data"
+                        @content-update="completeContent[i].data = $event"
+                    />
+                </div>
+
             </div>
-            <b-button class="add-button float-right" @click="saveEdit">
+            <b-alert :show="dismissCountDown" dismissible variant="secondary"
+                @dismissed="dismissCountDown=0">
+                Some fields are empty or incorrectly formatted.
+            </b-alert>
+            <b-button class="add-button float-right mt-2" @click="saveEdit">
                 <icon name="save"/>
                 Save
             </b-button>
-            <b-button class="delete-button" @click="cancel">
+            <b-button class="delete-button mt-2" @click="cancel">
                 <icon name="ban"/>
                 Cancel
             </b-button>
@@ -69,13 +113,33 @@
                     <span class="show-enters">{{ completeContent[i].data }}</span><br>
                 </div>
                 <div v-else-if="field.type=='i'">
-                    {{ completeContent[i].data }}<br>
+                    <image-file-display
+                        :fileName="completeContent[i].data"
+                        :authorUID="$parent.journal.student.uID"
+                    />
                 </div>
                 <div v-else-if="field.type=='f'">
-                    {{ completeContent[i].data }}<br>
+                    <file-download-button
+                        :fileName="completeContent[i].data"
+                        :authorUID="$parent.journal.student.uID"
+                    />
                 </div>
+                <div v-else-if="field.type=='v'">
+                    <b-embed type="iframe"
+                             aspect="16by9"
+                             :src="completeContent[i].data"
+                             allowfullscreen
+                    ></b-embed><br>
+                </div>
+                <div v-else-if="field.type == 'p'">
+                    <pdf-display
+                        :fileName="completeContent[i].data"
+                        :authorUID="$parent.journal.student.uID"
+                    />
+                </div>
+                <div v-else-if="field.type == 'rt'" v-html="completeContent[i].data"/>
             </div>
-            <b-button v-if="entryNode.entry.editable" class="change-button float-right" @click="saveEdit">
+            <b-button v-if="entryNode.entry.editable" class="change-button float-right mt-2" @click="saveEdit">
                 <icon name="edit"/>
                 Edit
             </b-button>
@@ -87,6 +151,11 @@
 
 <script>
 import commentCard from '@/components/journal/CommentCard.vue'
+import fileUploadInput from '@/components/assets/file_handling/FileUploadInput.vue'
+import fileDownloadButton from '@/components/assets/file_handling/FileDownloadButton.vue'
+import imageFileDisplay from '@/components/assets/file_handling/ImageFileDisplay.vue'
+import pdfDisplay from '@/components/assets/PdfDisplay.vue'
+import textEditor from '@/components/assets/TextEditor.vue'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
@@ -96,7 +165,11 @@ export default {
             saveEditMode: 'Edit',
             tempNode: this.entryNode,
             matchEntry: 0,
-            completeContent: []
+            completeContent: [],
+
+            dismissSecs: 3,
+            dismissCountDown: 0,
+            showDismissibleAlert: false
         }
     },
     watch: {
@@ -112,9 +185,13 @@ export default {
     methods: {
         saveEdit: function () {
             if (this.saveEditMode === 'Save') {
-                this.saveEditMode = 'Edit'
-                this.tempNode.entry.content = this.completeContent
-                this.$emit('edit-node', this.tempNode)
+                if (this.checkFilled()) {
+                    this.saveEditMode = 'Edit'
+                    this.tempNode.entry.content = this.completeContent
+                    this.$emit('edit-node', this.tempNode)
+                } else {
+                    this.dismissCountDown = this.dismissSecs
+                }
             } else {
                 this.saveEditMode = 'Save'
                 this.completeContent = []
@@ -152,11 +229,35 @@ export default {
                     })
                 }
             }
+        },
+        checkFilled: function () {
+            for (var content of this.completeContent) {
+                if (!content.data) {
+                    return false
+                }
+            }
+
+            return true
+        },
+        // from https://stackoverflow.com/a/9102270
+        youtubeEmbedFromURL (url) {
+            var regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/
+            var match = url.match(regExp)
+            if (match && match[2].length === 11) {
+                return 'https://www.youtube.com/embed/' + match[2] + '?rel=0&amp;showinfo=0'
+            } else {
+                return null
+            }
         }
     },
     components: {
         'comment-card': commentCard,
-        'icon': icon
+        'pdf-display': pdfDisplay,
+        'file-upload-input': fileUploadInput,
+        'file-download-button': fileDownloadButton,
+        'image-file-display': imageFileDisplay,
+        'text-editor': textEditor,
+        icon
     }
 }
 </script>

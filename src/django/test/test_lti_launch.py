@@ -20,7 +20,7 @@ class lti_launch_test(TestCase):
         """Setup."""
         self.roles = json.load(open('../../config.json'))
 
-        self.created_user = factory.make_user('TestUser', 'Pass', lti_id='awefd')
+        self.created_user = factory.make_user('TestUser', 'Pass', "ltiTest@test.com", lti_id='awefd')
         self.created_course = factory.make_course('TestCourse', 'aaaa', lti_id='asdf')
 
         role = Role.objects.create(name='role', course=self.created_course)

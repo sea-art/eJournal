@@ -15,9 +15,10 @@ import jwt
 
 import VLE.lti_launch as lti
 import VLE.edag as edag
-import VLE.utils as utils
-from VLE.models import Assignment, Course, Journal, EntryTemplate, Comment, User, Node, \
-    Entry
+import VLE.utils.generic_utils as utils
+import VLE.utils.file_handling as file_handling
+from VLE.models import Assignment, Course, Journal, EntryTemplate, EntryComment, User, Node, \
+    Role, Entry, UserFile
 import VLE.serializers as serialize
 import VLE.permissions as permissions
 import VLE.views.responses as responses
@@ -37,269 +38,118 @@ FINISH_S = '5'
 GRADE_CENTER = '6'
 
 
-@api_view(['GET'])
-def get_unenrolled_users(request, cID):
-    """Get all users not connected to a given course.
+# @api_view(['GET'])
+# def get_unenrolled_users(request, cID):
+#     """Get all users not connected to a given course.
+#
+#     Arguments:
+#     request -- the request
+#     cID -- the course ID
+#
+#     Returns a json string with a list of participants.
+#     """
+#     user = request.user
+#     if not user.is_authenticated:
+#         return responses.unauthorized()
+#
+#     try:
+#         course = Course.objects.get(pk=cID)
+#     except Course.DoesNotExist:
+#         return responses.not_found('Course not found.')
+#
+#     role = permissions.get_role(user, course)
+#     if role is None:
+#         return responses.forbidden('You are not a participant of this course.')
+#     elif not role.can_view_course_participants:
+#         return responses.forbidden('You cannot view the participants in this course.')
+#
+#     ids_in_course = course.participation_set.all().values('user__id')
+#     result = User.objects.all().exclude(id__in=ids_in_course)
+#
+#     return responses.success(payload={'users': [serialize.user_to_dict(user) for user in result]})
+#
+#
+# def create_teacher_assignment_deadline(course, assignment):
+#     """Creates and returns the earliest deadline with data of an assignment
+#        from a teacher.
+#
+#     Arguments:
+#     coures -- the course save information in the dictionary
+#     cID -- the assignment to get the deadlines
+#
+#     Returns a dictionary with information of the assignment deadline.
+#     """
+#     journals = []
+#
+#     for journal in assignment.journal_set.all():
+#         journals.append(serialize.journal_to_dict(journal))
+#
+#     totalNeedsMarking = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
+#
+#     format = serialize.format_to_dict(assignment.format)
+#     if len(format['presets']) == 0:
+#         return {}
+#
+#     deadline_data = format['presets'][0]['deadline']
+#     splitted_deadline = deadline_data.split(' ')
+#     deadline = [splitted_deadline[0],
+#                 splitted_deadline[1].split(':')[0],
+#                 splitted_deadline[1].split(':')[1]]
+#     deadline = {'Date': deadline[0],
+#                 'Hours': deadline[1],
+#                 'Minutes': deadline[2]
+#                 }
+#
+#     return {'name': serialize.assignment_to_dict(assignment)['name'],
+#             'courseAbbr': course.abbreviation,
+#             'cID': course.id,
+#             'aID': assignment.id,
+#             'deadline': deadline,
+#             'totalNeedsMarking': totalNeedsMarking}
+#
+#
+# def create_student_assignment_deadline(user, course, assignment):
+#     """Creates and returns the earliest deadline with data of an assignment
+#        from a student.
+#
+#     Arguments:
+#     coures -- the course save information in the dictionary
+#     cID -- the assignment to get the deadlines
+#
+#     Returns a dictionary with information of the assignment deadline.
+#     """
+#     journal = {}
+#
+#     try:
+#         journal = Journal.objects.get(assignment=assignment, user=user)
+#     except Journal.DoesNotExist:
+#         return {}
+#
+#     deadlines = journal.node_set.exclude(preset=None).values('preset__deadline')
+#     if len(deadlines) == 0:
+#         return {}
+#
+#     # Gets the node with the earliest deadline
+#     future_deadlines = deadlines.filter(preset__deadline__gte=datetime.datetime.now()).order_by('preset__deadline')
+#
+#     if len(future_deadlines) == 0:
+#         return {}
+#
+#     future_deadline = future_deadlines[0]
+#
+#     future_deadline = {'Date': future_deadline['preset__deadline'].date(),
+#                        'Hours': future_deadline['preset__deadline'].hour,
+#                        'Minutes': future_deadline['preset__deadline'].minute}
+#
+#     return {'name': serialize.assignment_to_dict(assignment)['name'],
+#             'courseAbbr': course.abbreviation,
+#             'cID': course.id,
+#             'aID': assignment.id,
+#             'jID': journal.id,
+#             'deadline': future_deadline,
+#             'totalNeedsMarking': 0}
 
-    Arguments:
-    request -- the request
-    cID -- the course ID
 
-    Returns a json string with a list of participants.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        course = Course.objects.get(pk=cID)
-    except Course.DoesNotExist:
-        return responses.not_found('Course')
-
-    role = permissions.get_role(user, course)
-    if role is None:
-        return responses.forbidden('You are not in this course.')
-    elif not role.can_view_course_participants:
-        return responses.forbidden('You cannot view participants in this course.')
-
-    ids_in_course = course.participation_set.all().values('user__id')
-    result = User.objects.all().exclude(id__in=ids_in_course)
-
-    return responses.success(payload={'users': [serialize.user_to_dict(user) for user in result]})
-
-
-@api_view(['GET'])
-def get_assignment_journals(request, aID):
-    """Get the student submitted journals of one assignment.
-
-    Arguments:
-    request -- the request that was send with
-    aID -- the assignment ID to get the journals from
-
-    Returns a json string with the journals
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        assignment = Assignment.objects.get(pk=aID)
-    except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
-
-    if not permissions.has_assignment_permission(user, assignment, 'can_view_assignment_participants'):
-        return responses.forbidden('You are not allowed to view assignment participants.')
-
-    journals = []
-
-    for journal in assignment.journal_set.all():
-        journals.append(serialize.journal_to_dict(journal))
-
-    stats = {}
-    if journals:
-        # TODO: Maybe make this efficient for minimal delay?
-        stats['needsMarking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
-        points = [x['stats']['acquired_points'] for x in journals]
-        stats['avgPoints'] = round(st.mean(points), 2)
-
-    return responses.success(payload={'stats': stats if stats else None, 'journals': journals})
-
-
-@api_view(['GET'])
-def get_journal(request, jID):
-    """Get a student submitted journal.
-
-    Arguments:
-    request -- the request that was send with
-    jID -- the journal ID to get
-
-    Returns a journal.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        journal = Journal.objects.get(pk=jID)
-    except journal.DoesNotExist:
-        return responses.not_found('Journal')
-
-    if not (journal.user == user or permissions.has_assignment_permission(user, journal.assignment,
-                                                                          'can_view_assignment_participants')):
-        return responses.forbidden('You are not allowed to view this journal.')
-
-    return responses.success(payload={'journal': serialize.journal_to_dict(journal)})
-
-
-def create_teacher_assignment_deadline(course, assignment):
-    """Creates and returns the earliest deadline with data of an assignment
-       from a teacher.
-
-    Arguments:
-    coures -- the course save information in the dictionary
-    cID -- the assignment to get the deadlines
-
-    Returns a dictionary with information of the assignment deadline.
-    """
-    journals = []
-
-    for journal in assignment.journal_set.all():
-        journals.append(serialize.journal_to_dict(journal))
-
-    totalNeedsMarking = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
-
-    format = serialize.format_to_dict(assignment.format)
-    if len(format['presets']) == 0:
-        return {}
-
-    deadline_data = format['presets'][0]['deadline']
-    splitted_deadline = deadline_data.split(' ')
-    deadline = [splitted_deadline[0],
-                splitted_deadline[1].split(':')[0],
-                splitted_deadline[1].split(':')[1]]
-    deadline = {'Date': deadline[0],
-                'Hours': deadline[1],
-                'Minutes': deadline[2]
-                }
-
-    return {'name': serialize.assignment_to_dict(assignment)['name'],
-            'courseAbbr': course.abbreviation,
-            'cID': course.id,
-            'aID': assignment.id,
-            'deadline': deadline,
-            'totalNeedsMarking': totalNeedsMarking}
-
-
-def create_student_assignment_deadline(user, course, assignment):
-    """Creates and returns the earliest deadline with data of an assignment
-       from a student.
-
-    Arguments:
-    coures -- the course save information in the dictionary
-    cID -- the assignment to get the deadlines
-
-    Returns a dictionary with information of the assignment deadline.
-    """
-    journal = {}
-
-    try:
-        journal = Journal.objects.get(assignment=assignment, user=user)
-    except Journal.DoesNotExist:
-        return {}
-
-    deadlines = journal.node_set.exclude(preset=None).values('preset__deadline')
-    if len(deadlines) == 0:
-        return {}
-
-    # Gets the node with the earliest deadline
-    future_deadlines = deadlines.filter(preset__deadline__gte=datetime.datetime.now()).order_by('preset__deadline')
-
-    if len(future_deadlines) == 0:
-        return {}
-
-    future_deadline = future_deadlines[0]
-
-    future_deadline = {'Date': future_deadline['preset__deadline'].date(),
-                       'Hours': future_deadline['preset__deadline'].hour,
-                       'Minutes': future_deadline['preset__deadline'].minute}
-
-    return {'name': serialize.assignment_to_dict(assignment)['name'],
-            'courseAbbr': course.abbreviation,
-            'cID': course.id,
-            'aID': assignment.id,
-            'jID': journal.id,
-            'deadline': future_deadline,
-            'totalNeedsMarking': 0}
-
-
-@api_view(['GET'])
-def get_upcoming_course_deadlines(request, cID):
-    """Get upcoming deadlines for the requested user.
-
-    Arguments:
-    request -- the request that was send with
-    cID -- the course ID that was send with
-
-    Returns a json string with the course deadlines
-    """
-
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    deadline_list = []
-
-    try:
-        course = Course.objects.get(pk=cID)
-    except Course.DoesNotExist:
-        return responses.not_found('Course')
-
-    for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
-        role = permissions.get_role(user, course)
-
-        if role is None:
-            return responses.forbidden('You are not in this course.')
-
-        if role.can_grade_journal:
-            deadline = create_teacher_assignment_deadline(course, assignment)
-            if deadline:
-                deadline_list.append(deadline)
-        else:
-            deadline = create_student_assignment_deadline(user, course, assignment)
-            if deadline:
-                deadline_list.append(deadline)
-
-    return responses.success(payload={'deadlines': deadline_list})
-
-
-@api_view(['GET'])
-def get_course_permissions(request, cID):
-    """Get the permissions of a course.
-
-    Arguments:
-    request -- the request that was sent
-    cID     -- the course id (string)
-
-    """
-    if not request.user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        if int(cID) >= 0:
-            Course.objects.get(pk=cID)
-    except Course.DoesNotExist:
-        return responses.not_found('Course')
-
-    roleDict = permissions.get_permissions(request.user, int(cID))
-    if not roleDict:
-        return responses.forbidden('You are not participating in this course')
-
-    return responses.success(payload={'permissions': roleDict})
-
-
-@api_view(['GET'])
-def get_assignment_permissions(request, aID):
-    """Get the permissions of an assignment.
-
-    Arguments:
-    request -- the request that was sent
-    aID     -- the assignment id (string)
-
-    """
-    if not request.user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        if int(aID) >= 0:
-            Assignment.objects.get(pk=aID)
-    except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
-
-    roleDict = permissions.get_assignment_id_permissions(request.user, int(aID))
-    if not roleDict:
-        return responses.forbidden('You are not participating in any courses with this assignment')
-
-    return responses.success(payload={'permissions': roleDict})
 
 
 @api_view(['GET'])
@@ -319,7 +169,7 @@ def get_nodes(request, jID):
     try:
         journal = Journal.objects.get(pk=jID)
     except Journal.DoesNotExist:
-        return responses.not_found('Journal')
+        return responses.not_found('Journal not found.')
 
     if not (journal.user == user or permissions.has_assignment_permission(user,
             journal.assignment, 'can_view_assignment_participants')):
@@ -345,58 +195,12 @@ def get_format(request, aID):
     try:
         assignment = Assignment.objects.get(pk=aID)
     except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
+        return responses.not_found('Assignment not found.')
 
     if not (assignment.courses.all() & user.participations.all()):
         return responses.forbidden('You are not allowed to view this assignment.')
 
     return responses.success(payload={'format': serialize.format_to_dict(assignment.format)})
-
-
-@api_view(['POST'])
-def get_names(request):
-    """Get names of course, assignment, journal.
-
-    Arguments:
-    request -- the request that was sent
-        cID -- optionally the course id
-        aID -- optionally the assignment id
-        jID -- optionally the journal id
-
-    Returns a json string containing the names of the set fields.
-    cID populates 'course', aID populates 'assignment', tID populates
-    'template' and jID populates 'journal' with the users' name.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    cID, aID, jID = utils.optional_params(request.data, "cID", "aID", "jID")
-    result = {}
-
-    try:
-        if cID:
-            course = Course.objects.get(pk=cID)
-            role = permissions.get_role(user, course)
-            if role is None:
-                return responses.forbidden('You are not allowed to view this course.')
-            result['course'] = course.name
-        if aID:
-            assignment = Assignment.objects.get(pk=aID)
-            if not (assignment.courses.all() & user.participations.all()):
-                return responses.forbidden('You are not allowed to view this assignment.')
-            result['assignment'] = assignment.name
-        if jID:
-            journal = Journal.objects.get(pk=jID)
-            if not (journal.user == user or permissions.has_assignment_permission(user,
-                    journal.assignment, 'can_view_assignment_participants')):
-                return responses.forbidden('You are not allowed to view journals of other participants.')
-            result['journal'] = journal.user.first_name + " " + journal.user.last_name
-
-    except (Course.DoesNotExist, Assignment.DoesNotExist, Journal.DoesNotExist, EntryTemplate.DoesNotExist):
-        return responses.not_found('Course, Assignment, Journal or Template')
-
-    return responses.success(payload=result)
 
 
 @api_view(['GET'])
@@ -409,7 +213,7 @@ def get_entrycomments(request, eID):
     try:
         entry = Entry.objects.get(pk=eID)
     except Entry.DoesNotExist:
-        return responses.not_found('Entry')
+        return responses.not_found('Entry not found.')
 
     if not (entry.node.journal.user == user or permissions.has_assignment_permission(user,
             entry.node.journal.assignment, 'can_view_assignment_participants')):
@@ -424,39 +228,6 @@ def get_entrycomments(request, eID):
     return responses.success(payload={
         'entrycomments': [serialize.entrycomment_to_dict(comment) for comment in entrycomments]
         })
-
-
-# TODO: Check if this is necessery
-# @api_view(['GET'])
-# def get_user_data(request, uID):
-#     """Get the user data of the given user.
-#
-#     Get his/her profile data and posted entries with the titles of the journals of the user based on the uID.
-#     """
-#     if not request.user.is_authenticated:
-#         return responses.unauthorized()
-#
-#     user = User.objects.get(pk=uID)
-#
-#     # Check the right permissions to get this users data, either be the user of the data or be an admin.
-#     permission = permissions.get_permissions(user, cID=-1)
-#     if not (permission['is_superuser'] or request.user.id == uID):
-#         return responses.forbidden('You cannot view this users data.')
-#
-#     profile = serialize.user_to_dict(user)
-#     # Don't send the user id with it.
-#     del profile['uID']
-#
-#     journals = Journal.objects.filter(user=uID)
-#     journal_dict = {}
-#     for journal in journals:
-#         # Select the nodes of this journal but only the ones with entries.
-#         nodes_of_journal_with_entries = Node.objects.filter(journal=journal).exclude(entry__isnull=True)
-#         # Serialize all entries and put them into the entries dictionary with the assignment name key.
-#         entries_of_journal = [serialize.export_entry_to_dict(node.entry) for node in nodes_of_journal_with_entries]
-#         journal_dict.update({journal.assignment.name: entries_of_journal})
-#
-#     return responses.success(payload={'profile': profile, 'journals': journal_dict})
 
 
 # TODO: Test is current implementation in recieve in views/assignment.py works

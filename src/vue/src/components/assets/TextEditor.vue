@@ -1,15 +1,16 @@
 <!-- Custom wrapper for tinymce editor -->
 <!-- If more events are desired, here is an overview: https://www.tiny.cloud/docs/advanced/events/ -->
 
+<!-- TODO Text placeholder functionality (not working with a content inject when not required.) -->
+<!-- TODO displayInline functionality not compatible with launching the editor from a modal -->
+
 <template>
     <div class="editor-container">
-        <textarea :id="uID"/>
+        <textarea :id="id"/>
     </div>
 </template>
 
 <script>
-import userAPI from '@/api/user.js'
-
 // TODO Figure out why importing tinymce gives a warning transferred with MIME type 2x
 import tinymce from 'tinymce/tinymce'
 import 'tinymce/themes/modern/theme'
@@ -34,6 +35,7 @@ import 'tinymce/plugins/lists'
 import 'tinymce/plugins/nonbreaking'
 import 'tinymce/plugins/media'
 import 'tinymce/plugins/preview'
+import 'tinymce/plugins/paste'
 import 'tinymce/plugins/print'
 import 'tinymce/plugins/hr'
 import 'tinymce/plugins/searchreplace'
@@ -60,9 +62,19 @@ export default {
             default: false
         },
         /* Used to bind the editor to the components text area. */
-        uID: {
+        id: {
             type: String,
             required: true
+        },
+        givenContent: {
+            type: String,
+            default: ''
+        },
+        displayInline: {
+            default: false
+        },
+        footer: {
+            default: true
         }
     },
     data () {
@@ -70,9 +82,16 @@ export default {
             content: '',
             editor: null,
             config: {
-                selector: '#' + this.uID,
+                selector: '#' + this.id,
                 init_instance_callback: this.editorInit,
                 setup: this.editorSetup,
+
+                paste_data_images: true,
+                /* https://www.tiny.cloud/docs/configure/file-image-upload/#images_dataimg_filter
+                 * Disables conversion of base64 images into blobs, only used when pasting an image. */
+                images_dataimg_filter: function (img) {
+                    return img.hasAttribute('internal-blob')
+                },
 
                 menubar: true,
                 branding: false,
@@ -83,26 +102,29 @@ export default {
                 autosave_ask_before_unload: true,
                 autosave_interval: '10s',
                 autosave_restore_when_empty: true,
-                // autosave_retention: '30m',
 
                 /* Custom styling applied to the editor */
                 content_css: ['//fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700'],
+                content_style: `
+                    @import url('https://fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700');
+                    body {
+                        font-family: "Roboto Condensed"
+                    } `,
 
                 file_picker_types: 'image',
-                file_picker_callback: this.handleFilePicking,
-                images_upload_handler: this.handleImageUpload
+                file_picker_callback: this.insertDataURL
             },
             basicConfig: {
                 toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify | forecolor backcolor restoredraft | formatselect | bullist numlist | image media table | removeformat fullscreentoggle',
                 plugins: [
-                    'autoresize textcolor image lists wordcount autolink autosave',
+                    'autoresize paste textcolor image lists wordcount autolink autosave',
                     'table media fullscreen'
                 ]
             },
             extensiveConfig: {
                 toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify | forecolor backcolor | formatselect | bullist numlist | image media table | removeformat fullscreentoggle',
                 plugins: [
-                    'link media preview print hr lists advlist wordcount autolink autosave',
+                    'link media preview paste print hr lists advlist wordcount autolink autosave',
                     'autoresize code fullscreen image imagetools',
                     'textcolor searchreplace table toc'
                 ]
@@ -119,14 +141,27 @@ export default {
             }
         }
     },
+    watch: {
+        content: function (newVal) { this.$emit('content-update', this.content) }
+    },
     methods: {
         editorInit (editor) {
             var vm = this
             this.editor = editor
 
-            editor.on('init', (e) => {
-                editor.setContent(this.content)
-            })
+            /* Set default font in the editor instance */
+            editor.execCommand('fontName', false, 'roboto condensed')
+
+            this.content = this.givenContent
+            /* set content resets the default font for some reason */
+            editor.setContent(this.givenContent)
+
+            /* Set default font in the editor instance */
+            editor.execCommand('fontName', false, 'roboto condensed')
+
+            if (this.displayInline) {
+                this.setupInlineDisplay(editor)
+            }
 
             editor.on('Change', (e) => {
                 vm.content = this.editor.getContent()
@@ -151,24 +186,51 @@ export default {
                     })
                 }
             })
+        },
+        setupInlineDisplay (editor) {
+            /* Disables auto focus of the editor. */
+            editor.execCommand('mceInlineCommentIsDirty', false, {skip_focus: true})
 
-            /* Set default font in the editor instance */
-            editor.on('init', function (e) {
-                editor.execCommand('fontName', false, 'roboto condensed')
+            editor.theme.panel.find('toolbar')[0].$el.hide()
+            editor.theme.panel.find('menubar')[0].$el.hide()
+            editor.theme.panel.find('#statusbar')[0].$el.hide()
+
+            editor.on('focus', function () {
+                editor.theme.panel.find('menubar')[0].$el.show()
+                editor.theme.panel.find('toolbar')[0].$el.show()
+                editor.theme.panel.find('#statusbar')[0].$el.show()
+            })
+
+            editor.on('blur', function () {
+                editor.theme.panel.find('menubar')[0].$el.hide()
+                editor.theme.panel.find('toolbar')[0].$el.hide()
+                editor.theme.panel.find('#statusbar')[0].$el.hide()
             })
         },
-        handleImageUpload (blobInfo, success, failure) {
-            let formData = new FormData()
-            formData.append('file', blobInfo.blob())
+        insertDataURL () {
+            var input = document.createElement('input')
+            input.setAttribute('type', 'file')
+            input.setAttribute('accept', 'image/*')
+            var vm = this
 
-            // TODO Create proper backend structure for serving files, this solution is dirty and should be treated as a proof of concept. */
-            userAPI.updateImage(formData)
-                .then(response => {
-                    let fullFilePath = response.data.result.location
-                    let staticPath = fullFilePath.match(/static\/.*(\..*)$/)[0]
-                    success('../../../' + staticPath)
-                })
-                .catch(_ => { this.$toasted.error('Something went wrong while uploading your requested image.') })
+            input.onchange = function () {
+                var files = this.files
+                if (!files.length) { return }
+
+                var file = files[0]
+                if (files[0].size > vm.$root.maxFileSizeBytes) {
+                    this.$toasted.error('The selected image exceeds the maximum file size of ' + vm.$root.maxFileSizeBytes + ' bytes.')
+                    return
+                }
+
+                var reader = new FileReader()
+                reader.onload = function () {
+                    var dataURL = reader.result
+                    vm.editor.insertContent('<img src="' + dataURL + '"/>')
+                }
+                reader.readAsDataURL(file)
+            }
+            input.click()
         },
         handleFilePicking (cb, value, meta) {
             /* Client side allows for handling of files more than image types, which a plugin aslo handles.
@@ -195,7 +257,6 @@ export default {
                 }
                 reader.readAsDataURL(file)
             }
-
             input.click()
         },
         setCustomColors () {
@@ -247,6 +308,8 @@ export default {
         }
     },
     mounted () {
+        this.config.statusbar = this.footer
+
         if (this.basic) {
             this.setBasicConfig()
         } else {
@@ -273,8 +336,13 @@ export default {
 
 <style lang="sass">
 .editor-container
-    padding: 0px 3px
+    padding-right: 1px
+    width: 100%
 
 .mce-fullscreen
     padding-top: 70px
+
+// Assume we're in a modal
+form .mce-fullscreen
+    padding-top: 0px
 </style>

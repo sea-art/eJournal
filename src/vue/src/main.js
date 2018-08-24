@@ -37,6 +37,8 @@ import 'vue-awesome/icons/link'
 import 'vue-awesome/icons/envelope'
 import 'vue-awesome/icons/home'
 import 'vue-awesome/icons/calendar'
+import 'vue-awesome/icons/question'
+import 'vue-awesome/icons/spinner'
 
 import Toasted from 'vue-toasted'
 
@@ -55,7 +57,8 @@ new Vue({
         assignmentPermissions: {},
         validToken: false,
         previousPage: null,
-        windowWidth: 0
+        windowWidth: 0,
+        maxFileSizeBytes: 2097152
     },
     mounted () {
         this.$nextTick(function () {

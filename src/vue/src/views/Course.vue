@@ -97,18 +97,20 @@ export default {
         'progress-bar': progressBar,
         'main-card': mainCard,
         'create-assignment': createAssignment,
-        'icon': icon
+        icon
     },
     created () {
         this.loadAssignments()
 
         auth.get('assignments/upcomming', { cID: this.cID })
-            .then(response => { this.deadlines = response })
+            .then(deadlines => { this.deadlines = deadlines })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         loadAssignments () {
             auth.get('assignments', { cID: this.cID })
-                .then(response => { this.assignments = response })
+                .then(assignments => { this.assignments = assignments })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         showModal (ref) {
             this.$refs[ref].show()

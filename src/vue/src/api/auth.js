@@ -1,6 +1,6 @@
 import connection from '@/api/connection'
+import statuses from '@/utils/status_codes.js'
 import router from '@/router'
-import Vue from 'vue'
 
 /* Utility function to get the Authorization header with
  * the JWT token.
@@ -34,42 +34,31 @@ function refresh (error) {
         throw error
     }
 }
-// TODO: Change back to false
-function handleResponse (response, noRedirect = true) {
-    response = response.response
-    if (response.status === 401) { // Unauthorized
-        if (!noRedirect) {
-            router.push({name: 'Login'})
-        }
-    } else if (response.status === 403 || // Forbidden
-          response.status === 404) { // Not found)
-        if (!noRedirect) {
-            Vue.toasted.error(response.data.result + ': ' + response.data.description)
-            router.push({name: 'ErrorPage',
-                params: {
-                    code: response.status,
-                    message: response.data.result,
-                    description: response.data.description
-                }
-            })
-        }
-    } else if (response.status === 500) { // Internal server error
-        if (!noRedirect) {
-            Vue.toasted.error(response.data.result + ': ' + response.data.description)
-            router.push({name: 'ErrorPage',
-                params: {
-                    code: response.status,
-                    message: 'Internal Server Error',
-                    description: response.data.description
-                }
-            })
-        }
-    } else if (response.status === 400) { // Bad request
-        if (response.data.description) {
-            Vue.toasted.error(response.data.result + ': ' + response.data.description)
-        } else {
-            Vue.toasted.error(response.data.result)
-        }
+
+/*
+ * Redirects the following unsuccessfull request responses:
+ * UNAUTHORIZED to Login.
+ * FORBIDDEN, NOT_FOUND, INTERNAL_SERVER_ERROR to Error page.
+ *
+ * If nothing is matched or no redirect is True, the response is thrown and further promise handling should take place.
+ * This because this is generic response handling, and we dont know what should happen in case of an error.
+ */
+function handleError (error, noRedirect = false) {
+    const response = error.response
+    const status = response.status
+
+    if (!noRedirect && status === statuses.UNAUTHORIZED) {
+        router.push({name: 'Login'})
+    } else if (!noRedirect && (status === statuses.FORBIDDEN || status === statuses.NOT_FOUND || status === statuses.INTERNAL_SERVER_ERROR)) {
+        router.push({name: 'ErrorPage',
+            params: {
+                code: status,
+                reasonPhrase: response.statusText,
+                description: response.data.description ? response.data.description : ''
+            }
+        })
+    } else {
+        throw error
     }
     throw response
 }
@@ -103,9 +92,33 @@ export default {
         router.app.validToken = false
     },
 
+    /* Create a user and add it to the database. */
+    register (username, password, firstname, lastname, email, jwtParams = null) {
+        return connection.conn.post('/create_lti_user/', {
+            username: username,
+            password: password,
+            first_name: firstname,
+            last_name: lastname,
+            email: email,
+            jwt_params: jwtParams
+        })
+            .then(response => { return response.data.user })
+    },
+
     /* Change password. */
     changePassword (newPassword, oldPassword) {
         return this.patch('/users/password', { new_password: newPassword, old_password: oldPassword })
+    },
+
+    /* Forgot password.
+     * Checks if a user is known by the given email or username. Sends an email with a link to reset the password. */
+    forgotPassword (username, email) {
+        return connection.conn.post('/forgot_password/', {username: username, email: email})
+    },
+
+    /* Recover password */
+    recoverPassword (username, recoveryToken, newPassword) {
+        return connection.conn.post('/recover_password/', {username: username, recovery_token: recoveryToken, new_password: newPassword})
     },
 
     /* Check if the stored token is valid. */
@@ -134,28 +147,25 @@ export default {
             url = url.slice(0, -1)
         }
         return connection.conn.get(url, getAuthorizationHeader())
-            .then(response => response.data.result)
             .catch(error => refresh(error)
                 .then(_ => connection.conn.post(url, getAuthorizationHeader())))
-            .catch(error => handleResponse(error, noRedirect))
+            .catch(error => handleError(error, noRedirect))
     },
     create (url, data, noRedirect = false) {
         if (url[0] !== '/') url = '/' + url
         if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
         return connection.conn.post(url, data, getAuthorizationHeader())
-            .then(response => response.data)
             .catch(error => refresh(error)
                 .then(_ => connection.conn.post(url, data, getAuthorizationHeader())))
-            .catch(error => handleResponse(error, noRedirect))
+            .catch(error => handleError(error, noRedirect))
     },
     update (url, data, noRedirect = false) {
         if (url[0] !== '/') url = '/' + url
         if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
         return connection.conn.patch(url, data, getAuthorizationHeader())
-            .then(response => response.data)
             .catch(error => refresh(error)
                 .then(_ => connection.conn.patch(url, data, getAuthorizationHeader())))
-            .catch(error => handleResponse(error, noRedirect))
+            .catch(error => handleError(error, noRedirect))
     },
     delete (url, data = null, noRedirect = false) {
         if (url[0] !== '/') url = '/' + url
@@ -166,15 +176,14 @@ export default {
             url = url.slice(0, -1)
         }
         return connection.conn.delete(url, getAuthorizationHeader())
-            .then(response => response.data)
             .catch(error => refresh(error)
                 .then(_ => connection.conn.delete(url, getAuthorizationHeader())))
-            .catch(error => handleResponse(error, noRedirect))
+            .catch(error => handleError(error, noRedirect))
     },
     uploadFile (url, data, noRedirect = false) {
         return connection.connFile.post(url, data, getAuthorizationHeader())
             .catch(error => refresh(error)
                 .then(_ => connection.connFile.post(url, data, getAuthorizationHeader())))
-            .catch(error => handleResponse(error, noRedirect))
+            .catch(error => handleError(error, noRedirect))
     }
 }

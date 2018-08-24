@@ -11,7 +11,7 @@
                     </b-form-select>
                 </b-col>
                 <b-col sm="6">
-                    <input class="theme-input multi-form full-width" type="text" v-model="searchVariable" placeholder="Search .."/>
+                    <input class="theme-input multi-form full-width" type="text" v-model="searchVariable" placeholder="Search..."/>
                 </b-col>
             </b-row>
             <b-button
@@ -85,8 +85,8 @@ export default {
         'student-card': studentCard,
         'statistics-card': statisticsCard,
         'bread-crumb': breadCrumb,
-        'store': store,
-        'icon': icon,
+        store,
+        icon,
         'main-card': mainCard
     },
     created () {
@@ -98,10 +98,11 @@ export default {
             }
         }
         auth.get('assignments/' + this.aID)
-            .then(response => {
-                this.assignmentJournals = response.journals
-                this.stats = response.stats
+            .then(data => {
+                this.assignmentJournals = data.journals
+                this.stats = data.stats
             })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
 
         if (this.$route.query.sort === 'sortFullName' ||
             this.$route.query.sort === 'sortUsername' ||
@@ -169,8 +170,8 @@ export default {
             }
 
             function compareUsername (a, b) {
-                if (a.student.name < b.student.name) { return -1 }
-                if (a.student.name > b.student.name) { return 1 }
+                if (a.student.username < b.student.username) { return -1 }
+                if (a.student.username > b.student.username) { return 1 }
                 return 0
             }
 

@@ -48,10 +48,11 @@ export default {
     methods: {
         onSubmit () {
             auth.create('courses', this.form)
-                .then(response => {
+                .then(course => {
                     this.onReset(undefined)
-                    this.$emit('handleAction', response.id)
+                    this.$emit('handleAction', course.id)
                 })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         onReset (evt) {
             if (evt !== undefined) {
@@ -82,7 +83,7 @@ export default {
         }
     },
     components: {
-        'icon': icon
+        icon
     }
 }
 </script>

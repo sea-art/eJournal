@@ -29,7 +29,7 @@ export default {
     props: ['lti', 'page'],
     components: {
         'create-assignment': createAssignment,
-        'icon': icon
+        icon
     },
     methods: {
         signal (msg) {

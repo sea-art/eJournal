@@ -10,45 +10,19 @@ from django.utils.timezone import now
 
 import VLE.serializers as serialize
 import VLE.factory as factory
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
+import VLE.utils.email_handling as email_handling
 from VLE.models import User, Journal, EntryTemplate, Node, Assignment, Field, Entry, Content, Course
 import VLE.edag as edag
 import VLE.lti_grade_passback as lti_grade
+import VLE.validators as validators
 
 import VLE.views.responses as responses
 import VLE.permissions as permissions
 
-@api_view(['POST'])
-def create_journal(request):
-    """Create a new journal.
-
-    Arguments:
-    request -- the request that was send with
-    aID -- the assignment id
-
-    On success, returns a json string containing the journal.
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    try:
-        [aID] = utils.required_params(request.data, "aID")
-    except KeyError:
-        return responses.keyerror("aID")
-
-    role = permissions.get_assignment_id_permissions(user, aID)
-
-    if role == {}:
-        return responses.forbidden("You have no permissions within this course.")
-    elif not role["can_edit_journal"]:
-        return responses.forbidden("You have no permissions to create a journal.")
-
-    assignment = Assignment.objects.get(pk=aID)
-    journal = factory.make_journal(assignment, request.user)
-
-    return responses.created(payload={'journal': serialize.journal_to_dict(journal)})
-
+import jwt
+import json
+from django.conf import settings
 
 @api_view(['POST'])
 @parser_classes([JSONParser])
@@ -149,7 +123,7 @@ def create_entrycomment(request):
         entry = Entry.objects.get(pk=eID)
         assignment = Assignment.objects.get(journal__node__entry=entry)
     except (User.DoesNotExist, Entry.DoesNotExist):
-        return responses.not_found('User or Entry')
+        return responses.not_found('User or Entry does not exist.')
 
     if not (author == user):
         return responses.forbidden('You are not allowed to write comments for others.')

@@ -109,6 +109,7 @@ def select_create_user(request, roles):
         user.set_password('pass')
         if 'lis_person_contact_email_primary' in request:
             user.email = request['lis_person_contact_email_primary']
+            user.verified_email = True
 
         if 'lis_person_sourcedid' in request:
             user.username = request['lis_person_sourcedid']

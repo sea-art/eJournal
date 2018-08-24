@@ -43,15 +43,18 @@ export default {
     data () {
         return {
             fieldTypes: {
-                'i': 'Image',
                 't': 'Text',
-                'f': 'File'
+                'rt': 'Rich Text',
+                'i': 'Image',
+                'p': 'PDF',
+                'f': 'File',
+                'v': 'YouTube Video'
             }
         }
     },
     components: {
         'content-single-column': ContentSingleColumn,
-        'icon': icon,
+        icon,
         'draggable': draggable
     },
     methods: {

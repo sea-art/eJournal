@@ -9,6 +9,7 @@ import Course from '@/views/Course'
 import Profile from '@/views/Profile'
 import Guest from '@/views/Guest'
 import Login from '@/views/Login'
+import PasswordRecovery from '@/views/PasswordRecovery'
 import Register from '@/views/Register'
 import LtiLaunch from '@/views/LtiLaunch'
 import AssignmentsOverview from '@/views/AssignmentsOverview'
@@ -19,6 +20,7 @@ import UserRoleConfiguration from '@/views/UserRoleConfiguration'
 import FormatEdit from '@/views/FormatEdit'
 import LtiLogin from '@/views/LtiLogin'
 import Logout from '@/views/Logout'
+import EmailVerification from '@/views/EmailVerification'
 
 import auth from '@/api/auth.js'
 
@@ -42,6 +44,16 @@ var router = new Router({
         path: '/Login',
         name: 'Login',
         component: Login
+    }, {
+        path: '/PasswordRecovery/:username/:recoveryToken',
+        name: 'PasswordRecovery',
+        component: PasswordRecovery,
+        props: true
+    }, {
+        path: '/EmailVerification/:token',
+        name: 'EmailVerification',
+        component: EmailVerification,
+        props: true
     }, {
         path: '/Register',
         name: 'Register',
@@ -133,7 +145,7 @@ router.beforeEach((to, from, next) => {
                 .then(_ => next({name: 'Home'}))
                 .catch(_ => next())
         }
-    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage'].includes(to.name)) {
+    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage', 'PasswordRecovery', 'EmailVerification'].includes(to.name)) {
         return next()
     }
 

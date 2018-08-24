@@ -1,20 +1,20 @@
 <template>
     <content-single-column>
-        <profile-card slot="main-content-column"
-            :uname="profile.username"
-            :first="profile.first_name"
-            :last="profile.last_name"
-            :image="profile.profile_picture"
-            :id="profile.id"
-            :gradeUpdate="profile.grade_notifications"
-            :commentUpdate="profile.comment_notifications" />
+        <bread-crumb>&nbsp;</bread-crumb>
+        <b-card v-if="userData" class="no-hover blue-border">
+            <profile-data :userData="userData"/>
+            <notification-card :userData="userData"/>
+            <password-card/>
+        </b-card>
     </content-single-column>
 </template>
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import profileData from '@/components/profile/ProfileData.vue'
+import notificationCard from '@/components/profile/NotificationCard.vue'
+import passwordCard from '@/components/profile/PasswordCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import profileCard from '@/components/profile/ProfileCard.vue'
 
 import auth from '@/api/auth.js'
 
@@ -22,22 +22,20 @@ export default {
     name: 'Profile',
     data () {
         return {
-            profile: null
+            userData: null
         }
     },
     components: {
         'content-single-column': contentSingleColumn,
         'bread-crumb': breadCrumb,
-        'profile-card': profileCard
-    },
-    methods: {
-        customisePage () {
-            this.$toasted.info('Wishlist: Customise page')
-        }
+        'profile-data': profileData,
+        'notification-card': notificationCard,
+        'password-card': passwordCard
     },
     created () {
         auth.get('users/0')
-            .then(user => { this.profile = user })
+            .then(userData => { this.userData = userData })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
     }
 }
 </script>

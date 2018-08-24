@@ -34,9 +34,31 @@
                     <span class="show-enters">{{ completeContent[i].data }}</span><br><br>
                 </div>
                 <div v-else-if="field.type=='i'">
+                    <image-file-display
+                        :fileName="completeContent[i].data"
+                        :authorUID="$parent.journal.student.uID"
+                    />
                 </div>
                 <div v-else-if="field.type=='f'">
+                    <file-download-button
+                        :fileName="completeContent[i].data"
+                        :authorUID="$parent.journal.student.uID"
+                    />
                 </div>
+                <div v-else-if="field.type=='v'">
+                    <b-embed type="iframe"
+                             aspect="16by9"
+                             :src="completeContent[i].data"
+                             allowfullscreen
+                    ></b-embed><br>
+                </div>
+                <div v-else-if="field.type == 'p'">
+                    <pdf-display
+                        :fileName="completeContent[i].data"
+                        :authorUID="$parent.journal.student.uID"
+                    />
+                </div>
+                <div v-else-if="field.type == 'rt'" v-html="completeContent[i].data"/>
             </div>
         </b-card>
 
@@ -50,6 +72,9 @@
 
 <script>
 import commentCard from '@/components/journal/CommentCard.vue'
+import pdfDisplay from '@/components/assets/PdfDisplay.vue'
+import fileDownloadButton from '@/components/assets/file_handling/FileDownloadButton.vue'
+import imageFileDisplay from '@/components/assets/file_handling/ImageFileDisplay.vue'
 import journalApi from '@/api/journal.js'
 import icon from 'vue-awesome/components/Icon'
 
@@ -128,9 +153,7 @@ export default {
                             this.$toasted.success('Grade updated and published.')
                             this.$emit('check-grade')
                         })
-                        .catch(_ => {
-                            this.$toasted.error('Something went wrong with updating the grade.')
-                        })
+                        .catch(error => { this.$toasted.error(error.response.data.description) })
                 } else {
                     journalApi.update_grade_entry(this.entryNode.entry.eID,
                         this.grade, 0)
@@ -138,16 +161,17 @@ export default {
                             this.$toasted.success('Grade updated but not published.')
                             this.$emit('check-grade')
                         })
-                        .catch(_ => {
-                            this.$toasted.error('Something went wrong with updating the grade.')
-                        })
+                        .catch(error => { this.$toasted.error(error.response.data.description) })
                 }
             }
         }
     },
     components: {
         'comment-card': commentCard,
-        'icon': icon
+        'file-download-button': fileDownloadButton,
+        'pdf-display': pdfDisplay,
+        'image-file-display': imageFileDisplay,
+        icon
     }
 }
 </script>

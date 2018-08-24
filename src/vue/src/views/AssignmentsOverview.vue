@@ -13,7 +13,7 @@
                         </b-form-select>
                     </b-col>
                     <b-col sm="6">
-                        <input class="theme-input full-width" type="text" v-model="searchVariable" placeholder="Search .."/>
+                        <input class="theme-input full-width" type="text" v-model="searchVariable" placeholder="Search..."/>
                     </b-col>
                 </b-row>
         </b-card>
@@ -53,10 +53,8 @@ export default {
     },
     created () {
         assignmentApi.get_upcoming_deadlines()
-            .then(response => {
-                this.deadlines = response
-            })
-            .catch(_ => this.$toasted.error('Error while loading deadlines'))
+            .then(deadlines => { this.deadlines = deadlines })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     components: {
         'content-single-column': contentSingleColumn,
