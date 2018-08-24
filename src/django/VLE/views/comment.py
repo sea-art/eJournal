@@ -104,7 +104,7 @@ class CommentView(viewsets.ViewSet):
             entry = Entry.objects.get(pk=eID)
             assignment = Assignment.objects.get(journal__node__entry=entry)
         except (User.DoesNotExist, Entry.DoesNotExist):
-            return response.not_found('User or Entry')
+            return response.not_found('User or Entry does not exist.')
 
         if author is not request.user:
             return response.forbidden('You are not allowed to write comments for others.')
