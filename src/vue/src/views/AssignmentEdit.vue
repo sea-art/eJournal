@@ -38,9 +38,10 @@
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import textEditor from '@/components/assets/TextEditor.vue'
+
 import store from '@/Store'
 import icon from 'vue-awesome/components/Icon'
-import auth from '@/api/auth'
+import assignmentAPI from '@/api/assignment'
 
 export default {
     name: 'AssignmentEdit',
@@ -59,15 +60,13 @@ export default {
         }
     },
     created () {
-        auth.get('assignments/' + this.aID)
-            .then(assignment => {
-                this.assignment = assignment
-            })
+        assignmentAPI.get(this.aID)
+            .then(assignment => { this.assignment = assignment })
             .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         onSubmit (evt) {
-            auth.update('assignments/' + this.aID, this.assignment)
+            assignmentAPI.update(this.aID, this.assignment)
                 .then(assignment => {
                     this.assignment = assignment
                     this.$toasted.success('Updated assignment.')
@@ -77,7 +76,7 @@ export default {
         },
         deleteAssignment () {
             if (confirm('Are you sure you want to delete ' + this.assignment.name + '?')) {
-                auth.delete('assignments/' + this.aID, { cID: this.cID })
+                assignmentAPI.delete(this.aID, this.cID)
                     .then(_ => {
                         this.$router.push({name: 'Course',
                             params: {

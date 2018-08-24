@@ -111,7 +111,7 @@ class AssignmentView(viewsets.ViewSet):
         role = permissions.get_role(request.user, course_id)
         if role is None:
             return response.forbidden("You have no access to this course.")
-        elif not role['can_add_assignment']:
+        elif not role.can_add_assignment:
             return response.forbidden('You have no permissions to create an assignment.')
 
         assignment = factory.make_assignment(name, description, course_ids=[course_id],

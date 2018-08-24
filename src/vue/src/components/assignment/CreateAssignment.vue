@@ -26,7 +26,7 @@ import ContentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import textEditor from '@/components/assets/TextEditor.vue'
 import icon from 'vue-awesome/components/Icon'
 
-import auth from '@/api/auth.js'
+import assignmentAPI from '@/api/assignment'
 
 export default {
     name: 'CreateAssignment',
@@ -50,10 +50,10 @@ export default {
     methods: {
         // TODO: Reload assignments & close modal after creations.
         onSubmit () {
-            auth.create('assignments', {
+            assignmentAPI.create({
                 name: this.form.assignmentName,
                 description: this.form.assignmentDescription,
-                cID: this.form.courseID,
+                course_id: this.form.courseID,
                 lti_id: this.form.ltiAssignID,
                 points_possible: this.form.pointsPossible
             })
