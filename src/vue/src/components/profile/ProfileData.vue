@@ -1,94 +1,118 @@
 <template>
     <b-row>
         <b-col md="5" sm="12" class="text-center">
-            <img class="profile-portrait" :src="profileImage">
+            <div class="profile-portrait small-shadow">
+                <img :src="profileImageDataURL">
+                <!-- TODO Add cropping tool to help with the square aspect ratio Croppa seems most active and a solid choice -->
+                <b-button @click="$refs.file.click()">
+                    <icon name="upload"/>
+                    Upload
+                </b-button>
+                <input
+                    class="fileinput"
+                    @change="fileHandler"
+                    ref="file"
+                    accept="image/*"
+                    style="display: none"
+                    type="file"/>
+            </div>
         </b-col>
         <b-col md="7" sm="12">
-            <h2 class="mb-2">User data</h2>
-            <b-form-input class="theme-input" v-model="username" type="text"/>
-            <b-form-input class="theme-input" v-model="first_name" type="text"/>
-            <b-form-input class="theme-input" v-model="last_name" type="text"/>
-            <b-form-file
-                ref="file"
-                accept="image/*"
-                class="fileinput"
-                @change="fileHandler"
-                v-model="file"
-                :state="Boolean(file)"
-                placeholder="Change picture"/>
+            <h2 class="mb-2">User details</h2>
+            <b-form-input :readonly="true" class="theme-input multi-form" v-model="userData.username" type="text"/>
+            <b-form-input :readonly="(userData.lti_id) ? true : false" class="theme-input multi-form" v-model="userData.first_name" type="text"/>
+            <b-form-input :readonly="(userData.lti_id) ? true : false" class="theme-input multi-form" v-model="userData.last_name" type="text"/>
 
-            <b-button class="add-button" @click="saveUserdata">Save</b-button>
-            <b-button>Download Data</b-button>
+            <email :userData="userData"/>
+
+            <b-button v-if="!userData.lti_id" class="add-button multi-form float-right" @click="saveUserdata">
+                <icon name="save"/>
+                Save
+            </b-button>
+            <b-button class="multi-form" @click="downloadUserData">
+                <icon name="download"/>
+                Download Data
+            </b-button>
         </b-col>
     </b-row>
 </template>
 
 <script>
+import userAPI from '@/api/user.js'
+import icon from 'vue-awesome/components/Icon'
+import email from '@/components/profile/Email.vue'
+import dataHandling from '@/utils/data_handling.js'
+
 import auth from '@/api/auth.js'
 
 export default {
-    props: ['username', 'first_name', 'last_name', 'id', 'image'],
+    props: ['userData'],
+    components: {
+        icon,
+        email
+    },
     data () {
         return {
             file: null,
-            profileImage: null
+            profileImageDataURL: null,
+            showEmailValidationInput: true,
+            emailVerificationToken: null,
+            emailVerificationTokenMessage: null
         }
     },
     methods: {
         saveUserdata () {
-            auth.update('users/' + this.id, {
-                username: this.username,
-                first_name: this.first_name,
-                last_name: this.last_name
-            })
-                .then(response => this.$toasted.success(response.description))
+            auth.update('users/' + this.userData.id, this.userData)
+                .then(_ => { this.$toasted.success('Saved profile data') })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         fileHandler (e) {
             let files = e.target.files
+
             if (!files.length) { return }
+            if (files[0].size > this.$root.maxFileSizeBytes) {
+                this.$toasted.error('The profile picture exceeds the maximum file size of ' + this.$root.maxFileSizeBytes + ' bytes.')
+                return
+            }
 
-            this.file = files[0]
-
-            let formData = new FormData()
-            formData.append('file', this.file)
-
-            // userAPI.updateProfilePicture(formData)
-            //     .then(_ => { this.setClientProfilePicture(this.file) })
-            //     .catch(_ => { this.$toasted.error('Something went wrong while uploading your profile picture.') })
-        },
-        setClientProfilePicture (imageFile) {
-            var reader = new FileReader()
             var vm = this
 
-            reader.onload = (e) => {
-                vm.profileImage = e.target.result
+            var reader = new FileReader()
+            reader.onload = () => {
+                var dataURL = reader.result
+
+                var img = new Image()
+                img.onload = () => {
+                    if (img.width !== img.height) {
+                        this.$toasted.error('Please submit a square image.')
+                    } else {
+                        userAPI.updateProfilePictureBase64(dataURL)
+                            .then(_ => { vm.profileImageDataURL = dataURL })
+                            .catch(error => { this.$toasted.error(error.response.data.description) })
+                    }
+                }
+                img.src = dataURL
             }
-            reader.readAsDataURL(imageFile)
+            reader.readAsDataURL(files[0])
+        },
+        downloadUserData () {
+            auth.get('user/' + this.userData.id + '/download')
+                .then(response => {
+                    let blob = new Blob([dataHandling.base64ToArrayBuffer(response.data)], { type: response.headers['content-type'] })
+                    let link = document.createElement('a')
+                    link.href = window.URL.createObjectURL(blob)
+                    link.download = /filename=(.*)/.exec(response.headers['content-disposition'])[1]
+                    link.click()
+                }, error => {
+                    this.$toasted.error(error.response.data.description)
+                })
+                .catch(_ => {
+                    this.$toasted.error('Error creating file.')
+                })
         }
-        // downloadUserData () {
-        //     userAPI.getUserData(this.id).then(data => {
-        //         /* This is a way to download data. */
-        //         /* Stringify the data and create a data blob of it. */
-        //         data = JSON.stringify(data)
-        //         const blob = new Blob([data], {type: 'text/plain'})
-        //
-        //         /* Create a link to download the data and bind the data to it. */
-        //         var downloadElement = document.createElement('a')
-        //         downloadElement.download = 'userdata_of_' + this.uname + '.json'
-        //         downloadElement.href = window.URL.createObjectURL(blob)
-        //         downloadElement.dataset.downloadurl = ['text/json',
-        //             downloadElement.download, downloadElement.href].join(':')
-        //
-        //         /* Create a click event and click on the download link to download the code. */
-        //         const clickEvent = document.createEvent('MouseEvents')
-        //         clickEvent.initEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null)
-        //         downloadElement.dispatchEvent(clickEvent)
-        //     })
-        //         .then(response => this.$toasted.success(response.description))
-        // }
     },
-    created () {
-        this.profileImage = this.image
+    mounted () {
+        this.profileImageDataURL = this.userData.picture
     }
 }
 </script>

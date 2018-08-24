@@ -3,12 +3,13 @@ extra.py.
 
 In this file are all the extra api requests.
 This includes:
-    names -- to get the names belonging to the ids
+    /names/ -- to get the names belonging to the ids
 """
 from rest_framework.decorators import api_view
 import VLE.views.responses as response
 from VLE.models import Course, Journal, Assignment, EntryTemplate
 import VLE.permissions as permissions
+import VLE.utils.generic_utils as utils
 
 
 @api_view(['GET'])
@@ -28,21 +29,22 @@ def names(request, cID, aID, jID):
     if not request.user.is_authenticated:
         return response.unauthorized()
 
+    cID, aID, jID = utils.optional_params(request.data, "cID", "aID", "jID")
     result = {}
 
     try:
-        if int(cID) is not 0:
+        if cID:
             course = Course.objects.get(pk=cID)
             role = permissions.get_role(request.user, course)
             if role is None:
                 return response.forbidden('You are not allowed to view this course.')
             result['course'] = course.name
-        if int(aID) is not 0:
+        if aID:
             assignment = Assignment.objects.get(pk=aID)
             if not (assignment.courses.all() & request.user.participations.all()):
                 return response.forbidden('You are not allowed to view this assignment.')
             result['assignment'] = assignment.name
-        if int(jID) is not 0:
+        if jID:
             journal = Journal.objects.get(pk=jID)
             if not (journal.user == request.user or permissions.has_assignment_permission(request.user,
                     journal.assignment, 'can_view_assignment_participants')):

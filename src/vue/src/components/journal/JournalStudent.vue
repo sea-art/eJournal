@@ -21,7 +21,7 @@
                             <entry-node :cID="cID" ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                         </div>
                         <div v-else>
-                            <entry-preview v-if="checkDeadline()" ref="entry-template-card" @content-template="fillDeadline" :template="nodes[currentNode].template"/>
+                            <entry-preview v-if="checkDeadline()" ref="entry-template-card" @content-template="fillDeadline" :template="nodes[currentNode].template" :cID="cID"/>
                             <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                                 <h2 class="mb-2">{{nodes[currentNode].template.name}}</h2>
                                 <b>The deadline has passed. You can not submit an entry anymore.</b>
@@ -49,7 +49,7 @@
                 <b-col md="6" lg="12">
                     <h3>Description</h3>
                     <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-                        {{ assignmentDescription }}
+                        <div v-html="assignmentDescription"/>
                     </b-card>
                 </b-col>
                 <b-col md="6" lg="12">
@@ -89,8 +89,8 @@ export default {
     },
     created () {
         journalApi.get_nodes(this.jID)
-            .then(response => {
-                this.nodes = response.nodes
+            .then(data => {
+                this.nodes = data.nodes
                 if (this.$route.query.nID !== undefined) {
                     this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
                 }
@@ -101,17 +101,17 @@ export default {
                     }
                 }
             })
-            .catch(_ => this.$toasted.error('Error while loading nodes.'))
+            .catch(error => { this.$toasted.error(error.response.data.description) })
 
         journalApi.get_journal(this.jID)
-            .then(response => {
-                this.journal = response.journal
+            .then(data => {
+                this.journal = data.journal
             })
             .catch(_ => this.$toasted.error('Error while loading journal data.'))
 
         assignmentApi.get_assignment_data(this.cID, this.aID)
-            .then(response => {
-                this.assignmentDescription = response.description
+            .then(data => {
+                this.assignmentDescription = data.description
             })
             .catch(_ => this.$toasted.error('Error while loading assignment description.'))
     },
@@ -127,10 +127,11 @@ export default {
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData
             journalApi.create_entry(this.jID, this.nodes[this.currentNode].entry.template.tID, editedData.entry.content, this.nodes[this.currentNode].nID)
-                .then(response => {
-                    this.nodes = response.nodes
-                    this.currentNode = response.added
+                .then(data => {
+                    this.nodes = data.nodes
+                    this.currentNode = data.added
                 })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         selectNode ($event) {
             /* Function that prevents you from instant leaving an EntryNode
@@ -156,17 +157,19 @@ export default {
         },
         addNode (infoEntry) {
             journalApi.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
-                .then(response => {
-                    this.nodes = response.nodes
-                    this.currentNode = response.added
+                .then(data => {
+                    this.nodes = data.nodes
+                    this.currentNode = data.added
                 })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         fillDeadline (data) {
             journalApi.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data, this.nodes[this.currentNode].nID)
-                .then(response => {
-                    this.nodes = response.nodes
-                    this.currentNode = response.added
+                .then(data => {
+                    this.nodes = data.nodes
+                    this.currentNode = data.added
                 })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         progressPoints (progressNode) {
             /* The function will update a given progressNode by
@@ -209,7 +212,7 @@ export default {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'add-card': addCard,
-        'edag': edag,
+        edag,
         'entry-node': entryNode,
         'entry-preview': entryPreview,
         'progress-bar': progressBar

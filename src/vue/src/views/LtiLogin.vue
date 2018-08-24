@@ -53,7 +53,7 @@ export default {
                 name: 'ErrorPage',
                 params: {
                     code: '511',
-                    message: 'Network authorization required',
+                    reasonPhrase: 'Network authorization required',
                     description: `Invalid credentials from the LTI environment.
                                   Please contact the system administrator.`
                 }
@@ -92,7 +92,7 @@ export default {
                     name: 'ErrorPage',
                     params: {
                         code: '500',
-                        message: 'Internal Server Error',
+                        reasonPhrase: 'Internal Server Error',
                         description: `Received invalid state from the server
                                       when trying to integrate the new user.
                                       Please contact the system administrator

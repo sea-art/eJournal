@@ -98,60 +98,60 @@ class EntryView(viewsets.ViewSet):
         except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
             return response.not_found('Journal, Template or Node does not exist.')
 
-        def partial_update(self, request, *args, **kwargs):
-            """Update an existing entry.
+    def partial_update(self, request, *args, **kwargs):
+        """Update an existing entry.
 
-            Arguments:
-            request -- request data
-                data -- the new data for the course
-            pk -- assignment ID
+        Arguments:
+        request -- request data
+            data -- the new data for the course
+        pk -- assignment ID
 
-            Returns:
-            On failure:
-                unauthorized -- when the user is not logged in
-                not found -- when the entry does not exists
-                forbidden -- User not allowed to edit this entry
-                unauthorized -- when the user is unauthorized to edit the entry
-                bad_request -- when there is invalid data in the request
-            On success:
-                success -- with the new entry data
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+            not found -- when the entry does not exists
+            forbidden -- User not allowed to edit this entry
+            unauthorized -- when the user is unauthorized to edit the entry
+            bad_request -- when there is invalid data in the request
+        On success:
+            success -- with the new entry data
 
-            """
-            if not request.user.is_authenticated:
-                return response.unauthorized()
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
 
-            pk = kwargs.get('pk')
+        pk = kwargs.get('pk')
 
-            try:
-                entry = Entry.objects.get(pk=pk)
-            except Entry.DoesNotExist:
-                return response.not_found('Entry')
+        try:
+            entry = Entry.objects.get(pk=pk)
+        except Entry.DoesNotExist:
+            return response.not_found('Entry')
 
-            grade, published, template = utils.optional_params(request.data, "grade", "published", "template")
+        grade, published, template = utils.optional_params(request.data, "grade", "published", "template")
 
-            journal = entry.node.journal
-            if grade and \
-               not permissions.has_assignment_permission(request.user, journal.assignment, 'can_grade_journal'):
-                return response.forbidden('You cannot grade or publish entries.')
+        journal = entry.node.journal
+        if grade and \
+           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_grade_journal'):
+            return response.forbidden('You cannot grade or publish entries.')
 
-            if published is not None and \
-               not permissions.has_assignment_permission(request.user, journal.assignment,
-                                                         'can_publish_journal_grades'):
-                return response.forbidden('You cannot publish entries.')
+        if published is not None and \
+           not permissions.has_assignment_permission(request.user, journal.assignment,
+                                                     'can_publish_journal_grades'):
+            return response.forbidden('You cannot publish entries.')
 
-            if template and \
-               not permissions.has_assignment_permission(request.user, journal.assignment, 'can_edit_journal'):
-                return response.forbidden('You cannot publish entries.')
+        if template and \
+           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_edit_journal'):
+            return response.forbidden('You cannot publish entries.')
 
-            serializer = serialize.EntrySerializer(entry, data=request.data, partial=True)
-            if not serializer.is_valid():
-                response.bad_request()
-            serializer.save()
+        serializer = serialize.EntrySerializer(entry, data=request.data, partial=True)
+        if not serializer.is_valid():
+            response.bad_request()
+        serializer.save()
 
-            if published and journal.sourcedid is not None and journal.grade_url is not None:
-                payload = lti_grade.replace_result(journal)
-            else:
-                payload = dict()
-            payload['new_published'] = entry.published
+        if published and journal.sourcedid is not None and journal.grade_url is not None:
+            payload = lti_grade.replace_result(journal)
+        else:
+            payload = dict()
+        payload['new_published'] = entry.published
 
-            return response.success(serializer.data, payload={'new_published': entry.published})
+        return response.success(serializer.data, payload={'new_published': entry.published})

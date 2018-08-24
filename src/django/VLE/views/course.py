@@ -11,7 +11,7 @@ from VLE.serializers import CourseSerializer
 from VLE.serializers import UserSerializer
 from VLE.models import Course
 import VLE.permissions as permissions
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
 import VLE.factory as factory
 
 
@@ -35,7 +35,7 @@ class CourseView(viewsets.ViewSet):
 
         queryset = request.user.participations.all()
         serializer = self.serializer_class(queryset, many=True)
-        return response.success(serializer.data)
+        return response.success({'courses': serializer.data})
 
     def create(self, request):
         """Create a new course.
@@ -72,7 +72,7 @@ class CourseView(viewsets.ViewSet):
         course = factory.make_course(name, abbr, startdate, enddate, request.user, lti_id)
 
         serializer = self.serializer_class(course, many=False)
-        return response.created(serializer.data, obj='course')
+        return response.created({'course': serializer.data})
 
     def retrieve(self, request, pk=None):
         """Get the course data from the course ID.
@@ -101,10 +101,7 @@ class CourseView(viewsets.ViewSet):
             return response.forbidden('You are not in this course.')
 
         serializer = self.serializer_class(course, many=False)
-        return response.success(serializer.data)
-
-    def update(self, request, *args, **kwargs):
-        pass
+        return response.success({'course': serializer.data})
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing course.
@@ -145,7 +142,7 @@ class CourseView(viewsets.ViewSet):
         if not serializer.is_valid():
             response.bad_request()
         serializer.save()
-        return response.success(serializer.data)
+        return response.success({'course': serializer.data})
 
     def destroy(self, request, *args, **kwargs):
         """Delete an existing course.
@@ -178,7 +175,7 @@ class CourseView(viewsets.ViewSet):
             return response.forbidden(description="You are unauthorized to delete this course.")
 
         course.delete()
-        return response.deleted(obj='course')
+        return response.deleted(description='Sucesfully deleted course.')
 
     @action(methods=['get'], detail=False)
     def linkable(self, request):
@@ -209,7 +206,7 @@ class CourseView(viewsets.ViewSet):
                                                  lti_id=None)
 
         serializer = UserSerializer(unlinked_courses, many=True)
-        return response.success(serializer.data)
+        return response.success({'linkable_courses': serializer.data})
 
     @action(methods=['get'], detail=False)
     def is_teacher(self, request):
@@ -230,4 +227,4 @@ class CourseView(viewsets.ViewSet):
         courses = Course.objects.filter(participation__user=request.user.id,
                                         participation__role__can_edit_course=True)
         serializer = CourseSerializer(courses, many=True)
-        return response.success(serializer.data)
+        return response.success({'courses': serializer.data})

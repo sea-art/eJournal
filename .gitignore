@@ -1,3 +1,6 @@
+# Ignore user uploaded files
+/src/django/media/*
+
 /venv
 /build
 VLE.db

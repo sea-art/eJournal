@@ -45,7 +45,7 @@ class RoleView(viewsets.ViewSet):
 
         roles = Role.objects.filter(course=course_id)
         serializer = RoleSerializer(roles, many=True)
-        return response.success(serializer.data)
+        return response.success({'roles': serializer.data})
 
     def partial_update(self, request, pk):
         """Updates course roles.
@@ -61,6 +61,8 @@ class RoleView(viewsets.ViewSet):
             not found -- when the course does not exists
             forbidden -- when the user is not in the course
             forbidden -- when the user is unauthorized to edit its roles
+            keyerror -- when roles or roles.name is not set
+            bad_request -- if
         On success:
             success -- list of all the roles in the course
         """
@@ -91,7 +93,7 @@ class RoleView(viewsets.ViewSet):
                 response.bad_request()
             serializer.save()
             resp.append(serializer.data)
-        return response.success(resp)
+        return response.success({'roles': resp})
 
     def retrieve(self, request, pk=0):
         """Get the permissions of a user connected to a course / assignment.
@@ -118,34 +120,32 @@ class RoleView(viewsets.ViewSet):
         except User.DoesNotExist:
             return response.not_found('User')
 
+        # Return course permissions if cID is set
         try:
             course_id = request.query_params['cID']
+            try:
+                if int(course_id) > 0:
+                    Course.objects.get(pk=course_id)
+            except Course.DoesNotExist:
+                return response.not_found('Course')
+
+            perms = permissions.get_permissions(user, int(course_id))
+            if not perms:
+                return response.forbidden('You are not participating in this course')
+
+            return response.success({'role': perms})
+        # Return assignment permissions if aID is set
         except KeyError:
             try:
                 assignment_id = request.query_params['aID']
                 try:
-                    assignment = Assignment.objects.get(pk=assignment_id)
-                    result = {}
-                    for course in assignment.courses.all():
-                        result = {key: value or (result[key] if key in result and result[key] else False)
-                                  for key, value in permissions.get_permissions(user, course.pk).items()}
-                    return response.success(result)
-                except Course.DoesNotExist:
-                    return response.not_found('Course')
+                    perms = permissions.get_assignment_id_permissions(request.user, assignment_id)
+                    return response.success({'role': perms})
+                except Assignment.DoesNotExist:
+                    return response.not_found('Assignment was not found')
+        # Return keyerror is cID nor aID is set
             except KeyError:
                 return response.keyerror('cID or aID')
-
-        try:
-            if int(course_id) > 0:
-                Course.objects.get(pk=course_id)
-        except Course.DoesNotExist:
-            return response.not_found('Course')
-
-        roleDict = permissions.get_permissions(user, int(course_id))
-        if not roleDict:
-            return response.forbidden('You are not participating in this course')
-
-        return response.success(roleDict)
 
     def create(self, request, pk):
         """Create course role.
@@ -184,7 +184,7 @@ class RoleView(viewsets.ViewSet):
         except Exception:
             return response.bad_request()
         serializer = RoleSerializer(role, many=False)
-        return response.created(serializer.data, obj='role')
+        return response.created({'role': serializer.data})
 
     def destroy(self, request, pk):
         """Delete course role.
@@ -203,6 +203,9 @@ class RoleView(viewsets.ViewSet):
         On success:
             success -- newly created course
         """
+        if not request.user.is_authenticated:
+            return responses.unauthorized()
+
         if 'name' not in request.data:
             return response.keyerror('name')
 
@@ -214,4 +217,4 @@ class RoleView(viewsets.ViewSet):
             return response.forbidden(description="You have no permissions to delete this course role.")
 
         Role.objects.get(name=request.data['name'], course=pk).delete()
-        return response.success(message='Succesfully deleted role from course')
+        return response.success(description='Succesfully deleted role from course.')

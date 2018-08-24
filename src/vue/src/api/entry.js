@@ -16,21 +16,16 @@ export default {
             text: text,
             published: entryGradePublished || !publishAfterGrade
         })
-            .then(response => response.data)
+            .then(response => response.data.comment)
     },
     deleteEntryComment (ecID) {
-        return auth.authenticatedPost('/delete_entrycomment/', {
-            ecID: ecID
-        })
+        return auth.authenticatedPost('/delete_entrycomment/', { ecID: ecID })
             .then(response => response.data)
     },
 
     /* Update Entry Comment with given text and EntryComment. */
     updateEntryComments (ecID, text) {
-        return auth.authenticatedGet('/update_entrycomments/', {
-            ecID: ecID,
-            text: text
-        })
+        return auth.authenticatedGet('/update_entrycomments/', { ecID: ecID, text: text })
             .then(response => response.data)
     }
 }

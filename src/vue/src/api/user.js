@@ -1,26 +1,6 @@
 import auth from '@/api/auth'
-import connection from '@/api/connection'
 
 export default {
-    /* Create a user and add it to the database. */
-    createUser (username, password, firstname, lastname, email, jwtParams = null) {
-        return connection.conn.post('/create_lti_user/', {
-            username: username,
-            password: password,
-            first_name: firstname,
-            last_name: lastname,
-            email: email,
-            jwt_params: jwtParams
-        }).then(response => response.data.user)
-    },
-
-    /* Update user data with lti credentials. */
-    updateLtiIdToUser (jwtParams) {
-        return auth.authenticatedPost('/update_lti_id_to_user/', {
-            jwt_params: jwtParams
-        }).then(response => response.data.user)
-    },
-
     /* Get own user data. */
     getOwnUserData () {
         return auth.authenticatedGet('/get_own_user_data/')
@@ -31,26 +11,29 @@ export default {
      */
     getUserData (uID) {
         return auth.authenticatedGet('/get_user_data/' + uID + '/')
-            .then(response => response.data)
+    },
+
+    /* Get user file. */
+    getUserFile (fileName, authorUID) {
+        return auth.authenticatedGet('/get_user_file/' + fileName + '/' + authorUID + '/')
     },
 
     /* Update user data. */
-    updateUserData (username, firstName, lastName) {
+    updateUserData (firstName, lastName) {
         return auth.authenticatedPost('/update_user_data/', {
-            username: username,
             first_name: firstName,
             last_name: lastName
         })
     },
 
-    /* Update profile picture. */
-    updateProfilePicture (formData) {
-        return auth.authenticatedPostFile('/update_user_profile_picture/', formData)
+    /* Update user file. */
+    updateUserFile (formData) {
+        return auth.authenticatedPostFile('/update_user_file/', formData)
     },
 
-    /* Upload an image to user directory. */
-    updateImage (formData) {
-        return auth.authenticatedPostFile('/update_user_image/', formData)
+    /* Upload an image that is base64 encoded. */
+    updateProfilePictureBase64 (urlData) {
+        return auth.authenticatedPost('/update_user_profile_picture/', { urlData: urlData })
     },
 
     /* Change whether the user gets grade notification or not.
@@ -73,5 +56,22 @@ export default {
         return auth.authenticatedPost('/update_comment_notification/', {
             new_value: getsNotified
         }).then(r => r.data.new_value)
-    }
+    },
+
+    /* Update user data with lti credentials. */
+    updateLtiIdToUser (jwtParams) {
+        return auth.authenticatedPost('/update_lti_id_to_user/', {
+            jwt_params: jwtParams
+        }).then(response => response.data.user)
+    },
+
+    /* Verify email adress using a given token. */
+    verifyEmail (token) {
+        return auth.authenticatedPost('/verify_email/', {
+            token: token
+        })
+    },
+
+    /* Request an email verification token for the given users email adress. */
+    requestEmailVerification () { return auth.authenticatedPost('/request_email_verification/') }
 }

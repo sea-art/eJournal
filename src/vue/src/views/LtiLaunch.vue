@@ -142,6 +142,7 @@ export default {
                             this.states.state = this.states.finish_t
                         }
                     })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
                 break
             case this.states.grade_center:
                 this.$router.push({
@@ -183,16 +184,13 @@ export default {
     async mounted () {
         this.ltiJWT = this.$route.query.ltiJWT
         await this.loadLtiData()
-            .catch(err => {
-                router.push({
+            .catch(error => {
+                this.$router.push({
                     name: 'ErrorPage',
                     params: {
-                        code: '404',
-                        message: err,
-                        description: `Error while loading LTI information.
-                                        Please contact the system administrator
-                                        for more information. Further integration
-                                        is not possible.`
+                        code: error.response.status,
+                        reasonPhrase: error.response.statusText,
+                        description: error.response.data.description
                     }
                 })
             })
@@ -202,7 +200,7 @@ export default {
                 name: 'ErrorPage',
                 params: {
                     code: '511',
-                    message: 'Network authorization required',
+                    reasonPhrase: 'Network authorization required',
                     description: `Invalid credentials from the LTI environment.
                                   Please contact the system administrator.`
                 }
@@ -212,7 +210,7 @@ export default {
                 name: 'ErrorPage',
                 params: {
                     code: '404',
-                    message: 'No course found with given ID',
+                    reasonPhrase: 'No course found with given ID',
                     description: `The requested course is not available on
                                   ejournal. Wait for it to become availible or
                                   contact your teacher for more information.`
@@ -223,7 +221,7 @@ export default {
                 name: 'ErrorPage',
                 params: {
                     code: '404',
-                    message: 'No assignment found with given ID',
+                    reasonPhrase: 'No assignment found with given ID',
                     description: `The requested assignment is not available on
                                   ejournal. Wait for it to become availible or
                                   contact your teacher for more information.`

@@ -100,9 +100,8 @@ export default {
     },
     created () {
         auth.get('nodes', { jID: this.jID })
-            .then(response => {
-                console.log(response)
-                this.nodes = response
+            .then(data => {
+                this.nodes = data.nodes
                 if (this.$route.query.nID !== undefined) {
                     this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
                 }
@@ -113,14 +112,17 @@ export default {
                     }
                 }
             })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
 
         auth.get('journals/' + this.jID)
-            .then(response => { this.journal = response.journal })
+            .then(data => { this.journal = data.journal })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
 
         if (store.state.filteredJournals.length === 0) {
             if (this.$router.app.canViewAssignmentParticipants()) {
                 auth.get('journals', { aID: this.aID })
-                    .then(response => { this.assignmentJournals = response.journals })
+                    .then(data => { this.assignmentJournals = data.journals })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
 
             if (this.$route.query.sort === 'sortFullName' ||
@@ -172,9 +174,9 @@ export default {
         },
         addNode (infoEntry) {
             // journalApi.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
-            //     .then(_ => auth.get('nodes', { jID: this.jID })
-            //         .then(response => { this.nodes = response.nodes })
-            //         .catch(_ => this.$toasted.error('Error while loading nodes.')))
+            //     .then(_ => { journalApi.get_nodes(this.jID) })
+            //     .then(data => { this.nodes = data.nodes })
+            //     .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         progressPoints (progressNode) {
             /* The function will update a given progressNode by
@@ -207,7 +209,8 @@ export default {
             }
 
             auth.get('journals/' + this.jID)
-                .then(response => { this.journal = response.journal })
+                .then(data => { this.journal = data.journal })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         publishGradesJournal () {
             if (confirm('Are you sure you want to publish all grades for this journal?')) {
@@ -221,15 +224,10 @@ export default {
                 //             }
                 //         }
                 //
-                //         auth.get('nodes', { jID: this.jID })
-                //             .then(response => {
-                //                 this.nodes = response.nodes
-                //             })
-                //
-                //         auth.get('journals/' + this.jID)
-                //             .then(response => {
-                //                 this.journal = response.journal
-                //             })
+                //         journalApi.get_nodes(this.jID)
+                //             .then(data => { this.nodes = data.nodes })
+                //         journalApi.get_journal(this.jID)
+                //             .then(data => { this.journal = data.journal })
                 //     })
                 //     .catch(_ => {
                 //         this.$toasted.error('Error while publishing all grades for this journal.')
@@ -268,10 +266,10 @@ export default {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'add-card': addCard,
-        'edag': edag,
-        'store': store,
+        edag,
+        store,
         'student-card': studentCard,
-        'icon': icon,
+        icon,
         'progress-bar': progressBar
     },
     computed: {
@@ -288,8 +286,8 @@ export default {
             }
 
             function compareUsername (a, b) {
-                if (a.student.name < b.student.name) { return -1 }
-                if (a.student.name > b.student.name) { return 1 }
+                if (a.student.username < b.student.username) { return -1 }
+                if (a.student.username > b.student.username) { return 1 }
                 return 0
             }
 
@@ -300,7 +298,7 @@ export default {
             }
 
             function checkFilter (user) {
-                var username = user.student.name.toLowerCase()
+                var username = user.student.username.toLowerCase()
                 var fullName = user.student.first_name.toLowerCase() + ' ' + user.student.last_name.toLowerCase()
                 var searchVariable = self.searchVariable.toLowerCase()
 

@@ -7,7 +7,7 @@
             Grade updates
         </b-col>
         <b-col cols="8">
-            <toggle-switch :isActive="gradeUpdate"
+            <toggle-switch :isActive="userData.grade_notifications"
                            @parentActive="getGradeNotification">
             </toggle-switch>
         </b-col>
@@ -15,7 +15,7 @@
             Comments
         </b-col>
         <b-col cols="8">
-            <toggle-switch :isActive="commentUpdate"
+            <toggle-switch :isActive="userData.comment_notifications"
                            @parentActive="getCommentNotification">
             </toggle-switch>
         </b-col>
@@ -27,18 +27,26 @@ import Switch from '@/components/assets/SwitchComponent.vue'
 import userAPI from '@/api/user.js'
 
 export default {
-    props: ['gradeUpdate', 'commentUpdate'],
+    props: ['userData'],
     components: {
         'toggle-switch': Switch
     },
     methods: {
         getGradeNotification (isActive) {
             userAPI.updateGradeNotification(isActive)
-                .then(isActive => { this.gradeUpdate = isActive })
+                .then(isActive => {
+                    this.userData.grade_notifications = isActive
+                    this.$toasted.success('Grade notification setting updated succesfully.')
+                })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         getCommentNotification (isActive) {
             userAPI.updateCommentNotification(isActive)
-                .then(isActive => { this.commentUpdate = isActive })
+                .then(isActive => {
+                    this.userData.comment_notifications = isActive
+                    this.$toasted.success('Comment notification setting updated succesfully.')
+                })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     }
 }
