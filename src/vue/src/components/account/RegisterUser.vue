@@ -23,8 +23,8 @@
 
 <script>
 import auth from '@/api/auth.js'
-import userApi from '@/api/user.js'
 import icon from 'vue-awesome/components/Icon'
+import validation from '@/utils/validation.js'
 
 export default {
     name: 'RegisterUser',
@@ -43,51 +43,21 @@ export default {
         }
     },
     methods: {
-        validatePassword () {
-            if (this.form.password !== this.form.password2) {
-                this.$toasted.error('Passwords do not match!')
-                return false
-            }
-            if (this.form.password.length < 8) {
-                this.$toasted.error('Password needs to contain at least 8 characters.')
-                return false
-            }
-            if (this.form.password.toLowerCase() === this.form.password) {
-                this.$toasted.error('Password needs to contain at least 1 capital letter.')
-                return false
-            }
-            let re = /[ !@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/
-            if (!re.test(this.form.password)) {
-                this.$toasted.error('Password needs to contain a special character.')
-                return false
-            }
-
-            return true
-        },
         onSubmit () {
-            if (this.validatePassword()) {
-                userApi.createUser(this.form.username, this.form.password,
-                    this.form.firstname, this.form.lastname,
+            if (validation.validatePassword(this.form.password, this.form.password2) && validation.validateEmail(this.form.email)) {
+                auth.register(this.form.username, this.form.password, this.form.firstname, this.form.lastname,
                     this.form.email, this.form.ltiJWT)
                     .then(_ => {
+                        if (!this.lti) {
+                            this.$toasted.success('Registration successfull! Please follow the instructions sent to ' + this.email +
+                                                  ' to confirm your email address.')
+                        }
                         auth.login(this.form.username, this.form.password)
-                            .then(_ => {
-                                this.$emit('handleAction')
-                            })
-                            .catch(_ => {
-                                this.$router.push({
-                                    name: 'ErrorPage',
-                                    params: {
-                                        code: '511',
-                                        message: 'Network authorization required',
-                                        description: `Invalid credentials for logging in.
-                                                      Please contact the system administrator.`
-                                    }
-                                })
-                            })
+                            .then(_ => { this.$emit('handleAction') })
+                            .catch(_ => { this.$toasted.error('Error logging in with your newly created account, please contact a system administrator or try registering again.') })
                     })
                     .catch(error => {
-                        this.$toasted.error(error.response.data.result + ': ' + error.response.data.description)
+                        this.$toasted.error(error.response.data.description)
                     })
             }
         },
@@ -118,7 +88,7 @@ export default {
         }
     },
     components: {
-        'icon': icon
+        icon
     }
 }
 </script>

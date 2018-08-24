@@ -10,7 +10,7 @@ import django.utils.timezone as timezone
 
 
 def make_user(username, password, email, lti_id=None, profile_picture=None,
-              is_superuser=False, is_teacher=False, first_name=None, last_name=None):
+              is_superuser=False, is_teacher=False, first_name=None, last_name=None, verified_email=False):
     """Create a user.
 
     Arguments:
@@ -22,7 +22,7 @@ def make_user(username, password, email, lti_id=None, profile_picture=None,
     is_superuser -- if the user needs all permissions, set this true (default: False)
     """
     user = User(username=username, email=email, lti_id=lti_id, is_superuser=is_superuser,
-                is_teacher=is_teacher)
+                is_teacher=is_teacher, verified_email=verified_email)
 
     if first_name:
         user.first_name = first_name

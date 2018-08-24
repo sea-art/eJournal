@@ -39,6 +39,7 @@
 <script>
 import authAPI from '@/api/auth'
 import icon from 'vue-awesome/components/Icon'
+import validation from '@/utils/validation.js'
 
 export default {
     name: 'LoginForm',
@@ -53,9 +54,8 @@ export default {
         handleForgotPassword () {
             let username = ''
             let emailAdress = ''
-            let re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
 
-            if (re.test(String(this.usernameEmail).toLowerCase())) {
+            if (validation.validateEmail(this.usernameEmail, false)) {
                 emailAdress = this.usernameEmail
             } else {
                 username = this.usernameEmail
@@ -64,10 +64,10 @@ export default {
             authAPI.forgotPassword(username, emailAdress)
                 .then(response => {
                     this.$refs.forgotPasswordModalRef.hide()
-                    this.$toasted.success(response.data.result)
+                    this.$toasted.success(response.statusText)
                 })
-                .catch(response => {
-                    this.$toasted.error('No user known by the given information.')
+                .catch(error => {
+                    this.$toasted.error(error.response.data.description)
                 })
         },
         handleLogin () {
@@ -82,7 +82,7 @@ export default {
         }
     },
     components: {
-        'icon': icon
+        icon
     }
 }
 </script>

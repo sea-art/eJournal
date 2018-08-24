@@ -12,6 +12,7 @@
                     :givenContent="assignment.description"
                     @content-update="assignment.description = $event"
                     :footer="false"
+                    class="multi-form"
                  />
                 <b-button v-if="$root.canDeleteAssignment()" @click.prevent.stop="deleteAssignment()" class="delete-button multi-form float-left">
                     <icon name="trash"/>
@@ -53,41 +54,31 @@ export default {
     },
     data () {
         return {
-            pageName: '',
             assignment: {},
             form: {}
         }
     },
     created () {
         assignmentApi.get_assignment_data(this.cID, this.aID)
-            .then(response => {
-                this.assignment = response
-                this.pageName = this.assignment.name
+            .then(assignment => {
+                this.assignment = assignment
             })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         onSubmit (evt) {
-            assignmentApi.update_assignment(this.aID,
-                this.assignment.name,
-                this.assignment.description)
-                .then(response => {
-                    this.assignments = response
-                    this.pageName = this.assignment.name
-                    this.$toasted.success('Updated assignment')
+            assignmentApi.update_assignment(this.aID, this.assignment.name, this.assignment.description)
+                .then(assignment => {
+                    this.assignment = assignment
+                    this.$toasted.success('Updated assignment.')
                     store.clearCache()
-                    this.$router.push({
-                        name: 'Assignment',
-                        params: {
-                            cID: this.cID,
-                            aID: this.aID
-                        }
-                    })
                 })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         deleteAssignment () {
             if (confirm('Are you sure you want to delete ' + this.assignment.name + '?')) {
                 assignmentApi.delete_assignment(this.cID, this.aID)
-                    .then(response => {
+                    .then(_ => {
                         this.$router.push({name: 'Course',
                             params: {
                                 cID: this.cID,
@@ -95,6 +86,7 @@ export default {
                             }})
                         this.$toasted.success('Deleted assignment')
                     })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         }
     },
@@ -102,7 +94,7 @@ export default {
         'content-single-column': contentSingleColumn,
         'bread-crumb': breadCrumb,
         'text-editor': textEditor,
-        'icon': icon
+        icon
     }
 }
 </script>

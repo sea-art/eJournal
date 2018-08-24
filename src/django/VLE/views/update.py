@@ -9,6 +9,7 @@ from rest_framework.parsers import JSONParser
 import VLE.views.responses as responses
 import VLE.serializers as serialize
 import VLE.utils.generic_utils as utils
+import VLE.utils.email_handling as email_handling
 import VLE.permissions as permissions
 import VLE.factory as factory
 import VLE.validators as validators
@@ -16,15 +17,11 @@ from VLE.models import Course, EntryComment, Assignment, Participation, Role, \
     Entry, User, Journal, UserFile
 import VLE.lti_grade_passback as lti_grade
 from VLE.settings.production import USER_MAX_FILE_SIZE_BYTES, USER_MAX_TOTAL_STORAGE_BYTES
-from VLE.settings.development import BASELINK
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
-import re
 import jwt
 import json
-
-from django.core.mail import EmailMessage
 
 
 @api_view(['POST'])
@@ -50,11 +47,11 @@ def connect_course_lti(request):
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
-        return responses.not_found('Course')
+        return responses.not_found('Course not found.')
 
     role = permissions.get_role(user, course)
     if role is None:
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
     elif not role.can_edit_course:
         return responses.forbidden('You cannot edit this course.')
 
@@ -90,11 +87,11 @@ def update_course(request):
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
-        return responses.not_found('Course')
+        return responses.not_found('Course not found.')
 
     role = permissions.get_role(user, course)
     if role is None:
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
     elif not role.can_edit_course:
         return responses.forbidden('You cannot edit this course.')
 
@@ -127,13 +124,13 @@ def update_course_roles(request):
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
-        return responses.not_found('Course')
+        return responses.not_found('Course not found.')
 
     role = permissions.get_role(user, course)
     if role is None:
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
     elif not role.can_edit_course_roles:
-        return responses.forbidden('You cannot edit roles of this course.')
+        return responses.forbidden('You cannot edit the roles of this course.')
 
     for role in request.data['roles']:
         db_role = Role.objects.filter(name=role['name'], course__id=cID)
@@ -169,7 +166,7 @@ def connect_assignment_lti(request):
     try:
         assignment = Assignment.objects.get(pk=aID)
     except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
+        return responses.not_found('Assignment not found.')
 
     if not permissions.has_assignment_permission(user, assignment, 'can_edit_assignment'):
         return responses.forbidden('You are not allowed to edit the assignment.')
@@ -210,7 +207,7 @@ def update_course_with_student(request):
 
     role = permissions.get_role(user, course)
     if role is None:
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
     elif not role.can_add_course_participants:
         return responses.forbidden('You cannot add users to this course.')
 
@@ -229,7 +226,7 @@ def update_course_with_student(request):
                 factory.make_journal(assignment, q_user)
 
     participation.save()
-    return responses.success(message='Succesfully added student to course')
+    return responses.success(description='Succesfully added student to course')
 
 
 @api_view(['POST'])
@@ -256,7 +253,7 @@ def update_assignment(request):
     try:
         assignment = Assignment.objects.get(pk=aID)
     except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
+        return responses.not_found('Assignment not found.')
 
     if not permissions.has_assignment_permission(user, assignment, 'can_edit_assignment'):
         return responses.forbidden('You are not allowed to edit this assignment.')
@@ -288,16 +285,14 @@ def update_password(request):
     if not user.is_authenticated or not user.check_password(old_password):
         return responses.unauthorized('Wrong password.')
 
-    if len(new_password) < 8:
-        return responses.bad_request('Password needs to contain at least 8 characters.')
-    if new_password == new_password.lower():
-        return responses.bad_request('Password needs to contain at least 1 capital letter.')
-    if re.match(r'^\w+$', new_password):
-        return responses.bad_request('Password needs to contain a special character.')
+    try:
+        validators.validate_password(new_password)
+    except ValidationError:
+        return responses.bad_request('The given password does not meet the requirements!')
 
     user.set_password(new_password)
     user.save()
-    return responses.success(message='Succesfully changed the password.')
+    return responses.success(description='Succesfully changed the password.')
 
 
 @api_view(['POST'])
@@ -380,7 +375,7 @@ def update_format(request):
         assignment = Assignment.objects.get(pk=aID)
         format = assignment.format
     except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
+        return responses.not_found('Assignment not found.')
 
     if not permissions.has_assignment_permission(request.user, assignment, 'can_edit_assignment'):
         return responses.forbidden('You are not allowed to edit this assignment.')
@@ -429,7 +424,7 @@ def update_user_role_course(request):
 
     q_role = permissions.get_role(request.user, course)
     if q_role is None:
-        return responses.forbidden('You are not in this course.')
+        return responses.forbidden('You are not a participant of this course.')
     elif not q_role.can_edit_course_roles:
         return responses.forbidden('You cannot edit the roles of this course.')
 
@@ -462,7 +457,7 @@ def update_grade_entry(request):
     try:
         entry = Entry.objects.get(pk=eID)
     except Entry.DoesNotExist:
-        return responses.not_found('Entry')
+        return responses.not_found('Entry not found.')
 
     journal = entry.node.journal
     if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_grade_journal'):
@@ -507,7 +502,7 @@ def update_publish_grade_entry(request):
     try:
         entry = Entry.objects.get(pk=eID)
     except Entry.DoesNotExist:
-        return responses.not_found('Entry')
+        return responses.not_found('Entry not found.')
 
     journal = entry.node.journal
     if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_journal_grades'):
@@ -550,7 +545,7 @@ def update_publish_grades_assignment(request):
     try:
         assign = Assignment.objects.get(pk=aID)
     except Assignment.DoesNotExist:
-        return responses.not_found('Assignment')
+        return responses.not_found('Assignment not found.')
 
     if not permissions.has_assignment_permission(request.user, assign, 'can_publish_journal_grades'):
         return responses.forbidden('You cannot publish assignments.')
@@ -692,7 +687,7 @@ def update_lti_id_to_user(request):
 
     lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
 
-    user_id, user_image = lti_params['user_id'], lti_params['user_image']
+    lti_id, user_image = lti_params['user_id'], lti_params['user_image']
     is_teacher = json.load(open('config.json'))['Teacher'] == lti_params['roles']
     first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
 
@@ -710,10 +705,10 @@ def update_lti_id_to_user(request):
     if is_teacher:
         user.is_teacher = is_teacher
 
-    if User.objects.filter(lti_id=user_id).exists():
+    if User.objects.filter(lti_id=lti_id).exists():
         return responses.bad_request('User with this lti id already exists.')
 
-    user.lti_id = user_id
+    user.lti_id = lti_id
 
     user.save()
 
@@ -787,10 +782,15 @@ def update_user_profile_picture(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    if 'urlData' not in request.data:
-        return responses.bad_request()
+    try:
+        utils.required_params(request.data, 'urlData')
+    except KeyError:
+        return responses.KeyError('urlData')
 
-    validators.validate_profile_picture_base64(request.data['urlData'])
+    try:
+        validators.validate_profile_picture_base64(request.data['urlData'])
+    except ValidationError:
+        return responses.bad_request('Profile picture did not pass validation!')
 
     user.profile_picture = request.data['urlData']
     user.save()
@@ -827,16 +827,11 @@ def forgot_password(request):
         pass
 
     if not user:
-        return responses.bad_request('No user found with that username or password.')
+        return responses.bad_request('No user found with that username or email.')
 
-    token_generator = PasswordResetTokenGenerator()
-    token = token_generator.make_token(user)
-    recovery_link = '%s/PasswordRecovery/%s/%s' % (BASELINK, user.username, token)
-    email_body = 'Please visit the link below and set a new password\n\n%s' % recovery_link
+    email_handling.send_password_recovery_link(user)
 
-    EmailMessage('eJourn.al password recovery', email_body, to=[user.email]).send()
-
-    return responses.success('A verification email was sent to %s, please follow the email for instructions.'
+    return responses.success(description='An email was sent to %s, please follow the email for instructions.'
                              % user.email)
 
 
@@ -863,17 +858,61 @@ def recover_password(request):
         return responses.not_found('The username is unkown.')
 
     token_generator = PasswordResetTokenGenerator()
-
     if not token_generator.check_token(user, request.data['recovery_token']):
         return responses.bad_request('Invalid recovery token.')
 
-    if len(request.data['new_password']) < 8:
-        return responses.bad_request('Password needs to contain at least 8 characters.')
-    if request.data['new_password'] == request.data['new_password'].lower():
-        return responses.bad_request('Password needs to contain at least 1 capital letter.')
-    if re.match(r'^\w+$', request.data['new_password']):
-        return responses.bad_request('Password needs to contain a special character.')
+    try:
+        validators.validate_password(request.data['new_password'])
+    except ValidationError as e:
+        return responses.bad_request(e.args[0])
 
     user.set_password(request.data['new_password'])
     user.save()
-    return responses.success(message='Succesfully changed the password, please login.')
+
+    return responses.success(description='Succesfully changed the password, please login.')
+
+
+@api_view(['POST'])
+def verify_email(request):
+    """Handles an email verification request.
+
+    Arguments:
+        token -- User claimed email verification token.
+
+    Updates the email verification status.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    if user.verified_email:
+        return responses.success(description='Email address already verified.')
+
+    try:
+        utils.required_params(request.data, 'token')
+    except KeyError:
+        return responses.KeyError('token')
+
+    token_generator = PasswordResetTokenGenerator()
+    if not token_generator.check_token(user, request.data['token']):
+        return responses.bad_request(description='Invalid email recovery token.')
+
+    user.verify_email = True
+    user.save()
+    return responses.success(description='Succesfully verified your email address.')
+
+
+@api_view(['POST'])
+def request_email_verification(request):
+    """Request an email with a verifcation link for the users email address."""
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    if user.verified_email:
+        return responses.bad_request(description='Email address already verified.')
+
+    email_handling.send_email_verification_link(user)
+
+    return responses.success(description='An email was sent to %s, please follow the email for instructions.'
+                             % user.email)

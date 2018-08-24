@@ -33,9 +33,8 @@ export default {
     },
     created () {
         userAPI.getOwnUserData()
-            .then(userData => {
-                this.userData = userData
-            })
+            .then(userData => { this.userData = userData })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
     }
 }
 </script>

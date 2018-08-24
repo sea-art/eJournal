@@ -76,7 +76,7 @@ export default {
     },
     components: {
         'edag-node': edagNode,
-        'icon': icon
+        icon
     }
 }
 </script>

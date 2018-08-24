@@ -53,10 +53,8 @@ export default {
     },
     created () {
         assignmentApi.get_upcoming_deadlines()
-            .then(response => {
-                this.deadlines = response
-            })
-            .catch(_ => this.$toasted.error('Error while loading deadlines'))
+            .then(deadlines => { this.deadlines = deadlines })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     components: {
         'content-single-column': contentSingleColumn,

@@ -51,10 +51,11 @@ export default {
                 this.form.courseAbbr, this.form.courseStartdate,
                 this.form.courseEnddate,
                 this.form.ltiCourseID)
-                .then(response => {
+                .then(course => {
                     this.onReset(undefined)
-                    this.$emit('handleAction', response.course.cID)
+                    this.$emit('handleAction', course.cID)
                 })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         onReset (evt) {
             if (evt !== undefined) {
@@ -85,7 +86,7 @@ export default {
         }
     },
     components: {
-        'icon': icon
+        icon
     }
 }
 </script>

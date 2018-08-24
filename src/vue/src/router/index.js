@@ -20,6 +20,7 @@ import FormatEdit from '@/views/FormatEdit'
 import LtiLogin from '@/views/LtiLogin'
 import Logout from '@/views/Logout'
 import authAPI from '@/api/auth.js'
+import EmailVerification from '@/views/EmailVerification'
 
 Vue.use(Router)
 
@@ -41,6 +42,11 @@ var router = new Router({
         path: '/PasswordRecovery/:username/:recoveryToken',
         name: 'PasswordRecovery',
         component: PasswordRecovery,
+        props: true
+    }, {
+        path: '/EmailVerification/:token',
+        name: 'EmailVerification',
+        component: EmailVerification,
         props: true
     }, {
         path: '/Register',
@@ -133,7 +139,7 @@ router.beforeEach((to, from, next) => {
                 .then(_ => next({name: 'Home'}))
                 .catch(_ => next())
         }
-    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage', 'PasswordRecovery'].includes(to.name)) {
+    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage', 'PasswordRecovery', 'EmailVerification'].includes(to.name)) {
         return next()
     }
 

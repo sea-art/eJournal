@@ -103,7 +103,7 @@ export default {
     },
     components: {
         'template-preview': templatePreview,
-        'icon': icon
+        icon
     }
 }
 </script>

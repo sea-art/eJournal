@@ -1,19 +1,6 @@
 import auth from '@/api/auth'
-import connection from '@/api/connection'
 
 export default {
-    /* Create a user and add it to the database. */
-    createUser (username, password, firstname, lastname, email, jwtParams = null) {
-        return connection.conn.post('/create_lti_user/', {
-            username: username,
-            password: password,
-            first_name: firstname,
-            last_name: lastname,
-            email: email,
-            jwt_params: jwtParams
-        }).then(response => response.data.user)
-    },
-
     /* Get own user data. */
     getOwnUserData () {
         return auth.authenticatedGet('/get_own_user_data/')
@@ -24,7 +11,6 @@ export default {
      */
     getUserData (uID) {
         return auth.authenticatedGet('/get_user_data/' + uID + '/')
-            .then(response => response.data)
     },
 
     /* Get user file. */
@@ -77,5 +63,15 @@ export default {
         return auth.authenticatedPost('/update_lti_id_to_user/', {
             jwt_params: jwtParams
         }).then(response => response.data.user)
-    }
+    },
+
+    /* Verify email adress using a given token. */
+    verifyEmail (token) {
+        return auth.authenticatedPost('/verify_email/', {
+            token: token
+        })
+    },
+
+    /* Request an email verification token for the given users email adress. */
+    requestEmailVerification () { return auth.authenticatedPost('/request_email_verification/') }
 }

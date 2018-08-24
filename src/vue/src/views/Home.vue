@@ -97,26 +97,20 @@ export default {
         'todo-card': todoCard,
         'create-course': createCourse,
         'edit-home': editHome,
-        'icon': icon
+        icon
     },
     created () {
         this.loadCourses()
 
         assignmentApi.get_upcoming_deadlines()
-            .then(response => {
-                this.deadlines = response
-            })
-            .catch(_ => this.$toasted.error('Error while loading deadlines'))
+            .then(deadlines => { this.deadlines = deadlines })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         loadCourses () {
             course.get_user_courses()
-                .then(response => { this.courses = response })
-        },
-        deleteCourse (courseID, courseName) {
-            if (confirm('Are you sure you want to delete ' + courseName + '?')) {
-                // TODO: Implement delete this course ID after privy check
-            }
+                .then(courses => { this.courses = courses })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         showModal (ref) {
             this.$refs[ref].show()

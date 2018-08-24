@@ -77,10 +77,14 @@ export default {
     watch: {
         eID () {
             this.tempComment = ''
-            entryApi.getEntryComments(this.eID).then(response => { this.commentObject = response })
+            entryApi.getEntryComments(this.eID)
+                .then(data => { this.commentObject = data })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         entryGradePublished () {
-            entryApi.getEntryComments(this.eID).then(response => { this.commentObject = response })
+            entryApi.getEntryComments(this.eID)
+                .then(data => { this.commentObject = data })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     },
     created () {
@@ -94,25 +98,26 @@ export default {
         },
         getEntryComments () {
             entryApi.getEntryComments(this.eID)
-                .then(response => {
-                    this.commentObject = response
-                })
+                .then(data => { this.commentObject = data })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         addComment () {
             if (this.tempComment !== '') {
                 entryApi.createEntryComment(this.eID, this.authorData.uID, this.tempComment, this.entryGradePublished, this.publishAfterGrade)
-                    .then(_ => {
+                    .then(comment => {
+                        // TODO Append comment rather than fire a get all entry comments request.
                         this.getEntryComments()
                         this.tempComment = ''
                     })
-                    .catch(_ => { this.$toasted.error('Something went wrong whilst posting your comment, please try again!') })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         },
         deleteComment (ecID) {
             if (confirm('Are you sure you want to delete this comment?')) {
                 entryApi.deleteEntryComment(ecID)
+                    // TODO Remove comment locally rather than firing a new request for all entry comments
                     .then(_ => { this.getEntryComments(this.eID) })
-                    .catch(_ => { this.$toasted.error('Something went wrong whilst deleting the comment, please try again!') })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         }
     }
