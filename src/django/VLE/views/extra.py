@@ -13,39 +13,37 @@ import VLE.utils.generic_utils as utils
 
 
 @api_view(['GET'])
-def names(request, cID, aID, jID):
+def names(request, course_id, assignment_id, journal_id):
     """Get names of course, assignment, journal.
 
     Arguments:
     request -- the request that was sent
-        cID -- optionally the course id
-        aID -- optionally the assignment id
-        jID -- optionally the journal id
+        course_id -- optionally the course id
+        assignment_id -- optionally the assignment id
+        journal_id -- optionally the journal id
 
     Returns a json string containing the names of the set fields.
-    cID populates 'course', aID populates 'assignment', tID populates
-    'template' and jID populates 'journal' with the users' name.
+    course_id populates 'course', assignment_id populates 'assignment', tID populates
+    'template' and journal_id populates 'journal' with the users' name.
     """
     if not request.user.is_authenticated:
         return response.unauthorized()
 
-    cID, aID, jID = utils.optional_params(request.data, "cID", "aID", "jID")
     result = {}
-
     try:
-        if cID:
-            course = Course.objects.get(pk=cID)
+        if course_id:
+            course = Course.objects.get(pk=course_id)
             role = permissions.get_role(request.user, course)
             if role is None:
                 return response.forbidden('You are not allowed to view this course.')
             result['course'] = course.name
-        if aID:
-            assignment = Assignment.objects.get(pk=aID)
+        if assignment_id:
+            assignment = Assignment.objects.get(pk=assignment_id)
             if not (assignment.courses.all() & request.user.participations.all()):
                 return response.forbidden('You are not allowed to view this assignment.')
             result['assignment'] = assignment.name
-        if jID:
-            journal = Journal.objects.get(pk=jID)
+        if journal_id:
+            journal = Journal.objects.get(pk=journal_id)
             if not (journal.user == request.user or permissions.has_assignment_permission(request.user,
                     journal.assignment, 'can_view_assignment_participants')):
                 return response.forbidden('You are not allowed to view journals of other participants.')
@@ -54,4 +52,4 @@ def names(request, cID, aID, jID):
     except (Course.DoesNotExist, Assignment.DoesNotExist, Journal.DoesNotExist, EntryTemplate.DoesNotExist):
         return response.not_found('Course, Assignment, Journal or Template does not exist.')
 
-    return response.success(result)
+    return response.success({'names': result})

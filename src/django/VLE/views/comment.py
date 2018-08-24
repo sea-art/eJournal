@@ -6,7 +6,7 @@ In this file are all the comment api requests.
 from rest_framework import viewsets
 
 from VLE.models import Comment, Entry, User, Assignment
-import VLE.views.response as response
+import VLE.views.responses as response
 import VLE.permissions as permissions
 import VLE.serializers as serialize
 import VLE.utils as utils

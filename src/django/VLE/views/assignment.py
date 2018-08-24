@@ -313,4 +313,4 @@ class AssignmentView(viewsets.ViewSet):
             #         if deadline:
             #             deadline_list.append(deadline)
 
-        return response.success({'deadlines': deadline_list})
+        return response.success({'upcomming': deadline_list})

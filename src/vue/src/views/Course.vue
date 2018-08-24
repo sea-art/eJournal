@@ -68,7 +68,7 @@ import mainCard from '@/components/assets/MainCard.vue'
 import icon from 'vue-awesome/components/Icon'
 import createAssignment from '@/components/assignment/CreateAssignment.vue'
 
-import auth from '@/api/auth.js'
+import assignmentAPI from '@/api/assignment'
 
 export default {
     name: 'Course',
@@ -102,13 +102,13 @@ export default {
     created () {
         this.loadAssignments()
 
-        auth.get('assignments/upcomming', { cID: this.cID })
+        assignmentAPI.getUpcomming(this.cID)
             .then(deadlines => { this.deadlines = deadlines })
             .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         loadAssignments () {
-            auth.get('assignments', { cID: this.cID })
+            assignmentAPI.getAllFromCourse(this.cID)
                 .then(assignments => { this.assignments = assignments })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },

@@ -49,10 +49,16 @@ class StudentAssignmentSerializer(serializers.ModelSerializer):
     # TODO: add personalized deadline
     def get_deadline(self, assignment):
         if 'request' not in self.context:
-            return None
+            return {
+                'date': '00-00',
+                'time': '00:00'
+            }
         nodes = assignment.format.presetnode_set.all().order_by('deadline')
         if not nodes:
-            return None
+            return {
+                'date': '00-00',
+                'time': '00:00'
+            }
         deadline = nodes[0].deadline
         return {
             'date': '{:02d}-{:02d}'.format(deadline.day, deadline.month),
@@ -85,11 +91,12 @@ class TeacherAssignmentSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', )
 
     def get_deadline(self, assignment):
-        if 'request' not in self.context:
-            return None
         nodes = assignment.format.presetnode_set.all().order_by('deadline')
         if not nodes:
-            return None
+            return {
+                'date': '00-00',
+                'time': '00:00'
+            }
         deadline = nodes[0].deadline
         return {
             'date': '{:02d}-{:02d}'.format(deadline.day, deadline.month),

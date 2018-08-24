@@ -105,9 +105,10 @@ export default {
 
             if (crumbsMissingDisplayName.length > 0) {
                 auth.get('names/' + (request.cID || 0) + '/' + (request.aID || 0) + '/' + (request.jID || 0))
-                    .then(data => {
+                    .then(response => {
+                        var names = response.data.names
                         for (var crumb of crumbsMissingDisplayName) {
-                            crumb.displayName = data[this.settings.namedViews[crumb.routeName].apiReturnValue]
+                            crumb.displayName = names[this.settings.namedViews[crumb.routeName].apiReturnValue]
                             this.cachedMap[crumb.route] = crumb.displayName
                         }
                     })

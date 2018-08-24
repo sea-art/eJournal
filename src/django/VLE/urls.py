@@ -43,7 +43,7 @@ urlpatterns = [
     path('verify_email/', email.verify_email, name='verify_email'),
     path('request_email_verification/', email.request_email_verification, name='request_email_verification'),
 
-    path('names/<int:cID>/<int:aID>/<int:jID>/', extra.names, name='names'),
+    path('names/<int:course_id>/<int:assignment_id>/<int:journal_id>/', extra.names, name='names'),
 
     # path('get_own_user_data/', get.get_own_user_data, name='get_own_user_data'),
     # path('get_course_data/<int:cID>/', get.get_course_data, name='get_course_data'),

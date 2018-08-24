@@ -75,8 +75,8 @@ import todoCard from '@/components/assets/TodoCard.vue'
 import createCourse from '@/components/course/CreateCourse.vue'
 import editHome from '@/components/home/EditHome.vue'
 
-import courseAPI from '@/api/course.js'
-import assignmentPI from '@/api/assignment.js'
+import courseAPI from '@/api/course'
+import assignmentAPI from '@/api/assignment'
 
 import icon from 'vue-awesome/components/Icon'
 
@@ -151,7 +151,9 @@ export default {
             var counter = 0
 
             function compareDate (a, b) {
-                return new Date(a.deadline.Date) - new Date(b.deadline.Date)
+                if (!a.deadline) return -1
+                else if (!b.deadline) return 1
+                return new Date(a.deadline.date) - new Date(b.deadline.date)
             }
 
             function compareMarkingNeeded (a, b) {

@@ -1,11 +1,10 @@
 import auth from '@/api/auth'
 
 export default {
-    getEnrolled() {
-        return auth.get('courses').then(resp => resp.data.courses)
-    },
-    
 
+    getEnrolled () {
+        return auth.get('courses').then(response => response.data.courses)
+    }
     // /* Get data of a course specified with its ID. */
     // get_course_data (cID) {
     //     return auth.authenticatedGet('/get_course_data/' + cID + '/')

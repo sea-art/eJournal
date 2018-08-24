@@ -1,6 +1,16 @@
 import auth from '@/api/auth'
 
 export default {
+
+    getAllFromCourse (cID) {
+        if (cID) return auth.get('assignments', {cID: cID}).then(response => response.data.assignments)
+        return auth.get('assignments').then(response => response.data.assignments)
+    },
+
+    getUpcomming (cID = null) {
+        if (cID) return auth.get('assignments/upcomming', {cID: cID}).then(response => response.data.upcomming)
+        return auth.get('assignments/upcomming').then(response => response.data.upcomming)
+    }
     // /* Get data of a cassignment specified with its ID. */
     // get_assignment_data (cID, aID) {
     //     return auth.authenticatedGet('/get_assignment_data/' + cID + '/' + aID + '/')
