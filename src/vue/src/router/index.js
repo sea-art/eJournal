@@ -112,8 +112,29 @@ var router = new Router({
         name: 'Journal',
         component: Journal,
         props: true
+    }, {
+        path: '*',
+        name: 'ErrorPage',
+        component: ErrorPage,
+        props: { code: '404', reasonPhrase: 'Not Found', description: `We're sorry but we can't find the page you tried to access.`}
     }]
 })
+
+const permissionlessContent = new Set([
+    'Login',
+    'LtiLogin',
+    'LtiLaunch',
+    'Register',
+    'ErrorPage',
+    'PasswordRecovery',
+    'EmailVerification',
+    'Guest'
+])
+
+const unavailableWhenLoggedIn = new Set([
+    'Guest',
+    'Register'
+])
 
 router.beforeEach((to, from, next) => {
     // TODO Caching for permissions, how to handle permission changes when role is altered by teacher
@@ -124,14 +145,10 @@ router.beforeEach((to, from, next) => {
         authAPI.testValidToken().catch(_ => console.error('Token not valid'))
     }
 
-    if (to.matched.length === 0) {
-        return next({name: 'ErrorPage', params: {code: '404', message: 'Page not found'}})
-    }
-
     /* If valid token, redirect to Home, if not currently valid, look to see if it is valid.
      * If now valid, redirect as well, otherwise continue to guest page.
      */
-    if (to.name === 'Guest' || to.name === 'Register') {
+    if (unavailableWhenLoggedIn.has(to.name)) {
         if (router.app.validToken) {
             return next({name: 'Home'})
         } else {
@@ -139,7 +156,7 @@ router.beforeEach((to, from, next) => {
                 .then(_ => next({name: 'Home'}))
                 .catch(_ => next())
         }
-    } else if (['Login', 'LtiLogin', 'LtiLaunch', 'Register', 'ErrorPage', 'PasswordRecovery', 'EmailVerification'].includes(to.name)) {
+    } else if (permissionlessContent.has(to.name)) {
         return next()
     }
 
