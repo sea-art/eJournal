@@ -3,7 +3,7 @@ permissions.py.
 
 All the permission functions.
 """
-from VLE.models import Participation, Assignment
+from VLE.models import Participation, Assignment, Journal
 
 from django.forms.models import model_to_dict
 
@@ -99,7 +99,10 @@ def get_permissions(user, cID=-1):
         if not role:
             return {}
 
-        roleDict = model_to_dict(role)
+        roleDict = model_to_dict(role)  # TODO This even adds keys such as 'id', 'name' and 'course', prob not wanted?
+        del roleDict['id']
+        del roleDict['name']
+        del roleDict['course']
         roleDict['is_superuser'] = False
 
     return roleDict
@@ -239,3 +242,42 @@ def is_user_in_course(user, course):
     Returns True if the user is in the course, else False.
     """
     return Participation.objects.filter(user=user, course=course).exists()
+
+
+def get_all_user_permissions(user):
+    """Returns a dictionary with all user permissions.
+
+    Arguments:
+    user -- The user whose permissions are requested.
+
+    Returns {all_permission:
+        course{id}: permisions
+        assignment{id}: permissions
+        general: permissions
+    }"""
+    permissions = {}
+    course_ids = [course.id for course in user.participations.all()]
+
+    permissions['general'] = get_permissions(user, -1)
+
+    for cID in course_ids:
+        permissions['course' + str(cID)] = get_permissions(user, cID)
+
+    courses = user.participations.all()
+
+    assignments = []
+    for course in courses:
+        # Checks wether the user is a participator in an assignment or a grader based on 'can_grade_journal'
+        # Returns all assigments linked to a course if a grader, this permission is not verbose enough for this check
+        # TODO Create a more verbose check. And in general ensure that a user can never have grading level permissions
+        # for a course where the user has any journals.
+        if permissions['course' + str(course.id)]['can_grade_journal']:
+            assignments.append(course.assignment_set.all())
+        else:
+            Assignment.objects.filter(courses=course, journal__user=user)
+
+    for assignment in assignments:
+        assignment = assignment[0]
+        permissions['assignment' + str(assignment.id)] = get_assignment_id_permissions(user, assignment.id)
+
+    return permissions

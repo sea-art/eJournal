@@ -50,10 +50,7 @@ def get_own_user_data(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    user_dict = serialize.user_to_dict(user)
-    user_dict['grade_notifications'] = user.grade_notifications
-    user_dict['comment_notifications'] = user.comment_notifications
-    return responses.success(payload={'user': user_dict})
+    return responses.success(payload={'user': serialize.user_to_dict(user)})
 
 
 @api_view(['GET'])
@@ -930,3 +927,22 @@ def get_user_file(request, file_name, author_uID):
         return responses.file(user_file)
     else:
         return responses.unauthorized('Unauthorized to view: %s by author ID: %s.' % (file_name, author_uID))
+
+
+@api_view(['GET'])
+def get_user_store_data(request):
+    """Get all user data that is stored in the store client side.
+
+    Arguments:
+    request -- the request that was sent
+
+    Returns all user permissions under all_permissions, all user data under: user_data.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    user_data = serialize.user_to_dict(user)
+    all_permissions = permissions.get_all_user_permissions(user)
+
+    return responses.success(payload={'user_data': user_data, 'all_permissions': all_permissions})

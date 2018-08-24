@@ -113,6 +113,7 @@ urlpatterns = [
     path('recover_password/', update.recover_password, name='recover_password'),
     path('verify_email/', update.verify_email, name='verify_email'),
     path('request_email_verification/', update.request_email_verification, name='request_email_verification'),
+    path('get_user_store_data/', get.get_user_store_data, name='get_user_store_data'),
 ]
 
 if settings.DEBUG is True:

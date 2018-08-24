@@ -114,9 +114,9 @@ var router = new Router({
         props: true
     }, {
         path: '*',
-        name: 'ErrorPage',
+        name: 'NotFound',
         component: ErrorPage,
-        props: { code: '404', reasonPhrase: 'Not Found', description: `We're sorry but we can't find the page you tried to access.`}
+        props: { code: '404', reasonPhrase: 'Not Found', description: `We're sorry but we can't find the page you tried to access.` }
     }]
 })
 
