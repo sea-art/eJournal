@@ -2,6 +2,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import store from './store'
+import axios from 'axios'
 import BootstrapVue from 'bootstrap-vue'
 import '../node_modules/bootstrap/dist/css/bootstrap.css'
 import '../node_modules/bootstrap-vue/dist/bootstrap-vue.css'
@@ -46,6 +47,15 @@ import Toasted from 'vue-toasted'
 Vue.config.productionTip = false
 Vue.use(Toasted, { position: 'bottom-right', duration: 4000 })
 Vue.use(BootstrapVue)
+
+/* Sets the default authorization token needed to for authenticated requests. */
+// TODO Move to store
+axios.defaults.transformRequest.push((data, headers) => {
+    if (localStorage.getItem('jwt_access') != null) {
+        headers.Authorization = 'Bearer ' + localStorage.getItem('jwt_access')
+    }
+    return data
+})
 
 /* eslint-disable no-new */
 new Vue({

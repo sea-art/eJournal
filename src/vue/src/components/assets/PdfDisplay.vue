@@ -45,7 +45,6 @@
 import pdf from 'vue-pdf'
 import userAPI from '@/api/user.js'
 import icon from 'vue-awesome/components/Icon'
-import dataHandling from '@/utils/data_handling.js'
 
 export default {
     props: {
@@ -97,12 +96,12 @@ export default {
         fileDownload () {
             userAPI.getUserFile(this.fileName, this.authorUID)
                 .then(response => {
-                    let blob = new Blob([dataHandling.base64ToArrayBuffer(response.data)], { type: response.headers['content-type'] })
+                    let blob = new Blob([response.data], { type: response.headers['content-type'] })
                     this.fileURL = window.URL.createObjectURL(blob)
 
                     this.downloadLink = document.createElement('a')
                     this.downloadLink.href = this.fileURL
-                    this.downloadLink.download = /filename=(.*)/.exec(response.headers['content-disposition'])[1]
+                    this.downloadLink.download = this.fileName
                 }, error => {
                     this.$toasted.error(error.response.data.description)
                 })

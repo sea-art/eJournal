@@ -2,13 +2,6 @@ import connection from '@/api/connection'
 import statuses from '@/utils/constants/status_codes.js'
 import router from '@/router'
 
-/* Utility function to get the Authorization header with
- * the JWT token.
- */
-function getAuthorizationHeader () {
-    return {headers: { Authorization: 'Bearer ' + localStorage.getItem('jwt_access') }}
-}
-
 /* Refresh the access token.
  * Requests the api server for a new JWT token, given the refresh token.
  * Stores this new token in jwt_access.
@@ -138,16 +131,23 @@ export default {
      * Returns a Promise to handle the request.
      */
     authenticatedPost (url, data, noRedirect = false) {
-        return connection.conn.post(url, data, getAuthorizationHeader())
+        return connection.conn.post(url, data)
             .catch(error => refresh(error)
-                .then(_ => connection.conn.post(url, data, getAuthorizationHeader())))
+                .then(_ => connection.conn.post(url, data)))
             .catch(error => handleError(error, noRedirect))
     },
 
     authenticatedPostFile (url, data, noRedirect = false) {
-        return connection.connFile.post(url, data, getAuthorizationHeader())
+        return connection.connFile.post(url, data)
             .catch(error => refresh(error)
-                .then(_ => connection.connFile.post(url, data, getAuthorizationHeader())))
+                .then(_ => connection.connFile.post(url, data)))
+            .catch(error => handleError(error, noRedirect))
+    },
+
+    authenticatedGetFile (url, data, noRedirect = false) {
+        return connection.connFile.get(url, data)
+            .catch(error => refresh(error)
+                .then(_ => connection.connFile.get(url, data)))
             .catch(error => handleError(error, noRedirect))
     },
 
@@ -157,9 +157,9 @@ export default {
      * Returns a Promise to handle the request.
      */
     authenticatedGet (url, noRedirect = false) {
-        return connection.conn.get(url, getAuthorizationHeader())
+        return connection.conn.get(url)
             .catch(error => refresh(error)
-                .then(_ => connection.conn.get(url, getAuthorizationHeader())))
+                .then(_ => connection.conn.get(url)))
             .catch(error => handleError(error, noRedirect))
     }
 }

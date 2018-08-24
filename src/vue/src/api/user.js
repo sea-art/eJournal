@@ -16,7 +16,7 @@ export default {
 
     /* Get user file. */
     getUserFile (fileName, authorUID) {
-        return auth.authenticatedGet('/get_user_file/' + fileName + '/' + authorUID + '/')
+        return auth.authenticatedGetFile('/get_user_file/' + fileName + '/' + authorUID + '/')
     },
 
     /* Update user data. */
