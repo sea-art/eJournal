@@ -28,7 +28,7 @@
 </template>
 
 <script>
-import auth from '@/api/auth.js'
+import courseAPI from '@/api/course'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
@@ -47,7 +47,7 @@ export default {
     },
     methods: {
         onSubmit () {
-            auth.create('courses', this.form)
+            courseAPI.create(this.form)
                 .then(course => {
                     this.onReset(undefined)
                     this.$emit('handleAction', course.id)

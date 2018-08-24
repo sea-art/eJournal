@@ -31,7 +31,7 @@ class AssignmentView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
-            cID -- course ID
+            course_id -- course ID
 
         Returns:
         On failure:
@@ -45,7 +45,7 @@ class AssignmentView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
         try:
-            course_id = request.query_params['cID']
+            course_id = request.query_params['course_id']
         except KeyError:
             course_id = None
         try:
@@ -80,7 +80,7 @@ class AssignmentView(viewsets.ViewSet):
         request -- request data
             name -- name of the assignment
             description -- description of the assignment
-            cID -- id of the course the assignment belongs to
+            course_id -- id of the course the assignment belongs to
             points_possible -- the possible amount of points for the assignment
 
         Returns:
@@ -98,10 +98,10 @@ class AssignmentView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            name, description, course_id = utils.required_params(request.data, "name", "description", "cID")
+            name, description, course_id = utils.required_params(request.data, "name", "description", "course_id")
             points_possible, lti_id = utils.optional_params(request.data, "points_possible", "lti_id")
         except KeyError:
-            return response.keyerror("name", "description", "cID")
+            return response.keyerror("name", "description", "course_id")
 
         try:
             course = Course.objects.get(pk=course_id)
@@ -216,7 +216,7 @@ class AssignmentView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
-            cID -- the course ID of course this assignment belongs to
+            course_id -- the course ID of course this assignment belongs to
         pk -- assignment ID
 
         Returns:
@@ -235,9 +235,9 @@ class AssignmentView(viewsets.ViewSet):
         assignment_id = kwargs.get('pk')
 
         try:
-            course_id = int(request.query_params['cID'])
+            course_id = int(request.query_params['course_id'])
         except KeyError:
-            return response.keyerror('cID')
+            return response.keyerror('course_id')
 
         try:
             assignment = Assignment.objects.get(pk=assignment_id)
@@ -271,7 +271,7 @@ class AssignmentView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
-            cID -- course ID
+            course_id -- course ID
 
         Returns:
         On failure:
@@ -285,11 +285,11 @@ class AssignmentView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            courses = [Course.objects.get(pk=int(request.query_params['cID']))]
+            courses = [Course.objects.get(pk=int(request.query_params['course_id']))]
         except KeyError:
             courses = request.user.participations.all()
         except Course.DoesNotExist:
-            return response.not_found('coruse')
+            return response.not_found('course')
 
         deadline_list = []
 

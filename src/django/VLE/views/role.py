@@ -29,9 +29,9 @@ class RoleView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            course_id = request.query_params['cID']
+            course_id = request.query_params['course_id']
         except KeyError:
-            return response.keyerror('cID')
+            return response.keyerror('course_id')
         try:
             course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
@@ -100,8 +100,8 @@ class RoleView(viewsets.ViewSet):
 
         Arguments:
         request -- the request that was sent
-            cID -- course ID
-            aID -- assignment ID
+            course_id -- course ID
+            assignment_id -- assignment ID
         pk -- user ID (0 = logged in user)
 
         Returns:
@@ -120,9 +120,9 @@ class RoleView(viewsets.ViewSet):
         except User.DoesNotExist:
             return response.not_found('User')
 
-        # Return course permissions if cID is set
+        # Return course permissions if course_id is set
         try:
-            course_id = request.query_params['cID']
+            course_id = request.query_params['course_id']
             try:
                 if int(course_id) > 0:
                     Course.objects.get(pk=course_id)
@@ -134,18 +134,18 @@ class RoleView(viewsets.ViewSet):
                 return response.forbidden('You are not participating in this course')
 
             return response.success({'role': perms})
-        # Return assignment permissions if aID is set
+        # Return assignment permissions if assignment_id is set
         except KeyError:
             try:
-                assignment_id = request.query_params['aID']
+                assignment_id = request.query_params['assignment_id']
                 try:
                     perms = permissions.get_assignment_id_permissions(request.user, assignment_id)
                     return response.success({'role': perms})
                 except Assignment.DoesNotExist:
                     return response.not_found('Assignment was not found')
-        # Return keyerror is cID nor aID is set
+        # Return keyerror is course_id nor assignment_id is set
             except KeyError:
-                return response.keyerror('cID or aID')
+                return response.keyerror('course_id or assignment_id')
 
     def create(self, request, pk):
         """Create course role.

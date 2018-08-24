@@ -101,9 +101,9 @@ import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import courseParticipantCard from '@/components/course/CourseParticipantCard.vue'
 
-import auth from '@/api/auth.js'
 import store from '@/Store'
 import icon from 'vue-awesome/components/Icon'
+import courseAPI from '@/api/course'
 
 export default {
     name: 'CourseEdit',
@@ -134,16 +134,16 @@ export default {
         }
     },
     created () {
-        auth.get('courses/' + this.cID)
+        courseAPI.get(this.cID)
             .then(course => { this.course = course })
             .catch(error => { this.$toasted.error(error.response.data.description) })
-        auth.get('participations/', { cID: this.cID })
+        courseAPI.getParticipants(this.cID)
             .then(users => { this.participants = users })
             .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         onSubmit () {
-            auth.update('courses/' + this.cID, this.course)
+            courseAPI.update(this.cID, this.course)
                 .then(course => {
                     this.course = course
                     this.$toasted.success('Succesfully updated the course.')
@@ -153,7 +153,7 @@ export default {
         },
         deleteCourse () {
             if (confirm('Are you sure you want to delete ' + this.course.name + '?')) {
-                auth.delete('courses/' + this.cID)
+                courseAPI.delete(this.cID)
                     .then(response => {
                         this.$router.push({name: 'Home'})
                         this.$toasted.success(response.description)
@@ -183,7 +183,8 @@ export default {
             })
         },
         loadUnenrolledStudents () {
-            auth.get('participations/', { cID: this.cID })
+            // TODO: change to unenrolled
+            courseAPI.getParticipants(this.cID)
                 .then(users => { this.unenrolledStudents = users })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
             this.unenrolledLoaded = !this.unenrolledLoaded

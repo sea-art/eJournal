@@ -22,7 +22,8 @@ import LtiLogin from '@/views/LtiLogin'
 import Logout from '@/views/Logout'
 import EmailVerification from '@/views/EmailVerification'
 
-import auth from '@/api/auth.js'
+import auth from '@/api/auth'
+import common from '@/api/common'
 
 Vue.use(Router)
 
@@ -158,14 +159,14 @@ router.beforeEach((to, from, next) => {
         cID = -1
     }
 
-    auth.get('/roles/0', { cID: cID })
-        .then(response => {
-            router.app.generalPermissions = response
+    common.getPermissions(cID)
+        .then(permissions => {
+            router.app.generalPermissions = permissions
 
             if (to.params.aID) {
-                auth.get('/roles/0', { aID: to.params.aID })
-                    .then(response => {
-                        router.app.assignmentPermissions = response
+                common.getPermissions(cID)
+                    .then(permissions => {
+                        router.app.assignmentPermissions = permissions
                         return next()
                     })
                     .catch(_ => {

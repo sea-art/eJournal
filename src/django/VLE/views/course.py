@@ -135,7 +135,7 @@ class CourseView(viewsets.ViewSet):
         role = permissions.get_role(request.user, course)
         if role is None:
             return response.forbidden('You are not in this course.')
-        elif not role['can_edit_course']:
+        elif not role.can_edit_course:
             return response.unauthorized('You are unauthorized to edit this course.')
 
         serializer = self.serializer_class(course, data=request.data, partial=True)
@@ -171,11 +171,11 @@ class CourseView(viewsets.ViewSet):
         role = permissions.get_role(request.user, pk)
         if role is None:
             return response.unauthorized(description="You are unauthorized to view this course.")
-        elif not role['can_delete_course']:
+        elif not role.can_delete_course:
             return response.forbidden(description="You are unauthorized to delete this course.")
 
         course.delete()
-        return response.deleted(description='Sucesfully deleted course.')
+        return response.success(description='Sucesfully deleted course.')
 
     @action(methods=['get'], detail=False)
     def linkable(self, request):

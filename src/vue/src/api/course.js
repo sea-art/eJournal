@@ -2,9 +2,35 @@ import auth from '@/api/auth'
 
 export default {
 
-    getEnrolled () {
-        return auth.get('courses').then(response => response.data.courses)
+    get (id) {
+        return auth.get('courses/' + id)
+            .then(response => response.data.course)
+    },
+
+    getParticipants (id) {
+        return auth.get('participations', {course_id: id})
+    },
+
+    getEnrolledCourses () {
+        return auth.get('courses')
+            .then(response => response.data.courses)
+    },
+
+    create (data) {
+        return auth.create('courses', data)
+            .then(response => response.data.course)
+    },
+
+    update (id, data) {
+        return auth.update('courses/' + id, data)
+            .then(response => response.data.course)
+    },
+
+    delete (id) {
+        return auth.delete('courses/' + id)
+            .then(response => response.data)
     }
+
     // /* Get data of a course specified with its ID. */
     // get_course_data (cID) {
     //     return auth.authenticatedGet('/get_course_data/' + cID + '/')

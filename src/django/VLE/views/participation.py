@@ -15,12 +15,12 @@ class ParticipationView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
-            cID -- course ID
+            course_id -- course ID
 
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            keyerror -- when cID is not set as a parameter
+            keyerror -- when course_id is not set as a parameter
             not found -- when the course does not exists
             forbidden -- when the user is not in the course
             forbidden -- when the user is unauthorized to view its participants
@@ -30,11 +30,11 @@ class ParticipationView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
         try:
-            cID = request.query_params['cID']
+            course_id = request.query_params['course_id']
         except KeyError:
-            return response.keyerror('cID')
+            return response.keyerror('course_id')
         try:
-            course = Course.objects.get(pk=cID)
+            course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
             return response.not_found('Course')
 
@@ -51,7 +51,7 @@ class ParticipationView(viewsets.ViewSet):
         resp = UserSerializer(queryset, many=True).data
         for r in resp:
             r['role'] = RoleSerializer(role, many=False).data['name']
-        return response.success(resp)
+        return response.success({'participants': resp})
 
     def create(self, request, course_id):
         """Add a user to a course.
@@ -108,7 +108,7 @@ class ParticipationView(viewsets.ViewSet):
             for assignment in assignments:
                 if not Journal.objects.filter(assignment=assignment, user=user).exists():
                     factory.make_journal(assignment, user)
-        return response.success(message='Succesfully added student to course.')
+        return response.success(description='Succesfully added student to course.')
 
     def update(self, request, course_id):
         """Update user role in a course.
@@ -184,4 +184,4 @@ class ParticipationView(viewsets.ViewSet):
             return response.forbidden(description="You have no permissions to delete this user.")
 
         participation.delete()
-        return response.success(message='Sucesfully removed user from course.')
+        return response.success(description='Sucesfully removed user from course.')
