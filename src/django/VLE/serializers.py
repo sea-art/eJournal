@@ -6,13 +6,8 @@ Functions to convert certain data to other formats.
 from rest_framework import serializers
 # import VLE.utils.generic_utils as utils
 # import VLE.permissions as permissions
-<<<<<<< HEAD
 from VLE.models import User, Course, Node, Comment, Assignment, Role, Journal, Entry
-import VLE.utils as utils
-=======
-from VLE.models import User, Course, Node, Comment, Assignment, Role, Journal
 import VLE.utils.generic_utils as utils
->>>>>>> 9d534ae3d7840fb7ae6d3bc7a30fed9a337f0313
 
 import statistics as st
 
