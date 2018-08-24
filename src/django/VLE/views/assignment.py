@@ -12,6 +12,7 @@ import VLE.views.responses as response
 import VLE.permissions as permissions
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
+import VLE.lti_grade_passback as lti_grade
 
 
 class AssignmentView(viewsets.ViewSet):
@@ -24,6 +25,7 @@ class AssignmentView(viewsets.ViewSet):
     PATCH /assignments/<pk> -- partially update an assignment
     DEL /assignments/<pk> -- delete an assignment
     GET /assignments/upcomming/ -- get the upcomming assignments of the logged in user
+    PATCH /assignments/published_state/<pk> -- update the published state of an assignment of all entries in journals
     """
 
     def list(self, request):
@@ -314,3 +316,39 @@ class AssignmentView(viewsets.ViewSet):
             #             deadline_list.append(deadline)
 
         return response.success({'upcomming': deadline_list})
+
+    @action(methods=['patch'], detail=True)
+    def published_state(self, request, *args, **kwargs):
+        """Update the grade publish status for whole assignment.
+
+        Arguments:
+        request -- the request that was send with
+            published -- new published state
+            aID -- assignment ID
+
+        Returns a json string if it was successful or not.
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+
+        aID = kwargs.get('pk')
+        published = utils.required_params(request.data, 'published')
+
+        try:
+            assign = Assignment.objects.get(pk=aID)
+        except Assignment.DoesNotExist:
+            return response.not_found('Assignment')
+
+        if not permissions.has_assignment_permission(request.user, assign, 'can_publish_journal_grades'):
+            return response.forbidden('You cannot publish assignments.')
+
+        utils.publish_all_assignment_grades(assign, published)
+
+        for journ in Journal.objects.filter(assignment=assign):
+            if journ.sourcedid is not None and journ.grade_url is not None:
+                payload = lti_grade.replace_result(journ)
+            else:
+                payload = dict()
+
+        payload['new_published'] = published
+        return response.success(payload=payload)

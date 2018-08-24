@@ -11,6 +11,8 @@ import VLE.permissions as permissions
 import VLE.views.responses as response
 import VLE.utils.generic_utils as utils
 import VLE.factory as factory
+import VLE.lti_grade_passback as lti_grade
+from rest_framework.decorators import action
 
 
 class JournalView(viewsets.ViewSet):
@@ -22,6 +24,7 @@ class JournalView(viewsets.ViewSet):
     GET /journals/<pk> -- gets a specific journal
     PATCH /journals/<pk> -- partially update an journal
     DEL /journals/<pk> -- delete an journal
+    PATCH /journals/published_state/<pk> -- update the published state of all entries in a journal
     """
 
     serializer_class = JournalSerializer
@@ -150,3 +153,38 @@ class JournalView(viewsets.ViewSet):
 
     def destroy(self, request, *args, **kwargs):
         pass
+
+    @action(methods=['patch'], detail=True)
+    def published_state(self, request, *args, **kwargs):
+        """Update the grade publish status for a journal.
+
+        Arguments:
+        request -- the request that was send with
+            published -- publish state of grade
+            jID -- journal ID
+
+        Returns a json string if it was successful or not.
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+
+        jID = kwargs.get('pk')
+        published = utils.required_params(request.data, 'published')
+
+        try:
+            journ = Journal.objects.get(pk=jID)
+        except Journal.DoesNotExist:
+            return response.DoesNotExist('Journal')
+
+        if not permissions.has_assignment_permission(request.user, journ.assignment, 'can_publish_journal_grades'):
+            return response.forbidden('You cannot publish assignments.')
+
+        utils.publish_all_journal_grades(journ, published)
+
+        if journ.sourcedid is not None and journ.grade_url is not None:
+            payload = lti_grade.replace_result(journ)
+        else:
+            payload = dict()
+
+        payload['new_published'] = request.data['published']
+        return response.success(payload=payload)
