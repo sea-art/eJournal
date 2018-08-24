@@ -137,6 +137,7 @@ class Role(models.Model):
 
     class Meta:
         """Meta data for the model: unique_together."""
+
         unique_together = ('name', 'course',)
 
 

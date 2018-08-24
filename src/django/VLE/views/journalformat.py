@@ -23,12 +23,11 @@ class JournalFormatView(viewsets.ViewSet):
     DEL /journalformats/<pk> -- delete an journalformat
     """
 
-    def partial_update(self, request):
-        """Update a format.
+    def partial_update(self, request, *args, **kwargs):
+        """Update an existing journal format.
 
         Arguments:
-        request -- the request that was send with
-            aID -- the assignments' format to update
+        request -- request data
             max_points -- the max points possible.
             templates -- the list of templates to bind to the format
             presets -- the list of presets to bind to the format
@@ -36,14 +35,25 @@ class JournalFormatView(viewsets.ViewSet):
                                 deck, but are not used in presets nor the entry templates.
             removed_presets -- presets to be removed
             removed_templates -- templates to be removed
+        pk -- assignment ID
 
-        Returns a json string for if it is successful or not.
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+            not found -- when the assignment does not exists
+            forbidden -- User not allowed to edit this assignment
+            unauthorized -- when the user is unauthorized to edit the assignment
+            bad_request -- when there is invalid data in the request
+        On success:
+            success -- with the new assignment data
+
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
 
         try:
-            aID, templates, presets = utils.required_params(request.data, "aID", "templates", "presets")
+            aID = kwargs.get('pk')
+            templates, presets = utils.required_params(request.data, "templates", "presets")
             unused_templates, max_points = utils.required_params(request.data, "unused_templates", "max_points")
             removed_presets, removed_templates = utils.required_params(request.data, "removed_presets",
                                                                        "removed_templates")
