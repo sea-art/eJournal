@@ -120,25 +120,6 @@ new Vue({
             return day + '-' + month + '-' + year + ' ' + time
         },
 
-        /* #############################################################
-         *              Permissions,
-         * Front-end interface for all possible permissions.
-         * For an overview see:
-         * https://docs.google.com/spreadsheets/d/1M7KnEKL3cG9PMWfQi9HIpRJ5xUMou4Y2plnRgke--Tk
-         *
-         * ##############################################################
-         */
-
-        /* Course level based permissions. These permissions are enabled and
-        used per course. */
-
-        /* Course permissions. */
-        canAddCourse () {
-            return this.generalPermissions.can_add_course
-        },
-        canViewCourseParticipants () {
-            return this.generalPermissions.can_view_course_participants
-        },
         canAddCourseParticipants () {
             return this.generalPermissions.can_add_course_participants
         },

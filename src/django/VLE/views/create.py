@@ -297,8 +297,8 @@ def create_lti_user(request):
 
     try:
         validators.validate_password(password)
-    except ValidationError:
-        return responses.bad_request('Invalid password format.')
+    except ValidationError as e:
+        return responses.bad_request(e.args[0])
 
     try:
         validate_email(email)

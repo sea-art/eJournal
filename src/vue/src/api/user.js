@@ -6,7 +6,6 @@ export default {
      */
     getUserData (uID) {
         return auth.authenticatedGet('/get_user_data/' + uID + '/')
-            .then(response => response.data)
     },
 
     /* Get user file. */

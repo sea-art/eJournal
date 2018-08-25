@@ -133,11 +133,10 @@ def keyerror(*keys):
     if len(keys) == 1:
         return bad_request(description='Field {0} is required but is missing.'.format(keys))
     else:
-        print('{0}'.format(keys))
         return bad_request(description='Fields {0} are required but one or more are missing.'.format(keys))
 
 
-def fileb64(user_file):
+def user_file_b64(user_file):
     """Return a file as base64 encoded binary string if found, otherwise returns a not found response."""
     file_path = os.path.join(MEDIA_ROOT, user_file.file.name)
     if os.path.exists(file_path):
@@ -151,9 +150,21 @@ def fileb64(user_file):
         return not_found(description='File not found.')
 
 
-def file(user_file):
-    """Return a file as blob if found, otherwise returns a not found response."""
-    file_path = os.path.join(MEDIA_ROOT, user_file.file.name)
+def file_b64(file_path, content_type):
+    """Return a file as base64 encoded binary string if found, otherwise returns a not found response."""
+    if os.path.exists(file_path):
+        with open(file_path, 'rb') as fp:
+            response = HttpResponse(base64.b64encode(fp.read()), content_type=content_type)
+            response['Content-Disposition'] = 'attachment; filename=' + os.path.basename(file_path)
+            # Exposes headers to the response in javascript lowercase recommended
+            response['access-control-expose-headers'] = 'content-disposition, content-type'
+            return response
+    else:
+        return not_found(description='File not found.')
+
+
+def file(file_path):
+    """Return a file as bytestring if found, otherwise returns a not found response."""
     try:
         response = FileResponse(open(file_path, 'rb'), as_attachment=True)
         return response

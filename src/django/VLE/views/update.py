@@ -867,8 +867,8 @@ def recover_password(request):
 
     try:
         validators.validate_password(request.data['new_password'])
-    except ValidationError:
-        return responses.bad_request('Invalid password format.')
+    except ValidationError as e:
+        return responses.bad_request(e.args[0])
 
     user.set_password(request.data['new_password'])
     user.save()

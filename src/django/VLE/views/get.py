@@ -16,6 +16,7 @@ import jwt
 import VLE.lti_launch as lti
 import VLE.edag as edag
 import VLE.utils.generic_utils as utils
+import VLE.utils.file_handling as file_handling
 from VLE.models import Assignment, Course, Journal, EntryTemplate, EntryComment, User, Node, \
     Role, Entry, UserFile
 import VLE.serializers as serialize
@@ -361,15 +362,7 @@ def create_teacher_assignment_deadline(course, assignment):
     if len(format['presets']) == 0:
         return {}
 
-    deadline_data = format['presets'][0]['deadline']
-    splitted_deadline = deadline_data.split(' ')
-    deadline = [splitted_deadline[0],
-                splitted_deadline[1].split(':')[0],
-                splitted_deadline[1].split(':')[1]]
-    deadline = {'Date': deadline[0],
-                'Hours': deadline[1],
-                'Minutes': deadline[2]
-                }
+    deadline = format['presets'][0]['deadline']
 
     return {'name': serialize.assignment_to_dict(assignment)['name'],
             'courseAbbr': course.abbreviation,
@@ -407,10 +400,6 @@ def create_student_assignment_deadline(user, course, assignment):
         return {}
 
     future_deadline = future_deadlines[0]
-
-    future_deadline = {'Date': future_deadline['preset__deadline'].date(),
-                       'Hours': future_deadline['preset__deadline'].hour,
-                       'Minutes': future_deadline['preset__deadline'].minute}
 
     return {'name': serialize.assignment_to_dict(assignment)['name'],
             'courseAbbr': course.abbreviation,
@@ -727,7 +716,8 @@ def get_entrycomments(request, eID):
 def get_user_data(request, uID):
     """Get the user data of the given user.
 
-    Get his/her profile data and posted entries with the titles of the journals of the user based on the uID.
+    Get the users profile data and posted entries with the titles of the journals of the user based on the uID. As well
+    as all the user uploaded files.
     """
     if not request.user.is_authenticated:
         return responses.unauthorized()
@@ -752,7 +742,10 @@ def get_user_data(request, uID):
         entries_of_journal = [serialize.export_entry_to_dict(node.entry) for node in nodes_of_journal_with_entries]
         journal_dict.update({journal.assignment.name: entries_of_journal})
 
-    return responses.success(payload={'profile': profile, 'journals': journal_dict})
+    archive_path, content_type = file_handling.compress_all_user_data(user,
+                                                                      {'profile': profile, 'journals': journal_dict})
+
+    return responses.file_b64(archive_path, content_type)
 
 
 @api_view(['GET'])
