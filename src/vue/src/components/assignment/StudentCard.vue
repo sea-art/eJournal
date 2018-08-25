@@ -49,7 +49,10 @@ export default {
 </script>
 
 <style lang="sass">
+@import '~sass/partials/shadows.sass'
+
 .student-card-portrait
+    @extend .shadow
     border-radius: 50% !important
     display: block
     margin: auto

@@ -46,24 +46,20 @@ class StudentAssignmentSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ('id', )
 
-    # TODO: add personalized deadline
     def get_deadline(self, assignment):
         if 'request' not in self.context:
-            return {
-                'date': '00-00',
-                'time': '00:00'
-            }
-        nodes = assignment.format.presetnode_set.all().order_by('deadline')
-        if not nodes:
-            return {
-                'date': '00-00',
-                'time': '00:00'
-            }
-        deadline = nodes[0].deadline
-        return {
-            'date': '{:02d}-{:02d}'.format(deadline.day, deadline.month),
-            'time': '{:02d}:{:02d}'.format(deadline.hour, deadline.minute)
-        }
+            return {}
+
+        try:
+            journal = Journal.objects.get(assignment=assignment, user=self.context.request.user)
+        except Journal.DoesNotExist:
+            return {}
+
+        deadlines = journal.node_set.exclude(preset=None).values('preset__deadline').order_by('deadline')
+        if not deadlines:
+            return {}
+
+        return deadlines[0]
 
     def get_journal(self, assignment):
         if 'request' not in self.context:
@@ -93,22 +89,15 @@ class TeacherAssignmentSerializer(serializers.ModelSerializer):
     def get_deadline(self, assignment):
         nodes = assignment.format.presetnode_set.all().order_by('deadline')
         if not nodes:
-            return {
-                'date': '00-00',
-                'time': '00:00'
-            }
-        deadline = nodes[0].deadline
-        return {
-            'date': '{:02d}-{:02d}'.format(deadline.day, deadline.month),
-            'time': '{:02d}:{:02d}'.format(deadline.hour, deadline.minute)
-        }
+            return {}
+        return nodes[0].deadline
 
     def get_stats(self, assignment):
         journals = JournalSerializer(assignment.journal_set.all(), many=True).data
         stats = {}
-        stats['needsMarking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
+        stats['needs_marking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
         points = [x['stats']['acquired_points'] for x in journals]
-        stats['avgPoints'] = round(st.mean(points), 2)
+        stats['average_points'] = round(st.mean(points), 2)
         return stats
 
 

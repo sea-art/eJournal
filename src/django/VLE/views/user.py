@@ -10,8 +10,6 @@ from django.core.exceptions import ValidationError
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-import VLE.settings as settings
-
 from VLE.serializers import UserSerializer
 from VLE.serializers import OwnUserSerializer
 from VLE.models import User, Journal, UserFile, Assignment
