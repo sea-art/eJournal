@@ -61,7 +61,7 @@ class UserView(viewsets.ViewSet):
         except User.DoesNotExist:
             return response.not_found('user')
 
-        if request.user is user:
+        if request.user == user or request.user.is_superuser:
             serializer = OwnUserSerializer(user, many=False)
         else:
             serializer = self.serializer_class(user, many=False)

@@ -34,17 +34,25 @@ export default {
     methods: {
         getGradeNotification (isActive) {
             userAPI.update(0, {grade_notifications: isActive})
-                .then(isActive => {
-                    this.userData.grade_notifications = isActive
-                    this.$toasted.success('Grade notification setting updated succesfully.')
+                .then(user => {
+                    this.userData.grade_notifications = user.grade_notifications
+                    if (this.userData.grade_notifications) {
+                        this.$toasted.success('You will now recieve grade notifications.')
+                    } else {
+                        this.$toasted.info('You will not recieve grade notifications anymore.')
+                    }
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         getCommentNotification (isActive) {
             userAPI.update(0, {comment_notifications: isActive})
-                .then(isActive => {
-                    this.userData.comment_notifications = isActive
-                    this.$toasted.success('Comment notification setting updated succesfully.')
+                .then(user => {
+                    this.userData.comment_notifications = user.comment_notifications
+                    if (this.userData.comment_notifications) {
+                        this.$toasted.success('You will now recieve comment notifications.')
+                    } else {
+                        this.$toasted.info('You will not recieve comment notifications anymore.')
+                    }
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         }

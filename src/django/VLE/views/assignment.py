@@ -25,7 +25,6 @@ class AssignmentView(viewsets.ViewSet):
     PATCH /assignments/<pk> -- partially update an assignment
     DEL /assignments/<pk> -- delete an assignment
     GET /assignments/upcomming/ -- get the upcomming assignments of the logged in user
-    PATCH /assignments/published_state/<pk> -- update the published state of an assignment of all entries in journals
     """
 
     def list(self, request):
