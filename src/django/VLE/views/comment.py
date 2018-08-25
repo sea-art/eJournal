@@ -5,6 +5,7 @@ In this file are all the comment api requests.
 """
 from rest_framework import viewsets
 
+from VLE.serializers import CommentSerializer
 from VLE.models import Comment, Entry, User, Assignment
 import VLE.views.responses as response
 import VLE.permissions as permissions
@@ -21,98 +22,93 @@ class CommentView(viewsets.ViewSet):
     POST /comment/ -- create a new comment
     PATCH /comment/<pk> -- partially update an comment
     DEL /comment/<pk> -- delete an comment
-    GET /comment/upcomming/ -- get the upcomming comment of the logged in user
     """
 
     def list(self, request):
-        """Get the comments from an entry.
+        """Get the comments belonging to an entry.
 
         Arguments:
         request -- request data
-            eID -- entry ID
+            entry_id -- entry ID
 
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
             not found -- when the course does not exists
-            forbidden -- when the user is not part of the course
+            forbidden -- when its not their own journal, or the user is not allowed to grade that journal
         On succes:
-            success -- with the assignment data
+            success -- with a list of the comments belonging to the entry
 
         """
-        # Check if the user is correctly authenticated.
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        # Try to get the eID of the request.
+        # Try to get the entry_id of the request.
         try:
-            eID = request.query_params['eID']
+            entry_id = request.query_params['entry_id']
         except KeyError:
-            eID = None
+            entry_id = None
+
+        # Try to get the Entry associated with the given entry_id.
         try:
-            # Try to get the Entry associated with the given eID.
-            if eID:
-                entry = Entry.objects.get(pk=eID)
+            if entry_id:
+                entry = Entry.objects.get(pk=entry_id)
         except Entry.DoesNotExist:
             return response.not_found('Entry')
 
-        if not (entry.node.journal.user == request.user or permissions.has_assignment_permission(request.user,
-                entry.node.journal.assignment, 'can_view_assignment_participants')):
+        if entry.node.journal.user != request.user and \
+           not permissions.has_assignment_permission(
+                request.user, entry.node.journal.assignment, 'can_view_assignment_participants'):
             return response.forbidden('You are not allowed to view journals of other participants.')
 
         if permissions.has_assignment_permission(request.user, entry.node.journal.assignment,
                                                  'can_grade_journal'):
-            entrycomments = Comment.objects.filter(entry=entry)
+            comments = Comment.objects.filter(entry=entry)
         else:
-            entrycomments = Comment.objects.filter(entry=entry, published=True)
+            comments = Comment.objects.filter(entry=entry, published=True)
 
-        return response.success(payload={
-            'entrycomments': [serialize.entrycomment_to_dict(comment) for comment in entrycomments]
-        })
+        serializer = CommentSerializer(comments, many=True)
+        return response.success({'comments': serializer.data})
 
     def create(self, request):
         """Create a new comment.
 
         Arguments:
         request -- request data
-            eID -- entry ID
-            uID -- author ID
+            entry_id -- entry ID
             text -- comment text
             published -- publishment state
 
         Returns:
-            On failure:
-                unauthorized -- when the user is not logged in
-                not_found -- could not find the entry or author
-                key_error -- missing keys
-                forbidden -- the user is not allowed to write comments
+        On failure:
+            unauthorized -- when the user is not logged in
+            key_error -- missing keys
+            not_found -- could not find the entry, author or assignment
 
-            On success:
-                succes -- with the assignment data
+        On success:
+            succes -- with the assignment data
 
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
 
         try:
-            eID, uID, text, published = utils.required_params(request.data, "eID", "uID", "text", "published")
+            entry_id, text, published = utils.required_params(
+                request.data, "entry_id", "text", "published")
         except KeyError:
-            return response.keyerror("eID", "uID", "text", "published")
+            return response.keyerror("entry_id", "text", "published")
 
         try:
-            author = User.objects.get(pk=uID)
-            entry = Entry.objects.get(pk=eID)
+            entry = Entry.objects.get(pk=entry_id)
             assignment = Assignment.objects.get(journal__node__entry=entry)
         except (User.DoesNotExist, Entry.DoesNotExist):
-            return response.not_found('User or Entry does not exist.')
+            return response.not_found('User, Entry or assignment does not exist.')
 
-        if author is not request.user:
-            return response.forbidden('You are not allowed to write comments for others.')
-
+        # TODO: Why is this a thing here? If you dont have can_grade_journal permissions, its published?
         published = published or not permissions.has_assignment_permission(request.user, assignment,
                                                                            'can_grade_journal')
 
-        comment = factory.make_entrycomment(entry, author, text, published)
+        comment = factory.make_entrycomment(entry, request.user, text, published)
         return response.created(payload={'comment': serialize.entrycomment_to_dict(comment)})
 
     def retrieve(self, request, pk=None):
@@ -124,30 +120,27 @@ class CommentView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
-            commentID -- comment ID
             text -- comment text
+        pk -- comment ID
 
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
+            keyerror -- when comment_id or text is not set
             not found -- when the comment does not exists
-            forbidden -- User not allowed to comment
+            forbidden -- when the user is not allowed to comment
             unauthorized -- when the user is unauthorized to edit the assignment
-            bad_request -- when there is invalid data in the request
         On success:
-            success -- with the new assignment data
+            success -- with the updated comment
 
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            commentID, text = utils.required_params(request.data, "commentID", "text")
-        except KeyError:
-            return response.keyerror("commentID")
+        comment_id = kwargs.get('pk')
 
         try:
-            comment = Comment.objects.get(pk=commentID)
+            comment = Comment.objects.get(pk=comment_id)
         except Comment.DoesNotExist:
             return response.not_found('Comment does not exist.')
 
@@ -155,9 +148,11 @@ class CommentView(viewsets.ViewSet):
                                                      'can_comment_journal'):
             return response.forbidden('You cannot comment on entries.')
 
-        comment.text = text
-        comment.save()
-        return response.success()
+        serializer = CommentSerializer(comment, data=request.data, partial=True)
+        if not serializer.is_valid():
+            response.bad_request()
+        serializer.save()
+        return response.success({'comment': serializer.data})
 
     def destroy(self, request, *args, **kwargs):
         """Delete an existing comment from an entry.
@@ -169,11 +164,10 @@ class CommentView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the assignment or course does not exists
-            unauthorized -- when the user is not logged in
+            not found -- when the comment or author does not exist
             forbidden -- when the user cannot delete the assignment
         On success:
-            success -- with a message that the course was deleted
+            success -- with a message that the comment was deleted
 
         """
         if not request.user.is_authenticated:
@@ -187,8 +181,8 @@ class CommentView(viewsets.ViewSet):
         except (Comment.DoesNotExist, User.DoesNotExist):
             return response.not_found('Comment or Author does not exist.')
 
-        if request.user is not author:
+        if request.user != author and not request.user.is_superuser:
             return response.forbidden()
 
         Comment.objects.get(id=comment_id).delete()
-        return response.success(message='Succesfully deleted comment.')
+        return response.success(description='Succesfully deleted comment.')
