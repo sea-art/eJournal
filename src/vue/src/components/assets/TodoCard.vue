@@ -1,7 +1,7 @@
 <template>
     <b-card :class="$root.getBorderClass($route.params.cID)">
         <todo-square v-if="checkPermissions() && totalNeedsMarking > 0" :num="totalNeedsMarking" class="float-right" />
-        <h6>{{ $root.beautifyDate(deadline)}}</h6>
+        <h6>{{ $root.beautifyDate(deadline) }}</h6>
         <h5>{{ name }}</h5>
         {{ abbr }}
     </b-card>
