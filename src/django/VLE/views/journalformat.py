@@ -23,6 +23,35 @@ class JournalFormatView(viewsets.ViewSet):
     DEL /journalformats/<pk> -- delete an journalformat
     """
 
+    def list(self, request):
+        """Get the format attached to an assignment.
+
+        Arguments:
+        request -- the request that was sent
+            aID     -- the assignment id
+
+        Returns a json string containing the format.
+        """
+        user = request.user
+        if not user.is_authenticated:
+            return responses.unauthorized()
+
+        try:
+            aID = request.query_params['aID']
+        except KeyError:
+            return response.keyerror('aID')
+
+        try:
+            assignment = Assignment.objects.get(pk=aID)
+        except Assignment.DoesNotExist:
+            return responses.not_found('Assignment not found.')
+
+        if not (assignment.courses.all() & user.participations.all()):
+            return responses.forbidden('You are not allowed to view this assignment.')
+
+        return responses.success(payload={'format': serialize.format_to_dict(assignment.format)})
+
+
     def partial_update(self, request, *args, **kwargs):
         """Update an existing journal format.
 

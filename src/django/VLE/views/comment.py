@@ -29,7 +29,7 @@ class CommentView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
-            cID -- course ID
+            eID -- entry ID
 
         Returns:
         On failure:
