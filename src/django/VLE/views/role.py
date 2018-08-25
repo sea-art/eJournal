@@ -128,10 +128,10 @@ class RoleView(viewsets.ViewSet):
         except Course.DoesNotExist:
             return response.not_found('course')
 
-        own_role = permissions.get_role(request.user, course)
-        if own_role is None:
+        role = permissions.get_role(request.user, course)
+        if role is None:
             return response.forbidden('You are not in this course.')
-        elif not own_role.can_edit_course_roles:
+        elif not role.can_edit_course_roles:
             return response.forbidden('You cannot create roles of this course.')
 
         try:
@@ -169,10 +169,10 @@ class RoleView(viewsets.ViewSet):
         except Course.DoesNotExist:
             return response.not_found('course')
 
-        own_role = permissions.get_role(request.user, course)
-        if own_role is None:
+        role = permissions.get_role(request.user, course)
+        if role is None:
             return response.forbidden('You are not in this course.')
-        elif not own_role.can_edit_course_roles:
+        elif not role.can_edit_course_roles:
             return response.forbidden('You cannot edit roles of this course.')
 
         if 'roles' not in request.data:
@@ -215,10 +215,10 @@ class RoleView(viewsets.ViewSet):
             return response.keyerror('name')
 
         # Users can only delete course roles with can_edit_course_roles
-        own_role = permissions.get_role(request.user, pk)
-        if own_role is None:
+        role = permissions.get_role(request.user, pk)
+        if role is None:
             return response.forbidden(description="You have no access to this course")
-        elif not own_role.can_edit_course_roles:
+        elif not role.can_edit_course_roles:
             return response.forbidden(description="You have no permissions to delete this course role.")
 
         Role.objects.get(name=request.data['name'], course=pk).delete()

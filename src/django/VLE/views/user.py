@@ -39,6 +39,7 @@ class UserView(viewsets.ViewSet):
             unauthorized -- when the user is not logged in
         On succes:
             success -- with the course data
+
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
@@ -49,7 +50,16 @@ class UserView(viewsets.ViewSet):
     def retrieve(self, request, pk):
         """Get the user data of the given user.
 
-        Get the profile data and posted entries with the titles of the journals.
+        Arguments:
+        request -- request data
+        pk -- user ID
+
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+            not found -- when the user doesn't exists
+        On success:
+            success -- with the user data
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
@@ -89,7 +99,7 @@ class UserView(viewsets.ViewSet):
             bad request -- when email/username/lti id already exists
             bad request -- when email/password is invalid
         On succes:
-            success -- with the course data
+            success -- with the newly created user data
         """
         if 'jwt_params' in request.data and request.data['jwt_params'] != '':
             lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
@@ -180,6 +190,8 @@ class UserView(viewsets.ViewSet):
             if User.objects.filter(lti_id=lti_id).exists() and User.objects.filter(lti_id=lti_id) is not user:
                 return response.bad_request('User with this lti id already exists.')
             user.lti_id = lti_id
+
+        user.save()
 
         serializer = OwnUserSerializer(user, data=request.data, partial=True)
         if not serializer.is_valid():
