@@ -160,6 +160,7 @@ class EntrySerializer(serializers.ModelSerializer):
         model = Entry
         fields = '__all__'
         read_only_fields = ('id', )
+
 # def user_to_dict(user):
 #     """Convert user object to dictionary."""
 #     return {

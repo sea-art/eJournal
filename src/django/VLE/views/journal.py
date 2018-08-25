@@ -149,42 +149,57 @@ class JournalView(viewsets.ViewSet):
         pass
 
     def partial_update(self, request, *args, **kwargs):
-        pass
-
-    def destroy(self, request, *args, **kwargs):
-        pass
-
-    @action(methods=['patch'], detail=True)
-    def published_state(self, request, *args, **kwargs):
-        """Update the grade publish status for a journal.
+        """Update an existing journal.
 
         Arguments:
-        request -- the request that was send with
-            published -- publish state of grade
-            jID -- journal ID
+        request -- request data
+            data -- the new data for the course
+        pk -- journal ID
 
-        Returns a json string if it was successful or not.
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+            not found -- when the journal does not exists
+            forbidden -- User not allowed to edit this journal
+            unauthorized -- when the user is unauthorized to edit the journal
+            bad_request -- when there is invalid data in the request
+        On success:
+            success -- with the new journal data
+
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        jID = kwargs.get('pk')
-        published = utils.required_params(request.data, 'published')
+        pk = kwargs.get('pk')
 
         try:
-            journ = Journal.objects.get(pk=jID)
-        except Journal.DoesNotExist:
-            return response.DoesNotExist('Journal')
+            journal = Journal.objects.get(pk=pk)
+        except Course.DoesNotExist:
+            return response.not_found('Journal')
 
-        if not permissions.has_assignment_permission(request.user, journ.assignment, 'can_publish_journal_grades'):
-            return response.forbidden('You cannot publish assignments.')
+        if not permissions.has_journal_permission(request.user, journal, 'can_edit_journal'):
+            return response.forbidden('You are not allowed to edit this journal.')
 
-        utils.publish_all_journal_grades(journ, published)
+        # TODO Check if a serializer is valid if we add an extra argument (published)
+        serializer = JournalSerializer(journal, data=request.data, partial=True)
+        if not serializer.is_valid():
+            response.bad_request()
+        serializer.save()
 
-        if journ.sourcedid is not None and journ.grade_url is not None:
-            payload = lti_grade.replace_result(journ)
-        else:
-            payload = dict()
+        published = utils.optional_params(request.data, "published")
+        if published:
+            if not permissions.has_assignment_permission(request.user, journ.assignment, 'can_publish_journal_grades'):
+                return response.forbidden('You cannot publish assignments.')
+            utils.publish_all_journal_grades(journal, published)
+            if journ.sourcedid is not None and journ.grade_url is not None:
+                payload = lti_grade.replace_result(journ)
+            else:
+                payload = dict()
 
-        payload['new_published'] = request.data['published']
-        return response.success(payload=payload)
+            payload['new_published'] = request.data['published']
+            response.success({'journal': serializer.data}, payload=payload)
+
+        return response.success({'journal': serializer.data})
+
+    def destroy(self, request, *args, **kwargs):
+        pass
