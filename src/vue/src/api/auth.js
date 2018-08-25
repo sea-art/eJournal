@@ -107,7 +107,7 @@ export default {
 
     /* Change password. */
     changePassword (newPassword, oldPassword) {
-        return this.patch('/users/password', { new_password: newPassword, old_password: oldPassword })
+        return connection.conn.patch('/users/password', { new_password: newPassword, old_password: oldPassword })
     },
 
     /* Forgot password.
@@ -133,11 +133,6 @@ export default {
             .catch(error => refresh(error))
     },
 
-    // TODO: remove this old function
-    authenticatedGet () {
-        return this.get('courses')
-    },
-
     get (url, data = null, noRedirect = false) {
         if (url[0] !== '/') url = '/' + url
         if (url.slice(-1) !== '/') url += '/'
@@ -151,13 +146,16 @@ export default {
                 .then(_ => connection.conn.post(url, getAuthorizationHeader())))
             .catch(error => handleError(error, noRedirect))
     },
-    create (url, data, noRedirect = false) {
+    post (url, data, noRedirect = false) {
         if (url[0] !== '/') url = '/' + url
         if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
         return connection.conn.post(url, data, getAuthorizationHeader())
             .catch(error => refresh(error)
                 .then(_ => connection.conn.post(url, data, getAuthorizationHeader())))
             .catch(error => handleError(error, noRedirect))
+    },
+    create (url, data, noRedirect = false) {
+        this.post(url, data, noRedirect)
     },
     update (url, data, noRedirect = false) {
         if (url[0] !== '/') url = '/' + url

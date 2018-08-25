@@ -16,7 +16,7 @@ import notificationCard from '@/components/profile/NotificationCard.vue'
 import passwordCard from '@/components/profile/PasswordCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 
-import auth from '@/api/auth.js'
+import userAPI from '@/api/user'
 
 export default {
     name: 'Profile',
@@ -33,7 +33,7 @@ export default {
         'password-card': passwordCard
     },
     created () {
-        auth.get('users/0')
+        userAPI.get()
             .then(userData => { this.userData = userData })
             .catch(error => { this.$toasted.error(error.response.data.description) })
     }

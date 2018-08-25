@@ -55,14 +55,13 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
+        if int(pk) is 0:
+            pk = request.user.id
 
-        if int(pk) is not 0:
-            try:
-                user = User.objects.get(pk=pk)
-            except User.DoesNotExist:
-                return response.not_found('user')
-        else:
-            user = request.user
+        try:
+            user = User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            return response.not_found('user')
 
         if request.user is user:
             serializer = OwnUserSerializer(user, many=False)
@@ -158,6 +157,8 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
         pk = kwargs.get('pk')
+        if int(pk) is 0:
+            pk = request.user.id
         if request.user.pk != int(pk) and not request.user.is_superuser:
             return response.forbidden()
 
@@ -204,6 +205,8 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
+        if int(pk) is 0:
+            pk = request.user.id
 
         if request.user.pk is not pk or not request.user.is_auperuser:
             return response.forbidden()
@@ -269,6 +272,8 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
+        if int(pk) is 0:
+            pk = request.user.id
 
         user = User.objects.get(pk=pk)
 
@@ -315,9 +320,10 @@ class UserView(viewsets.ViewSet):
         On success:
             success -- a zip file of all the userdata with all their files
         """
-        user = request.user
-        if not user.is_authenticated:
+        if not request.user.is_authenticated:
             return response.unauthorized()
+        if int(pk) is 0:
+            pk = request.user.id
 
         try:
             file_name = utils.required_params(request.data, 'file_name')
@@ -329,8 +335,9 @@ class UserView(viewsets.ViewSet):
         except UserFile.DoesNotExist:
             return response.bad_request(file_name + ' was not found.')
 
-        if user_file.author.id is not user.id and \
-           not permissions.has_assignment_permission(user, user_file.assignment, 'can_view_assignment_participants'):
+        if user_file.author.id is not request.user.id and \
+           not permissions.has_assignment_permission(
+                request.user, user_file.assignment, 'can_view_assignment_participants'):
             return response.forbidden('Forbidden to view: %s by author ID: %s.' % (file_name, pk))
 
         return response.user_file_b64(user_file)
@@ -368,7 +375,8 @@ class UserView(viewsets.ViewSet):
         user_files = request.user.userfile_set.all()
 
         # Fast check for allowed user storage space
-        if settings.USER_MAX_TOTAL_STORAGE_BYTES - len(user_files) * settings.USER_MAX_FILE_SIZE_BYTES <= request.FILES['file'].size:
+        if settings.USER_MAX_TOTAL_STORAGE_BYTES - len(user_files) * settings.USER_MAX_FILE_SIZE_BYTES <= \
+           request.FILES['file'].size:
             # Slow check for allowed user storage space
             file_size_sum = 0
             for user_file in user_files:
@@ -395,7 +403,7 @@ class UserView(viewsets.ViewSet):
 
     # TODO: check if it works
     @action(['post'], detail=False)
-    def profile_picture(self, request):
+    def set_profile_picture(self, request):
         """Update user profile picture.
 
         Arguments:
@@ -416,7 +424,7 @@ class UserView(viewsets.ViewSet):
         try:
             utils.required_params(request.data, 'file')
         except KeyError:
-            return response.KeyError('file')
+            return response.keyerror('file')
 
         try:
             validators.validate_profile_picture_base64(request.data['file'])

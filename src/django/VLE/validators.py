@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-import VLE.settings as settings
+from django.conf import settings
 import re
 
 

@@ -38,12 +38,11 @@
 </template>
 
 <script>
-import userAPI from '@/api/user.js'
-import icon from 'vue-awesome/components/Icon'
 import email from '@/components/profile/Email.vue'
-import dataHandling from '@/utils/data_handling.js'
 
-import auth from '@/api/auth.js'
+import dataHandling from '@/utils/data_handling.js'
+import userAPI from '@/api/user'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     props: ['userData'],
@@ -62,7 +61,7 @@ export default {
     },
     methods: {
         saveUserdata () {
-            auth.update('users/' + this.userData.id, this.userData)
+            userAPI.update(this.userData.id, this.userData)
                 .then(_ => { this.$toasted.success('Saved profile data') })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
@@ -96,7 +95,7 @@ export default {
             reader.readAsDataURL(files[0])
         },
         downloadUserData () {
-            auth.get('user/' + this.userData.id + '/download')
+            userAPI.download()
                 .then(response => {
                     let blob = new Blob([dataHandling.base64ToArrayBuffer(response.data)], { type: response.headers['content-type'] })
                     let link = document.createElement('a')
