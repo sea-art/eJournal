@@ -32,27 +32,27 @@ class EntryView(viewsets.ViewSet):
 
         Arguments:
         request -- the request that was send with
-        jID -- the journal id
-        tID -- the template id to create the entry with
-        nID -- optional: the node to bind the entry to (only for entrydeadlines)
-        content -- the list of {tag, data} tuples to bind data to a template field.
+            journal_id -- the journal id
+            template_id -- the template id to create the entry with
+            node_id -- optional: the node to bind the entry to (only for entrydeadlines)
+            content -- the list of {tag, data} tuples to bind data to a template field.
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
 
         try:
-            jID, tID, content_list = utils.required_params(request.data, "jID", "tID", "content")
-            nID, = utils.optional_params(request.data, "nID")
+            journal_id, template_id, content_list = utils.required_params(request.data, "journal_id", "template_id", "content")
+            node_id, = utils.optional_params(request.data, "node_id")
         except KeyError:
-            return response.keyerror("jID", "tID", "content")
+            return response.keyerror("journal_id", "template_id", "content")
 
         try:
-            journal = Journal.objects.get(pk=jID, user=request.user)
+            journal = Journal.objects.get(pk=journal_id, user=request.user)
 
-            template = EntryTemplate.objects.get(pk=tID)
+            template = EntryTemplate.objects.get(pk=template_id)
 
-            if nID:
-                node = Node.objects.get(pk=nID, journal=journal)
+            if node_id:
+                node = Node.objects.get(pk=node_id, journal=journal)
                 if node.type == Node.PROGRESS:
                     return response.bad_request('Passed node is a Progress node.')
 
@@ -89,7 +89,7 @@ class EntryView(viewsets.ViewSet):
             result = edag.get_nodes_dict(journal, request.user)
             added = -1
             for i, result_node in enumerate(result):
-                if result_node['nID'] == node.id:
+                if result_node['node_id'] == node.id:
                     added = i
                     break
 

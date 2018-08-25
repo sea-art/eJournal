@@ -34,12 +34,12 @@ class JournalView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
-            aID -- assignment ID
+            assignment_id -- assignment ID
 
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            keyerror -- when aID is not set
+            keyerror -- when assignment_id is not set
             not found -- when the assignment does not exists
             forbidden -- when the user has no permission to view the journals of the assignment
         On succes:
@@ -50,9 +50,9 @@ class JournalView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            assignment = Assignment.objects.get(pk=request.query_params['aID'])
+            assignment = Assignment.objects.get(pk=request.query_params['assignment_id'])
         except KeyError:
-            return response.keyerror('aID')
+            return response.keyerror('assignment_id')
         except Assignment.DoesNotExist:
             return response.not_found('Assignment')
 
@@ -82,7 +82,7 @@ class JournalView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
-            aID -- assignment ID
+            assignment_id -- assignment ID
 
         Returns:
         On failure:
@@ -99,17 +99,17 @@ class JournalView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            [aID] = utils.required_params(request.data, "aID")
+            [assignment_id] = utils.required_params(request.data, "assignment_id")
         except KeyError:
-            return response.keyerror("aID")
+            return response.keyerror("assignment_id")
 
-        role = permissions.get_assignment_id_permissions(request.user, aID)
+        role = permissions.get_assignment_id_permissions(request.user, assignment_id)
         if not role:
             return response.forbidden("You have no permissions within this course.")
         elif not role["can_edit_journal"]:
             return response.forbidden("You have no permissions to create a journal.")
 
-        assignment = Assignment.objects.get(pk=aID)
+        assignment = Assignment.objects.get(pk=assignment_id)
         journal = factory.make_journal(assignment, request.user)
         serializer = self.serializer_class(journal, many=False)
         return response.created({'journal': serializer.data})

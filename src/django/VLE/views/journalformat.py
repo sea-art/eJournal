@@ -28,7 +28,7 @@ class JournalFormatView(viewsets.ViewSet):
 
         Arguments:
         request -- the request that was sent
-            aID     -- the assignment id
+            assignment_id     -- the assignment id
 
         Returns a json string containing the format.
         """
@@ -37,12 +37,12 @@ class JournalFormatView(viewsets.ViewSet):
             return responses.unauthorized()
 
         try:
-            aID = request.query_params['aID']
+            assignment_id = request.query_params['assignment_id']
         except KeyError:
-            return response.keyerror('aID')
+            return response.keyerror('assignment_id')
 
         try:
-            assignment = Assignment.objects.get(pk=aID)
+            assignment = Assignment.objects.get(pk=assignment_id)
         except Assignment.DoesNotExist:
             return responses.not_found('Assignment not found.')
 
@@ -81,17 +81,17 @@ class JournalFormatView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            aID = kwargs.get('pk')
+            assignment_id = kwargs.get('pk')
             templates, presets = utils.required_params(request.data, "templates", "presets")
             unused_templates, max_points = utils.required_params(request.data, "unused_templates", "max_points")
             removed_presets, removed_templates = utils.required_params(request.data, "removed_presets",
                                                                        "removed_templates")
 
         except KeyError:
-            return response.keyerror("aID", "templates", "presets", "unused_templates", "max_points")
+            return response.keyerror("assignment_id", "templates", "presets", "unused_templates", "max_points")
 
         try:
-            assignment = Assignment.objects.get(pk=aID)
+            assignment = Assignment.objects.get(pk=assignment_id)
             format = assignment.format
         except Assignment.DoesNotExist:
             return response.not_found('Assignment')

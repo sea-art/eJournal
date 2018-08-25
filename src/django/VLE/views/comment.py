@@ -104,8 +104,7 @@ class CommentView(viewsets.ViewSet):
         except (User.DoesNotExist, Entry.DoesNotExist):
             return response.not_found('User, Entry or assignment does not exist.')
 
-        # TODO: Why is this a thing here? If you dont have can_grade_journal permissions, its published?
-        published = published or not permissions.has_assignment_permission(request.user, assignment,
+        published = published and permissions.has_assignment_permission(request.user, assignment,
                                                                            'can_grade_journal')
 
         comment = factory.make_entrycomment(entry, request.user, text, published)
