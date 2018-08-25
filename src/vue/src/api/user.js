@@ -4,8 +4,8 @@ export default {
     /* Get user data.
      * Get all the profile data and all the data like entries etc.
      */
-    getUserData (uID) {
-        return auth.authenticatedGet('/get_user_data/' + uID + '/')
+    getAllUserData () {
+        return auth.authenticatedGetFile('/get_all_user_data/')
     },
 
     /* Get user file. */

@@ -713,27 +713,21 @@ def get_entrycomments(request, eID):
 
 
 @api_view(['GET'])
-def get_user_data(request, uID):
+def get_all_user_data(request):
     """Get the user data of the given user.
 
     Get the users profile data and posted entries with the titles of the journals of the user based on the uID. As well
     as all the user uploaded files.
     """
-    if not request.user.is_authenticated:
+    user = request.user
+    if not user.is_authenticated:
         return responses.unauthorized()
-
-    user = User.objects.get(pk=uID)
-
-    # Check the right permissions to get this users data, either be the user of the data or be an admin.
-    permission = permissions.get_permissions(user, cID=-1)
-    if not (permission['is_superuser'] or request.user.id == uID):
-        return responses.forbidden('You cannot view this users data.')
 
     profile = serialize.user_to_dict(user)
     # Don't send the user id with it.
     del profile['uID']
 
-    journals = Journal.objects.filter(user=uID)
+    journals = Journal.objects.filter(user=user)
     journal_dict = {}
     for journal in journals:
         # Select the nodes of this journal but only the ones with entries.
@@ -742,10 +736,9 @@ def get_user_data(request, uID):
         entries_of_journal = [serialize.export_entry_to_dict(node.entry) for node in nodes_of_journal_with_entries]
         journal_dict.update({journal.assignment.name: entries_of_journal})
 
-    archive_path, content_type = file_handling.compress_all_user_data(user,
-                                                                      {'profile': profile, 'journals': journal_dict})
+    archive_path = file_handling.compress_all_user_data(user, {'profile': profile, 'journals': journal_dict})
 
-    return responses.file_b64(archive_path, content_type)
+    return responses.file(archive_path)
 
 
 @api_view(['GET'])

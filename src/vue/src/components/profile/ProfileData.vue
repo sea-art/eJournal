@@ -40,7 +40,6 @@
 import userAPI from '@/api/user.js'
 import icon from 'vue-awesome/components/Icon'
 import email from '@/components/profile/Email.vue'
-import dataHandling from '@/utils/data_handling.js'
 
 export default {
     components: {
@@ -100,9 +99,9 @@ export default {
             reader.readAsDataURL(files[0])
         },
         downloadUserData () {
-            userAPI.getUserData(this.$store.getters['user/uID'])
+            userAPI.getAllUserData(this.$store.getters['user/uID'])
                 .then(response => {
-                    let blob = new Blob([dataHandling.base64ToArrayBuffer(response.data)], { type: response.headers['content-type'] })
+                    let blob = new Blob([response.data], { type: response.headers['content-type'] })
                     let link = document.createElement('a')
                     link.href = window.URL.createObjectURL(blob)
                     link.download = this.$store.getters['user/username'] + '_all_user_data.zip'
