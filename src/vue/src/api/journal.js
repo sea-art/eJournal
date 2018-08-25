@@ -20,7 +20,7 @@ export default {
     delete (id) {
         return auth.delete('journals/' + id)
             .then(response => response.data)
-    },
+    }
 
     // /* Get assignment journals.
     //  * Requests all the assignment journals.

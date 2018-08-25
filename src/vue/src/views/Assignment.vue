@@ -56,10 +56,8 @@ import statisticsCard from '@/components/assignment/StatisticsCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 
 import store from '@/Store.vue'
-import journalAPI from '@/api/journal'
 import assignmentAPI from '@/api/assignment'
 import icon from 'vue-awesome/components/Icon'
-
 
 export default {
     name: 'Assignment',
