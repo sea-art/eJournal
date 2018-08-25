@@ -120,12 +120,6 @@ new Vue({
             return day + '-' + month + '-' + year + ' ' + time
         },
 
-        canAddCourseParticipants () {
-            return this.generalPermissions.can_add_course_participants
-        },
-        canEditCourse () {
-            return this.generalPermissions.can_edit_course
-        },
         canDeleteCourse () {
             return this.generalPermissions.can_delete_course
         },

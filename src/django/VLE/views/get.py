@@ -117,8 +117,8 @@ def get_unenrolled_users(request, cID):
     role = permissions.get_role(user, course)
     if role is None:
         return responses.forbidden('You are not a participant of this course.')
-    elif not role.can_view_course_participants:
-        return responses.forbidden('You cannot view the participants in this course.')
+    elif not role.can_add_course_participants:
+        return responses.forbidden('You cannot add participants to this course.')
 
     ids_in_course = course.participation_set.all().values('user__id')
     result = User.objects.all().exclude(id__in=ids_in_course)
@@ -358,17 +358,11 @@ def create_teacher_assignment_deadline(course, assignment):
 
     totalNeedsMarking = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
 
-    format = serialize.format_to_dict(assignment.format)
-    if len(format['presets']) == 0:
-        return {}
-
-    deadline = format['presets'][0]['deadline']
-
     return {'name': serialize.assignment_to_dict(assignment)['name'],
             'courseAbbr': course.abbreviation,
             'cID': course.id,
             'aID': assignment.id,
-            'deadline': deadline,
+            'deadline': datetime.datetime.now(),  # TODO placeholder untill the assignment end dates are set.
             'totalNeedsMarking': totalNeedsMarking}
 
 
@@ -389,7 +383,7 @@ def create_student_assignment_deadline(user, course, assignment):
     except Journal.DoesNotExist:
         return {}
 
-    deadlines = journal.node_set.exclude(preset=None).values('preset__deadline')
+    deadlines = journal.node_set.exclude(preset=None).values('preset__deadline')  # TODO Incorporate assigment end date
     if len(deadlines) == 0:
         return {}
 
@@ -399,15 +393,33 @@ def create_student_assignment_deadline(user, course, assignment):
     if len(future_deadlines) == 0:
         return {}
 
-    future_deadline = future_deadlines[0]
+    future_deadline = future_deadlines[0]['preset__deadline']
 
     return {'name': serialize.assignment_to_dict(assignment)['name'],
             'courseAbbr': course.abbreviation,
             'cID': course.id,
             'aID': assignment.id,
             'jID': journal.id,
-            'deadline': future_deadline,
-            'totalNeedsMarking': 0}
+            'deadline': future_deadline}
+
+
+def compute_course_deadlines(user, course):
+    deadline_list = []
+
+    role = permissions.get_role(user, course)
+
+    if role.can_grade_journal:
+        for assignment in Assignment.objects.filter(courses=course.id).all():
+            deadline = create_teacher_assignment_deadline(course, assignment)
+            if deadline:
+                deadline_list.append(deadline)
+    else:
+        for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
+            deadline = create_student_assignment_deadline(user, course, assignment)
+            if deadline:
+                deadline_list.append(deadline)
+
+    return deadline_list
 
 
 @api_view(['GET'])
@@ -423,29 +435,12 @@ def get_upcoming_deadlines(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    courses = []
     deadline_list = []
 
     for course in user.participations.all():
-        courses.append(course)
+        deadline_list += compute_course_deadlines(user, course)
 
-    for course in courses:
-        role = permissions.get_role(user, course)
-
-        if role is None:
-            return responses.forbidden('You are not a participant of this course.')
-
-        if role.can_grade_journal:
-            for assignment in Assignment.objects.filter(courses=course.id).all():
-                deadline = create_teacher_assignment_deadline(course, assignment)
-                if deadline:
-                    deadline_list.append(deadline)
-        else:
-            for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
-                deadline = create_student_assignment_deadline(user, course, assignment)
-                if deadline:
-                    deadline_list.append(deadline)
-
+    # TODO as the assignments can be shared by course, we still need to combine possible double references.
     return responses.success(payload={'deadlines': deadline_list})
 
 
@@ -464,29 +459,12 @@ def get_upcoming_course_deadlines(request, cID):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    deadline_list = []
-
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
         return responses.not_found('Course not found.')
 
-    for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
-        role = permissions.get_role(user, course)
-
-        if role is None:
-            return responses.forbidden('You are not a participant of this course.')
-
-        if role.can_grade_journal:
-            deadline = create_teacher_assignment_deadline(course, assignment)
-            if deadline:
-                deadline_list.append(deadline)
-        else:
-            deadline = create_student_assignment_deadline(user, course, assignment)
-            if deadline:
-                deadline_list.append(deadline)
-
-    return responses.success(payload={'deadlines': deadline_list})
+    return responses.success(payload={'deadlines': compute_course_deadlines(user, course)})
 
 
 @api_view(['GET'])
