@@ -33,7 +33,7 @@ def forgot_password(request):
     except KeyError:
         return response.KeyError('username', 'email')
 
-    # We are retrieving the username based on either the username or password
+    # We are retrieving the username based on either the username or email
     try:
         user = User.objects.get(username=request.data['username'])
     except User.DoesNotExist:
