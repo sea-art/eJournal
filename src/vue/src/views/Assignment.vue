@@ -55,10 +55,11 @@ import mainCard from '@/components/assets/MainCard.vue'
 import statisticsCard from '@/components/assignment/StatisticsCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 
-import auth from '@/api/auth'
 import store from '@/Store.vue'
-
+import journalAPI from '@/api/journal'
+import assignmentAPI from '@/api/assignment'
 import icon from 'vue-awesome/components/Icon'
+
 
 export default {
     name: 'Assignment',
@@ -97,7 +98,7 @@ export default {
                 return this.$router.push({name: 'Course', params: {cID: this.cID}})
             }
         }
-        auth.get('assignments/' + this.aID)
+        assignmentAPI.get(this.aID)
             .then(data => {
                 this.assignmentJournals = data.journals
                 this.stats = data.stats
