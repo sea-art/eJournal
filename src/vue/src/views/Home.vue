@@ -7,12 +7,6 @@
             :currentPage="'Courses'">
         </bread-crumb>
 
-        <b-button
-            @click="test"
-            slot="main-content-column">
-            Test
-        </b-button>
-
         <div v-for="c in courses" :key="c.cID" slot="main-content-column">
             <b-link :to="{name: 'Course', params: {cID: c.cID, courseName: c.name}}">
                 <main-card
@@ -22,7 +16,7 @@
                 </main-card>
             </b-link>
         </div>
-        <b-button v-if="$root.canAddCourse()"
+        <b-button v-if="$store.getters['permissions/hasPermission']('can_add_course')"
             slot="main-content-column"
             class="add-button grey-background full-width"
             @click="showModal('createCourseRef')">
@@ -32,7 +26,7 @@
 
         <h3 slot="right-content-column">Upcoming</h3>
         <!-- TODO: This seems like an inappropriate permission check. Will have to be reconsidered in the rework. -->
-        <b-card v-if="this.$root.canAddCourse()"
+        <b-card v-if="$store.getters['permissions/hasPermission']('can_add_course')"
                 class="no-hover"
                 slot="right-content-column">
             <b-form-select v-model="selectedSortOption" :select-size="1">
@@ -113,10 +107,6 @@ export default {
             .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
-        test () {
-            console.log(this.$store)
-            console.log(this.$store.getters['user/username'])
-        },
         loadCourses () {
             course.get_user_courses()
                 .then(courses => { this.courses = courses })

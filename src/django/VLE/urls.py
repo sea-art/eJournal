@@ -42,7 +42,6 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
-    path('get_own_user_data/', get.get_own_user_data, name='get_own_user_data'),
     path('get_course_data/<int:cID>/', get.get_course_data, name='get_course_data'),
     path('get_assignment_data/<int:cID>/<int:aID>/', get.get_assignment_data, name='get_assignment_data'),
 

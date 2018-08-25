@@ -1,11 +1,6 @@
 import auth from '@/api/auth'
 
 export default {
-    /* Get own user data. */
-    getOwnUserData () {
-        return auth.authenticatedGet('/get_own_user_data/')
-            .then(response => response.data.user)
-    },
     /* Get user data.
      * Get all the profile data and all the data like entries etc.
      */

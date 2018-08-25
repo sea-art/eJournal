@@ -17,17 +17,18 @@
 import todoSquare from '@/components/assets/TodoSquare.vue'
 
 export default {
-    props: ['date', 'hours', 'minutes', 'name', 'abbr', 'totalNeedsMarking'],
+    props: ['date', 'hours', 'minutes', 'name', 'abbr', 'totalNeedsMarking', 'aID'],
     components: {
         'todo-square': todoSquare
     },
     methods: {
+        // TODO Permission revision
         checkPermissions () {
             if (this.$route.name === 'Course') {
                 return this.$root.canViewAssignmentParticipants()
             } else if (this.$route.name === 'AssignmentsOverview' ||
                        this.$route.name === 'Home') {
-                return this.$root.canAddCourse()
+                return this.$store.getters['permissions/hasPermission']('can_add_course')
             }
         }
     }

@@ -30,7 +30,7 @@
                             <icon name="trash"/>
                             Delete Course
                         </b-button>
-                        <b-button v-if="this.$root.canEditCourseRoles()"
+                        <b-button v-if="$store.getters['permissions/hasPermission']('can_edit_course_roles')"
                             @click.prevent.stop="routeToEditCourseRoles"
                             class="change-button flex-grow-1 multi-form">
                             <icon name="users"/>
@@ -137,7 +137,7 @@ export default {
             .then(course => { this.course = course })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
-        if (this.$root.canViewCourseParticipants()) {
+        if (this.$store.getters['permissions/hasPermission']('can_view_course_participants')) {
             courseApi.get_course_users(this.cID)
                 .then(users => { this.participants = users })
                 .catch(error => { this.$toasted.error(error.response.data.description) })

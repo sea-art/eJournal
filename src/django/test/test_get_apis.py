@@ -27,16 +27,6 @@ class GetApiTests(TestCase):
         self.lars = factory.make_user("Lars", "123", "l@l.com")
         self.not_found_pk = 9999
 
-    def test_get_own_user_data(self):
-        """Test the get own user data function."""
-        login = test.logging_in(self, self.username, self.password)
-        response = test.api_get_call(self, '/get_own_user_data/', login)
-
-        self.assertEquals(response.json()['user']['username'], self.username)
-
-        # permissions and authorization check for the api call.
-        test.test_unauthorized_api_get_call(self, '/get_own_user_data/')
-
     def test_get_course_data(self):
         """Test get coursedata function."""
         test.set_up_participation(self.user, self.course, 'Teacher')

@@ -71,9 +71,15 @@ export default {
                 })
         },
         handleLogin () {
-            authAPI.login(this.username, this.password)
-                .then(_ => { this.$emit('handleAction') })
-                .catch(_ => { this.$toasted.error('Could not login') })
+            this.$store.dispatch('user/login', { username: this.username, password: this.password })
+                .then(_ => {
+                    console.log('user/login fullfilled in login form')
+                    this.$emit('handleAction')
+                })
+                .catch(_ => {
+                    console.log('user/login rejected in login form')
+                    this.$toasted.error('Could not login')
+                })
         }
     },
     mounted () {

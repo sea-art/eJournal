@@ -12,7 +12,7 @@
             </b-col>
             <b-col sm="12" lg="4">
                 <div class="shadow">
-                    <b-form-select v-if="this.$root.canEditCourseRoles"
+                    <b-form-select v-if="$store.getters['permissions/hasPermission']('can_edit_course_roles')"
                                    v-model="selectedRole"
                                    :select-size="1">
                         <option v-for="r in roles" :key="r.name" :value="r.name">

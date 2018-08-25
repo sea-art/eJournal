@@ -63,12 +63,13 @@ export default {
             this.signal(['userIntegrated'])
         },
         handleConnected () {
-            userApi.updateLtiIdToUser(this.lti.ltiJWT)
-                .then(_ => {
+            userApi.updateLtiIdToUser(this.lti.ltiJWT).then(_ => {
+                // This is required because between the login and the connect of lti user to our user data can change.
+                this.$store.dispatch('user/populateStore').then(_ => {
                     this.hideModal('connectUserRef')
                     this.signal(['userIntegrated'])
                 })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
+            }).catch(error => { this.$toasted.error(error.response.data.description) })
         }
     }
 }

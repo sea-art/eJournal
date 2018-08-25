@@ -1,32 +1,13 @@
 import connection from '@/api/connection'
 import statuses from '@/utils/constants/status_codes.js'
 import router from '@/router'
+import store from '@/store'
 
-/* Refresh the access token.
- * Requests the api server for a new JWT token, given the refresh token.
- * Stores this new token in jwt_access.
- * Returns a new Promise that can be used to chain more requests.
- */
-function refresh (error) {
-    if (error.response.data.code === 'token_not_valid') {
-        if (localStorage.getItem('jwt_refresh') == null) {
-            router.app.validToken = false
-            throw error
-        }
-
-        return connection.conn.post('token/refresh/', {refresh: localStorage.getItem('jwt_refresh')})
-            .then(response => {
-                localStorage.setItem('jwt_access', response.data.access)
-                router.app.validToken = true
-            })
-            .catch(error => {
-                router.app.validToken = false
-                throw error
-            })
-    } else {
-        throw error
-    }
-}
+const errorsToRedirect = new Set([
+    statuses.FORBIDDEN,
+    statuses.NOT_FOUND,
+    statuses.INTERNAL_SERVER_ERROR
+])
 
 /*
  * Redirects the following unsuccessfull request responses:
@@ -39,15 +20,16 @@ function refresh (error) {
 function handleError (error, noRedirect = false) {
     const response = error.response
     const status = response.status
+    const description = 'Placeholder due to varied error format' // TODO handle properly
 
     if (!noRedirect && status === statuses.UNAUTHORIZED) {
         router.push({name: 'Login'})
-    } else if (!noRedirect && (status === statuses.FORBIDDEN || status === statuses.NOT_FOUND || status === statuses.INTERNAL_SERVER_ERROR)) {
+    } else if (!noRedirect && errorsToRedirect.has(status)) {
         router.push({name: 'ErrorPage',
             params: {
                 code: status,
                 reasonPhrase: response.statusText,
-                description: (response.data.description != null) ? response.data.description : ''
+                description: description
             }
         })
     } else {
@@ -70,18 +52,7 @@ export default {
             .then(response => {
                 localStorage.setItem('jwt_access', response.data.access)
                 localStorage.setItem('jwt_refresh', response.data.refresh)
-                router.app.validToken = true
             })
-    },
-
-    /* Log out.
-     * Removes the JWT tokens so that the user can no longer
-     * access protected resources.
-     */
-    logout () {
-        localStorage.removeItem('jwt_access')
-        localStorage.removeItem('jwt_refresh')
-        router.app.validToken = false
     },
 
     /* Create a user and add it to the database. */
@@ -113,53 +84,35 @@ export default {
         return connection.conn.post('/recover_password/', {username: username, recovery_token: recoveryToken, new_password: newPassword})
     },
 
-    /* Check if the stored token is valid. */
-    testValidToken () {
-        if (localStorage.getItem('jwt_access') == null && localStorage.getItem('jwt_refresh') == null) {
-            router.app.validToken = false
-            return Promise.reject(new Error('Token undefined'))
-        }
-
-        return connection.conn.post('/token/verify/', {token: localStorage.getItem('jwt_access')})
-            .then(_ => { router.app.validToken = true })
-            .catch(error => refresh(error))
-    },
-
-    /* Run an authenticated post request.
-     * This sets the JWT token to the Authorization headers of the request, so that it can access
-     * protected resources. If the access JWT token is outdated, it refreshes and tries again.
+    /* Run an authenticated post or get request.
+    *  The authorization header is set by default setting in main.js, this allows access to protected resources.
+     * If the first request is rejected due to an invalid token, the user data (including token) is cleared, and the error
+     * is handled in handle error.
      * Returns a Promise to handle the request.
      */
     authenticatedPost (url, data, noRedirect = false) {
         return connection.conn.post(url, data)
-            .catch(error => refresh(error)
+            .catch(error => store.dispatch('user/verifyLogin', error)
                 .then(_ => connection.conn.post(url, data)))
+            .catch(error => handleError(error, noRedirect))
+    },
+    authenticatedGet (url, noRedirect = false) {
+        return connection.conn.get(url)
+            .catch(error => store.dispatch('user/verifyLogin', error)
+                .then(_ => connection.conn.get(url)))
             .catch(error => handleError(error, noRedirect))
     },
 
     authenticatedPostFile (url, data, noRedirect = false) {
         return connection.connFile.post(url, data)
-            .catch(error => refresh(error)
+            .catch(error => store.dispatch('user/verifyLogin', error)
                 .then(_ => connection.connFile.post(url, data)))
             .catch(error => handleError(error, noRedirect))
     },
-
     authenticatedGetFile (url, data, noRedirect = false) {
         return connection.connFile.get(url, data)
-            .catch(error => refresh(error)
+            .catch(error => store.dispatch('user/verifyLogin', error)
                 .then(_ => connection.connFile.get(url, data)))
-            .catch(error => handleError(error, noRedirect))
-    },
-
-    /* Run an authenticated get request.
-     * This sets the JWT token to the Authorization headers of the request, so that it can access
-     * protected resources. If the access JWT token is outdated, it refreshes and tries again.
-     * Returns a Promise to handle the request.
-     */
-    authenticatedGet (url, noRedirect = false) {
-        return connection.conn.get(url)
-            .catch(error => refresh(error)
-                .then(_ => connection.conn.get(url)))
             .catch(error => handleError(error, noRedirect))
     }
 }

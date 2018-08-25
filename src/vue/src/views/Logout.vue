@@ -3,12 +3,9 @@
 </template>
 
 <script>
-import authAPI from '@/api/auth.js'
-
 export default {
     created () {
-        this.isGuest = true
-        authAPI.logout()
+        this.$store.dispatch('user/logout')
         this.$router.push({name: 'Guest'})
     }
 }

@@ -48,11 +48,13 @@ Vue.config.productionTip = false
 Vue.use(Toasted, { position: 'bottom-right', duration: 4000 })
 Vue.use(BootstrapVue)
 
+/* Checks if the store contains a jwtAccess token. */
+Vue.prototype.$loggedIn = store.getters['user/loggedIn']
+
 /* Sets the default authorization token needed to for authenticated requests. */
-// TODO Move to store
 axios.defaults.transformRequest.push((data, headers) => {
-    if (localStorage.getItem('jwt_access') != null) {
-        headers.Authorization = 'Bearer ' + localStorage.getItem('jwt_access')
+    if (store.getters['user/loggedIn']) {
+        headers.Authorization = 'Bearer ' + store.getters['user/jwtAccess']
     }
     return data
 })
@@ -67,7 +69,6 @@ new Vue({
         colors: ['pink-border', 'peach-border', 'blue-border'],
         generalPermissions: {},
         assignmentPermissions: {},
-        validToken: false,
         previousPage: null,
         windowWidth: 0,
         maxFileSizeBytes: 2097152
@@ -128,22 +129,10 @@ new Vue({
          * ##############################################################
          */
 
-        /* Site-wide permissions */
-        isAdmin () {
-            return this.generalPermissions.is_superuser
-        },
-        /* Institute wide settings, think institute name/abbreviation logo. */
-        canEditInstitute () {
-            return this.generalPermissions.can_edit_institute
-        },
-
         /* Course level based permissions. These permissions are enabled and
         used per course. */
 
         /* Course permissions. */
-        canEditCourseRoles () {
-            return this.generalPermissions.can_edit_course_roles
-        },
         canAddCourse () {
             return this.generalPermissions.can_add_course
         },

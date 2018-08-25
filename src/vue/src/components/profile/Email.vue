@@ -1,10 +1,10 @@
 <template>
     <div>
         <b-input-group class="multi-form">
-            <b-input readonly v-model="userData.email" type="text"/>
+            <b-input readonly :value="$store.getters['user/email']" type="text"/>
             <b-input-group-text slot="append" class="input-append-icon">
                 <icon
-                    v-if="!userData.verified_email"
+                    v-if="!$store.getters['user/verifiedEmail']"
                     name="times"
                     v-b-tooltip.hover
                     :title="(showEmailValidationInput) ? 'Enter the email verification token below.' : 'Click to verify your email!'"
@@ -12,7 +12,7 @@
                     class="crossed-icon"
                 />
                 <icon
-                    v-if="userData.verified_email"
+                    v-if="$store.getters['user/verifiedEmail']"
                     name="check"
                     v-b-tooltip.hover
                     title="Your email is verified!"
@@ -21,7 +21,7 @@
             </b-input-group-text>
         </b-input-group>
 
-        <b-form v-if="!userData.verified_email && showEmailValidationInput" >
+        <b-form v-if="!$store.getters['user/verifiedEmail'] && showEmailValidationInput" >
             <b-input-group class="multi-form">
                 <b-form-input
                     v-b-tooltip.hover
@@ -47,7 +47,6 @@ import userAPI from '@/api/user.js'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
-    props: ['userData'],
     components: {
         icon
     },
@@ -73,7 +72,7 @@ export default {
             userAPI.verifyEmail(this.emailVerificationToken)
                 .then(response => {
                     this.$toasted.success(response.data.description)
-                    this.userData.verified_email = true
+                    this.$store.commit('user/EMAIL_VERIFIED')
                     this.showEmailValidationInput = false
                 })
                 .catch(_ => {

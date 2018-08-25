@@ -123,9 +123,9 @@ export default {
         canEdit () {
             var pageName = this.$route.name
 
-            if ((pageName === 'Home' && this.$root.isAdmin()) ||
-               (pageName === 'Course' && this.$root.canEditCourse()) ||
-               (pageName === 'Assignment' && this.$root.canEditAssignment())) {
+            if ((pageName === 'Home' && this.$store.getters['permissions/hasPermission']('is_superuser')) ||
+               (pageName === 'Course' && this.$store.getters['permissions/hasPermission']('can_edit_course')) ||
+               (pageName === 'Assignment' && this.$store.getters['permissions/hasPermission']('can_edit_assignment'))) {
                 return true
             }
         }

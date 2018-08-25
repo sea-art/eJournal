@@ -8,7 +8,7 @@
                         <b-form-select v-model="selectedSortOption" :select-size="1">
                            <option value="sortDate">Sort by date</option>
                            <option value="sortName">Sort by name</option>
-                           <option v-if="this.$root.canAddCourse()"
+                           <option v-if="$store.getters['permissions/hasPermission']('can_add_course')"
                                    value="sortNeedsMarking">Sort by marking needed</option>
                         </b-form-select>
                     </b-col>
@@ -27,7 +27,8 @@
                     :name="d.name"
                     :abbr="d.courseAbbr"
                     :totalNeedsMarking="d.totalNeedsMarking"
-                    :class="$root.getBorderClass(d.cID)">
+                    :class="$root.getBorderClass(d.cID)"
+                    :aID="d.aID">
                 </todo-card>
             </b-link>
         </div>

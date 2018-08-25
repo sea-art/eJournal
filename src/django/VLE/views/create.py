@@ -270,7 +270,11 @@ def create_lti_user(request):
             roles -- role of the user
     """
     if request.data['jwt_params'] is not '':
-        lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
+        try:
+            lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
+        except jwt.exceptions.ExpiredSignatureError:
+            return responses.forbidden(description='The canvas link has expired 15 minutes have passed. \
+                                       Please retry from canvas.')
         lti_id, user_image = lti_params['user_id'], lti_params['user_image']
         is_teacher = json.load(open('config.json'))['Teacher'] in lti_params['roles']
     else:

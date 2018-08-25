@@ -38,22 +38,6 @@ GRADE_CENTER = '6'
 
 
 @api_view(['GET'])
-def get_own_user_data(request):
-    """Get the data linked to the logged in user.
-
-    Arguments:
-    request -- the request that was send with
-
-    Returns a json string with user data
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    return responses.success(payload={'user': serialize.user_to_dict(user)})
-
-
-@api_view(['GET'])
 def get_course_data(request, cID):
     """Get the data linked to a course ID.
 
@@ -803,7 +787,12 @@ def get_lti_params_from_jwt(request, jwt_params):
         return responses.unauthorized()
 
     user = request.user
-    lti_params = jwt.decode(jwt_params, settings.LTI_SECRET, algorithms=['HS256'])
+    try:
+        lti_params = jwt.decode(jwt_params, settings.LTI_SECRET, algorithms=['HS256'])
+    except jwt.exceptions.ExpiredSignatureError:
+        return responses.forbidden(description='The canvas link has expired 15 minutes have passed. \
+                                   Please retry from canvas.')
+
     roles = json.load(open('config.json'))
     lti_roles = dict((roles[k], k) for k in roles)
     role = lti_roles[lti_params['roles']]

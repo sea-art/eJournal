@@ -231,7 +231,7 @@ export default {
             permissions.get_course_permissions(this.cID)
                 .then(response => {
                     this.$root.generalPermissions = response
-                    if (!this.$root.canEditCourseRoles()) {
+                    if (!this.$store.getters['permissions/hasPermission']('can_edit_course_roles')) {
                         this.$router.push({
                             name: 'Home'
                         })

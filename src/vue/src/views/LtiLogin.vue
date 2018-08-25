@@ -70,7 +70,6 @@ export default {
                     localStorage.setItem('jwt_refresh', this.$route.query.jwt_refresh)
                 }
 
-                this.$router.app.validToken = true
                 this.userIntegrated()
             } else if (this.$route.query.state === this.states.no_user) {
                 if (this.$route.query.firstname !== undefined) {

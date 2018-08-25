@@ -8,7 +8,7 @@
             <div v-for="(comment, index) in commentObject.entrycomments" class="comment-section" :key="index">
                 <img class="profile-picture no-hover" :src="comment.author.picture">
                 <b-card class="no-hover comment-card" :class="$root.getBorderClass($route.params.cID)">
-                    <b-button v-if="authorData && authorData.uID == comment.author.uID" class="ml-2 delete-button float-right" @click="deleteComment(comment.ecID)">
+                    <b-button v-if="$store.getters['user/uID'] == comment.author.uID" class="ml-2 delete-button float-right" @click="deleteComment(comment.ecID)">
                         <icon name="trash"/>
                         Delete
                     </b-button>
@@ -26,7 +26,7 @@
             </div>
         </div>
         <div v-if="$root.canCommentJournal()" class="comment-section">
-            <img class="profile-picture no-hover" :src="authorData.picture">
+            <img class="profile-picture no-hover" :src="$store.getters['user/profilePicture']">
             <b-card class="no-hover new-comment">
                 <text-editor
                     :id="'comment-text-editor'"
@@ -47,7 +47,6 @@
 </template>
 
 <script>
-import userApi from '@/api/user.js'
 import entryApi from '@/api/entry.js'
 import icon from 'vue-awesome/components/Icon'
 import textEditor from '@/components/assets/TextEditor.vue'
@@ -69,7 +68,6 @@ export default {
     data () {
         return {
             tempComment: '',
-            authorData: '',
             commentObject: null,
             publishAfterGrade: true
         }
@@ -88,14 +86,9 @@ export default {
         }
     },
     created () {
-        this.getAuthorData()
         this.getEntryComments()
     },
     methods: {
-        getAuthorData () {
-            userApi.getOwnUserData()
-                .then(response => { this.authorData = response })
-        },
         getEntryComments () {
             entryApi.getEntryComments(this.eID)
                 .then(data => { this.commentObject = data })
@@ -103,7 +96,7 @@ export default {
         },
         addComment () {
             if (this.tempComment !== '') {
-                entryApi.createEntryComment(this.eID, this.authorData.uID, this.tempComment, this.entryGradePublished, this.publishAfterGrade)
+                entryApi.createEntryComment(this.eID, this.$store.getters['user/uID'], this.tempComment, this.entryGradePublished, this.publishAfterGrade)
                     .then(comment => {
                         // TODO Append comment rather than fire a get all entry comments request.
                         this.getEntryComments()
