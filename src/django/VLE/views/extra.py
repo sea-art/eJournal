@@ -11,7 +11,7 @@ from rest_framework.decorators import api_view
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 import VLE.views.responses as response
-from VLE.models import Course, Journal, Assignment, EntryTemplate
+from VLE.models import Course, Journal, Assignment, Template
 import VLE.permissions as permissions
 import VLE.lti_launch as lti
 
@@ -71,7 +71,7 @@ def names(request, course_id, assignment_id, journal_id):
                 return response.forbidden('You are not allowed to view journals of other participants.')
             result['journal'] = journal.user.first_name + " " + journal.user.last_name
 
-    except (Course.DoesNotExist, Assignment.DoesNotExist, Journal.DoesNotExist, EntryTemplate.DoesNotExist):
+    except (Course.DoesNotExist, Assignment.DoesNotExist, Journal.DoesNotExist, Template.DoesNotExist):
         return response.not_found('Course, Assignment, Journal or Template does not exist.')
 
     return response.success({'names': result})

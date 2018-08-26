@@ -6,7 +6,7 @@ Test all about the edag.
 from django.test import TestCase
 import datetime
 
-from VLE.models import EntryTemplate, Role
+from VLE.models import Template, Role
 
 import VLE.factory as factory
 import VLE.edag as edag
@@ -20,7 +20,7 @@ class EdagTests(TestCase):
         self.u_rick = factory.make_user("Rick", "pass", "r@r.com")
         self.u_lars = factory.make_user("Lars", "pass", "l@l.com")
 
-        self.template = EntryTemplate(name="some_template")
+        self.template = Template(name="some_template")
         self.template.save()
 
         f_colloq = factory.make_format()

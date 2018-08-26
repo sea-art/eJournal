@@ -6,8 +6,9 @@ Useful edag functions.
 from django.db.models import Case, When
 from django.utils import timezone
 from VLE.models import Node
-from VLE.serializers import NodeSerializer
 import VLE.permissions as permissions
+from VLE.serializers import TemplateSerializer
+from VLE.serializers import EntrySerializer
 
 
 def get_sorted_nodes(journal):
@@ -23,7 +24,7 @@ def get_sorted_nodes(journal):
     ).order_by('sort_deadline')
 
 
-def get_nodes_dict(journal, user):
+def get_nodes(journal, user):
     """Convert a journal to a list of node dictionaries.
 
     First sorts the nodes on date, then attempts to add an
@@ -33,16 +34,69 @@ def get_nodes_dict(journal, user):
     can_add = journal.user == user
     can_add = can_add and permissions.has_assignment_permission(user, journal.assignment, 'can_edit_journal')
 
-    nodes = get_sorted_nodes(journal)
     node_dict = []
-    added_add_node = False
-    for node in nodes:
+    for node in get_sorted_nodes(journal):
+        # If there is a progress node upcomming, and there are stackable entries before the deadline
+        # add an ADDNODE
         if node.type == Node.PROGRESS:
             is_future = (node.preset.deadline - timezone.now()).total_seconds() > 0
-            if can_add and not added_add_node and is_future:
-                add_node = serialize.add_node_dict(journal)
-                if add_node is not None:
+            if can_add and is_future:
+                add_node = get_add_node(journal)
+                if add_node:
                     node_dict.append(add_node)
-                added_add_node = True
-        node_dict.append(serialize.node_to_dict(node, user))
+                can_add = False
+
+        if node.type == Node.ENTRY:
+            node_dict.append(get_entry_node(node, user))
+        elif node.type == Node.ENTRYDEADLINE:
+            node_dict.append(get_deadline(node, user))
+        elif node.type == Node.PROGRESS:
+            node_dict.append(get_progress(node))
     return node_dict
+
+
+def get_add_node(journal):
+    """Convert a add_node to a dictionary."""
+    if not journal or journal.assignment.format.available_templates.count() == 0:
+        return None
+    print(journal.assignment.format.available_templates.all())
+    print(TemplateSerializer(journal.assignment.format.available_templates.all(), many=True))
+    print(TemplateSerializer(journal.assignment.format.available_templates.all(), many=True).data)
+    print(journal.assignment.format.available_templates.all())
+    return {
+        'type': Node.ADDNODE,
+        'nID': -1,
+        'templates': TemplateSerializer(journal.assignment.format.available_templates.all(), many=True).data
+    }
+
+
+def get_entry_node(node, user):
+    return {
+        'type': node.type,
+        'nID': node.id,
+        'jID': node.id,
+        'entry': EntrySerializer(node.entry, context={'user': user}).data,
+    } if node else None
+
+
+def get_deadline(node, user):
+    """Convert entrydeadline to a dictionary."""
+    return {
+        'type': node.type,
+        'nID': node.id,
+        'jID': node.id,
+        'deadline': node.preset.deadline,
+        'template': TemplateSerializer(node.preset.forced_template).data,
+        'entry': EntrySerializer(node.entry, context={'user': user}).data,
+    } if node else None
+
+
+def get_progress(node):
+    """Convert progress node to dictionary."""
+    return {
+        'type': node.type,
+        'nID': node.id,
+        'jID': node.id,
+        'deadline': node.preset.deadline,
+        'target': node.preset.target,
+    } if node else None

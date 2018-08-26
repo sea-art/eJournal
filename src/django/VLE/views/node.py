@@ -3,17 +3,13 @@ node.py.
 
 In this file are all the node api requests.
 """
-from datetime import datetime
-
 from rest_framework import viewsets
-from django.db.models import Case, When
 
 import VLE.views.responses as response
 import VLE.permissions as permissions
 
 from VLE.serializers import NodeSerializer
-from VLE.serializers import JournalSerializer
-from VLE.models import Journal, Node
+from VLE.models import Journal
 import VLE.edag as edag
 
 
@@ -68,4 +64,4 @@ class NodeView(viewsets.ModelViewSet):
         can_add = can_add and \
             permissions.has_assignment_permission(request.user, journal.assignment, 'can_edit_journal')
 
-        return response.success({'nodes': edag.get_nodes_dict(journal, request.user)})
+        return response.success({'nodes': edag.get_nodes(journal, request.user)})

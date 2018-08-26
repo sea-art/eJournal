@@ -3,7 +3,7 @@ Utilities.
 
 A library with useful functions.
 """
-from VLE.models import Entry, Node, EntryTemplate, Comment, PresetNode
+from VLE.models import Entry, Node, Template, Comment, PresetNode
 import VLE.factory as factory
 import VLE.views.responses as responses
 
@@ -129,7 +129,7 @@ def update_templates(result_list, templates, template_map):
 
             # Update presets to use the new template.
             if 'tID' in template_field and template_field['tID'] > 0:
-                template = EntryTemplate.objects.get(pk=template_field['tID'])
+                template = Template.objects.get(pk=template_field['tID'])
                 presets = PresetNode.objects.filter(forced_template=template).all()
                 for preset in presets:
                     preset.forced_template = new_template
@@ -195,7 +195,7 @@ def update_presets(assignment, presets, template_map):
         if exists:
             try:
                 preset_node = PresetNode.objects.get(pk=preset['pID'])
-            except EntryTemplate.DoesNotExist:
+            except Template.DoesNotExist:
                 return responses.not_found('Preset does not exist.')
         else:
             preset_node = PresetNode(format=format)
@@ -211,7 +211,7 @@ def update_presets(assignment, presets, template_map):
 
             if 'tID' in template_field:
                 if template_field['tID'] > 0:
-                    preset_node.forced_template = EntryTemplate.objects.get(pk=template_field['tID'])
+                    preset_node.forced_template = Template.objects.get(pk=template_field['tID'])
                 else:
                     if template_field['tID'] in template_map:
                         preset_node.forced_template = template_map[template_field['tID']]

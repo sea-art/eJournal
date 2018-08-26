@@ -66,11 +66,11 @@ class AssignmentView(viewsets.ViewSet):
                 resp = serializer.data
             else:
                 queryset = Assignment.objects.filter(courses=course, journal__user=request.user)
-                serializer = StudentAssignmentSerializer(queryset, many=True, context={'request': request})
+                serializer = StudentAssignmentSerializer(queryset, many=True, context={'user': request.user})
                 resp = serializer.data
         else:
             # TODO: change query to a query that selects all (upcomming) assignments connected to the user.
-            serializer = StudentAssignmentSerializer(Assignment.objects.all(), context={'request': request})
+            serializer = StudentAssignmentSerializer(Assignment.objects.all(), context={'user': request.user})
             resp = serializer.data
         return response.success({'assignments': resp})
 
@@ -169,7 +169,7 @@ class AssignmentView(viewsets.ViewSet):
             data = serializer.data
             data['journals'] = JournalSerializer(journals, many=True).data
         else:
-            serializer = StudentAssignmentSerializer(assignment, context={'request': request})
+            serializer = StudentAssignmentSerializer(assignment, context={'user': request.user})
             data = serializer.data
 
         return response.success({'assignment': data})
@@ -301,7 +301,8 @@ class AssignmentView(viewsets.ViewSet):
                     if role['can_grade_journal']:
                         deadline_list.append(TeacherAssignmentSerializer(assignment).data)
                     else:
-                        deadline_list.append(StudentAssignmentSerializer(assignment, context={'request': request}).data)
+                        deadline_list.append(
+                            StudentAssignmentSerializer(assignment, context={'user': request.user}).data)
 
             # TODO: Specify for teacher and student seperatly, this can be done after a better serializer
             #     for assignment in Assignment.objects.filter(courses=course.id).all():

@@ -91,8 +91,9 @@ export default {
     },
     created () {
         journalAPI.getNodes(this.jID)
-            .then(data => {
-                this.nodes = data.nodes
+            .then(nodes => {
+                console.log(nodes)
+                this.nodes = nodes
                 if (this.$route.query.nID !== undefined) {
                     this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
                 }
@@ -106,7 +107,7 @@ export default {
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
         journalAPI.get(this.jID)
-            .then(data => { this.journal = data.journal })
+            .then(journal => { this.journal = journal })
             .catch(_ => this.$toasted.error('Error while loading journal data.'))
 
         assignmentAPI.get(this.aID, this.cID)

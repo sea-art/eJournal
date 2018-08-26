@@ -5,7 +5,7 @@ The facory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
 from VLE.models import User, Participation, Course, Assignment, Role, JournalFormat, PresetNode, Node, Comment, \
-    Entry, EntryTemplate, Field, Content, Journal, UserFile
+    Entry, Template, Field, Content, Journal, UserFile
 import django.utils.timezone as timezone
 
 
@@ -198,7 +198,7 @@ def make_entry(template, posttime=timezone.now()):
 
 def make_entry_template(name):
     """Make an entry template."""
-    entry_template = EntryTemplate(name=name)
+    entry_template = Template(name=name)
     entry_template.save()
     return entry_template
 

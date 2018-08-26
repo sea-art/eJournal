@@ -6,9 +6,9 @@ Functions to convert certain data to other formats.
 from rest_framework import serializers
 # import VLE.utils.generic_utils as utils
 # import VLE.permissions as permissions
-from VLE.models import User, Course, Node, Comment, Assignment, Role, Journal, Entry
+from VLE.models import User, Course, Node, Comment, Assignment, Role, Journal, Entry, Template, Field, Content
 import VLE.utils.generic_utils as utils
-
+import VLE.permissions as permissions
 import statistics as st
 
 
@@ -47,11 +47,11 @@ class StudentAssignmentSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', )
 
     def get_deadline(self, assignment):
-        if 'request' not in self.context:
+        if 'user' not in self.context:
             return None
 
         try:
-            journal = Journal.objects.get(assignment=assignment, user=self.context['request'].user)
+            journal = Journal.objects.get(assignment=assignment, user=self.context['user'])
         except Journal.DoesNotExist:
             return None
 
@@ -62,10 +62,10 @@ class StudentAssignmentSerializer(serializers.ModelSerializer):
         return deadlines[0]['preset__deadline']
 
     def get_journal(self, assignment):
-        if 'request' not in self.context:
+        if 'user' not in self.context:
             return None
 
-        user = self.context['request'].user
+        user = self.context['user']
         try:
             journal = Journal.objects.get(assignment=assignment, user=user)
         except Journal.DoesNotExist:
@@ -145,11 +145,55 @@ class JournalSerializer(serializers.ModelSerializer):
 
 
 class EntrySerializer(serializers.ModelSerializer):
+    template = serializers.SerializerMethodField()
+    content = serializers.SerializerMethodField()
+    editable = serializers.SerializerMethodField()
+    grade = serializers.SerializerMethodField()
+
     class Meta:
         model = Entry
-        fields = '__all__'
+        fields = ('id', 'createdate', 'published', 'template', 'content', 'editable', 'grade')
         read_only_fields = ('id', )
 
+    def get_template(self, entry):
+        return TemplateSerializer(entry.template)
+
+    def get_content(self, entry):
+        return ContentSerializer(entry.content_set.all(), many=True)
+
+    def get_editable(self, entry):
+        return entry.grade is None
+
+    def get_grade(self, entry):
+        # TODO: Add permission can_view_grade
+        if entry.published or permissions.has_assignment_permission(
+                self.context['user'], entry.node.journal.assignment, 'can_grade_journal'):
+            return entry.grade
+        return None
+
+
+class TemplateSerializer(serializers.ModelSerializer):
+    fiels = serializers.SerializerMethodField
+
+    class Meta:
+        model = Template
+        fields = '__all__'
+
+    def get_fields(self, template):
+        return FieldSerializer(template.field_set.all(), many=True).data
+
+
+class ContentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Content
+        field = '__all__'
+        read_only_fields = ('id')
+
+
+class FieldSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Field
+        fields = '__all__'
 # def user_to_dict(user):
 #     """Convert user object to dictionary."""
 #     return {
@@ -238,87 +282,6 @@ class EntrySerializer(serializers.ModelSerializer):
 #     } if journal else None
 #
 #
-
-
-def add_node_dict(journal):
-    """Convert a add_node to a dictionary."""
-    if journal.assignment.format.available_templates.count() == 0:
-        return None
-
-    return {
-        'type': 'a',
-        'nID': -1,
-        'templates': [template_to_dict(template) for template in journal.assignment.format.available_templates.all()]
-    } if journal else None
-
-
-def node_to_dict(node, user):
-    """Convert a node to a dictionary."""
-    if node.type == Node.ENTRY:
-        return entry_node_to_dict(node, user)
-    elif node.type == Node.ENTRYDEADLINE:
-        return entry_deadline_to_dict(node, user)
-    elif node.type == Node.PROGRESS:
-        return progress_to_dict(node)
-    return None
-
-
-def entry_node_to_dict(node, user):
-    """Convert an entrynode to a dictionary."""
-    return {
-        'type': node.type,
-        'nID': node.id,
-        'jID': node.id,
-        'entry': entry_to_dict(node.entry, user),
-    } if node else None
-
-
-def entry_deadline_to_dict(node, user):
-    """Convert entrydeadline to a dictionary."""
-    return {
-        'type': node.type,
-        'nID': node.id,
-        'jID': node.id,
-        'deadline': node.preset.deadline.strftime('%Y-%m-%d %H:%M'),
-        'template': template_to_dict(node.preset.forced_template),
-        'entry': entry_to_dict(node.entry, user),
-    } if node else None
-
-
-def progress_to_dict(node):
-    """Convert progress node to dictionary."""
-    return {
-        'type': node.type,
-        'nID': node.id,
-        'jID': node.id,
-        'deadline': node.preset.deadline.strftime('%Y-%m-%d %H:%M'),
-        'target': node.preset.target,
-    } if node else None
-
-
-def entry_to_dict(entry, user):
-    """Convert entry to dictionary."""
-    if not entry:
-        return None
-
-    data = {
-        'eID': entry.id,
-        'createdate': entry.createdate.strftime('%Y-%m-%d %H:%M'),
-        'published': entry.published,
-        'template': template_to_dict(entry.template),
-        'content': [content_to_dict(content) for content in entry.content_set.all()],
-        'editable': True
-    }
-
-    if entry.grade is not None:
-        data['editable'] = False
-
-    assignment = entry.node.journal.assignment
-    if permissions.has_assignment_permission(user, assignment, 'can_grade_journal') or entry.published:
-        data['grade'] = entry.grade
-
-    return data
-#
 #
 # def export_entry_to_dict(entry):
 #     """Convert entry to exportable dictionary."""
@@ -341,33 +304,6 @@ def entry_to_dict(entry, user):
 #
 #     return data
 
-
-def template_to_dict(template):
-    """Convert template to dictionary."""
-    return {
-        'tID': template.id,
-        'name': template.name,
-        'fields': [field_to_dict(field) for field in template.field_set.all()],
-    } if template else None
-
-
-def field_to_dict(field):
-    """Convert field to dictionary."""
-    return {
-        'tag': field.id,
-        'type': field.type,
-        'title': field.title,
-        'location': field.location,
-    } if field else None
-
-
-def content_to_dict(content):
-    """Convert content to dictionary."""
-    return {
-        'tag': content.field.pk,
-        'data': content.data,
-    } if content else None
-#
 #
 # def format_to_dict(format):
 #     """Convert format to dictionary."""

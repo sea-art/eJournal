@@ -9,7 +9,7 @@ export default {
 
     create (data) {
         return auth.create('entries', data)
-            .then(response => response.data.entry)
+            .then(response => response.data)
     },
 
     update (id, data) {

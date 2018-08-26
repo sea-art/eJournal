@@ -5,7 +5,7 @@ In this file are all the entry api requests.
 """
 from rest_framework import viewsets
 
-from VLE.models import Journal, Node, Content, Field, EntryTemplate, Entry
+from VLE.models import Journal, Node, Content, Field, Template, Entry
 import VLE.views.responses as response
 import VLE.factory as factory
 import VLE.utils as utils
@@ -50,7 +50,7 @@ class EntryView(viewsets.ViewSet):
         try:
             journal = Journal.objects.get(pk=journal_id, user=request.user)
 
-            template = EntryTemplate.objects.get(pk=template_id)
+            template = Template.objects.get(pk=template_id)
 
             if node_id:
                 node = Node.objects.get(pk=node_id, journal=journal)
@@ -94,9 +94,11 @@ class EntryView(viewsets.ViewSet):
                     added = i
                     break
 
-            return response.created(payload={'added': added,
-                                             'nodes': edag.get_nodes_dict(journal, request.user)})
-        except (Journal.DoesNotExist, EntryTemplate.DoesNotExist, Node.DoesNotExist):
+            return response.created({
+                'added': added,
+                'nodes': edag.get_nodes_dict(journal, request.user)
+            })
+        except (Journal.DoesNotExist, Template.DoesNotExist, Node.DoesNotExist):
             return response.not_found('Journal, Template or Node does not exist.')
 
     def partial_update(self, request, *args, **kwargs):
@@ -155,4 +157,4 @@ class EntryView(viewsets.ViewSet):
             payload = dict()
         payload['new_published'] = entry.published
 
-        return response.success(serializer.data, payload={'new_published': entry.published})
+        return response.success({**serializer.data, **payload})
