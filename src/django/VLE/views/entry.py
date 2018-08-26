@@ -41,7 +41,8 @@ class EntryView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            journal_id, template_id, content_list = utils.required_params(request.data, "journal_id", "template_id", "content")
+            journal_id, template_id, content_list = utils.required_params(
+                request.data, "journal_id", "template_id", "content")
             node_id, = utils.optional_params(request.data, "node_id")
         except KeyError:
             return response.keyerror("journal_id", "template_id", "content")

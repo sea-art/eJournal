@@ -68,4 +68,4 @@ class NodeView(viewsets.ModelViewSet):
         can_add = can_add and \
             permissions.has_assignment_permission(request.user, journal.assignment, 'can_edit_journal')
 
-        return response.success(payload={'nodes': edag.get_nodes_dict(journal, request.user)})
+        return response.success({'nodes': edag.get_nodes_dict(journal, request.user)})

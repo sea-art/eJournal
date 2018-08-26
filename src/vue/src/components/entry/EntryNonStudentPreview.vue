@@ -75,7 +75,8 @@ import commentCard from '@/components/journal/CommentCard.vue'
 import pdfDisplay from '@/components/assets/PdfDisplay.vue'
 import fileDownloadButton from '@/components/assets/file_handling/FileDownloadButton.vue'
 import imageFileDisplay from '@/components/assets/file_handling/ImageFileDisplay.vue'
-import journalApi from '@/api/journal.js'
+
+import entryAPI from '@/api/entry'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
@@ -148,15 +149,14 @@ export default {
                 this.tempNode.entry.published = (this.published === 'true' || this.published === true)
 
                 if (this.published === 'true' || this.published === true) {
-                    journalApi.update_grade_entry(this.entryNode.entry.eID, this.grade, 1)
+                    entryAPI.update(this.entryNode.entry.eID, {grade: this.grade, published: 1})
                         .then(_ => {
                             this.$toasted.success('Grade updated and published.')
                             this.$emit('check-grade')
                         })
                         .catch(error => { this.$toasted.error(error.response.data.description) })
                 } else {
-                    journalApi.update_grade_entry(this.entryNode.entry.eID,
-                        this.grade, 0)
+                    entryAPI.update(this.entryNode.entry.eID, {grade: this.grade, published: 0})
                         .then(_ => {
                             this.$toasted.success('Grade updated but not published.')
                             this.$emit('check-grade')

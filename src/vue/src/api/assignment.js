@@ -2,9 +2,24 @@ import auth from '@/api/auth'
 
 export default {
 
-    get (id) {
-        return auth.get('assignments/' + id)
+    get (aID, cID = null) {
+        return auth.get('assignments/' + aID, {course_id: cID})
             .then(response => response.data.assignment)
+    },
+
+    create (data) {
+        return auth.create('assignments', data)
+            .then(response => response.data.assignment)
+    },
+
+    update (id, data) {
+        return auth.update('assignments/' + id, data)
+            .then(response => response.data.assignment)
+    },
+
+    delete (aID, cID) {
+        return auth.delete('assignments/' + aID, {course_id: cID})
+            .then(response => response.data)
     },
 
     getAllFromCourse (cID) {
@@ -23,21 +38,6 @@ export default {
         }
         return auth.get('assignments/upcomming')
             .then(response => response.data.upcomming)
-    },
-
-    create (data) {
-        return auth.create('assignments', data)
-            .then(response => response.data.assignment)
-    },
-
-    update (id, data) {
-        return auth.update('assignments/' + id, data)
-            .then(response => response.data.assignment)
-    },
-
-    delete (aID, cID) {
-        return auth.delete('assignments/' + aID, {course_id: cID})
-            .then(response => response.data)
     }
     // /* Get data of a cassignment specified with its ID. */
     // get_assignment_data (cID, aID) {

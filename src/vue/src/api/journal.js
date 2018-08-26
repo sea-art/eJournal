@@ -20,6 +20,11 @@ export default {
     delete (id) {
         return auth.delete('journals/' + id)
             .then(response => response.data)
+    },
+
+    getNodes (id) {
+        return auth.get('nodes', {journal_id: id})
+            .then(response => response.data.nodes)
     }
 
     // /* Get assignment journals.
@@ -43,16 +48,6 @@ export default {
     //         .then(response => response.data)
     // },
     //
-    // create_entry (jID, tID, content, nID = undefined) {
-    //     var data = {tID: tID, jID: jID, content: content}
-    //     if (nID) {
-    //         data.nID = nID
-    //     }
-    //
-    //     return auth.authenticatedPost('/create_entry/', data)
-    //         .then(response => response.data)
-    // },
-    //
     // create_template (name, fields) {
     //     return auth.authenticatedPost('/create_template/', {name: name, fields: fields})
     //         .then(response => response.data)
@@ -65,16 +60,6 @@ export default {
     //
     // update_format (aID, templates, maxPoints, presets, unusedTemplates, removedTemplates, removedPresets) {
     //     return auth.authenticatedPost('/update_format/', {aID: aID, templates: templates, max_points: maxPoints, presets: presets, unused_templates: unusedTemplates, removed_templates: removedTemplates, removed_presets: removedPresets})
-    //         .then(response => response.data)
-    // },
-    //
-    // update_grade_entry (eID, grade, published) {
-    //     return auth.authenticatedPost('/update_grade_entry/', {eID: eID, grade: grade, published: published})
-    //         .then(response => response.data)
-    // },
-    //
-    // update_publish_grade_entry (eID, published) {
-    //     return auth.authenticatedPost('/update_publish_grade_entry/', {eID: eID, published: published})
     //         .then(response => response.data)
     // },
     //

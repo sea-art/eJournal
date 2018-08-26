@@ -6,7 +6,7 @@ Useful edag functions.
 from django.db.models import Case, When
 from django.utils import timezone
 from VLE.models import Node
-import VLE.serializers as serialize
+from VLE.serializers import NodeSerializer
 import VLE.permissions as permissions
 
 

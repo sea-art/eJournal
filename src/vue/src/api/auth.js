@@ -107,18 +107,18 @@ export default {
 
     /* Change password. */
     changePassword (newPassword, oldPassword) {
-        return connection.conn.patch('/users/password', { new_password: newPassword, old_password: oldPassword })
+        return this.update('users/password', { new_password: newPassword, old_password: oldPassword })
     },
 
     /* Forgot password.
      * Checks if a user is known by the given email or username. Sends an email with a link to reset the password. */
     forgotPassword (username, email) {
-        return connection.conn.post('/forgot_password/', {username: username, email: email})
+        return this.post('forgot_password', {username: username, email: email})
     },
 
     /* Recover password */
     recoverPassword (username, recoveryToken, newPassword) {
-        return connection.conn.post('/recover_password/', {username: username, recovery_token: recoveryToken, new_password: newPassword})
+        return this.post('recover_password', {username: username, recovery_token: recoveryToken, new_password: newPassword})
     },
 
     /* Check if the stored token is valid. */
@@ -157,13 +157,16 @@ export default {
     create (url, data, noRedirect = false) {
         this.post(url, data, noRedirect)
     },
-    update (url, data, noRedirect = false) {
+    patch (url, data, noRedirect = false) {
         if (url[0] !== '/') url = '/' + url
         if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
         return connection.conn.patch(url, data, getAuthorizationHeader())
             .catch(error => refresh(error)
                 .then(_ => connection.conn.patch(url, data, getAuthorizationHeader())))
             .catch(error => handleError(error, noRedirect))
+    },
+    update (url, data, noRedirect = false) {
+        this.patch(url, data, noRedirect)
     },
     delete (url, data = null, noRedirect = false) {
         if (url[0] !== '/') url = '/' + url

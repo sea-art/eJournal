@@ -71,8 +71,10 @@ import addCard from '@/components/journal/AddCard.vue'
 import edag from '@/components/edag/Edag.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
-import journalApi from '@/api/journal'
-import assignmentApi from '@/api/assignment.js'
+
+import journalAPI from '@/api/journal'
+import assignmentAPI from '@/api/assignment'
+import entryAPI from '@/api/entry'
 
 export default {
     props: ['cID', 'aID', 'jID'],
@@ -88,7 +90,7 @@ export default {
         }
     },
     created () {
-        journalApi.get_nodes(this.jID)
+        journalAPI.getNodes(this.jID)
             .then(data => {
                 this.nodes = data.nodes
                 if (this.$route.query.nID !== undefined) {
@@ -103,16 +105,12 @@ export default {
             })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
-        journalApi.get_journal(this.jID)
-            .then(data => {
-                this.journal = data.journal
-            })
+        journalAPI.get(this.jID)
+            .then(data => { this.journal = data.journal })
             .catch(_ => this.$toasted.error('Error while loading journal data.'))
 
-        assignmentApi.get_assignment_data(this.cID, this.aID)
-            .then(data => {
-                this.assignmentDescription = data.description
-            })
+        assignmentAPI.get(this.aID, this.cID)
+            .then(data => { this.assignmentDescription = data.description })
             .catch(_ => this.$toasted.error('Error while loading assignment description.'))
     },
     watch: {
@@ -126,7 +124,12 @@ export default {
     methods: {
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData
-            journalApi.create_entry(this.jID, this.nodes[this.currentNode].entry.template.tID, editedData.entry.content, this.nodes[this.currentNode].nID)
+            entryAPI.create({
+                journal_id: this.jID,
+                template_id: this.nodes[this.currentNode].entry.template.tID,
+                content: editedData.entry.content,
+                node_id: this.nodes[this.currentNode].nID
+            })
                 .then(data => {
                     this.nodes = data.nodes
                     this.currentNode = data.added
@@ -156,7 +159,11 @@ export default {
             this.currentNode = $event
         },
         addNode (infoEntry) {
-            journalApi.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
+            entryAPI.create({
+                journal_id: this.jID,
+                template_id: infoEntry[0].tID,
+                content: infoEntry[1]
+            })
                 .then(data => {
                     this.nodes = data.nodes
                     this.currentNode = data.added
@@ -164,7 +171,12 @@ export default {
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         fillDeadline (data) {
-            journalApi.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data, this.nodes[this.currentNode].nID)
+            entryAPI.create({
+                journal_id: this.jID,
+                template_id: this.nodes[this.currentNode].template.tID,
+                content: data,
+                node_id: this.nodes[this.currentNode].nID
+            })
                 .then(data => {
                     this.nodes = data.nodes
                     this.currentNode = data.added
