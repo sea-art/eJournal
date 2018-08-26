@@ -6,7 +6,7 @@ In this file are all the course api requests.
 from rest_framework import viewsets
 
 from VLE.serializers import JournalSerializer
-from VLE.models import Journal, Assignment
+from VLE.models import Journal, Assignment, Course
 import VLE.permissions as permissions
 import VLE.views.responses as response
 import VLE.utils.generic_utils as utils
@@ -187,11 +187,12 @@ class JournalView(viewsets.ViewSet):
 
         published = utils.optional_params(request.data, "published")
         if published:
-            if not permissions.has_assignment_permission(request.user, journ.assignment, 'can_publish_journal_grades'):
+            if not permissions.has_assignment_permission(request.user, journal.assignment,
+                                                         'can_publish_journal_grades'):
                 return response.forbidden('You cannot publish assignments.')
             utils.publish_all_journal_grades(journal, published)
-            if journ.sourcedid is not None and journ.grade_url is not None:
-                payload = lti_grade.replace_result(journ)
+            if journal.sourcedid is not None and journal.grade_url is not None:
+                payload = lti_grade.replace_result(journal)
             else:
                 payload = dict()
 

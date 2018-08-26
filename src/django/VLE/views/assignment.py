@@ -45,6 +45,7 @@ class AssignmentView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
+
         try:
             course_id = request.query_params['course_id']
         except KeyError:
@@ -63,16 +64,14 @@ class AssignmentView(viewsets.ViewSet):
             if role.can_grade_journal:
                 queryset = course.assignment_set.all()
                 serializer = TeacherAssignmentSerializer(queryset, many=True)
-                resp = serializer.data
             else:
                 queryset = Assignment.objects.filter(courses=course, journal__user=request.user)
                 serializer = StudentAssignmentSerializer(queryset, many=True, context={'user': request.user})
-                resp = serializer.data
         else:
             # TODO: change query to a query that selects all (upcomming) assignments connected to the user.
             serializer = StudentAssignmentSerializer(Assignment.objects.all(), context={'user': request.user})
-            resp = serializer.data
-        return response.success({'assignments': resp})
+
+        return response.success({'assignments': serializer.data})
 
     def create(self, request):
         """Create a new assignment.
@@ -121,6 +120,8 @@ class AssignmentView(viewsets.ViewSet):
 
         for user in course.users.all():
             role = permissions.get_role(user, course_id)
+            # TODO Only give journal to students. (and not also TA's and teachers)
+            # The problem is that there is no clear way to determine who has to get a journal.
             if role.can_edit_journal:
                 factory.make_journal(assignment, user)
 

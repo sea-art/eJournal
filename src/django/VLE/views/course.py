@@ -7,8 +7,9 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 import VLE.views.responses as response
-from VLE.serializers import CourseSerializer
-from VLE.serializers import UserSerializer
+import VLE.serializers as serialize
+# from VLE.serializers import CourseSerializer
+# from VLE.serializers import UserSerializer
 from VLE.models import Course
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
@@ -16,7 +17,7 @@ import VLE.factory as factory
 
 
 class CourseView(viewsets.ViewSet):
-    serializer_class = CourseSerializer
+    serializer_class = serialize.CourseSerializer
 
     def list(self, request):
         """Get the courses that the user participates in.
@@ -205,7 +206,7 @@ class CourseView(viewsets.ViewSet):
                                                  participation__role__can_edit_course=True,
                                                  lti_id=None)
 
-        serializer = UserSerializer(unlinked_courses, many=True)
+        serializer = serialize.UserSerializer(unlinked_courses, many=True)
         return response.success({'linkable_courses': serializer.data})
 
     @action(methods=['get'], detail=False)
@@ -226,5 +227,5 @@ class CourseView(viewsets.ViewSet):
 
         courses = Course.objects.filter(participation__user=request.user.id,
                                         participation__role__can_edit_course=True)
-        serializer = CourseSerializer(courses, many=True)
+        serializer = serialize.CourseSerializer(courses, many=True)
         return response.success({'courses': serializer.data})

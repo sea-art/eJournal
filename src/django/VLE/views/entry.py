@@ -51,55 +51,60 @@ class EntryView(viewsets.ViewSet):
             journal = Journal.objects.get(pk=journal_id, user=request.user)
 
             template = Template.objects.get(pk=template_id)
+        except (Journal.DoesNotExist, Template.DoesNotExist, Node.DoesNotExist):
+            return response.not_found('Journal or Template does not exist.')
 
-            if node_id:
+        if node_id:
+            try:
                 node = Node.objects.get(pk=node_id, journal=journal)
-                if node.type == Node.PROGRESS:
-                    return response.bad_request('Passed node is a Progress node.')
+            except Node.DoesNotExist:
+                return response.not_found('Node does not exist.')
 
-                if node.entry:
-                    if node.entry.grade is None:
-                        if node.type == Node.ENTRYDEADLINE and node.preset.deadline < now():
-                            return response.bad_request('The deadline has already passed.')
+            if node.type == Node.PROGRESS:
+                return response.bad_request('Passed node is a Progress node.')
 
-                        Content.objects.filter(entry=node.entry).all().delete()
-                        node.entry.template = template
-                        node.save()
-                    else:
-                        return response.bad_request('Can not overwrite entry, since it is already graded.')
-                else:
+            if node.entry:
+                if node.entry.grade is None:
                     if node.type == Node.ENTRYDEADLINE and node.preset.deadline < now():
                         return response.bad_request('The deadline has already passed.')
 
-                    node.entry = factory.make_entry(template)
+                    Content.objects.filter(entry=node.entry).all().delete()
+                    node.entry.template = template
                     node.save()
+                else:
+                    return response.bad_request('Can not overwrite entry, since it is already graded.')
             else:
-                entry = factory.make_entry(template)
-                node = factory.make_node(journal, entry)
+                if node.type == Node.ENTRYDEADLINE and node.preset.deadline < now():
+                    return response.bad_request('The deadline has already passed.')
 
-            if journal.sourcedid is not None and journal.grade_url is not None:
-                lti_grade.needs_grading(journal, node.id)
+                node.entry = factory.make_entry(template)
+                node.save()
+        else:
+            entry = factory.make_entry(template)
+            node = factory.make_node(journal, entry)
 
-            for content in content_list:
-                data = content['data']
-                tag = content['tag']
-                field = Field.objects.get(pk=tag)
+        if journal.sourcedid is not None and journal.grade_url is not None:
+            lti_grade.needs_grading(journal, node.id)
 
-                factory.make_content(node.entry, data, field)
+        for content in content_list:
+            try:
+                field = Field.objects.get(pk=content['data'])
+            except Field.DoesNotExist:
+                return response.not_found('Field')
 
-            result = edag.get_nodes_dict(journal, request.user)
-            added = -1
-            for i, result_node in enumerate(result):
-                if result_node['node_id'] == node.id:
-                    added = i
-                    break
+            factory.make_content(node.entry, content['data'], field)
 
-            return response.created({
-                'added': added,
-                'nodes': edag.get_nodes_dict(journal, request.user)
-            })
-        except (Journal.DoesNotExist, Template.DoesNotExist, Node.DoesNotExist):
-            return response.not_found('Journal, Template or Node does not exist.')
+        result = edag.get_nodes_dict(journal, request.user)
+        added = -1
+        for i, result_node in enumerate(result):
+            if result_node['node_id'] == node.id:
+                added = i
+                break
+
+        return response.created({
+            'added': added,
+            'nodes': edag.get_nodes_dict(journal, request.user)
+        })
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing entry.
