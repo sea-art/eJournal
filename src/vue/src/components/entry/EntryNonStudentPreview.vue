@@ -26,7 +26,7 @@
             </div>
             <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
 
-            <div v-for="(field, i) in entryNode.entry.template.fields" class="entry-field" :key="field.eID">
+            <div v-for="(field, i) in entryNode.entry.template.field_set" class="entry-field" :key="field.eID">
                 <div v-if="field.title != ''">
                     <b>{{ field.title }}</b>
                 </div>
@@ -62,7 +62,7 @@
             </div>
         </b-card>
 
-        <comment-card :eID="entryNode.entry.eID" :entryGradePublished="entryNode.entry.published"/>
+        <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published"/>
     </div>
     <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
         <h2 class="mb-2">{{entryNode.template.name}}</h2>
@@ -119,7 +119,7 @@ export default {
             var checkFound = false
 
             if (this.entryNode.entry !== null) {
-                for (var templateField of this.entryNode.entry.template.fields) {
+                for (var templateField of this.entryNode.entry.template.field_set) {
                     checkFound = false
 
                     for (var content of this.entryNode.entry.content) {

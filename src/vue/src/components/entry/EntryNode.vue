@@ -22,7 +22,7 @@
                 Shows every field description and
                 a corresponding form.
             -->
-            <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
+            <div v-for="(field, i) in entryNode.entry.template.field_set" :key="field.eID">
                 <div v-if="field.title">
                     <b>{{ field.title }}</b>
                 </div>
@@ -105,7 +105,7 @@
                 Gives a view of every templatefield and
                 if possible the already filled in entry.
             -->
-            <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
+            <div v-for="(field, i) in entryNode.entry.template.field_set" :key="field.eID">
                 <div v-if="field.title">
                     <b>{{ field.title }}</b>
                 </div>
@@ -145,7 +145,7 @@
             </b-button>
         </b-card>
 
-        <comment-card :eID="entryNode.entry.eID" :entryGradePublished="entryNode.entry.published"/>
+        <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published"/>
     </div>
 </template>
 
@@ -207,7 +207,7 @@ export default {
             /* Loads in the data of an entry in the right order by matching
              * the different data-fields with the corresponding template-IDs. */
             var checkFound = false
-            for (var templateField of this.entryNode.entry.template.fields) {
+            for (var templateField of this.entryNode.entry.template.field_set) {
                 checkFound = false
 
                 for (var content of this.entryNode.entry.content) {

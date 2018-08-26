@@ -9,8 +9,7 @@ from VLE.serializers import CommentSerializer
 from VLE.models import Comment, Entry, User, Assignment
 import VLE.views.responses as response
 import VLE.permissions as permissions
-import VLE.serializers as serialize
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
 import VLE.factory as factory
 
 
@@ -105,10 +104,10 @@ class CommentView(viewsets.ViewSet):
             return response.not_found('User, Entry or assignment does not exist.')
 
         published = published and permissions.has_assignment_permission(request.user, assignment,
-                                                                           'can_grade_journal')
+                                                                        'can_grade_journal')
 
         comment = factory.make_entrycomment(entry, request.user, text, published)
-        return response.created(payload={'comment': serialize.entrycomment_to_dict(comment)})
+        return response.created({'comment': CommentSerializer(comment).data})
 
     def retrieve(self, request, pk=None):
         """Is not implemented yet."""

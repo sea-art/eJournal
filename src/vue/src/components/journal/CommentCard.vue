@@ -5,10 +5,10 @@
 <template>
     <div>
         <div v-if="commentObject">
-            <div v-for="(comment, index) in commentObject.entrycomments" class="comment-section" :key="index">
-                <img class="profile-picture no-hover" :src="comment.author.picture">
+            <div v-for="(comment, index) in commentObject" class="comment-section" :key="index">
+                <img class="profile-picture no-hover" :src="comment.author.profile_picture">
                 <b-card class="no-hover comment-card" :class="$root.getBorderClass($route.params.cID)">
-                    <b-button v-if="authorData && authorData.uID == comment.author.uID" class="ml-2 delete-button float-right" @click="deleteComment(comment.ecID)">
+                    <b-button v-if="authorData && authorData.uID == comment.author.id" class="ml-2 delete-button float-right" @click="deleteComment(comment.id)">
                         <icon name="trash"/>
                         Delete
                     </b-button>
@@ -47,10 +47,11 @@
 </template>
 
 <script>
-import userApi from '@/api/user.js'
-import entryApi from '@/api/entry.js'
-import icon from 'vue-awesome/components/Icon'
 import textEditor from '@/components/assets/TextEditor.vue'
+
+import userAPI from '@/api/user'
+import commentAPI from '@/api/comment'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     props: {
@@ -77,46 +78,46 @@ export default {
     watch: {
         eID () {
             this.tempComment = ''
-            entryApi.getEntryComments(this.eID)
-                .then(data => { this.commentObject = data })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
+            this.getComments()
         },
         entryGradePublished () {
-            entryApi.getEntryComments(this.eID)
-                .then(data => { this.commentObject = data })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
+            this.getComments()
         }
     },
     created () {
         this.getAuthorData()
-        this.getEntryComments()
+        this.getComments()
     },
     methods: {
         getAuthorData () {
-            userApi.getOwnUserData()
-                .then(response => { this.authorData = response })
+            userAPI.get()
+                .then(author => { this.authorData = author })
         },
-        getEntryComments () {
-            entryApi.getEntryComments(this.eID)
-                .then(data => { this.commentObject = data })
+        getComments () {
+            commentAPI.getFromEntry(this.eID)
+                .then(comments => { this.commentObject = comments })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         addComment () {
             if (this.tempComment !== '') {
-                entryApi.createEntryComment(this.eID, this.authorData.uID, this.tempComment, this.entryGradePublished, this.publishAfterGrade)
+                commentAPI.create({
+                    entry_id: this.eID,
+                    text: this.tempComment,
+                    published: this.entryGradePublished || !this.publishAfterGrade
+                })
                     .then(comment => {
                         // TODO Append comment rather than fire a get all entry comments request.
-                        this.getEntryComments()
+                        this.getComments()
                         this.tempComment = ''
                     })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         },
-        deleteComment (ecID) {
+        deleteComment (cID) {
             if (confirm('Are you sure you want to delete this comment?')) {
-                entryApi.deleteEntryComment(ecID)
+                commentAPI.delete(cID)
                     // TODO Remove comment locally rather than firing a new request for all entry comments
-                    .then(_ => { this.getEntryComments(this.eID) })
+                    .then(_ => { this.getComments(this.eID) })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         }

@@ -13,19 +13,29 @@ import statistics as st
 
 
 class UserSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ('last_login', 'username', 'first_name', 'last_name', 'is_active', 'email',
+        fields = ('last_login', 'username', 'first_name', 'last_name', 'is_active', 'email', 'name',
                   'profile_picture', 'is_teacher', 'lti_id', 'id')
         read_only_fields = ('id', )
 
+    def get_name(self, user):
+        return user.first_name + ' ' + user.last_name
+
 
 class OwnUserSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
     class Meta:
         model = User
-        fields = ('id', 'last_login', 'username', 'first_name', 'last_name', 'is_active', 'email',
+        fields = ('id', 'last_login', 'username', 'first_name', 'last_name', 'is_active', 'email', 'name',
                   'lti_id', 'profile_picture', 'is_teacher', 'grade_notifications', 'comment_notifications')
         read_only_fields = ('id', )
+
+    def get_name(self, user):
+        return user.first_name + ' ' + user.last_name
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -109,10 +119,15 @@ class NodeSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SerializerMethodField()
+
     class Meta:
         model = Comment
         fields = '__all__'
         read_only_fields = ('id', )
+
+    def get_author(self, comment):
+        return UserSerializer(comment.author).data
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -156,10 +171,10 @@ class EntrySerializer(serializers.ModelSerializer):
         read_only_fields = ('id', )
 
     def get_template(self, entry):
-        return TemplateSerializer(entry.template)
+        return TemplateSerializer(entry.template).data
 
     def get_content(self, entry):
-        return ContentSerializer(entry.content_set.all(), many=True)
+        return ContentSerializer(entry.content_set.all(), many=True).data
 
     def get_editable(self, entry):
         return entry.grade is None
@@ -173,42 +188,28 @@ class EntrySerializer(serializers.ModelSerializer):
 
 
 class TemplateSerializer(serializers.ModelSerializer):
-    fiels = serializers.SerializerMethodField
+    field_set = serializers.SerializerMethodField()
 
     class Meta:
         model = Template
         fields = '__all__'
 
-    def get_fields(self, template):
+    def get_field_set(self, template):
         return FieldSerializer(template.field_set.all(), many=True).data
 
 
 class ContentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Content
-        field = '__all__'
-        read_only_fields = ('id')
+        fields = '__all__'
+        read_only_fields = ('id', )
 
 
 class FieldSerializer(serializers.ModelSerializer):
     class Meta:
         model = Field
         fields = '__all__'
-# def user_to_dict(user):
-#     """Convert user object to dictionary."""
-#     return {
-#         'name': user.username,
-#         'email': user.email,
-#         'lti_id': user.lti_id,
-#         'is_superuser': user.is_superuser,
-#         'grade_notifications': user.grade_notifications,
-#         'comment_notifications': user.comment_notifications,
-#         'picture': user.profile_picture,
-#         'uID': user.id,
-#         'first_name': user.first_name,
-#         'last_name': user.last_name
-#     } if user else None
-#
+
 #
 # def participation_to_dict(participation):
 #     """Convert participation to a dictionary.
@@ -256,15 +257,6 @@ class FieldSerializer(serializers.ModelSerializer):
 #
 #     return assignment_dict
 #
-#
-# def assignment_to_dict(assignment):
-#     """Convert assignment to dictionary."""
-#     return {
-#         'aID': assignment.id,
-#         'name': assignment.name,
-#         'description': assignment.description,
-#         'auth': user_to_dict(assignment.author),
-#     } if assignment else None
 #
 #
 # def journal_to_dict(journal):
@@ -345,25 +337,3 @@ class FieldSerializer(serializers.ModelSerializer):
 #         'timestamp': entrycomment.timestamp
 #     } if entrycomment else None
 #
-#
-# def role_to_dict(role):
-#     """Convert role to dictionary."""
-#     return {
-#         'name': role.name,
-#         'cID': role.course.pk,
-#         'permissions': {
-#             'can_edit_course_roles': int(role.can_edit_course_roles),
-#             'can_view_course_participants': int(role.can_view_course_participants),
-#             'can_edit_course': int(role.can_edit_course),
-#             'can_delete_course': int(role.can_delete_course),
-#             'can_add_assignment': int(role.can_add_assignment),
-#             'can_edit_assignment': int(role.can_edit_assignment),
-#             'can_view_assignment_participants': int(role.can_view_assignment_participants),
-#             'can_delete_assignment': int(role.can_delete_assignment),
-#             'can_publish_assignment_grades': int(role.can_publish_assignment_grades),
-#             'can_grade_journal': int(role.can_grade_journal),
-#             'can_publish_journal_grades': int(role.can_publish_journal_grades),
-#             'can_edit_journal': int(role.can_edit_journal),
-#             'can_comment_journal': int(role.can_comment_journal)
-#         }
-#     } if role else None

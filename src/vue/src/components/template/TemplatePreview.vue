@@ -10,7 +10,7 @@
         </b-row>
         <b-row>
             <b-col cols="12" lg-cols="12">
-                <div v-for="field in template.fields" :key="field.eID">
+                <div v-for="field in template.field_set" :key="field.eID">
                     <div v-if="field.title != ''">
                         <b>{{ field.title }}</b>
                         <br>

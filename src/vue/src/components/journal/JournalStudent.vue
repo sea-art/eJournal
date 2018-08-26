@@ -92,7 +92,6 @@ export default {
     created () {
         journalAPI.getNodes(this.jID)
             .then(nodes => {
-                console.log(nodes)
                 this.nodes = nodes
                 if (this.$route.query.nID !== undefined) {
                     this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
