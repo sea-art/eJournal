@@ -20,7 +20,7 @@ export default {
      * returns one assignment or none.
      */
     get_assignment_by_lti_id (ltiId) {
-        return auth.authenticatedGet('/get_assignment_by_lti_id/' + ltiId + '/')
+        return auth.authenticatedGet('/get_assignment_by_lti_id/' + ltiId + '/', true)
             .then(response => response.data.assignment)
     },
 
