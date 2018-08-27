@@ -155,7 +155,7 @@ export default {
             .catch(error => handleError(error, noRedirect))
     },
     create (url, data, noRedirect = false) {
-        this.post(url, data, noRedirect)
+        return this.post(url, data, noRedirect)
     },
     patch (url, data, noRedirect = false) {
         if (url[0] !== '/') url = '/' + url
@@ -166,7 +166,7 @@ export default {
             .catch(error => handleError(error, noRedirect))
     },
     update (url, data, noRedirect = false) {
-        this.patch(url, data, noRedirect)
+        return this.patch(url, data, noRedirect)
     },
     delete (url, data = null, noRedirect = false) {
         if (url[0] !== '/') url = '/' + url
