@@ -46,7 +46,7 @@ class lti_launch_test(TestCase):
     def test_select_course(self):
         """Hopefully select a course."""
         selected_course = lti.check_course_lti({
-            'context_id': self.created_course.lti_id,
+            'custom_course_id': self.created_course.lti_id,
         },
             user=self.created_user,
             role=self.roles['Teacher']
@@ -56,7 +56,7 @@ class lti_launch_test(TestCase):
     def test_select_assignment(self):
         """Hopefully select a assignment."""
         selected_assignment = lti.check_assignment_lti({
-            'resource_link_id': self.created_assignment.lti_id,
+            'custom_assignment_id': self.created_assignment.lti_id,
         })
         self.assertEquals(selected_assignment, self.created_assignment)
 
