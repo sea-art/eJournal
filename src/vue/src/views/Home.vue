@@ -39,8 +39,8 @@
                 <todo-card
                     :deadline="d.deadline"
                     :name="d.name"
-                    :abbr="d.courseAbbr"
-                    :totalNeedsMarking="d.totalNeedsMarking"
+                    :abbr="d.course.abbreviation"
+                    :totalNeedsMarking="d.stats.needs_marking"
                     :class="$root.getBorderClass(d.courses[0])">
                 </todo-card>
             </b-link>
@@ -101,7 +101,7 @@ export default {
     created () {
         this.loadCourses()
 
-        assignmentAPI.getUpcomming()
+        assignmentAPI.getUpcoming()
             .then(deadlines => { this.deadlines = deadlines })
             .catch(error => { this.$toasted.error(error.response.data.description) })
     },
@@ -156,8 +156,8 @@ export default {
             }
 
             function compareMarkingNeeded (a, b) {
-                if (a.totalNeedsMarking > b.totalNeedsMarking) { return -1 }
-                if (a.totalNeedsMarking < b.totalNeedsMarking) { return 1 }
+                if (a.stats.needs_marking > b.stats.needs_marking) { return -1 }
+                if (a.stats.needs_marking < b.stats.needs_marking) { return 1 }
                 return 0
             }
 
@@ -166,7 +166,7 @@ export default {
             }
 
             function filterNoEntries (deadline) {
-                return deadline.totalNeedsMarking !== 0
+                return deadline.stats.needs_marking !== 0
             }
 
             if (this.selectedSortOption === 'sortDate') {
