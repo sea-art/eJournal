@@ -95,13 +95,14 @@ export default {
             reader.readAsDataURL(files[0])
         },
         downloadUserData () {
-            userAPI.download()
+            userAPI.GDPR()
                 .then(response => {
                     let blob = new Blob([dataHandling.base64ToArrayBuffer(response.data)], { type: response.headers['content-type'] })
                     let link = document.createElement('a')
                     link.href = window.URL.createObjectURL(blob)
                     link.download = /filename=(.*)/.exec(response.headers['content-disposition'])[1]
                     link.click()
+                    console.log(link)
                 }, error => {
                     this.$toasted.error(error.response.data.description)
                 })

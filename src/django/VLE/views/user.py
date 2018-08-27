@@ -292,7 +292,7 @@ class UserView(viewsets.ViewSet):
         if not permission['is_superuser'] and request.user.id != pk:
             return response.forbidden('You cannot view this users data.')
 
-        profile = UserSerializer(user)
+        profile = UserSerializer(user).data
         journals = Journal.objects.filter(user=pk)
         journal_dict = {}
         # TODO: Add entry serializer

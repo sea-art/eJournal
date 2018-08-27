@@ -26,6 +26,10 @@ export default {
         return auth.get('users/download/' + id)
     },
 
+    GDPR (id = 0) {
+        return auth.get('users/' + id + '/GDPR')
+    },
+
     /* Update user file. */
     updateUserFile (formData) {
         return auth.postFile('/upload/', formData)

@@ -28,7 +28,7 @@ def compress_all_user_data(user, extra_data_dict=None, archive_extension='zip'):
     if extra_data_dict:
         extra_data_dump_name = 'information.json'
         extra_data_dump_path = os.path.join(user_file_dir_path, extra_data_dump_name)
-
+        os.makedirs(os.path.dirname(extra_data_dump_path), exist_ok=True)
         with open(extra_data_dump_path, 'w') as file:
             file.write(json.dumps(extra_data_dict))
 
