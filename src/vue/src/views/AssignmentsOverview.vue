@@ -21,9 +21,7 @@
         <div v-for="(d, i) in computedDeadlines" :key="i">
             <b-link tag="b-button" :to="assignmentRoute(d.cID, d.aID, d.jID)">
                 <todo-card
-                    :date="d.deadline.Date"
-                    :hours="d.deadline.Hours"
-                    :minutes="d.deadline.Minutes"
+                    :deadline="d.deadline"
                     :name="d.name"
                     :abbr="d.courseAbbr"
                     :totalNeedsMarking="d.totalNeedsMarking"
