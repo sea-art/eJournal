@@ -38,21 +38,10 @@ class lti_launch_test(TestCase):
 
     def test_select_user(self):
         """Hopefully select a user."""
-        selected_user = lti.select_create_user({
-            'user_id': self.created_user.lti_id,
-            'lis_person_contact_email_primary': 'test@mail.com',
-            'lis_person_sourcedid': 'TestUsername'
+        selected_user = lti.check_user_lti({
+            'user_id': self.created_user.lti_id
         }, self.roles)
         self.assertEquals(selected_user, self.created_user)
-
-    def test_create_user(self):
-        """Hopefully create a user."""
-        selected_user = lti.select_create_user({
-            'user_id': 99999,
-            'lis_person_contact_email_primary': 'test@mail.com',
-            'lis_person_sourcedid': 'TestUsername'
-        }, self.roles)
-        self.assertIsInstance(selected_user, User)
 
     def test_select_course(self):
         """Hopefully select a course."""

@@ -867,6 +867,7 @@ def lti_launch(request):
     if authenticated:
         roles = json.load(open('config.json'))
         params = request.POST.dict()
+
         user = lti.check_user_lti(params, roles)
 
         params['exp'] = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
