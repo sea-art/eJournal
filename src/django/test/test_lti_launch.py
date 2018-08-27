@@ -7,7 +7,7 @@ import VLE.lti_launch as lti
 from django.test import TestCase
 import VLE.factory as factory
 import json
-from VLE.models import Participation, User, Journal, Role
+from VLE.models import Participation, Journal, Role
 
 
 class lti_launch_test(TestCase):
