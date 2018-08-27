@@ -687,7 +687,7 @@ def update_lti_id_to_user(request):
 
     lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
 
-    lti_id, user_image = lti_params['user_id'], lti_params['user_image']
+    lti_id, user_image = lti_params['user_id'], lti_params['custom_user_image']
     is_teacher = json.load(open('config.json'))['Teacher'] == lti_params['roles']
     first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
 

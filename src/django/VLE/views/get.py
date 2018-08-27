@@ -829,7 +829,7 @@ def get_lti_params_from_jwt(request, jwt_params):
             payload['lti_aLock'] = lti_params['custom_assignment_lock']
             payload['lti_aDue'] = lti_params['custom_assignment_due']
             payload['lti_aUnlock'] = lti_params['custom_assignment_unlock']
-            payload['lti_points_possible'] = lti_params['assignment_points']
+            payload['lti_points_possible'] = lti_params['custom_assignment_points']
 
             return responses.success(payload={'params': payload})
         else:
@@ -846,7 +846,7 @@ def get_lti_params_from_jwt(request, jwt_params):
             payload['lti_aLock'] = lti_params['custom_assignment_lock']
             payload['lti_aDue'] = lti_params['custom_assignment_due']
             payload['lti_aUnlock'] = lti_params['custom_assignment_unlock']
-            payload['lti_points_possible'] = lti_params['assignment_points']
+            payload['lti_points_possible'] = lti_params['custom_assignment_points']
 
             return responses.success(payload={'params': payload})
         else:
@@ -898,11 +898,11 @@ def lti_launch(request):
 
             if 'custom_username' in params:
                 q_names.append('username')
-                q_values.append(params['lis_person_sourcedid'])
+                q_values.append(params['custom_username'])
 
             if 'custom_user_email' in params:
                 q_names.append('email')
-                q_values.append(params['lis_person_contact_email_primary'])
+                q_values.append(params['custom_user_email'])
 
             return redirect(lti.create_lti_query_link(q_names, q_values))
 
