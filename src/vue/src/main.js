@@ -51,6 +51,9 @@ Vue.use(BootstrapVue)
 /* Checks if the store contains a jwtAccess token. */
 Vue.prototype.$loggedIn = store.getters['user/loggedIn']
 
+/* Checks the store for for permissions according to the current route cID or aID. */
+Vue.prototype.$hasPermission = store.getters['permissions/hasPermission']
+
 /* Sets the default authorization token needed to for authenticated requests. */
 axios.defaults.transformRequest.push((data, headers) => {
     if (store.getters['user/loggedIn']) {
@@ -67,8 +70,6 @@ new Vue({
     components: { App },
     data: {
         colors: ['pink-border', 'peach-border', 'blue-border'],
-        generalPermissions: {},
-        assignmentPermissions: {},
         previousPage: null,
         windowWidth: 0,
         maxFileSizeBytes: 2097152
@@ -118,41 +119,6 @@ new Vue({
             var time = date.substring(11, 16)
 
             return day + '-' + month + '-' + year + ' ' + time
-        },
-
-        canDeleteCourse () {
-            return this.generalPermissions.can_delete_course
-        },
-        canAddAssignment () {
-            return this.generalPermissions.can_add_assignment
-        },
-
-        /* Assignment permissions. */
-        canEditAssignment () {
-            return this.assignmentPermissions.can_edit_assignment
-        },
-        canViewAssignmentParticipants () {
-            return this.assignmentPermissions.can_view_assignment_participants
-        },
-        canDeleteAssignment () {
-            return this.assignmentPermissions.can_delete_assignment
-        },
-        canPublishAssignmentGrades () {
-            return this.assignmentPermissions.can_publish_assignment_grades
-        },
-
-        /* Grade permissions. */
-        canGradeJournal () {
-            return this.assignmentPermissions.can_grade_journal
-        },
-        canPublishJournalGrades () {
-            return this.assignmentPermissions.can_publish_journal_grades
-        },
-        canEditJournal () {
-            return this.assignmentPermissions.can_edit_journal
-        },
-        canCommentJournal () {
-            return this.assignmentPermissions.can_comment_journal
         }
     },
     template: '<App/>'

@@ -16,7 +16,7 @@
                 </main-card>
             </b-link>
         </div>
-        <b-button v-if="$store.getters['permissions/hasPermission']('can_add_course')"
+        <b-button v-if="$hasPermission('can_add_course')"
             slot="main-content-column"
             class="add-button grey-background full-width"
             @click="showModal('createCourseRef')">
@@ -26,7 +26,7 @@
 
         <h3 slot="right-content-column">Upcoming</h3>
         <!-- TODO: This seems like an inappropriate permission check. Will have to be reconsidered in the rework. -->
-        <b-card v-if="$store.getters['permissions/hasPermission']('can_add_course')"
+        <b-card v-if="$hasPermission('can_add_course')"
                 class="no-hover"
                 slot="right-content-column">
             <b-form-select v-model="selectedSortOption" :select-size="1">

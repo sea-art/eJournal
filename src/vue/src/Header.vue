@@ -78,7 +78,7 @@ export default {
     },
     methods: {
         test () {
-            console.log(this.$store.getters['permissions/hasPermission']('is_superuser'))
+            console.log(this.$hasPermission('can_add_course'))
         }
     },
     data () {

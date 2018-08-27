@@ -71,6 +71,12 @@ const mutations = {
     },
     [types.SET_PROFILE_PICTURE] (state, dataURL) {
         state.profilePicture = dataURL
+    },
+    [types.UPDATE_PERMISSIONS] (state, data) {
+        const permissions = data.permissions
+        const permissionKey = data.key
+
+        state.permissions[permissionKey] = permissions
     }
 
 }

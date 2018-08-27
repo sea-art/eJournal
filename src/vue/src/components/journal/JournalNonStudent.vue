@@ -58,7 +58,7 @@
                                 <icon name="arrow-right"/>
                             </b-button>
                         </div>
-                        <b-button v-if="this.$root.canPublishAssignmentGrades()" class="add-button flex-grow-1 full-width" @click="publishGradesJournal">
+                        <b-button v-if="$hasPermission('can_publish_assignment_grades')" class="add-button flex-grow-1 full-width" @click="publishGradesJournal">
                             <icon name="upload"/>
                             Publish All Grades
                         </b-button>
@@ -118,7 +118,7 @@ export default {
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
         if (store.state.filteredJournals.length === 0) {
-            if (this.$router.app.canViewAssignmentParticipants()) {
+            if (this.$hasPermission('can_view_assignment_participants')) {
                 journalApi.get_assignment_journals(this.aID)
                     .then(data => { this.assignmentJournals = data.journals })
                     .catch(error => { this.$toasted.error(error.response.data.description) })

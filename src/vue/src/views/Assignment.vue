@@ -1,5 +1,6 @@
 <template>
-    <content-columns v-if="this.$root.canViewAssignmentParticipants()">
+    <!-- TODO Is this check really required if we redirect, or even better have correct flow anyway? -->
+    <content-columns v-if="$hasPermission('can_view_assignment_participants')">
         <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
         <b-card slot="main-content-column" class="no-hover settings-card">
             <b-row>
@@ -15,7 +16,7 @@
                 </b-col>
             </b-row>
             <b-button
-                v-if="$root.canPublishAssignmentGrades()"
+                v-if="$hasPermission('can_publish_assignment_grades')"
                 class="add-button"
                 @click="publishGradesAssignment">
                 <icon name="upload"/>
@@ -59,6 +60,8 @@ import journal from '@/api/journal.js'
 import store from '@/Store.vue'
 import icon from 'vue-awesome/components/Icon'
 
+import Vue from 'vue'
+
 export default {
     name: 'Assignment',
     props: {
@@ -89,7 +92,10 @@ export default {
         'main-card': mainCard
     },
     created () {
-        if (!this.$root.canViewAssignmentParticipants()) {
+        if (!this.$hasPermission('can_view_assignment_participants')) {
+            if (!Vue.config.productionTip) {
+                console.log('Redirection from assignment, how did we even get here?')
+            }
             if (this.jID) {
                 return this.$router.push({name: 'Journal', params: {cID: this.cID, aID: this.aID, jID: this.jID}})
             } else {

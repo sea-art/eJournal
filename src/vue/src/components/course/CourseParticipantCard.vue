@@ -12,7 +12,7 @@
             </b-col>
             <b-col sm="12" lg="4">
                 <div class="shadow">
-                    <b-form-select v-if="$store.getters['permissions/hasPermission']('can_edit_course_roles')"
+                    <b-form-select v-if="$hasPermission('can_edit_course_roles')"
                                    v-model="selectedRole"
                                    :select-size="1">
                         <option v-for="r in roles" :key="r.name" :value="r.name">
@@ -21,7 +21,7 @@
                     </b-form-select>
                 </div>
                 <!-- TODO Permission revision should be can_delete_course_users -->
-                <b-button v-if="$store.getters['permissions/hasPermission']('can_add_course_participants')"
+                <b-button v-if="$hasPermission('can_add_course_participants')"
                           @click.prevent.stop="removeFromCourse()"
                           class="delete-button full-width">
                     <icon name="user-times"/>

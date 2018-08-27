@@ -16,7 +16,7 @@
             </b-link>
         </div>
 
-        <b-button v-if="$root.canAddAssignment()"
+        <b-button v-if="$hasPermission('can_add_assignment')"
             slot="main-content-column"
             class="add-button grey-background full-width"
             @click="showModal('createAssignmentRef')">
@@ -26,7 +26,8 @@
 
         <h3 slot="right-content-column">Upcoming</h3>
 
-        <b-card v-if="this.$root.canViewAssignmentParticipants()"
+        <!-- TODO Permission revision should be can_grade -->
+        <b-card v-if="$hasPermission('can_view_assignment_participants')"
                 class="no-hover"
                 slot="right-content-column">
             <b-form-select v-model="selectedSortOption" :select-size="1">

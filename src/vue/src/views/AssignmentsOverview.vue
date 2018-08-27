@@ -8,7 +8,7 @@
                         <b-form-select v-model="selectedSortOption" :select-size="1">
                            <option value="sortDate">Sort by date</option>
                            <option value="sortName">Sort by name</option>
-                           <option v-if="$store.getters['permissions/hasPermission']('can_add_course')"
+                           <option v-if="$hasPermission('can_add_course')"
                                    value="sortNeedsMarking">Sort by marking needed</option>
                         </b-form-select>
                     </b-col>
