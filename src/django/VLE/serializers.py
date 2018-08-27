@@ -6,7 +6,8 @@ Functions to convert certain data to other formats.
 from rest_framework import serializers
 # import VLE.utils.generic_utils as utils
 # import VLE.permissions as permissions
-from VLE.models import User, Course, Node, Comment, Assignment, Role, Journal, Entry, Template, Field, Content
+from VLE.models import User, Course, Node, Comment, Assignment, Role, Journal, Entry, Template, Field, Content, \
+                       JournalFormat
 import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
 import statistics as st
@@ -152,6 +153,27 @@ class JournalSerializer(serializers.ModelSerializer):
             'total_points': utils.get_max_points(journal),
         }
 
+
+class JournalFormatSerializer(serializers.ModelSerializer):
+    stats = serializers.SerializerMethodField()
+    student = serializers.SerializerMethodField()
+
+    class Meta:
+        model = JournalFormat
+        fields = '__all__'
+        read_only_fields = ('id', )
+
+    def get_student(self, journal):
+        return UserSerializer(journal.user).data
+
+    def get_stats(self, journal):
+        entries = utils.get_journal_entries(journal)
+        return {
+            'acquired_points': utils.get_acquired_points(entries),
+            'graded': utils.get_graded_count(entries),
+            'submitted': utils.get_submitted_count(entries),
+            'total_points': utils.get_max_points(journal),
+        }
 
 class EntrySerializer(serializers.ModelSerializer):
     template = serializers.SerializerMethodField()

@@ -9,11 +9,11 @@ from VLE.models import Assignment
 import VLE.views.responses as response
 import VLE.utils as utils
 import VLE.permissions as permissions
-import VLE.serializers as serialize
+from VLE.serializers import JournalFormatSerializer
 
 
 class JournalFormatView(viewsets.ViewSet):
-    """Entry view.
+    """JournalFormat view.
 
     This class creates the following api paths:
     GET /journalformats/ -- gets all the journalformats
@@ -28,29 +28,32 @@ class JournalFormatView(viewsets.ViewSet):
 
         Arguments:
         request -- the request that was sent
-            assignment_id     -- the assignment id
+            assignment_id -- the assignment id
 
         Returns a json string containing the format.
         """
         user = request.user
         if not user.is_authenticated:
-            return responses.unauthorized()
+            return response.unauthorized()
 
         try:
-            assignment_id = request.query_params['assignment_id']
+            assignment_id, = utils.required_params(request.data, "assignment_id")
         except KeyError:
             return response.keyerror('assignment_id')
 
         try:
             assignment = Assignment.objects.get(pk=assignment_id)
         except Assignment.DoesNotExist:
-            return responses.not_found('Assignment not found.')
+            return response.not_found('Assignment not found.')
 
         if not (assignment.courses.all() & user.participations.all()):
-            return responses.forbidden('You are not allowed to view this assignment.')
+            return response.forbidden('You are not allowed to view this assignment.')
 
-        return responses.success(payload={'format': serialize.format_to_dict(assignment.format)})
+        serializer = JournalFormatSerializer(assignment.format)
+        if not serializer.is_valid():
+            response.bad_request()
 
+        return response.success({'format': serializer.data})
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing journal format.
@@ -80,21 +83,22 @@ class JournalFormatView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            assignment_id = kwargs.get('pk')
-            templates, presets = utils.required_params(request.data, "templates", "presets")
-            unused_templates, max_points = utils.required_params(request.data, "unused_templates", "max_points")
-            removed_presets, removed_templates = utils.required_params(request.data, "removed_presets",
-                                                                       "removed_templates")
+        assignment_id = kwargs.get('pk')
 
+        try:
+            templates, presets, unused_templates, max_points, removed_presets, removed_templates \
+                = utils.required_params(request.data, "templates", "presets", "unused_templates", "max_points",
+                                        "removed_presets", "removed_templates")
         except KeyError:
-            return response.keyerror("assignment_id", "templates", "presets", "unused_templates", "max_points")
+            return response.keyerror("templates", "presets", "unused_templates", "max_points", "removed_presets",
+                                     "removed_templates")
 
         try:
             assignment = Assignment.objects.get(pk=assignment_id)
-            format = assignment.format
         except Assignment.DoesNotExist:
             return response.not_found('Assignment')
+
+        format = assignment.format
 
         if not permissions.has_assignment_permission(request.user, assignment, 'can_edit_assignment'):
             return response.forbidden('You are not allowed to edit this assignment.')
@@ -115,4 +119,8 @@ class JournalFormatView(viewsets.ViewSet):
         utils.delete_templates(format.available_templates, removed_templates)
         utils.delete_templates(format.unused_templates, removed_templates)
 
-        return response.success(payload={'format': serialize.format_to_dict(format)})
+        serializer = JournalFormatSerializer(format)
+        if not serializer.is_valid():
+            response.bad_request()
+
+        return response.success({'format': serializer.data})
