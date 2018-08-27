@@ -123,10 +123,10 @@ export default {
                     checkFound = false
 
                     for (var content of this.entryNode.entry.content) {
-                        if (content.tag === templateField.tag) {
+                        if (content.field === templateField.id) {
                             this.completeContent.push({
                                 data: content.data,
-                                tag: content.tag
+                                id: content.field
                             })
 
                             checkFound = true
@@ -137,7 +137,7 @@ export default {
                     if (!checkFound) {
                         this.completeContent.push({
                             data: null,
-                            tag: templateField.tag
+                            id: templateField.id
                         })
                     }
                 }

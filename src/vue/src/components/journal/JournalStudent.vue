@@ -126,7 +126,7 @@ export default {
             this.nodes[this.currentNode] = editedData
             entryAPI.create({
                 journal_id: this.jID,
-                template_id: this.nodes[this.currentNode].entry.template.tID,
+                template_id: this.nodes[this.currentNode].entry.template.id,
                 content: editedData.entry.content,
                 node_id: this.nodes[this.currentNode].nID
             })
@@ -161,7 +161,7 @@ export default {
         addNode (infoEntry) {
             entryAPI.create({
                 journal_id: this.jID,
-                template_id: infoEntry[0].tID,
+                template_id: infoEntry[0].id,
                 content: infoEntry[1]
             })
                 .then(data => {
@@ -173,7 +173,7 @@ export default {
         fillDeadline (data) {
             entryAPI.create({
                 journal_id: this.jID,
-                template_id: this.nodes[this.currentNode].template.tID,
+                template_id: this.nodes[this.currentNode].template.id,
                 content: data,
                 node_id: this.nodes[this.currentNode].nID
             })

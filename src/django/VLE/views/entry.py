@@ -27,7 +27,7 @@ class EntryView(viewsets.ViewSet):
     DEL /entries/<pk> -- delete an entry
     """
 
-    def create(request):
+    def create(self, request):
         """Create a new entry.
 
         Arguments:
@@ -88,22 +88,23 @@ class EntryView(viewsets.ViewSet):
 
         for content in content_list:
             try:
-                field = Field.objects.get(pk=content['data'])
+                field = Field.objects.get(pk=content['id'])
             except Field.DoesNotExist:
                 return response.not_found('Field')
 
             factory.make_content(node.entry, content['data'], field)
 
-        result = edag.get_nodes_dict(journal, request.user)
+        result = edag.get_nodes(journal, request.user)
         added = -1
         for i, result_node in enumerate(result):
-            if result_node['node_id'] == node.id:
+            print(result_node)
+            if result_node['nID'] == node.id:
                 added = i
                 break
 
         return response.created({
             'added': added,
-            'nodes': edag.get_nodes_dict(journal, request.user)
+            'nodes': edag.get_nodes(journal, request.user)
         })
 
     def partial_update(self, request, *args, **kwargs):

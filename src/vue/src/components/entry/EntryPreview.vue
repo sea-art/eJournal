@@ -93,7 +93,7 @@ export default {
             for (var field of this.template.field_set) {
                 this.completeContent.push({
                     data: null,
-                    tag: field.tag
+                    id: field.id
                 })
             }
         },
