@@ -28,7 +28,7 @@ class Command(BaseCommand):
                 "is_superuser": False,
                 "is_teacher": False
             }, {
-                "username": "te",
+                "username": "22222222",
                 "first_name": "Rick",
                 "last_name": "Watertor",
                 "pass": "pass",
@@ -56,7 +56,7 @@ class Command(BaseCommand):
                 "is_superuser": False,
                 "is_teacher": False
             }, {
-                "username": "55555555",
+                "username": "te",
                 "first_name": "Xavier",
                 "last_name": "van Dommelen",
                 "pass": "pass",

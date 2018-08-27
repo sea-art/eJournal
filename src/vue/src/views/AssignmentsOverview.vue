@@ -19,13 +19,13 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i">
-            <b-link tag="b-button" :to="assignmentRoute(d.cID, d.aID, d.jID)">
+            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal ? d.journal.id : null)">
                 <todo-card
                     :deadline="d.deadline"
                     :name="d.name"
-                    :abbr="d.courseAbbr"
-                    :totalNeedsMarking="d.totalNeedsMarking"
-                    :class="$root.getBorderClass(d.cID)">
+                    :abbr="d.course.abbreviation"
+                    :totalNeedsMarking="d.stats ? d.stats.needs_marking : null"
+                    :class="$root.getBorderClass(d.course.id)">
                 </todo-card>
             </b-link>
         </div>
@@ -36,8 +36,9 @@
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import mainCard from '@/components/assets/MainCard.vue'
-import assignmentApi from '@/api/assignment.js'
 import todoCard from '@/components/assets/TodoCard.vue'
+
+import assignmentAPI from '@/api/assignment'
 
 export default {
     name: 'AssignmentsOverview',
@@ -50,7 +51,7 @@ export default {
         }
     },
     created () {
-        assignmentApi.get_upcoming_deadlines()
+        assignmentAPI.getUpcoming()
             .then(deadlines => { this.deadlines = deadlines })
             .catch(error => { this.$toasted.error(error.response.data.description) })
     },
@@ -88,19 +89,19 @@ export default {
             }
 
             function compareDate (a, b) {
-                return new Date(a.deadline.Date) - new Date(b.deadline.Date)
+                return new Date(a.deadline) - new Date(b.deadline)
             }
 
             function compareMarkingNeeded (a, b) {
-                if (a.totalNeedsMarking > b.totalNeedsMarking) { return -1 }
-                if (a.totalNeedsMarking < b.totalNeedsMarking) { return 1 }
+                if (a.stats.needs_marking > b.stats.needs_marking) { return -1 }
+                if (a.stats.needs_marking < b.stats.needs_marking) { return 1 }
                 return 0
             }
 
             function searchFilter (assignment) {
                 var searchVariable = self.searchVariable.toLowerCase()
                 return (assignment.name.toLowerCase().includes(searchVariable) ||
-                        assignment.courseAbbr.toLowerCase().includes(searchVariable))
+                        assignment.course.abbreviation.toLowerCase().includes(searchVariable))
             }
 
             if (this.selectedSortOption === 'sortName') {

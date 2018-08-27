@@ -46,10 +46,11 @@ class CourseSerializer(serializers.ModelSerializer):
         depth = 1
 
 
-# TODO: Merge teacher and student into 1 serializer, this prob can be done
-class StudentAssignmentSerializer(serializers.ModelSerializer):
+class AssignmentSerializer(serializers.ModelSerializer):
     deadline = serializers.SerializerMethodField()
     journal = serializers.SerializerMethodField()
+    stats = serializers.SerializerMethodField()
+    course = serializers.SerializerMethodField()
 
     class Meta:
         model = Assignment
@@ -57,58 +58,51 @@ class StudentAssignmentSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', )
 
     def get_deadline(self, assignment):
-        if 'user' not in self.context:
-            return None
+        # TODO: Check from which course it came from as well
+        # TODO: When all assignments are graded, set deadline to next deadline?
+        # If the user doesnt have a journal, take the deadline that is the first upcomming deadline
+        if 'user' not in self.context or \
+           permissions.has_assignment_permission(self.context['user'], assignment, 'can_grade_journal'):
+            nodes = assignment.format.presetnode_set.all().order_by('deadline')
+            if not nodes:
+                return None
+            return nodes[0].deadline
 
-        try:
-            journal = Journal.objects.get(assignment=assignment, user=self.context['user'])
-        except Journal.DoesNotExist:
-            return None
+        # If the user has a journal, take the first upcomming not submitted deadline
+        else:
+            try:
+                journal = Journal.objects.get(assignment=assignment, user=self.context['user'])
+            except Journal.DoesNotExist:
+                return None
 
-        deadlines = journal.node_set.exclude(preset=None).values('preset__deadline').order_by('preset__deadline')
-        if not deadlines:
-            return None
+            deadlines = journal.node_set.exclude(preset=None).values('preset__deadline').order_by('preset__deadline')
+            if not deadlines:
+                return None
 
-        return deadlines[0]['preset__deadline']
+            return deadlines[0]['preset__deadline']
 
     def get_journal(self, assignment):
-        if 'user' not in self.context:
-            return None
-
-        user = self.context['user']
         try:
-            journal = Journal.objects.get(assignment=assignment, user=user)
-        except Journal.DoesNotExist:
-            journal = None
-
-        return journal.pk
-
-    def get_serializer_context(self):
-        return {'request': self.request}
-
-
-class TeacherAssignmentSerializer(serializers.ModelSerializer):
-    deadline = serializers.SerializerMethodField()
-    stats = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Assignment
-        fields = '__all__'
-        read_only_fields = ('id', )
-
-    def get_deadline(self, assignment):
-        nodes = assignment.format.presetnode_set.all().order_by('deadline')
-        if not nodes:
+            return Journal.objects.get(assignment=assignment, user=self.context['user']).pk
+        except (KeyError, Journal.DoesNotExist):
             return None
-        return nodes[0].deadline
 
     def get_stats(self, assignment):
+        if 'user' not in self.context or \
+           not permissions.has_assignment_permission(self.context['user'], assignment, 'can_grade_journal'):
+            return None
+
         journals = JournalSerializer(assignment.journal_set.all(), many=True).data
         stats = {}
         stats['needs_marking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
         points = [x['stats']['acquired_points'] for x in journals]
         stats['average_points'] = round(st.mean(points), 2)
         return stats
+
+    def get_course(self, assignment):
+        if 'course' not in self.context:
+            return None
+        return CourseSerializer(self.context['course']).data
 
 
 class NodeSerializer(serializers.ModelSerializer):

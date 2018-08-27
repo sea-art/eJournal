@@ -6,7 +6,7 @@ In this file are all the assignment api requests.
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from VLE.serializers import StudentAssignmentSerializer, TeacherAssignmentSerializer, JournalSerializer
+from VLE.serializers import AssignmentSerializer, JournalSerializer
 from VLE.models import Assignment, Course, Journal
 import VLE.views.responses as response
 import VLE.permissions as permissions
@@ -47,8 +47,8 @@ class AssignmentView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            course_id = request.query_params['course_id']
-        except KeyError:
+            course_id = int(request.query_params['course_id'])
+        except (KeyError, ValueError):
             course_id = None
         try:
             if course_id:
@@ -63,13 +63,11 @@ class AssignmentView(viewsets.ViewSet):
 
             if role.can_grade_journal:
                 queryset = course.assignment_set.all()
-                serializer = TeacherAssignmentSerializer(queryset, many=True)
             else:
                 queryset = Assignment.objects.filter(courses=course, journal__user=request.user)
-                serializer = StudentAssignmentSerializer(queryset, many=True, context={'user': request.user})
+            serializer = AssignmentSerializer(queryset, many=True, context={'user': request.user, 'course': course})
         else:
-            # TODO: change query to a query that selects all (upcomming) assignments connected to the user.
-            serializer = StudentAssignmentSerializer(Assignment.objects.all(), context={'user': request.user})
+            return self.upcomming()
 
         return response.success({'assignments': serializer.data})
 
@@ -125,7 +123,7 @@ class AssignmentView(viewsets.ViewSet):
             if role.can_edit_journal:
                 factory.make_journal(assignment, user)
 
-        serializer = TeacherAssignmentSerializer(assignment)
+        serializer = AssignmentSerializer(assignment, context={'user': request.user, 'course': course})
         return response.created({'assignment': serializer.data})
 
     # TODO: Add course ID to only get the information about the assignment from that course.
@@ -163,16 +161,16 @@ class AssignmentView(viewsets.ViewSet):
         if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
             return response.forbidden("You cannot view this assignment.")
 
-        role = permissions.get_assignment_permissions(request.user, assignment)
-        if role['can_grade_journal']:
-            serializer = TeacherAssignmentSerializer(assignment)
+        if permissions.has_assignment_permission(request.user, assignment, 'can_grade_journal'):
+            serializer = AssignmentSerializer(assignment, context={'user': request.user})
             journals = Journal.objects.filter(assignment=assignment)
             data = serializer.data
             data['journals'] = JournalSerializer(journals, many=True).data
         else:
-            serializer = StudentAssignmentSerializer(assignment, context={'user': request.user})
+            serializer = AssignmentSerializer(assignment, context={'user': request.user})
             data = serializer.data
 
+        print(data)
         return response.success({'assignment': data})
 
     def partial_update(self, request, *args, **kwargs):
@@ -207,7 +205,7 @@ class AssignmentView(viewsets.ViewSet):
         if not permissions.has_assignment_permission(request.user, assignment, 'can_edit_assignment'):
             return response.forbidden('You are not allowed to edit this assignment.')
 
-        serializer = TeacherAssignmentSerializer(assignment, data=request.data, partial=True)
+        serializer = AssignmentSerializer(assignment, data=request.data, context={'user': request.user}, partial=True)
         if not serializer.is_valid():
             response.bad_request()
         serializer.save()
@@ -295,26 +293,12 @@ class AssignmentView(viewsets.ViewSet):
 
         deadline_list = []
 
+        # TODO: change query to a query that selects all upcomming assignments connected to the user.
         for course in courses:
             if permissions.get_role(request.user, course):
                 for assignment in Assignment.objects.filter(courses=course.id).all():
-                    role = permissions.get_assignment_permissions(request.user, assignment)
-                    if role['can_grade_journal']:
-                        deadline_list.append(TeacherAssignmentSerializer(assignment).data)
-                    else:
-                        deadline_list.append(
-                            StudentAssignmentSerializer(assignment, context={'user': request.user}).data)
-
-            # TODO: Specify for teacher and student seperatly, this can be done after a better serializer
-            #     for assignment in Assignment.objects.filter(courses=course.id).all():
-            #         deadline = create_teacher_assignment_deadline(course, assignment)
-            #         if deadline:
-            #             deadline_list.append(deadline)
-            # else:
-            #     for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
-            #         deadline = create_student_assignment_deadline(user, course, assignment)
-            #         if deadline:
-            #             deadline_list.append(deadline)
+                    deadline_list.append(
+                        AssignmentSerializer(assignment, context={'user': request.user, 'course': course}).data)
 
         return response.success({'upcomming': deadline_list})
 
