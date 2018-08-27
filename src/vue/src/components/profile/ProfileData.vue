@@ -102,7 +102,6 @@ export default {
                     link.href = window.URL.createObjectURL(blob)
                     link.download = /filename=(.*)/.exec(response.headers['content-disposition'])[1]
                     link.click()
-                    console.log(link)
                 }, error => {
                     this.$toasted.error(error.response.data.description)
                 })
