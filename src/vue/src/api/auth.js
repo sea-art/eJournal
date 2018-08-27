@@ -18,6 +18,7 @@ const errorsToRedirect = new Set([
  * This because this is generic response handling, and we dont know what should happen in case of an error.
  */
 function handleError (error, noRedirect = false) {
+    console.log('Handling error.')
     const response = error.response
     const status = response.status
     const description = 'Placeholder due to varied error format' // TODO handle properly

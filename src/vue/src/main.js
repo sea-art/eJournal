@@ -98,13 +98,6 @@ new Vue({
         smMax () { return this.windowWidth < 769 },
         mdMax () { return this.windowWidth < 992 },
         lgMax () { return this.windowWidth < 1200 },
-        timeLeft (date) {
-            /* Date format is:
-             * Returns the remaining time left as:
-             * If the time left is negative returns Expired
-             * TODO implement (will most likely require a lib) */
-            return '1M 9D 9H'
-        },
         getBorderClass (cID) {
             return this.colors[cID % this.colors.length]
         },

@@ -105,9 +105,10 @@ const actions = {
         ])
     },
     verifyLogin ({ commit, dispatch, getters }, error = null) {
+        console.log('Verifying login')
         return new Promise((resolve, reject) => {
-            if (!getters.jwtRefresh || (error !== null && error.response.data.code === 'token_not_valid')) {
-                reject(error || Error('No valid token')) // We either dont have a refresh token or our token is not valid
+            if (!getters.jwtRefresh || (error !== null && error.response.data.code !== 'token_not_valid')) {
+                reject(error || Error('No valid token')) // We either dont have a refresh token or the server errored due to something other than the validity fo the token.
             } else {
                 connection.conn.post('token/refresh/', {refresh: getters.jwtRefresh}).then(response => {
                     // Already logged in, update state
