@@ -38,6 +38,10 @@ export default {
         }
         return auth.get('assignments/upcomming')
             .then(response => response.data.upcomming)
+    },
+
+    getWithLTI (id) {
+        return auth.get('assignments/' + id, {lti: true})
     }
     // /* Get an assignments by filtering on the lti_id.
     //  * returns one assignment or none.

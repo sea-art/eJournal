@@ -142,7 +142,13 @@ export default {
                             this.states.state = this.states.finish_t
                         }
                     })
-                    .catch(error => { this.$toasted.error(error.response.data.description) })
+                    .catch(error => {
+                        if (error.response.status === 404) {
+                            this.states.state = this.states.new_assign
+                        } else {
+                            this.$toasted.error(error.response.description)
+                        }
+                    })
                 break
             case this.states.grade_center:
                 this.$router.push({
