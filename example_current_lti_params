@@ -24,8 +24,7 @@ teacher:
  "custom_username": "testscience155-tst"
  "ext_ims_lis_basic_outcome_url": "https://uvadlo-tes.instructure.com/api/lti/v1/tools/267/ext_grade_passback"
  "ext_lti_assignment_id": "29459fd9-e1fb-49fb-8eac-e666dd9043b1"
- "ext_outcome_data_values_accepted": "url
-text"
+ "ext_outcome_data_values_accepted": "url, text"
  "ext_outcome_result_total_score_accepted": "true"
  "ext_outcome_submission_submitted_at_accepted": "true"
  "ext_outcomes_tool_placement_url": "https://uvadlo-tes.instructure.com/api/lti/v1/turnitin/outcomes_placement/267"
@@ -76,8 +75,7 @@ student:
  "custom_username": "testscience156-tst"
  "ext_ims_lis_basic_outcome_url": "https://uvadlo-tes.instructure.com/api/lti/v1/tools/267/ext_grade_passback"
  "ext_lti_assignment_id": "29459fd9-e1fb-49fb-8eac-e666dd9043b1"
- "ext_outcome_data_values_accepted": "url
-text"
+ "ext_outcome_data_values_accepted": "url, text"
  "ext_outcome_result_total_score_accepted": "true"
  "ext_outcome_submission_submitted_at_accepted": "true"
  "ext_outcomes_tool_placement_url": "https://uvadlo-tes.instructure.com/api/lti/v1/turnitin/outcomes_placement/267"
