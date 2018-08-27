@@ -26,7 +26,7 @@
             </div>
         </div>
         <div v-if="$root.canCommentJournal()" class="comment-section">
-            <img class="profile-picture no-hover" :src="authorData.picture">
+            <img class="profile-picture no-hover" :src="authorData.profile_picture">
             <b-card class="no-hover new-comment">
                 <text-editor
                     :id="'comment-text-editor'"
