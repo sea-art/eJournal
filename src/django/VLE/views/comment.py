@@ -17,8 +17,9 @@ class CommentView(viewsets.ViewSet):
     """Comment view.
 
     This class creates the following api paths:
-    GET /comment/ -- gets all the comment
+    GET /comment/ -- gets all the comments of the specific entry
     POST /comment/ -- create a new comment
+    GET /comment/<pk> -- gets a specific comment
     PATCH /comment/<pk> -- partially update an comment
     DEL /comment/<pk> -- delete an comment
     """
@@ -44,14 +45,13 @@ class CommentView(viewsets.ViewSet):
 
         # Try to get the entry_id of the request.
         try:
-            entry_id = request.query_params['entry_id']
+            entry_id, = utils.required_params(request.data, "entry_id")
         except KeyError:
-            entry_id = None
+            return response.keyerror("entry_id")
 
         # Try to get the Entry associated with the given entry_id.
         try:
-            if entry_id:
-                entry = Entry.objects.get(pk=entry_id)
+            entry = Entry.objects.get(pk=entry_id)
         except Entry.DoesNotExist:
             return response.not_found('Entry')
 
@@ -67,6 +67,8 @@ class CommentView(viewsets.ViewSet):
             comments = Comment.objects.filter(entry=entry, published=True)
 
         serializer = CommentSerializer(comments, many=True)
+        if not serializer.is_valid():
+            response.bad_request()
         return response.success({'comments': serializer.data})
 
     def create(self, request):
@@ -92,16 +94,15 @@ class CommentView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            entry_id, text, published = utils.required_params(
-                request.data, "entry_id", "text", "published")
+            entry_id, text, published = utils.required_params(request.data, "entry_id", "text", "published")
         except KeyError:
             return response.keyerror("entry_id", "text", "published")
 
         try:
             entry = Entry.objects.get(pk=entry_id)
             assignment = Assignment.objects.get(journal__node__entry=entry)
-        except (User.DoesNotExist, Entry.DoesNotExist):
-            return response.not_found('User, Entry or assignment does not exist.')
+        except (Assignment.DoesNotExist, Entry.DoesNotExist):
+            return response.not_found('Entry or assignment does not exist.')
 
         published = published and permissions.has_assignment_permission(request.user, assignment,
                                                                         'can_grade_journal')
@@ -110,8 +111,40 @@ class CommentView(viewsets.ViewSet):
         return response.created({'comment': CommentSerializer(comment).data})
 
     def retrieve(self, request, pk=None):
-        """Is not implemented yet."""
-        return response.response(501)
+        """Retrieve a comment.
+
+        Arguments:
+        request -- request data
+        pk -- assignment ID
+
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+            not_found -- could not find the course with the given id
+            forbidden -- not allowed to retrieve assignments in this course
+
+        On success:
+            succes -- with the comment data
+
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+
+        try:
+            comment = Comment.objects.get(pk=pk)
+        except Comment.DoesNotExist:
+            return response.not_found('Comment')
+
+        if comment.entry.node.journal.user != request.user and \
+           not permissions.has_assignment_permission(
+                request.user, comment.entry.node.journal.assignment, 'can_view_assignment_participants'):
+            return response.forbidden('You are not allowed to view journals of other participants.')
+
+        serializer = CommentSerializer(comment)
+        if not serializer.is_valid():
+            response.bad_request()
+
+        return response.success({'comment': serializer.data})
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing comment.

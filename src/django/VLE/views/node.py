@@ -8,7 +8,6 @@ from rest_framework import viewsets
 import VLE.views.responses as response
 import VLE.permissions as permissions
 
-from VLE.serializers import NodeSerializer
 from VLE.models import Journal
 import VLE.edag as edag
 
@@ -23,8 +22,6 @@ class NodeView(viewsets.ModelViewSet):
     PATCH /nodes/<pk> -- partially update a node
     DEL /nodes/<pk> -- delete a node
     """
-
-    serializer_class = NodeSerializer
 
     def list(self, request):
         """Get all nodes contained within a journal.

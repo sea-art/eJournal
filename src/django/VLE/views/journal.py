@@ -26,8 +26,6 @@ class JournalView(viewsets.ViewSet):
     PATCH /journals/published_state/<pk> -- update the published state of all entries in a journal
     """
 
-    serializer_class = JournalSerializer
-
     def list(self, request):
         """Get the student submitted journals of one assignment.
 
@@ -61,7 +59,7 @@ class JournalView(viewsets.ViewSet):
         journals = []
 
         queryset = assignment.journal_set.all()
-        journals = self.serializer_class(queryset, many=True).data
+        journals = JournalSerializer(queryset, many=True).data
 
         stats = {}
         if journals:
@@ -77,7 +75,7 @@ class JournalView(viewsets.ViewSet):
         })
 
     def create(self, request):
-        """Create a new assignment.
+        """Create a new journal.
 
         Arguments:
         request -- request data
@@ -98,7 +96,7 @@ class JournalView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            [assignment_id] = utils.required_params(request.data, "assignment_id")
+            assignment_id, = utils.required_params(request.data, "assignment_id")
         except KeyError:
             return response.keyerror("assignment_id")
 
@@ -108,9 +106,13 @@ class JournalView(viewsets.ViewSet):
         elif not role["can_edit_journal"]:
             return response.forbidden("You have no permissions to create a journal.")
 
-        assignment = Assignment.objects.get(pk=assignment_id)
+        try:
+            assignment = Assignment.objects.get(pk=assignment_id)
+        except Assignment.DoesNotExist:
+            return response.not_found('Assignment')
+
         journal = factory.make_journal(assignment, request.user)
-        serializer = self.serializer_class(journal, many=False)
+        serializer = JournalSerializer(journal, many=False)
         return response.created({'journal': serializer.data})
 
     def retrieve(self, request, pk):
@@ -142,9 +144,14 @@ class JournalView(viewsets.ViewSet):
                                                      'can_view_assignment_participants'):
             return response.forbidden('You are not allowed to view this journal.')
 
-        return response.success({'journal': self.serializer_class(journal).data})
+        serializer = JournalSerializer(journal)
+        if not serializer.is_valid():
+            response.bad_request()
+
+        return response.success({'journal': serializer.data})
 
     def update(self, request, *args, **kwargs):
+        # TODO Make this update function
         pass
 
     def partial_update(self, request, *args, **kwargs):
@@ -179,17 +186,18 @@ class JournalView(viewsets.ViewSet):
         if not permissions.has_journal_permission(request.user, journal, 'can_edit_journal'):
             return response.forbidden('You are not allowed to edit this journal.')
 
-        # TODO Check if a serializer is valid if we add an extra argument (published)
+        # TODO Check if a serializer is valid if we add an extra argument (published) to the request data.
         serializer = JournalSerializer(journal, data=request.data, partial=True)
         if not serializer.is_valid():
             response.bad_request()
         serializer.save()
 
-        published = utils.optional_params(request.data, "published")
+        published, = utils.optional_params(request.data, "published")
         if published:
             if not permissions.has_assignment_permission(request.user, journal.assignment,
                                                          'can_publish_journal_grades'):
                 return response.forbidden('You cannot publish assignments.')
+
             utils.publish_all_journal_grades(journal, published)
             if journal.sourcedid is not None and journal.grade_url is not None:
                 payload = lti_grade.replace_result(journal)

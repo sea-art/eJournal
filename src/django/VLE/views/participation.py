@@ -29,10 +29,12 @@ class ParticipationView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
+
         try:
-            course_id = request.query_params['course_id']
+            course_id, = utils.required_params(request.data, "course_id")
         except KeyError:
             return response.keyerror('course_id')
+
         try:
             course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
@@ -44,13 +46,13 @@ class ParticipationView(viewsets.ViewSet):
         elif not role.can_view_course_participants:
             return response.forbidden('You cannot view participants in this course.')
 
-        queryset = course.users
         role = permissions.get_role(request.user, course)
 
         # TODO: Improve how the addition of roles is done
-        resp = UserSerializer(queryset, many=True).data
+        resp = UserSerializer(course.users, many=True).data
         for r in resp:
             r['role'] = RoleSerializer(role, many=False).data['name']
+
         return response.success({'participants': resp})
 
     def create(self, request, course_id):
@@ -58,7 +60,7 @@ class ParticipationView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
-            uID -- user ID
+            user_id -- user ID
             role -- name of the role (default: Student)
         course_id -- course ID
 
@@ -76,10 +78,10 @@ class ParticipationView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            user_id = utils.required_params(request.data, 'uID')
-            role_name = utils.optional_params(request.data, 'role') or 'Student'
+            user_id, = utils.required_params(request.data, 'user_id')
+            role_name, = utils.optional_params(request.data, 'role') or 'Student'
         except KeyError:
-            return response.keyerror('uID')
+            return response.keyerror('user_id')
 
         try:
             user = User.objects.get(pk=user_id)
@@ -99,7 +101,8 @@ class ParticipationView(viewsets.ViewSet):
         try:
             role = Role.objects.get(name=role_name, course=course)
         except Role.DoesNotExist:
-            return response.not_found()
+            return response.not_found('role_name')
+
         factory.make_participation(user, course, role)
 
         assignments = course.assignment_set.all()
@@ -110,19 +113,19 @@ class ParticipationView(viewsets.ViewSet):
                     factory.make_journal(assignment, user)
         return response.success(description='Succesfully added student to course.')
 
-    def update(self, request, course_id):
+    def partial_update(self, request, course_id):
         """Update user role in a course.
 
         Arguments:
         request -- request data
-            uID -- user ID
+            user_id -- user ID
             role -- name of the role (default: Student)
         course_id -- course ID
 
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            keyerror -- when the uID is not set
+            keyerror -- when the user_id is not set
             not found -- when the perticipation is not found
             forbidden -- when the user is not connected to the course
             forbidden -- when the user is not allowed to change the perticipation
@@ -131,11 +134,12 @@ class ParticipationView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
+
         try:
-            user_id = utils.required_params(request.data, 'uID')
-            role_name = utils.optional_params(request.data, 'role') or 'Student'
+            user_id, = utils.required_params(request.data, 'user_id')
+            role_name, = utils.optional_params(request.data, 'role') or 'Student'
         except KeyError:
-            return response.keyerror("uID")
+            return response.keyerror("user_id")
 
         try:
             user = User.objects.get(pk=user_id)
@@ -151,23 +155,25 @@ class ParticipationView(viewsets.ViewSet):
             return response.forbidden('You cannot edit the roles of this course.')
 
         participation.role = Role.objects.get(name=role_name, course=course)
-
-        participation.save()
-        return response.success({'role': RoleSerializer(participation.role)}, description='Succesfully updates role')
+        serializer = RoleSerializer(participation.role)
+        if not serializer.is_valid():
+            response.bad_request()
+        serializer.save()
+        return response.success({'role': serializer.data}, description='Succesfully updates role')
 
     def destroy(self, request, course_id):
         """Remove a user from the course.
 
         request -- request data
-            uID -- user ID
+            user_id -- user ID
         course_id -- course ID
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
         try:
-            user_id = utils.required_params(request.data, 'uID')
+            user_id, = utils.required_params(request.data, 'user_id')
         except KeyError:
-            return response.keyerror('uID')
+            return response.keyerror('user_id')
 
         try:
             user = User.objects.get(pk=user_id)
