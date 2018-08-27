@@ -97,7 +97,6 @@ class EntryView(viewsets.ViewSet):
         result = edag.get_nodes(journal, request.user)
         added = -1
         for i, result_node in enumerate(result):
-            print(result_node)
             if result_node['nID'] == node.id:
                 added = i
                 break

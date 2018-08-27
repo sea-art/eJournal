@@ -170,7 +170,6 @@ class AssignmentView(viewsets.ViewSet):
             serializer = AssignmentSerializer(assignment, context={'user': request.user})
             data = serializer.data
 
-        print(data)
         return response.success({'assignment': data})
 
     def partial_update(self, request, *args, **kwargs):
