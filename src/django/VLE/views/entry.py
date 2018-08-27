@@ -51,7 +51,7 @@ class EntryView(viewsets.ViewSet):
             journal = Journal.objects.get(pk=journal_id, user=request.user)
 
             template = Template.objects.get(pk=template_id)
-        except (Journal.DoesNotExist, Template.DoesNotExist, Node.DoesNotExist):
+        except (Journal.DoesNotExist, Template.DoesNotExist):
             return response.not_found('Journal or Template does not exist.')
 
         if node_id:
