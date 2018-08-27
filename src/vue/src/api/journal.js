@@ -25,6 +25,11 @@ export default {
     getNodes (id) {
         return auth.get('nodes', {journal_id: id})
             .then(response => response.data.nodes)
+    },
+
+    getFromAssignment (id) {
+        return auth.get('journals', {assignment_id: id})
+            .then(response => response.data.journals)
     }
 
     // /* Get assignment journals.

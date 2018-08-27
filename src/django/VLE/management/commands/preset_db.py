@@ -21,14 +21,14 @@ class Command(BaseCommand):
         """Generate users with password 'pass'."""
         users_examples = [
             {
-                "username": "22222222",
+                "username": "st",
                 "first_name": "Lars",
                 "last_name": "van Hijfte",
                 "pass": "pass",
                 "is_superuser": False,
                 "is_teacher": False
             }, {
-                "username": "11111111",
+                "username": "te",
                 "first_name": "Rick",
                 "last_name": "Watertor",
                 "pass": "pass",

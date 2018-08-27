@@ -20,7 +20,7 @@
                     </span>
                     <span v-else class="timestamp">
                         <icon name="hourglass-half" scale="0.8"/>
-                        Will be published after grade<br/>
+                        This will be published when the grade is published<br/>
                     </span>
                 </b-card>
             </div>

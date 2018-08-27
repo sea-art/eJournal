@@ -55,7 +55,7 @@ class NodeView(viewsets.ModelViewSet):
         except Journal.DoesNotExist:
             return response.not_found('Journal')
 
-        if journal.user is not request.user and \
+        if journal.user != request.user and \
             not permissions.has_assignment_permission(request.user, journal.assignment,
                                                       'can_view_assignment_participants'):
             return response.forbidden('You are not allowed to view journals of other participants.')

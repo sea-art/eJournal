@@ -80,7 +80,7 @@ import breadCrumb from '@/components/assets/BreadCrumb.vue'
 
 import icon from 'vue-awesome/components/Icon'
 import store from '@/Store.vue'
-import auth from '@/api/auth.js'
+import journalAPI from '@/api/journal'
 
 export default {
     props: ['cID', 'aID', 'jID'],
@@ -99,9 +99,9 @@ export default {
         }
     },
     created () {
-        auth.get('nodes', { jID: this.jID })
-            .then(data => {
-                this.nodes = data.nodes
+        journalAPI.getNodes(this.jID)
+            .then(nodes => {
+                this.nodes = nodes
                 if (this.$route.query.nID !== undefined) {
                     this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
                 }
@@ -114,14 +114,14 @@ export default {
             })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
-        auth.get('journals/' + this.jID)
-            .then(data => { this.journal = data.journal })
+        journalAPI.get(this.jID)
+            .then(journal => { this.journal = journal })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
         if (store.state.filteredJournals.length === 0) {
             if (this.$router.app.canViewAssignmentParticipants()) {
-                auth.get('journals', { aID: this.aID })
-                    .then(data => { this.assignmentJournals = data.journals })
+                journalAPI.getFromAssignment(this.aID)
+                    .then(journals => { this.assignmentJournals = journals })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }
 
@@ -208,8 +208,8 @@ export default {
                 }
             }
 
-            auth.get('journals/' + this.jID)
-                .then(data => { this.journal = data.journal })
+            journalAPI.get(this.jID)
+                .then(journal => { this.journal = journal })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         publishGradesJournal () {
@@ -299,7 +299,7 @@ export default {
 
             function checkFilter (user) {
                 var username = user.student.username.toLowerCase()
-                var fullName = user.student.first_name.toLowerCase() + ' ' + user.student.last_name.toLowerCase()
+                var fullName = user.student.name
                 var searchVariable = self.searchVariable.toLowerCase()
 
                 if (username.includes(searchVariable) ||
