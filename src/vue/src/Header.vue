@@ -60,7 +60,7 @@
 
 <script>
 import icon from 'vue-awesome/components/Icon'
-import auth from '@/api/auth.js'
+import userAPI from '@/api/user'
 
 export default {
     components: {
@@ -87,7 +87,7 @@ export default {
     },
     methods: {
         setUserProfile () {
-            auth.get('users/0')
+            userAPI.get()
                 .then(user => {
                     this.profile = user
                     this.setProfileImg()
@@ -99,8 +99,8 @@ export default {
              * If a valid token is registered but no profile image is found,
              * one more call is made to retrieve the profile image. */
             if (this.$root.validToken) {
-                if (this.profile.picture) {
-                    this.profileImg = this.profile.picture
+                if (this.profile.profile_picture) {
+                    this.profileImg = this.profile.profile_picture
                 } else if (this.profileFetchAttempts === 0) {
                     this.setUserProfile()
                     this.profileFetchAttempts = this.profileFetchAttempts + 1
