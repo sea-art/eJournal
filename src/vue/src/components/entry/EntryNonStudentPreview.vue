@@ -149,14 +149,14 @@ export default {
                 this.tempNode.entry.published = (this.published === 'true' || this.published === true)
 
                 if (this.published === 'true' || this.published === true) {
-                    entryAPI.update(this.entryNode.entry.eID, {grade: this.grade, published: 1})
+                    entryAPI.update(this.entryNode.entry.id, {grade: this.grade, published: 1})
                         .then(_ => {
                             this.$toasted.success('Grade updated and published.')
                             this.$emit('check-grade')
                         })
                         .catch(error => { this.$toasted.error(error.response.data.description) })
                 } else {
-                    entryAPI.update(this.entryNode.entry.eID, {grade: this.grade, published: 0})
+                    entryAPI.update(this.entryNode.entry.id, {grade: this.grade, published: 0})
                         .then(_ => {
                             this.$toasted.success('Grade updated but not published.')
                             this.$emit('check-grade')

@@ -8,7 +8,7 @@ from rest_framework import viewsets
 from VLE.models import Journal, Node, Content, Field, Template, Entry
 import VLE.views.responses as response
 import VLE.factory as factory
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
 from django.utils.timezone import now
 import VLE.lti_grade_passback as lti_grade
 import VLE.edag as edag
@@ -141,6 +141,8 @@ class EntryView(viewsets.ViewSet):
         if grade and \
            not permissions.has_assignment_permission(request.user, journal.assignment, 'can_grade_journal'):
             return response.forbidden('You cannot grade or publish entries.')
+        else:
+            entry.grade = grade
 
         if published is not None and \
            not permissions.has_assignment_permission(request.user, journal.assignment,
@@ -151,7 +153,7 @@ class EntryView(viewsets.ViewSet):
            not permissions.has_assignment_permission(request.user, journal.assignment, 'can_edit_journal'):
             return response.forbidden('You cannot publish entries.')
 
-        serializer = serialize.EntrySerializer(entry, data=request.data, partial=True)
+        serializer = serialize.EntrySerializer(entry, data=request.data, partial=True, context={'user': request.user})
         if not serializer.is_valid():
             response.bad_request()
         serializer.save()
@@ -160,6 +162,5 @@ class EntryView(viewsets.ViewSet):
             payload = lti_grade.replace_result(journal)
         else:
             payload = dict()
-        payload['new_published'] = entry.published
 
-        return response.success({**serializer.data, **payload})
+        return response.success({'entry': serializer.data, 'lti': payload})

@@ -23,7 +23,7 @@
             </b-button>
         </b-card>
 
-        <div v-if="filteredJournals.length !== 0" v-for="journal in filteredJournals" :key="journal.student" slot="main-content-column">
+        <div v-if="filteredJournals.length !== 0" v-for="journal in filteredJournals" :key="journal.student.id" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {
                                               cID: cID,
@@ -42,8 +42,8 @@
 
         <div v-if="stats" slot="right-content-column">
             <h3>Insights</h3>
-            <statistics-card :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>
-            <statistics-card :subject="'Average points'" :num="stats.avgPoints"></statistics-card>
+            <statistics-card :subject="'Needs marking'" :num="stats.needs_marking"></statistics-card>
+            <statistics-card :subject="'Average points'" :num="stats.average_points"></statistics-card>
         </div>
     </content-columns>
 </template>

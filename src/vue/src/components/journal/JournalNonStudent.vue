@@ -16,7 +16,7 @@
                         <b-card class="no-hover" :class="getProgressBorderClass()">
                             <h2 class="mb-2">Progress: {{ nodes[currentNode].target }} points</h2>
                             <span v-if="progressPointsLeft > 0">
-                                <b>{{ progressNodes[nodes[currentNode].nID] }}</b> out of <b>{{ nodes[currentNode].target }}</b> points.<br/>
+                                <b>{{ progressNodes[nodes[currentNode].id] }}</b> out of <b>{{ nodes[currentNode].target }}</b> points.<br/>
                                 <b>{{ progressPointsLeft }}</b> more required before <b>{{ $root.beautifyDate(nodes[currentNode].deadline) }}</b>.
                             </span>
                         </b-card>
@@ -45,7 +45,7 @@
                                 class="multi-form flex-grow-1"
                                 tag="b-button"
                                 v-if="filteredJournals.length !== 0"
-                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.jID }, query: query }">
+                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.id }, query: query }">
                                 <icon name="arrow-left"/>
                                 Previous
                             </b-button>
@@ -53,7 +53,7 @@
                                 class="multi-form flex-grow-1"
                                 tag="b-button"
                                 v-if="filteredJournals.length !== 0"
-                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: nextJournal.jID }, query: query }">
+                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: nextJournal.id }, query: query }">
                                 Next
                                 <icon name="arrow-right"/>
                             </b-button>
@@ -142,7 +142,7 @@ export default {
         currentNode: function () {
             if (this.nodes[this.currentNode].type === 'p') {
                 this.progressPoints(this.nodes[this.currentNode])
-                this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].nID]
+                this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].id]
             }
         }
     },
@@ -183,7 +183,6 @@ export default {
              * going through all the nodes and count the published grades
              * so far. */
             var tempProgress = 0
-
             for (var node of this.nodes) {
                 if (node.nID === progressNode.nID) {
                     break
@@ -196,7 +195,7 @@ export default {
                 }
             }
 
-            this.progressNodes[progressNode.nID] = tempProgress.toString()
+            this.progressNodes[progressNode.id] = tempProgress.toString()
         },
         getProgressBorderClass () {
             return this.progressPointsLeft > 0 ? 'red-border' : 'green-border'
@@ -236,7 +235,7 @@ export default {
         },
         findEntryNode (nodeID) {
             for (var i = 0; i < this.nodes.length; i++) {
-                if (this.nodes[i].nID === nodeID) {
+                if (this.nodes[i].id === nodeID) {
                     return i
                 }
             }

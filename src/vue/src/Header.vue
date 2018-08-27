@@ -68,7 +68,7 @@ export default {
     },
     data () {
         return {
-            defaultProfileImg: '../static/unknown-profile.png',
+            defaultProfileImg: '/static/unknown-profile.png',
             profileImg: '',
             username: '',
             profile: '',

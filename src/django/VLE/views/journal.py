@@ -137,8 +137,6 @@ class JournalView(viewsets.ViewSet):
         except Journal.DoesNotExist:
             return response.not_found('Journal')
 
-        print(journal.user)
-        print(request.user)
         if journal.user != request.user and \
            not permissions.has_assignment_permission(request.user, journal.assignment,
                                                      'can_view_assignment_participants'):
