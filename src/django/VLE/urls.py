@@ -21,7 +21,7 @@ from django.contrib import admin
 from django.conf.urls import url, include
 from django.urls import path
 
-from VLE.views import extra, email
+from VLE.views import common, lti, email
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -43,10 +43,10 @@ urlpatterns = [
     path('verify_email/', email.verify_email, name='verify_email'),
     path('request_email_verification/', email.request_email_verification, name='request_email_verification'),
 
-    path('lti/launch', extra.lti_launch, name='lti_launch'),
-    path('get_lti_params_from_jwt/<str:jwt_params>/', extra.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),
+    path('lti/launch', lti.lti_launch, name='lti_launch'),
+    path('get_lti_params_from_jwt/<str:jwt_params>/', lti.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),
 
-    path('names/<int:course_id>/<int:assignment_id>/<int:journal_id>/', extra.names, name='names'),
+    path('names/<int:course_id>/<int:assignment_id>/<int:journal_id>/', common.names, name='names'),
 ]
 
 # if settings.DEBUG is True:
