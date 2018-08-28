@@ -1,3 +1,5 @@
+<!-- TODO: switching bewett enrolled and unenrolled after adding/removing a user doesnt work. -->
+<!-- TODO: You shouldnt be able to change your own role. -->
 <template>
     <content-single-column>
         <bread-crumb>&nbsp;</bread-crumb>
@@ -79,6 +81,7 @@
                 :username="p.username"
                 :fullName="p.name"
                 :portraitPath="p.profile_picture"
+                :roles="roles"
                 :role.sync="p.role"/>
 
             <add-user-card v-if="selectedView === 'unenrolled'"
@@ -104,6 +107,7 @@ import courseParticipantCard from '@/components/course/CourseParticipantCard.vue
 import store from '@/Store'
 import icon from 'vue-awesome/components/Icon'
 import courseAPI from '@/api/course'
+import roleAPI from '@/api/role'
 import participationAPI from '@/api/participation'
 
 export default {
@@ -123,7 +127,8 @@ export default {
             searchVariable: '',
             selectedView: 'enrolled',
             unenrolledLoaded: false,
-            numTeachers: 0
+            numTeachers: 0,
+            roles: []
         }
     },
     watch: {
@@ -140,6 +145,9 @@ export default {
             .catch(error => { this.$toasted.error(error.response.data.description) })
         participationAPI.getEnrolled(this.cID)
             .then(users => { this.participants = users })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
+        roleAPI.getFromCourse(this.cID)
+            .then(roles => { this.roles = roles })
             .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
@@ -164,7 +172,7 @@ export default {
         },
         deleteParticipantLocally (role, name, picture, uID) {
             this.participants = this.participants.filter(function (item) {
-                return uID !== item.uID
+                return uID !== item.id
             })
             if (this.unenrolledLoaded === true) {
                 this.unenrolledStudents.push({
@@ -177,7 +185,7 @@ export default {
         },
         addParticipantLocally (role, name, picture, uID) {
             this.unenrolledStudents = this.unenrolledStudents.filter(function (item) {
-                return uID !== item.uID
+                return uID !== item.id
             })
             this.participants.push({
                 'role': role,

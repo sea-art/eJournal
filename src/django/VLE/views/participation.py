@@ -7,7 +7,6 @@ import VLE.utils.generic_utils as utils
 import VLE.factory as factory
 import VLE.views.responses as response
 from VLE.serializers import UserSerializer
-from VLE.serializers import RoleSerializer
 
 
 class ParticipationView(viewsets.ViewSet):
@@ -47,14 +46,9 @@ class ParticipationView(viewsets.ViewSet):
         elif not role.can_view_course_participants:
             return response.forbidden('You cannot view participants in this course.')
 
-        role = permissions.get_role(request.user, course)
+        users = UserSerializer(course.users, context={'course': course}, many=True).data
 
-        # TODO: Improve how the addition of roles is done
-        resp = UserSerializer(course.users, many=True).data
-        for r in resp:
-            r['role'] = RoleSerializer(role, many=False).data['name']
-
-        return response.success({'participants': resp})
+        return response.success({'participants': users})
 
     def create(self, request):
         """Add a user to a course.
@@ -80,7 +74,9 @@ class ParticipationView(viewsets.ViewSet):
 
         try:
             user_id, course_id = utils.required_params(request.data, 'user_id', 'course_id')
-            role_name, = utils.optional_params(request.data, 'role') or 'Student'
+            role_name, = utils.optional_params(request.data, 'role')
+            if not role_name:
+                role_name = 'Student'
         except KeyError:
             return response.keyerror('user_id', 'course_id')
 
@@ -114,14 +110,14 @@ class ParticipationView(viewsets.ViewSet):
                     factory.make_journal(assignment, user)
         return response.success(description='Succesfully added student to course.')
 
-    def partial_update(self, request, course_id):
+    def partial_update(self, request, pk):
         """Update user role in a course.
 
         Arguments:
         request -- request data
             user_id -- user ID
             role -- name of the role (default: Student)
-        course_id -- course ID
+        pk -- course ID
 
         Returns:
         On failure:
@@ -138,16 +134,18 @@ class ParticipationView(viewsets.ViewSet):
 
         try:
             user_id, = utils.required_params(request.data, 'user_id')
-            role_name, = utils.optional_params(request.data, 'role') or 'Student'
+            role_name, = utils.optional_params(request.data, 'role')
+            if not role_name:
+                role_name = 'Student'
         except KeyError:
             return response.keyerror("user_id")
 
         try:
             user = User.objects.get(pk=user_id)
-            course = Course.objects.get(pk=course_id)
+            course = Course.objects.get(pk=pk)
             participation = Participation.objects.get(user=user, course=course)
-        except (Participation.DoesNotExist, Role.DoesNotExist, Course.DoesNotExist):
-            return response.not_found('Participation, Role or Course does not exists.')
+        except (Participation.DoesNotExist, Course.DoesNotExist, User.DoesNotExist):
+            return response.not_found('Participation, User or Course does not exists.')
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -156,11 +154,9 @@ class ParticipationView(viewsets.ViewSet):
             return response.forbidden('You cannot edit the roles of this course.')
 
         participation.role = Role.objects.get(name=role_name, course=course)
-        serializer = RoleSerializer(participation.role)
-        if not serializer.is_valid():
-            response.bad_request()
-        serializer.save()
-        return response.success({'role': serializer.data}, description='Succesfully updates role')
+        participation.save()
+        serializer = UserSerializer(participation.user, context={'course': course})
+        return response.success({'user': serializer.data}, description='Succesfully updates role')
 
     def destroy(self, request, pk):
         """Remove a user from the course.

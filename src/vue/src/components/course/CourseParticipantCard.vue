@@ -16,7 +16,7 @@
                                    v-model="selectedRole"
                                    :select-size="1">
                         <option v-for="r in roles" :key="r.name" :value="r.name">
-                            {{r.name}}
+                            {{ r.name }}
                         </option>
                     </b-form-select>
                 </div>
@@ -59,13 +59,15 @@ export default {
         },
         role: {
             required: true
+        },
+        roles: {
+            required: true
         }
     },
     data () {
         return {
             selectedRole: '',
-            init: true,
-            roles: []
+            init: true
         }
     },
     methods: {
@@ -112,14 +114,6 @@ export default {
     },
     created () {
         this.selectedRole = this.role
-
-        commonAPI.getPermissions(this.cID)
-            .then(roles => {
-                roles.forEach(role => {
-                    this.roles.push(role)
-                })
-            })
-            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     components: {
         icon
