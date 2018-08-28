@@ -62,9 +62,7 @@ export default {
 
     /* Verify email adress using a given token. */
     verifyEmail (token) {
-        return auth.authenticatedPost('/verify_email/', {
-            token: token
-        })
+        return auth.authenticatedPost('/verify_email/', { token: token })
     },
 
     /* Request an email verification token for the given users email adress. */

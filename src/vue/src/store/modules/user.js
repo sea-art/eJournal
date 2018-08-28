@@ -88,6 +88,7 @@ const mutations = {
 }
 
 const actions = {
+    /* Authenticates the user and poplates the store, if either fails the login fails. */
     login ({ commit, dispatch }, { username, password }) {
         return new Promise((resolve, reject) => {
             connection.conn.post('/token/', {username: username, password: password}).then(response => {
@@ -110,6 +111,8 @@ const actions = {
             commit(types.LOGOUT)
         ])
     },
+    /* An attempt is made at refreshing the JW access token based on the refesh token, store is populated if needed.
+     * Fails if the refresh fails or if the store needed to be populated if that fails as well. */
     validateToken ({ commit, dispatch, getters }, error = null) {
         return new Promise((resolve, reject) => {
             connection.conn.post('token/refresh/', {refresh: getters.jwtRefresh}).then(response => {

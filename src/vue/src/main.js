@@ -48,9 +48,6 @@ Vue.config.productionTip = false
 Vue.use(Toasted, { position: 'bottom-right', duration: 4000 })
 Vue.use(BootstrapVue)
 
-/* Checks if the store contains a jwtAccess token. */
-Vue.prototype.$loggedIn = store.getters['user/loggedIn']
-
 /* Checks the store for for permissions according to the current route cID or aID. */
 Vue.prototype.$hasPermission = store.getters['permissions/hasPermission']
 

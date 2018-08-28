@@ -887,7 +887,7 @@ def get_user_file(request, file_name, author_uID):
 
 @api_view(['GET'])
 def get_user_store_data(request):
-    """Get all user data that is stored in the store client side.
+    """Gets all permissions for each course and assignment, as well as general user data. This is stored client side.
 
     Arguments:
     request -- the request that was sent
