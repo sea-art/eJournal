@@ -26,6 +26,7 @@ function handleError (error, noRedirect = false) {
     if (!noRedirect && status === statuses.UNAUTHORIZED) {
         router.push({name: 'Login'})
     } else if (!noRedirect && errorsToRedirect.has(status)) {
+        console.log(error)
         router.push({name: 'ErrorPage',
             params: {
                 code: status,

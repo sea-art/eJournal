@@ -56,7 +56,7 @@ Vue.prototype.$hasPermission = store.getters['permissions/hasPermission']
 
 /* Sets the default authorization token needed to for authenticated requests. */
 axios.defaults.transformRequest.push((data, headers) => {
-    if (store.getters['user/loggedIn']) {
+    if (store.getters['user/jwtAccess']) {
         headers.Authorization = 'Bearer ' + store.getters['user/jwtAccess']
     }
     return data

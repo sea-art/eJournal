@@ -134,16 +134,27 @@ export default {
             })
         },
         assignmentRoute (cID, aID, journal) {
-            var route = {
-                name: 'Assignment',
-                params: {
-                    cID: cID,
-                    aID: aID
+            // TODO Permission revision can_grade
+            if (this.$hasPermission('can_view_assignment_participants', 'assignment', String(aID))) {
+                var route = {
+                    name: 'Assignment',
+                    params: {
+                        cID: cID,
+                        aID: aID
+                    }
                 }
-            }
-
-            if (journal) {
-                route.params.jID = journal.jID
+                if (journal) {
+                    route.params.jID = journal.jID
+                }
+            } else {
+                var route = {
+                    name: 'Journal',
+                    params: {
+                        cID: cID,
+                        aID: aID,
+                        jID: journal.jID
+                    }
+                }
             }
 
             return route

@@ -32,7 +32,9 @@ export default {
                     let link = document.createElement('a')
                     link.href = window.URL.createObjectURL(blob)
                     link.download = this.fileName
+                    document.body.appendChild(link)
                     link.click()
+                    link.remove()
                 }, error => {
                     this.$toasted.error(error.response.data.description)
                 })

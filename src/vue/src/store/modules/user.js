@@ -16,12 +16,12 @@ const getters = {
     gradeNotifications: state => state.gradeNotifications,
     commentNotifications: state => state.commentNotifications,
     permissions: state => state.permissions,
-    loggedIn: state => state.jwtAccess !== null,
+    loggedIn: state => state.jwtAccess !== null && state.uID !== null, // We are not logged unless the store is populated as well
     storePopulated: state => state.uID !== null
 }
 
 const mutations = {
-    [types.LOGIN] (state, data) {
+    [types.SET_JWT] (state, data) {
         state.jwtAccess = data.access
         state.jwtRefresh = data.refresh
     },
@@ -85,7 +85,9 @@ const actions = {
     login ({ commit, dispatch }, { username, password }) {
         return new Promise((resolve, reject) => {
             connection.conn.post('/token/', {username: username, password: password}).then(response => {
-                commit(types.LOGIN, response.data)
+                console.log('Token connection succesfull')
+                console.log(response)
+                commit(types.SET_JWT, response.data)
 
                 dispatch('populateStore').then(response => {
                     resolve('JWT and store are set succesfully.')
@@ -106,15 +108,17 @@ const actions = {
     },
     verifyLogin ({ commit, dispatch, getters }, error = null) {
         console.log('Verifying login')
+        console.log(error.response)
         return new Promise((resolve, reject) => {
             if (!getters.jwtRefresh || (error !== null && error.response.data.code !== 'token_not_valid')) {
+                commit(types.LOGOUT)
                 reject(error || Error('No valid token')) // We either dont have a refresh token or the server errored due to something other than the validity fo the token.
             } else {
                 connection.conn.post('token/refresh/', {refresh: getters.jwtRefresh}).then(response => {
                     // Already logged in, update state
                     console.log('Check if the data contains access and refresh keys.')
                     console.log(response.data)
-                    commit(types.LOGIN, response.data)
+                    commit(types.SET_JWT, response.data)
 
                     if (!getters.storePopulated) { // TODO Decide if its safer to simply always repopulate the store!
                         dispatch('populateStore')
@@ -124,6 +128,7 @@ const actions = {
                         resolve('JWT refreshed succesfully, store was already populated.')
                     }
                 }, error => {
+                    console.log('Refresh rejected, logging out')
                     commit(types.LOGOUT)
                     reject(error) // Token invalid
                 })
@@ -137,6 +142,7 @@ const actions = {
                 resolve('Store is populated succesfully')
             }, error => {
                 console.log('Store populated unsuccessfully.')
+                console.log(error.response)
                 Vue.toasted.error(error.response.description)
                 reject(error)
             })

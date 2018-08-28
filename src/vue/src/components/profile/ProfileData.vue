@@ -105,11 +105,14 @@ export default {
                     let link = document.createElement('a')
                     link.href = window.URL.createObjectURL(blob)
                     link.download = this.$store.getters['user/username'] + '_all_user_data.zip'
+                    document.body.appendChild(link)
                     link.click()
+                    link.remove()
                 }, error => {
                     this.$toasted.error(error.response.data.description)
                 })
-                .catch(_ => {
+                .catch(e => {
+                    console.log(e)
                     this.$toasted.error('Error creating file.')
                 })
         }

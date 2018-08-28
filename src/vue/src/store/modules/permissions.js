@@ -3,6 +3,7 @@ import router from '@/router'
 
 const getters = {
     hasPermission: (state, getters, rootState, rootGetters) => (permission, givenKeyLevel = null, id = null) => {
+        console.log(givenKeyLevel, id)
         if (!rootGetters['user/loggedIn']) { return false }
         if ((!types.ALL_PERIMSSIONS.has(permission))) { throw Error('Permission input error, the requested permission does not exist.') }
         if (givenKeyLevel && !types.PERMISSION_KEY_LEVELS.has(givenKeyLevel)) { throw Error('Permission input error, the requested key level does not exist.') }

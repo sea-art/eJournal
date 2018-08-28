@@ -102,6 +102,7 @@ export default {
                     this.downloadLink = document.createElement('a')
                     this.downloadLink.href = this.fileURL
                     this.downloadLink.download = this.fileName
+                    document.body.appendChild(this.downloadLink)
                 }, error => {
                     this.$toasted.error(error.response.data.description)
                 })
@@ -114,7 +115,8 @@ export default {
         this.show = this.display
 
         if (this.show) { this.fileDownload() }
-    }
+    },
+    destroy () { this.downloadLink.remove() }
 }
 </script>
 
