@@ -45,7 +45,7 @@ class CommentView(viewsets.ViewSet):
 
         # Try to get the entry_id of the request.
         try:
-            entry_id, = utils.required_params(request.data, "entry_id")
+            entry_id, = utils.required_params(request.query_params, "entry_id")
         except KeyError:
             return response.keyerror("entry_id")
 
@@ -67,8 +67,6 @@ class CommentView(viewsets.ViewSet):
             comments = Comment.objects.filter(entry=entry, published=True)
 
         serializer = CommentSerializer(comments, many=True)
-        if not serializer.is_valid():
-            response.bad_request()
         return response.success({'comments': serializer.data})
 
     def create(self, request):
@@ -141,8 +139,6 @@ class CommentView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to view journals of other participants.')
 
         serializer = CommentSerializer(comment)
-        if not serializer.is_valid():
-            response.bad_request()
 
         return response.success({'comment': serializer.data})
 

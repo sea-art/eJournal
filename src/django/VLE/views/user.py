@@ -141,7 +141,6 @@ class UserView(viewsets.ViewSet):
 
         return response.created({'user': self.serializer_class(user).data})
 
-    # TODO: Test if lti works!
     def partial_update(self, request, *args, **kwargs):
         """Update an existing user.
 
@@ -263,7 +262,7 @@ class UserView(viewsets.ViewSet):
         request.user.save()
         return response.success(description='Succesfully changed the password.')
 
-    # TODO: check if it works
+    # TODO: Fix this stuff
     # TODO: limit this request for end users, otherwise its really easy to DDOS the server.
     @action(methods=['get'], detail=True)
     def GDPR(self, request, pk):

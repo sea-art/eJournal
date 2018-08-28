@@ -17,6 +17,8 @@ class NodeView(viewsets.ModelViewSet):
 
     This class creates the following api paths:
     GET /nodes/ -- gets all the nodes
+
+    TODO:
     POST /nodes/ -- create a new node
     GET /nodes/<pk> -- gets a specific node
     PATCH /nodes/<pk> -- partially update a node

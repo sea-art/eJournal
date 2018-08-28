@@ -19,11 +19,12 @@ class JournalView(viewsets.ViewSet):
 
     This class creates the following api paths:
     GET /journals/ -- gets all the journals
-    POST /journals/ -- create a new journal
     GET /journals/<pk> -- gets a specific journal
+    POST /journals/ -- create a new journal
     PATCH /journals/<pk> -- partially update an journal
+
+    TODO:
     DEL /journals/<pk> -- delete an journal
-    PATCH /journals/published_state/<pk> -- update the published state of all entries in a journal
     """
 
     def list(self, request):
@@ -74,6 +75,39 @@ class JournalView(viewsets.ViewSet):
             'journals': journals
         })
 
+    def retrieve(self, request, pk):
+        """Get a student submitted journal.
+
+        Arguments:
+        request -- request data
+        pk -- journal ID
+
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+            not found -- when the journal does not exists
+            forbidden -- when the user has no permission to view the journal
+        On succes:
+            success -- with journals and stats about the journals
+
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+
+        try:
+            journal = Journal.objects.get(pk=pk)
+        except Journal.DoesNotExist:
+            return response.not_found('Journal')
+
+        if journal.user != request.user and \
+           not permissions.has_assignment_permission(request.user, journal.assignment,
+                                                     'can_view_assignment_participants'):
+            return response.forbidden('You are not allowed to view this journal.')
+
+        serializer = JournalSerializer(journal)
+
+        return response.success({'journal': serializer.data})
+
     def create(self, request):
         """Create a new journal.
 
@@ -114,45 +148,6 @@ class JournalView(viewsets.ViewSet):
         journal = factory.make_journal(assignment, request.user)
         serializer = JournalSerializer(journal, many=False)
         return response.created({'journal': serializer.data})
-
-    def retrieve(self, request, pk):
-        """Get a student submitted journal.
-
-        Arguments:
-        request -- request data
-        pk -- journal ID
-
-        Returns:
-        On failure:
-            unauthorized -- when the user is not logged in
-            not found -- when the journal does not exists
-            forbidden -- when the user has no permission to view the journal
-        On succes:
-            success -- with journals and stats about the journals
-
-        """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
-        try:
-            journal = Journal.objects.get(pk=pk)
-        except Journal.DoesNotExist:
-            return response.not_found('Journal')
-
-        if journal.user != request.user and \
-           not permissions.has_assignment_permission(request.user, journal.assignment,
-                                                     'can_view_assignment_participants'):
-            return response.forbidden('You are not allowed to view this journal.')
-
-        serializer = JournalSerializer(journal)
-        if not serializer.is_valid():
-            response.bad_request()
-
-        return response.success({'journal': serializer.data})
-
-    def update(self, request, *args, **kwargs):
-        # TODO Make this update function
-        pass
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing journal.

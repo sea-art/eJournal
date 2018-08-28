@@ -20,11 +20,8 @@ class EntryView(viewsets.ViewSet):
     """Entry view.
 
     This class creates the following api paths:
-    GET /entries/ -- gets all the entries
     POST /entries/ -- create a new entry
-    GET /entries/<pk> -- gets a specific entry
     PATCH /entries/<pk> -- partially update an entry
-    DEL /entries/<pk> -- delete an entry
     """
 
     def create(self, request):

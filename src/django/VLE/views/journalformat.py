@@ -17,9 +17,11 @@ class JournalFormatView(viewsets.ViewSet):
 
     This class creates the following api paths:
     GET /journalformats/ -- gets all the journalformats
+    PATCH /journalformats/<pk> -- partially update an journalformat
+
+    TODO:
     POST /journalformats/ -- create a new journalformat
     GET /journalformats/<pk> -- gets a specific journalformat
-    PATCH /journalformats/<pk> -- partially update an journalformat
     DEL /journalformats/<pk> -- delete an journalformat
     """
 
@@ -37,7 +39,7 @@ class JournalFormatView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            assignment_id, = utils.required_params(request.data, "assignment_id")
+            assignment_id, = utils.required_params(request.query_params, "assignment_id")
         except KeyError:
             return response.keyerror('assignment_id')
 
@@ -50,8 +52,6 @@ class JournalFormatView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to view this assignment.')
 
         serializer = JournalFormatSerializer(assignment.format)
-        if not serializer.is_valid():
-            response.bad_request()
 
         return response.success({'format': serializer.data})
 
