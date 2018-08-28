@@ -97,14 +97,15 @@ def get_lti_params_from_jwt(request, jwt_params):
     if course is None:
         if role == 'Teacher':
             payload['state'] = NEW_COURSE
-            payload['lti_cName'] = lti_params['context_title']
+            payload['lti_cName'] = lti_params['custom_course_name']
             payload['lti_abbr'] = lti_params['context_label']
-            payload['lti_cID'] = lti_params['context_id']
-            payload['lti_aName'] = lti_params['resource_link_title']
-            payload['lti_aID'] = lti_params['resource_link_id']
-
-            if 'custom_canvas_assignment_points_possible' in lti_params:
-                payload['lti_points_possible'] = lti_params['custom_canvas_assignment_points_possible']
+            payload['lti_cID'] = lti_params['custom_course_id']
+            payload['lti_aName'] = lti_params['custom_assignment_title']
+            payload['lti_aID'] = lti_params['custom_assignment_id']
+            payload['lti_aLock'] = lti_params['custom_assignment_lock']
+            payload['lti_aDue'] = lti_params['custom_assignment_due']
+            payload['lti_aUnlock'] = lti_params['custom_assignment_unlock']
+            payload['lti_points_possible'] = lti_params['custom_assignment_points']
 
             return response.success(payload={'params': payload})
         else:
@@ -116,11 +117,12 @@ def get_lti_params_from_jwt(request, jwt_params):
         if role == 'Teacher':
             payload['state'] = NEW_ASSIGN
             payload['cID'] = course.pk
-            payload['lti_aName'] = lti_params['resource_link_title']
-            payload['lti_aID'] = lti_params['resource_link_id']
-
-            if 'custom_canvas_assignment_points_possible' in lti_params:
-                payload['lti_points_possible'] = lti_params['custom_canvas_assignment_points_possible']
+            payload['lti_aName'] = lti_params['custom_assignment_title']
+            payload['lti_aID'] = lti_params['custom_assignment_id']
+            payload['lti_aLock'] = lti_params['custom_assignment_lock']
+            payload['lti_aDue'] = lti_params['custom_assignment_due']
+            payload['lti_aUnlock'] = lti_params['custom_assignment_unlock']
+            payload['lti_points_possible'] = lti_params['custom_assignment_points']
 
             return response.success(payload={'params': payload})
         else:
@@ -153,6 +155,7 @@ def lti_launch(request):
     if authenticated:
         roles = json.load(open('config.json'))
         params = request.POST.dict()
+
         user = lti.check_user_lti(params, roles)
 
         params['exp'] = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
@@ -162,25 +165,26 @@ def lti_launch(request):
             q_names = ['state', 'lti_params']
             q_values = [NO_USER, lti_params]
 
-            if 'lis_person_name_full' in params:
-                fullname = params['lis_person_name_full']
+            if 'custom_user_full_name' in params:
+                fullname = params['custom_user_full_name']
                 splitname = fullname.split(' ')
                 firstname = splitname[0]
                 lastname = fullname[len(splitname[0])+1:]
                 q_names += ['firstname', 'lastname']
                 q_values += [firstname, lastname]
 
-            if 'lis_person_sourcedid' in params:
+            if 'custom_username' in params:
                 q_names.append('username')
-                q_values.append(params['lis_person_sourcedid'])
+                q_values.append(params['custom_username'])
 
-            if 'lis_person_contact_email_primary' in params:
+            if 'custom_user_email' in params:
                 q_names.append('email')
-                q_values.append(params['lis_person_contact_email_primary'])
+                q_values.append(params['custom_user_email'])
 
             return redirect(lti.create_lti_query_link(q_names, q_values))
 
         refresh = TokenObtainPairSerializer.get_token(user)
+        print(refresh)
         access = refresh.access_token
         return redirect(lti.create_lti_query_link(['lti_params', 'jwt_access', 'jwt_refresh', 'state'],
                                                   [lti_params, access, refresh, LOGGED_IN]))

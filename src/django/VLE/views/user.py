@@ -177,7 +177,7 @@ class UserView(viewsets.ViewSet):
 
         if 'jwt_params' in request.data and request.data['jwt_params'] != '':
             lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
-            lti_id, user_image = utils.optional_params(lti_params, 'user_id', 'user_image')
+            lti_id, user_image = utils.optional_params(lti_params, 'user_id', 'custom_user_image')
             is_teacher = json.load(open('config.json'))['Teacher'] in lti_params['roles']
         else:
             lti_id, user_image, is_teacher = None, None, False

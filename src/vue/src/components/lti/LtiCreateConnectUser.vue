@@ -10,8 +10,8 @@
             </b-button>
         </b-row>
         <b-row  align-h="center">
-            <icon name="link" scale="1.8"/>
             <b-button class="lti-button-option" @click="showModal('connectUserRef')">
+                <icon name="link" scale="1.8"/>
                 <h2 class="lti-button-text">Connect to existing user</h2>
             </b-button>
         </b-row>
@@ -63,7 +63,7 @@ export default {
             this.signal(['userIntegrated'])
         },
         handleConnected () {
-            userApi.updateLtiIdToUser(this.lti.ltiJWT)
+            userAPI.update(0, {jwt_params: this.lti.ltiJWT})
                 .then(_ => {
                     this.hideModal('connectUserRef')
                     this.signal(['userIntegrated'])
