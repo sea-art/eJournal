@@ -115,7 +115,9 @@ export default {
 
         commonAPI.getPermissions(this.cID)
             .then(roles => {
-                this.roles = roles
+                roles.forEach(role => {
+                    this.roles.push(role)
+                })
             })
             .catch(error => { this.$toasted.error(error.response.data.description) })
     },

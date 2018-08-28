@@ -254,9 +254,9 @@ export default {
                     this.roles.push(role.name)
                 })
                 this.permissions = Object.keys(roleConfig[0])
-                this.permissions.splice(this.permissions.indexOf('id'),1)
-                this.permissions.splice(this.permissions.indexOf('name'),1)
-                this.permissions.splice(this.permissions.indexOf('course'),1)
+                this.permissions.splice(this.permissions.indexOf('id'), 1)
+                this.permissions.splice(this.permissions.indexOf('name'), 1)
+                this.permissions.splice(this.permissions.indexOf('course'), 1)
 
                 this.originalRoleConfig = this.deepCopyRoles(roleConfig)
             })
