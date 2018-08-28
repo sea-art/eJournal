@@ -94,6 +94,8 @@ class AssignmentSerializer(serializers.ModelSerializer):
             return None
 
         journals = JournalSerializer(assignment.journal_set.all(), many=True).data
+        if not journals:
+            return None
         stats = {}
         stats['needs_marking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
         points = [x['stats']['acquired_points'] for x in journals]

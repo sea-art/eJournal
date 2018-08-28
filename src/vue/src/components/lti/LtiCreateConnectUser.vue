@@ -37,7 +37,8 @@
 <script>
 import registerUser from '@/components/account/RegisterUser.vue'
 import loginForm from '@/components/account/LoginForm.vue'
-import userApi from '@/api/user.js'
+
+import userAPI from '@/api/user'
 import icon from 'vue-awesome/components/Icon'
 
 export default {

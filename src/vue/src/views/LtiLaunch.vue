@@ -12,8 +12,9 @@ import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import ltiCreateConnectCourse from '@/components/lti/LtiCreateConnectCourse.vue'
 import ltiCreateConnectAssignment from '@/components/lti/LtiCreateConnectAssignment.vue'
 import ltiCreateAssignment from '@/components/lti/LtiCreateAssignment.vue'
-import assignApi from '@/api/assignment.js'
-import ltiApi from '@/api/ltilaunch.js'
+
+import assignmentAPI from '@/api/assignment'
+import ltiAPI from '@/api/ltilaunch'
 import router from '@/router'
 
 export default {
@@ -74,7 +75,7 @@ export default {
     methods: {
         loadLtiData () {
             return new Promise((resolve, reject) => {
-                ltiApi.get_lti_params_from_jwt(this.ltiJWT)
+                ltiAPI.getLtiParams(this.ltiJWT)
                     .then(response => {
                         this.lti.ltiCourseName = response.lti_cName
                         this.lti.ltiCourseAbbr = response.lti_abbr
@@ -133,12 +134,12 @@ export default {
                 this.createAssignment = true
                 break
             case this.states.check_assign:
-                assignApi.get_assignment_by_lti_id(this.lti.ltiAssignID)
-                    .then(response => {
-                        if (response === undefined) {
+                assignmentAPI.getWithLti(this.lti.ltiAssignID)
+                    .then(assignment => {
+                        if (assignment === undefined) {
                             this.states.state = this.states.new_assign
                         } else {
-                            this.page.aID = response.aID
+                            this.page.aID = assignment.id
                             this.states.state = this.states.finish_t
                         }
                     })
@@ -191,10 +192,11 @@ export default {
         this.ltiJWT = this.$route.query.ltiJWT
         await this.loadLtiData()
             .catch(error => {
+                console.log(error)
                 this.$router.push({
                     name: 'ErrorPage',
                     params: {
-                        code: error.response.status,
+                        code: 400,
                         reasonPhrase: error.response.statusText,
                         description: error.response.data.description
                     }

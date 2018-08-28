@@ -37,9 +37,10 @@
 </template>
 
 <script>
-import authAPI from '@/api/auth'
 import icon from 'vue-awesome/components/Icon'
 import validation from '@/utils/validation.js'
+
+import authAPI from '@/api/auth'
 
 export default {
     name: 'LoginForm',

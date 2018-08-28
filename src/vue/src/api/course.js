@@ -11,8 +11,13 @@ export default {
         return auth.get('participations', {course_id: id})
     },
 
-    getEnrolledCourses () {
+    getEnrolled () {
         return auth.get('courses')
+            .then(response => response.data.courses)
+    },
+
+    getAsTeacher () {
+        return auth.get('courses/is_teacher')
             .then(response => response.data.courses)
     },
 

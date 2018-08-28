@@ -1,7 +1,7 @@
 <template>
     <div>
-        <div v-for="a in assignments" :key="a.aID">
-            <assignment-card @click.native="connectAssignment(a.aID)" :line1="a.name">
+        <div v-for="a in assignments" :key="a.id">
+            <assignment-card @click.native="connectAssignment(a.id)" :line1="a.name">
                 <progress-bar v-if="a.journal && a.journal.stats" :currentPoints="a.journal.stats.acquired_points" :totalPoints="a.journal.stats.total_points"></progress-bar>
             </assignment-card>
         </div>
@@ -10,7 +10,7 @@
 
 <script>
 import assignmentCard from '@/components/assignment/AssignmentCard.vue'
-import assignApi from '@/api/assignment.js'
+import assignmentAPI from '@/api/assignment'
 
 export default {
     name: 'ConnectAssignment',
@@ -25,13 +25,13 @@ export default {
     },
     methods: {
         loadAssignments () {
-            assignApi.get_course_assignments(this.page.cID)
+            assignmentAPI.getAllFromCourse(this.page.cID)
                 .then(assignments => { this.assignments = assignments })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         connectAssignment (aID) {
-            assignApi.connect_assignment_lti(aID, this.lti.ltiAssignID, this.lti.ltiPointsPossible)
-                .then(assignment => { this.$emit('handleAction', assignment.aID) })
+            assignmentAPI.update(aID, {lti_id: this.lti.ltiAssignID, points_possible: this.lti.ltiPointsPossible})
+                .then(assignment => { this.$emit('handleAction', assignment.id) })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     },

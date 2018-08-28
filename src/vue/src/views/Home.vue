@@ -107,7 +107,7 @@ export default {
     },
     methods: {
         loadCourses () {
-            courseAPI.getEnrolledCourses()
+            courseAPI.getEnrolled()
                 .then(courses => { this.courses = courses })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
