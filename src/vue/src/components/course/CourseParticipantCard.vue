@@ -32,9 +32,10 @@
 </template>
 
 <script>
-import courseApi from '@/api/course.js'
-import permissions from '@/api/permissions.js'
 import icon from 'vue-awesome/components/Icon'
+
+import participationAPI from '@/api/participation'
+import commonAPI from '@/api/common'
 
 export default {
     props: {
@@ -70,7 +71,7 @@ export default {
     methods: {
         removeFromCourse () {
             if (confirm('Are you sure you want to remove "' + this.fullName + '" from this course?')) {
-                courseApi.delete_user_from_course(this.uID, this.cID)
+                participationAPI.delete(this.cID, this.uID)
                     .then(data => {
                         this.$toasted.success(data.description)
                         this.$emit('delete-participant', this.role,
@@ -82,7 +83,7 @@ export default {
             }
         },
         checkPermission () {
-            permissions.get_course_permissions(this.cID)
+            commonAPI.getPermissions(this.cID)
                 .then(permissions => {
                     this.$root.generalPermissions = permissions
                     if (!this.$root.canEditCourse()) {
@@ -95,13 +96,13 @@ export default {
         }
     },
     watch: {
-        selectedRole: function (val) {
+        selectedRole (val) {
             if (this.init) {
                 this.init = false
             } else {
                 this.selectedRole = val
                 this.$emit('update:role', val)
-                courseApi.update_user_role_course(this.uID, this.cID, this.selectedRole)
+                participationAPI.update(this.cID, {user_id: this.uID, role: this.selectedRole})
                     .then(_ => {
                         this.checkPermission()
                     })
@@ -112,7 +113,7 @@ export default {
     created () {
         this.selectedRole = this.role
 
-        permissions.get_course_roles(this.cID)
+        commonAPI.getPermissions(this.cID)
             .then(roles => {
                 this.roles = roles
             })

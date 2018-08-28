@@ -7,20 +7,6 @@ export default {
             .then(response => response.data.course)
     },
 
-    getParticipants (id) {
-        return auth.get('participations', {course_id: id})
-    },
-
-    getEnrolled () {
-        return auth.get('courses')
-            .then(response => response.data.courses)
-    },
-
-    getAsTeacher () {
-        return auth.get('courses/is_teacher')
-            .then(response => response.data.courses)
-    },
-
     create (data) {
         return auth.create('courses', data)
             .then(response => response.data.course)
@@ -34,6 +20,16 @@ export default {
     delete (id) {
         return auth.delete('courses/' + id)
             .then(response => response.data)
+    },
+
+    getUserEnrolled () {
+        return auth.get('courses')
+            .then(response => response.data.courses)
+    },
+
+    getAsTeacher () {
+        return auth.get('courses/is_teacher')
+            .then(response => response.data.courses)
     }
 
     // /* Get data of a course specified with its ID. */

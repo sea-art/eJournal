@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import courseApi from '@/api/course.js'
+import participationAPI from '@/api/participation'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
@@ -38,7 +38,7 @@ export default {
     methods: {
         addUserToCourse () {
             if (confirm('Are you sure you want to add "' + this.fullName + '" to this course?')) {
-                courseApi.update_course_with_student(this.uID, this.cID)
+                participationAPI.create({course_id: this.cID, user_id: this.uID})
                     .then(_ => {
                         this.$emit('add-participant', 'Student',
                             this.username,

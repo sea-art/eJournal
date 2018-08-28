@@ -14,7 +14,7 @@ class RoleView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
-            pk -- course ID
+            course_id -- course ID
 
         Returns:
         On failure:
@@ -101,14 +101,14 @@ class RoleView(viewsets.ViewSet):
             except KeyError:
                 return response.keyerror('course_id or assignment_id')
 
-    def create(self, request, pk):
+    def create(self, request):
         """Create course role.
 
         Arguments:
         request -- request data
+            course_id -- course ID
             name -- role name
             permissions -- permissions to change (default everything is false)
-        pk -- course ID
 
         Returns:
         On failure:
@@ -124,7 +124,7 @@ class RoleView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            course = Course.objects.get(pk=pk)
+            course = Course.objects.get(pk=request.data['course_id'])
         except Course.DoesNotExist:
             return response.not_found('course')
 
@@ -182,7 +182,11 @@ class RoleView(viewsets.ViewSet):
         for new_role in request.data['roles']:
             if 'name' not in new_role:
                 return response.keyerror('roles.name')
-            role = Role.objects.get(name=new_role['name'], course=course)
+
+            try:
+                role = Role.objects.get(name=new_role['name'], course=course)
+            except Role.DoesNotExist:
+                role = factory.make_role_default_no_perms(new_role['name'], course)
             serializer = RoleSerializer(role, data=new_role, partial=True)
             if not serializer.is_valid():
                 response.bad_request()
@@ -211,7 +215,9 @@ class RoleView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        if 'name' not in request.data:
+        try:
+            name = request.query_params['name']
+        except KeyError:
             return response.keyerror('name')
 
         # Users can only delete course roles with can_edit_course_roles
@@ -221,5 +227,5 @@ class RoleView(viewsets.ViewSet):
         elif not role.can_edit_course_roles:
             return response.forbidden(description="You have no permissions to delete this course role.")
 
-        Role.objects.get(name=request.data['name'], course=pk).delete()
+        Role.objects.get(name=name, course=pk).delete()
         return response.success(description='Succesfully deleted role from course.')
