@@ -3,7 +3,7 @@ permissions.py.
 
 All the permission functions.
 """
-from VLE.models import Participation, Assignment, Journal
+from VLE.models import Participation, Assignment
 
 from django.forms.models import model_to_dict
 
@@ -256,28 +256,30 @@ def get_all_user_permissions(user):
         general: permissions
     }"""
     permissions = {}
-    course_ids = [course.id for course in user.participations.all()]
+    courses = user.participations.all()
 
     permissions['general'] = get_permissions(user, -1)
 
-    for cID in course_ids:
-        permissions['course' + str(cID)] = get_permissions(user, cID)
-
-    courses = user.participations.all()
-
-    assignments = []
     for course in courses:
-        # Checks wether the user is a participator in an assignment or a grader based on 'can_grade_journal'
+        permissions['course' + str(course.id)] = get_permissions(user, course.id)
+
+    assignments = Assignment.objects.none()
+    for course in courses:
+        # Checks wether the user is a participator in an assignment or a grader based on:
+        # 'can_view_assignment_participants'
         # Returns all assigments linked to a course if a grader, this permission is not verbose enough for this check
         # TODO Create a more verbose check. And in general ensure that a user can never have grading level permissions
         # for a course where the user has any journals.
-        if permissions['course' + str(course.id)]['can_grade_journal']:
-            assignments.append(course.assignment_set.all())
+        if permissions['course' + str(course.id)]['can_view_assignment_participants']:
+            assignments |= course.assignment_set.all()
         else:
-            Assignment.objects.filter(courses=course, journal__user=user)
+            # TODO does this not break if no journal is created yet? Why do we not work with an AssignmentParticipation
+            # model?
+            assignments |= Assignment.objects.filter(courses=course, journal__user=user)
+
+    assignments = assignments.distinct()
 
     for assignment in assignments:
-        assignment = assignment[0]
         permissions['assignment' + str(assignment.id)] = get_assignment_id_permissions(user, assignment.id)
 
     return permissions

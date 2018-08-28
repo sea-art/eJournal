@@ -112,7 +112,6 @@ export default {
                     this.$toasted.error(error.response.data.description)
                 })
                 .catch(e => {
-                    console.log(e)
                     this.$toasted.error('Error creating file.')
                 })
         }

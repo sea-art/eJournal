@@ -6,7 +6,7 @@
             @edit-click="handleEdit()"/>
 
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
-            <b-link tag="b-button" :to="assignmentRoute(cID, a.aID, a.journal)">
+            <b-link tag="b-button" :to="$hasPermission('can_view_assignment_participants', 'assignment', String(a.aID)) ? assignmentRoute(cID, a.aID) : assignmentRoute(cID, a.aID, a.journal.jID)">
                 <assignment-card :line1="a.name">
                     <progress-bar
                         v-if="a.journal && a.journal.stats"
@@ -37,7 +37,7 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="assignmentRoute(d.cID, d.aID, d.journal)">
+            <b-link tag="b-button" :to="$hasPermission('can_view_assignment_participants', 'assignment', String(d.aID)) ? assignmentRoute(d.cID, d.aID) : assignmentRoute(d.cID, d.aID, d.jID)">
                 <todo-card :deadline="d"/>
             </b-link>
         </div>
@@ -133,28 +133,20 @@ export default {
                 }
             })
         },
-        assignmentRoute (cID, aID, journal) {
+        assignmentRoute (cID, aID, jID) {
+            var route = {
+                params: {
+                    cID: cID,
+                    aID: aID
+                }
+            }
+
             // TODO Permission revision can_grade
             if (this.$hasPermission('can_view_assignment_participants', 'assignment', String(aID))) {
-                var route = {
-                    name: 'Assignment',
-                    params: {
-                        cID: cID,
-                        aID: aID
-                    }
-                }
-                if (journal) {
-                    route.params.jID = journal.jID
-                }
+                route.name = 'Assignment'
             } else {
-                var route = {
-                    name: 'Journal',
-                    params: {
-                        cID: cID,
-                        aID: aID,
-                        jID: journal.jID
-                    }
-                }
+                route.name = 'Journal'
+                route.params.jID = jID
             }
 
             return route

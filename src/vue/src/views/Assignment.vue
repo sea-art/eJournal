@@ -1,6 +1,6 @@
-<template>
-    <!-- TODO Is this check really required if we redirect, or even better have correct flow anyway? -->
-    <content-columns v-if="$hasPermission('can_view_assignment_participants')">
+<!-- TODO Is this check really required if we redirect, or even better have correct flow anyway? -->
+<template v-if="$hasPermission('can_view_assignment_participants')">
+    <content-columns>
         <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
         <b-card slot="main-content-column" class="no-hover settings-card">
             <b-row>
@@ -60,8 +60,6 @@ import journal from '@/api/journal.js'
 import store from '@/Store.vue'
 import icon from 'vue-awesome/components/Icon'
 
-import Vue from 'vue'
-
 export default {
     name: 'Assignment',
     props: {
@@ -92,22 +90,14 @@ export default {
         'main-card': mainCard
     },
     created () {
-        if (!this.$hasPermission('can_view_assignment_participants')) {
-            if (!Vue.config.productionTip) {
-                console.log('Redirection from assignment, how did we even get here?')
-            }
-            if (this.jID) {
-                return this.$router.push({name: 'Journal', params: {cID: this.cID, aID: this.aID, jID: this.jID}})
-            } else {
-                return this.$router.push({name: 'Course', params: {cID: this.cID}})
-            }
-        }
         journal.get_assignment_journals(this.aID)
             .then(data => {
                 this.assignmentJournals = data.journals
                 this.stats = data.stats
             })
-            .catch(error => { this.$toasted.error(error.response.data.description) })
+            .catch(error => {
+                this.$toasted.error(error.response.data.description)
+            })
 
         if (this.$route.query.sort === 'sortFullName' ||
             this.$route.query.sort === 'sortUsername' ||

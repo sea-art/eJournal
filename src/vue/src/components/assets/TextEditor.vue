@@ -97,7 +97,6 @@ export default {
                 autosave_restore_when_empty: true,
 
                 /* Custom styling applied to the editor */
-                content_css: ['//fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700'],
                 content_style: `
                     @import url('https://fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700');
                     body {

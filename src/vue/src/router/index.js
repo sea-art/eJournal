@@ -141,14 +141,11 @@ router.beforeEach((to, from, next) => {
     router.app.previousPage = from
 
     if (loggedIn && unavailableWhenLoggedIn.has(to.name)) {
-        console.log('BeforeEach: LoggedIn and unavailableWhenLoggedIn contains to.name')
         next({name: 'Home'})
     } else if (!loggedIn && !permissionlessContent.has(to.name)) {
-        console.log('BeforeEach: Not Logged in and accessing protected content, verifying token.')
-        store.dispatch('user/verifyLogin')
+        store.dispatch('user/validateToken')
             .then(_ => { next() })
             .catch(_ => {
-                console.log('BeforeEach: Not logged and accessing protected content. Verify is rejected!')
                 next({name: 'Login'})
             })
     } else { next() }

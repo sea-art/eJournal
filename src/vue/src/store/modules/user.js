@@ -21,9 +21,15 @@ const getters = {
 }
 
 const mutations = {
+    [types.SET_ACCES_TOKEN] (state, accessToken) {
+        state.jwtAccess = accessToken
+    },
     [types.SET_JWT] (state, data) {
-        state.jwtAccess = data.access
-        state.jwtRefresh = data.refresh
+        const access = data.access
+        const refresh = data.refresh
+
+        state.jwtAccess = access
+        state.jwtRefresh = refresh
     },
     [types.HYDRATE_USER] (state, data) {
         const userData = data.user_data
@@ -85,8 +91,6 @@ const actions = {
     login ({ commit, dispatch }, { username, password }) {
         return new Promise((resolve, reject) => {
             connection.conn.post('/token/', {username: username, password: password}).then(response => {
-                console.log('Token connection succesfull')
-                console.log(response)
                 commit(types.SET_JWT, response.data)
 
                 dispatch('populateStore').then(response => {
@@ -106,33 +110,21 @@ const actions = {
             commit(types.LOGOUT)
         ])
     },
-    verifyLogin ({ commit, dispatch, getters }, error = null) {
-        console.log('Verifying login')
-        console.log(error.response)
+    validateToken ({ commit, dispatch, getters }, error = null) {
         return new Promise((resolve, reject) => {
-            if (!getters.jwtRefresh || (error !== null && error.response.data.code !== 'token_not_valid')) {
-                commit(types.LOGOUT)
-                reject(error || Error('No valid token')) // We either dont have a refresh token or the server errored due to something other than the validity fo the token.
-            } else {
-                connection.conn.post('token/refresh/', {refresh: getters.jwtRefresh}).then(response => {
-                    // Already logged in, update state
-                    console.log('Check if the data contains access and refresh keys.')
-                    console.log(response.data)
-                    commit(types.SET_JWT, response.data)
+            connection.conn.post('token/refresh/', {refresh: getters.jwtRefresh}).then(response => {
+                commit(types.SET_ACCES_TOKEN, response.data.access) // Refresh token valid, update access token.
 
-                    if (!getters.storePopulated) { // TODO Decide if its safer to simply always repopulate the store!
-                        dispatch('populateStore')
-                            .then(_ => { resolve() })
-                            .catch(error => { reject(error) })
-                    } else {
-                        resolve('JWT refreshed succesfully, store was already populated.')
-                    }
-                }, error => {
-                    console.log('Refresh rejected, logging out')
-                    commit(types.LOGOUT)
-                    reject(error) // Token invalid
-                })
-            }
+                if (!getters.storePopulated) {
+                    dispatch('populateStore')
+                        .then(_ => { resolve() })
+                        .catch(error => { reject(error) })
+                } else {
+                    resolve('JWT refreshed succesfully, store was already populated.')
+                }
+            }, error => {
+                reject(error) // Refresh token invalid, reject
+            })
         })
     },
     populateStore ({ commit }) {
@@ -141,8 +133,6 @@ const actions = {
                 commit(types.HYDRATE_USER, response.data)
                 resolve('Store is populated succesfully')
             }, error => {
-                console.log('Store populated unsuccessfully.')
-                console.log(error.response)
                 Vue.toasted.error(error.response.description)
                 reject(error)
             })

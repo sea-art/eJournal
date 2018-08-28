@@ -11,51 +11,36 @@ const errorsToRedirect = new Set([
 
 /*
  * Redirects the following unsuccessfull request responses:
- * UNAUTHORIZED to Login.
+ * UNAUTHORIZED to Login, logs the client out and clears store.
  * FORBIDDEN, NOT_FOUND, INTERNAL_SERVER_ERROR to Error page.
  *
- * If nothing is matched or no redirect is True, the response is thrown and further promise handling should take place.
+ * The response is thrown and further promise handling should take place.
  * This because this is generic response handling, and we dont know what should happen in case of an error.
  */
 function handleError (error, noRedirect = false) {
-    console.log('Handling error.')
     const response = error.response
     const status = response.status
-    const description = 'Placeholder due to varied error format' // TODO handle properly
 
-    if (!noRedirect && status === statuses.UNAUTHORIZED) {
+    if (status === statuses.UNAUTHORIZED) {
+        store.commit('user/LOGOUT')
         router.push({name: 'Login'})
     } else if (!noRedirect && errorsToRedirect.has(status)) {
-        console.log(error)
         router.push({name: 'ErrorPage',
             params: {
                 code: status,
                 reasonPhrase: response.statusText,
-                description: description
+                description: response.data.description
             }
         })
-    } else {
-        throw error
     }
+
+    throw error
 }
 
 /*
  * Previous functions are 'private', following are 'public'.
  */
 export default {
-
-    /* Log in.
-     * Requests the api server for a JWT token.
-     * Stores this token in jwt_access and jwt_refresh.
-     * Returns a new Promise that can be used to chain more requests.
-     */
-    login (username, password) {
-        return connection.conn.post('/token/', {username: username, password: password})
-            .then(response => {
-                localStorage.setItem('jwt_access', response.data.access)
-                localStorage.setItem('jwt_refresh', response.data.refresh)
-            })
-    },
 
     /* Create a user and add it to the database. */
     register (username, password, firstname, lastname, email, jwtParams = null) {
@@ -94,26 +79,26 @@ export default {
      */
     authenticatedPost (url, data, noRedirect = false) {
         return connection.conn.post(url, data)
-            .catch(error => store.dispatch('user/verifyLogin', error)
+            .catch(error => store.dispatch('user/validateToken', error)
                 .then(_ => connection.conn.post(url, data)))
             .catch(error => handleError(error, noRedirect))
     },
     authenticatedGet (url, noRedirect = false) {
         return connection.conn.get(url)
-            .catch(error => store.dispatch('user/verifyLogin', error)
+            .catch(error => store.dispatch('user/validateToken', error)
                 .then(_ => connection.conn.get(url)))
             .catch(error => handleError(error, noRedirect))
     },
 
     authenticatedPostFile (url, data, noRedirect = false) {
         return connection.connFile.post(url, data)
-            .catch(error => store.dispatch('user/verifyLogin', error)
+            .catch(error => store.dispatch('user/validateToken', error)
                 .then(_ => connection.connFile.post(url, data)))
             .catch(error => handleError(error, noRedirect))
     },
     authenticatedGetFile (url, data, noRedirect = false) {
         return connection.connFile.get(url, data)
-            .catch(error => store.dispatch('user/verifyLogin', error)
+            .catch(error => store.dispatch('user/validateToken', error)
                 .then(_ => connection.connFile.get(url, data)))
             .catch(error => handleError(error, noRedirect))
     }

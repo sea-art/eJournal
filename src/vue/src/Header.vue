@@ -1,11 +1,6 @@
 <template>
     <!-- Section visible if user logged in -->
     <b-navbar v-if="loggedIn" id="header" toggleable="md" type="dark" fixed=top>
-        <b-button
-            @click="test"
-            slot="main-content-column">
-            Test
-        </b-button>
         <b-navbar-brand :to="{ name: 'Home' }" class="brand-name"><span>e</span>Journal</b-navbar-brand>
 
         <b-navbar-toggle class="ml-auto mr-auto" target="nav-collapse" aria-expanded="false" aria-controls="nav-collapse">
@@ -43,11 +38,6 @@
 
     <!-- Section visible if user logged out -->
     <b-navbar v-else id="header" toggleable="md" type="dark" fixed=top>
-        <b-button
-            @click="test"
-            slot="main-content-column">
-            Test
-        </b-button>
         <b-navbar-brand  :to="{ name: 'Guest' }" class="brand-name"><span>e</span>Journal</b-navbar-brand>
 
         <b-navbar-nav class="ml-auto">
@@ -75,11 +65,6 @@ import { mapGetters } from 'vuex'
 export default {
     components: {
         icon
-    },
-    methods: {
-        test () {
-            console.log(this.$hasPermission('can_add_course'))
-        }
     },
     data () {
         return {
