@@ -7,7 +7,7 @@ from rest_framework import viewsets
 
 from VLE.models import Assignment
 import VLE.views.responses as response
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
 from VLE.serializers import JournalFormatSerializer
 
@@ -25,12 +25,12 @@ class JournalFormatView(viewsets.ViewSet):
     DEL /journalformats/<pk> -- delete an journalformat
     """
 
-    def list(self, request):
+    def retrieve(self, request, pk):
         """Get the format attached to an assignment.
 
         Arguments:
         request -- the request that was sent
-            assignment_id -- the assignment id
+            pk -- the assignment id
 
         Returns a json string containing the format.
         """
@@ -39,12 +39,7 @@ class JournalFormatView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            assignment_id, = utils.required_params(request.query_params, "assignment_id")
-        except KeyError:
-            return response.keyerror('assignment_id')
-
-        try:
-            assignment = Assignment.objects.get(pk=assignment_id)
+            assignment = Assignment.objects.get(pk=pk)
         except Assignment.DoesNotExist:
             return response.not_found('Assignment not found.')
 
@@ -55,7 +50,7 @@ class JournalFormatView(viewsets.ViewSet):
 
         return response.success({'format': serializer.data})
 
-    def partial_update(self, request, *args, **kwargs):
+    def partial_update(self, request, pk):
         """Update an existing journal format.
 
         Arguments:
@@ -83,7 +78,7 @@ class JournalFormatView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        assignment_id = kwargs.get('pk')
+        assignment_id = pk
 
         try:
             templates, presets, unused_templates, max_points, removed_presets, removed_templates \
@@ -120,7 +115,5 @@ class JournalFormatView(viewsets.ViewSet):
         utils.delete_templates(format.unused_templates, removed_templates)
 
         serializer = JournalFormatSerializer(format)
-        if not serializer.is_valid():
-            response.bad_request()
 
         return response.success({'format': serializer.data})

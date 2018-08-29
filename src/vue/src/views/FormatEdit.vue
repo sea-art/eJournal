@@ -69,7 +69,7 @@
                 <b-col md="6" lg="12">
                     <h3>Entry Templates</h3>
                     <div :class="{ 'input-disabled' : saveRequestInFlight }">
-                        <available-template-card v-for="template in templatePool" :key="template.t.tID" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate"/>
+                        <available-template-card v-for="template in templatePool" :key="template.t.id" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate"/>
                         <b-button class="add-button grey-background full-width" @click="showModal(newTemplate())">
                             <icon name="plus"/>
                             Create New Template
@@ -121,9 +121,9 @@ export default {
             saveRequestInFlight: false,
 
             templateBeingEdited: {
-                'fields': [],
+                'field_set': [],
                 'name': '',
-                'tID': -1
+                'id': -1
             },
             wipTemplateId: -1,
 
@@ -158,14 +158,14 @@ export default {
     },
     methods: {
         deletePreset () {
-            if (typeof this.nodes[this.currentNode].pID !== 'undefined') {
+            if (typeof this.nodes[this.currentNode].id !== 'undefined') {
                 this.deletedPresets.push(this.nodes[this.currentNode])
             }
             this.nodes.splice(this.currentNode, 1)
             this.currentNode = Math.min(this.currentNode, this.nodes.length - 1)
         },
         deleteTemplate (template) {
-            if (typeof template.t.tID !== 'undefined') {
+            if (typeof template.t.id !== 'undefined') {
                 this.deletedTemplates.push(template.t)
             }
             this.templatePool.splice(this.templatePool.indexOf(template), 1)
@@ -179,9 +179,9 @@ export default {
         newTemplate () {
             return {
                 t: {
-                    'fields': [],
+                    'field_set': [],
                     'name': '',
-                    'tID': this.wipTemplateId--
+                    'id': this.wipTemplateId--
                 },
                 available: false
             }
@@ -232,7 +232,7 @@ export default {
 
             var templatePoolIds = []
             for (var template of this.templatePool) {
-                templatePoolIds.push(template.t.tID)
+                templatePoolIds.push(template.t.id)
             }
 
             if (!missingPointMax && isNaN(parseInt(this.max_points))) {
@@ -253,11 +253,11 @@ export default {
                     invalidDate = true
                     this.$toasted.error('One or more presets have an invalid deadline. Please check the format and try again.')
                 }
-                if (!invalidTemplate && node.type === 'd' && typeof node.template.tID === 'undefined') {
+                if (!invalidTemplate && node.type === 'd' && typeof node.template.id === 'undefined') {
                     invalidTemplate = true
                     this.$toasted.error('One or more presets have an invalid template. Please check the format and try again.')
                 }
-                if (!invalidTemplate && node.type === 'd' && node.template.tID && !templatePoolIds.includes(node.template.tID)) {
+                if (!invalidTemplate && node.type === 'd' && node.template.id && !templatePoolIds.includes(node.template.id)) {
                     invalidTemplate = true
                     this.$toasted.error('One or more presets have an invalid template. Please check the format and try again.')
                 }
@@ -273,12 +273,17 @@ export default {
 
             this.saveRequestInFlight = true
             this.convertToDB()
-            formatAPI.update(this.aID, this.templates, this.max_points, this.presets, this.unused_templates, this.deletedTemplates, this.deletedPresets)
+            formatAPI.update(this.aID, {
+                'templates': this.templates,
+                'max_points': this.max_points,
+                'presets': this.presets,
+                'unused_templates': this.unused_templates,
+                'removed_templates': this.deletedTemplates,
+                'removed_presets': this.deletedPresets
+            })
                 .then(data => {
                     this.saveFromDB(data)
                     this.convertFromDB()
-                })
-                .then(_ => {
                     this.isChanged = false
                     this.saveRequestInFlight = false
                     this.$toasted.success('New format saved')
@@ -302,25 +307,25 @@ export default {
             var tempTemplatePool = {}
 
             for (var template of this.templates) {
-                idInPool.push(template.tID)
-                tempTemplatePool[template.tID] = { t: template, available: true }
+                idInPool.push(template.id)
+                tempTemplatePool[template.id] = { t: template, available: true }
             }
             for (var preset of this.presets) {
                 if (preset.type === 'd') {
-                    if (!idInPool.includes(preset.template.tID)) {
-                        idInPool.push(preset.template.tID)
-                        tempTemplatePool[preset.template.tID] = { t: preset.template, available: false }
+                    if (!idInPool.includes(preset.template.id)) {
+                        idInPool.push(preset.template.id)
+                        tempTemplatePool[preset.template.id] = { t: preset.template, available: false }
                     } else {
-                        preset.template = tempTemplatePool[preset.template.tID].t
+                        preset.template = tempTemplatePool[preset.template.id].t
                     }
                 }
             }
             for (var unusedTemplate of this.unused_templates) {
-                idInPool.push(unusedTemplate.tID)
-                tempTemplatePool[unusedTemplate.tID] = { t: unusedTemplate, available: false }
+                idInPool.push(unusedTemplate.id)
+                tempTemplatePool[unusedTemplate.id] = { t: unusedTemplate, available: false }
             }
 
-            this.templatePool = Object.values(tempTemplatePool).sort((a, b) => { return a.t.tID - b.t.tID })
+            this.templatePool = Object.values(tempTemplatePool).sort((a, b) => { return a.t.id - b.t.id })
 
             this.nodes = this.presets.slice()
             this.nodes.sort((a, b) => { return new Date(a.deadline) - new Date(b.deadline) })

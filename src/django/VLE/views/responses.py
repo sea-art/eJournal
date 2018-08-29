@@ -84,18 +84,6 @@ def internal_server_error(description='Oops! The server experienced internal hic
     return json_response(description=description, status=500)
 
 
-def response(status, message, description=None, payload={}):
-    """Return a generic response header with customizable fields.
-
-    Arguments:
-    status -- HTTP status number
-    message -- response message
-    description -- header description
-    payload -- payload to deliver
-    """
-    return Response({'result': message, 'description': description, **payload}, status=status)
-
-
 def http_response(content=b'', content_type=None, status=None, reason=None, charset=None):
     """Returns a HttpResponse.
 

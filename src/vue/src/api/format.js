@@ -3,13 +3,13 @@ import auth from '@/api/auth'
 export default {
 
     get (id) {
-        return auth.get('journalformats')
-            .then(response => response.data.format)
+        return auth.get('formats/' + id)
+            .then(response => response.data)
     },
 
     update (id, data = null) {
-        return auth.update('journalformats/' + id, data)
-            .then(response => response.data.format)
+        return auth.update('formats/' + id, data)
+            .then(response => response.data)
     }
 
     // create_template (name, fields) {

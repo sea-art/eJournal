@@ -7,7 +7,7 @@ from rest_framework import serializers
 # import VLE.utils.generic_utils as utils
 # import VLE.permissions as permissions
 from VLE.models import User, Course, Node, Comment, Assignment, Role, Journal, Entry, Template, Field, Content, \
-                       JournalFormat
+                       JournalFormat, PresetNode
 import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
 import statistics as st
@@ -166,25 +166,47 @@ class JournalSerializer(serializers.ModelSerializer):
 
 
 class JournalFormatSerializer(serializers.ModelSerializer):
-    stats = serializers.SerializerMethodField()
-    student = serializers.SerializerMethodField()
+    unused_templates = serializers.SerializerMethodField()
+    templates = serializers.SerializerMethodField(source='available_templates')
+    presets = serializers.SerializerMethodField()
 
     class Meta:
         model = JournalFormat
-        fields = '__all__'
+        fields = ('id', 'grade_type', 'max_points', 'unused_templates', 'templates', 'presets')
         read_only_fields = ('id', )
 
-    def get_student(self, journal):
-        return UserSerializer(journal.user).data
+    def get_unused_templates(self, entry):
+        return TemplateSerializer(entry.unused_templates.all(), many=True).data
 
-    def get_stats(self, journal):
-        entries = utils.get_journal_entries(journal)
-        return {
-            'acquired_points': utils.get_acquired_points(entries),
-            'graded': utils.get_graded_count(entries),
-            'submitted': utils.get_submitted_count(entries),
-            'total_points': utils.get_max_points(journal),
-        }
+    def get_templates(self, entry):
+        return TemplateSerializer(entry.available_templates.all(), many=True).data
+
+    def get_presets(self, entry):
+        return PresetNodeSerializer(entry.presetnode_set.all().order_by('deadline'), many=True).data
+
+
+class PresetNodeSerializer(serializers.ModelSerializer):
+    deadline = serializers.SerializerMethodField()
+    target = serializers.SerializerMethodField()
+    template = serializers.SerializerMethodField()
+
+    class Meta:
+        model = PresetNode
+        fields = ('id', 'type', 'deadline', 'target', 'template')
+        read_only_fields = ('id', )
+
+    def get_deadline(self, entry):
+        return entry.deadline.strftime('%Y-%m-%d %H:%M')
+
+    def get_target(self, entry):
+        if entry.type == Node.PROGRESS:
+            return entry.target
+        return None
+
+    def get_template(self, entry):
+        if entry.type == Node.ENTRYDEADLINE:
+            return TemplateSerializer(entry.forced_template).data
+        return None
 
 
 class EntrySerializer(serializers.ModelSerializer):
@@ -221,6 +243,7 @@ class TemplateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Template
         fields = '__all__'
+        read_only_fields = ('id', )
 
     def get_field_set(self, template):
         return FieldSerializer(template.field_set.all(), many=True).data
