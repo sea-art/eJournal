@@ -89,7 +89,7 @@ import edag from '@/components/edag/Edag.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import formatEditAvailableTemplateCard from '@/components/format/FormatEditAvailableTemplateCard.vue'
 import formatEditSelectTemplateCard from '@/components/format/FormatEditSelectTemplateCard.vue'
-import journalAPI from '@/api/journal.js'
+import formatAPI from '@/api/format.js'
 import templateEdit from '@/components/template/TemplateEdit.vue'
 import icon from 'vue-awesome/components/Icon'
 
@@ -134,7 +134,7 @@ export default {
         }
     },
     created () {
-        journalAPI.get_format(this.aID)
+        formatAPI.get(this.aID)
             .then(data => {
                 this.saveFromDB(data)
                 this.convertFromDB()
@@ -273,7 +273,7 @@ export default {
 
             this.saveRequestInFlight = true
             this.convertToDB()
-            journalAPI.update_format(this.aID, this.templates, this.max_points, this.presets, this.unused_templates, this.deletedTemplates, this.deletedPresets)
+            formatAPI.update(this.aID, this.templates, this.max_points, this.presets, this.unused_templates, this.deletedTemplates, this.deletedPresets)
                 .then(data => {
                     this.saveFromDB(data)
                     this.convertFromDB()
