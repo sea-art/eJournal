@@ -253,7 +253,7 @@ class UserView(viewsets.ViewSet):
             return response.KeyError('new_password', 'old_password')
 
         if not request.user.check_password(old_password):
-            return response.unauthorized('Wrong password.')
+            return response.bad_request('Wrong password.')
 
         if validators.validate_password(new_password):
             return response.bad_request(validators.validate_password(new_password))

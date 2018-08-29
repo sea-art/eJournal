@@ -135,6 +135,8 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class RoleSerializer(serializers.ModelSerializer):
+    # TODO This even adds keys such as 'id', 'name' and 'course', prob not wanted?
+    # Maybe all the permissions in a seperate variable would be nice
     class Meta:
         model = Role
         fields = '__all__'
@@ -183,6 +185,7 @@ class JournalFormatSerializer(serializers.ModelSerializer):
             'submitted': utils.get_submitted_count(entries),
             'total_points': utils.get_max_points(journal),
         }
+
 
 class EntrySerializer(serializers.ModelSerializer):
     template = serializers.SerializerMethodField()

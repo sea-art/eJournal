@@ -65,7 +65,7 @@ export default {
             authAPI.forgotPassword(username, emailAdress)
                 .then(response => {
                     this.$refs.forgotPasswordModalRef.hide()
-                    this.$toasted.success(response.statusText)
+                    this.$toasted.success(response.data.description)
                 })
                 .catch(error => {
                     this.$toasted.error(error.response.data.description)
