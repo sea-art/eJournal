@@ -1,9 +1,12 @@
 <template>
     <content-single-columns>
-        <h1 class="title-container">{{ currentPage }}</h1>
-        <lti-create-connect-course v-if="handleCourseChoice" @handleAction="handleActions" :lti="lti"/>
-        <lti-create-connect-assignment v-else-if="handleAssignmentChoice" @handleAction="handleActions" :lti="lti" :page="page"/>
-        <lti-create-assignment v-else-if="createAssignment" @handleAction="handleActions" :lti="lti" :page="page"/>
+        <h1 class="mb-2">{{ currentPage }}</h1>
+        <b-card class="no-hover" :class="this.$root.colors[1]">
+            <lti-create-connect-course v-if="handleCourseChoice" @handleAction="handleActions" :lti="lti"/>
+            <lti-create-connect-assignment v-else-if="handleAssignmentChoice" @handleAction="handleActions" :lti="lti" :page="page"/>
+            <lti-create-assignment v-else-if="createAssignment" @handleAction="handleActions" :lti="lti" :page="page"/>
+        </b-card>
+
     </content-single-columns>
 </template>
 
@@ -239,17 +242,3 @@ export default {
     }
 }
 </script>
-
-<style lang="sass">
-@import '~sass/modules/breakpoints.sass'
-
-.title-container
-    padding-right: 10px
-    padding-bottom: 12px
-    margin-bottom: -4px
-
-@include md-max
-    .title-container
-        padding-top: 12px !important
-        margin-top: -4px !important
-</style>

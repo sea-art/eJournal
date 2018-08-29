@@ -1,8 +1,10 @@
 <template>
-    <content-student-column>
-        <h1 class="title-container">User Integration</h1>
-        <lti-create-connect-user v-if="handleUserIntegration" @handleAction="userIntegrated" :lti="lti"/>
-    </content-student-column>
+    <content-single-column>
+        <h1 class="mb-2">User Integration</h1>
+        <b-card class="no-hover" :class="this.$root.colors[1]">
+            <lti-create-connect-user v-if="handleUserIntegration" @handleAction="userIntegrated" :lti="lti"/>
+        </b-card>
+    </content-single-column>
 </template>
 
 <script>
@@ -12,7 +14,7 @@ import ltiCreateConnectUser from '@/components/lti/LtiCreateConnectUser.vue'
 export default {
     name: 'LtiLogin',
     components: {
-        'content-student-column': contentSingleColumn,
+        'content-single-column': contentSingleColumn,
         'lti-create-connect-user': ltiCreateConnectUser
     },
     data () {

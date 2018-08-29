@@ -275,7 +275,7 @@ def create_lti_user(request):
         except jwt.exceptions.ExpiredSignatureError:
             return responses.forbidden(
                 description='The canvas link has expired, 15 minutes have passed. Please retry from canvas.')
-        lti_id, user_image = lti_params['user_id'], lti_params['user_image']
+        lti_id, user_image = lti_params['user_id'], lti_params['custom_user_image']
         is_teacher = json.load(open('config.json'))['Teacher'] in lti_params['roles']
     else:
         lti_id, user_image, is_teacher = None, None, False
@@ -306,7 +306,8 @@ def create_lti_user(request):
         return responses.bad_request('Invalid email address.')
 
     user = factory.make_user(username, password, email=email, lti_id=lti_id, is_teacher=is_teacher,
-                             first_name=first_name, last_name=last_name, profile_picture=user_image)
+                             first_name=first_name, last_name=last_name, profile_picture=user_image,
+                             verified_email=True if lti_id else False)
 
     if lti_id is None:
         email_handling.send_email_verification_link(user)
