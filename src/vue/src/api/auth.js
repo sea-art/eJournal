@@ -94,7 +94,7 @@ export default {
 
     /* Create a user and add it to the database. */
     register (username, password, firstname, lastname, email, jwtParams = null) {
-        return connection.conn.post('/create_lti_user/', {
+        return connection.conn.post('/users/', {
             username: username,
             password: password,
             first_name: firstname,

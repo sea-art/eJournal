@@ -24,7 +24,7 @@ class Command(BaseCommand):
                 "username": "st",
                 "first_name": "Lars",
                 "last_name": "van Hijfte",
-                "email": "larsvanhijfte@hotmail.com",
+                "email": "larsderpolo@gmail.com",
                 "pass": "pass",
                 "is_superuser": False,
                 "is_teacher": False

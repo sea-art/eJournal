@@ -56,7 +56,7 @@ export default {
             let username = ''
             let emailAdress = ''
 
-            if (validation.validateEmail(this.usernameEmail, false)) {
+            if (validation.validateEmail(this.usernameEmail, true)) {
                 emailAdress = this.usernameEmail
             } else {
                 username = this.usernameEmail

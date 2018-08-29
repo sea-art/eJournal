@@ -27,7 +27,7 @@ export default {
         let re = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
         var correctEmail = re.test(String(email).toLowerCase())
 
-        if (displayMessage) { Vue.toasted.error('The given email address is not valid!') }
+        if (displayMessage && !correctEmail) { Vue.toasted.error('The given email address is not valid!') }
 
         return correctEmail
     }
