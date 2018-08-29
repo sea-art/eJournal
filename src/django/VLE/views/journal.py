@@ -19,14 +19,13 @@ class JournalView(viewsets.ViewSet):
 
     This class creates the following api paths:
     GET /journals/ -- gets all the journals
-    POST /journals/ -- create a new journal
     GET /journals/<pk> -- gets a specific journal
+    POST /journals/ -- create a new journal
     PATCH /journals/<pk> -- partially update an journal
-    DEL /journals/<pk> -- delete an journal
-    PATCH /journals/published_state/<pk> -- update the published state of all entries in a journal
-    """
 
-    serializer_class = JournalSerializer
+    TODO:
+    DEL /journals/<pk> -- delete an journal
+    """
 
     def list(self, request):
         """Get the student submitted journals of one assignment.
@@ -61,7 +60,7 @@ class JournalView(viewsets.ViewSet):
         journals = []
 
         queryset = assignment.journal_set.all()
-        journals = self.serializer_class(queryset, many=True).data
+        journals = JournalSerializer(queryset, many=True).data
 
         stats = {}
         if journals:
@@ -75,43 +74,6 @@ class JournalView(viewsets.ViewSet):
             'stats': stats if stats else None,
             'journals': journals
         })
-
-    def create(self, request):
-        """Create a new assignment.
-
-        Arguments:
-        request -- request data
-            assignment_id -- assignment ID
-
-        Returns:
-        On failure:
-            unauthorized -- when the user is not logged in
-            not_found -- could not find the course with the given id
-            key_error -- missing keys
-            forbidden -- the user is not allowed to create assignments in this course
-
-        On success:
-            succes -- with the journal data
-
-        """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
-        try:
-            [assignment_id] = utils.required_params(request.data, "assignment_id")
-        except KeyError:
-            return response.keyerror("assignment_id")
-
-        role = permissions.get_assignment_id_permissions(request.user, assignment_id)
-        if not role:
-            return response.forbidden("You have no permissions within this course.")
-        elif not role["can_edit_journal"]:
-            return response.forbidden("You have no permissions to create a journal.")
-
-        assignment = Assignment.objects.get(pk=assignment_id)
-        journal = factory.make_journal(assignment, request.user)
-        serializer = self.serializer_class(journal, many=False)
-        return response.created({'journal': serializer.data})
 
     def retrieve(self, request, pk):
         """Get a student submitted journal.
@@ -142,10 +104,50 @@ class JournalView(viewsets.ViewSet):
                                                      'can_view_assignment_participants'):
             return response.forbidden('You are not allowed to view this journal.')
 
-        return response.success({'journal': self.serializer_class(journal).data})
+        serializer = JournalSerializer(journal)
 
-    def update(self, request, *args, **kwargs):
-        pass
+        return response.success({'journal': serializer.data})
+
+    def create(self, request):
+        """Create a new journal.
+
+        Arguments:
+        request -- request data
+            assignment_id -- assignment ID
+
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+            not_found -- could not find the course with the given id
+            key_error -- missing keys
+            forbidden -- the user is not allowed to create assignments in this course
+
+        On success:
+            succes -- with the journal data
+
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+
+        try:
+            assignment_id, = utils.required_params(request.data, "assignment_id")
+        except KeyError:
+            return response.keyerror("assignment_id")
+
+        role = permissions.get_assignment_id_permissions(request.user, assignment_id)
+        if not role:
+            return response.forbidden("You have no permissions within this course.")
+        elif not role["can_edit_journal"]:
+            return response.forbidden("You have no permissions to create a journal.")
+
+        try:
+            assignment = Assignment.objects.get(pk=assignment_id)
+        except Assignment.DoesNotExist:
+            return response.not_found('Assignment')
+
+        journal = factory.make_journal(assignment, request.user)
+        serializer = JournalSerializer(journal, many=False)
+        return response.created({'journal': serializer.data})
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing journal.
@@ -179,17 +181,18 @@ class JournalView(viewsets.ViewSet):
         if not permissions.has_journal_permission(request.user, journal, 'can_edit_journal'):
             return response.forbidden('You are not allowed to edit this journal.')
 
-        # TODO Check if a serializer is valid if we add an extra argument (published)
+        # TODO Check if a serializer is valid if we add an extra argument (published) to the request data.
         serializer = JournalSerializer(journal, data=request.data, partial=True)
         if not serializer.is_valid():
             response.bad_request()
         serializer.save()
 
-        published = utils.optional_params(request.data, "published")
+        published, = utils.optional_params(request.data, "published")
         if published:
             if not permissions.has_assignment_permission(request.user, journal.assignment,
                                                          'can_publish_journal_grades'):
                 return response.forbidden('You cannot publish assignments.')
+
             utils.publish_all_journal_grades(journal, published)
             if journal.sourcedid is not None and journal.grade_url is not None:
                 payload = lti_grade.replace_result(journal)

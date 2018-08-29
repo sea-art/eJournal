@@ -22,8 +22,8 @@ export default {
             .then(response => response.data)
     },
 
-    download (id = 0) {
-        return auth.get('users/download/' + id)
+    download (id = 0, fileName) {
+        return auth.get('users/' + id + '/download', {file_name: fileName})
     },
 
     GDPR (id = 0) {
@@ -52,18 +52,8 @@ export default {
         return auth.post('/request_email_verification/')
     }
 
-    //
     // /* Get user file. */
     // getUserFile (fileName, authorUID) {
     //     return auth.authenticatedGet('/get_user_file/' + fileName + '/' + authorUID + '/')
     // },
-    //
-    //
-    // /* Update user data with lti credentials. */
-    // updateLtiIdToUser (jwtParams) {
-    //     return auth.authenticatedPost('/update_lti_id_to_user/', {
-    //         jwt_params: jwtParams
-    //     }).then(response => response.data.user)
-    // },
-    //
 }

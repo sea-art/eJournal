@@ -26,25 +26,19 @@ def forgot_password(request):
 
     Generates a recovery token if a matching user can be found by either the prodived username or email.
     """
-    user = None
-
     try:
-        utils.required_params(request.data, 'username', 'email')
+        username, email = utils.required_params(request.data, 'username', 'email')
     except KeyError:
         return response.KeyError('username', 'email')
 
     # We are retrieving the username based on either the username or email
     try:
-        user = User.objects.get(username=request.data['username'])
+        user = User.objects.get(username=username)
     except User.DoesNotExist:
-        pass
-    try:
-        user = User.objects.get(email=request.data['email'])
-    except User.DoesNotExist:
-        pass
-
-    if not user:
-        return response.bad_request('No user found with that username or email.')
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            return response.bad_request('No user found with that username or email.')
 
     email_handling.send_password_recovery_link(user)
 

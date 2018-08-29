@@ -41,7 +41,7 @@ export default {
                 courseAbbr: '',
                 courseStartdate: this.newDate(0),
                 courseEnddate: this.newDate(1),
-                ltiCourseID: ''
+                lti_id: ''
             }
         }
     },
@@ -79,7 +79,7 @@ export default {
         if (this.lti !== undefined) {
             this.form.courseName = this.lti.ltiCourseName
             this.form.courseAbbr = this.lti.ltiCourseAbbr
-            this.form.ltiCourseID = this.lti.ltiCourseID
+            this.form.lti_id = this.lti.ltiCourseID
         }
     },
     components: {

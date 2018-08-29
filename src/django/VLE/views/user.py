@@ -141,7 +141,6 @@ class UserView(viewsets.ViewSet):
 
         return response.created({'user': self.serializer_class(user).data})
 
-    # TODO: Test if lti works!
     def partial_update(self, request, *args, **kwargs):
         """Update an existing user.
 
@@ -177,7 +176,7 @@ class UserView(viewsets.ViewSet):
 
         if 'jwt_params' in request.data and request.data['jwt_params'] != '':
             lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
-            lti_id, user_image = utils.optional_params(lti_params, 'user_id', 'user_image')
+            lti_id, user_image = utils.optional_params(lti_params, 'user_id', 'custom_user_image')
             is_teacher = json.load(open('config.json'))['Teacher'] in lti_params['roles']
         else:
             lti_id, user_image, is_teacher = None, None, False
@@ -254,7 +253,7 @@ class UserView(viewsets.ViewSet):
             return response.KeyError('new_password', 'old_password')
 
         if not request.user.check_password(old_password):
-            return response.unauthorized('Wrong password.')
+            return response.bad_request('Wrong password.')
 
         if validators.validate_password(new_password):
             return response.bad_request(validators.validate_password(new_password))
@@ -263,7 +262,7 @@ class UserView(viewsets.ViewSet):
         request.user.save()
         return response.success(description='Succesfully changed the password.')
 
-    # TODO: check if it works
+    # TODO: Fix this stuff
     # TODO: limit this request for end users, otherwise its really easy to DDOS the server.
     @action(methods=['get'], detail=True)
     def GDPR(self, request, pk):
@@ -336,7 +335,7 @@ class UserView(viewsets.ViewSet):
             pk = request.user.id
 
         try:
-            file_name = utils.required_params(request.data, 'file_name')
+            file_name, = utils.required_params(request.query_params, 'file_name')
         except KeyError:
             return response.KeyError('file_name')
 

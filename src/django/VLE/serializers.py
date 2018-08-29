@@ -6,7 +6,8 @@ Functions to convert certain data to other formats.
 from rest_framework import serializers
 # import VLE.utils.generic_utils as utils
 # import VLE.permissions as permissions
-from VLE.models import User, Course, Node, Comment, Assignment, Role, Journal, Entry, Template, Field, Content
+from VLE.models import User, Course, Node, Comment, Assignment, Role, Journal, Entry, Template, Field, Content, \
+                       JournalFormat
 import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
 import statistics as st
@@ -14,15 +15,22 @@ import statistics as st
 
 class UserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ('last_login', 'username', 'first_name', 'last_name', 'is_active', 'email', 'name',
-                  'profile_picture', 'is_teacher', 'lti_id', 'id')
+                  'profile_picture', 'is_teacher', 'lti_id', 'id', 'role')
         read_only_fields = ('id', )
 
     def get_name(self, user):
         return user.first_name + ' ' + user.last_name
+
+    def get_role(self, user):
+        if 'course' not in self.context:
+            return None
+
+        return permissions.get_role(user, self.context['course']).name
 
 
 class OwnUserSerializer(serializers.ModelSerializer):
@@ -93,6 +101,8 @@ class AssignmentSerializer(serializers.ModelSerializer):
             return None
 
         journals = JournalSerializer(assignment.journal_set.all(), many=True).data
+        if not journals:
+            return None
         stats = {}
         stats['needs_marking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
         points = [x['stats']['acquired_points'] for x in journals]
@@ -125,6 +135,8 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class RoleSerializer(serializers.ModelSerializer):
+    # TODO This even adds keys such as 'id', 'name' and 'course', prob not wanted?
+    # Maybe all the permissions in a seperate variable would be nice
     class Meta:
         model = Role
         fields = '__all__'
@@ -137,6 +149,28 @@ class JournalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Journal
+        fields = '__all__'
+        read_only_fields = ('id', )
+
+    def get_student(self, journal):
+        return UserSerializer(journal.user).data
+
+    def get_stats(self, journal):
+        entries = utils.get_journal_entries(journal)
+        return {
+            'acquired_points': utils.get_acquired_points(entries),
+            'graded': utils.get_graded_count(entries),
+            'submitted': utils.get_submitted_count(entries),
+            'total_points': utils.get_max_points(journal),
+        }
+
+
+class JournalFormatSerializer(serializers.ModelSerializer):
+    stats = serializers.SerializerMethodField()
+    student = serializers.SerializerMethodField()
+
+    class Meta:
+        model = JournalFormat
         fields = '__all__'
         read_only_fields = ('id', )
 

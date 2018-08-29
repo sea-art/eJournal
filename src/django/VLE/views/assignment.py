@@ -316,7 +316,7 @@ class AssignmentView(viewsets.ViewSet):
             return response.unauthorized()
 
         aID = kwargs.get('pk')
-        published = utils.required_params(request.data, 'published')
+        published, = utils.required_params(request.data, 'published')
 
         try:
             assign = Assignment.objects.get(pk=aID)

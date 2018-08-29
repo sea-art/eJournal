@@ -8,7 +8,6 @@ from rest_framework import viewsets
 import VLE.views.responses as response
 import VLE.permissions as permissions
 
-from VLE.serializers import NodeSerializer
 from VLE.models import Journal
 import VLE.edag as edag
 
@@ -18,13 +17,13 @@ class NodeView(viewsets.ModelViewSet):
 
     This class creates the following api paths:
     GET /nodes/ -- gets all the nodes
+
+    TODO:
     POST /nodes/ -- create a new node
     GET /nodes/<pk> -- gets a specific node
     PATCH /nodes/<pk> -- partially update a node
     DEL /nodes/<pk> -- delete a node
     """
-
-    serializer_class = NodeSerializer
 
     def list(self, request):
         """Get all nodes contained within a journal.

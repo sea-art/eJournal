@@ -117,10 +117,30 @@ export default {
 </script>
 
 <style lang="sass">
-@import '~sass/modules/colors.sass'
-
 .profile-portrait
+    display: inline-block
+    position: relative
+    width: 100%
     max-width: 250px
     margin-bottom: 20px
     border-radius: 50% !important
+    overflow: hidden
+    img
+        position: absolute
+        height: 100%
+        width: 100%
+    .btn
+        position: absolute
+        width: 100%
+        height: 25%
+        bottom: -25%
+        opacity: 0
+    &:hover
+        .btn
+            bottom: 0px
+            opacity: 1
+.profile-portrait:after
+    content: ""
+    display: block
+    padding-bottom: 100%
 </style>

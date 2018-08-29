@@ -22,8 +22,9 @@
 </template>
 
 <script>
-import auth from '@/api/auth.js'
 import icon from 'vue-awesome/components/Icon'
+
+import authAPI from '@/api/auth'
 import validation from '@/utils/validation.js'
 
 export default {
@@ -45,14 +46,14 @@ export default {
     methods: {
         onSubmit () {
             if (validation.validatePassword(this.form.password, this.form.password2) && validation.validateEmail(this.form.email)) {
-                auth.register(this.form.username, this.form.password, this.form.firstname, this.form.lastname,
+                authAPI.register(this.form.username, this.form.password, this.form.firstname, this.form.lastname,
                     this.form.email, this.form.ltiJWT)
                     .then(_ => {
                         if (!this.lti) {
                             this.$toasted.success('Registration successfull! Please follow the instructions sent to ' + this.email +
                                                   ' to confirm your email address.')
                         }
-                        auth.login(this.form.username, this.form.password)
+                        authAPI.login(this.form.username, this.form.password)
                             .then(_ => { this.$emit('handleAction') })
                             .catch(_ => { this.$toasted.error('Error logging in with your newly created account, please contact a system administrator or try registering again.') })
                     })

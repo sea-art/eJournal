@@ -24,6 +24,7 @@ class Command(BaseCommand):
                 "username": "st",
                 "first_name": "Lars",
                 "last_name": "van Hijfte",
+                "email": "larsderpolo@gmail.com",
                 "pass": "pass",
                 "is_superuser": False,
                 "is_teacher": False
@@ -73,7 +74,9 @@ class Command(BaseCommand):
                 is_superuser = True
             if u['is_teacher']:
                 is_teacher = True
-            self.users.append(factory.make_user(u['username'], u['pass'], u['first_name'] + '@eJourn.al',
+            self.users.append(factory.make_user(u['username'],
+                                                u['pass'],
+                                                u['email'] if 'email' in u else u['first_name'] + '@eJourn.al',
                                                 is_superuser=is_superuser, is_teacher=is_teacher,
                                                 first_name=u['first_name'], last_name=u['last_name'],
                                                 verified_email=True))

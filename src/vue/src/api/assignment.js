@@ -38,22 +38,9 @@ export default {
         }
         return auth.get('assignments/upcomming')
             .then(response => response.data.upcomming)
+    },
+
+    getWithLti (id) {
+        return auth.get('assignments/' + id, {lti: true}, true)
     }
-    // /* Get an assignments by filtering on the lti_id.
-    //  * returns one assignment or none.
-    //  */
-    // get_assignment_by_lti_id (ltiId) {
-    //     return auth.authenticatedGet('/get_assignment_by_lti_id/' + ltiId + '/')
-    //         .then(response => response.data.assignment)
-    // },
-    //
-    // /* Connect an existing course to lti course. */
-    // connect_assignment_lti (aID, ltiID, pointsPossible) {
-    //     return auth.authenticatedPost('/connect_assignment_lti/', {
-    //         aID: aID,
-    //         lti_id: ltiID,
-    //         points_possible: pointsPossible
-    //     }).then(response => response.data.assignment)
-    // },
-    //
 }

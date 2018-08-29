@@ -48,7 +48,7 @@ export default {
             }
         },
         fileDownload () {
-            userAPI.getUserFile(this.fileName, this.authorUID)
+            userAPI.download(this.authorUID, this.fileName)
                 .then(response => {
                     let blob = new Blob([dataHandling.base64ToArrayBuffer(response.data)], { type: response.headers['content-type'] })
                     this.fileURL = window.URL.createObjectURL(blob)

@@ -94,7 +94,7 @@ export default {
 
     /* Create a user and add it to the database. */
     register (username, password, firstname, lastname, email, jwtParams = null) {
-        return connection.conn.post('/create_lti_user/', {
+        return connection.conn.post('/users/', {
             username: username,
             password: password,
             first_name: firstname,
@@ -113,12 +113,12 @@ export default {
     /* Forgot password.
      * Checks if a user is known by the given email or username. Sends an email with a link to reset the password. */
     forgotPassword (username, email) {
-        return this.post('forgot_password', {username: username, email: email})
+        return connection.conn.post('/forgot_password/', {username: username, email: email})
     },
 
     /* Recover password */
     recoverPassword (username, recoveryToken, newPassword) {
-        return this.post('recover_password', {username: username, recovery_token: recoveryToken, new_password: newPassword})
+        return connection.conn.post('/recover_password/', {username: username, recovery_token: recoveryToken, new_password: newPassword})
     },
 
     /* Check if the stored token is valid. */

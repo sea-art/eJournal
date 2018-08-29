@@ -38,11 +38,11 @@
                         <td class="permission-column">{{ formatPermissionString(permission) }}</td>
                         <td v-for="role in roles" :key="role + '-' + permission">
                             <custom-checkbox
-                            :class="{ 'input-disabled': essentialPermission(role, permission) }"
-                            @checkbox-toggle="updateRole"
-                            :role="role"
-                            :permission="permission"
-                            :receivedState="setState(role, permission)"/>
+                                :class="{ 'input-disabled': essentialPermission(role, permission) }"
+                                @checkbox-toggle="updateRole"
+                                :role="role"
+                                :permission="permission"
+                                :receivedState="setState(role, permission)"/>
                         </td>
                     </tr>
                 </tbody>
@@ -78,7 +78,8 @@ import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import contentSingleTableColumn from '@/components/columns/ContentSingleTableColumn.vue'
 import customCheckbox from '@/components/assets/CustomCheckbox.vue'
 import icon from 'vue-awesome/components/Icon'
-import permissions from '@/api/permissions.js'
+import roleAPI from '@/api/role'
+import commonAPI from '@/api/common'
 
 export default {
     name: 'UserRoleConfiguration',
@@ -119,7 +120,7 @@ export default {
 
             var i = this.roleConfig.findIndex(p => p.name === role)
 
-            this.roleConfig[i].permissions[permission] = (state ? 1 : 0)
+            this.roleConfig[i][permission] = (state ? 1 : 0)
         },
         callocRoleObject (role) {
             /* Initialises a role object with the given name, the pages cID
@@ -139,7 +140,7 @@ export default {
                 var permissions = {}
 
                 for (var j = 0; j < this.permissions.length; j++) {
-                    permissions[this.permissions[j]] = roles[i].permissions[this.permissions[j]]
+                    permissions[this.permissions[j]] = roles[i][this.permissions[j]]
                 }
 
                 deepCopy.push({ name: roles[i].name, cID: this.cID, permissions: permissions })
@@ -162,8 +163,9 @@ export default {
         },
         setState (role, permission) {
             var correctRole = (this.roleConfig.filter(arg => { return arg.name === role }))[0]
-            return correctRole.permissions[permission] === 1
+            return correctRole[permission] === true
         },
+        // TODO: Undo changes button doesnt work
         reset () {
             /* Resets the configuration to the defaults by deep copies.
              * Forces reupdate of custom checkbox components,
@@ -185,7 +187,7 @@ export default {
             }
         },
         update () {
-            permissions.update_course_roles(this.cID, this.roleConfig)
+            roleAPI.update(this.cID, this.roleConfig)
                 .then(_ => {
                     this.originalRoleConfig = this.deepCopyRoles(this.roleConfig)
                     this.defaultRoles = Array.from(this.roles)
@@ -203,13 +205,13 @@ export default {
             if (confirm('Are you sure you want to delete the role "' + role + '" from this course?')) {
                 if (this.defaultRoles.includes(role)) {
                     /* handle server update. */
-                    permissions.delete_course_role(this.cID, role)
+                    roleAPI.delete(this.cID, role)
                         .then(_ => {
                             this.deleteRoleLocalConfig(role)
                             this.deleteRoleServerLoadedConfig(role)
                             this.$toasted.success('Role deleted succesfully!')
                         })
-                        .catch(_ => this.$toasted.error('Something went wrong when deleting role: ' + role))
+                        .catch(error => this.$toasted.error(error.response.data.description))
                 } else {
                     this.deleteRoleLocalConfig(role)
                 }
@@ -228,9 +230,9 @@ export default {
             this.defaultRoles.splice(i, 1)
         },
         checkPermission () {
-            permissions.get_course_permissions(this.cID)
-                .then(response => {
-                    this.$root.generalPermissions = response
+            commonAPI.getPermissions(this.cID)
+                .then(permissions => {
+                    this.$root.generalPermissions = permissions
                     if (!this.$root.canEditCourseRoles()) {
                         this.$router.push({
                             name: 'Home'
@@ -243,15 +245,18 @@ export default {
     created () {
         /* Initialises roles, permissions and role config as well as their defaults.
          * Roles and Permissions objects need to exist as deepcopy depends on then. */
-        permissions.get_course_roles(this.cID)
+        roleAPI.getFromCourse(this.cID)
             .then(roleConfig => {
                 this.roleConfig = roleConfig
 
                 roleConfig.forEach(role => {
                     this.defaultRoles.push(role.name)
+                    this.roles.push(role.name)
                 })
-                this.permissions = Object.keys(roleConfig[0].permissions)
-                this.roles = Array.from(this.defaultRoles)
+                this.permissions = Object.keys(roleConfig[0])
+                this.permissions.splice(this.permissions.indexOf('id'), 1)
+                this.permissions.splice(this.permissions.indexOf('name'), 1)
+                this.permissions.splice(this.permissions.indexOf('course'), 1)
 
                 this.originalRoleConfig = this.deepCopyRoles(roleConfig)
             })

@@ -10,8 +10,8 @@
             </b-button>
         </b-row>
         <b-row  align-h="center">
-            <icon name="link" scale="1.8"/>
             <b-button class="lti-button-option" @click="showModal('connectUserRef')">
+                <icon name="link" scale="1.8"/>
                 <h2 class="lti-button-text">Connect to existing user</h2>
             </b-button>
         </b-row>
@@ -37,7 +37,8 @@
 <script>
 import registerUser from '@/components/account/RegisterUser.vue'
 import loginForm from '@/components/account/LoginForm.vue'
-import userApi from '@/api/user.js'
+
+import userAPI from '@/api/user'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
@@ -63,7 +64,7 @@ export default {
             this.signal(['userIntegrated'])
         },
         handleConnected () {
-            userApi.updateLtiIdToUser(this.lti.ltiJWT)
+            userAPI.update(0, {jwt_params: this.lti.ltiJWT})
                 .then(_ => {
                     this.hideModal('connectUserRef')
                     this.signal(['userIntegrated'])

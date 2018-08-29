@@ -21,12 +21,12 @@ from django.contrib import admin
 from django.conf.urls import url, include
 from django.urls import path
 
-from VLE.views import extra, email
+from VLE.views import common, lti, email
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
-    TokenVerifyView,
+    # TokenVerifyView,
 )
 
 urlpatterns = [
@@ -36,17 +36,17 @@ urlpatterns = [
 
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
+    # path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
     path('forgot_password/', email.forgot_password, name='forgot_password'),
     path('recover_password/', email.recover_password, name='recover_password'),
     path('verify_email/', email.verify_email, name='verify_email'),
     path('request_email_verification/', email.request_email_verification, name='request_email_verification'),
 
-    path('lti/launch', extra.lti_launch, name='lti_launch'),
-    path('get_lti_params_from_jwt/<str:jwt_params>/', extra.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),
+    path('lti/launch', lti.lti_launch, name='lti_launch'),
+    path('get_lti_params_from_jwt/<str:jwt_params>/', lti.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),
 
-    path('names/<int:course_id>/<int:assignment_id>/<int:journal_id>/', extra.names, name='names'),
+    path('names/<int:course_id>/<int:assignment_id>/<int:journal_id>/', common.names, name='names'),
 ]
 
 # if settings.DEBUG is True:
