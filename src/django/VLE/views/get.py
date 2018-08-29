@@ -754,8 +754,8 @@ def get_lti_params_from_jwt(request, jwt_params):
     try:
         lti_params = jwt.decode(jwt_params, settings.LTI_SECRET, algorithms=['HS256'])
     except jwt.exceptions.ExpiredSignatureError:
-        return responses.forbidden(description='The canvas link has expired 15 minutes have passed. \
-                                   Please retry from canvas.')
+        return responses.forbidden(
+            description='The canvas link has expired, 15 minutes have passed. Please retry from canvas.')
 
     roles = json.load(open('config.json'))
     lti_roles = dict((roles[k], k) for k in roles)
