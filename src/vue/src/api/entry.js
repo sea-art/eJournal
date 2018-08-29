@@ -26,9 +26,4 @@ export default {
         return auth.update('entries/' + id, {published: published})
             .then(response => response.data.entry)
     }
-
-    // update_grade_entry (eID, grade, published) {
-    //     return auth.authenticatedPost('/update_grade_entry/', {eID: eID, grade: grade, published: published})
-    //         .then(response => response.data)
-    // },
 }

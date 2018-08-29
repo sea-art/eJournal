@@ -15,15 +15,22 @@ import statistics as st
 
 class UserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ('last_login', 'username', 'first_name', 'last_name', 'is_active', 'email', 'name',
-                  'profile_picture', 'is_teacher', 'lti_id', 'id')
+                  'profile_picture', 'is_teacher', 'lti_id', 'id', 'role')
         read_only_fields = ('id', )
 
     def get_name(self, user):
         return user.first_name + ' ' + user.last_name
+
+    def get_role(self, user):
+        if 'course' not in self.context:
+            return None
+
+        return permissions.get_role(user, self.context['course']).name
 
 
 class OwnUserSerializer(serializers.ModelSerializer):

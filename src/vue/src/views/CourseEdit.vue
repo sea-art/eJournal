@@ -1,3 +1,5 @@
+<!-- TODO: switching bewett enrolled and unenrolled after adding/removing a user doesnt work. -->
+<!-- TODO: You shouldnt be able to change your own role. -->
 <template>
     <content-single-column>
         <bread-crumb>&nbsp;</bread-crumb>
@@ -47,25 +49,25 @@
             </b-form>
         </b-card>
 
-        <div v-if="this.participants.length > 0">
+        <div>
             <b-card class="no-hover">
                 <h2 class="mb-2">Manage course members</h2>
-                    <b-row>
-                        <b-col sm="6" class="d-flex flex-wrap">
-                            <b-form-select class="flex-grow-1 multi-form" v-model="selectedSortOption" :select-size="1">
-                               <option :value="null">Sort by ...</option>
-                               <option value="sortFullName">Sort by name</option>
-                               <option value="sortUsername">Sort by username</option>
-                            </b-form-select>
-                        </b-col>
-                        <b-col sm="6" class="d-flex flex-wrap">
-                            <b-form-select class="flex-grow-1 multi-form" v-model="selectedView" :select-size="1">
-                                <option value="enrolled">Enrolled</option>
-                                <option value="unenrolled">Unenrolled</option>
-                            </b-form-select>
-                        </b-col>
-                    </b-row>
-                    <input class="multi-form theme-input full-width" type="text" v-model="searchVariable" placeholder="Search..."/>
+                <b-row>
+                    <b-col sm="6" class="d-flex flex-wrap">
+                        <b-form-select class="flex-grow-1 multi-form" v-model="selectedSortOption" :select-size="1">
+                           <option :value="null">Sort by ...</option>
+                           <option value="sortFullName">Sort by name</option>
+                           <option value="sortUsername">Sort by username</option>
+                        </b-form-select>
+                    </b-col>
+                    <b-col sm="6" class="d-flex flex-wrap">
+                        <b-form-select class="flex-grow-1 multi-form" v-model="selectedView" :select-size="1">
+                            <option value="enrolled">Enrolled</option>
+                            <option value="unenrolled">Unenrolled</option>
+                        </b-form-select>
+                    </b-col>
+                </b-row>
+                <input class="multi-form theme-input full-width" type="text" v-model="searchVariable" placeholder="Search..."/>
             </b-card>
 
             <course-participant-card v-if="selectedView === 'enrolled'"
@@ -76,9 +78,10 @@
                 :cID="cID"
                 :uID="p.id"
                 :index="i"
-                :username="p.role"
-                :fullName="p.first_name + ' ' + p.last_name"
+                :username="p.username"
+                :fullName="p.name"
                 :portraitPath="p.profile_picture"
+                :roles="roles"
                 :role.sync="p.role"/>
 
             <add-user-card v-if="selectedView === 'unenrolled'"
@@ -87,8 +90,8 @@
                 :key="p.id"
                 :cID="cID"
                 :uID="p.id"
-                :username="p.name"
-                :fullName="p.first_name + ' ' + p.last_name"
+                :username="p.username"
+                :fullName="p.name"
                 :portraitPath="p.profile_picture"/>
         </div>
 
@@ -104,6 +107,8 @@ import courseParticipantCard from '@/components/course/CourseParticipantCard.vue
 import store from '@/Store'
 import icon from 'vue-awesome/components/Icon'
 import courseAPI from '@/api/course'
+import roleAPI from '@/api/role'
+import participationAPI from '@/api/participation'
 
 export default {
     name: 'CourseEdit',
@@ -122,7 +127,8 @@ export default {
             searchVariable: '',
             selectedView: 'enrolled',
             unenrolledLoaded: false,
-            numTeachers: 0
+            numTeachers: 0,
+            roles: []
         }
     },
     watch: {
@@ -137,8 +143,11 @@ export default {
         courseAPI.get(this.cID)
             .then(course => { this.course = course })
             .catch(error => { this.$toasted.error(error.response.data.description) })
-        courseAPI.getParticipants(this.cID)
+        participationAPI.getEnrolled(this.cID)
             .then(users => { this.participants = users })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
+        roleAPI.getFromCourse(this.cID)
+            .then(roles => { this.roles = roles })
             .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
@@ -163,20 +172,23 @@ export default {
         },
         deleteParticipantLocally (role, name, picture, uID) {
             this.participants = this.participants.filter(function (item) {
-                return uID !== item.uID
+                return uID !== item.id
             })
             if (this.unenrolledLoaded === true) {
-                this.unenrolledStudents.push({ 'role': role,
+                this.unenrolledStudents.push({
+                    'role': role,
                     'name': name,
                     'picture': picture,
-                    'uID': uID })
+                    'uID': uID
+                })
             }
         },
         addParticipantLocally (role, name, picture, uID) {
             this.unenrolledStudents = this.unenrolledStudents.filter(function (item) {
-                return uID !== item.uID
+                return uID !== item.id
             })
-            this.participants.push({ 'role': role,
+            this.participants.push({
+                'role': role,
                 'name': name,
                 'picture': picture,
                 'uID': uID
@@ -184,7 +196,7 @@ export default {
         },
         loadUnenrolledStudents () {
             // TODO: change to unenrolled
-            courseAPI.getParticipants(this.cID)
+            participationAPI.getUnenrolled(this.cID)
                 .then(users => { this.unenrolledStudents = users })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
             this.unenrolledLoaded = !this.unenrolledLoaded
@@ -197,7 +209,7 @@ export default {
         }
     },
     computed: {
-        filteredUsers: function () {
+        filteredUsers () {
             let self = this
 
             function compareFullName (a, b) {
