@@ -769,6 +769,7 @@ def get_lti_params_from_jwt(request, jwt_params):
             payload['lti_cName'] = lti_params['custom_course_name']
             payload['lti_abbr'] = lti_params['context_label']
             payload['lti_cID'] = lti_params['custom_course_id']
+            payload['lti_course_start'] = lti_params['custom_course_start']
             payload['lti_aName'] = lti_params['custom_assignment_title']
             payload['lti_aID'] = lti_params['custom_assignment_id']
             payload['lti_aLock'] = lti_params['custom_assignment_lock']
