@@ -177,6 +177,7 @@ class JournalFormatSerializer(serializers.ModelSerializer):
             'total_points': utils.get_max_points(journal),
         }
 
+
 class EntrySerializer(serializers.ModelSerializer):
     template = serializers.SerializerMethodField()
     content = serializers.SerializerMethodField()

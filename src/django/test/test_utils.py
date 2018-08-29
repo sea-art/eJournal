@@ -187,6 +187,23 @@ def api_post_call(obj, url, params, login, status=200):
     return result
 
 
+def api_patch_call(obj, url, params, login, status=200):
+    """Send and get api call.
+
+    Arguments:
+    url -- url to send the call to
+    params -- extra parameters that the api needs
+    login -- credentials of the logged in user
+    status -- status it checks for after login (default 200)
+
+    returns the whatever the api call returns
+    """
+    result = obj.client.patch(url, json.dumps(params), content_type='application/json',
+                              HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access']))
+    obj.assertEquals(result.status_code, status)
+    return result
+
+
 def test_unauthorized_api_post_call(obj, url, params):
     """Test unauthorized api post calls.
 

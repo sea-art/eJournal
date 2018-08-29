@@ -93,7 +93,7 @@ def response(status, message, description=None, payload={}):
     description -- header description
     payload -- payload to deliver
     """
-    return Response({'result': message, 'description': description, **payload}, status=status)
+    return json_response({'result': message, 'description': description, **payload}, status=status)
 
 
 def http_response(content=b'', content_type=None, status=None, reason=None, charset=None):

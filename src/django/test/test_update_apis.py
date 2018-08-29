@@ -106,8 +106,8 @@ class UpdateApiTests(TestCase):
 
         test.api_post_call(
             self,
-            '/update_course_with_student/',
-            {'uID': student.pk, 'cID': course.pk},
+            '/participations/',
+            {'user_id': student.pk, 'cID': course.pk},
             login
         )
 
@@ -175,10 +175,10 @@ class UpdateApiTests(TestCase):
         user_role = Participation.objects.get(user=self.user_role, course=2).role.name
         self.assertEquals(user_role, 'TA')
 
-        test.api_post_call(
+        test.api_patch_call(
             self,
-            '/update_user_role_course/',
-            {'cID': course.pk, 'uID': self.user_role.pk, 'role': 'SD'},
+            '/participations/' + course.pk + '/',
+            {'user_id': self.user_role.pk, 'role': 'SD'},
             login
         )
         user_role = Participation.objects.get(user=self.user_role, course=course.pk).role.name
@@ -228,19 +228,19 @@ class UpdateApiTests(TestCase):
         """Test update assignment"""
         login = test.logging_in(self, self.username, self.password)
 
-        test.api_post_call(self,
-                           '/update_password/',
-                           {'new_password': 'Pass123!',
-                            'old_password': self.password},
-                           login)
+        test.api_patch_call(self,
+                            '/users/password/',
+                            {'new_password': 'Pass123!',
+                             'old_password': self.password},
+                            login)
 
         test.logging_in(self, self.username, 'Pass123!')
 
-        test.api_post_call(self,
-                           '/update_password/',
-                           {'new_password': 'Pass321!',
-                            'old_password': 'Pass123!'},
-                           login)
+        test.api_patch_call(self,
+                            '/users/password/',
+                            {'new_password': 'Pass321!',
+                             'old_password': 'Pass123!'},
+                            login)
 
     def test_get_entrycomments(self):
         """Test update entrycomment function."""
