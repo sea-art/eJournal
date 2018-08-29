@@ -99,10 +99,7 @@ def get_permissions(user, cID=-1):
         if not role:
             return {}
 
-        roleDict = model_to_dict(role)  # TODO This even adds keys such as 'id', 'name' and 'course', prob not wanted?
-        del roleDict['id']
-        del roleDict['name']
-        del roleDict['course']
+        roleDict = model_to_dict(role)
         roleDict['is_superuser'] = False
 
     return roleDict
