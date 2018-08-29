@@ -110,6 +110,8 @@ export default {
                         this.progressPoints(node)
                     }
                 }
+
+                this.selectFirstUngradedNode()
             })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
@@ -146,6 +148,20 @@ export default {
         }
     },
     methods: {
+        selectFirstUngradedNode () {
+            var min = this.nodes.length - 1
+
+            for (var i = 0; i < this.nodes.length; i++) {
+                if ('entry' in this.nodes[i]) {
+                    let entry = this.nodes[i].entry
+                    if (('grade' in entry && entry.grade === null) || ('published' in entry && !entry.published)) {
+                        if (i < min) { min = i }
+                    }
+                }
+            }
+
+            if (min < this.nodes.length - 1) { this.currentNode = min }
+        },
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData
         },
