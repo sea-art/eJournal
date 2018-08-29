@@ -23,7 +23,7 @@ export default {
     },
 
     download (id = 0, fileName) {
-        return auth.get('users/' + id + '/download', {file: fileName})
+        return auth.get('users/' + id + '/download', {file_name: fileName})
     },
 
     GDPR (id = 0) {

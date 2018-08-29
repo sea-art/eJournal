@@ -41,7 +41,7 @@
                     :deadline="d.deadline"
                     :name="d.name"
                     :abbr="d.course.abbreviation"
-                    :totalNeedsMarking="d.stats.needs_marking">
+                    :totalNeedsMarking="d.stats ? d.stats.needs_marking : 0">
                 </todo-card>
             </b-link>
         </div>

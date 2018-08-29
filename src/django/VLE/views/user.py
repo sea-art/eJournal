@@ -335,7 +335,7 @@ class UserView(viewsets.ViewSet):
             pk = request.user.id
 
         try:
-            file_name = utils.required_params(request.data, 'file_name')
+            file_name, = utils.required_params(request.query_params, 'file_name')
         except KeyError:
             return response.KeyError('file_name')
 
