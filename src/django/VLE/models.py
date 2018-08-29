@@ -515,13 +515,15 @@ class Field(models.Model):
     FILE = 'f'
     VIDEO = 'v'
     PDF = 'p'
+    URL = 'u'
     TYPES = (
         (TEXT, 'text'),
         (RICH_TEXT, 'rich text'),
         (IMG, 'img'),
         (PDF, 'pdf'),
         (FILE, 'file'),
-        (VIDEO, 'vid')
+        (VIDEO, 'vid'),
+        (URL, 'url')
     )
     type = models.TextField(
         max_length=4,

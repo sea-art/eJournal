@@ -756,6 +756,8 @@ def get_lti_params_from_jwt(request, jwt_params):
     except jwt.exceptions.ExpiredSignatureError:
         return responses.forbidden(
             description='The canvas link has expired, 15 minutes have passed. Please retry from canvas.')
+    except jwt.exceptions.InvalidSignatureError:
+        return responses.unauthorized(description='Invalid LTI parameters given. Please retry from canvas.')
 
     roles = json.load(open('config.json'))
     lti_roles = dict((roles[k], k) for k in roles)
@@ -814,7 +816,12 @@ def get_lti_params_from_jwt(request, jwt_params):
 def lti_launch(request):
     """Django view for the lti post request.
 
-    handles the users login or sned to a creation page.
+    Verifies the given LTI parameters based on our secret, if a user can be found based on the verified parameters
+    a redirection link is send with corresponding JW access and refresh token to allow for a user login. If no user
+    can be found on our end, but the LTI parameters were verified nonetheless, we are dealing with a new user and
+    redirect with additional parameters that will allow for the creation of a new user.
+
+    If the parameters are not validated a redirection is send with the parameter state set to BAD_AUTH.
     """
     secret = settings.LTI_SECRET
     key = settings.LTI_KEY
@@ -854,7 +861,6 @@ def lti_launch(request):
             return redirect(lti.create_lti_query_link(q_names, q_values))
 
         refresh = TokenObtainPairSerializer.get_token(user)
-        print(refresh)
         access = refresh.access_token
         return redirect(lti.create_lti_query_link(['lti_params', 'jwt_access', 'jwt_refresh', 'state'],
                                                   [lti_params, access, refresh, LOGGED_IN]))

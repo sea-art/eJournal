@@ -24,7 +24,7 @@
             </b-button>
         </b-card>
 
-        <div v-if="filteredJournals.length !== 0" v-for="journal in filteredJournals" :key="journal.student.uID" slot="main-content-column">
+        <div v-if="filteredJournals" v-for="journal in filteredJournals" :key="journal.student.uID" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {
                                               cID: cID,
@@ -42,7 +42,7 @@
         </div>
         <main-card v-else slot="main-content-column" class="no-hover" :line1="'No journals found'"/>
 
-        <div v-if="stats.length > 0" slot="right-content-column">
+        <div v-if="stats" slot="right-content-column">
             <h3>Insights</h3>
             <statistics-card :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>
             <statistics-card :subject="'Average points'" :num="stats.avgPoints"></statistics-card>

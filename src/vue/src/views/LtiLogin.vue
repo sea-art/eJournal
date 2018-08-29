@@ -63,16 +63,23 @@ export default {
         } else {
             this.lti.ltiJWT = this.$route.query.lti_params
 
+            /* The LTI parameters are verified in our backend, and the corresponding user is logged in. */
             if (this.$route.query.state === this.states.logged_in) {
-                if (this.$route.query.jwt_access !== undefined) {
-                    localStorage.setItem('jwt_access', this.$route.query.jwt_access)
-                }
+                this.$store.commit('user/SET_JWT', { access: this.$route.query.jwt_access, refresh: this.$route.query.jwt_refresh })
+                this.$store.dispatch('user/populateStore').then(_ => {
+                    this.userIntegrated()
+                }, error => {
+                    this.$router.push({
+                        name: 'ErrorPage',
+                        params: {
+                            code: error.response.status,
+                            reasonPhrase: error.response.statusText,
+                            description: 'Could not fetch all user data, please try again.'
+                        }
+                    })
+                })
 
-                if (this.$route.query.jwt_refresh !== undefined) {
-                    localStorage.setItem('jwt_refresh', this.$route.query.jwt_refresh)
-                }
-
-                this.userIntegrated()
+            /* The LTI parameters are verified in our backend, however there is no corresponding user yet. We must create/connect one. */
             } else if (this.$route.query.state === this.states.no_user) {
                 if (this.$route.query.firstname !== undefined) {
                     this.lti.firstname = this.$route.query.firstname

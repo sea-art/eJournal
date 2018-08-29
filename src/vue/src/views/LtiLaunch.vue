@@ -61,6 +61,7 @@ export default {
                 ltiCourseID: '',
                 ltiCourseName: '',
                 ltiCourseAbbr: '',
+                ltiCourseStart: '',
                 ltiAssignName: '',
                 ltiAssignID: '',
                 ltiPointsPossible: ''
@@ -82,6 +83,7 @@ export default {
                         this.lti.ltiCourseName = response.lti_cName
                         this.lti.ltiCourseAbbr = response.lti_abbr
                         this.lti.ltiCourseID = response.lti_cID
+                        this.lti.ltiCourseStart = response.lti_course_start
                         this.lti.ltiAssignName = response.lti_aName
                         this.lti.ltiAssignID = response.lti_aID
                         this.lti.ltiPointsPossible = response.lti_points_possible
@@ -110,6 +112,7 @@ export default {
                 break
             case 'assignmentIntegrated':
                 this.handleAssignmentChoice = false
+                this.page.aID = args[1]
                 this.$toasted.success('Assignment Integrated!')
                 this.states.state = this.states.finish_t
                 break
@@ -139,6 +142,7 @@ export default {
                 assignApi.get_assignment_by_lti_id(this.lti.ltiAssignID)
                     .then(response => {
                         if (response === undefined) {
+                            console.log('UNDEFINED RESPONSE JE MOEDER')
                             this.states.state = this.states.new_assign
                         } else {
                             this.page.aID = response.aID
@@ -164,22 +168,46 @@ export default {
                 })
                 break
             case this.states.finish_s:
-                this.$router.push({
-                    name: 'Journal',
-                    params: {
-                        cID: this.page.cID,
-                        aID: this.page.aID,
-                        jID: this.page.jID
-                    }
+                /* Student has created a journal for an existing assignment, we need to update the store. */
+                this.$store.dispatch('user/populateStore').then(_ => {
+                    this.$router.push({
+                        name: 'Journal',
+                        params: {
+                            cID: this.page.cID,
+                            aID: this.page.aID,
+                            jID: this.page.jID
+                        }
+                    })
+                }, error => {
+                    this.$router.push({
+                        name: 'ErrorPage',
+                        params: {
+                            code: error.response.status,
+                            reasonPhrase: error.response.statusText,
+                            description: `Unable to acquire the newly created journal data, please try again.`
+                        }
+                    })
                 })
                 break
             case this.states.finish_t:
-                this.$router.push({
-                    name: 'Assignment',
-                    params: {
-                        cID: this.page.cID,
-                        aID: this.page.aID
-                    }
+                /* Teacher has created or coupled a new course and or assignment, we need to update the store. */
+                this.$store.dispatch('user/populateStore').then(_ => {
+                    this.$router.push({
+                        name: 'Assignment',
+                        params: {
+                            cID: this.page.cID,
+                            aID: this.page.aID
+                        }
+                    })
+                }, error => {
+                    this.$router.push({
+                        name: 'ErrorPage',
+                        params: {
+                            code: error.response.status,
+                            reasonPhrase: error.response.statusText,
+                            description: `Unable to acquire the newly created assignment data, please try again.`
+                        }
+                    })
                 })
                 break
             }
