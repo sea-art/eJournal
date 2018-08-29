@@ -30,7 +30,7 @@ class GetApiTests(TestCase):
     def test_get_own_user_data(self):
         """Test the get own user data function."""
         login = test.logging_in(self, self.username, self.password)
-        response = test.api_get_call(self, '/get_own_user_data/', login)
+        response = test.api_get_call(self, '/users/GDPR/', login)
 
         self.assertEquals(response.json()['user']['username'], self.username)
 
@@ -90,19 +90,19 @@ class GetApiTests(TestCase):
 
         login = test.logging_in(self, teacher_user, teacher_pass)
 
-        response = test.api_get_call(self, '/get_unenrolled_users/' + str(self.course.pk) + '/', login)
+        response = test.api_get_call(self, '/participations/unenrolled/', login, params={'course_id': self.course.pk})
 
         self.assertEquals(len(response.json()['users']), 2)
         self.assertEquals(response.json()['users'][0]['username'], self.username)
 
         # permissions and authorization check for the api call.
         login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
-        test.api_get_call(self, '/get_unenrolled_users/' + str(self.course.pk) + '/', login, status=403)
-        test.api_get_call(self, '/get_unenrolled_users/' + str(self.not_found_pk) + '/', login, status=404)
-        test.test_unauthorized_api_get_call(self, '/get_unenrolled_users/' + str(self.course.pk) + '/')
+        test.api_get_call(self, '/participations/unenrolled/', login, status=403, params={'course_id': self.course.pk})
+        test.api_get_call(self, '/participations/unenrolled/', login, status=404, params={'course_id': self.course.pk})
+        test.test_unauthorized_api_get_call(self, '/participations/unenrolled/', params={'course_id': self.course.pk})
 
         test.set_up_participation(self.no_permission_user, self.course, 'Student')
-        test.api_get_call(self, '/get_unenrolled_users/' + str(self.course.pk) + '/', login, status=403)
+        test.api_get_call(self, '/participations/unenrolled/', login, status=403, params={'course_id': self.course.pk})
 
     def test_get_user_courses(self):
         """Test the get user courses function."""
@@ -112,11 +112,11 @@ class GetApiTests(TestCase):
 
         login = test.logging_in(self, self.username, self.password)
 
-        response = test.api_get_call(self, '/get_user_courses/', login)
+        response = test.api_get_call(self, '/courses/', login)
         self.assertEquals(len(response.json()['courses']), 4)
 
         # permissions and authorization check for the api call.
-        test.test_unauthorized_api_get_call(self, '/get_user_courses/')
+        test.test_unauthorized_api_get_call(self, '/courses/')
 
     def test_get_linkable_courses(self):
         """Test the get linkable courses function."""
@@ -128,13 +128,13 @@ class GetApiTests(TestCase):
 
         login = test.logging_in(self, self.username, self.password)
 
-        response = test.api_get_call(self, '/get_linkable_courses/', login)
+        response = test.api_get_call(self, '/courses/linkable/', login)
         self.assertEquals(len(response.json()['courses']), 3)
 
         # permissions and authorization check for the api call.
         login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
-        test.api_get_call(self, '/get_linkable_courses/', login, status=403)
-        test.test_unauthorized_api_get_call(self, '/get_linkable_courses/')
+        test.api_get_call(self, '/courses/linkable/', login, status=403)
+        test.test_unauthorized_api_get_call(self, '/courses/linkable/')
 
     def test_get_course_assignments(self):
         """Test the get course assignment function."""
@@ -145,18 +145,19 @@ class GetApiTests(TestCase):
         factory.make_journal(assigns[1], self.user)
 
         login_user = test.logging_in(self, self.username, self.password)
-        response = test.api_get_call(self, '/get_course_assignments/' + str(course.pk) + '/', login_user)
+        response = test.api_get_call(self, '/assignments/', login_user, param={'course_id': course.pk})
         self.assertEquals(len(response.json()['assignments']), 2)
         self.assertIn('journal', response.json()['assignments'][0])
 
         login_rein = test.logging_in(self, self.rein_user, self.rein_pass)
-        response = test.api_get_call(self, '/get_course_assignments/' + str(course.pk) + '/', login_rein)
+        response = test.api_get_call(self, '/assignments/', login_rein, param={'course_id': course.pk})
         self.assertEquals(len(response.json()['assignments']), 2)
 
         # permissions and authorization check for the api call.
         login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
-        test.api_get_call(self, '/get_course_assignments/' + str(course.pk) + '/', login, status=403)
-        test.api_get_call(self, '/get_course_assignments/' + str(self.not_found_pk) + '/', login_user, status=404)
+        response = test.api_get_call(self, '/assignments/', login, status=403, param={'course_id': course.pk})
+        response = test.api_get_call(self, '/assignments/', login_user,
+                                     status=404, param={'course_id': self.not_found_pk})
         test.test_unauthorized_api_get_call(self, '/get_course_assignments/' + str(course.pk) + '/')
 
     def test_get_assignment_data(self):
@@ -171,23 +172,20 @@ class GetApiTests(TestCase):
         test.set_up_participation(self.user, course, 'Student')
 
         login_user = test.logging_in(self, self.username, self.password)
-        resp = test.api_get_call(self, '/get_assignment_data/' + str(course.pk) + '/' + str(assignment1.pk) + '/',
-                                 login_user)
+        resp = test.api_get_call(self, '/assignments/' + str(assignment1.pk) + '/', login_user)
         self.assertEquals(resp.json()['assignment']['name'], 'Colloq')
         self.assertIn('journal', resp.json()['assignment'])
 
         login_rein = test.logging_in(self, self.rein_user, self.rein_pass)
-        resp = test.api_get_call(self, '/get_assignment_data/' + str(course.pk) + '/' + str(assignment2.pk) + '/',
+        resp = test.api_get_call(self, '/assignments/' + str(assignment2.pk) + '/',
                                  login_rein)
         self.assertEquals(resp.json()['assignment']['name'], 'Portfolio')
 
         # permissions and authorization check for the api call.
         login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
-        test.api_get_call(self, '/get_assignment_data/' + str(course.pk) + '/' + str(assignment1.pk) + '/',
-                          login, status=403)
-        test.api_get_call(self, '/get_assignment_data/' + str(self.not_found_pk) + '/' + str(assignment2.pk) + '/',
-                          login, status=404)
-        test.test_unauthorized_api_get_call(self, '/get_assignment_data/1/' + str(assignment1.pk) + '/')
+        test.api_get_call(self, '/assignments/' + str(assignment1.pk) + '/', login, status=403)
+        test.api_get_call(self, '/assignments/' + str(assignment2.pk) + '/', login, status=404)
+        test.test_unauthorized_api_get_call(self, '/assignments/' + str(assignment1.pk) + '/')
 
     def test_assignment_journals(self):
         """Test the get assignment journals function."""
@@ -287,11 +285,11 @@ class GetApiTests(TestCase):
         factory.make_course('Portfolio2018', 'PAV')
 
         login = test.logging_in(self, self.rein_user, self.rein_pass)
-        response = test.api_get_call(self, '/get_user_teacher_courses/', login)
+        response = test.api_get_call(self, '/courses/', login)
         self.assertEquals(len(response.json()['courses']), 2)
 
         # permissions and authorization check for the api call.
-        test.test_unauthorized_api_get_call(self, '/get_user_teacher_courses/')
+        test.test_unauthorized_api_get_call(self, '/courses/')
 
     def test_get_names(self):
         """Test get names function."""
@@ -308,7 +306,7 @@ class GetApiTests(TestCase):
 
         login = test.logging_in(self, student_user, student_pass)
 
-        result = test.api_post_call(self, '/get_names/', get_names_dict, login).json()
+        result = test.api_post_call(self, '/common/names', get_names_dict, login).json()
         self.assertEquals(result['course'], 'Portfolio')
         self.assertEquals(result['journal'], 'first last')
         self.assertEquals(result['assignment'], 'Colloq')
