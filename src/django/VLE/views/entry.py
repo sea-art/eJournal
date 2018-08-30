@@ -4,16 +4,18 @@ entry.py.
 In this file are all the entry api requests.
 """
 from rest_framework import viewsets
+from django.core.exceptions import ValidationError
+from django.utils.timezone import now
 
 from VLE.models import Journal, Node, Content, Field, Template, Entry
 import VLE.views.responses as response
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
-from django.utils.timezone import now
 import VLE.lti_grade_passback as lti_grade
 import VLE.edag as edag
 import VLE.permissions as permissions
 import VLE.serializers as serialize
+import VLE.validators as validators
 
 
 class EntryView(viewsets.ViewSet):
@@ -45,8 +47,12 @@ class EntryView(viewsets.ViewSet):
             return response.keyerror("journal_id", "template_id", "content")
 
         try:
-            journal = Journal.objects.get(pk=journal_id, user=request.user)
+            validators.validate_entry_content(content_list)
+        except ValidationError as e:
+            return response.bad_request(e.args[0])
 
+        try:
+            journal = Journal.objects.get(pk=journal_id, user=request.user)
             template = Template.objects.get(pk=template_id)
         except (Journal.DoesNotExist, Template.DoesNotExist):
             return response.not_found('Journal or Template does not exist.')

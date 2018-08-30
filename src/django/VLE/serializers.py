@@ -33,17 +33,23 @@ class UserSerializer(serializers.ModelSerializer):
         return permissions.get_role(user, self.context['course']).name
 
 
+# TODO: Merge userSerializer and OwnUserSerializer
 class OwnUserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
+    permissions = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'last_login', 'username', 'first_name', 'last_name', 'is_active', 'email', 'name',
-                  'lti_id', 'profile_picture', 'is_teacher', 'grade_notifications', 'comment_notifications')
+        fields = ('id', 'last_login', 'username', 'first_name', 'last_name', 'is_active', 'email', 'permissions',
+                  'name', 'lti_id', 'profile_picture', 'is_teacher', 'grade_notifications', 'comment_notifications')
         read_only_fields = ('id', )
 
     def get_name(self, user):
         return user.first_name + ' ' + user.last_name
+
+    def get_permissions(self, user):
+        # TODO: Use a serializer for this
+        return permissions.get_all_user_permissions(user)
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -83,6 +89,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
             except Journal.DoesNotExist:
                 return None
 
+            # TODO Incorporate assigment end date
             deadlines = journal.node_set.exclude(preset=None).values('preset__deadline').order_by('preset__deadline')
             if not deadlines:
                 return None
@@ -214,6 +221,7 @@ class EntrySerializer(serializers.ModelSerializer):
     content = serializers.SerializerMethodField()
     editable = serializers.SerializerMethodField()
     grade = serializers.SerializerMethodField()
+    comments = serializers.SerializerMethodField()
 
     class Meta:
         model = Entry
@@ -235,6 +243,11 @@ class EntrySerializer(serializers.ModelSerializer):
                 self.context['user'], entry.node.journal.assignment, 'can_grade_journal'):
             return entry.grade
         return None
+
+    def get_comments(self, entry):
+        if 'comments' not in self.context:
+            return None
+        return CommentSerializer(Comment.objects.filter(entry=entry), many=True).data
 
 
 class TemplateSerializer(serializers.ModelSerializer):

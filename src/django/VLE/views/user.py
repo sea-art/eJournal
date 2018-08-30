@@ -10,9 +10,8 @@ from django.core.exceptions import ValidationError
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from VLE.serializers import UserSerializer
-from VLE.serializers import OwnUserSerializer
-from VLE.models import User, Journal, UserFile, Assignment
+from VLE.serializers import UserSerializer, OwnUserSerializer, EntrySerializer
+from VLE.models import User, Journal, UserFile, Assignment, Node
 from VLE.views import responses as response
 import VLE.utils.generic_utils as utils
 import VLE.factory as factory
@@ -102,7 +101,13 @@ class UserView(viewsets.ViewSet):
             success -- with the newly created user data
         """
         if 'jwt_params' in request.data and request.data['jwt_params'] != '':
-            lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
+            try:
+                lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
+            except jwt.exceptions.ExpiredSignatureError:
+                return response.forbidden(
+                    description='The canvas link has expired, 15 minutes have passed. Please retry from canvas.')
+            except jwt.exceptions.InvalidSignatureError:
+                return response.unauthorized(description='Invalid LTI parameters given. Please retry from canvas.')
             lti_id, user_image = utils.optional_params(lti_params, 'user_id', 'user_image')
             is_teacher = json.load(open('config.json'))['Teacher'] in lti_params['roles']
         else:
@@ -134,7 +139,8 @@ class UserView(viewsets.ViewSet):
             return response.bad_request(e.args[0])
 
         user = factory.make_user(username, password, email=email, lti_id=lti_id, is_teacher=is_teacher,
-                                 first_name=first_name, last_name=last_name, profile_picture=user_image)
+                                 first_name=first_name, last_name=last_name, profile_picture=user_image,
+                                 verified_email=True if lti_id else False)
 
         if lti_id is None:
             email_handling.send_email_verification_link(user)
@@ -175,7 +181,13 @@ class UserView(viewsets.ViewSet):
             return request.not_found('user')
 
         if 'jwt_params' in request.data and request.data['jwt_params'] != '':
-            lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
+            try:
+                lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
+            except jwt.exceptions.ExpiredSignatureError:
+                return response.forbidden(
+                    description='The canvas link has expired, 15 minutes have passed. Please retry from canvas.')
+            except jwt.exceptions.InvalidSignatureError:
+                return response.unauthorized(description='Invalid LTI parameters given. Please retry from canvas.')
             lti_id, user_image = utils.optional_params(lti_params, 'user_id', 'custom_user_image')
             is_teacher = json.load(open('config.json'))['Teacher'] in lti_params['roles']
         else:
@@ -296,19 +308,15 @@ class UserView(viewsets.ViewSet):
         journal_dict = {}
         # TODO: Add entry serializer
         for journal in journals:
-            pass
             # Select the nodes of this journal but only the ones with entries.
-            # nodes_of_journal_with_entries = Node.objects.filter(journal=journal).exclude(entry__isnull=True)
+            entries = Node.objects.filter(journal=journal).exclude(entry__isnull=True).values_list('entry', flat=True)
+            print(entries)
             # Serialize all entries and put them into the entries dictionary with the assignment name key.
-            # entries_of_journal =[serialize.export_entry_to_dict(node.entry) for node in nodes_of_journal_with_entries]
-            # journal_dict.update({journal.assignment.name: entries_of_journal})
+            journal_dict.update({journal.assignment.name: EntrySerializer(entries, many=True).data})
 
-        archive_path, content_type = file_handling.compress_all_user_data(
-            user,
-            {'profile': profile, 'journals': journal_dict}
-        )
+        archive_path = file_handling.compress_all_user_data(user, {'profile': profile, 'journals': journal_dict})
 
-        return response.file_b64(archive_path, content_type)
+        return response.file(archive_path)
 
     # TODO: check if it works
     @action(methods=['get'], detail=True)

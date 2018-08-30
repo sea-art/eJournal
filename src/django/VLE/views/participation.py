@@ -43,8 +43,8 @@ class ParticipationView(viewsets.ViewSet):
         role = permissions.get_role(request.user, course)
         if role is None:
             return response.forbidden('You are not in this course.')
-        elif not role.can_view_course_participants:
-            return response.forbidden('You cannot view participants in this course.')
+        elif not role.can_add_course_participants:
+            return response.forbidden('You cannot add participants to this course.')
 
         users = UserSerializer(course.users, context={'course': course}, many=True).data
 
