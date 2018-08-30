@@ -3,7 +3,7 @@ from django.shortcuts import redirect
 from rest_framework.decorators import api_view
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-import VLE.views.response as response
+import VLE.views.responses as response
 import VLE.lti_launch as lti
 
 import datetime
