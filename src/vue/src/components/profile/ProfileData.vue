@@ -40,7 +40,6 @@
 import email from '@/components/profile/Email.vue'
 
 import userAPI from '@/api/user'
-import dataHandling from '@/utils/data_handling.js'
 import icon from 'vue-awesome/components/Icon'
 
 export default {

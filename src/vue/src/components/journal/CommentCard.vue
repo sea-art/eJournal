@@ -50,9 +50,7 @@
 import icon from 'vue-awesome/components/Icon'
 import textEditor from '@/components/assets/TextEditor.vue'
 
-import userAPI from '@/api/user'
 import commentAPI from '@/api/comment'
-import icon from 'vue-awesome/components/Icon'
 
 export default {
     props: {

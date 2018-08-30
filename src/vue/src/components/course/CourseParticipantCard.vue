@@ -36,7 +36,6 @@
 import icon from 'vue-awesome/components/Icon'
 
 import participationAPI from '@/api/participation'
-import commonAPI from '@/api/common'
 
 export default {
     props: {

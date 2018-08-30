@@ -216,7 +216,6 @@ class PresetNodeSerializer(serializers.ModelSerializer):
         return None
 
 
-
 class EntrySerializer(serializers.ModelSerializer):
     template = serializers.SerializerMethodField()
     content = serializers.SerializerMethodField()
@@ -226,7 +225,7 @@ class EntrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Entry
-        fields = ('id', 'createdate', 'published', 'template', 'content', 'editable', 'grade')
+        fields = ('id', 'createdate', 'published', 'template', 'content', 'editable', 'grade', 'comments')
         read_only_fields = ('id', )
 
     def get_template(self, entry):

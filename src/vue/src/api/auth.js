@@ -71,18 +71,6 @@ export default {
         return connection.conn.post('/recover_password/', {username: username, recovery_token: recoveryToken, new_password: newPassword})
     },
 
-    /* Check if the stored token is valid. */
-    testValidToken () {
-        if (localStorage.getItem('jwt_access') == null && localStorage.getItem('jwt_refresh') == null) {
-            router.app.validToken = false
-            return Promise.reject(new Error('Token undefined'))
-        }
-
-        return connection.conn.post('/token/verify/', {token: localStorage.getItem('jwt_access')})
-            .then(_ => { router.app.validToken = true })
-            .catch(error => refresh(error))
-    },
-
     get (url, data = null, noRedirect = false) {
         if (url[0] !== '/') url = '/' + url
         if (url.slice(-1) !== '/') url += '/'

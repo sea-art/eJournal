@@ -22,9 +22,6 @@ import LtiLogin from '@/views/LtiLogin'
 import Logout from '@/views/Logout'
 import EmailVerification from '@/views/EmailVerification'
 
-import auth from '@/api/auth'
-import common from '@/api/common'
-
 Vue.use(Router)
 
 var router = new Router({

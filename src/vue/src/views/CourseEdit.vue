@@ -121,7 +121,6 @@ import courseParticipantCard from '@/components/course/CourseParticipantCard.vue
 import store from '@/Store'
 import icon from 'vue-awesome/components/Icon'
 import courseAPI from '@/api/course'
-import roleAPI from '@/api/role'
 import participationAPI from '@/api/participation'
 
 export default {

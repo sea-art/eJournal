@@ -1,7 +1,7 @@
 <template>
     <b-card class="blue-border no-hover card-last-elem-button">
         <b-form @submit.prevent="handleLogin()">
-            <b-input class="multi-form theme-input" v-model="username" required placeholder="Username"/>
+            <b-input class="multi-form theme-input" v-model="username" autofocus required placeholder="Username"/>
             <b-input class="multi-form theme-input" type="password" @keyup.enter="handleLogin()" v-model="password" required placeholder="Password"/>
             <b-button class="multi-form change-button" v-b-modal.forgotPasswordModal>
                 Forgot password
