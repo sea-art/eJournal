@@ -1,6 +1,6 @@
 <template>
     <!-- Section visible if user logged in -->
-    <b-navbar v-if="$root.validToken" id="header" toggleable="md" type="dark" fixed=top>
+    <b-navbar v-if="loggedIn" id="header" toggleable="md" type="dark" fixed=top>
         <b-navbar-brand :to="{ name: 'Home' }" class="brand-name"><span>e</span>Journal</b-navbar-brand>
 
         <b-navbar-toggle class="ml-auto mr-auto" target="nav-collapse" aria-expanded="false" aria-controls="nav-collapse">
@@ -60,7 +60,7 @@
 
 <script>
 import icon from 'vue-awesome/components/Icon'
-import userAPI from '@/api/user'
+import { mapGetters } from 'vuex'
 
 export default {
     components: {
@@ -68,53 +68,14 @@ export default {
     },
     data () {
         return {
-            defaultProfileImg: '/static/unknown-profile.png',
-            profileImg: '',
-            username: '',
-            profile: '',
-            profileFetchAttempts: 0
+            defaultProfileImg: '/static/unknown-profile.png'
         }
     },
-    watch: {
-        '$root.validToken': function (validToken) {
-            this.setProfileImg()
-            if (!validToken) {
-                this.profileImg = this.defaultProfileImg
-            } else {
-                this.setUserProfile()
-            }
-        }
-    },
-    methods: {
-        setUserProfile () {
-            userAPI.get()
-                .then(user => {
-                    this.profile = user
-                    this.setProfileImg()
-                })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
-        },
-        setProfileImg () {
-            /* Sets the profile img if found, else a default is set.
-             * If a valid token is registered but no profile image is found,
-             * one more call is made to retrieve the profile image. */
-            if (this.$root.validToken) {
-                if (this.profile.profile_picture) {
-                    this.profileImg = this.profile.profile_picture
-                } else if (this.profileFetchAttempts === 0) {
-                    this.setUserProfile()
-                    this.profileFetchAttempts = this.profileFetchAttempts + 1
-                } else {
-                    this.profileImg = this.defaultProfileImg
-                    this.profileFetchAttempts = 0
-                }
-            } else {
-                this.profileImg = this.defaultProfileImg
-            }
-        }
-    },
-    created () {
-        this.setProfileImg()
+    computed: {
+        ...mapGetters({
+            loggedIn: 'user/loggedIn',
+            profileImg: 'user/profilePicture'
+        })
     }
 }
 </script>

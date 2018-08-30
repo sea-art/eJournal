@@ -14,12 +14,12 @@
                     :footer="false"
                     class="multi-form"
                  />
-                <b-button v-if="$root.canDeleteAssignment()" @click.prevent.stop="deleteAssignment()" class="delete-button multi-form float-left">
+                <b-button v-if="$hasPermission('can_delete_assignment')" @click.prevent.stop="deleteAssignment()" class="delete-button multi-form float-left">
                     <icon name="trash"/>
                     Delete Assignment
                 </b-button>
                 <b-button
-                    v-if="$root.canEditAssignment()"
+                    v-if="$hasPermission('can_edit_assignment')"
                     class="change-button multi-form float-left"
                     :to="{ name: 'FormatEdit', params: { cID: cID, aID: aID } }">
                     <icon name="edit"/>

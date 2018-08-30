@@ -517,13 +517,15 @@ class Field(models.Model):
     FILE = 'f'
     VIDEO = 'v'
     PDF = 'p'
+    URL = 'u'
     TYPES = (
         (TEXT, 'text'),
         (RICH_TEXT, 'rich text'),
         (IMG, 'img'),
         (PDF, 'pdf'),
         (FILE, 'file'),
-        (VIDEO, 'vid')
+        (VIDEO, 'vid'),
+        (URL, 'url')
     )
     type = models.TextField(
         max_length=4,
@@ -539,7 +541,7 @@ class Field(models.Model):
 
     def __str__(self):
         """toString."""
-        return self.template.name + " field: " + str(self.location)
+        return self.template.name + " type: " + str(self.type) + ", location: " + str(self.location)
 
 
 class Content(models.Model):

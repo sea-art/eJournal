@@ -50,6 +50,9 @@
                         @content-update="completeContent[i].data = $event"
                     />
                 </div>
+                <div v-else-if="field.type == 'u'">
+                    <url-input @correctUrlInput="completeContent[i].data = $event"></url-input>
+                </div>
             </div>
 
             <b-alert :show="dismissCountDown" dismissible variant="secondary"
@@ -68,6 +71,7 @@
 import icon from 'vue-awesome/components/Icon'
 import fileUploadInput from '@/components/assets/file_handling/FileUploadInput.vue'
 import textEditor from '@/components/assets/TextEditor.vue'
+import urlInput from '@/components/assets/UrlInput.vue'
 
 export default {
     props: ['template', 'cID'],
@@ -127,7 +131,8 @@ export default {
     components: {
         icon,
         'file-upload-input': fileUploadInput,
-        'text-editor': textEditor
+        'text-editor': textEditor,
+        'url-input': urlInput
     }
 }
 </script>

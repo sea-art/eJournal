@@ -27,12 +27,17 @@ export default {
     },
 
     GDPR (id = 0) {
-        return auth.get('users/' + id + '/GDPR')
+        return auth.downloadFile('users/' + id + '/GDPR')
     },
 
     /* Update user file. */
     updateUserFile (formData) {
-        return auth.postFile('/upload/', formData)
+        return auth.uploadFile('/upload/', formData)
+    },
+
+    /* Get user file. */
+    getUserFile (fileName, authorUID) {
+        return auth.downloadFile('/get_user_file/' + fileName + '/' + authorUID + '/')
     },
 
     /* Upload an image that is base64 encoded. */
@@ -42,9 +47,7 @@ export default {
 
     /* Verify email adress using a given token. */
     verifyEmail (token) {
-        return auth.post('/verify_email/', {
-            token: token
-        })
+        return auth.post('/verify_email/', { token: token })
     },
 
     /* Request an email verification token for the given users email adress. */

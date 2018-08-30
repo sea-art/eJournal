@@ -8,7 +8,7 @@
             <div v-for="(comment, index) in commentObject" class="comment-section" :key="index">
                 <img class="profile-picture no-hover" :src="comment.author.profile_picture">
                 <b-card class="no-hover comment-card" :class="$root.getBorderClass($route.params.cID)">
-                    <b-button v-if="authorData && authorData.uID == comment.author.id" class="ml-2 delete-button float-right" @click="deleteComment(comment.id)">
+                    <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="ml-2 delete-button float-right" @click="deleteComment(comment.id)">
                         <icon name="trash"/>
                         Delete
                     </b-button>
@@ -25,8 +25,8 @@
                 </b-card>
             </div>
         </div>
-        <div v-if="$root.canCommentJournal()" class="comment-section">
-            <img class="profile-picture no-hover" :src="authorData.profile_picture">
+        <div v-if="$hasPermission('can_comment_journal')" class="comment-section">
+            <img class="profile-picture no-hover" :src="$store.getters['user/profilePicture']">
             <b-card class="no-hover new-comment">
                 <text-editor
                     :id="'comment-text-editor'"
@@ -34,7 +34,7 @@
                 />
                 <!-- <b-textarea class="theme-input multi-form full-width" v-model="tempComment" placeholder="Write a comment" :class="$root.getBorderClass($route.params.cID)"/> -->
                 <div class="d-flex full-width justify-content-end align-items-center">
-                    <b-form-checkbox v-if="$root.canGradeJournal() && !entryGradePublished" v-model="publishAfterGrade">
+                    <b-form-checkbox v-if="$hasPermission('can_grade_journal') && !entryGradePublished" v-model="publishAfterGrade">
                         Publish after grade
                     </b-form-checkbox>
                     <b-button class="send-button mt-2" @click="addComment">
@@ -47,6 +47,7 @@
 </template>
 
 <script>
+import icon from 'vue-awesome/components/Icon'
 import textEditor from '@/components/assets/TextEditor.vue'
 
 import userAPI from '@/api/user'
@@ -70,7 +71,6 @@ export default {
     data () {
         return {
             tempComment: '',
-            authorData: '',
             commentObject: null,
             publishAfterGrade: true
         }
@@ -89,10 +89,6 @@ export default {
         this.getComments()
     },
     methods: {
-        getAuthorData () {
-            userAPI.get()
-                .then(author => { this.authorData = author })
-        },
         getComments () {
             commentAPI.getFromEntry(this.eID)
                 .then(comments => { this.commentObject = comments })

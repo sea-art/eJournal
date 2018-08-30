@@ -72,9 +72,13 @@ export default {
                 })
         },
         handleLogin () {
-            authAPI.login(this.username, this.password)
-                .then(_ => { this.$emit('handleAction') })
-                .catch(_ => { this.$toasted.error('Wrong username or password.') })
+            this.$store.dispatch('user/login', { username: this.username, password: this.password })
+                .then(_ => {
+                    this.$emit('handleAction')
+                })
+                .catch(_ => {
+                    this.$toasted.error('Could not login')
+                })
         }
     },
     mounted () {

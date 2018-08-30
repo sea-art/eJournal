@@ -58,7 +58,7 @@
                                 <icon name="arrow-right"/>
                             </b-button>
                         </div>
-                        <b-button v-if="this.$root.canPublishAssignmentGrades()" class="add-button flex-grow-1 full-width" @click="publishGradesJournal">
+                        <b-button v-if="$hasPermission('can_publish_assignment_grades')" class="add-button flex-grow-1 full-width" @click="publishGradesJournal">
                             <icon name="upload"/>
                             Publish All Grades
                         </b-button>
@@ -111,6 +111,8 @@ export default {
                         this.progressPoints(node)
                     }
                 }
+
+                this.selectFirstUngradedNode()
             })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
@@ -119,7 +121,7 @@ export default {
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
         if (store.state.filteredJournals.length === 0) {
-            if (this.$router.app.canViewAssignmentParticipants()) {
+            if (this.$hasPermission('can_view_assignment_participants')) {
                 journalAPI.getFromAssignment(this.aID)
                     .then(journals => { this.assignmentJournals = journals })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
@@ -147,6 +149,20 @@ export default {
         }
     },
     methods: {
+        selectFirstUngradedNode () {
+            var min = this.nodes.length - 1
+
+            for (var i = 0; i < this.nodes.length; i++) {
+                if ('entry' in this.nodes[i]) {
+                    let entry = this.nodes[i].entry
+                    if (('grade' in entry && entry.grade === null) || ('published' in entry && !entry.published)) {
+                        if (i < min) { min = i }
+                    }
+                }
+            }
+
+            if (min < this.nodes.length - 1) { this.currentNode = min }
+        },
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData
         },

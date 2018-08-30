@@ -1,6 +1,17 @@
 from django.core.exceptions import ValidationError
 from django.conf import settings
+from django.core.validators import URLValidator
+from VLE.models import Field
 import re
+
+
+TEXT = 't'
+RICH_TEXT = 'rt'
+IMG = 'i'
+FILE = 'f'
+VIDEO = 'v'
+PDF = 'p'
+URL = 'u'
 
 
 # Base 64 image is roughly 37% larger than a plain image
@@ -24,3 +35,18 @@ def validate_password(password):
         raise ValidationError("Password needs to contain at least 1 capital letter.")
     if re.match(r'^\w+$', password):
         raise ValidationError("Password needs to contain a special character.")
+
+
+def validate_entry_content(content_list):
+    """Validates the given data based on its field type, any validation error will be raised."""
+    for content in content_list:
+        data = content['data']
+        tag = content['tag']
+        field = Field.objects.get(pk=tag)
+
+        if field.type is URL:
+            try:
+                url_validate = URLValidator(schemes=('http', 'https', 'ftp', 'ftps'))
+                url_validate(data)
+            except ValidationError as e:
+                raise e

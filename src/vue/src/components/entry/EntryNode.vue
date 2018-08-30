@@ -75,6 +75,9 @@
                         @content-update="completeContent[i].data = $event"
                     />
                 </div>
+                <div v-else-if="field.type == 'u'">
+                    <url-input :placeholder="completeContent[i].data" @correctUrlInput="completeContent[i].data = $event"></url-input>
+                </div>
 
             </div>
             <b-alert :show="dismissCountDown" dismissible variant="secondary"
@@ -138,6 +141,9 @@
                     />
                 </div>
                 <div v-else-if="field.type == 'rt'" v-html="completeContent[i].data"/>
+                <div v-if="field.type == 'u'">
+                    <a :href="completeContent[i].data">{{ completeContent[i].data }}</a>
+                </div>
             </div>
             <b-button v-if="entryNode.entry.editable" class="change-button float-right mt-2" @click="saveEdit">
                 <icon name="edit"/>
@@ -157,6 +163,7 @@ import imageFileDisplay from '@/components/assets/file_handling/ImageFileDisplay
 import pdfDisplay from '@/components/assets/PdfDisplay.vue'
 import textEditor from '@/components/assets/TextEditor.vue'
 import icon from 'vue-awesome/components/Icon'
+import urlInput from '@/components/assets/UrlInput.vue'
 
 export default {
     props: ['entryNode', 'cID'],
@@ -257,6 +264,7 @@ export default {
         'file-download-button': fileDownloadButton,
         'image-file-display': imageFileDisplay,
         'text-editor': textEditor,
+        'url-input': urlInput,
         icon
     }
 }

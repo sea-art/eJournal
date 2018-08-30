@@ -111,7 +111,9 @@ export default {
                             this.cachedMap[crumb.route] = crumb.displayName
                         }
                     })
-                    .catch(error => { this.$toasted.error(error.response.data.description) })
+                    .catch(error => {
+                        this.$toasted.error(error.response.data.description)
+                    })
                     .then(_ => { store.setCachedMap(this.cachedMap) })
             }
         },
@@ -124,9 +126,9 @@ export default {
         canEdit () {
             var pageName = this.$route.name
 
-            if ((pageName === 'Home' && this.$root.isAdmin()) ||
-               (pageName === 'Course' && this.$root.canEditCourse()) ||
-               (pageName === 'Assignment' && this.$root.canEditAssignment())) {
+            if ((pageName === 'Home' && this.$hasPermission('is_superuser')) ||
+               (pageName === 'Course' && this.$hasPermission('can_edit_course')) ||
+               (pageName === 'Assignment' && this.$hasPermission('can_edit_assignment'))) {
                 return true
             }
         }

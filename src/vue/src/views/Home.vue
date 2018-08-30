@@ -15,7 +15,7 @@
                     :color="$root.getBorderClass(c.id)" />
             </b-link>
         </div>
-        <b-button v-if="$root.canAddCourse()"
+        <b-button v-if="$hasPermission('can_add_course')"
             slot="main-content-column"
             class="add-button grey-background full-width"
             @click="showModal('createCourseRef')">
@@ -25,7 +25,7 @@
 
         <h3 slot="right-content-column">Upcoming</h3>
         <!-- TODO: This seems like an inappropriate permission check. Will have to be reconsidered in the rework. -->
-        <b-card v-if="this.$root.canAddCourse()"
+        <b-card v-if="$hasPermission('can_add_course')"
                 class="no-hover"
                 slot="right-content-column">
             <b-form-select v-model="selectedSortOption" :select-size="1">
@@ -35,14 +35,8 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="assignmentRoute(d.courses[0], d.id, d.journal)">
-                <todo-card
-                    :deadline="d.deadline"
-                    :name="d.name"
-                    :abbr="d.course.abbreviation"
-                    :totalNeedsMarking="d.stats ? d.stats.needs_marking : 0"
-                    :class="$root.getBorderClass(d.courses[0])">
-                </todo-card>
+            <b-link tag="b-button" :to="assignmentRoute(d.courses[0], d.id, d.journal.id)">
+                <todo-card :deadline="d"/>
             </b-link>
         </div>
 

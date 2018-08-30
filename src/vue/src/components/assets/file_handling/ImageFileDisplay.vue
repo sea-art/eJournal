@@ -13,7 +13,6 @@
 <script>
 import userAPI from '@/api/user.js'
 import icon from 'vue-awesome/components/Icon'
-import dataHandling from '@/utils/data_handling.js'
 
 export default {
     props: {
@@ -50,12 +49,13 @@ export default {
         fileDownload () {
             userAPI.download(this.authorUID, this.fileName)
                 .then(response => {
-                    let blob = new Blob([dataHandling.base64ToArrayBuffer(response.data)], { type: response.headers['content-type'] })
+                    let blob = new Blob([response.data], { type: response.headers['content-type'] })
                     this.fileURL = window.URL.createObjectURL(blob)
 
                     this.downloadLink = document.createElement('a')
                     this.downloadLink.href = this.fileURL
-                    this.downloadLink.download = /filename=(.*)/.exec(response.headers['content-disposition'])[1]
+                    this.downloadLink.download = this.fileName
+                    document.body.appendChild(this.downloadLink)
                 }, error => {
                     this.$toasted.error(error.response.data.description)
                 })
@@ -68,6 +68,7 @@ export default {
         this.show = this.display
 
         if (this.show) { this.fileDownload() }
-    }
+    },
+    destroy () { this.downloadLink.remove() }
 }
 </script>

@@ -1,9 +1,9 @@
 <template>
     <content-single-column>
         <bread-crumb>&nbsp;</bread-crumb>
-        <b-card v-if="userData" class="no-hover blue-border">
-            <profile-data :userData="userData"/>
-            <notification-card :userData="userData"/>
+        <b-card class="no-hover blue-border">
+            <profile-data/>
+            <notification-card/>
             <password-card/>
         </b-card>
     </content-single-column>
@@ -16,26 +16,14 @@ import notificationCard from '@/components/profile/NotificationCard.vue'
 import passwordCard from '@/components/profile/PasswordCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 
-import userAPI from '@/api/user'
-
 export default {
     name: 'Profile',
-    data () {
-        return {
-            userData: null
-        }
-    },
     components: {
         'content-single-column': contentSingleColumn,
         'bread-crumb': breadCrumb,
         'profile-data': profileData,
         'notification-card': notificationCard,
         'password-card': passwordCard
-    },
-    created () {
-        userAPI.get()
-            .then(userData => { this.userData = userData })
-            .catch(error => { this.$toasted.error(error.response.data.description) })
     }
 }
 </script>

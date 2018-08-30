@@ -48,7 +48,8 @@ export default {
                 'i': 'Image',
                 'p': 'PDF',
                 'f': 'File',
-                'v': 'YouTube Video'
+                'v': 'YouTube Video',
+                'u': 'URL'
             }
         }
     },

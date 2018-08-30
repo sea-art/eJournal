@@ -7,32 +7,36 @@
             <h2 class="mb-2">Manage course data</h2>
             <b-form @submit.prevent="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                    :readonly="!$hasPermission('can_edit_course')"
                     v-model="course.name"
                     placeholder="Course name"
                     required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                    :readonly="!$hasPermission('can_edit_course')"
                     v-model="course.abbreviation"
                     maxlength="10"
                     placeholder="Course Abbreviation (Max 10 letters)"
                     required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                    :readonly="!$hasPermission('can_edit_course')"
                     v-model="course.startdate"
                     type="date"
                     required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                    :readonly="!$hasPermission('can_edit_course')"
                     v-model="course.enddate"
                     type="date"
                     required/>
 
                 <b-row>
                     <b-col class="d-flex flex-wrap">
-                        <b-button v-if="this.$root.canDeleteCourse()"
+                        <b-button v-if="$hasPermission('can_delete_course')"
                             @click.prevent.stop="deleteCourse()"
                             class="delete-button flex-grow-1 multi-form">
                             <icon name="trash"/>
                             Delete Course
                         </b-button>
-                        <b-button v-if="this.$root.canEditCourseRoles()"
+                        <b-button v-if="$hasPermission('can_edit_course_roles')"
                             @click.prevent.stop="routeToEditCourseRoles"
                             class="change-button flex-grow-1 multi-form">
                             <icon name="users"/>
@@ -40,7 +44,7 @@
                         </b-button>
                         <b-button class="add-button flex-grow-1 multi-form"
                             type="submit"
-                            v-if="this.$root.canEditCourse()">
+                            v-if="$hasPermission('can_edit_course')">
                             <icon name="save"/>
                             Save
                         </b-button>
@@ -61,13 +65,23 @@
                         </b-form-select>
                     </b-col>
                     <b-col sm="6" class="d-flex flex-wrap">
-                        <b-form-select class="flex-grow-1 multi-form" v-model="selectedView" :select-size="1">
+                        <b-form-select
+                            v-if="$hasPermission('can_add_course_participants')"
+                            class="flex-grow-1 multi-form"
+                            v-model="selectedView"
+                            :select-size="1">
                             <option value="enrolled">Enrolled</option>
                             <option value="unenrolled">Unenrolled</option>
                         </b-form-select>
+                        <input v-else class="multi-form theme-input full-width" type="text" v-model="searchVariable" placeholder="Search..."/>
                     </b-col>
                 </b-row>
-                <input class="multi-form theme-input full-width" type="text" v-model="searchVariable" placeholder="Search..."/>
+                <input
+                    v-if="!$hasPermission('can_add_course_participants')"
+                    class="multi-form theme-input full-width"
+                    type="text"
+                    v-model="searchVariable"
+                    placeholder="Search..."/>
             </b-card>
 
             <course-participant-card v-if="selectedView === 'enrolled'"
@@ -143,12 +157,12 @@ export default {
         courseAPI.get(this.cID)
             .then(course => { this.course = course })
             .catch(error => { this.$toasted.error(error.response.data.description) })
-        participationAPI.getEnrolled(this.cID)
-            .then(users => { this.participants = users })
-            .catch(error => { this.$toasted.error(error.response.data.description) })
-        roleAPI.getFromCourse(this.cID)
-            .then(roles => { this.roles = roles })
-            .catch(error => { this.$toasted.error(error.response.data.description) })
+
+        if (this.$hasPermission('can_view_course_participants')) {
+            participationAPI.getEnrolled(this.cID)
+                .then(users => { this.participants = users })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
+        }
     },
     methods: {
         onSubmit () {

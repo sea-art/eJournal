@@ -5,8 +5,8 @@
             @eye-click="customisePage"
             @edit-click="handleEdit()"/>
 
-        <div slot="main-content-column" v-for="a in assignments" :key="a.id">
-            <b-link tag="b-button" :to="assignmentRoute(cID, a.id, a.journal)">
+        <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
+            <b-link tag="b-button" :to="$hasPermission('can_view_assignment_participants', 'assignment', String(a.id)) ? assignmentRoute(cID, a.id) : assignmentRoute(cID, a.id, a.journal.id)">
                 <assignment-card :line1="a.name">
                     <progress-bar
                         v-if="a.journal && a.journal.stats"
@@ -16,7 +16,7 @@
             </b-link>
         </div>
 
-        <b-button v-if="$root.canAddAssignment()"
+        <b-button v-if="$hasPermission('can_add_assignment')"
             slot="main-content-column"
             class="add-button grey-background full-width"
             @click="showModal('createAssignmentRef')">
@@ -26,7 +26,8 @@
 
         <h3 slot="right-content-column">Upcoming</h3>
 
-        <b-card v-if="this.$root.canViewAssignmentParticipants()"
+        <!-- TODO Permission revision should be can_grade -->
+        <b-card v-if="$hasPermission('can_view_assignment_participants')"
                 class="no-hover"
                 slot="right-content-column">
             <b-form-select v-model="selectedSortOption" :select-size="1">
@@ -36,13 +37,8 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="assignmentRoute(cID, d.id, d.journal)">
-                <todo-card
-                    :deadline="d.deadline"
-                    :name="d.name"
-                    :abbr="d.course.abbreviation"
-                    :totalNeedsMarking="d.stats ? d.stats.needs_marking : 0">
-                </todo-card>
+            <b-link tag="b-button" :to="$hasPermission('can_view_assignment_participants', 'assignment', String(d.id)) ? assignmentRoute(d.course.id, d.id) : assignmentRoute(d.course.id, d.id, d.journal.id)">
+                <todo-card :deadline="d"/>
             </b-link>
         </div>
         <b-modal
@@ -138,14 +134,23 @@ export default {
             })
         },
         assignmentRoute (cID, aID, jID = 0) {
-            return {
-                name: 'Assignment',
+            var route = {
                 params: {
                     cID: cID,
                     aID: aID,
                     jID: jID
                 }
             }
+
+            // TODO Permission revision can_grade
+            if (this.$hasPermission('can_view_assignment_participants', 'assignment', String(aID))) {
+                route.name = 'Assignment'
+            } else {
+                route.name = 'Journal'
+                route.params.jID = jID
+            }
+
+            return route
         }
     },
     computed: {

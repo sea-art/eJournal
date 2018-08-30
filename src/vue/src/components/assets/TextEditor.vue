@@ -5,7 +5,7 @@
 <!-- TODO displayInline functionality not compatible with launching the editor from a modal -->
 
 <template>
-    <div class="editor-container">
+    <div class="editor-container" >
         <textarea :id="id"/>
     </div>
 </template>
@@ -23,9 +23,6 @@ import 'tinymce/plugins/autoresize'
 import 'tinymce/plugins/autosave'
 /* Allows direct manipulation of the html aswell as easy export. */
 import 'tinymce/plugins/code'
-// TODO Make code sample work!
-/* Allows for code block display, uses external prism for css and js. */
-// import 'tinymce/plugins/codesample'
 import 'tinymce/plugins/colorpicker'
 import 'tinymce/plugins/fullscreen'
 import 'tinymce/plugins/image'
@@ -46,9 +43,6 @@ import 'tinymce/plugins/textpattern'
 /* Table of contents. */
 import 'tinymce/plugins/toc'
 import 'tinymce/plugins/wordcount'
-// TODO implement
-// https://moonwave99.github.io/TinyMCELatexPlugin/
-// import 'tinymce/plugins/latex'
 
 export default {
     name: 'TextEditor',
@@ -84,7 +78,6 @@ export default {
             config: {
                 selector: '#' + this.id,
                 init_instance_callback: this.editorInit,
-                setup: this.editorSetup,
 
                 paste_data_images: true,
                 /* https://www.tiny.cloud/docs/configure/file-image-upload/#images_dataimg_filter
@@ -104,7 +97,6 @@ export default {
                 autosave_restore_when_empty: true,
 
                 /* Custom styling applied to the editor */
-                content_css: ['//fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700'],
                 content_style: `
                     @import url('https://fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700');
                     body {
@@ -115,14 +107,14 @@ export default {
                 file_picker_callback: this.insertDataURL
             },
             basicConfig: {
-                toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify | forecolor backcolor restoredraft | formatselect | bullist numlist | image media table | removeformat fullscreentoggle',
+                toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify | forecolor backcolor restoredraft | formatselect | bullist numlist | image media table | removeformat fullscreentoggle fullscreen',
                 plugins: [
                     'autoresize paste textcolor image lists wordcount autolink autosave',
                     'table media fullscreen'
                 ]
             },
             extensiveConfig: {
-                toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify | forecolor backcolor | formatselect | bullist numlist | image media table | removeformat fullscreentoggle',
+                toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify | forecolor backcolor | formatselect | bullist numlist | image media table | removeformat fullscreentoggle fullscreen',
                 plugins: [
                     'link media preview paste print hr lists advlist wordcount autolink autosave',
                     'autoresize code fullscreen image imagetools',
@@ -138,7 +130,8 @@ export default {
                     format: {title: 'Format', items: 'bold italic underline strikethrough superscript subscript | blockformats align | removeformat'},
                     table: {title: 'Table', items: 'inserttable tableprops deletetable | cell row column'}
                 }
-            }
+            },
+            fullScreenButton: null
         }
     },
     watch: {
@@ -168,44 +161,35 @@ export default {
             })
 
             editor.on('KeyUp', (e) => {
+                vm.handleShortCuts(e)
                 vm.content = this.editor.getContent()
             })
         },
-        editorSetup (editor) {
-            editor.addButton('fullscreentoggle', {
-                icon: 'fullscreen',
-                onclick: function () {
-                    editor.execCommand('mceFullScreen')
-                    this.active(editor.plugins.fullscreen.isFullscreen())
-                },
-                /* Fullscreen set correct state of button. */
-                onpostrender: function () {
-                    var btn = this
-                    editor.on('init', function () {
-                        btn.active(editor.plugins.fullscreen.isFullscreen())
-                    })
-                }
-            })
-        },
         setupInlineDisplay (editor) {
+            var vm = this
             /* Disables auto focus of the editor. */
             editor.execCommand('mceInlineCommentIsDirty', false, {skip_focus: true})
 
             editor.theme.panel.find('toolbar')[0].$el.hide()
-            editor.theme.panel.find('menubar')[0].$el.hide()
+            if (!this.basic) { editor.theme.panel.find('menubar')[0].$el.hide() }
             editor.theme.panel.find('#statusbar')[0].$el.hide()
 
             editor.on('focus', function () {
-                editor.theme.panel.find('menubar')[0].$el.show()
+                if (!vm.basic) { editor.theme.panel.find('menubar')[0].$el.show() }
                 editor.theme.panel.find('toolbar')[0].$el.show()
                 editor.theme.panel.find('#statusbar')[0].$el.show()
             })
 
             editor.on('blur', function () {
-                editor.theme.panel.find('menubar')[0].$el.hide()
+                if (!vm.basic) { editor.theme.panel.find('menubar')[0].$el.hide() }
                 editor.theme.panel.find('toolbar')[0].$el.hide()
                 editor.theme.panel.find('#statusbar')[0].$el.hide()
             })
+        },
+        handleShortCuts (e) {
+            if (this.editor.plugins.fullscreen.isFullscreen() && e.key === 'Escape') {
+                this.editor.execCommand('mceFullScreen')
+            }
         },
         insertDataURL () {
             var input = document.createElement('input')
