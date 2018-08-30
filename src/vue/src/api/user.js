@@ -1,21 +1,16 @@
 import auth from '@/api/auth'
 
 export default {
-    /* Get own user data. */
-    getOwnUserData () {
-        return auth.authenticatedGet('/get_own_user_data/')
-            .then(response => response.data.user)
-    },
     /* Get user data.
      * Get all the profile data and all the data like entries etc.
      */
-    getUserData (uID) {
-        return auth.authenticatedGet('/get_user_data/' + uID + '/')
+    getAllUserData () {
+        return auth.authenticatedGetFile('/get_all_user_data/')
     },
 
     /* Get user file. */
     getUserFile (fileName, authorUID) {
-        return auth.authenticatedGet('/get_user_file/' + fileName + '/' + authorUID + '/')
+        return auth.authenticatedGetFile('/get_user_file/' + fileName + '/' + authorUID + '/')
     },
 
     /* Update user data. */
@@ -67,9 +62,7 @@ export default {
 
     /* Verify email adress using a given token. */
     verifyEmail (token) {
-        return auth.authenticatedPost('/verify_email/', {
-            token: token
-        })
+        return auth.authenticatedPost('/verify_email/', { token: token })
     },
 
     /* Request an email verification token for the given users email adress. */

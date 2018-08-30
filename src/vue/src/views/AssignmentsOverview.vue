@@ -8,7 +8,7 @@
                         <b-form-select v-model="selectedSortOption" :select-size="1">
                            <option value="sortDate">Sort by date</option>
                            <option value="sortName">Sort by name</option>
-                           <option v-if="this.$root.canAddCourse()"
+                           <option v-if="$hasPermission('can_add_course')"
                                    value="sortNeedsMarking">Sort by marking needed</option>
                         </b-form-select>
                     </b-col>
@@ -20,13 +20,7 @@
 
         <div v-for="(d, i) in computedDeadlines" :key="i">
             <b-link tag="b-button" :to="assignmentRoute(d.cID, d.aID, d.jID)">
-                <todo-card
-                    :deadline="d.deadline"
-                    :name="d.name"
-                    :abbr="d.courseAbbr"
-                    :totalNeedsMarking="d.totalNeedsMarking"
-                    :class="$root.getBorderClass(d.cID)">
-                </todo-card>
+                <todo-card :deadline="d"/>
             </b-link>
         </div>
     </content-single-column>

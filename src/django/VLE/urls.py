@@ -42,7 +42,6 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
-    path('get_own_user_data/', get.get_own_user_data, name='get_own_user_data'),
     path('get_course_data/<int:cID>/', get.get_course_data, name='get_course_data'),
     path('get_assignment_data/<int:cID>/<int:aID>/', get.get_assignment_data, name='get_assignment_data'),
 
@@ -64,7 +63,7 @@ urlpatterns = [
     path('get_user_teacher_courses/', get.get_user_teacher_courses, name='get_user_teacher_courses'),
     path('get_assignment_by_lti_id/<str:lti_id>/', get.get_assignment_by_lti_id, name='get_assignment_by_lti_id'),
     path('get_linkable_courses/', get.get_linkable_courses, name='get_linkable_courses'),
-    path('get_user_data/<int:uID>/', get.get_user_data, name='get_user_data'),
+    path('get_all_user_data/', get.get_all_user_data, name='get_all_user_data'),
     path('get_unenrolled_users/<int:cID>/', get.get_unenrolled_users, name='get_unenrolled_users'),
 
     path('create_new_course/', create.create_new_course, name='create_new_course'),
@@ -113,6 +112,7 @@ urlpatterns = [
     path('recover_password/', update.recover_password, name='recover_password'),
     path('verify_email/', update.verify_email, name='verify_email'),
     path('request_email_verification/', update.request_email_verification, name='request_email_verification'),
+    path('get_user_store_data/', get.get_user_store_data, name='get_user_store_data'),
 ]
 
 if settings.DEBUG is True:

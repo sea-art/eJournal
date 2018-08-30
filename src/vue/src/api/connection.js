@@ -11,6 +11,7 @@ export default {
     }),
     connFile: axios.create({
         baseURL: 'http://localhost:8000/',
+        responseType: 'arraybuffer',
         headers: {
             'Content-Type': 'multipart/form-data'
         }

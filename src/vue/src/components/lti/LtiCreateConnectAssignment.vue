@@ -59,7 +59,7 @@ export default {
         },
         handleCreated (aID) {
             this.hideModal('createAssignmentRef')
-            this.signal(['assignmentIntegrated', aID])
+            this.signal(['assignmentCreated', aID])
         },
         handleConnected (aID) {
             this.hideModal('connectAssignmentRef')

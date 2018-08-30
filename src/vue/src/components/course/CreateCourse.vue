@@ -39,8 +39,8 @@ export default {
             form: {
                 courseName: '',
                 courseAbbr: '',
-                courseStartdate: this.newDate(0),
-                courseEnddate: this.newDate(1),
+                courseStartdate: '',
+                courseEnddate: '',
                 ltiCourseID: ''
             }
         }
@@ -72,10 +72,12 @@ export default {
             this.show = false
             this.$nextTick(() => { this.show = true })
         },
-        newDate (yearOffset) {
-            var date = new Date()
-            date.setFullYear(date.getFullYear() + yearOffset)
-            return date.toISOString().split('T')[0].slice(0, 10)
+        yearOffset (startDate) {
+            let split = startDate.split('-')
+            let yearOff = parseInt(split[0]) + 1
+
+            split[0] = String(yearOff)
+            return split.join('-')
         }
     },
     mounted () {
@@ -83,6 +85,8 @@ export default {
             this.form.courseName = this.lti.ltiCourseName
             this.form.courseAbbr = this.lti.ltiCourseAbbr
             this.form.ltiCourseID = this.lti.ltiCourseID
+            this.form.courseStartdate = this.lti.ltiCourseStart.split(' ')[0]
+            this.form.courseEnddate = this.yearOffset(this.form.courseStartdate)
         }
     },
     components: {

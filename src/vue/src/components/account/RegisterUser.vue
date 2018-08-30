@@ -25,6 +25,7 @@
 import auth from '@/api/auth.js'
 import icon from 'vue-awesome/components/Icon'
 import validation from '@/utils/validation.js'
+import statuses from '@/utils/constants/status_codes.js'
 
 export default {
     name: 'RegisterUser',
@@ -52,12 +53,23 @@ export default {
                             this.$toasted.success('Registration successfull! Please follow the instructions sent to ' + this.email +
                                                   ' to confirm your email address.')
                         }
-                        auth.login(this.form.username, this.form.password)
+                        this.$store.dispatch('user/login', { username: this.form.username, password: this.form.password })
                             .then(_ => { this.$emit('handleAction') })
                             .catch(_ => { this.$toasted.error('Error logging in with your newly created account, please contact a system administrator or try registering again.') })
                     })
                     .catch(error => {
                         this.$toasted.error(error.response.data.description)
+
+                        if (error.response.status === statuses.FORBIDDEN) {
+                            this.$router.push({
+                                name: 'ErrorPage',
+                                params: {
+                                    code: error.response.status,
+                                    reasonPhrase: error.response.statusText,
+                                    description: error.response.data.description
+                                }
+                            })
+                        }
                     })
             }
         },
