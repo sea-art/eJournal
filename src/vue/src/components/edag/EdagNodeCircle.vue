@@ -6,7 +6,7 @@
 <template>
     <div class="edag-node-circle-border">
         <div class="edag-node-circle unselectable" :class="nodeClass">
-            <icon v-if="this.entrystate !== ''" :name="iconName" :class="iconClass" :scale="iconScale"/>
+            <icon v-if="this.type !== 'p'" :name="iconName" :class="iconClass" :scale="iconScale"/>
             <div v-else class="edag-node-circle-text">{{ text }}</div>
         </div>
     </div>
@@ -33,8 +33,6 @@ export default {
                 return 'check'
             case 'failed':
                 return 'times'
-            case 'empty':
-                return 'calendar'
             case 'awaiting_grade':
                 return 'hourglass-half'
             case 'needs_grading':
@@ -43,9 +41,9 @@ export default {
                 return 'eye'
             case 'addNode':
                 return 'plus'
-            default:
-                return ''
             }
+
+            return 'calendar'
         },
         iconClass () {
             switch (this.entrystate) {
@@ -53,15 +51,9 @@ export default {
                 return 'fill-positive'
             case 'failed':
                 return 'fill-negative'
-            case 'empty':
-            case 'awaiting_grade':
-            case 'needs_grading':
-            case 'needs_publishing':
-            case 'addNode':
-                return 'fill-white'
-            default:
-                return ''
             }
+
+            return 'fill-white'
         },
         iconScale () {
             if (this.type === 'a') {

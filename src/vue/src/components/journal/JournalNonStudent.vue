@@ -35,7 +35,7 @@
                         :stats="journal.stats"
                         :hideTodo="true"
                         :fullWidthProgress="true"
-                        :class="'mb-4'"/>
+                        :class="'mb-4 no-hover'"/>
                 </b-col>
                 <b-col md="6" lg="12">
                     <h3>Controls</h3>

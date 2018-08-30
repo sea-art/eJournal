@@ -29,6 +29,8 @@
             <img class="profile-picture no-hover" :src="authorData.picture">
             <b-card class="no-hover new-comment">
                 <text-editor
+                    :displayInline="true"
+                    :basic="true"
                     :id="'comment-text-editor'"
                     @content-update="tempComment = $event"
                 />

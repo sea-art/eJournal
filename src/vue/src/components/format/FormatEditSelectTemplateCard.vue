@@ -9,48 +9,42 @@
         <b-row>
             <b-col cols="12">
                 <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-                    <b-row>
-                        <b-col cols="9" lg-cols="12">
-                            <h2 class="mb-2">Preset Deadline</h2>
-                            <b-input class="mb-2 mr-sm-2 mb-sm-0 theme-input" v-model="deadlineDate" type="date" @change="$emit('changed')"/>
-                            <br/>
-                            <b-input class="mb-2 mr-sm-2 mb-sm-0 theme-input" v-model="deadlineTime" type="time" @change="$emit('changed')"/>
-                            <br/>
+                    <b-button @click.prevent="emitDeletePreset" class="delete-button mb-3 float-right">
+                        <icon name="trash"/>
+                        Remove
+                    </b-button>
+                    <h2 class="mb-2">Preset Deadline</h2>
+                    <b-input class="mb-2 mr-sm-2 mb-sm-0 theme-input" v-model="deadlineDate" type="date" @change="$emit('changed')"/>
+                    <br/>
+                    <b-input class="mb-2 mr-sm-2 mb-sm-0 theme-input" v-model="deadlineTime" type="time" @change="$emit('changed')"/>
+                    <br/>
 
-                            <h2 class="mb-2">Preset Type</h2>
-                            <b-form-select v-model="currentPreset.type" @change="onChangePresetType">
-                                <option :value="'d'">Entry</option>
-                                <option :value="'p'">Progress Check</option>
-                            </b-form-select>
-                            <br/>
-                            <br/>
+                    <h2 class="mb-2">Preset Type</h2>
+                    <b-form-select v-model="currentPreset.type" @change="onChangePresetType">
+                        <option :value="'d'">Entry</option>
+                        <option :value="'p'">Progress Check</option>
+                    </b-form-select>
+                    <br/>
+                    <br/>
 
-                            <div v-if="currentPreset.type === 'd'">
-                                <h2 class="mb-2">Preset Template</h2>
-                                <b-form-select v-model="currentPreset.template" @change="$emit('changed')">
-                                    <option disabled value="">Please select a template</option>
-                                    <option v-for="template in templates" :key="template.t.tID" :value="template.t">
-                                        {{template.t.name}}
-                                    </option>
-                                </b-form-select>
-                                <br><br>
-                                <div v-if="currentPreset !== null">
-                                    <h2 class="mb-2">Preview</h2>
-                                    <template-preview :template="currentPreset.template"/>
-                                </div>
-                            </div>
-                            <div v-else-if="currentPreset.type === 'p'">
-                                <h2 class="mb-2">Point Target</h2>
-                                <b-input type="number" class="mb-2 mr-sm-2 mb-sm-0 theme-input" v-model="currentPreset.target" placeholder="Amount of points" @change="$emit('changed')"/>
-                            </div>
-                        </b-col>
-                        <b-col cols="3" lg-cols="12">
-                            <b-button @click.prevent="emitDeletePreset" class="delete-button float-right">
-                                <icon name="trash"/>
-                                Remove
-                            </b-button>
-                        </b-col>
-                    </b-row>
+                    <div v-if="currentPreset.type === 'd'">
+                        <h2 class="mb-2">Preset Template</h2>
+                        <b-form-select v-model="currentPreset.template" @change="$emit('changed')">
+                            <option disabled value="">Please select a template</option>
+                            <option v-for="template in templates" :key="template.t.tID" :value="template.t">
+                                {{template.t.name}}
+                            </option>
+                        </b-form-select>
+                        <br><br>
+                        <div v-if="currentPreset !== null">
+                            <h2 class="mb-2">Preview</h2>
+                            <template-preview :template="currentPreset.template"/>
+                        </div>
+                    </div>
+                    <div v-else-if="currentPreset.type === 'p'">
+                        <h2 class="mb-2">Point Target</h2>
+                        <b-input type="number" class="mb-2 mr-sm-2 mb-sm-0 theme-input" v-model="currentPreset.target" placeholder="Amount of points" @change="$emit('changed')"/>
+                    </div>
                 </b-card>
             </b-col>
         </b-row>

@@ -7,7 +7,7 @@
 <template>
     <div class="edag-container">
         <b-collapse id="edag-outer">
-            <div id="edag-inner" ref="scd">
+            <div class="edag-inner" ref="scd">
                 <div v-if="$root.lgMax()" v-b-toggle.edag-outer target="edag-outer" aria-expanded="false" aria-controls="edag-outer">
                     <edag-node
                         v-for="(node, index) in this.nodes"
@@ -16,9 +16,7 @@
                         :node="node"
                         :selected="isSelected(index)"
                         :isInEditFormatPage="isInEditFormatPage"
-                        :key="node.nID"
-                        :upperEdgeStyle="upperEdgeStyle(index)"
-                        :lowerEdgeStyle="lowerEdgeStyle(index)"/>
+                        :key="node.nID"/>
                 </div>
                 <edag-node
                     v-else
@@ -28,9 +26,7 @@
                     :node="node"
                     :selected="isSelected(index)"
                     :isInEditFormatPage="isInEditFormatPage"
-                    :key="node.nID"
-                    :upperEdgeStyle="upperEdgeStyle(index)"
-                    :lowerEdgeStyle="lowerEdgeStyle(index)"/>
+                    :key="node.nID"/>
             </div>
         </b-collapse>
 
@@ -50,28 +46,10 @@ import edagNode from '@/components/edag/EdagNode.vue'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
-    props: ['selected', 'nodes', 'edgeStyles', 'isInEditFormatPage'],
+    props: ['selected', 'nodes', 'isInEditFormatPage'],
     methods: {
         isSelected (id) {
             return id === this.selected
-        },
-        upperEdgeStyle (nodeIndex) {
-            if (nodeIndex === 0) {
-                return {'background-color': 'white'}
-            }
-            if (!this.edgeStyles || !this.edgeStyles[nodeIndex - 1]) {
-                return {}
-            }
-            return this.edgeStyles[nodeIndex - 1]
-        },
-        lowerEdgeStyle (nodeIndex) {
-            if (nodeIndex === this.nodes.length - 1) {
-                return {'background-color': 'white'}
-            }
-            if (!this.edgeStyles || !this.edgeStyles[nodeIndex]) {
-                return {}
-            }
-            return this.edgeStyles[nodeIndex]
         }
     },
     components: {
@@ -91,7 +69,7 @@ export default {
     @include xl
         height: 100%
 
-#edag-inner::-webkit-scrollbar
+.edag-inner::-webkit-scrollbar
     display: none
 
 #edag-outer
@@ -104,7 +82,7 @@ export default {
     #edag-outer[style]
         display: block !important
 
-#edag-inner
+.edag-inner
     height: 100%
     overflow-y: scroll
     overflow-x: hidden
