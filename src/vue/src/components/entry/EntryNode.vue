@@ -141,6 +141,9 @@
                     />
                 </div>
                 <div v-else-if="field.type == 'rt'" v-html="completeContent[i].data"/>
+                <div v-if="field.type == 'u'">
+                    <a :href="completeContent[i].data">{{ completeContent[i].data }}</a>
+                </div>
             </div>
             <b-button v-if="entryNode.entry.editable" class="change-button float-right mt-2" @click="saveEdit">
                 <icon name="edit"/>

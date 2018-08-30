@@ -31,7 +31,7 @@
                     <b>{{ field.title }}</b>
                 </div>
                 <div v-if="field.type=='t'">
-                    <span class="show-enters">{{ completeContent[i].data }}</span><br><br>
+                    <span class="show-enters">{{ completeContent[i].data }}</span><br>
                 </div>
                 <div v-else-if="field.type=='i'">
                     <image-file-display
@@ -59,6 +59,9 @@
                     />
                 </div>
                 <div v-else-if="field.type == 'rt'" v-html="completeContent[i].data"/>
+                <div v-if="field.type == 'u'">
+                    <a :href="completeContent[i].data">{{ completeContent[i].data }}</a>
+                </div>
             </div>
         </b-card>
 

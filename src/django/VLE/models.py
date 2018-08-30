@@ -539,7 +539,7 @@ class Field(models.Model):
 
     def __str__(self):
         """toString."""
-        return self.template.name + " field: " + str(self.location)
+        return self.template.name + " type: " + str(self.type) + ", location: " + str(self.location)
 
 
 class Content(models.Model):

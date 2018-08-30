@@ -165,6 +165,11 @@ def create_entry(request):
         return responses.keyerror("jID", "tID", "content")
 
     try:
+        validators.validate_entry_content(content_list)
+    except ValidationError as e:
+        return responses.bad_request(e.args[0])
+
+    try:
         journal = Journal.objects.get(pk=jID, user=request.user)
 
         template = EntryTemplate.objects.get(pk=tID)
