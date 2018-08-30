@@ -43,7 +43,7 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-
+        # TODO I don't think everyone should have access to everyone's data.
         serializer = self.serializer_class(User.objects.all(), many=True)
         return response.success({'users': serializer.data})
 
@@ -228,7 +228,7 @@ class UserView(viewsets.ViewSet):
         user.delete()
         return response.deleted(description='Sucesfully deleted user.')
 
-    @action(methods=['patch'], detail=False)
+    @action(['patch'], detail=False)
     def password(self, request):
         """Change the password of a user.
 

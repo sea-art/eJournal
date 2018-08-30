@@ -226,7 +226,7 @@ class UpdateApiTests(TestCase):
     #     self.assertEquals(Entry.objects.get(pk=4).published, 1)
 
     def test_update_password(self):
-        """Test update assignment"""
+        """Test update password."""
         login = test.logging_in(self, self.username, self.password)
 
         test.api_patch_call(self,
