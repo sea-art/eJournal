@@ -29,7 +29,7 @@
                                 <h2 class="mb-2">Preset Template</h2>
                                 <b-form-select v-model="currentPreset.template" @change="$emit('changed')">
                                     <option disabled value="">Please select a template</option>
-                                    <option v-for="template in templates" :key="template.t.tID" :value="template.t">
+                                    <option v-for="template in templates" :key="template.t.id" :value="template.t">
                                         {{template.t.name}}
                                     </option>
                                 </b-form-select>

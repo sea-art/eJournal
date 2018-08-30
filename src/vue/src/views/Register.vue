@@ -19,7 +19,7 @@ import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import icon from 'vue-awesome/components/Icon'
 import registerUser from '@/components/account/RegisterUser.vue'
-import userAPI from '@/api/user.js'
+import userAPI from '@/api/user'
 
 export default {
     name: 'Register',

@@ -71,8 +71,8 @@ def get_entry_node(node, user):
     return {
         'type': node.type,
         'nID': node.id,
-        'jID': node.id,
-        'entry': EntrySerializer(node.entry, context={'user': user}).data,
+        'jID': node.journal.id,
+        'entry': EntrySerializer(node.entry, context={'user': user}).data if node.entry else None,
     } if node else None
 
 
@@ -81,10 +81,10 @@ def get_deadline(node, user):
     return {
         'type': node.type,
         'nID': node.id,
-        'jID': node.id,
+        'jID': node.journal.id,
         'deadline': node.preset.deadline,
         'template': TemplateSerializer(node.preset.forced_template).data,
-        'entry': EntrySerializer(node.entry, context={'user': user}).data,
+        'entry': EntrySerializer(node.entry, context={'user': user}).data if node.entry else None,
     } if node else None
 
 
@@ -93,7 +93,7 @@ def get_progress(node):
     return {
         'type': node.type,
         'nID': node.id,
-        'jID': node.id,
+        'jID': node.journal.id,
         'deadline': node.preset.deadline,
         'target': node.preset.target,
     } if node else None

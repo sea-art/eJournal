@@ -22,8 +22,9 @@
 </template>
 
 <script>
-import authAPI from '@/api/auth'
 import icon from 'vue-awesome/components/Icon'
+
+import authAPI from '@/api/auth'
 import validation from '@/utils/validation.js'
 
 export default {

@@ -172,12 +172,6 @@ export default {
             this.$refs['entry-template-card'].cancel()
             this.currentNode = $event
         },
-        addNode (infoEntry) {
-            // journalApi.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
-            //     .then(_ => { journalApi.get_nodes(this.jID) })
-            //     .then(data => { this.nodes = data.nodes })
-            //     .catch(error => { this.$toasted.error(error.response.data.description) })
-        },
         progressPoints (progressNode) {
             /* The function will update a given progressNode by
              * going through all the nodes and count the published grades

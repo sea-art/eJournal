@@ -56,7 +56,7 @@ export default {
             let username = ''
             let emailAdress = ''
 
-            if (validation.validateEmail(this.usernameEmail, false)) {
+            if (validation.validateEmail(this.usernameEmail, true)) {
                 emailAdress = this.usernameEmail
             } else {
                 username = this.usernameEmail
@@ -65,7 +65,7 @@ export default {
             authAPI.forgotPassword(username, emailAdress)
                 .then(response => {
                     this.$refs.forgotPasswordModalRef.hide()
-                    this.$toasted.success(response.statusText)
+                    this.$toasted.success(response.data.description)
                 })
                 .catch(error => {
                     this.$toasted.error(error.response.data.description)

@@ -51,31 +51,25 @@ class EntryView(viewsets.ViewSet):
         except (Journal.DoesNotExist, Template.DoesNotExist):
             return response.not_found('Journal or Template does not exist.')
 
+        # If node id is passed, the entry should be attached to a pre-existing node (entrydeadline node)
         if node_id:
             try:
                 node = Node.objects.get(pk=node_id, journal=journal)
             except Node.DoesNotExist:
                 return response.not_found('Node does not exist.')
 
-            if node.type == Node.PROGRESS:
-                return response.bad_request('Passed node is a Progress node.')
+            if node.type != Node.ENTRYDEADLINE:
+                return response.bad_request('Passed node is not an EntryDeadline node.')
 
             if node.entry:
-                if node.entry.grade is None:
-                    if node.type == Node.ENTRYDEADLINE and node.preset.deadline < now():
-                        return response.bad_request('The deadline has already passed.')
+                return response.bad_request('Passed node already contains an entry.')
 
-                    Content.objects.filter(entry=node.entry).all().delete()
-                    node.entry.template = template
-                    node.save()
-                else:
-                    return response.bad_request('Can not overwrite entry, since it is already graded.')
-            else:
-                if node.type == Node.ENTRYDEADLINE and node.preset.deadline < now():
-                    return response.bad_request('The deadline has already passed.')
+            if node.preset.deadline < now():
+                return response.bad_request('The deadline has already passed.')
 
-                node.entry = factory.make_entry(template)
-                node.save()
+            node.entry = factory.make_entry(template)
+            node.save()
+
         else:
             entry = factory.make_entry(template)
             node = factory.make_node(journal, entry)
@@ -91,6 +85,7 @@ class EntryView(viewsets.ViewSet):
 
             factory.make_content(node.entry, content['data'], field)
 
+        # Find the new index of the new node so that the client can automatically scroll to it.
         result = edag.get_nodes(journal, request.user)
         added = -1
         for i, result_node in enumerate(result):
@@ -132,7 +127,7 @@ class EntryView(viewsets.ViewSet):
         except Entry.DoesNotExist:
             return response.not_found('Entry')
 
-        grade, published, template = utils.optional_params(request.data, "grade", "published", "template")
+        grade, published, content_list = utils.optional_params(request.data, "grade", "published", "content")
 
         journal = entry.node.journal
         if grade and \
@@ -146,9 +141,24 @@ class EntryView(viewsets.ViewSet):
                                                      'can_publish_journal_grades'):
             return response.forbidden('You cannot publish entries.')
 
-        if template and \
-           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_edit_journal'):
-            return response.forbidden('You cannot publish entries.')
+        if content_list:
+            if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_edit_journal'):
+                return response.forbidden('You cannot edit entries.')
+
+            if entry.grade is not None:
+                return response.bad_request('Cannot edit entry: it is already graded.')
+            if entry.node.type == Node.ENTRYDEADLINE and entry.node.preset.deadline < now():
+                return response.bad_request('Cannot edit entry: the deadline has already passed.')
+
+            Content.objects.filter(entry=entry).all().delete()
+
+            for content in content_list:
+                try:
+                    field = Field.objects.get(pk=content['id'])
+                except Field.DoesNotExist:
+                    return response.not_found('Field')
+
+                factory.make_content(entry, content['data'], field)
 
         serializer = serialize.EntrySerializer(entry, data=request.data, partial=True, context={'user': request.user})
         if not serializer.is_valid():

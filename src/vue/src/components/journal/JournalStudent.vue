@@ -124,17 +124,9 @@ export default {
     methods: {
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData
-            entryAPI.create({
-                journal_id: this.jID,
-                template_id: this.nodes[this.currentNode].entry.template.id,
-                content: editedData.entry.content,
-                node_id: this.nodes[this.currentNode].nID
-            })
-                .then(data => {
-                    this.nodes = data.nodes
-                    this.currentNode = data.added
-                })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
+            entryAPI.update(this.nodes[this.currentNode].entry.id, {
+                content: editedData.entry.content
+            }).catch(error => { this.$toasted.error(error.response.data.description) })
         },
         selectNode ($event) {
             /* Function that prevents you from instant leaving an EntryNode

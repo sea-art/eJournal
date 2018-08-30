@@ -9,6 +9,7 @@ from VLE.views.participation import ParticipationView
 from VLE.views.journal import JournalView
 from VLE.views.journalformat import JournalFormatView
 from VLE.views.entry import EntryView
+from VLE.views.journalformat import JournalFormatView
 
 router = routers.DefaultRouter()
 router.register(r'courses', CourseView, base_name='course')
