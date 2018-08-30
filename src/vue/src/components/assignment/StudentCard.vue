@@ -1,6 +1,6 @@
 <template>
     <b-card :class="$root.getBorderClass($route.params.cID)">
-        <b-row>
+        <b-row class="mb-2">
             <b-col order="1" cols="4">
                 <img class="img-fluid student-card-portrait" :src="student.picture">
             </b-col>

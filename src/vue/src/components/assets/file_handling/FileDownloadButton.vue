@@ -1,9 +1,8 @@
 <template>
-    <b-button
-        @click="fileDownload">
+    <div @click="fileDownload" class="file-controls">
         <icon name="download"/>
-        {{ fileName }}
-    </b-button>
+        <i><span>{{ fileName }}</span></i>
+    </div>
 </template>
 
 <script>
@@ -44,3 +43,13 @@ export default {
     }
 }
 </script>
+
+<style lang="sass">
+.file-controls
+    &:hover
+        cursor: pointer
+    span
+        text-decoration: underline !important
+    svg
+        margin-bottom: -4px
+</style>

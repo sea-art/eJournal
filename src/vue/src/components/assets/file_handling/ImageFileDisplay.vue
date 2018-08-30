@@ -1,7 +1,7 @@
 <template>
     <div class="image-field">
         <div class="image-controls mb-2 unselectable" @click="handleDownload">
-            <icon name="file-image"/>
+            <icon name="image"/>
             <i><span>{{ fileName }}</span></i>
         </div>
         <img :class="showImage()" v-if="fileURL" :src="fileURL">
