@@ -159,8 +159,8 @@ def parse_template(template_dict):
 def swap_templates(from_list, goal_list, target_list):
     """Swap templates from from_list to target_list if they are present in goal_list."""
     for template in goal_list:
-        if from_list.filter(pk=template['tID']).count() > 0:
-            template = from_list.get(pk=template['tID'])
+        if from_list.filter(pk=template['id']).count() > 0:
+            template = from_list.get(pk=template['id'])
             from_list.remove(template)
             target_list.add(template)
 

@@ -22,7 +22,7 @@ class CreateApiTests(TestCase):
         login = test.logging_in(self, username, password)
         create_course_dict = {'name': 'Beeldbewerken', 'abbr': 'BB', 'lti_id': lti_id}
 
-        test.api_post_call(self, '/create_new_course/', create_course_dict, login, 201)
+        test.api_post_call(self, '/courses/', params=create_course_dict, logiin=login, status=201)
         self.assertEquals(Course.objects.get(lti_id=lti_id).name, 'Beeldbewerken')
 
     def test_create_new_assignment(self):
@@ -37,17 +37,17 @@ class CreateApiTests(TestCase):
         create_assign_dict = {
             'name': 'SIFT',
             'description': 'In this assign...',
-            'cID': course.pk,
+            'course_id': course.pk,
             'lti_id': lti_id
         }
 
-        test.api_post_call(self, '/create_new_assignment/', create_assign_dict, login, 201)
+        test.api_post_call(self, '/assignments/', params=create_assign_dict, login=login, status=201)
         self.assertEquals(Assignment.objects.get(lti_id=lti_id).name, 'SIFT')
 
     def test_create_journal(self):
         """test create journal."""
         assign = factory.make_assignment("Assignment", "Your favorite assignment")
-        create_journal_dict = {'aID': assign.pk}
+        create_journal_dict = {'assignment_id': assign.pk}
         login = test.logging_in(self, self.username, self.password)
 
         course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
@@ -56,7 +56,7 @@ class CreateApiTests(TestCase):
         role = factory.make_role_default_no_perms("student", course, can_edit_journal=True)
         factory.make_participation(user=self.user, course=course, role=role)
 
-        test.api_post_call(self, '/create_journal/', create_journal_dict, login, 201)
+        test.api_post_call(self, '/journals/', params=create_journal_dict, login=login, status=201)
         self.assertTrue(Journal.objects.filter(user=self.user).exists())
 
     def test_create_entry(self):
@@ -68,15 +68,15 @@ class CreateApiTests(TestCase):
         login = test.logging_in(self, self.username, self.password)
 
         create_entry_dict = {
-            'jID': journal.id,
-            'tID': template.id,
+            'journal_id': journal.id,
+            'template_id': template.id,
             'content': [{
                 'tag': field.pk,
                 'data': "This is some data"
                 }]
             }
 
-        test.api_post_call(self, '/create_entry/', create_entry_dict, login, 201)
+        test.api_post_call(self, '/entries/', create_entry_dict, login, 201)
         self.assertTrue(Entry.objects.filter(node__journal=journal).exists())
         self.assertEquals(Content.objects.get(entry=1).data, "This is some data")
 
@@ -91,12 +91,12 @@ class CreateApiTests(TestCase):
         login = test.logging_in(self, self.username, self.password)
 
         create_entrycomment_dict = {
-            'eID': entry.pk,
-            'uID': self.user.pk,
+            'entry_id': entry.pk,
+            'user_id': self.user.pk,
             'text': 'Wow! This is bad/good',
             'published': True
         }
 
-        test.api_post_call(self, '/create_entrycomment/', create_entrycomment_dict, login, 201)
+        test.api_post_call(self, '/comments/', params=create_entrycomment_dict, login=login, status=201)
         self.assertTrue(Comment.objects.filter(entry=entry).exists())
         self.assertEquals(Comment.objects.get(pk=1).text, 'Wow! This is bad/good')

@@ -43,9 +43,9 @@ class UpdateApiTests(TestCase):
 
         course = factory.make_course("Portfolio Academische Vaardigheden", "PAV", author=self.user)
 
-        test.api_patch_call(self, '/courses/' + course.pk + '/', {
+        test.api_patch_call(self, '/courses/' + str(course.pk) + '/', {
             'name': 'Beeldbewerken',
-            'abbr': 'BB',
+            'abbreviation': 'BB',
             'startdate': course.startdate,
             'enddate': course.enddate
             },
@@ -70,7 +70,7 @@ class UpdateApiTests(TestCase):
         roles = result.json()['roles']
         for role in roles:
             if role['name'] == 'TA2':
-                role['permissions']['can_grade_journal'] = 1
+                role['can_grade_journal'] = 1
 
         roles.append(serialize.role_to_dict(factory.make_role_default_no_perms('test_role', self.course)))
         test.api_patch_call(self,
@@ -128,7 +128,7 @@ class UpdateApiTests(TestCase):
         login = test.logging_in(self, teacher_user, teacher_pass)
 
         test.api_patch_call(self,
-                            '/assignments/' + assign.pk + '/',
+                            '/assignments/' + str(assign.pk) + '/',
                             {'name': 'Assign2',
                              'description': 'summary'},
                             login)
@@ -148,14 +148,15 @@ class UpdateApiTests(TestCase):
 
         update_dict = {
             'max_points': 11,
-            'templates': [serialize.template_to_dict(template) for template in format.available_templates.all()],
+            'templates': [serialize.TemplateSerializer(template).data
+                          for template in format.available_templates.all()],
             'removed_presets': [],
             'removed_templates': [],
             'presets': [],
             'unused_templates': []
         }
 
-        test.api_patch_call(self, '/formats/' + assignment.pk + '/', update_dict, login)
+        test.api_patch_call(self, '/journalformats/' + str(assignment.pk) + '/', update_dict, login)
 
         q_assign = Assignment.objects.get(pk=assignment.pk)
         self.assertEquals(q_assign.format.max_points, 11)
@@ -177,7 +178,7 @@ class UpdateApiTests(TestCase):
 
         test.api_patch_call(
             self,
-            '/participations/' + course.pk + '/',
+            '/participations/' + str(course.pk) + '/',
             {'user_id': self.user_role.pk, 'role': 'SD'},
             login
         )
@@ -259,7 +260,7 @@ class UpdateApiTests(TestCase):
         login = test.logging_in(self, self.rein_user, self.rein_pass)
 
         update_dict = {'text': 'Bad!'}
-        test.api_patch_call(self, '/comments/' + entrycomment.pk + '/', update_dict, login)
+        test.api_patch_call(self, '/comments/' + str(entrycomment.pk) + '/', update_dict, login)
 
         q_entrycomment = Comment.objects.get(pk=entrycomment.pk)
         self.assertEquals(q_entrycomment.text, 'Bad!')

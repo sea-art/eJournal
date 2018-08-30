@@ -7,7 +7,7 @@ from rest_framework import viewsets
 
 from VLE.models import Assignment
 import VLE.views.responses as response
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
 from VLE.serializers import JournalFormatSerializer
 
