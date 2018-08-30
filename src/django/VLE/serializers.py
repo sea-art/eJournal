@@ -216,6 +216,7 @@ class PresetNodeSerializer(serializers.ModelSerializer):
         return None
 
 
+
 class EntrySerializer(serializers.ModelSerializer):
     template = serializers.SerializerMethodField()
     content = serializers.SerializerMethodField()

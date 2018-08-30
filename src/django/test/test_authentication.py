@@ -25,9 +25,9 @@ class AuthenticationTests(TestCase):
         """Test if the login is successful."""
         login = test.logging_in(self, self.username, self.password)
         factory.make_course('test', 'TTTT')
-        test.api_get_call(self, '/get_user_courses/', login)
+        test.api_get_call(self, '/courses/', login)
 
     def test_not_logged_in(self):
         """Test error for api request call for non-authenticated user."""
-        result = self.client.get(reverse('get_user_courses'), {}, format='json')
+        result = self.client.get(reverse('courses'), {}, format='json')
         self.assertEquals(result.status_code, 401)

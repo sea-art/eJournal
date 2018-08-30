@@ -7,6 +7,7 @@ from VLE.views.node import NodeView
 from VLE.views.comment import CommentView
 from VLE.views.participation import ParticipationView
 from VLE.views.journal import JournalView
+from VLE.views.journalformat import JournalFormatView
 from VLE.views.entry import EntryView
 from VLE.views.journalformat import JournalFormatView
 
@@ -20,6 +21,6 @@ router.register(r'comments', CommentView, base_name='comment')
 router.register(r'participations', ParticipationView, base_name='participation')
 router.register(r'journals', JournalView, base_name='journal')
 router.register(r'entries', EntryView, base_name='entry')
-router.register(r'formats', JournalFormatView, base_name='format')
+router.register(r'journalformats', JournalFormatView, base_name='journalformat')
 
 urlpatterns = router.urls
