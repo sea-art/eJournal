@@ -12,6 +12,7 @@ import datetime
 import statistics as st
 import json
 import jwt
+import os
 
 import VLE.lti_launch as lti
 import VLE.edag as edag
@@ -887,7 +888,7 @@ def get_user_file(request, file_name, author_uID):
 
     if user_file.author.id is user.id or \
        permissions.has_assignment_permission(user, user_file.assignment, 'can_view_assignment_participants'):
-        return responses.file(user_file)
+        return responses.file(os.path.join(settings.MEDIA_ROOT, user_file.file.name))
     else:
         return responses.unauthorized('Unauthorized to view: %s by author ID: %s.' % (file_name, author_uID))
 
