@@ -360,8 +360,8 @@ class UserView(viewsets.ViewSet):
         return response.user_file_b64(user_file)
 
     # TODO: Check if it works
-    @action(methods=['post'], detail=True)
-    def upload(self, request, pk):
+    @action(methods=['post'], detail=False)
+    def upload(self, request):
         """Update user profile picture.
 
         No validation is performed beyond a size check of the file and the available space for the user.
@@ -369,6 +369,7 @@ class UserView(viewsets.ViewSet):
         Arguments:
         request -- request data
             file -- filelike data
+            assignment_id -- assignment ID
 
         Returns
         On failure:
@@ -381,8 +382,8 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        if not request.FILES or 'file' not in request.FILES or 'aID' not in request.POST:
-            return response.bad_request()
+        if not request.FILES or 'file' not in request.FILES or 'assignment_id' not in request.POST:
+            return response.bad_request('File or assignment_id not found')
 
         try:
             validators.validate_user_file(request.FILES['file'])
@@ -410,9 +411,9 @@ class UserView(viewsets.ViewSet):
             pass
 
         try:
-            assignment = Assignment.objects.get(pk=request.POST['aID'])
+            assignment = Assignment.objects.get(pk=request.POST['assignment_id'])
         except Journal.DoesNotExist:
-            return response.bad_request('Journal with id {:s} was not found.'.format(request.POST['aID']))
+            return response.bad_request('Journal with id {:s} was not found.'.format(request.POST['assignment_id']))
 
         factory.make_user_file(request.FILES['file'], request.user, assignment)
 

@@ -32,14 +32,14 @@ const mutations = {
         state.jwtRefresh = refresh
     },
     [types.HYDRATE_USER] (state, data) {
-        const userData = data.user_data
-        const permissions = data.all_permissions
+        const userData = data.user
+        const permissions = data.user.permissions
 
-        state.uID = userData.uID
+        state.uID = userData.id
         state.username = userData.username
         state.email = userData.email
         state.verifiedEmail = userData.verified_email
-        state.profilePicture = userData.picture
+        state.profilePicture = userData.profile_picture
         state.firstName = userData.first_name
         state.lastName = userData.last_name
         state.ltiID = userData.lti_id
@@ -96,7 +96,7 @@ const actions = {
                 dispatch('populateStore').then(response => {
                     resolve('JWT and store are set succesfully.')
                 }, error => {
-                    Vue.toasted.error(error.response.description)
+                    Vue.toasted.error(error.response.data.description)
                     reject(error) // Login success but hydration failed
                 })
             }, error => {

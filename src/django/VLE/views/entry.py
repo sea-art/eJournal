@@ -50,6 +50,8 @@ class EntryView(viewsets.ViewSet):
             validators.validate_entry_content(content_list)
         except ValidationError as e:
             return response.bad_request(e.args[0])
+        except KeyError:
+            return response.keyerror('content.id', 'content.data')
 
         try:
             journal = Journal.objects.get(pk=journal_id, user=request.user)

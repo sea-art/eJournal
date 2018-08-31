@@ -83,7 +83,6 @@ export default {
         }
     },
     created () {
-        this.getAuthorData()
         this.getComments()
     },
     methods: {

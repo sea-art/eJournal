@@ -31,8 +31,8 @@ export default {
     },
 
     /* Update user file. */
-    updateUserFile (formData) {
-        return auth.uploadFile('/upload/', formData)
+    uploadUserFile (data) {
+        return auth.uploadFile('/users/upload/', data)
     },
 
     /* Get user file. */

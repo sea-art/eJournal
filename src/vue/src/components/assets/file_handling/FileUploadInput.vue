@@ -55,9 +55,9 @@ export default {
         uploadFile () {
             let formData = new FormData()
             formData.append('file', this.file)
-            formData.append('aID', this.aID)
+            formData.append('assignment_id', this.aID)
 
-            userAPI.updateUserFile(formData)
+            userAPI.uploadUserFile(formData)
                 .then(_ => {
                     this.$emit('fileUploadSuccess', this.file.name)
                     this.$toasted.success('File upload success.')

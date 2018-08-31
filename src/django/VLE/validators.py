@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.core.validators import URLValidator
 from VLE.models import Field
+import VLE.utils.generic_utils as utils
 import re
 
 
@@ -40,9 +41,11 @@ def validate_password(password):
 def validate_entry_content(content_list):
     """Validates the given data based on its field type, any validation error will be raised."""
     for content in content_list:
-        data = content['data']
-        tag = content['tag']
-        field = Field.objects.get(pk=tag)
+        try:
+            id, data = utils.required_params(content, "id", "data")
+        except KeyError as e:
+            raise e
+        field = Field.objects.get(pk=id)
 
         if field.type is URL:
             try:
