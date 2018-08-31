@@ -116,21 +116,23 @@ const actions = {
         return new Promise((resolve, reject) => {
             // TODO can still be improved by shortcircuit rejecting on errors due to something other than an invalid token
             // Rather than refreshing for nearly all errors
-            if (error && error.response.data.code === 'token_not_valid') { return reject(error) }
+            if (!error || (error && error.response.data.code === 'token_not_valid')) {
+                connection.conn.post('token/refresh/', {refresh: getters.jwtRefresh}).then(response => {
+                    commit(types.SET_ACCES_TOKEN, response.data.access) // Refresh token valid, update access token.
 
-            connection.conn.post('token/refresh/', {refresh: getters.jwtRefresh}).then(response => {
-                commit(types.SET_ACCES_TOKEN, response.data.access) // Refresh token valid, update access token.
-
-                if (!getters.storePopulated) {
-                    dispatch('populateStore')
-                        .then(_ => { resolve() })
-                        .catch(error => { reject(error) })
-                } else {
-                    resolve('JWT refreshed succesfully, store was already populated.')
-                }
-            }, error => {
-                reject(error) // Refresh token invalid, reject
-            })
+                    if (!getters.storePopulated) {
+                        dispatch('populateStore')
+                            .then(_ => { resolve() })
+                            .catch(error => { reject(error) })
+                    } else {
+                        resolve('JWT refreshed succesfully, store was already populated.')
+                    }
+                }, error => {
+                    reject(error) // Refresh token invalid, reject
+                })
+            } else {
+                reject(error) // We should not validate if the error has nothing to do with the token
+            }
         })
     },
     populateStore ({ commit }) {
