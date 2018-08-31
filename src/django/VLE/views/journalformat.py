@@ -30,7 +30,7 @@ class JournalFormatView(viewsets.ViewSet):
 
         Arguments:
         request -- the request that was sent
-            pk -- the assignment id
+        pk -- the assignment id
 
         Returns a json string containing the format.
         """

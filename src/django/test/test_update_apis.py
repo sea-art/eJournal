@@ -16,27 +16,6 @@ class UpdateApiTests(TestCase):
                                                                                                   'sigh@sigh.com')
         self.course = factory.make_course("Beeldbewerken", "BB")
 
-    # def test_connect_course_lti(self):
-    #     """Test the connect course lti function."""
-    #     course = factory.make_course('Portfolio', 'PAV', author=self.rein)
-    #
-    #     login = test.logging_in(self, self.rein_user, self.rein_pass)
-    #
-    #     connect_dict = {'cID': course.pk, 'lti_id': '12XY'}
-    #
-    #     test.api_post_call(self, '/connect_course_lti/', connect_dict, login)
-    #
-    #     q_course = Course.objects.get(pk=course.pk)
-    #     self.assertEquals(q_course.lti_id, '12XY')
-    #
-    #     # permission checks
-    #     login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
-    #     test.test_unauthorized_api_post_call(self, '/connect_course_lti/', connect_dict)
-    #     test.api_post_call(self, '/connect_course_lti/', connect_dict, login, status=403)
-    #
-    #     test.set_up_participation(self.no_permission_user, course, 'Student')
-    #     test.api_post_call(self, '/connect_course_lti/', connect_dict, login, status=403)
-
     def test_update_course(self):
         """Test update_course"""
         login = test.logging_in(self, self.username, self.password)
@@ -72,29 +51,12 @@ class UpdateApiTests(TestCase):
             if role['name'] == 'TA2':
                 role['can_grade_journal'] = 1
 
-        roles.append(serialize.role_to_dict(factory.make_role_default_no_perms('test_role', self.course)))
-        test.api_patch_call(self,
-                            '/roles/1/',
-                            {'roles': roles},
-                            login)
+        roles.append(serialize.RoleSerializer(factory.make_role_default_no_perms('test_role', self.course)).data)
+        test.api_patch_call(self, '/roles/1/', {'roles': roles}, login)
 
         role_test = Role.objects.get(name='TA2', course=self.course)
         self.assertTrue(role_test.can_grade_journal)
         self.assertEquals(Role.objects.filter(name='test_role', course=self.course).count(), 1)
-
-    # def test_connect_assignment_lti(self):
-    #     """Test connect assignment lti."""
-    #     course = factory.make_course('Portfolio', 'PAV', author=self.rein)
-    #     template = factory.make_entry_template('template')
-    #     format = factory.make_format([template], 10)
-    #     assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course])
-    #     connect_dict = {'aID': assignment.pk, 'lti_id': '12XY'}
-    #
-    #     login = test.logging_in(self, self.rein_user, self.rein_pass)
-    #     test.api_post_call(self, '/connect_assignment_lti/', connect_dict, login)
-    #
-    #     q_assignment = Assignment.objects.get(pk=assignment.pk)
-    #     self.assertEquals(q_assignment.lti_id, '12XY')
 
     def test_update_course_with_student(self):
         """Test update_course_with_student"""

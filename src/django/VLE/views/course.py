@@ -205,9 +205,8 @@ class CourseView(viewsets.ViewSet):
         unlinked_courses = Course.objects.filter(participation__user=request.user.id,
                                                  participation__role__can_edit_course=True,
                                                  lti_id=None)
-
-        serializer = serialize.UserSerializer(unlinked_courses, many=True)
-        return response.success({'linkable_courses': serializer.data})
+        serializer = serialize.CourseSerializer(unlinked_courses, many=True)
+        return response.success({'courses': serializer.data})
 
     @action(methods=['get'], detail=False)
     def is_teacher(self, request):

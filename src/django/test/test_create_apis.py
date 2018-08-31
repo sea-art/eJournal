@@ -22,7 +22,7 @@ class CreateApiTests(TestCase):
         login = test.logging_in(self, username, password)
         create_course_dict = {'name': 'Beeldbewerken', 'abbr': 'BB', 'lti_id': lti_id}
 
-        test.api_post_call(self, '/courses/', params=create_course_dict, logiin=login, status=201)
+        test.api_post_call(self, '/courses/', params=create_course_dict, login=login, status=201)
         self.assertEquals(Course.objects.get(lti_id=lti_id).name, 'Beeldbewerken')
 
     def test_create_new_assignment(self):
@@ -71,7 +71,7 @@ class CreateApiTests(TestCase):
             'journal_id': journal.id,
             'template_id': template.id,
             'content': [{
-                'tag': field.pk,
+                'id': field.pk,
                 'data': "This is some data"
                 }]
             }
