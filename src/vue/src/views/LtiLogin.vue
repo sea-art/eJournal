@@ -1,6 +1,6 @@
 <template>
     <content-single-column>
-        <h1 class="mb-2">User Integration</h1>
+        <h1 class="mb-2">Welcome to eJournal!</h1>
         <b-card class="no-hover" :class="this.$root.colors[1]">
             <lti-create-connect-user v-if="handleUserIntegration" @handleAction="userIntegrated" :lti="lti"/>
         </b-card>

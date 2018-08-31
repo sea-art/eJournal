@@ -16,29 +16,16 @@ import courseApi from '@/api/course.js'
 
 export default {
     name: 'ConnectCourse',
-    props: ['lti'],
+    props: ['lti', 'courses'],
     components: {
         'main-card': mainCard
     },
-    data () {
-        return {
-            courses: []
-        }
-    },
     methods: {
-        loadCourses () {
-            courseApi.get_user_teacher_courses()
-                .then(courses => { this.courses = courses })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
-        },
         connectCourse (cID) {
             courseApi.connect_course_lti(cID, this.lti.ltiCourseID)
                 .then(course => { this.$emit('handleAction', course.cID) })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         }
-    },
-    created () {
-        this.loadCourses()
     }
 }
 </script>

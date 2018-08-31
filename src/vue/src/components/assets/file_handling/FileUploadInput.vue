@@ -25,7 +25,8 @@ export default {
             String
         },
         autoUpload: {
-            default: false
+            required: true,
+            Boolean
         },
         placeholder: {
             default: 'Select a file.'

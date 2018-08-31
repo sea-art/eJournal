@@ -1,11 +1,9 @@
 <template>
     <div>
-        <h5>
-            {{ fileName }}
-            <icon v-if="!show" @click.native="handleDownload" name="eye" class="action-icon"/>
-            <icon v-if="show" @click.native="handleDownload" name="ban" class="crossed-icon"/>
-            <icon v-if="show && fileURL" @click.native="downloadLink.click()" name="save" class="action-icon"/>
-        </h5>
+        {{ fileName }}
+        <icon v-if="!show" @click.native="handleDownload" name="eye" class="action-icon"/>
+        <icon v-if="show" @click.native="handleDownload" name="ban" class="crossed-icon"/>
+        <icon v-if="show && fileURL" @click.native="downloadLink.click()" name="save" class="action-icon"/>
         <img v-if="show && fileURL" :src="fileURL">
     </div>
 </template>
