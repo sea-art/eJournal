@@ -58,7 +58,7 @@ export default {
                 points_possible: this.form.pointsPossible
             })
                 .then(assignment => {
-                    this.$emit('handleAction', assignment.aID)
+                    this.$emit('handleAction', assignment.id)
                     this.onReset(undefined)
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })

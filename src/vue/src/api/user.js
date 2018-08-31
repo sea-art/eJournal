@@ -54,9 +54,4 @@ export default {
     requestEmailVerification () {
         return auth.post('/request_email_verification/')
     }
-
-    // /* Get user file. */
-    // getUserFile (fileName, authorUID) {
-    //     return auth.authenticatedGet('/get_user_file/' + fileName + '/' + authorUID + '/')
-    // },
 }
