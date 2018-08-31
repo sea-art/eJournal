@@ -5,8 +5,6 @@ Test the authentication calls.
 """
 
 from django.test import TestCase
-from django.urls import reverse
-
 
 import VLE.factory as factory
 import test.test_utils as test
@@ -29,5 +27,5 @@ class AuthenticationTests(TestCase):
 
     def test_not_logged_in(self):
         """Test error for api request call for non-authenticated user."""
-        result = self.client.get(reverse('/courses/'), {}, format='json')
+        result = self.client.get('/courses/', {}, format='json')
         self.assertEquals(result.status_code, 401)

@@ -20,7 +20,7 @@ class CreateApiTests(TestCase):
         username, password, user = test.set_up_user_and_auth('test2', 'test1233', 'test@ttaest.com', is_teacher=True)
         lti_id = '12AB'
         login = test.logging_in(self, username, password)
-        create_course_dict = {'name': 'Beeldbewerken', 'abbr': 'BB', 'lti_id': lti_id}
+        create_course_dict = {'name': 'Beeldbewerken', 'abbreviation': 'BB', 'lti_id': lti_id}
 
         test.api_post_call(self, '/courses/', params=create_course_dict, login=login, status=201)
         self.assertEquals(Course.objects.get(lti_id=lti_id).name, 'Beeldbewerken')

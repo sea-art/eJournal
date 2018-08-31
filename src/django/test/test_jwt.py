@@ -34,7 +34,7 @@ class JWTTests(TestCase):
 
     def test_anonymous(self):
         """Test simple anonymous access."""
-        result = self.client.get(reverse('/courses/'), {}, format='json')
+        result = self.client.get('/courses/', {}, format='json')
 
         self.assertEquals(result.status_code, 401)
 
@@ -44,12 +44,12 @@ class JWTTests(TestCase):
                                   {'username': self.username,
                                    'password': self.password}, format='json')
 
-        result = self.client.get(reverse('/courses/'), {},
+        result = self.client.get('/courses/', {},
                                  HTTP_AUTHORIZATION='Bearer {0}'.format(result.json()['access']))
 
         self.assertEquals(result.status_code, 200)
         self.assertEquals(result.json()['description'], '')
-        self.assertEquals(result.json()['/courses/'], [])
+        self.assertEquals(result.json()['courses'], [])
 
     def test_auth_without_password(self):
         """Test authentication without password."""

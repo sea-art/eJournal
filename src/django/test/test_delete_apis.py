@@ -75,11 +75,11 @@ class DeleteApiTests(TestCase):
         assign1.courses.add(course2)
         assign2.courses.add(course1)
 
-        test.api_del_call(self, '/assignments/' + str(assign1.pk) + '/', login)
+        test.api_del_call(self, '/assignments/' + str(assign1.pk) + '/?course_id=1', login)
         assignment = Assignment.objects.get(pk=1)
         self.assertEquals(assignment.courses.count(), 2)
 
-        test.api_del_call(self, '/assignments/1/', login)
+        test.api_del_call(self, '/assignments/1/?course_id=1', login)
         self.assertEquals(Assignment.objects.filter(pk=1).count(), 1)
 
     def test_delete_course_role(self):
@@ -91,6 +91,7 @@ class DeleteApiTests(TestCase):
         factory.make_participation(teacher, self.course, teacher_role)
         factory.make_role_ta('TA2', self.course)
         login = test.logging_in(self, teacher_user, teacher_pass)
-        test.api_del_call(self, '/roles/' + str(self.course.pk) + '/', login, {'name': 'TA2'})
+        test.api_del_call(
+            self, '/roles/' + str(self.course.pk) + '/?name=TA2', login)
 
         self.assertEquals(Role.objects.filter(name='TA2', course=Course.objects.get(pk=1)).count(), 0)

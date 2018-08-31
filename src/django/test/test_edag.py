@@ -73,19 +73,16 @@ class EdagTests(TestCase):
         entry = factory.make_entry(self.template, datetime.date(2022, 1, 1))
         factory.make_node(self.j_rick_colloq, entry)
 
-        nodes = edag.get_nodes_dict(self.j_rick_colloq, self.u_rick)
+        nodes = edag.get_nodes(self.j_rick_colloq, self.u_rick)
 
         self.assertEquals(len(nodes), 4)
 
         self.assertEquals(nodes[0]['type'], 'd')
         self.assertEquals(nodes[0]['entry'], None)
-        self.assertEquals(nodes[0]['deadline'], '2020-01-01 00:00')
 
         self.assertEquals(nodes[1]['type'], 'e')
-        self.assertEquals(nodes[1]['entry']['createdate'], '2022-01-01 00:00')
 
         self.assertEquals(nodes[2]['type'], 'a')
 
         self.assertEquals(nodes[3]['type'], 'p')
-        self.assertEquals(nodes[3]['deadline'], '2024-01-01 00:00')
         self.assertEquals(nodes[3]['target'], 10)
