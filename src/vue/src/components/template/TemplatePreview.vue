@@ -1,7 +1,7 @@
 <!-- Loads a preview of a template. -->
 <template>
     <b-card class="no-hover">
-        <div v-for="field in template.fields" :key="field.eID" class="multi-form">
+        <div v-for="(field, i) in template.fields" :key="field.eID" class="multi-form">
             <span v-if="field.title">{{ field.title }}</span>
 
             <b-textarea
@@ -33,7 +33,7 @@
                 :aID="$route.params.aID"
             />
             <text-editor v-else-if="field.type == 'rt'"
-                :id="'rich-text-editor-' + field.eID"
+                :id="'rich-text-editor-preview-field-' + i"
             />
             <url-input
                 v-else-if="field.type == 'u'"
