@@ -7,7 +7,7 @@ from rest_framework import viewsets
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 
-from VLE.models import Journal, Node, Content, Field, Template, Entry
+from VLE.models import Journal, Node, Content, Field, Template, Entry, Comment
 import VLE.views.responses as response
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
@@ -145,9 +145,13 @@ class EntryView(viewsets.ViewSet):
             entry.grade = grade
 
         if published is not None and \
-           not permissions.has_assignment_permission(request.user, journal.assignment,
-                                                     'can_publish_journal_grades'):
+           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_journal_grades'):
             return response.forbidden('You cannot publish entries.')
+
+        if published is not None:
+            entry.published = published
+            entry.save()
+            Comment.objects.filter(entry=entry).update(published=published)
 
         if content_list:
             if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_edit_journal'):
