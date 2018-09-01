@@ -90,7 +90,7 @@ export default {
         'main-card': mainCard
     },
     created () {
-        assignmentAPI.get(this.aID)
+        assignmentAPI.get(this.aID, this.cID)
             .then(data => {
                 this.assignmentJournals = data.journals
                 this.stats = data.stats

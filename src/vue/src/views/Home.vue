@@ -35,7 +35,7 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal.id)">
+            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.stats ? null : d.journal)">
                 <todo-card :deadline="d"/>
             </b-link>
         </div>
@@ -134,6 +134,9 @@ export default {
 
             if (jID) {
                 route.params.jID = jID
+                console.log(route.name)
+                route.name = 'Journal'
+                console.log(route.name)
             }
 
             return route

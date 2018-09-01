@@ -20,7 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('last_login', 'username', 'first_name', 'last_name', 'is_active', 'email', 'name',
-                  'profile_picture', 'is_teacher', 'lti_id', 'id', 'role')
+                  'profile_picture', 'is_teacher', 'lti_id', 'id', 'role', 'verified_email')
         read_only_fields = ('id', )
 
     def get_name(self, user):
@@ -41,7 +41,8 @@ class OwnUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'last_login', 'username', 'first_name', 'last_name', 'is_active', 'email', 'permissions',
-                  'name', 'lti_id', 'profile_picture', 'is_teacher', 'grade_notifications', 'comment_notifications')
+                  'name', 'lti_id', 'profile_picture', 'is_teacher', 'grade_notifications', 'comment_notifications',
+                  'verified_email')
         read_only_fields = ('id', )
 
     def get_name(self, user):
