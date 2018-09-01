@@ -2,7 +2,7 @@
     <b-row>
         <b-col md="5" sm="12" class="text-center">
             <div class="profile-portrait small-shadow">
-                <img :src="userData.profile_picture">
+                <img :src="$store.getters['user/profilePicture']">
                 <!-- TODO Add cropping tool to help with the square aspect ratio Croppa seems most active and a solid choice -->
                 <b-button @click="$refs.file.click()">
                     <icon name="upload"/>
