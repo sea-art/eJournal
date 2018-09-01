@@ -92,11 +92,10 @@ def verify_email(request):
 
     Updates the email verification status.
     """
-    user = request.user
-    if not user.is_authenticated:
+    if not request.user.is_authenticated:
         return response.unauthorized()
 
-    if user.verified_email:
+    if request.user.verified_email:
         return response.success(description='Email address already verified.')
 
     try:
@@ -105,25 +104,24 @@ def verify_email(request):
         return response.KeyError('token')
 
     token_generator = PasswordResetTokenGenerator()
-    if not token_generator.check_token(user, request.data['token']):
+    if not token_generator.check_token(request.user, request.data['token']):
         return response.bad_request(description='Invalid email recovery token.')
 
-    user.verify_email = True
-    user.save()
+    request.user.verified_email = True
+    request.user.save()
     return response.success(description='Succesfully verified your email address.')
 
 
 @api_view(['POST'])
 def request_email_verification(request):
     """Request an email with a verifcation link for the users email address."""
-    user = request.user
-    if not user.is_authenticated:
+    if not request.user.is_authenticated:
         return response.unauthorized()
 
-    if user.verified_email:
+    if request.user.verified_email:
         return response.bad_request(description='Email address already verified.')
 
-    email_handling.send_email_verification_link(user)
+    email_handling.send_email_verification_link(request.user)
 
     return response.success(description='An email was sent to %s, please follow the email for instructions.'
-                            % user.email)
+                            % request.user.email)

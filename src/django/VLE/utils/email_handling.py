@@ -18,7 +18,6 @@ If you did make the request please visit the link below to verify your email add
 Or copy the token manually: {token}\
 '''.format(recovery_link=recovery_link, token=token)
 
-    print('woosh')
     EmailMessage('eJourn.al email verification', email_body, to=[user.email]).send()
 
 

@@ -79,7 +79,7 @@ class Command(BaseCommand):
                                                 u['email'] if 'email' in u else u['first_name'] + '@eJourn.al',
                                                 is_superuser=is_superuser, is_teacher=is_teacher,
                                                 first_name=u['first_name'], last_name=u['last_name'],
-                                                verified_email=True))
+                                                verified_email=False))
 
     def gen_courses(self):
         """Generate courses."""
