@@ -35,7 +35,7 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="assignmentRoute(d.courses[0], d.id, d.journal.id)">
+            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal.id)">
                 <todo-card :deadline="d"/>
             </b-link>
         </div>
@@ -146,7 +146,7 @@ export default {
             function compareDate (a, b) {
                 if (!a.deadline) return -1
                 else if (!b.deadline) return 1
-                return new Date(a.deadline.date) - new Date(b.deadline.date)
+                return new Date(a.deadline) - new Date(b.deadline)
             }
 
             function compareMarkingNeeded (a, b) {
