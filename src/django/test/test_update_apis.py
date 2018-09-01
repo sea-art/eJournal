@@ -147,47 +147,6 @@ class UpdateApiTests(TestCase):
         user_role = Participation.objects.get(user=self.user_role, course=course.pk).role.name
         self.assertEquals(user_role, 'SD')
 
-    # TODO Is this test still necessary? This function is removed isn't it?
-    # def test_grade_publish(self):
-    #     """Test the grade publish api functions."""
-    #     teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('Teacher', 'pass', 'teach@teach.com')
-    #     students = test.set_up_users('student', 2)
-    #     course1 = factory.make_course("BeeldBewerken", "BB", author=teacher)
-    #     course2 = factory.make_course("Portfolio Academische Vaardigheden", "PAV", author=teacher)
-    #
-    #     template = factory.make_entry_template('template_test')
-    #     format = factory.make_format([template], 5)
-    #     assign1 = factory.make_assignment("Colloq", "In de opdracht...1", teacher,
-    #                                       format=format, courses=[course1, course2])
-    #     journal1 = factory.make_journal(assign1, students[0])
-    #     journal2 = factory.make_journal(assign1, students[1])
-    #     entries = test.set_up_entries(template, 4)
-    #
-    #     factory.make_node(journal1, entries[0])
-    #     factory.make_node(journal1, entries[1])
-    #     factory.make_node(journal1, entries[2])
-    #     factory.make_node(journal2, entries[3])
-    #
-    #     login = test.logging_in(self, teacher_user, teacher_pass)
-    #     result = test.api_post_call(self, '/update_grade_entry/', {'eID': 1, 'grade': 1, 'published': 0}, login)
-    #     self.assertEquals(Entry.objects.get(pk=1).grade, int(result.json()['new_grade']))
-    #
-    #     result = test.api_post_call(self, '/update_grade_entry/', {'eID': 1, 'grade': 2, 'published': 1}, login)
-    #     self.assertEquals(Entry.objects.get(pk=1).grade, int(result.json()['new_grade']))
-    #     self.assertEquals(Entry.objects.get(pk=1).published, int(result.json()['new_published']))
-    #
-    #     result = test.api_post_call(self, '/update_publish_grade_entry/', {'eID': 1, 'published': 0}, login)
-    #     self.assertEquals(Entry.objects.get(pk=1).published, int(result.json()['new_published']))
-    #
-    #     for i in range(2, 4):
-    #         test.api_post_call(self, '/update_grade_entry/', {'eID': i + 1, 'grade': 1, 'published': 0}, login)
-    #     result = test.api_post_call(self, '/update_publish_grades_assignment/', {'aID': 1, 'published': 1}, login)
-    #     self.assertEquals(Entry.objects.filter(node__journal__assignment=assign1, published=1).count(), 3)
-    #
-    #     result = test.api_post_call(self, '/update_publish_grades_journal/', {'jID': 1, 'published': 0}, login)
-    #     self.assertEquals(Entry.objects.filter(node__journal=1, published=0).count(), 3)
-    #     self.assertEquals(Entry.objects.get(pk=4).published, 1)
-
     def test_update_password(self):
         """Test update password."""
         login = test.logging_in(self, self.username, self.password)

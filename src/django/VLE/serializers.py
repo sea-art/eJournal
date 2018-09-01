@@ -275,71 +275,6 @@ class FieldSerializer(serializers.ModelSerializer):
         model = Field
         fields = '__all__'
 
-#
-# def participation_to_dict(participation):
-#     """Convert participation to a dictionary.
-#
-#     Parameters
-#     ----------
-#     participation : Participation
-#         The participation to convert.
-#
-#     Returns
-#     -------
-#     dictionary
-#         Dictionary of the role and user dictionaries.
-#
-#     """
-#     role_dict = {'role': participation.role.name}
-#     user_dict = user_to_dict(participation.user)
-#
-#     return {**role_dict, **user_dict} if participation else None
-#
-#
-# def course_to_dict(course):
-#     """Convert course to a dictionary."""
-#     return {
-#         'cID': course.id,
-#         'name': course.name,
-#         'auth': user_to_dict(course.author),
-#         'startdate': course.startdate,
-#         'enddate': course.enddate,
-#         'abbr': course.abbreviation
-#     } if course else None
-#
-#
-# def student_assignment_to_dict(assignment, user):
-#     """Convert a student assignment to a dictionary."""
-#     if not assignment:
-#         return None
-#     try:
-#         journal = Journal.objects.get(assignment=assignment, user=user)
-#     except Journal.DoesNotExist:
-#         journal = None
-#
-#     assignment_dict = assignment_to_dict(assignment)
-#     assignment_dict['journal'] = journal_to_dict(journal) if journal else None
-#
-#     return assignment_dict
-#
-#
-#
-# def journal_to_dict(journal):
-#     """Convert a journal to a dictionary."""
-#     entries = utils.get_journal_entries(journal)
-#     return {
-#         'jID': journal.id,
-#         'student': user_to_dict(journal.user),
-        # 'stats': {
-        #     'acquired_points': utils.get_acquired_points(entries),
-        #     'graded': utils.get_graded_count(entries),
-        #     'submitted': utils.get_submitted_count(entries),
-        #     'total_points': utils.get_max_points(journal),
-        # }
-#     } if journal else None
-#
-#
-#
 # def export_entry_to_dict(entry):
 #     """Convert entry to exportable dictionary."""
 #     if not entry:
@@ -389,16 +324,4 @@ class FieldSerializer(serializers.ModelSerializer):
 #         result = {**base, **{'template': template_to_dict(preset.forced_template)}}
 #
 #     return result
-#
-#
-# def entrycomment_to_dict(entrycomment):
-#     """Convert entrycomment to dictionary."""
-#     return {
-#         'ecID': entrycomment.id,
-#         'eID': entrycomment.entry.id,
-#         'author': user_to_dict(entrycomment.author),
-#         'text': entrycomment.text,
-#         'published': entrycomment.published,
-#         'timestamp': entrycomment.timestamp
-#     } if entrycomment else None
 #
