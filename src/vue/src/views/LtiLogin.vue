@@ -41,7 +41,6 @@ export default {
     },
     methods: {
         userIntegrated () {
-            console.log('asdf')
             this.$router.push({
                 name: 'LtiLaunch',
                 query: {

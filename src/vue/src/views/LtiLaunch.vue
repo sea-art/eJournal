@@ -81,7 +81,6 @@ export default {
             return new Promise((resolve, reject) => {
                 ltiAPI.getLtiParams(this.ltiJWT)
                     .then(response => {
-                        console.log(response)
                         this.lti.ltiCourseName = response.lti_cName
                         this.lti.ltiCourseAbbr = response.lti_abbr
                         this.lti.ltiCourseID = response.lti_cID
@@ -223,7 +222,6 @@ export default {
         this.ltiJWT = this.$route.query.ltiJWT
         await this.loadLtiData()
             .catch(error => {
-                console.log(error)
                 this.$router.push({
                     name: 'ErrorPage',
                     params: {

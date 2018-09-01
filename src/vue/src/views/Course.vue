@@ -37,7 +37,7 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="$hasPermission('can_view_assignment_participants', 'assignment', String(d.id)) ? assignmentRoute(d.course.id, d.id) : assignmentRoute(d.course.id, d.id, d.journal.id)">
+            <b-link tag="b-button" :to="$hasPermission('can_view_assignment_participants', 'assignment', String(d.id)) ? assignmentRoute(d.course.id, d.id) : assignmentRoute(d.course.id, d.id, d.journal)">
                 <todo-card :deadline="d"/>
             </b-link>
         </div>

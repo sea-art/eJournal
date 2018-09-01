@@ -134,9 +134,7 @@ export default {
 
             if (jID) {
                 route.params.jID = jID
-                console.log(route.name)
                 route.name = 'Journal'
-                console.log(route.name)
             }
 
             return route
