@@ -331,17 +331,18 @@ export default {
 
                 this.updateQuery()
             }
-
-            return store.state.filteredJournals.slice()
+            let filtered = store.state.filteredJournals.slice()
+            console.log(filtered)
+            return filtered
         },
         prevJournal () {
-            var curIndex = this.findIndex(this.filteredJournals, 'jID', this.jID)
+            var curIndex = this.findIndex(this.filteredJournals, 'id', this.jID)
             var prevIndex = (curIndex - 1 + this.filteredJournals.length) % this.filteredJournals.length
 
             return this.filteredJournals[prevIndex]
         },
         nextJournal () {
-            var curIndex = this.findIndex(this.filteredJournals, 'jID', this.jID)
+            var curIndex = this.findIndex(this.filteredJournals, 'id', this.jID)
             var nextIndex = (curIndex + 1) % this.filteredJournals.length
 
             return this.filteredJournals[nextIndex]
