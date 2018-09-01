@@ -30,6 +30,7 @@
 <script>
 import courseApi from '@/api/course.js'
 import icon from 'vue-awesome/components/Icon'
+import genericUtils from '@/utils/generic_utils.js'
 
 export default {
     name: 'CreateCourse',
@@ -71,13 +72,6 @@ export default {
             /* Trick to reset/clear native browser form validation state */
             this.show = false
             this.$nextTick(() => { this.show = true })
-        },
-        yearOffset (startDate) {
-            let split = startDate.split('-')
-            let yearOff = parseInt(split[0]) + 1
-
-            split[0] = String(yearOff)
-            return split.join('-')
         }
     },
     mounted () {
@@ -86,7 +80,7 @@ export default {
             this.form.courseAbbr = this.lti.ltiCourseAbbr
             this.form.ltiCourseID = this.lti.ltiCourseID
             this.form.courseStartdate = this.lti.ltiCourseStart.split(' ')[0]
-            this.form.courseEnddate = this.yearOffset(this.form.courseStartdate)
+            this.form.courseEnddate = genericUtils.yearOffset(this.form.courseStartdate)
         }
     },
     components: {

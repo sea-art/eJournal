@@ -65,7 +65,7 @@ export default {
                             .catch(_ => { this.$toasted.error('Error logging in with your newly created account, please contact a system administrator or try registering again.') })
                     })
                     .catch(error => {
-                        this.$toasted.error(error.response.data.description)
+                        this.$toasted.error(error.response.data.description || 'Could not register due to an unkown error.')
 
                         if (error.response.status === statuses.FORBIDDEN) {
                             this.$router.push({

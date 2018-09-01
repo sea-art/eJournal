@@ -10,7 +10,7 @@ export default {
     /* Get the courses where the logged in user is the teacher. */
     get_user_teacher_courses () {
         return auth.authenticatedGet('/get_user_teacher_courses/')
-            .then(response => response.data.courses)
+            .then(response => response.data)
     },
 
     /* Get user courses.
