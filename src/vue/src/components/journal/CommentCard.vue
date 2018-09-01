@@ -29,6 +29,7 @@
             <img class="profile-picture no-hover" :src="$store.getters['user/profilePicture']">
             <b-card class="no-hover new-comment">
                 <text-editor
+                    ref="comment-text-editor-ref"
                     :id="'comment-text-editor'"
                     @content-update="tempComment = $event"
                 />
@@ -101,6 +102,7 @@ export default {
                         // TODO Append comment rather than fire a get all entry comments request.
                         this.getEntryComments()
                         this.tempComment = ''
+                        this.$refs['comment-text-editor-ref'].clearContent()
                     })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }
