@@ -31,6 +31,7 @@
 import courseApi from '@/api/course.js'
 import icon from 'vue-awesome/components/Icon'
 import genericUtils from '@/utils/generic_utils.js'
+import permissionsAPI from '@/api/permissions.js'
 
 export default {
     name: 'CreateCourse',
@@ -48,30 +49,21 @@ export default {
     },
     methods: {
         onSubmit () {
-            courseApi.create_new_course(this.form.courseName,
-                this.form.courseAbbr, this.form.courseStartdate,
-                this.form.courseEnddate,
-                this.form.ltiCourseID)
-                .then(course => {
-                    this.onReset(undefined)
-                    this.$emit('handleAction', course.cID)
-                })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
+            courseApi.create_new_course(this.form.courseName, this.form.courseAbbr, this.form.courseStartdate,
+                this.form.courseEnddate, this.form.ltiCourseID).then(course => {
+                if (!this.lti) { // If we are here via LTI a full store update will take place anyway.
+                    permissionsAPI.get_course_permissions(course.cID).then(coursePermissions => {
+                        this.$store.commit('user/UPDATE_PERMISSIONS', { permissions: coursePermissions, key: 'course' + course.cID })
+                    })
+                }
+                this.$emit('handleAction', course.cID)
+            }).catch(error => { this.$toasted.error(error.response.data.description) })
         },
         onReset (evt) {
-            if (evt !== undefined) {
-                evt.preventDefault()
-            }
-
-            /* Reset our form values */
             this.form.courseName = ''
             this.form.courseAbbr = ''
             this.form.courseStartdate = ''
             this.form.courseEnddate = ''
-
-            /* Trick to reset/clear native browser form validation state */
-            this.show = false
-            this.$nextTick(() => { this.show = true })
         }
     },
     mounted () {
