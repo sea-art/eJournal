@@ -1,6 +1,6 @@
 <template>
     <div>
-        <p class="lti-intro-text">You came here from canvas with an unknown
+        <p class="lti-intro-text">You came here from a learning environment with an unknown
             assignment. Do you want to create a new assignment on Logboek,
             or connect to an existing one?</p>
         <b-row align-h="center">

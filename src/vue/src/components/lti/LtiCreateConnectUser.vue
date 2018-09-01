@@ -1,7 +1,7 @@
 <template>
     <div>
         <span class="multi-form">If you dont have an account on eJournal, you can create an account below. This account will be linked to your
-        canvas account from then on.</span>
+        learning environment from then on.</span>
         <b-row align-h="center">
             <b-button class="lti-button-option multi-form" @click="showModal('createUserRef')">
                 <icon name="user-plus" scale="1.8"/>
@@ -9,7 +9,7 @@
             </b-button>
         </b-row>
         <span class="multi-form">If you already have an account on eJournal, and would like to link this account to your
-        canvas account. Please press the button below.</span>
+        learning environment. Please press the button below.</span>
         <b-row  align-h="center">
             <b-button class="lti-button-option" @click="showModal('connectUserRef')">
                 <icon name="link" scale="1.8"/>
@@ -19,7 +19,7 @@
 
         <b-modal
             ref="createUserRef"
-            title="Create eJournal account that will be linked with your canvas account."
+            title="Create eJournal account"
             size="lg"
             hide-footer>
                 <register-user @handleAction="handleRegistered" :lti="lti"/>
@@ -27,7 +27,7 @@
 
         <b-modal
             ref="connectUserRef"
-            title="Login with your eJournal account to link with your canvas acccount."
+            title="Login to link with your learning environment"
             size="lg"
             hide-footer>
                 <login-form @handleAction="handleConnected"/>

@@ -1,3 +1,4 @@
+/* Expects a start date of the format "YY-mm-dd" */
 export default {
     yearOffset (startDate) {
         let split = startDate.split('-')

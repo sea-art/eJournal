@@ -9,8 +9,8 @@
                 </b-button>
             </b-row>
 
-            <span class="multi-form">If you have already setup a course on eJournal, and would like to link the canvas
-            course to this course. Please select the course below.</span>
+            <span class="multi-form">If you would to link an existing course on eJournal to the learning environment please
+            click the button below.</span>
             <b-row align-h="center">
                 <b-button class="lti-button-option" @click="showModal('connectCourseRef')">
                     <icon name="link" scale="1.8"/>
