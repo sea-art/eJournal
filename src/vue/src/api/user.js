@@ -27,7 +27,7 @@ export default {
     },
 
     GDPR (id = 0) {
-        return auth.downloadFile('users/' + id + '/GDPR')
+        return auth.downloadFile('users/' + id + '/GDPR/')
     },
 
     /* Update user file. */

@@ -240,6 +240,8 @@ class EntrySerializer(serializers.ModelSerializer):
 
     def get_grade(self, entry):
         # TODO: Add permission can_view_grade
+        if 'user' not in self.context:
+            return None
         if entry.published or permissions.has_assignment_permission(
                 self.context['user'], entry.node.journal.assignment, 'can_grade_journal'):
             return entry.grade

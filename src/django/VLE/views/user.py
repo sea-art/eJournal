@@ -11,7 +11,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 from VLE.serializers import UserSerializer, OwnUserSerializer, EntrySerializer
-from VLE.models import User, Journal, UserFile, Assignment, Node
+from VLE.models import User, Journal, UserFile, Assignment, Node, Entry
 from VLE.views import responses as response
 import VLE.utils.generic_utils as utils
 import VLE.factory as factory
@@ -309,10 +309,13 @@ class UserView(viewsets.ViewSet):
         # TODO: Add entry serializer
         for journal in journals:
             # Select the nodes of this journal but only the ones with entries.
-            entries = Node.objects.filter(journal=journal).exclude(entry__isnull=True).values_list('entry', flat=True)
+            entry_ids = Node.objects.filter(journal=journal).exclude(entry__isnull=True).values_list('entry', flat=True)
+            entries = Entry.objects.filter(id__in=entry_ids)
             print(entries)
             # Serialize all entries and put them into the entries dictionary with the assignment name key.
-            journal_dict.update({journal.assignment.name: EntrySerializer(entries, many=True).data})
+            journal_dict.update({
+                journal.assignment.name: EntrySerializer(entries, context={'user': request.user}, many=True).data
+            })
 
         archive_path = file_handling.compress_all_user_data(user, {'profile': profile, 'journals': journal_dict})
 
