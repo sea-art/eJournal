@@ -8,8 +8,6 @@ from rest_framework.decorators import action
 
 import VLE.views.responses as response
 import VLE.serializers as serialize
-# from VLE.serializers import CourseSerializer
-# from VLE.serializers import UserSerializer
 from VLE.models import Course
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
