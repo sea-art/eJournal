@@ -19,7 +19,7 @@
         </div>
         <div v-else-if="addNode.templates.length == 1">
             <h2 class="mb-2">Selected template</h2>
-            <entry-preview @content-template="createEntry" :template="addNode.templates[0]"/>
+            <entry-preview @content-template="createEntry" :template="selectedTemplate"/>
         </div>
     </b-card>
 </template>
@@ -34,6 +34,11 @@ export default {
         return {
             selectedTemplate: null,
             infoEntry: null
+        }
+    },
+    created: function () {
+        if (this.addNode.templates.length === 1) {
+            this.selectedTemplate = this.addNode.templates[0]
         }
     },
     methods: {

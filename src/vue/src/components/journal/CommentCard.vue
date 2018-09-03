@@ -8,20 +8,29 @@
             <div v-for="(comment, index) in commentObject.entrycomments" class="comment-section" :key="index">
                 <img class="profile-picture no-hover" :src="comment.author.picture">
                 <b-card class="no-hover comment-card" :class="$root.getBorderClass($route.params.cID)">
-                    <b-button v-if="authorData && authorData.uID == comment.author.uID" class="ml-2 delete-button float-right" @click="deleteComment(comment.ecID)">
-                        <icon name="trash"/>
-                        Delete
-                    </b-button>
-                    <div v-html="comment.text"/>
-                    <hr/>
-                    <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b>
-                    <span v-if="comment.published" class="timestamp">
-                        {{ $root.beautifyDate(comment.timestamp) }}<br/>
-                    </span>
-                    <span v-else class="timestamp">
-                        <icon name="hourglass-half" scale="0.8"/>
-                        Will be published after grade<br/>
-                    </span>
+                    <div v-if="!editCommentStatus[comment.ecID]">
+                        <b-button v-if="authorData && authorData.uID == comment.author.uID" class="ml-2 delete-button float-right" @click="deleteComment(comment.ecID)">
+                            <icon name="trash"/>
+                            Delete
+                        </b-button>
+                        <b-button v-if="authorData && authorData.uID == comment.author.uID" class="ml-2 edit-button float-right" @click="deleteComment(comment.ecID)">
+                            <icon name="edit"/>
+                            Edit
+                        </b-button>
+                        <div v-html="comment.text"/>
+                        <hr/>
+                        <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b>
+                        <span v-if="comment.published" class="timestamp">
+                            {{ $root.beautifyDate(comment.timestamp) }}<br/>
+                        </span>
+                        <span v-else class="timestamp">
+                            <icon name="hourglass-half" scale="0.8"/>
+                            Will be published after grade<br/>
+                        </span>
+                    </div>
+                    <div v-else>
+                        ghallooo
+                    </div>
                 </b-card>
             </div>
         </div>
@@ -71,7 +80,8 @@ export default {
             tempComment: '',
             authorData: '',
             commentObject: null,
-            publishAfterGrade: true
+            publishAfterGrade: true,
+            editCommentStatus: {}
         }
     },
     watch: {
@@ -101,6 +111,11 @@ export default {
                 .then(data => { this.commentObject = data })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
+        setCommentEditStatus () {
+            for (var comment in this.commentObject.entrycomments) {
+                this.editCommentStatus[comment.ecID] = false
+            }
+        },
         addComment () {
             if (this.tempComment !== '') {
                 entryApi.createEntryComment(this.eID, this.authorData.uID, this.tempComment, this.entryGradePublished, this.publishAfterGrade)
@@ -112,6 +127,12 @@ export default {
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         },
+        // editCommentStatus (ecID) {
+        //
+        // },
+        // editComment (ecID) {
+        //
+        // },
         deleteComment (ecID) {
             if (confirm('Are you sure you want to delete this comment?')) {
                 entryApi.deleteEntryComment(ecID)

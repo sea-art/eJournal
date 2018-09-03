@@ -381,15 +381,7 @@ def create_teacher_assignment_deadline(course, assignment):
     if len(format['presets']) == 0:
         return {}
 
-    deadline_data = format['presets'][0]['deadline']
-    splitted_deadline = deadline_data.split(' ')
-    deadline = [splitted_deadline[0],
-                splitted_deadline[1].split(':')[0],
-                splitted_deadline[1].split(':')[1]]
-    deadline = {'Date': deadline[0],
-                'Hours': deadline[1],
-                'Minutes': deadline[2]
-                }
+    deadline = format['presets'][0]['deadline']
 
     return {'name': serialize.assignment_to_dict(assignment)['name'],
             'courseAbbr': course.abbreviation,
@@ -427,10 +419,6 @@ def create_student_assignment_deadline(user, course, assignment):
         return {}
 
     future_deadline = future_deadlines[0]
-
-    future_deadline = {'Date': future_deadline['preset__deadline'].date(),
-                       'Hours': future_deadline['preset__deadline'].hour,
-                       'Minutes': future_deadline['preset__deadline'].minute}
 
     return {'name': serialize.assignment_to_dict(assignment)['name'],
             'courseAbbr': course.abbreviation,
