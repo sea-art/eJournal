@@ -8,34 +8,29 @@
             <div v-for="(comment, index) in commentObject.entrycomments" class="comment-section" :key="index">
                 <img class="profile-picture no-hover" :src="comment.author.picture">
                 <b-card class="no-hover comment-card" :class="$root.getBorderClass($route.params.cID)">
-                    <div v-if="!editCommentStatus[comment.ecID]">
-                        <b-button v-if="authorData && authorData.uID == comment.author.uID" class="ml-2 delete-button float-right" @click="deleteComment(comment.ecID)">
-                            <icon name="trash"/>
-                            Delete
-                        </b-button>
-                        <b-button v-if="authorData && authorData.uID == comment.author.uID" class="ml-2 edit-button float-right" @click="deleteComment(comment.ecID)">
-                            <icon name="edit"/>
-                            Edit
-                        </b-button>
-                        <div v-html="comment.text"/>
-                        <hr/>
-                        <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b>
-                        <span v-if="comment.published" class="timestamp">
-                            {{ $root.beautifyDate(comment.timestamp) }}<br/>
-                        </span>
-                        <span v-else class="timestamp">
-                            <icon name="hourglass-half" scale="0.8"/>
-                            Will be published after grade<br/>
-                        </span>
-                    </div>
-                    <div v-else>
-                        ghallooo
-                    </div>
+                    <b-button v-if="$store.getters['user/uID'] == comment.author.uID" class="ml-2 delete-button float-right" @click="deleteComment(comment.ecID)">
+                        <icon name="trash"/>
+                        Delete
+                    </b-button>
+                    <b-button v-if="$store.getters['user/uID'] == comment.author.uID" class="ml-2 edit-button float-right">
+                        <icon name="edit"/>
+                        Edit
+                    </b-button>
+                    <div v-html="comment.text"/>
+                    <hr/>
+                    <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b>
+                    <span v-if="comment.published" class="timestamp">
+                        {{ $root.beautifyDate(comment.timestamp) }}<br/>
+                    </span>
+                    <span v-else class="timestamp">
+                        <icon name="hourglass-half" scale="0.8"/>
+                        Will be published after grade<br/>
+                    </span>
                 </b-card>
             </div>
         </div>
-        <div v-if="$root.canCommentJournal()" class="comment-section">
-            <img class="profile-picture no-hover" :src="authorData.picture">
+        <div v-if="$hasPermission('can_comment_journal')" class="comment-section">
+            <img class="profile-picture no-hover" :src="$store.getters['user/profilePicture']">
             <b-card class="no-hover new-comment">
                 <text-editor
                     :id="'comment-text-editor'"
@@ -43,7 +38,7 @@
                 />
                 <!-- <b-textarea class="theme-input multi-form full-width" v-model="tempComment" placeholder="Write a comment" :class="$root.getBorderClass($route.params.cID)"/> -->
                 <div class="d-flex full-width justify-content-end align-items-center">
-                    <b-form-checkbox v-if="$root.canGradeJournal() && !entryGradePublished" v-model="publishAfterGrade">
+                    <b-form-checkbox v-if="$hasPermission('can_grade_journal') && !entryGradePublished" v-model="publishAfterGrade">
                         Publish after grade
                     </b-form-checkbox>
                     <b-button class="send-button mt-2" @click="addComment">
@@ -56,7 +51,6 @@
 </template>
 
 <script>
-import userApi from '@/api/user.js'
 import entryApi from '@/api/entry.js'
 import icon from 'vue-awesome/components/Icon'
 import textEditor from '@/components/assets/TextEditor.vue'
@@ -78,7 +72,6 @@ export default {
     data () {
         return {
             tempComment: '',
-            authorData: '',
             commentObject: null,
             publishAfterGrade: true,
             editCommentStatus: {}
@@ -98,14 +91,9 @@ export default {
         }
     },
     created () {
-        this.getAuthorData()
         this.getEntryComments()
     },
     methods: {
-        getAuthorData () {
-            userApi.getOwnUserData()
-                .then(response => { this.authorData = response })
-        },
         getEntryComments () {
             entryApi.getEntryComments(this.eID)
                 .then(data => { this.commentObject = data })
@@ -118,7 +106,7 @@ export default {
         },
         addComment () {
             if (this.tempComment !== '') {
-                entryApi.createEntryComment(this.eID, this.authorData.uID, this.tempComment, this.entryGradePublished, this.publishAfterGrade)
+                entryApi.createEntryComment(this.eID, this.$store.getters['user/uID'], this.tempComment, this.entryGradePublished, this.publishAfterGrade)
                     .then(comment => {
                         // TODO Append comment rather than fire a get all entry comments request.
                         this.getEntryComments()

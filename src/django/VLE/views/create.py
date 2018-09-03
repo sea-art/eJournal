@@ -165,6 +165,11 @@ def create_entry(request):
         return responses.keyerror("jID", "tID", "content")
 
     try:
+        validators.validate_entry_content(content_list)
+    except ValidationError as e:
+        return responses.bad_request(e.args[0])
+
+    try:
         journal = Journal.objects.get(pk=jID, user=request.user)
 
         template = EntryTemplate.objects.get(pk=tID)
@@ -270,8 +275,15 @@ def create_lti_user(request):
             roles -- role of the user
     """
     if request.data['jwt_params'] is not '':
-        lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
-        lti_id, user_image = lti_params['user_id'], lti_params['user_image']
+        try:
+            lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
+        except jwt.exceptions.ExpiredSignatureError:
+            return responses.forbidden(
+                description='The canvas link has expired, 15 minutes have passed. Please retry from canvas.')
+        except jwt.exceptions.InvalidSignatureError:
+            return responses.unauthorized(description='Invalid LTI parameters given. Please retry from canvas.')
+
+        lti_id, user_image = lti_params['user_id'], lti_params['custom_user_image']
         is_teacher = json.load(open('config.json'))['Teacher'] in lti_params['roles']
     else:
         lti_id, user_image, is_teacher = None, None, False
@@ -302,7 +314,8 @@ def create_lti_user(request):
         return responses.bad_request('Invalid email address.')
 
     user = factory.make_user(username, password, email=email, lti_id=lti_id, is_teacher=is_teacher,
-                             first_name=first_name, last_name=last_name, profile_picture=user_image)
+                             first_name=first_name, last_name=last_name, profile_picture=user_image,
+                             verified_email=True if lti_id else False)
 
     if lti_id is None:
         email_handling.send_email_verification_link(user)

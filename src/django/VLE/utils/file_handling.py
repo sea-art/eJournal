@@ -23,15 +23,15 @@ def compress_all_user_data(user, extra_data_dict=None, archive_extension='zip'):
     archive_name = user.username + '_data_archive'
     archive_ouput_base_name = os.path.join(settings.MEDIA_ROOT, archive_name)
     archive_ouput_path = archive_ouput_base_name + '.' + archive_extension
-    content_type = 'application/' + archive_extension
 
     if extra_data_dict:
         extra_data_dump_name = 'information.json'
         extra_data_dump_path = os.path.join(user_file_dir_path, extra_data_dump_name)
+        os.makedirs(os.path.dirname(extra_data_dump_path), exist_ok=True)
 
         with open(extra_data_dump_path, 'w') as file:
             file.write(json.dumps(extra_data_dict))
 
     shutil.make_archive(archive_ouput_base_name, archive_extension, user_file_dir_path)
 
-    return archive_ouput_path, content_type
+    return archive_ouput_path

@@ -39,25 +39,6 @@ GRADE_CENTER = '6'
 
 
 @api_view(['GET'])
-def get_own_user_data(request):
-    """Get the data linked to the logged in user.
-
-    Arguments:
-    request -- the request that was send with
-
-    Returns a json string with user data
-    """
-    user = request.user
-    if not user.is_authenticated:
-        return responses.unauthorized()
-
-    user_dict = serialize.user_to_dict(user)
-    user_dict['grade_notifications'] = user.grade_notifications
-    user_dict['comment_notifications'] = user.comment_notifications
-    return responses.success(payload={'user': user_dict})
-
-
-@api_view(['GET'])
 def get_course_data(request, cID):
     """Get the data linked to a course ID.
 
@@ -136,8 +117,8 @@ def get_unenrolled_users(request, cID):
     role = permissions.get_role(user, course)
     if role is None:
         return responses.forbidden('You are not a participant of this course.')
-    elif not role.can_view_course_participants:
-        return responses.forbidden('You cannot view the participants in this course.')
+    elif not role.can_add_course_participants:
+        return responses.forbidden('You cannot add participants to this course.')
 
     ids_in_course = course.participation_set.all().values('user__id')
     result = User.objects.all().exclude(id__in=ids_in_course)
@@ -377,17 +358,11 @@ def create_teacher_assignment_deadline(course, assignment):
 
     totalNeedsMarking = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
 
-    format = serialize.format_to_dict(assignment.format)
-    if len(format['presets']) == 0:
-        return {}
-
-    deadline = format['presets'][0]['deadline']
-
     return {'name': serialize.assignment_to_dict(assignment)['name'],
             'courseAbbr': course.abbreviation,
             'cID': course.id,
             'aID': assignment.id,
-            'deadline': deadline,
+            'deadline': datetime.datetime.now(),  # TODO placeholder untill the assignment end dates are set.
             'totalNeedsMarking': totalNeedsMarking}
 
 
@@ -408,7 +383,7 @@ def create_student_assignment_deadline(user, course, assignment):
     except Journal.DoesNotExist:
         return {}
 
-    deadlines = journal.node_set.exclude(preset=None).values('preset__deadline')
+    deadlines = journal.node_set.exclude(preset=None).values('preset__deadline')  # TODO Incorporate assigment end date
     if len(deadlines) == 0:
         return {}
 
@@ -418,15 +393,33 @@ def create_student_assignment_deadline(user, course, assignment):
     if len(future_deadlines) == 0:
         return {}
 
-    future_deadline = future_deadlines[0]
+    future_deadline = future_deadlines[0]['preset__deadline']
 
     return {'name': serialize.assignment_to_dict(assignment)['name'],
             'courseAbbr': course.abbreviation,
             'cID': course.id,
             'aID': assignment.id,
             'jID': journal.id,
-            'deadline': future_deadline,
-            'totalNeedsMarking': 0}
+            'deadline': future_deadline}
+
+
+def compute_course_deadlines(user, course):
+    deadline_list = []
+
+    role = permissions.get_role(user, course)
+
+    if role.can_grade_journal:
+        for assignment in Assignment.objects.filter(courses=course.id).all():
+            deadline = create_teacher_assignment_deadline(course, assignment)
+            if deadline:
+                deadline_list.append(deadline)
+    else:
+        for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
+            deadline = create_student_assignment_deadline(user, course, assignment)
+            if deadline:
+                deadline_list.append(deadline)
+
+    return deadline_list
 
 
 @api_view(['GET'])
@@ -442,29 +435,12 @@ def get_upcoming_deadlines(request):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    courses = []
     deadline_list = []
 
     for course in user.participations.all():
-        courses.append(course)
+        deadline_list += compute_course_deadlines(user, course)
 
-    for course in courses:
-        role = permissions.get_role(user, course)
-
-        if role is None:
-            return responses.forbidden('You are not a participant of this course.')
-
-        if role.can_grade_journal:
-            for assignment in Assignment.objects.filter(courses=course.id).all():
-                deadline = create_teacher_assignment_deadline(course, assignment)
-                if deadline:
-                    deadline_list.append(deadline)
-        else:
-            for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
-                deadline = create_student_assignment_deadline(user, course, assignment)
-                if deadline:
-                    deadline_list.append(deadline)
-
+    # TODO as the assignments can be shared by course, we still need to combine possible double references.
     return responses.success(payload={'deadlines': deadline_list})
 
 
@@ -483,29 +459,12 @@ def get_upcoming_course_deadlines(request, cID):
     if not user.is_authenticated:
         return responses.unauthorized()
 
-    deadline_list = []
-
     try:
         course = Course.objects.get(pk=cID)
     except Course.DoesNotExist:
         return responses.not_found('Course not found.')
 
-    for assignment in Assignment.objects.filter(courses=course.id, journal__user=user).all():
-        role = permissions.get_role(user, course)
-
-        if role is None:
-            return responses.forbidden('You are not a participant of this course.')
-
-        if role.can_grade_journal:
-            deadline = create_teacher_assignment_deadline(course, assignment)
-            if deadline:
-                deadline_list.append(deadline)
-        else:
-            deadline = create_student_assignment_deadline(user, course, assignment)
-            if deadline:
-                deadline_list.append(deadline)
-
-    return responses.success(payload={'deadlines': deadline_list})
+    return responses.success(payload={'deadlines': compute_course_deadlines(user, course)})
 
 
 @api_view(['GET'])
@@ -732,27 +691,21 @@ def get_entrycomments(request, eID):
 
 
 @api_view(['GET'])
-def get_user_data(request, uID):
+def get_all_user_data(request):
     """Get the user data of the given user.
 
     Get the users profile data and posted entries with the titles of the journals of the user based on the uID. As well
     as all the user uploaded files.
     """
-    if not request.user.is_authenticated:
+    user = request.user
+    if not user.is_authenticated:
         return responses.unauthorized()
-
-    user = User.objects.get(pk=uID)
-
-    # Check the right permissions to get this users data, either be the user of the data or be an admin.
-    permission = permissions.get_permissions(user, cID=-1)
-    if not (permission['is_superuser'] or request.user.id == uID):
-        return responses.forbidden('You cannot view this users data.')
 
     profile = serialize.user_to_dict(user)
     # Don't send the user id with it.
     del profile['uID']
 
-    journals = Journal.objects.filter(user=uID)
+    journals = Journal.objects.filter(user=user)
     journal_dict = {}
     for journal in journals:
         # Select the nodes of this journal but only the ones with entries.
@@ -761,10 +714,9 @@ def get_user_data(request, uID):
         entries_of_journal = [serialize.export_entry_to_dict(node.entry) for node in nodes_of_journal_with_entries]
         journal_dict.update({journal.assignment.name: entries_of_journal})
 
-    archive_path, content_type = file_handling.compress_all_user_data(user,
-                                                                      {'profile': profile, 'journals': journal_dict})
+    archive_path = file_handling.compress_all_user_data(user, {'profile': profile, 'journals': journal_dict})
 
-    return responses.file_b64(archive_path, content_type)
+    return responses.file(archive_path)
 
 
 @api_view(['GET'])
@@ -799,7 +751,14 @@ def get_lti_params_from_jwt(request, jwt_params):
         return responses.unauthorized()
 
     user = request.user
-    lti_params = jwt.decode(jwt_params, settings.LTI_SECRET, algorithms=['HS256'])
+    try:
+        lti_params = jwt.decode(jwt_params, settings.LTI_SECRET, algorithms=['HS256'])
+    except jwt.exceptions.ExpiredSignatureError:
+        return responses.forbidden(
+            description='The canvas link has expired, 15 minutes have passed. Please retry from canvas.')
+    except jwt.exceptions.InvalidSignatureError:
+        return responses.unauthorized(description='Invalid LTI parameters given. Please retry from canvas.')
+
     roles = json.load(open('config.json'))
     lti_roles = dict((roles[k], k) for k in roles)
     role = lti_roles[lti_params['roles']]
@@ -809,14 +768,16 @@ def get_lti_params_from_jwt(request, jwt_params):
     if course is None:
         if role == 'Teacher':
             payload['state'] = NEW_COURSE
-            payload['lti_cName'] = lti_params['context_title']
+            payload['lti_cName'] = lti_params['custom_course_name']
             payload['lti_abbr'] = lti_params['context_label']
-            payload['lti_cID'] = lti_params['context_id']
-            payload['lti_aName'] = lti_params['resource_link_title']
-            payload['lti_aID'] = lti_params['resource_link_id']
-
-            if 'custom_canvas_assignment_points_possible' in lti_params:
-                payload['lti_points_possible'] = lti_params['custom_canvas_assignment_points_possible']
+            payload['lti_cID'] = lti_params['custom_course_id']
+            payload['lti_course_start'] = lti_params['custom_course_start']
+            payload['lti_aName'] = lti_params['custom_assignment_title']
+            payload['lti_aID'] = lti_params['custom_assignment_id']
+            payload['lti_aLock'] = lti_params['custom_assignment_lock']
+            payload['lti_aDue'] = lti_params['custom_assignment_due']
+            payload['lti_aUnlock'] = lti_params['custom_assignment_unlock']
+            payload['lti_points_possible'] = lti_params['custom_assignment_points']
 
             return responses.success(payload={'params': payload})
         else:
@@ -828,11 +789,12 @@ def get_lti_params_from_jwt(request, jwt_params):
         if role == 'Teacher':
             payload['state'] = NEW_ASSIGN
             payload['cID'] = course.pk
-            payload['lti_aName'] = lti_params['resource_link_title']
-            payload['lti_aID'] = lti_params['resource_link_id']
-
-            if 'custom_canvas_assignment_points_possible' in lti_params:
-                payload['lti_points_possible'] = lti_params['custom_canvas_assignment_points_possible']
+            payload['lti_aName'] = lti_params['custom_assignment_title']
+            payload['lti_aID'] = lti_params['custom_assignment_id']
+            payload['lti_aLock'] = lti_params['custom_assignment_lock']
+            payload['lti_aDue'] = lti_params['custom_assignment_due']
+            payload['lti_aUnlock'] = lti_params['custom_assignment_unlock']
+            payload['lti_points_possible'] = lti_params['custom_assignment_points']
 
             return responses.success(payload={'params': payload})
         else:
@@ -854,7 +816,12 @@ def get_lti_params_from_jwt(request, jwt_params):
 def lti_launch(request):
     """Django view for the lti post request.
 
-    handles the users login or sned to a creation page.
+    Verifies the given LTI parameters based on our secret, if a user can be found based on the verified parameters
+    a redirection link is send with corresponding JW access and refresh token to allow for a user login. If no user
+    can be found on our end, but the LTI parameters were verified nonetheless, we are dealing with a new user and
+    redirect with additional parameters that will allow for the creation of a new user.
+
+    If the parameters are not validated a redirection is send with the parameter state set to BAD_AUTH.
     """
     secret = settings.LTI_SECRET
     key = settings.LTI_KEY
@@ -865,6 +832,7 @@ def lti_launch(request):
     if authenticated:
         roles = json.load(open('config.json'))
         params = request.POST.dict()
+
         user = lti.check_user_lti(params, roles)
 
         params['exp'] = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
@@ -874,26 +842,25 @@ def lti_launch(request):
             q_names = ['state', 'lti_params']
             q_values = [NO_USER, lti_params]
 
-            if 'lis_person_name_full' in params:
-                fullname = params['lis_person_name_full']
+            if 'custom_user_full_name' in params:
+                fullname = params['custom_user_full_name']
                 splitname = fullname.split(' ')
                 firstname = splitname[0]
                 lastname = fullname[len(splitname[0])+1:]
                 q_names += ['firstname', 'lastname']
                 q_values += [firstname, lastname]
 
-            if 'lis_person_sourcedid' in params:
+            if 'custom_username' in params:
                 q_names.append('username')
-                q_values.append(params['lis_person_sourcedid'])
+                q_values.append(params['custom_username'])
 
-            if 'lis_person_contact_email_primary' in params:
+            if 'custom_user_email' in params:
                 q_names.append('email')
-                q_values.append(params['lis_person_contact_email_primary'])
+                q_values.append(params['custom_user_email'])
 
             return redirect(lti.create_lti_query_link(q_names, q_values))
 
         refresh = TokenObtainPairSerializer.get_token(user)
-        print(refresh)
         access = refresh.access_token
         return redirect(lti.create_lti_query_link(['lti_params', 'jwt_access', 'jwt_refresh', 'state'],
                                                   [lti_params, access, refresh, LOGGED_IN]))
@@ -920,6 +887,25 @@ def get_user_file(request, file_name, author_uID):
 
     if user_file.author.id is user.id or \
        permissions.has_assignment_permission(user, user_file.assignment, 'can_view_assignment_participants'):
-        return responses.user_file_b64(user_file)
+        return responses.file(user_file)
     else:
         return responses.unauthorized('Unauthorized to view: %s by author ID: %s.' % (file_name, author_uID))
+
+
+@api_view(['GET'])
+def get_user_store_data(request):
+    """Gets all permissions for each course and assignment, as well as general user data. This is stored client side.
+
+    Arguments:
+    request -- the request that was sent
+
+    Returns all user permissions under all_permissions, all user data under: user_data.
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    user_data = serialize.user_to_dict(user)
+    all_permissions = permissions.get_all_user_permissions(user)
+
+    return responses.success(payload={'user_data': user_data, 'all_permissions': all_permissions})

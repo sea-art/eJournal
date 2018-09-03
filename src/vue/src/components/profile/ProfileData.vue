@@ -19,13 +19,12 @@
         </b-col>
         <b-col md="7" sm="12">
             <h2 class="mb-2">User details</h2>
-            <b-form-input :readonly="true" class="theme-input multi-form" v-model="userData.username" type="text"/>
-            <b-form-input :readonly="(userData.lti_id) ? true : false" class="theme-input multi-form" v-model="userData.first_name" type="text"/>
-            <b-form-input :readonly="(userData.lti_id) ? true : false" class="theme-input multi-form" v-model="userData.last_name" type="text"/>
+            <b-form-input :readonly="true" class="theme-input multi-form" :value="$store.getters['user/username']" type="text"/>
+            <b-form-input :readonly="($store.getters['user/ltiID']) ? true : false" class="theme-input multi-form" v-model="firstName" type="text"/>
+            <b-form-input :readonly="($store.getters['user/ltiID']) ? true : false" class="theme-input multi-form" v-model="lastName" type="text"/>
+            <email/>
 
-            <email :userData="userData"/>
-
-            <b-button v-if="!userData.lti_id" class="add-button multi-form float-right" @click="saveUserdata">
+            <b-button v-if="!$store.getters['user/ltiID']" class="add-button multi-form float-right" @click="saveUserdata">
                 <icon name="save"/>
                 Save
             </b-button>
@@ -41,10 +40,8 @@
 import userAPI from '@/api/user.js'
 import icon from 'vue-awesome/components/Icon'
 import email from '@/components/profile/Email.vue'
-import dataHandling from '@/utils/data_handling.js'
 
 export default {
-    props: ['userData'],
     components: {
         icon,
         email
@@ -55,13 +52,18 @@ export default {
             profileImageDataURL: null,
             showEmailValidationInput: true,
             emailVerificationToken: null,
-            emailVerificationTokenMessage: null
+            emailVerificationTokenMessage: null,
+            firstName: null,
+            lastName: null
         }
     },
     methods: {
         saveUserdata () {
-            userAPI.updateUserData(this.userData.first_name, this.userData.last_name)
-                .then(_ => { this.$toasted.success('Saved profile data') })
+            userAPI.updateUserData(this.firstName, this.lastName)
+                .then(_ => {
+                    this.$store.commit('user/SET_FULL_USER_NAME', { firstName: this.firstName, lastName: this.lastName })
+                    this.$toasted.success('Saved profile data')
+                })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         fileHandler (e) {
@@ -85,7 +87,10 @@ export default {
                         this.$toasted.error('Please submit a square image.')
                     } else {
                         userAPI.updateProfilePictureBase64(dataURL)
-                            .then(_ => { vm.profileImageDataURL = dataURL })
+                            .then(_ => {
+                                vm.$store.commit('user/SET_PROFILE_PICTURE', dataURL)
+                                vm.profileImageDataURL = dataURL
+                            })
                             .catch(error => { this.$toasted.error(error.response.data.description) })
                     }
                 }
@@ -94,23 +99,27 @@ export default {
             reader.readAsDataURL(files[0])
         },
         downloadUserData () {
-            userAPI.getUserData(this.userData.uID)
+            userAPI.getAllUserData(this.$store.getters['user/uID'])
                 .then(response => {
-                    let blob = new Blob([dataHandling.base64ToArrayBuffer(response.data)], { type: response.headers['content-type'] })
+                    let blob = new Blob([response.data], { type: response.headers['content-type'] })
                     let link = document.createElement('a')
                     link.href = window.URL.createObjectURL(blob)
-                    link.download = /filename=(.*)/.exec(response.headers['content-disposition'])[1]
+                    link.download = this.$store.getters['user/username'] + '_all_user_data.zip'
+                    document.body.appendChild(link)
                     link.click()
+                    link.remove()
                 }, error => {
                     this.$toasted.error(error.response.data.description)
                 })
-                .catch(_ => {
+                .catch(e => {
                     this.$toasted.error('Error creating file.')
                 })
         }
     },
     mounted () {
-        this.profileImageDataURL = this.userData.picture
+        this.profileImageDataURL = this.$store.getters['user/profilePicture']
+        this.firstName = this.$store.getters['user/firstName']
+        this.lastName = this.$store.getters['user/lastName']
     }
 }
 </script>
