@@ -171,8 +171,8 @@ export default {
             }
 
             function compareMarkingNeeded (a, b) {
-                if (a.stats.submitted - a.stats.graded < b.stats.submitted - b.stats.graded) { return -1 }
-                if (a.stats.submitted - a.stats.graded > b.stats.submitted - b.stats.graded) { return 1 }
+                if (a.stats.submitted - a.stats.graded < b.stats.submitted - b.stats.graded) { return 1 }
+                if (a.stats.submitted - a.stats.graded > b.stats.submitted - b.stats.graded) { return -1 }
                 return 0
             }
 
