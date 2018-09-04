@@ -9,7 +9,7 @@
                 </b-button>
             </b-row>
 
-            <span class="multi-form">If you would to link an existing course on eJournal to the learning environment please
+            <span class="multi-form">If you would like to link an existing course on eJournal to the learning environment please
             click the button below.</span>
             <b-row align-h="center">
                 <b-button class="lti-button-option" @click="showModal('connectCourseRef')">
