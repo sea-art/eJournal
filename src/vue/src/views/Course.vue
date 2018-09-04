@@ -6,7 +6,7 @@
             @edit-click="handleEdit()"/>
 
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
-            <b-link tag="b-button" :to="$hasPermission('can_view_assignment_participants', 'assignment', String(a.id)) ? assignmentRoute(cID, a.id) : assignmentRoute(cID, a.id, a.journal.id)">
+            <b-link tag="b-button" :to="assignmentRoute(cID, a.id, a.journal)">
                 <assignment-card :line1="a.name">
                     <progress-bar
                         v-if="a.journal && a.journal.stats"
@@ -37,7 +37,7 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="$hasPermission('can_view_assignment_participants', 'assignment', String(d.id)) ? assignmentRoute(d.course.id, d.id) : assignmentRoute(d.course.id, d.id, d.journal)">
+            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal)">
                 <todo-card :deadline="d"/>
             </b-link>
         </div>
@@ -133,12 +133,11 @@ export default {
                 }
             })
         },
-        assignmentRoute (cID, aID, jID = 0) {
+        assignmentRoute (cID, aID, jID) {
             var route = {
                 params: {
                     cID: cID,
-                    aID: aID,
-                    jID: jID
+                    aID: aID
                 }
             }
 
