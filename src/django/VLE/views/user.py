@@ -312,7 +312,6 @@ class UserView(viewsets.ViewSet):
             # Select the nodes of this journal but only the ones with entries.
             entry_ids = Node.objects.filter(journal=journal).exclude(entry__isnull=True).values_list('entry', flat=True)
             entries = Entry.objects.filter(id__in=entry_ids)
-            print(entries)
             # Serialize all entries and put them into the entries dictionary with the assignment name key.
             journal_dict.update({
                 journal.assignment.name: EntrySerializer(entries, context={'user': request.user}, many=True).data
