@@ -48,6 +48,3 @@ urlpatterns = [
 
     path('names/<int:course_id>/<int:assignment_id>/<int:journal_id>/', common.names, name='names'),
 ]
-
-# if settings.DEBUG is True:
-#      urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

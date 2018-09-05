@@ -44,6 +44,7 @@ export default {
             handleAssignmentChoice: false,
             createAssignment: false,
             ltiJWT: '',
+            tempStateToCheckIfWeCanAutoSetup: '',
 
             /* Possible states for the control flow. */
             states: {
@@ -99,7 +100,7 @@ export default {
                     this.page.cID = response.cID
                     this.page.aID = response.aID
                     this.page.jID = response.jID
-                    this.states.state = response.state
+                    this.tempStateToCheckIfWeCanAutoSetup = response.state
                 })
         },
         autoSetupCourseAndAssignment () {
@@ -238,7 +239,7 @@ export default {
             }
         },
         handleInitialState () {
-            if (this.states.state === this.states.bad_auth) {
+            if (this.tempStateToCheckIfWeCanAutoSetup === this.states.bad_auth) {
                 router.push({
                     name: 'ErrorPage',
                     params: {
@@ -248,7 +249,7 @@ export default {
                                       Please contact the system administrator.`
                     }
                 })
-            } else if (this.states.state === this.states.no_course || this.states.state === this.states.no_assign) {
+            } else if (this.tempStateToCheckIfWeCanAutoSetup === this.states.no_course || this.tempStateToCheckIfWeCanAutoSetup === this.states.no_assign) {
                 router.push({
                     name: 'ErrorPage',
                     params: {
@@ -259,8 +260,6 @@ export default {
                                       contact your teacher for more information.`
                     }
                 })
-            } else {
-                this.updateState(this.states.state)
             }
         }
     },
@@ -273,16 +272,19 @@ export default {
         this.ltiJWT = this.$route.query.ltiJWT
 
         this.loadLtiData().then(_ => {
+            this.handleInitialState()
             /* The lti parameters such as course id are not set if we are a student. */
             if (this.lti.ltiCourseID) {
                 courseAPI.getLinkable().then(courses => {
                     if (courses.length) {
                         this.courses = courses
-                        this.handleInitialState()
+                        this.states.state = this.tempStateToCheckIfWeCanAutoSetup
                     } else {
                         this.autoSetupCourseAndAssignment()
                     }
                 })
+            } else {
+                this.states.state = this.tempStateToCheckIfWeCanAutoSetup
             }
         }).catch(error => {
             this.$router.push({
