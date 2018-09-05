@@ -178,27 +178,30 @@ class JournalView(viewsets.ViewSet):
         except Course.DoesNotExist:
             return response.not_found('Journal')
 
+        published, = utils.optional_params(request.data, 'published')
+        if published:
+            return self.publish(request, journal)
         if permissions.has_assignment_permission(request.user, journal.assignment, 'can_edit_journal'):
-            return response.forbidden('You are not allowed to edit this journal.')
-
+            req_data = request.data
+            del req_data['published']
             # TODO Check if a serializer is valid if we add an extra argument (published) to the request data.
-            serializer = JournalSerializer(journal, data=request.data, partial=True)
+            serializer = JournalSerializer(journal, data=req_data, partial=True)
             if not serializer.is_valid():
                 response.bad_request()
             serializer.save()
-
-        published, = utils.optional_params(request.data, 'published')
-        if published:
-            if not permissions.has_assignment_permission(request.user, journal.assignment,
-                                                         'can_publish_journal_grades'):
-                return response.forbidden('You cannot publish assignments.')
-
-            utils.publish_all_journal_grades(journal, published)
-            if journal.sourcedid is not None and journal.grade_url is not None:
-                payload = lti_grade.replace_result(journal)
-            else:
-                payload = dict()
-
-            return response.success({'lti_info': payload})
+        else:
+            return response.forbidden('You are not allowed to edit this journal.')
 
         return response.success({'journal': serializer.data})
+
+    def publish(self, request, journal, published=True):
+        if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_journal_grades'):
+            return response.forbidden('You cannot publish assignments.')
+
+        utils.publish_all_journal_grades(journal, published)
+        if journal.sourcedid is not None and journal.grade_url is not None:
+            payload = lti_grade.replace_result(journal)
+        else:
+            payload = None
+
+        return response.success({'lti_info': payload})

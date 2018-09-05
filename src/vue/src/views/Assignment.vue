@@ -102,9 +102,9 @@ export default {
         }
 
         assignmentAPI.get(this.aID, this.cID)
-            .then(data => {
-                this.assignmentJournals = data.journals
-                this.stats = data.stats
+            .then(assignment => {
+                this.assignmentJournals = assignment.journals
+                this.stats = assignment.stats
             })
             .catch(error => {
                 this.$toasted.error(error.response.data.description)
@@ -135,19 +135,18 @@ export default {
         },
         publishGradesAssignment () {
             if (confirm('Are you sure you want to publish all grades for each journal?')) {
-                alert('Not implemented yet')
-                // journal.update_publish_grades_assignment(this.aID, 1)
-                //     .then(_ => {
-                //         this.$toasted.success('Published all grades for this assignment.')
-                //         journal.get_assignment_journals(this.aID)
-                //             .then(response => {
-                //                 this.assignmentJournals = response.journals
-                //                 this.stats = response.stats
-                //             })
-                //     })
-                //     .catch(_ => {
-                //         this.$toasted.error('Error while publishing all grades for this assignment.')
-                //     })
+                assignmentAPI.update(this.aID, {published: true})
+                    .then(_ => {
+                        this.$toasted.success('Published all grades for this assignment.')
+                        assignmentAPI.get(this.aID, this.cID)
+                            .then(assignment => {
+                                this.assignmentJournals = assignment.journals
+                                this.stats = assignment.stats
+                            })
+                    })
+                    .catch(_ => {
+                        this.$toasted.error('Error while publishing all grades for this assignment.')
+                    })
             }
         },
         updateQuery () {

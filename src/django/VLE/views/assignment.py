@@ -202,13 +202,20 @@ class AssignmentView(viewsets.ViewSet):
         except Course.DoesNotExist:
             return response.not_found('Assignment')
 
-        if not permissions.has_assignment_permission(request.user, assignment, 'can_edit_assignment'):
+        published, = utils.optional_params(request.data, 'published')
+        if published:
+            # TODO: What to do about the JSON response?
+            self.publish(request, assignment)
+        if permissions.has_assignment_permission(request.user, assignment, 'can_edit_assignment'):
+            req_data = request.data
+            if published is not None:
+                del req_data['published']
+            serializer = AssignmentSerializer(assignment, data=req_data, context={'user': request.user}, partial=True)
+            if not serializer.is_valid():
+                response.bad_request()
+            serializer.save()
+        elif not published:
             return response.forbidden('You are not allowed to edit this assignment.')
-
-        serializer = AssignmentSerializer(assignment, data=request.data, context={'user': request.user}, partial=True)
-        if not serializer.is_valid():
-            response.bad_request()
-        serializer.save()
         return response.success({'assignment': serializer.data})
 
     def destroy(self, request, *args, **kwargs):
@@ -337,3 +344,17 @@ class AssignmentView(viewsets.ViewSet):
 
         payload['new_published'] = published
         return response.success(payload=payload)
+
+    def publish(self, request, assignment, published=True):
+        if permissions.has_assignment_permission(request.user, assignment, 'can_publish_journal_grades'):
+            utils.publish_all_assignment_grades(assignment, published)
+
+            for journal in Journal.objects.filter(assignment=assignment):
+                if journal.sourcedid is not None and journal.grade_url is not None:
+                    payload = lti_grade.replace_result(journal)
+                else:
+                    payload = dict()
+
+            return response.success(payload)
+        else:
+            return response.forbidden('You are not allowed to grade this assignment.')

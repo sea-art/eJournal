@@ -41,8 +41,4 @@ export default {
     //         .then(response => response.data)
     // },
     //
-    // update_publish_grades_journal (jID, published) {
-    //     return auth.authenticatedPost('/update_publish_grades_journal/', {jID: jID, published: published})
-    //         .then(response => response.data)
-    // }
 }
