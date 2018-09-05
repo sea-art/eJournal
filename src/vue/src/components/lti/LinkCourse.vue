@@ -2,7 +2,7 @@
     <div>
         <div v-for="c in courses" :key="c.id">
             <main-card
-                @click.native="connectCourse(c.id)"
+                @click.native="linkCourse(c.id)"
                 :line1="c.name"
                 :line2="c.startdate.substring(0, 4) + '-' + c.enddate.substring(0, 4)">
             </main-card>
@@ -15,13 +15,13 @@ import mainCard from '@/components/assets/MainCard.vue'
 import courseAPI from '@/api/course'
 
 export default {
-    name: 'ConnectCourse',
+    name: 'LinkCourse',
     props: ['lti', 'courses'],
     components: {
         'main-card': mainCard
     },
     methods: {
-        connectCourse (cID) {
+        linkCourse (cID) {
             courseAPI.update(cID, {lti_id: this.lti.ltiCourseID})
                 .then(course => { this.$emit('handleAction', course.id) })
                 .catch(error => { this.$toasted.error(error.response.data.description) })

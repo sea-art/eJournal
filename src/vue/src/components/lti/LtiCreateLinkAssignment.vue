@@ -29,22 +29,22 @@
             title="Link Assignment"
             size="lg"
             hide-footer>
-                <connect-assignment @handleAction="handleConnected" :lti="lti" :page="page"/>
+                <link-assignment @handleAction="handleLinked" :lti="lti" :page="page"/>
         </b-modal>
     </div>
 </template>
 
 <script>
 import createAssignment from '@/components/assignment/CreateAssignment.vue'
-import connectAssignment from '@/components/lti/ConnectAssignment.vue'
+import linkAssignment from '@/components/lti/LinkAssignment.vue'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
-    name: 'LtiCreateConnectAssignment',
+    name: 'LtiCreateLinkAssignment',
     props: ['lti', 'page'],
     components: {
         'create-assignment': createAssignment,
-        'connect-assignment': connectAssignment,
+        'link-assignment': linkAssignment,
         icon
     },
     methods: {
@@ -61,7 +61,7 @@ export default {
             this.hideModal('createAssignmentRef')
             this.signal(['assignmentCreated', aID])
         },
-        handleConnected (aID) {
+        handleLinked (aID) {
             this.hideModal('linkAssignmentRef')
             this.signal(['assignmentIntegrated', aID])
         }

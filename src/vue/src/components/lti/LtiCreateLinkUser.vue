@@ -30,7 +30,7 @@
             title="Login to link with your learning environment"
             size="lg"
             hide-footer>
-                <login-form @handleAction="handleConnected"/>
+                <login-form @handleAction="handleLinked"/>
         </b-modal>
     </div>
 </template>
@@ -43,7 +43,7 @@ import userAPI from '@/api/user'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
-    name: 'LtiCreateConnectUser',
+    name: 'LtiCreateLinkUser',
     props: ['lti'],
     components: {
         'register-user': registerUser,
@@ -64,7 +64,7 @@ export default {
             this.hideModal('createUserRef')
             this.signal(['userIntegrated'])
         },
-        handleConnected () {
+        handleLinked () {
             userAPI.update(0, {jwt_params: this.lti.ltiJWT})
                 .then(_ => {
                     // This is required because between the login and the connect of lti user to our user data can change.

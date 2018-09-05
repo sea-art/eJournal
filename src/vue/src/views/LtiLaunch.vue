@@ -2,8 +2,8 @@
     <content-single-columns>
         <h1 class="mb-2">{{ currentPage }}</h1>
         <b-card class="no-hover" :class="this.$root.colors[1]">
-            <lti-create-connect-course v-if="handleCourseChoice" @handleAction="handleActions" :lti="lti" :courses="courses"/>
-            <lti-create-connect-assignment v-else-if="handleAssignmentChoice" @handleAction="handleActions" :lti="lti" :page="page"/>
+            <lti-create-link-course v-if="handleCourseChoice" @handleAction="handleActions" :lti="lti" :courses="courses"/>
+            <lti-create-link-assignment v-else-if="handleAssignmentChoice" @handleAction="handleActions" :lti="lti" :page="page"/>
             <lti-create-assignment v-else-if="createAssignment" @handleAction="handleActions" :lti="lti" :page="page"/>
             <div v-else class="center-content">
                 <h2 class="center-content">Setting up a link to your learning environment</h2><br/>
@@ -16,8 +16,8 @@
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
-import ltiCreateConnectCourse from '@/components/lti/LtiCreateConnectCourse.vue'
-import ltiCreateConnectAssignment from '@/components/lti/LtiCreateConnectAssignment.vue'
+import ltiCreateLinkCourse from '@/components/lti/LtiCreateLinkCourse.vue'
+import ltiCreateLinkAssignment from '@/components/lti/LtiCreateLinkAssignment.vue'
 import ltiCreateAssignment from '@/components/lti/LtiCreateAssignment.vue'
 import ltiAPI from '@/api/ltilaunch.js'
 import router from '@/router'
@@ -30,8 +30,8 @@ export default {
     name: 'LtiLaunch',
     components: {
         'content-single-columns': contentSingleColumn,
-        'lti-create-connect-course': ltiCreateConnectCourse,
-        'lti-create-connect-assignment': ltiCreateConnectAssignment,
+        'lti-create-link-course': ltiCreateLinkCourse,
+        'lti-create-link-assignment': ltiCreateLinkAssignment,
         'lti-create-assignment': ltiCreateAssignment,
         icon
     },
@@ -130,10 +130,10 @@ export default {
                 this.$toasted.success('Course Created!')
                 this.states.state = this.states.create_assign
                 break
-            case 'courseConnected':
+            case 'courseLinked':
                 this.handleCourseChoice = false
                 this.page.cID = args[1]
-                this.$toasted.success('Course Connected!')
+                this.$toasted.success('Course Linked!')
                 this.states.state = this.states.check_assign
                 break
             case 'assignmentIntegrated':

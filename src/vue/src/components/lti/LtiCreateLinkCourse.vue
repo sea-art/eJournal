@@ -32,22 +32,22 @@
             title="Link Course"
             size="lg"
             hide-footer>
-                <connect-course @handleAction="handleConnected" :lti="lti" :courses="courses"/>
+                <link-course @handleAction="handleLinked" :lti="lti" :courses="courses"/>
         </b-modal>
     </div>
 </template>
 
 <script>
 import createCourse from '@/components/course/CreateCourse.vue'
-import connectCourse from '@/components/lti/ConnectCourse.vue'
+import linkCourse from '@/components/lti/LinkCourse.vue'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
-    name: 'LtiCreateConnectCourse',
+    name: 'LtiCreateLinkCourse',
     props: ['lti', 'courses'],
     components: {
         'create-course': createCourse,
-        'connect-course': connectCourse,
+        'link-course': linkCourse,
         icon
     },
     methods: {
@@ -64,9 +64,9 @@ export default {
             this.hideModal('createCourseRef')
             this.signal(['courseCreated', cID])
         },
-        handleConnected (cID) {
+        handleLinked (cID) {
             this.hideModal('linkCourseRef')
-            this.signal(['courseConnected', cID])
+            this.signal(['courseLinked', cID])
         }
     }
 }
