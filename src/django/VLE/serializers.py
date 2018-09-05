@@ -5,7 +5,7 @@ Functions to convert certain data to other formats.
 """
 from rest_framework import serializers
 from VLE.models import User, Course, Node, Comment, Assignment, Role, Journal, Entry, Template, Field, Content, \
-    JournalFormat, PresetNode
+    JournalFormat, PresetNode, Group
 import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
 import statistics as st
@@ -57,6 +57,13 @@ class CourseSerializer(serializers.ModelSerializer):
         exclude = ('author', 'users', )
         read_only_fields = ('id', )
         depth = 1
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = '__all__'
+        read_only_fields = ('id', )
 
 
 class AssignmentSerializer(serializers.ModelSerializer):
