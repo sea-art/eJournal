@@ -35,7 +35,7 @@
                         :stats="journal.stats"
                         :hideTodo="true"
                         :fullWidthProgress="true"
-                        :class="'mb-4'"/>
+                        :class="'mb-4 no-hover'"/>
                 </b-col>
                 <b-col md="6" lg="12">
                     <h3>Controls</h3>
@@ -112,6 +112,8 @@ export default {
                     }
                 }
 
+                this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].id]
+
                 this.selectFirstUngradedNode()
             })
             .catch(error => { this.$toasted.error(error.response.data.description) })
@@ -153,7 +155,7 @@ export default {
             var min = this.nodes.length - 1
 
             for (var i = 0; i < this.nodes.length; i++) {
-                if ('entry' in this.nodes[i]) {
+                if ('entry' in this.nodes[i] && this.nodes[i].entry) {
                     let entry = this.nodes[i].entry
                     if (('grade' in entry && entry.grade === null) || ('published' in entry && !entry.published)) {
                         if (i < min) { min = i }
