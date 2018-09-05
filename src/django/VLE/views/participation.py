@@ -145,7 +145,7 @@ class ParticipationView(viewsets.ViewSet):
             course = Course.objects.get(pk=pk)
             participation = Participation.objects.get(user=user, course=course)
         except (Participation.DoesNotExist, Course.DoesNotExist, User.DoesNotExist):
-            return response.not_found('Participation, User or Course does not exists.')
+            return response.not_found('Participation, User or Course does not exist.')
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -156,7 +156,7 @@ class ParticipationView(viewsets.ViewSet):
         participation.role = Role.objects.get(name=role_name, course=course)
         participation.save()
         serializer = UserSerializer(participation.user, context={'course': course})
-        return response.success({'user': serializer.data}, description='Succesfully updates role')
+        return response.success({'user': serializer.data}, description='Succesfully updated role.')
 
     def destroy(self, request, pk):
         """Remove a user from the course.

@@ -91,6 +91,16 @@ export default {
         'main-card': mainCard
     },
     created () {
+        // TODO Should be moved to the breadcrumb, ensuring there is no more natural flow left that can get you to this
+        // page without manipulating the url manually. If someone does this, simply let the error be thrown (no checks required)
+        if (!this.$hasPermission('can_view_assignment_participants')) {
+            if (this.$root.previousPage) {
+                this.$router.push({ name: this.$root.previousPage.name, params: this.$root.previousPage.params })
+            } else {
+                this.$router.push({ name: 'Home' })
+            }
+        }
+
         assignmentAPI.get(this.aID, this.cID)
             .then(data => {
                 this.assignmentJournals = data.journals

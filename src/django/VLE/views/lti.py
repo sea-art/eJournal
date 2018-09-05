@@ -66,8 +66,8 @@ def get_lti_params_from_jwt(request, jwt_params):
 
             return response.success(payload={'params': payload})
         else:
-            return response.not_found(description='The assignment you are looking for cannot be found. \
-                <br>Note: it might still be reachable through the assignment section')
+            return response.not_found(description='The course you are looking for cannot be found. \
+                Most likely your teacher has not finished setting up the course.')
 
     assignment = lti.check_assignment_lti(lti_params)
     if assignment is None:
@@ -84,7 +84,8 @@ def get_lti_params_from_jwt(request, jwt_params):
             return response.success(payload={'params': payload})
         else:
             return response.not_found(description='The assignment you are looking for cannot be found. \
-                <br>Note: it might still be reachable through the assignment section')
+                Either your teacher has not finished setting up the assignment, or it has been moved to another \
+                course. Please contact your course administrator.')
 
     journal = lti.select_create_journal(lti_params, user, assignment, roles)
     jID = journal.pk if journal is not None else None
