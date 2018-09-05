@@ -225,24 +225,24 @@ export default {
         },
         publishGradesJournal () {
             if (confirm('Are you sure you want to publish all grades for this journal?')) {
-                // journalApi.update_publish_grades_journal(this.jID, 1)
-                //     .then(_ => {
-                //         this.$toasted.success('Published all grades for this journal.')
-                //
-                //         for (var node of this.nodes) {
-                //             if ((node.type === 'e' || node.type === 'd') && node.entry) {
-                //                 node.entry.published = true
-                //             }
-                //         }
-                //
-                //         journalApi.get_nodes(this.jID)
-                //             .then(data => { this.nodes = data.nodes })
-                //         journalApi.get_journal(this.jID)
-                //             .then(data => { this.journal = data.journal })
-                //     })
-                //     .catch(_ => {
-                //         this.$toasted.error('Error while publishing all grades for this journal.')
-                //     })
+                journalAPI.update(this.jID, {published: true})
+                    .then(_ => {
+                        this.$toasted.success('Published all grades for this journal.')
+
+                        for (var node of this.nodes) {
+                            if ((node.type === 'e' || node.type === 'd') && node.entry) {
+                                node.entry.published = true
+                            }
+                        }
+
+                        journalAPI.getNodes(this.jID)
+                            .then(nodes => { this.nodes = nodes })
+                        journalAPI.get(this.jID)
+                            .then(journal => { this.journal = journal })
+                    })
+                    .catch(_ => {
+                        this.$toasted.error('Error while publishing all grades for this journal.')
+                    })
             }
         },
         findEntryNode (nodeID) {

@@ -178,16 +178,16 @@ class JournalView(viewsets.ViewSet):
         except Course.DoesNotExist:
             return response.not_found('Journal')
 
-        if not permissions.has_journal_permission(request.user, journal, 'can_edit_journal'):
+        if permissions.has_assignment_permission(request.user, journal.assignment, 'can_edit_journal'):
             return response.forbidden('You are not allowed to edit this journal.')
 
-        # TODO Check if a serializer is valid if we add an extra argument (published) to the request data.
-        serializer = JournalSerializer(journal, data=request.data, partial=True)
-        if not serializer.is_valid():
-            response.bad_request()
-        serializer.save()
+            # TODO Check if a serializer is valid if we add an extra argument (published) to the request data.
+            serializer = JournalSerializer(journal, data=request.data, partial=True)
+            if not serializer.is_valid():
+                response.bad_request()
+            serializer.save()
 
-        published, = utils.optional_params(request.data, "published")
+        published, = utils.optional_params(request.data, 'published')
         if published:
             if not permissions.has_assignment_permission(request.user, journal.assignment,
                                                          'can_publish_journal_grades'):
@@ -199,10 +199,6 @@ class JournalView(viewsets.ViewSet):
             else:
                 payload = dict()
 
-            payload['new_published'] = request.data['published']
-            response.success({'journal': serializer.data}, payload=payload)
+            return response.success({'lti_info': payload})
 
         return response.success({'journal': serializer.data})
-
-    def destroy(self, request, *args, **kwargs):
-        pass
