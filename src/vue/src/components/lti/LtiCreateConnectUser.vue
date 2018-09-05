@@ -1,31 +1,33 @@
 <template>
     <div>
-        <p class="lti-intro-text">Welcome to eJournal! Would you like to couple with a previously registered account or
-            would you like us to create an account for you?</p>
+        <span class="multi-form">If you dont have an account on eJournal, you can create an account below. This account will be linked to your
+        learning environment from then on.</span>
         <b-row align-h="center">
-            <b-button class="lti-button-option" @click="showModal('createUserRef')">
+            <b-button class="lti-button-option multi-form" @click="showModal('createUserRef')">
                 <icon name="user-plus" scale="1.8"/>
                 <h2 class="lti-button-text">Create account</h2>
             </b-button>
         </b-row>
+        <span class="multi-form">If you already have an account on eJournal, and would like to link this account to your
+        learning environment. Please press the button below.</span>
         <b-row  align-h="center">
-            <b-button class="lti-button-option" @click="showModal('connectUserRef')">
+            <b-button class="lti-button-option" @click="showModal('linkUserRef')">
                 <icon name="link" scale="1.8"/>
-                <h2 class="lti-button-text">Couple account</h2>
+                <h2 class="lti-button-text">Link with existing <br/> eJournal account</h2>
             </b-button>
         </b-row>
 
         <b-modal
             ref="createUserRef"
-            title="New User"
+            title="Create eJournal account"
             size="lg"
             hide-footer>
                 <register-user @handleAction="handleRegistered" :lti="lti"/>
         </b-modal>
 
         <b-modal
-            ref="connectUserRef"
-            title="Connect User"
+            ref="linkUserRef"
+            title="Login to link with your learning environment"
             size="lg"
             hide-footer>
                 <login-form @handleAction="handleConnected"/>
@@ -67,7 +69,7 @@ export default {
                 .then(_ => {
                     // This is required because between the login and the connect of lti user to our user data can change.
                     this.$store.dispatch('user/populateStore').then(_ => {
-                        this.hideModal('connectUserRef')
+                        this.hideModal('linkUserRef')
                         this.signal(['userIntegrated'])
                     })
                 })

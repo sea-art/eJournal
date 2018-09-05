@@ -80,6 +80,7 @@ class AssignmentView(viewsets.ViewSet):
             description -- description of the assignment
             course_id -- id of the course the assignment belongs to
             points_possible -- the possible amount of points for the assignment
+            lti_id -- id labeled link to LTI instance
 
         Returns:
         On failure:

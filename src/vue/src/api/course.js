@@ -1,7 +1,6 @@
 import auth from '@/api/auth'
 
 export default {
-
     get (id) {
         return auth.get('courses/' + id)
             .then(response => response.data.course)
@@ -29,11 +28,11 @@ export default {
 
     getAsTeacher () {
         return auth.get('courses/is_teacher')
-            .then(response => response.data.courses)
+            .then(response => response.data)
     },
 
     getLinkable () {
         return auth.get('courses/linkable')
-            .then(resposne => resposne.data.courses)
+            .then(response => response.data.courses)
     }
 }

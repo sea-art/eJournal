@@ -22,6 +22,7 @@ import VLE.permissions as permissions
 
 import jwt
 import json
+import os
 
 
 class UserView(viewsets.ViewSet):
@@ -360,7 +361,7 @@ class UserView(viewsets.ViewSet):
                 request.user, user_file.assignment, 'can_view_assignment_participants'):
             return response.forbidden('Forbidden to view: %s by author ID: %s.' % (file_name, pk))
 
-        return response.user_file_b64(user_file)
+        return response.file(os.path.join(settings.MEDIA_ROOT, user_file.file.name))
 
     # TODO: Check if it works
     @action(methods=['post'], detail=False)

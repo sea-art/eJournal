@@ -1,23 +1,22 @@
 <template>
     <div>
-        <b-card class="blue-border no-hover card-last-elem-button">
-            <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.username" placeholder="Username" required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.firstname" placeholder="First name" required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.lastname" placeholder="Last name" required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.password" type="password" placeholder="Password" required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.password2" type="password" placeholder="Password (again)" required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.email" placeholder="Email" required/>
-                <b-button class="float-left change-button multi-form" type="reset">
-                    <icon name="undo"/>
-                    Reset
-                </b-button>
-                <b-button class="float-right multi-form" type="submit">
-                    <icon name="user-plus"/>
-                    Register
-                </b-button>
-            </b-form>
-        </b-card>
+        <b-input v-if="lti" class="multi-form theme-input" :value="this.lti.username" disabled/>
+        <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
+            <b-input v-if="!lti" class="multi-form theme-input" v-model="form.username" placeholder="Username" required/>
+            <b-input v-if="!lti" class="multi-form theme-input" v-model="form.firstname" placeholder="First name" required/>
+            <b-input v-if="!lti" class="multi-form theme-input" v-model="form.lastname" placeholder="Last name" required/>
+            <b-input class="multi-form theme-input" v-model="form.password" type="password" placeholder="Password" required/>
+            <b-input class="multi-form theme-input" v-model="form.password2" type="password" placeholder="Password (again)" required/>
+            <b-input v-if="!lti" class="multi-form theme-input" v-model="form.email" placeholder="Email" required/>
+            <b-button class="float-left change-button multi-form" type="reset">
+                <icon name="undo"/>
+                Reset
+            </b-button>
+            <b-button class="float-right multi-form" type="submit">
+                <icon name="user-plus"/>
+                Create account
+            </b-button>
+        </b-form>
     </div>
 </template>
 
@@ -46,6 +45,14 @@ export default {
     },
     methods: {
         onSubmit () {
+            if (this.lti) {
+                this.form.username = this.lti.username
+                this.form.firstname = this.lti.firstname
+                this.form.lastname = this.lti.lastname
+                this.form.email = this.lti.email
+                this.form.ltiJWT = this.lti.ltiJWT
+            }
+
             if (validation.validatePassword(this.form.password, this.form.password2) && validation.validateEmail(this.form.email)) {
                 authAPI.register(this.form.username, this.form.password, this.form.firstname, this.form.lastname,
                     this.form.email, this.form.ltiJWT)
@@ -59,7 +66,7 @@ export default {
                             .catch(_ => { this.$toasted.error('Error logging in with your newly created account, please contact a system administrator or try registering again.') })
                     })
                     .catch(error => {
-                        this.$toasted.error(error.response.data.description)
+                        this.$toasted.error(error.response.data.description || 'Could not register due to an unkown error.')
 
                         if (error.response.status === statuses.FORBIDDEN) {
                             this.$router.push({
@@ -75,29 +82,12 @@ export default {
             }
         },
         onReset (evt) {
-            if (evt !== undefined) {
-                evt.preventDefault()
-            }
-
-            /* Reset our form values */
             this.form.username = ''
             this.form.password = ''
+            this.form.password2 = ''
             this.form.firstname = ''
             this.form.lastname = ''
             this.form.email = ''
-
-            /* Trick to reset/clear native browser form validation state */
-            this.show = false
-            this.$nextTick(() => { this.show = true })
-        }
-    },
-    mounted () {
-        if (this.lti !== undefined) {
-            this.form.username = this.lti.username
-            this.form.firstname = this.lti.firstname
-            this.form.lastname = this.lti.lastname
-            this.form.email = this.lti.email
-            this.form.ltiJWT = this.lti.ltiJWT
         }
     },
     components: {

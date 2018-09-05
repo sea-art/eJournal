@@ -1,19 +1,23 @@
 <template>
     <div>
-        <p class="lti-intro-text">We could create a course for you based on the incoming connection, or you could use this
-        connection to couple with a previously created course.</p>
-        <b-row align-h="center">
-            <b-button class="lti-button-option" @click="showModal('createCourseRef')">
-                <icon name="plus-square" scale="1.8"/>
-                <h2 class="lti-button-text">Create course</h2>
-            </b-button>
-        </b-row>
-        <b-row  align-h="center">
-            <b-button class="lti-button-option" @click="showModal('connectCourseRef')">
-                <icon name="link" scale="1.8"/>
-                <h2 class="lti-button-text">Couple course</h2>
-            </b-button>
-        </b-row>
+        <div v-if="courses">
+            <span class="multi-form">If you would like to create a course on eJournal please click the button below.</span>
+            <b-row align-h="center">
+                <b-button class="lti-button-option" @click="showModal('createCourseRef')">
+                    <icon name="plus-square" scale="1.8"/>
+                    <h2 class="lti-button-text">Create course</h2>
+                </b-button>
+            </b-row>
+
+            <span class="multi-form">If you would like to link an existing course on eJournal to the learning environment please
+            click the button below.</span>
+            <b-row align-h="center">
+                <b-button class="lti-button-option" @click="showModal('linkCourseRef')">
+                    <icon name="link" scale="1.8"/>
+                    <h2 class="lti-button-text">Link course</h2>
+                </b-button>
+            </b-row>
+        </div>
 
         <b-modal
             ref="createCourseRef"
@@ -24,11 +28,11 @@
         </b-modal>
 
         <b-modal
-            ref="connectCourseRef"
-            title="Connect Course"
+            ref="linkCourseRef"
+            title="Link Course"
             size="lg"
             hide-footer>
-                <connect-course @handleAction="handleConnected" :lti="lti"/>
+                <connect-course @handleAction="handleConnected" :lti="lti" :courses="courses"/>
         </b-modal>
     </div>
 </template>
@@ -40,7 +44,7 @@ import icon from 'vue-awesome/components/Icon'
 
 export default {
     name: 'LtiCreateConnectCourse',
-    props: ['lti'],
+    props: ['lti', 'courses'],
     components: {
         'create-course': createCourse,
         'connect-course': connectCourse,
@@ -61,7 +65,7 @@ export default {
             this.signal(['courseCreated', cID])
         },
         handleConnected (cID) {
-            this.hideModal('connectCourseRef')
+            this.hideModal('linkCourseRef')
             this.signal(['courseConnected', cID])
         }
     }

@@ -30,6 +30,8 @@
 <script>
 import courseAPI from '@/api/course'
 import icon from 'vue-awesome/components/Icon'
+import genericUtils from '@/utils/generic_utils.js'
+import roleAPI from '@/api/role.js'
 
 export default {
     name: 'CreateCourse',
@@ -49,32 +51,20 @@ export default {
         onSubmit () {
             courseAPI.create(this.form)
                 .then(course => {
-                    this.onReset(undefined)
+                    if (!this.lti) { // If we are here via LTI a full store update will take place anyway.
+                        roleAPI.getFromCourse(course.cID).then(coursePermissions => {
+                            this.$store.commit('user/UPDATE_PERMISSIONS', { permissions: coursePermissions, key: 'course' + course.cID })
+                        })
+                    }
                     this.$emit('handleAction', course.id)
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         onReset (evt) {
-            if (evt !== undefined) {
-                evt.preventDefault()
-            }
-
-            /* Reset our form values */
             this.form.courseName = ''
             this.form.courseAbbr = ''
             this.form.courseStartdate = ''
             this.form.courseEnddate = ''
-
-            /* Trick to reset/clear native browser form validation state */
-            this.show = false
-            this.$nextTick(() => { this.show = true })
-        },
-        yearOffset (startDate) {
-            let split = startDate.split('-')
-            let yearOff = parseInt(split[0]) + 1
-
-            split[0] = String(yearOff)
-            return split.join('-')
         }
     },
     mounted () {
@@ -83,7 +73,7 @@ export default {
             this.form.courseAbbr = this.lti.ltiCourseAbbr
             this.form.lti_id = this.lti.ltiCourseID
             this.form.courseStartdate = this.lti.ltiCourseStart.split(' ')[0]
-            this.form.courseEnddate = this.yearOffset(this.form.courseStartdate)
+            this.form.courseEnddate = genericUtils.yearOffset(this.form.courseStartdate)
         }
     },
     components: {

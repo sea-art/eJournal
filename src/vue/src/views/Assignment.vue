@@ -39,7 +39,8 @@
                 </student-card>
             </b-link>
         </div>
-        <main-card v-else slot="main-content-column" class="no-hover" :line1="'No journals found'"/>
+        <main-card v-if="assignmentJournals.length === 0" slot="main-content-column" class="no-hover" :line1="'No participants with a journal'"/>
+        <main-card v-else-if="filteredJournals.length === 0" slot="main-content-column" class="no-hover" :line1="'No journals found'"/>
 
         <div v-if="stats" slot="right-content-column">
             <h3>Insights</h3>

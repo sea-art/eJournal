@@ -232,7 +232,7 @@ export default {
         checkPermission () {
             commonAPI.getPermissions(this.cID)
                 .then(coursePermissions => {
-                    this.$store.commit('user/UPDATE_PERMISSIONS', { permissions: coursePermissions, key: 'Course' + this.cID })
+                    this.$store.commit('user/UPDATE_PERMISSIONS', { permissions: coursePermissions, key: 'course' + this.cID })
                     if (!this.$hasPermission('can_edit_course_roles')) { this.$router.push({ name: 'Home' }) }
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })

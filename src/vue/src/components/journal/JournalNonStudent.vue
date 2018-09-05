@@ -332,7 +332,6 @@ export default {
                 this.updateQuery()
             }
             let filtered = store.state.filteredJournals.slice()
-            console.log(filtered)
             return filtered
         },
         prevJournal () {

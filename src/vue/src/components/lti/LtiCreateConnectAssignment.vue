@@ -1,18 +1,18 @@
 <template>
     <div>
-        <p class="lti-intro-text">You came here from canvas with an unknown
+        <p class="lti-intro-text">You came here from a learning environment with an unknown
             assignment. Do you want to create a new assignment on Logboek,
-            or connect to an existing one?</p>
-        <b-row align-h="center">
+            or link to an existing one?</p>
+        <b-row align-h="center" class="multi-form">
             <b-button class="lti-button-option" @click="showModal('createAssignmentRef')">
                 <icon name="plus-square" scale="1.8"/>
                 <h2 class="lti-button-text">Create new assignment</h2>
             </b-button>
         </b-row>
         <b-row  align-h="center">
-            <b-button class="lti-button-option" @click="showModal('connectAssignmentRef')">
+            <b-button class="lti-button-option" @click="showModal('linkAssignmentRef')">
                 <icon name="link" scale="1.8"/>
-                <h2 class="lti-button-text">Connect to existing <br/> assignment</h2>
+                <h2 class="lti-button-text">Link to existing <br/> assignment</h2>
             </b-button>
         </b-row>
 
@@ -25,8 +25,8 @@
         </b-modal>
 
         <b-modal
-            ref="connectAssignmentRef"
-            title="Connect Assignment"
+            ref="linkAssignmentRef"
+            title="Link Assignment"
             size="lg"
             hide-footer>
                 <connect-assignment @handleAction="handleConnected" :lti="lti" :page="page"/>
@@ -62,7 +62,7 @@ export default {
             this.signal(['assignmentCreated', aID])
         },
         handleConnected (aID) {
-            this.hideModal('connectAssignmentRef')
+            this.hideModal('linkAssignmentRef')
             this.signal(['assignmentIntegrated', aID])
         }
     }

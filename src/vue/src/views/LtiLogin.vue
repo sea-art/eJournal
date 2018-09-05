@@ -1,6 +1,6 @@
 <template>
     <content-single-column>
-        <h1 class="mb-2">User Integration</h1>
+        <h1 class="mb-2">Welcome to eJournal!</h1>
         <b-card class="no-hover" :class="this.$root.colors[1]">
             <lti-create-connect-user v-if="handleUserIntegration" @handleAction="userIntegrated" :lti="lti"/>
         </b-card>
@@ -81,6 +81,7 @@ export default {
 
             /* The LTI parameters are verified in our backend, however there is no corresponding user yet. We must create/connect one. */
             } else if (this.$route.query.state === this.states.no_user) {
+                this.$store.commit('user/LOGOUT') // Ensures no old user is loaded from local storage.
                 if (this.$route.query.firstname !== undefined) {
                     this.lti.firstname = this.$route.query.firstname
                 }
