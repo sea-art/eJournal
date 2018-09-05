@@ -58,7 +58,7 @@ export default {
                     this.form.email, this.form.ltiJWT)
                     .then(_ => {
                         if (!this.lti) {
-                            this.$toasted.success('Registration successfull! Please follow the instructions sent to ' + this.email +
+                            this.$toasted.success('Registration successfull! Please follow the instructions sent to ' + this.form.email +
                                                   ' to confirm your email address.')
                         }
                         this.$store.dispatch('user/login', { username: this.form.username, password: this.form.password })

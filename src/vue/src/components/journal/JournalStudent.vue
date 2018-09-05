@@ -102,6 +102,8 @@ export default {
                         this.progressPoints(node)
                     }
                 }
+
+                this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].nID]
             })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
