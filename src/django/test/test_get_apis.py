@@ -237,14 +237,14 @@ class GetApiTests(TestCase):
         assignment = factory.make_assignment('Colloq', 'description1', format=format,
                                              courses=[course1, course2, course3])
         login = test.logging_in(self, self.rein_user, self.rein_pass)
-        response = test.api_get_call(self, '/journalformats/' + str(assignment.pk) + '/', login)
+        response = test.api_get_call(self, '/formats/' + str(assignment.pk) + '/', login)
         self.assertEquals(response.json()['format']['templates'][0]['name'], 'template')
 
         # permissions and authorization check for the api call.
         login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
-        test.api_get_call(self, '/journalformats/' + str(assignment.pk) + '/', login, status=403)
-        test.api_get_call(self, '/journalformats/' + str(self.not_found_pk) + '/', login, status=404)
-        test.test_unauthorized_api_get_call(self, '/journalformats/' + str(assignment.pk) + '/')
+        test.api_get_call(self, '/formats/' + str(assignment.pk) + '/', login, status=403)
+        test.api_get_call(self, '/formats/' + str(self.not_found_pk) + '/', login, status=404)
+        test.test_unauthorized_api_get_call(self, '/formats/' + str(assignment.pk) + '/')
 
     def test_get_course_roles(self):
         """Test the get delete assignment function."""

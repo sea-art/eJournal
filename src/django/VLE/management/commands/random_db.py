@@ -4,7 +4,7 @@ Generate test data.
 Generate an extensive set of data and save it to the database.
 """
 from django.core.management.base import BaseCommand
-from VLE.models import Entry, User, Role, Course, Participation, JournalFormat, Assignment, Journal
+from VLE.models import Entry, User, Role, Course, Participation, Format, Assignment, Journal
 import VLE.factory as factory
 from faker import Faker
 import random
@@ -120,7 +120,7 @@ class Command(BaseCommand):
         for _ in range(amount):
             if Course.objects.all().count() == 0:
                 continue
-            format = JournalFormat()
+            format = Format()
             format.save()
             assignment = Assignment(format=format)
             assignment.save()

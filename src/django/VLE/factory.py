@@ -4,7 +4,7 @@ factory.py.
 The facory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
-from VLE.models import User, Participation, Course, Assignment, Role, JournalFormat, PresetNode, Node, Comment, \
+from VLE.models import User, Participation, Course, Assignment, Role, Format, PresetNode, Node, Comment, \
     Entry, Template, Field, Content, Journal, UserFile
 import django.utils.timezone as timezone
 
@@ -89,7 +89,7 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
     On success, returns a new assignment.
     """
     if format is None:
-        format = JournalFormat()
+        format = Format()
         format.save()
     assign = Assignment(name=name, description=description, author=author, format=format)
     assign.save()
@@ -117,7 +117,7 @@ def make_format(templates=[], max_points=10):
 
     Returns the format
     """
-    format = JournalFormat(max_points=max_points)
+    format = Format(max_points=max_points)
     format.save()
     format.available_templates.add(*templates)
     return format
@@ -219,7 +219,7 @@ def make_content(entry, data, field=None):
 
 def make_journal_format():
     """Make a journal format."""
-    journal_format = JournalFormat()
+    journal_format = Format()
     journal_format.save()
     return journal_format
 

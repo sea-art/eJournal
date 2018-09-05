@@ -118,7 +118,7 @@ class UpdateApiTests(TestCase):
             'unused_templates': []
         }
 
-        test.api_patch_call(self, '/journalformats/' + str(assignment.pk) + '/', update_dict, login)
+        test.api_patch_call(self, '/formats/' + str(assignment.pk) + '/', update_dict, login)
 
         q_assign = Assignment.objects.get(pk=assignment.pk)
         self.assertEquals(q_assign.format.max_points, 11)

@@ -244,7 +244,7 @@ class Assignment(models.Model):
     courses = models.ManyToManyField(Course)
 
     format = models.OneToOneField(
-        'JournalFormat',
+        'Format',
         on_delete=models.CASCADE
     )
 
@@ -361,8 +361,8 @@ class Node(models.Model):
     )
 
 
-class JournalFormat(models.Model):
-    """JournalFormat.
+class Format(models.Model):
+    """Format.
 
     Format of a journal.
     The format determines how a students' journal is structured.
@@ -434,7 +434,7 @@ class PresetNode(models.Model):
     )
 
     format = models.ForeignKey(
-        'JournalFormat',
+        'Format',
         on_delete=models.CASCADE
     )
 

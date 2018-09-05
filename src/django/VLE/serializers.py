@@ -5,7 +5,7 @@ Functions to convert certain data to other formats.
 """
 from rest_framework import serializers
 from VLE.models import User, Course, Node, Comment, Assignment, Role, Journal, Entry, Template, Field, Content, \
-    JournalFormat, PresetNode
+    Format, PresetNode
 import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
 import statistics as st
@@ -171,13 +171,13 @@ class JournalSerializer(serializers.ModelSerializer):
         }
 
 
-class JournalFormatSerializer(serializers.ModelSerializer):
+class FormatSerializer(serializers.ModelSerializer):
     unused_templates = serializers.SerializerMethodField()
     templates = serializers.SerializerMethodField(source='available_templates')
     presets = serializers.SerializerMethodField()
 
     class Meta:
-        model = JournalFormat
+        model = Format
         fields = ('id', 'grade_type', 'max_points', 'unused_templates', 'templates', 'presets')
         read_only_fields = ('id', )
 

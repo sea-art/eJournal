@@ -1,7 +1,7 @@
 """
-journalformat.py.
+format.py.
 
-In this file are all the JournalFormat api requests.
+In this file are all the Format api requests.
 """
 from rest_framework import viewsets
 
@@ -9,20 +9,20 @@ from VLE.models import Assignment
 import VLE.views.responses as response
 import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
-from VLE.serializers import JournalFormatSerializer
+from VLE.serializers import FormatSerializer
 
 
-class JournalFormatView(viewsets.ViewSet):
-    """JournalFormat view.
+class FormatView(viewsets.ViewSet):
+    """Format view.
 
     This class creates the following api paths:
-    GET /journalformats/ -- gets all the journalformats
-    PATCH /journalformats/<pk> -- partially update an journalformat
+    GET /formats/ -- gets all the formats
+    PATCH /formats/<pk> -- partially update an format
 
     TODO:
-    POST /journalformats/ -- create a new journalformat
-    GET /journalformats/<pk> -- gets a specific journalformat
-    DEL /journalformats/<pk> -- delete an journalformat
+    POST /formats/ -- create a new format
+    GET /formats/<pk> -- gets a specific format
+    DEL /formats/<pk> -- delete an format
     """
 
     def retrieve(self, request, pk):
@@ -46,7 +46,7 @@ class JournalFormatView(viewsets.ViewSet):
         if not (assignment.courses.all() & user.participations.all()):
             return response.forbidden('You are not allowed to view this assignment.')
 
-        serializer = JournalFormatSerializer(assignment.format)
+        serializer = FormatSerializer(assignment.format)
 
         return response.success({'format': serializer.data})
 
@@ -114,6 +114,6 @@ class JournalFormatView(viewsets.ViewSet):
         utils.delete_templates(format.available_templates, removed_templates)
         utils.delete_templates(format.unused_templates, removed_templates)
 
-        serializer = JournalFormatSerializer(format)
+        serializer = FormatSerializer(format)
 
         return response.success({'format': serializer.data})
