@@ -5,7 +5,7 @@ The facory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
 from VLE.models import User, Participation, Course, Assignment, Role, JournalFormat, PresetNode, Node, Comment, \
-    Entry, Template, Field, Content, Journal, UserFile
+    Entry, Template, Field, Content, Journal, UserFile, Group
 import django.utils.timezone as timezone
 
 
@@ -72,6 +72,19 @@ def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=
     if author is not None:
         make_participation(author, course, role)
     return course
+
+
+def make_course_group(name, course, lti_id=None):
+    """Make a new course group.
+
+    Arguments:
+    name -- name of course group
+    course -- course the group belongs to
+    lti_id -- potential lti_id, this is to link the canvas course to the VLE course.
+    """
+    course_group = Group(name=name, course=course, lti_id=lti_id)
+    course_group.save()
+    return course_group
 
 
 def make_assignment(name, description, author=None, format=None, lti_id=None,
