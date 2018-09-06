@@ -106,7 +106,7 @@ class CommentView(viewsets.ViewSet):
         if not permissions.has_assignment_permission(request.user, assignment, 'can_comment_journal') or \
             not (permissions.has_assignment_permission(request.user, assignment, 'can_grade_journal') or
                  journal.user == request.user):
-            return response.unauthorized('You are not allowed to comment on this journal')
+            return response.forbidden('You are not allowed to comment on this journal')
 
         published = published or not permissions.has_assignment_permission(request.user, assignment,
                                                                            'can_grade_journal')
