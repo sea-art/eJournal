@@ -151,7 +151,8 @@ class EntryView(viewsets.ViewSet):
         if published is not None:
             entry.published = published
             entry.save()
-            Comment.objects.filter(entry=entry).update(published=published)
+            if published:
+                Comment.objects.filter(entry=entry).update(published=True)
 
         if content_list:
             if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_edit_journal'):

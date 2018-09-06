@@ -6,7 +6,7 @@ In this file are all the comment api requests.
 from rest_framework import viewsets
 
 from VLE.serializers import CommentSerializer
-from VLE.models import Comment, Entry, User, Assignment
+from VLE.models import Comment, Entry, User, Assignment, Journal
 import VLE.views.responses as response
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
@@ -98,12 +98,18 @@ class CommentView(viewsets.ViewSet):
 
         try:
             entry = Entry.objects.get(pk=entry_id)
-            assignment = Assignment.objects.get(journal__node__entry=entry)
-        except (Assignment.DoesNotExist, Entry.DoesNotExist):
-            return response.not_found('Entry or assignment does not exist.')
+            journal = Journal.objects.get(node__entry=entry)
+            assignment = Assignment.objects.get(journal=journal)
+        except (Assignment.DoesNotExist, Journal.DoesNotExist, Entry.DoesNotExist):
+            return response.not_found('Entry, journal or assignment does not exist.')
 
-        published = published and permissions.has_assignment_permission(request.user, assignment,
-                                                                        'can_grade_journal')
+        if not permissions.has_assignment_permission(request.user, assignment, 'can_comment_journal') or \
+            not (permissions.has_assignment_permission(request.user, assignment, 'can_grade_journal') or
+                 journal.user == request.user):
+            return response.unauthorized('You are not allowed to comment on this journal')
+
+        published = published or not permissions.has_assignment_permission(request.user, assignment,
+                                                                           'can_grade_journal')
 
         comment = factory.make_entrycomment(entry, request.user, text, published)
         return response.created({'comment': CommentSerializer(comment).data})

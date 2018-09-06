@@ -117,6 +117,7 @@
                 </div>
                 <div v-else-if="field.type=='i'">
                     <image-file-display
+                        :id="'entry-' + entryNode.entry.nID + '-field-' + i"
                         :fileName="completeContent[i].data"
                         :authorUID="$parent.journal.student.id"
                     />

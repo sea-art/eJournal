@@ -263,7 +263,7 @@ class UserView(viewsets.ViewSet):
         try:
             new_password, old_password = utils.required_params(request.data, 'new_password', 'old_password')
         except KeyError:
-            return response.KeyError('new_password', 'old_password')
+            return response.keyerror('new_password', 'old_password')
 
         if not request.user.check_password(old_password):
             return response.bad_request('Wrong password.')
@@ -348,7 +348,7 @@ class UserView(viewsets.ViewSet):
         try:
             file_name, = utils.required_params(request.query_params, 'file_name')
         except KeyError:
-            return response.KeyError('file_name')
+            return response.keyerror('file_name')
 
         try:
             user_file = UserFile.objects.get(author=pk, file_name=file_name)

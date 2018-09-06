@@ -89,7 +89,9 @@ export default {
     methods: {
         getComments () {
             commentAPI.getFromEntry(this.eID)
-                .then(comments => { this.commentObject = comments })
+                .then(comments => {
+                    this.commentObject = comments
+                })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         addComment () {
