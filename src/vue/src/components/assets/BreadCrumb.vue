@@ -28,9 +28,10 @@
 </template>
 
 <script>
-import commonAPI from '@/api/common.js'
 import icon from 'vue-awesome/components/Icon'
 import store from '@/Store.vue'
+
+import common from '@/api/common'
 
 export default {
     components: {
@@ -103,10 +104,10 @@ export default {
             }
 
             if (crumbsMissingDisplayName.length > 0) {
-                commonAPI.get_names(request)
-                    .then(data => {
+                common.getNames(request)
+                    .then(names => {
                         for (var crumb of crumbsMissingDisplayName) {
-                            crumb.displayName = data[this.settings.namedViews[crumb.routeName].apiReturnValue]
+                            crumb.displayName = names[this.settings.namedViews[crumb.routeName].apiReturnValue]
                             this.cachedMap[crumb.route] = crumb.displayName
                         }
                     })

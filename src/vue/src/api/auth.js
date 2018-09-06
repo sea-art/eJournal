@@ -44,7 +44,7 @@ export default {
 
     /* Create a user and add it to the database. */
     register (username, password, firstname, lastname, email, jwtParams = null) {
-        return connection.conn.post('/create_lti_user/', {
+        return connection.conn.post('/users/', {
             username: username,
             password: password,
             first_name: firstname,
@@ -57,7 +57,7 @@ export default {
 
     /* Change password. */
     changePassword (newPassword, oldPassword) {
-        return this.authenticatedPost('/update_password/', {new_password: newPassword, old_password: oldPassword})
+        return this.update('users/password', { new_password: newPassword, old_password: oldPassword })
     },
 
     /* Forgot password.
@@ -71,35 +71,72 @@ export default {
         return connection.conn.post('/recover_password/', {username: username, recovery_token: recoveryToken, new_password: newPassword})
     },
 
-    /* Run an authenticated post or get request.
-    *  The authorization header is set by default setting in main.js, this allows access to protected resources.
-     * If the first request is rejected due to an invalid token, the user data (including token) is cleared, and the error
-     * is handled in handle error.
-     * Returns a Promise to handle the request.
-     */
-    authenticatedPost (url, data, noRedirect = false) {
-        return connection.conn.post(url, data)
-            .catch(error => store.dispatch('user/validateToken', error)
-                .then(_ => connection.conn.post(url, data)))
-            .catch(error => handleError(error, noRedirect))
-    },
-    authenticatedGet (url, noRedirect = false) {
+    get (url, data = null, noRedirect = false) {
+        if (url[0] !== '/') url = '/' + url
+        if (url.slice(-1) !== '/') url += '/'
+        if (data) {
+            url += '?'
+            for (var key in data) { url += key + '=' + data[key] + '&' }
+            url = url.slice(0, -1)
+        }
         return connection.conn.get(url)
             .catch(error => store.dispatch('user/validateToken', error)
                 .then(_ => connection.conn.get(url)))
             .catch(error => handleError(error, noRedirect))
     },
-
-    authenticatedPostFile (url, data, noRedirect = false) {
+    post (url, data, noRedirect = false) {
+        if (url[0] !== '/') url = '/' + url
+        if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
+        return connection.conn.post(url, data)
+            .catch(error => store.dispatch('user/validateToken', error)
+                .then(_ => connection.conn.post(url, data)))
+            .catch(error => handleError(error, noRedirect))
+    },
+    create (url, data, noRedirect = false) {
+        return this.post(url, data, noRedirect)
+    },
+    patch (url, data, noRedirect = false) {
+        if (url[0] !== '/') url = '/' + url
+        if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
+        return connection.conn.patch(url, data)
+            .catch(error => store.dispatch('user/validateToken', error)
+                .then(_ => connection.conn.patch(url)))
+            .catch(error => handleError(error, noRedirect))
+    },
+    update (url, data, noRedirect = false) {
+        return this.patch(url, data, noRedirect)
+    },
+    delete (url, data = null, noRedirect = false) {
+        if (url[0] !== '/') url = '/' + url
+        if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
+        if (data) {
+            url += '?'
+            for (var key in data) { url += key + '=' + data[key] + '&' }
+            url = url.slice(0, -1)
+        }
+        return connection.conn.delete(url)
+            .catch(error => store.dispatch('user/validateToken', error)
+                .then(_ => connection.conn.delete(url)))
+            .catch(error => handleError(error, noRedirect))
+    },
+    uploadFile (url, data, noRedirect = false) {
         return connection.connFile.post(url, data)
             .catch(error => store.dispatch('user/validateToken', error)
                 .then(_ => connection.connFile.post(url, data)))
             .catch(error => handleError(error, noRedirect))
     },
-    authenticatedGetFile (url, data, noRedirect = false) {
-        return connection.connFile.get(url, data)
+
+    downloadFile (url, data, noRedirect = false) {
+        if (url[0] !== '/') url = '/' + url
+        if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
+        if (data) {
+            url += '?'
+            for (var key in data) { url += key + '=' + data[key] + '&' }
+            url = url.slice(0, -1)
+        }
+        return connection.connFile.get(url)
             .catch(error => store.dispatch('user/validateToken', error)
-                .then(_ => connection.connFile.get(url, data)))
+                .then(_ => connection.connFile.get(url)))
             .catch(error => handleError(error, noRedirect))
     }
 }

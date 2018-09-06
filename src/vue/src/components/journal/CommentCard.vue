@@ -5,10 +5,10 @@
 <template>
     <div>
         <div v-if="commentObject">
-            <div v-for="(comment, index) in commentObject.entrycomments" class="comment-section" :key="index">
-                <img class="profile-picture no-hover" :src="comment.author.picture">
+            <div v-for="(comment, index) in commentObject" class="comment-section" :key="index">
+                <img class="profile-picture no-hover" :src="comment.author.profile_picture">
                 <b-card class="no-hover comment-card" :class="$root.getBorderClass($route.params.cID)">
-                    <b-button v-if="$store.getters['user/uID'] == comment.author.uID" class="ml-2 delete-button float-right" @click="deleteComment(comment.ecID)">
+                    <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="ml-2 delete-button float-right" @click="deleteComment(comment.id)">
                         <icon name="trash"/>
                         Delete
                     </b-button>
@@ -20,7 +20,7 @@
                     </span>
                     <span v-else class="timestamp">
                         <icon name="hourglass-half" scale="0.8"/>
-                        Will be published after grade<br/>
+                        Will be published along with grade<br/>
                     </span>
                 </b-card>
             </div>
@@ -29,6 +29,7 @@
             <img class="profile-picture no-hover" :src="$store.getters['user/profilePicture']">
             <b-card class="no-hover new-comment">
                 <text-editor
+                    ref="comment-text-editor-ref"
                     :id="'comment-text-editor'"
                     @content-update="tempComment = $event"
                 />
@@ -47,9 +48,10 @@
 </template>
 
 <script>
-import entryApi from '@/api/entry.js'
 import icon from 'vue-awesome/components/Icon'
 import textEditor from '@/components/assets/TextEditor.vue'
+
+import commentAPI from '@/api/comment'
 
 export default {
     props: {
@@ -75,41 +77,44 @@ export default {
     watch: {
         eID () {
             this.tempComment = ''
-            entryApi.getEntryComments(this.eID)
-                .then(data => { this.commentObject = data })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
+            this.getComments()
         },
         entryGradePublished () {
-            entryApi.getEntryComments(this.eID)
-                .then(data => { this.commentObject = data })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
+            this.getComments()
         }
     },
     created () {
-        this.getEntryComments()
+        this.getComments()
     },
     methods: {
-        getEntryComments () {
-            entryApi.getEntryComments(this.eID)
-                .then(data => { this.commentObject = data })
+        getComments () {
+            commentAPI.getFromEntry(this.eID)
+                .then(comments => {
+                    this.commentObject = comments
+                })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         addComment () {
             if (this.tempComment !== '') {
-                entryApi.createEntryComment(this.eID, this.$store.getters['user/uID'], this.tempComment, this.entryGradePublished, this.publishAfterGrade)
+                commentAPI.create({
+                    entry_id: this.eID,
+                    text: this.tempComment,
+                    published: this.entryGradePublished || !this.publishAfterGrade
+                })
                     .then(comment => {
                         // TODO Append comment rather than fire a get all entry comments request.
-                        this.getEntryComments()
+                        this.getComments()
                         this.tempComment = ''
+                        this.$refs['comment-text-editor-ref'].clearContent()
                     })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         },
-        deleteComment (ecID) {
+        deleteComment (cID) {
             if (confirm('Are you sure you want to delete this comment?')) {
-                entryApi.deleteEntryComment(ecID)
+                commentAPI.delete(cID)
                     // TODO Remove comment locally rather than firing a new request for all entry comments
-                    .then(_ => { this.getEntryComments(this.eID) })
+                    .then(_ => { this.getComments(this.eID) })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         }

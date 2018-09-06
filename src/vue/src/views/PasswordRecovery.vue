@@ -17,7 +17,8 @@
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import icon from 'vue-awesome/components/Icon'
-import authAPI from '@/api/auth.js'
+
+import authAPI from '@/api/auth'
 import validation from '@/utils/validation.js'
 
 export default {

@@ -16,7 +16,7 @@
                         <b-card class="no-hover" :class="getProgressBorderClass()">
                             <h2 class="mb-2">Progress: {{ nodes[currentNode].target }} points</h2>
                             <span v-if="progressPointsLeft > 0">
-                                <b>{{ progressNodes[nodes[currentNode].nID] }}</b> out of <b>{{ nodes[currentNode].target }}</b> points.<br/>
+                                <b>{{ progressNodes[nodes[currentNode].id] }}</b> out of <b>{{ nodes[currentNode].target }}</b> points.<br/>
                                 <b>{{ progressPointsLeft }}</b> more required before <b>{{ $root.beautifyDate(nodes[currentNode].deadline) }}</b>.
                             </span>
                         </b-card>
@@ -35,7 +35,7 @@
                         :stats="journal.stats"
                         :hideTodo="true"
                         :fullWidthProgress="true"
-                        :class="'mb-4'"/>
+                        :class="'mb-4 no-hover'"/>
                 </b-col>
                 <b-col md="6" lg="12">
                     <h3>Controls</h3>
@@ -45,7 +45,7 @@
                                 class="multi-form flex-grow-1"
                                 tag="b-button"
                                 v-if="filteredJournals.length !== 0"
-                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.jID }, query: query }">
+                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.id }, query: query }">
                                 <icon name="arrow-left"/>
                                 Previous
                             </b-button>
@@ -53,7 +53,7 @@
                                 class="multi-form flex-grow-1"
                                 tag="b-button"
                                 v-if="filteredJournals.length !== 0"
-                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: nextJournal.jID }, query: query }">
+                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: nextJournal.id }, query: query }">
                                 Next
                                 <icon name="arrow-right"/>
                             </b-button>
@@ -75,11 +75,12 @@ import entryNonStudentPreview from '@/components/entry/EntryNonStudentPreview.vu
 import addCard from '@/components/journal/AddCard.vue'
 import edag from '@/components/edag/Edag.vue'
 import studentCard from '@/components/assignment/StudentCard.vue'
-import icon from 'vue-awesome/components/Icon'
 import progressBar from '@/components/assets/ProgressBar.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import journalApi from '@/api/journal'
+
+import icon from 'vue-awesome/components/Icon'
 import store from '@/Store.vue'
+import journalAPI from '@/api/journal'
 
 export default {
     props: ['cID', 'aID', 'jID'],
@@ -98,9 +99,9 @@ export default {
         }
     },
     created () {
-        journalApi.get_nodes(this.jID)
-            .then(data => {
-                this.nodes = data.nodes
+        journalAPI.getNodes(this.jID)
+            .then(nodes => {
+                this.nodes = nodes
                 if (this.$route.query.nID !== undefined) {
                     this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
                 }
@@ -111,18 +112,20 @@ export default {
                     }
                 }
 
+                this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].id]
+
                 this.selectFirstUngradedNode()
             })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
-        journalApi.get_journal(this.jID)
-            .then(data => { this.journal = data.journal })
+        journalAPI.get(this.jID)
+            .then(journal => { this.journal = journal })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
         if (store.state.filteredJournals.length === 0) {
             if (this.$hasPermission('can_view_assignment_participants')) {
-                journalApi.get_assignment_journals(this.aID)
-                    .then(data => { this.assignmentJournals = data.journals })
+                journalAPI.getFromAssignment(this.aID)
+                    .then(journals => { this.assignmentJournals = journals })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }
 
@@ -143,7 +146,7 @@ export default {
         currentNode: function () {
             if (this.nodes[this.currentNode].type === 'p') {
                 this.progressPoints(this.nodes[this.currentNode])
-                this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].nID]
+                this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].id]
             }
         }
     },
@@ -152,7 +155,7 @@ export default {
             var min = this.nodes.length - 1
 
             for (var i = 0; i < this.nodes.length; i++) {
-                if ('entry' in this.nodes[i]) {
+                if ('entry' in this.nodes[i] && this.nodes[i].entry) {
                     let entry = this.nodes[i].entry
                     if (('grade' in entry && entry.grade === null) || ('published' in entry && !entry.published)) {
                         if (i < min) { min = i }
@@ -187,18 +190,11 @@ export default {
             this.$refs['entry-template-card'].cancel()
             this.currentNode = $event
         },
-        addNode (infoEntry) {
-            journalApi.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
-                .then(_ => { journalApi.get_nodes(this.jID) })
-                .then(data => { this.nodes = data.nodes })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
-        },
         progressPoints (progressNode) {
             /* The function will update a given progressNode by
              * going through all the nodes and count the published grades
              * so far. */
             var tempProgress = 0
-
             for (var node of this.nodes) {
                 if (node.nID === progressNode.nID) {
                     break
@@ -211,7 +207,7 @@ export default {
                 }
             }
 
-            this.progressNodes[progressNode.nID] = tempProgress.toString()
+            this.progressNodes[progressNode.id] = tempProgress.toString()
         },
         getProgressBorderClass () {
             return this.progressPointsLeft > 0 ? 'red-border' : 'green-border'
@@ -223,13 +219,13 @@ export default {
                 }
             }
 
-            journalApi.get_journal(this.jID)
-                .then(data => { this.journal = data.journal })
+            journalAPI.get(this.jID)
+                .then(journal => { this.journal = journal })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         publishGradesJournal () {
             if (confirm('Are you sure you want to publish all grades for this journal?')) {
-                journalApi.update_publish_grades_journal(this.jID, 1)
+                journalAPI.update(this.jID, {published: true})
                     .then(_ => {
                         this.$toasted.success('Published all grades for this journal.')
 
@@ -239,10 +235,10 @@ export default {
                             }
                         }
 
-                        journalApi.get_nodes(this.jID)
-                            .then(data => { this.nodes = data.nodes })
-                        journalApi.get_journal(this.jID)
-                            .then(data => { this.journal = data.journal })
+                        journalAPI.getNodes(this.jID)
+                            .then(nodes => { this.nodes = nodes })
+                        journalAPI.get(this.jID)
+                            .then(journal => { this.journal = journal })
                     })
                     .catch(_ => {
                         this.$toasted.error('Error while publishing all grades for this journal.')
@@ -251,7 +247,7 @@ export default {
         },
         findEntryNode (nodeID) {
             for (var i = 0; i < this.nodes.length; i++) {
-                if (this.nodes[i].nID === nodeID) {
+                if (this.nodes[i].id === nodeID) {
                     return i
                 }
             }
@@ -314,7 +310,7 @@ export default {
 
             function checkFilter (user) {
                 var username = user.student.username.toLowerCase()
-                var fullName = user.student.first_name.toLowerCase() + ' ' + user.student.last_name.toLowerCase()
+                var fullName = user.student.name
                 var searchVariable = self.searchVariable.toLowerCase()
 
                 if (username.includes(searchVariable) ||
@@ -337,17 +333,17 @@ export default {
 
                 this.updateQuery()
             }
-
-            return store.state.filteredJournals.slice()
+            let filtered = store.state.filteredJournals.slice()
+            return filtered
         },
         prevJournal () {
-            var curIndex = this.findIndex(this.filteredJournals, 'jID', this.jID)
+            var curIndex = this.findIndex(this.filteredJournals, 'id', this.jID)
             var prevIndex = (curIndex - 1 + this.filteredJournals.length) % this.filteredJournals.length
 
             return this.filteredJournals[prevIndex]
         },
         nextJournal () {
-            var curIndex = this.findIndex(this.filteredJournals, 'jID', this.jID)
+            var curIndex = this.findIndex(this.filteredJournals, 'id', this.jID)
             var nextIndex = (curIndex + 1) % this.filteredJournals.length
 
             return this.filteredJournals[nextIndex]

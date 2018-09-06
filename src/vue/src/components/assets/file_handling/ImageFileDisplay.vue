@@ -1,11 +1,9 @@
 <template>
     <div>
-        <h5>
-            {{ fileName }}
-            <icon v-if="!show" @click.native="handleDownload" name="eye" class="action-icon"/>
-            <icon v-if="show" @click.native="handleDownload" name="ban" class="crossed-icon"/>
-            <icon v-if="show && fileURL" @click.native="downloadLink.click()" name="save" class="action-icon"/>
-        </h5>
+        {{ fileName }}
+        <icon v-if="!show" @click.native="handleDownload" name="eye" class="action-icon"/>
+        <icon v-if="show" @click.native="handleDownload" name="ban" class="crossed-icon"/>
+        <icon v-if="show && fileURL" @click.native="downloadLink.click()" name="save" class="action-icon"/>
         <img v-if="show && fileURL" :src="fileURL">
     </div>
 </template>
@@ -47,7 +45,7 @@ export default {
             }
         },
         fileDownload () {
-            userAPI.getUserFile(this.fileName, this.authorUID)
+            userAPI.download(this.authorUID, this.fileName)
                 .then(response => {
                     let blob = new Blob([response.data], { type: response.headers['content-type'] })
                     this.fileURL = window.URL.createObjectURL(blob)

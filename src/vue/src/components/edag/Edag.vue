@@ -16,7 +16,7 @@
                         :node="node"
                         :selected="isSelected(index)"
                         :isInEditFormatPage="isInEditFormatPage"
-                        :key="node.nID"
+                        :key="node.id"
                         :upperEdgeStyle="upperEdgeStyle(index)"
                         :lowerEdgeStyle="lowerEdgeStyle(index)"/>
                 </div>
@@ -28,7 +28,7 @@
                     :node="node"
                     :selected="isSelected(index)"
                     :isInEditFormatPage="isInEditFormatPage"
-                    :key="node.nID"
+                    :key="node.id"
                     :upperEdgeStyle="upperEdgeStyle(index)"
                     :lowerEdgeStyle="lowerEdgeStyle(index)"/>
             </div>

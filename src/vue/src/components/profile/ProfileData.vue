@@ -2,7 +2,7 @@
     <b-row>
         <b-col md="5" sm="12" class="text-center">
             <div class="profile-portrait small-shadow">
-                <img :src="profileImageDataURL">
+                <img :src="$store.getters['user/profilePicture']">
                 <!-- TODO Add cropping tool to help with the square aspect ratio Croppa seems most active and a solid choice -->
                 <b-button @click="$refs.file.click()">
                     <icon name="upload"/>
@@ -37,9 +37,10 @@
 </template>
 
 <script>
-import userAPI from '@/api/user.js'
-import icon from 'vue-awesome/components/Icon'
 import email from '@/components/profile/Email.vue'
+
+import userAPI from '@/api/user'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     components: {
@@ -59,7 +60,7 @@ export default {
     },
     methods: {
         saveUserdata () {
-            userAPI.updateUserData(this.firstName, this.lastName)
+            userAPI.update(0, {first_name: this.firstName, last_name: this.lastName})
                 .then(_ => {
                     this.$store.commit('user/SET_FULL_USER_NAME', { firstName: this.firstName, lastName: this.lastName })
                     this.$toasted.success('Saved profile data')
@@ -99,7 +100,7 @@ export default {
             reader.readAsDataURL(files[0])
         },
         downloadUserData () {
-            userAPI.getAllUserData(this.$store.getters['user/uID'])
+            userAPI.GDPR()
                 .then(response => {
                     let blob = new Blob([response.data], { type: response.headers['content-type'] })
                     let link = document.createElement('a')
@@ -147,7 +148,6 @@ export default {
         .btn
             bottom: 0px
             opacity: 1
-
 .profile-portrait:after
     content: ""
     display: block

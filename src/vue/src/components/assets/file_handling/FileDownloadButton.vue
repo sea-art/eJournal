@@ -26,7 +26,7 @@ export default {
     },
     methods: {
         fileDownload (e) {
-            userAPI.getUserFile(this.fileName, this.authorUID)
+            userAPI.download(this.authorUID, this.fileName)
                 .then(response => {
                     let blob = new Blob([response.data], { type: response.headers['content-type'] })
                     let link = document.createElement('a')
