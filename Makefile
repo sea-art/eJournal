@@ -80,16 +80,12 @@ reset:
 #
 
 install:
-	mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
-	bash -c 'bash $(mkfile_path)/deploy/install.sh $(mkfile_path)'
-
 build:
-	mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
-	bash -c 'bash $(mkfile_path)/deploy/build.sh $(mkfile_path)'
-
 deploy:
-	mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
-	bash -c 'bash $(mkfile_path)/deploy/deploy.sh $(mkfile_path)'
+	# TODO: install build deploy
+	echo "Not implemented yet"
+	# mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
+	# bash -c 'bash $(mkfile_path)/deploy/build.sh $(mkfile_path)'
 
 #
 # MAKEFILE COMMANDS
