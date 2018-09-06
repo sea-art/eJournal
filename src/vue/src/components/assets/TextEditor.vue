@@ -289,6 +289,11 @@ export default {
                 {start: '* ', cmd: 'InsertUnorderedList'},
                 {start: '- ', cmd: 'InsertUnorderedList'}
             ]
+        },
+        clearContent () {
+            this.editor.setContent('')
+            this.editor.execCommand('fontName', false, 'roboto condensed')
+            this.content = ''
         }
     },
     mounted () {

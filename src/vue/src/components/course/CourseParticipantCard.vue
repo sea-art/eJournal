@@ -1,13 +1,13 @@
 <template>
-    <b-card :class="$root.getBorderClass(uID)" class="no-hover">
+    <b-card :class="$root.getBorderClass(user.id)" class="no-hover">
         <b-row>
             <b-col sm="12" lg="8" class="d-flex mb-2">
                 <b-col cols="3" class="text-center">
-                    <img class="profile-picture" :src="portraitPath">
+                    <img class="profile-picture" :src="user.profile_picture">
                 </b-col>
                 <b-col cols="9">
-                    <b>{{ fullName }}</b> ({{ selectedRole }})<br/>
-                    {{ username }}
+                    <b>{{ user.name }}</b> ({{ user.role }})<br/>
+                    {{ user.username }}
                 </b-col>
             </b-col>
             <b-col sm="12" lg="4">
@@ -16,7 +16,7 @@
                                    v-model="selectedRole"
                                    :select-size="1">
                         <option v-for="r in roles" :key="r.name" :value="r.name">
-                            {{r.name}}
+                            {{ r.name }}
                         </option>
                     </b-form-select>
                 </div>
@@ -33,56 +33,40 @@
 </template>
 
 <script>
-import courseApi from '@/api/course.js'
-import permissions from '@/api/permissions.js'
 import icon from 'vue-awesome/components/Icon'
+
+import participationAPI from '@/api/participation'
 
 export default {
     props: {
         cID: {
             required: true
         },
-        uID: {
+        user: {
             required: true
         },
-        index: {
-            required: true
-        },
-        username: {
-            required: true
-        },
-        fullName: {
-            required: true
-        },
-        portraitPath: {
-            required: true
-        },
-        role: {
+        roles: {
             required: true
         }
     },
     data () {
         return {
             selectedRole: '',
-            init: true,
-            roles: []
+            init: true
         }
     },
     methods: {
         removeFromCourse () {
-            if (confirm('Are you sure you want to remove "' + this.fullName + '" from this course?')) {
-                courseApi.delete_user_from_course(this.uID, this.cID).then(data => {
+            if (confirm('Are you sure you want to remove "' + this.user.name + '" from this course?')) {
+                participationAPI.delete(this.cID, this.user.id).then(data => {
                     this.$toasted.success(data.description)
-                    if (this.$store.getters['user/uID'] === this.uID) {
+                    if (this.$store.getters['user/uID'] === this.user.id) {
                         this.$store.dispatch('user/populateStore').catch(_ => {
                             this.$toasted.error('The website might be out of sync, please login again.')
                         })
                         this.$router.push({name: 'Home'})
                     }
-                    this.$emit('delete-participant', this.role,
-                        this.username,
-                        this.portraitPath,
-                        this.uID)
+                    this.$emit('delete-participant', this.user)
                 }, error => {
                     this.$toasted.error(error.response.data.description)
                 })
@@ -90,14 +74,14 @@ export default {
         }
     },
     watch: {
-        selectedRole: function (val) {
+        selectedRole (val) {
             if (this.init) {
                 this.init = false
             } else {
                 this.selectedRole = val
-                this.$emit('update:role', val)
-                courseApi.update_user_role_course(this.uID, this.cID, this.selectedRole).then(_ => {
-                    if (this.$store.getters['user/uID'] === this.uID) {
+                this.user.role = val
+                participationAPI.update(this.cID, {user_id: this.user.id, role: this.selectedRole}).then(_ => {
+                    if (this.$store.getters['user/uID'] === this.user.id) {
                         this.$store.dispatch('user/populateStore').then(_ => {
                             this.$router.push({name: 'Course', params: {cID: this.cID}})
                         }, _ => {
@@ -111,13 +95,7 @@ export default {
         }
     },
     created () {
-        this.selectedRole = this.role
-
-        permissions.get_course_roles(this.cID)
-            .then(roles => {
-                this.roles = roles
-            })
-            .catch(error => { this.$toasted.error(error.response.data.description) })
+        this.selectedRole = this.user.role
     },
     components: {
         icon

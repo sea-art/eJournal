@@ -1,7 +1,7 @@
 <template>
     <b-card class="blue-border no-hover card-last-elem-button">
         <b-form @submit.prevent="handleLogin()">
-            <b-input class="multi-form theme-input" v-model="username" required placeholder="Username"/>
+            <b-input class="multi-form theme-input" v-model="username" autofocus required placeholder="Username"/>
             <b-input class="multi-form theme-input" type="password" @keyup.enter="handleLogin()" v-model="password" required placeholder="Password"/>
             <b-button class="multi-form change-button" v-b-modal.forgotPasswordModal>
                 Forgot password
@@ -37,9 +37,10 @@
 </template>
 
 <script>
-import authAPI from '@/api/auth'
 import icon from 'vue-awesome/components/Icon'
 import validation from '@/utils/validation.js'
+
+import authAPI from '@/api/auth'
 
 export default {
     name: 'LoginForm',
@@ -55,7 +56,7 @@ export default {
             let username = ''
             let emailAdress = ''
 
-            if (validation.validateEmail(this.usernameEmail, false)) {
+            if (validation.validateEmail(this.usernameEmail, true)) {
                 emailAdress = this.usernameEmail
             } else {
                 username = this.usernameEmail
@@ -64,7 +65,7 @@ export default {
             authAPI.forgotPassword(username, emailAdress)
                 .then(response => {
                     this.$refs.forgotPasswordModalRef.hide()
-                    this.$toasted.success(response.statusText)
+                    this.$toasted.success(response.data.description)
                 })
                 .catch(error => {
                     this.$toasted.error(error.response.data.description)

@@ -1,3 +1,4 @@
+<!-- TODO: You shouldnt be able to change your own role. -->
 <template>
     <content-single-column>
         <bread-crumb>&nbsp;</bread-crumb>
@@ -11,7 +12,7 @@
                     required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                     :readonly="!$hasPermission('can_edit_course')"
-                    v-model="course.abbr"
+                    v-model="course.abbreviation"
                     maxlength="10"
                     placeholder="Course Abbreviation (Max 10 letters)"
                     required/>
@@ -51,61 +52,53 @@
             </b-form>
         </b-card>
 
-        <div v-if="this.participants.length > 0">
+        <div>
             <b-card class="no-hover">
                 <h2 class="mb-2">Manage course members</h2>
-                    <b-row>
-                        <b-col sm="6" class="d-flex flex-wrap">
-                            <b-form-select class="flex-grow-1 multi-form" v-model="selectedSortOption" :select-size="1">
-                               <option :value="null">Sort by ...</option>
-                               <option value="sortFullName">Sort by name</option>
-                               <option value="sortUsername">Sort by username</option>
-                            </b-form-select>
-                        </b-col>
-                        <b-col sm="6" class="d-flex flex-wrap">
-                            <b-form-select
-                                v-if="$hasPermission('can_add_course_participants')"
-                                class="flex-grow-1 multi-form"
-                                v-model="selectedView"
-                                :select-size="1">
-                                <option value="enrolled">Enrolled</option>
-                                <option value="unenrolled">Unenrolled</option>
-                            </b-form-select>
-                            <input v-else class="multi-form theme-input full-width" type="text" v-model="searchVariable" placeholder="Search..."/>
-                        </b-col>
-                    </b-row>
-                    <input
-                        v-if="!$hasPermission('can_add_course_participants')"
-                        class="multi-form theme-input full-width"
-                        type="text"
-                        v-model="searchVariable"
-                        placeholder="Search..."/>
+                <b-row>
+                    <b-col sm="6" class="d-flex flex-wrap">
+                        <b-form-select class="flex-grow-1 multi-form" v-model="selectedSortOption" :select-size="1">
+                           <option :value="null">Sort by ...</option>
+                           <option value="sortFullName">Sort by name</option>
+                           <option value="sortUsername">Sort by username</option>
+                        </b-form-select>
+                    </b-col>
+                    <b-col sm="6" class="d-flex flex-wrap">
+                        <b-form-select
+                            v-if="$hasPermission('can_add_course_participants')"
+                            class="flex-grow-1 multi-form"
+                            v-model="selectedView"
+                            :select-size="1">
+                            <option value="enrolled">Enrolled</option>
+                            <option value="unenrolled">Unenrolled</option>
+                        </b-form-select>
+                        <input v-else class="multi-form theme-input full-width" type="text" v-model="searchVariable" placeholder="Search..."/>
+                    </b-col>
+                </b-row>
+                <input
+                    v-if="!$hasPermission('can_add_course_participants')"
+                    class="multi-form theme-input full-width"
+                    type="text"
+                    v-model="searchVariable"
+                    placeholder="Search..."/>
             </b-card>
 
             <course-participant-card v-if="selectedView === 'enrolled'"
                 @delete-participant="deleteParticipantLocally"
-                v-for="(p, i) in filteredUsers"
+                v-for="p in filteredUsers"
                 :class="{ 'input-disabled': p.role === 'Teacher' && numTeachers <= 1 }"
-                :key="p.uID"
+                :key="p.id"
                 :cID="cID"
-                :uID="p.uID"
-                :index="i"
-                :username="p.role"
-                :fullName="p.first_name + ' ' + p.last_name"
-                :portraitPath="p.picture"
-                :role.sync="p.role"/>
+                :user="p"
+                :roles="roles"/>
 
             <add-user-card v-if="selectedView === 'unenrolled'"
                 @add-participant="addParticipantLocally"
                 v-for="p in filteredUsers"
-                :key="p.uID"
+                :key="p.id"
                 :cID="cID"
-                :uID="p.uID"
-                :username="p.name"
-                :fullName="p.first_name + ' ' + p.last_name"
-                :portraitPath="p.picture"/>
+                :user="p"/>
         </div>
-
     </content-single-column>
 </template>
 
@@ -114,9 +107,12 @@ import addUsersToCourseCard from '@/components/course/AddUsersToCourseCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import courseParticipantCard from '@/components/course/CourseParticipantCard.vue'
-import courseApi from '@/api/course.js'
+
 import store from '@/Store'
 import icon from 'vue-awesome/components/Icon'
+import courseAPI from '@/api/course'
+import roleAPI from '@/api/role'
+import participationAPI from '@/api/participation'
 
 export default {
     name: 'CourseEdit',
@@ -135,7 +131,8 @@ export default {
             searchVariable: '',
             selectedView: 'enrolled',
             unenrolledLoaded: false,
-            numTeachers: 0
+            numTeachers: 0,
+            roles: []
         }
     },
     watch: {
@@ -147,19 +144,23 @@ export default {
         }
     },
     created () {
-        courseApi.get_course_data(this.cID)
+        courseAPI.get(this.cID)
             .then(course => { this.course = course })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
         if (this.$hasPermission('can_view_course_participants')) {
-            courseApi.get_course_users(this.cID)
+            roleAPI.getFromCourse(this.cID)
+                .then(roles => { this.roles = roles })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
+
+            participationAPI.getEnrolled(this.cID)
                 .then(users => { this.participants = users })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     },
     methods: {
         onSubmit () {
-            courseApi.update_course(this.cID, this.course.name, this.course.abbr, this.course.startdate, this.course.enddate)
+            courseAPI.update(this.cID, this.course)
                 .then(course => {
                     this.course = course
                     this.$toasted.success('Succesfully updated the course.')
@@ -169,37 +170,31 @@ export default {
         },
         deleteCourse () {
             if (confirm('Are you sure you want to delete ' + this.course.name + '?')) {
-                courseApi.delete_course(this.cID)
+                courseAPI.delete(this.cID)
                     .then(response => {
                         this.$router.push({name: 'Home'})
-                        this.$toasted.success(response.data.description)
+                        this.$toasted.success(response.description)
                     })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         },
-        deleteParticipantLocally (role, name, picture, uID) {
+        deleteParticipantLocally (user) {
             this.participants = this.participants.filter(function (item) {
-                return uID !== item.uID
+                return user.id !== item.id
             })
             if (this.unenrolledLoaded === true) {
-                this.unenrolledStudents.push({ 'role': role,
-                    'name': name,
-                    'picture': picture,
-                    'uID': uID })
+                this.unenrolledStudents.push(user)
             }
         },
-        addParticipantLocally (role, name, picture, uID) {
+        addParticipantLocally (user) {
             this.unenrolledStudents = this.unenrolledStudents.filter(function (item) {
-                return uID !== item.uID
+                return user.id !== item.id
             })
-            this.participants.push({ 'role': role,
-                'name': name,
-                'picture': picture,
-                'uID': uID
-            })
+            user.role = 'Student'
+            this.participants.push(user)
         },
         loadUnenrolledStudents () {
-            courseApi.get_unenrolled_users(this.cID)
+            participationAPI.getUnenrolled(this.cID)
                 .then(users => { this.unenrolledStudents = users })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
             this.unenrolledLoaded = !this.unenrolledLoaded
@@ -212,7 +207,7 @@ export default {
         }
     },
     computed: {
-        filteredUsers: function () {
+        filteredUsers () {
             let self = this
 
             function compareFullName (a, b) {

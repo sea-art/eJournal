@@ -1,5 +1,5 @@
 <template>
-    <div class="todo-square">
+    <div class="todo-square" :class="num ? 'num-nonzero' : 'num-zero'">
         {{ num }}
     </div>
 </template>
@@ -15,14 +15,17 @@ export default {
 @import '~sass/partials/shadows.sass'
 
 .todo-square
-    @extend .shadow
     text-align: center
     color: white
     font-family: 'Roboto Condensed', sans-serif
     font-size: 18px
-    background-color: $theme-blue
-    &.unpublished-count
-        background-color: $theme-orange
     width: 45px
     height: 30px
+    &.num-nonzero
+        background-color: $theme-blue
+        @extend .shadow
+    &.unpublished-count
+        background-color: $theme-orange
+    &.num-zero
+        background-color: $theme-dark-grey
 </style>

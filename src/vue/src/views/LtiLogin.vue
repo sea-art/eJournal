@@ -1,21 +1,21 @@
 <template>
     <content-single-column>
-        <h1 class="mb-2">User Integration</h1>
+        <h1 class="mb-2">Welcome to eJournal!</h1>
         <b-card class="no-hover" :class="this.$root.colors[1]">
-            <lti-create-connect-user v-if="handleUserIntegration" @handleAction="userIntegrated" :lti="lti"/>
+            <lti-create-link-user v-if="handleUserIntegration" @handleAction="userIntegrated" :lti="lti"/>
         </b-card>
     </content-single-column>
 </template>
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
-import ltiCreateConnectUser from '@/components/lti/LtiCreateConnectUser.vue'
+import ltiCreateLinkUser from '@/components/lti/LtiCreateLinkUser.vue'
 
 export default {
     name: 'LtiLogin',
     components: {
         'content-single-column': contentSingleColumn,
-        'lti-create-connect-user': ltiCreateConnectUser
+        'lti-create-link-user': ltiCreateLinkUser
     },
     data () {
         return {
@@ -81,6 +81,7 @@ export default {
 
             /* The LTI parameters are verified in our backend, however there is no corresponding user yet. We must create/connect one. */
             } else if (this.$route.query.state === this.states.no_user) {
+                this.$store.commit('user/LOGOUT') // Ensures no old user is loaded from local storage.
                 if (this.$route.query.firstname !== undefined) {
                     this.lti.firstname = this.$route.query.firstname
                 }

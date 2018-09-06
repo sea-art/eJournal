@@ -1,8 +1,8 @@
 <template>
-    <b-card :class="$root.getBorderClass(uID)" class="no-hover">
+    <b-card :class="$root.getBorderClass(user.id)" class="no-hover">
         <div class="float-left">
-            <b>{{ fullName }}</b><br>
-            {{ username }}
+            <b>{{ user.name }}</b><br>
+            {{ user.username }}
         </div>
         <b-button v-if="$hasPermission('can_add_course_participants')"
                   @click.prevent.stop="addUserToCourse()"
@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import courseApi from '@/api/course.js'
+import participationAPI from '@/api/participation'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
@@ -22,28 +22,16 @@ export default {
         cID: {
             required: true
         },
-        uID: {
-            required: true
-        },
-        username: {
-            required: true
-        },
-        fullName: {
-            required: true
-        },
-        portraitPath: {
+        user: {
             required: true
         }
     },
     methods: {
         addUserToCourse () {
-            if (confirm('Are you sure you want to add "' + this.fullName + '" to this course?')) {
-                courseApi.update_course_with_student(this.uID, this.cID)
+            if (confirm('Are you sure you want to add "' + this.user.name + '" to this course?')) {
+                participationAPI.create({course_id: this.cID, user_id: this.user.id})
                     .then(_ => {
-                        this.$emit('add-participant', 'Student',
-                            this.username,
-                            this.portraitPath,
-                            this.uID)
+                        this.$emit('add-participant', this.user)
                     })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }

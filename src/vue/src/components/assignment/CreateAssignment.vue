@@ -24,8 +24,9 @@
 <script>
 import ContentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import textEditor from '@/components/assets/TextEditor.vue'
-import assignmentApi from '@/api/assignment.js'
 import icon from 'vue-awesome/components/Icon'
+
+import assignmentAPI from '@/api/assignment'
 
 export default {
     name: 'CreateAssignment',
@@ -47,12 +48,17 @@ export default {
         icon
     },
     methods: {
+        // TODO: Reload assignments & close modal after creations.
         onSubmit () {
-            assignmentApi.create_new_assignment(this.form.assignmentName,
-                this.form.assignmentDescription, this.form.courseID,
-                this.form.ltiAssignID, this.form.pointsPossible)
+            assignmentAPI.create({
+                name: this.form.assignmentName,
+                description: this.form.assignmentDescription,
+                course_id: this.form.courseID,
+                lti_id: this.form.ltiAssignID,
+                points_possible: this.form.pointsPossible
+            })
                 .then(assignment => {
-                    this.$emit('handleAction', assignment.aID)
+                    this.$emit('handleAction', assignment.id)
                     this.onReset(undefined)
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
