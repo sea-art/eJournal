@@ -12,7 +12,7 @@
 </template>
 
 <script>
-import contentSingleColumn from '@/components/ContentSingleColumn.vue'
+import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 
 export default {
     name: 'Guest',

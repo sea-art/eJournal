@@ -22,7 +22,11 @@ LTI_KEY = '{{LTI_KEY}}'
 BASELINK = '{{BASELINK}}'
 CORS_ORIGIN_ALLOW_ALL = True
 
+USER_MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024
+USER_MAX_TOTAL_STORAGE_BYTES = 100 * 1024 * 1024
+
 MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware'] + MIDDLEWARE
+# TODO More select selection, only allow our host directly to avoid cross site securiy flaws
 ALLOWED_HOSTS = ['*']
 
 SESSION_COOKIE_SECURE = True

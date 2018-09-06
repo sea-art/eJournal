@@ -13,11 +13,11 @@ import test.test_utils as test
 class CreateApiTests(TestCase):
     def setUp(self):
         """Setup."""
-        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123')
+        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123', 'test@test.com')
 
     def test_create_new_course(self):
         """Test create new course."""
-        username, password, user = test.set_up_user_and_auth('test2', 'test1233', is_teacher=True)
+        username, password, user = test.set_up_user_and_auth('test2', 'test1233', 'test@ttaest.com', is_teacher=True)
         lti_id = '12AB'
         login = test.logging_in(self, username, password)
         create_course_dict = {'name': 'Beeldbewerken', 'abbr': 'BB', 'lti_id': lti_id}
@@ -88,13 +88,13 @@ class CreateApiTests(TestCase):
         entry = factory.make_entry(template)
         factory.make_node(journal, entry)
 
-        commentator = factory.make_user('Commentator', 'pass')
         login = test.logging_in(self, self.username, self.password)
 
         create_entrycomment_dict = {
-            'entryID': entry.pk,
-            'authorID': commentator.pk,
-            'text': 'Wow! This is bad/good'
+            'eID': entry.pk,
+            'uID': self.user.pk,
+            'text': 'Wow! This is bad/good',
+            'published': True
         }
 
         test.api_post_call(self, '/create_entrycomment/', create_entrycomment_dict, login, 201)

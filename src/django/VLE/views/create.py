@@ -7,13 +7,17 @@ from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import JSONParser
 
 from django.utils.timezone import now
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
 
 import VLE.serializers as serialize
 import VLE.factory as factory
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
+import VLE.utils.email_handling as email_handling
 from VLE.models import User, Journal, EntryTemplate, Node, Assignment, Field, Entry, Content, Course
 import VLE.edag as edag
 import VLE.lti_grade_passback as lti_grade
+import VLE.validators as validators
 
 import VLE.views.responses as responses
 import VLE.permissions as permissions
@@ -161,6 +165,11 @@ def create_entry(request):
         return responses.keyerror("jID", "tID", "content")
 
     try:
+        validators.validate_entry_content(content_list)
+    except ValidationError as e:
+        return responses.bad_request(e.args[0])
+
+    try:
         journal = Journal.objects.get(pk=jID, user=request.user)
 
         template = EntryTemplate.objects.get(pk=tID)
@@ -219,25 +228,33 @@ def create_entrycomment(request):
 
     Arguments:
     request -- the request that was send with
-        entryID -- the entry id
-        authorID -- the author id
+        eID -- the entry id
+        uID -- the author id
         text -- the comment
+        published -- the comment's publishment state
     """
-    if not request.user.is_authenticated:
+    user = request.user
+    if not user.is_authenticated:
         return responses.unauthorized()
 
     try:
-        entryID, authorID, text = utils.required_params(request.data, "entryID", "authorID", "text")
+        eID, uID, text, published = utils.required_params(request.data, "eID", "uID", "text", "published")
     except KeyError:
-        return responses.keyerror("entryID", "authorID", "text")
+        return responses.keyerror("eID", "uID", "text", "published")
 
     try:
-        author = User.objects.get(pk=authorID)
-        entry = Entry.objects.get(pk=entryID)
+        author = User.objects.get(pk=uID)
+        entry = Entry.objects.get(pk=eID)
+        assignment = Assignment.objects.get(journal__node__entry=entry)
     except (User.DoesNotExist, Entry.DoesNotExist):
         return responses.not_found('User or Entry does not exist.')
 
-    entrycomment = factory.make_entrycomment(entry, author, text)
+    if not (author == user):
+        return responses.forbidden('You are not allowed to write comments for others.')
+
+    published = published or not permissions.has_assignment_permission(user, assignment, 'can_grade_journal')
+
+    entrycomment = factory.make_entrycomment(entry, author, text, published)
     return responses.created(payload={'comment': serialize.entrycomment_to_dict(entrycomment)})
 
 
@@ -258,11 +275,18 @@ def create_lti_user(request):
             roles -- role of the user
     """
     if request.data['jwt_params'] is not '':
-        lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
-        user_id, user_image = lti_params['user_id'], lti_params['user_image']
+        try:
+            lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
+        except jwt.exceptions.ExpiredSignatureError:
+            return responses.forbidden(
+                description='The canvas link has expired, 15 minutes have passed. Please retry from canvas.')
+        except jwt.exceptions.InvalidSignatureError:
+            return responses.unauthorized(description='Invalid LTI parameters given. Please retry from canvas.')
+
+        lti_id, user_image = lti_params['user_id'], lti_params['custom_user_image']
         is_teacher = json.load(open('config.json'))['Teacher'] in lti_params['roles']
     else:
-        user_id, user_image, is_teacher = None, None, False
+        lti_id, user_image, is_teacher = None, None, False
 
     try:
         username, password = utils.required_params(request.data, 'username', 'password')
@@ -270,7 +294,30 @@ def create_lti_user(request):
     except KeyError:
         return responses.keyerror('username', 'password')
 
-    user = factory.make_user(username, password, email=email, lti_id=user_id, is_teacher=is_teacher,
-                             first_name=first_name, last_name=last_name, profile_picture=user_image)
+    if User.objects.filter(email=email).exists():
+        return responses.bad_request('User with this email address already exists.')
 
-    return responses.created(message='User successfully created', payload={'user': serialize.user_to_dict(user)})
+    if User.objects.filter(username=username).exists():
+        return responses.bad_request('User with this username already exists.')
+
+    if lti_id is not None and User.objects.filter(lti_id=lti_id).exists():
+        return responses.bad_request('User with this lti id already exists.')
+
+    try:
+        validators.validate_password(password)
+    except ValidationError as e:
+        return responses.bad_request(e.args[0])
+
+    try:
+        validate_email(email)
+    except ValidationError:
+        return responses.bad_request('Invalid email address.')
+
+    user = factory.make_user(username, password, email=email, lti_id=lti_id, is_teacher=is_teacher,
+                             first_name=first_name, last_name=last_name, profile_picture=user_image,
+                             verified_email=True if lti_id else False)
+
+    if lti_id is None:
+        email_handling.send_email_verification_link(user)
+
+    return responses.created(description='User successfully created', payload={'user': serialize.user_to_dict(user)})

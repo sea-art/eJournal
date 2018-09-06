@@ -1,43 +1,29 @@
 <template>
-    <content-columns>
-        <bread-crumb @eye-click="customisePage" slot="main-content-column"/>
-        <profile-card slot="main-content-column"
-                      :uname="profile.name"
-                      :first="profile.first_name"
-                      :last="profile.last_name"
-                      :image="profile.picture"
-                      :id="profile.uID"
-                      :gradeUpdate="profile.grade_notifications"
-                      :commentUpdate="profile.comment_notifications">
-        </profile-card>
-    </content-columns>
+    <content-single-column>
+        <bread-crumb>&nbsp;</bread-crumb>
+        <b-card class="no-hover blue-border">
+            <profile-data/>
+            <notification-card/>
+            <password-card/>
+        </b-card>
+    </content-single-column>
 </template>
 
 <script>
-import contentColumns from '@/components/ContentColumns.vue'
-import breadCrumb from '@/components/BreadCrumb.vue'
-import profileCard from '@/components/ProfileCard.vue'
-import userAPI from '@/api/user.js'
+import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import profileData from '@/components/profile/ProfileData.vue'
+import notificationCard from '@/components/profile/NotificationCard.vue'
+import passwordCard from '@/components/profile/PasswordCard.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
 
 export default {
     name: 'Profile',
-    data () {
-        return {
-            profile: {}
-        }
-    },
     components: {
-        'content-columns': contentColumns,
+        'content-single-column': contentSingleColumn,
         'bread-crumb': breadCrumb,
-        'profile-card': profileCard
-    },
-    methods: {
-        customisePage () {
-            this.$toasted.info('Wishlist: Customise page')
-        }
-    },
-    created () {
-        userAPI.getOwnUserData().then(user => { this.profile = user })
+        'profile-data': profileData,
+        'notification-card': notificationCard,
+        'password-card': passwordCard
     }
 }
 </script>

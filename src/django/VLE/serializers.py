@@ -3,7 +3,7 @@ Serializers.
 
 Functions to convert certain data to other formats.
 """
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
 from VLE.models import Journal, Node, EntryComment
 
@@ -11,8 +11,9 @@ from VLE.models import Journal, Node, EntryComment
 def user_to_dict(user):
     """Convert user object to dictionary."""
     return {
-        'name': user.username,
+        'username': user.username,
         'email': user.email,
+        'verified_email': user.verified_email,
         'lti_id': user.lti_id,
         'is_superuser': user.is_superuser,
         'grade_notifications': user.grade_notifications,
@@ -88,7 +89,7 @@ def journal_to_dict(journal):
         'jID': journal.id,
         'student': user_to_dict(journal.user),
         'stats': {
-            'acquired_points': utils.get_acquired_grade(entries, journal),
+            'acquired_points': utils.get_acquired_points(entries),
             'graded': utils.get_graded_count(entries),
             'submitted': utils.get_submitted_count(entries),
             'total_points': utils.get_max_points(journal),
@@ -257,9 +258,12 @@ def preset_to_dict(preset):
 def entrycomment_to_dict(entrycomment):
     """Convert entrycomment to dictionary."""
     return {
+        'ecID': entrycomment.id,
         'eID': entrycomment.entry.id,
         'author': user_to_dict(entrycomment.author),
         'text': entrycomment.text,
+        'published': entrycomment.published,
+        'timestamp': entrycomment.timestamp
     } if entrycomment else None
 
 
@@ -274,9 +278,10 @@ def role_to_dict(role):
             'can_edit_course': int(role.can_edit_course),
             'can_delete_course': int(role.can_delete_course),
             'can_add_assignment': int(role.can_add_assignment),
+            'can_edit_assignment': int(role.can_edit_assignment),
             'can_view_assignment_participants': int(role.can_view_assignment_participants),
             'can_delete_assignment': int(role.can_delete_assignment),
-            'can_publish_assigment_grades': int(role.can_publish_assigment_grades),
+            'can_publish_assignment_grades': int(role.can_publish_assignment_grades),
             'can_grade_journal': int(role.can_grade_journal),
             'can_publish_journal_grades': int(role.can_publish_journal_grades),
             'can_edit_journal': int(role.can_edit_journal),

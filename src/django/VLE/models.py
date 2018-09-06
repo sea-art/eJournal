@@ -6,6 +6,46 @@ Database file
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
+from VLE.utils.file_handling import get_path
+
+
+class UserFile(models.Model):
+    """UserFile.
+
+    UserFile is a file uploaded by the user stored in MEDIA_ROOT/uID/aID/...
+    - author: The user who uploaded the file.
+    - file_name: The name of the file (no parts of the path to the file included).
+    - creation_date: The time and date the file was uploaded.
+    - content_type: The mimetype supplied by the user (unvalidated).
+    - assignment: The assignment that the UserFile is linked to.
+    """
+    file = models.FileField(
+        null=False,
+        upload_to=get_path
+    )
+    file_name = models.TextField(
+        null=False
+    )
+    author = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+        null=False
+    )
+    creation_date = models.DateTimeField(
+        auto_now_add=True
+    )
+    content_type = models.TextField(
+        null=False
+    )
+    assignment = models.ForeignKey(
+        'Assignment',
+        on_delete=models.CASCADE,
+        null=False
+    )
+
+    def __str__(self):
+        """toString."""
+        return self.file_name
 
 
 class User(AbstractUser):
@@ -13,15 +53,17 @@ class User(AbstractUser):
 
     User is an entity in the database with the following features:
     - email: email of the user.
+    - verified_email: Boolean to indicate if the user has validated their email adress.
     - USERNAME_FIELD: username of the username.
     - password: the hash of the password of the user.
     - lti_id: the DLO id of the user.
     """
 
     email = models.EmailField(
-        null=True,
-        blank=True,
         unique=True,
+    )
+    verified_email = models.BooleanField(
+        default=False
     )
     lti_id = models.TextField(
         null=True,
@@ -123,7 +165,7 @@ class Role(models.Model):
     can_edit_assignment = models.BooleanField(default=False)
     can_view_assignment_participants = models.BooleanField(default=False)
     can_delete_assignment = models.BooleanField(default=False)
-    can_publish_assigment_grades = models.BooleanField(default=False)
+    can_publish_assignment_grades = models.BooleanField(default=False)
 
     # Journal permissions.
     can_grade_journal = models.BooleanField(default=False)
@@ -468,12 +510,20 @@ class Field(models.Model):
     """
 
     TEXT = 't'
+    RICH_TEXT = 'rt'
     IMG = 'i'
     FILE = 'f'
+    VIDEO = 'v'
+    PDF = 'p'
+    URL = 'u'
     TYPES = (
         (TEXT, 'text'),
+        (RICH_TEXT, 'rich text'),
         (IMG, 'img'),
+        (PDF, 'pdf'),
         (FILE, 'file'),
+        (VIDEO, 'vid'),
+        (URL, 'url')
     )
     type = models.TextField(
         max_length=4,
@@ -489,7 +539,7 @@ class Field(models.Model):
 
     def __str__(self):
         """toString."""
-        return self.template.name + " field: " + str(self.location)
+        return self.template.name + " type: " + str(self.type) + ", location: " + str(self.location)
 
 
 class Content(models.Model):
@@ -507,6 +557,7 @@ class Content(models.Model):
         on_delete=models.SET_NULL,
         null=True
     )
+    # TODO Consider a size limit 10MB unencoded posts? so 10 * 1024 * 1024 * 1.37?
     data = models.TextField()
 
 
@@ -527,3 +578,7 @@ class EntryComment(models.Model):
         null=True
     )
     text = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    published = models.BooleanField(
+        default=True
+    )

@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import store from './store'
+import axios from 'axios'
 import BootstrapVue from 'bootstrap-vue'
 import '../node_modules/bootstrap/dist/css/bootstrap.css'
 import '../node_modules/bootstrap-vue/dist/bootstrap-vue.css'
@@ -17,6 +19,28 @@ import 'vue-awesome/icons/times'
 import 'vue-awesome/icons/exclamation'
 import 'vue-awesome/icons/plus'
 import 'vue-awesome/icons/list-ul'
+import 'vue-awesome/icons/paper-plane'
+import 'vue-awesome/icons/save'
+import 'vue-awesome/icons/upload'
+import 'vue-awesome/icons/download'
+import 'vue-awesome/icons/arrow-right'
+import 'vue-awesome/icons/arrow-left'
+import 'vue-awesome/icons/user'
+import 'vue-awesome/icons/users'
+import 'vue-awesome/icons/shield'
+import 'vue-awesome/icons/user-times'
+import 'vue-awesome/icons/user-plus'
+import 'vue-awesome/icons/edit'
+import 'vue-awesome/icons/undo'
+import 'vue-awesome/icons/sign-in'
+import 'vue-awesome/icons/sign-out'
+import 'vue-awesome/icons/ban'
+import 'vue-awesome/icons/link'
+import 'vue-awesome/icons/envelope'
+import 'vue-awesome/icons/home'
+import 'vue-awesome/icons/calendar'
+import 'vue-awesome/icons/question'
+import 'vue-awesome/icons/spinner'
 
 import Toasted from 'vue-toasted'
 
@@ -24,99 +48,67 @@ Vue.config.productionTip = false
 Vue.use(Toasted, { position: 'bottom-right', duration: 4000 })
 Vue.use(BootstrapVue)
 
+/* Checks the store for for permissions according to the current route cID or aID. */
+Vue.prototype.$hasPermission = store.getters['permissions/hasPermission']
+
+/* Sets the default authorization token needed to for authenticated requests. */
+axios.defaults.transformRequest.push((data, headers) => {
+    if (store.getters['user/jwtAccess']) {
+        headers.Authorization = 'Bearer ' + store.getters['user/jwtAccess']
+    }
+    return data
+})
+
 /* eslint-disable no-new */
 new Vue({
     el: '#app',
     router,
+    store,
     components: { App },
     data: {
         colors: ['pink-border', 'peach-border', 'blue-border'],
-        permissions: {},
-        validToken: false,
-        previousPage: null
+        previousPage: null,
+        windowWidth: 0,
+        maxFileSizeBytes: 2097152
+    },
+    mounted () {
+        this.$nextTick(function () {
+            window.addEventListener('resize', this.getWindowWidth)
+
+            this.getWindowWidth()
+        })
+    },
+    beforeDestroy () {
+        window.removeEventListener('resize', this.getWindowWidth)
     },
     methods: {
-        timeLeft (date) {
-            /* Date format is:
-             * Returns the remaining time left as:
-             * If the time left is negative returns Expired
-             * TODO implement (will most likely require a lib) */
-            return '1M 9D 9H'
+        getWindowWidth () {
+            this.windowWidth = window.innerWidth
         },
+        /* Bootstrap breakpoints for custom events. */
+        // TODO Figure out how to get these from the dedicated sass file (more webpack fun)
+        sm () { return this.windowWidth > 575 },
+        md () { return this.windowWidth > 767 },
+        lg () { return this.windowWidth > 991 },
+        xl () { return this.windowWidth > 1199 },
+        xsMax () { return this.windowWidth < 576 },
+        smMax () { return this.windowWidth < 769 },
+        mdMax () { return this.windowWidth < 992 },
+        lgMax () { return this.windowWidth < 1200 },
         getBorderClass (cID) {
             return this.colors[cID % this.colors.length]
         },
+        beautifyDate (date) {
+            if (!date) {
+                return ''
+            }
 
-        /* #############################################################
-         *              Permissions,
-         * Front-end interface for all possible permissions.
-         * For an overview see:
-         * https://docs.google.com/spreadsheets/d/1M7KnEKL3cG9PMWfQi9HIpRJ5xUMou4Y2plnRgke--Tk
-         *
-         * ##############################################################
-         */
+            var year = date.substring(0, 4)
+            var month = date.substring(5, 7)
+            var day = date.substring(8, 10)
+            var time = date.substring(11, 16)
 
-        /* Site-wide permissions */
-        isAdmin () {
-            return this.permissions.is_superuser
-        },
-        /* Institute wide settings, think institute name/abbreviation logo. */
-        canEditInstitute () {
-            return this.permissions.can_edit_institute
-        },
-
-        /* Course level based permissions. These permissions are enabled and
-        used per course. */
-
-        /* Course permissions. */
-        canEditCourseRoles () {
-            return this.permissions.can_edit_course_roles
-        },
-        canAddCourse () {
-            return this.permissions.can_add_course
-        },
-        canViewCourseParticipants () {
-            return this.permissions.can_view_course_participants
-        },
-        canAddCourseParticipants () {
-            return this.permissions.can_add_course_participants
-        },
-        canEditCourse () {
-            return this.permissions.can_edit_course
-        },
-        canDeleteCourse () {
-            return this.permissions.can_delete_course
-        },
-
-        /* Assignment permissions. */
-        canAddAssignment () {
-            return this.permissions.can_add_assignment
-        },
-        canEditAssignment () {
-            return this.permissions.can_edit_assignment
-        },
-        canViewAssignmentParticipants () {
-            return this.permissions.can_view_assignment_participants
-        },
-        canDeleteAssignment () {
-            return this.permissions.can_delete_assignment
-        },
-        canPublishAssignmentGrades () {
-            return this.permissions.can_publish_assignment_grades
-        },
-
-        /* Grade permissions. */
-        canGradeJournal () {
-            return this.permissions.can_grade_journal
-        },
-        canPublishJournalGrades () {
-            return this.permissions.can_publish_journal_grades
-        },
-        canEditJournal () {
-            return this.permissions.can_edit_journal
-        },
-        canCommentJournal () {
-            return this.permissions.can_comment_journal
+            return day + '-' + month + '-' + year + ' ' + time
         }
     },
     template: '<App/>'

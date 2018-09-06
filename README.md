@@ -1,16 +1,12 @@
-# Incremental Long-Term Assignments for Canvas VLE [![Build Status](https://travis-ci.com/Rickyboy320/PSE_Hokkies.svg?token=r1oSN27zZYdQJnbijrgR&branch=develop)](https://travis-ci.com/Rickyboy320/PSE_Hokkies)
+# eJournal [![Build Status](https://travis-ci.com/eJourn-al/eJournal.svg?branch=develop)](https://travis-ci.com/eJourn-al/eJournal)
 
-Canvas VLE integration
-
-During the first and second years of the Bachelor Informatics at the University of Amsterdam, students follow a course called PAV (practicum academische vaardigheden or practicum academic competencies). One part of the PAV course is the colloquium journal; students are required to attend events related to their field of study and report on their experiences. Each event can be worth one or more points and students are required to acquire at least ten points by the end of their second year of study. The students' reports are evaluated by a tutor and assigned points on a regular basis.
-
-[Full description](https://www.overleaf.com/read/hxzqgqqmzvwc)
+eJournal is a platform for online journalling and long term assignments, especially developed for education. It can be easily connected to virtual learning environments through LTI.
 
 ## Setting up the Development Environment
 
 ```bash
-git clone git@github.com:Rickyboy320/PSE_Hokkies.git
-cd PSE_Hokkies
+git clone git@github.com:eJourn-al/eJournal.git
+cd eJournal
 make setup
 ```
 
@@ -25,14 +21,14 @@ The first step downloads the full repository.
 #### Frontend
 
 Files are stored in `src/vue`.
-To start the development vue server type `make run-front` in the `PSE_Hokkies` folder. The Frontend is dependent on the Backend to work properly with requesting data, so make sure to also run the backend.
+To start the development vue server type `make run-front` in the `eJournal` folder. The Frontend is dependent on the Backend to work properly with requesting data, so make sure to also run the backend.
 
 `npm` should always be run in this directory, as the `node_modules` folder is stored here. For the actual source files, view the `src/vue/src` folder.
 
 #### Backend
 
 Files are stored in `src/django`.
-To start the development django server type `make run-back` in the `PSE_Hokkies` folder.
+To start the development django server type `make run-back` in the `eJournal` folder.
 
 ## Testing
 
@@ -91,9 +87,9 @@ In the file `settings/database.conf` you will need to configure the database. By
 - `DATABASE_TYPE`: the backend of the database. Can be one of the backends [specified by django](https://docs.djangoproject.com/en/2.0/ref/settings/#std:setting-DATABASE-ENGINE) (defaults to postgresql).
 - `DATABASE_NAME`: the name of the database (defaults to ejournal).
 - `DATABASE_HOST`: the URL of the server running the database (defaults to localhost).
-- `DATABASE_PORT`: the port on which the database is accessible through `$DATABASE_HOST`.
+- `DATABASE_PORT`: the port on which the database is accessible through `$DATABASE_HOST` (default PostgreSQL port is 5432).
 - `DATABASE_USER`: the user for the server to create as database owner. Note that this user will gain all rights for the table set in `$DATABASE_NAME`, as this is required for the server to be able to freely manipulate the database.
-- `DATABASE_PASSWORD`: the password that should be set for the `$DATABASE_USER`.
+- `DATABASE_PASSWORD`: the password that is set for the `$DATABASE_USER`.
 
 In the file `settings/secrets.conf` you will be required to generate new secret keys for django and LTI. Neither of these fields should be the same, and it is suggested you use a random string generator to generate the secret.
 Use a sufficiently long and complex secret (the default by django is 50 characters).
@@ -129,20 +125,20 @@ Make sure to use a strong password, as these credentials will be able to manipul
 
 ## Troubleshooting
 
-May the setup or deployment fail, [open an issue on github](https://github.com/Rickyboy320/PSE_Hokkies/issues/new).
+May the setup or deployment fail, [open an issue on github](https://github.com/eJourn-al/eJournal/issues/new).
 The setup and deployment scripts have been built for ubuntu, and may not work on any other linux distributions. May the need for this arise, the scripts can be altered to support additional distributions.
 
 ## Contributors
 
-Jeroen van Bennekum: Scrum Master, Database Design & Implementation  
-Xavier van Dommelen: Design, Front-end & EDAG  
-Engel Hamer: Design, Front-end  
-Hendrik Huang: Design, Front-end & EDAG  
-Maarten van Keulen: Design, Front-end  
-Zi Long Zhu: Database Design, Back-end, Test Implementations  
-Joey Lai: Front-end, Back-end, Test Implementations  
-Teun Mathijssen: Front-end, Back-end  
-Lars van Hijfte: Project Structure, Back-end, Project Deployment, Assistant Git Master  
-Rick Watertor: Project Structure, Back-end, Project Deployment, Git Master  
-Okke van Eck: Front-end & LTI  
-Dennis Wind: LTI Specialist  
+Jeroen van Bennekum, 
+Xavier van Dommelen, 
+Okke van Eck, 
+Engel Hamer, 
+Lars van Hijfte, 
+Hendrik Huang, 
+Maarten van Keulen, 
+Joey Lai, 
+Teun Mathijssen, 
+Rick Watertor, 
+Dennis Wind, 
+Zi Long Zhu.

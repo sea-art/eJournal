@@ -1,24 +1,36 @@
 <template>
     <content-single-table-column>
         <bread-crumb>&nbsp;</bread-crumb>
-
-        <b-button @click="update()" class="multi-form float-right add-button ml-2"> Save </b-button>
-        <b-button @click="reset()" class="multi-form float-right delete-button"> Reset </b-button>
-
+        <b-card class="settings-card mb-4 no-hover">
+            <b-button @click="reset()" class="multi-form change-button">
+                <icon name="undo"/>
+                Undo Changes
+            </b-button>
+            <b-button @click="update()" class=" float-right multi-form add-button">
+                <icon name="save"/>
+                Save
+            </b-button>
+        </b-card>
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
                 <thead>
                     <tr>
                         <th/>
                         <th v-for="role in roles" :key="'th-' + role">
-                            {{ role }}
-                            <icon
-                                v-if="!undeleteableRoles.includes(role)"
-                                name="trash" @click.native="deleteRole(role)"
-                                class="trash-icon"
-                                scale="1.25"/>
+                            <b-button v-if="!undeleteableRoles.includes(role)" @click="deleteRole(role)" class="delete-button">
+                                {{ role }}
+                                <icon name="trash"/>
+                            </b-button>
+                            <span v-else>
+                                {{ role }}
+                            </span>
                         </th>
-                        <th><icon name="plus-square" @click.native="modalShow = !modalShow" class="add-icon" scale="1.75"/></th>
+                        <th>
+                            <b-button @click="modalShow = !modalShow" class="add-button">
+                                <icon name="plus-square"/>
+                                Add Role
+                            </b-button>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -26,6 +38,7 @@
                         <td class="permission-column">{{ formatPermissionString(permission) }}</td>
                         <td v-for="role in roles" :key="role + '-' + permission">
                             <custom-checkbox
+                            :class="{ 'input-disabled': essentialPermission(role, permission) }"
                             @checkbox-toggle="updateRole"
                             :role="role"
                             :permission="permission"
@@ -38,26 +51,32 @@
 
         <b-modal
             @shown="focusRoleNameInput"
-            title="Role creation"
+            title="New Role"
             size="lg"
             v-model="modalShow"
             hide-footer>
             <b-form-input
                 @keyup.enter.native="addRole"
                 v-model="newRole"
-                class="multi-form"
+                class="multi-form theme-input"
                 ref="roleNameInput"
                 required placeholder="Role name"/>
-            <b-button @click="addRole" class="add-button">Create role</b-button>
-            <b-button @click="modalShow = false" class="delete-button">Cancel</b-button>
+            <b-button @click="modalShow = false" class="delete-button float-left">
+                <icon name="ban"/>
+                Cancel
+            </b-button>
+            <b-button @click="addRole" class="add-button float-right">
+                <icon name="user-plus"/>
+                Create new role
+            </b-button>
         </b-modal>
     </content-single-table-column>
 </template>
 
 <script>
-import breadCrumb from '@/components/BreadCrumb.vue'
-import contentSingleTableColumn from '@/components/ContentSingleTableColumn.vue'
-import customCheckbox from '@/components/CustomCheckbox.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import contentSingleTableColumn from '@/components/columns/ContentSingleTableColumn.vue'
+import customCheckbox from '@/components/assets/CustomCheckbox.vue'
 import icon from 'vue-awesome/components/Icon'
 import permissions from '@/api/permissions.js'
 
@@ -86,10 +105,13 @@ export default {
             selectedRole: null,
             modalShow: false,
             newRole: '',
-            windowWidth: 550
+            essentialPermissions: {'Teacher': ['can_edit_course_roles']}
         }
     },
     methods: {
+        essentialPermission (role, permission) {
+            return this.essentialPermissions[role] && this.essentialPermissions[role].includes(permission)
+        },
         updateRole (list) {
             var role = list[0]
             var permission = list[1]
@@ -150,7 +172,7 @@ export default {
              * could interact with v-model.
              * However scaling should not be a problem here (time choice to keep
              * working with the databse given format.)  */
-            if (confirm('This will undo all unsaved work\n Are you sure you want to continue?')) {
+            if (confirm('This will undo all unsaved changes\n Are you sure you want to continue?')) {
                 this.roleConfig = this.deepCopyRoles(this.originalRoleConfig)
 
                 this.roles = []
@@ -164,12 +186,13 @@ export default {
         },
         update () {
             permissions.update_course_roles(this.cID, this.roleConfig)
-                .then(response => {
+                .then(_ => {
                     this.originalRoleConfig = this.deepCopyRoles(this.roleConfig)
                     this.defaultRoles = Array.from(this.roles)
-                    this.$toasted.success('Update succesfull!')
+                    this.$toasted.success('Course roles succesfully updated.')
+                    this.checkPermission()
                 })
-                .catch(_ => this.$toasted.error('Something went wrong when updating the permissions'))
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         formatPermissionString (str) {
             /* Converts underscores to spaces and capatilises the first letter. */
@@ -177,11 +200,11 @@ export default {
             return temp[0].toUpperCase() + temp.slice(1)
         },
         deleteRole (role) {
-            if (confirm('Are you sure you want to delete role: ' + role + 'entirely?')) {
+            if (confirm('Are you sure you want to delete the role "' + role + '" from this course?')) {
                 if (this.defaultRoles.includes(role)) {
                     /* handle server update. */
                     permissions.delete_course_role(this.cID, role)
-                        .then(response => {
+                        .then(_ => {
                             this.deleteRoleLocalConfig(role)
                             this.deleteRoleServerLoadedConfig(role)
                             this.$toasted.success('Role deleted succesfully!')
@@ -203,24 +226,32 @@ export default {
             this.originalRoleConfig.splice(i, 1)
             i = this.defaultRoles.findIndex(p => p === role)
             this.defaultRoles.splice(i, 1)
+        },
+        checkPermission () {
+            permissions.get_course_permissions(this.cID)
+                .then(coursePermissions => {
+                    this.$store.commit('user/UPDATE_PERMISSIONS', { permissions: coursePermissions, key: 'Course' + this.cID })
+                    if (!this.$hasPermission('can_edit_course_roles')) { this.$router.push({ name: 'Home' }) }
+                })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     },
     created () {
         /* Initialises roles, permissions and role config as well as their defaults.
          * Roles and Permissions objects need to exist as deepcopy depends on then. */
         permissions.get_course_roles(this.cID)
-            .then(response => {
-                this.roleConfig = response
+            .then(roleConfig => {
+                this.roleConfig = roleConfig
 
-                response.forEach(role => {
+                roleConfig.forEach(role => {
                     this.defaultRoles.push(role.name)
                 })
-                this.permissions = Object.keys(response[0].permissions)
+                this.permissions = Object.keys(roleConfig[0].permissions)
                 this.roles = Array.from(this.defaultRoles)
 
-                this.originalRoleConfig = this.deepCopyRoles(response)
+                this.originalRoleConfig = this.deepCopyRoles(roleConfig)
             })
-            .catch(_ => this.$toasted.error('Error while loading course roles'))
+            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     components: {
         'content-single-table-column': contentSingleTableColumn,
@@ -231,33 +262,17 @@ export default {
 }
 </script>
 
-<style>
-.select-center {
-    text-align: center;
-}
+<style lang="sass">
+.select-center
+    text-align: center
 
-.table th {
-   text-align: center;
-}
+.table th
+    text-align: center
 
-.table td {
-    text-align: center; /* center checkbox horizontally */
-    align-items: center;
-}
+.table td
+    text-align: center
+    align-items: center
 
-.permission-column {
-    text-align: left !important;
-}
-
-.table-content {
-    padding-top: 40px;
-    background-color: white;
-    flex: 1 1 auto;
-}
-
-@media(max-width:992px){
-    .table-content {
-        padding-top: 0px !important;
-    }
-}
+.permission-column
+    text-align: left !important
 </style>

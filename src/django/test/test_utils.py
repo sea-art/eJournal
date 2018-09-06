@@ -11,7 +11,7 @@ from VLE.models import Role
 import VLE.factory as factory
 
 
-def set_up_user_and_auth(username, password, first_name=None, last_name=None,
+def set_up_user_and_auth(username, password, email, first_name=None, last_name=None,
                          is_superuser=False, is_teacher=False):
     """Set up a user with the possibility of global permissions.
 
@@ -23,7 +23,7 @@ def set_up_user_and_auth(username, password, first_name=None, last_name=None,
 
     Returns the user and its credentials
     """
-    user = factory.make_user(username, password, is_superuser=is_superuser, is_teacher=is_teacher,
+    user = factory.make_user(username, password, email, is_superuser=is_superuser, is_teacher=is_teacher,
                              first_name=first_name, last_name=last_name)
     return username, password, user
 
@@ -45,7 +45,7 @@ def set_up_users(name, n):
     """
     users = []
     for i in range(n):
-        users.append(factory.make_user(name + str(i), 'pass'))
+        users.append(factory.make_user(name + str(i), 'pass', 'test@ts.com' + str(i)))
     return users
 
 
@@ -171,7 +171,7 @@ def test_unauthorized_api_get_call(obj, url):
 
 
 def api_post_call(obj, url, params, login, status=200):
-    """Send an get api call.
+    """Send and get api call.
 
     Arguments:
     url -- url to send the call to

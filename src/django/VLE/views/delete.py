@@ -5,10 +5,10 @@ API functions that handle the delete requests.
 """
 from rest_framework.decorators import api_view
 
-from VLE.models import Assignment, Course, Participation, User, Role
+from VLE.models import Assignment, Course, EntryComment, Participation, User, Role
 
 import VLE.views.responses as responses
-import VLE.utils as utils
+import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
 
 
@@ -41,7 +41,7 @@ def delete_course(request):
     course = Course.objects.get(pk=cID)
     course.delete()
 
-    return responses.success(message='Succesfully deleted course')
+    return responses.success(description='Succesfully deleted course')
 
 
 @api_view(['POST'])
@@ -71,19 +71,18 @@ def delete_assignment(request):
     if role is None:
         return responses.forbidden(description="You have no access to this course")
     elif not role.can_delete_assignment:
-        return responses.forbidden(description="You have no permissions to delete a assignment.")
+        return responses.forbidden(description="You have no permissions to delete this assignment.")
 
     response = {'removed_completely': False}
     course = Course.objects.get(pk=cID)
     assignment = Assignment.objects.get(pk=aID)
     assignment.courses.remove(course)
     assignment.save()
-    response['removed_from_course'] = True
     if assignment.courses.count() == 0:
         assignment.delete()
         response['removed_completely'] = True
 
-    return responses.success(message='Succesfully deleted assignment', payload=response)
+    return responses.success(description='Succesfully deleted the assignment.', payload=response)
 
 
 @api_view(['POST'])
@@ -109,7 +108,7 @@ def delete_user_from_course(request):
     # Users can only be deleted from the course with can_view_course_participants
     role = permissions.get_role(user, cID)
     if role is None:
-        return responses.unauthorized(description="You have no access to this course")
+        return responses.unauthorized(description="You have no access to this course.")
     elif not role.can_view_course_participants:
         return responses.forbidden(description="Uou have no permissions to delete this user.")
 
@@ -121,7 +120,7 @@ def delete_user_from_course(request):
         return responses.not_found(description='User, Course or Participation does not exist.')
 
     participation.delete()
-    return responses.success(message='Succesfully deleted student from course')
+    return responses.success(description='Succesfully deleted student from course.')
 
 
 @api_view(['POST'])
@@ -138,7 +137,7 @@ def delete_course_role(request):
     # Users can only delete course roles with can_edit_course_roles
     role = permissions.get_role(user, cID)
     if role is None:
-        return responses.unauthorized(description="You have no access to this course")
+        return responses.unauthorized(description="You have no access to this course.")
     elif not role.can_edit_course_roles:
         return responses.forbidden(description="You have no permissions to delete this course role.")
 
@@ -148,4 +147,34 @@ def delete_course_role(request):
         return responses.forbidden()
 
     Role.objects.get(name=name, course=cID).delete()
-    return responses.success(message='Succesfully deleted role from course')
+    return responses.success(description='Succesfully deleted role from course.')
+
+
+@api_view(['POST'])
+def delete_entrycomment(request):
+    """Delete an entrycomment.
+
+    Arguments:
+    request -- the request that was send with
+        ecID -- the entrycomment ID
+    """
+    user = request.user
+    if not user.is_authenticated:
+        return responses.unauthorized()
+
+    try:
+        ecID = utils.required_params(request.data, "ecID")[0]
+    except KeyError:
+        return responses.keyerror("ecID")
+
+    try:
+        entrycomment = EntryComment.objects.get(pk=ecID)
+        entryAuthor = User.objects.get(pk=entrycomment.author.id)
+    except (EntryComment.DoesNotExist, User.DoesNotExist):
+        return responses.not_found('Comment or Author does not exist.')
+
+    if not user == entryAuthor:
+        return responses.forbidden()
+
+    EntryComment.objects.get(id=ecID).delete()
+    return responses.success(description='Succesfully deleted comment.')

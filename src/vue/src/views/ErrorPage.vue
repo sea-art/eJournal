@@ -2,54 +2,68 @@
     <b-row class="error-content">
         <b-col cols="12">
             <h1 id="error-heading">
-                Error {{ code }}: <span id="error-message">{{ message }}</span>
+                Error {{ code }}: <span id="error-message">{{ reasonPhrase }}</span>
             </h1>
         </b-col>
-        <b-col cols="12" v-if="description">
-            {{ description }}
+        <b-col cols="12" >
+            <div class="description-container">
+                {{ description }}
+            </div>
         </b-col>
         <b-col cols="12">
-            <b-button :to="{name: 'Home'}">Home</b-button>
+            <b-button :to="{name: 'Home'}">
+                <icon name="home"/>
+                Home
+            </b-button>
             <!-- TODO: Add mailto or similar. -->
-            <b-button :to="{name: 'Home'}">Contact</b-button>
+            <b-button :to="{name: 'Home'}" class="change-button">
+                <icon name="envelope"/>
+                Contact
+            </b-button>
         </b-col>
     </b-row>
 </template>
 
 <script>
+import icon from 'vue-awesome/components/Icon'
+
 export default {
     name: 'Error',
     props: {
         code: {
-            default: 404
+            default: '520'
         },
-        message: {
-            default: 'Not found'
+        reasonPhrase: {
+            default: 'Unknown Error'
         },
         description: {
-            type: String
+            default: 'We are sorry, but an unkown error has brought you here.'
         }
+    },
+    components: {
+        icon
     }
 }
 </script>
 
-<style>
-.error-content {
-    padding: 40px;
-}
+<style lang="sass">
+@import '~sass/modules/colors.sass'
 
-#error-heading, #error-message {
-    border: none;
-    padding: 0px;
-}
+.error-content
+    padding: 40px
 
-#error-heading {
-    color: var(--theme-dark-grey);
-    font-size: 80px;
-}
+.description-container
+    padding: 20px 0px
 
-#error-message {
-    color: var(--theme-medium-grey);
-    font-size: 60px;
-}
+#error-heading, #error-message
+    border: none
+    padding: 0px
+
+#error-heading
+    color: $theme-dark-grey
+    font-size: 80px
+
+#error-message
+    color: $theme-medium-grey
+    font-size: 60px
 </style>

@@ -8,7 +8,11 @@ export default {
     get_assignment_journals (aID) {
         return auth.authenticatedGet('/get_assignment_journals/' + aID + '/')
             .then(response => response.data)
-            .catch(error => { throw error })
+    },
+
+    get_journal (jID) {
+        return auth.authenticatedGet('/get_journal/' + jID + '/')
+            .then(response => response.data)
     },
 
     get_nodes (jID) {

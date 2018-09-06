@@ -54,7 +54,7 @@ def get_permissions(user, cID=-1):
             "can_edit_assignment": True,
             "can_view_assignment_participants": True,
             "can_delete_assignment": True,
-            "can_publish_assigment_grades": False,
+            "can_publish_assignment_grades": False,
 
             "can_grade_journal": False,
             "can_publish_journal_grades": False,
@@ -78,7 +78,7 @@ def get_permissions(user, cID=-1):
             "can_edit_assignment": False,
             "can_view_assignment_participants": False,
             "can_delete_assignment": False,
-            "can_publish_assigment_grades": False,
+            "can_publish_assignment_grades": False,
 
             "can_grade_journal": False,
             "can_publish_journal_grades": False,
@@ -192,7 +192,7 @@ def edit_permissions(role, can_edit_course_roles=False, can_view_course_particip
                      can_edit_course=False, can_delete_course=False,
                      can_add_assignment=False, can_view_assignment_participants=False,
                      can_edit_assignment=False,
-                     can_delete_assignment=False, can_publish_assigment_grades=False,
+                     can_delete_assignment=False, can_publish_assignment_grades=False,
                      can_grade_journal=False, can_publish_journal_grades=False,
                      can_edit_journal=False, can_comment_journal=False):
     """Edit the name and permissions of an existing role."""
@@ -206,7 +206,7 @@ def edit_permissions(role, can_edit_course_roles=False, can_view_course_particip
     role.can_edit_assignment = can_edit_assignment
     role.can_view_assignment_participants = can_view_assignment_participants
     role.can_delete_assignment = can_delete_assignment
-    role.can_publish_assigment_grades = can_publish_assigment_grades
+    role.can_publish_assignment_grades = can_publish_assignment_grades
 
     role.can_grade_journal = can_grade_journal
     role.can_publish_journal_grades = can_publish_journal_grades
@@ -239,3 +239,44 @@ def is_user_in_course(user, course):
     Returns True if the user is in the course, else False.
     """
     return Participation.objects.filter(user=user, course=course).exists()
+
+
+def get_all_user_permissions(user):
+    """Returns a dictionary with all user permissions.
+
+    Arguments:
+    user -- The user whose permissions are requested.
+
+    Returns {all_permission:
+        course{id}: permisions
+        assignment{id}: permissions
+        general: permissions
+    }"""
+    permissions = {}
+    courses = user.participations.all()
+
+    permissions['general'] = get_permissions(user, -1)
+
+    for course in courses:
+        permissions['course' + str(course.id)] = get_permissions(user, course.id)
+
+    assignments = Assignment.objects.none()
+    for course in courses:
+        # Checks wether the user is a participator in an assignment or a grader based on:
+        # 'can_view_assignment_participants'
+        # Returns all assigments linked to a course if a grader, this permission is not verbose enough for this check
+        # TODO Create a more verbose check. And in general ensure that a user can never have grading level permissions
+        # for a course where the user has any journals.
+        if permissions['course' + str(course.id)]['can_view_assignment_participants']:
+            assignments |= course.assignment_set.all()
+        else:
+            # TODO does this not break if no journal is created yet? Why do we not work with an AssignmentParticipation
+            # model?
+            assignments |= Assignment.objects.filter(courses=course, journal__user=user)
+
+    assignments = assignments.distinct()
+
+    for assignment in assignments:
+        permissions['assignment' + str(assignment.id)] = get_assignment_id_permissions(user, assignment.id)
+
+    return permissions

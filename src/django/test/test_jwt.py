@@ -20,7 +20,7 @@ class JWTTests(TestCase):
 
     def setUp(self):
         """Setup."""
-        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123')
+        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123', 'tt@tt.com')
 
     def test_get_auth(self):
         """Test simple authentication with JWT keys."""
@@ -48,7 +48,7 @@ class JWTTests(TestCase):
                                  HTTP_AUTHORIZATION='Bearer {0}'.format(result.json()['access']))
 
         self.assertEquals(result.status_code, 200)
-        self.assertEquals(result.json()['result'], 'success')
+        self.assertEquals(result.json()['description'], '')
         self.assertEquals(result.json()['courses'], [])
 
     def test_auth_without_password(self):
