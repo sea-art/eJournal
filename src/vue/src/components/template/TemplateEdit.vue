@@ -8,7 +8,15 @@
                         <b-row align-h="between" no-gutters>
                             <b-col cols="12" sm="10" lg="11">
                                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="field.title" placeholder="Field title" required/>
-                                <b-select :options="fieldTypes" v-model="field.type"></b-select>
+                                <b-select class="multi-form" :options="fieldTypes" v-model="field.type"></b-select>
+                                <b-button v-on:click.stop v-if="!field.required" @click="field.required = !field.required" class="optional">
+                                    <icon name="times"/>
+                                    Optional
+                                </b-button>
+                                <b-button v-on:click.stop v-if="field.required" @click="field.required = !field.required" class="required">
+                                    <icon name="check"/>
+                                    Required
+                                </b-button><br>
                             </b-col>
                             <b-col cols="12" sm="2" lg="1" class="icon-box">
                                 <div class="handle d-inline d-sm-block">
@@ -33,6 +41,7 @@
 import ContentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import icon from 'vue-awesome/components/Icon'
 import draggable from 'vuedraggable'
+import Switch from '@/components/assets/SwitchComponent.vue'
 
 export default {
     props: {
@@ -56,7 +65,8 @@ export default {
     components: {
         'content-single-column': ContentSingleColumn,
         icon,
-        'draggable': draggable
+        'draggable': draggable,
+        'toggle-switch': Switch
     },
     methods: {
         updateLocations () {
@@ -68,7 +78,8 @@ export default {
             var newField = {
                 'type': 't',
                 'title': '',
-                'location': this.template.fields.length
+                'location': this.template.fields.length,
+                'required': true
             }
 
             this.template.fields.push(newField)
@@ -90,6 +101,18 @@ export default {
 <style lang="sass">
 @import '~sass/modules/colors.sass'
 @import '~sass/modules/breakpoints.sass'
+
+.optional
+    background-color: white
+    color: $theme-dark-blue !important
+    svg
+        fill: $theme-dark-blue !important
+
+.required
+    background-color: $theme-dark-blue
+    color: white !important
+    svg
+        fill: white !important
 
 #templateName
     font-weight: bold

@@ -24,7 +24,7 @@
             -->
             <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
                 <div v-if="field.title">
-                    <b>{{ field.title }}</b>
+                    <b>{{ field.title }}</b> <b style="color: red" v-if="field.required">*</b>
                 </div>
 
                 <div v-if="field.type=='t'">
@@ -108,7 +108,7 @@
                 Gives a view of every templatefield and
                 if possible the already filled in entry.
             -->
-            <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
+            <div v-for="(field, i) in entryNode.entry.template.fields" v-if="field.required || completeContent[i].data" :key="field.eID">
                 <div v-if="field.title">
                     <b>{{ field.title }}</b>
                 </div>
@@ -238,8 +238,10 @@ export default {
             }
         },
         checkFilled: function () {
-            for (var content of this.completeContent) {
-                if (!content.data) {
+            for (var i = 0; i < this.completeContent.length; i++) {
+                var content = this.completeContent[i]
+                var field = this.entryNode.entry.template.fields[i]
+                if (field.required && !content.data) {
                     return false
                 }
             }

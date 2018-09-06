@@ -8,7 +8,7 @@
             <h2 class="mb-2">{{ template.name }}</h2>
             <div v-for="(field, i) in template.fields" :key="field.eID">
                 <div v-if="field.title != ''">
-                    <b>{{ field.title }}</b>
+                    <b>{{ field.title }}</b> <b style="color: red" v-if="field.required">*</b>
                 </div>
 
                 <div v-if="field.type=='t'">
@@ -102,8 +102,10 @@ export default {
             }
         },
         checkFilled: function () {
-            for (var content of this.completeContent) {
-                if (!content.data) {
+            for (var i = 0; i < this.completeContent.length; i++) {
+                var content = this.completeContent[i]
+                var field = this.template.fields[i]
+                if (field.required && !content.data) {
                     return false
                 }
             }

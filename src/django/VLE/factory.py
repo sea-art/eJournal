@@ -203,9 +203,9 @@ def make_entry_template(name):
     return entry_template
 
 
-def make_field(template, descrip, loc, type=Field.TEXT):
+def make_field(template, descrip, loc, type=Field.TEXT, required=True):
     """Make a field."""
-    field = Field(type=type, title=descrip, location=loc, template=template)
+    field = Field(type=type, title=descrip, location=loc, template=template, required=required)
     field.save()
     return field
 

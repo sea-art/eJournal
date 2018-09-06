@@ -26,7 +26,7 @@
             </div>
             <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
 
-            <div v-for="(field, i) in entryNode.entry.template.fields" class="entry-field" :key="field.eID">
+            <div v-for="(field, i) in entryNode.entry.template.fields" v-if="field.required || completeContent[i].data" class="entry-field" :key="field.eID">
                 <div v-if="field.title != ''">
                     <b>{{ field.title }}</b>
                 </div>

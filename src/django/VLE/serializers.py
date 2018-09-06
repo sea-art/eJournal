@@ -215,6 +215,7 @@ def field_to_dict(field):
         'type': field.type,
         'title': field.title,
         'location': field.location,
+        'required': field.required,
     } if field else None
 
 
