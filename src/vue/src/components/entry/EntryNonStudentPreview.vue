@@ -182,5 +182,5 @@ export default {
 <style lang="sass">
 .sticky
     position: sticky
-    top: 82px
+    top: 10px
 </style>
