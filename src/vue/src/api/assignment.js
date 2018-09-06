@@ -20,7 +20,7 @@ export default {
      * returns one assignment or none.
      */
     get_assignment_by_lti_id (ltiId) {
-        return auth.authenticatedGet('/get_assignment_by_lti_id/' + ltiId + '/')
+        return auth.authenticatedGet('/get_assignment_by_lti_id/' + ltiId + '/', true)
             .then(response => response.data.assignment)
     },
 
@@ -38,7 +38,7 @@ export default {
             cID: cID,
             lti_id: ltiID,
             points_possible: pointsPossible
-        }).then(response => response.data)
+        }).then(response => response.data.assignment)
     },
 
     /* Updates an existing assignment. */
@@ -59,12 +59,13 @@ export default {
         }).then(response => response.data.assignment)
     },
 
-    /* Deletes an existing assignment. */
+    /* Deletes an existing assignment. Data contains:
+     * 'removed_completely' key to indicate wether the assignment was entirely removed, or still exists under another
+     * course.
+     */
     delete_assignment (cID, aID) {
-        return auth.authenticatedPost('/delete_assignment/', {
-            cID: cID,
-            aID: aID
-        }).then(response => response.data.result)
+        return auth.authenticatedPost('/delete_assignment/', { cID: cID, aID: aID })
+            .then(response => response.data.removed_completely)
     }
 
 }

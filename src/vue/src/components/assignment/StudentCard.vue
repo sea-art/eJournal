@@ -7,7 +7,7 @@
             <b-col order="2" cols="8">
                 <todo-square v-if="numMarkingNeeded > 0 && !hideTodo" class="float-right" :num="numMarkingNeeded"/>
                 <b>{{ student.first_name + ' ' + student.last_name }}</b><br/>
-                {{ student.name }}<br/><br/>
+                {{ student.username }}<br/><br/>
                 <progress-bar v-if="!fullWidthProgress || $root.mdMax()" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
             </b-col>
         </b-row>
@@ -49,7 +49,10 @@ export default {
 </script>
 
 <style lang="sass">
+@import '~sass/partials/shadows.sass'
+
 .student-card-portrait
+    @extend .shadow
     border-radius: 50% !important
     display: block
     margin: auto

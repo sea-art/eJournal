@@ -17,8 +17,8 @@ class EdagTests(TestCase):
 
     def setUp(self):
         """Setup."""
-        self.u_rick = factory.make_user("Rick", "pass")
-        self.u_lars = factory.make_user("Lars", "pass")
+        self.u_rick = factory.make_user("Rick", "pass", "r@r.com")
+        self.u_lars = factory.make_user("Lars", "pass", "l@l.com")
 
         self.template = EntryTemplate(name="some_template")
         self.template.save()

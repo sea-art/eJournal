@@ -12,7 +12,7 @@
             </b-col>
             <b-col sm="12" lg="4">
                 <div class="shadow">
-                    <b-form-select v-if="this.$root.canEditCourseRoles"
+                    <b-form-select v-if="$hasPermission('can_edit_course_roles')"
                                    v-model="selectedRole"
                                    :select-size="1">
                         <option v-for="r in roles" :key="r.name" :value="r.name">
@@ -20,7 +20,8 @@
                         </option>
                     </b-form-select>
                 </div>
-                <b-button v-if="this.$root.canEditCourse"
+                <!-- TODO Permission revision should be can_delete_course_users -->
+                <b-button v-if="$hasPermission('can_add_course_participants')"
                           @click.prevent.stop="removeFromCourse()"
                           class="delete-button full-width">
                     <icon name="user-times"/>
@@ -69,30 +70,23 @@ export default {
     },
     methods: {
         removeFromCourse () {
-            if (confirm('Are you sure you want to remove "' + name + '" from this course?')) {
-                courseApi.delete_user_from_course(this.uID, this.cID)
-                    .then(response => {
-                        this.$emit('delete-participant', this.role,
-                            this.username,
-                            this.portraitPath,
-                            this.uID)
-                    })
-                    .catch(_ => this.$toasted.error('Error while removing user from course'))
-            }
-        },
-        checkPermission () {
-            permissions.get_course_permissions(this.cID)
-                .then(response => {
-                    this.$root.generalPermissions = response
-                    if (!this.$root.canEditCourse()) {
-                        this.$router.push({
-                            name: 'Home'
+            if (confirm('Are you sure you want to remove "' + this.fullName + '" from this course?')) {
+                courseApi.delete_user_from_course(this.uID, this.cID).then(data => {
+                    this.$toasted.success(data.description)
+                    if (this.$store.getters['user/uID'] === this.uID) {
+                        this.$store.dispatch('user/populateStore').catch(_ => {
+                            this.$toasted.error('The website might be out of sync, please login again.')
                         })
+                        this.$router.push({name: 'Home'})
                     }
+                    this.$emit('delete-participant', this.role,
+                        this.username,
+                        this.portraitPath,
+                        this.uID)
+                }, error => {
+                    this.$toasted.error(error.response.data.description)
                 })
-                .catch(_ => {
-                    this.$toasted.error('Error while loading course permissions.')
-                })
+            }
         }
     },
     watch: {
@@ -102,13 +96,17 @@ export default {
             } else {
                 this.selectedRole = val
                 this.$emit('update:role', val)
-                courseApi.update_user_role_course(
-                    this.uID,
-                    this.cID,
-                    this.selectedRole)
-                    .then(_ => {
-                        this.checkPermission()
-                    })
+                courseApi.update_user_role_course(this.uID, this.cID, this.selectedRole).then(_ => {
+                    if (this.$store.getters['user/uID'] === this.uID) {
+                        this.$store.dispatch('user/populateStore').then(_ => {
+                            this.$router.push({name: 'Course', params: {cID: this.cID}})
+                        }, _ => {
+                            this.$toasted.error('The website might be out of sync, please login again.')
+                        })
+                    }
+                }, error => {
+                    this.$toasted.error(error.response.data.description)
+                })
             }
         }
     },
@@ -116,12 +114,13 @@ export default {
         this.selectedRole = this.role
 
         permissions.get_course_roles(this.cID)
-            .then(response => {
-                this.roles = response
+            .then(roles => {
+                this.roles = roles
             })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     components: {
-        'icon': icon
+        icon
     }
 }
 </script>

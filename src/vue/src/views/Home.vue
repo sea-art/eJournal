@@ -16,7 +16,7 @@
                 </main-card>
             </b-link>
         </div>
-        <b-button v-if="$root.canAddCourse()"
+        <b-button v-if="$hasPermission('can_add_course')"
             slot="main-content-column"
             class="add-button grey-background full-width"
             @click="showModal('createCourseRef')">
@@ -26,7 +26,7 @@
 
         <h3 slot="right-content-column">Upcoming</h3>
         <!-- TODO: This seems like an inappropriate permission check. Will have to be reconsidered in the rework. -->
-        <b-card v-if="this.$root.canAddCourse()"
+        <b-card v-if="$hasPermission('can_add_course')"
                 class="no-hover"
                 slot="right-content-column">
             <b-form-select v-model="selectedSortOption" :select-size="1">
@@ -37,15 +37,7 @@
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
             <b-link tag="b-button" :to="assignmentRoute(d.cID, d.aID, d.jID)">
-                <todo-card
-                    :date="d.deadline.Date"
-                    :hours="d.deadline.Hours"
-                    :minutes="d.deadline.Minutes"
-                    :name="d.name"
-                    :abbr="d.courseAbbr"
-                    :totalNeedsMarking="d.totalNeedsMarking"
-                    :class="$root.getBorderClass(d.cID)">
-                </todo-card>
+                <todo-card :deadline="d"/>
             </b-link>
         </div>
 
@@ -97,26 +89,20 @@ export default {
         'todo-card': todoCard,
         'create-course': createCourse,
         'edit-home': editHome,
-        'icon': icon
+        icon
     },
     created () {
         this.loadCourses()
 
         assignmentApi.get_upcoming_deadlines()
-            .then(response => {
-                this.deadlines = response
-            })
-            .catch(_ => this.$toasted.error('Error while loading deadlines'))
+            .then(deadlines => { this.deadlines = deadlines })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         loadCourses () {
             course.get_user_courses()
-                .then(response => { this.courses = response })
-        },
-        deleteCourse (courseID, courseName) {
-            if (confirm('Are you sure you want to delete ' + courseName + '?')) {
-                // TODO: Implement delete this course ID after privy check
-            }
+                .then(courses => { this.courses = courses })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         showModal (ref) {
             this.$refs[ref].show()

@@ -5,13 +5,12 @@ The facory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
 from VLE.models import User, Participation, Course, Assignment, Role, JournalFormat, PresetNode, Node, EntryComment, \
-    Entry, EntryTemplate, Field, Content, Journal
-import random
+    Entry, EntryTemplate, Field, Content, Journal, UserFile
 import django.utils.timezone as timezone
 
 
-def make_user(username, password, email=None, lti_id=None, profile_picture=None,
-              is_superuser=False, is_teacher=False, first_name=None, last_name=None):
+def make_user(username, password, email, lti_id=None, profile_picture=None,
+              is_superuser=False, is_teacher=False, first_name=None, last_name=None, verified_email=False):
     """Create a user.
 
     Arguments:
@@ -23,7 +22,7 @@ def make_user(username, password, email=None, lti_id=None, profile_picture=None,
     is_superuser -- if the user needs all permissions, set this true (default: False)
     """
     user = User(username=username, email=email, lti_id=lti_id, is_superuser=is_superuser,
-                is_teacher=is_teacher)
+                is_teacher=is_teacher, verified_email=verified_email)
 
     if first_name:
         user.first_name = first_name
@@ -35,7 +34,7 @@ def make_user(username, password, email=None, lti_id=None, profile_picture=None,
     if profile_picture:
         user.profile_picture = profile_picture
     else:
-        user.profile_picture = '/static/oh_no/{}.png'.format(random.randint(1, 10))
+        user.profile_picture = '/static/unknown-profile.png'
     user.save()
     return user
 
@@ -330,4 +329,15 @@ def make_entrycomment(entry, author, text, published):
         author=author,
         text=text,
         published=published
+    )
+
+
+def make_user_file(uploaded_file, author, assignment):
+    """Make a user file from an UploadedFile in memory."""
+    return UserFile.objects.create(
+        file=uploaded_file,
+        file_name=uploaded_file.name,
+        author=author,
+        content_type=uploaded_file.content_type,
+        assignment=assignment
     )

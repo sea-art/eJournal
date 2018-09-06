@@ -1,18 +1,17 @@
 <template>
     <div>
-        <p class="lti-intro-text">You came here from canvas with an unknown
-            course. Do you want to create a new course on Logboek,
-            or connect to an existing one?</p>
+        <p class="lti-intro-text">We could create a course for you based on the incoming connection, or you could use this
+        connection to couple with a previously created course.</p>
         <b-row align-h="center">
             <b-button class="lti-button-option" @click="showModal('createCourseRef')">
                 <icon name="plus-square" scale="1.8"/>
-                <h2 class="lti-button-text">Create new course</h2>
+                <h2 class="lti-button-text">Create course</h2>
             </b-button>
         </b-row>
         <b-row  align-h="center">
             <b-button class="lti-button-option" @click="showModal('connectCourseRef')">
                 <icon name="link" scale="1.8"/>
-                <h2 class="lti-button-text">Connect to existing course</h2>
+                <h2 class="lti-button-text">Couple course</h2>
             </b-button>
         </b-row>
 
@@ -45,7 +44,7 @@ export default {
     components: {
         'create-course': createCourse,
         'connect-course': connectCourse,
-        'icon': icon
+        icon
     },
     methods: {
         signal (msg) {

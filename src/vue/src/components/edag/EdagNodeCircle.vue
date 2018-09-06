@@ -79,7 +79,7 @@ export default {
         }
     },
     components: {
-        'icon': icon
+        icon
     }
 }
 </script>
@@ -126,13 +126,13 @@ export default {
         width: 55px
         height: 55px
     &.enc-entry, &.enc-deadline
-        background-color: $theme-dark-grey
-    &.enc-selected
-        background-color: $theme-dark-blue
+        background-color: $theme-medium-grey
     &.enc-add
         background-color: $theme-blue
     &.enc-progress
         background-color: $theme-orange
+    &.enc-selected
+        background-color: $theme-dark-blue
     svg
         transition: all 0.6s cubic-bezier(.25,.8,.25,1)
     .edag-node-circle-text

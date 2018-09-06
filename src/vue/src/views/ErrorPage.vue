@@ -2,11 +2,11 @@
     <b-row class="error-content">
         <b-col cols="12">
             <h1 id="error-heading">
-                Error {{ code }}: <span id="error-message">{{ message }}</span>
+                Error {{ code }}: <span id="error-message">{{ reasonPhrase }}</span>
             </h1>
         </b-col>
         <b-col cols="12" >
-            <div class="description-container" v-if="description">
+            <div class="description-container">
                 {{ description }}
             </div>
         </b-col>
@@ -16,8 +16,7 @@
                 Home
             </b-button>
             <!-- TODO: Add mailto or similar. -->
-            <b-button :to="{name: 'Home'}"
-                      class="change-button">
+            <b-button :to="{name: 'Home'}" class="change-button">
                 <icon name="envelope"/>
                 Contact
             </b-button>
@@ -32,17 +31,17 @@ export default {
     name: 'Error',
     props: {
         code: {
-            default: 404
+            default: '520'
         },
-        message: {
-            default: 'Not found'
+        reasonPhrase: {
+            default: 'Unknown Error'
         },
         description: {
-            type: String
+            default: 'We are sorry, but an unkown error has brought you here.'
         }
     },
     components: {
-        'icon': icon
+        icon
     }
 }
 </script>

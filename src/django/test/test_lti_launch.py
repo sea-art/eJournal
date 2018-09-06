@@ -7,7 +7,7 @@ import VLE.lti_launch as lti
 from django.test import TestCase
 import VLE.factory as factory
 import json
-from VLE.models import Participation, User, Journal, Role
+from VLE.models import Participation, Journal, Role
 
 
 class lti_launch_test(TestCase):
@@ -20,7 +20,7 @@ class lti_launch_test(TestCase):
         """Setup."""
         self.roles = json.load(open('../../config.json'))
 
-        self.created_user = factory.make_user('TestUser', 'Pass', lti_id='awefd')
+        self.created_user = factory.make_user('TestUser', 'Pass', "ltiTest@test.com", lti_id='awefd')
         self.created_course = factory.make_course('TestCourse', 'aaaa', lti_id='asdf')
 
         role = Role.objects.create(name='role', course=self.created_course)
@@ -38,26 +38,15 @@ class lti_launch_test(TestCase):
 
     def test_select_user(self):
         """Hopefully select a user."""
-        selected_user = lti.select_create_user({
-            'user_id': self.created_user.lti_id,
-            'lis_person_contact_email_primary': 'test@mail.com',
-            'lis_person_sourcedid': 'TestUsername'
+        selected_user = lti.check_user_lti({
+            'user_id': self.created_user.lti_id
         }, self.roles)
         self.assertEquals(selected_user, self.created_user)
-
-    def test_create_user(self):
-        """Hopefully create a user."""
-        selected_user = lti.select_create_user({
-            'user_id': 99999,
-            'lis_person_contact_email_primary': 'test@mail.com',
-            'lis_person_sourcedid': 'TestUsername'
-        }, self.roles)
-        self.assertIsInstance(selected_user, User)
 
     def test_select_course(self):
         """Hopefully select a course."""
         selected_course = lti.check_course_lti({
-            'context_id': self.created_course.lti_id,
+            'custom_course_id': self.created_course.lti_id,
         },
             user=self.created_user,
             role=self.roles['Teacher']
@@ -67,7 +56,7 @@ class lti_launch_test(TestCase):
     def test_select_assignment(self):
         """Hopefully select a assignment."""
         selected_assignment = lti.check_assignment_lti({
-            'resource_link_id': self.created_assignment.lti_id,
+            'custom_assignment_id': self.created_assignment.lti_id,
         })
         self.assertEquals(selected_assignment, self.created_assignment)
 

@@ -19,22 +19,13 @@ class GetApiTests(TestCase):
 
     def setUp(self):
         """Set up the test file."""
-        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123')
-        self.rein_user, self.rein_pass, self.rein = test.set_up_user_and_auth("Rein", "123")
-        self.no_perm_user, self.no_perm_pass, self.no_permission_user = test.set_up_user_and_auth("no_perm", "123")
+        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123', 'testtt@te.com')
+        self.rein_user, self.rein_pass, self.rein = test.set_up_user_and_auth("Rein", "123", 're@rein.com')
+        self.no_perm_user, self.no_perm_pass, self.no_permission_user = test.set_up_user_and_auth("no_perm", "123",
+                                                                                                  'sigh@sigh.com')
         self.course = factory.make_course("Beeldbewerken", "BB")
-        self.lars = factory.make_user("Lars", "123")
+        self.lars = factory.make_user("Lars", "123", "l@l.com")
         self.not_found_pk = 9999
-
-    def test_get_own_user_data(self):
-        """Test the get own user data function."""
-        login = test.logging_in(self, self.username, self.password)
-        response = test.api_get_call(self, '/get_own_user_data/', login)
-
-        self.assertEquals(response.json()['user']['name'], self.username)
-
-        # permissions and authorization check for the api call.
-        test.test_unauthorized_api_get_call(self, '/get_own_user_data/')
 
     def test_get_course_data(self):
         """Test get coursedata function."""
@@ -54,7 +45,7 @@ class GetApiTests(TestCase):
 
     def test_get_course_users(self):
         """Test the get course users function."""
-        teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('teacher', 'pass')
+        teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('teacher', 'pass', 'teach@teach.com')
         test.set_up_participation(teacher, self.course, 'Teacher')
         test.set_up_participation(self.lars, self.course, 'Student')
         test.set_up_participation(self.rein, self.course, 'TA')
@@ -68,7 +59,7 @@ class GetApiTests(TestCase):
         response = test.api_get_call(self, '/get_unenrolled_users/' + str(self.course.pk) + '/', login)
 
         self.assertEquals(len(response.json()['users']), 2)
-        self.assertEquals(response.json()['users'][0]['name'], self.username)
+        self.assertEquals(response.json()['users'][0]['username'], self.username)
 
         # permissions and authorization check for the api call.
         login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
@@ -82,7 +73,7 @@ class GetApiTests(TestCase):
 
     def test_get_unenrolled_users(self):
         """Test the get get_unenrolledusers."""
-        teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('teacher', 'pass')
+        teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('teacher', 'pass', 'teach@teach.com')
         test.set_up_participation(teacher, self.course, 'Teacher')
         test.set_up_participation(self.lars, self.course, 'Student')
         test.set_up_participation(self.rein, self.course, 'TA')
@@ -92,7 +83,7 @@ class GetApiTests(TestCase):
         response = test.api_get_call(self, '/get_unenrolled_users/' + str(self.course.pk) + '/', login)
 
         self.assertEquals(len(response.json()['users']), 2)
-        self.assertEquals(response.json()['users'][0]['name'], self.username)
+        self.assertEquals(response.json()['users'][0]['username'], self.username)
 
         # permissions and authorization check for the api call.
         login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
@@ -218,7 +209,7 @@ class GetApiTests(TestCase):
         template = factory.make_entry_template('template')
         format = factory.make_format([template], 10)
         assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course])
-        student_user, student_pass, student = test.set_up_user_and_auth('student', 'pass')
+        student_user, student_pass, student = test.set_up_user_and_auth('student', 'pass', 'student@student.com')
         test.set_up_participation(student, course, 'Student')
         journal = test.set_up_journal(assignment, template, student, 4)
 
@@ -261,7 +252,7 @@ class GetApiTests(TestCase):
         """Test the get delete assignment function."""
         teacher_user = 'Teacher'
         teacher_pass = 'pass'
-        teacher = factory.make_user(teacher_user, teacher_pass)
+        teacher = factory.make_user(teacher_user, teacher_pass, "teach@teach.com")
         factory.make_role_student("SD", self.course)
         factory.make_role_default_no_perms("HE", self.course)
         teacher_role = factory.make_role_teacher("TE", self.course)
@@ -298,7 +289,7 @@ class GetApiTests(TestCase):
         template = factory.make_entry_template('template')
         format = factory.make_format([template], 10)
         assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course])
-        student_user, student_pass, student = test.set_up_user_and_auth('student', 'pass', 'first', 'last')
+        student_user, student_pass, student = test.set_up_user_and_auth('student', 'pass', 's@s.com', 'first', 'last')
         test.set_up_participation(student, course, 'Student')
         journal = test.set_up_journal(assignment, template, student, 4)
 
@@ -324,7 +315,7 @@ class GetApiTests(TestCase):
         template = factory.make_entry_template('template')
         format = factory.make_format([template], 10)
         assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course])
-        student_user, student_pass, student = test.set_up_user_and_auth('student', 'pass')
+        student_user, student_pass, student = test.set_up_user_and_auth('student', 'pass', 's@s.com')
         test.set_up_participation(student, course, 'Student')
         journal = factory.make_journal(assignment, student)
         entry = factory.make_entry(template)

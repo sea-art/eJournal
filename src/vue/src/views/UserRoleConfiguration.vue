@@ -186,13 +186,13 @@ export default {
         },
         update () {
             permissions.update_course_roles(this.cID, this.roleConfig)
-                .then(response => {
+                .then(_ => {
                     this.originalRoleConfig = this.deepCopyRoles(this.roleConfig)
                     this.defaultRoles = Array.from(this.roles)
                     this.$toasted.success('Course roles succesfully updated.')
                     this.checkPermission()
                 })
-                .catch(_ => this.$toasted.error('Something went wrong when updating the permissions'))
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         formatPermissionString (str) {
             /* Converts underscores to spaces and capatilises the first letter. */
@@ -204,7 +204,7 @@ export default {
                 if (this.defaultRoles.includes(role)) {
                     /* handle server update. */
                     permissions.delete_course_role(this.cID, role)
-                        .then(response => {
+                        .then(_ => {
                             this.deleteRoleLocalConfig(role)
                             this.deleteRoleServerLoadedConfig(role)
                             this.$toasted.success('Role deleted succesfully!')
@@ -229,41 +229,35 @@ export default {
         },
         checkPermission () {
             permissions.get_course_permissions(this.cID)
-                .then(response => {
-                    this.$root.generalPermissions = response
-                    if (!this.$root.canEditCourseRoles()) {
-                        this.$router.push({
-                            name: 'Home'
-                        })
-                    }
+                .then(coursePermissions => {
+                    this.$store.commit('user/UPDATE_PERMISSIONS', { permissions: coursePermissions, key: 'Course' + this.cID })
+                    if (!this.$hasPermission('can_edit_course_roles')) { this.$router.push({ name: 'Home' }) }
                 })
-                .catch(_ => {
-                    this.$toasted.error('Error while loading course permissions.')
-                })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     },
     created () {
         /* Initialises roles, permissions and role config as well as their defaults.
          * Roles and Permissions objects need to exist as deepcopy depends on then. */
         permissions.get_course_roles(this.cID)
-            .then(response => {
-                this.roleConfig = response
+            .then(roleConfig => {
+                this.roleConfig = roleConfig
 
-                response.forEach(role => {
+                roleConfig.forEach(role => {
                     this.defaultRoles.push(role.name)
                 })
-                this.permissions = Object.keys(response[0].permissions)
+                this.permissions = Object.keys(roleConfig[0].permissions)
                 this.roles = Array.from(this.defaultRoles)
 
-                this.originalRoleConfig = this.deepCopyRoles(response)
+                this.originalRoleConfig = this.deepCopyRoles(roleConfig)
             })
-            .catch(_ => this.$toasted.error('Error while loading course roles'))
+            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     components: {
         'content-single-table-column': contentSingleTableColumn,
         'bread-crumb': breadCrumb,
         'custom-checkbox': customCheckbox,
-        'icon': icon
+        icon
     }
 }
 </script>

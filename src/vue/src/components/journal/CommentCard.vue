@@ -8,11 +8,11 @@
             <div v-for="(comment, index) in commentObject.entrycomments" class="comment-section" :key="index">
                 <img class="profile-picture no-hover" :src="comment.author.picture">
                 <b-card class="no-hover comment-card" :class="$root.getBorderClass($route.params.cID)">
-                    <b-button v-if="authorData && authorData.uID == comment.author.uID" class="ml-2 delete-button float-right" @click="deleteComment(comment.ecID)">
+                    <b-button v-if="$store.getters['user/uID'] == comment.author.uID" class="ml-2 delete-button float-right" @click="deleteComment(comment.ecID)">
                         <icon name="trash"/>
                         Delete
                     </b-button>
-                    <span class="show-enters">{{ comment.text }}</span>
+                    <div v-html="comment.text"/>
                     <hr/>
                     <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b>
                     <span v-if="comment.published" class="timestamp">
@@ -25,15 +25,19 @@
                 </b-card>
             </div>
         </div>
-        <div v-if="$root.canCommentJournal()" class="comment-section">
-            <img class="profile-picture no-hover" :src="authorData.picture">
+        <div v-if="$hasPermission('can_comment_journal')" class="comment-section">
+            <img class="profile-picture no-hover" :src="$store.getters['user/profilePicture']">
             <b-card class="no-hover new-comment">
-                <b-textarea class="theme-input multi-form full-width" v-model="tempComment" placeholder="Write a comment" :class="$root.getBorderClass($route.params.cID)"/>
+                <text-editor
+                    :id="'comment-text-editor'"
+                    @content-update="tempComment = $event"
+                />
+                <!-- <b-textarea class="theme-input multi-form full-width" v-model="tempComment" placeholder="Write a comment" :class="$root.getBorderClass($route.params.cID)"/> -->
                 <div class="d-flex full-width justify-content-end align-items-center">
-                    <b-form-checkbox v-if="$root.canGradeJournal() && !entryGradePublished" v-model="publishAfterGrade">
+                    <b-form-checkbox v-if="$hasPermission('can_grade_journal') && !entryGradePublished" v-model="publishAfterGrade">
                         Publish after grade
                     </b-form-checkbox>
-                    <b-button class="send-button" @click="addComment">
+                    <b-button class="send-button mt-2" @click="addComment">
                         <icon name="paper-plane"/>
                     </b-button>
                 </div>
@@ -43,9 +47,9 @@
 </template>
 
 <script>
-import userApi from '@/api/user.js'
 import entryApi from '@/api/entry.js'
 import icon from 'vue-awesome/components/Icon'
+import textEditor from '@/components/assets/TextEditor.vue'
 
 export default {
     props: {
@@ -58,12 +62,12 @@ export default {
         }
     },
     components: {
+        'text-editor': textEditor,
         icon
     },
     data () {
         return {
             tempComment: '',
-            authorData: '',
             commentObject: null,
             publishAfterGrade: true
         }
@@ -71,42 +75,42 @@ export default {
     watch: {
         eID () {
             this.tempComment = ''
-            entryApi.getEntryComments(this.eID).then(response => { this.commentObject = response })
+            entryApi.getEntryComments(this.eID)
+                .then(data => { this.commentObject = data })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         entryGradePublished () {
-            entryApi.getEntryComments(this.eID).then(response => { this.commentObject = response })
+            entryApi.getEntryComments(this.eID)
+                .then(data => { this.commentObject = data })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     },
     created () {
-        this.getAuthorData()
         this.getEntryComments()
     },
     methods: {
-        getAuthorData () {
-            userApi.getOwnUserData()
-                .then(response => { this.authorData = response })
-        },
         getEntryComments () {
             entryApi.getEntryComments(this.eID)
-                .then(response => {
-                    this.commentObject = response
-                })
+                .then(data => { this.commentObject = data })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         addComment () {
             if (this.tempComment !== '') {
-                entryApi.createEntryComment(this.eID, this.authorData.uID, this.tempComment, this.entryGradePublished, this.publishAfterGrade)
-                    .then(_ => {
+                entryApi.createEntryComment(this.eID, this.$store.getters['user/uID'], this.tempComment, this.entryGradePublished, this.publishAfterGrade)
+                    .then(comment => {
+                        // TODO Append comment rather than fire a get all entry comments request.
                         this.getEntryComments()
                         this.tempComment = ''
                     })
-                    .catch(_ => { this.$toasted.error('Something went wrong whilst posting your comment, please try again!') })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         },
         deleteComment (ecID) {
             if (confirm('Are you sure you want to delete this comment?')) {
                 entryApi.deleteEntryComment(ecID)
+                    // TODO Remove comment locally rather than firing a new request for all entry comments
                     .then(_ => { this.getEntryComments(this.eID) })
-                    .catch(_ => { this.$toasted.error('Something went wrong whilst deleting the comment, please try again!') })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         }
     }

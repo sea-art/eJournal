@@ -5,32 +5,36 @@
             <h2 class="mb-2">Manage course data</h2>
             <b-form @submit.prevent="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                    :readonly="!$hasPermission('can_edit_course')"
                     v-model="course.name"
                     placeholder="Course name"
                     required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                    :readonly="!$hasPermission('can_edit_course')"
                     v-model="course.abbr"
                     maxlength="10"
                     placeholder="Course Abbreviation (Max 10 letters)"
                     required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                    :readonly="!$hasPermission('can_edit_course')"
                     v-model="course.startdate"
                     type="date"
                     required/>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                    :readonly="!$hasPermission('can_edit_course')"
                     v-model="course.enddate"
                     type="date"
                     required/>
 
                 <b-row>
                     <b-col class="d-flex flex-wrap">
-                        <b-button v-if="this.$root.canDeleteCourse()"
+                        <b-button v-if="$hasPermission('can_delete_course')"
                             @click.prevent.stop="deleteCourse()"
                             class="delete-button flex-grow-1 multi-form">
                             <icon name="trash"/>
                             Delete Course
                         </b-button>
-                        <b-button v-if="this.$root.canEditCourseRoles()"
+                        <b-button v-if="$hasPermission('can_edit_course_roles')"
                             @click.prevent.stop="routeToEditCourseRoles"
                             class="change-button flex-grow-1 multi-form">
                             <icon name="users"/>
@@ -38,7 +42,7 @@
                         </b-button>
                         <b-button class="add-button flex-grow-1 multi-form"
                             type="submit"
-                            v-if="this.$root.canEditCourse()">
+                            v-if="$hasPermission('can_edit_course')">
                             <icon name="save"/>
                             Save
                         </b-button>
@@ -59,13 +63,23 @@
                             </b-form-select>
                         </b-col>
                         <b-col sm="6" class="d-flex flex-wrap">
-                            <b-form-select class="flex-grow-1 multi-form" v-model="selectedView" :select-size="1">
+                            <b-form-select
+                                v-if="$hasPermission('can_add_course_participants')"
+                                class="flex-grow-1 multi-form"
+                                v-model="selectedView"
+                                :select-size="1">
                                 <option value="enrolled">Enrolled</option>
                                 <option value="unenrolled">Unenrolled</option>
                             </b-form-select>
+                            <input v-else class="multi-form theme-input full-width" type="text" v-model="searchVariable" placeholder="Search..."/>
                         </b-col>
                     </b-row>
-                    <input class="multi-form theme-input full-width" type="text" v-model="searchVariable" placeholder="Search..."/>
+                    <input
+                        v-if="!$hasPermission('can_add_course_participants')"
+                        class="multi-form theme-input full-width"
+                        type="text"
+                        v-model="searchVariable"
+                        placeholder="Search..."/>
             </b-card>
 
             <course-participant-card v-if="selectedView === 'enrolled'"
@@ -134,44 +148,33 @@ export default {
     },
     created () {
         courseApi.get_course_data(this.cID)
-            .then(response => {
-                this.course = response
-            })
+            .then(course => { this.course = course })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
 
-        if (this.$root.canViewCourseParticipants()) {
-            courseApi.get_users(this.cID)
-                .then(response => {
-                    this.participants = response.users
-                })
+        if (this.$hasPermission('can_view_course_participants')) {
+            courseApi.get_course_users(this.cID)
+                .then(users => { this.participants = users })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     },
     methods: {
         onSubmit () {
-            courseApi.update_course(this.cID,
-                this.course.name,
-                this.course.abbr,
-                this.course.startdate,
-                this.course.enddate)
-                .then(response => {
-                    this.course = response
-                    this.pageName = this.course.name
-                    this.$toasted.success('Updated course')
+            courseApi.update_course(this.cID, this.course.name, this.course.abbr, this.course.startdate, this.course.enddate)
+                .then(course => {
+                    this.course = course
+                    this.$toasted.success('Succesfully updated the course.')
                     store.clearCache()
-                    this.$router.push({
-                        name: 'Course',
-                        params: {
-                            cID: this.cID
-                        }
-                    })
                 })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         deleteCourse () {
             if (confirm('Are you sure you want to delete ' + this.course.name + '?')) {
                 courseApi.delete_course(this.cID)
                     .then(response => {
                         this.$router.push({name: 'Home'})
-                        this.$toasted.success('Deleted course')
+                        this.$toasted.success(response.data.description)
                     })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         },
         deleteParticipantLocally (role, name, picture, uID) {
@@ -197,9 +200,8 @@ export default {
         },
         loadUnenrolledStudents () {
             courseApi.get_unenrolled_users(this.cID)
-                .then(response => {
-                    this.unenrolledStudents = response
-                })
+                .then(users => { this.unenrolledStudents = users })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
             this.unenrolledLoaded = !this.unenrolledLoaded
         },
         routeToEditCourseRoles () {
@@ -229,7 +231,7 @@ export default {
             }
 
             function checkFilter (user) {
-                var username = user.name.toLowerCase()
+                var username = user.username.toLowerCase()
                 var fullName = user.first_name.toLowerCase() + ' ' + user.last_name.toLowerCase()
                 var searchVariable = self.searchVariable.toLowerCase()
 
@@ -267,7 +269,7 @@ export default {
         'bread-crumb': breadCrumb,
         'content-single-column': contentSingleColumn,
         'course-participant-card': courseParticipantCard,
-        'icon': icon
+        icon
     }
 }
 </script>

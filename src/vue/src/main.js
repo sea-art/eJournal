@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import store from './store'
+import axios from 'axios'
 import BootstrapVue from 'bootstrap-vue'
 import '../node_modules/bootstrap/dist/css/bootstrap.css'
 import '../node_modules/bootstrap-vue/dist/bootstrap-vue.css'
@@ -37,6 +39,8 @@ import 'vue-awesome/icons/link'
 import 'vue-awesome/icons/envelope'
 import 'vue-awesome/icons/home'
 import 'vue-awesome/icons/calendar'
+import 'vue-awesome/icons/question'
+import 'vue-awesome/icons/spinner'
 
 import Toasted from 'vue-toasted'
 
@@ -44,18 +48,28 @@ Vue.config.productionTip = false
 Vue.use(Toasted, { position: 'bottom-right', duration: 4000 })
 Vue.use(BootstrapVue)
 
+/* Checks the store for for permissions according to the current route cID or aID. */
+Vue.prototype.$hasPermission = store.getters['permissions/hasPermission']
+
+/* Sets the default authorization token needed to for authenticated requests. */
+axios.defaults.transformRequest.push((data, headers) => {
+    if (store.getters['user/jwtAccess']) {
+        headers.Authorization = 'Bearer ' + store.getters['user/jwtAccess']
+    }
+    return data
+})
+
 /* eslint-disable no-new */
 new Vue({
     el: '#app',
     router,
+    store,
     components: { App },
     data: {
         colors: ['pink-border', 'peach-border', 'blue-border'],
-        generalPermissions: {},
-        assignmentPermissions: {},
-        validToken: false,
         previousPage: null,
-        windowWidth: 0
+        windowWidth: 0,
+        maxFileSizeBytes: 2097152
     },
     mounted () {
         this.$nextTick(function () {
@@ -81,13 +95,6 @@ new Vue({
         smMax () { return this.windowWidth < 769 },
         mdMax () { return this.windowWidth < 992 },
         lgMax () { return this.windowWidth < 1200 },
-        timeLeft (date) {
-            /* Date format is:
-             * Returns the remaining time left as:
-             * If the time left is negative returns Expired
-             * TODO implement (will most likely require a lib) */
-            return '1M 9D 9H'
-        },
         getBorderClass (cID) {
             return this.colors[cID % this.colors.length]
         },
@@ -102,78 +109,6 @@ new Vue({
             var time = date.substring(11, 16)
 
             return day + '-' + month + '-' + year + ' ' + time
-        },
-
-        /* #############################################################
-         *              Permissions,
-         * Front-end interface for all possible permissions.
-         * For an overview see:
-         * https://docs.google.com/spreadsheets/d/1M7KnEKL3cG9PMWfQi9HIpRJ5xUMou4Y2plnRgke--Tk
-         *
-         * ##############################################################
-         */
-
-        /* Site-wide permissions */
-        isAdmin () {
-            return this.generalPermissions.is_superuser
-        },
-        /* Institute wide settings, think institute name/abbreviation logo. */
-        canEditInstitute () {
-            return this.generalPermissions.can_edit_institute
-        },
-
-        /* Course level based permissions. These permissions are enabled and
-        used per course. */
-
-        /* Course permissions. */
-        canEditCourseRoles () {
-            return this.generalPermissions.can_edit_course_roles
-        },
-        canAddCourse () {
-            return this.generalPermissions.can_add_course
-        },
-        canViewCourseParticipants () {
-            return this.generalPermissions.can_view_course_participants
-        },
-        canAddCourseParticipants () {
-            return this.generalPermissions.can_add_course_participants
-        },
-        canEditCourse () {
-            return this.generalPermissions.can_edit_course
-        },
-        canDeleteCourse () {
-            return this.generalPermissions.can_delete_course
-        },
-        canAddAssignment () {
-            return this.generalPermissions.can_add_assignment
-        },
-
-        /* Assignment permissions. */
-        canEditAssignment () {
-            return this.assignmentPermissions.can_edit_assignment
-        },
-        canViewAssignmentParticipants () {
-            return this.assignmentPermissions.can_view_assignment_participants
-        },
-        canDeleteAssignment () {
-            return this.assignmentPermissions.can_delete_assignment
-        },
-        canPublishAssignmentGrades () {
-            return this.assignmentPermissions.can_publish_assignment_grades
-        },
-
-        /* Grade permissions. */
-        canGradeJournal () {
-            return this.assignmentPermissions.can_grade_journal
-        },
-        canPublishJournalGrades () {
-            return this.assignmentPermissions.can_publish_journal_grades
-        },
-        canEditJournal () {
-            return this.assignmentPermissions.can_edit_journal
-        },
-        canCommentJournal () {
-            return this.assignmentPermissions.can_comment_journal
         }
     },
     template: '<App/>'

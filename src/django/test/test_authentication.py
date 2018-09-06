@@ -19,7 +19,7 @@ class AuthenticationTests(TestCase):
     """
     def setUp(self):
         """Set up the test file."""
-        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123')
+        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123', 'test@test.com')
 
     def test_login(self):
         """Test if the login is successful."""

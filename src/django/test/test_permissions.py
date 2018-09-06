@@ -20,7 +20,7 @@ class PermissionTests(TestCase):
 
     def setUp(self):
         """Setup."""
-        self.u1 = factory.make_user("Zi", "pass")
+        self.u1 = factory.make_user("Zi", "pass", "z@z.com")
 
         self.a1 = factory.make_assignment('tcolloq', 'description')
 

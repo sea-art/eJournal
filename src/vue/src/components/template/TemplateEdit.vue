@@ -43,16 +43,19 @@ export default {
     data () {
         return {
             fieldTypes: {
-                'i': 'Image',
                 't': 'Text',
+                'rt': 'Rich Text',
+                'i': 'Image',
+                'p': 'PDF',
                 'f': 'File',
-                'v': 'YouTube Video'
+                'v': 'YouTube Video',
+                'u': 'URL'
             }
         }
     },
     components: {
         'content-single-column': ContentSingleColumn,
-        'icon': icon,
+        icon,
         'draggable': draggable
     },
     methods: {

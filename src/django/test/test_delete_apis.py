@@ -10,7 +10,7 @@ import test.test_utils as test
 class DeleteApiTests(TestCase):
     def setUp(self):
         """Setup"""
-        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123')
+        self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123', 'testt@testt.com')
         self.course = factory.make_course("Beeldbewerken", "BB")
 
     def test_delete_course(self):
@@ -34,8 +34,8 @@ class DeleteApiTests(TestCase):
 
         course = factory.make_course("Beeldbewerken", "BB")
 
-        rein = factory.make_user("Rein", "123")
-        lars = factory.make_user("Lars", "123")
+        rein = factory.make_user("Rein", "123", "r@r.com")
+        lars = factory.make_user("Lars", "123", "l@l.com")
 
         factory.make_participation(rein, course)
         factory.make_participation(lars, course)
@@ -86,7 +86,7 @@ class DeleteApiTests(TestCase):
         """Test delete course roles"""
         teacher_user = 'Teacher'
         teacher_pass = 'pass'
-        teacher = factory.make_user(teacher_user, teacher_pass)
+        teacher = factory.make_user(teacher_user, teacher_pass, "teach@teach.com")
         teacher_role = factory.make_role_teacher("TE", self.course)
         factory.make_participation(teacher, self.course, teacher_role)
         factory.make_role_ta('TA2', self.course)

@@ -1,18 +1,17 @@
 <template>
     <div>
-        <p class="lti-intro-text">You came here from an LTI environment with an unknown
-            user account. Do you want to create a new user on Logboek,
-            or connect to an existing one?</p>
+        <p class="lti-intro-text">Welcome to eJournal! Would you like to couple with a previously registered account or
+            would you like us to create an account for you?</p>
         <b-row align-h="center">
             <b-button class="lti-button-option" @click="showModal('createUserRef')">
                 <icon name="user-plus" scale="1.8"/>
-                <h2 class="lti-button-text">Create new user</h2>
+                <h2 class="lti-button-text">Create account</h2>
             </b-button>
         </b-row>
         <b-row  align-h="center">
-            <icon name="link" scale="1.8"/>
             <b-button class="lti-button-option" @click="showModal('connectUserRef')">
-                <h2 class="lti-button-text">Connect to existing user</h2>
+                <icon name="link" scale="1.8"/>
+                <h2 class="lti-button-text">Couple account</h2>
             </b-button>
         </b-row>
 
@@ -46,7 +45,7 @@ export default {
     components: {
         'register-user': registerUser,
         'login-form': loginForm,
-        'icon': icon
+        icon
     },
     methods: {
         signal (msg) {
@@ -63,11 +62,13 @@ export default {
             this.signal(['userIntegrated'])
         },
         handleConnected () {
-            userApi.updateLtiIdToUser(this.lti.ltiJWT)
-                .then(_ => {
+            userApi.updateLtiIdToUser(this.lti.ltiJWT).then(_ => {
+                // This is required because between the login and the connect of lti user to our user data can change.
+                this.$store.dispatch('user/populateStore').then(_ => {
                     this.hideModal('connectUserRef')
                     this.signal(['userIntegrated'])
                 })
+            }).catch(error => { this.$toasted.error(error.response.data.description) })
         }
     }
 }

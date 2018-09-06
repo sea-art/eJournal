@@ -3,12 +3,17 @@
     <div>
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.assignmentName" placeholder="Assignment name"/>
-            <b-textarea class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.assignmentDescription" rows="6" placeholder="Description of the assignment"/>
-            <b-button class="float-left change-button" type="reset">
+            <text-editor
+                :id="'text-editor-assignment-description'"
+                :givenContent="'Description of the assignment'"
+                @content-update="form.assignmentDescription = $event"
+                :footer="false"
+            />
+            <b-button class="float-left change-button mt-2" type="reset">
                 <icon name="undo"/>
                 Reset
             </b-button>
-            <b-button class="float-right add-button" type="submit">
+            <b-button class="float-right add-button mt-2" type="submit">
                 <icon name="plus-square"/>
                 Create
             </b-button>
@@ -18,6 +23,7 @@
 
 <script>
 import ContentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import textEditor from '@/components/assets/TextEditor.vue'
 import assignmentApi from '@/api/assignment.js'
 import icon from 'vue-awesome/components/Icon'
 
@@ -37,17 +43,19 @@ export default {
     },
     components: {
         'content-single-columns': ContentSingleColumn,
-        'icon': icon
+        'text-editor': textEditor,
+        icon
     },
     methods: {
         onSubmit () {
             assignmentApi.create_new_assignment(this.form.assignmentName,
                 this.form.assignmentDescription, this.form.courseID,
                 this.form.ltiAssignID, this.form.pointsPossible)
-                .then(response => {
-                    this.$emit('handleAction', response.assignment.aID)
+                .then(assignment => {
+                    this.$emit('handleAction', assignment.aID)
                     this.onReset(undefined)
                 })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         onReset (evt) {
             if (evt !== undefined) {

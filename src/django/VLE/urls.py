@@ -42,7 +42,6 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
-    path('get_own_user_data/', get.get_own_user_data, name='get_own_user_data'),
     path('get_course_data/<int:cID>/', get.get_course_data, name='get_course_data'),
     path('get_assignment_data/<int:cID>/<int:aID>/', get.get_assignment_data, name='get_assignment_data'),
 
@@ -64,7 +63,7 @@ urlpatterns = [
     path('get_user_teacher_courses/', get.get_user_teacher_courses, name='get_user_teacher_courses'),
     path('get_assignment_by_lti_id/<str:lti_id>/', get.get_assignment_by_lti_id, name='get_assignment_by_lti_id'),
     path('get_linkable_courses/', get.get_linkable_courses, name='get_linkable_courses'),
-    path('get_user_data/<int:uID>/', get.get_user_data, name='get_user_data'),
+    path('get_all_user_data/', get.get_all_user_data, name='get_all_user_data'),
     path('get_unenrolled_users/<int:cID>/', get.get_unenrolled_users, name='get_unenrolled_users'),
 
     path('create_new_course/', create.create_new_course, name='create_new_course'),
@@ -74,8 +73,6 @@ urlpatterns = [
     path('create_lti_user/', create.create_lti_user, name='create_lti_user'),
     path('create_journal/', create.create_journal, name='create_journal'),
 
-    path('update_user_profile_picture/', update.update_user_profile_picture, name='update_user_profile_picture'),
-    path('update_user_image/', update.update_user_image, name='update_user_image'),
     path('update_user_data/', update.update_user_data, name='update_user_data'),
     path('update_course/', update.update_course, name='update_course'),
     path('connect_course_lti/', update.connect_course_lti, name='connect_course_lti'),
@@ -108,6 +105,14 @@ urlpatterns = [
 
     path('lti/launch', get.lti_launch, name='lti_launch'),
     path('get_lti_params_from_jwt/<str:jwt_params>/', get.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),
+    path('update_user_profile_picture/', update.update_user_profile_picture, name='update_user_profile_picture'),
+    path('update_user_file/', update.update_user_file, name='update_user_file'),
+    path('get_user_file/<str:file_name>/<str:author_uID>/', get.get_user_file, name='get_user_file'),
+    path('forgot_password/', update.forgot_password, name='forgot_password'),
+    path('recover_password/', update.recover_password, name='recover_password'),
+    path('verify_email/', update.verify_email, name='verify_email'),
+    path('request_email_verification/', update.request_email_verification, name='request_email_verification'),
+    path('get_user_store_data/', get.get_user_store_data, name='get_user_store_data'),
 ]
 
 if settings.DEBUG is True:

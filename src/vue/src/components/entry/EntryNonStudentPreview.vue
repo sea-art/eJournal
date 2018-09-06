@@ -6,7 +6,7 @@
 <template>
     <div v-if="entryNode.entry !== null">
         <b-card class="entry-card no-hover entry-card-teacher" :class="$root.getBorderClass($route.params.cID)">
-            <div v-if="$root.canGradeJournal()" class="grade-section shadow">
+            <div v-if="$hasPermission('can_grade_journal')" class="grade-section shadow">
                 <b-form-input class="theme-input" type="number" size="2" v-model="grade" placeholder="0" min=0></b-form-input>
                 <b-form-checkbox v-model="published" value=true unchecked-value=false data-toggle="tooltip" title="Show grade to student">
                     Publish
@@ -31,11 +31,19 @@
                     <b>{{ field.title }}</b>
                 </div>
                 <div v-if="field.type=='t'">
-                    <span class="show-enters">{{ completeContent[i].data }}</span><br><br>
+                    <span class="show-enters">{{ completeContent[i].data }}</span><br>
                 </div>
                 <div v-else-if="field.type=='i'">
+                    <image-file-display
+                        :fileName="completeContent[i].data"
+                        :authorUID="$parent.journal.student.uID"
+                    />
                 </div>
                 <div v-else-if="field.type=='f'">
+                    <file-download-button
+                        :fileName="completeContent[i].data"
+                        :authorUID="$parent.journal.student.uID"
+                    />
                 </div>
                 <div v-else-if="field.type=='v'">
                     <b-embed type="iframe"
@@ -43,6 +51,16 @@
                              :src="completeContent[i].data"
                              allowfullscreen
                     ></b-embed><br>
+                </div>
+                <div v-else-if="field.type == 'p'">
+                    <pdf-display
+                        :fileName="completeContent[i].data"
+                        :authorUID="$parent.journal.student.uID"
+                    />
+                </div>
+                <div v-else-if="field.type == 'rt'" v-html="completeContent[i].data"/>
+                <div v-if="field.type == 'u'">
+                    <a :href="completeContent[i].data">{{ completeContent[i].data }}</a>
                 </div>
             </div>
         </b-card>
@@ -57,6 +75,9 @@
 
 <script>
 import commentCard from '@/components/journal/CommentCard.vue'
+import pdfDisplay from '@/components/assets/PdfDisplay.vue'
+import fileDownloadButton from '@/components/assets/file_handling/FileDownloadButton.vue'
+import imageFileDisplay from '@/components/assets/file_handling/ImageFileDisplay.vue'
 import journalApi from '@/api/journal.js'
 import icon from 'vue-awesome/components/Icon'
 
@@ -135,9 +156,7 @@ export default {
                             this.$toasted.success('Grade updated and published.')
                             this.$emit('check-grade')
                         })
-                        .catch(_ => {
-                            this.$toasted.error('Something went wrong with updating the grade.')
-                        })
+                        .catch(error => { this.$toasted.error(error.response.data.description) })
                 } else {
                     journalApi.update_grade_entry(this.entryNode.entry.eID,
                         this.grade, 0)
@@ -145,16 +164,17 @@ export default {
                             this.$toasted.success('Grade updated but not published.')
                             this.$emit('check-grade')
                         })
-                        .catch(_ => {
-                            this.$toasted.error('Something went wrong with updating the grade.')
-                        })
+                        .catch(error => { this.$toasted.error(error.response.data.description) })
                 }
             }
         }
     },
     components: {
         'comment-card': commentCard,
-        'icon': icon
+        'file-download-button': fileDownloadButton,
+        'pdf-display': pdfDisplay,
+        'image-file-display': imageFileDisplay,
+        icon
     }
 }
 </script>

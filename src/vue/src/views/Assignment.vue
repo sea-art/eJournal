@@ -1,5 +1,6 @@
-<template>
-    <content-columns v-if="this.$root.canViewAssignmentParticipants()">
+<!-- TODO Is this check really required if we redirect, or even better have correct flow anyway? -->
+<template v-if="$hasPermission('can_view_assignment_participants')">
+    <content-columns>
         <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
         <b-card slot="main-content-column" class="no-hover settings-card">
             <b-row>
@@ -15,7 +16,7 @@
                 </b-col>
             </b-row>
             <b-button
-                v-if="$root.canPublishAssignmentGrades()"
+                v-if="$hasPermission('can_publish_assignment_grades')"
                 class="add-button"
                 @click="publishGradesAssignment">
                 <icon name="upload"/>
@@ -23,7 +24,7 @@
             </b-button>
         </b-card>
 
-        <div v-if="filteredJournals.length !== 0" v-for="journal in filteredJournals" :key="journal.student.uID" slot="main-content-column">
+        <div v-if="filteredJournals" v-for="journal in filteredJournals" :key="journal.student.uID" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {
                                               cID: cID,
@@ -41,7 +42,7 @@
         </div>
         <main-card v-else slot="main-content-column" class="no-hover" :line1="'No journals found'"/>
 
-        <div v-if="stats.length > 0" slot="right-content-column">
+        <div v-if="stats" slot="right-content-column">
             <h3>Insights</h3>
             <statistics-card :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>
             <statistics-card :subject="'Average points'" :num="stats.avgPoints"></statistics-card>
@@ -84,22 +85,18 @@ export default {
         'student-card': studentCard,
         'statistics-card': statisticsCard,
         'bread-crumb': breadCrumb,
-        'store': store,
-        'icon': icon,
+        store,
+        icon,
         'main-card': mainCard
     },
     created () {
-        if (!this.$root.canViewAssignmentParticipants()) {
-            if (this.jID) {
-                return this.$router.push({name: 'Journal', params: {cID: this.cID, aID: this.aID, jID: this.jID}})
-            } else {
-                return this.$router.push({name: 'Course', params: {cID: this.cID}})
-            }
-        }
         journal.get_assignment_journals(this.aID)
-            .then(response => {
-                this.assignmentJournals = response.journals
-                this.stats = response.stats
+            .then(data => {
+                this.assignmentJournals = data.journals
+                this.stats = data.stats
+            })
+            .catch(error => {
+                this.$toasted.error(error.response.data.description)
             })
 
         if (this.$route.query.sort === 'sortFullName' ||
@@ -167,8 +164,8 @@ export default {
             }
 
             function compareUsername (a, b) {
-                if (a.student.name < b.student.name) { return -1 }
-                if (a.student.name > b.student.name) { return 1 }
+                if (a.student.username < b.student.username) { return -1 }
+                if (a.student.username > b.student.username) { return 1 }
                 return 0
             }
 
@@ -179,7 +176,7 @@ export default {
             }
 
             function checkFilter (user) {
-                var username = user.student.name.toLowerCase()
+                var username = user.student.username.toLowerCase()
                 var fullName = user.student.first_name.toLowerCase() + ' ' + user.student.last_name.toLowerCase()
                 var searchVariable = self.searchVariable.toLowerCase()
 
