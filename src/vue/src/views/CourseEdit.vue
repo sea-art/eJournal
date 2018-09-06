@@ -1,4 +1,3 @@
-<!-- TODO: switching bewett enrolled and unenrolled after adding/removing a user doesnt work. -->
 <!-- TODO: You shouldnt be able to change your own role. -->
 <template>
     <content-single-column>
@@ -86,29 +85,20 @@
 
             <course-participant-card v-if="selectedView === 'enrolled'"
                 @delete-participant="deleteParticipantLocally"
-                v-for="(p, i) in filteredUsers"
+                v-for="p in filteredUsers"
                 :class="{ 'input-disabled': p.role === 'Teacher' && numTeachers <= 1 }"
                 :key="p.id"
                 :cID="cID"
-                :uID="p.id"
-                :index="i"
-                :username="p.username"
-                :fullName="p.name"
-                :portraitPath="p.profile_picture"
-                :roles="roles"
-                :role.sync="p.role"/>
+                :user="p"
+                :roles="roles"/>
 
             <add-user-card v-if="selectedView === 'unenrolled'"
                 @add-participant="addParticipantLocally"
                 v-for="p in filteredUsers"
                 :key="p.id"
                 :cID="cID"
-                :uID="p.id"
-                :username="p.username"
-                :fullName="p.name"
-                :portraitPath="p.profile_picture"/>
+                :user="p"/>
         </div>
-
     </content-single-column>
 </template>
 
@@ -121,6 +111,7 @@ import courseParticipantCard from '@/components/course/CourseParticipantCard.vue
 import store from '@/Store'
 import icon from 'vue-awesome/components/Icon'
 import courseAPI from '@/api/course'
+import roleAPI from '@/api/role'
 import participationAPI from '@/api/participation'
 
 export default {
@@ -158,6 +149,10 @@ export default {
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
         if (this.$hasPermission('can_view_course_participants')) {
+            roleAPI.getFromCourse(this.cID)
+                .then(roles => { this.roles = roles })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
+
             participationAPI.getEnrolled(this.cID)
                 .then(users => { this.participants = users })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
@@ -183,32 +178,22 @@ export default {
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         },
-        deleteParticipantLocally (role, name, picture, uID) {
+        deleteParticipantLocally (user) {
             this.participants = this.participants.filter(function (item) {
-                return uID !== item.id
+                return user.id !== item.id
             })
             if (this.unenrolledLoaded === true) {
-                this.unenrolledStudents.push({
-                    'role': role,
-                    'name': name,
-                    'picture': picture,
-                    'uID': uID
-                })
+                this.unenrolledStudents.push(user)
             }
         },
-        addParticipantLocally (role, name, picture, uID) {
+        addParticipantLocally (user) {
             this.unenrolledStudents = this.unenrolledStudents.filter(function (item) {
-                return uID !== item.id
+                return user.id !== item.id
             })
-            this.participants.push({
-                'role': role,
-                'name': name,
-                'picture': picture,
-                'uID': uID
-            })
+            user.role = 'Student'
+            this.participants.push(user)
         },
         loadUnenrolledStudents () {
-            // TODO: change to unenrolled
             participationAPI.getUnenrolled(this.cID)
                 .then(users => { this.unenrolledStudents = users })
                 .catch(error => { this.$toasted.error(error.response.data.description) })

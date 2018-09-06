@@ -1,13 +1,13 @@
 <template>
-    <b-card :class="$root.getBorderClass(uID)" class="no-hover">
+    <b-card :class="$root.getBorderClass(user.id)" class="no-hover">
         <b-row>
             <b-col sm="12" lg="8" class="d-flex mb-2">
                 <b-col cols="3" class="text-center">
-                    <img class="profile-picture" :src="portraitPath">
+                    <img class="profile-picture" :src="user.profile_picture">
                 </b-col>
                 <b-col cols="9">
-                    <b>{{ fullName }}</b> ({{ selectedRole }})<br/>
-                    {{ username }}
+                    <b>{{ user.name }}</b> ({{ user.role }})<br/>
+                    {{ user.username }}
                 </b-col>
             </b-col>
             <b-col sm="12" lg="4">
@@ -42,22 +42,7 @@ export default {
         cID: {
             required: true
         },
-        uID: {
-            required: true
-        },
-        index: {
-            required: true
-        },
-        username: {
-            required: true
-        },
-        fullName: {
-            required: true
-        },
-        portraitPath: {
-            required: true
-        },
-        role: {
+        user: {
             required: true
         },
         roles: {
@@ -72,19 +57,16 @@ export default {
     },
     methods: {
         removeFromCourse () {
-            if (confirm('Are you sure you want to remove "' + this.fullName + '" from this course?')) {
-                participationAPI.delete(this.uID, this.cID).then(data => {
+            if (confirm('Are you sure you want to remove "' + this.user.name + '" from this course?')) {
+                participationAPI.delete(this.cID, this.user.id).then(data => {
                     this.$toasted.success(data.description)
-                    if (this.$store.getters['user/uID'] === this.uID) {
+                    if (this.$store.getters['user/uID'] === this.user.id) {
                         this.$store.dispatch('user/populateStore').catch(_ => {
                             this.$toasted.error('The website might be out of sync, please login again.')
                         })
                         this.$router.push({name: 'Home'})
                     }
-                    this.$emit('delete-participant', this.role,
-                        this.username,
-                        this.portraitPath,
-                        this.uID)
+                    this.$emit('delete-participant', this.user)
                 }, error => {
                     this.$toasted.error(error.response.data.description)
                 })
@@ -97,9 +79,9 @@ export default {
                 this.init = false
             } else {
                 this.selectedRole = val
-                this.$emit('update:role', val)
-                participationAPI.update(this.cID, {user_id: this.uID, role: this.selectedRole}).then(_ => {
-                    if (this.$store.getters['user/uID'] === this.uID) {
+                this.user.role = val
+                participationAPI.update(this.cID, {user_id: this.user.id, role: this.selectedRole}).then(_ => {
+                    if (this.$store.getters['user/uID'] === this.user.id) {
                         this.$store.dispatch('user/populateStore').then(_ => {
                             this.$router.push({name: 'Course', params: {cID: this.cID}})
                         }, _ => {
@@ -113,7 +95,7 @@ export default {
         }
     },
     created () {
-        this.selectedRole = this.role
+        this.selectedRole = this.user.role
     },
     components: {
         icon
