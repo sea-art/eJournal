@@ -94,7 +94,7 @@ export default {
             this.$refs.pdf.print()
         },
         fileDownload () {
-            userAPI.getUserFile(this.fileName, this.authorUID)
+            userAPI.download(this.authorUID, this.fileName)
                 .then(response => {
                     let blob = new Blob([response.data], { type: response.headers['content-type'] })
                     this.fileURL = window.URL.createObjectURL(blob)

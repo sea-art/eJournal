@@ -179,6 +179,7 @@ class Role(models.Model):
 
     class Meta:
         """Meta data for the model: unique_together."""
+
         unique_together = ('name', 'course',)
 
 
@@ -210,7 +211,7 @@ class Participation(models.Model):
 
 
 class Assignment(models.Model):
-    """Assignemnt.
+    """Assignment.
 
     An Assignment entity has the following features:
     - name: name of the assignment.
@@ -243,7 +244,7 @@ class Assignment(models.Model):
     courses = models.ManyToManyField(Course)
 
     format = models.OneToOneField(
-        'JournalFormat',
+        'Format',
         on_delete=models.CASCADE
     )
 
@@ -330,6 +331,7 @@ class Node(models.Model):
     PROGRESS = 'p'
     ENTRY = 'e'
     ENTRYDEADLINE = 'd'
+    ADDNODE = 'a'
     TYPES = (
         (PROGRESS, 'progress'),
         (ENTRY, 'entry'),
@@ -359,8 +361,8 @@ class Node(models.Model):
     )
 
 
-class JournalFormat(models.Model):
-    """JournalFormat.
+class Format(models.Model):
+    """Format.
 
     Format of a journal.
     The format determines how a students' journal is structured.
@@ -384,12 +386,12 @@ class JournalFormat(models.Model):
         default=10
     )
     unused_templates = models.ManyToManyField(
-        'EntryTemplate',
+        'Template',
         related_name='unused_templates',
     )
 
     available_templates = models.ManyToManyField(
-        'EntryTemplate',
+        'Template',
         related_name='available_templates',
     )
 
@@ -426,13 +428,13 @@ class PresetNode(models.Model):
     deadline = models.DateTimeField()
 
     forced_template = models.ForeignKey(
-        'EntryTemplate',
+        'Template',
         on_delete=models.SET_NULL,
         null=True,
     )
 
     format = models.ForeignKey(
-        'JournalFormat',
+        'Format',
         on_delete=models.CASCADE
     )
 
@@ -448,7 +450,7 @@ class Entry(models.Model):
     """
 
     template = models.ForeignKey(
-        'EntryTemplate',
+        'Template',
         on_delete=models.SET_NULL,
         null=True,
     )
@@ -487,8 +489,8 @@ class Counter(models.Model):
         return self.name + " is on " + self.count
 
 
-class EntryTemplate(models.Model):
-    """EntryTemplate.
+class Template(models.Model):
+    """Template.
 
     A template for an Entry.
     """
@@ -506,7 +508,7 @@ class EntryTemplate(models.Model):
 class Field(models.Model):
     """Field.
 
-    Defines the fields of an EntryTemplate
+    Defines the fields of an Template
     """
 
     TEXT = 't'
@@ -533,7 +535,7 @@ class Field(models.Model):
     title = models.TextField()
     location = models.IntegerField()
     template = models.ForeignKey(
-        'EntryTemplate',
+        'Template',
         on_delete=models.CASCADE
     )
     required = models.BooleanField()
@@ -564,10 +566,10 @@ class Content(models.Model):
     )
 
 
-class EntryComment(models.Model):
-    """EntryComment.
+class Comment(models.Model):
+    """Comment.
 
-    EntryComments contain the comments given to the entries.
+    Comments contain the comments given to the entries.
     It is linked to a single entry with a single author and the comment text.
     """
 

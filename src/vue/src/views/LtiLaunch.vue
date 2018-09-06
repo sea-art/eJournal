@@ -2,9 +2,13 @@
     <content-single-columns>
         <h1 class="mb-2">{{ currentPage }}</h1>
         <b-card class="no-hover" :class="this.$root.colors[1]">
-            <lti-create-connect-course v-if="handleCourseChoice" @handleAction="handleActions" :lti="lti"/>
-            <lti-create-connect-assignment v-else-if="handleAssignmentChoice" @handleAction="handleActions" :lti="lti" :page="page"/>
+            <lti-create-link-course v-if="handleCourseChoice" @handleAction="handleActions" :lti="lti" :courses="courses"/>
+            <lti-create-link-assignment v-else-if="handleAssignmentChoice" @handleAction="handleActions" :lti="lti" :page="page"/>
             <lti-create-assignment v-else-if="createAssignment" @handleAction="handleActions" :lti="lti" :page="page"/>
+            <div v-else class="center-content">
+                <h2 class="center-content">Setting up a link to your learning environment</h2><br/>
+                <icon name="spinner" pulse scale="1.5"/>
+            </div>
         </b-card>
 
     </content-single-columns>
@@ -12,20 +16,24 @@
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
-import ltiCreateConnectCourse from '@/components/lti/LtiCreateConnectCourse.vue'
-import ltiCreateConnectAssignment from '@/components/lti/LtiCreateConnectAssignment.vue'
+import ltiCreateLinkCourse from '@/components/lti/LtiCreateLinkCourse.vue'
+import ltiCreateLinkAssignment from '@/components/lti/LtiCreateLinkAssignment.vue'
 import ltiCreateAssignment from '@/components/lti/LtiCreateAssignment.vue'
-import assignApi from '@/api/assignment.js'
-import ltiApi from '@/api/ltilaunch.js'
+import ltiAPI from '@/api/ltilaunch.js'
 import router from '@/router'
+import courseAPI from '@/api/course.js'
+import assignmentAPI from '@/api/assignment.js'
+import genericUtils from '@/utils/generic_utils.js'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     name: 'LtiLaunch',
     components: {
         'content-single-columns': contentSingleColumn,
-        'lti-create-connect-course': ltiCreateConnectCourse,
-        'lti-create-connect-assignment': ltiCreateConnectAssignment,
-        'lti-create-assignment': ltiCreateAssignment
+        'lti-create-link-course': ltiCreateLinkCourse,
+        'lti-create-link-assignment': ltiCreateLinkAssignment,
+        'lti-create-assignment': ltiCreateAssignment,
+        icon
     },
     data () {
         return {
@@ -36,6 +44,7 @@ export default {
             handleAssignmentChoice: false,
             createAssignment: false,
             ltiJWT: '',
+            tempStateToCheckIfWeCanAutoSetup: '',
 
             /* Possible states for the control flow. */
             states: {
@@ -72,28 +81,46 @@ export default {
                 cID: '',
                 aID: '',
                 jID: ''
-            }
+            },
+
+            courses: null
         }
     },
     methods: {
         loadLtiData () {
-            return new Promise((resolve, reject) => {
-                ltiApi.get_lti_params_from_jwt(this.ltiJWT)
-                    .then(response => {
-                        this.lti.ltiCourseName = response.lti_cName
-                        this.lti.ltiCourseAbbr = response.lti_abbr
-                        this.lti.ltiCourseID = response.lti_cID
-                        this.lti.ltiCourseStart = response.lti_course_start
-                        this.lti.ltiAssignName = response.lti_aName
-                        this.lti.ltiAssignID = response.lti_aID
-                        this.lti.ltiPointsPossible = response.lti_points_possible
-                        this.page.cID = response.cID
-                        this.page.aID = response.aID
-                        this.page.jID = response.jID
-                        this.states.state = response.state
-                        resolve('success')
-                    })
-                    .catch(_ => reject(new Error('Error while loading LTI information')))
+            return ltiAPI.getLtiParams(this.ltiJWT)
+                .then(response => {
+                    this.lti.ltiCourseName = response.lti_cName
+                    this.lti.ltiCourseAbbr = response.lti_abbr
+                    this.lti.ltiCourseID = response.lti_cID
+                    this.lti.ltiCourseStart = response.lti_course_start
+                    this.lti.ltiAssignName = response.lti_aName
+                    this.lti.ltiAssignID = response.lti_aID
+                    this.lti.ltiPointsPossible = response.lti_points_possible
+                    this.page.cID = response.cID
+                    this.page.aID = response.aID
+                    this.page.jID = response.jID
+                    this.tempStateToCheckIfWeCanAutoSetup = response.state
+                })
+        },
+        autoSetupCourseAndAssignment () {
+            courseAPI.create({
+                name: this.lti.ltiCourseName,
+                abbreviation: this.lti.ltiCourseAbbr,
+                startdate: this.lti.ltiCourseStart.split(' ')[0],
+                enddate: genericUtils.yearOffset(this.lti.ltiCourseStart.split(' ')[0]),
+                lti_id: this.lti.ltiCourseID }).then(course => {
+                this.page.cID = course.id
+                assignmentAPI.create({
+                    name: this.lti.ltiAssignName,
+                    description: 'Description placeholder',
+                    course_id: this.page.cID,
+                    lti_id: this.lti.ltiAssignID,
+                    points_possible: this.lti.ltiPointsPossible
+                }).then(assignment => {
+                    this.page.aID = assignment.id
+                    this.updateState(this.states.finish_t)
+                })
             })
         },
         handleActions (args) {
@@ -104,10 +131,10 @@ export default {
                 this.$toasted.success('Course Created!')
                 this.states.state = this.states.create_assign
                 break
-            case 'courseConnected':
+            case 'courseLinked':
                 this.handleCourseChoice = false
                 this.page.cID = args[1]
-                this.$toasted.success('Course Connected!')
+                this.$toasted.success('Course Linked!')
                 this.states.state = this.states.check_assign
                 break
             case 'assignmentIntegrated':
@@ -139,13 +166,12 @@ export default {
                 this.createAssignment = true
                 break
             case this.states.check_assign:
-                assignApi.get_assignment_by_lti_id(this.lti.ltiAssignID)
-                    .then(response => {
-                        if (response === undefined) {
-                            console.log('UNDEFINED RESPONSE JE MOEDER')
+                assignmentAPI.getWithLti(this.lti.ltiAssignID)
+                    .then(assignment => {
+                        if (assignment === undefined) {
                             this.states.state = this.states.new_assign
                         } else {
-                            this.page.aID = response.aID
+                            this.page.aID = assignment.id
                             this.states.state = this.states.finish_t
                         }
                     })
@@ -211,6 +237,30 @@ export default {
                 })
                 break
             }
+        },
+        handleInitialState () {
+            if (this.tempStateToCheckIfWeCanAutoSetup === this.states.bad_auth) {
+                router.push({
+                    name: 'ErrorPage',
+                    params: {
+                        code: '511',
+                        reasonPhrase: 'Network authorization required',
+                        description: `Invalid credentials from the LTI environment.
+                                      Please contact the system administrator.`
+                    }
+                })
+            } else if (this.tempStateToCheckIfWeCanAutoSetup === this.states.no_course || this.tempStateToCheckIfWeCanAutoSetup === this.states.no_assign) {
+                router.push({
+                    name: 'ErrorPage',
+                    params: {
+                        code: '404',
+                        reasonPhrase: 'No course found with given ID',
+                        description: `The requested course is not available on
+                                      ejournal. Wait for it to become availible or
+                                      contact your teacher for more information.`
+                    }
+                })
+            }
         }
     },
     watch: {
@@ -218,55 +268,34 @@ export default {
             this.updateState(this.states.state)
         }
     },
-    async mounted () {
+    mounted () {
         this.ltiJWT = this.$route.query.ltiJWT
-        await this.loadLtiData()
-            .catch(error => {
-                this.$router.push({
-                    name: 'ErrorPage',
-                    params: {
-                        code: error.response.status,
-                        reasonPhrase: error.response.statusText,
-                        description: error.response.data.description
+
+        this.loadLtiData().then(_ => {
+            this.handleInitialState()
+            /* The lti parameters such as course id are not set if we are a student. */
+            if (this.lti.ltiCourseID) {
+                courseAPI.getLinkable().then(courses => {
+                    if (courses.length) {
+                        this.courses = courses
+                        this.states.state = this.tempStateToCheckIfWeCanAutoSetup
+                    } else {
+                        this.autoSetupCourseAndAssignment()
                     }
                 })
-            })
-
-        if (this.states.state === this.states.bad_auth) {
-            router.push({
+            } else {
+                this.states.state = this.tempStateToCheckIfWeCanAutoSetup
+            }
+        }).catch(error => {
+            this.$router.push({
                 name: 'ErrorPage',
                 params: {
-                    code: '511',
-                    reasonPhrase: 'Network authorization required',
-                    description: `Invalid credentials from the LTI environment.
-                                  Please contact the system administrator.`
+                    code: error.response.status,
+                    reasonPhrase: error.response.statusText,
+                    description: error.response.data.description
                 }
             })
-        } else if (this.states.state === this.states.no_course) {
-            router.push({
-                name: 'ErrorPage',
-                params: {
-                    code: '404',
-                    reasonPhrase: 'No course found with given ID',
-                    description: `The requested course is not available on
-                                  ejournal. Wait for it to become availible or
-                                  contact your teacher for more information.`
-                }
-            })
-        } else if (this.states.state === this.states.no_assign) {
-            router.push({
-                name: 'ErrorPage',
-                params: {
-                    code: '404',
-                    reasonPhrase: 'No assignment found with given ID',
-                    description: `The requested assignment is not available on
-                                  ejournal. Wait for it to become availible or
-                                  contact your teacher for more information.`
-                }
-            })
-        } else {
-            this.updateState(this.states.state)
-        }
+        })
     }
 }
 </script>

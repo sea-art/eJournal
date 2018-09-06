@@ -26,7 +26,7 @@
             </div>
             <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
 
-            <div v-for="(field, i) in entryNode.entry.template.fields" v-if="field.required || completeContent[i].data" class="entry-field" :key="field.eID">
+            <div v-for="(field, i) in entryNode.entry.template.field_set" v-if="field.required || completeContent[i].data" class="entry-field" :key="field.id">
                 <div v-if="field.title != ''">
                     <b>{{ field.title }}</b>
                 </div>
@@ -65,7 +65,7 @@
             </div>
         </b-card>
 
-        <comment-card :eID="entryNode.entry.eID" :entryGradePublished="entryNode.entry.published"/>
+        <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published"/>
     </div>
     <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
         <h2 class="mb-2">{{entryNode.template.name}}</h2>
@@ -78,7 +78,8 @@ import commentCard from '@/components/journal/CommentCard.vue'
 import pdfDisplay from '@/components/assets/PdfDisplay.vue'
 import fileDownloadButton from '@/components/assets/file_handling/FileDownloadButton.vue'
 import imageFileDisplay from '@/components/assets/file_handling/ImageFileDisplay.vue'
-import journalApi from '@/api/journal.js'
+
+import entryAPI from '@/api/entry'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
@@ -121,14 +122,14 @@ export default {
             var checkFound = false
 
             if (this.entryNode.entry !== null) {
-                for (var templateField of this.entryNode.entry.template.fields) {
+                for (var templateField of this.entryNode.entry.template.field_set) {
                     checkFound = false
 
                     for (var content of this.entryNode.entry.content) {
-                        if (content.tag === templateField.tag) {
+                        if (content.field === templateField.id) {
                             this.completeContent.push({
                                 data: content.data,
-                                tag: content.tag
+                                id: content.field
                             })
 
                             checkFound = true
@@ -139,7 +140,7 @@ export default {
                     if (!checkFound) {
                         this.completeContent.push({
                             data: null,
-                            tag: templateField.tag
+                            id: templateField.id
                         })
                     }
                 }
@@ -151,15 +152,14 @@ export default {
                 this.tempNode.entry.published = (this.published === 'true' || this.published === true)
 
                 if (this.published === 'true' || this.published === true) {
-                    journalApi.update_grade_entry(this.entryNode.entry.eID, this.grade, 1)
+                    entryAPI.update(this.entryNode.entry.id, {grade: this.grade, published: 1})
                         .then(_ => {
                             this.$toasted.success('Grade updated and published.')
                             this.$emit('check-grade')
                         })
                         .catch(error => { this.$toasted.error(error.response.data.description) })
                 } else {
-                    journalApi.update_grade_entry(this.entryNode.entry.eID,
-                        this.grade, 0)
+                    entryAPI.update(this.entryNode.entry.id, {grade: this.grade, published: 0})
                         .then(_ => {
                             this.$toasted.success('Grade updated but not published.')
                             this.$emit('check-grade')

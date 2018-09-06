@@ -2,8 +2,8 @@
     <div>
         <b-card class="no-hover">
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" id="templateName" v-model="template.name" placeholder="Template name" required/>
-            <draggable v-model="template.fields" @start="drag=true" @end="drag=false" @update="onUpdate" :options="{ handle:'.handle' }">
-                <div v-for="field in template.fields" :key="field.location">
+            <draggable v-model="template.field_set" @start="drag=true" @end="drag=false" @update="onUpdate" :options="{ handle:'.handle' }">
+                <div v-for="field in template.field_set" :key="field.location">
                     <b-card class="field-card">
                         <b-row align-h="between" no-gutters>
                             <b-col cols="12" sm="10" lg="11">
@@ -70,23 +70,23 @@ export default {
     },
     methods: {
         updateLocations () {
-            for (var i = 0; i < this.template.fields.length; i++) {
-                this.template.fields[i].location = i
+            for (var i = 0; i < this.template.field_set.length; i++) {
+                this.template.field_set[i].location = i
             }
         },
         addField () {
             var newField = {
                 'type': 't',
                 'title': '',
-                'location': this.template.fields.length,
+                'location': this.template.field_set.length,
                 'required': true
             }
 
-            this.template.fields.push(newField)
+            this.template.field_set.push(newField)
         },
         removeField (location) {
-            if (confirm('Are you sure you want to remove "' + this.template.fields[location].title + '" from this template?')) {
-                this.template.fields.splice(location, 1)
+            if (confirm('Are you sure you want to remove "' + this.template.field_set[location].title + '" from this template?')) {
+                this.template.field_set.splice(location, 1)
             }
 
             this.updateLocations()

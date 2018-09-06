@@ -38,9 +38,10 @@
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import textEditor from '@/components/assets/TextEditor.vue'
-import assignmentApi from '@/api/assignment.js'
+
 import store from '@/Store'
 import icon from 'vue-awesome/components/Icon'
+import assignmentAPI from '@/api/assignment'
 
 export default {
     name: 'AssignmentEdit',
@@ -59,15 +60,13 @@ export default {
         }
     },
     created () {
-        assignmentApi.get_assignment_data(this.cID, this.aID)
-            .then(assignment => {
-                this.assignment = assignment
-            })
+        assignmentAPI.get(this.aID)
+            .then(assignment => { this.assignment = assignment })
             .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         onSubmit (evt) {
-            assignmentApi.update_assignment(this.aID, this.assignment.name, this.assignment.description)
+            assignmentAPI.update(this.aID, this.assignment)
                 .then(assignment => {
                     this.assignment = assignment
                     this.$toasted.success('Updated assignment.')
@@ -77,14 +76,14 @@ export default {
         },
         deleteAssignment () {
             if (confirm('Are you sure you want to delete ' + this.assignment.name + '?')) {
-                assignmentApi.delete_assignment(this.cID, this.aID)
+                assignmentAPI.delete(this.aID, this.cID)
                     .then(_ => {
                         this.$router.push({name: 'Course',
                             params: {
                                 cID: this.cID,
                                 courseName: this.$route.params.courseName
                             }})
-                        this.$toasted.success('Deleted assignment')
+                        this.$toasted.success('Deleted assignment.')
                     })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }

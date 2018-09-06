@@ -3,7 +3,7 @@ Utilities.
 
 A library with useful functions.
 """
-from VLE.models import Entry, Node, EntryTemplate, EntryComment, PresetNode
+from VLE.models import Entry, Node, Template, Comment, PresetNode
 import VLE.factory as factory
 import VLE.views.responses as responses
 
@@ -11,6 +11,9 @@ import VLE.views.responses as responses
 # START: API-POST functions
 def required_params(post, *keys):
     """Get required post parameters, throwing KeyError if not present."""
+    if keys and not post:
+        raise KeyError()
+
     result = []
     for key in keys:
         result.append(post[key])
@@ -20,6 +23,9 @@ def required_params(post, *keys):
 
 def optional_params(post, *keys):
     """Get optional post parameters, filling them as None if not present."""
+    if keys and not post:
+        raise KeyError()
+
     result = []
     for key in keys:
         if key in post:
@@ -93,7 +99,7 @@ def publish_all_assignment_grades(assignment, published):
     """
     Entry.objects.filter(node__journal__assignment=assignment).exclude(grade=None).update(published=published)
     if published:
-        (EntryComment.objects.filter(entry__node__journal__assignment=assignment)
+        (Comment.objects.filter(entry__node__journal__assignment=assignment)
          .exclude(entry__grade=None).update(published=True))
 
 
@@ -105,7 +111,7 @@ def publish_all_journal_grades(journal, published):
     """
     Entry.objects.filter(node__journal=journal).exclude(grade=None).update(published=published)
     if published:
-        EntryComment.objects.filter(entry__node__journal=journal).exclude(entry__grade=None).update(published=True)
+        Comment.objects.filter(entry__node__journal=journal).exclude(entry__grade=None).update(published=True)
 # END grading functions
 
 
@@ -120,16 +126,16 @@ def update_templates(result_list, templates, template_map):
     for template_field in templates:
         if 'updated' in template_field and template_field['updated']:
             # Create the new template and add it to the format.
-            if 'tID' in template_field and template_field['tID'] < 0 and template_field['tID'] in template_map:
-                new_template = template_map[template_field['tID']]
+            if 'id' in template_field and template_field['id'] < 0 and template_field['id'] in template_map:
+                new_template = template_map[template_field['id']]
             else:
                 new_template = parse_template(template_field)
 
             result_list.add(new_template)
 
             # Update presets to use the new template.
-            if 'tID' in template_field and template_field['tID'] > 0:
-                template = EntryTemplate.objects.get(pk=template_field['tID'])
+            if 'id' in template_field and template_field['id'] > 0:
+                template = Template.objects.get(pk=template_field['id'])
                 presets = PresetNode.objects.filter(forced_template=template).all()
                 for preset in presets:
                     preset.forced_template = new_template
@@ -141,7 +147,7 @@ def update_templates(result_list, templates, template_map):
 def parse_template(template_dict):
     """Parse a new template according to the passed JSON-serialized template."""
     name = template_dict['name']
-    fields = template_dict['fields']
+    fields = template_dict['field_set']
 
     template = factory.make_entry_template(name)
 
@@ -160,8 +166,8 @@ def parse_template(template_dict):
 def swap_templates(from_list, goal_list, target_list):
     """Swap templates from from_list to target_list if they are present in goal_list."""
     for template in goal_list:
-        if from_list.filter(pk=template['tID']).count() > 0:
-            template = from_list.get(pk=template['tID'])
+        if from_list.filter(pk=template['id']).count() > 0:
+            template = from_list.get(pk=template['id'])
             from_list.remove(template)
             target_list.add(template)
 
@@ -191,12 +197,12 @@ def update_presets(assignment, presets, template_map):
     """
     format = assignment.format
     for preset in presets:
-        exists = 'pID' in preset
+        exists = 'id' in preset
 
         if exists:
             try:
-                preset_node = PresetNode.objects.get(pk=preset['pID'])
-            except EntryTemplate.DoesNotExist:
+                preset_node = PresetNode.objects.get(pk=preset['id'])
+            except Template.DoesNotExist:
                 return responses.not_found('Preset does not exist.')
         else:
             preset_node = PresetNode(format=format)
@@ -210,15 +216,15 @@ def update_presets(assignment, presets, template_map):
         elif preset_node.type == Node.ENTRYDEADLINE:
             template_field = preset['template']
 
-            if 'tID' in template_field:
-                if template_field['tID'] > 0:
-                    preset_node.forced_template = EntryTemplate.objects.get(pk=template_field['tID'])
+            if 'id' in template_field:
+                if template_field['id'] > 0:
+                    preset_node.forced_template = Template.objects.get(pk=template_field['id'])
                 else:
-                    if template_field['tID'] in template_map:
-                        preset_node.forced_template = template_map[template_field['tID']]
+                    if template_field['id'] in template_map:
+                        preset_node.forced_template = template_map[template_field['id']]
                     else:
                         preset_node.forced_template = parse_template(template_field)
-                        template_map[template_field['tID']] = preset_node.forced_template
+                        template_map[template_field['id']] = preset_node.forced_template
             else:
                 preset_node.forced_template = parse_template(template_field)
 
@@ -229,17 +235,17 @@ def update_presets(assignment, presets, template_map):
 
 def delete_presets(presets, remove_presets):
     """Deletes all presets in remove_presets from presets. """
-    pIDs = []
+    ids = []
     for preset in remove_presets:
-        pIDs.append(preset['pID'])
+        ids.append(preset['id'])
 
-    presets.filter(pk__in=pIDs).delete()
+    presets.filter(pk__in=ids).delete()
 
 
 def delete_templates(templates, remove_templates):
     """Deletes all templates in remove_templates from templates. """
-    tIDs = []
+    ids = []
     for template in remove_templates:
-        tIDs.append(template['tID'])
+        ids.append(template['id'])
 
-    templates.filter(pk__in=tIDs).delete()
+    templates.filter(pk__in=ids).delete()
