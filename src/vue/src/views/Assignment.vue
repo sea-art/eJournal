@@ -24,12 +24,12 @@
             </b-button>
         </b-card>
 
-        <div v-if="filteredJournals" v-for="journal in filteredJournals" :key="journal.student.uID" slot="main-content-column">
+        <div v-if="filteredJournals" v-for="journal in filteredJournals" :key="journal.student.id" slot="main-content-column">
             <b-link tag="b-button" :to="{ name: 'Journal',
                                           params: {
                                               cID: cID,
                                               aID: aID,
-                                              jID: journal.jID
+                                              jID: journal.id
                                           }, query: query
                                         }">
 
@@ -37,15 +37,15 @@
                     :student="journal.student"
                     :stats="journal.stats">
                 </student-card>
-
             </b-link>
         </div>
-        <main-card v-else slot="main-content-column" class="no-hover" :line1="'No journals found'"/>
+        <main-card v-if="assignmentJournals.length === 0" slot="main-content-column" class="no-hover" :line1="'No participants with a journal'"/>
+        <main-card v-else-if="filteredJournals.length === 0" slot="main-content-column" class="no-hover" :line1="'No journals found'"/>
 
         <div v-if="stats" slot="right-content-column">
             <h3>Insights</h3>
-            <statistics-card :subject="'Needs marking'" :num="stats.needsMarking"></statistics-card>
-            <statistics-card :subject="'Average points'" :num="stats.avgPoints"></statistics-card>
+            <statistics-card :subject="'Needs marking'" :num="stats.needs_marking"></statistics-card>
+            <statistics-card :subject="'Average points'" :num="stats.average_points"></statistics-card>
         </div>
     </content-columns>
 </template>
@@ -56,8 +56,9 @@ import studentCard from '@/components/assignment/StudentCard.vue'
 import mainCard from '@/components/assets/MainCard.vue'
 import statisticsCard from '@/components/assignment/StatisticsCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import journal from '@/api/journal.js'
+
 import store from '@/Store.vue'
+import assignmentAPI from '@/api/assignment'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
@@ -69,7 +70,7 @@ export default {
         aID: {
             required: true
         },
-        jID: ''
+        jID: 0
     },
     data () {
         return {
@@ -90,10 +91,20 @@ export default {
         'main-card': mainCard
     },
     created () {
-        journal.get_assignment_journals(this.aID)
-            .then(data => {
-                this.assignmentJournals = data.journals
-                this.stats = data.stats
+        // TODO Should be moved to the breadcrumb, ensuring there is no more natural flow left that can get you to this
+        // page without manipulating the url manually. If someone does this, simply let the error be thrown (no checks required)
+        if (!this.$hasPermission('can_view_assignment_participants')) {
+            if (this.$root.previousPage) {
+                this.$router.push({ name: this.$root.previousPage.name, params: this.$root.previousPage.params })
+            } else {
+                this.$router.push({ name: 'Home' })
+            }
+        }
+
+        assignmentAPI.get(this.aID, this.cID)
+            .then(assignment => {
+                this.assignmentJournals = assignment.journals
+                this.stats = assignment.stats
             })
             .catch(error => {
                 this.$toasted.error(error.response.data.description)
@@ -124,13 +135,13 @@ export default {
         },
         publishGradesAssignment () {
             if (confirm('Are you sure you want to publish all grades for each journal?')) {
-                journal.update_publish_grades_assignment(this.aID, 1)
+                assignmentAPI.update(this.aID, {published: true})
                     .then(_ => {
                         this.$toasted.success('Published all grades for this assignment.')
-                        journal.get_assignment_journals(this.aID)
-                            .then(response => {
-                                this.assignmentJournals = response.journals
-                                this.stats = response.stats
+                        assignmentAPI.get(this.aID, this.cID)
+                            .then(assignment => {
+                                this.assignmentJournals = assignment.journals
+                                this.stats = assignment.stats
                             })
                     })
                     .catch(_ => {
@@ -170,8 +181,8 @@ export default {
             }
 
             function compareMarkingNeeded (a, b) {
-                if (a.stats.submitted - a.stats.graded < b.stats.submitted - b.stats.graded) { return -1 }
-                if (a.stats.submitted - a.stats.graded > b.stats.submitted - b.stats.graded) { return 1 }
+                if (a.stats.submitted - a.stats.graded < b.stats.submitted - b.stats.graded) { return 1 }
+                if (a.stats.submitted - a.stats.graded > b.stats.submitted - b.stats.graded) { return -1 }
                 return 0
             }
 

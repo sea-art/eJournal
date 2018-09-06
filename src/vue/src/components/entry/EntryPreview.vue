@@ -6,7 +6,7 @@
     <div>
         <b-card class="no-hover" :class="$root.getBorderClass(cID)">
             <h2 class="mb-2">{{ template.name }}</h2>
-            <div v-for="(field, i) in template.fields" :key="field.eID">
+            <div v-for="(field, i) in template.field_set" :key="field.eID">
                 <div v-if="field.title != ''">
                     <b>{{ field.title }}</b>
                 </div>
@@ -94,10 +94,10 @@ export default {
     },
     methods: {
         setContent: function () {
-            for (var field of this.template.fields) {
+            for (var field of this.template.field_set) {
                 this.completeContent.push({
                     data: null,
-                    tag: field.tag
+                    id: field.id
                 })
             }
         },
