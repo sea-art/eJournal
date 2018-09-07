@@ -20,6 +20,16 @@
                         </option>
                     </b-form-select>
                 </div>
+                <div class="shadow" >
+                    <b-form-select v-if="$hasPermission('can_edit_course_group')"
+                                   v-model="selectedGroup"
+                                   :select-size="1">
+                        <option :value="null">No group</option>
+                        <option v-for="g in groups" :key="g.name" :value="g.name">
+                            {{g.name}}
+                        </option>
+                    </b-form-select>
+                </div>
                 <!-- TODO Permission revision should be can_delete_course_users -->
                 <b-button v-if="$hasPermission('can_add_course_participants')"
                           @click.prevent.stop="removeFromCourse()"
@@ -36,6 +46,7 @@
 import icon from 'vue-awesome/components/Icon'
 
 import participationAPI from '@/api/participation'
+import groupAPI from '@/api/group'
 
 export default {
     props: {
@@ -62,11 +73,18 @@ export default {
         },
         roles: {
             required: true
+        },
+        group: {
+            required: true
+        },
+        groups: {
+            required: true
         }
     },
     data () {
         return {
             selectedRole: '',
+            selectedGroup: '',
             init: true
         }
     },
@@ -110,10 +128,30 @@ export default {
                     this.$toasted.error(error.response.data.description)
                 })
             }
+        },
+        selectedGroup: function (val) {
+            if (this.init) {
+                this.init = false
+            } else {
+                this.selectedGroup = val
+                this.$emit('update:group', val)
+                groupAPI.update(this.cID, {user_id: this.uID, group: this.selectedGroup}).then(_ => {
+                    if (this.$store.getters['user/uID'] === this.uID) {
+                        this.$store.dispatch('user/populateStore').then(_ => {
+                            this.$router.push({name: 'Course', params: {cID: this.cID}})
+                        }, _ => {
+                            this.$toasted.error('The website might be out of sync, please login again.')
+                        })
+                    }
+                }, error => {
+                    this.$toasted.error(error.response.data.description)
+                })
+            }
         }
     },
     created () {
         this.selectedRole = this.role
+        this.selectedGroup = this.group
     },
     components: {
         icon
