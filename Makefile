@@ -37,7 +37,6 @@ setup:
 	@echo "This operation will clean old files, press enter to continue (ctrl+c to cancel)"
 	@read -r a
 	make setup-no-input
-
 setup-no-input:
 	@make clean
 	# Install apt dependencies and ppa's.
@@ -46,7 +45,7 @@ setup-no-input:
 	sudo apt install npm nodejs git-flow python3.6 python3-pip pep8 sqlite3 -y
 	sudo pip3 install virtualenv
 
-	make reset
+	make reset-no-input
 
 	@echo "DONE!"
 
@@ -54,7 +53,8 @@ reset:
 	@echo "This operation will clean old files, press enter to continue (ctrl+c to cancel)"
 	@read -r a
 	@make clean
-
+	@make reset-no-input
+reset-no-input:
 	# Reinstall venv packages
 	virtualenv -p python3.6 venv
 	bash -c '\
