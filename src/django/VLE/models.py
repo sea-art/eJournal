@@ -588,6 +588,6 @@ class Comment(models.Model):
         default=True
     )
     last_edited = models.DateTimeField(
-        default = None,
+        default=None,
         null=True
     )
