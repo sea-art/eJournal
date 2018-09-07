@@ -178,7 +178,7 @@ export default {
             .then(course => { this.course = course })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
-        groupAPI.getGroups(this.cID)
+        groupAPI.getAllFromCourse(this.cID)
             .then(groups => { this.groups = groups })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
