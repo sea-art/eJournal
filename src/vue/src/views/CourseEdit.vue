@@ -42,6 +42,11 @@
                             <icon name="users"/>
                             Manage Roles and Permissions
                         </b-button>
+                        <b-button v-if="$hasPermission('can_edit_course_group')"
+                            <group-modal :cID="this.cID"
+                                         @create-group="createGroup">
+                            </group-modal>
+                        </b-button>
                         <b-button class="add-button flex-grow-1 multi-form"
                             type="submit"
                             v-if="$hasPermission('can_edit_course')">
@@ -57,14 +62,24 @@
             <b-card class="no-hover">
                 <h2 class="mb-2">Manage course members</h2>
                 <b-row>
-                    <b-col sm="6" class="d-flex flex-wrap">
+                    <b-col sm="4" class="d-flex flex-wrap">
                         <b-form-select class="flex-grow-1 multi-form" v-model="selectedSortOption" :select-size="1">
                            <option :value="null">Sort by ...</option>
                            <option value="sortFullName">Sort by name</option>
                            <option value="sortUsername">Sort by username</option>
                         </b-form-select>
                     </b-col>
-                    <b-col sm="6" class="d-flex flex-wrap">
+                    <b-col sm="4" class="d-flex flex-wrap">
+                        <b-form-select v-model="selectedFilterGroupOption"
+                                       :select-size="1">
+                            <option :value="null">Filter group by ...</option>
+                            <option v-for="group in groups" :key="group.name" :value="group.name">
+                                {{group.name}}
+                            </option>
+                        </b-form-select>
+
+                    </b-col>
+                    <b-col sm="4" class="d-flex flex-wrap">
                         <b-form-select
                             v-if="$hasPermission('can_add_course_participants')"
                             class="flex-grow-1 multi-form"
@@ -96,7 +111,9 @@
                 :fullName="p.name"
                 :portraitPath="p.profile_picture"
                 :roles="roles"
-                :role.sync="p.role"/>
+                :role.sync="p.role"
+                :group.sync="p.group.name"
+                :groups="courseGroups"/>
 
             <add-user-card v-if="selectedView === 'unenrolled'"
                 @add-participant="addParticipantLocally"
@@ -117,10 +134,12 @@ import addUsersToCourseCard from '@/components/course/AddUsersToCourseCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import courseParticipantCard from '@/components/course/CourseParticipantCard.vue'
+import groupModal from '@/components/course/CourseGroupModal.vue'
 
 import store from '@/Store'
 import icon from 'vue-awesome/components/Icon'
 import courseAPI from '@/api/course'
+import groupAPI from '@/api/group'
 import participationAPI from '@/api/participation'
 
 export default {
@@ -136,7 +155,9 @@ export default {
             form: {},
             participants: [],
             unenrolledStudents: [],
+            groups: [],
             selectedSortOption: null,
+            selectedFilterGroupOption: null,
             searchVariable: '',
             selectedView: 'enrolled',
             unenrolledLoaded: false,
@@ -155,6 +176,10 @@ export default {
     created () {
         courseAPI.get(this.cID)
             .then(course => { this.course = course })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
+
+        groupAPI.getGroups(this.cID)
+            .then(groups => { this.groups = groups })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
         if (this.$hasPermission('can_view_course_participants')) {
@@ -207,6 +232,11 @@ export default {
                 'uID': uID
             })
         },
+        createGroup (groupName) {
+            this.courseGroups.push({
+                'name': groupName
+            })
+        },
         loadUnenrolledStudents () {
             // TODO: change to unenrolled
             participationAPI.getUnenrolled(this.cID)
@@ -253,6 +283,11 @@ export default {
                 }
             }
 
+            function checkGroup (user) {
+                return (user.group == self.selectedFilterGroupOption ||
+                        user.group.includes(self.selectedFilterGroupOption)
+            }
+
             var viewList = this.participants
 
             /* Switch view list with drop down menu and load unenrolled
@@ -266,12 +301,12 @@ export default {
 
             /* Filter list based on search input. */
             if (this.selectedSortOption === 'sortFullName') {
-                return viewList.filter(checkFilter).sort(compareFullName)
+                viewList = viewList.sort(compareFullName)
             } else if (this.selectedSortOption === 'sortUsername') {
-                return viewList.filter(checkFilter).sort(compareUsername)
-            } else {
-                return viewList.filter(checkFilter)
+                viewList = viewList.sort(compareUsername)
             }
+
+            return viewList.filter.filter(checkFilter).filter(checkGroup)
         }
     },
     components: {
@@ -279,6 +314,7 @@ export default {
         'bread-crumb': breadCrumb,
         'content-single-column': contentSingleColumn,
         'course-participant-card': courseParticipantCard,
+        'group-modal': groupModal,
         icon
     }
 }
