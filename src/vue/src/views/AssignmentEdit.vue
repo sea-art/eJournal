@@ -16,7 +16,7 @@
                  />
                 <b-button v-if="$hasPermission('can_delete_assignment')" @click.prevent.stop="deleteAssignment()" class="delete-button multi-form float-left">
                     <icon name="trash"/>
-                    {{ assignment.courses.length <= 1 ? 'Delete Assignment' : 'Remove From Course' }}
+                    {{ assignment.courses.length === 1 ? 'Delete Assignment' : 'Remove From Course' }}
                 </b-button>
                 <b-button
                     v-if="$hasPermission('can_edit_assignment')"
