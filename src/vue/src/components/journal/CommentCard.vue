@@ -110,10 +110,10 @@ export default {
         }
     },
     created () {
-        this.setEntryComments()
+        this.setComments()
     },
     methods: {
-        setEntryComments () {
+        setComments () {
             commentAPI.getFromEntry(this.eID)
                 .then(comments => {
                     this.commentObject = comments

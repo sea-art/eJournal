@@ -11,13 +11,13 @@
             <b-form-select v-model="selectedTemplate">
                 <option :value="null" disabled>Please select a template</option>
                 <option v-for="template in addNode.templates" :key="template.id" :value="template">
-                    {{template.name}}
+                    {{ template.name }}
                 </option>
             </b-form-select>
             <br><br>
             <entry-preview v-if="selectedTemplate !== null" @content-template="createEntry" :template="selectedTemplate"/>
         </div>
-        <div v-else-if="addNode.templates.length == 1">
+        <div v-else-if="addNode.templates.length === 1">
             <h2 class="mb-2">Selected template</h2>
             <entry-preview @content-template="createEntry" :template="selectedTemplate"/>
         </div>
