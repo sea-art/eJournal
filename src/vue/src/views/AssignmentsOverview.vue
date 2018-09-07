@@ -8,7 +8,7 @@
                         <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
                     </b-col>
                     <b-col sm="8">
-                        <b-form-select class="btn" v-model="selectedSortOption" :select-size="1">
+                        <b-form-select class="multi-form" v-model="selectedSortOption" :select-size="1">
                            <option>Sort by...</option>
                            <option value="sortDate">Sort by date</option>
                            <option value="sortName">Sort by name</option>
@@ -19,11 +19,11 @@
                     <b-col sm="4">
                         <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button full-width multi-form">
                             <icon name="long-arrow-down"/>
-                            A-Z / 1-9
+                            Ascending
                         </b-button>
                         <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="button full-width multi-form">
                             <icon name="long-arrow-up"/>
-                            Z-A / 9-1
+                            Descending
                         </b-button>
                     </b-col>
                 </b-row>
