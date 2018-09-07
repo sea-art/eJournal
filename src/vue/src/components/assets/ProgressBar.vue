@@ -36,16 +36,23 @@ export default {
             return Math.round(Math.abs((this.comparePoints - this.currentPoints) * 100)) / 100
         },
         message () {
-            let message = "You are "
+            let message = 'You are '
             // On average
-            if (this.difference === 0) { message += "on average." }
-            else {
+            if (this.difference === 0) {
+                message += 'on average.'
+            } else {
                 // Ahead or behind
-                if (this.comparePoints <= this.currentPoints) { message += "ahead by " }
-                else { message += "behind by " }
+                if (this.comparePoints <= this.currentPoints) {
+                    message += 'ahead by '
+                } else {
+                    message += 'behind by '
+                }
                 // Multiple or only 1 points
-                if (this.difference === 1) { message += "1 point."}
-                else { message += this.difference + " points."}
+                if (this.difference === 1) {
+                    message += '1 point.'
+                } else {
+                    message += this.difference + ' points.'
+                }
             }
             return message
         }
