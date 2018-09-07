@@ -57,10 +57,8 @@ class OAuthRequestValidater(object):
                                              self.oauth_consumer, {})
 
         except (oauth2.Error, ValueError) as err:
-            print(oauth_request['oauth_signature'])
             oauth_request.sign_request(oauth2.SignatureMethod_HMAC_SHA1(),
                                        self.oauth_consumer, {})
-            print(oauth_request['oauth_signature'])
             return False, err
         # Signature was valid
         return True, None

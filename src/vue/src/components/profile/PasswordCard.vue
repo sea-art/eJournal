@@ -12,9 +12,10 @@
 </template>
 
 <script>
-import auth from '@/api/auth'
 import icon from 'vue-awesome/components/Icon'
 import validation from '@/utils/validation.js'
+
+import auth from '@/api/auth'
 
 export default {
     data () {

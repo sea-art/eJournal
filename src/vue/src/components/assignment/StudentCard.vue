@@ -2,7 +2,7 @@
     <b-card :class="$root.getBorderClass($route.params.cID)">
         <b-row>
             <b-col order="1" cols="4">
-                <img class="img-fluid student-card-portrait" :src="student.picture">
+                <img class="img-fluid student-card-portrait" :src="student.profile_picture">
             </b-col>
             <b-col order="2" cols="8">
                 <todo-square v-if="numMarkingNeeded > 0 && !hideTodo" class="float-right" :num="numMarkingNeeded"/>

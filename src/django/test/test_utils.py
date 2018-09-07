@@ -143,7 +143,7 @@ def logging_in(obj, username, password, status=200):
     return result
 
 
-def api_get_call(obj, url, login, status=200):
+def api_get_call(obj, url, login, status=200, params={}):
     """Send an get api call.
 
     Arguments:
@@ -153,20 +153,20 @@ def api_get_call(obj, url, login, status=200):
 
     returns the whatever the api call returns
     """
-    result = obj.client.get(url, {},
+    result = obj.client.get(url, params,
                             HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access']))
     obj.assertEquals(result.status_code, status)
     return result
 
 
-def test_unauthorized_api_get_call(obj, url):
+def test_unauthorized_api_get_call(obj, url, params={}):
     """Test unauthorized api get calls.
 
     Arguments
     url -- url to send the call to
     params -- extra parameters that the api needs
     """
-    result = obj.client.get(url, {}, format='json')
+    result = obj.client.get(url, params, format='json')
     obj.assertEquals(result.status_code, 401)
 
 
@@ -183,6 +183,40 @@ def api_post_call(obj, url, params, login, status=200):
     """
     result = obj.client.post(url, json.dumps(params), content_type='application/json',
                              HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access']))
+    obj.assertEquals(result.status_code, status)
+    return result
+
+
+def api_patch_call(obj, url, params, login, status=200):
+    """Send and get patch api call.
+
+    Arguments:
+    url -- url to send the call to
+    params -- extra parameters that the api needs
+    login -- credentials of the logged in user
+    status -- status it checks for after login (default 200)
+
+    returns the whatever the api call returns
+    """
+    result = obj.client.patch(url, json.dumps(params), content_type='application/json',
+                              HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access']))
+    obj.assertEquals(result.status_code, status)
+    return result
+
+
+def api_del_call(obj, url, login, params={}, status=200):
+    """Send and get delete api call.
+
+    Arguments:
+    url -- url to send the call to
+    params -- extra parameters that the api needs
+    login -- credentials of the logged in user
+    status -- status it checks for after login (default 200)
+
+    returns the whatever the api call returns
+    """
+    result = obj.client.delete(url, params, content_type='application/json',
+                               HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access']))
     obj.assertEquals(result.status_code, status)
     return result
 
