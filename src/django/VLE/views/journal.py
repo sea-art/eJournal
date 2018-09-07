@@ -6,7 +6,7 @@ In this file are all the course api requests.
 from rest_framework import viewsets
 
 from VLE.serializers import JournalSerializer
-from VLE.models import Journal, Assignment, Course
+from VLE.models import Journal, Assignment
 import VLE.permissions as permissions
 import VLE.views.responses as response
 import VLE.utils.generic_utils as utils
@@ -38,7 +38,7 @@ class JournalView(viewsets.ViewSet):
         On failure:
             unauthorized -- when the user is not logged in
             keyerror -- when assignment_id is not set
-            not found -- when the assignment does not exists
+            not found -- when the assignment does not exist
             forbidden -- when the user has no permission to view the journals of the assignment
         On succes:
             success -- with journals and stats about the journals
@@ -52,7 +52,7 @@ class JournalView(viewsets.ViewSet):
         except KeyError:
             return response.keyerror('assignment_id')
         except Assignment.DoesNotExist:
-            return response.not_found('Assignment')
+            return response.not_found('Assignment does not exist.')
 
         if not permissions.has_assignment_permission(request.user, assignment, 'can_view_assignment_participants'):
             return response.forbidden('You are not allowed to view assignment participants.')
@@ -85,7 +85,7 @@ class JournalView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the journal does not exists
+            not found -- when the journal does not exist
             forbidden -- when the user has no permission to view the journal
         On succes:
             success -- with journals and stats about the journals
@@ -97,7 +97,7 @@ class JournalView(viewsets.ViewSet):
         try:
             journal = Journal.objects.get(pk=pk)
         except Journal.DoesNotExist:
-            return response.not_found('Journal')
+            return response.not_found('Journal does not exist.')
 
         if journal.user != request.user and \
            not permissions.has_assignment_permission(request.user, journal.assignment,
@@ -143,7 +143,7 @@ class JournalView(viewsets.ViewSet):
         try:
             assignment = Assignment.objects.get(pk=assignment_id)
         except Assignment.DoesNotExist:
-            return response.not_found('Assignment')
+            return response.not_found('Assignment does not exist.')
 
         journal = factory.make_journal(assignment, request.user)
         serializer = JournalSerializer(journal, many=False)
@@ -160,7 +160,7 @@ class JournalView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the journal does not exists
+            not found -- when the journal does not exist
             forbidden -- User not allowed to edit this journal
             unauthorized -- when the user is unauthorized to edit the journal
             bad_request -- when there is invalid data in the request
@@ -175,8 +175,8 @@ class JournalView(viewsets.ViewSet):
 
         try:
             journal = Journal.objects.get(pk=pk)
-        except Course.DoesNotExist:
-            return response.not_found('Journal')
+        except Journal.DoesNotExist:
+            return response.not_found('Journal does not exist.')
 
         published, = utils.optional_params(request.data, 'published')
         if published:

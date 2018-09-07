@@ -83,7 +83,7 @@ class CourseView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the course does not exists
+            not found -- when the course does not exist
             forbidden -- when the user is not in the course
         On success:
             success -- with the course data
@@ -94,7 +94,7 @@ class CourseView(viewsets.ViewSet):
         try:
             course = Course.objects.get(pk=pk)
         except Course.DoesNotExist:
-            return response.not_found('Course')
+            return response.not_found('Course does not exist.')
 
         if not permissions.is_user_in_course(request.user, course):
             return response.forbidden('You are not in this course.')
@@ -113,7 +113,7 @@ class CourseView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the course does not exists
+            not found -- when the course does not exist
             forbidden -- when the user is not in the course
             unauthorized -- when the user is unauthorized to edit the course
             bad_request -- when there is invalid data in the request
@@ -129,7 +129,7 @@ class CourseView(viewsets.ViewSet):
         try:
             course = Course.objects.get(pk=pk)
         except Course.DoesNotExist:
-            return response.not_found('course')
+            return response.not_found('Course does not exist.')
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -152,7 +152,7 @@ class CourseView(viewsets.ViewSet):
 
         Returns:
         On failure:
-            not found -- when the course does not exists
+            not found -- when the course does not exist
             unauthorized -- when the user is not logged in
             forbidden -- when the user is not in the course
         On success:
@@ -165,7 +165,7 @@ class CourseView(viewsets.ViewSet):
         try:
             course = Course.objects.get(pk=pk)
         except Course.DoesNotExist:
-            return response.not_found('course')
+            return response.not_found('Course does not exist.')
 
         role = permissions.get_role(request.user, pk)
         if role is None:
@@ -189,7 +189,7 @@ class CourseView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the course does not exists
+            not found -- when the course does not exist
             forbidden -- when the user is not in the course
         On success:
             success -- with a message that the course was deleted
