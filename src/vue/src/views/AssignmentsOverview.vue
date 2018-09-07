@@ -18,11 +18,11 @@
                     </b-col>
                     <b-col sm="4">
                         <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button full-width multi-form">
-                            <icon name="long-arrow-up"/>
+                            <icon name="long-arrow-down"/>
                             A-Z / 1-9
                         </b-button>
                         <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="button full-width multi-form">
-                            <icon name="long-arrow-down"/>
+                            <icon name="long-arrow-up"/>
                             Z-A / 9-1
                         </b-button>
                     </b-col>
