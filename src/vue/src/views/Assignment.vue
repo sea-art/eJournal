@@ -4,22 +4,22 @@
         <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
         <b-card slot="main-content-column" class="no-hover settings-card">
             <b-row>
-                <b-col sm="4">
+                <b-col sm="12">
+                    <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
+                </b-col>
+                <b-col sm="6">
                     <b-form-select class="multi-form" v-model="selectedSortOption" :select-size="1">
                        <option value="sortFullName">Sort by name</option>
                        <option value="sortUsername">Sort by username</option>
                        <option value="sortMarking">Sort by marking needed</option>
                     </b-form-select>
                 </b-col>
-                <b-col sm="4">
-                    <input class="theme-input multi-form full-width" type="text" v-model="searchVariable" placeholder="Search..."/>
-                </b-col>
-                <b-col sm="4">
-                    <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button full-width">
+                <b-col sm="6">
+                    <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button full-width multi-form">
                         <icon name="sort"/>
                         A-Z / 1-9
                     </b-button>
-                    <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="button full-width">
+                    <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="button full-width multi-form">
                         <icon name="sort"/>
                         Z-A / 9-1
                     </b-button>
@@ -27,7 +27,7 @@
             </b-row>
             <b-button
                 v-if="$hasPermission('can_publish_assignment_grades')"
-                class="add-button"
+                class="add-button full-width"
                 @click="publishGradesAssignment">
                 <icon name="upload"/>
                 Publish all Grades for this Assignment
