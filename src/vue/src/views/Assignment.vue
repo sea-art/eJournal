@@ -7,14 +7,14 @@
                 <b-col sm="12">
                     <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
                 </b-col>
-                <b-col sm="6">
+                <b-col sm="8">
                     <b-form-select class="multi-form btn" v-model="selectedSortOption" :select-size="1">
                        <option value="sortFullName">Sort by name</option>
                        <option value="sortUsername">Sort by username</option>
                        <option value="sortMarking">Sort by marking needed</option>
                     </b-form-select>
                 </b-col>
-                <b-col sm="6">
+                <b-col sm="4">
                     <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button full-width multi-form">
                         <icon name="long-arrow-up"/>
                         A-Z / 1-9
