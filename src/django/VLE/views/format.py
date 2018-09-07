@@ -67,7 +67,7 @@ class FormatView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the assignment does not exists
+            not found -- when the assignment does not exist
             forbidden -- User not allowed to edit this assignment
             unauthorized -- when the user is unauthorized to edit the assignment
             bad_request -- when there is invalid data in the request
@@ -91,7 +91,7 @@ class FormatView(viewsets.ViewSet):
         try:
             assignment = Assignment.objects.get(pk=assignment_id)
         except Assignment.DoesNotExist:
-            return response.not_found('Assignment')
+            return response.not_found('Assignment does not exist.')
 
         format = assignment.format
 

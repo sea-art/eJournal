@@ -165,8 +165,8 @@ class UpdateApiTests(TestCase):
                              'old_password': 'Pass123!'},
                             login)
 
-    def test_get_entrycomments(self):
-        """Test update entrycomment function."""
+    def test_get_comments(self):
+        """Test update comment function."""
         course = factory.make_course('Portfolio', 'PAV', author=self.rein)
         template = factory.make_entry_template('template')
         format = factory.make_format([template], 10)
@@ -176,12 +176,12 @@ class UpdateApiTests(TestCase):
         journal = factory.make_journal(assignment, student)
         entry = factory.make_entry(template)
         factory.make_node(journal, entry)
-        entrycomment = factory.make_entrycomment(entry, self.rein, 'Excellent!', True)
+        comment = factory.make_comment(entry, self.rein, 'Excellent!', True)
 
         login = test.logging_in(self, self.rein_user, self.rein_pass)
 
         update_dict = {'text': 'Bad!'}
-        test.api_patch_call(self, '/comments/' + str(entrycomment.pk) + '/', update_dict, login)
+        test.api_patch_call(self, '/comments/' + str(comment.pk) + '/', update_dict, login)
 
-        q_entrycomment = Comment.objects.get(pk=entrycomment.pk)
-        self.assertEquals(q_entrycomment.text, 'Bad!')
+        q_comment = Comment.objects.get(pk=comment.pk)
+        self.assertEquals(q_comment.text, 'Bad!')

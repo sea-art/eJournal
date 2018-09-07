@@ -102,17 +102,17 @@ class AssignmentSerializer(serializers.ModelSerializer):
             return None
 
     def get_stats(self, assignment):
-        if 'user' not in self.context or \
-           not permissions.has_assignment_permission(self.context['user'], assignment, 'can_grade_journal'):
+        if 'user' not in self.context:
             return None
 
         journals = JournalSerializer(assignment.journal_set.all(), many=True).data
         if not journals:
             return None
         stats = {}
-        stats['needs_marking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
         points = [x['stats']['acquired_points'] for x in journals]
         stats['average_points'] = round(st.mean(points), 2)
+        if permissions.has_assignment_permission(self.context['user'], assignment, 'can_grade_journal'):
+            stats['needs_marking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
         return stats
 
     def get_course(self, assignment):
@@ -290,8 +290,8 @@ class FieldSerializer(serializers.ModelSerializer):
 #         data.update({field.title: content.data})
 #
 #     # Add the comments.
-#     comments = [{entrycomment.author.username: entrycomment.text}
-#                 for entrycomment in Comment.objects.filter(entry=entry)]
+#     comments = [{comment.author.username: comment.text}
+#                 for comment in Comment.objects.filter(entry=entry)]
 #     data.update({'comments': comments})
 #
 #     return data
