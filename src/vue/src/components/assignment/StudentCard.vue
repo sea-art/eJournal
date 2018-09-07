@@ -11,7 +11,10 @@
                 <progress-bar v-if="!fullWidthProgress || $root.mdMax()" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
             </b-col>
         </b-row>
-        <progress-bar v-if="fullWidthProgress && $root.lg()" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
+        <progress-bar v-if="fullWidthProgress && $root.lg()"
+                      :currentPoints="this.stats.acquired_points"
+                      :totalPoints="this.stats.total_points"
+                      :comparePoints="this.assignment ? this.assignment.stats.average_points : -1"/>
     </b-card>
 </template>
 
@@ -34,6 +37,9 @@ export default {
         'fullWidthProgress': {
             type: Boolean,
             default: false
+        },
+        'assignment': {
+            required: false
         }
     },
     components: {

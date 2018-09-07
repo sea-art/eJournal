@@ -35,6 +35,7 @@
                         :stats="journal.stats"
                         :hideTodo="true"
                         :fullWidthProgress="true"
+                        :assignment="assignment"
                         :class="'mb-4 no-hover'"/>
                 </b-col>
                 <b-col md="6" lg="12">
@@ -81,6 +82,7 @@ import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import icon from 'vue-awesome/components/Icon'
 import store from '@/Store.vue'
 import journalAPI from '@/api/journal'
+import assignmentAPI from '@/api/assignment'
 
 export default {
     props: ['cID', 'aID', 'jID'],
@@ -92,6 +94,7 @@ export default {
             progressNodes: {},
             progressPointsLeft: 0,
             assignmentJournals: [],
+            assignment: null,
             journal: null,
             selectedSortOption: 'sortUserName',
             searchVariable: '',
@@ -99,6 +102,9 @@ export default {
         }
     },
     created () {
+        assignmentAPI.get(this.aID)
+            .then(assignment => { this.assignment = assignment })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
         journalAPI.getNodes(this.jID)
             .then(nodes => {
                 this.nodes = nodes
