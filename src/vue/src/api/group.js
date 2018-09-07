@@ -1,6 +1,7 @@
 import auth from '@/api/auth'
 
-export default {
+export default
+
     create (data) {
         return auth.create('groups', data)
             .then(response => response.data.group)
@@ -14,5 +15,14 @@ export default {
     delete (id) {
         return auth.delete('groups/' + id)
             .then(response => response.data)
+    },
+
+    getAllFromCourse (cID) {
+        if (cID) {
+            return auth.get('groups', {course_id: cID})
+            .then(response => response.data.groups)
+        }
+        return auth.get('groups')
+        .then(response => response.data.groups)
     },
 }
