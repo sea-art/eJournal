@@ -8,13 +8,13 @@
         <b-col cols="12">
             <b-progress class="shadow progress-bar-box" color="white" :max="totalPoints">
                 <b-progress-bar class="own-bar"
-                                :value="Math.min(currentPoints, comparePoints)"/>
+                                :value="comparePoints === -1 ? currentPoints : Math.min(currentPoints, comparePoints)"/>
                 <b-progress-bar class="compare-bar"
                                 :value="Math.abs(comparePoints - currentPoints)"
-                                v-if="comparePoints > currentPoints"/>
+                                v-if="comparePoints !== -1 && comparePoints > currentPoints"/>
                 <b-progress-bar class="compare-bar ahead"
                                 :value="Math.abs(comparePoints - currentPoints)"
-                                v-else/>
+                                v-else-if="comparePoints !== -1"/>
             </b-progress>
         </b-col>
     </b-row>
@@ -22,7 +22,17 @@
 
 <script>
 export default {
-    props: ['currentPoints', 'totalPoints', 'comparePoints'],
+    props: {
+        'currentPoints': {
+            required: true
+        },
+        'totalPoints': {
+            required: true
+        },
+        'comparePoints': {
+            default: -1
+        }
+    },
     data () {
         return {
             aheadClass: 'ahead'
@@ -36,6 +46,10 @@ export default {
             return Math.round(Math.abs((this.comparePoints - this.currentPoints) * 100)) / 100
         },
         message () {
+            if (this.comparePoints === -1) {
+                return null
+            }
+
             let message = 'You are '
             // On average
             if (this.difference === 0) {
