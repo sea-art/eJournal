@@ -313,7 +313,7 @@ def make_role_teacher(name, course):
     return make_role_default_all_perms(name, course, can_edit_journal=False)
 
 
-def make_entrycomment(entry, author, text, published):
+def make_comment(entry, author, text, published):
     """Make an Entry Comment.
 
     Make an Entry Comment for an entry based on its ID.
