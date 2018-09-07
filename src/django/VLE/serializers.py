@@ -293,8 +293,8 @@ class FieldSerializer(serializers.ModelSerializer):
 #         data.update({field.title: content.data})
 #
 #     # Add the comments.
-#     comments = [{entrycomment.author.username: entrycomment.text}
-#                 for entrycomment in Comment.objects.filter(entry=entry)]
+#     comments = [{comment.author.username: comment.text}
+#                 for comment in Comment.objects.filter(entry=entry)]
 #     data.update({'comments': comments})
 #
 #     return data

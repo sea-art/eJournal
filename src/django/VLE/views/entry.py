@@ -89,7 +89,7 @@ class EntryView(viewsets.ViewSet):
             try:
                 field = Field.objects.get(pk=content['id'])
             except Field.DoesNotExist:
-                return response.not_found('Field')
+                return response.not_found('Field does not exist.')
 
             factory.make_content(node.entry, content['data'], field)
 
@@ -117,7 +117,7 @@ class EntryView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the entry does not exists
+            not found -- when the entry does not exist
             forbidden -- User not allowed to edit this entry
             unauthorized -- when the user is unauthorized to edit the entry
             bad_request -- when there is invalid data in the request
@@ -133,7 +133,7 @@ class EntryView(viewsets.ViewSet):
         try:
             entry = Entry.objects.get(pk=pk)
         except Entry.DoesNotExist:
-            return response.not_found('Entry')
+            return response.not_found('Entry does not exist.')
 
         grade, published, content_list = utils.optional_params(request.data, "grade", "published", "content")
 
@@ -169,7 +169,7 @@ class EntryView(viewsets.ViewSet):
                 try:
                     field = Field.objects.get(pk=content['id'])
                 except Field.DoesNotExist:
-                    return response.not_found('Field')
+                    return response.not_found('Field does not exist.')
 
                 factory.make_content(entry, content['data'], field)
 

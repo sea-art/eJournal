@@ -302,8 +302,8 @@ class GetApiTests(TestCase):
         login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
         test.api_get_call(self, url, login, status=403)
 
-    def test_get_entrycomments(self):
-        """Test get entrycomments function."""
+    def test_get_comments(self):
+        """Test get comments function."""
         course = factory.make_course('Portfolio', 'PAV', author=self.rein)
         template = factory.make_entry_template('template')
         format = factory.make_format([template], 10)
@@ -313,7 +313,7 @@ class GetApiTests(TestCase):
         journal = factory.make_journal(assignment, student)
         entry = factory.make_entry(template)
         factory.make_node(journal, entry)
-        factory.make_entrycomment(entry, self.rein, 'Excellent!', True)
+        factory.make_comment(entry, self.rein, 'Excellent!', True)
 
         login = test.logging_in(self, student_user, student_pass)
 
