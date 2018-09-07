@@ -153,8 +153,12 @@ export default {
         },
         editComment (cID, index) {
             this.$set(this.commentObject[index], 'text', this.editCommentTemp[index])
-            console.log(cID)
             this.$set(this.editCommentStatus, index, false)
+
+            commentAPI.update(cID, {
+                text: this.editCommentTemp[index]
+            })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         deleteComment (cID) {
             if (confirm('Are you sure you want to delete this comment?')) {
