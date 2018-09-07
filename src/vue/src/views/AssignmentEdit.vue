@@ -16,7 +16,7 @@
                  />
                 <b-button v-if="$hasPermission('can_delete_assignment')" @click.prevent.stop="deleteAssignment()" class="delete-button multi-form float-left">
                     <icon name="trash"/>
-                    Delete Assignment
+                    {{ assignment.courses.length === 1 ? 'Delete Assignment' : 'Remove From Course' }}
                 </b-button>
                 <b-button
                     v-if="$hasPermission('can_edit_assignment')"
@@ -60,7 +60,7 @@ export default {
         }
     },
     created () {
-        assignmentAPI.get(this.aID)
+        assignmentAPI.get(this.aID, this.cID)
             .then(assignment => { this.assignment = assignment })
             .catch(error => { this.$toasted.error(error.response.data.description) })
     },
