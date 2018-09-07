@@ -69,7 +69,7 @@ class UserView(viewsets.ViewSet):
         try:
             user = User.objects.get(pk=pk)
         except User.DoesNotExist:
-            return response.not_found('user')
+            return response.not_found('User does not exist.')
 
         if request.user == user or request.user.is_superuser:
             serializer = OwnUserSerializer(user, many=False)
@@ -179,7 +179,7 @@ class UserView(viewsets.ViewSet):
         try:
             user = User.objects.get(pk=pk)
         except User.DoesNotExist:
-            return request.not_found('user')
+            return request.not_found('User does not exist.')
 
         if 'jwt_params' in request.data and request.data['jwt_params'] != '':
             try:
@@ -221,7 +221,7 @@ class UserView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the user does not exists
+            not found -- when the user does not exist
         On success:
             success -- deleted message
         """
@@ -236,7 +236,7 @@ class UserView(viewsets.ViewSet):
         try:
             user = User.objects.get(pk=pk)
         except User.DoesNotExist:
-            return response.not_found('user')
+            return response.not_found('User does not exist.')
 
         user.delete()
         return response.deleted(description='Sucesfully deleted user.')

@@ -64,9 +64,9 @@ def get_lti_params_from_jwt(request, jwt_params):
             payload['lti_aUnlock'] = lti_params['custom_assignment_unlock']
             payload['lti_points_possible'] = lti_params['custom_assignment_points']
 
-            return response.success(payload={'params': payload})
+            return response.success({'params': payload})
         else:
-            return response.not_found(description='The course you are looking for cannot be found. \
+            return response.not_found('The course you are looking for cannot be found. \
                 Most likely your teacher has not finished setting up the course.')
 
     assignment = lti.check_assignment_lti(lti_params)
@@ -81,9 +81,9 @@ def get_lti_params_from_jwt(request, jwt_params):
             payload['lti_aUnlock'] = lti_params['custom_assignment_unlock']
             payload['lti_points_possible'] = lti_params['custom_assignment_points']
 
-            return response.success(payload={'params': payload})
+            return response.success({'params': payload})
         else:
-            return response.not_found(description='The assignment you are looking for cannot be found. \
+            return response.not_found('The assignment you are looking for cannot be found. \
                 Either your teacher has not finished setting up the assignment, or it has been moved to another \
                 course. Please contact your course administrator.')
 
