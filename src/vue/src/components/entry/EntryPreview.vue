@@ -104,7 +104,7 @@ export default {
         checkFilled: function () {
             for (var i = 0; i < this.completeContent.length; i++) {
                 var content = this.completeContent[i]
-                var field = this.template.fields[i]
+                var field = this.template.field_set[i]
                 if (field.required && !content.data) {
                     return false
                 }
