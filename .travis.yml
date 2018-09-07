@@ -3,7 +3,7 @@ python:
   - "3.6"
 sudo: enabled
 install:
-  - make setup
+  - make setup-no-input
 script: make test
 branches:
   only:
