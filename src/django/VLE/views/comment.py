@@ -4,6 +4,7 @@ comment.py.
 In this file are all the comment api requests.
 """
 from rest_framework import viewsets
+from datetime import datetime
 
 from VLE.serializers import CommentSerializer
 from VLE.models import Comment, Entry, User, Assignment, Journal
@@ -181,7 +182,10 @@ class CommentView(viewsets.ViewSet):
                                                      'can_comment_journal'):
             return response.forbidden('You cannot comment on entries.')
 
-        serializer = CommentSerializer(comment, data=request.data, partial=True)
+        req_data = request.data
+        req_data['last_edited'] = datetime.now()
+
+        serializer = CommentSerializer(comment, data=req_data, partial=True)
         if not serializer.is_valid():
             response.bad_request()
         serializer.save()

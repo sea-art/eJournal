@@ -20,8 +20,11 @@
                         <div v-html="comment.text"/>
                         <hr/>
                         <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b>
-                        <span v-if="comment.published" class="timestamp">
+                        <span v-if="comment.published && !comment.last_edited" class="timestamp">
                             {{ $root.beautifyDate(comment.timestamp) }}<br/>
+                        </span>
+                        <span v-else-if="comment.published && comment.last_edited" class="timestamp">
+                            Last edited: {{ $root.beautifyDate(comment.last_edited) }}<br/>
                         </span>
                         <span v-else class="timestamp">
                             <icon name="hourglass-half" scale="0.8"/>
@@ -154,10 +157,10 @@ export default {
         editComment (cID, index) {
             this.$set(this.commentObject[index], 'text', this.editCommentTemp[index])
             this.$set(this.editCommentStatus, index, false)
-
             commentAPI.update(cID, {
                 text: this.editCommentTemp[index]
             })
+                .then(comment => { this.$set(this.commentObject, index, comment) })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         deleteComment (cID) {
