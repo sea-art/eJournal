@@ -203,9 +203,9 @@ def make_entry_template(name):
     return entry_template
 
 
-def make_field(template, descrip, loc, type=Field.TEXT):
+def make_field(template, descrip, loc, type=Field.TEXT, required=True):
     """Make a field."""
-    field = Field(type=type, title=descrip, location=loc, template=template)
+    field = Field(type=type, title=descrip, location=loc, template=template, required=required)
     field.save()
     return field
 
@@ -313,7 +313,7 @@ def make_role_teacher(name, course):
     return make_role_default_all_perms(name, course, can_edit_journal=False)
 
 
-def make_entrycomment(entry, author, text, published):
+def make_comment(entry, author, text, published):
     """Make an Entry Comment.
 
     Make an Entry Comment for an entry based on its ID.

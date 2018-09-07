@@ -34,7 +34,7 @@ class CommentView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the course does not exists
+            not found -- when the course does not exist
             forbidden -- when its not their own journal, or the user is not allowed to grade that journal
         On succes:
             success -- with a list of the comments belonging to the entry
@@ -53,7 +53,7 @@ class CommentView(viewsets.ViewSet):
         try:
             entry = Entry.objects.get(pk=entry_id)
         except Entry.DoesNotExist:
-            return response.not_found('Entry')
+            return response.not_found('Entry does not exist.')
 
         if entry.node.journal.user != request.user and \
            not permissions.has_assignment_permission(
@@ -111,7 +111,7 @@ class CommentView(viewsets.ViewSet):
         published = published or not permissions.has_assignment_permission(request.user, assignment,
                                                                            'can_grade_journal')
 
-        comment = factory.make_entrycomment(entry, request.user, text, published)
+        comment = factory.make_comment(entry, request.user, text, published)
         return response.created({'comment': CommentSerializer(comment).data})
 
     def retrieve(self, request, pk=None):
@@ -137,7 +137,7 @@ class CommentView(viewsets.ViewSet):
         try:
             comment = Comment.objects.get(pk=pk)
         except Comment.DoesNotExist:
-            return response.not_found('Comment')
+            return response.not_found('Comment does not exist.')
 
         if comment.entry.node.journal.user != request.user and \
            not permissions.has_assignment_permission(
@@ -160,7 +160,7 @@ class CommentView(viewsets.ViewSet):
         On failure:
             unauthorized -- when the user is not logged in
             keyerror -- when comment_id or text is not set
-            not found -- when the comment does not exists
+            not found -- when the comment does not exist
             forbidden -- when the user is not allowed to comment
             unauthorized -- when the user is unauthorized to edit the assignment
         On success:
