@@ -135,18 +135,17 @@ export default {
             } else {
                 this.selectedGroup = val
                 this.$emit('update:group', val)
-                // TODO Create an update user group api
-                // groupAPI.update(this.cID, {user_id: this.uID, group: this.selectedGroup}).then(_ => {
-                //     if (this.$store.getters['user/uID'] === this.uID) {
-                //         this.$store.dispatch('user/populateStore').then(_ => {
-                //             this.$router.push({name: 'Course', params: {cID: this.cID}})
-                //         }, _ => {
-                //             this.$toasted.error('The website might be out of sync, please login again.')
-                //         })
-                //     }
-                // }, error => {
-                //     this.$toasted.error(error.response.data.description)
-                // })
+                participationAPI.update(this.cID, val, {user_id: this.uID, group: this.selectedGroup}).then(_ => {
+                    if (this.$store.getters['user/uID'] === this.uID) {
+                        this.$store.dispatch('user/populateStore').then(_ => {
+                            this.$router.push({name: 'Course', params: {cID: this.cID}})
+                        }, _ => {
+                            this.$toasted.error('The website might be out of sync, please login again.')
+                        })
+                    }
+                }, error => {
+                    this.$toasted.error(error.response.data.description)
+                })
             }
         }
     },
