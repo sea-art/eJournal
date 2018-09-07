@@ -47,7 +47,6 @@ class ParticipationView(viewsets.ViewSet):
             return response.forbidden('You cannot add participants to this course.')
 
         users = UserSerializer(course.users, context={'course': course}, many=True).data
-
         return response.success({'participants': users})
 
     def create(self, request):
@@ -131,7 +130,6 @@ class ParticipationView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-
         try:
             user_id, = utils.required_params(request.data, 'user_id')
             role_name, = utils.optional_params(request.data, 'role')
@@ -145,9 +143,8 @@ class ParticipationView(viewsets.ViewSet):
             user = User.objects.get(pk=user_id)
             course = Course.objects.get(pk=pk)
             participation = Participation.objects.get(user=user, course=course)
-            group = Group.objects.get(name=group_name, course=course)
-        except (Participation.DoesNotExist, Course.DoesNotExist, User.DoesNotExist, Group.DoesNotExist):
-            return response.not_found('Participation, User, Group or Course does not exists.')
+        except (Participation.DoesNotExist, Course.DoesNotExist, User.DoesNotExist):
+            return response.not_found('Participation, User or Course does not exists.')
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -156,10 +153,20 @@ class ParticipationView(viewsets.ViewSet):
             return response.forbidden('You cannot edit the roles of this course.')
 
         participation.role = Role.objects.get(name=role_name, course=course)
-        participation.group = group
+
+        if group_name:
+            try:
+                group = Group.objects.get(name=group_name, course=course)
+            except (Group.DoesNotExist):
+                return response.not_found('Group does not exists.')
+
+            participation.group = group
+        else:
+            participation.group = None
+
         participation.save()
         serializer = UserSerializer(participation.user, context={'course': course})
-        return response.success({'user': serializer.data}, description='Succesfully updates role')
+        return response.success({'user': serializer.data}, description='Succesfully updated participation')
 
     def destroy(self, request, pk):
         """Remove a user from the course.

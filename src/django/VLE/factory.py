@@ -39,15 +39,16 @@ def make_user(username, password, email, lti_id=None, profile_picture=None,
     return user
 
 
-def make_participation(user=None, course=None, role=None):
+def make_participation(user=None, course=None, role=None, group=None):
     """Create a participation.
 
     Arguments:
     user -- user that participates
     course -- course the user participates in
     role -- role the user has on the course
+    group -- group the user belongs to
     """
-    participation = Participation(user=user, course=course, role=role)
+    participation = Participation(user=user, course=course, role=role, group=group)
     participation.save()
     return participation
 

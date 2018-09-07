@@ -1,6 +1,6 @@
 import auth from '@/api/auth'
 
-export default
+export default {
 
     create (data) {
         return auth.create('groups', data)
@@ -20,9 +20,9 @@ export default
     getAllFromCourse (cID) {
         if (cID) {
             return auth.get('groups', {course_id: cID})
-            .then(response => response.data.groups)
+                .then(response => response.data.groups)
         }
         return auth.get('groups')
-        .then(response => response.data.groups)
-    },
+            .then(response => response.data.groups)
+    }
 }

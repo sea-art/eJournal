@@ -2,7 +2,7 @@
     <div>
         <b-btn class="change-button flex-grow-1 multi-form" v-b-modal="'CourseGroupModal'">Manage Course Groups</b-btn>
 
-        <b-modal id="courseGroupModal"
+        <b-modal id="CourseGroupModal"
                  title="Manage Course Groups"
                  hide-footer
                  >
@@ -37,7 +37,8 @@ export default {
         return {
             form: {
                 groupName: '',
-                groupTA: ''
+                groupTA: '',
+                lti_id: ''
             }
         }
     },
@@ -45,7 +46,8 @@ export default {
         createUserGroup () {
             groupApi.create({
                 name: this.form.groupName,
-                cID: this.cID
+                cID: this.cID,
+                lti_id: this.lti_id
             })
                 .then(group => {
                     this.$emit('create-group', group.name)

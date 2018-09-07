@@ -5,6 +5,7 @@
         <bread-crumb>&nbsp;</bread-crumb>
         <b-card class="no-hover settings-card">
             <h2 class="mb-2">Manage course data</h2>
+
             <b-form @submit.prevent="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                     :readonly="!$hasPermission('can_edit_course')"
@@ -42,11 +43,11 @@
                             <icon name="users"/>
                             Manage Roles and Permissions
                         </b-button>
-                        <b-button v-if="$hasPermission('can_edit_course_group')"
-                            <group-modal :cID="this.cID"
-                                         @create-group="createGroup">
-                            </group-modal>
-                        </b-button>
+                        <group-modal v-if="$hasPermission('can_edit_course')"
+                                     :cID="this.cID"
+                                     @create-group="createGroup">
+                        </group-modal>
+
                         <b-button class="add-button flex-grow-1 multi-form"
                             type="submit"
                             v-if="$hasPermission('can_edit_course')">
@@ -112,8 +113,8 @@
                 :portraitPath="p.profile_picture"
                 :roles="roles"
                 :role.sync="p.role"
-                :group.sync="p.group.name"
-                :groups="courseGroups"/>
+                :group.sync="p.group"
+                :groups="groups"/>
 
             <add-user-card v-if="selectedView === 'unenrolled'"
                 @add-participant="addParticipantLocally"
@@ -140,6 +141,7 @@ import store from '@/Store'
 import icon from 'vue-awesome/components/Icon'
 import courseAPI from '@/api/course'
 import groupAPI from '@/api/group'
+import roleAPI from '@/api/role'
 import participationAPI from '@/api/participation'
 
 export default {
@@ -181,6 +183,10 @@ export default {
         groupAPI.getAllFromCourse(this.cID)
             .then(groups => { this.groups = groups })
             .catch(error => { this.$toasted.error(error.response.data.description) })
+
+        roleAPI.getFromCourse(this.cID)
+            .then(roles => { this.roles = roles })
+            .catch(error => { this.$toated.error(error.response.data.description) })
 
         if (this.$hasPermission('can_view_course_participants')) {
             participationAPI.getEnrolled(this.cID)
@@ -233,7 +239,7 @@ export default {
             })
         },
         createGroup (groupName) {
-            this.courseGroups.push({
+            this.groups.push({
                 'name': groupName
             })
         },
@@ -270,7 +276,7 @@ export default {
                 return 0
             }
 
-            function checkFilter (user) {
+            function searchFilter (user) {
                 var username = user.username.toLowerCase()
                 var fullName = user.first_name.toLowerCase() + ' ' + user.last_name.toLowerCase()
                 var searchVariable = self.searchVariable.toLowerCase()
@@ -284,8 +290,15 @@ export default {
             }
 
             function checkGroup (user) {
-                return (user.group == self.selectedFilterGroupOption ||
-                        user.group.includes(self.selectedFilterGroupOption)
+                if (self.selectedFilterGroupOption){
+                    if (!user.group) {
+                        return user.group === self.selectedFilterGroupOption
+                    } else {
+                        return user.group.includes(self.selectedFilterGroupOption)
+                    }
+                }
+
+                return true
             }
 
             var viewList = this.participants
@@ -306,7 +319,7 @@ export default {
                 viewList = viewList.sort(compareUsername)
             }
 
-            return viewList.filter.filter(checkFilter).filter(checkGroup)
+            return viewList.filter(searchFilter).filter(checkGroup)
         }
     },
     components: {

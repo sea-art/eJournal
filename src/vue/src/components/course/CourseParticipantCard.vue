@@ -21,7 +21,7 @@
                     </b-form-select>
                 </div>
                 <div class="shadow" >
-                    <b-form-select v-if="$hasPermission('can_edit_course_group')"
+                    <b-form-select v-if="$hasPermission('can_edit_course')"
                                    v-model="selectedGroup"
                                    :select-size="1">
                         <option :value="null">No group</option>
@@ -46,7 +46,6 @@
 import icon from 'vue-awesome/components/Icon'
 
 import participationAPI from '@/api/participation'
-import groupAPI from '@/api/group'
 
 export default {
     props: {
@@ -116,7 +115,7 @@ export default {
             } else {
                 this.selectedRole = val
                 this.$emit('update:role', val)
-                participationAPI.update(this.cID, {user_id: this.uID, role: this.selectedRole}).then(_ => {
+                participationAPI.update(this.cID, {user_id: this.uID, role: this.selectedRole, group: this.selectedGroup}).then(_ => {
                     if (this.$store.getters['user/uID'] === this.uID) {
                         this.$store.dispatch('user/populateStore').then(_ => {
                             this.$router.push({name: 'Course', params: {cID: this.cID}})
@@ -135,14 +134,7 @@ export default {
             } else {
                 this.selectedGroup = val
                 this.$emit('update:group', val)
-                participationAPI.update(this.cID, val, {user_id: this.uID, group: this.selectedGroup}).then(_ => {
-                    if (this.$store.getters['user/uID'] === this.uID) {
-                        this.$store.dispatch('user/populateStore').then(_ => {
-                            this.$router.push({name: 'Course', params: {cID: this.cID}})
-                        }, _ => {
-                            this.$toasted.error('The website might be out of sync, please login again.')
-                        })
-                    }
+                participationAPI.update(this.cID, {user_id: this.uID, group: this.selectedGroup, role: this.selectedRole}).then(_ => {
                 }, error => {
                     this.$toasted.error(error.response.data.description)
                 })

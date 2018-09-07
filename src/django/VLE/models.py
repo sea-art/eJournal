@@ -140,10 +140,7 @@ class Group(models.Model):
     - name: the name of the group
     - course: the course where the group belongs to
     """
-    name = models.ForeignKey(
-        'Name',
-        on_delete=models.CASCADE,
-    )
+    name = models.TextField()
 
     course = models.ForeignKey(
         Course,
@@ -152,7 +149,7 @@ class Group(models.Model):
 
     lti_id = models.TextField(
         null=True,
-        unique=True,
+        unique=False,
     )
 
     class Meta:
@@ -233,7 +230,7 @@ class Participation(models.Model):
         Group,
         null=True,
         on_delete=models.CASCADE,
-        defailt=None,
+        default=None,
     )
 
     class Meta:

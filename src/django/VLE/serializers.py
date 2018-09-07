@@ -5,7 +5,7 @@ Functions to convert certain data to other formats.
 """
 from rest_framework import serializers
 from VLE.models import User, Course, Node, Comment, Assignment, Role, Journal, Entry, Template, Field, Content, \
-    JournalFormat, PresetNode, Group
+    JournalFormat, PresetNode, Group, Participation
 import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
 import statistics as st
@@ -14,11 +14,12 @@ import statistics as st
 class UserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
+    group = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ('last_login', 'username', 'first_name', 'last_name', 'is_active', 'email', 'name',
-                  'profile_picture', 'is_teacher', 'lti_id', 'id', 'role', 'verified_email')
+                  'profile_picture', 'is_teacher', 'lti_id', 'id', 'role', 'verified_email', 'group')
         read_only_fields = ('id', )
 
     def get_name(self, user):
@@ -29,6 +30,16 @@ class UserSerializer(serializers.ModelSerializer):
             return None
 
         return permissions.get_role(user, self.context['course']).name
+
+    def get_group(self, user):
+        if 'course' not in self.context:
+            return None
+
+        group = Participation.objects.get(user=user, course=self.context['course']).group
+        if group:
+            return group.name
+        else:
+            return None
 
 
 # TODO: Merge userSerializer and OwnUserSerializer

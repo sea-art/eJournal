@@ -51,7 +51,8 @@ class GroupView(viewsets.ViewSet):
             if role is None:
                 return response.forbidden('You are not in this course.')
 
-            queryset = Group.objects.filter(courses=course)
+            if role.can_edit_course:
+                queryset = Group.objects.filter(course=course)
             serializer = self.serializer_class(queryset, many=True, context={'user': request.user, 'course': course})
         else:
             return self.upcoming()
@@ -84,24 +85,30 @@ class GroupView(viewsets.ViewSet):
             return response.keyerror("name", "cID")
 
         # TODO Look for which permission check is better
-        # role = permissions.get_role(user, cID)
-        # if not role.can_add_course_user_group:
-        #     return response.forbidden("You have no permissions to create a course group.")
-        perm = permissions.get_permissions(request.user)
-        if not perm['can_add_course_group']:
-            return response.forbidden('You have no permissions to create a course.')
+        role = permissions.get_role(user, cID)
+        if not role.can_edit_course:
+            return response.forbidden("You have no permissions to create a course group.")
+        # perm = permissions.get_permissions(request.user)
+        # if not perm['can_edit_course']:
+        #     return response.forbidden('You have no permissions to create a group.')
 
         try:
             course = Course.objects.get(pk=cID)
         except Course.DoesNotExist:
             return response.not_found('Course does not exist.')
 
-        if Group.objects.get(name=name, course=course):
-            return response.bad_request('Course group already exists')
-        else:
-            course_group = factory.make_course_group(name, course, lti_id)
+        # if Group.objects.get(name=name, course=course):
+        #     return response.bad_request('Course group already exists')
+        # else:
+        #     course_group = factory.make_course_group(name, course, lti_id)
 
-        return response.created(payload={'course': serialize.group_to_dict(course_group)})
+        try:
+            Group.objects.get(name=name, course=course)
+            return response.bad_request('Course group already exists')
+        except Group.DoesNotExist:
+            course_group = factory.make_course_group(name, course, lti_id)
+            serializer = self.serializer_class(course_group, many=False)
+            return response.created({'group': serializer.data})
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing course group.
@@ -135,7 +142,7 @@ class GroupView(viewsets.ViewSet):
         role = permissions.get_role(request.user, course)
         if role is None:
             return response.forbidden('You are not in this course.')
-        elif not role.can_edit_course_group:
+        elif not role.can_edit_course:
             return response.unauthorized('You are unauthorized to edit this course group.')
 
         if Group.objects.get(name=request.data['name'], course=course):
