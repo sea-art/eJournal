@@ -538,6 +538,7 @@ class Field(models.Model):
         'Template',
         on_delete=models.CASCADE
     )
+    required = models.BooleanField()
 
     def __str__(self):
         """toString."""
@@ -560,7 +561,9 @@ class Content(models.Model):
         null=True
     )
     # TODO Consider a size limit 10MB unencoded posts? so 10 * 1024 * 1024 * 1.37?
-    data = models.TextField()
+    data = models.TextField(
+        null=True
+    )
 
 
 class Comment(models.Model):
