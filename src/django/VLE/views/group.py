@@ -17,6 +17,47 @@ import VLE.factory as factory
 class GroupView(viewsets.ViewSet):
     serializer_class = serialize.GroupSerializer
 
+    def list(self, request):
+        """Get the groups from a course for the user.
+
+        Arguments:
+        request -- request data
+            course_id -- course ID
+
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+            not found -- when the course does not exists
+            forbidden -- when the user is not part of the course
+        On succes:
+            success -- with the group data
+
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+
+        try:
+            course_id = int(request.query_params['course_id'])
+        except (KeyError, ValueError):
+            course_id = None
+        try:
+            if course_id:
+                course = Course.objects.get(pk=course_id)
+        except Course.DoesNotExist:
+            return response.not_found('Course')
+
+        if course_id:
+            role = permissions.get_role(request.user, course)
+            if role is None:
+                return response.forbidden('You are not in this course.')
+
+            queryset = Group.objects.filter(courses=course)
+            serializer = self.serializer_class(queryset, many=True, context={'user': request.user, 'course': course})
+        else:
+            return self.upcoming()
+
+        return response.success({'groups': serializer.data})
+
     def create(self, request):
         """Create a new course group.
 
@@ -106,40 +147,40 @@ class GroupView(viewsets.ViewSet):
         serializer.save()
         return response.success({'group': serializer.data})
 
-        def destroy(self, request, *args, **kwargs):
-            """Delete an existing course group.
+    def destroy(self, request, *args, **kwargs):
+        """Delete an existing course group.
 
-            Arguments:
-            request -- request data
-            pk -- course ID
+        Arguments:
+        request -- request data
+        pk -- course ID
 
-            Returns:
-            On failure:
-                not found -- when the course does not exists
-                unauthorized -- when the user is not logged in
-                forbidden -- when the user is not in the course
-            On success:
-                success -- with a message that the course group was deleted
-            """
-            if not request.user.is_authenticated:
-                return response.unauthorized()
-            pk = kwargs.get('pk')
+        Returns:
+        On failure:
+            not found -- when the course does not exists
+            unauthorized -- when the user is not logged in
+            forbidden -- when the user is not in the course
+        On success:
+            success -- with a message that the course group was deleted
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+        pk = kwargs.get('pk')
 
-            try:
-                course = Course.objects.get(pk=pk)
-            except Course.DoesNotExist:
-                return response.not_found('course')
+        try:
+            course = Course.objects.get(pk=pk)
+        except Course.DoesNotExist:
+            return response.not_found('course')
 
-            role = permissions.get_role(request.user, pk)
-            if role is None:
-                return response.unauthorized(description="You are unauthorized to view this course.")
-            elif not role.can_delete_course:
-                return response.forbidden(description="You are unauthorized to delete this course group.")
+        role = permissions.get_role(request.user, pk)
+        if role is None:
+            return response.unauthorized(description="You are unauthorized to view this course.")
+        elif not role.can_delete_course:
+            return response.forbidden(description="You are unauthorized to delete this course group.")
 
-            try:
-                group = Group.objects.get(name=request.data['name'], course=course)
-            except Group.DoesNotExist:
-                response.not_found('group')
+        try:
+            group = Group.objects.get(name=request.data['name'], course=course)
+        except Group.DoesNotExist:
+            response.not_found('group')
 
-            group.delete()
-            return response.success(description='Sucesfully deleted course group.')
+        group.delete()
+        return response.success(description='Sucesfully deleted course group.')
