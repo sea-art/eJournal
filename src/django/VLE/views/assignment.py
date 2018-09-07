@@ -67,7 +67,7 @@ class AssignmentView(viewsets.ViewSet):
                 queryset = Assignment.objects.filter(courses=course, journal__user=request.user)
             serializer = AssignmentSerializer(queryset, many=True, context={'user': request.user, 'course': course})
         else:
-            return self.upcomming()
+            return self.upcoming()
 
         return response.success({'assignments': serializer.data})
 
