@@ -270,6 +270,11 @@ export default {
             }
 
             return false
+        },
+        compare (a, b) {
+            if (a < b) { return -1 }
+            if (a > b) { return 1 }
+            return 0
         }
     },
     components: {
@@ -288,24 +293,15 @@ export default {
             let self = this
 
             function compareFullName (a, b) {
-                var fullNameA = a.student.first_name + ' ' + a.student.last_name
-                var fullNameB = b.student.first_name + ' ' + b.student.last_name
-
-                if (fullNameA < fullNameB) { return -1 }
-                if (fullNameA > fullNameB) { return 1 }
-                return 0
+                return self.compare(a.student.name, b.student.name)
             }
 
             function compareUsername (a, b) {
-                if (a.student.username < b.student.username) { return -1 }
-                if (a.student.username > b.student.username) { return 1 }
-                return 0
+                return self.compare(a.student.username, b.student.username)
             }
 
             function compareMarkingNeeded (a, b) {
-                if (a.stats.submitted - a.stats.graded < b.stats.submitted - b.stats.graded) { return -1 }
-                if (a.stats.submitted - a.stats.graded > b.stats.submitted - b.stats.graded) { return 1 }
-                return 0
+                return self.compare(a.stats.submitted - a.stats.graded, b.stats.submitted - b.stats.graded)
             }
 
             function checkFilter (user) {
@@ -313,12 +309,8 @@ export default {
                 var fullName = user.student.name
                 var searchVariable = self.searchVariable.toLowerCase()
 
-                if (username.includes(searchVariable) ||
-                    fullName.includes(searchVariable)) {
-                    return true
-                } else {
-                    return false
-                }
+                return username.includes(searchVariable) ||
+                       fullName.includes(searchVariable)
             }
 
             if (store.state.filteredJournals.length === 0) {
@@ -348,7 +340,6 @@ export default {
 
             return this.filteredJournals[nextIndex]
         }
-
     }
 }
 </script>
