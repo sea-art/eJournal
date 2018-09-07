@@ -49,21 +49,16 @@ export default {
             if (this.comparePoints === -1) {
                 return null
             }
-            var message
-            if (this.$hasPermission('can_grade_journal')) {
-                message = 'This student is '
-            } else {
-                message = 'You are '
-            }
+            var message = ''
             // On average
             if (this.difference === 0) {
                 message += 'on average.'
             } else {
                 // Ahead or behind
                 if (this.comparePoints <= this.currentPoints) {
-                    message += 'compared to the average ahead by '
+                    message += 'ahead of average by '
                 } else {
-                    message += 'compared to the average behind by '
+                    message += 'behind average by '
                 }
                 // Multiple or only 1 points
                 if (this.difference === 1) {
