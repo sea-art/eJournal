@@ -90,11 +90,11 @@ def get_graded_count(entries):
 
 
 def get_published_count(entries):
-    """Count the number of graded entries.
+    """Count the number of published entries.
 
     - entries: the entries to count with.
 
-    Returns the graded entry count.
+    Returns the published entry count.
     """
     return entries.filter(published=True).count()
 # END journal stat functions

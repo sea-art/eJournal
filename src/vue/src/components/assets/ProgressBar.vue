@@ -33,11 +33,6 @@ export default {
             default: -1
         }
     },
-    data () {
-        return {
-            aheadClass: 'ahead'
-        }
-    },
     computed: {
         progressPercentage () {
             return (this.currentPoints / this.totalPoints * 100).toFixed(0)
@@ -50,21 +45,21 @@ export default {
                 return null
             }
             var message = ''
+
             // On average
             if (this.difference === 0) {
-                message += 'on average.'
+                message += 'Equal to the average.'
             } else {
+                if (this.difference === 1) {
+                    message += '1 point '
+                } else {
+                    message += this.difference + ' points '
+                }
                 // Ahead or behind
                 if (this.comparePoints <= this.currentPoints) {
-                    message += 'ahead of average by '
+                    message += 'above average.'
                 } else {
-                    message += 'behind average by '
-                }
-                // Multiple or only 1 points
-                if (this.difference === 1) {
-                    message += '1 point.'
-                } else {
-                    message += this.difference + ' points.'
+                    message += 'below average.'
                 }
             }
             return message

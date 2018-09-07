@@ -1,13 +1,11 @@
 <template>
     <b-card :class="$root.getBorderClass($route.params.cID)">
         <b-row>
-            <b-col order="1" cols="4">
-                <img class="img-fluid student-card-portrait" :src="student.profile_picture">
-            </b-col>
-            <b-col order="2" cols="8">
+            <b-col order="1" cols="12">
                 <todo-square v-if="numMarkingNeeded > 0 && !hideTodo" class="float-right" :num="numMarkingNeeded"/>
+                <img class="img-fluid student-card-portrait" :src="student.profile_picture">
                 <b>{{ student.first_name + ' ' + student.last_name }}</b><br/>
-                {{ student.username }}<br/><br/>
+                {{ student.username }}
                 <progress-bar v-if="!fullWidthProgress || $root.mdMax()" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
             </b-col>
         </b-row>
@@ -61,6 +59,7 @@ export default {
     @extend .shadow
     border-radius: 50% !important
     display: block
-    margin: auto
-    max-height: 150px
+    margin: auto 32px 10px auto
+    max-height: 60px
+    float: left
 </style>
