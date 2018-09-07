@@ -34,30 +34,25 @@ run-back:
 	bash -c "source ./venv/bin/activate && python3.6 ./src/django/manage.py runserver && deactivate"
 
 setup:
-	@make clean
+	@echo "This operation will clean old files, press enter to continue (ctrl+c to cancel)"
+	@read -r a
+	make setup-no-input
 
+setup-no-input:
+	@make clean
 	# Install apt dependencies and ppa's.
 	(sudo apt-cache show python3.6 | grep "Package: python3.6") || \
 	(sudo add-apt-repository ppa:deadsnakes/ppa -y; sudo apt update) || echo "0"
 	sudo apt install npm nodejs git-flow python3.6 python3-pip pep8 sqlite3 -y
-
-	# Install dependencies for python (django, etc).
 	sudo pip3 install virtualenv
-	virtualenv -p python3.6 venv
-	bash -c '\
-		source ./venv/bin/activate && \
-		pip install git+https://github.com/joestump/python-oauth2.git && \
-		pip install -r requirements.txt'
 
-	# Install nodejs dependencies.
-	npm install --prefix ./src/vue
-
-	# Initialize the database
-	make fill-db
+	make reset
 
 	@echo "DONE!"
 
 reset:
+	@echo "This operation will clean old files, press enter to continue (ctrl+c to cancel)"
+	@read -r a
 	@make clean
 
 	# Reinstall venv packages
@@ -96,8 +91,6 @@ default:
 	make test
 
 clean:
-	@echo "Are you sure you want to clean older installed files? (ctrl+c to cancel)"
-	@read -r a
 	rm -rf ./venv
 	rm -rf ./src/vue/node_modules
 	rm -rf ./src/django/VLE/migrations
