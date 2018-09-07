@@ -21,7 +21,7 @@ class ParticipationView(viewsets.ViewSet):
         On failure:
             unauthorized -- when the user is not logged in
             keyerror -- when course_id is not set as a parameter
-            not found -- when the course does not exists
+            not found -- when the course does not exist
             forbidden -- when the user is not in the course
             forbidden -- when the user is unauthorized to view its participants
         On success:
@@ -38,7 +38,7 @@ class ParticipationView(viewsets.ViewSet):
         try:
             course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
-            return response.not_found('Course')
+            return response.not_found('Course does not exist.')
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -84,7 +84,7 @@ class ParticipationView(viewsets.ViewSet):
             user = User.objects.get(pk=user_id)
             course = Course.objects.get(pk=course_id)
         except (User.DoesNotExist, Course.DoesNotExist):
-            return response.not_found('user or course')
+            return response.not_found('User or course does not exist.')
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -98,7 +98,7 @@ class ParticipationView(viewsets.ViewSet):
         try:
             role = Role.objects.get(name=role_name, course=course)
         except Role.DoesNotExist:
-            return response.not_found('role_name')
+            return response.not_found('Role does not exist.')
 
         factory.make_participation(user, course, role)
 
@@ -201,7 +201,7 @@ class ParticipationView(viewsets.ViewSet):
         On failure:
             unauthorized -- when the user is not logged in
             keyerror -- when course_id is not set as a parameter
-            not found -- when the course does not exists
+            not found -- when the course does not exist
             forbidden -- when the user is not in the course
             forbidden -- when the user is unauthorized to view its participants
         On success:
@@ -218,7 +218,7 @@ class ParticipationView(viewsets.ViewSet):
         try:
             course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
-            return response.not_found('Course')
+            return response.not_found('Course does not exist.')
 
         role = permissions.get_role(request.user, course)
         if role is None:
