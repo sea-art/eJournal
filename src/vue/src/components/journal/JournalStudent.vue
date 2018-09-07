@@ -49,13 +49,16 @@
                 <b-col md="6" lg="12">
                     <h3>Description</h3>
                     <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-                        <div v-html="assignmentDescription"/>
+                        <div v-html="assignment.description"/>
                     </b-card>
                 </b-col>
                 <b-col md="6" lg="12">
                     <h3>Progress</h3>
                     <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-                        <progress-bar v-if="journal.stats" :currentPoints="journal.stats.acquired_points" :totalPoints="journal.stats.total_points"/>
+                        <progress-bar v-if="journal.stats"
+                                      :currentPoints="journal.stats.acquired_points"
+                                      :totalPoints="journal.stats.total_points"
+                                      :comparePoints="assignment.stats.average_points" />
                     </b-card>
                 </b-col>
             </b-row>
@@ -86,7 +89,7 @@ export default {
             journal: {},
             progressNodes: {},
             progressPointsLeft: 0,
-            assignmentDescription: ''
+            assignment: ''
         }
     },
     created () {
@@ -112,7 +115,7 @@ export default {
             .catch(_ => this.$toasted.error('Error while loading journal data.'))
 
         assignmentAPI.get(this.aID, this.cID)
-            .then(data => { this.assignmentDescription = data.description })
+            .then(assignment => { this.assignment = assignment })
             .catch(_ => this.$toasted.error('Error while loading assignment description.'))
     },
     watch: {
