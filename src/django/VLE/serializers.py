@@ -111,6 +111,8 @@ class AssignmentSerializer(serializers.ModelSerializer):
         stats = {}
         if permissions.has_assignment_permission(self.context['user'], assignment, 'can_grade_journal'):
             stats['needs_marking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
+            stats['unpublished'] = sum([x['stats']['submitted'] - x['stats']['published']
+                                        for x in journals]) - stats['needs_marking']
         points = [x['stats']['acquired_points'] for x in journals]
         stats['average_points'] = round(st.mean(points), 2)
         return stats
@@ -166,6 +168,7 @@ class JournalSerializer(serializers.ModelSerializer):
         return {
             'acquired_points': utils.get_acquired_points(entries),
             'graded': utils.get_graded_count(entries),
+            'published': utils.get_published_count(entries),
             'submitted': utils.get_submitted_count(entries),
             'total_points': utils.get_max_points(journal),
         }

@@ -44,8 +44,9 @@
 
         <div v-if="stats" slot="right-content-column">
             <h3>Insights</h3>
-            <statistics-card :subject="'Needs marking'" :num="stats.needs_marking"></statistics-card>
-            <statistics-card :subject="'Average points'" :num="stats.average_points"></statistics-card>
+            <statistics-card :subject="'Needs marking'" :num="stats.needs_marking"/>
+            <statistics-card :subject="'Unpublished grades'" :num="stats.unpublished"/>
+            <statistics-card :subject="'Average points'" :num="stats.average_points"/>
         </div>
     </content-columns>
 </template>
