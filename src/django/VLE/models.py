@@ -587,3 +587,7 @@ class Comment(models.Model):
     published = models.BooleanField(
         default=True
     )
+    last_edited = models.DateTimeField(
+        default=None,
+        null=True
+    )
