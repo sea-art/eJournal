@@ -37,7 +37,6 @@
 import ContentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import icon from 'vue-awesome/components/Icon'
 import draggable from 'vuedraggable'
-import Switch from '@/components/assets/SwitchComponent.vue'
 
 export default {
     props: {
@@ -61,8 +60,7 @@ export default {
     components: {
         'content-single-column': ContentSingleColumn,
         icon,
-        'draggable': draggable,
-        'toggle-switch': Switch
+        'draggable': draggable
     },
     methods: {
         updateLocations () {

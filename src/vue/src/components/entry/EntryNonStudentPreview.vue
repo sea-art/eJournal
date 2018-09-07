@@ -178,9 +178,3 @@ export default {
     }
 }
 </script>
-
-<style lang="sass">
-.sticky
-    position: sticky
-    top: 10px
-</style>
