@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from VLE.models import Course, User, Role, Journal, Participation
+from VLE.models import Course, User, Role, Journal, Participation, Group
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.factory as factory
@@ -135,6 +135,7 @@ class ParticipationView(viewsets.ViewSet):
         try:
             user_id, = utils.required_params(request.data, 'user_id')
             role_name, = utils.optional_params(request.data, 'role')
+            group_name, = utils.optional_params(request.data, 'group')
             if not role_name:
                 role_name = 'Student'
         except KeyError:
@@ -144,8 +145,9 @@ class ParticipationView(viewsets.ViewSet):
             user = User.objects.get(pk=user_id)
             course = Course.objects.get(pk=pk)
             participation = Participation.objects.get(user=user, course=course)
-        except (Participation.DoesNotExist, Course.DoesNotExist, User.DoesNotExist):
-            return response.not_found('Participation, User or Course does not exists.')
+            group = Group.objects.get(name=group_name, course=course)
+        except (Participation.DoesNotExist, Course.DoesNotExist, User.DoesNotExist, Group.DoesNotExist):
+            return response.not_found('Participation, User, Group or Course does not exists.')
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -154,6 +156,7 @@ class ParticipationView(viewsets.ViewSet):
             return response.forbidden('You cannot edit the roles of this course.')
 
         participation.role = Role.objects.get(name=role_name, course=course)
+        participation.group = group
         participation.save()
         serializer = UserSerializer(participation.user, context={'course': course})
         return response.success({'user': serializer.data}, description='Succesfully updates role')
