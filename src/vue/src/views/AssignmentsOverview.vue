@@ -4,16 +4,27 @@
 
         <b-card class="no-hover">
                 <b-row>
-                    <b-col sm="6">
-                        <b-form-select v-model="selectedSortOption" :select-size="1">
+                    <b-col sm="12">
+                        <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
+                    </b-col>
+                    <b-col sm="8">
+                        <b-form-select class="multi-form" v-model="selectedSortOption" :select-size="1">
+                           <option>Sort by...</option>
                            <option value="sortDate">Sort by date</option>
                            <option value="sortName">Sort by name</option>
                            <option v-if="$hasPermission('can_add_course')"
                                    value="sortNeedsMarking">Sort by marking needed</option>
                         </b-form-select>
                     </b-col>
-                    <b-col sm="6">
-                        <input class="theme-input full-width" type="text" v-model="searchVariable" placeholder="Search..."/>
+                    <b-col sm="4">
+                        <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button full-width multi-form">
+                            <icon name="long-arrow-down"/>
+                            Ascending
+                        </b-button>
+                        <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="button full-width multi-form">
+                            <icon name="long-arrow-up"/>
+                            Descending
+                        </b-button>
                     </b-col>
                 </b-row>
         </b-card>
@@ -32,6 +43,7 @@ import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import mainCard from '@/components/assets/MainCard.vue'
 import todoCard from '@/components/assets/TodoCard.vue'
 
+import icon from 'vue-awesome/components/Icon'
 import assignmentAPI from '@/api/assignment'
 
 export default {
@@ -40,8 +52,8 @@ export default {
         return {
             deadlines: [],
             selectedSortOption: 'sortDate',
-            searchVariable: ''
-
+            searchVariable: '',
+            order: false
         }
     },
     created () {
@@ -53,6 +65,7 @@ export default {
         'content-single-column': contentSingleColumn,
         'bread-crumb': breadCrumb,
         'main-card': mainCard,
+        icon,
         'todo-card': todoCard
     },
     methods: {
@@ -70,6 +83,14 @@ export default {
             }
 
             return route
+        },
+        compare (a, b) {
+            if (a < b) { return this.order ? 1 : -1 }
+            if (a > b) { return this.order ? -1 : 1 }
+            return 0
+        },
+        toggleOrder () {
+            this.order = !this.order
         }
     },
     computed: {
@@ -77,25 +98,21 @@ export default {
             let self = this
 
             function compareName (a, b) {
-                if (a.name < b.name) { return -1 }
-                if (a.name > b.name) { return 1 }
-                return 0
+                return self.compare(a.name, b.name)
             }
 
             function compareDate (a, b) {
-                return new Date(a.deadline) - new Date(b.deadline)
+                return self.compare(new Date(a.deadline), new Date(b.deadline))
             }
 
             function compareMarkingNeeded (a, b) {
-                if (a.stats.needs_marking > b.stats.needs_marking) { return -1 }
-                if (a.stats.needs_marking < b.stats.needs_marking) { return 1 }
-                return 0
+                return self.compare(a.stats.needs_marking, b.stats.needs_marking)
             }
 
             function searchFilter (assignment) {
                 var searchVariable = self.searchVariable.toLowerCase()
-                return (assignment.name.toLowerCase().includes(searchVariable) ||
-                        assignment.course.abbreviation.toLowerCase().includes(searchVariable))
+                return assignment.name.toLowerCase().includes(searchVariable) ||
+                       assignment.course.abbreviation.toLowerCase().includes(searchVariable)
             }
 
             if (this.selectedSortOption === 'sortName') {

@@ -4,20 +4,30 @@
         <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
         <b-card slot="main-content-column" class="no-hover settings-card">
             <b-row>
-                <b-col sm="6">
+                <b-col sm="12">
+                    <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
+                </b-col>
+                <b-col sm="8">
                     <b-form-select class="multi-form" v-model="selectedSortOption" :select-size="1">
                        <option value="sortFullName">Sort by name</option>
                        <option value="sortUsername">Sort by username</option>
                        <option value="sortMarking">Sort by marking needed</option>
                     </b-form-select>
                 </b-col>
-                <b-col sm="6">
-                    <input class="theme-input multi-form full-width" type="text" v-model="searchVariable" placeholder="Search..."/>
+                <b-col sm="4">
+                    <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button full-width multi-form">
+                        <icon name="long-arrow-down"/>
+                        Ascending
+                    </b-button>
+                    <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="button full-width multi-form">
+                        <icon name="long-arrow-up"/>
+                        Descending
+                    </b-button>
                 </b-col>
             </b-row>
             <b-button
                 v-if="$hasPermission('can_publish_assignment_grades')"
-                class="add-button"
+                class="add-button full-width"
                 @click="publishGradesAssignment">
                 <icon name="upload"/>
                 Publish all Grades for this Assignment
@@ -79,7 +89,8 @@ export default {
             stats: [],
             selectedSortOption: 'sortUsername',
             searchVariable: '',
-            query: {}
+            query: {},
+            order: false
         }
     },
     components: {
@@ -160,6 +171,14 @@ export default {
             if (this.$route.query !== this.query) {
                 this.$router.replace({ query: this.query })
             }
+        },
+        compare (a, b) {
+            if (a < b) { return this.order ? 1 : -1 }
+            if (a > b) { return this.order ? -1 : 1 }
+            return 0
+        },
+        toggleOrder () {
+            this.order = !this.order
         }
     },
     computed: {
@@ -167,37 +186,24 @@ export default {
             let self = this
 
             function compareFullName (a, b) {
-                var fullNameA = a.student.first_name + ' ' + a.student.last_name
-                var fullNameB = b.student.first_name + ' ' + b.student.last_name
-
-                if (fullNameA < fullNameB) { return -1 }
-                if (fullNameA > fullNameB) { return 1 }
-                return 0
+                return self.compare(a.student.name, b.student.name)
             }
 
             function compareUsername (a, b) {
-                if (a.student.username < b.student.username) { return -1 }
-                if (a.student.username > b.student.username) { return 1 }
-                return 0
+                return self.compare(a.student.username, b.student.username)
             }
 
             function compareMarkingNeeded (a, b) {
-                if (a.stats.submitted - a.stats.graded < b.stats.submitted - b.stats.graded) { return 1 }
-                if (a.stats.submitted - a.stats.graded > b.stats.submitted - b.stats.graded) { return -1 }
-                return 0
+                return self.compare(a.stats.submitted - a.stats.graded, b.stats.submitted - b.stats.graded)
             }
 
             function checkFilter (user) {
                 var username = user.student.username.toLowerCase()
-                var fullName = user.student.first_name.toLowerCase() + ' ' + user.student.last_name.toLowerCase()
+                var fullName = user.student.name
                 var searchVariable = self.searchVariable.toLowerCase()
 
-                if (username.includes(searchVariable) ||
-                    fullName.includes(searchVariable)) {
-                    return true
-                } else {
-                    return false
-                }
+                return username.includes(searchVariable) ||
+                       fullName.includes(searchVariable)
             }
 
             /* Filter list based on search input. */

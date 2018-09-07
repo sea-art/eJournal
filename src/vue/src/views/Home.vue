@@ -35,7 +35,7 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.stats ? null : d.journal)">
+            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal)">
                 <todo-card :deadline="d"/>
             </b-link>
         </div>
