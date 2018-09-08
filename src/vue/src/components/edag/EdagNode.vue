@@ -12,9 +12,8 @@
             <edag-node-date :date="node.deadline" :selected="selected"/>
         </b-col>
         <b-col cols="4" sm="5" class="d-flex h-100 align-items-center justify-content-center">
-            <div class="time-line"></div>
-            <edag-node-circle v-if="node.type == 'a'" @click.native="$emit('select-node', index)" style="position: absolute" :type="node.type" :selected="selected" :nodeState="'addNode'"></edag-node-circle>
-            <edag-node-circle v-else @click.native="$emit('select-node', index)" style="position: absolute" :type="node.type" :text="node.target" :selected="selected" :nodeState="nodeState()"></edag-node-circle>
+            <div class="time-line" :class="timeLineClass"></div>
+            <edag-node-circle @click.native="$emit('select-node', index)" class="position-absolute" :type="node.type" :text="node.target" :selected="selected" :nodeState="nodeState()"></edag-node-circle>
         </b-col>
         <b-col cols="4" sm="1"/>
     </b-row>
@@ -25,7 +24,7 @@ import edagNodeCircle from '@/components/edag/EdagNodeCircle.vue'
 import edagNodeDate from '@/components/edag/EdagNodeDate.vue'
 
 export default {
-    props: ['node', 'selected', 'index', 'edit'],
+    props: ['node', 'selected', 'index', 'last', 'edit'],
     components: {
         'edag-node-date': edagNodeDate,
         'edag-node-circle': edagNodeCircle
@@ -36,16 +35,21 @@ export default {
             var deadline = new Date(this.node.deadline)
 
             return currentDate > deadline
+        },
+        timeLineClass () {
+            return {
+                'top': this.index === -1,
+                'bottom': this.last
+            }
         }
     },
     methods: {
         nodeState () {
-            if (this.node.type === '') {
-
-            }
-            if (this.edit ||
-                this.node.type === 'p' ||
-                this.node.type === 'a') {
+            if (this.node.type === 's') {
+                return 'start'
+            } else if (this.node.type === 'a') {
+                return 'add'
+            } else if (this.edit || this.node.type === 'p') {
                 return ''
             }
 
@@ -54,24 +58,15 @@ export default {
 
             if (entry && entry.published) {
                 return 'graded'
-            }
-
-            if (!entry && this.deadlineHasPassed) {
+            } else if (!entry && this.deadlineHasPassed) {
                 return 'failed'
-            }
-            if (!entry && !this.deadlineHasPassed) {
+            } else if (!entry && !this.deadlineHasPassed) {
                 return 'empty'
-            }
-
-            if (!isGrader && entry && !entry.published) {
+            } else if (!isGrader && entry && !entry.published) {
                 return 'awaiting_grade'
-            }
-
-            if (isGrader && entry && !entry.grade) {
+            } else if (isGrader && entry && !entry.grade) {
                 return 'needs_grading'
-            }
-
-            if (isGrader && entry && !entry.published) {
+            } else if (isGrader && entry && !entry.published) {
                 return 'needs_publishing'
             }
 
@@ -89,6 +84,12 @@ export default {
     .time-line
         position: absolute
         width: 5px
-        height: 100px
         background-color: $theme-medium-grey
+        height: 100px
+        &.top
+            height: 50px
+            top: 50px
+        &.bottom
+            height: 50px
+            bottom: 50px
 </style>

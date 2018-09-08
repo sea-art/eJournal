@@ -20,6 +20,7 @@ export default {
     computed: {
         nodeClass () {
             return {
+                'enc-start': this.type === 's',
                 'enc-entry': this.type === 'e',
                 'enc-deadline': this.type === 'd',
                 'enc-progress': this.type === 'p',
@@ -39,8 +40,10 @@ export default {
                 return 'exclamation'
             case 'needs_publishing':
                 return 'eye'
-            case 'addNode':
+            case 'add':
                 return 'plus'
+            case 'start':
+                return 'flag'
             }
 
             return 'calendar'
@@ -119,6 +122,8 @@ export default {
         height: 55px
     &.enc-entry, &.enc-deadline
         background-color: $theme-medium-grey
+    &.enc-start
+        background-color: $theme-green
     &.enc-add
         background-color: $theme-blue
     &.enc-progress

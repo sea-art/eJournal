@@ -21,16 +21,23 @@
                 . -->
                 <selected-node-card
                     :class="{ 'input-disabled' : saveRequestInFlight }"
-                    v-if="nodes.length > 0"
+                    v-if="nodes.length > 0 && currentNode != -1"
                     ref="entry-template-card"
                     :currentPreset="nodes[currentNode]"
                     :templates="templatePool"
                     @deadline-changed="sortList"
                     @delete-preset="deletePreset"
                     @changed="isChanged = true"/>
+
+                <assignment-details-card
+                    :class="{ 'input-disabled' : saveRequestInFlight }"
+                    v-else-if="currentNode === -1"
+                    :assignmentDetails="assignmentDetails"
+                    @changed="isChanged = true"/>
+
                 <main-card v-else class="no-hover" :line1="'No presets in format'" :class="'grey-border'"/>
 
-                <b-button :class="{ 'input-disabled' : saveRequestInFlight }" class="add-button grey-background full-width" @click="addNode">
+                <b-button :class="{ 'input-disabled' : saveRequestInFlight }" class="add-button grey-background full-width mb-4" @click="addNode">
                     <icon name="plus"/>
                     Add New Preset to Format
                 </b-button>
@@ -38,13 +45,9 @@
                 <b-modal
                     ref="modal"
                     size="lg"
-                    ok-only
-                    hide-header>
-                        <span slot="modal-ok">
-                            Back
-                        </span>
-                        <template-editor :template="templateBeingEdited">
-                        </template-editor>
+                    hide-header
+                    hide-footer>
+                        <template-editor :template="templateBeingEdited"/>
                 </b-modal>
             </b-col>
         </b-col>
@@ -54,7 +57,7 @@
                 <b-col md="6" lg="12">
                     <h3>Assignment Format</h3>
                     <div :class="{ 'input-disabled' : saveRequestInFlight }">
-                        <b-card class="no-hover settings-card mb-4" :class="$root.getBorderClass($route.params.cID)">
+                        <b-card class="no-hover settings-card mb-4">
                             <div class="point-maximum multi-form">
                                 <b>Point Maximum</b>
                                 <input class="theme-input" v-model="max_points" placeholder="Points" type="number">
@@ -75,6 +78,7 @@
                             Create New Template
                         </b-button>
                     </div>
+                    {{ assignmentDetails }}
                 </b-col>
             </b-row>
         </b-col>
@@ -87,11 +91,12 @@ import contentColumns from '@/components/columns/ContentColumns.vue'
 import mainCard from '@/components/assets/MainCard.vue'
 import edag from '@/components/edag/Edag.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import FormatEditAssignmentDetailsCard from '@/components/format/FormatEditAssignmentDetailsCard.vue'
 import formatEditAvailableTemplateCard from '@/components/format/FormatEditAvailableTemplateCard.vue'
 import formatEditSelectTemplateCard from '@/components/format/FormatEditSelectTemplateCard.vue'
-import formatAPI from '@/api/format.js'
 import templateEdit from '@/components/template/TemplateEdit.vue'
 import icon from 'vue-awesome/components/Icon'
+import formatAPI from '@/api/format.js'
 
 export default {
     name: 'FormatEdit',
@@ -110,9 +115,11 @@ export default {
         return {
             currentNode: 0,
 
+            assignmentDetails: {},
+
             templates: [],
             presets: [],
-            unused_templates: [],
+            unusedTemplates: [],
 
             templatePool: [],
             nodes: [],
@@ -221,6 +228,7 @@ export default {
         },
         // Do client side validation and save to DB
         saveFormat () {
+            var missingAssignmentName = false
             var missingPointMax = false
 
             var invalidDate = false
@@ -233,6 +241,11 @@ export default {
             var templatePoolIds = []
             for (var template of this.templatePool) {
                 templatePoolIds.push(template.t.id)
+            }
+
+            if (!/\S/.test(this.assignmentDetails.name)) {
+                missingAssignmentName = true
+                this.$toasted.error('Assignment name is missing. Please check the format and try again.')
             }
 
             if (!missingPointMax && isNaN(parseInt(this.max_points))) {
@@ -267,17 +280,18 @@ export default {
                 }
             }
 
-            if (missingPointMax | invalidDate | invalidTemplate | invalidTarget | targetsOutOfOrder) {
+            if (missingAssignmentName | missingPointMax | invalidDate | invalidTemplate | invalidTarget | targetsOutOfOrder) {
                 return
             }
 
             this.saveRequestInFlight = true
             this.convertToDB()
             formatAPI.update(this.aID, {
+                'assignment_details': this.assignmentDetails,
                 'templates': this.templates,
                 'max_points': this.max_points,
                 'presets': this.presets,
-                'unused_templates': this.unused_templates,
+                'unused_templates': this.unusedTemplates,
                 'removed_templates': this.deletedTemplates,
                 'removed_presets': this.deletedPresets
             })
@@ -294,9 +308,10 @@ export default {
             this.$toasted.info('Wishlist: Customise page')
         },
         saveFromDB (data) {
+            this.assignmentDetails = data.assignment_details
             this.templates = data.format.templates
             this.presets = data.format.presets
-            this.unused_templates = data.format.unused_templates
+            this.unusedTemplates = data.format.unused_templates
             this.deletedTemplates = []
             this.deletedPresets = []
             this.max_points = data.format.max_points
@@ -320,7 +335,7 @@ export default {
                     }
                 }
             }
-            for (var unusedTemplate of this.unused_templates) {
+            for (var unusedTemplate of this.unusedTemplates) {
                 idInPool.push(unusedTemplate.id)
                 tempTemplatePool[unusedTemplate.id] = { t: unusedTemplate, available: false }
             }
@@ -335,14 +350,14 @@ export default {
             this.presets = this.nodes.slice()
 
             this.templates = []
-            this.unused_templates = []
+            this.unusedTemplates = []
 
             for (var template of this.templatePool) {
                 template.t.updated = template.updated
                 if (template.available) {
                     this.templates.push(template.t)
                 } else {
-                    this.unused_templates.push(template.t)
+                    this.unusedTemplates.push(template.t)
                 }
             }
         }
@@ -351,6 +366,7 @@ export default {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         edag,
+        'assignment-details-card': FormatEditAssignmentDetailsCard,
         'available-template-card': formatEditAvailableTemplateCard,
         'selected-node-card': formatEditSelectTemplateCard,
         'template-editor': templateEdit,
