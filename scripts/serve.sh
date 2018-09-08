@@ -13,13 +13,13 @@ WSGIPassAuthorization On" > "${APACHE_DIR}/conf-available/wsgi.conf"
 sudo a2enconf wsgi
 sudo a2enmod rewrite
 
-sudo echo "
+echo "
 <VirtualHost *:${PORT}>
     Alias ${HOOKPOINT} '${TARGET}'
     ServerName www.${SERVERNAME}
     ServerAlias ${SERVERNAME}
 
-    <Directory ${TARGET}static>
+    <Directory ${TARGET}/static>
         Require all granted
     </Directory>
 
@@ -35,32 +35,32 @@ sudo echo "
         </IfModule>
     </Directory>
 
-    <Directory /var/www/ejournal/django/>
+    <Directory ${TARGET}/django/>
         Deny from all
     </Directory>
 
-    <Directory /var/www/ejournal/venv/>
+    <Directory ${TARGET}/venv/>
         Deny from all
     </Directory>
 </VirtualHost>
-" > "${APACHE_DIR}/sites-available/ejournal.conf"
-sudo echo "
+" | sudo tee "${APACHE_DIR}/sites-available/ejournal.conf"
+echo "
 <VirtualHost *:${PORT}>
     ServerName www.${APIURL}
     ServerAlias ${APIURL}
 
-    <Directory ${TARGET}django/static>
+    <Directory ${TARGET}/django/static>
         Require all granted
     </Directory>
-    <Directory ${TARGET}django/VLE>
+    <Directory ${TARGET}/django/VLE>
         <Files wsgi.py>
             Require all granted
         </Files>
     </Directory>
 
-    WSGIScriptAlias ${HOOKPOINT} ${TARGET}django/VLE/wsgi.py
+    WSGIScriptAlias ${HOOKPOINT} ${TARGET}/django/VLE/wsgi.py
 </VirtualHost>
-" > "${APACHE_DIR}/sites-available/ejournalapi.conf"
+" | sudo tee "${APACHE_DIR}/sites-available/ejournalapi.conf"
 
 sudo a2ensite ejournal.conf || sudo a2ensite ejournal
 sudo a2ensite ejournalapi.conf || sudo a2ensite ejournalapi
