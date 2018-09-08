@@ -16,7 +16,7 @@
 import icon from 'vue-awesome/components/Icon'
 
 export default {
-    props: ['type', 'text', 'selected', 'entrystate'],
+    props: ['type', 'text', 'selected', 'nodeState'],
     computed: {
         nodeClass () {
             return {
@@ -28,7 +28,7 @@ export default {
             }
         },
         iconName () {
-            switch (this.entrystate) {
+            switch (this.nodeState) {
             case 'graded':
                 return 'check'
             case 'failed':
@@ -46,7 +46,7 @@ export default {
             return 'calendar'
         },
         iconClass () {
-            switch (this.entrystate) {
+            switch (this.nodeState) {
             case 'graded':
                 return 'fill-positive'
             case 'failed':

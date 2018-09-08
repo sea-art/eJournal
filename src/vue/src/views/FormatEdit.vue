@@ -10,11 +10,11 @@
         <b-col md="12" lg="8" xl="9" class="inner-container-edag-page">
             <b-col md="12" lg="auto" xl="4" class="left-content-edag-page">
                 <bread-crumb v-if="$root.lgMax()" class="main-content">&nbsp;</bread-crumb>
-                <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :isInEditFormatPage="true"/>
+                <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :edit="true"/>
             </b-col>
 
             <b-col md="12" lg="auto" xl="8" class="main-content-edag-page">
-                <bread-crumb v-if="$root.xl()" class="main-content">&nbsp;</bread-crumb>
+                <bread-crumb v-if="$root.xl()">&nbsp;</bread-crumb>
                 <!--
                     Fill in the template using the corresponding data
                     of the entry

@@ -15,7 +15,7 @@
                         :index="index"
                         :node="node"
                         :selected="isSelected(index)"
-                        :isInEditFormatPage="isInEditFormatPage"
+                        :edit="edit"
                         :key="node.id"/>
                 </div>
                 <edag-node
@@ -25,7 +25,7 @@
                     :index="index"
                     :node="node"
                     :selected="isSelected(index)"
-                    :isInEditFormatPage="isInEditFormatPage"
+                    :edit="edit"
                     :key="node.id"/>
             </div>
         </b-collapse>
@@ -46,7 +46,7 @@ import edagNode from '@/components/edag/EdagNode.vue'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
-    props: ['selected', 'nodes', 'isInEditFormatPage'],
+    props: ['selected', 'nodes', 'edit'],
     methods: {
         isSelected (id) {
             return id === this.selected

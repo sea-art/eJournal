@@ -5,13 +5,17 @@
             @eye-click="customisePage"
             @edit-click="handleEdit()"/>
 
-        <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
+        <div slot="main-content-column" v-for="a in assignments" :key="a.id">
             <b-link tag="b-button" :to="assignmentRoute(cID, a.id, a.journal)">
                 <assignment-card :line1="a.name">
                     <progress-bar
                         v-if="a.journal && a.journal.stats"
                         :currentPoints="a.journal.stats.acquired_points"
                         :totalPoints="a.journal.stats.total_points"/>
+                    <b-button v-if="$hasPermission('can_delete_assignment')" @click.prevent.stop="deleteAssignment(a.id)" class="delete-button float-right">
+                        <icon name="trash"/>
+                        Remove
+                    </b-button>
                 </assignment-card>
             </b-link>
         </div>
@@ -96,15 +100,15 @@ export default {
     },
     created () {
         this.loadAssignments()
-
-        assignmentAPI.getUpcoming(this.cID)
-            .then(deadlines => { this.deadlines = deadlines })
-            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         loadAssignments () {
             assignmentAPI.getAllFromCourse(this.cID)
                 .then(assignments => { this.assignments = assignments })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
+
+            assignmentAPI.getUpcoming(this.cID)
+                .then(deadlines => { this.deadlines = deadlines })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         showModal (ref) {
@@ -150,6 +154,16 @@ export default {
             }
 
             return route
+        },
+        deleteAssignment (aID) {
+            if (confirm('Are you sure you want to remove this assignment from this course?')) {
+                assignmentAPI.delete(aID, this.cID)
+                    .then(_ => {
+                        this.$toasted.success('Removed assignment.')
+                        this.loadAssignments()
+                    })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
+            }
         }
     },
     computed: {

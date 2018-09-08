@@ -13,8 +13,8 @@
         </b-col>
         <b-col cols="4" sm="5" class="d-flex h-100 align-items-center justify-content-center">
             <div class="time-line"></div>
-            <edag-node-circle v-if="node.type == 'a'" @click.native="$emit('select-node', index)" style="position: absolute" :type="node.type" :selected="selected" :entrystate="'addNode'"></edag-node-circle>
-            <edag-node-circle v-else @click.native="$emit('select-node', index)" style="position: absolute" :type="node.type" :text="node.target" :selected="selected" :entrystate="entryState()"></edag-node-circle>
+            <edag-node-circle v-if="node.type == 'a'" @click.native="$emit('select-node', index)" style="position: absolute" :type="node.type" :selected="selected" :nodeState="'addNode'"></edag-node-circle>
+            <edag-node-circle v-else @click.native="$emit('select-node', index)" style="position: absolute" :type="node.type" :text="node.target" :selected="selected" :nodeState="nodeState()"></edag-node-circle>
         </b-col>
         <b-col cols="4" sm="1"/>
     </b-row>
@@ -25,7 +25,7 @@ import edagNodeCircle from '@/components/edag/EdagNodeCircle.vue'
 import edagNodeDate from '@/components/edag/EdagNodeDate.vue'
 
 export default {
-    props: ['node', 'selected', 'index', 'isInEditFormatPage'],
+    props: ['node', 'selected', 'index', 'edit'],
     components: {
         'edag-node-date': edagNodeDate,
         'edag-node-circle': edagNodeCircle
@@ -39,8 +39,11 @@ export default {
         }
     },
     methods: {
-        entryState () {
-            if (this.isInEditFormatPage ||
+        nodeState () {
+            if (this.node.type === '') {
+
+            }
+            if (this.edit ||
                 this.node.type === 'p' ||
                 this.node.type === 'a') {
                 return ''
