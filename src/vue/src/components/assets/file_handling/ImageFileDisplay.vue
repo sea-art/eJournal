@@ -51,7 +51,6 @@ export default {
                 .then(response => {
                     let blob = new Blob([response.data], { type: response.headers['content-type'] })
                     this.fileURL = window.URL.createObjectURL(blob)
-
                 }, error => {
                     this.$toasted.error(error.response.data.description)
                 })

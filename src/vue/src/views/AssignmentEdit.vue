@@ -14,7 +14,7 @@
                     :footer="false"
                     class="multi-form"
                  />
-                <b-button v-if="$hasPermission('can_delete_assignment')" @click.prevent.stop="deleteAssignment()" class="delete-button multi-form float-left">
+                <b-button v-if="$hasPermission('can_delete_assignment') && assignment.courses" @click.prevent.stop="deleteAssignment()" class="delete-button multi-form float-left">
                     <icon name="trash"/>
                     {{ assignment.courses.length === 1 ? 'Delete Assignment' : 'Remove From Course' }}
                 </b-button>
