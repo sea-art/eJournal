@@ -6,9 +6,9 @@ source settings/database.conf
 
 sudo /etc/init.d/apache2 stop
 
-sudo echo "WSGIPythonHome ${TARGET}/venv
+echo "WSGIPythonHome ${TARGET}/venv
 WSGIPythonPath ${TARGET}/django/VLE
-WSGIPassAuthorization On" > "${APACHE_DIR}/conf-available/wsgi.conf"
+WSGIPassAuthorization On" | sudo tee "${APACHE_DIR}/conf-available/wsgi.conf"
 
 sudo a2enconf wsgi
 sudo a2enmod rewrite
@@ -31,7 +31,7 @@ echo "
             RewriteRule ^index\.html$ - [L]
             RewriteCond %{REQUEST_FILENAME} !-f
             RewriteCond %{REQUEST_FILENAME} !-d
-            RewriteRule . ${TARGET}index.html [L]
+            RewriteRule . ${TARGET}/index.html [L]
         </IfModule>
     </Directory>
 
