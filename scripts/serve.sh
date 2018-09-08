@@ -8,10 +8,11 @@ sudo /etc/init.d/apache2 stop
 
 echo "WSGIPythonHome ${TARGET}/venv
 WSGIPythonPath ${TARGET}/django/VLE
-WSGIPassAuthorization On" | sudo tee "${APACHE_DIR}/conf-available/wsgi.conf"
+WSGIPassAuthorization On" | sudo tee "${APACHE_DIR}/conf-available/ejournalwsgi.conf"
 
-sudo a2enconf wsgi
 sudo a2enmod rewrite
+sudo a2enmod wsgi
+sudo a2enconf ejournalwsgi
 
 echo "
 <VirtualHost *:${PORT}>
@@ -70,3 +71,4 @@ if [[ $? -ne 0 ]]; then
 fi
 
 sudo /etc/init.d/apache2 start
+sudo systemctl reload apache2

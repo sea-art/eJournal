@@ -12,12 +12,12 @@ tar xfz ${path}/build/4.6.4.tar.gz -C build
 source ${path}/venv/bin/activate
     cd ${path}/build/mod_wsgi-4.6.4
     ./configure
-
-    # Install mod wsgi
-    make
-    sudo make install
-    cd ${path}
 deactivate
+
+# Install mod wsgi
+make
+sudo make install
+cd ${path}
 
 # Sync venv (with the installed packages) to the target directory
 sudo rsync -a ${path}/venv ${TARGET}
@@ -37,3 +37,11 @@ echo "CREATE DATABASE ${DATABASE_NAME} WITH OWNER = ${DATABASE_USER};" | psql
 echo "ALTER USER ${DATABASE_USER} WITH PASSWORD '${DATABASE_PASSWORD}';" | psql
 echo "GRANT ALL PRIVILEGES ON DATABASE ${DATABASE_NAME} TO ${DATABASE_USER};" | psql
 EOF
+
+echo -e "
+
+
+
+
+
+Reboot you computer before moving on to the next step."
