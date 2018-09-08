@@ -1,17 +1,18 @@
 <template>
     <b-card :class="$root.getBorderClass($route.params.cID)">
-        <b-row class="mb-2">
-            <b-col order="1" cols="4">
-                <img class="img-fluid student-card-portrait" :src="student.picture">
-            </b-col>
-            <b-col order="2" cols="8">
+        <b-row>
+            <b-col order="1" cols="12">
                 <todo-square v-if="numMarkingNeeded > 0 && !hideTodo" class="float-right" :num="numMarkingNeeded"/>
+                <img class="img-fluid student-card-portrait" :src="student.profile_picture">
                 <b>{{ student.first_name + ' ' + student.last_name }}</b><br/>
-                {{ student.username }}<br/><br/>
+                {{ student.username }}
                 <progress-bar v-if="!fullWidthProgress || $root.mdMax()" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
             </b-col>
         </b-row>
-        <progress-bar v-if="fullWidthProgress && $root.lg()" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
+        <progress-bar v-if="fullWidthProgress && $root.lg()"
+                      :currentPoints="this.stats.acquired_points"
+                      :totalPoints="this.stats.total_points"
+                      :comparePoints="this.assignment ? this.assignment.stats.average_points : -1"/>
     </b-card>
 </template>
 
@@ -34,6 +35,9 @@ export default {
         'fullWidthProgress': {
             type: Boolean,
             default: false
+        },
+        'assignment': {
+            required: false
         }
     },
     components: {
@@ -55,6 +59,7 @@ export default {
     @extend .shadow
     border-radius: 50% !important
     display: block
-    margin: auto
-    max-height: 150px
+    margin: auto 32px 10px auto
+    max-height: 60px
+    float: left
 </style>

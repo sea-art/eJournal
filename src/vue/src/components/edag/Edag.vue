@@ -16,7 +16,7 @@
                         :node="node"
                         :selected="isSelected(index)"
                         :isInEditFormatPage="isInEditFormatPage"
-                        :key="node.nID"/>
+                        :key="node.id"/>
                 </div>
                 <edag-node
                     v-else
@@ -26,7 +26,7 @@
                     :node="node"
                     :selected="isSelected(index)"
                     :isInEditFormatPage="isInEditFormatPage"
-                    :key="node.nID"/>
+                    :key="node.id"/>
             </div>
         </b-collapse>
 

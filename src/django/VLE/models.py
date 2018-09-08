@@ -12,7 +12,7 @@ from VLE.utils.file_handling import get_path
 class UserFile(models.Model):
     """UserFile.
 
-    UserFile is a file uploaded by the user stored in MEDIA_ROOT/files/uID/aID/...
+    UserFile is a file uploaded by the user stored in MEDIA_ROOT/uID/aID/...
     - author: The user who uploaded the file.
     - file_name: The name of the file (no parts of the path to the file included).
     - creation_date: The time and date the file was uploaded.
@@ -179,6 +179,7 @@ class Role(models.Model):
 
     class Meta:
         """Meta data for the model: unique_together."""
+
         unique_together = ('name', 'course',)
 
 
@@ -210,7 +211,7 @@ class Participation(models.Model):
 
 
 class Assignment(models.Model):
-    """Assignemnt.
+    """Assignment.
 
     An Assignment entity has the following features:
     - name: name of the assignment.
@@ -243,7 +244,7 @@ class Assignment(models.Model):
     courses = models.ManyToManyField(Course)
 
     format = models.OneToOneField(
-        'JournalFormat',
+        'Format',
         on_delete=models.CASCADE
     )
 
@@ -330,6 +331,7 @@ class Node(models.Model):
     PROGRESS = 'p'
     ENTRY = 'e'
     ENTRYDEADLINE = 'd'
+    ADDNODE = 'a'
     TYPES = (
         (PROGRESS, 'progress'),
         (ENTRY, 'entry'),
@@ -359,8 +361,8 @@ class Node(models.Model):
     )
 
 
-class JournalFormat(models.Model):
-    """JournalFormat.
+class Format(models.Model):
+    """Format.
 
     Format of a journal.
     The format determines how a students' journal is structured.
@@ -384,12 +386,12 @@ class JournalFormat(models.Model):
         default=10
     )
     unused_templates = models.ManyToManyField(
-        'EntryTemplate',
+        'Template',
         related_name='unused_templates',
     )
 
     available_templates = models.ManyToManyField(
-        'EntryTemplate',
+        'Template',
         related_name='available_templates',
     )
 
@@ -426,13 +428,13 @@ class PresetNode(models.Model):
     deadline = models.DateTimeField()
 
     forced_template = models.ForeignKey(
-        'EntryTemplate',
+        'Template',
         on_delete=models.SET_NULL,
         null=True,
     )
 
     format = models.ForeignKey(
-        'JournalFormat',
+        'Format',
         on_delete=models.CASCADE
     )
 
@@ -448,7 +450,7 @@ class Entry(models.Model):
     """
 
     template = models.ForeignKey(
-        'EntryTemplate',
+        'Template',
         on_delete=models.SET_NULL,
         null=True,
     )
@@ -487,8 +489,8 @@ class Counter(models.Model):
         return self.name + " is on " + self.count
 
 
-class EntryTemplate(models.Model):
-    """EntryTemplate.
+class Template(models.Model):
+    """Template.
 
     A template for an Entry.
     """
@@ -506,7 +508,7 @@ class EntryTemplate(models.Model):
 class Field(models.Model):
     """Field.
 
-    Defines the fields of an EntryTemplate
+    Defines the fields of an Template
     """
 
     TEXT = 't'
@@ -515,13 +517,15 @@ class Field(models.Model):
     FILE = 'f'
     VIDEO = 'v'
     PDF = 'p'
+    URL = 'u'
     TYPES = (
         (TEXT, 'text'),
         (RICH_TEXT, 'rich text'),
         (IMG, 'img'),
         (PDF, 'pdf'),
         (FILE, 'file'),
-        (VIDEO, 'vid')
+        (VIDEO, 'vid'),
+        (URL, 'url')
     )
     type = models.TextField(
         max_length=4,
@@ -531,13 +535,14 @@ class Field(models.Model):
     title = models.TextField()
     location = models.IntegerField()
     template = models.ForeignKey(
-        'EntryTemplate',
+        'Template',
         on_delete=models.CASCADE
     )
+    required = models.BooleanField()
 
     def __str__(self):
         """toString."""
-        return self.template.name + " field: " + str(self.location)
+        return self.template.name + " type: " + str(self.type) + ", location: " + str(self.location)
 
 
 class Content(models.Model):
@@ -556,13 +561,15 @@ class Content(models.Model):
         null=True
     )
     # TODO Consider a size limit 10MB unencoded posts? so 10 * 1024 * 1024 * 1.37?
-    data = models.TextField()
+    data = models.TextField(
+        null=True
+    )
 
 
-class EntryComment(models.Model):
-    """EntryComment.
+class Comment(models.Model):
+    """Comment.
 
-    EntryComments contain the comments given to the entries.
+    Comments contain the comments given to the entries.
     It is linked to a single entry with a single author and the comment text.
     """
 
@@ -579,4 +586,8 @@ class EntryComment(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     published = models.BooleanField(
         default=True
+    )
+    last_edited = models.DateTimeField(
+        default=None,
+        null=True
     )

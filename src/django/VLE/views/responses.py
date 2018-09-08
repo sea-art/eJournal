@@ -84,16 +84,16 @@ def internal_server_error(description='Oops! The server experienced internal hic
     return json_response(description=description, status=500)
 
 
-def response(status, message, description='', payload={}):
+def response(status, message, description=None, payload={}):
     """Return a generic response header with customizable fields.
 
     Arguments:
     status -- HTTP status number
     message -- response message
-    description -- header description (usable for example in the front end)
+    description -- header description
     payload -- payload to deliver
     """
-    return JsonResponse({'result': message, 'description': description, **payload}, status=status)
+    return json_response({'result': message, 'description': description, **payload}, status=status)
 
 
 def http_response(content=b'', content_type=None, status=None, reason=None, charset=None):
@@ -136,7 +136,7 @@ def keyerror(*keys):
         return bad_request(description='Fields {0} are required but one or more are missing.'.format(keys))
 
 
-def fileb64(user_file):
+def user_file_b64(user_file):
     """Return a file as base64 encoded binary string if found, otherwise returns a not found response."""
     file_path = os.path.join(MEDIA_ROOT, user_file.file.name)
     if os.path.exists(file_path):
@@ -150,9 +150,21 @@ def fileb64(user_file):
         return not_found(description='File not found.')
 
 
-def file(user_file):
-    """Return a file as blob if found, otherwise returns a not found response."""
-    file_path = os.path.join(MEDIA_ROOT, user_file.file.name)
+def file_b64(file_path, content_type):
+    """Return a file as base64 encoded binary string if found, otherwise returns a not found response."""
+    if os.path.exists(file_path):
+        with open(file_path, 'rb') as fp:
+            response = HttpResponse(base64.b64encode(fp.read()), content_type=content_type)
+            response['Content-Disposition'] = 'attachment; filename=' + os.path.basename(file_path)
+            # Exposes headers to the response in javascript lowercase recommended
+            response['access-control-expose-headers'] = 'content-disposition, content-type'
+            return response
+    else:
+        return not_found(description='File not found.')
+
+
+def file(file_path):
+    """Return a file as bytestring if found, otherwise returns a not found response."""
     try:
         response = FileResponse(open(file_path, 'rb'), as_attachment=True)
         return response

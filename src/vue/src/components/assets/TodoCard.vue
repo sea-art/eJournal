@@ -1,9 +1,9 @@
 <template>
-    <b-card :class="$root.getBorderClass($route.params.cID)">
-        <todo-square v-if="checkPermissions() && totalNeedsMarking > 0" :num="totalNeedsMarking" class="float-right" />
-        <h6>{{ $root.beautifyDate(deadline)}}</h6>
-        <h5>{{ name }}</h5>
-        {{ abbr }}
+    <b-card :class="$root.getBorderClass(deadline.course.id)">
+        <todo-square v-if="deadline.stats" :num="deadline.stats.needs_marking + deadline.stats.unpublished" class="float-right" />
+        <h6>{{ $root.beautifyDate(deadline.deadline) }}</h6>
+        <h5>{{ deadline.name }}</h5>
+        {{ deadline.course.abbreviation }}
     </b-card>
 </template>
 
@@ -11,19 +11,9 @@
 import todoSquare from '@/components/assets/TodoSquare.vue'
 
 export default {
-    props: ['deadline', 'name', 'abbr', 'totalNeedsMarking'],
+    props: ['deadline'],
     components: {
         'todo-square': todoSquare
-    },
-    methods: {
-        checkPermissions () {
-            if (this.$route.name === 'Course') {
-                return this.$root.canViewAssignmentParticipants()
-            } else if (this.$route.name === 'AssignmentsOverview' ||
-                       this.$route.name === 'Home') {
-                return this.$root.canAddCourse()
-            }
-        }
     }
 }
 </script>

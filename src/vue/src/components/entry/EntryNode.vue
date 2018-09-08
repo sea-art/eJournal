@@ -22,9 +22,9 @@
                 Shows every field description and
                 a corresponding form.
             -->
-            <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
+            <div v-for="(field, i) in entryNode.entry.template.field_set" :key="field.eID">
                 <div v-if="field.title">
-                    <b>{{ field.title }}</b>
+                    <b>{{ field.title }}</b> <b style="color: red" v-if="field.required">*</b>
                 </div>
 
                 <div v-if="field.type=='t'">
@@ -75,6 +75,9 @@
                         @content-update="completeContent[i].data = $event"
                     />
                 </div>
+                <div v-else-if="field.type == 'u'">
+                    <url-input :placeholder="completeContent[i].data" @correctUrlInput="completeContent[i].data = $event"></url-input>
+                </div>
 
             </div>
             <b-alert :show="dismissCountDown" dismissible variant="secondary"
@@ -105,7 +108,7 @@
                 Gives a view of every templatefield and
                 if possible the already filled in entry.
             -->
-            <div v-for="(field, i) in entryNode.entry.template.fields" :key="field.eID">
+            <div v-for="(field, i) in entryNode.entry.template.field_set" v-if="field.required || completeContent[i].data" :key="field.id">
                 <div v-if="field.title">
                     <b>{{ field.title }}</b>
                 </div>
@@ -114,14 +117,15 @@
                 </div>
                 <div v-else-if="field.type=='i'">
                     <image-file-display
+                        :id="'entry-' + entryNode.entry.nID + '-field-' + i"
                         :fileName="completeContent[i].data"
-                        :authorUID="$parent.journal.student.uID"
+                        :authorUID="$parent.journal.student.id"
                     />
                 </div>
                 <div v-else-if="field.type=='f'">
                     <file-download-button
                         :fileName="completeContent[i].data"
-                        :authorUID="$parent.journal.student.uID"
+                        :authorUID="$parent.journal.student.id"
                     />
                 </div>
                 <div v-else-if="field.type=='v'">
@@ -134,10 +138,13 @@
                 <div v-else-if="field.type == 'p'">
                     <pdf-display
                         :fileName="completeContent[i].data"
-                        :authorUID="$parent.journal.student.uID"
+                        :authorUID="$parent.journal.student.id"
                     />
                 </div>
                 <div v-else-if="field.type == 'rt'" v-html="completeContent[i].data"/>
+                <div v-if="field.type == 'u'">
+                    <a :href="completeContent[i].data">{{ completeContent[i].data }}</a>
+                </div>
             </div>
             <b-button v-if="entryNode.entry.editable" class="change-button float-right mt-2" @click="saveEdit">
                 <icon name="edit"/>
@@ -145,7 +152,7 @@
             </b-button>
         </b-card>
 
-        <comment-card :eID="entryNode.entry.eID" :entryGradePublished="entryNode.entry.published"/>
+        <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published"/>
     </div>
 </template>
 
@@ -157,6 +164,7 @@ import imageFileDisplay from '@/components/assets/file_handling/ImageFileDisplay
 import pdfDisplay from '@/components/assets/PdfDisplay.vue'
 import textEditor from '@/components/assets/TextEditor.vue'
 import icon from 'vue-awesome/components/Icon'
+import urlInput from '@/components/assets/UrlInput.vue'
 
 export default {
     props: ['entryNode', 'cID'],
@@ -207,14 +215,14 @@ export default {
             /* Loads in the data of an entry in the right order by matching
              * the different data-fields with the corresponding template-IDs. */
             var checkFound = false
-            for (var templateField of this.entryNode.entry.template.fields) {
+            for (var templateField of this.entryNode.entry.template.field_set) {
                 checkFound = false
 
                 for (var content of this.entryNode.entry.content) {
-                    if (content.tag === templateField.tag) {
+                    if (content.field === templateField.id) {
                         this.completeContent.push({
                             data: content.data,
-                            tag: content.tag
+                            id: content.field
                         })
 
                         checkFound = true
@@ -225,14 +233,16 @@ export default {
                 if (!checkFound) {
                     this.completeContent.push({
                         data: null,
-                        tag: templateField.tag
+                        id: templateField.id
                     })
                 }
             }
         },
         checkFilled: function () {
-            for (var content of this.completeContent) {
-                if (!content.data) {
+            for (var i = 0; i < this.completeContent.length; i++) {
+                var content = this.completeContent[i]
+                var field = this.entryNode.entry.template.field_set[i]
+                if (field.required && !content.data) {
                     return false
                 }
             }
@@ -257,6 +267,7 @@ export default {
         'file-download-button': fileDownloadButton,
         'image-file-display': imageFileDisplay,
         'text-editor': textEditor,
+        'url-input': urlInput,
         icon
     }
 }

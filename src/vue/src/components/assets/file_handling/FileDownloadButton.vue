@@ -8,7 +8,6 @@
 <script>
 import icon from 'vue-awesome/components/Icon'
 import userAPI from '@/api/user.js'
-import dataHandling from '@/utils/data_handling.js'
 
 export default {
     props: {
@@ -26,13 +25,15 @@ export default {
     },
     methods: {
         fileDownload (e) {
-            userAPI.getUserFile(this.fileName, this.authorUID)
+            userAPI.download(this.authorUID, this.fileName)
                 .then(response => {
-                    let blob = new Blob([dataHandling.base64ToArrayBuffer(response.data)], { type: response.headers['content-type'] })
+                    let blob = new Blob([response.data], { type: response.headers['content-type'] })
                     let link = document.createElement('a')
                     link.href = window.URL.createObjectURL(blob)
-                    link.download = /filename=(.*)/.exec(response.headers['content-disposition'])[1]
+                    link.download = this.fileName
+                    document.body.appendChild(link)
                     link.click()
+                    link.remove()
                 }, error => {
                     this.$toasted.error(error.response.data.description)
                 })

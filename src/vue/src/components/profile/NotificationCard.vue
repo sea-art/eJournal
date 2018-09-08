@@ -7,7 +7,7 @@
             Grade updates
         </b-col>
         <b-col cols="8">
-            <toggle-switch :isActive="userData.grade_notifications"
+            <toggle-switch :isActive="$store.getters['user/gradeNotifications']"
                            @parentActive="getGradeNotification">
             </toggle-switch>
         </b-col>
@@ -15,7 +15,7 @@
             Comments
         </b-col>
         <b-col cols="8">
-            <toggle-switch :isActive="userData.comment_notifications"
+            <toggle-switch :isActive="$store.getters['user/commentNotifications']"
                            @parentActive="getCommentNotification">
             </toggle-switch>
         </b-col>
@@ -33,17 +33,17 @@ export default {
     },
     methods: {
         getGradeNotification (isActive) {
-            userAPI.updateGradeNotification(isActive)
-                .then(isActive => {
-                    this.userData.grade_notifications = isActive
+            userAPI.update(0, {grade_notifications: isActive})
+                .then(user => {
+                    this.$store.commit('user/SET_GRADE_NOTIFICATION', user.grade_notifications)
                     this.$toasted.success('Grade notification setting updated succesfully.')
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         getCommentNotification (isActive) {
-            userAPI.updateCommentNotification(isActive)
-                .then(isActive => {
-                    this.userData.comment_notifications = isActive
+            userAPI.update(0, {comment_notifications: isActive})
+                .then(user => {
+                    this.$store.commit('user/SET_COMMENT_NOTIFICATION', user.comment_notifications)
                     this.$toasted.success('Comment notification setting updated succesfully.')
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })

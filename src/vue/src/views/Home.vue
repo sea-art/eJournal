@@ -7,16 +7,15 @@
             :currentPage="'Courses'">
         </bread-crumb>
 
-        <div v-for="c in courses" :key="c.cID" slot="main-content-column">
-            <b-link :to="{name: 'Course', params: {cID: c.cID, courseName: c.name}}">
+        <div v-for="c in courses" :key="c.id" slot="main-content-column">
+            <b-link :to="{ name: 'Course', params: { cID: c.id, courseName: c.name } }">
                 <main-card
                     :line1="c.name"
-                    :line2="c.startdate.substring(0, 4) + '-' + c.enddate.substring(0, 4)"
-                    :class="$root.getBorderClass(c.cID)">
-                </main-card>
+                    :line2="c.startdate ? (c.startdate.substring(0, 4) + (c.enddate ? ' - ' + c.enddate.substring(0, 4) : '')) : ''"
+                    :color="$root.getBorderClass(c.id)" />
             </b-link>
         </div>
-        <b-button v-if="$root.canAddCourse()"
+        <b-button v-if="$hasPermission('can_add_course')"
             slot="main-content-column"
             class="add-button grey-background full-width"
             @click="showModal('createCourseRef')">
@@ -24,9 +23,9 @@
             Create New Course
         </b-button>
 
-        <h3 slot="right-content-column">Upcoming</h3>
+        <h3 slot="right-content-column">To Do</h3>
         <!-- TODO: This seems like an inappropriate permission check. Will have to be reconsidered in the rework. -->
-        <b-card v-if="this.$root.canAddCourse()"
+        <b-card v-if="$hasPermission('can_add_course')"
                 class="no-hover"
                 slot="right-content-column">
             <b-form-select v-model="selectedSortOption" :select-size="1">
@@ -36,14 +35,8 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="assignmentRoute(d.cID, d.aID, d.jID)">
-                <todo-card
-                    :deadline="d.deadline"
-                    :name="d.name"
-                    :abbr="d.courseAbbr"
-                    :totalNeedsMarking="d.totalNeedsMarking"
-                    :class="$root.getBorderClass(d.cID)">
-                </todo-card>
+            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal)">
+                <todo-card :deadline="d"/>
             </b-link>
         </div>
 
@@ -74,9 +67,11 @@ import mainCard from '@/components/assets/MainCard.vue'
 import todoCard from '@/components/assets/TodoCard.vue'
 import createCourse from '@/components/course/CreateCourse.vue'
 import editHome from '@/components/home/EditHome.vue'
+
+import courseAPI from '@/api/course'
+import assignmentAPI from '@/api/assignment'
+
 import icon from 'vue-awesome/components/Icon'
-import course from '@/api/course'
-import assignmentApi from '@/api/assignment.js'
 
 export default {
     name: 'Home',
@@ -100,13 +95,13 @@ export default {
     created () {
         this.loadCourses()
 
-        assignmentApi.get_upcoming_deadlines()
+        assignmentAPI.getUpcoming()
             .then(deadlines => { this.deadlines = deadlines })
             .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         loadCourses () {
-            course.get_user_courses()
+            courseAPI.getUserEnrolled()
                 .then(courses => { this.courses = courses })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
@@ -117,7 +112,7 @@ export default {
             if (ref === 'createCourseRef') {
                 this.loadCourses()
             } else if (ref === 'editCourseRef') {
-                // TODO: Handle edit assignment
+                // TODO: Handle edit course
             }
 
             this.hideModal(ref)
@@ -139,6 +134,7 @@ export default {
 
             if (jID) {
                 route.params.jID = jID
+                route.name = 'Journal'
             }
 
             return route
@@ -149,12 +145,14 @@ export default {
             var counter = 0
 
             function compareDate (a, b) {
-                return new Date(a.deadline.Date) - new Date(b.deadline.Date)
+                if (!a.deadline) return -1
+                else if (!b.deadline) return 1
+                return new Date(a.deadline) - new Date(b.deadline)
             }
 
             function compareMarkingNeeded (a, b) {
-                if (a.totalNeedsMarking > b.totalNeedsMarking) { return -1 }
-                if (a.totalNeedsMarking < b.totalNeedsMarking) { return 1 }
+                if (a.stats.needs_marking > b.stats.needs_marking) { return -1 }
+                if (a.stats.needs_marking < b.stats.needs_marking) { return 1 }
                 return 0
             }
 
@@ -162,14 +160,10 @@ export default {
                 return (++counter <= 5)
             }
 
-            function filterNoEntries (deadline) {
-                return deadline.totalNeedsMarking !== 0
-            }
-
             if (this.selectedSortOption === 'sortDate') {
                 return this.deadlines.slice().sort(compareDate).filter(filterTop)
             } else if (this.selectedSortOption === 'sortNeedsMarking') {
-                return this.deadlines.slice().sort(compareMarkingNeeded).filter(filterTop).filter(filterNoEntries)
+                return this.deadlines.slice().sort(compareMarkingNeeded).filter(filterTop)
             } else {
                 return this.deadlines.slice().sort(compareDate).filter(filterTop)
             }

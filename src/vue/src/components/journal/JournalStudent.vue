@@ -49,13 +49,16 @@
                 <b-col md="6" lg="12">
                     <h3>Description</h3>
                     <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-                        <div v-html="assignmentDescription"/>
+                        <div v-html="assignment.description"/>
                     </b-card>
                 </b-col>
                 <b-col md="6" lg="12">
                     <h3>Progress</h3>
                     <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-                        <progress-bar v-if="journal.stats" :currentPoints="journal.stats.acquired_points" :totalPoints="journal.stats.total_points"/>
+                        <progress-bar v-if="journal.stats"
+                                      :currentPoints="journal.stats.acquired_points"
+                                      :totalPoints="journal.stats.total_points"
+                                      :comparePoints="assignment.stats ? assignment.stats.average_points : -1" />
                     </b-card>
                 </b-col>
             </b-row>
@@ -71,8 +74,10 @@ import addCard from '@/components/journal/AddCard.vue'
 import edag from '@/components/edag/Edag.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
-import journalApi from '@/api/journal'
-import assignmentApi from '@/api/assignment.js'
+
+import journalAPI from '@/api/journal'
+import assignmentAPI from '@/api/assignment'
+import entryAPI from '@/api/entry'
 
 export default {
     props: ['cID', 'aID', 'jID'],
@@ -84,13 +89,13 @@ export default {
             journal: {},
             progressNodes: {},
             progressPointsLeft: 0,
-            assignmentDescription: ''
+            assignment: ''
         }
     },
     created () {
-        journalApi.get_nodes(this.jID)
-            .then(data => {
-                this.nodes = data.nodes
+        journalAPI.getNodes(this.jID)
+            .then(nodes => {
+                this.nodes = nodes
                 if (this.$route.query.nID !== undefined) {
                     this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
                 }
@@ -100,19 +105,17 @@ export default {
                         this.progressPoints(node)
                     }
                 }
+
+                this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].nID]
             })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
-        journalApi.get_journal(this.jID)
-            .then(data => {
-                this.journal = data.journal
-            })
+        journalAPI.get(this.jID)
+            .then(journal => { this.journal = journal })
             .catch(_ => this.$toasted.error('Error while loading journal data.'))
 
-        assignmentApi.get_assignment_data(this.cID, this.aID)
-            .then(data => {
-                this.assignmentDescription = data.description
-            })
+        assignmentAPI.get(this.aID, this.cID)
+            .then(assignment => { this.assignment = assignment })
             .catch(_ => this.$toasted.error('Error while loading assignment description.'))
     },
     watch: {
@@ -126,12 +129,9 @@ export default {
     methods: {
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData
-            journalApi.create_entry(this.jID, this.nodes[this.currentNode].entry.template.tID, editedData.entry.content, this.nodes[this.currentNode].nID)
-                .then(data => {
-                    this.nodes = data.nodes
-                    this.currentNode = data.added
-                })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
+            entryAPI.update(this.nodes[this.currentNode].entry.id, {
+                content: editedData.entry.content
+            }).catch(error => { this.$toasted.error(error.response.data.description) })
         },
         selectNode ($event) {
             /* Function that prevents you from instant leaving an EntryNode
@@ -156,7 +156,11 @@ export default {
             this.currentNode = $event
         },
         addNode (infoEntry) {
-            journalApi.create_entry(this.jID, infoEntry[0].tID, infoEntry[1])
+            entryAPI.create({
+                journal_id: this.jID,
+                template_id: infoEntry[0].id,
+                content: infoEntry[1]
+            })
                 .then(data => {
                     this.nodes = data.nodes
                     this.currentNode = data.added
@@ -164,7 +168,12 @@ export default {
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         fillDeadline (data) {
-            journalApi.create_entry(this.jID, this.nodes[this.currentNode].template.tID, data, this.nodes[this.currentNode].nID)
+            entryAPI.create({
+                journal_id: this.jID,
+                template_id: this.nodes[this.currentNode].template.id,
+                content: data,
+                node_id: this.nodes[this.currentNode].nID
+            })
                 .then(data => {
                     this.nodes = data.nodes
                     this.currentNode = data.added

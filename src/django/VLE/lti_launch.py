@@ -57,10 +57,8 @@ class OAuthRequestValidater(object):
                                              self.oauth_consumer, {})
 
         except (oauth2.Error, ValueError) as err:
-            print(oauth_request['oauth_signature'])
             oauth_request.sign_request(oauth2.SignatureMethod_HMAC_SHA1(),
                                        self.oauth_consumer, {})
-            print(oauth_request['oauth_signature'])
             return False, err
         # Signature was valid
         return True, None
@@ -82,8 +80,8 @@ def check_user_lti(request, roles):
     users = User.objects.filter(lti_id=lti_user_id)
     if users.count() > 0:
         user = users[0]
-        if 'user_image' in request:
-            user.profile_picture = request['user_image']
+        if 'custom_user_image' in request:
+            user.profile_picture = request['custom_user_image']
             user.save()
 
         if roles['Teacher'] in request:
@@ -91,47 +89,6 @@ def check_user_lti(request, roles):
             user.save()
         return user
     return None
-
-
-def select_create_user(request, roles):
-    """
-    Returns the user of the lti_user_id in the request. If the user does not
-    exist it will create one in our database.
-    """
-    lti_user_id = request['user_id']
-
-    users = User.objects.filter(lti_id=lti_user_id)
-    if users.count() > 0:
-        user = users[0]
-    else:
-        # TODO: Implement a login system for LTI.
-        user = User()
-        user.set_password('pass')
-        if 'lis_person_contact_email_primary' in request:
-            user.email = request['lis_person_contact_email_primary']
-            user.verified_email = True
-
-        if 'lis_person_sourcedid' in request:
-            user.username = request['lis_person_sourcedid']
-
-        if 'lis_person_name_full' in request:
-            fullname = request['lis_person_name_full']
-            splitname = fullname.split(' ')
-            user.first_name = splitname[0]
-            user.last_name = fullname[len(splitname[0])+1:]
-
-        user.lti_id = lti_user_id
-        user.save()
-
-    if 'user_image' in request:
-        user.profile_picture = request['user_image']
-        user.save()
-
-    if roles['Teacher'] in request:
-        user.is_teacher = True
-        user.save()
-
-    return user
 
 
 def create_lti_query_link(names, values):
@@ -155,7 +112,7 @@ def create_lti_query_link(names, values):
 
 def check_course_lti(request, user, role):
     """Check is an course with the lti_id exists"""
-    course_id = request['context_id']
+    course_id = request['custom_course_id']
     courses = Course.objects.filter(lti_id=course_id)
 
     if courses.count() > 0:
@@ -168,7 +125,7 @@ def check_course_lti(request, user, role):
 
 def check_assignment_lti(request):
     """Check is an assignment with the lti_id exists"""
-    assign_id = request['resource_link_id']
+    assign_id = request['custom_assignment_id']
     assignments = Assignment.objects.filter(lti_id=assign_id)
     if assignments.count() > 0:
         return assignments[0]

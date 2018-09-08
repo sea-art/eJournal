@@ -6,7 +6,7 @@
             @edit-click="handleEdit()"/>
 
         <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
-            <b-link tag="b-button" :to="assignmentRoute(cID, a.aID, a.journal)">
+            <b-link tag="b-button" :to="assignmentRoute(cID, a.id, a.journal)">
                 <assignment-card :line1="a.name">
                     <progress-bar
                         v-if="a.journal && a.journal.stats"
@@ -16,7 +16,7 @@
             </b-link>
         </div>
 
-        <b-button v-if="$root.canAddAssignment()"
+        <b-button v-if="$hasPermission('can_add_assignment')"
             slot="main-content-column"
             class="add-button grey-background full-width"
             @click="showModal('createAssignmentRef')">
@@ -24,9 +24,10 @@
             Create New Assignment
         </b-button>
 
-        <h3 slot="right-content-column">Upcoming</h3>
+        <h3 slot="right-content-column">To Do</h3>
 
-        <b-card v-if="this.$root.canViewAssignmentParticipants()"
+        <!-- TODO Permission revision should be can_grade -->
+        <b-card v-if="$hasPermission('can_view_assignment_participants')"
                 class="no-hover"
                 slot="right-content-column">
             <b-form-select v-model="selectedSortOption" :select-size="1">
@@ -36,13 +37,8 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="assignmentRoute(d.cID, d.aID, d.journal)">
-                <todo-card
-                    :deadline="d.deadline"
-                    :name="d.name"
-                    :abbr="d.courseAbbr"
-                    :totalNeedsMarking="d.totalNeedsMarking">
-                </todo-card>
+            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal)">
+                <todo-card :deadline="d"/>
             </b-link>
         </div>
         <b-modal
@@ -63,11 +59,11 @@ import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import assignmentCard from '@/components/assignment/AssignmentCard.vue'
 import todoCard from '@/components/assets/TodoCard.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
-import assignment from '@/api/assignment.js'
 import mainCard from '@/components/assets/MainCard.vue'
 import icon from 'vue-awesome/components/Icon'
 import createAssignment from '@/components/assignment/CreateAssignment.vue'
-import courseApi from '@/api/course.js'
+
+import assignmentAPI from '@/api/assignment'
 
 export default {
     name: 'Course',
@@ -101,13 +97,13 @@ export default {
     created () {
         this.loadAssignments()
 
-        courseApi.get_upcoming_course_deadlines(this.cID)
+        assignmentAPI.getUpcoming(this.cID)
             .then(deadlines => { this.deadlines = deadlines })
             .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         loadAssignments () {
-            assignment.get_course_assignments(this.cID)
+            assignmentAPI.getAllFromCourse(this.cID)
                 .then(assignments => { this.assignments = assignments })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
@@ -137,17 +133,20 @@ export default {
                 }
             })
         },
-        assignmentRoute (cID, aID, journal) {
+        assignmentRoute (cID, aID, jID) {
             var route = {
-                name: 'Assignment',
                 params: {
                     cID: cID,
                     aID: aID
                 }
             }
 
-            if (journal) {
-                route.params.jID = journal.jID
+            // TODO Permission revision can_grade
+            if (this.$hasPermission('can_view_assignment_participants', 'assignment', String(aID))) {
+                route.name = 'Assignment'
+            } else {
+                route.name = 'Journal'
+                route.params.jID = jID
             }
 
             return route
@@ -158,27 +157,25 @@ export default {
             var counter = 0
 
             function compareDate (a, b) {
+                if (!a.deadline) { return b.deadline }
+                if (!b.deadline) { return a.deadline }
                 return new Date(a.deadline.Date) - new Date(b.deadline.Date)
             }
 
             function compareMarkingNeeded (a, b) {
-                if (a.totalNeedsMarking > b.totalNeedsMarking) { return -1 }
-                if (a.totalNeedsMarking < b.totalNeedsMarking) { return 1 }
+                if (a.stats.needs_marking > b.stats.needs_marking) { return -1 }
+                if (a.stats.needs_marking < b.stats.needs_marking) { return 1 }
                 return 0
             }
 
             function filterTop () {
-                return (++counter <= 5)
-            }
-
-            function filterNoEntries (deadline) {
-                return deadline.totalNeedsMarking !== 0
+                return ++counter <= 5
             }
 
             if (this.selectedSortOption === 'sortDate') {
                 return this.deadlines.slice().sort(compareDate).filter(filterTop)
             } else if (this.selectedSortOption === 'sortNeedsMarking') {
-                return this.deadlines.slice().sort(compareMarkingNeeded).filter(filterTop).filter(filterNoEntries)
+                return this.deadlines.slice().sort(compareMarkingNeeded).filter(filterTop)
             } else {
                 return this.deadlines.slice().sort(compareDate).filter(filterTop)
             }

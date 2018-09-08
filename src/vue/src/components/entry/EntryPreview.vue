@@ -6,9 +6,9 @@
     <div>
         <b-card class="no-hover" :class="$root.getBorderClass(cID)">
             <h2 class="mb-2">{{ template.name }}</h2>
-            <div v-for="(field, i) in template.fields" :key="field.eID">
+            <div v-for="(field, i) in template.field_set" :key="field.eID">
                 <div v-if="field.title != ''">
-                    <b>{{ field.title }}</b>
+                    <b>{{ field.title }}</b> <b style="color: red" v-if="field.required">*</b>
                 </div>
 
                 <div v-if="field.type=='t'">
@@ -50,6 +50,9 @@
                         @content-update="completeContent[i].data = $event"
                     />
                 </div>
+                <div v-else-if="field.type == 'u'">
+                    <url-input @correctUrlInput="completeContent[i].data = $event"></url-input>
+                </div>
             </div>
 
             <b-alert :show="dismissCountDown" dismissible variant="secondary"
@@ -68,6 +71,7 @@
 import icon from 'vue-awesome/components/Icon'
 import fileUploadInput from '@/components/assets/file_handling/FileUploadInput.vue'
 import textEditor from '@/components/assets/TextEditor.vue'
+import urlInput from '@/components/assets/UrlInput.vue'
 
 export default {
     props: ['template', 'cID'],
@@ -90,16 +94,18 @@ export default {
     },
     methods: {
         setContent: function () {
-            for (var field of this.template.fields) {
+            for (var field of this.template.field_set) {
                 this.completeContent.push({
                     data: null,
-                    tag: field.tag
+                    id: field.id
                 })
             }
         },
         checkFilled: function () {
-            for (var content of this.completeContent) {
-                if (!content.data) {
+            for (var i = 0; i < this.completeContent.length; i++) {
+                var content = this.completeContent[i]
+                var field = this.template.field_set[i]
+                if (field.required && !content.data) {
                     return false
                 }
             }
@@ -127,7 +133,8 @@ export default {
     components: {
         icon,
         'file-upload-input': fileUploadInput,
-        'text-editor': textEditor
+        'text-editor': textEditor,
+        'url-input': urlInput
     }
 }
 </script>

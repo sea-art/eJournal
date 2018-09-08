@@ -28,9 +28,10 @@
 </template>
 
 <script>
-import commonAPI from '@/api/common.js'
 import icon from 'vue-awesome/components/Icon'
 import store from '@/Store.vue'
+
+import common from '@/api/common'
 
 export default {
     components: {
@@ -103,14 +104,16 @@ export default {
             }
 
             if (crumbsMissingDisplayName.length > 0) {
-                commonAPI.get_names(request)
-                    .then(data => {
+                common.getNames(request)
+                    .then(names => {
                         for (var crumb of crumbsMissingDisplayName) {
-                            crumb.displayName = data[this.settings.namedViews[crumb.routeName].apiReturnValue]
+                            crumb.displayName = names[this.settings.namedViews[crumb.routeName].apiReturnValue]
                             this.cachedMap[crumb.route] = crumb.displayName
                         }
                     })
-                    .catch(error => { this.$toasted.error(error.response.data.description) })
+                    .catch(error => {
+                        this.$toasted.error(error.response.data.description)
+                    })
                     .then(_ => { store.setCachedMap(this.cachedMap) })
             }
         },
@@ -123,9 +126,9 @@ export default {
         canEdit () {
             var pageName = this.$route.name
 
-            if ((pageName === 'Home' && this.$root.isAdmin()) ||
-               (pageName === 'Course' && this.$root.canEditCourse()) ||
-               (pageName === 'Assignment' && this.$root.canEditAssignment())) {
+            if ((pageName === 'Home' && this.$hasPermission('is_superuser')) ||
+               (pageName === 'Course' && this.$hasPermission('can_edit_course')) ||
+               (pageName === 'Assignment' && this.$hasPermission('can_edit_assignment'))) {
                 return true
             }
         }
