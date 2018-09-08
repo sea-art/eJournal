@@ -33,12 +33,12 @@
                     </div>
                     <div v-else>
                         <text-editor
+                            class="multi-form"
                             :id="'comment-text-editor-' + index"
                             :givenContent="editCommentTemp[index]"
                             @content-update="editCommentTemp[index] = $event"
                         />
-                        <br/>
-                        <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="ml-2 delete-button float-right" @click="editCommentView(index, false, '')">
+                        <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="multi-form delete-button" @click="editCommentView(index, false, '')">
                             <icon name="ban"/>
                             Cancel
                         </b-button>
