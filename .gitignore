@@ -5,6 +5,7 @@
 /build
 VLE.db
 npm-debug.log
+core
 /settings/*
 
 .vscode/*
