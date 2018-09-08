@@ -37,11 +37,3 @@ echo "CREATE DATABASE ${DATABASE_NAME} WITH OWNER = ${DATABASE_USER};" | psql
 echo "ALTER USER ${DATABASE_USER} WITH PASSWORD '${DATABASE_PASSWORD}';" | psql
 echo "GRANT ALL PRIVILEGES ON DATABASE ${DATABASE_NAME} TO ${DATABASE_USER};" | psql
 EOF
-
-echo -e "
-
-
-
-
-
-Reboot you computer before moving on to the next step."
