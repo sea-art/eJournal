@@ -11,7 +11,7 @@ tar xfz ${path}/build/4.6.4.tar.gz -C build
 # Configure mod wsgi
 source ${path}/venv/bin/activate
     cd ${path}/build/mod_wsgi-4.6.4
-    ./configure
+    ./configure --with-python=${path}/venv/bin/python
 deactivate
 
 # Install mod wsgi
