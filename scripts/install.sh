@@ -12,12 +12,12 @@ tar xfz ${path}/build/4.6.4.tar.gz -C build
 source ${path}/venv/bin/activate
     cd ${path}/build/mod_wsgi-4.6.4
     ./configure
-deactivate
 
-# Install mod wsgi
-make
-sudo make install
-cd ${path}
+    # Install mod wsgi
+    make
+    sudo make install
+    cd ${path}
+deactivate
 
 # Sync venv (with the installed packages) to the target directory
 sudo rsync -a ${path}/venv ${TARGET}
