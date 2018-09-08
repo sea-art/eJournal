@@ -29,12 +29,6 @@ sudo sed -i "s'{{LTI_SECRET}}'${LTI_SECRET}'g" ${TARGET}/django/VLE/settings/pro
 sudo sed -i "s'{{LTI_KEY}}'${LTI_KEY}'g" ${TARGET}/django/VLE/settings/production.py
 sudo sed -i "s@development@production@g" ${TARGET}/django/manage.py
 
-# Reload the database with the new migrations
-# TODO: Why remove old migrations?
-sudo rm -rd ${TARGET}/django/VLE/migrations
-mkdir ${TARGET}/django/VLE/migrations || sudo mkdir ${TARGET}/django/VLE/migrations
-touch ${TARGET}/django/VLE/migrations/__init__.py || sudo touch ${TARGET}/django/VLE/migrations/__init__.py
-
 # Migrate the database
 source ${TARGET}/venv/bin/activate
     python ${TARGET}/django/manage.py makemigrations || sudo sh -c "${TARGET}/venv/bin/activate && python ${TARGET}/django/manage.py makemigrations"
