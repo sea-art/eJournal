@@ -5,7 +5,7 @@
 
 <template>
     <div class="edag-node-circle-border">
-        <div class="edag-node-circle unselectable" :class="nodeClass">
+        <div class="edag-node-circle unselectable" data-toggle="tooltip" :title="nodeTitle" :class="nodeClass">
             <icon v-if="this.type !== 'p'" :name="iconName" :class="iconClass" :scale="iconScale"/>
             <div v-else class="edag-node-circle-text">{{ text }}</div>
         </div>
@@ -47,6 +47,26 @@ export default {
             }
 
             return 'calendar'
+        },
+        nodeTitle () {
+            switch (this.nodeState) {
+            case 'graded':
+                return 'Graded'
+            case 'failed':
+                return 'Missed deadline'
+            case 'awaiting_grade':
+                return 'Awaiting grade'
+            case 'needs_grading':
+                return 'Needs grading'
+            case 'needs_publishing':
+                return 'Awaiting publishment'
+            case 'add':
+                return 'Add new entry'
+            case 'start':
+                return 'Assignment details'
+            }
+
+            return 'Deadline'
         },
         iconClass () {
             switch (this.nodeState) {
