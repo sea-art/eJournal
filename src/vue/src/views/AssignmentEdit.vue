@@ -16,13 +16,13 @@
                  />
                  <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="assignment.points_possible" placeholder="Points possible" type="number"/>
                  <b-form-group label="Available from:">
-                     <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input full-width" v-model="assignment.unlock_date" type="date"/>
+                     <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input full-width" :value="assignment.unlock_date && assignment.unlock_date.replace(' ', 'T')" @input="assignment.unlock_date = $event && $event.replace('T', ' ')" type="datetime-local"/>
                  </b-form-group>
                  <b-form-group label="Due on:">
-                     <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input full-width" v-model="assignment.due_date" type="date"/>
+                     <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input full-width" :value="assignment.due_date && assignment.due_date.replace(' ', 'T')" @input="assignment.due_date = $event && $event.replace('T', ' ')" type="datetime-local"/>
                  </b-form-group>
                  <b-form-group label="Unavailable after:">
-                     <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input full-width" v-model="assignment.lock_date" type="date"/>
+                     <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input full-width" :value="assignment.lock_date && assignment.lock_date.replace(' ', 'T')" @input="assignment.lock_date = $event && $event.replace('T', ' ')" type="datetime-local"/>
                  </b-form-group>
                 <b-button v-if="$hasPermission('can_delete_assignment')" @click.prevent.stop="deleteAssignment()" class="delete-button multi-form float-left">
                     <icon name="trash"/>

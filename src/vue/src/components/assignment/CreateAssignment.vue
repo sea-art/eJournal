@@ -11,13 +11,13 @@
             />
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.pointsPossible" placeholder="Points possible" type="number"/>
             <b-form-group label="Available from:">
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input full-width" v-model="form.unlockDate" type="date"/>
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input full-width" :value="form.unlockDate && form.unlockDate.replace(' ', 'T')" @input="form.unlockDate = $event && $event.replace('T', ' ')" type="datetime-local"/>
             </b-form-group>
             <b-form-group label="Due on:">
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input full-width" v-model="form.dueDate" type="date"/>
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input full-width" :value="form.dueDate && form.dueDate.replace(' ', 'T')" @input="form.dueDate = $event && $event.replace('T', ' ')" type="datetime-local"/>
             </b-form-group>
             <b-form-group label="Unavailable after:">
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input full-width" v-model="form.lockDate" type="date"/>
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input full-width" :value="form.lockDate && form.lockDate.replace(' ', 'T')" @input="form.lockDate = $event && $event.replace('T', ' ')" type="datetime-local"/>
             </b-form-group>
             <b-button class="float-left change-button mt-2" type="reset">
                 <icon name="undo"/>
@@ -100,9 +100,9 @@ export default {
             this.form.assignmentName = this.lti.ltiAssignName
             this.form.ltiAssignID = this.lti.ltiAssignID
             this.form.pointsPossible = this.lti.ltiPointsPossible
-            this.form.unlockDate = this.lti.ltiAssignUnlock
-            this.form.dueDate = this.lti.ltiAssignDue
-            this.form.lockDate = this.lti.ltiAssignLock
+            this.form.unlockDate = this.lti.ltiAssignUnlock.slice(0, -9)
+            this.form.dueDate = this.lti.ltiAssignDue.slice(0, -9)
+            this.form.lockDate = this.lti.ltiAssignLock.slice(0, -9)
             this.form.courseID = this.page.cID
         } else {
             this.form.courseID = this.$route.params.cID
