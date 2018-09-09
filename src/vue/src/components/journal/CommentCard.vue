@@ -58,6 +58,7 @@
                     :displayInline="true"
                     :basic="true"
                     :id="'comment-text-editor'"
+                    placeholder="Type your comment here..."
                     @content-update="tempComment = $event"
                 />
                 <div class="d-flex full-width justify-content-end align-items-center">

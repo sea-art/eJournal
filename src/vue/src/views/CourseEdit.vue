@@ -60,6 +60,9 @@
             <b-card class="no-hover">
                 <h2 class="mb-2">Manage course members</h2>
                 <b-row v-if="$hasPermission('can_add_course_participants')">
+                    <b-col sm="12">
+                        <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
+                    </b-col>
                     <b-col sm="12" class="d-flex flex-wrap">
                         <b-button v-if="viewEnrolled" v-on:click.stop @click="toggleEnroled" class="button full-width multi-form">
                             View unenrolled users

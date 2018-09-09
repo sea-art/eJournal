@@ -197,13 +197,17 @@ export default {
                 return self.compare(a.stats.submitted - a.stats.graded, b.stats.submitted - b.stats.graded)
             }
 
-            function checkFilter (user) {
-                var username = user.student.username.toLowerCase()
-                var fullName = user.student.name
+            function checkFilter (assignment) {
+                var username = assignment.student.username.toLowerCase()
+                var fullName = assignment.student.name.toLowerCase()
                 var searchVariable = self.searchVariable.toLowerCase()
 
                 return username.includes(searchVariable) ||
                        fullName.includes(searchVariable)
+            }
+            if (this.assignmentJournals[0]) {
+                console.log(this.assignmentJournals[0].student)
+                console.log(this.assignmentJournals[0].user)
             }
 
             /* Filter list based on search input. */
