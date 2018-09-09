@@ -5,7 +5,7 @@
             @eye-click="customisePage"
             @edit-click="handleEdit()"/>
 
-        <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
+        <div slot="main-content-column" v-for="a in assignments" :key="a.id">
             <b-link tag="b-button" :to="assignmentRoute(cID, a.id, a.journal)">
                 <assignment-card :line1="a.name">
                     <progress-bar
