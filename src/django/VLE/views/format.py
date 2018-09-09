@@ -103,7 +103,8 @@ class FormatView(viewsets.ViewSet):
         if not permissions.has_assignment_permission(request.user, assignment, 'can_edit_assignment'):
             return response.forbidden('You are not allowed to edit this assignment.')
 
-        serializer = AssignmentSerializer(assignment, data=assignment_details, context={'user': request.user}, partial=True)
+        serializer = AssignmentSerializer(assignment, data=assignment_details,
+                                          context={'user': request.user}, partial=True)
         if not serializer.is_valid():
             response.bad_request()
 

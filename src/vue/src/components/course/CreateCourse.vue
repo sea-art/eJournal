@@ -52,8 +52,8 @@ export default {
             courseAPI.create(this.form)
                 .then(course => {
                     if (!this.lti) { // If we are here via LTI a full store update will take place anyway.
-                        roleAPI.getFromCourse(course.cID).then(coursePermissions => {
-                            this.$store.commit('user/UPDATE_PERMISSIONS', { permissions: coursePermissions, key: 'course' + course.cID })
+                        roleAPI.getFromCourse(course.id).then(coursePermissions => {
+                            this.$store.commit('user/UPDATE_PERMISSIONS', { permissions: coursePermissions, key: 'course' + course.id })
                         })
                     }
                     this.$emit('handleAction', course.id)
