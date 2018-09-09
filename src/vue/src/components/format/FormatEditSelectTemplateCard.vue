@@ -6,20 +6,49 @@
 
 <template>
     <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+        <h2 class="d-inline multi-form">Preset</h2>
+
         <b-button @click.prevent="emitDeletePreset" class="delete-button float-right multi-form">
             <icon name="trash"/>
             Remove
         </b-button>
 
         <h2 class="field-heading">Preset Type</h2>
-        <b-form-select v-model="currentPreset.type" @change="onChangePresetType" class="multi-form">
-            <option value="d">Entry</option>
-            <option value="p">Progress Check</option>
-        </b-form-select>
+        <b-row>
+            <b-col md="6">
+                <b-card
+                    @click="changePresetType('d')"
+                    :class="{'unselected': currentPreset.type !== 'd'}">
+                    <b-button
+                        class="change-button preset-type-button float-left mr-3 mt-2"
+                        :class="{'selected': currentPreset.type === 'd'}">
+                        <icon name="calendar" scale="1.8"/>
+                    </b-button>
+                    <div>
+                        <b>Entry</b><br/>
+                        A preset that has to be filled in before a set deadline.
+                    </div>
+                </b-card>
+            </b-col>
+            <b-col md="6">
+                <b-card
+                    @click="changePresetType('p')"
+                    :class="{'unselected': currentPreset.type !== 'p'}">
+                    <b-button
+                        class="change-button preset-type-button float-left mr-3 mt-2"
+                        :class="{'selected': currentPreset.type === 'p'}">
+                        <icon name="flag-checkered" scale="1.8"/>
+                    </b-button>
+                    <div>
+                        <b>Progress</b><br/>
+                        A point target that has to be met before a set deadline.
+                    </div>
+                </b-card>
+            </b-col>
+        </b-row>
         <h2 class="field-heading">Preset Deadline</h2>
         <b-input class="theme-input multi-form" v-model="deadlineDate" type="date" @change="$emit('changed')"/>
         <b-input class="theme-input multi-form" v-model="deadlineTime" type="time" @change="$emit('changed')"/>
-
 
         <div v-if="currentPreset.type === 'd'">
             <h2 class="field-heading">Preset Template</h2>
@@ -71,12 +100,13 @@ export default {
             }
         },
         // Type-specific fields should be set or deleted
-        onChangePresetType (value) {
+        changePresetType (type) {
             this.$emit('changed')
-            if (value !== 'p') {
+            this.currentPreset.type = type
+            if (type !== 'p') {
                 this.currentPreset.target = ''
             }
-            if (value === 'd') {
+            if (type === 'd') {
                 if (this.templates[0]) {
                     this.$set(this.currentPreset, 'template', this.templates[0].t)
                 } else {
