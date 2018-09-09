@@ -45,7 +45,7 @@
                 <b-modal
                     ref="templateModal"
                     size="lg"
-                    hide-header
+                    title="Edit template"
                     hide-footer>
                         <template-editor :template="templateBeingEdited"/>
                 </b-modal>

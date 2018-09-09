@@ -2,7 +2,7 @@
 <template>
     <b-card class="no-hover">
         <div v-for="(field, i) in template.field_set" :key="field.eID" class="multi-form">
-            <span v-if="field.title">{{ field.title }}</span>
+            <h2 v-if="field.title" class="field-heading">{{ field.title }} <span v-if="field.required" style="color:red">*</span></h2>
 
             <b-textarea
                 v-if="field.type == 't'"

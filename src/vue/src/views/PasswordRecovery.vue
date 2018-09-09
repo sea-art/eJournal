@@ -3,8 +3,10 @@
         <h1>Password Recovery</h1>
         <b-card class="blue-border no-hover">
             <b-form @submit.prevent="recoverPassword()">
+                <h2 class="field-heading">New password</h2>
                 <b-input class="multi-form theme-input" type="password" v-model="password" required placeholder="New password"/>
-                <b-input class="multi-form theme-input" type="password" v-model="passwordRepeated" @keyup.enter="handleLogin()" required placeholder="Repeat new password"/>
+                <h2 class="field-heading">New password (again)</h2>
+                <b-input class="multi-form theme-input" type="password" v-model="passwordRepeated" @keyup.enter="handleLogin()" required placeholder="New password (again)"/>
                 <b-button class="float-right multi-form add-button" type="submit">
                     <icon name="save"/>
                     Save

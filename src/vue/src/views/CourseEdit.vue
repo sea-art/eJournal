@@ -5,22 +5,26 @@
         <b-card class="no-hover settings-card">
             <h2 class="mb-2">Manage course data</h2>
             <b-form @submit.prevent="onSubmit">
+                <h2 class="field-heading">Course name</h2>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                     :readonly="!$hasPermission('can_edit_course')"
                     v-model="course.name"
                     placeholder="Course name"
                     required/>
+                <h2 class="field-heading">Course abbreviation</h2>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                     :readonly="!$hasPermission('can_edit_course')"
                     v-model="course.abbreviation"
                     maxlength="10"
-                    placeholder="Course Abbreviation (Max 10 letters)"
+                    placeholder="Course abbreviation (max 10 letters)"
                     required/>
+                <h2 class="field-heading">From</h2>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                     :readonly="!$hasPermission('can_edit_course')"
                     v-model="course.startdate"
                     type="date"
                     required/>
+                <h2 class="field-heading">To</h2>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                     :readonly="!$hasPermission('can_edit_course')"
                     v-model="course.enddate"
@@ -83,7 +87,7 @@
                     </b-col>
                 </b-row>
                 <input
-                    v-if="!$hasPermission('can_add_course_participants')"
+                    v-if="$hasPermission('can_add_course_participants')"
                     class="multi-form theme-input full-width"
                     type="text"
                     v-model="searchVariable"

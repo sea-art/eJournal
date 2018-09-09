@@ -6,10 +6,10 @@
     <div>
         <b-card class="no-hover" :class="$root.getBorderClass(cID)">
             <h2 class="mb-2">{{ template.name }}</h2>
-            <div v-for="(field, i) in template.field_set" :key="field.eID">
-                <div v-if="field.title != ''">
-                    <b>{{ field.title }}</b> <b style="color: red" v-if="field.required">*</b>
-                </div>
+            <div v-for="(field, i) in template.field_set" :key="field.eID" class="multi-form">
+                <h2 v-if="field.title" class="field-heading">
+                    {{ field.title }} <span style="color: red" v-if="field.required">*</span>
+                </h2>
 
                 <div v-if="field.type=='t'">
                     <b-textarea class="theme-input" v-model="completeContent[i].data"></b-textarea><br>
@@ -59,7 +59,7 @@
                 @dismissed="dismissCountDown=0">
                 Some fields are empty or incorrectly formatted.
             </b-alert>
-            <b-button class="add-button float-right mt-2" @click="save">
+            <b-button class="add-button float-right" @click="save">
                 <icon name="paper-plane"/>
                 Post Entry
             </b-button>

@@ -1,12 +1,19 @@
 <template>
     <!-- TODO: Create default formats. -->
     <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
+        <h2 class="field-heading">Assignment Name</h2>
         <b-input
             class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
             v-model="form.assignmentName"
             placeholder="Assignment name"
             required
         />
+        <h2 class="field-heading">Points possible</h2>
+        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+            v-model="form.pointsPossible"
+            placeholder="Points"
+            type="number"/>
+        <h2 class="field-heading">Description</h2>
         <text-editor
             :id="'text-editor-assignment-description'"
             :givenContent="'Description of the assignment'"

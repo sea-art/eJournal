@@ -2,7 +2,7 @@
     <b-card class="no-hover settings-card" :class="$root.getBorderClass($route.params.cID)">
         <h2>Assignment details</h2>
         <b-form @submit.prevent="onSubmit">
-            <h2 class="field-heading">Title</h2>
+            <h2 class="field-heading">Assignment name</h2>
             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                      v-model="assignmentDetails.name"
                      placeholder="Assignment name"
