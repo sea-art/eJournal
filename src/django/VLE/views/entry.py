@@ -150,7 +150,10 @@ class EntryView(viewsets.ViewSet):
 
         if published is not None:
             entry.published = published
-            entry.save()
+            try:
+                entry.save()
+            except ValueError:
+                return response.bad_request()
             if published:
                 Comment.objects.filter(entry=entry).update(published=True)
 
@@ -176,8 +179,11 @@ class EntryView(viewsets.ViewSet):
         serializer = serialize.EntrySerializer(entry, data=request.data, partial=True, context={'user': request.user})
         if not serializer.is_valid():
             response.bad_request()
-        serializer.save()
 
+        try:
+            serializer.save()
+        except ValueError:
+            return response.bad_request('Invalid content, grade or published state.')
         if published and journal.sourcedid is not None and journal.grade_url is not None:
             payload = lti_grade.replace_result(journal)
         else:
