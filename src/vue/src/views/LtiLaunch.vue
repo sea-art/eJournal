@@ -1,24 +1,22 @@
 <template>
-    <content-single-columns>
+    <content-single-column>
         <h1 class="mb-2">{{ currentPage }}</h1>
         <b-card class="no-hover" :class="this.$root.colors[1]">
             <lti-create-link-course v-if="handleCourseChoice" @handleAction="handleActions" :lti="lti" :courses="courses"/>
             <lti-create-link-assignment v-else-if="handleAssignmentChoice" @handleAction="handleActions" :lti="lti" :page="page"/>
-            <lti-create-assignment v-else-if="createAssignment" @handleAction="handleActions" :lti="lti" :page="page"/>
             <div v-else class="center-content">
                 <h2 class="center-content">Setting up a link to your learning environment</h2><br/>
                 <icon name="spinner" pulse scale="1.5"/>
             </div>
         </b-card>
 
-    </content-single-columns>
+    </content-single-column>
 </template>
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import ltiCreateLinkCourse from '@/components/lti/LtiCreateLinkCourse.vue'
 import ltiCreateLinkAssignment from '@/components/lti/LtiCreateLinkAssignment.vue'
-import ltiCreateAssignment from '@/components/lti/LtiCreateAssignment.vue'
 import ltiAPI from '@/api/ltilaunch.js'
 import router from '@/router'
 import courseAPI from '@/api/course.js'
@@ -29,10 +27,9 @@ import icon from 'vue-awesome/components/Icon'
 export default {
     name: 'LtiLaunch',
     components: {
-        'content-single-columns': contentSingleColumn,
+        'content-single-column': contentSingleColumn,
         'lti-create-link-course': ltiCreateLinkCourse,
         'lti-create-link-assignment': ltiCreateLinkAssignment,
-        'lti-create-assignment': ltiCreateAssignment,
         icon
     },
     data () {
@@ -111,16 +108,7 @@ export default {
                 enddate: genericUtils.yearOffset(this.lti.ltiCourseStart.split(' ')[0]),
                 lti_id: this.lti.ltiCourseID }).then(course => {
                 this.page.cID = course.id
-                assignmentAPI.create({
-                    name: this.lti.ltiAssignName,
-                    description: 'Description placeholder',
-                    course_id: this.page.cID,
-                    lti_id: this.lti.ltiAssignID,
-                    points_possible: this.lti.ltiPointsPossible
-                }).then(assignment => {
-                    this.page.aID = assignment.id
-                    this.updateState(this.states.finish_t)
-                })
+                this.updateState(this.states.create_assign)
             })
         },
         handleActions (args) {
@@ -162,8 +150,17 @@ export default {
                 this.handleAssignmentChoice = true
                 break
             case this.states.create_assign:
-                this.currentPage = 'Assignment Integration'
-                this.createAssignment = true
+                console.log('hidiha')
+                this.$router.push({
+                    name: 'FormatEdit',
+                    params: {
+                        cID: this.page.cID,
+                        aID: 0,
+                        ltiAssignName: this.lti.ltiAssignName,
+                        ltiAssignID: this.lti.ltiAssignID,
+                        ltiPointsPossible: this.lti.ltiPointsPossible
+                    }
+                })
                 break
             case this.states.check_assign:
                 assignmentAPI.getWithLti(this.lti.ltiAssignID)
@@ -216,7 +213,7 @@ export default {
                 })
                 break
             case this.states.finish_t:
-                /* Teacher has created or coupled a new course and or assignment, we need to update the store. */
+                /* Teacher has created or linked a new course and or assignment, we need to update the store. */
                 this.$store.dispatch('user/populateStore').then(_ => {
                     this.$router.push({
                         name: 'Assignment',

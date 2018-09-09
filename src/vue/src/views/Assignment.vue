@@ -26,7 +26,7 @@
                 </b-col>
             </b-row>
             <b-button
-                v-if="$hasPermission('can_publish_assignment_grades')"
+                v-if="$hasPermission('can_publish_assignment_grades') && assignmentJournals.length > 0"
                 class="add-button full-width"
                 @click="publishGradesAssignment">
                 <icon name="upload"/>

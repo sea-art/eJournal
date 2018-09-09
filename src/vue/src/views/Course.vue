@@ -22,8 +22,14 @@
 
         <b-button v-if="$hasPermission('can_add_assignment')"
             slot="main-content-column"
-            class="add-button grey-background full-width"
-            @click="showModal('createAssignmentRef')">
+            :to="{
+                name: 'FormatEdit',
+                params: {
+                    cID: this.cID,
+                    aID: 0
+                }
+            }"
+            class="add-button grey-background full-width">
             <icon name="plus"/>
             Create New Assignment
         </b-button>
@@ -45,14 +51,6 @@
                 <todo-card :deadline="d"/>
             </b-link>
         </div>
-        <b-modal
-            slot="main-content-column"
-            ref="createAssignmentRef"
-            title="New Assignment"
-            size="lg"
-            hide-footer>
-                <create-assignment @handleAction="handleConfirm('createAssignmentRef')"></create-assignment>
-        </b-modal>
 
     </content-columns>
 </template>
@@ -65,7 +63,6 @@ import todoCard from '@/components/assets/TodoCard.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
 import mainCard from '@/components/assets/MainCard.vue'
 import icon from 'vue-awesome/components/Icon'
-import createAssignment from '@/components/assignment/CreateAssignment.vue'
 
 import assignmentAPI from '@/api/assignment'
 
@@ -95,7 +92,6 @@ export default {
         'todo-card': todoCard,
         'progress-bar': progressBar,
         'main-card': mainCard,
-        'create-assignment': createAssignment,
         icon
     },
     created () {
@@ -110,21 +106,6 @@ export default {
             assignmentAPI.getUpcoming(this.cID)
                 .then(deadlines => { this.deadlines = deadlines })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
-        },
-        showModal (ref) {
-            this.$refs[ref].show()
-        },
-        handleConfirm (ref) {
-            if (ref === 'createAssignmentRef') {
-                this.loadAssignments()
-            } else if (ref === 'editAssignmentRef') {
-                // TODO: handle edit assignment
-            }
-
-            this.hideModal(ref)
-        },
-        hideModal (ref) {
-            this.$refs[ref].hide()
         },
         customisePage () {
             this.$toasted.info('Wishlist: Customise page')

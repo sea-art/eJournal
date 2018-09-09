@@ -1,10 +1,21 @@
 <template>
     <div>
         <p class="lti-intro-text">You came here from a learning environment with an unknown
-            assignment. Do you want to create a new assignment on Logboek,
+            assignment. Do you want to create a new assignment on eJournal,
             or link to an existing one?</p>
         <b-row align-h="center" class="multi-form">
-            <b-button class="lti-button-option" @click="showModal('createAssignmentRef')">
+            <b-button
+                class="lti-button-option"
+                :to="{
+                    name: 'FormatEdit',
+                    params: {
+                        cID: page.cID,
+                        aID: 0,
+                        ltiAssignName: lti.ltiAssignName,
+                        ltiAssignID: lti.ltiAssignID,
+                        ltiPointsPossible: lti.ltiPointsPossible
+                    }
+                }">
                 <icon name="plus-square" scale="1.8"/>
                 <h2 class="lti-button-text">Create new assignment</h2>
             </b-button>
@@ -15,14 +26,6 @@
                 <h2 class="lti-button-text">Link to existing <br/> assignment</h2>
             </b-button>
         </b-row>
-
-        <b-modal
-            ref="createAssignmentRef"
-            title="New Assignment"
-            size="lg"
-            hide-footer>
-                <create-assignment @handleAction="handleCreated" :lti="lti" :page="page"/>
-        </b-modal>
 
         <b-modal
             ref="linkAssignmentRef"

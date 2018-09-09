@@ -43,11 +43,26 @@
                 </b-button>
 
                 <b-modal
-                    ref="modal"
+                    ref="templateModal"
                     size="lg"
                     hide-header
                     hide-footer>
                         <template-editor :template="templateBeingEdited"/>
+                </b-modal>
+                <b-modal
+                    ref="creationModal"
+                    title="New Assignment"
+                    size="lg"
+                    v-model="createAssignment"
+                    no-close-on-esc
+                    no-close-on-backdrop
+                    hide-header-close
+                    hide-footer>
+                        <create-assignment
+                            @handleAction="handleCreateAssignment"
+                            :ltiAssignName="ltiAssignName"
+                            :ltiAssignID="ltiAssignID"
+                            :ltiPointsPossible="ltiPointsPossible"/>
                 </b-modal>
             </b-col>
         </b-col>
@@ -72,18 +87,16 @@
                 <b-col md="6" lg="12">
                     <h3>Entry Templates</h3>
                     <div :class="{ 'input-disabled' : saveRequestInFlight }">
-                        <available-template-card v-for="template in templatePool" :key="template.t.id" @click.native="showModal(template)" :template="template" @delete-template="deleteTemplate"/>
-                        <b-button class="add-button grey-background full-width" @click="showModal(newTemplate())">
+                        <available-template-card v-for="template in templatePool" :key="template.t.id" @click.native="showTemplateModal(template)" :template="template" @delete-template="deleteTemplate"/>
+                        <b-button class="add-button grey-background full-width" @click="showTemplateModal(newTemplate())">
                             <icon name="plus"/>
                             Create New Template
                         </b-button>
                     </div>
-                    {{ assignmentDetails }}
                 </b-col>
             </b-row>
         </b-col>
     </b-row>
-
 </template>
 
 <script>
@@ -96,11 +109,12 @@ import formatEditAvailableTemplateCard from '@/components/format/FormatEditAvail
 import formatEditSelectTemplateCard from '@/components/format/FormatEditSelectTemplateCard.vue'
 import templateEdit from '@/components/template/TemplateEdit.vue'
 import icon from 'vue-awesome/components/Icon'
+import createAssignment from '@/components/assignment/CreateAssignment.vue'
 import formatAPI from '@/api/format.js'
 
 export default {
     name: 'FormatEdit',
-    props: ['cID', 'aID', 'editedTemplate'],
+    props: ['cID', 'aID', 'ltiAssignName', 'ltiAssignID', 'ltiPointsPossible'],
     /* Main data representations:
        templates, presets, unused templates: as received.
        templatePool: the list of used templates. Elements are meta objects with a t field storing the template,
@@ -113,7 +127,9 @@ export default {
     */
     data () {
         return {
-            currentNode: 0,
+            createAssignment: false,
+            updateAssignmentID: null,
+            currentNode: -1,
 
             assignmentDetails: {},
 
@@ -141,13 +157,12 @@ export default {
         }
     },
     created () {
-        formatAPI.get(this.aID)
-            .then(data => {
-                this.saveFromDB(data)
-                this.convertFromDB()
-            })
-            .then(_ => { this.isChanged = false })
-            .catch(error => { this.$toasted.error(error.response.data.description) })
+        if (this.aID === 0) {
+            this.createAssignment = true
+        } else {
+            this.updateAssignmentID = this.aID
+            this.getFromDB()
+        }
 
         window.addEventListener('beforeunload', e => {
             if (this.$route.name === 'FormatEdit' && this.isChanged) {
@@ -193,14 +208,22 @@ export default {
                 available: false
             }
         },
-        // Shows the modal AND sets updated flag on template
-        showModal (template) {
+        // Shows the modal and sets updated flag on template
+        showTemplateModal (template) {
             template.updated = true
             if (!this.templatePool.includes(template)) {
                 this.templatePool.push(template)
             }
             this.templateBeingEdited = template.t
-            this.$refs['modal'].show()
+            this.$refs['templateModal'].show()
+        },
+        handleCreateAssignment (aID) {
+            this.hideModal('creationModal')
+            this.updateAssignmentID = aID
+            this.getFromDB()
+        },
+        hideModal (ref) {
+            this.$refs[ref].hide()
         },
         selectNode ($event) {
             if ($event === this.currentNode) {
@@ -286,7 +309,7 @@ export default {
 
             this.saveRequestInFlight = true
             this.convertToDB()
-            formatAPI.update(this.aID, {
+            formatAPI.update(this.updateAssignmentID, {
                 'assignment_details': this.assignmentDetails,
                 'templates': this.templates,
                 'max_points': this.max_points,
@@ -306,6 +329,15 @@ export default {
         },
         customisePage () {
             this.$toasted.info('Wishlist: Customise page')
+        },
+        getFromDB () {
+            formatAPI.get(this.updateAssignmentID)
+                .then(data => {
+                    this.saveFromDB(data)
+                    this.convertFromDB()
+                })
+                .then(_ => { this.isChanged = false })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         saveFromDB (data) {
             this.assignmentDetails = data.assignment_details
@@ -371,7 +403,8 @@ export default {
         'selected-node-card': formatEditSelectTemplateCard,
         'template-editor': templateEdit,
         icon,
-        'main-card': mainCard
+        'main-card': mainCard,
+        'create-assignment': createAssignment
     },
 
     // Prompts user

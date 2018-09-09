@@ -2,6 +2,7 @@
     <content-single-column>
         <h1 class="mb-2">Welcome to eJournal!</h1>
         <b-card class="no-hover" :class="this.$root.colors[1]">
+            <h2>First time setup</h2>
             <lti-create-link-user v-if="handleUserIntegration" @handleAction="userIntegrated" :lti="lti"/>
         </b-card>
     </content-single-column>

@@ -4,8 +4,8 @@
             <b-input class="multi-form theme-input" v-model="username" autofocus required placeholder="Username"/>
             <b-input class="multi-form theme-input" type="password" @keyup.enter="handleLogin()" v-model="password" required placeholder="Password"/>
             <b-button class="multi-form change-button" v-b-modal.forgotPasswordModal>
-                Forgot password
                 <icon name="question"/>
+                Forgot password
             </b-button>
             <b-button class="float-right multi-form" type="submit">
                 <icon name="sign-in"/>
