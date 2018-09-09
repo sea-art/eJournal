@@ -69,10 +69,9 @@
 
         <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
             <b-row>
-                <b-col md="6" lg="12">
-                    <h3>Assignment Format</h3>
+                <b-col>
                     <div :class="{ 'input-disabled' : saveRequestInFlight }">
-                        <b-card class="no-hover settings-card mb-4">
+                        <b-card class="no-hover settings-card blue-border mb-4">
                             <div class="point-maximum multi-form">
                                 <b>Point Maximum</b>
                                 <input class="theme-input" v-model="max_points" placeholder="Points" type="number">
@@ -84,7 +83,7 @@
                         </b-card>
                     </div>
                 </b-col>
-                <b-col md="6" lg="12">
+                <b-col>
                     <h3>Entry Templates</h3>
                     <div :class="{ 'input-disabled' : saveRequestInFlight }">
                         <available-template-card v-for="template in templatePool" :key="template.t.id" @click.native="showTemplateModal(template)" :template="template" @delete-template="deleteTemplate"/>

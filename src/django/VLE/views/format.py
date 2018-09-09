@@ -50,7 +50,8 @@ class FormatView(viewsets.ViewSet):
         serializer = FormatSerializer(assignment.format)
         assignmentDetails = {
             'name': assignment.name,
-            'description': assignment.description
+            'description': assignment.description,
+            'points_possible': assignment.points_possible
         }
 
         return response.success({'format': serializer.data, 'assignment_details': assignmentDetails})
@@ -129,7 +130,8 @@ class FormatView(viewsets.ViewSet):
         serializer = FormatSerializer(format)
         assignmentDetails = {
             'name': assignment.name,
-            'description': assignment.description
+            'description': assignment.description,
+            'points_possible': assignment.points_possible
         }
 
         return response.success({'format': serializer.data, 'assignment_details': assignmentDetails})
