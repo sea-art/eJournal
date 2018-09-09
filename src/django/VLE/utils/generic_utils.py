@@ -255,7 +255,11 @@ def delete_presets(presets, remove_presets):
 def delete_templates(templates, remove_templates):
     """Deletes all templates in remove_templates from templates. """
     ids = []
+    remove_ids = []
     for template in remove_templates:
+        if Entry.objects.filter(id=template['id']).count() == 0:
+            remove_ids.append(template['id'])
         ids.append(template['id'])
 
-    templates.filter(pk__in=ids).delete()
+    templates.filter(pk__in=remove_ids).delete()
+    templates.set(templates.exclude(pk__in=ids))
