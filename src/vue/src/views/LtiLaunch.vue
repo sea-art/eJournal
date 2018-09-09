@@ -1,7 +1,7 @@
 <template>
     <content-single-column>
         <h1 class="mb-2">{{ currentPage }}</h1>
-        <b-card class="no-hover" :class="this.$root.colors[1]">
+        <b-card class="no-hover blue-border">
             <lti-create-link-course v-if="handleCourseChoice" @handleAction="handleActions" :lti="lti" :courses="courses"/>
             <lti-create-link-assignment v-else-if="handleAssignmentChoice" @handleAction="handleActions" :lti="lti" :page="page"/>
             <div v-else class="center-content">
@@ -9,7 +9,6 @@
                 <icon name="spinner" pulse scale="1.5"/>
             </div>
         </b-card>
-
     </content-single-column>
 </template>
 
@@ -150,7 +149,6 @@ export default {
                 this.handleAssignmentChoice = true
                 break
             case this.states.create_assign:
-                console.log('hidiha')
                 this.$router.push({
                     name: 'FormatEdit',
                     params: {

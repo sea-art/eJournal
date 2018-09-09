@@ -1,8 +1,12 @@
 <template>
     <content-single-column>
         <h1 class="mb-2">Welcome to eJournal!</h1>
-        <b-card class="no-hover" :class="this.$root.colors[1]">
-            <h2>First time setup</h2>
+        <b-card class="no-hover blue-border">
+            <h2 class="multi-form">Let's get started</h2>
+            <span class="d-block mb-2">
+                Good to see you, <i>{{ lti.firstname }}</i>. In order to link your learning environment
+                to eJournal, please choose one of the options below.
+            </span>
             <lti-create-link-user v-if="handleUserIntegration" @handleAction="userIntegrated" :lti="lti"/>
         </b-card>
     </content-single-column>

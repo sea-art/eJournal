@@ -51,7 +51,7 @@
                 </b-modal>
                 <b-modal
                     ref="creationModal"
-                    title="New Assignment"
+                    title="Create new assignment"
                     size="lg"
                     v-model="createAssignment"
                     no-close-on-esc
