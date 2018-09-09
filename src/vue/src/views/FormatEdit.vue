@@ -68,32 +68,27 @@
         </b-col>
 
         <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
-            <b-row>
-                <b-col>
-                    <div :class="{ 'input-disabled' : saveRequestInFlight }">
-                        <b-card class="no-hover settings-card blue-border mb-4">
-                            <div class="point-maximum multi-form">
-                                <b>Point Maximum</b>
-                                <input class="theme-input" v-model="max_points" placeholder="Points" type="number">
-                            </div>
-                            <b-button @click.prevent.stop="saveFormat" class="add-button full-width">
-                                <icon name="save"/>
-                                Save Format
-                            </b-button>
-                        </b-card>
+
+            <div :class="{ 'input-disabled' : saveRequestInFlight }">
+                <b-card class="no-hover settings-card blue-border mb-4">
+                    <div class="point-maximum multi-form">
+                        <b>Point Maximum</b>
+                        <input class="theme-input" v-model="max_points" placeholder="Points" type="number">
                     </div>
-                </b-col>
-                <b-col>
-                    <h3>Entry Templates</h3>
-                    <div :class="{ 'input-disabled' : saveRequestInFlight }">
-                        <available-template-card v-for="template in templatePool" :key="template.t.id" @click.native="showTemplateModal(template)" :template="template" @delete-template="deleteTemplate"/>
-                        <b-button class="add-button grey-background full-width" @click="showTemplateModal(newTemplate())">
-                            <icon name="plus"/>
-                            Create New Template
-                        </b-button>
-                    </div>
-                </b-col>
-            </b-row>
+                    <b-button @click.prevent.stop="saveFormat" class="add-button full-width">
+                        <icon name="save"/>
+                        Save Format
+                    </b-button>
+                </b-card>
+            </div>
+            <h3>Entry Templates</h3>
+            <div :class="{ 'input-disabled' : saveRequestInFlight }">
+                <available-template-card v-for="template in templatePool" :key="template.t.id" @click.native="showTemplateModal(template)" :template="template" @delete-template="deleteTemplate"/>
+                <b-button class="add-button grey-background full-width" @click="showTemplateModal(newTemplate())">
+                    <icon name="plus"/>
+                    Create New Template
+                </b-button>
+            </div>
         </b-col>
     </b-row>
 </template>
