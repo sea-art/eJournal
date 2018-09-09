@@ -153,7 +153,7 @@ class EntryView(viewsets.ViewSet):
             try:
                 entry.save()
             except ValueError:
-                return response.bad_request()
+                return response.bad_request('Invalid grade or published state.')
             if published:
                 Comment.objects.filter(entry=entry).update(published=True)
 
