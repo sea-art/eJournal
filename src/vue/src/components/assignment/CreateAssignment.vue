@@ -9,6 +9,16 @@
                 @content-update="form.assignmentDescription = $event"
                 :footer="false"
             />
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.pointsPossible" placeholder="Points possible" type="number"/>
+            <b-form-group label="Available from:">
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input full-width" v-model="form.unlockDate" type="date"/>
+            </b-form-group>
+            <b-form-group label="Due on:">
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input full-width" v-model="form.dueDate" type="date"/>
+            </b-form-group>
+            <b-form-group label="Unavailable after:">
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input full-width" v-model="form.lockDate" type="date"/>
+            </b-form-group>
             <b-button class="float-left change-button mt-2" type="reset">
                 <icon name="undo"/>
                 Reset
@@ -38,7 +48,10 @@ export default {
                 assignmentDescription: '',
                 courseID: '',
                 ltiAssignID: null,
-                pointsPossible: null
+                pointsPossible: null,
+                unlockDate: null,
+                dueDate: null,
+                lockDate: null
             }
         }
     },
@@ -55,7 +68,10 @@ export default {
                 description: this.form.assignmentDescription,
                 course_id: this.form.courseID,
                 lti_id: this.form.ltiAssignID,
-                points_possible: this.form.pointsPossible
+                points_possible: this.form.pointsPossible,
+                unlock_date: this.form.unlockDate,
+                due_date: this.form.dueDate,
+                lock_date: this.form.lockDate
             })
                 .then(assignment => {
                     this.$emit('handleAction', assignment.id)
@@ -70,6 +86,9 @@ export default {
             /* Reset our form values */
             this.form.assignmentName = ''
             this.form.assignmentDescription = ''
+            this.form.unlockDate = undefined
+            this.form.dueDate = undefined
+            this.form.lockDate = undefined
 
             /* Trick to reset/clear native browser form validation state */
             this.show = false
@@ -81,6 +100,9 @@ export default {
             this.form.assignmentName = this.lti.ltiAssignName
             this.form.ltiAssignID = this.lti.ltiAssignID
             this.form.pointsPossible = this.lti.ltiPointsPossible
+            this.form.unlockDate = this.lti.ltiAssignUnlock
+            this.form.dueDate = this.lti.ltiAssignDue
+            this.form.lockDate = this.lti.ltiAssignLock
             this.form.courseID = this.page.cID
         } else {
             this.form.courseID = this.$route.params.cID

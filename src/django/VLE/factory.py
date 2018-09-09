@@ -75,7 +75,8 @@ def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=
 
 
 def make_assignment(name, description, author=None, format=None, lti_id=None,
-                    points_possible=None, course_ids=None, courses=None):
+                    points_possible=None, unlock_date=None, due_date=None,
+                    lock_date=None, course_ids=None, courses=None):
     """Make a new assignment.
 
     Arguments:
@@ -103,6 +104,12 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
         assign.lti_id = lti_id
     if points_possible is not None:
         assign.points_possible = points_possible
+    if unlock_date is not None:
+        assign.unlock_date = unlock_date
+    if due_date is not None:
+        assign.due_date = due_date
+    if lock_date is not None:
+        assign.lock_date = lock_date
     assign.save()
 
     return assign
