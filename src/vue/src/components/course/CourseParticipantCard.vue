@@ -121,6 +121,9 @@ export default {
                     this.$toasted.error(error.response.data.description)
                 })
             }
+        },
+        group: function (newVal, oldVal) {
+            this.selectedGroup = newVal
         }
     },
     created () {

@@ -5,6 +5,7 @@
                  title="Manage Course Groups"
                  hide-footer
                  >
+                 {{groups}}
 
             <b-card class="no-hover settings-card">
                 <h2 class="mb-2">Create new course</h2>
@@ -24,6 +25,7 @@
 
             <group-card
                 @delete-group="deleteGroup"
+                @update-group="updateGroup"
                 v-for="g in groups"
                 :key="g.id"
                 :cID="cID"
@@ -81,6 +83,9 @@ export default {
         },
         deleteGroup (groupName) {
             this.$emit('delete-group', groupName)
+        },
+        updateGroup (oldGroupName, newGroupName) {
+            this.$emit('update-group', oldGroupName, newGroupName)
         }
     },
     components: {

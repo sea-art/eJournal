@@ -128,16 +128,20 @@ class GroupView(viewsets.ViewSet):
         On success:
             success -- with the new course data
         """
-        pk = kwargs.get('pk')
-        # TODO: Check if its a partcipation with the correct rights
-        if not request.user.is_authenticated or \
-           not request.user.participations.filter(pk=pk):
+        if not request.user.is_authenticated:
             return response.unauthorized()
 
         try:
-            course = Course.objects.get(pk=pk)
-        except Course.DoesNotExist:
-            return response.not_found('course')
+            oldGroupName, newGroupName = utils.required_params(request.data, "oldGroupName", "newGroupName")
+        except KeyError:
+            return response.keyerror("oldGroupName", "newGroupName")
+
+        course_id = kwargs.get('pk')
+        try:
+            course = Course.objects.get(pk=course_id)
+            group = Group.objects.get(name=oldGroupName, course=course)
+        except (Course.DoesNotExist, Group.DoesNotExist):
+            return response.not_found('course or group')
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -145,14 +149,19 @@ class GroupView(viewsets.ViewSet):
         elif not role.can_edit_course:
             return response.unauthorized('You are unauthorized to edit this course group.')
 
-        if Group.objects.get(name=request.data['name'], course=course):
-            return response.bad_request('Course group already exists')
+        if not newGroupName:
+            return response.bad_request('Group name is not allowed to be empty')
 
-        serializer = self.serializer_class(course, data=request.data, partial=True)
-        if not serializer.is_valid():
-            response.bad_request()
-        serializer.save()
-        return response.success({'group': serializer.data})
+        try:
+            Group.objects.get(name=request.data['newGroupName'], course=course)
+            return response.bad_request('Course name already exists')
+        except Group.DoesNotExist:
+            group.name = newGroupName
+            serializer = self.serializer_class(group, data=request.data, partial=True)
+            if not serializer.is_valid():
+                response.bad_request()
+            serializer.save()
+            return response.success({'group': serializer.data})
 
     def destroy(self, request, *args, **kwargs):
         """Delete an existing course group.

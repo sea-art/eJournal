@@ -46,7 +46,8 @@
                                      :cID="this.cID"
                                      :groups="this.groups"
                                      @create-group="createGroup"
-                                     @delete-group="deleteGroup">
+                                     @delete-group="deleteGroup"
+                                     @update-group="updateGroup">
                         </group-modal>
 
                         <b-button class="add-button flex-grow-1 multi-form"
@@ -240,6 +241,18 @@ export default {
             })
 
             // TODO replace api function with frontend function
+            if (this.$hasPermission('can_view_course_participants')) {
+                participationAPI.getEnrolled(this.cID)
+                    .then(users => { this.participants = users })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
+            }
+        },
+        updateGroup (oldGroupName, newGroupName) {
+            // TODO replace api function with frontend function
+            groupAPI.getAllFromCourse(this.cID)
+                .then(groups => { this.groups = groups })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
+
             if (this.$hasPermission('can_view_course_participants')) {
                 participationAPI.getEnrolled(this.cID)
                     .then(users => { this.participants = users })

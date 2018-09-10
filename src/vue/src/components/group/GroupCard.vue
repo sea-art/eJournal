@@ -1,23 +1,23 @@
 <template>
     <b-card class="no-hover">
-        <b-row>
-            <b-col sm="12" lg="8" class="d-flex mb-2">
-                <b-col cols="3">
-                    <b>{{ groupName }}</b>
-                </b-col>
-            </b-col>
-            <b-col sm="12" lg="4">
+        <h2 class="mb-2">Group: {{ groupName }}</h2>
+            <b-form @submit.prevent="updateGroupName">
+                <b-input class="multi-form theme-input" v-model="form.newGroupName" placeholder="Update group name" required/>
+                <b-button class="float-right add-button" type="submit">
+                    <icon name="plus-square"/>
+                    Update
+                </b-button>
                 <b-button v-if="$hasPermission('can_edit_course')"
-                          @click.prevent.stop="removeGroup()"
-                          class="delete-button full-width">
+                          class="float-left delete-button"
+                          @click.prevent.stop="removeGroup()">
                     Remove group
                 </b-button>
-            </b-col>
-        </b-row>
+            </b-form>
     </b-card>
 </template>
 
 <script>
+import icon from 'vue-awesome/components/Icon'
 import groupAPI from '@/api/group'
 
 export default {
@@ -31,10 +31,25 @@ export default {
     },
     data () {
         return {
-            groupName: ''
+            groupName: '',
+            form: {
+                newGroupName: ''
+            }
         }
     },
     methods: {
+        updateGroupName () {
+            groupAPI.update(this.cID, {
+                oldGroupName: this.group,
+                newGroupName: this.form.newGroupName
+            })
+                .then(group => {
+                    this.groupName = this.form.newGroupName
+                    this.$emit('update-group', this.groupName, group.name)
+                    this.$toasted.success('Group update succes.')
+                })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
+        },
         removeGroup () {
             if (confirm('Are you sure you want to remove "' + this.groupName + '" from this course?')) {
                 groupAPI.delete(this.cID, this.groupName).then(data => {
@@ -48,6 +63,9 @@ export default {
     },
     created () {
         this.groupName = this.group
+    },
+    components: {
+        'icon': icon
     }
 }
 </script>
