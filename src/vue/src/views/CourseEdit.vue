@@ -45,6 +45,7 @@
                         </b-button>
                         <group-modal v-if="$hasPermission('can_edit_course')"
                                      :cID="this.cID"
+                                     :groups="this.groups"
                                      @create-group="createGroup">
                         </group-modal>
 
@@ -290,7 +291,7 @@ export default {
             }
 
             function checkGroup (user) {
-                if (self.selectedFilterGroupOption){
+                if (self.selectedFilterGroupOption) {
                     if (!user.group) {
                         return user.group === self.selectedFilterGroupOption
                     } else {

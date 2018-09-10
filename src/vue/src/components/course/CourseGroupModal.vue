@@ -1,35 +1,50 @@
 <template>
     <div>
         <b-btn class="change-button flex-grow-1 multi-form" v-b-modal="'CourseGroupModal'">Manage Course Groups</b-btn>
-
         <b-modal id="CourseGroupModal"
                  title="Manage Course Groups"
                  hide-footer
                  >
 
-            <b-form @submit.prevent="createUserGroup" @reset.prevent="resetFormInput">
-                <b-input class="multi-form theme-input" v-model="form.groupName" placeholder="Desired group name" required/>
-                <b-input class="multi-form theme-input" v-model="form.groupTA" placeholder="TA name" required/>
-                    <b-button class="float-left change-button" type="reset">
-                    <icon name="undo"/>
-                    Reset
-                </b-button>
-                <b-button class="float-right add-button" type="submit">
-                    <icon name="plus-square"/>
-                    Create
-                </b-button>
-            </b-form>
+            <b-card class="no-hover settings-card">
+                <h2 class="mb-2">Create new course</h2>
+                <b-form @submit.prevent="createUserGroup" @reset.prevent="resetFormInput">
+                    <b-input class="multi-form theme-input" v-model="form.groupName" placeholder="Desired group name" required/>
+                    <b-input class="multi-form theme-input" v-model="form.groupTA" placeholder="TA name" required/>
+                        <b-button class="float-left change-button" type="reset">
+                        <icon name="undo"/>
+                        Reset
+                    </b-button>
+                    <b-button class="float-right add-button" type="submit">
+                        <icon name="plus-square"/>
+                        Create
+                    </b-button>
+                </b-form>
+            </b-card>
+
+            <group-card
+                v-for="g in groups"
+                :key="g.id"
+                :cID="cID"
+                :group="g.name"/>
+
         </b-modal>
     </div>
 </template>
 
 <script>
-import groupApi from '@/api/group.js'
 import icon from 'vue-awesome/components/Icon'
+import groupCard from '@/components/group/GroupCard.vue'
+
+import groupApi from '@/api/group.js'
+
 export default {
     name: 'CourseGroupModal',
     props: {
         cID: {
+            required: true
+        },
+        groups: {
             required: true
         }
     },
@@ -65,7 +80,8 @@ export default {
         }
     },
     components: {
-        'icon': icon
+        'icon': icon,
+        'group-card': groupCard
     }
 }
 </script>
