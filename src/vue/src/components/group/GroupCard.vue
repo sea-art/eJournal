@@ -37,7 +37,7 @@ export default {
     methods: {
         removeGroup () {
             if (confirm('Are you sure you want to remove "' + this.groupName + '" from this course?')) {
-                groupAPI.delete(this.cID, {name: this.groupName}).then(data => {
+                groupAPI.delete(this.cID, this.groupName).then(data => {
                     this.$toasted.success(data.description)
                     this.$emit('delete-group', this.groupName)
                 }, error => {

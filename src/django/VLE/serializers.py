@@ -5,11 +5,7 @@ Functions to convert certain data to other formats.
 """
 from rest_framework import serializers
 from VLE.models import User, Course, Node, Comment, Assignment, Role, Journal, Entry, Template, Field, Content, \
-<<<<<<< HEAD
-    JournalFormat, PresetNode, Group, Participation
-=======
-    Format, PresetNode
->>>>>>> develop
+    Format, PresetNode, Group, Participation
 import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
 import statistics as st
@@ -124,17 +120,15 @@ class AssignmentSerializer(serializers.ModelSerializer):
             return None
 
     def get_stats(self, assignment):
-        if 'user' not in self.context:
+        if 'user' not in self.context or \
+           not permissions.has_assignment_permission(self.context['user'], assignment, 'can_grade_journal'):
             return None
 
         journals = JournalSerializer(assignment.journal_set.all(), many=True).data
         if not journals:
             return None
         stats = {}
-        if permissions.has_assignment_permission(self.context['user'], assignment, 'can_grade_journal'):
-            stats['needs_marking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
-            stats['unpublished'] = sum([x['stats']['submitted'] - x['stats']['published']
-                                        for x in journals]) - stats['needs_marking']
+        stats['needs_marking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
         points = [x['stats']['acquired_points'] for x in journals]
         stats['average_points'] = round(st.mean(points), 2)
         return stats
@@ -190,7 +184,6 @@ class JournalSerializer(serializers.ModelSerializer):
         return {
             'acquired_points': utils.get_acquired_points(entries),
             'graded': utils.get_graded_count(entries),
-            'published': utils.get_published_count(entries),
             'submitted': utils.get_submitted_count(entries),
             'total_points': utils.get_max_points(journal),
         }
@@ -315,8 +308,8 @@ class FieldSerializer(serializers.ModelSerializer):
 #         data.update({field.title: content.data})
 #
 #     # Add the comments.
-#     comments = [{comment.author.username: comment.text}
-#                 for comment in Comment.objects.filter(entry=entry)]
+#     comments = [{entrycomment.author.username: entrycomment.text}
+#                 for entrycomment in Comment.objects.filter(entry=entry)]
 #     data.update({'comments': comments})
 #
 #     return data
