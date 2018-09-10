@@ -5,7 +5,6 @@
                  title="Manage Course Groups"
                  hide-footer
                  >
-                 {{groups}}
 
             <b-card class="no-hover settings-card">
                 <h2 class="mb-2">Create new course</h2>
