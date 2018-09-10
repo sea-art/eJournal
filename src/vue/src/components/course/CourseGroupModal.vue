@@ -23,6 +23,7 @@
             </b-card>
 
             <group-card
+                @delete-group="deleteGroup"
                 v-for="g in groups"
                 :key="g.id"
                 :cID="cID"
@@ -77,6 +78,9 @@ export default {
             /* Trick to reset/clear native browser form validation state */
             this.show = false
             this.$nextTick(() => { this.show = true })
+        },
+        deleteGroup (groupName) {
+            this.$emit('delete-group', groupName)
         }
     },
     components: {

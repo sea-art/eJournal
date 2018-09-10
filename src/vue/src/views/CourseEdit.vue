@@ -45,7 +45,8 @@
                         <group-modal v-if="$hasPermission('can_edit_course')"
                                      :cID="this.cID"
                                      :groups="this.groups"
-                                     @create-group="createGroup">
+                                     @create-group="createGroup"
+                                     @delete-group="deleteGroup">
                         </group-modal>
 
                         <b-button class="add-button flex-grow-1 multi-form"
@@ -232,6 +233,18 @@ export default {
             this.groups.push({
                 'name': groupName
             })
+        },
+        deleteGroup (groupName) {
+            this.groups = this.groups.filter(function (item) {
+                return groupName !== item.name
+            })
+
+            // TODO replace api function with frontend function
+            if (this.$hasPermission('can_view_course_participants')) {
+                participationAPI.getEnrolled(this.cID)
+                    .then(users => { this.participants = users })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
+            }
         },
         loadUnenrolledStudents () {
             participationAPI.getUnenrolled(this.cID)
