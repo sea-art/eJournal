@@ -69,7 +69,7 @@ class UserView(viewsets.ViewSet):
         try:
             user = User.objects.get(pk=pk)
         except User.DoesNotExist:
-            return response.not_found('user')
+            return response.not_found('User does not exist.')
 
         if request.user == user or request.user.is_superuser:
             serializer = OwnUserSerializer(user, many=False)
@@ -179,7 +179,7 @@ class UserView(viewsets.ViewSet):
         try:
             user = User.objects.get(pk=pk)
         except User.DoesNotExist:
-            return request.not_found('user')
+            return request.not_found('User does not exist.')
 
         if 'jwt_params' in request.data and request.data['jwt_params'] != '':
             try:
@@ -221,7 +221,7 @@ class UserView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the user does not exists
+            not found -- when the user does not exist
         On success:
             success -- deleted message
         """
@@ -236,7 +236,7 @@ class UserView(viewsets.ViewSet):
         try:
             user = User.objects.get(pk=pk)
         except User.DoesNotExist:
-            return response.not_found('user')
+            return response.not_found('User does not exist.')
 
         user.delete()
         return response.deleted(description='Sucesfully deleted user.')
@@ -263,7 +263,7 @@ class UserView(viewsets.ViewSet):
         try:
             new_password, old_password = utils.required_params(request.data, 'new_password', 'old_password')
         except KeyError:
-            return response.KeyError('new_password', 'old_password')
+            return response.keyerror('new_password', 'old_password')
 
         if not request.user.check_password(old_password):
             return response.bad_request('Wrong password.')
@@ -348,7 +348,7 @@ class UserView(viewsets.ViewSet):
         try:
             file_name, = utils.required_params(request.query_params, 'file_name')
         except KeyError:
-            return response.KeyError('file_name')
+            return response.keyerror('file_name')
 
         try:
             user_file = UserFile.objects.get(author=pk, file_name=file_name)

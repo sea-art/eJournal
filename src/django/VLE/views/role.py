@@ -19,7 +19,7 @@ class RoleView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the course does not exists
+            not found -- when the course does not exist
             forbidden -- when the user is not in the course
             forbidden -- when the user is unauthorized to edit its roles
         On success:
@@ -36,7 +36,7 @@ class RoleView(viewsets.ViewSet):
         try:
             course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
-            return response.not_found('Course')
+            return response.not_found('Course does not exist.')
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -72,7 +72,7 @@ class RoleView(viewsets.ViewSet):
         try:
             user = request.user if int(pk) == 0 else User.objects.get(int(pk))
         except User.DoesNotExist:
-            return response.not_found('User')
+            return response.not_found('User does not exist.')
 
         # Return course permissions if course_id is set
         try:
@@ -81,7 +81,7 @@ class RoleView(viewsets.ViewSet):
                 if int(course_id) > 0:
                     Course.objects.get(pk=course_id)
             except Course.DoesNotExist:
-                return response.not_found('Course')
+                return response.not_found('Course does not exist.')
 
             perms = permissions.get_permissions(user, int(course_id))
             if not perms:
@@ -96,7 +96,7 @@ class RoleView(viewsets.ViewSet):
                     perms = permissions.get_assignment_id_permissions(request.user, assignment_id)
                     return response.success({'role': perms})
                 except Assignment.DoesNotExist:
-                    return response.not_found('Assignment was not found')
+                    return response.not_found('Assignment does not exist.')
         # Return keyerror is course_id nor assignment_id is set
             except KeyError:
                 return response.keyerror('course_id or assignment_id')
@@ -113,7 +113,7 @@ class RoleView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the course does not exists
+            not found -- when the course does not exist
             forbidden -- when the user is not in the course
             forbidden -- when the user is unauthorized to edit its roles
         On success:
@@ -126,7 +126,7 @@ class RoleView(viewsets.ViewSet):
         try:
             course = Course.objects.get(pk=request.data['course_id'])
         except Course.DoesNotExist:
-            return response.not_found('course')
+            return response.not_found('Course does not exist.')
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -152,7 +152,7 @@ class RoleView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the course does not exists
+            not found -- when the course does not exist
             forbidden -- when the user is not in the course
             forbidden -- when the user is unauthorized to edit its roles
             keyerror -- when roles or roles.name is not set
@@ -167,7 +167,7 @@ class RoleView(viewsets.ViewSet):
         try:
             course = Course.objects.get(pk=pk)
         except Course.DoesNotExist:
-            return response.not_found('course')
+            return response.not_found('Course does not exist.')
 
         role = permissions.get_role(request.user, course)
         if role is None:

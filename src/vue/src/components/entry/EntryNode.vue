@@ -17,14 +17,14 @@
                     <icon name="hourglass-half"/>
                 </span>
             </div>
-            <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
+            <h2 class="mb-2">{{ entryNode.entry.template.name }}</h2>
             <!--
                 Shows every field description and
                 a corresponding form.
             -->
             <div v-for="(field, i) in entryNode.entry.template.field_set" :key="field.eID">
                 <div v-if="field.title">
-                    <b>{{ field.title }}</b>
+                    <b>{{ field.title }}</b> <b style="color: red" v-if="field.required">*</b>
                 </div>
 
                 <div v-if="field.type=='t'">
@@ -108,7 +108,7 @@
                 Gives a view of every templatefield and
                 if possible the already filled in entry.
             -->
-            <div v-for="(field, i) in entryNode.entry.template.field_set" :key="field.eID">
+            <div v-for="(field, i) in entryNode.entry.template.field_set" v-if="field.required || completeContent[i].data" :key="field.id">
                 <div v-if="field.title">
                     <b>{{ field.title }}</b>
                 </div>
@@ -117,6 +117,7 @@
                 </div>
                 <div v-else-if="field.type=='i'">
                     <image-file-display
+                        :id="'entry-' + entryNode.entry.nID + '-field-' + i"
                         :fileName="completeContent[i].data"
                         :authorUID="$parent.journal.student.id"
                     />
@@ -238,8 +239,10 @@ export default {
             }
         },
         checkFilled: function () {
-            for (var content of this.completeContent) {
-                if (!content.data) {
+            for (var i = 0; i < this.completeContent.length; i++) {
+                var content = this.completeContent[i]
+                var field = this.entryNode.entry.template.field_set[i]
+                if (field.required && !content.data) {
                     return false
                 }
             }

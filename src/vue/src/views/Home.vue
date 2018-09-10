@@ -23,7 +23,7 @@
             Create New Course
         </b-button>
 
-        <h3 slot="right-content-column">Upcoming</h3>
+        <h3 slot="right-content-column">To Do</h3>
         <!-- TODO: This seems like an inappropriate permission check. Will have to be reconsidered in the rework. -->
         <b-card v-if="$hasPermission('can_add_course')"
                 class="no-hover"
@@ -35,7 +35,7 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.stats ? null : d.journal)">
+            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal)">
                 <todo-card :deadline="d"/>
             </b-link>
         </div>
@@ -160,14 +160,10 @@ export default {
                 return (++counter <= 5)
             }
 
-            function filterNoEntries (deadline) {
-                return deadline.stats.needs_marking !== 0
-            }
-
             if (this.selectedSortOption === 'sortDate') {
                 return this.deadlines.slice().sort(compareDate).filter(filterTop)
             } else if (this.selectedSortOption === 'sortNeedsMarking') {
-                return this.deadlines.slice().sort(compareMarkingNeeded).filter(filterTop).filter(filterNoEntries)
+                return this.deadlines.slice().sort(compareMarkingNeeded).filter(filterTop)
             } else {
                 return this.deadlines.slice().sort(compareDate).filter(filterTop)
             }

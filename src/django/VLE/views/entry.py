@@ -89,7 +89,7 @@ class EntryView(viewsets.ViewSet):
             try:
                 field = Field.objects.get(pk=content['id'])
             except Field.DoesNotExist:
-                return response.not_found('Field')
+                return response.not_found('Field does not exist.')
 
             factory.make_content(node.entry, content['data'], field)
 
@@ -117,7 +117,7 @@ class EntryView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the entry does not exists
+            not found -- when the entry does not exist
             forbidden -- User not allowed to edit this entry
             unauthorized -- when the user is unauthorized to edit the entry
             bad_request -- when there is invalid data in the request
@@ -133,7 +133,7 @@ class EntryView(viewsets.ViewSet):
         try:
             entry = Entry.objects.get(pk=pk)
         except Entry.DoesNotExist:
-            return response.not_found('Entry')
+            return response.not_found('Entry does not exist.')
 
         grade, published, content_list = utils.optional_params(request.data, "grade", "published", "content")
 
@@ -150,8 +150,12 @@ class EntryView(viewsets.ViewSet):
 
         if published is not None:
             entry.published = published
-            entry.save()
-            Comment.objects.filter(entry=entry).update(published=published)
+            try:
+                entry.save()
+            except ValueError:
+                return response.bad_request('Invalid grade or published state.')
+            if published:
+                Comment.objects.filter(entry=entry).update(published=True)
 
         if content_list:
             if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_edit_journal'):
@@ -168,15 +172,18 @@ class EntryView(viewsets.ViewSet):
                 try:
                     field = Field.objects.get(pk=content['id'])
                 except Field.DoesNotExist:
-                    return response.not_found('Field')
+                    return response.not_found('Field does not exist.')
 
                 factory.make_content(entry, content['data'], field)
 
         serializer = serialize.EntrySerializer(entry, data=request.data, partial=True, context={'user': request.user})
         if not serializer.is_valid():
             response.bad_request()
-        serializer.save()
 
+        try:
+            serializer.save()
+        except ValueError:
+            return response.bad_request('Invalid content, grade or published state.')
         if published and journal.sourcedid is not None and journal.grade_url is not None:
             payload = lti_grade.replace_result(journal)
         else:

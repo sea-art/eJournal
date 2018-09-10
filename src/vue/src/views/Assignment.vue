@@ -4,20 +4,30 @@
         <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
         <b-card slot="main-content-column" class="no-hover settings-card">
             <b-row>
-                <b-col sm="6">
+                <b-col sm="12">
+                    <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
+                </b-col>
+                <b-col sm="8">
                     <b-form-select class="multi-form" v-model="selectedSortOption" :select-size="1">
                        <option value="sortFullName">Sort by name</option>
                        <option value="sortUsername">Sort by username</option>
                        <option value="sortMarking">Sort by marking needed</option>
                     </b-form-select>
                 </b-col>
-                <b-col sm="6">
-                    <input class="theme-input multi-form full-width" type="text" v-model="searchVariable" placeholder="Search..."/>
+                <b-col sm="4">
+                    <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button full-width multi-form">
+                        <icon name="long-arrow-down"/>
+                        Ascending
+                    </b-button>
+                    <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="button full-width multi-form">
+                        <icon name="long-arrow-up"/>
+                        Descending
+                    </b-button>
                 </b-col>
             </b-row>
             <b-button
                 v-if="$hasPermission('can_publish_assignment_grades')"
-                class="add-button"
+                class="add-button full-width"
                 @click="publishGradesAssignment">
                 <icon name="upload"/>
                 Publish all Grades for this Assignment
@@ -44,8 +54,9 @@
 
         <div v-if="stats" slot="right-content-column">
             <h3>Insights</h3>
-            <statistics-card :subject="'Needs marking'" :num="stats.needs_marking"></statistics-card>
-            <statistics-card :subject="'Average points'" :num="stats.average_points"></statistics-card>
+            <statistics-card :subject="'Needs marking'" :num="stats.needs_marking"/>
+            <statistics-card :subject="'Unpublished grades'" :num="stats.unpublished"/>
+            <statistics-card :subject="'Average points'" :num="stats.average_points"/>
         </div>
     </content-columns>
 </template>
@@ -78,7 +89,8 @@ export default {
             stats: [],
             selectedSortOption: 'sortUsername',
             searchVariable: '',
-            query: {}
+            query: {},
+            order: false
         }
     },
     components: {
@@ -91,10 +103,20 @@ export default {
         'main-card': mainCard
     },
     created () {
+        // TODO Should be moved to the breadcrumb, ensuring there is no more natural flow left that can get you to this
+        // page without manipulating the url manually. If someone does this, simply let the error be thrown (no checks required)
+        if (!this.$hasPermission('can_view_assignment_participants')) {
+            if (this.$root.previousPage) {
+                this.$router.push({ name: this.$root.previousPage.name, params: this.$root.previousPage.params })
+            } else {
+                this.$router.push({ name: 'Home' })
+            }
+        }
+
         assignmentAPI.get(this.aID, this.cID)
-            .then(data => {
-                this.assignmentJournals = data.journals
-                this.stats = data.stats
+            .then(assignment => {
+                this.assignmentJournals = assignment.journals
+                this.stats = assignment.stats
             })
             .catch(error => {
                 this.$toasted.error(error.response.data.description)
@@ -125,19 +147,18 @@ export default {
         },
         publishGradesAssignment () {
             if (confirm('Are you sure you want to publish all grades for each journal?')) {
-                alert('Not implemented yet')
-                // journal.update_publish_grades_assignment(this.aID, 1)
-                //     .then(_ => {
-                //         this.$toasted.success('Published all grades for this assignment.')
-                //         journal.get_assignment_journals(this.aID)
-                //             .then(response => {
-                //                 this.assignmentJournals = response.journals
-                //                 this.stats = response.stats
-                //             })
-                //     })
-                //     .catch(_ => {
-                //         this.$toasted.error('Error while publishing all grades for this assignment.')
-                //     })
+                assignmentAPI.update(this.aID, {published: true})
+                    .then(_ => {
+                        this.$toasted.success('Published all grades for this assignment.')
+                        assignmentAPI.get(this.aID, this.cID)
+                            .then(assignment => {
+                                this.assignmentJournals = assignment.journals
+                                this.stats = assignment.stats
+                            })
+                    })
+                    .catch(_ => {
+                        this.$toasted.error('Error while publishing all grades for this assignment.')
+                    })
             }
         },
         updateQuery () {
@@ -150,6 +171,14 @@ export default {
             if (this.$route.query !== this.query) {
                 this.$router.replace({ query: this.query })
             }
+        },
+        compare (a, b) {
+            if (a < b) { return this.order ? 1 : -1 }
+            if (a > b) { return this.order ? -1 : 1 }
+            return 0
+        },
+        toggleOrder () {
+            this.order = !this.order
         }
     },
     computed: {
@@ -157,37 +186,28 @@ export default {
             let self = this
 
             function compareFullName (a, b) {
-                var fullNameA = a.student.first_name + ' ' + a.student.last_name
-                var fullNameB = b.student.first_name + ' ' + b.student.last_name
-
-                if (fullNameA < fullNameB) { return -1 }
-                if (fullNameA > fullNameB) { return 1 }
-                return 0
+                return self.compare(a.student.name, b.student.name)
             }
 
             function compareUsername (a, b) {
-                if (a.student.username < b.student.username) { return -1 }
-                if (a.student.username > b.student.username) { return 1 }
-                return 0
+                return self.compare(a.student.username, b.student.username)
             }
 
             function compareMarkingNeeded (a, b) {
-                if (a.stats.submitted - a.stats.graded < b.stats.submitted - b.stats.graded) { return 1 }
-                if (a.stats.submitted - a.stats.graded > b.stats.submitted - b.stats.graded) { return -1 }
-                return 0
+                return self.compare(a.stats.submitted - a.stats.graded, b.stats.submitted - b.stats.graded)
             }
 
-            function checkFilter (user) {
-                var username = user.student.username.toLowerCase()
-                var fullName = user.student.first_name.toLowerCase() + ' ' + user.student.last_name.toLowerCase()
+            function checkFilter (assignment) {
+                var username = assignment.student.username.toLowerCase()
+                var fullName = assignment.student.name.toLowerCase()
                 var searchVariable = self.searchVariable.toLowerCase()
 
-                if (username.includes(searchVariable) ||
-                    fullName.includes(searchVariable)) {
-                    return true
-                } else {
-                    return false
-                }
+                return username.includes(searchVariable) ||
+                       fullName.includes(searchVariable)
+            }
+            if (this.assignmentJournals[0]) {
+                console.log(this.assignmentJournals[0].student)
+                console.log(this.assignmentJournals[0].user)
             }
 
             /* Filter list based on search input. */

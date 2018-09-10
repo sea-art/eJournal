@@ -4,9 +4,10 @@ comment.py.
 In this file are all the comment api requests.
 """
 from rest_framework import viewsets
+from datetime import datetime
 
 from VLE.serializers import CommentSerializer
-from VLE.models import Comment, Entry, User, Assignment
+from VLE.models import Comment, Entry, User, Assignment, Journal
 import VLE.views.responses as response
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
@@ -34,7 +35,7 @@ class CommentView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the course does not exists
+            not found -- when the course does not exist
             forbidden -- when its not their own journal, or the user is not allowed to grade that journal
         On succes:
             success -- with a list of the comments belonging to the entry
@@ -53,7 +54,7 @@ class CommentView(viewsets.ViewSet):
         try:
             entry = Entry.objects.get(pk=entry_id)
         except Entry.DoesNotExist:
-            return response.not_found('Entry')
+            return response.not_found('Entry does not exist.')
 
         if entry.node.journal.user != request.user and \
            not permissions.has_assignment_permission(
@@ -98,14 +99,20 @@ class CommentView(viewsets.ViewSet):
 
         try:
             entry = Entry.objects.get(pk=entry_id)
-            assignment = Assignment.objects.get(journal__node__entry=entry)
-        except (Assignment.DoesNotExist, Entry.DoesNotExist):
-            return response.not_found('Entry or assignment does not exist.')
+            journal = Journal.objects.get(node__entry=entry)
+            assignment = Assignment.objects.get(journal=journal)
+        except (Assignment.DoesNotExist, Journal.DoesNotExist, Entry.DoesNotExist):
+            return response.not_found('Entry, journal or assignment does not exist.')
 
-        published = published and permissions.has_assignment_permission(request.user, assignment,
-                                                                        'can_grade_journal')
+        if not permissions.has_assignment_permission(request.user, assignment, 'can_comment_journal') or \
+            not (permissions.has_assignment_permission(request.user, assignment, 'can_grade_journal') or
+                 journal.user == request.user):
+            return response.forbidden('You are not allowed to comment on this journal')
 
-        comment = factory.make_entrycomment(entry, request.user, text, published)
+        published = published or not permissions.has_assignment_permission(request.user, assignment,
+                                                                           'can_grade_journal')
+
+        comment = factory.make_comment(entry, request.user, text, published)
         return response.created({'comment': CommentSerializer(comment).data})
 
     def retrieve(self, request, pk=None):
@@ -131,7 +138,7 @@ class CommentView(viewsets.ViewSet):
         try:
             comment = Comment.objects.get(pk=pk)
         except Comment.DoesNotExist:
-            return response.not_found('Comment')
+            return response.not_found('Comment does not exist.')
 
         if comment.entry.node.journal.user != request.user and \
            not permissions.has_assignment_permission(
@@ -154,7 +161,7 @@ class CommentView(viewsets.ViewSet):
         On failure:
             unauthorized -- when the user is not logged in
             keyerror -- when comment_id or text is not set
-            not found -- when the comment does not exists
+            not found -- when the comment does not exist
             forbidden -- when the user is not allowed to comment
             unauthorized -- when the user is unauthorized to edit the assignment
         On success:
@@ -175,7 +182,10 @@ class CommentView(viewsets.ViewSet):
                                                      'can_comment_journal'):
             return response.forbidden('You cannot comment on entries.')
 
-        serializer = CommentSerializer(comment, data=request.data, partial=True)
+        req_data = request.data
+        req_data['last_edited'] = datetime.now()
+
+        serializer = CommentSerializer(comment, data=req_data, partial=True)
         if not serializer.is_valid():
             response.bad_request()
         serializer.save()

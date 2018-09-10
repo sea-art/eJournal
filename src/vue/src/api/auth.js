@@ -127,9 +127,16 @@ export default {
     },
 
     downloadFile (url, data, noRedirect = false) {
-        return connection.connFile.get(url, data)
+        if (url[0] !== '/') url = '/' + url
+        if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
+        if (data) {
+            url += '?'
+            for (var key in data) { url += key + '=' + data[key] + '&' }
+            url = url.slice(0, -1)
+        }
+        return connection.connFile.get(url)
             .catch(error => store.dispatch('user/validateToken', error)
-                .then(_ => connection.connFile.get(url, data)))
+                .then(_ => connection.connFile.get(url)))
             .catch(error => handleError(error, noRedirect))
     }
 }

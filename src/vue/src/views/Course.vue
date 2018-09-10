@@ -5,7 +5,7 @@
             @eye-click="customisePage"
             @edit-click="handleEdit()"/>
 
-        <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
+        <div slot="main-content-column" v-for="a in assignments" :key="a.id">
             <b-link tag="b-button" :to="assignmentRoute(cID, a.id, a.journal)">
                 <assignment-card :line1="a.name">
                     <progress-bar
@@ -24,7 +24,7 @@
             Create New Assignment
         </b-button>
 
-        <h3 slot="right-content-column">Upcoming</h3>
+        <h3 slot="right-content-column">To Do</h3>
 
         <!-- TODO Permission revision should be can_grade -->
         <b-card v-if="$hasPermission('can_view_assignment_participants')"
@@ -172,14 +172,10 @@ export default {
                 return ++counter <= 5
             }
 
-            function filterNoEntries (deadline) {
-                return deadline.stats.needs_marking !== 0
-            }
-
             if (this.selectedSortOption === 'sortDate') {
                 return this.deadlines.slice().sort(compareDate).filter(filterTop)
             } else if (this.selectedSortOption === 'sortNeedsMarking') {
-                return this.deadlines.slice().sort(compareMarkingNeeded).filter(filterTop).filter(filterNoEntries)
+                return this.deadlines.slice().sort(compareMarkingNeeded).filter(filterTop)
             } else {
                 return this.deadlines.slice().sort(compareDate).filter(filterTop)
             }

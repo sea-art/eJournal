@@ -35,7 +35,8 @@
                         :stats="journal.stats"
                         :hideTodo="true"
                         :fullWidthProgress="true"
-                        :class="'mb-4'"/>
+                        :assignment="assignment"
+                        :class="'mb-4 no-hover'"/>
                 </b-col>
                 <b-col md="6" lg="12">
                     <h3>Controls</h3>
@@ -81,6 +82,7 @@ import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import icon from 'vue-awesome/components/Icon'
 import store from '@/Store.vue'
 import journalAPI from '@/api/journal'
+import assignmentAPI from '@/api/assignment'
 
 export default {
     props: ['cID', 'aID', 'jID'],
@@ -92,6 +94,7 @@ export default {
             progressNodes: {},
             progressPointsLeft: 0,
             assignmentJournals: [],
+            assignment: null,
             journal: null,
             selectedSortOption: 'sortUserName',
             searchVariable: '',
@@ -99,6 +102,9 @@ export default {
         }
     },
     created () {
+        assignmentAPI.get(this.aID)
+            .then(assignment => { this.assignment = assignment })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
         journalAPI.getNodes(this.jID)
             .then(nodes => {
                 this.nodes = nodes
@@ -111,6 +117,8 @@ export default {
                         this.progressPoints(node)
                     }
                 }
+
+                this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].id]
 
                 this.selectFirstUngradedNode()
             })
@@ -153,7 +161,7 @@ export default {
             var min = this.nodes.length - 1
 
             for (var i = 0; i < this.nodes.length; i++) {
-                if ('entry' in this.nodes[i]) {
+                if ('entry' in this.nodes[i] && this.nodes[i].entry) {
                     let entry = this.nodes[i].entry
                     if (('grade' in entry && entry.grade === null) || ('published' in entry && !entry.published)) {
                         if (i < min) { min = i }
@@ -223,24 +231,24 @@ export default {
         },
         publishGradesJournal () {
             if (confirm('Are you sure you want to publish all grades for this journal?')) {
-                // journalApi.update_publish_grades_journal(this.jID, 1)
-                //     .then(_ => {
-                //         this.$toasted.success('Published all grades for this journal.')
-                //
-                //         for (var node of this.nodes) {
-                //             if ((node.type === 'e' || node.type === 'd') && node.entry) {
-                //                 node.entry.published = true
-                //             }
-                //         }
-                //
-                //         journalApi.get_nodes(this.jID)
-                //             .then(data => { this.nodes = data.nodes })
-                //         journalApi.get_journal(this.jID)
-                //             .then(data => { this.journal = data.journal })
-                //     })
-                //     .catch(_ => {
-                //         this.$toasted.error('Error while publishing all grades for this journal.')
-                //     })
+                journalAPI.update(this.jID, {published: true})
+                    .then(_ => {
+                        this.$toasted.success('Published all grades for this journal.')
+
+                        for (var node of this.nodes) {
+                            if ((node.type === 'e' || node.type === 'd') && node.entry) {
+                                node.entry.published = true
+                            }
+                        }
+
+                        journalAPI.getNodes(this.jID)
+                            .then(nodes => { this.nodes = nodes })
+                        journalAPI.get(this.jID)
+                            .then(journal => { this.journal = journal })
+                    })
+                    .catch(_ => {
+                        this.$toasted.error('Error while publishing all grades for this journal.')
+                    })
             }
         },
         findEntryNode (nodeID) {
@@ -268,6 +276,11 @@ export default {
             }
 
             return false
+        },
+        compare (a, b) {
+            if (a < b) { return -1 }
+            if (a > b) { return 1 }
+            return 0
         }
     },
     components: {
@@ -286,24 +299,15 @@ export default {
             let self = this
 
             function compareFullName (a, b) {
-                var fullNameA = a.student.first_name + ' ' + a.student.last_name
-                var fullNameB = b.student.first_name + ' ' + b.student.last_name
-
-                if (fullNameA < fullNameB) { return -1 }
-                if (fullNameA > fullNameB) { return 1 }
-                return 0
+                return self.compare(a.student.name, b.student.name)
             }
 
             function compareUsername (a, b) {
-                if (a.student.username < b.student.username) { return -1 }
-                if (a.student.username > b.student.username) { return 1 }
-                return 0
+                return self.compare(a.student.username, b.student.username)
             }
 
             function compareMarkingNeeded (a, b) {
-                if (a.stats.submitted - a.stats.graded < b.stats.submitted - b.stats.graded) { return -1 }
-                if (a.stats.submitted - a.stats.graded > b.stats.submitted - b.stats.graded) { return 1 }
-                return 0
+                return self.compare(a.stats.submitted - a.stats.graded, b.stats.submitted - b.stats.graded)
             }
 
             function checkFilter (user) {
@@ -311,12 +315,8 @@ export default {
                 var fullName = user.student.name
                 var searchVariable = self.searchVariable.toLowerCase()
 
-                if (username.includes(searchVariable) ||
-                    fullName.includes(searchVariable)) {
-                    return true
-                } else {
-                    return false
-                }
+                return username.includes(searchVariable) ||
+                       fullName.includes(searchVariable)
             }
 
             if (store.state.filteredJournals.length === 0) {
@@ -346,7 +346,6 @@ export default {
 
             return this.filteredJournals[nextIndex]
         }
-
     }
 }
 </script>

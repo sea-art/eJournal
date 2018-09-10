@@ -19,6 +19,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.conf.urls import url, include
+from django.conf import settings
+from django.conf.urls.static import static
 from django.urls import path
 
 from VLE.views import common, lti, email
@@ -47,7 +49,4 @@ urlpatterns = [
     path('get_lti_params_from_jwt/<str:jwt_params>/', lti.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),
 
     path('names/<int:course_id>/<int:assignment_id>/<int:journal_id>/', common.names, name='names'),
-]
-
-# if settings.DEBUG is True:
-#      urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

@@ -8,20 +8,45 @@
             <div v-for="(comment, index) in commentObject" class="comment-section" :key="index">
                 <img class="profile-picture no-hover" :src="comment.author.profile_picture">
                 <b-card class="no-hover comment-card" :class="$root.getBorderClass($route.params.cID)">
-                    <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="ml-2 delete-button float-right" @click="deleteComment(comment.id)">
-                        <icon name="trash"/>
-                        Delete
-                    </b-button>
-                    <div v-html="comment.text"/>
-                    <hr/>
-                    <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b>
-                    <span v-if="comment.published" class="timestamp">
-                        {{ $root.beautifyDate(comment.timestamp) }}<br/>
-                    </span>
-                    <span v-else class="timestamp">
-                        <icon name="hourglass-half" scale="0.8"/>
-                        This will be published when the grade is published<br/>
-                    </span>
+                    <div v-if="!editCommentStatus[index]">
+                        <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="ml-2 delete-button float-right" @click="deleteComment(comment.id)">
+                            <icon name="trash"/>
+                            Delete
+                        </b-button>
+                        <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="ml-2 change-button float-right" @click="editCommentView(index, true, comment.text)">
+                            <icon name="edit"/>
+                            Edit
+                        </b-button>
+                        <div v-html="comment.text"/>
+                        <hr/>
+                        <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b>
+                        <span v-if="comment.published && !comment.last_edited" class="timestamp">
+                            {{ $root.beautifyDate(comment.timestamp) }}<br/>
+                        </span>
+                        <span v-else-if="comment.published && comment.last_edited" class="timestamp">
+                            Last edited: {{ $root.beautifyDate(comment.last_edited) }}<br/>
+                        </span>
+                        <span v-else class="timestamp">
+                            <icon name="hourglass-half" scale="0.8"/>
+                            Will be published along with grade<br/>
+                        </span>
+                    </div>
+                    <div v-else>
+                        <text-editor
+                            :id="'comment-text-editor-' + index"
+                            :givenContent="editCommentTemp[index]"
+                            @content-update="editCommentTemp[index] = $event"
+                        />
+                        <br/>
+                        <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="ml-2 delete-button float-right" @click="editCommentView(index, false, '')">
+                            <icon name="ban"/>
+                            Cancel
+                        </b-button>
+                        <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="ml-2 add-button float-right" @click="editComment(comment.id, index)">
+                            <icon name="save"/>
+                            Save
+                        </b-button>
+                    </div>
                 </b-card>
             </div>
         </div>
@@ -31,9 +56,9 @@
                 <text-editor
                     ref="comment-text-editor-ref"
                     :id="'comment-text-editor'"
+                    placeholder="Type your comment here..."
                     @content-update="tempComment = $event"
                 />
-                <!-- <b-textarea class="theme-input multi-form full-width" v-model="tempComment" placeholder="Write a comment" :class="$root.getBorderClass($route.params.cID)"/> -->
                 <div class="d-flex full-width justify-content-end align-items-center">
                     <b-form-checkbox v-if="$hasPermission('can_grade_journal') && !entryGradePublished" v-model="publishAfterGrade">
                         Publish after grade
@@ -71,7 +96,9 @@ export default {
         return {
             tempComment: '',
             commentObject: null,
-            publishAfterGrade: true
+            publishAfterGrade: true,
+            editCommentStatus: [],
+            editCommentTemp: []
         }
     },
     watch: {
@@ -84,12 +111,25 @@ export default {
         }
     },
     created () {
-        this.getComments()
+        this.setComments()
     },
     methods: {
+        setComments () {
+            commentAPI.getFromEntry(this.eID)
+                .then(comments => {
+                    this.commentObject = comments
+                    for (var i = 0; i < this.commentObject.length; i++) {
+                        this.editCommentStatus.push(false)
+                        this.editCommentTemp.push('')
+                    }
+                })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
+        },
         getComments () {
             commentAPI.getFromEntry(this.eID)
-                .then(comments => { this.commentObject = comments })
+                .then(comments => {
+                    this.commentObject = comments
+                })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         addComment () {
@@ -107,6 +147,22 @@ export default {
                     })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }
+        },
+        editCommentView (index, status, text) {
+            if (status) {
+                this.$set(this.editCommentTemp, index, text)
+            }
+
+            this.$set(this.editCommentStatus, index, status)
+        },
+        editComment (cID, index) {
+            this.$set(this.commentObject[index], 'text', this.editCommentTemp[index])
+            this.$set(this.editCommentStatus, index, false)
+            commentAPI.update(cID, {
+                text: this.editCommentTemp[index]
+            })
+                .then(comment => { this.$set(this.commentObject, index, comment) })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         deleteComment (cID) {
             if (confirm('Are you sure you want to delete this comment?')) {

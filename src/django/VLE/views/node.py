@@ -35,7 +35,7 @@ class NodeView(viewsets.ModelViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the course does not exists
+            not found -- when the course does not exist
             forbidden -- when the user is not part of the course
         On succes:
             success -- with the node data
@@ -52,7 +52,7 @@ class NodeView(viewsets.ModelViewSet):
         try:
             journal = Journal.objects.get(pk=journal_id)
         except Journal.DoesNotExist:
-            return response.not_found('Journal')
+            return response.not_found('Journal does not exist.')
 
         if journal.user != request.user and \
             not permissions.has_assignment_permission(request.user, journal.assignment,

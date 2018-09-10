@@ -41,6 +41,9 @@ import 'vue-awesome/icons/home'
 import 'vue-awesome/icons/calendar'
 import 'vue-awesome/icons/question'
 import 'vue-awesome/icons/spinner'
+import 'vue-awesome/icons/sort'
+import 'vue-awesome/icons/long-arrow-up'
+import 'vue-awesome/icons/long-arrow-down'
 
 import Toasted from 'vue-toasted'
 

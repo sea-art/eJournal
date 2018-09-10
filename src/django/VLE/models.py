@@ -277,7 +277,7 @@ class Assignment(models.Model):
     courses = models.ManyToManyField(Course)
 
     format = models.OneToOneField(
-        'JournalFormat',
+        'Format',
         on_delete=models.CASCADE
     )
 
@@ -394,8 +394,8 @@ class Node(models.Model):
     )
 
 
-class JournalFormat(models.Model):
-    """JournalFormat.
+class Format(models.Model):
+    """Format.
 
     Format of a journal.
     The format determines how a students' journal is structured.
@@ -467,7 +467,7 @@ class PresetNode(models.Model):
     )
 
     format = models.ForeignKey(
-        'JournalFormat',
+        'Format',
         on_delete=models.CASCADE
     )
 
@@ -490,7 +490,7 @@ class Entry(models.Model):
     createdate = models.DateTimeField(
         default=now,
     )
-    grade = models.IntegerField(
+    grade = models.FloatField(
         default=None,
         null=True,
     )
@@ -571,6 +571,7 @@ class Field(models.Model):
         'Template',
         on_delete=models.CASCADE
     )
+    required = models.BooleanField()
 
     def __str__(self):
         """toString."""
@@ -593,7 +594,9 @@ class Content(models.Model):
         null=True
     )
     # TODO Consider a size limit 10MB unencoded posts? so 10 * 1024 * 1024 * 1.37?
-    data = models.TextField()
+    data = models.TextField(
+        null=True
+    )
 
 
 class Comment(models.Model):
@@ -616,4 +619,8 @@ class Comment(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     published = models.BooleanField(
         default=True
+    )
+    last_edited = models.DateTimeField(
+        default=None,
+        null=True
     )

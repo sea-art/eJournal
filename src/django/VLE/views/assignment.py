@@ -37,7 +37,7 @@ class AssignmentView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the course does not exists
+            not found -- when the course does not exist
             forbidden -- when the user is not part of the course
         On succes:
             success -- with the assignment data
@@ -54,7 +54,7 @@ class AssignmentView(viewsets.ViewSet):
             if course_id:
                 course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
-            return response.not_found('Course')
+            return response.not_found('Course does not exist.')
 
         if course_id:
             role = permissions.get_role(request.user, course)
@@ -105,7 +105,7 @@ class AssignmentView(viewsets.ViewSet):
         try:
             course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
-            return response.not_found('Course')
+            return response.not_found('Course does not exist.')
 
         role = permissions.get_role(request.user, course_id)
         if role is None:
@@ -157,7 +157,7 @@ class AssignmentView(viewsets.ViewSet):
             else:
                 assignment = Assignment.objects.get(pk=pk)
         except Assignment.DoesNotExist:
-            return response.not_found('Assignment')
+            return response.not_found('Assignment does not exist.')
 
         if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
             return response.forbidden("You cannot view this assignment.")
@@ -184,7 +184,7 @@ class AssignmentView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the assignment does not exists
+            not found -- when the assignment does not exist
             forbidden -- User not allowed to edit this assignment
             unauthorized -- when the user is unauthorized to edit the assignment
             bad_request -- when there is invalid data in the request
@@ -199,16 +199,23 @@ class AssignmentView(viewsets.ViewSet):
 
         try:
             assignment = Assignment.objects.get(pk=pk)
-        except Course.DoesNotExist:
-            return response.not_found('Assignment')
+        except Assignment.DoesNotExist:
+            return response.not_found('Assignment does not exist.')
 
-        if not permissions.has_assignment_permission(request.user, assignment, 'can_edit_assignment'):
+        published, = utils.optional_params(request.data, 'published')
+        if published:
+            # TODO: What to do about the JSON response?
+            self.publish(request, assignment)
+        if permissions.has_assignment_permission(request.user, assignment, 'can_edit_assignment'):
+            req_data = request.data
+            if published is not None:
+                del req_data['published']
+            serializer = AssignmentSerializer(assignment, data=req_data, context={'user': request.user}, partial=True)
+            if not serializer.is_valid():
+                response.bad_request()
+            serializer.save()
+        elif not published:
             return response.forbidden('You are not allowed to edit this assignment.')
-
-        serializer = AssignmentSerializer(assignment, data=request.data, context={'user': request.user}, partial=True)
-        if not serializer.is_valid():
-            response.bad_request()
-        serializer.save()
         return response.success({'assignment': serializer.data})
 
     def destroy(self, request, *args, **kwargs):
@@ -222,7 +229,7 @@ class AssignmentView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the assignment or course does not exists
+            not found -- when the assignment or course does not exist
             unauthorized -- when the user is not logged in
             forbidden -- when the user cannot delete the assignment
         On success:
@@ -243,7 +250,7 @@ class AssignmentView(viewsets.ViewSet):
             assignment = Assignment.objects.get(pk=assignment_id)
             course = Course.objects.get(pk=course_id)
         except (Assignment.DoesNotExist, Course.DoesNotExist):
-            return response.not_found('course or assignment')
+            return response.not_found('course or assignment does not exist.')
 
         # Assignments can only be deleted with can_delete_assignment permission.
         role = permissions.get_role(request.user, course)
@@ -276,7 +283,7 @@ class AssignmentView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the course does not exists
+            not found -- when the course does not exist
         On success:
             success -- upcomming assignments
 
@@ -289,7 +296,7 @@ class AssignmentView(viewsets.ViewSet):
         except KeyError:
             courses = request.user.participations.all()
         except Course.DoesNotExist:
-            return response.not_found('course')
+            return response.not_found('Course does not exist.')
 
         deadline_list = []
 
@@ -322,7 +329,7 @@ class AssignmentView(viewsets.ViewSet):
         try:
             assign = Assignment.objects.get(pk=aID)
         except Assignment.DoesNotExist:
-            return response.not_found('Assignment')
+            return response.not_found('Assignment does not exist.')
 
         if not permissions.has_assignment_permission(request.user, assign, 'can_publish_journal_grades'):
             return response.forbidden('You cannot publish assignments.')
@@ -337,3 +344,17 @@ class AssignmentView(viewsets.ViewSet):
 
         payload['new_published'] = published
         return response.success(payload=payload)
+
+    def publish(self, request, assignment, published=True):
+        if permissions.has_assignment_permission(request.user, assignment, 'can_publish_journal_grades'):
+            utils.publish_all_assignment_grades(assignment, published)
+
+            for journal in Journal.objects.filter(assignment=assignment):
+                if journal.sourcedid is not None and journal.grade_url is not None:
+                    payload = lti_grade.replace_result(journal)
+                else:
+                    payload = dict()
+
+            return response.success(payload)
+        else:
+            return response.forbidden('You are not allowed to grade this assignment.')

@@ -237,14 +237,14 @@ class GetApiTests(TestCase):
         assignment = factory.make_assignment('Colloq', 'description1', format=format,
                                              courses=[course1, course2, course3])
         login = test.logging_in(self, self.rein_user, self.rein_pass)
-        response = test.api_get_call(self, '/journalformats/' + str(assignment.pk) + '/', login)
+        response = test.api_get_call(self, '/formats/' + str(assignment.pk) + '/', login)
         self.assertEquals(response.json()['format']['templates'][0]['name'], 'template')
 
         # permissions and authorization check for the api call.
         login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
-        test.api_get_call(self, '/journalformats/' + str(assignment.pk) + '/', login, status=403)
-        test.api_get_call(self, '/journalformats/' + str(self.not_found_pk) + '/', login, status=404)
-        test.test_unauthorized_api_get_call(self, '/journalformats/' + str(assignment.pk) + '/')
+        test.api_get_call(self, '/formats/' + str(assignment.pk) + '/', login, status=403)
+        test.api_get_call(self, '/formats/' + str(self.not_found_pk) + '/', login, status=404)
+        test.test_unauthorized_api_get_call(self, '/formats/' + str(assignment.pk) + '/')
 
     def test_get_course_roles(self):
         """Test the get delete assignment function."""
@@ -302,8 +302,8 @@ class GetApiTests(TestCase):
         login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
         test.api_get_call(self, url, login, status=403)
 
-    def test_get_entrycomments(self):
-        """Test get entrycomments function."""
+    def test_get_comments(self):
+        """Test get comments function."""
         course = factory.make_course('Portfolio', 'PAV', author=self.rein)
         template = factory.make_entry_template('template')
         format = factory.make_format([template], 10)
@@ -313,7 +313,7 @@ class GetApiTests(TestCase):
         journal = factory.make_journal(assignment, student)
         entry = factory.make_entry(template)
         factory.make_node(journal, entry)
-        factory.make_entrycomment(entry, self.rein, 'Excellent!', True)
+        factory.make_comment(entry, self.rein, 'Excellent!', True)
 
         login = test.logging_in(self, student_user, student_pass)
 

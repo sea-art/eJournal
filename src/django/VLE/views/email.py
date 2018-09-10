@@ -29,7 +29,7 @@ def forgot_password(request):
     try:
         username, email = utils.required_params(request.data, 'username', 'email')
     except KeyError:
-        return response.KeyError('username', 'email')
+        return response.keyerror('username', 'email')
 
     # We are retrieving the username based on either the username or email
     try:
@@ -61,7 +61,7 @@ def recover_password(request):
     try:
         utils.required_params(request.data, 'username', 'recovery_token', 'new_password')
     except KeyError:
-        return response.KeyError('username', 'recovery_token', 'new_password')
+        return response.keyerror('username', 'recovery_token', 'new_password')
 
     try:
         user = User.objects.get(username=request.data['username'])
@@ -101,7 +101,7 @@ def verify_email(request):
     try:
         utils.required_params(request.data, 'token')
     except KeyError:
-        return response.KeyError('token')
+        return response.keyerror('token')
 
     token_generator = PasswordResetTokenGenerator()
     if not token_generator.check_token(request.user, request.data['token']):

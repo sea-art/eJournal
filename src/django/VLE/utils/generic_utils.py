@@ -86,6 +86,16 @@ def get_graded_count(entries):
 
     Returns the graded entry count.
     """
+    return entries.exclude(grade=None).count()
+
+
+def get_published_count(entries):
+    """Count the number of published entries.
+
+    - entries: the entries to count with.
+
+    Returns the published entry count.
+    """
     return entries.filter(published=True).count()
 # END journal stat functions
 
@@ -155,8 +165,9 @@ def parse_template(template_dict):
         type = field['type']
         title = field['title']
         location = field['location']
+        required = field['required']
 
-        factory.make_field(template, title, location, type)
+        factory.make_field(template, title, location, type, required)
 
     template.save()
     return template
@@ -244,7 +255,11 @@ def delete_presets(presets, remove_presets):
 def delete_templates(templates, remove_templates):
     """Deletes all templates in remove_templates from templates. """
     ids = []
+    remove_ids = []
     for template in remove_templates:
+        if Entry.objects.filter(id=template['id']).count() == 0:
+            remove_ids.append(template['id'])
         ids.append(template['id'])
 
-    templates.filter(pk__in=ids).delete()
+    templates.filter(pk__in=remove_ids).delete()
+    templates.set(templates.exclude(pk__in=ids))

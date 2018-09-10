@@ -6,14 +6,14 @@
 <template>
     <div v-if="entryNode.entry !== null">
         <b-card class="entry-card no-hover entry-card-teacher" :class="$root.getBorderClass($route.params.cID)">
-            <div v-if="$hasPermission('can_grade_journal')" class="grade-section shadow">
-                <b-form-input class="theme-input" type="number" size="2" v-model="grade" placeholder="0" min=0></b-form-input>
+            <div v-if="$hasPermission('can_grade_journal')" class="grade-section shadow sticky">
+                <b-form-input class="theme-input" step="0.01" size="2" v-model="grade" autofocus placeholder="0" min="0.0"></b-form-input>
                 <b-form-checkbox v-model="published" value=true unchecked-value=false data-toggle="tooltip" title="Show grade to student">
-                    Publish
+                    Published
                 </b-form-checkbox>
                 <b-button class="add-button" @click="commitGrade">
                     <icon name="save" scale="1"/>
-                    Save
+                    Save grade
                 </b-button>
             </div>
             <div v-else class="grade-section shadow">
@@ -26,7 +26,7 @@
             </div>
             <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
 
-            <div v-for="(field, i) in entryNode.entry.template.field_set" class="entry-field" :key="field.eID">
+            <div v-for="(field, i) in entryNode.entry.template.field_set" v-if="field.required || completeContent[i].data" class="entry-field" :key="field.id">
                 <div v-if="field.title != ''">
                     <b>{{ field.title }}</b>
                 </div>
