@@ -28,7 +28,7 @@
 
             <div v-for="(field, i) in entryNode.entry.template.field_set" v-if="field.required || completeContent[i].data" class="entry-field multi-form" :key="field.id">
                 <h2 v-if="field.title" class="field-heading">
-                    {{ field.title }} <span style="color: red" v-if="field.required">*</span>
+                    {{ field.title }} <span v-if="field.required">*</span>
                 </h2>
                 <div v-if="field.type=='t'">
                     <span class="show-enters">{{ completeContent[i].data }}</span><br>

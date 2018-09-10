@@ -8,7 +8,7 @@
             <h2 class="mb-2">{{ template.name }}</h2>
             <div v-for="(field, i) in template.field_set" :key="field.eID" class="multi-form">
                 <h2 v-if="field.title" class="field-heading">
-                    {{ field.title }} <span style="color: red" v-if="field.required">*</span>
+                    {{ field.title }} <span v-if="field.required">*</span>
                 </h2>
 
                 <div v-if="field.type=='t'">
