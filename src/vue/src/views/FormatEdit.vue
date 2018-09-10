@@ -84,7 +84,7 @@
             <h3>Entry Templates</h3>
             <div :class="{ 'input-disabled' : saveRequestInFlight }">
                 <available-template-card v-for="template in templatePool" :key="template.t.id" @click.native="showTemplateModal(template)" :template="template" @delete-template="deleteTemplate"/>
-                <b-button class="add-button grey-background full-width" @click="showTemplateModal(newTemplate())">
+                <b-button class="add-button grey-background full-width multi-form" @click="showTemplateModal(newTemplate())">
                     <icon name="plus"/>
                     Create New Template
                 </b-button>

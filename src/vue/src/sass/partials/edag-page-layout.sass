@@ -15,12 +15,14 @@
     flex-grow: 1
     @include xl
         height: 100%
-        overflow: auto
+        overflow-y: auto
+        overflow-x: hidden
 
 .right-content-edag-page
     @include xl
         height: 100%
-        overflow: auto
+        overflow-y: auto
+        overflow-x: hidden
 
 .outer-container-edag-page
     @include xl
@@ -29,7 +31,7 @@
 
 .inner-container-edag-page
     display: flex
-    min-height: 100%
+    height: 100%
     flex-direction: row
     flex-wrap: wrap
     @include lg
