@@ -116,7 +116,7 @@ export default {
             } else {
                 this.selectedGroup = val
                 this.$emit('update:group', val)
-                participationAPI.update(this.cID, {user_id: this.uID, group: this.selectedGroup, role: this.selectedRole}).then(_ => {
+                participationAPI.update(this.cID, {user_id: this.user.id, group: this.selectedGroup, role: this.selectedRole}).then(_ => {
                 }, error => {
                     this.$toasted.error(error.response.data.description)
                 })

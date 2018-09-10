@@ -89,7 +89,7 @@
                                 {{group.name}}
                             </option>
                         </b-form-select>
-
+                    </b-col>
                     <b-col sm="4">
                         <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button full-width multi-form">
                             <icon name="long-arrow-down"/>

@@ -12,8 +12,8 @@ export default {
             .then(response => response.data.group)
     },
 
-    delete (cID, grouName) {
-        return auth.delete('groups/' + cID, {grou_name: groupName})
+    delete (cID, groupName) {
+        return auth.delete('groups/' + cID, {group_name: groupName})
             .then(response => response.data)
     },
 

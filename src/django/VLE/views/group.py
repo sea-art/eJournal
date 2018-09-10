@@ -154,7 +154,7 @@ class GroupView(viewsets.ViewSet):
         serializer.save()
         return response.success({'group': serializer.data})
 
-    def destroy(self, request, pk):
+    def destroy(self, request, *args, **kwargs):
         """Delete an existing course group.
 
         Arguments:
@@ -172,18 +172,22 @@ class GroupView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
+        course_id = kwargs.get('pk')
+
         try:
-            name, = utils.required_params(request.query_params, 'name')
+            name = request.query_params['group_name']
+
+            # name, = utils.required_params(request.query_params, 'name')
         except KeyError:
             return response.keyerror('name')
 
         print(name)
         try:
-            course = Course.objects.get(pk=pk)
+            course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
             return response.not_found('course')
 
-        role = permissions.get_role(request.user, pk)
+        role = permissions.get_role(request.user, course_id)
         if role is None:
             return response.unauthorized(description="You are unauthorized to view this course.")
         elif not role.can_delete_course:
