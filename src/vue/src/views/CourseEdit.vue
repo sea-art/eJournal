@@ -83,15 +83,6 @@
                             <option value="sortUsername">Sort by username</option>
                         </b-form-select>
                     </b-col>
-                    <b-col sm="8" class="d-flex flex-wrap">
-                        <b-form-select v-model="selectedFilterGroupOption"
-                                       :select-size="1">
-                            <option :value="null">Filter group by ...</option>
-                            <option v-for="group in groups" :key="group.name" :value="group.name">
-                                {{ group.name }}
-                            </option>
-                        </b-form-select>
-                    </b-col>
                     <b-col sm="4">
                         <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button full-width multi-form">
                             <icon name="long-arrow-down"/>
@@ -101,6 +92,15 @@
                             <icon name="long-arrow-up"/>
                             Descending
                         </b-button>
+                    </b-col>
+                    <b-col sm="8" class="d-flex flex-wrap">
+                        <b-form-select v-model="selectedFilterGroupOption"
+                                       :select-size="1">
+                            <option :value="null">Filter group by ...</option>
+                            <option v-for="group in groups" :key="group.name" :value="group.name">
+                                {{ group.name }}
+                            </option>
+                        </b-form-select>
                     </b-col>
                 </b-row>
             </b-card>
