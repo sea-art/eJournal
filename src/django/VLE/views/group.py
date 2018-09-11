@@ -173,8 +173,6 @@ class GroupView(viewsets.ViewSet):
 
         try:
             name = request.query_params['group_name']
-
-            # name, = utils.required_params(request.query_params, 'name')
         except KeyError:
             return response.keyerror('name')
 
