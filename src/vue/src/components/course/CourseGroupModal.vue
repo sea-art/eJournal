@@ -6,7 +6,7 @@
                  hide-footer>
 
             <b-card class="no-hover settings-card">
-                <h2 class="mb-2">Create new group {{groups}} </h2>
+                <h2 class="mb-2">Create new group</h2>
                 <b-form @submit.prevent="createUserGroup" @reset.prevent="resetFormInput">
                     <b-input class="multi-form theme-input" v-model="form.groupName" placeholder="Desired group name" required/>
                     <b-input class="multi-form theme-input" v-model="form.groupTA" placeholder="TA name" required/>
