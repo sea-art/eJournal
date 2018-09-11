@@ -236,9 +236,9 @@ export default {
             })
         },
         deleteGroup (groupName) {
-            this.groups = this.groups.filter(function (item) {
-                return groupName !== item.name
-            })
+            groupAPI.getAllFromCourse(this.cID)
+                .then(groups => { this.groups = groups })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
 
             // TODO replace api function with frontend function
             if (this.$hasPermission('can_view_course_participants')) {

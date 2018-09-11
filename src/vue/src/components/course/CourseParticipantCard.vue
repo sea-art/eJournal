@@ -117,9 +117,9 @@ export default {
                 this.selectedGroup = val
                 this.$emit('update:group', val)
                 participationAPI.update(this.cID, {user_id: this.user.id, group: this.selectedGroup, role: this.selectedRole})
-                .catch(error => {
-                    this.$toasted.error(error.response.data.description)
-                })
+                    .catch(error => {
+                        this.$toasted.error(error.response.data.description)
+                    })
             }
         },
         group: function (newVal) {

@@ -6,7 +6,7 @@
                  hide-footer>
 
             <b-card class="no-hover settings-card">
-                <h2 class="mb-2">Create new course</h2>
+                <h2 class="mb-2">Create new course {{groups }}</h2>
                 <b-form @submit.prevent="createUserGroup" @reset.prevent="resetFormInput">
                     <b-input class="multi-form theme-input" v-model="form.groupName" placeholder="Desired group name" required/>
                     <b-input class="multi-form theme-input" v-model="form.groupTA" placeholder="TA name" required/>
@@ -65,7 +65,8 @@ export default {
             })
                 .then(group => {
                     this.$emit('create-group', group.name)
-                    this.$toasted.success('Group creation succes.')
+                    this.$toasted.success('Successfully created group.')
+                    this.resetFormInput()
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },

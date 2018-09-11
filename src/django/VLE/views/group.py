@@ -45,7 +45,7 @@ class GroupView(viewsets.ViewSet):
             if course_id:
                 course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
-            return response.not_found('Course')
+            return response.not_found('Course does not exist')
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -54,7 +54,7 @@ class GroupView(viewsets.ViewSet):
             queryset = Group.objects.filter(course=course)
             serializer = self.serializer_class(queryset, many=True, context={'user': request.user, 'course': course})
         else:
-            return response.forbidden('You are not allowed to view the groups')
+            return response.forbidden('You are not allowed to view the groups.')
 
         return response.success({'groups': serializer.data})
 
@@ -131,7 +131,7 @@ class GroupView(viewsets.ViewSet):
             course = Course.objects.get(pk=course_id)
             group = Group.objects.get(name=oldGroupName, course=course)
         except (Course.DoesNotExist, Group.DoesNotExist):
-            return response.not_found('Course or group not found')
+            return response.not_found('Course or group does not exist.')
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -183,7 +183,7 @@ class GroupView(viewsets.ViewSet):
         try:
             course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
-            return response.not_found('course')
+            return response.not_found('Course does not exist')
 
         role = permissions.get_role(request.user, course_id)
         if role is None:
@@ -194,7 +194,7 @@ class GroupView(viewsets.ViewSet):
         try:
             group = Group.objects.get(name=name, course=course)
         except Group.DoesNotExist:
-            return response.not_found('group')
+            return response.not_found('Group does not exists')
 
         group.delete()
         return response.success(description='Sucesfully deleted course group.')
