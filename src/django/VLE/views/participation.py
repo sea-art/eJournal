@@ -132,8 +132,7 @@ class ParticipationView(viewsets.ViewSet):
             return response.unauthorized()
         try:
             user_id, = utils.required_params(request.data, 'user_id')
-            role_name, = utils.optional_params(request.data, 'role')
-            group_name, = utils.optional_params(request.data, 'group')
+            role_name, group_name = utils.optional_params(request.data, 'role', 'group')
             if not role_name:
                 role_name = 'Student'
         except KeyError:
@@ -166,7 +165,7 @@ class ParticipationView(viewsets.ViewSet):
 
         participation.save()
         serializer = UserSerializer(participation.user, context={'course': course})
-        return response.success({'user': serializer.data}, description='Succesfully updated participation')
+        return response.success({'user': serializer.data}, description='Succesfully updated participation.')
 
     def destroy(self, request, pk):
         """Remove a user from the course.
@@ -228,7 +227,7 @@ class ParticipationView(viewsets.ViewSet):
         try:
             course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
-            return response.not_found('Course')
+            return response.not_found('Course does not exist.')
 
         role = permissions.get_role(request.user, course)
         if role is None:

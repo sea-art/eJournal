@@ -88,7 +88,7 @@
                                        :select-size="1">
                             <option :value="null">Filter group by ...</option>
                             <option v-for="group in groups" :key="group.name" :value="group.name">
-                                {{group.name}}
+                                {{ group.name }}
                             </option>
                         </b-form-select>
                     </b-col>

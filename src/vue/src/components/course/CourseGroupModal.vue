@@ -3,8 +3,7 @@
         <b-btn class="change-button flex-grow-1 multi-form" v-b-modal="'CourseGroupModal'">Manage Course Groups</b-btn>
         <b-modal id="CourseGroupModal"
                  title="Manage Course Groups"
-                 hide-footer
-                 >
+                 hide-footer>
 
             <b-card class="no-hover settings-card">
                 <h2 class="mb-2">Create new course</h2>
@@ -29,7 +28,6 @@
                 :key="g.id"
                 :cID="cID"
                 :group="g.name"/>
-
         </b-modal>
     </div>
 </template>
@@ -37,7 +35,6 @@
 <script>
 import icon from 'vue-awesome/components/Icon'
 import groupCard from '@/components/group/GroupCard.vue'
-
 import groupApi from '@/api/group.js'
 
 export default {
@@ -74,11 +71,8 @@ export default {
         },
         resetFormInput (evt) {
             /* Reset our form values */
-            this.form.groupName = null
-            this.form.groupTA = null
-            /* Trick to reset/clear native browser form validation state */
-            this.show = false
-            this.$nextTick(() => { this.show = true })
+            this.form.groupName = ''
+            this.form.groupTA = ''
         },
         deleteGroup (groupName) {
             this.$emit('delete-group', groupName)

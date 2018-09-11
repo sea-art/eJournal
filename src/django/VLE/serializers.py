@@ -129,6 +129,8 @@ class AssignmentSerializer(serializers.ModelSerializer):
             return None
         stats = {}
         stats['needs_marking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
+        stats['unpublished'] = sum([x['stats']['submitted'] - x['stats']['published']
+                                    for x in journals]) - stats['needs_marking']
         points = [x['stats']['acquired_points'] for x in journals]
         stats['average_points'] = round(st.mean(points), 2)
         return stats
@@ -184,6 +186,7 @@ class JournalSerializer(serializers.ModelSerializer):
         return {
             'acquired_points': utils.get_acquired_points(entries),
             'graded': utils.get_graded_count(entries),
+            'published': utils.get_published_count(entries),
             'submitted': utils.get_submitted_count(entries),
             'total_points': utils.get_max_points(journal),
         }
@@ -292,54 +295,3 @@ class FieldSerializer(serializers.ModelSerializer):
     class Meta:
         model = Field
         fields = '__all__'
-
-# def export_entry_to_dict(entry):
-#     """Convert entry to exportable dictionary."""
-#     if not entry:
-#         return None
-#
-#     data = {
-#         'createdate': entry.createdate.strftime('%d-%m-%Y %H:%M'),
-#         'grade': entry.grade
-#     }
-#
-#     # Add the field-content combinations.
-#     for field, content in zip(entry.template.field_set.all(), entry.content_set.all()):
-#         data.update({field.title: content.data})
-#
-#     # Add the comments.
-#     comments = [{entrycomment.author.username: entrycomment.text}
-#                 for entrycomment in Comment.objects.filter(entry=entry)]
-#     data.update({'comments': comments})
-#
-#     return data
-
-#
-# def format_to_dict(format):
-#     """Convert format to dictionary."""
-#     return {
-#         'max_points': format.max_points,
-#         'unused_templates': [template_to_dict(template) for template in format.unused_templates.all()],
-#         'templates': [template_to_dict(template) for template in format.available_templates.all()],
-#         'presets': [preset_to_dict(preset) for preset in format.presetnode_set.all().order_by('deadline')],
-#     } if format else None
-#
-#
-# def preset_to_dict(preset):
-#     """Convert preset node to dictionary."""
-#     if not preset:
-#         return None
-#
-#     base = {
-#         'pID': preset.id,
-#         'type': preset.type,
-#         'deadline': preset.deadline.strftime('%Y-%m-%d %H:%M'),
-#     }
-#
-#     if preset.type == Node.PROGRESS:
-#         result = {**base, **{'target': preset.target}}
-#     elif preset.type == Node.ENTRYDEADLINE:
-#         result = {**base, **{'template': template_to_dict(preset.forced_template)}}
-#
-#     return result
-#

@@ -7,7 +7,7 @@
                     <icon name="plus-square"/>
                     Update
                 </b-button>
-                <b-button v-if="$hasPermission('can_edit_course')"
+                <b-button v-if="$hasPermission('can_delete_course')"
                           class="float-left delete-button"
                           @click.prevent.stop="removeGroup()">
                     Remove group
@@ -46,7 +46,7 @@ export default {
                 .then(group => {
                     this.groupName = this.form.newGroupName
                     this.$emit('update-group', this.groupName, group.name)
-                    this.$toasted.success('Group update succes.')
+                    this.$toasted.success('Succesfully updated the group.')
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },

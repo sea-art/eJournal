@@ -26,7 +26,7 @@
                                    :select-size="1">
                         <option :value="null">No group</option>
                         <option v-for="g in groups" :key="g.name" :value="g.name">
-                            {{g.name}}
+                            {{ g.name }}
                         </option>
                     </b-form-select>
                 </div>
@@ -116,13 +116,13 @@ export default {
             } else {
                 this.selectedGroup = val
                 this.$emit('update:group', val)
-                participationAPI.update(this.cID, {user_id: this.user.id, group: this.selectedGroup, role: this.selectedRole}).then(_ => {
-                }, error => {
+                participationAPI.update(this.cID, {user_id: this.user.id, group: this.selectedGroup, role: this.selectedRole})
+                .catch(error => {
                     this.$toasted.error(error.response.data.description)
                 })
             }
         },
-        group: function (newVal, oldVal) {
+        group: function (newVal) {
             this.selectedGroup = newVal
         }
     },
