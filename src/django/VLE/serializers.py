@@ -127,9 +127,10 @@ class AssignmentSerializer(serializers.ModelSerializer):
         if not journals:
             return None
         stats = {}
-        stats['needs_marking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
-        stats['unpublished'] = sum([x['stats']['submitted'] - x['stats']['published']
-                                    for x in journals]) - stats['needs_marking']
+        if permissions.has_assignment_permission(self.context['user'], assignment, 'can_grade_journal'):
+            stats['needs_marking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
+            stats['unpublished'] = sum([x['stats']['submitted'] - x['stats']['published']
+                                        for x in journals]) - stats['needs_marking']
         points = [x['stats']['acquired_points'] for x in journals]
         stats['average_points'] = round(st.mean(points), 2)
         return stats
