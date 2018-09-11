@@ -40,8 +40,8 @@ export default {
     methods: {
         updateGroupName () {
             groupAPI.update(this.cID, {
-                oldGroupName: this.group,
-                newGroupName: this.form.newGroupName
+                old_group_name: this.group,
+                new_group_name: this.form.newGroupName
             })
                 .then(group => {
                     this.groupName = this.form.newGroupName

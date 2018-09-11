@@ -122,14 +122,14 @@ class GroupView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            oldGroupName, newGroupName = utils.required_params(request.data, "oldGroupName", "newGroupName")
+            old_group_name, new_group_name = utils.required_params(request.data, "old_group_name", "new_group_name")
         except KeyError:
-            return response.keyerror("oldGroupName", "newGroupName")
+            return response.keyerror("old_group_name", "new_group_name")
 
         course_id = kwargs.get('pk')
         try:
             course = Course.objects.get(pk=course_id)
-            group = Group.objects.get(name=oldGroupName, course=course)
+            group = Group.objects.get(name=old_group_name, course=course)
         except (Course.DoesNotExist, Group.DoesNotExist):
             return response.not_found('Course or group does not exist.')
 
@@ -139,13 +139,13 @@ class GroupView(viewsets.ViewSet):
         elif not role.can_edit_course:
             return response.unauthorized('You are unauthorized to edit this course group.')
 
-        if not newGroupName:
+        if not new_group_name:
             return response.bad_request('Group name is not allowed to be empty.')
 
-        if Group.objects.filter(name=request.data['newGroupName'], course=course).exists():
+        if Group.objects.filter(name=request.data['new_group_name'], course=course).exists():
             return response.bad_request('Course name already exists.')
 
-        group.name = newGroupName
+        group.name = new_group_name
         serializer = self.serializer_class(group, data=request.data, partial=True)
         if not serializer.is_valid():
             response.bad_request()
