@@ -120,8 +120,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
             return None
 
     def get_stats(self, assignment):
-        if 'user' not in self.context or \
-           not permissions.has_assignment_permission(self.context['user'], assignment, 'can_grade_journal'):
+        if 'user' not in self.context:
             return None
 
         journals = JournalSerializer(assignment.journal_set.all(), many=True).data

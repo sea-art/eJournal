@@ -18,11 +18,7 @@ export default {
     },
 
     getAllFromCourse (cID) {
-        if (cID) {
-            return auth.get('groups', {course_id: cID})
-                .then(response => response.data.groups)
-        }
-        return auth.get('groups')
+        return auth.get('groups', {course_id: cID})
             .then(response => response.data.groups)
     }
 }

@@ -60,7 +60,7 @@ export default {
         createUserGroup () {
             groupApi.create({
                 name: this.form.groupName,
-                cID: this.cID,
+                course_id: this.cID,
                 lti_id: this.lti_id
             })
                 .then(group => {

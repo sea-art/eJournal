@@ -63,7 +63,7 @@ class GroupView(viewsets.ViewSet):
         Arguments:
         request -- the request that was send with
             name -- name of the course group
-            cID -- course ID of the course
+            course_id -- course ID of the course
             lti_id -- (optional) lti_id to link the course to
 
         Returns:
@@ -77,18 +77,18 @@ class GroupView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            name, cID = utils.required_params(request.data, "name", "cID")
+            name, course_id = utils.required_params(request.data, "name", "course_id")
             lti_id = utils.optional_params(request.data, 'lti_id')
         except KeyError:
-            return response.keyerror("name", "cID")
+            return response.keyerror("name", "course_id")
 
         # TODO Look for which permission check is better
-        role = permissions.get_role(user, cID)
+        role = permissions.get_role(user, course_id)
         if not role.can_edit_course:
             return response.forbidden("You have no permissions to create a course group.")
 
         try:
-            course = Course.objects.get(pk=cID)
+            course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
             return response.not_found('Course does not exist.')
 
