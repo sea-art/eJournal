@@ -38,23 +38,22 @@ class GroupView(viewsets.ViewSet):
 
         try:
             course_id = int(request.query_params['course_id'])
-        except (KeyError, ValueError):
+        except KeyError:
             return response.key_error('course_id')
 
         try:
-            if course_id:
-                course = Course.objects.get(pk=course_id)
+            course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
             return response.not_found('Course does not exist')
 
         role = permissions.get_role(request.user, course)
         if role is None:
             return response.forbidden('You are not in this course.')
-        if role.can_edit_course:
-            queryset = Group.objects.filter(course=course)
-            serializer = self.serializer_class(queryset, many=True, context={'user': request.user, 'course': course})
-        else:
+        if not role.can_edit_course:
             return response.forbidden('You are not allowed to view the groups.')
+
+        queryset = Group.objects.filter(course=course)
+        serializer = self.serializer_class(queryset, many=True, context={'user': request.user, 'course': course})
 
         return response.success({'groups': serializer.data})
 
