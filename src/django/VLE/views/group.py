@@ -178,7 +178,6 @@ class GroupView(viewsets.ViewSet):
         except KeyError:
             return response.keyerror('name')
 
-        print(name)
         try:
             course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
