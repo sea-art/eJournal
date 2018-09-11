@@ -228,6 +228,7 @@ export default {
                 return user.id !== item.id
             })
             user.role = 'Student'
+            user.group = null
             this.participants.push(user)
         },
         createGroup (groupName) {
