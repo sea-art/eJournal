@@ -89,12 +89,12 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
     On success, returns a new assignment.
     """
     if format is None:
-        #TODO: Use deadline from assignment - currently insane defaults
+        # TODO: Use deadline from assignment - currently insane defaults
         if courses:
             deadline = courses[0].enddate
         else:
             deadline = timezone.now()
-        #END TODO
+        # END TODO
 
         format = make_default_format(deadline, points_possible)
     assign = Assignment(name=name, description=description, author=author, format=format)
@@ -234,13 +234,6 @@ def make_content(entry, data, field=None):
     content = Content(field=field, entry=entry, data=data)
     content.save()
     return content
-
-
-def make_journal_format():
-    """Make a journal format."""
-    journal_format = Format()
-    journal_format.save()
-    return journal_format
 
 
 def make_role_default_no_perms(name, course, can_edit_course_roles=False, can_view_course_participants=False,
