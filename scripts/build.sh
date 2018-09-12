@@ -44,6 +44,8 @@ deactivate
 
 # Sync the static files to the static directory
 sudo mkdir ${TARGET}/django/media
+sudo chmod g+w ${TARGET}/django/media
+sudo chgrp www-data ${TARGET}/django/media
 sudo rsync -a ${TARGET}/django/static ${TARGET}/static
 ############
 # FRONTEND #
