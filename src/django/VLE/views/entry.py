@@ -6,6 +6,7 @@ In this file are all the entry api requests.
 from rest_framework import viewsets
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
+from datetime import datetime
 
 from VLE.models import Journal, Node, Content, Field, Template, Entry, Comment
 import VLE.views.responses as response
@@ -58,6 +59,12 @@ class EntryView(viewsets.ViewSet):
             template = Template.objects.get(pk=template_id)
         except (Journal.DoesNotExist, Template.DoesNotExist):
             return response.not_found('Journal or Template does not exist.')
+
+        if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or \
+            (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
+           not permissions.has_assignment_permission(request.user, journal.assignment,
+                                                     'can_view_assignment_participants'):
+            return response.bad_request('The assignment is locked and unavailable for students.')
 
         # If node id is passed, the entry should be attached to a pre-existing node (entrydeadline node)
         if node_id:
@@ -147,6 +154,12 @@ class EntryView(viewsets.ViewSet):
         if published is not None and \
            not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_journal_grades'):
             return response.forbidden('You cannot publish entries.')
+
+        if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or \
+            (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
+           not permissions.has_assignment_permission(request.user, journal.assignment,
+                                                     'can_view_assignment_participants'):
+            return response.bad_request('The assignment is locked and unavailable for students.')
 
         if published is not None:
             entry.published = published

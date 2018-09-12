@@ -6,6 +6,8 @@ In this file are all the assignment api requests.
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
+from datetime import datetime
+
 from VLE.serializers import AssignmentSerializer, JournalSerializer
 from VLE.models import Assignment, Course, Journal
 import VLE.views.responses as response

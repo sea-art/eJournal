@@ -109,6 +109,12 @@ class CommentView(viewsets.ViewSet):
                  journal.user == request.user):
             return response.forbidden('You are not allowed to comment on this journal')
 
+        if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or \
+            (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
+           not permissions.has_assignment_permission(request.user, journal.assignment,
+                                                     'can_view_assignment_participants'):
+            return response.bad_request('The assignment is locked and unavailable for students.')
+
         published = published or not permissions.has_assignment_permission(request.user, assignment,
                                                                            'can_grade_journal')
 
@@ -178,9 +184,18 @@ class CommentView(viewsets.ViewSet):
         except Comment.DoesNotExist:
             return response.not_found('Comment does not exist.')
 
-        if not permissions.has_assignment_permission(request.user, comment.entry.node.journal.assignment,
+        journal = comment.entry.node.journal
+
+        if not permissions.has_assignment_permission(request.user, journal.assignment,
                                                      'can_comment_journal'):
             return response.forbidden('You cannot comment on entries.')
+
+        if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or \
+            (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
+           not permissions.has_assignment_permission(request.user, journal.assignment,
+                                                     'can_view_assignment_participants'):
+            return response.bad_request('The assignment is locked and unavailable for students.')
+
 
         req_data = request.data
         req_data['last_edited'] = datetime.now()

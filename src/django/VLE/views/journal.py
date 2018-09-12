@@ -4,6 +4,7 @@ course.py.
 In this file are all the course api requests.
 """
 from rest_framework import viewsets
+from datetime import datetime
 
 from VLE.serializers import JournalSerializer
 from VLE.models import Journal, Assignment
@@ -103,6 +104,12 @@ class JournalView(viewsets.ViewSet):
            not permissions.has_assignment_permission(request.user, journal.assignment,
                                                      'can_view_assignment_participants'):
             return response.forbidden('You are not allowed to view this journal.')
+
+        if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or \
+            (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
+           not permissions.has_assignment_permission(request.user, journal.assignment,
+                                                     'can_view_assignment_participants'):
+            return response.bad_request('The assignment is locked and unavailable for students.')
 
         serializer = JournalSerializer(journal)
 
