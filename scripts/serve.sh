@@ -58,7 +58,6 @@ echo "
             Require all granted
         </Files>
     </Directory>
-
     WSGIScriptAlias ${HOOKPOINT} ${TARGET}/django/VLE/wsgi.py
 </VirtualHost>
 " | sudo tee "${APACHE_DIR}/sites-available/ejournalapi.conf"
