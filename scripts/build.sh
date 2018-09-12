@@ -3,6 +3,7 @@
 source settings/deploy.conf
 source settings/secrets.conf
 source settings/database.conf
+source settings/variables.conf
 
 ###########
 # BACKEND #
@@ -29,6 +30,10 @@ sudo sed -i "s'{{LTI_SECRET}}'${LTI_SECRET}'g" ${TARGET}/django/VLE/settings/pro
 sudo sed -i "s'{{LTI_KEY}}'${LTI_KEY}'g" ${TARGET}/django/VLE/settings/production.py
 sudo sed -i "s@development@production@g" ${TARGET}/django/manage.py
 
+# File variables
+sudo sed -i "s@'{{USER_MAX_FILE_SIZE_BYTES}}'@${USER_MAX_FILE_SIZE_BYTES}@g" ${TARGET}/django/VLE/settings/production.py
+sudo sed -i "s@'{{USER_MAX_TOTAL_STORAGE_BYTES}}'@${USER_MAX_TOTAL_STORAGE_BYTES}@g" ${TARGET}/django/VLE/settings/production.py
+
 # Migrate the database
 source ${TARGET}/venv/bin/activate
     python ${TARGET}/django/manage.py makemigrations || sudo sh -c "${TARGET}/venv/bin/activate && python ${TARGET}/django/manage.py makemigrations"
@@ -38,8 +43,8 @@ source ${TARGET}/venv/bin/activate
 deactivate
 
 # Sync the static files to the static directory
+sudo mkdir ${TARGET}/django/media
 sudo rsync -a ${TARGET}/django/static ${TARGET}/static
-
 ############
 # FRONTEND #
 ############
