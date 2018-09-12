@@ -60,6 +60,9 @@ export default {
                 .then(assignment => {
                     this.$emit('handleAction', assignment.id)
                     this.onReset(undefined)
+                    this.$store.dispatch('user/populateStore').catch(_ => {
+                        this.$toasted.error('The website might be out of sync, please login again.')
+                    })
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },

@@ -113,7 +113,7 @@ class AssignmentView(viewsets.ViewSet):
         elif not role.can_add_assignment:
             return response.forbidden('You have no permissions to create an assignment.')
 
-        assignment = factory.make_assignment(name, description, course_ids=[course_id],
+        assignment = factory.make_assignment(name, description, courses=[course],
                                              author=request.user, lti_id=lti_id,
                                              points_possible=points_possible)
 

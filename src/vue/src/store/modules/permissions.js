@@ -12,7 +12,7 @@ const getters = {
         const routeParams = router.currentRoute.params
 
         if (givenKeyLevel && id) {
-            if (permissions[givenKeyLevel + id] === undefined) { throw Error('Permission input error, no match for the given custom key this should never occur!') }
+            if (permissions[givenKeyLevel + id] === undefined) { throw Error('Permission input error, no match for the given key:' + givenKeyLevel + id + '.') }
             return permissions[givenKeyLevel + id][permission]
         } else if (givenKeyLevel) {
             return permissions[givenKeyLevel]
