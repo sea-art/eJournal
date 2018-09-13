@@ -106,7 +106,7 @@ export default {
             }
 
             function compareMarkingNeeded (a, b) {
-                return self.compare(a.stats.needs_marking, b.stats.needs_marking)
+                return self.compare(a.stats.needs_marking + a.stats.unpublished, b.stats.needs_marking + b.stats.unpublished)
             }
 
             function searchFilter (assignment) {
