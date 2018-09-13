@@ -44,6 +44,7 @@ urlpatterns = [
     path('recover_password/', email.recover_password, name='recover_password'),
     path('verify_email/', email.verify_email, name='verify_email'),
     path('request_email_verification/', email.request_email_verification, name='request_email_verification'),
+    path('send_feedback/', email.send_feedback, name='send_feedback'),
 
     path('lti/launch', lti.lti_launch, name='lti_launch'),
     path('get_lti_params_from_jwt/<str:jwt_params>/', lti.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),

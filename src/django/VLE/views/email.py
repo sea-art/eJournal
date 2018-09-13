@@ -125,3 +125,33 @@ def request_email_verification(request):
 
     return response.success(description='An email was sent to %s, please follow the email for instructions.'
                             % request.user.email)
+
+
+@api_view(['POST'])
+def send_feedback(request):
+    """Send an email with feedback to the developers.
+
+    Arguments:
+    request -- the request that was sent
+        topic -- the topic of the feedback
+        type -- the type of feedback
+        feedback -- the actual feedback
+        browser -- the browser of the user who sends the feedback.
+
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+        On success:
+            success -- with a description
+    """
+    if not request.user.is_authenticated:
+        return response.unauthorized()
+
+    try:
+        topic, type, feedback, browser = utils.required_params(request.data, 'topic', 'type', 'body', 'browser')
+    except KeyError:
+        return response.keyerror('topic', 'type', 'body')
+
+    email_handling.send_email_feedback(request.user, topic, type, feedback, browser)
+
+    return response.success(description='Feedback received')

@@ -20,6 +20,7 @@
         </b-collapse>
 
         <b-navbar-nav class="ml-auto">
+            <b-nav-item :to="{ name : 'Feedback' }">Feedback</b-nav-item>
             <b-nav-dropdown no-caret right id="nav-dropdown-options">
                 <div class="profile-picture-container" slot="button-content">
                     <img class="profile-picture" :src="profileImg">
