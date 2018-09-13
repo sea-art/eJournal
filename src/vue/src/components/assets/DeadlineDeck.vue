@@ -10,7 +10,13 @@
         </b-card>
 
         <div v-if="$route.path == '/Home'" v-for="(d, i) in computedDeadlines" :key="i">
-                <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal)">
+            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal)">
+                <todo-card :deadline="d"/>
+            </b-link>
+        </div>
+
+        <div v-if="$route.params.cID" v-for="(d, i) in computedDeadlines" :key="i">
+            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal)">
                 <todo-card :deadline="d"/>
             </b-link>
         </div>
@@ -35,34 +41,22 @@ export default {
     methods: {
         assignmentRoute (cID, aID, jID) {
             var route = {
-                name: 'Assignment',
                 params: {
                     cID: cID,
                     aID: aID
                 }
-            }
-            if (jID) {
-                route.params.jID = jID
-                route.name = 'Journal'
             }
 
-            return route
-        },
-        assignmentRouteCourse (cID, aID, jID) {
-            var route = {
-                params: {
-                    cID: cID,
-                    aID: aID
-                }
-            }
-            // TODO Permission revision can_grade
             if (this.$hasPermission('can_view_assignment_participants', 'assignment', String(aID))) {
                 route.name = 'Assignment'
+                return route
             } else {
-                route.name = 'Journal'
-                route.params.jID = jID
+                if (jID) {
+                    route.name = 'Journal'
+                    route.params.jID = jID
+                    return route
+                }
             }
-            return route
         }
     },
     computed: {
