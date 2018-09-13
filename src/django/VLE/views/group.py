@@ -142,7 +142,7 @@ class GroupView(viewsets.ViewSet):
             return response.bad_request('Group name is not allowed to be empty.')
 
         if Group.objects.filter(name=request.data['new_group_name'], course=course).exists():
-            return response.bad_request('Course name already exists.')
+            return response.bad_request('Course group already exists.')
 
         group.name = new_group_name
         serializer = self.serializer_class(group, data=request.data, partial=True)

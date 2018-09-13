@@ -9,7 +9,6 @@
                 <h2 class="mb-2">Create new group</h2>
                 <b-form @submit.prevent="createUserGroup" @reset.prevent="resetFormInput">
                     <b-input class="multi-form theme-input" v-model="form.groupName" placeholder="Desired group name" required/>
-                    <b-input class="multi-form theme-input" v-model="form.groupTA" placeholder="TA name" required/>
                         <b-button class="float-left change-button" type="reset">
                         <icon name="undo"/>
                         Reset
@@ -51,7 +50,6 @@ export default {
         return {
             form: {
                 groupName: '',
-                groupTA: '',
                 lti_id: ''
             }
         }
@@ -73,7 +71,6 @@ export default {
         resetFormInput (evt) {
             /* Reset our form values */
             this.form.groupName = ''
-            this.form.groupTA = ''
         },
         deleteGroup (groupName) {
             this.$emit('delete-group', groupName)
