@@ -4,7 +4,6 @@ group.py.
 In this file are all the group api requests.
 """
 from rest_framework import viewsets
-# from rest_framework.decorators import action
 
 import VLE.serializers as serialize
 import VLE.views.responses as response
