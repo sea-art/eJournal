@@ -5,8 +5,8 @@
 
 <template>
     <div class="edag-node-circle-border">
-        <div class="edag-node-circle unselectable" :class="nodeClass">
-            <icon v-if="this.entrystate !== ''" :name="iconName" :class="iconClass" :scale="iconScale"/>
+        <div class="edag-node-circle unselectable" data-toggle="tooltip" :title="nodeTitle" :class="nodeClass">
+            <icon v-if="this.type !== 'p'" :name="iconName" :class="iconClass" :scale="iconScale"/>
             <div v-else class="edag-node-circle-text">{{ text }}</div>
         </div>
     </div>
@@ -16,10 +16,11 @@
 import icon from 'vue-awesome/components/Icon'
 
 export default {
-    props: ['type', 'text', 'selected', 'entrystate'],
+    props: ['type', 'text', 'selected', 'nodeState'],
     computed: {
         nodeClass () {
             return {
+                'enc-start': this.type === 's',
                 'enc-entry': this.type === 'e',
                 'enc-deadline': this.type === 'd',
                 'enc-progress': this.type === 'p',
@@ -28,40 +29,54 @@ export default {
             }
         },
         iconName () {
-            switch (this.entrystate) {
+            switch (this.nodeState) {
             case 'graded':
                 return 'check'
             case 'failed':
                 return 'times'
-            case 'empty':
-                return 'calendar'
             case 'awaiting_grade':
                 return 'hourglass-half'
             case 'needs_grading':
                 return 'exclamation'
             case 'needs_publishing':
                 return 'eye'
-            case 'addNode':
+            case 'add':
                 return 'plus'
-            default:
-                return ''
+            case 'start':
+                return 'flag'
             }
+
+            return 'calendar'
+        },
+        nodeTitle () {
+            switch (this.nodeState) {
+            case 'graded':
+                return 'Graded'
+            case 'failed':
+                return 'Missed deadline'
+            case 'awaiting_grade':
+                return 'Awaiting grade'
+            case 'needs_grading':
+                return 'Needs grading'
+            case 'needs_publishing':
+                return 'Awaiting publishment'
+            case 'add':
+                return 'Add new entry'
+            case 'start':
+                return 'Assignment details'
+            }
+
+            return 'Deadline'
         },
         iconClass () {
-            switch (this.entrystate) {
+            switch (this.nodeState) {
             case 'graded':
                 return 'fill-positive'
             case 'failed':
                 return 'fill-negative'
-            case 'empty':
-            case 'awaiting_grade':
-            case 'needs_grading':
-            case 'needs_publishing':
-            case 'addNode':
-                return 'fill-white'
-            default:
-                return ''
             }
+
+            return 'fill-white'
         },
         iconScale () {
             if (this.type === 'a') {
@@ -127,6 +142,8 @@ export default {
         height: 55px
     &.enc-entry, &.enc-deadline
         background-color: $theme-medium-grey
+    &.enc-start
+        background-color: $theme-green
     &.enc-add
         background-color: $theme-blue
     &.enc-progress

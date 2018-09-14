@@ -1,10 +1,9 @@
 <template>
     <div>
-        <h5>
-            {{ fileName }}
-            <icon v-if="!show" @click.native="handleDownload" name="eye" class="action-icon"/>
-            <icon v-if="show" @click.native="handleDownload" name="ban" class="crossed-icon"/>
-        </h5>
+        <div class="pdf-controls mb-2 unselectable" @click="handleDownload">
+            <icon name="align-left"/>
+            <i><span>{{ fileName }}</span></i>
+        </div>
 
         <div v-if="show && loaded && numPages !== 0" class="pdf-menu-container">
             <icon name="arrow-left" @click.native="page = (page - 1 > 0) ? page - 1 : numPages" class="action-icon"/>
@@ -123,4 +122,12 @@ export default {
 <style lang="sass">
 .pdf-menu-container
     text-align: center
+
+.pdf-controls
+    &:hover
+        cursor: pointer
+    span
+        text-decoration: underline !important
+    svg
+        margin-bottom: -2px
 </style>

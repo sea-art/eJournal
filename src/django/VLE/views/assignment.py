@@ -24,7 +24,7 @@ class AssignmentView(viewsets.ViewSet):
     GET /assignments/<pk> -- gets a specific assignment
     PATCH /assignments/<pk> -- partially update an assignment
     DEL /assignments/<pk> -- delete an assignment
-    GET /assignments/upcomming/ -- get the upcomming assignments of the logged in user
+    GET /assignments/upcoming/ -- get the upcoming assignments of the logged in user
     """
 
     def list(self, request):
@@ -67,7 +67,7 @@ class AssignmentView(viewsets.ViewSet):
                 queryset = Assignment.objects.filter(courses=course, journal__user=request.user)
             serializer = AssignmentSerializer(queryset, many=True, context={'user': request.user, 'course': course})
         else:
-            return self.upcomming()
+            return self.upcoming()
 
         return response.success({'assignments': serializer.data})
 
@@ -273,7 +273,7 @@ class AssignmentView(viewsets.ViewSet):
         return response.success(data, description='Succesfully deleted the assignment.')
 
     @action(methods=['get'], detail=False)
-    def upcomming(self, request):
+    def upcoming(self, request):
         """Get upcoming deadlines for the requested user.
 
         Arguments:
@@ -285,7 +285,7 @@ class AssignmentView(viewsets.ViewSet):
             unauthorized -- when the user is not logged in
             not found -- when the course does not exist
         On success:
-            success -- upcomming assignments
+            success -- upcoming assignments
 
         """
         if not request.user.is_authenticated:
@@ -300,14 +300,14 @@ class AssignmentView(viewsets.ViewSet):
 
         deadline_list = []
 
-        # TODO: change query to a query that selects all upcomming assignments connected to the user.
+        # TODO: change query to a query that selects all upcoming assignments connected to the user.
         for course in courses:
             if permissions.get_role(request.user, course):
                 for assignment in Assignment.objects.filter(courses=course.id).all():
                     deadline_list.append(
                         AssignmentSerializer(assignment, context={'user': request.user, 'course': course}).data)
 
-        return response.success({'upcomming': deadline_list})
+        return response.success({'upcoming': deadline_list})
 
     @action(methods=['patch'], detail=True)
     def published_state(self, request, *args, **kwargs):
