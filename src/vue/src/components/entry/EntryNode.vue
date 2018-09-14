@@ -229,7 +229,6 @@ export default {
 
                 for (var content of this.entryNode.entry.content) {
                     if (content.field === templateField.id) {
-                        console.log(content)
                         this.completeContent.push({
                             data: content.data,
                             id: content.field
