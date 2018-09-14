@@ -4,7 +4,7 @@
             <icon name="image"/>
             <i><span>{{ fileName }}</span></i>
         </div>
-        <img :class="showImage()" v-if="fileURL" :src="fileURL">
+        <img :class="showImage" v-if="fileURL" :src="fileURL">
     </div>
 </template>
 
@@ -35,6 +35,11 @@ export default {
             fileURL: null
         }
     },
+    computed: {
+        showImage () {
+            return this.show ? 'open' : 'closed'
+        }
+    },
     methods: {
         handleDownload () {
             this.show = !this.show
@@ -42,9 +47,6 @@ export default {
             if (!this.fileURL && this.show) {
                 this.fileDownload()
             }
-        },
-        showImage () {
-            return this.show ? 'open' : 'closed'
         },
         fileDownload () {
             userAPI.download(this.authorUID, this.fileName)
