@@ -1,24 +1,21 @@
 <template>
     <div>
         <div v-if="courses">
-            <h2 class="mb-2">Create a course</h2>
-            <!-- <span class="multi-form">If you would like to create a course on eJournal please click the button below.</span><br/> -->
-            <!-- <b-row align-h="left"> -->
+            <span class="multi-form">If you would like to create a course on eJournal please click the button below.</span><br/>
+            <b-row align-h="center">
                 <b-button class="lti-button-option" @click="showModal('createCourseRef')">
                     <icon name="plus-square" scale="1.8"/>
                     <h2 class="lti-button-text">Create course</h2>
                 </b-button>
-            <!-- </b-row> -->
-            <br/><br/>
-            <h2 class="mb-2">Link an existing course on eJournal with the learning environment</h2>
-            <!-- <br/><span class="multi-form">If you would like to link an existing course on eJournal to the learning environment please -->
-            <!-- click the button below.</span><br/> -->
-            <!-- <b-row align-h="left"> -->
+            </b-row>
+            <br/><span class="multi-form">If you would like to link an existing course on eJournal to the learning environment please
+            click the button below.</span><br/>
+            <b-row align-h="center">
                 <b-button class="lti-button-option" @click="showModal('linkCourseRef')">
                     <icon name="link" scale="1.8"/>
                     <h2 class="lti-button-text">Link course</h2>
                 </b-button>
-            <!-- </b-row> -->
+            </b-row>
         </div>
 
         <b-modal
