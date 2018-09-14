@@ -9,11 +9,11 @@
                 <img class="profile-picture no-hover" :src="comment.author.profile_picture">
                 <b-card class="no-hover comment-card" :class="$root.getBorderClass($route.params.cID)">
                     <div v-if="!editCommentStatus[index]">
-                        <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="ml-2 delete-button float-right" @click="deleteComment(comment.id)">
+                        <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="ml-2 delete-button float-right multi-form" @click="deleteComment(comment.id)">
                             <icon name="trash"/>
                             Delete
                         </b-button>
-                        <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="ml-2 change-button float-right" @click="editCommentView(index, true, comment.text)">
+                        <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="ml-2 change-button float-right multi-form" @click="editCommentView(index, true, comment.text)">
                             <icon name="edit"/>
                             Edit
                         </b-button>
@@ -33,12 +33,12 @@
                     </div>
                     <div v-else>
                         <text-editor
+                            class="multi-form"
                             :id="'comment-text-editor-' + index"
                             :givenContent="editCommentTemp[index]"
                             @content-update="editCommentTemp[index] = $event"
                         />
-                        <br/>
-                        <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="ml-2 delete-button float-right" @click="editCommentView(index, false, '')">
+                        <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="multi-form delete-button" @click="editCommentView(index, false, '')">
                             <icon name="ban"/>
                             Cancel
                         </b-button>
@@ -55,6 +55,7 @@
             <b-card class="no-hover new-comment">
                 <text-editor
                     ref="comment-text-editor-ref"
+                    :basic="true"
                     :id="'comment-text-editor'"
                     placeholder="Type your comment here..."
                     @content-update="tempComment = $event"
