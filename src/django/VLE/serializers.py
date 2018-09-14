@@ -122,6 +122,13 @@ class AssignmentSerializer(serializers.ModelSerializer):
             return None
         return CourseSerializer(self.context['course']).data
 
+    def get_details(self, assignment):
+        return {
+            'name': assignment.name,
+            'description': assignment.description,
+            'points_possible': assignment.points_possible
+        }
+
 
 class NodeSerializer(serializers.ModelSerializer):
     class Meta:

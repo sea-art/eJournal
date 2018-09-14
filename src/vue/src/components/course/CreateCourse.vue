@@ -2,17 +2,17 @@
     <div>
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset" :v-model="form.lti_id">
             <h2 class="field-heading">Course name</h2>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.name" placeholder="Course name" required/>
+            <b-input class="multi-form theme-input" v-model="form.name" placeholder="Course name" required/>
             <h2 class="field-heading">Course abbreviation</h2>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.abbreviation" maxlength="10" placeholder="Course abbreviation (max 10 letters)" required/>
+            <b-input class="multi-form theme-input" v-model="form.abbreviation" maxlength="10" placeholder="Course abbreviation (max 10 characters)" required/>
             <b-row>
                 <b-col cols="6">
                     <h2 class="field-heading">From</h2>
-                    <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input" v-model="form.startdate" type="date" placeholder="From" required/>
+                    <b-input class="multi-form multi-date-input theme-input" v-model="form.startdate" type="date" placeholder="From" required/>
                 </b-col>
                 <b-col cols="6">
                     <h2 class="field-heading">To</h2>
-                    <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input" v-model="form.enddate" type="date" placeholder="To" required/>
+                    <b-input class="multi-form multi-date-input theme-input" v-model="form.enddate" type="date" placeholder="To" required/>
                 </b-col>
             </b-row>
             <b-button class="float-left change-button" type="reset">

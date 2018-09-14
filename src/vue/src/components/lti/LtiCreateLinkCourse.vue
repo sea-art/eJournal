@@ -1,6 +1,6 @@
 <template>
     <div v-if="courses">
-        <h2 class="multi-form">Configuring an assignment</h2>
+        <h2 class="multi-form">Configuring a Course</h2>
         <span class="d-block mb-2">
             You came here from a learning environment through an unconfigured
             course. Do you want to create a new course on eJournal,

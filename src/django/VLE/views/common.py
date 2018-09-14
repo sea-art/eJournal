@@ -38,13 +38,10 @@ def names(request, course_id, assignment_id, journal_id):
                 return response.forbidden('You are not allowed to view this course.')
             result['course'] = course.name
         if assignment_id:
-            if assignment_id == '-1':
-                result['assignment'] = 'New Assignment'
-            else:
-                assignment = Assignment.objects.get(pk=assignment_id)
-                if not (assignment.courses.all() & request.user.participations.all()):
-                    return response.forbidden('You are not allowed to view this assignment.')
-                result['assignment'] = assignment.name
+            assignment = Assignment.objects.get(pk=assignment_id)
+            if not (assignment.courses.all() & request.user.participations.all()):
+                return response.forbidden('You are not allowed to view this assignment.')
+            result['assignment'] = assignment.name
         if journal_id:
             journal = Journal.objects.get(pk=journal_id)
             if not (journal.user == request.user or permissions.has_assignment_permission(request.user,

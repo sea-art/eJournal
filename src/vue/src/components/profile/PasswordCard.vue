@@ -5,8 +5,8 @@
         <b-input class="theme-input multi-form" v-model="oldPass" type="password" placeholder="Old password"/>
         <h2 class="field-heading">New password</h2>
         <b-input class="theme-input multi-form" v-model="newPass" type="password" placeholder="New password"/>
-        <h2 class="field-heading">New password (again)</h2>
-        <b-input class="theme-input multi-form" v-model="newPassRepeat" type="password" placeholder="New password (again)"/>
+        <h2 class="field-heading">Repeat new password</h2>
+        <b-input class="theme-input multi-form" v-model="newPassRepeat" type="password" placeholder="Repeat new password"/>
         <b-button @click="changePassword" class="add-button float-right">
             <icon name="save"/>
             Save

@@ -39,7 +39,7 @@ import assignmentAPI from '@/api/assignment'
 
 export default {
     name: 'CreateAssignment',
-    props: ['ltiAssignName', 'ltiAssignID', 'ltiPointsPossible'],
+    props: ['lti', 'page'],
     data () {
         return {
             form: {
@@ -87,13 +87,14 @@ export default {
         }
     },
     mounted () {
-        if (this.ltiAssignName && this.ltiAssignID && this.ltiPointsPossible) {
-            this.form.assignmentName = this.ltiAssignName
-            this.form.ltiAssignID = this.ltiAssignID
-            this.form.pointsPossible = this.ltiPointsPossible
+        if (this.lti !== undefined) {
+            this.form.assignmentName = this.lti.ltiAssignName
+            this.form.ltiAssignID = this.lti.ltiAssignID
+            this.form.pointsPossible = this.lti.ltiPointsPossible
+            this.form.courseID = this.page.cID
+        } else {
+            this.form.courseID = this.$route.params.cID
         }
-
-        this.form.courseID = this.$route.params.cID
     }
 }
 </script>

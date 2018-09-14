@@ -55,7 +55,6 @@
             <b-card class="no-hover new-comment">
                 <text-editor
                     ref="comment-text-editor-ref"
-                    :displayInline="true"
                     :basic="true"
                     :id="'comment-text-editor'"
                     placeholder="Type your comment here..."

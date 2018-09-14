@@ -5,8 +5,8 @@
             <b-form @submit.prevent="recoverPassword()">
                 <h2 class="field-heading">New password</h2>
                 <b-input class="multi-form theme-input" type="password" v-model="password" required placeholder="New password"/>
-                <h2 class="field-heading">New password (again)</h2>
-                <b-input class="multi-form theme-input" type="password" v-model="passwordRepeated" @keyup.enter="handleLogin()" required placeholder="New password (again)"/>
+                <h2 class="field-heading">Repeat new password</h2>
+                <b-input class="multi-form theme-input" type="password" v-model="passwordRepeated" @keyup.enter="handleLogin()" required placeholder="Repeat new password"/>
                 <b-button class="float-right multi-form add-button" type="submit">
                     <icon name="save"/>
                     Save

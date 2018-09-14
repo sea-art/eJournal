@@ -20,7 +20,7 @@
                     @click="changePresetType('d')"
                     :class="{'unselected': currentPreset.type !== 'd'}">
                     <b-button
-                        class="change-button preset-type-button float-left mr-3 mt-2"
+                        class="change-button preset-type-button float-left mr-3 mt-2 no-hover"
                         :class="{'selected': currentPreset.type === 'd'}">
                         <icon name="calendar" scale="1.8"/>
                     </b-button>
@@ -35,7 +35,7 @@
                     @click="changePresetType('p')"
                     :class="{'unselected': currentPreset.type !== 'p'}">
                     <b-button
-                        class="change-button preset-type-button float-left mr-3 mt-2"
+                        class="change-button preset-type-button float-left mr-3 mt-2 no-hover"
                         :class="{'selected': currentPreset.type === 'p'}">
                         <icon name="flag-checkered" scale="1.8"/>
                     </b-button>

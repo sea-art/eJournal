@@ -16,7 +16,7 @@
                     :readonly="!$hasPermission('can_edit_course')"
                     v-model="course.abbreviation"
                     maxlength="10"
-                    placeholder="Course abbreviation (max 10 letters)"
+                    placeholder="Course abbreviation (max 10 characters)"
                     required/>
                 <h2 class="field-heading">From</h2>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
