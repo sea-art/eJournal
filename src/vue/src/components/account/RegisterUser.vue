@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <b-card class="no-hover">
         <h2 v-if="lti" class="field-heading">Username</h2>
         <b-input v-if="lti" class="multi-form theme-input" :value="this.lti.username" disabled/>
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
@@ -24,7 +24,7 @@
                 Create account
             </b-button>
         </b-form>
-    </div>
+    </b-card>
 </template>
 
 <script>

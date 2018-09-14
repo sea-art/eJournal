@@ -1,15 +1,17 @@
 <!-- Loads a preview of a template. -->
 <template>
     <b-card class="no-hover">
+        <h2>{{ template.name }}</h2>
         <div v-for="(field, i) in template.field_set" :key="field.eID" class="multi-form">
             <h2 v-if="field.title" class="field-heading">{{ field.title }} <span v-if="field.required">*</span></h2>
 
             <b-textarea
                 v-if="field.type == 't'"
-                class="theme-input"
+                class="theme-input input-disabled"
             />
             <file-upload-input
                 v-else-if="field.type == 'i'"
+                class="input-disabled"
                 :acceptedFiletype="'image/*'"
                 :maxSizeBytes="$root.maxFileSizeBytes"
                 :autoUpload="false"
@@ -17,26 +19,33 @@
             />
             <file-upload-input
                 v-else-if="field.type == 'f'"
+                class="input-disabled"
                 :acceptedFiletype="'*/*'"
                 :maxSizeBytes="$root.maxFileSizeBytes"
                 :autoUpload="false"
                 :aID="$route.params.aID"
             />
-            <b-input v-else-if="field.type=='v'"
-                class="theme-input"
+            <b-input
+                v-else-if="field.type=='v'"
+                class="theme-input input-disabled"
                 placeholder="Enter YouTube URL..."
             />
-            <file-upload-input v-else-if="field.type == 'p'"
+            <file-upload-input
+                v-else-if="field.type == 'p'"
+                class="input-disabled"
                 :acceptedFiletype="'application/pdf'"
                 :maxSizeBytes="$root.maxFileSizeBytes"
                 :autoUpload="false"
                 :aID="$route.params.aID"
             />
-            <text-editor v-else-if="field.type == 'rt'"
+            <text-editor
+                v-else-if="field.type == 'rt'"
+                class="input-disabled"
                 :id="'rich-text-editor-preview-field-' + i"
             />
             <url-input
                 v-else-if="field.type == 'u'"
+                class="input-disabled"
             />
         </div>
     </b-card>

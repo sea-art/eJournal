@@ -1,17 +1,19 @@
 <template>
-    <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
-        <h2 class="field-heading">Institute name</h2>
-        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" type="text" v-model="instituteName" placeholder="Institute name"/>
-        <!-- TODO less placeholdery -->
-        <b-button class="float-right delete-button" type="reset">
-            <icon name="undo"/>
-            Reset
-        </b-button>
-        <b-button class="float-right add-button" type="submit">
-            <icon name="save"/>
-            Save
-        </b-button>
-    </b-form>
+    <b-card class="no-hover">
+        <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
+            <h2 class="field-heading">Institute name</h2>
+            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" type="text" v-model="instituteName" placeholder="Institute name"/>
+            <!-- TODO less placeholdery -->
+            <b-button class="float-right delete-button" type="reset">
+                <icon name="undo"/>
+                Reset
+            </b-button>
+            <b-button class="float-right add-button" type="submit">
+                <icon name="save"/>
+                Save
+            </b-button>
+        </b-form>
+    </b-card>
 </template>
 
 <script>

@@ -20,19 +20,23 @@
             </b-link>
         </div>
 
-        <b-button v-if="$hasPermission('can_add_assignment')"
+        <b-button
+            v-if="$hasPermission('can_add_assignment')"
             slot="main-content-column"
-            :to="{
-                name: 'FormatEdit',
-                params: {
-                    cID: this.cID,
-                    aID: 0
-                }
-            }"
+            @click="showModal('createAssignmentRef')"
             class="add-button grey-background full-width">
             <icon name="plus"/>
             Create New Assignment
         </b-button>
+
+        <b-modal
+            slot="main-content-column"
+            ref="createAssignmentRef"
+            title="Create new assignment"
+            size="lg"
+            hide-footer>
+                <create-assignment @handleAction="handleCreated"/>
+        </b-modal>
 
         <h3 slot="right-content-column">To Do</h3>
 
@@ -63,6 +67,7 @@ import todoCard from '@/components/assets/TodoCard.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
 import mainCard from '@/components/assets/MainCard.vue'
 import icon from 'vue-awesome/components/Icon'
+import createAssignment from '@/components/assignment/CreateAssignment.vue'
 
 import assignmentAPI from '@/api/assignment'
 
@@ -92,6 +97,7 @@ export default {
         'todo-card': todoCard,
         'progress-bar': progressBar,
         'main-card': mainCard,
+        'create-assignment': createAssignment,
         icon
     },
     created () {
@@ -117,6 +123,18 @@ export default {
                     cID: this.cID
                 }
             })
+        },
+        handleCreated (aID) {
+            this.$router.push({
+                name: 'FormatEdit',
+                params: {
+                    cID: this.cID,
+                    aID: aID
+                }
+            })
+        },
+        showModal (ref) {
+            this.$refs[ref].show()
         },
         assignmentRoute (cID, aID, jID) {
             var route = {

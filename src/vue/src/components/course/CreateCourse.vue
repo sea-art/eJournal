@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <b-card class="no-hover">
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset" :v-model="form.lti_id">
             <h2 class="field-heading">Course name</h2>
             <b-input class="multi-form theme-input" v-model="form.name" placeholder="Course name" required/>
@@ -24,7 +24,7 @@
                 Create
             </b-button>
         </b-form>
-    </div>
+    </b-card>
 </template>
 
 <script>

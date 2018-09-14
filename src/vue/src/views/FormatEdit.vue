@@ -49,21 +49,6 @@
                     hide-footer>
                         <template-editor :template="templateBeingEdited"/>
                 </b-modal>
-                <b-modal
-                    ref="creationModal"
-                    title="Create new assignment"
-                    size="lg"
-                    v-model="createAssignment"
-                    no-close-on-esc
-                    no-close-on-backdrop
-                    hide-header-close
-                    hide-footer>
-                        <create-assignment
-                            @handleAction="handleCreateAssignment"
-                            :ltiAssignName="ltiAssignName"
-                            :ltiAssignID="ltiAssignID"
-                            :ltiPointsPossible="ltiPointsPossible"/>
-                </b-modal>
             </b-col>
         </b-col>
 
@@ -103,12 +88,11 @@ import formatEditAvailableTemplateCard from '@/components/format/FormatEditAvail
 import formatEditSelectTemplateCard from '@/components/format/FormatEditSelectTemplateCard.vue'
 import templateEdit from '@/components/template/TemplateEdit.vue'
 import icon from 'vue-awesome/components/Icon'
-import createAssignment from '@/components/assignment/CreateAssignment.vue'
 import formatAPI from '@/api/format.js'
 
 export default {
     name: 'FormatEdit',
-    props: ['cID', 'aID', 'ltiAssignName', 'ltiAssignID', 'ltiPointsPossible'],
+    props: ['cID', 'aID'],
     /* Main data representations:
        templates, presets, unused templates: as received.
        templatePool: the list of used templates. Elements are meta objects with a t field storing the template,
@@ -121,8 +105,6 @@ export default {
     */
     data () {
         return {
-            createAssignment: false,
-            updateAssignmentID: null,
             currentNode: -1,
 
             assignmentDetails: {},
@@ -151,12 +133,13 @@ export default {
         }
     },
     created () {
-        if (this.aID === 0) {
-            this.createAssignment = true
-        } else {
-            this.updateAssignmentID = this.aID
-            this.getFromDB()
-        }
+        formatAPI.get(this.aID)
+            .then(data => {
+                this.saveFromDB(data)
+                this.convertFromDB()
+            })
+            .then(_ => { this.isChanged = false })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
 
         window.addEventListener('beforeunload', e => {
             if (this.$route.name === 'FormatEdit' && this.isChanged) {
@@ -195,11 +178,16 @@ export default {
         newTemplate () {
             return {
                 t: {
-                    'field_set': [],
-                    'name': '',
+                    'field_set': [{
+                        'type': 'rt',
+                        'title': 'Entry',
+                        'location': 0,
+                        'required': true
+                    }],
+                    'name': 'Untitled Template',
                     'id': this.wipTemplateId--
                 },
-                available: false
+                available: true
             }
         },
         // Shows the modal and sets updated flag on template
@@ -210,11 +198,6 @@ export default {
             }
             this.templateBeingEdited = template.t
             this.$refs['templateModal'].show()
-        },
-        handleCreateAssignment (aID) {
-            this.hideModal('creationModal')
-            this.updateAssignmentID = aID
-            this.getFromDB()
         },
         hideModal (ref) {
             this.$refs[ref].hide()
@@ -303,7 +286,7 @@ export default {
 
             this.saveRequestInFlight = true
             this.convertToDB()
-            formatAPI.update(this.updateAssignmentID, {
+            formatAPI.update(this.aID, {
                 'assignment_details': this.assignmentDetails,
                 'templates': this.templates,
                 'max_points': this.max_points,
@@ -323,15 +306,6 @@ export default {
         },
         customisePage () {
             this.$toasted.info('Wishlist: Customise page')
-        },
-        getFromDB () {
-            formatAPI.get(this.updateAssignmentID)
-                .then(data => {
-                    this.saveFromDB(data)
-                    this.convertFromDB()
-                })
-                .then(_ => { this.isChanged = false })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         saveFromDB (data) {
             this.assignmentDetails = data.assignment_details
@@ -391,14 +365,13 @@ export default {
     components: {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
-        edag,
         'assignment-details-card': FormatEditAssignmentDetailsCard,
         'available-template-card': formatEditAvailableTemplateCard,
         'selected-node-card': formatEditSelectTemplateCard,
         'template-editor': templateEdit,
-        icon,
         'main-card': mainCard,
-        'create-assignment': createAssignment
+        edag,
+        icon
     },
 
     // Prompts user

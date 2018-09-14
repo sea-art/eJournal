@@ -38,7 +38,6 @@ export default {
             /* Variables for loading the right component. */
             handleCourseChoice: false,
             handleAssignmentChoice: false,
-            createAssignment: false,
             ltiJWT: '',
             tempStateToCheckIfWeCanAutoSetup: '',
 
@@ -57,8 +56,7 @@ export default {
                 grade_center: '6',
 
                 /* Intern variables for checking the state of the lti launch. */
-                create_assign: '7',
-                check_assign: '8'
+                check_assign: '7'
             },
 
             /* Set a dictionary with the needed lti variables. */
@@ -107,7 +105,16 @@ export default {
                 enddate: genericUtils.yearOffset(this.lti.ltiCourseStart.split(' ')[0]),
                 lti_id: this.lti.ltiCourseID }).then(course => {
                 this.page.cID = course.id
-                this.updateState(this.states.create_assign)
+                assignmentAPI.create({
+                    name: this.lti.ltiAssignName,
+                    description: 'No content.',
+                    course_id: this.page.cID,
+                    lti_id: this.lti.ltiAssignID,
+                    points_possible: this.lti.ltiPointsPossible
+                }).then(assignment => {
+                    this.page.aID = assignment.id
+                    this.updateState(this.states.finish_t)
+                })
             })
         },
         handleActions (args) {
@@ -116,7 +123,7 @@ export default {
                 this.handleCourseChoice = false
                 this.page.cID = args[1]
                 this.$toasted.success('Course Created!')
-                this.states.state = this.states.create_assign
+                this.states.state = this.states.check_assign
                 break
             case 'courseLinked':
                 this.handleCourseChoice = false
@@ -131,7 +138,6 @@ export default {
                 this.states.state = this.states.finish_t
                 break
             case 'assignmentCreated':
-                this.createAssignment = false
                 this.page.aID = args[1]
                 this.$toasted.success('Assignment Created!')
                 this.states.state = this.states.finish_t
@@ -147,18 +153,6 @@ export default {
             case this.states.new_assign:
                 this.currentPage = 'Assignment Integration'
                 this.handleAssignmentChoice = true
-                break
-            case this.states.create_assign:
-                this.$router.push({
-                    name: 'FormatEdit',
-                    params: {
-                        cID: this.page.cID,
-                        aID: 0,
-                        ltiAssignName: this.lti.ltiAssignName,
-                        ltiAssignID: this.lti.ltiAssignID,
-                        ltiPointsPossible: this.lti.ltiPointsPossible
-                    }
-                })
                 break
             case this.states.check_assign:
                 assignmentAPI.getWithLti(this.lti.ltiAssignID)
@@ -214,7 +208,7 @@ export default {
                 /* Teacher has created or linked a new course and or assignment, we need to update the store. */
                 this.$store.dispatch('user/populateStore').then(_ => {
                     this.$router.push({
-                        name: 'Assignment',
+                        name: 'FormatEdit',
                         params: {
                             cID: this.page.cID,
                             aID: this.page.aID

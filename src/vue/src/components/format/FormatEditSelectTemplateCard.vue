@@ -46,7 +46,7 @@
                 </b-card>
             </b-col>
         </b-row>
-        <h2 class="field-heading">Preset Deadline</h2>
+        <h2 class="field-heading">Deadline</h2>
         <b-input class="theme-input multi-form" v-model="deadlineDate" type="date" @change="$emit('changed')"/>
         <b-input class="theme-input multi-form" v-model="deadlineTime" type="time" @change="$emit('changed')"/>
 
@@ -60,7 +60,9 @@
             </b-form-select>
             <div v-if="currentPreset !== null">
                 <h2 class="field-heading">Preview of the {{ currentPreset.template.name }} template</h2>
-                <template-preview :template="currentPreset.template"/>
+                <b-card class="no-hover">
+                    <template-preview :template="currentPreset.template"/>
+                </b-card>
             </div>
         </div>
         <div v-else-if="currentPreset.type === 'p'">

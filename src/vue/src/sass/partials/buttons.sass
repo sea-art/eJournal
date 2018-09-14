@@ -22,6 +22,8 @@
         color: white !important
         svg
             fill: white !important
+    &.no-hover:hover
+        background-color: white
 
 .button-top-border
     border-top: 1px solid $theme-dark-grey
@@ -34,25 +36,25 @@
 
 .add-card
     opacity: 0.5
-    &:hover:not(.no-hover), &:active
+    &:hover:not(.no-hover), &.active
         opacity: 1
 
 .add-button
     svg
         fill: $theme-green !important
-    &:hover:not(.no-hover), &:active
+    &:hover:not(.no-hover), &.active
         background-color: $theme-green !important
 
 .delete-button
     svg
         fill: $theme-red !important
-    &:hover:not(.no-hover), &:active
+    &:hover:not(.no-hover), &.active
         background-color: $theme-red !important
 
 .change-button
     svg
         fill: $theme-orange !important
-    &:hover:not(.no-hover), &:active
+    &:hover:not(.no-hover), &.active
         background-color: $theme-orange !important
 
 .preset-type-button

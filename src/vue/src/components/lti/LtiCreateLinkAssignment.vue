@@ -9,18 +9,7 @@
         <b-row>
             <b-col md="6">
                 <b-card class="no-hover full-height">
-                    <b-button
-                        class="add-button full-width"
-                        :to="{
-                            name: 'FormatEdit',
-                            params: {
-                                cID: page.cID,
-                                aID: 0,
-                                ltiAssignName: lti.ltiAssignName,
-                                ltiAssignID: lti.ltiAssignID,
-                                ltiPointsPossible: lti.ltiPointsPossible
-                            }
-                        }">
+                    <b-button class="add-button full-width" @click="showModal('createAssignmentRef')">
                         <icon name="plus-square" class="mr-3" scale="1.8"/>
                         <h2 class="lti-button-text">Create new<br/>assignment</h2>
                     </b-button>
@@ -48,6 +37,13 @@
                 size="lg"
                 hide-footer>
                     <link-assignment @handleAction="handleLinked" :lti="lti" :page="page"/>
+            </b-modal>
+            <b-modal
+                ref="createAssignmentRef"
+                title="Create new assignment"
+                size="lg"
+                hide-footer>
+                    <create-assignment @handleAction="handleCreated" :lti="lti" :page="page"/>
             </b-modal>
         </b-row>
     </div>

@@ -48,7 +48,7 @@ class FormatView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to view this assignment.')
 
         serializer = FormatSerializer(assignment.format)
-        assignment_details = AssignmentSerializer.get_details(assignment)
+        assignment_details = AssignmentSerializer.get_details(self, assignment)
 
         return response.success({'format': serializer.data, 'assignment_details': assignment_details})
 
@@ -124,6 +124,6 @@ class FormatView(viewsets.ViewSet):
         utils.delete_templates(format.unused_templates, removed_templates)
 
         serializer = FormatSerializer(format)
-        assignment_details = AssignmentSerializer.get_details(assignment)
+        assignment_details = AssignmentSerializer.get_details(self, assignment)
 
         return response.success({'format': serializer.data, 'assignment_details': assignment_details})
