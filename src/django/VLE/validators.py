@@ -28,6 +28,15 @@ def validate_user_file(inMemoryUploadedFile):
         raise ValidationError("Max size of file is %s Bytes" % settings.USER_MAX_FILE_SIZE_BYTES)
 
 
+def validate_email_files(files):
+    """Checks if total size does not exceed 10MB."""
+    size = 0
+    for file in files:
+        size += file.size
+        if size > settings.USER_MAX_FILE_SIZE_BYTES * 5:
+            raise ValidationError("Max size of file is %s Bytes" % settings.USER_MAX_FILE_SIZE_BYTES)
+
+
 def validate_password(password):
     """Validates password by length, having a capital letter and a special character."""
     if len(password) < 8:

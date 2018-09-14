@@ -41,15 +41,19 @@ If you did make the request please visit the link below and set a new password:
     EmailMessage('eJourn.al password recovery', email_body, to=[user.email]).send()
 
 
-def send_email_feedback(user, topic, type, feedback, browser):
+def send_email_feedback(user, files, topic, ftype, feedback, user_agent):
     """Sends the feedback of an user to the developers."""
-    subject = "[Feedback] {}".format(topic)
-    body = "TYPE: {}\n\n".format(type)
+    subject = "[Feedback] {}".format(topic[0])
+    body = "TYPE: {}\n\n".format(ftype[0])
     body += "FEEDBACK BY: {}\n".format(user.username)
     body += "EMAIL: {}\n".format("" if user.email is None else user.email)
     body += "TEACHER: {}\n".format(user.is_teacher)
     body += "ROLES: {}\n".format(Role.objects.filter(role__user=user).values('name'))
-    body += "USERAGENT: {}\n\n".format(browser)
-    body += "THE FEEDBACK:\n{}".format(feedback)
+    body += "USER-AGENT: {}\n\n".format(user_agent[0])
+    body += "THE FEEDBACK:\n{}".format(feedback[0])
 
-    EmailMessage(subject, body, to=[DEV_EMAIL]).send()
+    attachs = []
+    for file in files:
+        attachs.append((file.name, file.read(), file.content_type))
+
+    EmailMessage(subject, body, attachments=attachs, to=[DEV_EMAIL]).send()

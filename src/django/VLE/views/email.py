@@ -13,6 +13,12 @@ import VLE.utils.generic_utils as utils
 import VLE.validators as validators
 from django.core.exceptions import ValidationError
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.html import escape
+from django.http import HttpResponse
+
+
+def index(request):
+    return HttpResponse(escape(repr(request)))
 
 
 @api_view(['POST'])
@@ -137,9 +143,11 @@ def send_feedback(request):
         type -- the type of feedback
         feedback -- the actual feedback
         browser -- the browser of the user who sends the feedback.
+        files -- potential files as attachments.
 
         Returns:
         On failure:
+            bad request -- when required keys are missing or file sizes too big.
             unauthorized -- when the user is not logged in
         On success:
             success -- with a description
@@ -147,11 +155,14 @@ def send_feedback(request):
     if not request.user.is_authenticated:
         return response.unauthorized()
 
+    if not all(x in request.POST for x in ['topic', 'feedback', 'ftype', 'user_agent']):
+        return response.bad_request('Required feedback field missing.')
+
+    files = request.FILES.getlist('files')
     try:
-        topic, type, feedback, browser = utils.required_params(request.data, 'topic', 'type', 'body', 'browser')
-    except KeyError:
-        return response.keyerror('topic', 'type', 'body')
+        validators.validate_email_files(files)
+    except ValidationError:
+        return response.bad_request('The selected files exceeds the total file size limit.')
 
-    email_handling.send_email_feedback(request.user, topic, type, feedback, browser)
-
+    email_handling.send_email_feedback(request.user, files, **request.POST)
     return response.success(description='Feedback received')

@@ -72,7 +72,8 @@ new Vue({
         colors: ['pink-border', 'peach-border', 'blue-border'],
         previousPage: null,
         windowWidth: 0,
-        maxFileSizeBytes: 2097152
+        maxFileSizeBytes: 2097152,
+        maxEmailFileSizeBytes: 10485760
     },
     mounted () {
         this.$nextTick(function () {
