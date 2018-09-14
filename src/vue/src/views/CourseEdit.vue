@@ -18,19 +18,24 @@
                     maxlength="10"
                     placeholder="Course abbreviation (max 10 characters)"
                     required/>
-                <h2 class="field-heading">From</h2>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                    :readonly="!$hasPermission('can_edit_course')"
-                    v-model="course.startdate"
-                    type="date"
-                    required/>
-                <h2 class="field-heading">To</h2>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                    :readonly="!$hasPermission('can_edit_course')"
-                    v-model="course.enddate"
-                    type="date"
-                    required/>
-
+                <b-row>
+                    <b-col xs="6">
+                        <h2 class="field-heading">From</h2>
+                        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                            :readonly="!$hasPermission('can_edit_course')"
+                            v-model="course.startdate"
+                            type="date"
+                            required/>
+                    </b-col>
+                    <b-col xs="6">
+                        <h2 class="field-heading">To</h2>
+                        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                            :readonly="!$hasPermission('can_edit_course')"
+                            v-model="course.enddate"
+                            type="date"
+                            required/>
+                    </b-col>
+                </b-row>
                 <b-row>
                     <b-col class="d-flex flex-wrap">
                         <b-button v-if="$hasPermission('can_delete_course')"
@@ -57,44 +62,38 @@
         </b-card>
 
         <div>
-            <b-card class="no-hover">
+            <b-card v-if="$hasPermission('can_add_course_participants')" class="no-hover">
                 <h2 class="mb-2">Manage course members</h2>
-                <b-row v-if="$hasPermission('can_add_course_participants')">
-                    <b-col sm="12">
-                        <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
-                    </b-col>
-                    <b-col sm="12" class="d-flex flex-wrap">
-                        <b-button v-if="viewEnrolled" v-on:click.stop @click="toggleEnroled" class="button full-width multi-form">
-                            View unenrolled users
-                        </b-button>
-                        <b-button v-if="!viewEnrolled" v-on:click.stop @click="toggleEnroled" class="button full-width multi-form">
-                            View enrolled participants
-                        </b-button>
-                    </b-col>
-                    <b-col sm="8" class="d-flex flex-wrap">
-                        <b-form-select class="multi-form" v-model="selectedSortOption" :select-size="1">
-                            <option :value="null">Sort by ...</option>
-                            <option value="sortFullName">Sort by name</option>
-                            <option value="sortUsername">Sort by username</option>
-                        </b-form-select>
-                    </b-col>
-                    <b-col sm="4">
-                        <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button full-width multi-form">
-                            <icon name="long-arrow-down"/>
-                            Ascending
-                        </b-button>
-                        <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="button full-width multi-form">
-                            <icon name="long-arrow-up"/>
-                            Descending
-                        </b-button>
-                    </b-col>
-                </b-row>
-                <input
-                    v-if="$hasPermission('can_add_course_participants')"
-                    class="multi-form theme-input full-width"
-                    type="text"
-                    v-model="searchVariable"
-                    placeholder="Search..."/>
+                <div class="d-flex">
+                    <input
+                        class="theme-input flex-grow-1 no-width multi-form mr-2"
+                        type="text"
+                        v-model="searchVariable"
+                        placeholder="Search..."/>
+                    <b-button v-if="viewEnrolled" v-on:click.stop @click="toggleEnroled" class="multi-form">
+                        <icon name="users"/>
+                        Show enrolled
+                    </b-button>
+                    <b-button v-if="!viewEnrolled" v-on:click.stop @click="toggleEnroled" class="multi-form">
+                        <icon name="user"/>
+                        Show unenrolled
+                    </b-button>
+                </div>
+                <div class="d-flex">
+                    <b-form-select class="multi-form mr-2" v-model="selectedSortOption" :select-size="1">
+                        <option :value="null">Sort by ...</option>
+                        <option value="sortFullName">Sort by name</option>
+                        <option value="sortUsername">Sort by username</option>
+                    </b-form-select>
+                    <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="multi-form">
+                        <icon name="long-arrow-down"/>
+                        Ascending
+                    </b-button>
+                    <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="full-width multi-form">
+                        <icon name="long-arrow-up"/>
+                        Descending
+                    </b-button>
+                </div>
             </b-card>
 
             <course-participant-card v-if="viewEnrolled"

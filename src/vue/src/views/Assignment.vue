@@ -3,28 +3,22 @@
     <content-columns>
         <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
         <b-card slot="main-content-column" class="no-hover settings-card">
-            <b-row>
-                <b-col sm="12">
-                    <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
-                </b-col>
-                <b-col sm="8">
-                    <b-form-select class="multi-form" v-model="selectedSortOption" :select-size="1">
-                       <option value="sortFullName">Sort by name</option>
-                       <option value="sortUsername">Sort by username</option>
-                       <option value="sortMarking">Sort by marking needed</option>
-                    </b-form-select>
-                </b-col>
-                <b-col sm="4">
-                    <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button full-width multi-form">
-                        <icon name="long-arrow-down"/>
-                        Ascending
-                    </b-button>
-                    <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="button full-width multi-form">
-                        <icon name="long-arrow-up"/>
-                        Descending
-                    </b-button>
-                </b-col>
-            </b-row>
+            <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
+            <div class="d-flex">
+                <b-form-select class="multi-form mr-2" v-model="selectedSortOption" :select-size="1">
+                   <option value="sortFullName">Sort by name</option>
+                   <option value="sortUsername">Sort by username</option>
+                   <option value="sortMarking">Sort by marking needed</option>
+                </b-form-select>
+                <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button multi-form">
+                    <icon name="long-arrow-down"/>
+                    Ascending
+                </b-button>
+                <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="button multi-form">
+                    <icon name="long-arrow-up"/>
+                    Descending
+                </b-button>
+            </div>
             <b-button
                 v-if="$hasPermission('can_publish_assignment_grades') && assignmentJournals.length > 0"
                 class="add-button full-width"

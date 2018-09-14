@@ -8,10 +8,6 @@
         <div slot="main-content-column" v-for="a in assignments" :key="a.id">
             <b-link tag="b-button" :to="assignmentRoute(cID, a.id, a.journal)">
                 <assignment-card :line1="a.name">
-                    <progress-bar
-                        v-if="a.journal && a.journal.stats"
-                        :currentPoints="a.journal.stats.acquired_points"
-                        :totalPoints="a.journal.stats.total_points"/>
                     <b-button v-if="$hasPermission('can_delete_assignment')" @click.prevent.stop="deleteAssignment(a.id)" class="delete-button float-right">
                         <icon name="trash"/>
                         Remove
@@ -64,7 +60,6 @@ import contentColumns from '@/components/columns/ContentColumns.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import assignmentCard from '@/components/assignment/AssignmentCard.vue'
 import todoCard from '@/components/assets/TodoCard.vue'
-import progressBar from '@/components/assets/ProgressBar.vue'
 import mainCard from '@/components/assets/MainCard.vue'
 import icon from 'vue-awesome/components/Icon'
 import createAssignment from '@/components/assignment/CreateAssignment.vue'
@@ -95,7 +90,6 @@ export default {
         'bread-crumb': breadCrumb,
         'assignment-card': assignmentCard,
         'todo-card': todoCard,
-        'progress-bar': progressBar,
         'main-card': mainCard,
         'create-assignment': createAssignment,
         icon
