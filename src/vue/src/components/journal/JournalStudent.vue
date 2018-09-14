@@ -130,9 +130,7 @@ export default {
     methods: {
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData
-            entryAPI.update(this.nodes[this.currentNode].entry.id, {
-                content: editedData.entry.content
-            })
+            entryAPI.update(this.nodes[this.currentNode].entry.id, { content: editedData.entry.content })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         deleteNode () {
