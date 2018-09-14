@@ -150,6 +150,10 @@
                 <icon name="edit"/>
                 Edit
             </b-button>
+            <b-button v-if="entryNode.entry.editable" class="delete-button float-right mt-2" @click="deleteEntry">
+                <icon name="trash"/>
+                Delete
+            </b-button>
         </b-card>
 
         <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published"/>
@@ -163,8 +167,8 @@ import fileDownloadButton from '@/components/assets/file_handling/FileDownloadBu
 import imageFileDisplay from '@/components/assets/file_handling/ImageFileDisplay.vue'
 import pdfDisplay from '@/components/assets/PdfDisplay.vue'
 import textEditor from '@/components/assets/TextEditor.vue'
-import icon from 'vue-awesome/components/Icon'
 import urlInput from '@/components/assets/UrlInput.vue'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     props: ['entryNode', 'cID'],
@@ -204,6 +208,11 @@ export default {
                 this.saveEditMode = 'Save'
                 this.completeContent = []
                 this.setContent()
+            }
+        },
+        deleteEntry: function () {
+            if (confirm('Are you sure that you want to delete this entry?')) {
+                this.$emit('delete-node', this.tempNode)
             }
         },
         cancel: function () {

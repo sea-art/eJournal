@@ -13,6 +13,7 @@
                         <entry-node
                             ref="entry-template-card"
                             @edit-node="adaptData"
+                            @delete-node="deleteNode"
                             :cID="cID"
                             :entryNode="nodes[currentNode]"/>
                     </div>
@@ -131,7 +132,16 @@ export default {
             this.nodes[this.currentNode] = editedData
             entryAPI.update(this.nodes[this.currentNode].entry.id, {
                 content: editedData.entry.content
-            }).catch(error => { this.$toasted.error(error.response.data.description) })
+            })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
+        },
+        deleteNode () {
+            entryAPI.delete(this.nodes[this.currentNode].entry.id)
+                .then(data => {
+                    this.$toasted.success(data.description)
+                    this.nodes.splice(this.currentNode, 1)
+                })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         selectNode ($event) {
             /* Function that prevents you from instant leaving an EntryNode
