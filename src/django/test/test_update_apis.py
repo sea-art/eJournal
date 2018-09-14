@@ -111,6 +111,10 @@ class UpdateApiTests(TestCase):
         login = test.logging_in(self, self.rein_user, self.rein_pass)
 
         update_dict = {
+            'assignment_details': {
+                'name': 'Colloq',
+                'description': 'description1'
+            },
             'max_points': 11,
             'templates': [serialize.TemplateSerializer(template).data
                           for template in format.available_templates.all()],

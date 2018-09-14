@@ -22,10 +22,10 @@
                 Shows every field description and
                 a corresponding form.
             -->
-            <div v-for="(field, i) in entryNode.entry.template.field_set" :key="field.eID">
-                <div v-if="field.title">
-                    <b>{{ field.title }}</b> <b style="color: red" v-if="field.required">*</b>
-                </div>
+            <div v-for="(field, i) in entryNode.entry.template.field_set" :key="field.eID" class="multi-form">
+                <h2 v-if="field.title" class="field-heading">
+                    {{ field.title }} <span v-if="field.required">*</span>
+                </h2>
 
                 <div v-if="field.type=='t'">
                     <b-textarea class="theme-input" v-model="completeContent[i].data"></b-textarea><br>
@@ -108,10 +108,10 @@
                 Gives a view of every templatefield and
                 if possible the already filled in entry.
             -->
-            <div v-for="(field, i) in entryNode.entry.template.field_set" v-if="field.required || completeContent[i].data" :key="field.id">
-                <div v-if="field.title">
-                    <b>{{ field.title }}</b>
-                </div>
+            <div v-for="(field, i) in entryNode.entry.template.field_set" v-if="field.required || completeContent[i].data" :key="field.id" class="multi-form">
+                <h2 v-if="field.title" class="field-heading">
+                    {{ field.title }} <span v-if="field.required">*</span>
+                </h2>
                 <div v-if="field.type=='t'">
                     <span class="show-enters">{{ completeContent[i].data }}</span><br>
                 </div>
