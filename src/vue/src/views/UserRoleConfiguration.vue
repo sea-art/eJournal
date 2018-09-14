@@ -137,13 +137,11 @@ export default {
             var deepCopy = []
 
             for (var i = 0; i < roles.length; i++) {
-                var permissions = {}
+                deepCopy.push({ name: roles[i].name, id: roles[i].id })
 
                 for (var j = 0; j < this.permissions.length; j++) {
-                    permissions[this.permissions[j]] = roles[i][this.permissions[j]]
+                    deepCopy[i][this.permissions[j]] = roles[i][this.permissions[j]]
                 }
-
-                deepCopy.push({ name: roles[i].name, cID: this.cID, permissions: permissions })
             }
 
             return deepCopy
@@ -163,7 +161,11 @@ export default {
         },
         setState (role, permission) {
             var correctRole = (this.roleConfig.filter(arg => { return arg.name === role }))[0]
-            return correctRole[permission] === true
+            if (correctRole !== undefined) {
+                return correctRole[permission] === true
+            }
+
+            return false
         },
         // TODO: Undo changes button doesnt work
         reset () {
@@ -236,6 +238,17 @@ export default {
                     if (!this.$hasPermission('can_edit_course_roles')) { this.$router.push({ name: 'Home' }) }
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
+        },
+        checkChanged () {
+            for (var i = 0; i < this.roleConfig.length; i++) {
+                for (var j = 0; j < this.permissions.length; j++) {
+                    if (this.roleConfig[i][this.permissions[j]] !== this.originalRoleConfig[i][this.permissions[j]]) {
+                        return true
+                    }
+                }
+            }
+
+            return false
         }
     },
     created () {
@@ -263,6 +276,14 @@ export default {
         'bread-crumb': breadCrumb,
         'custom-checkbox': customCheckbox,
         icon
+    },
+    beforeRouteLeave (to, from, next) {
+        if (this.checkChanged() && !confirm('Unsaved changes will be lost if you leave. Do you wish to continue?')) {
+            next(false)
+            return
+        }
+
+        next()
     }
 }
 </script>

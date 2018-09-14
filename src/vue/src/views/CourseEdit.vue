@@ -128,6 +128,7 @@ export default {
     data () {
         return {
             course: {},
+            originalCourse: {},
             form: {},
             participants: [],
             unenrolledStudents: [],
@@ -150,7 +151,10 @@ export default {
     },
     created () {
         courseAPI.get(this.cID)
-            .then(course => { this.course = course })
+            .then(course => {
+                this.course = course
+                this.originalCourse = this.deepCopyCourse(course)
+            })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
         if (this.$hasPermission('can_view_course_participants')) {
@@ -220,6 +224,23 @@ export default {
         },
         toggleEnroled () {
             this.viewEnrolled = !this.viewEnrolled
+        },
+        deepCopyCourse (course) {
+            var copyCourse = {
+                name: course.name, abbreviation: course.abbreviation, startdate: course.startdate, enddate: course.enddate
+            }
+
+            return copyCourse
+        },
+        checkChanged () {
+            if (this.course.name !== this.originalCourse.name ||
+                    this.course.abbreviation !== this.originalCourse.abbreviation ||
+                    this.course.startdate !== this.originalCourse.startdate ||
+                    this.course.enddate !== this.originalCourse.enddate) {
+                return true
+            }
+
+            return false
         }
     },
     computed: {
@@ -270,6 +291,14 @@ export default {
         'content-single-column': contentSingleColumn,
         'course-participant-card': courseParticipantCard,
         icon
+    },
+    beforeRouteLeave (to, from, next) {
+        if (this.checkChanged() && !confirm('Unsaved changes will be lost if you leave. Do you wish to continue?')) {
+            next(false)
+            return
+        }
+
+        next()
     }
 }
 </script>

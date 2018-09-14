@@ -2,6 +2,7 @@
     <content-single-column>
         <bread-crumb>&nbsp;</bread-crumb>
         <b-card class="no-hover settings-card">
+            {{originalAssignment}}
             <b-form @submit.prevent="onSubmit">
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                          v-model="assignment.name"
@@ -56,12 +57,16 @@ export default {
     data () {
         return {
             assignment: {},
+            originalAssignment: {},
             form: {}
         }
     },
     created () {
         assignmentAPI.get(this.aID, this.cID)
-            .then(assignment => { this.assignment = assignment })
+            .then(assignment => {
+                this.assignment = assignment
+                this.originalAssignment = this.deepCopyAssignment(assignment)
+            })
             .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
@@ -87,6 +92,19 @@ export default {
                     })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }
+        },
+        deepCopyAssignment (assignment) {
+            var copyAssignment = { name: assignment.name, description: assignment.description }
+
+            return copyAssignment
+        },
+        checkChanged () {
+            if (this.assignment.name !== this.originalAssignment.name ||
+                    this.assignment.description !== this.originalAssignment.description) {
+                return true
+            }
+
+            return false
         }
     },
     components: {
@@ -94,6 +112,14 @@ export default {
         'bread-crumb': breadCrumb,
         'text-editor': textEditor,
         icon
+    },
+    beforeRouteLeave (to, from, next) {
+        if (this.checkChanged() && !confirm('Unsaved changes will be lost if you leave. Do you wish to continue?')) {
+            next(false)
+            return
+        }
+
+        next()
     }
 }
 </script>
