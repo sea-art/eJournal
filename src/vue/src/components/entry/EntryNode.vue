@@ -27,10 +27,10 @@
                     <b>{{ field.title }}</b> <b style="color: red" v-if="field.required">*</b>
                 </div>
 
-                <div v-if="field.type=='t'">
+                <div v-if="field.type == 't'">
                     <b-textarea class="theme-input" v-model="completeContent[i].data"></b-textarea><br>
                 </div>
-                <div v-else-if="field.type=='i'">
+                <div v-else-if="field.type == 'i'">
                     <file-upload-input
                         :placeholder="completeContent[i].data"
                         :acceptedFiletype="'image/*'"
@@ -40,7 +40,7 @@
                         :aID="$route.params.aID"
                     />
                 </div>
-                <div v-else-if="field.type=='f'">
+                <div v-else-if="field.type == 'f'">
                     <file-upload-input
                         :placeholder="completeContent[i].data"
                         :acceptedFiletype="'*/*'"
@@ -55,7 +55,7 @@
                     and because it is not needed to reload the data into the input field upon editing
                     (since it is an entire URL, replacement is preferable over editing).
                 -->
-                <div v-else-if="field.type=='v'">
+                <div v-else-if="field.type == 'v'">
                     <b-input class="theme-input" @input="completeContent[i].data = youtubeEmbedFromURL($event)" placeholder="Enter YouTube URL..."></b-input><br>
                 </div>
                 <div v-else-if="field.type == 'p'">
@@ -112,23 +112,23 @@
                 <div v-if="field.title">
                     <b>{{ field.title }}</b>
                 </div>
-                <div v-if="field.type=='t'">
+                <div v-if="field.type == 't'">
                     <span class="show-enters">{{ completeContent[i].data }}</span><br>
                 </div>
-                <div v-else-if="field.type=='i'">
+                <div v-else-if="field.type == 'i'">
                     <image-file-display
                         :id="'entry-' + entryNode.entry.nID + '-field-' + i"
                         :fileName="completeContent[i].data"
                         :authorUID="$parent.journal.student.id"
                     />
                 </div>
-                <div v-else-if="field.type=='f'">
+                <div v-else-if="field.type == 'f'">
                     <file-download-button
                         :fileName="completeContent[i].data"
                         :authorUID="$parent.journal.student.id"
                     />
                 </div>
-                <div v-else-if="field.type=='v'">
+                <div v-else-if="field.type == 'v'">
                     <b-embed type="iframe"
                              aspect="16by9"
                              :src="completeContent[i].data"
