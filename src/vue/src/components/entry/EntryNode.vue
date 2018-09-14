@@ -71,7 +71,7 @@
                 <div v-else-if="field.type == 'rt'">
                     <text-editor
                         :id="'rich-text-editor-' + i"
-                        :givenContent="completeContent[i].data"
+                        :givenContent="completeContent[i].data ? completeContent[i].data : ''"
                         @content-update="completeContent[i].data = $event"
                     />
                 </div>
@@ -229,6 +229,7 @@ export default {
 
                 for (var content of this.entryNode.entry.content) {
                     if (content.field === templateField.id) {
+                        console.log(content)
                         this.completeContent.push({
                             data: content.data,
                             id: content.field
