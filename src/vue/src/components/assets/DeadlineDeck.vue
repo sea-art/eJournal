@@ -1,8 +1,7 @@
 <template>
     <div>
         <!-- TODO: This seems like an inappropriate permission check. Will have to be reconsidered in the rework. -->
-        <b-card v-if="$hasPermission('can_add_course')"
-                class="no-hover">
+        <b-card v-if="$hasPermission('can_add_course')" class="no-hover">
             <b-form-select v-model="selectedSortOption" :select-size="1">
                 <option value="sortDate">Sort by date</option>
                 <option value="sortNeedsMarking">Sort by marking needed</option>
@@ -20,6 +19,7 @@
 <script>
 import todoCard from '@/components/assets/TodoCard.vue'
 import todoSquare from '@/components/assets/TodoSquare.vue'
+
 export default {
     props: ['deadlines'],
     data () {
@@ -43,13 +43,11 @@ export default {
             if (this.$hasPermission('can_view_assignment_participants', 'assignment', String(aID))) {
                 route.name = 'Assignment'
                 return route
-            } else {
-                if (jID) {
-                    route.name = 'Journal'
-                    route.params.jID = jID
-                    return route
-                }
             }
+            
+            route.name = 'Journal'
+            route.params.jID = jID
+            return route
         }
     },
     computed: {

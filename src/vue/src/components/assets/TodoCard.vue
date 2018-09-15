@@ -8,7 +8,6 @@
         <h5>{{ deadline.name }}</h5>
         {{ deadline.course.abbreviation }} <br/>
         Due in {{ timeLeft }}
-
     </b-card>
 </template>
 
@@ -40,15 +39,14 @@ export default {
             var minutes = Math.floor(delta / 60) % 60
             delta -= minutes * 60
 
-            if (days > 0) {
+            if (days) {
                 return days + ' days(s)'
             }
-            if (hours > 0) {
+            if (hours) {
                 return hours + ' hours(s)'
             }
-            if (minutes > 0) {
-                return minutes + ' minutes(s)'
-            }
+
+            return minutes + ' minutes(s)'
         }
     }
 }

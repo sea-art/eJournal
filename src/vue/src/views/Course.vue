@@ -35,7 +35,7 @@
         </b-modal>
 
         <h3 slot="right-content-column">To Do</h3>
-        <deadline-deck slot="right-content-column" :deadlines="deadlines"></deadline-deck>
+        <deadline-deck slot="right-content-column" :deadlines="deadlines"/>
 
         <b-modal
             slot="main-content-column"
