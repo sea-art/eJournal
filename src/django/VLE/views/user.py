@@ -276,7 +276,6 @@ class UserView(viewsets.ViewSet):
         request.user.save()
         return response.success(description='Succesfully changed the password.')
 
-    # TODO: Fix this stuff
     # TODO: limit this request for end users, otherwise its really easy to DDOS the server.
     @action(methods=['get'], detail=True)
     def GDPR(self, request, pk):
@@ -363,7 +362,6 @@ class UserView(viewsets.ViewSet):
 
         return response.file(os.path.join(settings.MEDIA_ROOT, user_file.file.name))
 
-    # TODO: Check if it works
     @action(methods=['post'], detail=False)
     def upload(self, request):
         """Update user profile picture.
@@ -423,7 +421,6 @@ class UserView(viewsets.ViewSet):
 
         return response.success(description='Succesfully uploaded {:s}.'.format(request.FILES['file'].name))
 
-    # TODO: check if it works
     @action(['post'], detail=False)
     def set_profile_picture(self, request):
         """Update user profile picture.
