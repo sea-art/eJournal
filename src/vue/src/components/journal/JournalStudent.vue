@@ -1,18 +1,19 @@
 <template>
-    <b-row class="outer-container" no-gutters>
+    <b-row class="outer-container-edag-page" no-gutters>
         <b-col md="12" lg="8" xl="9" class="inner-container-edag-page">
             <b-col md="12" lg="auto" xl="4" class="left-content-edag-page">
-                <bread-crumb v-if="$root.lgMax()" class="main-content">&nbsp;</bread-crumb>
+                <bread-crumb v-if="$root.lgMax()">&nbsp;</bread-crumb>
                 <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
             </b-col>
 
             <b-col md="12" lg="auto" xl="8" class="main-content-edag-page">
-                <bread-crumb v-if="$root.xl()" class="main-content">&nbsp;</bread-crumb>
-                <div v-if="nodes.length > currentNode">
+                <bread-crumb v-if="$root.xl()">&nbsp;</bread-crumb>
+                <div v-if="nodes.length > currentNode && currentNode !== -1">
                     <div v-if="nodes[currentNode].type == 'e'">
                         <entry-node
                             ref="entry-template-card"
                             @edit-node="adaptData"
+                            @delete-node="deleteNode"
                             :cID="cID"
                             :entryNode="nodes[currentNode]"/>
                     </div>
@@ -41,27 +42,21 @@
                         </b-card>
                     </div>
                 </div>
+                <b-card  v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+                    <h2>{{ assignment.name }}</h2>
+                    <div v-html="assignment.description"/>
+                </b-card>
             </b-col>
         </b-col>
 
         <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
-            <b-row>
-                <b-col md="6" lg="12">
-                    <h3>Description</h3>
-                    <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-                        <div v-html="assignment.description"/>
-                    </b-card>
-                </b-col>
-                <b-col md="6" lg="12">
-                    <h3>Progress</h3>
-                    <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-                        <progress-bar v-if="journal.stats"
-                                      :currentPoints="journal.stats.acquired_points"
-                                      :totalPoints="journal.stats.total_points"
-                                      :comparePoints="assignment.stats ? assignment.stats.average_points : -1" />
-                    </b-card>
-                </b-col>
-            </b-row>
+            <h3>Progress</h3>
+            <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+                <progress-bar v-if="journal.stats"
+                              :currentPoints="journal.stats.acquired_points"
+                              :totalPoints="journal.stats.total_points"
+                              :comparePoints="assignment.stats ? assignment.stats.average_points : -1" />
+            </b-card>
         </b-col>
     </b-row>
 </template>
@@ -83,7 +78,7 @@ export default {
     props: ['cID', 'aID', 'jID'],
     data () {
         return {
-            currentNode: 0,
+            currentNode: -1,
             editedData: ['', ''],
             nodes: [],
             journal: {},
@@ -105,8 +100,6 @@ export default {
                         this.progressPoints(node)
                     }
                 }
-
-                this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].nID]
             })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
@@ -120,7 +113,7 @@ export default {
     },
     watch: {
         currentNode: function () {
-            if (this.nodes[this.currentNode].type === 'p') {
+            if (this.currentNode !== -1 && this.nodes[this.currentNode].type === 'p') {
                 this.progressPoints(this.nodes[this.currentNode])
                 this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].nID]
             }
@@ -129,9 +122,17 @@ export default {
     methods: {
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData
-            entryAPI.update(this.nodes[this.currentNode].entry.id, {
-                content: editedData.entry.content
-            }).catch(error => { this.$toasted.error(error.response.data.description) })
+            entryAPI.update(this.nodes[this.currentNode].entry.id, { content: editedData.entry.content })
+                .then(entry => { this.nodes[this.currentNode].entry = entry })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
+        },
+        deleteNode () {
+            entryAPI.delete(this.nodes[this.currentNode].entry.id)
+                .then(data => {
+                    this.$toasted.success(data.description)
+                    this.nodes.splice(this.currentNode, 1)
+                })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         selectNode ($event) {
             /* Function that prevents you from instant leaving an EntryNode
@@ -141,7 +142,8 @@ export default {
                 return this.currentNode
             }
 
-            if (this.nodes[this.currentNode].type !== 'e' || this.nodes[this.currentNode].type !== 'd') {
+            if (this.currentNode === -1 || this.nodes[this.currentNode].type !== 'e' ||
+                this.nodes[this.currentNode].type !== 'd') {
                 this.currentNode = $event
                 return
             }
@@ -151,7 +153,6 @@ export default {
                     return
                 }
             }
-
             this.$refs['entry-template-card'].cancel()
             this.currentNode = $event
         },

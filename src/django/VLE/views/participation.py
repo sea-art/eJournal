@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from VLE.models import Course, User, Role, Journal, Participation
+from VLE.models import Course, User, Role, Journal, Participation, Group
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.factory as factory
@@ -38,7 +38,7 @@ class ParticipationView(viewsets.ViewSet):
         try:
             course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
-            return response.not_found('Course does not exist.')
+            return response.not_found('Course does not exist')
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -47,7 +47,6 @@ class ParticipationView(viewsets.ViewSet):
             return response.forbidden('You cannot add participants to this course.')
 
         users = UserSerializer(course.users, context={'course': course}, many=True).data
-
         return response.success({'participants': users})
 
     def create(self, request):
@@ -84,7 +83,7 @@ class ParticipationView(viewsets.ViewSet):
             user = User.objects.get(pk=user_id)
             course = Course.objects.get(pk=course_id)
         except (User.DoesNotExist, Course.DoesNotExist):
-            return response.not_found('User or course does not exist.')
+            return response.not_found('User or course does not exist')
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -98,7 +97,7 @@ class ParticipationView(viewsets.ViewSet):
         try:
             role = Role.objects.get(name=role_name, course=course)
         except Role.DoesNotExist:
-            return response.not_found('Role does not exist.')
+            return response.not_found('Role does not exist')
 
         factory.make_participation(user, course, role)
 
@@ -131,10 +130,9 @@ class ParticipationView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-
         try:
             user_id, = utils.required_params(request.data, 'user_id')
-            role_name, = utils.optional_params(request.data, 'role')
+            role_name, group_name = utils.optional_params(request.data, 'role', 'group')
             if not role_name:
                 role_name = 'Student'
         except KeyError:
@@ -154,9 +152,20 @@ class ParticipationView(viewsets.ViewSet):
             return response.forbidden('You cannot edit the roles of this course.')
 
         participation.role = Role.objects.get(name=role_name, course=course)
+
+        if group_name:
+            try:
+                group = Group.objects.get(name=group_name, course=course)
+            except (Group.DoesNotExist):
+                return response.not_found('Group does not exist.')
+
+            participation.group = group
+        else:
+            participation.group = None
+
         participation.save()
         serializer = UserSerializer(participation.user, context={'course': course})
-        return response.success({'user': serializer.data}, description='Succesfully updated role.')
+        return response.success({'user': serializer.data}, description='Succesfully updated participation.')
 
     def destroy(self, request, pk):
         """Remove a user from the course.

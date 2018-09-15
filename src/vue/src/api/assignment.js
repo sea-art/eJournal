@@ -33,11 +33,11 @@ export default {
 
     getUpcoming (cID = null) {
         if (cID) {
-            return auth.get('assignments/upcomming', {course_id: cID})
-                .then(response => response.data.upcomming)
+            return auth.get('assignments/upcoming', {course_id: cID})
+                .then(response => response.data.upcoming)
         }
-        return auth.get('assignments/upcomming')
-            .then(response => response.data.upcomming)
+        return auth.get('assignments/upcoming')
+            .then(response => response.data.upcoming)
     },
 
     getWithLti (id) {
