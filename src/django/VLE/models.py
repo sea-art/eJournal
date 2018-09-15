@@ -149,29 +149,33 @@ class Role(models.Model):
         Course,
         on_delete=models.CASCADE
     )
-    # GLOBAL: is_superuser
-    # GLOBAL: can_edit_institute
 
-    # Course permissions.
-    can_edit_course_roles = models.BooleanField(default=False)
-    # GLOBAL: can_add_course
-    can_view_course_participants = models.BooleanField(default=False)
-    can_add_course_participants = models.BooleanField(default=False)
-    can_edit_course = models.BooleanField(default=False)
+    can_edit_institute_details = models.BooleanField(default=False)
+    can_add_course = models.BooleanField(default=False)
+
+    can_edit_course_details = models.BooleanField(default=False)
     can_delete_course = models.BooleanField(default=False)
-
-    # Assignment permissions
+    can_edit_course_roles = models.BooleanField(default=False)
+    can_view_course_users = models.BooleanField(default=False)
+    can_add_course_users = models.BooleanField(default=False)
+    can_delete_course_users = models.BooleanField(default=False)
+    can_add_course_user_group = models.BooleanField(default=False)
+    can_delete_course_user_group = models.BooleanField(default=False)
+    can_edit_course_user_group = models.BooleanField(default=False)
     can_add_assignment = models.BooleanField(default=False)
-    can_edit_assignment = models.BooleanField(default=False)
-    can_view_assignment_participants = models.BooleanField(default=False)
     can_delete_assignment = models.BooleanField(default=False)
-    can_publish_assignment_grades = models.BooleanField(default=False)
 
-    # Journal permissions.
-    can_grade_journal = models.BooleanField(default=False)
-    can_publish_journal_grades = models.BooleanField(default=False)
-    can_edit_journal = models.BooleanField(default=False)
-    can_comment_journal = models.BooleanField(default=False)
+    can_edit_assignment = models.BooleanField(default=False)
+    can_view_assignment_journals = models.BooleanField(default=False)
+    can_grade = models.BooleanField(default=False)
+    can_publish_grades = models.BooleanField(default=False)
+    can_have_journal = models.BooleanField(default=False)
+    can_comment = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        print(self.can_add_course_users)
+
+        super(Role, self).save(*args, **kwargs)
 
     def __str__(self):
         """toString."""

@@ -179,6 +179,7 @@ class RoleView(viewsets.ViewSet):
             return response.keyerror('roles')
 
         resp = []
+
         for new_role in request.data['roles']:
             if 'name' not in new_role:
                 return response.keyerror('roles.name')

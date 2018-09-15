@@ -75,7 +75,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
         # TODO: When all assignments are graded, set deadline to next deadline?
         # If the user doesnt have a journal, take the deadline that is the first upcoming deadline
         if 'user' not in self.context or \
-           permissions.has_assignment_permission(self.context['user'], assignment, 'can_grade_journal'):
+           permissions.has_assignment_permission(self.context['user'], assignment, 'can_grade'):
             nodes = assignment.format.presetnode_set.all().order_by('deadline')
             if not nodes:
                 return None
@@ -109,7 +109,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
         if not journals:
             return None
         stats = {}
-        if permissions.has_assignment_permission(self.context['user'], assignment, 'can_grade_journal'):
+        if permissions.has_assignment_permission(self.context['user'], assignment, 'can_grade'):
             stats['needs_marking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
             stats['unpublished'] = sum([x['stats']['submitted'] - x['stats']['published']
                                         for x in journals]) - stats['needs_marking']
@@ -251,7 +251,7 @@ class EntrySerializer(serializers.ModelSerializer):
         if 'user' not in self.context:
             return None
         if entry.published or permissions.has_assignment_permission(
-                self.context['user'], entry.node.journal.assignment, 'can_grade_journal'):
+                self.context['user'], entry.node.journal.assignment, 'can_grade'):
             return entry.grade
         return None
 

@@ -40,50 +40,52 @@ def get_permissions(user, cID=-1):
         # For system wide permissions, not course specific.
         # Administrators should not be able to view grades.
         roleDict = {
-            "is_superuser": True,
-            "can_edit_institute": True,
-
-            "can_edit_course_roles": True,
+            "can_edit_institute_details": True,
             "can_add_course": True,
-            "can_view_course_participants": True,
-            "can_add_course_participants": True,
-            "can_edit_course": True,
+
+            "can_edit_course_details": True,
             "can_delete_course": True,
-
+            "can_edit_course_roles": True,
+            "can_view_course_users": True,
+            "can_add_course_users": True,
+            "can_delete_course_users": True,
+            "can_add_course_user_group": True,
+            "can_delete_course_user_group": True,
+            "can_edit_course_user_group": True,
             "can_add_assignment": True,
-            "can_edit_assignment": True,
-            "can_view_assignment_participants": True,
             "can_delete_assignment": True,
-            "can_publish_assignment_grades": False,
 
-            "can_grade_journal": False,
-            "can_publish_journal_grades": False,
-            "can_edit_journal": False,
-            "can_comment_journal": False
+            "can_edit_assignment": True,
+            "can_view_assignment_journals": True,
+            "can_grade": True,
+            "can_publish_grades": True,
+            "can_have_journal": False,
+            "can_comment": True
         }
     elif cID == -1:
         # No course ID was given. The user has no permissions.
         roleDict = {
-            "is_superuser": False,
-            "can_edit_institute": False,
-
-            "can_edit_course_roles": False,
+            "can_edit_institute_details": False,
             "can_add_course": False,
-            "can_view_course_participants": False,
-            "can_add_course_participants": False,
-            "can_edit_course": False,
+
+            "can_edit_course_details": False,
             "can_delete_course": False,
-
+            "can_edit_course_roles": False,
+            "can_view_course_users": False,
+            "can_add_course_users": False,
+            "can_delete_course_users": False,
+            "can_add_course_user_group": False,
+            "can_delete_course_user_group": False,
+            "can_edit_course_user_group": False,
             "can_add_assignment": False,
-            "can_edit_assignment": False,
-            "can_view_assignment_participants": False,
             "can_delete_assignment": False,
-            "can_publish_assignment_grades": False,
 
-            "can_grade_journal": False,
-            "can_publish_journal_grades": False,
-            "can_edit_journal": False,
-            "can_comment_journal": False
+            "can_edit_assignment": False,
+            "can_view_assignment_journals": False,
+            "can_grade": False,
+            "can_publish_grades": False,
+            "can_have_journal": False,
+            "can_comment": False
         }
 
         # If the user is not in a specific course, but he is a teacher, he is
@@ -100,7 +102,6 @@ def get_permissions(user, cID=-1):
             return {}
 
         roleDict = model_to_dict(role)
-        roleDict['is_superuser'] = False
 
     return roleDict
 
@@ -187,36 +188,6 @@ def has_assignment_permissions(user, assignment, permission_list):
     return True
 
 
-def edit_permissions(role, can_edit_course_roles=False, can_view_course_participants=False,
-                     can_add_course_participants=False,
-                     can_edit_course=False, can_delete_course=False,
-                     can_add_assignment=False, can_view_assignment_participants=False,
-                     can_edit_assignment=False,
-                     can_delete_assignment=False, can_publish_assignment_grades=False,
-                     can_grade_journal=False, can_publish_journal_grades=False,
-                     can_edit_journal=False, can_comment_journal=False):
-    """Edit the name and permissions of an existing role."""
-    role.can_edit_course_roles = can_edit_course_roles
-    role.can_view_course_participants = can_view_course_participants
-    role.can_add_course_participants = can_add_course_participants
-    role.can_edit_course = can_edit_course
-    role.can_delete_course = can_delete_course
-
-    role.can_add_assignment = can_add_assignment
-    role.can_edit_assignment = can_edit_assignment
-    role.can_view_assignment_participants = can_view_assignment_participants
-    role.can_delete_assignment = can_delete_assignment
-    role.can_publish_assignment_grades = can_publish_assignment_grades
-
-    role.can_grade_journal = can_grade_journal
-    role.can_publish_journal_grades = can_publish_journal_grades
-    role.can_edit_journal = can_edit_journal
-    role.can_comment_journal = can_comment_journal
-
-    role.save()
-    return role
-
-
 def has_assignment_permission(user, assignment, permission):
     """Check whether the user has the correct permission for an assignment.
 
@@ -263,11 +234,11 @@ def get_all_user_permissions(user):
     assignments = Assignment.objects.none()
     for course in courses:
         # Checks wether the user is a participator in an assignment or a grader based on:
-        # 'can_view_assignment_participants'
+        # 'can_view_assignment_journals'
         # Returns all assigments linked to a course if a grader, this permission is not verbose enough for this check
         # TODO Create a more verbose check. And in general ensure that a user can never have grading level permissions
         # for a course where the user has any journals.
-        if permissions['course' + str(course.id)]['can_view_assignment_participants']:
+        if permissions['course' + str(course.id)]['can_view_assignment_journals']:
             assignments |= course.assignment_set.all()
         else:
             # TODO does this not break if no journal is created yet? Why do we not work with an AssignmentParticipation

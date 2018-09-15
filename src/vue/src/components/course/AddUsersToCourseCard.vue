@@ -4,7 +4,7 @@
             <b>{{ user.name }}</b><br>
             {{ user.username }}
         </div>
-        <b-button v-if="$hasPermission('can_add_course_participants')"
+        <b-button v-if="$hasPermission('can_add_course_users')"
                   @click.prevent.stop="addUserToCourse()"
                   class="add-button float-right">
             <icon name="user-plus"/>

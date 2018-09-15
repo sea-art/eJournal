@@ -7,13 +7,13 @@
             <b-form @submit.prevent="onSubmit">
                 <h2 class="field-heading">Course name</h2>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                    :readonly="!$hasPermission('can_edit_course')"
+                    :readonly="!$hasPermission('can_edit_course_details')"
                     v-model="course.name"
                     placeholder="Course name"
                     required/>
                 <h2 class="field-heading">Course abbreviation</h2>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                    :readonly="!$hasPermission('can_edit_course')"
+                    :readonly="!$hasPermission('can_edit_course_details')"
                     v-model="course.abbreviation"
                     maxlength="10"
                     placeholder="Course abbreviation (max 10 characters)"
@@ -22,7 +22,7 @@
                     <b-col xs="6">
                         <h2 class="field-heading">From</h2>
                         <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                            :readonly="!$hasPermission('can_edit_course')"
+                            :readonly="!$hasPermission('can_edit_course_details')"
                             v-model="course.startdate"
                             type="date"
                             required/>
@@ -30,7 +30,7 @@
                     <b-col xs="6">
                         <h2 class="field-heading">To</h2>
                         <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                            :readonly="!$hasPermission('can_edit_course')"
+                            :readonly="!$hasPermission('can_edit_course_details')"
                             v-model="course.enddate"
                             type="date"
                             required/>
@@ -52,7 +52,7 @@
                         </b-button>
                         <b-button class="add-button flex-grow-1 multi-form"
                             type="submit"
-                            v-if="$hasPermission('can_edit_course')">
+                            v-if="$hasPermission('can_edit_course_details')">
                             <icon name="save"/>
                             Save
                         </b-button>
@@ -62,7 +62,7 @@
         </b-card>
 
         <div>
-            <b-card v-if="$hasPermission('can_add_course_participants')" class="no-hover">
+            <b-card v-if="$hasPermission('can_add_course_users')" class="no-hover">
                 <h2 class="mb-2">Manage course members</h2>
                 <div class="d-flex">
                     <input
@@ -162,7 +162,7 @@ export default {
             .then(course => { this.course = course })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
-        if (this.$hasPermission('can_view_course_participants')) {
+        if (this.$hasPermission('can_view_course_users')) {
             roleAPI.getFromCourse(this.cID)
                 .then(roles => { this.roles = roles })
                 .catch(error => { this.$toasted.error(error.response.data.description) })

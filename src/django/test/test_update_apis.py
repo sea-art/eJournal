@@ -51,13 +51,13 @@ class UpdateApiTests(TestCase):
         roles = result.json()['roles']
         for role in roles:
             if role['name'] == 'TA2':
-                role['can_grade_journal'] = 1
+                role['can_grade'] = 1
 
         roles.append(serialize.RoleSerializer(factory.make_role_default_no_perms('test_role', self.course)).data)
         test.api_patch_call(self, '/roles/1/', {'roles': roles}, login)
 
         role_test = Role.objects.get(name='TA2', course=self.course)
-        self.assertTrue(role_test.can_grade_journal)
+        self.assertTrue(role_test.can_grade)
         self.assertEquals(Role.objects.filter(name='test_role', course=self.course).count(), 1)
 
     def test_update_course_with_student(self):

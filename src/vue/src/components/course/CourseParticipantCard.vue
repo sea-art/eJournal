@@ -21,7 +21,7 @@
                     </b-form-select>
                 </div>
                 <!-- TODO Permission revision should be can_delete_course_users -->
-                <b-button v-if="$hasPermission('can_add_course_participants')"
+                <b-button v-if="$hasPermission('can_add_course_users')"
                           @click.prevent.stop="removeFromCourse()"
                           class="delete-button full-width">
                     <icon name="user-times"/>
