@@ -48,7 +48,6 @@ export default {
                     'Home': 'Courses',
                     'FormatEdit': 'Format Editor',
                     'CourseEdit': 'Course Editor',
-                    'AssignmentEdit': 'Assignment Editor',
                     'AssignmentsOverview': 'Assignments',
                     'UserRoleConfiguration': 'User Role Configuration'
                 },

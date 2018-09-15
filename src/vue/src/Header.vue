@@ -1,6 +1,6 @@
 <template>
     <!-- Section visible if user logged in -->
-    <b-navbar v-if="loggedIn" id="header" toggleable="md" type="dark" fixed=top>
+    <b-navbar v-if="loggedIn" id="header" class="shadow" toggleable="md" type="dark" fixed=top>
         <b-navbar-brand :to="{ name: 'Home' }" class="brand-name"><span>e</span>Journal</b-navbar-brand>
 
         <b-navbar-toggle class="ml-auto mr-auto" target="nav-collapse" aria-expanded="false" aria-controls="nav-collapse">
@@ -38,7 +38,7 @@
     </b-navbar>
 
     <!-- Section visible if user logged out -->
-    <b-navbar v-else id="header" toggleable="md" type="dark" fixed=top>
+    <b-navbar v-else id="header" class="shadow" toggleable="md" type="dark" fixed=top>
         <b-navbar-brand  :to="{ name: 'Guest' }" class="brand-name"><span>e</span>Journal</b-navbar-brand>
 
         <b-navbar-nav class="ml-auto">

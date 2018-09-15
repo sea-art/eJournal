@@ -25,7 +25,6 @@
 </template>
 
 <script>
-import templatePreview from '@/components/template/TemplatePreview.vue'
 import entryPreview from '@/components/entry/EntryPreview.vue'
 
 export default {
@@ -47,7 +46,6 @@ export default {
         }
     },
     components: {
-        'template-preview': templatePreview,
         'entry-preview': entryPreview
     }
 }
