@@ -22,8 +22,6 @@ class JournalView(viewsets.ViewSet):
     GET /journals/<pk> -- gets a specific journal
     POST /journals/ -- create a new journal
     PATCH /journals/<pk> -- partially update an journal
-
-    TODO:
     DEL /journals/<pk> -- delete an journal
     """
 
@@ -193,6 +191,39 @@ class JournalView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to edit this journal.')
 
         return response.success({'journal': serializer.data})
+
+    def destroy(self, request, *args, **kwargs):
+        """Delete a journal.
+
+        Arguments:
+        request -- request data
+        pk -- journal ID
+
+        Returns:
+        On failure:
+            not found -- when the course does not exist
+            unauthorized -- when the user is not logged in
+            forbidden -- when the user is not in the course
+        On success:
+            success -- with a message that the journal was deleted
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+        pk = kwargs.get('pk')
+
+        try:
+            journal = Journal.objects.get(pk=pk)
+        except Journal.DoesNotExist:
+            return response.not_found('Course does not exist.')
+
+        role = permissions.get_assignment_id_permissions(request.user, journal.assignment.id)
+        if not role:
+            return response.forbidden("You have no permissions within this course.")
+        elif not role["can_edit_journal"]:
+            return response.forbidden("You have no permissions to create a journal.")
+
+        journal.delete()
+        return response.success(description='Sucesfully deleted journal.')
 
     def publish(self, request, journal, published=True):
         if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_journal_grades'):
