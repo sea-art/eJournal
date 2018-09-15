@@ -31,7 +31,9 @@
                 </b-card>
                 <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                     <h2>End of assignment</h2>
-                    This is the end of the assignment.
+                    <p>This is the end of the assignment.</p>
+                    <h6 v-if="assignment.due_date">Due date</h6>
+                    <p v-if="assignment.due_date">{{ $root.beautifyDate(assignment.due_date) }}</p>
                     <h6 v-if="assignment.points_possible">Amount of points possible</h6>
                     <p v-if="assignment.points_possible">{{ assignment.points_possible }}</p>
                     <h6 v-if="assignment.lock_date">Lock date</h6>

@@ -66,8 +66,4 @@ class NodeView(viewsets.ModelViewSet):
                                                      'can_view_assignment_participants'):
             return response.bad_request('The assignment is locked and unavailable for students.')
 
-        can_add = journal.user == request.user
-        can_add = can_add and \
-            permissions.has_assignment_permission(request.user, journal.assignment, 'can_edit_journal')
-
         return response.success({'nodes': edag.get_nodes(journal, request.user)})

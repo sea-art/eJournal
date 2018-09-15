@@ -37,7 +37,7 @@
 
                 <b-card v-else-if="currentNode === nodes.length" class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                     <h2>End of assignment</h2>
-                    This is the end of the assignment.
+                    <p>This is the end of the assignment.</p>
                 </b-card>
 
                 <main-card v-else class="no-hover" :line1="'No presets in format'" :class="'grey-border'"/>

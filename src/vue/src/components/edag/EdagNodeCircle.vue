@@ -66,6 +66,7 @@ export default {
             case 'add':
                 return 'Add new entry'
             case 'start':
+            case 'end':
                 return 'Assignment details'
             }
 

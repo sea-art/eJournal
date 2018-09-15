@@ -26,6 +26,15 @@
                         :selected="isSelected(index)"
                         :edit="edit"
                         :key="node.id"/>
+                    <edag-node
+                        @select-node="$emit('select-node', $event)"
+                        :index="nodes.length"
+                        :last="true"
+                        :node="{
+                            'type': 'n'
+                        }"
+                        :selected="isSelected(nodes.length)"
+                        :edit="edit"/>
                 </div>
                 <div v-else>
                     <edag-node
