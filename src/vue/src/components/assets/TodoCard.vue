@@ -1,6 +1,9 @@
 <template>
     <b-card :class="$root.getBorderClass(deadline.course.id)">
-        <todo-square v-if="deadline.stats.unpublished" :num="deadline.stats.needs_marking + deadline.stats.unpublished" class="float-right" />
+        <todo-square
+            v-if="deadline.stats && deadline.stats.unpublished"
+            :num="deadline.stats.needs_marking + deadline.stats.unpublished"
+            class="float-right" />
         <h6>{{ $root.beautifyDate(deadline.deadline) }}</h6>
         <h5>{{ deadline.name }}</h5>
         {{ deadline.course.abbreviation }}

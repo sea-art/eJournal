@@ -20,6 +20,16 @@
                         </option>
                     </b-form-select>
                 </div>
+                <div class="shadow" >
+                    <b-form-select v-if="$hasPermission('can_edit_course')"
+                                   v-model="selectedGroup"
+                                   :select-size="1">
+                        <option :value="null">No group</option>
+                        <option v-for="g in groups" :key="g.name" :value="g.name">
+                            {{ g.name }}
+                        </option>
+                    </b-form-select>
+                </div>
                 <!-- TODO Permission revision should be can_delete_course_users -->
                 <b-button v-if="$hasPermission('can_add_course_participants')"
                           @click.prevent.stop="removeFromCourse()"
@@ -47,11 +57,18 @@ export default {
         },
         roles: {
             required: true
+        },
+        group: {
+            required: true
+        },
+        groups: {
+            required: true
         }
     },
     data () {
         return {
             selectedRole: '',
+            selectedGroup: '',
             init: true
         }
     },
@@ -79,8 +96,8 @@ export default {
                 this.init = false
             } else {
                 this.selectedRole = val
-                this.user.role = val
-                participationAPI.update(this.cID, {user_id: this.user.id, role: this.selectedRole}).then(_ => {
+                this.$emit('update:role', val)
+                participationAPI.update(this.cID, {user_id: this.user.id, role: this.selectedRole, group: this.selectedGroup}).then(_ => {
                     if (this.$store.getters['user/uID'] === this.user.id) {
                         this.$store.dispatch('user/populateStore').then(_ => {
                             this.$router.push({name: 'Course', params: {cID: this.cID}})
@@ -92,10 +109,26 @@ export default {
                     this.$toasted.error(error.response.data.description)
                 })
             }
+        },
+        selectedGroup: function (val) {
+            if (this.init) {
+                this.init = false
+            } else {
+                this.selectedGroup = val
+                this.$emit('update:group', val)
+                participationAPI.update(this.cID, {user_id: this.user.id, group: this.selectedGroup, role: this.selectedRole})
+                    .catch(error => {
+                        this.$toasted.error(error.response.data.description)
+                    })
+            }
+        },
+        group: function (newVal) {
+            this.selectedGroup = newVal
         }
     },
     created () {
         this.selectedRole = this.user.role
+        this.selectedGroup = this.group
     },
     components: {
         icon

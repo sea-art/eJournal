@@ -9,7 +9,7 @@ from VLE.models import Assignment
 import VLE.views.responses as response
 import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
-from VLE.serializers import FormatSerializer
+from VLE.serializers import FormatSerializer, AssignmentSerializer
 
 
 class FormatView(viewsets.ViewSet):
@@ -32,7 +32,8 @@ class FormatView(viewsets.ViewSet):
         request -- the request that was sent
         pk -- the assignment id
 
-        Returns a json string containing the format.
+        Returns a json string containing the format as well as the
+        corresponding assignment name and description.
         """
         user = request.user
         if not user.is_authenticated:
@@ -47,8 +48,9 @@ class FormatView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to view this assignment.')
 
         serializer = FormatSerializer(assignment.format)
+        assignment_details = AssignmentSerializer.get_details(self, assignment)
 
-        return response.success({'format': serializer.data})
+        return response.success({'format': serializer.data, 'assignment_details': assignment_details})
 
     def partial_update(self, request, pk):
         """Update an existing journal format.
@@ -81,12 +83,12 @@ class FormatView(viewsets.ViewSet):
         assignment_id = pk
 
         try:
-            templates, presets, unused_templates, max_points, removed_presets, removed_templates \
-                = utils.required_params(request.data, "templates", "presets", "unused_templates", "max_points",
-                                        "removed_presets", "removed_templates")
+            assignment_details, templates, presets, unused_templates, max_points, removed_presets, removed_templates \
+                = utils.required_params(request.data, "assignment_details", "templates", "presets",
+                                        "unused_templates", "max_points", "removed_presets", "removed_templates")
         except KeyError:
-            return response.keyerror("templates", "presets", "unused_templates", "max_points", "removed_presets",
-                                     "removed_templates")
+            return response.keyerror("assignment_details", "templates", "presets", "unused_templates", "max_points",
+                                     "removed_presets", "removed_templates")
 
         try:
             assignment = Assignment.objects.get(pk=assignment_id)
@@ -97,6 +99,13 @@ class FormatView(viewsets.ViewSet):
 
         if not permissions.has_assignment_permission(request.user, assignment, 'can_edit_assignment'):
             return response.forbidden('You are not allowed to edit this assignment.')
+
+        serializer = AssignmentSerializer(assignment, data=assignment_details,
+                                          context={'user': request.user}, partial=True)
+        if not serializer.is_valid():
+            response.bad_request()
+
+        serializer.save()
 
         format.max_points = max_points
         format.save()
@@ -115,5 +124,6 @@ class FormatView(viewsets.ViewSet):
         utils.delete_templates(format.unused_templates, removed_templates)
 
         serializer = FormatSerializer(format)
+        assignment_details = AssignmentSerializer.get_details(self, assignment)
 
-        return response.success({'format': serializer.data})
+        return response.success({'format': serializer.data, 'assignment_details': assignment_details})
