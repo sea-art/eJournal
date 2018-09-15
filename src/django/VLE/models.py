@@ -133,6 +133,33 @@ class Course(models.Model):
         return self.name + " (" + str(self.id) + ")"
 
 
+class Group(models.Model):
+    """Group.
+
+    A Group entity has the following features:
+    - name: the name of the group
+    - course: the course where the group belongs to
+    """
+    name = models.TextField()
+
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE
+    )
+
+    lti_id = models.TextField(
+        null=True,
+        unique=False,
+    )
+
+    class Meta:
+        """Meta data for the model: unique_together."""
+        unique_together = ('name', 'course')
+
+    def __str__(self):
+        return self.name
+
+
 class Role(models.Model):
     """Role.
 
@@ -198,6 +225,12 @@ class Participation(models.Model):
         null=True,
         on_delete=models.CASCADE,
         related_name='role',
+    )
+    group = models.ForeignKey(
+        Group,
+        null=True,
+        on_delete=models.CASCADE,
+        default=None,
     )
 
     class Meta:

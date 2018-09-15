@@ -4,6 +4,7 @@
         <bread-crumb>&nbsp;</bread-crumb>
         <b-card class="no-hover settings-card">
             <h2 class="mb-2">Manage course data</h2>
+
             <b-form @submit.prevent="onSubmit">
                 <h2 class="field-heading">Course name</h2>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
@@ -50,6 +51,14 @@
                             <icon name="users"/>
                             Manage Roles and Permissions
                         </b-button>
+                        <group-modal v-if="$hasPermission('can_edit_course')"
+                                     :cID="this.cID"
+                                     :groups="this.groups"
+                                     @create-group="createGroup"
+                                     @delete-group="deleteGroup"
+                                     @update-group="updateGroup">
+                        </group-modal>
+
                         <b-button class="add-button flex-grow-1 multi-form"
                             type="submit"
                             v-if="$hasPermission('can_edit_course')">
@@ -85,6 +94,13 @@
                         <option value="sortFullName">Sort by name</option>
                         <option value="sortUsername">Sort by username</option>
                     </b-form-select>
+                    <b-form-select class="multi-form mr-2" v-model="selectedFilterGroupOption"
+                                   :select-size="1">
+                        <option :value="null">Filter group by ...</option>
+                        <option v-for="group in groups" :key="group.name" :value="group.name">
+                            {{ group.name }}
+                        </option>
+                    </b-form-select>
                     <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="multi-form">
                         <icon name="long-arrow-down"/>
                         Ascending
@@ -94,6 +110,8 @@
                         Descending
                     </b-button>
                 </div>
+                <b-col sm="8" class="d-flex flex-wrap">
+                </b-col>
             </b-card>
 
             <course-participant-card v-if="viewEnrolled"
@@ -102,6 +120,8 @@
                 :class="{ 'input-disabled': p.role === 'Teacher' && numTeachers <= 1 }"
                 :key="p.id"
                 :cID="cID"
+                :group.sync="p.group"
+                :groups="groups"
                 :user="p"
                 :roles="roles"/>
 
@@ -120,10 +140,12 @@ import addUsersToCourseCard from '@/components/course/AddUsersToCourseCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import courseParticipantCard from '@/components/course/CourseParticipantCard.vue'
+import groupModal from '@/components/course/CourseGroupModal.vue'
 
 import store from '@/Store'
 import icon from 'vue-awesome/components/Icon'
 import courseAPI from '@/api/course'
+import groupAPI from '@/api/group'
 import roleAPI from '@/api/role'
 import participationAPI from '@/api/participation'
 
@@ -140,7 +162,9 @@ export default {
             form: {},
             participants: [],
             unenrolledStudents: [],
+            groups: [],
             selectedSortOption: null,
+            selectedFilterGroupOption: null,
             searchVariable: '',
             unenrolledLoaded: false,
             numTeachers: 0,
@@ -161,6 +185,14 @@ export default {
         courseAPI.get(this.cID)
             .then(course => { this.course = course })
             .catch(error => { this.$toasted.error(error.response.data.description) })
+
+        groupAPI.getAllFromCourse(this.cID)
+            .then(groups => { this.groups = groups })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
+
+        roleAPI.getFromCourse(this.cID)
+            .then(roles => { this.roles = roles })
+            .catch(error => { this.$toated.error(error.response.data.description) })
 
         if (this.$hasPermission('can_view_course_participants')) {
             roleAPI.getFromCourse(this.cID)
@@ -205,7 +237,37 @@ export default {
                 return user.id !== item.id
             })
             user.role = 'Student'
+            user.group = null
             this.participants.push(user)
+        },
+        createGroup (groupName) {
+            this.groups.push({
+                'name': groupName
+            })
+        },
+        deleteGroup (groupName) {
+            groupAPI.getAllFromCourse(this.cID)
+                .then(groups => { this.groups = groups })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
+
+            // TODO replace api function with frontend function
+            if (this.$hasPermission('can_view_course_participants')) {
+                participationAPI.getEnrolled(this.cID)
+                    .then(users => { this.participants = users })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
+            }
+        },
+        updateGroup (oldGroupName, newGroupName) {
+            // TODO replace api function with frontend function
+            groupAPI.getAllFromCourse(this.cID)
+                .then(groups => { this.groups = groups })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
+
+            if (this.$hasPermission('can_view_course_participants')) {
+                participationAPI.getEnrolled(this.cID)
+                    .then(users => { this.participants = users })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
+            }
         },
         loadUnenrolledStudents () {
             participationAPI.getUnenrolled(this.cID)
@@ -243,13 +305,25 @@ export default {
                 return self.compare(a.username, b.username)
             }
 
-            function checkFilter (user) {
+            function searchFilter (user) {
                 var username = user.username.toLowerCase()
                 var fullName = user.first_name.toLowerCase() + ' ' + user.last_name.toLowerCase()
                 var searchVariable = self.searchVariable.toLowerCase()
 
                 return username.includes(searchVariable) ||
                        fullName.includes(searchVariable)
+            }
+
+            function checkGroup (user) {
+                if (self.selectedFilterGroupOption) {
+                    if (!user.group) {
+                        return user.group === self.selectedFilterGroupOption
+                    } else {
+                        return user.group.includes(self.selectedFilterGroupOption)
+                    }
+                }
+
+                return true
             }
 
             var viewList = this.participants
@@ -265,12 +339,12 @@ export default {
 
             /* Filter list based on search input. */
             if (this.selectedSortOption === 'sortFullName') {
-                return viewList.filter(checkFilter).sort(compareFullName)
+                viewList = viewList.sort(compareFullName)
             } else if (this.selectedSortOption === 'sortUsername') {
-                return viewList.filter(checkFilter).sort(compareUsername)
-            } else {
-                return viewList.filter(checkFilter)
+                viewList = viewList.sort(compareUsername)
             }
+
+            return viewList.filter(searchFilter).filter(checkGroup)
         }
     },
     components: {
@@ -278,6 +352,7 @@ export default {
         'bread-crumb': breadCrumb,
         'content-single-column': contentSingleColumn,
         'course-participant-card': courseParticipantCard,
+        'group-modal': groupModal,
         icon
     }
 }
