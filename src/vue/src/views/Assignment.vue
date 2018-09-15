@@ -199,10 +199,6 @@ export default {
                 return username.includes(searchVariable) ||
                        fullName.includes(searchVariable)
             }
-            if (this.assignmentJournals[0]) {
-                console.log(this.assignmentJournals[0].student)
-                console.log(this.assignmentJournals[0].user)
-            }
 
             /* Filter list based on search input. */
             if (this.selectedSortOption === 'sortFullName') {
