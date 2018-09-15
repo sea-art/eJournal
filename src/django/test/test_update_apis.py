@@ -84,7 +84,7 @@ class UpdateApiTests(TestCase):
     def test_update_assignment(self):
         """Test update assignment"""
         teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('Teacher', 'pass', 'teach@teach.com')
-        teacher_role = factory.make_role_default_all_perms("TE", self.course)
+        teacher_role = factory.make_role_teacher("TE", self.course)
 
         factory.make_participation(teacher, self.course, teacher_role)
         assign = test.set_up_assignments('Assign', '', 1, self.course)[0]

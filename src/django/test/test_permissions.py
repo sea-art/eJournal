@@ -61,7 +61,7 @@ class PermissionTests(TestCase):
     def test_permission_multiple(self):
         """Test a request that needs multiple permissions."""
         role = factory.make_role_default_no_perms("TA1", self.crs, can_delete_assignment=True, can_grade=True,
-                                                  can_add_assignment=True)
+                                                  can_view_assignment_journals=True, can_add_assignment=True)
 
         factory.make_participation(self.usr, self.crs, role)
 
@@ -74,13 +74,14 @@ class PermissionTests(TestCase):
         user = factory.make_user(email='some@other', username='teun2', password='1234',
                                  lti_id='abcde', is_superuser=True)
         role = factory.make_role_default_no_perms("TA1", self.crs, can_delete_assignment=True,
+                                                  can_view_assignment_journals=True,
                                                   can_grade=True, can_add_assignment=True)
 
         factory.make_participation(user, self.crs, role)
 
         perm = permissions.get_permissions(user, self.crs.id)
 
-        self.assertTrue(perm["is_superuser"])
+        self.assertTrue(perm["can_edit_institute_details"])
 
     def test_get_permissions_teacher(self):
         """Test if the admin had the right permissions."""
@@ -97,13 +98,14 @@ class PermissionTests(TestCase):
         The created user should NOT be provided with the admin permission.
         """
         role = factory.make_role_default_no_perms("TA1", self.crs, can_delete_assignment=True,
+                                                  can_view_assignment_journals=True,
                                                   can_grade=True, can_add_assignment=True)
 
         factory.make_participation(self.usr, self.crs, role)
 
         perm = permissions.get_permissions(self.usr, self.crs.id)
 
-        self.assertFalse(perm["is_superuser"])
+        self.assertFalse(perm["can_edit_institute_details"])
 
     def test_get_permissions_can_add_course(self):
         """Test whether the admin has the can_add_course permission."""
