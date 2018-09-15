@@ -481,7 +481,6 @@ class Entry(models.Model):
     - grade: grade the entry has
     - published: is its a published grade or not
     - last_edited: when the etry was last edited
-    - TODO: late if the entry was posted late or not.
     """
 
     template = models.ForeignKey(

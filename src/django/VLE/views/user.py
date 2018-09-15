@@ -307,7 +307,6 @@ class UserView(viewsets.ViewSet):
         profile = UserSerializer(user).data
         journals = Journal.objects.filter(user=pk)
         journal_dict = {}
-        # TODO: Add entry serializer
         for journal in journals:
             # Select the nodes of this journal but only the ones with entries.
             entry_ids = Node.objects.filter(journal=journal).exclude(entry__isnull=True).values_list('entry', flat=True)
@@ -321,7 +320,6 @@ class UserView(viewsets.ViewSet):
 
         return response.file(archive_path)
 
-    # TODO: check if it works
     @action(methods=['get'], detail=True)
     def download(self, request, pk):
         """Get a user file by name if it exists.
