@@ -1,7 +1,9 @@
 <template>
     <b-card class="no-hover">
+        <h2>Thank you for helping us improve eJournal</h2>
         Hi {{ $store.getters['user/firstName'] }}! If you have any suggestions for improvements or encountered
-        any issues/bugs please inform us by filling in the form below. Thank you!
+        any issues/bugs, please inform us by filling in the form below. We aim to get back to you as soon as possible.
+        <hr/>
         <h2 class='field-heading'>Topic:</h2>
         <b-input
             class="theme-input multi-form"
