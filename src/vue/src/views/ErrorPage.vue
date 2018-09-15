@@ -32,9 +32,9 @@ export default {
             default: 'Unknown Error'
         },
         description: {
-            default: 'We are sorry, but an unkown error has brought you here. \
-                      Please use the feedback button at the bottom of the page \
-                      to get in touch with us.'
+            default: 'We are sorry, but an unkown error has brought you here. ' +
+                     'Please use the feedback button at the bottom of the page ' +
+                     'to get in touch with us.'
         }
     },
     components: {
