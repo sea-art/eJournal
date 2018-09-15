@@ -218,7 +218,9 @@ class AssignmentView(viewsets.ViewSet):
             serializer.save()
         elif not published:
             return response.forbidden('You are not allowed to edit this assignment.')
-        return response.success({**{'assignment': serializer.data}, **published_response})
+        if published_response is not False:
+            return response.success({'assignment': serializer.data, 'published': published_response})
+        return response.success({'assignment': serializer.data})
 
     def destroy(self, request, *args, **kwargs):
         """Delete an existing assignment from a course.
