@@ -9,18 +9,11 @@
             </b-form-select>
         </b-card>
 
-        <div v-if="$route.path == '/Home'" v-for="(d, i) in computedDeadlines" :key="i">
+        <div v-for="(d, i) in computedDeadlines" :key="i">
             <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal)">
                 <todo-card :deadline="d"/>
             </b-link>
         </div>
-
-        <div v-if="$route.params.cID" v-for="(d, i) in computedDeadlines" :key="i">
-            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal)">
-                <todo-card :deadline="d"/>
-            </b-link>
-        </div>
-
     </div>
 </template>
 
