@@ -2,9 +2,8 @@ from django.conf import settings
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import EmailMessage
 
+from VLE.settings.development import EMAIL_HOST_USER
 from VLE.models import Role
-
-DEV_EMAIL = 'zllong.zhu@gmail.com'
 
 
 def send_email_verification_link(user):
@@ -56,4 +55,4 @@ def send_email_feedback(user, files, topic, ftype, feedback, user_agent):
     for file in files:
         attachs.append((file.name, file.read(), file.content_type))
 
-    EmailMessage(subject, body, attachments=attachs, to=[DEV_EMAIL]).send()
+    EmailMessage(subject, body, attachments=attachs, to=[EMAIL_HOST_USER]).send()

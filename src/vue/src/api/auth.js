@@ -125,7 +125,12 @@ export default {
                 .then(_ => connection.connFile.post(url, data)))
             .catch(error => handleError(error, noRedirect))
     },
-
+    uploadFileEmail (url, data, noRedirect = false) {
+        return connection.connFileEmail.post(url, data)
+            .catch(error => store.dispatch('user/validateToken', error)
+                .then(_ => connection.connFileEmail.post(url, data)))
+            .catch(error => handleError(error, noRedirect))
+    },
     downloadFile (url, data, noRedirect = false) {
         if (url[0] !== '/') url = '/' + url
         if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'

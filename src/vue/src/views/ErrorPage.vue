@@ -15,8 +15,7 @@
                 <icon name="home"/>
                 Home
             </b-button>
-            <!-- TODO: Add mailto or similar. -->
-            <b-button :to="{name: 'Home'}" class="change-button">
+            <b-button :to="{name: 'Feedback'}" class="change-button">
                 <icon name="envelope"/>
                 Contact
             </b-button>

@@ -103,7 +103,7 @@ export default {
                 this.$toasted.error('Topic required')
             } else if (this.type == null) {
                 this.$toasted.error('Choose a feedback type')
-            } else if (this.body === '') {
+            } else if (this.feedback === '') {
                 this.$toasted.error('Feedback required')
             } else {
                 var data = new FormData()

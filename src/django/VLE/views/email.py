@@ -7,10 +7,11 @@ This includes:
 """
 from rest_framework.decorators import api_view
 import VLE.views.responses as response
-from VLE.models import User
 import VLE.utils.email_handling as email_handling
 import VLE.utils.generic_utils as utils
 import VLE.validators as validators
+from VLE.models import User
+
 from django.core.exceptions import ValidationError
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.html import escape

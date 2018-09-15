@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
+from VLE.settings.base import *
 
 SECRET_KEY = '@a4c3cpgfe0@8s!be=23d5+3e30vyj7!q%tolqpewafp^-@=br'
 
@@ -18,7 +19,6 @@ EMAIL_HOST_USER = 'ejourn.al.trial@gmail.com'
 EMAIL_HOST_PASSWORD = 'M@@rten1523'
 EMAIL_PORT = 587
 
-from VLE.settings.base import *
 
 LTI_SECRET = '4339900ae5861f3086861ea492772864'
 LTI_KEY = '0cd500938a8e7414ccd31899710c98ce'
