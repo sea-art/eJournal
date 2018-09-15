@@ -19,9 +19,6 @@
             </h4>
             <h1>
                 {{ crumbs.slice(-1)[0].displayName }}
-                <slot>
-                    <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
-                </slot>
             </h1>
         </div>
     </div>
@@ -115,9 +112,6 @@ export default {
                     })
                     .then(_ => { store.setCachedMap(this.cachedMap) })
             }
-        },
-        eyeClick () {
-            this.$emit('eye-click')
         },
         editClick () {
             this.$emit('edit-click')

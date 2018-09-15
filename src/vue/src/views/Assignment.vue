@@ -1,7 +1,7 @@
 <!-- TODO Is this check really required if we redirect, or even better have correct flow anyway? -->
 <template v-if="$hasPermission('can_view_assignment_participants')">
     <content-columns>
-        <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
+        <bread-crumb slot="main-content-column" @edit-click="handleEdit()"/>
         <b-card slot="main-content-column" class="no-hover settings-card">
             <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
             <div class="d-flex">

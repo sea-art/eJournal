@@ -1,11 +1,6 @@
 <template>
     <content-columns>
-        <bread-crumb
-            @eye-click="customisePage()"
-            @edit-click="showModal('editCourseRef')"
-            slot="main-content-column"
-            :currentPage="'Courses'">
-        </bread-crumb>
+        <bread-crumb slot="main-content-column" :currentPage="'Courses'" @edit-click="handleEdit()"/>
 
         <div v-for="c in courses" :key="c.id" slot="main-content-column">
             <b-link :to="{ name: 'Course', params: { cID: c.id, courseName: c.name } }">
@@ -111,11 +106,12 @@ export default {
         handleConfirm (ref) {
             if (ref === 'createCourseRef') {
                 this.loadCourses()
-            } else if (ref === 'editCourseRef') {
-                // TODO: Handle edit course
             }
 
             this.hideModal(ref)
+        },
+        handleEdit () {
+            // TODO: Open EditHome
         },
         hideModal (ref) {
             this.$refs[ref].hide()

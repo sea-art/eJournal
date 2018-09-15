@@ -1,16 +1,13 @@
 <template>
     <content-columns>
-        <bread-crumb
-            slot="main-content-column"
-            @eye-click="customisePage"
-            @edit-click="handleEdit()"/>
+        <bread-crumb slot="main-content-column" @edit-click="handleEdit()"/>
 
         <div slot="main-content-column" v-for="a in assignments" :key="a.id">
             <b-link tag="b-button" :to="assignmentRoute(cID, a.id, a.journal)">
                 <assignment-card :line1="a.name">
-                    <b-button v-if="$hasPermission('can_delete_assignment')" @click.prevent.stop="deleteAssignment(a.id)" class="delete-button float-right">
+                    <b-button v-if="$hasPermission('can_delete_assignment')" @click.prevent.stop="deleteAssignment(a)" class="delete-button float-right">
                         <icon name="trash"/>
-                        Remove
+                        {{ a.courses.length > 1 ? "Remove" : "Delete" }}
                     </b-button>
                 </assignment-card>
             </b-link>
@@ -148,11 +145,13 @@ export default {
 
             return route
         },
-        deleteAssignment (aID) {
-            if (confirm('Are you sure you want to remove this assignment from this course?')) {
-                assignmentAPI.delete(aID, this.cID)
+        deleteAssignment (assignment) {
+            if (assignment.courses.length > 1
+                ? confirm('Are you sure you want to remove this assignment from the course?')
+                : confirm('Are you sure you want to delete this assignment?')) {
+                assignmentAPI.delete(assignment.id, this.cID)
                     .then(_ => {
-                        this.$toasted.success('Removed assignment.')
+                        this.$toasted.success(assignment.courses.length > 1 ? 'Removed assignment.' : 'Deleted assignment.')
                         this.loadAssignments()
                     })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
