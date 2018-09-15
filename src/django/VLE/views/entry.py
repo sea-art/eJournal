@@ -223,13 +223,13 @@ class EntryView(viewsets.ViewSet):
         try:
             entry = Entry.objects.get(pk=pk)
         except Entry.DoesNotExist:
-            return response.not_found('Course does not exist.')
+            return response.not_found('Entry does not exist.')
 
         if not permissions.has_assignment_permission(request.user, entry.node.journal.assignment, 'can_edit_journal'):
             return response.forbidden('You can only delete your own entries.')
 
         if entry.grade:
-            return response.forbidden('This anty is already graded, and thus cannot be deleted anymore.')
+            return response.forbidden('You cannot delete graded entries.')
 
         entry.node.delete()
         entry.delete()
