@@ -15,10 +15,6 @@
                 <icon name="home"/>
                 Home
             </b-button>
-            <b-button :to="{name: 'Feedback'}" class="change-button">
-                <icon name="envelope"/>
-                Contact
-            </b-button>
         </b-col>
     </b-row>
 </template>
@@ -36,7 +32,9 @@ export default {
             default: 'Unknown Error'
         },
         description: {
-            default: 'We are sorry, but an unkown error has brought you here.'
+            default: 'We are sorry, but an unkown error has brought you here. ' +
+                     'Please use the feedback button at the bottom of the page ' +
+                     'to get in touch with us.'
         }
     },
     components: {
