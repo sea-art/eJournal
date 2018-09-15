@@ -10,6 +10,14 @@
             <div class="edag-inner" ref="scd">
                 <div v-if="$root.lgMax()" v-b-toggle.edag-outer target="edag-outer" aria-expanded="false" aria-controls="edag-outer">
                     <edag-node
+                        @select-node="$emit('select-node', $event)"
+                        :index="-1"
+                        :node="{
+                            'type': 's'
+                        }"
+                        :selected="isSelected(-1)"
+                        :edit="edit"/>
+                    <edag-node
                         v-for="(node, index) in this.nodes"
                         @select-node="$emit('select-node', $event)"
                         :index="index"
@@ -32,11 +40,19 @@
                         v-for="(node, index) in this.nodes"
                         @select-node="$emit('select-node', $event)"
                         :index="index"
-                        :last="index === nodes.length - 1"
                         :node="node"
                         :selected="isSelected(index)"
                         :edit="edit"
                         :key="node.id"/>
+                    <edag-node
+                        @select-node="$emit('select-node', $event)"
+                        :index="nodes.length"
+                        :last="true"
+                        :node="{
+                            'type': 'n'
+                        }"
+                        :selected="isSelected(nodes.length)"
+                        :edit="edit"/>
                 </div>
             </div>
         </b-collapse>

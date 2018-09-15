@@ -47,6 +47,8 @@ export default {
         nodeState () {
             if (this.node.type === 's') {
                 return 'start'
+            } else if (this.node.type === 'n') {
+                return 'end'
             } else if (this.node.type === 'a') {
                 return 'add'
             } else if (this.edit || this.node.type === 'p') {

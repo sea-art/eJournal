@@ -22,9 +22,21 @@
                         </b-card>
                     </div>
                 </div>
-                <b-card  v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+                <b-card v-else-if="currentNode === -1" class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                     <h2>{{ assignment.name }}</h2>
+                    <h6>Description</h6>
                     <div v-html="assignment.description"/>
+                    <h6>Unlock date</h6>
+                    {{ $root.beautifyDate(assignment.unlock_date) }}
+                    <b v-if="new Date(assignment.unlock_date) > new Date()">This assignment is locked and will be made available later.</b>
+                </b-card>
+                <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+                    <h2>End of assignment</h2>
+                    <h6>Amount of points possible</h6>
+                    {{ assignment.points_possible }}
+                    <h6>Lock date</h6>
+                    {{ $root.beautifyDate(assignment.lock_date) }}
+                    <b v-if="new Date(assignment.lock_date) < new Date()">This assignment has been locked.</b>
                 </b-card>
             </b-col>
         </b-col>
@@ -152,7 +164,7 @@ export default {
     },
     watch: {
         currentNode: function () {
-            if (this.currentNode !== -1 && this.nodes[this.currentNode].type === 'p') {
+            if (this.currentNode !== -1 && this.currentNode !== this.nodes.length && this.nodes[this.currentNode].type === 'p') {
                 this.progressPoints(this.nodes[this.currentNode])
                 this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].id]
             }
@@ -184,8 +196,8 @@ export default {
                 return this.currentNode
             }
 
-            if (this.currentNode === -1 || this.nodes[this.currentNode].type !== 'e' ||
-                this.nodes[this.currentNode].type !== 'd') {
+            if (this.currentNode === -1 || this.currentNode === this.nodes.length ||
+                this.nodes[this.currentNode].type !== 'e' || this.nodes[this.currentNode].type !== 'd') {
                 this.currentNode = $event
                 return
             }
