@@ -43,7 +43,7 @@
                     </b-form-file>
                 </b-col>
                 <b-col>
-                    <b-button class="add-button float-right mt-2" @click="sendFeedback">
+                    <b-button class="add-button float-right" @click="sendFeedback">
                         <icon name="paper-plane"/>
                         Send
                     </b-button>

@@ -40,19 +40,28 @@ If you did make the request please visit the link below and set a new password:
     EmailMessage('eJourn.al password recovery', email_body, to=[user.email]).send()
 
 
-def send_email_feedback(user, files, topic, ftype, feedback, user_agent):
+def send_email_feedback(user, files, topic, ftype, url, feedback, user_agent):
     """Sends the feedback of an user to the developers."""
-    subject = "[Feedback] {}".format(topic[0])
-    body = "TYPE: {}\n\n".format(ftype[0])
-    body += "FEEDBACK BY: {}\n".format(user.username)
-    body += "EMAIL: {}\n".format("" if user.email is None else user.email)
-    body += "TEACHER: {}\n".format(user.is_teacher)
-    body += "ROLES: {}\n".format(Role.objects.filter(role__user=user).values('name'))
-    body += "USER-AGENT: {}\n\n".format(user_agent[0])
-    body += "THE FEEDBACK:\n{}".format(feedback[0])
+    f_subject = "[Feedback] {}".format(topic[0])
+    f_body = "TYPE: {}\n\n".format(ftype[0])
+    f_body += "FEEDBACK BY: {}\n".format(user.username)
+    f_body += "EMAIL: {}\n".format("" if user.email is None else user.email)
+    f_body += "TEACHER: {}\n".format(user.is_teacher)
+    f_body += "ROLES: {}\n".format(Role.objects.filter(role__user=user).values('name'))
+    f_body += "USER-AGENT: {}\n\n".format(user_agent[0])
+    f_body += "THE FEEDBACK:\n{}".format(feedback[0])
+
+    r_subject = "[eJournal] Submitted feedback"
+    r_body = "Hi {},\n\n".format(user.first_name)
+    r_body += "Thank you for your feedback! Below you will find a copy of your given feedback."
+    r_body += "If you supplied attachments, then they are added to this e-mail aswell.\n\n"
+    r_body += "THE FEEDBACK:\n{}\n\n".format(feedback[0])
+    r_body += "We might reply to your feedback to ask some questions or just to say thanks!\n\n"
+    r_body += "Kind Regards,\n\nThe eJournal Team"
 
     attachments = []
     for file in files:
         attachments.append((file.name, file.read(), file.content_type))
 
-    EmailMessage(subject, body, attachments=attachments, to=[EMAIL_HOST_USER]).send()
+    EmailMessage(r_subject, r_body, attachments=attachments, to=['zllong.zhu@gmail.com']).send()
+    EmailMessage(f_subject, f_body, attachments=attachments, to=[EMAIL_HOST_USER]).send()
