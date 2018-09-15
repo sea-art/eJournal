@@ -20,7 +20,6 @@ import FormatEdit from '@/views/FormatEdit'
 import LtiLogin from '@/views/LtiLogin'
 import Logout from '@/views/Logout'
 import EmailVerification from '@/views/EmailVerification'
-import Feedback from '@/views/Feedback'
 
 Vue.use(Router)
 
@@ -116,10 +115,6 @@ var router = new Router({
         name: 'NotFound',
         component: ErrorPage,
         props: { code: '404', reasonPhrase: 'Not Found', description: `We're sorry but we can't find the page you tried to access.` }
-    }, {
-        path: '/Feedback',
-        name: 'Feedback',
-        component: Feedback
     }]
 })
 
