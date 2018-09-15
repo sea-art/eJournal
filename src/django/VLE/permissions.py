@@ -102,6 +102,7 @@ def get_permissions(user, cID=-1):
             return {}
 
         roleDict = model_to_dict(role)
+        roleDict["can_edit_institute_details"] = False
 
     return roleDict
 
@@ -233,12 +234,8 @@ def get_all_user_permissions(user):
 
     assignments = Assignment.objects.none()
     for course in courses:
-        # Checks wether the user is a participator in an assignment or a grader based on:
-        # 'can_view_assignment_journals'
-        # Returns all assigments linked to a course if a grader, this permission is not verbose enough for this check
-        # TODO Create a more verbose check. And in general ensure that a user can never have grading level permissions
-        # for a course where the user has any journals.
-        if permissions['course' + str(course.id)]['can_view_assignment_journals']:
+        # Returns all assignments linked to a course if a grader.
+        if permissions['course' + str(course.id)]['can_grade']:
             assignments |= course.assignment_set.all()
         else:
             # TODO does this not break if no journal is created yet? Why do we not work with an AssignmentParticipation
@@ -249,5 +246,8 @@ def get_all_user_permissions(user):
 
     for assignment in assignments:
         permissions['assignment' + str(assignment.id)] = get_assignment_id_permissions(user, assignment.id)
+        # Ensure top level permission include can_grade for any course
+        if permissions['assignment' + str(assignment.id)]['can_grade']:
+            permissions['general']['can_grade'] = True
 
     return permissions

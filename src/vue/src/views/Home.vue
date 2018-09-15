@@ -24,8 +24,7 @@
         </b-button>
 
         <h3 slot="right-content-column">To Do</h3>
-        <!-- TODO: This seems like an inappropriate permission check. Will have to be reconsidered in the rework. -->
-        <b-card v-if="$hasPermission('can_add_course')"
+        <b-card v-if="$hasPermission('can_grade')"
                 class="no-hover"
                 slot="right-content-column">
             <b-form-select v-model="selectedSortOption" :select-size="1">

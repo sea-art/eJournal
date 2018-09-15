@@ -250,7 +250,7 @@ def make_content(entry, data, field=None):
     return content
 
 
-def make_role_default_no_perms(name, course, can_edit_institute_details=False, can_add_course=False,
+def make_role_default_no_perms(name, course, can_add_course=False,
                                can_edit_course_details=False, can_delete_course=False, can_edit_course_roles=False,
                                can_view_course_users=False, can_add_course_users=False, can_delete_course_users=False,
                                can_add_course_user_group=False, can_delete_course_user_group=False,
@@ -267,7 +267,6 @@ def make_role_default_no_perms(name, course, can_edit_institute_details=False, c
         name=name,
         course=course,
 
-        can_edit_institute_details=can_edit_institute_details,
         can_add_course=can_add_course,
 
         can_edit_course_details=can_edit_course_details,
@@ -293,7 +292,7 @@ def make_role_default_no_perms(name, course, can_edit_institute_details=False, c
     return role
 
 
-def make_role_default_all_perms(name, course, can_edit_institute_details=True, can_add_course=True,
+def make_role_default_all_perms(name, course, can_add_course=True,
                                 can_edit_course_details=True, can_delete_course=True, can_edit_course_roles=True,
                                 can_view_course_users=True, can_add_course_users=True, can_delete_course_users=True,
                                 can_add_course_user_group=True, can_delete_course_user_group=True,
@@ -301,7 +300,7 @@ def make_role_default_all_perms(name, course, can_edit_institute_details=True, c
                                 can_edit_assignment=True, can_view_assignment_journals=True, can_grade=True,
                                 can_publish_grades=True, can_have_journal=True, can_comment=True):
     """Makes a role with all permissions set to true."""
-    return make_role_default_no_perms(name, course, can_edit_institute_details, can_add_course,
+    return make_role_default_no_perms(name, course, can_add_course,
                                       can_edit_course_details, can_delete_course, can_edit_course_roles,
                                       can_view_course_users, can_add_course_users, can_delete_course_users,
                                       can_add_course_user_group, can_delete_course_user_group,
@@ -330,7 +329,7 @@ def make_role_observer(name, course):
 
 def make_role_teacher(name, course):
     """Make a default teacher role."""
-    return make_role_default_all_perms(name, course, can_edit_institute_details=False, can_have_journal=False)
+    return make_role_default_all_perms(name, course, can_have_journal=False)
 
 
 def make_comment(entry, author, text, published):

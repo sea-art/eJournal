@@ -7,6 +7,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
 from VLE.utils.file_handling import get_path
+from django.core.exceptions import ValidationError
 
 
 class UserFile(models.Model):
@@ -177,7 +178,6 @@ class Role(models.Model):
         on_delete=models.CASCADE
     )
 
-    can_edit_institute_details = models.BooleanField(default=False)
     can_add_course = models.BooleanField(default=False)
 
     can_edit_course_details = models.BooleanField(default=False)
@@ -200,7 +200,27 @@ class Role(models.Model):
     can_comment = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
-        print(self.can_add_course_users)
+        if self.can_add_course_users and not self.can_view_course_users:
+            raise ValidationError('A user needs to view course users in order to add them.')
+
+        if self.can_delete_course_users and not self.can_view_course_users:
+            raise ValidationError('A user needs to view course users in order to remove them.')
+
+        if self.can_edit_course_user_group and not self.can_view_course_users:
+            raise ValidationError('A user needs to view course users in to manage user groups.')
+
+        if self.can_view_assignment_journals and self.can_have_journal:
+            raise ValidationError('An administrative user is not allowed to have a journal in the same course.')
+
+        if self.can_grade and not self.can_view_assignment_journals:
+            raise ValidationError('A user needs to be able to view journals in order to grade them.')
+
+        if self.can_publish_grades and not (self.can_view_assignment_journals and self.can_grade):
+            raise ValidationError('A user should not be able to publish grades without being able to view or grade \
+                                  the journals.')
+
+        if self.can_comment and not (self.can_view_assignment_journals or self.can_have_journal):
+            raise ValidationError('A user requires a journal to comment on.')
 
         super(Role, self).save(*args, **kwargs)
 

@@ -1,6 +1,5 @@
 <template>
-    <!-- TODO Permission revision should be if can_grade -->
-    <journal-non-student v-if="$hasPermission('can_view_assignment_journals')" :cID="cID" :aID="aID" :jID="jID"/>
+    <journal-non-student v-if="$hasPermission('can_grade')" :cID="cID" :aID="aID" :jID="jID"/>
     <journal-student v-else-if="$hasPermission('can_have_journal')" :cID="cID" :aID="aID" :jID="jID"/>
 </template>
 

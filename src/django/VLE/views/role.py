@@ -6,6 +6,7 @@ import VLE.views.responses as response
 from VLE.serializers import RoleSerializer
 from VLE.models import Course, Role, Assignment, User
 import VLE.factory as factory
+from django.core.exceptions import ValidationError
 
 
 class RoleView(viewsets.ViewSet):
@@ -130,14 +131,17 @@ class RoleView(viewsets.ViewSet):
 
         role = permissions.get_role(request.user, course)
         if role is None:
-            return response.forbidden('You are not in this course.')
+            return response.forbidden('You are not a participant of this course.')
         elif not role.can_edit_course_roles:
-            return response.forbidden('You cannot create roles of this course.')
+            return response.forbidden('You do not have the permission to create roles for this course.')
 
         try:
             role = factory.make_role_default_no_perms(request.data['name'], course, **request.data['permissions'])
+        except ValidationError as e:
+            return response.bad_request(e.args[0])
         except Exception:
             return response.bad_request()
+
         serializer = RoleSerializer(role, many=False)
         return response.created({'role': serializer.data})
 
@@ -190,8 +194,14 @@ class RoleView(viewsets.ViewSet):
                 role = factory.make_role_default_no_perms(new_role['name'], course)
             serializer = RoleSerializer(role, data=new_role, partial=True)
             if not serializer.is_valid():
+                print('serializer is not valid')
                 response.bad_request()
-            serializer.save()
+
+            try:
+                serializer.save()
+            except ValidationError as e:
+                return response.bad_request(e.args[0])
+
             resp.append(serializer.data)
         return response.success({'roles': resp})
 

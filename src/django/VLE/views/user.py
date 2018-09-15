@@ -301,8 +301,7 @@ class UserView(viewsets.ViewSet):
         user = User.objects.get(pk=pk)
 
         # Check the right permissions to get this users data, either be the user of the data or be an admin.
-        permission = permissions.get_permissions(user, cID=-1)
-        if not permission['is_superuser'] and request.user.id != pk:
+        if not user.is_superuser or request.user.id is not pk:
             return response.forbidden('You cannot view this users data.')
 
         profile = UserSerializer(user).data
