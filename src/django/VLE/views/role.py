@@ -194,7 +194,6 @@ class RoleView(viewsets.ViewSet):
                 role = factory.make_role_default_no_perms(new_role['name'], course)
             serializer = RoleSerializer(role, data=new_role, partial=True)
             if not serializer.is_valid():
-                print('serializer is not valid')
                 response.bad_request()
 
             try:
