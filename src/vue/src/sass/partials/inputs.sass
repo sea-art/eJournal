@@ -5,15 +5,14 @@
     border-width: 0px 0px 0px 15px
     border-color: $theme-dark-grey
     padding: 0.375rem 0.75rem !important
-
+    &.no-width
+        width: 0
     &:focus
         border-color: $theme-blue
         box-shadow: 0 0 2px 2px $theme-blue
-
     [aria-invalid='false']
         border-color: $theme-red
         box-shadow: 0 0 2px 2px $theme-red
-
     [aria-invalid='true']
         border-color: $theme-green
         box-shadow: 0 0 2px 2px $theme-green

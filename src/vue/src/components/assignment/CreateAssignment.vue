@@ -1,8 +1,21 @@
 <template>
-    <!-- TODO: Create default formats. -->
-    <div>
+    <b-card class="no-hover">
+        <!-- TODO: Create default formats. -->
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.assignmentName" placeholder="Assignment name"/>
+            <h2 class="field-heading">Assignment Name</h2>
+            <b-input
+                class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                v-model="form.assignmentName"
+                placeholder="Assignment name"
+                required
+            />
+            <h2 class="field-heading">Points possible</h2>
+            <b-input
+                class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                v-model="form.pointsPossible"
+                placeholder="Points"
+                type="number"/>
+            <h2 class="field-heading">Description</h2>
             <text-editor
                 :id="'text-editor-assignment-description'"
                 :givenContent="'Description of the assignment'"
@@ -18,11 +31,10 @@
                 Create
             </b-button>
         </b-form>
-    </div>
+    </b-card>
 </template>
 
 <script>
-import ContentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import textEditor from '@/components/assets/TextEditor.vue'
 import icon from 'vue-awesome/components/Icon'
 
@@ -43,12 +55,10 @@ export default {
         }
     },
     components: {
-        'content-single-columns': ContentSingleColumn,
         'text-editor': textEditor,
         icon
     },
     methods: {
-        // TODO: Reload assignments & close modal after creations.
         onSubmit () {
             assignmentAPI.create({
                 name: this.form.assignmentName,
@@ -60,6 +70,9 @@ export default {
                 .then(assignment => {
                     this.$emit('handleAction', assignment.id)
                     this.onReset(undefined)
+                    this.$store.dispatch('user/populateStore').catch(_ => {
+                        this.$toasted.error('The website might be out of sync, please login again.')
+                    })
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },

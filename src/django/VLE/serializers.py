@@ -91,7 +91,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
     def get_deadline(self, assignment):
         # TODO: Check from which course it came from as well
         # TODO: When all assignments are graded, set deadline to next deadline?
-        # If the user doesnt have a journal, take the deadline that is the first upcomming deadline
+        # If the user doesnt have a journal, take the deadline that is the first upcoming deadline
         if 'user' not in self.context or \
            permissions.has_assignment_permission(self.context['user'], assignment, 'can_grade_journal'):
             nodes = assignment.format.presetnode_set.all().order_by('deadline')
@@ -99,7 +99,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
                 return None
             return nodes[0].deadline
 
-        # If the user has a journal, take the first upcomming not submitted deadline
+        # If the user has a journal, take the first upcoming not submitted deadline
         else:
             try:
                 journal = Journal.objects.get(assignment=assignment, user=self.context['user'])
@@ -139,6 +139,13 @@ class AssignmentSerializer(serializers.ModelSerializer):
         if 'course' not in self.context:
             return None
         return CourseSerializer(self.context['course']).data
+
+    def get_details(self, assignment):
+        return {
+            'name': assignment.name,
+            'description': assignment.description,
+            'points_possible': assignment.points_possible
+        }
 
 
 class NodeSerializer(serializers.ModelSerializer):
