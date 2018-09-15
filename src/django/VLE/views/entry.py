@@ -79,7 +79,7 @@ class EntryView(viewsets.ViewSet):
             if node.entry:
                 return response.bad_request('Passed node already contains an entry.')
 
-            if node.preset.deadline < now():
+            if node.preset.deadline < now() or (journal.assignment.due_date and journal.assignment.due_date < datetime.now()):
                 return response.bad_request('The deadline has already passed.')
 
             node.entry = factory.make_entry(template)
@@ -183,7 +183,8 @@ class EntryView(viewsets.ViewSet):
 
             if entry.grade is not None:
                 return response.bad_request('Cannot edit entry: it is already graded.')
-            if entry.node.type == Node.ENTRYDEADLINE and entry.node.preset.deadline < now():
+            if entry.node.type == Node.ENTRYDEADLINE and entry.node.preset.deadline < now() \
+               or (journal.assignment.due_date and journal.assignment.due_date < datetime.now()):
                 return response.bad_request('Cannot edit entry: the deadline has already passed.')
 
             Content.objects.filter(entry=entry).all().delete()

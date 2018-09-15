@@ -5,6 +5,8 @@ Useful edag functions.
 """
 from django.db.models import Case, When
 from django.utils import timezone
+from datetime import datetime
+
 from VLE.models import Node
 import VLE.permissions as permissions
 from VLE.serializers import TemplateSerializer
@@ -52,6 +54,12 @@ def get_nodes(journal, user):
             node_dict.append(get_deadline(node, user))
         elif node.type == Node.PROGRESS:
             node_dict.append(get_progress(node))
+
+    if can_add and journal.assignment.due_date > datetime.now():
+        add_node = get_add_node(journal)
+        if add_node:
+            node_dict.append(add_node)
+
     return node_dict
 
 

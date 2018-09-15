@@ -47,6 +47,7 @@
                     <div v-html="assignment.description"/>
                     <h6 v-if="assignment.unlock_date">Unlock date</h6>
                     <p v-if="assignment.unlock_date">{{ $root.beautifyDate(assignment.unlock_date) }}</p>
+                    <b v-if="assignment.due_date && new Date(assignment.due_date) < new Date()">The deadline for this assignment has passed.</b>
                     <b v-if="assignment.unlock_date && new Date(assignment.unlock_date) > new Date()">This assignment is locked and will be made available later.</b>
                 </b-card>
                 <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
@@ -58,6 +59,7 @@
                     <p v-if="assignment.points_possible">{{ assignment.points_possible }}</p>
                     <h6 v-if="assignment.lock_date">Lock date</h6>
                     <p v-if="assignment.lock_date">{{ $root.beautifyDate(assignment.lock_date) }}</p>
+                    <b v-if="assignment.due_date && new Date(assignment.due_date) < new Date()">The deadline for this assignment has passed.</b>
                     <b v-if="assignment.lock_date && new Date(assignment.lock_date) < new Date()">This assignment has been locked.</b>
                 </b-card>
             </b-col>
@@ -235,7 +237,7 @@ export default {
             var currentDate = new Date()
             var deadline = new Date(this.nodes[this.currentNode].deadline)
 
-            return currentDate <= deadline
+            return currentDate <= deadline && currentDate <= new Date(this.assignment.due_date)
         }
     },
     components: {
