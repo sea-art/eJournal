@@ -31,14 +31,4 @@ export default {
         return auth.get('journals', {assignment_id: id})
             .then(response => response.data.journals)
     }
-
-    // /* Get assignment journals.
-    //  * Requests all the assignment journals.
-    //  * returns a list of all journals.
-    //  */
-    // update_publish_grades_assignment (aID, published) {
-    //     return auth.authenticatedPost('/update_publish_grades_assignment/', {aID: aID, published: published})
-    //         .then(response => response.data)
-    // },
-    //
 }

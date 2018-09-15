@@ -63,6 +63,12 @@
                     <a :href="completeContent[i].data">{{ completeContent[i].data }}</a>
                 </div>
             </div>
+            <div v-if="entryNode.entry.last_edited">
+                <hr/>
+                <span class="timestamp">
+                    Last edited: {{ $root.beautifyDate(entryNode.entry.last_edited) }}<br/>
+                </span>
+            </div>
         </b-card>
 
         <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published"/>
