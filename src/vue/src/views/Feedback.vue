@@ -3,7 +3,7 @@
         <bread-crumb>&nbsp;</bread-crumb>
         <b-card class="no-hover blue-border">
             <h2>Send the developers your feedback</h2>
-            Hi! If you have any suggestions for improvements or found
+            Hi! If you have any suggestions for improvements or encountered
             any issues/bugs please inform us and fill in the form below. Thank you!
         </b-card>
         <b-card class="no-hover blue-border">
@@ -86,8 +86,8 @@ export default {
             if (files.length < 1) { return }
 
             var uploadSize = 0
-            for (var i = 0; i < files.length; i++) {
-                uploadSize += files[i].size
+            for (var file in files) {
+                uploadSize += file.size
                 if (uploadSize > this.$root.maxEmailFileSizeBytes) {
                     this.$toasted.error('The selected files exceed the total maximum file size of: 10 mb.')
                     this.$refs.fileinput.reset()
@@ -112,8 +112,8 @@ export default {
                 data.append('feedback', this.feedback)
                 data.append('user_agent', navigator.userAgent)
                 if (this.files != null) {
-                    for (var i = 0; i < this.files.length; i++) {
-                        data.append('files', this.files[i])
+                    for (var file in this.files) {
+                        data.append('files', file)
                     }
                 }
 
