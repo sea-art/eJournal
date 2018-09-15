@@ -171,7 +171,6 @@ export default {
         deleteComment (cID) {
             if (confirm('Are you sure you want to delete this comment?')) {
                 commentAPI.delete(cID)
-                    // TODO Remove comment locally rather than firing a new request for all entry comments
                     .then(_ => {
                         for (var i in this.commentObject) {
                             if (this.commentObject[i].id === cID) {
