@@ -44,7 +44,7 @@ export default {
                 route.name = 'Assignment'
                 return route
             }
-            
+
             route.name = 'Journal'
             route.params.jID = jID
             return route
