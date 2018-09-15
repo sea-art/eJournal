@@ -1,12 +1,19 @@
 <template>
-    <div>
+    <b-card class="no-hover">
+        <h2 v-if="lti" class="field-heading">Username</h2>
         <b-input v-if="lti" class="multi-form theme-input" :value="this.lti.username" disabled/>
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
+            <h2 v-if="!lti" class="field-heading">Username</h2>
             <b-input v-if="!lti" class="multi-form theme-input" v-model="form.username" placeholder="Username" required/>
+            <h2 v-if="!lti" class="field-heading">First name</h2>
             <b-input v-if="!lti" class="multi-form theme-input" v-model="form.firstname" placeholder="First name" required/>
+            <h2 v-if="!lti" class="field-heading">Last name</h2>
             <b-input v-if="!lti" class="multi-form theme-input" v-model="form.lastname" placeholder="Last name" required/>
+            <h2 class="field-heading">Password</h2>
             <b-input class="multi-form theme-input" v-model="form.password" type="password" placeholder="Password" required/>
-            <b-input class="multi-form theme-input" v-model="form.password2" type="password" placeholder="Password (again)" required/>
+            <h2 class="field-heading">Repeat password</h2>
+            <b-input class="multi-form theme-input" v-model="form.password2" type="password" placeholder="Repeat password" required/>
+            <h2 v-if="!lti" class="field-heading">Email</h2>
             <b-input v-if="!lti" class="multi-form theme-input" v-model="form.email" placeholder="Email" required/>
             <b-button class="float-left change-button multi-form" type="reset">
                 <icon name="undo"/>
@@ -17,7 +24,7 @@
                 Create account
             </b-button>
         </b-form>
-    </div>
+    </b-card>
 </template>
 
 <script>

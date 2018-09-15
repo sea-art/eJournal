@@ -63,7 +63,7 @@ export default {
             userAPI.update(0, {first_name: this.firstName, last_name: this.lastName})
                 .then(_ => {
                     this.$store.commit('user/SET_FULL_USER_NAME', { firstName: this.firstName, lastName: this.lastName })
-                    this.$toasted.success('Saved profile data')
+                    this.$toasted.success('Saved profile data.')
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },

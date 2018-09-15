@@ -1,25 +1,32 @@
 <template>
-    <div>
-        <span class="multi-form">If you dont have an account on eJournal, you can create an account below. This account will be linked to your
-        learning environment from then on.</span>
-        <b-row align-h="center">
-            <b-button class="lti-button-option multi-form" @click="showModal('createUserRef')">
-                <icon name="user-plus" scale="1.8"/>
-                <h2 class="lti-button-text">Create account</h2>
-            </b-button>
-        </b-row>
-        <span class="multi-form">If you already have an account on eJournal, and would like to link this account to your
-        learning environment. Please press the button below.</span>
-        <b-row  align-h="center">
-            <b-button class="lti-button-option" @click="showModal('linkUserRef')">
-                <icon name="link" scale="1.8"/>
-                <h2 class="lti-button-text">Link with existing <br/> eJournal account</h2>
-            </b-button>
-        </b-row>
+    <b-row>
+        <b-col md="6">
+            <b-card class="no-hover full-height">
+                <b-button class="add-button full-width" @click="showModal('createUserRef')">
+                    <icon name="user-plus" class="mr-3" scale="1.8"/>
+                    <h2 class="lti-button-text">Register new<br/>eJournal account</h2>
+                </b-button>
+                <hr/>
+                If this is the first time you are here, click the button above to register a new account.
+                This will be linked to your learning environment, allowing you to automatically
+                log in next time around.
+            </b-card>
+        </b-col>
+        <b-col md="6">
+            <b-card class="no-hover full-height">
+                <b-button class="change-button full-width" @click="showModal('linkUserRef')">
+                    <icon name="link" class="mr-3" scale="1.8"/>
+                    <h2 class="lti-button-text">Link to existing<br/>eJournal account</h2>
+                </b-button>
+                <hr/>
+                If you already have an account on eJournal, you can link it to your learning environment
+                by clicking the button above. Existing courses and assignments you participate in remain available.
+            </b-card>
+        </b-col>
 
         <b-modal
             ref="createUserRef"
-            title="Create eJournal account"
+            title="Register new eJournal account"
             size="lg"
             hide-footer>
                 <register-user @handleAction="handleRegistered" :lti="lti"/>
@@ -27,12 +34,12 @@
 
         <b-modal
             ref="linkUserRef"
-            title="Login to link with your learning environment"
+            title="Link to existing eJournal account"
             size="lg"
             hide-footer>
                 <login-form @handleAction="handleLinked"/>
         </b-modal>
-    </div>
+    </b-row>
 </template>
 
 <script>

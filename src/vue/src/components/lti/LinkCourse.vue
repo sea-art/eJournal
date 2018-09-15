@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <b-card class="no-hover">
         <div v-for="c in courses" :key="c.id">
             <main-card
                 @click.native="linkCourse(c.id)"
@@ -7,7 +7,7 @@
                 :line2="c.startdate.substring(0, 4) + '-' + c.enddate.substring(0, 4)">
             </main-card>
         </div>
-    </div>
+    </b-card>
 </template>
 
 <script>

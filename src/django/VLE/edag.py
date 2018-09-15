@@ -36,7 +36,7 @@ def get_nodes(journal, user):
 
     node_dict = []
     for node in get_sorted_nodes(journal):
-        # If there is a progress node upcomming, and there are stackable entries before the deadline
+        # If there is a progress node upcoming, and there are stackable entries before the deadline
         # add an ADDNODE
         if node.type == Node.PROGRESS:
             is_future = (node.preset.deadline - timezone.now()).total_seconds() > 0

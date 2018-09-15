@@ -55,20 +55,22 @@
             size="lg"
             v-model="modalShow"
             hide-footer>
-            <b-form-input
-                @keyup.enter.native="addRole"
-                v-model="newRole"
-                class="multi-form theme-input"
-                ref="roleNameInput"
-                required placeholder="Role name"/>
-            <b-button @click="modalShow = false" class="delete-button float-left">
-                <icon name="ban"/>
-                Cancel
-            </b-button>
-            <b-button @click="addRole" class="add-button float-right">
-                <icon name="user-plus"/>
-                Create new role
-            </b-button>
+            <b-card class="no-hover">
+                <b-form-input
+                    @keyup.enter.native="addRole"
+                    v-model="newRole"
+                    class="multi-form theme-input"
+                    ref="roleNameInput"
+                    required placeholder="Role name"/>
+                <b-button @click="modalShow = false" class="delete-button float-left">
+                    <icon name="ban"/>
+                    Cancel
+                </b-button>
+                <b-button @click="addRole" class="add-button float-right">
+                    <icon name="user-plus"/>
+                    Create new role
+                </b-button>
+            </b-card>
         </b-modal>
     </content-single-table-column>
 </template>

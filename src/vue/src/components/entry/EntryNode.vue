@@ -22,15 +22,15 @@
                 Shows every field description and
                 a corresponding form.
             -->
-            <div v-for="(field, i) in entryNode.entry.template.field_set" :key="field.eID">
-                <div v-if="field.title">
-                    <b>{{ field.title }}</b> <b style="color: red" v-if="field.required">*</b>
-                </div>
+            <div v-for="(field, i) in entryNode.entry.template.field_set" :key="field.eID" class="multi-form">
+                <h2 v-if="field.title" class="field-heading">
+                    {{ field.title }} <span v-if="field.required">*</span>
+                </h2>
 
-                <div v-if="field.type=='t'">
+                <div v-if="field.type == 't'">
                     <b-textarea class="theme-input" v-model="completeContent[i].data"></b-textarea><br>
                 </div>
-                <div v-else-if="field.type=='i'">
+                <div v-else-if="field.type == 'i'">
                     <file-upload-input
                         :placeholder="completeContent[i].data"
                         :acceptedFiletype="'image/*'"
@@ -40,7 +40,7 @@
                         :aID="$route.params.aID"
                     />
                 </div>
-                <div v-else-if="field.type=='f'">
+                <div v-else-if="field.type == 'f'">
                     <file-upload-input
                         :placeholder="completeContent[i].data"
                         :acceptedFiletype="'*/*'"
@@ -55,7 +55,7 @@
                     and because it is not needed to reload the data into the input field upon editing
                     (since it is an entire URL, replacement is preferable over editing).
                 -->
-                <div v-else-if="field.type=='v'">
+                <div v-else-if="field.type == 'v'">
                     <b-input class="theme-input" @input="completeContent[i].data = youtubeEmbedFromURL($event)" placeholder="Enter YouTube URL..."></b-input><br>
                 </div>
                 <div v-else-if="field.type == 'p'">
@@ -71,7 +71,7 @@
                 <div v-else-if="field.type == 'rt'">
                     <text-editor
                         :id="'rich-text-editor-' + i"
-                        :givenContent="completeContent[i].data"
+                        :givenContent="completeContent[i].data ? completeContent[i].data : ''"
                         @content-update="completeContent[i].data = $event"
                     />
                 </div>
@@ -108,27 +108,27 @@
                 Gives a view of every templatefield and
                 if possible the already filled in entry.
             -->
-            <div v-for="(field, i) in entryNode.entry.template.field_set" v-if="field.required || completeContent[i].data" :key="field.id">
-                <div v-if="field.title">
-                    <b>{{ field.title }}</b>
-                </div>
-                <div v-if="field.type=='t'">
+            <div v-for="(field, i) in entryNode.entry.template.field_set" v-if="field.required || completeContent[i].data" :key="field.id" class="multi-form">
+                <h2 v-if="field.title" class="field-heading">
+                    {{ field.title }} <span v-if="field.required">*</span>
+                </h2>
+                <div v-if="field.type == 't'">
                     <span class="show-enters">{{ completeContent[i].data }}</span><br>
                 </div>
-                <div v-else-if="field.type=='i'">
+                <div v-else-if="field.type == 'i'">
                     <image-file-display
                         :id="'entry-' + entryNode.entry.nID + '-field-' + i"
                         :fileName="completeContent[i].data"
                         :authorUID="$parent.journal.student.id"
                     />
                 </div>
-                <div v-else-if="field.type=='f'">
+                <div v-else-if="field.type == 'f'">
                     <file-download-button
                         :fileName="completeContent[i].data"
                         :authorUID="$parent.journal.student.id"
                     />
                 </div>
-                <div v-else-if="field.type=='v'">
+                <div v-else-if="field.type == 'v'">
                     <b-embed type="iframe"
                              aspect="16by9"
                              :src="completeContent[i].data"
@@ -150,6 +150,10 @@
                 <icon name="edit"/>
                 Edit
             </b-button>
+            <b-button v-if="entryNode.entry.editable" class="delete-button float-right mt-2" @click="deleteEntry">
+                <icon name="trash"/>
+                Delete
+            </b-button>
         </b-card>
 
         <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published"/>
@@ -163,8 +167,8 @@ import fileDownloadButton from '@/components/assets/file_handling/FileDownloadBu
 import imageFileDisplay from '@/components/assets/file_handling/ImageFileDisplay.vue'
 import pdfDisplay from '@/components/assets/PdfDisplay.vue'
 import textEditor from '@/components/assets/TextEditor.vue'
-import icon from 'vue-awesome/components/Icon'
 import urlInput from '@/components/assets/UrlInput.vue'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     props: ['entryNode', 'cID'],
@@ -204,6 +208,11 @@ export default {
                 this.saveEditMode = 'Save'
                 this.completeContent = []
                 this.setContent()
+            }
+        },
+        deleteEntry: function () {
+            if (confirm('Are you sure that you want to delete this entry?')) {
+                this.$emit('delete-node', this.tempNode)
             }
         },
         cancel: function () {

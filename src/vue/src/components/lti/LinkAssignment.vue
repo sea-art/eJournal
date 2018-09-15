@@ -1,11 +1,11 @@
 <template>
-    <div>
+    <b-card class="no-hover">
         <div v-for="a in assignments" :key="a.id">
             <assignment-card @click.native="linkAssignment(a.id)" :line1="a.name">
                 <progress-bar v-if="a.journal && a.journal.stats" :currentPoints="a.journal.stats.acquired_points" :totalPoints="a.journal.stats.total_points"></progress-bar>
             </assignment-card>
         </div>
-    </div>
+    </b-card>
 </template>
 
 <script>

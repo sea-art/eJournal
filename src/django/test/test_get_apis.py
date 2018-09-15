@@ -5,10 +5,11 @@ Test the get apis.
 """
 from django.test import TestCase
 
-import VLE.factory as factory
-
-import test.test_utils as test
 from VLE.models import Role
+
+import VLE.factory as factory
+import test.test_utils as test
+import django.utils.timezone as timezone
 
 
 class GetApiTests(TestCase):
@@ -128,7 +129,7 @@ class GetApiTests(TestCase):
 
     def test_get_course_assignments(self):
         """Test the get course assignment function."""
-        course = factory.make_course('Portfolio', 'PAV', author=self.rein)
+        course = factory.make_course('Portfolio', 'PAV', author=self.rein, enddate=timezone.now())
         assigns = test.set_up_assignments('assign', 'desc', 2, course=course)
         test.set_up_participation(self.user, course, 'Student')
         factory.make_journal(assigns[0], self.user)

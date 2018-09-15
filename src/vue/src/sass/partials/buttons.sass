@@ -17,11 +17,13 @@
         margin: 5px
     &.grey-background
         background-color: $theme-light-grey
-    &:hover, &.active
+    &:hover:not(.no-hover), &.active
         background-color: $theme-blue !important
         color: white !important
         svg
             fill: white !important
+    &.no-hover:hover
+        background-color: white
 
 .button-top-border
     border-top: 1px solid $theme-dark-grey
@@ -34,30 +36,35 @@
 
 .add-card
     opacity: 0.5
-    &:hover, &:active
+    &:hover:not(.no-hover), &.active
         opacity: 1
 
 .add-button
     svg
         fill: $theme-green !important
-    &:hover, &:active
+    &:hover:not(.no-hover), &.active
         background-color: $theme-green !important
 
 .delete-button
     svg
         fill: $theme-red !important
-    &:hover, &:active
+    &:hover:not(.no-hover), &.active
         background-color: $theme-red !important
 
 .change-button
     svg
         fill: $theme-orange !important
-    &:hover, &:active
+    &:hover:not(.no-hover), &.active
         background-color: $theme-orange !important
 
-.lti-button-option
-    width: 275px
-    height: 100px
+.preset-type-button
+    width: 75px
+    height: 75px
+    border-radius: 50% !important
+    &.selected
+        background-color: $theme-dark-blue !important
+        svg
+            fill: white !important
 
 .lti-button-text
     font-size: 20px

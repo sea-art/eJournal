@@ -45,6 +45,10 @@ def validate_entry_content(content_list):
             id, data = utils.required_params(content, "id", "data")
         except KeyError as e:
             raise e
+
+        if not data:
+            continue
+
         field = Field.objects.get(pk=id)
 
         if field.type is URL:

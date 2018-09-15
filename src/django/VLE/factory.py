@@ -5,7 +5,7 @@ The facory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
 from VLE.models import User, Participation, Course, Assignment, Role, Format, PresetNode, Node, Comment, \
-    Entry, Template, Field, Content, Journal, UserFile
+    Entry, Template, Field, Content, Journal, UserFile, Group
 import django.utils.timezone as timezone
 
 
@@ -39,15 +39,16 @@ def make_user(username, password, email, lti_id=None, profile_picture=None,
     return user
 
 
-def make_participation(user=None, course=None, role=None):
+def make_participation(user=None, course=None, role=None, group=None):
     """Create a participation.
 
     Arguments:
     user -- user that participates
     course -- course the user participates in
     role -- role the user has on the course
+    group -- group the user belongs to
     """
-    participation = Participation(user=user, course=course, role=role)
+    participation = Participation(user=user, course=course, role=role, group=group)
     participation.save()
     return participation
 
@@ -74,6 +75,19 @@ def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=
     return course
 
 
+def make_course_group(name, course, lti_id=None):
+    """Make a new course group.
+
+    Arguments:
+    name -- name of course group
+    course -- course the group belongs to
+    lti_id -- potential lti_id, this is to link the canvas course to the VLE course.
+    """
+    course_group = Group(name=name, course=course, lti_id=lti_id)
+    course_group.save()
+    return course_group
+
+
 def make_assignment(name, description, author=None, format=None, lti_id=None,
                     points_possible=None, unlock_date=None, due_date=None,
                     lock_date=None, course_ids=None, courses=None):
@@ -90,8 +104,14 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
     On success, returns a new assignment.
     """
     if format is None:
-        format = Format()
-        format.save()
+        # TODO: Use deadline from assignment - currently insane defaults
+        if courses:
+            deadline = courses[0].enddate
+        else:
+            deadline = timezone.now()
+        # END TODO
+
+        format = make_default_format(deadline, points_possible)
     assign = Assignment(name=name, description=description, author=author, format=format)
     assign.save()
     if course_ids:
@@ -127,6 +147,19 @@ def make_format(templates=[], max_points=10):
     format = Format(max_points=max_points)
     format.save()
     format.available_templates.add(*templates)
+    return format
+
+
+def make_default_format(due_date, points_possible):
+    template = make_entry_template("Default Template")
+    make_field(template, "Submission", 0, Field.RICH_TEXT, True)
+
+    if not points_possible:
+        format = make_format([template])
+    else:
+        format = make_format([template], points_possible)
+
+    make_progress_node(format, due_date, format.max_points)
     return format
 
 
@@ -222,13 +255,6 @@ def make_content(entry, data, field=None):
     content = Content(field=field, entry=entry, data=data)
     content.save()
     return content
-
-
-def make_journal_format():
-    """Make a journal format."""
-    journal_format = Format()
-    journal_format.save()
-    return journal_format
 
 
 def make_role_default_no_perms(name, course, can_edit_course_roles=False, can_view_course_participants=False,
