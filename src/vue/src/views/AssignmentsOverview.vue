@@ -3,30 +3,24 @@
         <bread-crumb :currentPage="'Assignments'"></bread-crumb>
 
         <b-card class="no-hover">
-                <b-row>
-                    <b-col sm="12">
-                        <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
-                    </b-col>
-                    <b-col sm="8">
-                        <b-form-select class="multi-form" v-model="selectedSortOption" :select-size="1">
-                           <option>Sort by...</option>
-                           <option value="sortDate">Sort by date</option>
-                           <option value="sortName">Sort by name</option>
-                           <option v-if="$hasPermission('can_add_course')"
-                                   value="sortNeedsMarking">Sort by marking needed</option>
-                        </b-form-select>
-                    </b-col>
-                    <b-col sm="4">
-                        <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button full-width multi-form">
-                            <icon name="long-arrow-down"/>
-                            Ascending
-                        </b-button>
-                        <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="button full-width multi-form">
-                            <icon name="long-arrow-up"/>
-                            Descending
-                        </b-button>
-                    </b-col>
-                </b-row>
+            <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
+            <div class="d-flex">
+                <b-form-select class="multi-form mr-2" v-model="selectedSortOption" :select-size="1">
+                   <option>Sort by...</option>
+                   <option value="sortDate">Sort by date</option>
+                   <option value="sortName">Sort by name</option>
+                   <option v-if="$hasPermission('can_add_course')"
+                           value="sortNeedsMarking">Sort by marking needed</option>
+                </b-form-select>
+                <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button multi-form">
+                    <icon name="long-arrow-down"/>
+                    Ascending
+                </b-button>
+                <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="button multi-form">
+                    <icon name="long-arrow-up"/>
+                    Descending
+                </b-button>
+            </div>
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i">

@@ -106,9 +106,10 @@ class UserView(viewsets.ViewSet):
                 lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
             except jwt.exceptions.ExpiredSignatureError:
                 return response.forbidden(
-                    description='The canvas link has expired, 15 minutes have passed. Please retry from canvas.')
+                    description='Your session has expired. Please go back to your learning environment and try again.')
             except jwt.exceptions.InvalidSignatureError:
-                return response.unauthorized(description='Invalid LTI parameters given. Please retry from canvas.')
+                return response.unauthorized(description='Invalid LTI parameters given. Please go back to your \
+                                             learning environment and try again.')
             lti_id, user_image = utils.optional_params(lti_params, 'user_id', 'user_image')
             is_teacher = json.load(open('config.json'))['Teacher'] in lti_params['roles']
         else:
@@ -121,7 +122,7 @@ class UserView(viewsets.ViewSet):
             return response.keyerror('username', 'password')
 
         if email and User.objects.filter(email=email).exists():
-            return response.bad_request('User with this email address already exists.')
+            return response.bad_request('That email address belongs to another user.')
 
         try:
             validate_email(email)

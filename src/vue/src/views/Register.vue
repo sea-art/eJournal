@@ -6,6 +6,7 @@
         </b-card>
         <b-card v-if="accountCreated" class="blue-border no-hover">
             <b-form @submit.prevent="verifyEmail">
+                <h2 class="field-heading">Email verification token</h2>
                 <b-input class="multi-form theme-input" v-model="emailVerificationToken" required placeholder="Email verification token"/>
                 <b-button class="float-right multi-form add-button" type="submit">
                     <icon name="save"/>

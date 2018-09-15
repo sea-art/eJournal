@@ -6,6 +6,8 @@ import VLE.serializers as serialize
 import VLE.factory as factory
 import test.test_utils as test
 
+import django.utils.timezone as timezone
+
 
 class UpdateApiTests(TestCase):
     def setUp(self):
@@ -14,7 +16,7 @@ class UpdateApiTests(TestCase):
         self.rein_user, self.rein_pass, self.rein = test.set_up_user_and_auth("Rein", "123", 'rr@rr.com')
         self.no_perm_user, self.no_perm_pass, self.no_permission_user = test.set_up_user_and_auth("no_perm", "123",
                                                                                                   'sigh@sigh.com')
-        self.course = factory.make_course("Beeldbewerken", "BB")
+        self.course = factory.make_course("Beeldbewerken", "BB", enddate=timezone.now())
 
     def test_update_course(self):
         """Test update_course"""
@@ -109,6 +111,10 @@ class UpdateApiTests(TestCase):
         login = test.logging_in(self, self.rein_user, self.rein_pass)
 
         update_dict = {
+            'assignment_details': {
+                'name': 'Colloq',
+                'description': 'description1'
+            },
             'max_points': 11,
             'templates': [serialize.TemplateSerializer(template).data
                           for template in format.available_templates.all()],
