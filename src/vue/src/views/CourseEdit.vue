@@ -72,11 +72,11 @@
                         placeholder="Search..."/>
                     <b-button v-if="viewEnrolled" v-on:click.stop @click="toggleEnroled" class="multi-form">
                         <icon name="users"/>
-                        Show enrolled
+                        Enrolled
                     </b-button>
                     <b-button v-if="!viewEnrolled" v-on:click.stop @click="toggleEnroled" class="multi-form">
-                        <icon name="user"/>
-                        Show unenrolled
+                        <icon name="user-plus"/>
+                        Unenrolled
                     </b-button>
                 </div>
                 <div class="d-flex">
@@ -89,7 +89,7 @@
                         <icon name="long-arrow-down"/>
                         Ascending
                     </b-button>
-                    <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="full-width multi-form">
+                    <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="multi-form">
                         <icon name="long-arrow-up"/>
                         Descending
                     </b-button>
