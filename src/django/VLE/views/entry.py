@@ -60,7 +60,7 @@ class EntryView(viewsets.ViewSet):
         except (Journal.DoesNotExist, Template.DoesNotExist):
             return response.not_found('Journal or Template does not exist.')
 
-        if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or \
+        if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or
             (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
            not permissions.has_assignment_permission(request.user, journal.assignment,
                                                      'can_view_assignment_participants'):
@@ -79,7 +79,8 @@ class EntryView(viewsets.ViewSet):
             if node.entry:
                 return response.bad_request('Passed node already contains an entry.')
 
-            if node.preset.deadline < now() or (journal.assignment.due_date and journal.assignment.due_date < datetime.now()):
+            if node.preset.deadline < now() or \
+               (journal.assignment.due_date and journal.assignment.due_date < datetime.now()):
                 return response.bad_request('The deadline has already passed.')
 
             node.entry = factory.make_entry(template)
@@ -155,7 +156,7 @@ class EntryView(viewsets.ViewSet):
            not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_journal_grades'):
             return response.forbidden('You cannot publish entries.')
 
-        if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or \
+        if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or
             (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
            not permissions.has_assignment_permission(request.user, journal.assignment,
                                                      'can_view_assignment_participants'):

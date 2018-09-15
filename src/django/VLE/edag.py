@@ -55,7 +55,7 @@ def get_nodes(journal, user):
         elif node.type == Node.PROGRESS:
             node_dict.append(get_progress(node))
 
-    if can_add and journal.assignment.due_date > datetime.now():
+    if can_add and journal.assignment.due_date and journal.assignment.due_date > datetime.now():
         add_node = get_add_node(journal)
         if add_node:
             node_dict.append(add_node)

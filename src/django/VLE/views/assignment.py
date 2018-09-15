@@ -6,8 +6,6 @@ In this file are all the assignment api requests.
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from datetime import datetime
-
 from VLE.serializers import AssignmentSerializer, JournalSerializer
 from VLE.models import Assignment, Course, Journal
 import VLE.views.responses as response
@@ -103,7 +101,8 @@ class AssignmentView(viewsets.ViewSet):
 
         try:
             name, description, course_id = utils.required_params(request.data, "name", "description", "course_id")
-            points_possible, unlock_date, due_date, lock_date, lti_id = utils.optional_params(request.data, "points_possible", "unlock_date", "due_date", "lock_date", "lti_id")
+            points_possible, unlock_date, due_date, lock_date, lti_id = \
+                utils.optional_params(request.data, "points_possible", "unlock_date", "due_date", "lock_date", "lti_id")
         except KeyError:
             return response.keyerror("name", "description", "course_id")
 

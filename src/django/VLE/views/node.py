@@ -60,7 +60,7 @@ class NodeView(viewsets.ModelViewSet):
                                                       'can_view_assignment_participants'):
             return response.forbidden('You are not allowed to view journals of other participants.')
 
-        if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or \
+        if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or
             (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
            not permissions.has_assignment_permission(request.user, journal.assignment,
                                                      'can_view_assignment_participants'):
