@@ -24,19 +24,19 @@
                 </div>
                 <b-card v-else-if="currentNode === -1" class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                     <h2>{{ assignment.name }}</h2>
-                    <h6>Description</h6>
                     <div v-html="assignment.description"/>
-                    <h6>Unlock date</h6>
-                    {{ $root.beautifyDate(assignment.unlock_date) }}
-                    <b v-if="new Date(assignment.unlock_date) > new Date()">This assignment is locked and will be made available later.</b>
+                    <h6 v-if="assignment.unlock_date">Unlock date</h6>
+                    <p v-if="assignment.unlock_date">{{ $root.beautifyDate(assignment.unlock_date) }}</p>
+                    <b v-if="assignment.unlock_date && new Date(assignment.unlock_date) > new Date()">This assignment is locked and will be made available later.</b>
                 </b-card>
                 <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                     <h2>End of assignment</h2>
-                    <h6>Amount of points possible</h6>
-                    {{ assignment.points_possible }}
-                    <h6>Lock date</h6>
-                    {{ $root.beautifyDate(assignment.lock_date) }}
-                    <b v-if="new Date(assignment.lock_date) < new Date()">This assignment has been locked.</b>
+                    This is the end of the assignment.
+                    <h6 v-if="assignment.points_possible">Amount of points possible</h6>
+                    <p v-if="assignment.points_possible">{{ assignment.points_possible }}</p>
+                    <h6 v-if="assignment.lock_date">Lock date</h6>
+                    <p v-if="assignment.lock_date">{{ $root.beautifyDate(assignment.lock_date) }}</p>
+                    <b v-if="assignment.lock_date && new Date(assignment.lock_date) < new Date()">This assignment has been locked.</b>
                 </b-card>
             </b-col>
         </b-col>
