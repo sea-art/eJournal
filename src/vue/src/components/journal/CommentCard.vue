@@ -141,8 +141,11 @@ export default {
                     published: this.entryGradePublished || !this.publishAfterGrade
                 })
                     .then(comment => {
-                        // TODO Append comment rather than fire a get all entry comments request.
-                        this.getComments()
+                        this.commentObject.push(comment)
+                        for (var i = 0; i < this.commentObject.length; i++) {
+                            this.editCommentStatus.push(false)
+                            this.editCommentTemp.push('')
+                        }
                         this.tempComment = ''
                         this.$refs['comment-text-editor-ref'].clearContent()
                     })
@@ -169,7 +172,17 @@ export default {
             if (confirm('Are you sure you want to delete this comment?')) {
                 commentAPI.delete(cID)
                     // TODO Remove comment locally rather than firing a new request for all entry comments
-                    .then(_ => { this.getComments(this.eID) })
+                    .then(_ => {
+                        for (var i in this.commentObject) {
+                            if (this.commentObject[i].id === cID) {
+                                this.commentObject.splice(i, 1)
+                            }
+                        }
+                        for (_ in this.commentObject) {
+                            this.editCommentStatus.push(false)
+                            this.editCommentTemp.push('')
+                        }
+                    })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         }

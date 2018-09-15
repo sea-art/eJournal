@@ -150,8 +150,6 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class RoleSerializer(serializers.ModelSerializer):
-    # TODO This even adds keys such as 'id', 'name' and 'course', prob not wanted?
-    # Maybe all the permissions in a seperate variable would be nice
     class Meta:
         model = Role
         fields = '__all__'
