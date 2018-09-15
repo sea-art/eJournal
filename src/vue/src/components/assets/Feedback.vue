@@ -94,6 +94,7 @@ export default {
                 data.append('ftype', this.type)
                 data.append('feedback', this.feedback)
                 data.append('user_agent', navigator.userAgent)
+                data.append('url', window.location.href)
                 if (this.files != null) {
                     for (var i = 0; i < this.files.length; i++) {
                         data.append('files', this.files[i])
@@ -106,10 +107,18 @@ export default {
                     })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
 
+                this.resetFeedback()
                 return 'feedbackSent'
             }
 
             return 'feedbackNotSent'
+        },
+        resetFeedback () {
+            this.topic = ''
+            this.type = null
+            this.feedback = ''
+            this.files = null
+            this.$refs.fileinput.reset()
         }
     }
 
