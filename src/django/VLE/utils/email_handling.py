@@ -65,4 +65,4 @@ def send_email_feedback(user, files, topic, ftype, feedback, user_agent, url):
         attachments.append((file.name, file.read(), file.content_type))
 
     EmailMessage(r_subject, r_body, attachments=attachments, to=[user.email]).send()
-    EmailMessage(f_subject, f_body, attachments=attachments, from_email=user.email, to=[EMAIL_HOST_USER]).send()
+    EmailMessage(f_subject, f_body, attachments=attachments, to=[EMAIL_HOST_USER], reply_to=[user.email]).send()
