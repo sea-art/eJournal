@@ -2,18 +2,10 @@
     <b-card class="no-hover">
         <div v-for="a in assignments" :key="a.id">
             <div v-if="a.lti_id">
-                <assignment-card class="orange-border" @click.native="linkAssignment(a.id, a.lti_id)" :line1="a.name">
-                    <progress-bar v-if="a.journal && a.journal.stats"
-                        :currentPoints="a.journal.stats.acquired_points"
-                        :totalPoints="a.journal.stats.total_points"/>
-                </assignment-card>
+                <assignment-card class="orange-border" @click.native="linkAssignment(a.id, a.lti_id)" :line1="a.name"/>
             </div>
             <div v-else>
-                <assignment-card class="green-border" @click.native="linkAssignment(a.id, a.lti_id)" :line1="a.name">
-                    <progress-bar v-if="a.journal && a.journal.stats"
-                        :currentPoints="a.journal.stats.acquired_points"
-                        :totalPoints="a.journal.stats.total_points"/>
-                </assignment-card>
+                <assignment-card class="green-border" @click.native="linkAssignment(a.id, a.lti_id)" :line1="a.name"/>
             </div>
         </div>
     </b-card>
