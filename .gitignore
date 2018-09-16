@@ -1,5 +1,6 @@
 # Ignore user uploaded files
 /src/django/media/*
+/src/django/VLE/settings/email.py
 
 /venv
 /build

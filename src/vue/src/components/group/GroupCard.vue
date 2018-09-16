@@ -1,18 +1,17 @@
 <template>
     <b-card class="no-hover">
         <h2 class="mb-2">Group: {{ groupName }}</h2>
-            <b-form @submit.prevent="updateGroupName">
+            <b-form v-if="$hasPermission('can_edit_course_user_group')" @submit.prevent="updateGroupName">
                 <b-input class="multi-form theme-input" v-model="form.newGroupName" placeholder="Update group name" required/>
                 <b-button class="float-right add-button" type="submit">
                     <icon name="plus-square"/>
                     Update
                 </b-button>
-                <b-button v-if="$hasPermission('can_delete_course')"
-                          class="float-left delete-button"
-                          @click.prevent.stop="removeGroup()">
-                    Remove group
-                </b-button>
             </b-form>
+            <b-button v-if="$hasPermission('can_delete_course_user_group')" class="float-left delete-button" @click.prevent.stop="removeGroup()">
+                <icon name="trash"/>
+                Remove group
+            </b-button>
     </b-card>
 </template>
 

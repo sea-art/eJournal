@@ -10,15 +10,16 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
+from VLE.settings.base import *
+import VLE.settings.email as email_config
+
 SECRET_KEY = '@a4c3cpgfe0@8s!be=23d5+3e30vyj7!q%tolqpewafp^-@=br'
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'ejourn.al.trial@gmail.com'
-EMAIL_HOST_PASSWORD = 'M@@rten1523'
-EMAIL_PORT = 587
-
-from VLE.settings.base import *
+EMAIL_USE_TLS = email_config.EMAIL_USE_TLS
+EMAIL_HOST = email_config.EMAIL_HOST
+EMAIL_HOST_USER = email_config.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = email_config.EMAIL_HOST_PASSWORD
+EMAIL_PORT = email_config.EMAIL_PORT
 
 LTI_SECRET = '4339900ae5861f3086861ea492772864'
 LTI_KEY = '0cd500938a8e7414ccd31899710c98ce'

@@ -56,11 +56,11 @@ class NodeView(viewsets.ModelViewSet):
 
         if journal.user != request.user and \
             not permissions.has_assignment_permission(request.user, journal.assignment,
-                                                      'can_view_assignment_participants'):
+                                                      'can_view_assignment_journals'):
             return response.forbidden('You are not allowed to view journals of other participants.')
 
         can_add = journal.user == request.user
         can_add = can_add and \
-            permissions.has_assignment_permission(request.user, journal.assignment, 'can_edit_journal')
+            permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal')
 
         return response.success({'nodes': edag.get_nodes(journal, request.user)})
