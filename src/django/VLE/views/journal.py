@@ -214,7 +214,7 @@ class JournalView(viewsets.ViewSet):
         try:
             journal = Journal.objects.get(pk=pk)
         except Journal.DoesNotExist:
-            return response.not_found('Course does not exist.')
+            return response.not_found('Journal does not exist.')
 
         role = permissions.get_assignment_id_permissions(request.user, journal.assignment.id)
         if not role:
