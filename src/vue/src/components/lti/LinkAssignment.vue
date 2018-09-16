@@ -2,18 +2,10 @@
     <b-card class="no-hover">
         <div v-for="a in assignments" :key="a.id">
             <div v-if="a.lti_couples">
-                <assignment-card class="orange-border" @click.native="linkAssignment(a.id, a.lti_couples)" :line1="a.name">
-                    <progress-bar v-if="a.journal && a.journal.stats"
-                        :currentPoints="a.journal.stats.acquired_points"
-                        :totalPoints="a.journal.stats.total_points"/>
-                </assignment-card>
+                <assignment-card class="orange-border" @click.native="linkAssignment(a.id, a.lti_couples)" :line1="a.name"/>
             </div>
             <div v-else>
-                <assignment-card class="green-border" @click.native="linkAssignment(a.id, a.lti_couples)" :line1="a.name">
-                    <progress-bar v-if="a.journal && a.journal.stats"
-                        :currentPoints="a.journal.stats.acquired_points"
-                        :totalPoints="a.journal.stats.total_points"/>
-                </assignment-card>
+                <assignment-card class="green-border" @click.native="linkAssignment(a.id, a.lti_couples)" :line1="a.name"/>
             </div>
         </div>
     </b-card>
@@ -44,9 +36,9 @@ export default {
             if (!aLtiCouples || confirm('This assignment is already linked to ' + aLtiCouples + ' other assignment(s) from the learning-environment, are you sure you also want to link it?')) {
                 assignmentAPI.update(aID, {lti_id: this.lti.ltiAssignID,
                     points_possible: this.lti.ltiPointsPossible,
-                    unlock_date: this.lti.ltiAssignUnlock,
-                    due_date: this.lti.ltiAssignDue,
-                    lock_date: this.lti.ltiAssignLock})
+                    unlock_date: this.lti.ltiAssignUnlock ? this.lti.ltiAssignUnlock.slice(0, -6) : null,
+                    due_date: this.lti.ltiAssignDue ? this.lti.ltiAssignDue.slice(0, -6) : null,
+                    lock_date: this.lti.ltiAssignLock ? this.lti.ltiAssignLock.slice(0, -6) : null})
                     .then(assignment => { this.$emit('handleAction', assignment.id) })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }

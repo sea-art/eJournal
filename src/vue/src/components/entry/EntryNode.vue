@@ -65,7 +65,7 @@
                 </div>
                 <div v-else-if="field.type == 'rt'">
                     <text-editor
-                        :id="'rich-text-editor-' + i"
+                        :id="'rich-text-editor-' + i + '-' + entryNode.entry.id"
                         :givenContent="completeContent[i].data ? completeContent[i].data : ''"
                         @content-update="completeContent[i].data = $event"
                     />
@@ -187,6 +187,7 @@ export default {
         entryNode: function () {
             this.completeContent = []
             this.tempNode = this.entryNode
+            this.saveEditMode = 'Edit'
             this.setContent()
         }
     },
