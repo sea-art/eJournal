@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
+from VLE.settings.base import *
 
 from VLE.settings.base import *
 import VLE.settings.email as email_config
