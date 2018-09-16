@@ -149,7 +149,7 @@ class EntryView(viewsets.ViewSet):
         if grade and \
            not permissions.has_assignment_permission(request.user, journal.assignment, 'can_grade'):
             return response.forbidden('You cannot grade or publish entries.')
-        else:
+        elif grade:
             entry.grade = grade
 
         if published is not None and \

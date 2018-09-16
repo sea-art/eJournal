@@ -184,8 +184,13 @@ export default {
                 return this.currentNode
             }
 
+            if (!this.discardChanges()) {
+                return
+            }
+
             if (this.currentNode === -1 || this.currentNode === this.nodes.length ||
-                this.nodes[this.currentNode].type !== 'e' || this.nodes[this.currentNode].type !== 'd') {
+                this.nodes[this.currentNode].type !== 'e' ||
+                this.nodes[this.currentNode].type !== 'd') {
                 this.currentNode = $event
                 return
             }
@@ -196,7 +201,6 @@ export default {
                 }
             }
 
-            this.$refs['entry-template-card'].cancel()
             this.currentNode = $event
         },
         progressPoints (progressNode) {
@@ -284,6 +288,18 @@ export default {
             if (a < b) { return -1 }
             if (a > b) { return 1 }
             return 0
+        },
+        discardChanges () {
+            if (this.currentNode !== -1 && this.currentNode !== this.nodes.length && (this.nodes[this.currentNode].type === 'e' ||
+                (this.nodes[this.currentNode].type === 'd' && this.nodes[this.currentNode].entry !== null))) {
+                if ((this.$refs['entry-template-card'].grade !== this.nodes[this.currentNode].entry.grade ||
+                    this.$refs['entry-template-card'].published !== this.nodes[this.currentNode].entry.published) &&
+                    !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                    return false
+                }
+            }
+
+            return true
         }
     },
     components: {

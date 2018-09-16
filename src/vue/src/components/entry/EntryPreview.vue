@@ -128,6 +128,15 @@ export default {
             } else {
                 return null
             }
+        },
+        checkChanges () {
+            for (var i = 0; i < this.completeContent.length; i++) {
+                if (this.completeContent[i].data !== null && this.completeContent[i].data !== '') {
+                    return true
+                }
+            }
+
+            return false
         }
     },
     components: {
