@@ -139,13 +139,13 @@ class EntryView(viewsets.ViewSet):
 
         journal = entry.node.journal
         if grade and \
-           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_grade_journal'):
+           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_grade'):
             return response.forbidden('You cannot grade or publish entries.')
         else:
             entry.grade = grade
 
         if published is not None and \
-           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_journal_grades'):
+           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_grades'):
             return response.forbidden('You cannot publish entries.')
 
         if published is not None:
@@ -165,7 +165,7 @@ class EntryView(viewsets.ViewSet):
             except KeyError:
                 return response.keyerror('content.id', 'content.data')
 
-            if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_edit_journal'):
+            if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal'):
                 return response.forbidden('You cannot edit entries.')
 
             if entry.grade is not None:

@@ -51,13 +51,13 @@ class UpdateApiTests(TestCase):
         roles = result.json()['roles']
         for role in roles:
             if role['name'] == 'TA2':
-                role['can_grade_journal'] = 1
+                role['can_grade'] = 1
 
         roles.append(serialize.RoleSerializer(factory.make_role_default_no_perms('test_role', self.course)).data)
         test.api_patch_call(self, '/roles/1/', {'roles': roles}, login)
 
         role_test = Role.objects.get(name='TA2', course=self.course)
-        self.assertTrue(role_test.can_grade_journal)
+        self.assertTrue(role_test.can_grade)
         self.assertEquals(Role.objects.filter(name='test_role', course=self.course).count(), 1)
 
     def test_update_course_with_student(self):
@@ -84,7 +84,7 @@ class UpdateApiTests(TestCase):
     def test_update_assignment(self):
         """Test update assignment"""
         teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('Teacher', 'pass', 'teach@teach.com')
-        teacher_role = factory.make_role_default_all_perms("TE", self.course)
+        teacher_role = factory.make_role_teacher("TE", self.course)
 
         factory.make_participation(teacher, self.course, teacher_role)
         assign = test.set_up_assignments('Assign', '', 1, self.course)[0]

@@ -43,7 +43,7 @@ class ParticipationView(viewsets.ViewSet):
         role = permissions.get_role(request.user, course)
         if role is None:
             return response.forbidden('You are not in this course.')
-        elif not role.can_add_course_participants:
+        elif not role.can_add_course_users:
             return response.forbidden('You cannot add participants to this course.')
 
         users = UserSerializer(course.users, context={'course': course}, many=True).data
@@ -88,7 +88,7 @@ class ParticipationView(viewsets.ViewSet):
         role = permissions.get_role(request.user, course)
         if role is None:
             return response.forbidden('You are not in this course.')
-        elif not role.can_add_course_participants:
+        elif not role.can_add_course_users:
             return response.forbidden('You cannot add users to this course.')
 
         if permissions.is_user_in_course(user, course):
@@ -103,7 +103,7 @@ class ParticipationView(viewsets.ViewSet):
 
         assignments = course.assignment_set.all()
         role = permissions.get_role(user, course_id)
-        if role.can_edit_journal:
+        if role.can_have_journal:
             for assignment in assignments:
                 if not Journal.objects.filter(assignment=assignment, user=user).exists():
                     factory.make_journal(assignment, user)
@@ -188,11 +188,11 @@ class ParticipationView(viewsets.ViewSet):
         except (Participation.DoesNotExist, Role.DoesNotExist, Course.DoesNotExist):
             return response.not_found('Participation or Course')
 
-        # Users can only be deleted from the course with can_view_course_participants
+        # Users can only be deleted from the course with can_view_course_users
         role = permissions.get_role(request.user, pk)
         if role is None:
             return response.unauthorized(description="You have no access to this course")
-        elif not role.can_view_course_participants:
+        elif not role.can_view_course_users:
             return response.forbidden(description="You have no permissions to delete this user.")
 
         participation.delete()
@@ -232,7 +232,7 @@ class ParticipationView(viewsets.ViewSet):
         role = permissions.get_role(request.user, course)
         if role is None:
             return response.forbidden('You are not in this course.')
-        elif not role.can_view_course_participants:
+        elif not role.can_view_course_users:
             return response.forbidden('You cannot view participants in this course.')
 
         ids_in_course = course.participation_set.all().values('user__id')
