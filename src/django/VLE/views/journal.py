@@ -4,7 +4,6 @@ journal.py.
 In this file are all the journal api requests.
 """
 from rest_framework import viewsets
-
 from VLE.serializers import JournalSerializer
 from VLE.models import Journal, Assignment
 import VLE.permissions as permissions

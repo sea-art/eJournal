@@ -21,6 +21,7 @@ export default {
         nodeClass () {
             return {
                 'enc-start': this.type === 's',
+                'enc-end': this.type === 'n',
                 'enc-entry': this.type === 'e',
                 'enc-deadline': this.type === 'd',
                 'enc-progress': this.type === 'p',
@@ -44,6 +45,8 @@ export default {
                 return 'plus'
             case 'start':
                 return 'flag'
+            case 'end':
+                return 'flag-checkered'
             }
 
             return 'calendar'
@@ -63,6 +66,7 @@ export default {
             case 'add':
                 return 'Add new entry'
             case 'start':
+            case 'end':
                 return 'Assignment details'
             }
 
@@ -143,6 +147,8 @@ export default {
     &.enc-entry, &.enc-deadline
         background-color: $theme-medium-grey
     &.enc-start
+        background-color: $theme-green
+    &.enc-end
         background-color: $theme-green
     &.enc-add
         background-color: $theme-blue
