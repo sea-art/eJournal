@@ -15,11 +15,11 @@
                 </option>
             </b-form-select>
             <br><br>
-            <entry-preview v-if="selectedTemplate !== null" @content-template="createEntry" :template="selectedTemplate"/>
+            <entry-preview v-if="selectedTemplate !== null" @content-template="createEntry" :template="selectedTemplate" :nodeID="addNode.nID"/>
         </div>
         <div v-else-if="addNode.templates.length === 1">
             <h2 class="mb-2">Selected template</h2>
-            <entry-preview @content-template="createEntry" :template="selectedTemplate"/>
+            <entry-preview @content-template="createEntry" :template="selectedTemplate" :nodeID="addNode.nID"/>
         </div>
     </b-card>
 </template>
