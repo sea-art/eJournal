@@ -22,7 +22,7 @@
                             <entry-node :cID="cID" ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                         </div>
                         <div v-else>
-                            <entry-preview v-if="checkDeadline()" ref="entry-template-card" @content-template="fillDeadline" :template="nodes[currentNode].template" :cID="cID"/>
+                            <entry-preview v-if="checkDeadline()" ref="entry-prev" @content-template="fillDeadline" :template="nodes[currentNode].template" :cID="cID"/>
                             <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                                 <h2 class="mb-2">{{nodes[currentNode].template.name}}</h2>
                                 <b>The deadline has passed. You can not submit an entry anymore.</b>
@@ -30,7 +30,7 @@
                         </div>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'a'">
-                        <add-card @info-entry="addNode" :addNode="nodes[currentNode]"/>
+                        <add-card @info-entry="addNode" ref="add-card-ref" :addNode="nodes[currentNode]"/>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'p'">
                         <b-card class="no-hover" :class="getProgressBorderClass()">
@@ -142,18 +142,42 @@ export default {
                 return this.currentNode
             }
 
-            if (this.currentNode === -1 || this.nodes[this.currentNode].type !== 'e' ||
-                this.nodes[this.currentNode].type !== 'd') {
-                this.currentNode = $event
-                return
-            }
-
-            if (this.$refs['entry-template-card'].saveEditMode === 'Save') {
-                if (!confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+            if (this.currentNode !== -1 && this.nodes[this.currentNode].type === 'd' && this.nodes[this.currentNode].entry === null) {
+                if (this.$refs['entry-prev'].checkChanges() && !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
                     return
                 }
             }
-            this.$refs['entry-template-card'].cancel()
+
+            if (this.currentNode !== -1 && this.nodes[this.currentNode].type === 'd' && this.nodes[this.currentNode].entry !== null) {
+                if (this.$refs['entry-template-card'].saveEditMode === 'Save' && !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                    return
+                }
+            }
+
+            if (this.currentNode !== -1 && this.nodes[this.currentNode].type === 'a') {
+                if (this.$refs['add-card-ref'].checkChanges() && !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                    return
+                }
+            }
+
+            if (this.currentNode !== -1 && this.nodes[this.currentNode].type === 'e') {
+                if (this.$refs['entry-template-card'].saveEditMode === 'Save' && !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                    return
+                }
+            }
+
+            // if (this.currentNode === -1 || (this.nodes[this.currentNode].type !== 'e' &&
+            //     this.nodes[this.currentNode].type !== 'd')) {
+            //     this.currentNode = $event
+            //     return
+            // }
+            //
+            // if (this.nodes[this.currentNode].type !== 'e' && this.$refs['entry-template-card'].saveEditMode === 'Save') {
+            //     if (!confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+            //         return
+            //     }
+            // }
+            // this.$refs['entry-template-card'].cancel()
             this.currentNode = $event
         },
         addNode (infoEntry) {

@@ -268,9 +268,6 @@ export default {
             } else {
                 return null
             }
-        },
-        derp () {
-            console.log('hoooi')
         }
     },
     components: {
