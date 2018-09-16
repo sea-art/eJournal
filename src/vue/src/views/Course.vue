@@ -33,8 +33,7 @@
 
         <h3 slot="right-content-column">To Do</h3>
 
-        <!-- TODO Permission revision should be can_grade -->
-        <b-card v-if="$hasPermission('can_view_assignment_participants')"
+        <b-card v-if="$hasPermission('can_grade')"
                 class="no-hover"
                 slot="right-content-column">
             <b-form-select v-model="selectedSortOption" :select-size="1">
@@ -135,8 +134,7 @@ export default {
                 }
             }
 
-            // TODO Permission revision can_grade
-            if (this.$hasPermission('can_view_assignment_participants', 'assignment', String(aID))) {
+            if (this.$hasPermission('can_grade', 'assignment', String(aID))) {
                 route.name = 'Assignment'
             } else {
                 route.name = 'Journal'

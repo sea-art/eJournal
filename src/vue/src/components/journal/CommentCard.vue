@@ -50,7 +50,7 @@
                 </b-card>
             </div>
         </div>
-        <div v-if="$hasPermission('can_comment_journal')" class="comment-section">
+        <div v-if="$hasPermission('can_comment')" class="comment-section">
             <img class="profile-picture no-hover" :src="$store.getters['user/profilePicture']">
             <b-card class="no-hover new-comment">
                 <text-editor
@@ -61,7 +61,7 @@
                     @content-update="tempComment = $event"
                 />
                 <div class="d-flex full-width justify-content-end align-items-center">
-                    <b-form-checkbox v-if="$hasPermission('can_grade_journal') && !entryGradePublished" v-model="publishAfterGrade">
+                    <b-form-checkbox v-if="$hasPermission('can_grade') && !entryGradePublished" v-model="publishAfterGrade">
                         Publish after grade
                     </b-form-checkbox>
                     <b-button class="send-button mt-2" @click="addComment">

@@ -61,7 +61,7 @@ class AssignmentView(viewsets.ViewSet):
             if role is None:
                 return response.forbidden('You are not in this course.')
 
-            if role.can_grade_journal:
+            if role.can_grade:
                 queryset = course.assignment_set.all()
             else:
                 queryset = Assignment.objects.filter(courses=course, journal__user=request.user)
@@ -119,7 +119,7 @@ class AssignmentView(viewsets.ViewSet):
 
         for user in course.users.all():
             role = permissions.get_role(user, course_id)
-            if role.can_edit_journal:
+            if role.can_have_journal:
                 factory.make_journal(assignment, user)
 
         serializer = AssignmentSerializer(assignment, context={'user': request.user, 'course': course})
@@ -165,7 +165,7 @@ class AssignmentView(viewsets.ViewSet):
         if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
             return response.forbidden("You cannot view this assignment.")
 
-        get_journals = permissions.has_assignment_permission(request.user, assignment, 'can_grade_journal')
+        get_journals = permissions.has_assignment_permission(request.user, assignment, 'can_grade')
         serializer = AssignmentSerializer(
             assignment,
             context={'user': request.user, 'course': course, 'journals': get_journals}
@@ -335,7 +335,7 @@ class AssignmentView(viewsets.ViewSet):
         except Assignment.DoesNotExist:
             return response.not_found('Assignment does not exist.')
 
-        if not permissions.has_assignment_permission(request.user, assign, 'can_publish_journal_grades'):
+        if not permissions.has_assignment_permission(request.user, assign, 'can_publish_grades'):
             return response.forbidden('You cannot publish assignments.')
 
         utils.publish_all_assignment_grades(assign, published)
@@ -350,7 +350,7 @@ class AssignmentView(viewsets.ViewSet):
         return response.success(payload=payload)
 
     def publish(self, request, assignment, published=True):
-        if permissions.has_assignment_permission(request.user, assignment, 'can_publish_journal_grades'):
+        if permissions.has_assignment_permission(request.user, assignment, 'can_publish_grades'):
             utils.publish_all_assignment_grades(assignment, published)
 
             for journal in Journal.objects.filter(assignment=assignment):
