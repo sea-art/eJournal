@@ -63,7 +63,7 @@ class EntryView(viewsets.ViewSet):
         if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or
             (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
            not permissions.has_assignment_permission(request.user, journal.assignment,
-                                                     'can_view_assignment_participants'):
+                                                     'can_view_assignment_journals'):
             return response.bad_request('The assignment is locked and unavailable for students.')
 
         # If node id is passed, the entry should be attached to a pre-existing node (entrydeadline node)
@@ -147,19 +147,19 @@ class EntryView(viewsets.ViewSet):
 
         journal = entry.node.journal
         if grade and \
-           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_grade_journal'):
+           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_grade'):
             return response.forbidden('You cannot grade or publish entries.')
         else:
             entry.grade = grade
 
         if published is not None and \
-           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_journal_grades'):
+           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_grades'):
             return response.forbidden('You cannot publish entries.')
 
         if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or
             (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
            not permissions.has_assignment_permission(request.user, journal.assignment,
-                                                     'can_view_assignment_participants'):
+                                                     'can_view_assignment_journals'):
             return response.bad_request('The assignment is locked and unavailable for students.')
 
         if published is not None:
@@ -179,7 +179,7 @@ class EntryView(viewsets.ViewSet):
             except KeyError:
                 return response.keyerror('content.id', 'content.data')
 
-            if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_edit_journal'):
+            if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal'):
                 return response.forbidden('You cannot edit entries.')
 
             if entry.grade is not None:

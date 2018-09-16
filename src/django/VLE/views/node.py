@@ -57,13 +57,13 @@ class NodeView(viewsets.ModelViewSet):
 
         if journal.user != request.user and \
             not permissions.has_assignment_permission(request.user, journal.assignment,
-                                                      'can_view_assignment_participants'):
+                                                      'can_view_assignment_journals'):
             return response.forbidden('You are not allowed to view journals of other participants.')
 
         if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or
             (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
            not permissions.has_assignment_permission(request.user, journal.assignment,
-                                                     'can_view_assignment_participants'):
+                                                     'can_view_assignment_journals'):
             return response.bad_request('The assignment is locked and unavailable for students.')
 
         return response.success({'nodes': edag.get_nodes(journal, request.user)})

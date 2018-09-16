@@ -56,7 +56,7 @@ export default {
             }
 
             var entry = this.node.entry
-            var isGrader = this.$hasPermission('can_grade_journal')
+            var isGrader = this.$hasPermission('can_grade')
 
             if (entry && entry.published) {
                 return 'graded'

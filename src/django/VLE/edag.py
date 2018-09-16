@@ -34,7 +34,7 @@ def get_nodes(journal, user):
     progress node is in the future and maximally one.
     """
     can_add = journal.user == user
-    can_add = can_add and permissions.has_assignment_permission(user, journal.assignment, 'can_edit_journal')
+    can_add = can_add and permissions.has_assignment_permission(user, journal.assignment, 'can_have_journal')
 
     node_dict = []
     for node in get_sorted_nodes(journal):
