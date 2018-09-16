@@ -304,7 +304,6 @@ class Assignment(models.Model):
         null=True,
         blank=True
     )
-    
     courses = models.ManyToManyField(Course)
 
     format = models.OneToOneField(

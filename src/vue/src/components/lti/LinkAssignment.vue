@@ -40,7 +40,7 @@ export default {
                 .then(assignments => { this.assignments = assignments })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
-        linkAssignment (aID) {
+        linkAssignment (aID, aLTI) {
             if (!aLTI || confirm('This assignment is already linked to another course, are you sure you also want to link it?')) {
 
             }
