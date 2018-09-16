@@ -25,7 +25,3 @@ class CommandsTestCase(TestCase):
     def test_demodb(self):
         """Test demo_db."""
         call_command('demo_db', *self.args, **self.opts)
-
-    def test_randomdb(self):
-        """Test randomo_db."""
-        call_command('random_db', *self.args, **self.opts)

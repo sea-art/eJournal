@@ -1,10 +1,9 @@
 """
-course.py.
+journal.py.
 
-In this file are all the course api requests.
+In this file are all the journal api requests.
 """
 from rest_framework import viewsets
-
 from VLE.serializers import JournalSerializer
 from VLE.models import Journal, Assignment
 import VLE.permissions as permissions
@@ -22,8 +21,6 @@ class JournalView(viewsets.ViewSet):
     GET /journals/<pk> -- gets a specific journal
     POST /journals/ -- create a new journal
     PATCH /journals/<pk> -- partially update an journal
-
-    TODO:
     DEL /journals/<pk> -- delete an journal
     """
 
@@ -118,9 +115,9 @@ class JournalView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not_found -- could not find the course with the given id
+            not_found -- could not find the journal with the given id
             key_error -- missing keys
-            forbidden -- the user is not allowed to create assignments in this course
+            forbidden -- the user is not allowed to create assignments in this journal
 
         On success:
             succes -- with the journal data
@@ -136,7 +133,7 @@ class JournalView(viewsets.ViewSet):
 
         role = permissions.get_assignment_id_permissions(request.user, assignment_id)
         if not role:
-            return response.forbidden("You have no permissions within this course.")
+            return response.forbidden("You have no permissions within this assignment.")
         elif not role["can_have_journal"]:
             return response.forbidden("You have no permissions to create a journal.")
 
@@ -154,7 +151,7 @@ class JournalView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
-            data -- the new data for the course
+            data -- the new data for the journal
         pk -- journal ID
 
         Returns:
@@ -193,6 +190,39 @@ class JournalView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to edit this journal.')
 
         return response.success({'journal': serializer.data})
+
+    def destroy(self, request, *args, **kwargs):
+        """Delete a journal.
+
+        Arguments:
+        request -- request data
+        pk -- journal ID
+
+        Returns:
+        On failure:
+            not found -- when the journal does not exist
+            unauthorized -- when the user is not logged in
+            forbidden -- when the user is not in the journal
+        On success:
+            success -- with a message that the journal was deleted
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+        pk = kwargs.get('pk')
+
+        try:
+            journal = Journal.objects.get(pk=pk)
+        except Journal.DoesNotExist:
+            return response.not_found('Journal does not exist.')
+
+        role = permissions.get_assignment_id_permissions(request.user, journal.assignment.id)
+        if not role:
+            return response.forbidden("You have no permissions within this assignment.")
+        elif not role["can_edit_journal"]:
+            return response.forbidden("You have no permissions to create a journal.")
+
+        journal.delete()
+        return response.success(description='Sucesfully deleted journal.')
 
     def publish(self, request, journal, published=True):
         if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_grades'):

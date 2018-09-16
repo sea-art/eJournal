@@ -121,7 +121,6 @@ class CourseView(viewsets.ViewSet):
             success -- with the new course data
         """
         pk = kwargs.get('pk')
-        # TODO: Check if its a partcipation with the correct rights
         if not request.user.is_authenticated or \
            not request.user.participations.filter(pk=pk):
             return response.unauthorized()
