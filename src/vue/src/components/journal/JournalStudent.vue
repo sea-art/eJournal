@@ -134,6 +134,37 @@ export default {
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
+        discardChanges () {
+            /*  Checks the node and depending of the type of node
+             *  it will look for possible unsaved changes.
+             *  If there are unsaved changes a confirmation will be asked.
+             */
+            if (this.currentNode !== -1 && this.nodes[this.currentNode].type === 'd' && this.nodes[this.currentNode].entry === null) {
+                if (this.$refs['entry-prev'].checkChanges() && !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                    return false
+                }
+            }
+
+            if (this.currentNode !== -1 && this.nodes[this.currentNode].type === 'd' && this.nodes[this.currentNode].entry !== null) {
+                if (this.$refs['entry-template-card'].saveEditMode === 'Save' && !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                    return false
+                }
+            }
+
+            if (this.currentNode !== -1 && this.nodes[this.currentNode].type === 'a') {
+                if (this.$refs['add-card-ref'].checkChanges() && !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                    return false
+                }
+            }
+
+            if (this.currentNode !== -1 && this.nodes[this.currentNode].type === 'e') {
+                if (this.$refs['entry-template-card'].saveEditMode === 'Save' && !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                    return false
+                }
+            }
+
+            return true
+        },
         selectNode ($event) {
             /* Function that prevents you from instant leaving an EntryNode
              * or a DeadlineNode when clicking on a different node in the
@@ -142,43 +173,9 @@ export default {
                 return this.currentNode
             }
 
-            if (this.currentNode !== -1 && this.nodes[this.currentNode].type === 'd' && this.nodes[this.currentNode].entry === null) {
-                if (this.$refs['entry-prev'].checkChanges() && !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
-                    return
-                }
+            if (this.discardChanges()) {
+                this.currentNode = $event
             }
-
-            if (this.currentNode !== -1 && this.nodes[this.currentNode].type === 'd' && this.nodes[this.currentNode].entry !== null) {
-                if (this.$refs['entry-template-card'].saveEditMode === 'Save' && !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
-                    return
-                }
-            }
-
-            if (this.currentNode !== -1 && this.nodes[this.currentNode].type === 'a') {
-                if (this.$refs['add-card-ref'].checkChanges() && !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
-                    return
-                }
-            }
-
-            if (this.currentNode !== -1 && this.nodes[this.currentNode].type === 'e') {
-                if (this.$refs['entry-template-card'].saveEditMode === 'Save' && !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
-                    return
-                }
-            }
-
-            // if (this.currentNode === -1 || (this.nodes[this.currentNode].type !== 'e' &&
-            //     this.nodes[this.currentNode].type !== 'd')) {
-            //     this.currentNode = $event
-            //     return
-            // }
-            //
-            // if (this.nodes[this.currentNode].type !== 'e' && this.$refs['entry-template-card'].saveEditMode === 'Save') {
-            //     if (!confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
-            //         return
-            //     }
-            // }
-            // this.$refs['entry-template-card'].cancel()
-            this.currentNode = $event
         },
         addNode (infoEntry) {
             entryAPI.create({
