@@ -42,11 +42,14 @@ export default {
         },
         linkAssignment (aID, aLTI) {
             if (!aLTI || confirm('This assignment is already linked to another course, are you sure you also want to link it?')) {
-
+                assignmentAPI.update(aID, {lti_id: this.lti.ltiAssignID,
+                    points_possible: this.lti.ltiPointsPossible,
+                    unlock_date: this.lti.ltiAssignUnlock,
+                    due_date: this.lti.ltiAssignDue,
+                    lock_date: this.lti.ltiAssignLock})
+                    .then(assignment => { this.$emit('handleAction', assignment.id) })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
-            assignmentAPI.update(aID, {lti_id: this.lti.ltiAssignID, points_possible: this.lti.ltiPointsPossible})
-                .then(assignment => { this.$emit('handleAction', assignment.id) })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     },
     created () {
