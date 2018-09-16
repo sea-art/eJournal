@@ -68,12 +68,14 @@ class Command(BaseCommand):
 
         self.users = []
         for u in users_examples:
-            self.users.append(factory.make_user(u['username'],
-                                                u['pass'],
-                                                u['email'] if 'email' in u else u['first_name'] + '@eJourn.al',
-                                                is_superuser=u['is_superuser'], is_teacher=u['is_teacher'],
-                                                first_name=u['first_name'], last_name=u['last_name'],
-                                                verified_email=u['verified_email'] if 'verified_email' in u else False))
+            self.users.append(factory.make_user(
+                u['username'],
+                u['pass'],
+                u['email'] if 'email' in u else u['first_name'] + '@eJourn.al',
+                is_superuser=u['is_superuser'], is_teacher=u['is_teacher'],
+                first_name=u['first_name'], last_name=u['last_name'],
+                verified_email=u['verified_email'] if 'verified_email' in u else False)
+            )
 
     def gen_courses(self):
         """Generate courses."""
@@ -223,7 +225,10 @@ class Command(BaseCommand):
         for journal in self.journals:
             for node in journal.node_set.all():
                 if node.type == Node.ENTRYDEADLINE:
-                    entry = factory.make_entry(node.preset.forced_template, faker.date_time_this_month(before_now=True))
+                    entry = factory.make_entry(
+                        node.preset.forced_template,
+                        faker.date_time_this_month(before_now=True)
+                    )
                     entry.late = faker.boolean()
                     entry.grade = random.randint(1, 10)
                     entry.save()

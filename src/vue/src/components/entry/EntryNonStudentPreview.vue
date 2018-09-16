@@ -63,6 +63,12 @@
                     <a :href="completeContent[i].data">{{ completeContent[i].data }}</a>
                 </div>
             </div>
+            <div v-if="entryNode.entry.last_edited">
+                <hr/>
+                <span class="timestamp">
+                    Last edited: {{ $root.beautifyDate(entryNode.entry.last_edited) }}<br/>
+                </span>
+            </div>
         </b-card>
 
         <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published"/>
@@ -178,3 +184,18 @@ export default {
     }
 }
 </script>
+<style lang="sass">
+@import '~sass/modules/colors.sass'
+.timestamp
+    float: right
+    font-family: 'Roboto Condensed', sans-serif
+    color: grey
+    svg
+        fill: grey
+
+hr
+    width: 120%
+    margin-left: -10px !important
+    border-color: $theme-dark-grey
+    margin: 30px 0px 5px 0px
+</style>
