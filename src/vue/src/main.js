@@ -52,6 +52,7 @@ import 'vue-awesome/icons/align-left'
 import 'vue-awesome/icons/long-arrow-up'
 import 'vue-awesome/icons/long-arrow-down'
 import 'vue-awesome/icons/print'
+import 'vue-awesome/icons/cog'
 
 import Toasted from 'vue-toasted'
 

@@ -45,7 +45,7 @@ def names(request, course_id, assignment_id, journal_id):
         if journal_id:
             journal = Journal.objects.get(pk=journal_id)
             if not (journal.user == request.user or permissions.has_assignment_permission(request.user,
-                    journal.assignment, 'can_view_assignment_participants')):
+                    journal.assignment, 'can_view_assignment_journals')):
                 return response.forbidden('You are not allowed to view journals of other participants.')
             result['journal'] = journal.user.first_name + " " + journal.user.last_name
 

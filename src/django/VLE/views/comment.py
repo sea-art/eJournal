@@ -58,11 +58,11 @@ class CommentView(viewsets.ViewSet):
 
         if entry.node.journal.user != request.user and \
            not permissions.has_assignment_permission(
-                request.user, entry.node.journal.assignment, 'can_view_assignment_participants'):
+                request.user, entry.node.journal.assignment, 'can_view_assignment_journals'):
             return response.forbidden('You are not allowed to view journals of other participants.')
 
         if permissions.has_assignment_permission(request.user, entry.node.journal.assignment,
-                                                 'can_grade_journal'):
+                                                 'can_grade'):
             comments = Comment.objects.filter(entry=entry)
         else:
             comments = Comment.objects.filter(entry=entry, published=True)
@@ -104,13 +104,13 @@ class CommentView(viewsets.ViewSet):
         except (Assignment.DoesNotExist, Journal.DoesNotExist, Entry.DoesNotExist):
             return response.not_found('Entry, journal or assignment does not exist.')
 
-        if not permissions.has_assignment_permission(request.user, assignment, 'can_comment_journal') or \
-            not (permissions.has_assignment_permission(request.user, assignment, 'can_grade_journal') or
+        if not permissions.has_assignment_permission(request.user, assignment, 'can_comment') or \
+            not (permissions.has_assignment_permission(request.user, assignment, 'can_grade') or
                  journal.user == request.user):
             return response.forbidden('You are not allowed to comment on this journal')
 
         published = published or not permissions.has_assignment_permission(request.user, assignment,
-                                                                           'can_grade_journal')
+                                                                           'can_grade')
 
         comment = factory.make_comment(entry, request.user, text, published)
         return response.created({'comment': CommentSerializer(comment).data})
@@ -142,7 +142,7 @@ class CommentView(viewsets.ViewSet):
 
         if comment.entry.node.journal.user != request.user and \
            not permissions.has_assignment_permission(
-                request.user, comment.entry.node.journal.assignment, 'can_view_assignment_participants'):
+                request.user, comment.entry.node.journal.assignment, 'can_view_assignment_journals'):
             return response.forbidden('You are not allowed to view journals of other participants.')
 
         serializer = CommentSerializer(comment)
@@ -179,7 +179,7 @@ class CommentView(viewsets.ViewSet):
             return response.not_found('Comment does not exist.')
 
         if not permissions.has_assignment_permission(request.user, comment.entry.node.journal.assignment,
-                                                     'can_comment_journal'):
+                                                     'can_comment'):
             return response.forbidden('You cannot comment on entries.')
 
         req_data = request.data
@@ -218,7 +218,7 @@ class CommentView(viewsets.ViewSet):
         except (Comment.DoesNotExist, User.DoesNotExist):
             return response.not_found('Comment or Author does not exist.')
 
-        if request.user != author and not request.user.is_superuser:
+        if not request.user.is_superuser or request.user is not author:
             return response.forbidden()
 
         Comment.objects.get(id=comment_id).delete()

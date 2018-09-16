@@ -54,7 +54,7 @@ class JournalView(viewsets.ViewSet):
         except Assignment.DoesNotExist:
             return response.not_found('Assignment does not exist.')
 
-        if not permissions.has_assignment_permission(request.user, assignment, 'can_view_assignment_participants'):
+        if not permissions.has_assignment_permission(request.user, assignment, 'can_view_assignment_journals'):
             return response.forbidden('You are not allowed to view assignment participants.')
 
         journals = []
@@ -101,7 +101,7 @@ class JournalView(viewsets.ViewSet):
 
         if journal.user != request.user and \
            not permissions.has_assignment_permission(request.user, journal.assignment,
-                                                     'can_view_assignment_participants'):
+                                                     'can_view_assignment_journals'):
             return response.forbidden('You are not allowed to view this journal.')
 
         serializer = JournalSerializer(journal)
@@ -137,7 +137,7 @@ class JournalView(viewsets.ViewSet):
         role = permissions.get_assignment_id_permissions(request.user, assignment_id)
         if not role:
             return response.forbidden("You have no permissions within this course.")
-        elif not role["can_edit_journal"]:
+        elif not role["can_have_journal"]:
             return response.forbidden("You have no permissions to create a journal.")
 
         try:
@@ -181,7 +181,7 @@ class JournalView(viewsets.ViewSet):
         published, = utils.optional_params(request.data, 'published')
         if published:
             return self.publish(request, journal)
-        if permissions.has_assignment_permission(request.user, journal.assignment, 'can_edit_journal'):
+        if permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal'):
             req_data = request.data
             del req_data['published']
             # TODO Check if a serializer is valid if we add an extra argument (published) to the request data.
@@ -195,7 +195,7 @@ class JournalView(viewsets.ViewSet):
         return response.success({'journal': serializer.data})
 
     def publish(self, request, journal, published=True):
-        if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_journal_grades'):
+        if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_grades'):
             return response.forbidden('You cannot publish assignments.')
 
         utils.publish_all_journal_grades(journal, published)
