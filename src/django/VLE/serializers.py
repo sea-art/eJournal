@@ -144,7 +144,10 @@ class AssignmentSerializer(serializers.ModelSerializer):
         return {
             'name': assignment.name,
             'description': assignment.description,
-            'points_possible': assignment.points_possible
+            'points_possible': assignment.points_possible,
+            'unlock_date': assignment.unlock_date,
+            'due_date': assignment.due_date,
+            'lock_date': assignment.lock_date
         }
 
 

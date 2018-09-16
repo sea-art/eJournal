@@ -67,7 +67,10 @@ export default {
                 ltiCourseStart: '',
                 ltiAssignName: '',
                 ltiAssignID: '',
-                ltiPointsPossible: ''
+                ltiPointsPossible: '',
+                ltiAssignUnlock: '',
+                ltiAssignDue: '',
+                ltiAssignLock: ''
             },
 
             /* Set a dictionary with the variables of the linked page. */
@@ -91,6 +94,9 @@ export default {
                     this.lti.ltiAssignName = response.lti_aName
                     this.lti.ltiAssignID = response.lti_aID
                     this.lti.ltiPointsPossible = response.lti_points_possible
+                    this.lti.ltiAssignUnlock = response.lti_aUnlock
+                    this.lti.ltiAssignDue = response.lti_aDue
+                    this.lti.ltiAssignLock = response.lti_aLock
                     this.page.cID = response.cID
                     this.page.aID = response.aID
                     this.page.jID = response.jID
@@ -110,7 +116,10 @@ export default {
                     description: 'No content.',
                     course_id: this.page.cID,
                     lti_id: this.lti.ltiAssignID,
-                    points_possible: this.lti.ltiPointsPossible
+                    points_possible: this.lti.ltiPointsPossible,
+                    unlock_date: this.lti.ltiAssignUnlock,
+                    due_date: this.lti.ltiAssignDue,
+                    lock_date: this.lti.ltiAssignLock
                 }).then(assignment => {
                     this.page.aID = assignment.id
                     this.updateState(this.states.finish_t)
