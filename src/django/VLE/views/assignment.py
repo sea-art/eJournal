@@ -227,8 +227,6 @@ class AssignmentView(viewsets.ViewSet):
             if 'lti_id' in data:
                 factory.make_lti_ids(lti_id=data['lti_id'], for_model='Assignment', assignment=assignment)
 
-            print(data)
-
             serializer = AssignmentSerializer(assignment, data=data, context={'user': request.user}, partial=True)
             if not serializer.is_valid():
                 response.bad_request()

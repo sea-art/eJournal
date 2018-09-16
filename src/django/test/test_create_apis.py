@@ -4,7 +4,7 @@ test_apis.py.
 Test API calls.
 """
 from django.test import TestCase
-from VLE.models import Course, Assignment, Journal, Entry, Content
+from VLE.models import Journal, Entry, Content, Lti_ids
 
 import VLE.factory as factory
 import test.test_utils as test
@@ -24,7 +24,7 @@ class CreateApiTests(TestCase):
         create_course_dict = {'name': 'Beeldbewerken', 'abbreviation': 'BB', 'lti_id': lti_id}
 
         test.api_post_call(self, '/courses/', params=create_course_dict, login=login, status=201)
-        self.assertEquals(Course.objects.get(lti_id=lti_id).name, 'Beeldbewerken')
+        self.assertEquals(Lti_ids.objects.get(lti_id=lti_id).course.name, 'Beeldbewerken')
 
     def test_create_new_assignment(self):
         """test create new assignment."""
@@ -43,7 +43,7 @@ class CreateApiTests(TestCase):
         }
 
         test.api_post_call(self, '/assignments/', params=create_assign_dict, login=login, status=201)
-        self.assertEquals(Assignment.objects.get(lti_id=lti_id).name, 'SIFT')
+        self.assertEquals(Lti_ids.objects.get(lti_id=lti_id).assignment.name, 'SIFT')
 
     def test_create_journal(self):
         """test create journal."""
