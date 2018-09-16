@@ -449,7 +449,7 @@ class Entry(models.Model):
     createdate = models.DateTimeField(
         default=now,
     )
-    grade = models.IntegerField(
+    grade = models.FloatField(
         default=None,
         null=True,
     )

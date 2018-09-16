@@ -17,7 +17,7 @@
                     <icon name="hourglass-half"/>
                 </span>
             </div>
-            <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
+            <h2 class="mb-2">{{ entryNode.entry.template.name }}</h2>
             <!--
                 Shows every field description and
                 a corresponding form.

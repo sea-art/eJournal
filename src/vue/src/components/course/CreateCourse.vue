@@ -31,7 +31,7 @@
 import courseAPI from '@/api/course'
 import icon from 'vue-awesome/components/Icon'
 import genericUtils from '@/utils/generic_utils.js'
-import roleAPI from '@/api/role.js'
+import commonAPI from '@/api/common'
 
 export default {
     name: 'CreateCourse',
@@ -52,7 +52,7 @@ export default {
             courseAPI.create(this.form)
                 .then(course => {
                     if (!this.lti) { // If we are here via LTI a full store update will take place anyway.
-                        roleAPI.getFromCourse(course.id).then(coursePermissions => {
+                        commonAPI.getPermissions(course.id).then(coursePermissions => {
                             this.$store.commit('user/UPDATE_PERMISSIONS', { permissions: coursePermissions, key: 'course' + course.id })
                         })
                     }

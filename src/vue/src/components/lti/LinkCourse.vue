@@ -1,11 +1,20 @@
 <template>
     <div>
         <div v-for="c in courses" :key="c.id">
-            <main-card
-                @click.native="linkCourse(c.id)"
-                :line1="c.name"
-                :line2="c.startdate.substring(0, 4) + '-' + c.enddate.substring(0, 4)">
-            </main-card>
+            <div v-if="c.lti_id">
+                <main-card
+                    class="orange-border"
+                    @click.native="linkCourse(c)"
+                    :line1="c.name"
+                    :line2="c.startdate.substring(0, 4) + '-' + c.enddate.substring(0, 4)"/>
+            </div>
+            <div v-else>
+                <main-card
+                    class="green-border"
+                    @click.native="linkCourse(c)"
+                    :line1="c.name"
+                    :line2="c.startdate.substring(0, 4) + '-' + c.enddate.substring(0, 4)"/>
+            </div>
         </div>
     </div>
 </template>
@@ -21,10 +30,12 @@ export default {
         'main-card': mainCard
     },
     methods: {
-        linkCourse (cID) {
-            courseAPI.update(cID, {lti_id: this.lti.ltiCourseID})
-                .then(course => { this.$emit('handleAction', course.id) })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
+        linkCourse (c) {
+            if (!c.lti_id || confirm('This course is already linked to another course from the learning-environment, are you sure you also want to link it?')) {
+                courseAPI.update(c.id, {lti_id: this.lti.ltiCourseID})
+                    .then(course => { this.$emit('handleAction', course.id) })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
+            }
         }
     }
 }
