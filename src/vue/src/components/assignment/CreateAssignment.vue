@@ -3,43 +3,46 @@
         <!-- TODO: Create default formats. -->
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
             <h2 class="field-heading">Assignment Name</h2>
-            <b-input
-                class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+            <b-input class="multi-form theme-input"
                 v-model="form.assignmentName"
                 placeholder="Assignment name"
                 required
             />
             <h2 class="field-heading">Description</h2>
-            <text-editor
+            <text-editor class="multi-form"
                 :id="'text-editor-assignment-description'"
                 :givenContent="'Description of the assignment'"
                 @content-update="form.assignmentDescription = $event"
                 :footer="false"
             />
             <h2 class="field-heading">Points possible</h2>
-            <b-input
-                class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                v-model="form.pointsPossible"
-                placeholder="Points"
-                type="number"/>
-            <h2 class="field-heading">Unlock date</h2>
-            <b-input
-                class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input full-width"
-                 :value="form.unlockDate && form.unlockDate.replace(' ', 'T')"
-                 @input="form.unlockDate = $event && $event.replace('T', ' ')"
-                 type="datetime-local"/>
-            <h2 class="field-heading">Due date</h2>
-            <b-input
-                class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input full-width"
-                :value="form.dueDate && form.dueDate.replace(' ', 'T')"
-                @input="form.dueDate = $event && $event.replace('T', ' ')"
-                type="datetime-local"/>
-            <h2 class="field-heading">Lock date</h2>
-            <b-input
-                class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input full-width"
-                :value="form.lockDate && form.lockDate.replace(' ', 'T')"
-                @input="form.lockDate = $event && $event.replace('T', ' ')"
-                type="datetime-local"/>
+            <b-input class="multi-form theme-input"
+            v-model="form.pointsPossible"
+            placeholder="Points"
+            type="number"/>
+            <b-row>
+                <b-col xl="4">
+                    <h2 class="field-heading">Unlock date</h2>
+                    <b-input class="multi-form theme-input"
+                    :value="form.unlockDate && form.unlockDate.replace(' ', 'T')"
+                    @input="form.unlockDate = $event && $event.replace('T', ' ')"
+                    type="datetime-local"/>
+                </b-col>
+                <b-col xl="4">
+                    <h2 class="field-heading">Due date</h2>
+                    <b-input class="multi-form theme-input"
+                    :value="form.dueDate && form.dueDate.replace(' ', 'T')"
+                    @input="form.dueDate = $event && $event.replace('T', ' ')"
+                    type="datetime-local"/>
+                </b-col>
+                <b-col xl="4">
+                    <h2 class="field-heading">Lock date</h2>
+                    <b-input class="multi-form theme-input"
+                    :value="form.lockDate && form.lockDate.replace(' ', 'T')"
+                    @input="form.lockDate = $event && $event.replace('T', ' ')"
+                    type="datetime-local"/>
+                </b-col>
+            </b-row>
             <b-button class="float-left change-button mt-2" type="reset">
                 <icon name="undo"/>
                 Reset

@@ -22,24 +22,8 @@
                         </b-card>
                     </div>
                 </div>
-                <b-card v-else-if="currentNode === -1" class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-                    <h2>{{ assignment.name }}</h2>
-                    <div v-html="assignment.description"/>
-                    <h6 v-if="assignment.unlock_date">Unlock date</h6>
-                    <p v-if="assignment.unlock_date">{{ $root.beautifyDate(assignment.unlock_date) }}</p>
-                    <b v-if="assignment.unlock_date && new Date(assignment.unlock_date) > new Date()">This assignment is locked and will be made available later.</b>
-                </b-card>
-                <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-                    <h2>End of assignment</h2>
-                    <p>This is the end of the assignment.</p>
-                    <h6 v-if="assignment.due_date">Due date</h6>
-                    <p v-if="assignment.due_date">{{ $root.beautifyDate(assignment.due_date) }}</p>
-                    <h6 v-if="assignment.points_possible">Amount of points possible</h6>
-                    <p v-if="assignment.points_possible">{{ assignment.points_possible }}</p>
-                    <h6 v-if="assignment.lock_date">Lock date</h6>
-                    <p v-if="assignment.lock_date">{{ $root.beautifyDate(assignment.lock_date) }}</p>
-                    <b v-if="assignment.lock_date && new Date(assignment.lock_date) < new Date()">This assignment has been locked.</b>
-                </b-card>
+                <journal-start-card v-else-if="currentNode === -1" :assignment="assignment"/>
+                <journal-end-card v-else :assignment="assignment"/>
             </b-col>
         </b-col>
 
@@ -96,6 +80,8 @@ import edag from '@/components/edag/Edag.vue'
 import studentCard from '@/components/assignment/StudentCard.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import journalStartCard from '@/components/journal/JournalStartCard.vue'
+import journalEndCard from '@/components/journal/JournalEndCard.vue'
 
 import icon from 'vue-awesome/components/Icon'
 import store from '@/Store.vue'
@@ -309,7 +295,9 @@ export default {
         store,
         'student-card': studentCard,
         icon,
-        'progress-bar': progressBar
+        'progress-bar': progressBar,
+        'journal-start-card': journalStartCard,
+        'journal-end-card': journalEndCard
     },
     computed: {
         filteredJournals: function () {
