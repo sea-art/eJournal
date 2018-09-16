@@ -12,9 +12,6 @@
             <div class="ml-2 btn float-right multi-form shadow no-hover" v-if="entryNode.entry.published">
                 {{ entryNode.entry.grade }}
             </div>
-            <div class="ml-2 btn float-right multi-form shadow no-hover" v-else>
-                &nbsp;<icon name="hourglass-half"/>&nbsp;
-            </div>
             <h2 class="mb-2">{{ entryNode.entry.template.name }}</h2>
             <!--
                 Shows every field description and
@@ -93,11 +90,11 @@
         </b-card>
         <!-- Overview mode. -->
         <b-card v-else class="entry-card no-hover" :class="$root.getBorderClass(cID)">
-            <div class="ml-2 btn float-right multi-form shadow no-hover" v-if="entryNode.entry.published">
-                {{ entryNode.entry.grade }}
+            <div class="ml-2 grade-section shadow" v-if="entryNode.entry.published">
+                <span class="grade">{{ entryNode.entry.grade }}</span>
             </div>
-            <div class="ml-2 btn float-right multi-form shadow no-hover" v-else>
-                &nbsp;<icon name="hourglass-half"/>&nbsp;
+            <div class="ml-2 grade-section shadow" v-else-if="!entryNode.entry.editable">
+                <icon name="hourglass-half"/>
             </div>
             <b-button v-if="entryNode.entry.editable" class="ml-2 delete-button float-right multi-form" @click="deleteEntry">
                 <icon name="trash"/>
