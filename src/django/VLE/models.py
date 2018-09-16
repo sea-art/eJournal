@@ -207,7 +207,7 @@ class Role(models.Model):
             raise ValidationError('A user needs to view course users in order to remove them.')
 
         if self.can_edit_course_user_group and not self.can_view_course_users:
-            raise ValidationError('A user needs to view course users in to manage user groups.')
+            raise ValidationError('A user needs to view course users in order to manage user groups.')
 
         if self.can_view_assignment_journals and self.can_have_journal:
             raise ValidationError('An administrative user is not allowed to have a journal in the same course.')
