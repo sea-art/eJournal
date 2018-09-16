@@ -5,7 +5,7 @@ The facory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
 from VLE.models import User, Participation, Course, Assignment, Role, Format, PresetNode, Node, Comment, \
-    Entry, Template, Field, Content, Journal, UserFile
+    Entry, Template, Field, Content, Journal, UserFile, Lti_ids
 import django.utils.timezone as timezone
 
 
@@ -62,8 +62,12 @@ def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=
     author -- author of the course, this will also get the teacher role as participation
     lti_id -- potential lti_id, this is to link the canvas course to the VLE course.
     """
-    course = Course(name=name, abbreviation=abbrev, startdate=startdate, enddate=enddate, author=author, lti_id=lti_id)
+    course = Course(name=name, abbreviation=abbrev, startdate=startdate, enddate=enddate,
+                    author=author)
     course.save()
+
+    if lti_id is not None:
+        make_lti_ids(lti_id=lti_id, for_model='Course', course=course)
 
     # Student, TA and Teacher role are created on course creation as is saves check for lti.
     make_role_student("Student", course)
@@ -100,12 +104,18 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
         for course in courses:
             assign.courses.add(course)
     if lti_id is not None:
-        assign.lti_id = lti_id
+        make_lti_ids(lti_id=lti_id, for_model='Assignment', assignment=assign)
     if points_possible is not None:
         assign.points_possible = points_possible
     assign.save()
 
     return assign
+
+
+def make_lti_ids(lti_id, for_model, course=None, assignment=None):
+    lti_id_couple = Lti_ids(lti_id=lti_id, for_model=for_model, assignment=assignment, course=course)
+    lti_id_couple.save()
+    return lti_id_couple
 
 
 def make_format(templates=[], max_points=10):

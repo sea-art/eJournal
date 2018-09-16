@@ -2,7 +2,7 @@ from django.conf import settings
 import oauth2
 """Package for oauth authentication in python"""
 
-from VLE.models import User, Course, Assignment, Role, Journal
+from VLE.models import User, Course, Assignment, Role, Journal, Lti_ids
 import VLE.factory as factory
 
 
@@ -113,10 +113,10 @@ def create_lti_query_link(names, values):
 def check_course_lti(request, user, role):
     """Check is an course with the lti_id exists"""
     course_id = request['custom_course_id']
-    courses = Course.objects.filter(lti_id=course_id)
+    courses = Lti_ids.objects.filter(lti_id=course_id, for_model='Course')
 
     if courses.count() > 0:
-        course = courses[0]
+        course = courses[0].course
         if user not in course.users.all():
             factory.make_participation(user, course, Role.objects.get(name=role, course=course))
         return course
@@ -126,9 +126,9 @@ def check_course_lti(request, user, role):
 def check_assignment_lti(request):
     """Check is an assignment with the lti_id exists"""
     assign_id = request['custom_assignment_id']
-    assignments = Assignment.objects.filter(lti_id=assign_id)
+    assignments = Lti_ids.objects.filter(lti_id=assign_id, for_model='Assignment')
     if assignments.count() > 0:
-        return assignments[0]
+        return assignments[0].assignment
     return None
 
 

@@ -137,7 +137,11 @@ class CourseView(viewsets.ViewSet):
         elif not role.can_edit_course:
             return response.unauthorized('You are unauthorized to edit this course.')
 
-        serializer = self.serializer_class(course, data=request.data, partial=True)
+        data = request.data
+        if 'lti_id' in data:
+            factory.make_lti_ids(lti_id=data['lti_id'], for_model='Course', course=course)
+
+        serializer = self.serializer_class(course, data=data, partial=True)
         if not serializer.is_valid():
             response.bad_request()
         serializer.save()
@@ -201,8 +205,7 @@ class CourseView(viewsets.ViewSet):
             return response.forbidden("You are not allowed to link courses.")
 
         unlinked_courses = Course.objects.filter(participation__user=request.user.id,
-                                                 participation__role__can_edit_course=True,
-                                                 lti_id=None)
+                                                 participation__role__can_edit_course=True)
         serializer = serialize.CourseSerializer(unlinked_courses, many=True)
         return response.success({'courses': serializer.data})
 
