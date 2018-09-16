@@ -156,7 +156,7 @@ class AssignmentView(viewsets.ViewSet):
                 assignment = Lti_ids.objects.filter(lti_id=pk, for_model='Assignment')[0].assignment
             else:
                 assignment = Assignment.objects.get(pk=pk)
-        except Assignment.DoesNotExist or IndexError:
+        except (Assignment.DoesNotExist, IndexError):
             return response.not_found('Assignment does not exist.')
 
         if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
