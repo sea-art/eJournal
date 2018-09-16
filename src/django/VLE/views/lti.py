@@ -59,9 +59,9 @@ def get_lti_params_from_jwt(request, jwt_params):
             payload['lti_course_start'] = lti_params['custom_course_start']
             payload['lti_aName'] = lti_params['custom_assignment_title']
             payload['lti_aID'] = lti_params['custom_assignment_id']
-            payload['lti_aLock'] = lti_params['custom_assignment_lock']
-            payload['lti_aDue'] = lti_params['custom_assignment_due']
             payload['lti_aUnlock'] = lti_params['custom_assignment_unlock']
+            payload['lti_aDue'] = lti_params['custom_assignment_due']
+            payload['lti_aLock'] = lti_params['custom_assignment_lock']
             payload['lti_points_possible'] = lti_params['custom_assignment_points']
 
             return response.success({'params': payload})
@@ -76,9 +76,9 @@ def get_lti_params_from_jwt(request, jwt_params):
             payload['cID'] = course.pk
             payload['lti_aName'] = lti_params['custom_assignment_title']
             payload['lti_aID'] = lti_params['custom_assignment_id']
-            payload['lti_aLock'] = lti_params['custom_assignment_lock']
-            payload['lti_aDue'] = lti_params['custom_assignment_due']
             payload['lti_aUnlock'] = lti_params['custom_assignment_unlock']
+            payload['lti_aDue'] = lti_params['custom_assignment_due']
+            payload['lti_aLock'] = lti_params['custom_assignment_lock']
             payload['lti_points_possible'] = lti_params['custom_assignment_points']
 
             return response.success({'params': payload})
