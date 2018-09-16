@@ -48,7 +48,7 @@ class GroupView(viewsets.ViewSet):
         role = permissions.get_role(request.user, course)
         if role is None:
             return response.forbidden('You are not in this course.')
-        if not role.can_edit_course:
+        if not role.can_edit_course_details:
             return response.forbidden('You are not allowed to view the groups.')
 
         queryset = Group.objects.filter(course=course)
@@ -83,7 +83,7 @@ class GroupView(viewsets.ViewSet):
 
         # TODO Look for which permission check is better
         role = permissions.get_role(user, course_id)
-        if not role.can_edit_course:
+        if not role.can_edit_course_details:
             return response.forbidden("You have no permissions to create a course group.")
 
         try:
@@ -134,7 +134,7 @@ class GroupView(viewsets.ViewSet):
         role = permissions.get_role(request.user, course)
         if role is None:
             return response.forbidden('You are not a participant of this course.')
-        elif not role.can_edit_course:
+        elif not role.can_edit_course_details:
             return response.unauthorized('You are unauthorized to edit this course group.')
 
         if not new_group_name:
