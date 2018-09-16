@@ -5,7 +5,7 @@ The facory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
 from VLE.models import User, Participation, Course, Assignment, Role, Format, PresetNode, Node, Comment, \
-    Entry, Template, Field, Content, Journal, UserFile, Lti_ids
+    Entry, Template, Field, Content, Journal, UserFile, Group, Lti_ids
 import django.utils.timezone as timezone
 
 
@@ -39,15 +39,16 @@ def make_user(username, password, email, lti_id=None, profile_picture=None,
     return user
 
 
-def make_participation(user=None, course=None, role=None):
+def make_participation(user=None, course=None, role=None, group=None):
     """Create a participation.
 
     Arguments:
     user -- user that participates
     course -- course the user participates in
     role -- role the user has on the course
+    group -- group the user belongs to
     """
-    participation = Participation(user=user, course=course, role=role)
+    participation = Participation(user=user, course=course, role=role, group=group)
     participation.save()
     return participation
 
@@ -78,6 +79,19 @@ def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=
     return course
 
 
+def make_course_group(name, course, lti_id=None):
+    """Make a new course group.
+
+    Arguments:
+    name -- name of course group
+    course -- course the group belongs to
+    lti_id -- potential lti_id, this is to link the canvas course to the VLE course.
+    """
+    course_group = Group(name=name, course=course, lti_id=lti_id)
+    course_group.save()
+    return course_group
+
+
 def make_assignment(name, description, author=None, format=None, lti_id=None,
                     points_possible=None, course_ids=None, courses=None):
     """Make a new assignment.
@@ -93,8 +107,14 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
     On success, returns a new assignment.
     """
     if format is None:
-        format = Format()
-        format.save()
+        # TODO: Use deadline from assignment - currently insane defaults
+        if courses:
+            deadline = courses[0].enddate
+        else:
+            deadline = timezone.now()
+        # END TODO
+
+        format = make_default_format(deadline, points_possible)
     assign = Assignment(name=name, description=description, author=author, format=format)
     assign.save()
     if course_ids:
@@ -130,6 +150,19 @@ def make_format(templates=[], max_points=10):
     format = Format(max_points=max_points)
     format.save()
     format.available_templates.add(*templates)
+    return format
+
+
+def make_default_format(due_date, points_possible):
+    template = make_entry_template("Default Template")
+    make_field(template, "Submission", 0, Field.RICH_TEXT, True)
+
+    if not points_possible:
+        format = make_format([template])
+    else:
+        format = make_format([template], points_possible)
+
+    make_progress_node(format, due_date, format.max_points)
     return format
 
 
@@ -227,25 +260,14 @@ def make_content(entry, data, field=None):
     return content
 
 
-def make_journal_format():
-    """Make a journal format."""
-    journal_format = Format()
-    journal_format.save()
-    return journal_format
-
-
-def make_role_default_no_perms(name, course, can_edit_course_roles=False, can_view_course_participants=False,
-                               can_add_course_participants=False,
-                               can_edit_course=False, can_delete_course=False,
-                               can_add_assignment=False, can_edit_assignment=False,
-                               can_view_assignment_participants=False,
-                               can_delete_assignment=False, can_publish_assignment_grades=False,
-                               can_grade_journal=False, can_publish_journal_grades=False,
-                               can_edit_journal=False, can_comment_journal=False):
-    """Make a role using the given permissions.
-
-    A complete overview of the role requirements can be found here:
-    https://docs.google.com/spreadsheets/d/1M7KnEKL3cG9PMWfQi9HIpRJ5xUMou4Y2plnRgke--Tk
+def make_role_default_no_perms(name, course, can_add_course=False,
+                               can_edit_course_details=False, can_delete_course=False, can_edit_course_roles=False,
+                               can_view_course_users=False, can_add_course_users=False, can_delete_course_users=False,
+                               can_add_course_user_group=False, can_delete_course_user_group=False,
+                               can_edit_course_user_group=False, can_add_assignment=False, can_delete_assignment=False,
+                               can_edit_assignment=False, can_view_assignment_journals=False, can_grade=False,
+                               can_publish_grades=False, can_have_journal=False, can_comment=False):
+    """Make a role with all permissions set to false.
 
     Arguments:
     name -- name of the role (needs to be unique)
@@ -255,72 +277,69 @@ def make_role_default_no_perms(name, course, can_edit_course_roles=False, can_vi
         name=name,
         course=course,
 
-        can_edit_course_roles=can_edit_course_roles,
-        can_view_course_participants=can_view_course_participants,
-        can_add_course_participants=can_add_course_participants,
-        can_edit_course=can_edit_course,
+        can_add_course=can_add_course,
+
+        can_edit_course_details=can_edit_course_details,
         can_delete_course=can_delete_course,
-
+        can_edit_course_roles=can_edit_course_roles,
+        can_view_course_users=can_view_course_users,
+        can_add_course_users=can_add_course_users,
+        can_delete_course_users=can_delete_course_users,
+        can_add_course_user_group=can_add_course_user_group,
+        can_delete_course_user_group=can_delete_course_user_group,
+        can_edit_course_user_group=can_edit_course_user_group,
         can_add_assignment=can_add_assignment,
-        can_edit_assignment=can_edit_assignment,
-        can_view_assignment_participants=can_view_assignment_participants,
         can_delete_assignment=can_delete_assignment,
-        can_publish_assignment_grades=can_publish_assignment_grades,
 
-        can_grade_journal=can_grade_journal,
-        can_publish_journal_grades=can_publish_journal_grades,
-        can_edit_journal=can_edit_journal,
-        can_comment_journal=can_comment_journal
+        can_edit_assignment=can_edit_assignment,
+        can_view_assignment_journals=can_view_assignment_journals,
+        can_grade=can_grade,
+        can_publish_grades=can_publish_grades,
+        can_have_journal=can_have_journal,
+        can_comment=can_comment
     )
     role.save()
     return role
 
 
-def make_role_default_all_perms(name, course, can_edit_course_roles=True, can_view_course_participants=True,
-                                can_add_course_participants=True,
-                                can_edit_course=True, can_delete_course=True,
-                                can_add_assignment=True, can_edit_assignment=True,
-                                can_view_assignment_participants=True,
-                                can_delete_assignment=True, can_publish_assignment_grades=True,
-                                can_grade_journal=True, can_publish_journal_grades=True,
-                                can_edit_journal=True, can_comment_journal=True):
-    """Make a role where at default all permissions are given.
-
-    This enables a participant of the course to do everything within that course.
-    This should not be confused with the global roles: these also have effect
-    outside of the course.
-    """
-    return make_role_default_no_perms(name, course, can_edit_course_roles, can_view_course_participants,
-                                      can_add_course_participants,
-                                      can_edit_course, can_delete_course,
-                                      can_add_assignment, can_edit_assignment, can_view_assignment_participants,
-                                      can_delete_assignment, can_publish_assignment_grades,
-                                      can_grade_journal, can_publish_journal_grades,
-                                      can_edit_journal, can_comment_journal)
+def make_role_default_all_perms(name, course, can_add_course=True,
+                                can_edit_course_details=True, can_delete_course=True, can_edit_course_roles=True,
+                                can_view_course_users=True, can_add_course_users=True, can_delete_course_users=True,
+                                can_add_course_user_group=True, can_delete_course_user_group=True,
+                                can_edit_course_user_group=True, can_add_assignment=True, can_delete_assignment=True,
+                                can_edit_assignment=True, can_view_assignment_journals=True, can_grade=True,
+                                can_publish_grades=True, can_have_journal=True, can_comment=True):
+    """Makes a role with all permissions set to true."""
+    return make_role_default_no_perms(name, course, can_add_course,
+                                      can_edit_course_details, can_delete_course, can_edit_course_roles,
+                                      can_view_course_users, can_add_course_users, can_delete_course_users,
+                                      can_add_course_user_group, can_delete_course_user_group,
+                                      can_edit_course_user_group, can_add_assignment, can_delete_assignment,
+                                      can_edit_assignment, can_view_assignment_journals, can_grade, can_publish_grades,
+                                      can_have_journal, can_comment)
 
 
 def make_role_student(name, course):
     """Make a default student role."""
-    return make_role_default_no_perms(name, course, can_edit_journal=True, can_comment_journal=True)
+    return make_role_default_no_perms(name, course, can_have_journal=True, can_comment=True)
 
 
 def make_role_ta(name, course):
     """Make a default teacher assitant role."""
-    return make_role_default_no_perms(name, course, can_view_course_participants=True,
-                                      can_view_assignment_participants=True, can_grade_journal=True,
-                                      can_publish_journal_grades=True, can_comment_journal=True,
-                                      can_edit_assignment=True)
+    return make_role_default_no_perms(name, course, can_view_course_users=True, can_edit_course_user_group=True,
+                                      can_view_assignment_journals=True, can_grade=True, can_publish_grades=True,
+                                      can_comment=True)
 
 
 def make_role_observer(name, course):
     """"Make a default observer role."""
-    return make_role_default_no_perms(name, course, can_view_course_participants=True,
-                                      can_view_assignment_participants=True)
+    return make_role_default_no_perms(name, course, can_view_course_users=True,
+                                      can_view_assignment_journals=True)
 
 
 def make_role_teacher(name, course):
     """Make a default teacher role."""
-    return make_role_default_all_perms(name, course, can_edit_journal=False)
+    return make_role_default_all_perms(name, course, can_have_journal=False)
 
 
 def make_comment(entry, author, text, published):

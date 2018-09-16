@@ -24,7 +24,7 @@ class AssignmentView(viewsets.ViewSet):
     GET /assignments/<pk> -- gets a specific assignment
     PATCH /assignments/<pk> -- partially update an assignment
     DEL /assignments/<pk> -- delete an assignment
-    GET /assignments/upcomming/ -- get the upcomming assignments of the logged in user
+    GET /assignments/upcoming/ -- get the upcoming assignments of the logged in user
     """
 
     def list(self, request):
@@ -61,13 +61,13 @@ class AssignmentView(viewsets.ViewSet):
             if role is None:
                 return response.forbidden('You are not in this course.')
 
-            if role.can_grade_journal:
+            if role.can_grade:
                 queryset = course.assignment_set.all()
             else:
                 queryset = Assignment.objects.filter(courses=course, journal__user=request.user)
             serializer = AssignmentSerializer(queryset, many=True, context={'user': request.user, 'course': course})
         else:
-            return self.upcomming()
+            return self.upcoming()
 
         return response.success({'assignments': serializer.data})
 
@@ -113,7 +113,7 @@ class AssignmentView(viewsets.ViewSet):
         elif not role.can_add_assignment:
             return response.forbidden('You have no permissions to create an assignment.')
 
-        assignment = factory.make_assignment(name, description, course_ids=[course_id],
+        assignment = factory.make_assignment(name, description, courses=[course],
                                              author=request.user, lti_id=lti_id,
                                              points_possible=points_possible)
 
@@ -121,7 +121,7 @@ class AssignmentView(viewsets.ViewSet):
             role = permissions.get_role(user, course_id)
             # TODO Only give journal to students. (and not also TA's and teachers)
             # The problem is that there is no clear way to determine who has to get a journal.
-            if role.can_edit_journal:
+            if role.can_have_journal:
                 factory.make_journal(assignment, user)
 
         serializer = AssignmentSerializer(assignment, context={'user': request.user, 'course': course})
@@ -162,7 +162,7 @@ class AssignmentView(viewsets.ViewSet):
         if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
             return response.forbidden("You cannot view this assignment.")
 
-        if permissions.has_assignment_permission(request.user, assignment, 'can_grade_journal'):
+        if permissions.has_assignment_permission(request.user, assignment, 'can_grade'):
             serializer = AssignmentSerializer(assignment, context={'user': request.user})
             journals = Journal.objects.filter(assignment=assignment)
             data = serializer.data
@@ -278,7 +278,7 @@ class AssignmentView(viewsets.ViewSet):
         return response.success(data, description='Succesfully deleted the assignment.')
 
     @action(methods=['get'], detail=False)
-    def upcomming(self, request):
+    def upcoming(self, request):
         """Get upcoming deadlines for the requested user.
 
         Arguments:
@@ -290,7 +290,7 @@ class AssignmentView(viewsets.ViewSet):
             unauthorized -- when the user is not logged in
             not found -- when the course does not exist
         On success:
-            success -- upcomming assignments
+            success -- upcoming assignments
 
         """
         if not request.user.is_authenticated:
@@ -305,14 +305,14 @@ class AssignmentView(viewsets.ViewSet):
 
         deadline_list = []
 
-        # TODO: change query to a query that selects all upcomming assignments connected to the user.
+        # TODO: change query to a query that selects all upcoming assignments connected to the user.
         for course in courses:
             if permissions.get_role(request.user, course):
                 for assignment in Assignment.objects.filter(courses=course.id).all():
                     deadline_list.append(
                         AssignmentSerializer(assignment, context={'user': request.user, 'course': course}).data)
 
-        return response.success({'upcomming': deadline_list})
+        return response.success({'upcoming': deadline_list})
 
     @action(methods=['patch'], detail=True)
     def published_state(self, request, *args, **kwargs):
@@ -336,7 +336,7 @@ class AssignmentView(viewsets.ViewSet):
         except Assignment.DoesNotExist:
             return response.not_found('Assignment does not exist.')
 
-        if not permissions.has_assignment_permission(request.user, assign, 'can_publish_journal_grades'):
+        if not permissions.has_assignment_permission(request.user, assign, 'can_publish_grades'):
             return response.forbidden('You cannot publish assignments.')
 
         utils.publish_all_assignment_grades(assign, published)
@@ -351,7 +351,7 @@ class AssignmentView(viewsets.ViewSet):
         return response.success(payload=payload)
 
     def publish(self, request, assignment, published=True):
-        if permissions.has_assignment_permission(request.user, assignment, 'can_publish_journal_grades'):
+        if permissions.has_assignment_permission(request.user, assignment, 'can_publish_grades'):
             utils.publish_all_assignment_grades(assignment, published)
 
             for journal in Journal.objects.filter(assignment=assignment):

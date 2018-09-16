@@ -1,32 +1,26 @@
 <!-- TODO Is this check really required if we redirect, or even better have correct flow anyway? -->
-<template v-if="$hasPermission('can_view_assignment_participants')">
+<template v-if="$hasPermission('can_view_assignment_journals')">
     <content-columns>
         <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
         <b-card slot="main-content-column" class="no-hover settings-card">
-            <b-row>
-                <b-col sm="12">
-                    <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
-                </b-col>
-                <b-col sm="8">
-                    <b-form-select class="multi-form" v-model="selectedSortOption" :select-size="1">
-                       <option value="sortFullName">Sort by name</option>
-                       <option value="sortUsername">Sort by username</option>
-                       <option value="sortMarking">Sort by marking needed</option>
-                    </b-form-select>
-                </b-col>
-                <b-col sm="4">
-                    <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button full-width multi-form">
-                        <icon name="long-arrow-down"/>
-                        Ascending
-                    </b-button>
-                    <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="button full-width multi-form">
-                        <icon name="long-arrow-up"/>
-                        Descending
-                    </b-button>
-                </b-col>
-            </b-row>
+            <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
+            <div class="d-flex">
+                <b-form-select class="multi-form mr-2" v-model="selectedSortOption" :select-size="1">
+                   <option value="sortFullName">Sort by name</option>
+                   <option value="sortUsername">Sort by username</option>
+                   <option value="sortMarking">Sort by marking needed</option>
+                </b-form-select>
+                <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button multi-form">
+                    <icon name="long-arrow-down"/>
+                    Ascending
+                </b-button>
+                <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="button multi-form">
+                    <icon name="long-arrow-up"/>
+                    Descending
+                </b-button>
+            </div>
             <b-button
-                v-if="$hasPermission('can_publish_assignment_grades')"
+                v-if="$hasPermission('can_publish_grades') && assignmentJournals.length > 0"
                 class="add-button full-width"
                 @click="publishGradesAssignment">
                 <icon name="upload"/>
@@ -105,7 +99,7 @@ export default {
     created () {
         // TODO Should be moved to the breadcrumb, ensuring there is no more natural flow left that can get you to this
         // page without manipulating the url manually. If someone does this, simply let the error be thrown (no checks required)
-        if (!this.$hasPermission('can_view_assignment_participants')) {
+        if (!this.$hasPermission('can_view_assignment_journals')) {
             if (this.$root.previousPage) {
                 this.$router.push({ name: this.$root.previousPage.name, params: this.$root.previousPage.params })
             } else {
@@ -138,7 +132,7 @@ export default {
         },
         handleEdit () {
             this.$router.push({
-                name: 'AssignmentEdit',
+                name: 'FormatEdit',
                 params: {
                     cID: this.cID,
                     aID: this.aID
@@ -204,10 +198,6 @@ export default {
 
                 return username.includes(searchVariable) ||
                        fullName.includes(searchVariable)
-            }
-            if (this.assignmentJournals[0]) {
-                console.log(this.assignmentJournals[0].student)
-                console.log(this.assignmentJournals[0].user)
             }
 
             /* Filter list based on search input. */

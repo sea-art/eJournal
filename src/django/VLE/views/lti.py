@@ -50,7 +50,6 @@ def get_lti_params_from_jwt(request, jwt_params):
 
     payload = dict()
     course = lti.check_course_lti(lti_params, user, role)
-    print(course)
     if course is None:
         if role == 'Teacher':
             payload['state'] = NEW_COURSE

@@ -8,6 +8,7 @@ from VLE.models import Course, Assignment, Journal, Entry, Content
 
 import VLE.factory as factory
 import test.test_utils as test
+import django.utils.timezone as timezone
 
 
 class CreateApiTests(TestCase):
@@ -28,7 +29,7 @@ class CreateApiTests(TestCase):
     def test_create_new_assignment(self):
         """test create new assignment."""
         lti_id = '12AB'
-        course = factory.make_course("BeeldBewerken", "BB")
+        course = factory.make_course("BeeldBewerken", "BB", enddate=timezone.now())
 
         role = factory.make_role_default_no_perms("teacher", course, can_add_assignment=True)
         factory.make_participation(user=self.user, course=course, role=role)
@@ -53,7 +54,7 @@ class CreateApiTests(TestCase):
         course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
         assign.courses.add(course)
 
-        role = factory.make_role_default_no_perms("student", course, can_edit_journal=True)
+        role = factory.make_role_default_no_perms("student", course, can_have_journal=True)
         factory.make_participation(user=self.user, course=course, role=role)
 
         test.api_post_call(self, '/journals/', params=create_journal_dict, login=login, status=201)

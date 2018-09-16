@@ -68,32 +68,32 @@ function testRoles () {
             }
         })
     auth.update('courses/1/roles', {roles: [{
-        name: 'Student', can_edit_course: false
+        name: 'Student', can_edit_course_details: false
     }]})
         .then(resp => {
             resp = resp.result
-            if (!resp || resp.length !== 1 || resp[0].can_edit_course !== false) {
+            if (!resp || resp.length !== 1 || resp[0].can_edit_course_details !== false) {
                 console.log('patch /courses/1/roles does not work')
                 console.log(resp)
             }
         })
     auth.update('courses/1/roles', {roles: [{
-        name: 'Student', can_edit_course: true
+        name: 'Student', can_edit_course_details: true
     }]})
         .then(resp => {
             resp = resp.result
-            if (!resp || resp.length !== 1 || resp[0].can_edit_course !== true) {
+            if (!resp || resp.length !== 1 || resp[0].can_edit_course_details !== true) {
                 console.log('patch /courses/1/roles does not work')
                 console.log(resp)
             }
         })
     auth.create('courses/1/roles', {
         name: name,
-        permissions: {can_edit_course: true}
+        permissions: {can_edit_course_details: true}
     })
         .then(resp => {
             resp = resp.result
-            if (!resp || resp[0].can_edit_course !== true) {
+            if (!resp || resp[0].can_edit_course_details !== true) {
                 console.log('create /courses/1/roles does not work')
                 console.log(resp)
             }

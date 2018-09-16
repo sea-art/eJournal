@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <b-card class="no-hover">
         <div v-for="a in assignments" :key="a.id">
             <div v-if="a.lti_id">
                 <assignment-card class="orange-border" @click.native="linkAssignment(a.id, a.lti_id)" :line1="a.name">
@@ -16,7 +16,7 @@
                 </assignment-card>
             </div>
         </div>
-    </div>
+    </b-card>
 </template>
 
 <script>

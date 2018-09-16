@@ -6,6 +6,8 @@ import VLE.serializers as serialize
 import VLE.factory as factory
 import test.test_utils as test
 
+import django.utils.timezone as timezone
+
 
 class UpdateApiTests(TestCase):
     def setUp(self):
@@ -14,7 +16,7 @@ class UpdateApiTests(TestCase):
         self.rein_user, self.rein_pass, self.rein = test.set_up_user_and_auth("Rein", "123", 'rr@rr.com')
         self.no_perm_user, self.no_perm_pass, self.no_permission_user = test.set_up_user_and_auth("no_perm", "123",
                                                                                                   'sigh@sigh.com')
-        self.course = factory.make_course("Beeldbewerken", "BB")
+        self.course = factory.make_course("Beeldbewerken", "BB", enddate=timezone.now())
 
     def test_update_course(self):
         """Test update_course"""
@@ -49,13 +51,13 @@ class UpdateApiTests(TestCase):
         roles = result.json()['roles']
         for role in roles:
             if role['name'] == 'TA2':
-                role['can_grade_journal'] = 1
+                role['can_grade'] = 1
 
         roles.append(serialize.RoleSerializer(factory.make_role_default_no_perms('test_role', self.course)).data)
         test.api_patch_call(self, '/roles/1/', {'roles': roles}, login)
 
         role_test = Role.objects.get(name='TA2', course=self.course)
-        self.assertTrue(role_test.can_grade_journal)
+        self.assertTrue(role_test.can_grade)
         self.assertEquals(Role.objects.filter(name='test_role', course=self.course).count(), 1)
 
     def test_update_course_with_student(self):
@@ -82,7 +84,7 @@ class UpdateApiTests(TestCase):
     def test_update_assignment(self):
         """Test update assignment"""
         teacher_user, teacher_pass, teacher = test.set_up_user_and_auth('Teacher', 'pass', 'teach@teach.com')
-        teacher_role = factory.make_role_default_all_perms("TE", self.course)
+        teacher_role = factory.make_role_teacher("TE", self.course)
 
         factory.make_participation(teacher, self.course, teacher_role)
         assign = test.set_up_assignments('Assign', '', 1, self.course)[0]
@@ -109,6 +111,10 @@ class UpdateApiTests(TestCase):
         login = test.logging_in(self, self.rein_user, self.rein_pass)
 
         update_dict = {
+            'assignment_details': {
+                'name': 'Colloq',
+                'description': 'description1'
+            },
             'max_points': 11,
             'templates': [serialize.TemplateSerializer(template).data
                           for template in format.available_templates.all()],

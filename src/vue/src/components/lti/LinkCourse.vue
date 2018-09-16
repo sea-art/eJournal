@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <b-card class="no-hover">
         <div v-for="c in courses" :key="c.id">
             <div v-if="c.lti_id">
                 <main-card
@@ -16,7 +16,7 @@
                     :line2="c.startdate.substring(0, 4) + '-' + c.enddate.substring(0, 4)"/>
             </div>
         </div>
-    </div>
+    </b-card>
 </template>
 
 <script>

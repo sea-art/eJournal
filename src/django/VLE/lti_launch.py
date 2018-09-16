@@ -2,7 +2,7 @@ from django.conf import settings
 import oauth2
 """Package for oauth authentication in python"""
 
-from VLE.models import User, Course, Assignment, Role, Journal, Lti_ids
+from VLE.models import User, Role, Journal, Lti_ids
 import VLE.factory as factory
 
 

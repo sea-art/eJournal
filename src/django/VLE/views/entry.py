@@ -139,13 +139,13 @@ class EntryView(viewsets.ViewSet):
 
         journal = entry.node.journal
         if grade and \
-           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_grade_journal'):
+           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_grade'):
             return response.forbidden('You cannot grade or publish entries.')
         else:
             entry.grade = grade
 
         if published is not None and \
-           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_journal_grades'):
+           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_grades'):
             return response.forbidden('You cannot publish entries.')
 
         if published is not None:
@@ -158,7 +158,14 @@ class EntryView(viewsets.ViewSet):
                 Comment.objects.filter(entry=entry).update(published=True)
 
         if content_list:
-            if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_edit_journal'):
+            try:
+                validators.validate_entry_content(content_list)
+            except ValidationError as e:
+                return response.bad_request(e.args[0])
+            except KeyError:
+                return response.keyerror('content.id', 'content.data')
+
+            if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal'):
                 return response.forbidden('You cannot edit entries.')
 
             if entry.grade is not None:
@@ -174,19 +181,56 @@ class EntryView(viewsets.ViewSet):
                 except Field.DoesNotExist:
                     return response.not_found('Field does not exist.')
 
-                factory.make_content(entry, content['data'], field)
+                if content['data']:
+                    factory.make_content(entry, content['data'], field)
 
-        serializer = serialize.EntrySerializer(entry, data=request.data, partial=True, context={'user': request.user})
+        req_data = request.data
+        del req_data['content']
+        serializer = serialize.EntrySerializer(entry, data=req_data, partial=True, context={'user': request.user})
         if not serializer.is_valid():
             response.bad_request()
 
         try:
             serializer.save()
         except ValueError:
-            return response.bad_request('Invalid content, grade or published state.')
+            return response.bad_request('Invalid grade or published state.')
         if published and journal.sourcedid is not None and journal.grade_url is not None:
             payload = lti_grade.replace_result(journal)
         else:
             payload = dict()
 
         return response.success({'entry': serializer.data, 'lti': payload})
+
+    def destroy(self, request, *args, **kwargs):
+        """Delete an entry and the node it belongs to.
+
+        Arguments:
+        request -- request data
+        pk -- entry ID
+
+        Returns:
+        On failure:
+            not found -- when the course does not exist
+            unauthorized -- when the user is not logged in
+            forbidden -- when the user is not in the course
+        On success:
+            success -- with a message that the course was deleted
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+        pk = kwargs.get('pk')
+
+        try:
+            entry = Entry.objects.get(pk=pk)
+        except Entry.DoesNotExist:
+            return response.not_found('Entry does not exist.')
+
+        if not permissions.has_assignment_permission(request.user, entry.node.journal.assignment, 'can_edit_journal'):
+            return response.forbidden('You can only delete your own entries.')
+
+        if entry.grade:
+            return response.forbidden('You cannot delete graded entries.')
+
+        entry.node.delete()
+        entry.delete()
+        return response.success(description='Sucesfully deleted entry.')

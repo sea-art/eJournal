@@ -6,18 +6,14 @@
 -->
 
 <template>
-    <b-row>
+    <b-row class="node-container">
         <b-col cols="4" sm="1"/>
-        <b-col cols="4" sm="5" class="d-flex align-items-center justify-content-center">
+        <b-col cols="4" sm="5" class="d-flex h-100 align-items-center justify-content-center">
             <edag-node-date :date="node.deadline" :selected="selected"/>
         </b-col>
-        <b-col cols="4" sm="5" class="d-flex align-items-center justify-content-center">
-            <div>
-                <div class="grey-line" :style="upperEdgeStyle"/>
-                <div class="grey-line" :style="lowerEdgeStyle"/>
-            </div>
-            <edag-node-circle  v-if="node.type == 'a'" @click.native="$emit('select-node', index)" style="position: absolute" :type="node.type" :selected="selected" :entrystate="'addNode'"></edag-node-circle>
-            <edag-node-circle v-else @click.native="$emit('select-node', index)" style="position: absolute" :type="node.type" :text="node.target" :selected="selected" :entrystate="entryState()"></edag-node-circle>
+        <b-col cols="4" sm="5" class="d-flex h-100 align-items-center justify-content-center">
+            <div class="time-line" :class="timeLineClass"></div>
+            <edag-node-circle @click.native="$emit('select-node', index)" class="position-absolute" :type="node.type" :text="node.target" :selected="selected" :nodeState="nodeState()"></edag-node-circle>
         </b-col>
         <b-col cols="4" sm="1"/>
     </b-row>
@@ -28,7 +24,7 @@ import edagNodeCircle from '@/components/edag/EdagNodeCircle.vue'
 import edagNodeDate from '@/components/edag/EdagNodeDate.vue'
 
 export default {
-    props: ['node', 'selected', 'upperEdgeStyle', 'lowerEdgeStyle', 'index', 'isInEditFormatPage'],
+    props: ['node', 'selected', 'index', 'last', 'edit'],
     components: {
         'edag-node-date': edagNodeDate,
         'edag-node-circle': edagNodeCircle
@@ -39,40 +35,38 @@ export default {
             var deadline = new Date(this.node.deadline)
 
             return currentDate > deadline
+        },
+        timeLineClass () {
+            return {
+                'top': this.index === -1,
+                'bottom': this.last
+            }
         }
     },
     methods: {
-        entryState () {
-            if (this.isInEditFormatPage) {
-                return ''
-            }
-            if (this.node.type === 'p' || this.node.type === 'a') {
+        nodeState () {
+            if (this.node.type === 's') {
+                return 'start'
+            } else if (this.node.type === 'a') {
+                return 'add'
+            } else if (this.edit || this.node.type === 'p') {
                 return ''
             }
 
             var entry = this.node.entry
-            var isGrader = this.$hasPermission('can_grade_journal')
+            var isGrader = this.$hasPermission('can_grade')
 
             if (entry && entry.published) {
                 return 'graded'
-            }
-
-            if (!entry && this.deadlineHasPassed) {
+            } else if (!entry && this.deadlineHasPassed) {
                 return 'failed'
-            }
-            if (!entry && !this.deadlineHasPassed) {
+            } else if (!entry && !this.deadlineHasPassed) {
                 return 'empty'
-            }
-
-            if (!isGrader && entry && !entry.published) {
+            } else if (!isGrader && entry && !entry.published) {
                 return 'awaiting_grade'
-            }
-
-            if (isGrader && entry && !entry.grade) {
+            } else if (isGrader && entry && !entry.grade) {
                 return 'needs_grading'
-            }
-
-            if (isGrader && entry && !entry.published) {
+            } else if (isGrader && entry && !entry.published) {
                 return 'needs_publishing'
             }
 
@@ -85,8 +79,17 @@ export default {
 <style lang="sass">
 @import '~sass/modules/colors.sass'
 
-.grey-line
-    width: 0.5em
-    height: 3em
-    background-color: $theme-light-grey
+.node-container
+    height: 100px
+    .time-line
+        position: absolute
+        width: 5px
+        background-color: $theme-medium-grey
+        height: 100px
+        &.top
+            height: 50px
+            top: 50px
+        &.bottom
+            height: 50px
+            bottom: 50px
 </style>

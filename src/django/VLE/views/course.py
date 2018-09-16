@@ -134,7 +134,7 @@ class CourseView(viewsets.ViewSet):
         role = permissions.get_role(request.user, course)
         if role is None:
             return response.forbidden('You are not in this course.')
-        elif not role.can_edit_course:
+        elif not role.can_edit_course_details:
             return response.unauthorized('You are unauthorized to edit this course.')
 
         data = request.data
@@ -205,7 +205,7 @@ class CourseView(viewsets.ViewSet):
             return response.forbidden("You are not allowed to link courses.")
 
         unlinked_courses = Course.objects.filter(participation__user=request.user.id,
-                                                 participation__role__can_edit_course=True)
+                                                 participation__role__can_edit_course_details=True)
         serializer = serialize.CourseSerializer(unlinked_courses, many=True)
         return response.success({'courses': serializer.data})
 
@@ -226,6 +226,6 @@ class CourseView(viewsets.ViewSet):
             return response.unauthorized()
 
         courses = Course.objects.filter(participation__user=request.user.id,
-                                        participation__role__can_edit_course=True)
+                                        participation__role__can_edit_course_details=True)
         serializer = serialize.CourseSerializer(courses, many=True)
         return response.success({'courses': serializer.data})

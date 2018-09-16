@@ -106,9 +106,10 @@ class UserView(viewsets.ViewSet):
                 lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
             except jwt.exceptions.ExpiredSignatureError:
                 return response.forbidden(
-                    description='The canvas link has expired, 15 minutes have passed. Please retry from canvas.')
+                    description='Your session has expired. Please go back to your learning environment and try again.')
             except jwt.exceptions.InvalidSignatureError:
-                return response.unauthorized(description='Invalid LTI parameters given. Please retry from canvas.')
+                return response.unauthorized(description='Invalid LTI parameters given. Please go back to your \
+                                             learning environment and try again.')
             lti_id, user_image = utils.optional_params(lti_params, 'user_id', 'user_image')
             is_teacher = json.load(open('config.json'))['Teacher'] in lti_params['roles']
         else:
@@ -121,7 +122,7 @@ class UserView(viewsets.ViewSet):
             return response.keyerror('username', 'password')
 
         if email and User.objects.filter(email=email).exists():
-            return response.bad_request('User with this email address already exists.')
+            return response.bad_request('That email address belongs to another user.')
 
         try:
             validate_email(email)
@@ -300,8 +301,7 @@ class UserView(viewsets.ViewSet):
         user = User.objects.get(pk=pk)
 
         # Check the right permissions to get this users data, either be the user of the data or be an admin.
-        permission = permissions.get_permissions(user, cID=-1)
-        if not permission['is_superuser'] and request.user.id != pk:
+        if not user.is_superuser or request.user.id is not pk:
             return response.forbidden('You cannot view this users data.')
 
         profile = UserSerializer(user).data
@@ -357,7 +357,7 @@ class UserView(viewsets.ViewSet):
 
         if user_file.author.id is not request.user.id and \
            not permissions.has_assignment_permission(
-                request.user, user_file.assignment, 'can_view_assignment_participants'):
+                request.user, user_file.assignment, 'can_view_assignment_journals'):
             return response.forbidden('Forbidden to view: %s by author ID: %s.' % (file_name, pk))
 
         return response.file(os.path.join(settings.MEDIA_ROOT, user_file.file.name))

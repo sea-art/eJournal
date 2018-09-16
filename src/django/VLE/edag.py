@@ -32,11 +32,11 @@ def get_nodes(journal, user):
     progress node is in the future and maximally one.
     """
     can_add = journal.user == user
-    can_add = can_add and permissions.has_assignment_permission(user, journal.assignment, 'can_edit_journal')
+    can_add = can_add and permissions.has_assignment_permission(user, journal.assignment, 'can_have_journal')
 
     node_dict = []
     for node in get_sorted_nodes(journal):
-        # If there is a progress node upcomming, and there are stackable entries before the deadline
+        # If there is a progress node upcoming, and there are stackable entries before the deadline
         # add an ADDNODE
         if node.type == Node.PROGRESS:
             is_future = (node.preset.deadline - timezone.now()).total_seconds() > 0
