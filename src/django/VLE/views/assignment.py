@@ -80,6 +80,9 @@ class AssignmentView(viewsets.ViewSet):
             description -- description of the assignment
             course_id -- id of the course the assignment belongs to
             points_possible -- the possible amount of points for the assignment
+            unlock_date -- (optional) date the assignment becomes available on
+            due_date -- (optional) date the assignment is due for
+            lock_date -- (optional) date the assignment becomes unavailable on
             lti_id -- id labeled link to LTI instance
 
         Returns:
@@ -98,7 +101,8 @@ class AssignmentView(viewsets.ViewSet):
 
         try:
             name, description, course_id = utils.required_params(request.data, "name", "description", "course_id")
-            points_possible, lti_id = utils.optional_params(request.data, "points_possible", "lti_id")
+            points_possible, unlock_date, due_date, lock_date, lti_id = \
+                utils.optional_params(request.data, "points_possible", "unlock_date", "due_date", "lock_date", "lti_id")
         except KeyError:
             return response.keyerror("name", "description", "course_id")
 
@@ -115,7 +119,9 @@ class AssignmentView(viewsets.ViewSet):
 
         assignment = factory.make_assignment(name, description, courses=[course],
                                              author=request.user, lti_id=lti_id,
-                                             points_possible=points_possible)
+                                             points_possible=points_possible,
+                                             unlock_date=unlock_date, due_date=due_date,
+                                             lock_date=lock_date)
 
         for user in course.users.all():
             role = permissions.get_role(user, course_id)
@@ -178,7 +184,7 @@ class AssignmentView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
-            data -- the new data for the course
+            data -- the new data for the assignment
         pk -- assignment ID
 
         Returns:

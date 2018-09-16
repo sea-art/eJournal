@@ -7,6 +7,7 @@ from datetime import datetime
 from rest_framework import viewsets
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
+from datetime import datetime
 
 from VLE.models import Journal, Node, Content, Field, Template, Entry, Comment
 import VLE.views.responses as response
@@ -60,6 +61,12 @@ class EntryView(viewsets.ViewSet):
         except (Journal.DoesNotExist, Template.DoesNotExist):
             return response.not_found('Journal or Template does not exist.')
 
+        if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or
+            (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
+           not permissions.has_assignment_permission(request.user, journal.assignment,
+                                                     'can_view_assignment_journals'):
+            return response.bad_request('The assignment is locked and unavailable for students.')
+
         # If node id is passed, the entry should be attached to a pre-existing node (entrydeadline node)
         if node_id:
             try:
@@ -73,7 +80,8 @@ class EntryView(viewsets.ViewSet):
             if node.entry:
                 return response.bad_request('Passed node already contains an entry.')
 
-            if node.preset.deadline < now():
+            if node.preset.deadline < now() or \
+               (journal.assignment.due_date and journal.assignment.due_date < datetime.now()):
                 return response.bad_request('The deadline has already passed.')
 
             node.entry = factory.make_entry(template)
@@ -149,6 +157,12 @@ class EntryView(viewsets.ViewSet):
            not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_grades'):
             return response.forbidden('You cannot publish entries.')
 
+        if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or
+            (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
+           not permissions.has_assignment_permission(request.user, journal.assignment,
+                                                     'can_view_assignment_journals'):
+            return response.bad_request('The assignment is locked and unavailable for students.')
+
         if published is not None:
             entry.published = published
             try:
@@ -171,7 +185,8 @@ class EntryView(viewsets.ViewSet):
 
             if entry.grade is not None:
                 return response.bad_request('Cannot edit entry: it is already graded.')
-            if entry.node.type == Node.ENTRYDEADLINE and entry.node.preset.deadline < now():
+            if entry.node.type == Node.ENTRYDEADLINE and entry.node.preset.deadline < now() \
+               or (journal.assignment.due_date and journal.assignment.due_date < datetime.now()):
                 return response.bad_request('Cannot edit entry: the deadline has already passed.')
 
             Content.objects.filter(entry=entry).all().delete()

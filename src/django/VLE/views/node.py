@@ -4,6 +4,7 @@ node.py.
 In this file are all the node api requests.
 """
 from rest_framework import viewsets
+from datetime import datetime
 
 import VLE.views.responses as response
 import VLE.permissions as permissions
@@ -59,8 +60,10 @@ class NodeView(viewsets.ModelViewSet):
                                                       'can_view_assignment_journals'):
             return response.forbidden('You are not allowed to view journals of other participants.')
 
-        can_add = journal.user == request.user
-        can_add = can_add and \
-            permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal')
+        if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or
+            (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
+           not permissions.has_assignment_permission(request.user, journal.assignment,
+                                                     'can_view_assignment_journals'):
+            return response.bad_request('The assignment is locked and unavailable for students.')
 
         return response.success({'nodes': edag.get_nodes(journal, request.user)})
