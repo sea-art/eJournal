@@ -41,9 +41,9 @@
                             </span>
                         </b-card>
                     </div>
-                    <journal-start-card v-else-if="currentNode === -1" :assignment="assignment" :student="true"/>
-                    <journal-end-card v-else :assignment="assignment" :student="true"/>
                 </div>
+                <journal-start-card v-else-if="currentNode === -1" :assignment="assignment" :student="true"/>
+                <journal-end-card v-else :assignment="assignment" :student="true"/>
             </b-col>
         </b-col>
 
