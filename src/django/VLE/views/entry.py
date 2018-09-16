@@ -3,7 +3,6 @@ entry.py.
 
 In this file are all the entry api requests.
 """
-from datetime import datetime
 from rest_framework import viewsets
 from django.core.exceptions import ValidationError
 from django.utils.timezone import now
