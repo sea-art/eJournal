@@ -69,7 +69,10 @@ class AssignmentView(viewsets.ViewSet):
         else:
             return self.upcoming()
 
-        return response.success({'assignments': serializer.data})
+        data = serializer.data
+        for i, assignment in enumerate(data):
+            data[i]['lti_couples'] = len(Lti_ids.objects.filter(assignment=assignment['id']))
+        return response.success({'assignments': data})
 
     def create(self, request):
         """Create a new assignment.
