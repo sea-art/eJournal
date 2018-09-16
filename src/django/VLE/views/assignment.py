@@ -6,7 +6,7 @@ In this file are all the assignment api requests.
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from VLE.serializers import AssignmentSerializer, JournalSerializer
+from VLE.serializers import AssignmentSerializer
 from VLE.models import Assignment, Course, Journal
 import VLE.views.responses as response
 import VLE.permissions as permissions
@@ -125,23 +125,19 @@ class AssignmentView(viewsets.ViewSet):
 
         for user in course.users.all():
             role = permissions.get_role(user, course_id)
-            # TODO Only give journal to students. (and not also TA's and teachers)
-            # The problem is that there is no clear way to determine who has to get a journal.
             if role.can_have_journal:
                 factory.make_journal(assignment, user)
 
         serializer = AssignmentSerializer(assignment, context={'user': request.user, 'course': course})
         return response.created({'assignment': serializer.data})
 
-    # TODO: Add course ID to only get the information about the assignment from that course.
-    # TODO: Create a better serializer
-    # TODO: split the
     def retrieve(self, request, pk=None):
         """Retrieve an assignment.
 
         Arguments:
         request -- request data
             lti -- if this is set, the pk is an lti_id, not a 'normal' id
+            course_id -- get information about that course
         pk -- assignment ID
 
         Returns:
@@ -165,19 +161,23 @@ class AssignmentView(viewsets.ViewSet):
         except Assignment.DoesNotExist:
             return response.not_found('Assignment does not exist.')
 
+        try:
+            course = Course.objects.get(id=request.query_params['course_id'])
+        except (ValueError, KeyError):
+            course = None
+        except Course.DoesNotExist:
+            return response.not_found('Course does not exist.')
+
         if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
             return response.forbidden("You cannot view this assignment.")
 
-        if permissions.has_assignment_permission(request.user, assignment, 'can_grade'):
-            serializer = AssignmentSerializer(assignment, context={'user': request.user})
-            journals = Journal.objects.filter(assignment=assignment)
-            data = serializer.data
-            data['journals'] = JournalSerializer(journals, many=True).data
-        else:
-            serializer = AssignmentSerializer(assignment, context={'user': request.user})
-            data = serializer.data
+        get_journals = permissions.has_assignment_permission(request.user, assignment, 'can_grade')
+        serializer = AssignmentSerializer(
+            assignment,
+            context={'user': request.user, 'course': course, 'journals': get_journals}
+        )
 
-        return response.success({'assignment': data})
+        return response.success({'assignment': serializer.data})
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing assignment.
@@ -209,9 +209,11 @@ class AssignmentView(viewsets.ViewSet):
             return response.not_found('Assignment does not exist.')
 
         published, = utils.optional_params(request.data, 'published')
+        published_response = None
         if published:
-            # TODO: What to do about the JSON response?
-            self.publish(request, assignment)
+            published_response = self.publish(request, assignment)
+            if published_response is False:
+                return response.forbidden('You are not allowed to grade this assignment.')
         if permissions.has_assignment_permission(request.user, assignment, 'can_edit_assignment'):
             req_data = request.data
             if published is not None:
@@ -222,6 +224,8 @@ class AssignmentView(viewsets.ViewSet):
             serializer.save()
         elif not published:
             return response.forbidden('You are not allowed to edit this assignment.')
+        if published_response is not False:
+            return response.success({'assignment': serializer.data, 'published': published_response})
         return response.success({'assignment': serializer.data})
 
     def destroy(self, request, *args, **kwargs):
@@ -249,7 +253,7 @@ class AssignmentView(viewsets.ViewSet):
 
         try:
             course_id = int(request.query_params['course_id'])
-        except KeyError:
+        except (KeyError, ValueError):
             return response.keyerror('course_id')
 
         try:
@@ -361,6 +365,6 @@ class AssignmentView(viewsets.ViewSet):
                 else:
                     payload = dict()
 
-            return response.success(payload)
+            return payload
         else:
-            return response.forbidden('You are not allowed to grade this assignment.')
+            return False

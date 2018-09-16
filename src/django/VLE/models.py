@@ -517,8 +517,9 @@ class Entry(models.Model):
     An Entry has the following features:
     - journal: a foreign key linked to an Journal.
     - createdate: the date and time when the entry was posted.
-    - late: if the entry was posted late or not.
-    - TODO: edited_at
+    - grade: grade the entry has
+    - published: if its a published grade or not
+    - last_edited: when the etry was last edited
     """
 
     template = models.ForeignKey(
@@ -535,6 +536,10 @@ class Entry(models.Model):
     )
     published = models.BooleanField(
         default=False
+    )
+    last_edited = models.DateTimeField(
+        default=None,
+        null=True
     )
 
     def __str__(self):

@@ -9,13 +9,8 @@
     <div>
         <!-- Edit mode. -->
         <b-card v-if="saveEditMode == 'Save'" class="entry-card no-hover" :class="$root.getBorderClass(cID)">
-            <div class="grade-section shadow">
-                <span v-if="entryNode.entry.published">
-                    {{ entryNode.entry.grade }}
-                </span>
-                <span v-else>
-                    <icon name="hourglass-half"/>
-                </span>
+            <div class="ml-2 btn float-right multi-form shadow no-hover" v-if="entryNode.entry.published">
+                {{ entryNode.entry.grade }}
             </div>
             <h2 class="mb-2">{{ entryNode.entry.template.name }}</h2>
             <!--
@@ -95,14 +90,20 @@
         </b-card>
         <!-- Overview mode. -->
         <b-card v-else class="entry-card no-hover" :class="$root.getBorderClass(cID)">
-            <div class="grade-section shadow">
-                <span v-if="entryNode.entry.published">
-                    {{ entryNode.entry.grade }}
-                </span>
-                <span v-else>
-                    <icon name="hourglass-half"/>
-                </span>
+            <div class="ml-2 grade-section shadow" v-if="entryNode.entry.published">
+                <span class="grade">{{ entryNode.entry.grade }}</span>
             </div>
+            <div class="ml-2 grade-section shadow" v-else-if="!entryNode.entry.editable">
+                <icon name="hourglass-half"/>
+            </div>
+            <b-button v-if="entryNode.entry.editable" class="ml-2 delete-button float-right multi-form" @click="deleteEntry">
+                <icon name="trash"/>
+                Delete
+            </b-button>
+            <b-button v-if="entryNode.entry.editable" class="ml-2 change-button float-right multi-form" @click="saveEdit">
+                <icon name="edit"/>
+                Edit
+            </b-button>
             <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
             <!--
                 Gives a view of every templatefield and
@@ -146,14 +147,12 @@
                     <a :href="completeContent[i].data">{{ completeContent[i].data }}</a>
                 </div>
             </div>
-            <b-button v-if="entryNode.entry.editable" class="change-button float-right mt-2" @click="saveEdit">
-                <icon name="edit"/>
-                Edit
-            </b-button>
-            <b-button v-if="entryNode.entry.editable" class="delete-button float-right mt-2" @click="deleteEntry">
-                <icon name="trash"/>
-                Delete
-            </b-button>
+            <div v-if="entryNode.entry.last_edited">
+                <hr/>
+                <span class="timestamp">
+                    Last edited: {{ $root.beautifyDate(entryNode.entry.last_edited) }}<br/>
+                </span>
+            </div>
         </b-card>
 
         <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published"/>

@@ -276,7 +276,6 @@ class UserView(viewsets.ViewSet):
         request.user.save()
         return response.success(description='Succesfully changed the password.')
 
-    # TODO: Fix this stuff
     # TODO: limit this request for end users, otherwise its really easy to DDOS the server.
     @action(methods=['get'], detail=True)
     def GDPR(self, request, pk):
@@ -307,7 +306,6 @@ class UserView(viewsets.ViewSet):
         profile = UserSerializer(user).data
         journals = Journal.objects.filter(user=pk)
         journal_dict = {}
-        # TODO: Add entry serializer
         for journal in journals:
             # Select the nodes of this journal but only the ones with entries.
             entry_ids = Node.objects.filter(journal=journal).exclude(entry__isnull=True).values_list('entry', flat=True)
@@ -321,7 +319,6 @@ class UserView(viewsets.ViewSet):
 
         return response.file(archive_path)
 
-    # TODO: check if it works
     @action(methods=['get'], detail=True)
     def download(self, request, pk):
         """Get a user file by name if it exists.
@@ -362,7 +359,6 @@ class UserView(viewsets.ViewSet):
 
         return response.file(os.path.join(settings.MEDIA_ROOT, user_file.file.name))
 
-    # TODO: Check if it works
     @action(methods=['post'], detail=False)
     def upload(self, request):
         """Update user profile picture.
@@ -422,7 +418,6 @@ class UserView(viewsets.ViewSet):
 
         return response.success(description='Succesfully uploaded {:s}.'.format(request.FILES['file'].name))
 
-    # TODO: check if it works
     @action(['post'], detail=False)
     def set_profile_picture(self, request):
         """Update user profile picture.
