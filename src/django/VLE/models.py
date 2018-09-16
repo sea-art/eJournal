@@ -479,7 +479,7 @@ class Entry(models.Model):
     - journal: a foreign key linked to an Journal.
     - createdate: the date and time when the entry was posted.
     - grade: grade the entry has
-    - published: is its a published grade or not
+    - published: if its a published grade or not
     - last_edited: when the etry was last edited
     """
 

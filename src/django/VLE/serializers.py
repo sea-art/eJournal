@@ -45,7 +45,6 @@ class UserSerializer(serializers.ModelSerializer):
 class OwnUserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     permissions = serializers.SerializerMethodField()
-    permissions = serializers.SerializerMethodField()
 
     class Meta:
         model = User

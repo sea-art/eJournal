@@ -1,7 +1,7 @@
 """
-course.py.
+journal.py.
 
-In this file are all the course api requests.
+In this file are all the journal api requests.
 """
 from rest_framework import viewsets
 
@@ -116,9 +116,9 @@ class JournalView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not_found -- could not find the course with the given id
+            not_found -- could not find the journal with the given id
             key_error -- missing keys
-            forbidden -- the user is not allowed to create assignments in this course
+            forbidden -- the user is not allowed to create assignments in this journal
 
         On success:
             succes -- with the journal data
@@ -134,7 +134,7 @@ class JournalView(viewsets.ViewSet):
 
         role = permissions.get_assignment_id_permissions(request.user, assignment_id)
         if not role:
-            return response.forbidden("You have no permissions within this course.")
+            return response.forbidden("You have no permissions within this assignment.")
         elif not role["can_edit_journal"]:
             return response.forbidden("You have no permissions to create a journal.")
 
@@ -152,7 +152,7 @@ class JournalView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
-            data -- the new data for the course
+            data -- the new data for the journal
         pk -- journal ID
 
         Returns:
@@ -201,9 +201,9 @@ class JournalView(viewsets.ViewSet):
 
         Returns:
         On failure:
-            not found -- when the course does not exist
+            not found -- when the journal does not exist
             unauthorized -- when the user is not logged in
-            forbidden -- when the user is not in the course
+            forbidden -- when the user is not in the journal
         On success:
             success -- with a message that the journal was deleted
         """
@@ -218,7 +218,7 @@ class JournalView(viewsets.ViewSet):
 
         role = permissions.get_assignment_id_permissions(request.user, journal.assignment.id)
         if not role:
-            return response.forbidden("You have no permissions within this course.")
+            return response.forbidden("You have no permissions within this assignment.")
         elif not role["can_edit_journal"]:
             return response.forbidden("You have no permissions to create a journal.")
 

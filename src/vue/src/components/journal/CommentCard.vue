@@ -18,7 +18,7 @@
                             Edit
                         </b-button>
                         <div v-html="comment.text"/>
-                        <hr/>
+                        <hr class="full-width"/>
                         <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b>
                         <span v-if="comment.published && !comment.last_edited" class="timestamp">
                             {{ $root.beautifyDate(comment.timestamp) }}<br/>
@@ -190,7 +190,6 @@ export default {
 </script>
 
 <style lang="sass">
-@import '~sass/modules/colors.sass'
 .comment-section
     display: flex
     .profile-picture
@@ -205,15 +204,4 @@ export default {
     .comment-card
         .card-body
             padding-bottom: 5px
-        hr
-            width: 120%
-            margin-left: -10px !important
-            border-color: $theme-dark-grey
-            margin: 30px 0px 5px 0px
-    .timestamp
-        float: right
-        font-family: 'Roboto Condensed', sans-serif
-        color: grey
-        svg
-            fill: grey
 </style>

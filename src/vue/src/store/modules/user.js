@@ -114,7 +114,6 @@ const actions = {
      * Fails if the refresh fails or if the store needed to be populated if that fails as well. */
     validateToken ({ commit, dispatch, getters }, error = null) {
         return new Promise((resolve, reject) => {
-            // Rather than refreshing for nearly all errors
             if (!error || (error && error.response.data.code === 'token_not_valid')) {
                 connection.conn.post('token/refresh/', {refresh: getters.jwtRefresh}).then(response => {
                     commit(types.SET_ACCES_TOKEN, response.data.access) // Refresh token valid, update access token.
