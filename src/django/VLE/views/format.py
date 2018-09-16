@@ -18,11 +18,6 @@ class FormatView(viewsets.ViewSet):
     This class creates the following api paths:
     GET /formats/ -- gets all the formats
     PATCH /formats/<pk> -- partially update an format
-
-    TODO:
-    POST /formats/ -- create a new format
-    GET /formats/<pk> -- gets a specific format
-    DEL /formats/<pk> -- delete an format
     """
 
     def retrieve(self, request, pk):

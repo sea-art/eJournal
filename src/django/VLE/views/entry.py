@@ -200,7 +200,10 @@ class EntryView(viewsets.ViewSet):
                     factory.make_content(entry, content['data'], field)
 
         req_data = request.data
-        del req_data['content']
+        if 'content' in req_data:
+            del req_data['content']
+        if content_list:
+            req_data['last_edited'] = datetime.now()
         serializer = serialize.EntrySerializer(entry, data=req_data, partial=True, context={'user': request.user})
         if not serializer.is_valid():
             response.bad_request()
