@@ -150,9 +150,8 @@ def select_create_journal(request, user, assignment, roles):
             end = datetime.strptime(request['custom_assignment_due'], '%Y-%m-%d %X %z')
             now = datetime.now(timezone.utc)
             within_assignment_timeframe = begin < now < end
-        except Exception as e:
-            if 'custom_assignment_unlock' in request:
-                print(e)
+        except ValueError:
+            pass
 
         if journal.grade_url is None or within_assignment_timeframe:
             if 'lis_outcome_service_url' in request:
