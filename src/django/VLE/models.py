@@ -668,6 +668,9 @@ class Lti_ids(models.Model):
     on our site needs to be able to link to multiple course/assignment in the
     linked VLE.
     """
+    ASSIGNMENT = 'Assignment'
+    COURSE = 'Course'
+    TYPES = ((ASSIGNMENT, 'Assignment'), (COURSE, 'Course'))
 
     assignment = models.ForeignKey(
         'Assignment',
@@ -682,7 +685,9 @@ class Lti_ids(models.Model):
     )
 
     lti_id = models.TextField()
-    for_model = models.TextField()
+    for_model = models.TextField(
+        choices=TYPES
+    )
 
     class Meta:
         """A class for meta data.

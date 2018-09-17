@@ -68,7 +68,7 @@ def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=
     course.save()
 
     if lti_id is not None:
-        make_lti_ids(lti_id=lti_id, for_model='Course', course=course)
+        make_lti_ids(lti_id=lti_id, for_model=Lti_ids.COURSE, course=course)
 
     # Student, TA and Teacher role are created on course creation as is saves check for lti.
     make_role_student("Student", course)
@@ -125,7 +125,7 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
         for course in courses:
             assign.courses.add(course)
     if lti_id is not None:
-        make_lti_ids(lti_id=lti_id, for_model='Assignment', assignment=assign)
+        make_lti_ids(lti_id=lti_id, for_model=Lti_ids.ASSIGNMENT, assignment=assign)
     if points_possible is not None:
         assign.points_possible = points_possible
     if unlock_date is not None:

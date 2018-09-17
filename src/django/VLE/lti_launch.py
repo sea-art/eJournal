@@ -114,10 +114,10 @@ def create_lti_query_link(names, values):
 def check_course_lti(request, user, role):
     """Check is an course with the lti_id exists"""
     course_id = request['custom_course_id']
-    courses = Lti_ids.objects.filter(lti_id=course_id, for_model='Course')
+    lti_couples = Lti_ids.objects.filter(lti_id=course_id, for_model=Lti_ids.COURSE)
 
-    if courses.count() > 0:
-        course = courses[0].course
+    if lti_couples.count() > 0:
+        course = lti_couples[0].course
         if user not in course.users.all():
             factory.make_participation(user, course, Role.objects.get(name=role, course=course))
         return course
@@ -127,9 +127,9 @@ def check_course_lti(request, user, role):
 def check_assignment_lti(request):
     """Check is an assignment with the lti_id exists"""
     assign_id = request['custom_assignment_id']
-    assignments = Lti_ids.objects.filter(lti_id=assign_id, for_model='Assignment')
-    if assignments.count() > 0:
-        return assignments[0].assignment
+    lti_couples = Lti_ids.objects.filter(lti_id=assign_id, for_model=Lti_ids.ASSIGNMENT)
+    if lti_couples.count() > 0:
+        return lti_couples[0].assignment
     return None
 
 

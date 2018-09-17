@@ -138,7 +138,7 @@ class CourseView(viewsets.ViewSet):
 
         data = request.data
         if 'lti_id' in data:
-            factory.make_lti_ids(lti_id=data['lti_id'], for_model='Course', course=course)
+            factory.make_lti_ids(lti_id=data['lti_id'], for_model=Lti_ids.COURSE, course=course)
 
         serializer = self.serializer_class(course, data=data, partial=True)
         if not serializer.is_valid():

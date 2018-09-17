@@ -158,7 +158,7 @@ class AssignmentView(viewsets.ViewSet):
 
         try:
             if 'lti' in request.query_params:
-                assignment = Lti_ids.objects.filter(lti_id=pk, for_model='Assignment')[0].assignment
+                assignment = Lti_ids.objects.filter(lti_id=pk, for_model=Lti_ids.ASSIGNMENT)[0].assignment
             else:
                 assignment = Assignment.objects.get(pk=pk)
         except (Assignment.DoesNotExist, IndexError):
@@ -225,7 +225,7 @@ class AssignmentView(viewsets.ViewSet):
             data = request.data
 
             if 'lti_id' in data:
-                factory.make_lti_ids(lti_id=data['lti_id'], for_model='Assignment', assignment=assignment)
+                factory.make_lti_ids(lti_id=data['lti_id'], for_model=Lti_ids.ASSIGNMENT, assignment=assignment)
 
             serializer = AssignmentSerializer(assignment, data=data, context={'user': request.user}, partial=True)
             if not serializer.is_valid():
