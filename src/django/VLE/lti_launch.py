@@ -4,6 +4,7 @@ import oauth2
 
 from VLE.models import User, Role, Journal, Lti_ids
 import VLE.factory as factory
+from datetime import datetime, timezone
 
 
 class OAuthRequestValidater(object):
@@ -143,12 +144,22 @@ def select_create_journal(request, user, assignment, roles):
         else:
             journal = factory.make_journal(assignment, user)
 
-        if 'lis_outcome_service_url' in request:
-            journal.grade_url = request['lis_outcome_service_url']
-            journal.save()
-        if 'lis_result_sourcedid' in request:
-            journal.sourcedid = request['lis_result_sourcedid']
-            journal.save()
+        try:
+            begin = datetime.strptime(request['custom_assignment_unlock'], '%Y-%m-%d %X %z')
+            end = datetime.strptime(request['custom_assignment_due'], '%Y-%m-%d %X %z')
+            # TODO Should be lock but when lock has pass the link is disabled for students so
+            # end = datetime.strptime(request['custom_assignment_lock'], '%Y-%m-%d %X %z')
+            now = datetime.now(timezone.utc)
+        except Exception as e:
+            print(e)
+
+        if begin < now < end:
+            if 'lis_outcome_service_url' in request:
+                journal.grade_url = request['lis_outcome_service_url']
+                journal.save()
+            if 'lis_result_sourcedid' in request:
+                journal.sourcedid = request['lis_result_sourcedid']
+                journal.save()
     else:
         journal = None
     return journal
