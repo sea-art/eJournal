@@ -151,9 +151,10 @@ def select_create_journal(request, user, assignment, roles):
             # end = datetime.strptime(request['custom_assignment_lock'], '%Y-%m-%d %X %z')
             now = datetime.now(timezone.utc)
         except Exception as e:
-            print(e)
+            if 'custom_assignment_unlock' in request:
+                print(e)
 
-        if begin < now < end:
+        if journal.grade_url is None or begin < now < end:
             if 'lis_outcome_service_url' in request:
                 journal.grade_url = request['lis_outcome_service_url']
                 journal.save()
