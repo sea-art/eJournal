@@ -147,8 +147,6 @@ def select_create_journal(request, user, assignment, roles):
         try:
             begin = datetime.strptime(request['custom_assignment_unlock'], '%Y-%m-%d %X %z')
             end = datetime.strptime(request['custom_assignment_due'], '%Y-%m-%d %X %z')
-            # TODO Should be lock but when lock has pass the link is disabled for students so
-            # end = datetime.strptime(request['custom_assignment_lock'], '%Y-%m-%d %X %z')
             now = datetime.now(timezone.utc)
         except Exception as e:
             if 'custom_assignment_unlock' in request:

@@ -6,7 +6,7 @@ Sometimes this also supports extra functionallity like adding courses to assignm
 """
 from VLE.models import User, Participation, Course, Assignment, Role, Format, PresetNode, Node, Comment, \
     Entry, Template, Field, Content, Journal, UserFile, Group, Lti_ids
-import django.utils.timezone as timezone
+from django.utils import timezone
 
 
 def make_user(username, password, email, lti_id=None, profile_picture=None,
@@ -129,10 +129,16 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
     if points_possible is not None:
         assign.points_possible = points_possible
     if unlock_date is not None:
+        if len(unlock_date.split(' ')) > 2:
+            unlock_date = unlock_date[:-1-len(unlock_date.split(' ')[2])]
         assign.unlock_date = unlock_date
     if due_date is not None:
+        if len(due_date.split(' ')) > 2:
+            due_date = due_date[:-1-len(due_date.split(' ')[2])]
         assign.due_date = due_date
     if lock_date is not None:
+        if len(lock_date.split(' ')) > 2:
+            lock_date = lock_date[:-1-len(lock_date.split(' ')[2])]
         assign.lock_date = lock_date
     assign.save()
 
