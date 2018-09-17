@@ -150,7 +150,7 @@ def select_create_journal(request, user, assignment, roles):
             end = datetime.strptime(request['custom_assignment_due'], '%Y-%m-%d %X %z')
             now = datetime.now(timezone.utc)
             within_assignment_timeframe = begin < now < end
-        except ValueError:
+        except (ValueError, KeyError):
             pass
 
         if journal.grade_url is None or within_assignment_timeframe:
