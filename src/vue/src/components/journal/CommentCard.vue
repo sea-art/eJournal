@@ -18,7 +18,7 @@
                             Edit
                         </b-button>
                         <div v-html="comment.text"/>
-                        <hr/>
+                        <hr class="full-width"/>
                         <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b>
                         <span v-if="comment.published && !comment.last_edited" class="timestamp">
                             {{ $root.beautifyDate(comment.timestamp) }}<br/>
@@ -50,7 +50,7 @@
                 </b-card>
             </div>
         </div>
-        <div v-if="$hasPermission('can_comment_journal')" class="comment-section">
+        <div v-if="$hasPermission('can_comment')" class="comment-section">
             <img class="profile-picture no-hover" :src="$store.getters['user/profilePicture']">
             <b-card class="no-hover new-comment">
                 <text-editor
@@ -61,7 +61,7 @@
                     @content-update="tempComment = $event"
                 />
                 <div class="d-flex full-width justify-content-end align-items-center">
-                    <b-form-checkbox v-if="$hasPermission('can_grade_journal') && !entryGradePublished" v-model="publishAfterGrade">
+                    <b-form-checkbox v-if="$hasPermission('can_grade') && !entryGradePublished" v-model="publishAfterGrade">
                         Publish after grade
                     </b-form-checkbox>
                     <b-button class="send-button mt-2" @click="addComment">
@@ -141,8 +141,11 @@ export default {
                     published: this.entryGradePublished || !this.publishAfterGrade
                 })
                     .then(comment => {
-                        // TODO Append comment rather than fire a get all entry comments request.
-                        this.getComments()
+                        this.commentObject.push(comment)
+                        for (var i = 0; i < this.commentObject.length; i++) {
+                            this.editCommentStatus.push(false)
+                            this.editCommentTemp.push('')
+                        }
                         this.tempComment = ''
                         this.$refs['comment-text-editor-ref'].clearContent()
                     })
@@ -168,8 +171,17 @@ export default {
         deleteComment (cID) {
             if (confirm('Are you sure you want to delete this comment?')) {
                 commentAPI.delete(cID)
-                    // TODO Remove comment locally rather than firing a new request for all entry comments
-                    .then(_ => { this.getComments(this.eID) })
+                    .then(_ => {
+                        for (var i in this.commentObject) {
+                            if (this.commentObject[i].id === cID) {
+                                this.commentObject.splice(i, 1)
+                            }
+                        }
+                        for (_ in this.commentObject) {
+                            this.editCommentStatus.push(false)
+                            this.editCommentTemp.push('')
+                        }
+                    })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         }
@@ -178,7 +190,6 @@ export default {
 </script>
 
 <style lang="sass">
-@import '~sass/modules/colors.sass'
 .comment-section
     display: flex
     .profile-picture
@@ -193,15 +204,4 @@ export default {
     .comment-card
         .card-body
             padding-bottom: 5px
-        hr
-            width: 120%
-            margin-left: -10px !important
-            border-color: $theme-dark-grey
-            margin: 30px 0px 5px 0px
-    .timestamp
-        float: right
-        font-family: 'Roboto Condensed', sans-serif
-        color: grey
-        svg
-            fill: grey
 </style>

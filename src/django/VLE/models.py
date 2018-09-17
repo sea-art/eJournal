@@ -7,6 +7,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
 from VLE.utils.file_handling import get_path
+from django.core.exceptions import ValidationError
 
 
 class UserFile(models.Model):
@@ -176,29 +177,52 @@ class Role(models.Model):
         Course,
         on_delete=models.CASCADE
     )
-    # GLOBAL: is_superuser
-    # GLOBAL: can_edit_institute
 
-    # Course permissions.
-    can_edit_course_roles = models.BooleanField(default=False)
-    # GLOBAL: can_add_course
-    can_view_course_participants = models.BooleanField(default=False)
-    can_add_course_participants = models.BooleanField(default=False)
-    can_edit_course = models.BooleanField(default=False)
+    can_add_course = models.BooleanField(default=False)
+
+    can_edit_course_details = models.BooleanField(default=False)
     can_delete_course = models.BooleanField(default=False)
-
-    # Assignment permissions
+    can_edit_course_roles = models.BooleanField(default=False)
+    can_view_course_users = models.BooleanField(default=False)
+    can_add_course_users = models.BooleanField(default=False)
+    can_delete_course_users = models.BooleanField(default=False)
+    can_add_course_user_group = models.BooleanField(default=False)
+    can_delete_course_user_group = models.BooleanField(default=False)
+    can_edit_course_user_group = models.BooleanField(default=False)
     can_add_assignment = models.BooleanField(default=False)
-    can_edit_assignment = models.BooleanField(default=False)
-    can_view_assignment_participants = models.BooleanField(default=False)
     can_delete_assignment = models.BooleanField(default=False)
-    can_publish_assignment_grades = models.BooleanField(default=False)
 
-    # Journal permissions.
-    can_grade_journal = models.BooleanField(default=False)
-    can_publish_journal_grades = models.BooleanField(default=False)
-    can_edit_journal = models.BooleanField(default=False)
-    can_comment_journal = models.BooleanField(default=False)
+    can_edit_assignment = models.BooleanField(default=False)
+    can_view_assignment_journals = models.BooleanField(default=False)
+    can_grade = models.BooleanField(default=False)
+    can_publish_grades = models.BooleanField(default=False)
+    can_have_journal = models.BooleanField(default=False)
+    can_comment = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if self.can_add_course_users and not self.can_view_course_users:
+            raise ValidationError('A user needs to view course users in order to add them.')
+
+        if self.can_delete_course_users and not self.can_view_course_users:
+            raise ValidationError('A user needs to view course users in order to remove them.')
+
+        if self.can_edit_course_user_group and not self.can_view_course_users:
+            raise ValidationError('A user needs to view course users in order to manage user groups.')
+
+        if self.can_view_assignment_journals and self.can_have_journal:
+            raise ValidationError('An administrative user is not allowed to have a journal in the same course.')
+
+        if self.can_grade and not self.can_view_assignment_journals:
+            raise ValidationError('A user needs to be able to view journals in order to grade them.')
+
+        if self.can_publish_grades and not (self.can_view_assignment_journals and self.can_grade):
+            raise ValidationError('A user should not be able to publish grades without being able to view or grade \
+                                  the journals.')
+
+        if self.can_comment and not (self.can_view_assignment_journals or self.can_have_journal):
+            raise ValidationError('A user requires a journal to comment on.')
+
+        super(Role, self).save(*args, **kwargs)
 
     def __str__(self):
         """toString."""
@@ -267,6 +291,21 @@ class Assignment(models.Model):
     )
     points_possible = models.IntegerField(
         'points_possible',
+        null=True,
+        blank=True
+    )
+    unlock_date = models.DateTimeField(
+        'unlock_date',
+        null=True,
+        blank=True
+    )
+    due_date = models.DateTimeField(
+        'due_date',
+        null=True,
+        blank=True
+    )
+    lock_date = models.DateTimeField(
+        'lock_date',
         null=True,
         blank=True
     )
@@ -478,8 +517,9 @@ class Entry(models.Model):
     An Entry has the following features:
     - journal: a foreign key linked to an Journal.
     - createdate: the date and time when the entry was posted.
-    - late: if the entry was posted late or not.
-    - TODO: edited_at
+    - grade: grade the entry has
+    - published: if its a published grade or not
+    - last_edited: when the etry was last edited
     """
 
     template = models.ForeignKey(
@@ -496,6 +536,10 @@ class Entry(models.Model):
     )
     published = models.BooleanField(
         default=False
+    )
+    last_edited = models.DateTimeField(
+        default=None,
+        null=True
     )
 
     def __str__(self):

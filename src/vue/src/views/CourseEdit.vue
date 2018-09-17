@@ -8,13 +8,13 @@
             <b-form @submit.prevent="onSubmit">
                 <h2 class="field-heading">Course name</h2>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                    :readonly="!$hasPermission('can_edit_course')"
+                    :readonly="!$hasPermission('can_edit_course_details')"
                     v-model="course.name"
                     placeholder="Course name"
                     required/>
                 <h2 class="field-heading">Course abbreviation</h2>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                    :readonly="!$hasPermission('can_edit_course')"
+                    :readonly="!$hasPermission('can_edit_course_details')"
                     v-model="course.abbreviation"
                     maxlength="10"
                     placeholder="Course abbreviation (max 10 characters)"
@@ -23,7 +23,7 @@
                     <b-col xs="6">
                         <h2 class="field-heading">From</h2>
                         <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                            :readonly="!$hasPermission('can_edit_course')"
+                            :readonly="!$hasPermission('can_edit_course_details')"
                             v-model="course.startdate"
                             type="date"
                             required/>
@@ -31,47 +31,49 @@
                     <b-col xs="6">
                         <h2 class="field-heading">To</h2>
                         <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                            :readonly="!$hasPermission('can_edit_course')"
+                            :readonly="!$hasPermission('can_edit_course_details')"
                             v-model="course.enddate"
                             type="date"
                             required/>
                     </b-col>
                 </b-row>
-                <b-row>
-                    <b-col class="d-flex flex-wrap">
-                        <b-button v-if="$hasPermission('can_delete_course')"
-                            @click.prevent.stop="deleteCourse()"
-                            class="delete-button flex-grow-1 multi-form">
-                            <icon name="trash"/>
-                            Delete Course
-                        </b-button>
-                        <b-button v-if="$hasPermission('can_edit_course_roles')"
-                            @click.prevent.stop="routeToEditCourseRoles"
-                            class="change-button flex-grow-1 multi-form">
-                            <icon name="users"/>
-                            Manage Roles and Permissions
-                        </b-button>
-                        <group-modal v-if="$hasPermission('can_edit_course')"
-                                     :cID="this.cID"
-                                     :groups="this.groups"
-                                     @create-group="createGroup"
-                                     @delete-group="deleteGroup"
-                                     @update-group="updateGroup">
-                        </group-modal>
-
-                        <b-button class="add-button flex-grow-1 multi-form"
-                            type="submit"
-                            v-if="$hasPermission('can_edit_course')">
-                            <icon name="save"/>
-                            Save
-                        </b-button>
-                    </b-col>
-                </b-row>
+                <b-button class="add-button float-right"
+                    type="submit"
+                    v-if="$hasPermission('can_edit_course_details')">
+                    <icon name="save"/>
+                    Save
+                </b-button>
             </b-form>
         </b-card>
 
+        <b-card class="no-hover">
+            <b-row>
+                <b-col class="d-flex flex-wrap">
+                    <b-button v-if="$hasPermission('can_delete_course')"
+                        @click.prevent.stop="deleteCourse()"
+                        class="delete-button flex-grow-1">
+                        <icon name="trash"/>
+                        Delete Course
+                    </b-button>
+                    <b-button v-if="$hasPermission('can_edit_course_roles')"
+                        @click.prevent.stop="routeToEditCourseRoles"
+                        class="change-button flex-grow-1">
+                        <icon name="cog"/>
+                        Manage Permissions
+                    </b-button>
+                    <group-modal v-if="$hasPermission('can_edit_course_details')"
+                                 :cID="this.cID"
+                                 :groups="this.groups"
+                                 @create-group="createGroup"
+                                 @delete-group="deleteGroup"
+                                 @update-group="updateGroup">
+                    </group-modal>
+                </b-col>
+            </b-row>
+        </b-card>
+
         <div>
-            <b-card v-if="$hasPermission('can_add_course_participants')" class="no-hover">
+            <b-card v-if="$hasPermission('can_add_course_users')" class="no-hover">
                 <h2 class="mb-2">Manage course members</h2>
                 <div class="d-flex">
                     <input
@@ -81,11 +83,11 @@
                         placeholder="Search..."/>
                     <b-button v-if="viewEnrolled" v-on:click.stop @click="toggleEnroled" class="multi-form">
                         <icon name="users"/>
-                        Show enrolled
+                        Enrolled
                     </b-button>
                     <b-button v-if="!viewEnrolled" v-on:click.stop @click="toggleEnroled" class="multi-form">
-                        <icon name="user"/>
-                        Show unenrolled
+                        <icon name="user-plus"/>
+                        Unenrolled
                     </b-button>
                 </div>
                 <div class="d-flex">
@@ -105,7 +107,7 @@
                         <icon name="long-arrow-down"/>
                         Ascending
                     </b-button>
-                    <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="full-width multi-form">
+                    <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="multi-form">
                         <icon name="long-arrow-up"/>
                         Descending
                     </b-button>
@@ -159,6 +161,7 @@ export default {
     data () {
         return {
             course: {},
+            originalCourse: {},
             form: {},
             participants: [],
             unenrolledStudents: [],
@@ -183,7 +186,10 @@ export default {
     },
     created () {
         courseAPI.get(this.cID)
-            .then(course => { this.course = course })
+            .then(course => {
+                this.course = course
+                this.originalCourse = this.deepCopyCourse(course)
+            })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
         groupAPI.getAllFromCourse(this.cID)
@@ -194,7 +200,7 @@ export default {
             .then(roles => { this.roles = roles })
             .catch(error => { this.$toated.error(error.response.data.description) })
 
-        if (this.$hasPermission('can_view_course_participants')) {
+        if (this.$hasPermission('can_view_course_users')) {
             roleAPI.getFromCourse(this.cID)
                 .then(roles => { this.roles = roles })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
@@ -251,7 +257,7 @@ export default {
                 .catch(error => { this.$toasted.error(error.response.data.description) })
 
             // TODO replace api function with frontend function
-            if (this.$hasPermission('can_view_course_participants')) {
+            if (this.$hasPermission('can_view_course_users')) {
                 participationAPI.getEnrolled(this.cID)
                     .then(users => { this.participants = users })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
@@ -263,7 +269,7 @@ export default {
                 .then(groups => { this.groups = groups })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
 
-            if (this.$hasPermission('can_view_course_participants')) {
+            if (this.$hasPermission('can_view_course_users')) {
                 participationAPI.getEnrolled(this.cID)
                     .then(users => { this.participants = users })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
@@ -291,6 +297,23 @@ export default {
         },
         toggleEnroled () {
             this.viewEnrolled = !this.viewEnrolled
+        },
+        deepCopyCourse (course) {
+            var copyCourse = {
+                name: course.name, abbreviation: course.abbreviation, startdate: course.startdate, enddate: course.enddate
+            }
+
+            return copyCourse
+        },
+        checkChanged () {
+            if (this.course.name !== this.originalCourse.name ||
+                    this.course.abbreviation !== this.originalCourse.abbreviation ||
+                    this.course.startdate !== this.originalCourse.startdate ||
+                    this.course.enddate !== this.originalCourse.enddate) {
+                return true
+            }
+
+            return false
         }
     },
     computed: {
@@ -354,6 +377,14 @@ export default {
         'course-participant-card': courseParticipantCard,
         'group-modal': groupModal,
         icon
+    },
+    beforeRouteLeave (to, from, next) {
+        if (this.checkChanged() && !confirm('Unsaved changes will be lost if you leave. Do you wish to continue?')) {
+            next(false)
+            return
+        }
+
+        next()
     }
 }
 </script>

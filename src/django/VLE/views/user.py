@@ -276,7 +276,6 @@ class UserView(viewsets.ViewSet):
         request.user.save()
         return response.success(description='Succesfully changed the password.')
 
-    # TODO: Fix this stuff
     # TODO: limit this request for end users, otherwise its really easy to DDOS the server.
     @action(methods=['get'], detail=True)
     def GDPR(self, request, pk):
@@ -301,14 +300,12 @@ class UserView(viewsets.ViewSet):
         user = User.objects.get(pk=pk)
 
         # Check the right permissions to get this users data, either be the user of the data or be an admin.
-        permission = permissions.get_permissions(user, cID=-1)
-        if not permission['is_superuser'] and request.user.id != pk:
+        if not user.is_superuser or request.user.id is not pk:
             return response.forbidden('You cannot view this users data.')
 
         profile = UserSerializer(user).data
         journals = Journal.objects.filter(user=pk)
         journal_dict = {}
-        # TODO: Add entry serializer
         for journal in journals:
             # Select the nodes of this journal but only the ones with entries.
             entry_ids = Node.objects.filter(journal=journal).exclude(entry__isnull=True).values_list('entry', flat=True)
@@ -322,7 +319,6 @@ class UserView(viewsets.ViewSet):
 
         return response.file(archive_path)
 
-    # TODO: check if it works
     @action(methods=['get'], detail=True)
     def download(self, request, pk):
         """Get a user file by name if it exists.
@@ -358,12 +354,11 @@ class UserView(viewsets.ViewSet):
 
         if user_file.author.id is not request.user.id and \
            not permissions.has_assignment_permission(
-                request.user, user_file.assignment, 'can_view_assignment_participants'):
+                request.user, user_file.assignment, 'can_view_assignment_journals'):
             return response.forbidden('Forbidden to view: %s by author ID: %s.' % (file_name, pk))
 
         return response.file(os.path.join(settings.MEDIA_ROOT, user_file.file.name))
 
-    # TODO: Check if it works
     @action(methods=['post'], detail=False)
     def upload(self, request):
         """Update user profile picture.
@@ -423,7 +418,6 @@ class UserView(viewsets.ViewSet):
 
         return response.success(description='Succesfully uploaded {:s}.'.format(request.FILES['file'].name))
 
-    # TODO: check if it works
     @action(['post'], detail=False)
     def set_profile_picture(self, request):
         """Update user profile picture.

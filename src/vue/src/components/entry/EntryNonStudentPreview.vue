@@ -6,7 +6,7 @@
 <template>
     <div v-if="entryNode.entry !== null">
         <b-card class="entry-card no-hover entry-card-teacher" :class="$root.getBorderClass($route.params.cID)">
-            <div v-if="$hasPermission('can_grade_journal')" class="grade-section shadow sticky">
+            <div v-if="$hasPermission('can_grade')" class="grade-section shadow sticky">
                 <b-form-input class="theme-input" step="0.01" size="2" v-model="grade" autofocus placeholder="0" min="0.0"></b-form-input>
                 <b-form-checkbox v-model="published" value=true unchecked-value=false data-toggle="tooltip" title="Show grade to student">
                     Published
@@ -62,6 +62,12 @@
                 <div v-if="field.type == 'u'">
                     <a :href="completeContent[i].data">{{ completeContent[i].data }}</a>
                 </div>
+            </div>
+            <div v-if="entryNode.entry.last_edited">
+                <hr/>
+                <span class="timestamp">
+                    Last edited: {{ $root.beautifyDate(entryNode.entry.last_edited) }}<br/>
+                </span>
             </div>
         </b-card>
 
@@ -178,3 +184,18 @@ export default {
     }
 }
 </script>
+<style lang="sass">
+@import '~sass/modules/colors.sass'
+.timestamp
+    float: right
+    font-family: 'Roboto Condensed', sans-serif
+    color: grey
+    svg
+        fill: grey
+
+hr
+    width: 120%
+    margin-left: -10px !important
+    border-color: $theme-dark-grey
+    margin: 30px 0px 5px 0px
+</style>

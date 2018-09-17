@@ -20,7 +20,6 @@ MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
 # TODO Whitelist image extensions
-# TODO Define profile picture max size, user file max size and max total files
 
 # TODO Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/

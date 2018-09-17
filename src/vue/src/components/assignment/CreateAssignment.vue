@@ -3,25 +3,46 @@
         <!-- TODO: Create default formats. -->
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
             <h2 class="field-heading">Assignment Name</h2>
-            <b-input
-                class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+            <b-input class="multi-form theme-input"
                 v-model="form.assignmentName"
                 placeholder="Assignment name"
                 required
             />
-            <h2 class="field-heading">Points possible</h2>
-            <b-input
-                class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                v-model="form.pointsPossible"
-                placeholder="Points"
-                type="number"/>
             <h2 class="field-heading">Description</h2>
-            <text-editor
+            <text-editor class="multi-form"
                 :id="'text-editor-assignment-description'"
                 :givenContent="'Description of the assignment'"
                 @content-update="form.assignmentDescription = $event"
                 :footer="false"
             />
+            <h2 class="field-heading">Points possible</h2>
+            <b-input class="multi-form theme-input"
+            v-model="form.pointsPossible"
+            placeholder="Points"
+            type="number"/>
+            <b-row>
+                <b-col xl="4">
+                    <h2 class="field-heading">Unlock date</h2>
+                    <b-input class="multi-form theme-input"
+                    :value="form.unlockDate && form.unlockDate.replace(' ', 'T')"
+                    @input="form.unlockDate = $event && $event.replace('T', ' ')"
+                    type="datetime-local"/>
+                </b-col>
+                <b-col xl="4">
+                    <h2 class="field-heading">Due date</h2>
+                    <b-input class="multi-form theme-input"
+                    :value="form.dueDate && form.dueDate.replace(' ', 'T')"
+                    @input="form.dueDate = $event && $event.replace('T', ' ')"
+                    type="datetime-local"/>
+                </b-col>
+                <b-col xl="4">
+                    <h2 class="field-heading">Lock date</h2>
+                    <b-input class="multi-form theme-input"
+                    :value="form.lockDate && form.lockDate.replace(' ', 'T')"
+                    @input="form.lockDate = $event && $event.replace('T', ' ')"
+                    type="datetime-local"/>
+                </b-col>
+            </b-row>
             <b-button class="float-left change-button mt-2" type="reset">
                 <icon name="undo"/>
                 Reset
@@ -50,7 +71,10 @@ export default {
                 assignmentDescription: '',
                 courseID: '',
                 ltiAssignID: null,
-                pointsPossible: null
+                pointsPossible: null,
+                unlockDate: null,
+                dueDate: null,
+                lockDate: null
             }
         }
     },
@@ -65,7 +89,10 @@ export default {
                 description: this.form.assignmentDescription,
                 course_id: this.form.courseID,
                 lti_id: this.form.ltiAssignID,
-                points_possible: this.form.pointsPossible
+                points_possible: this.form.pointsPossible,
+                unlock_date: this.form.unlockDate,
+                due_date: this.form.dueDate,
+                lock_date: this.form.lockDate
             })
                 .then(assignment => {
                     this.$emit('handleAction', assignment.id)
@@ -83,6 +110,9 @@ export default {
             /* Reset our form values */
             this.form.assignmentName = ''
             this.form.assignmentDescription = ''
+            this.form.unlockDate = undefined
+            this.form.dueDate = undefined
+            this.form.lockDate = undefined
 
             /* Trick to reset/clear native browser form validation state */
             this.show = false
@@ -94,6 +124,9 @@ export default {
             this.form.assignmentName = this.lti.ltiAssignName
             this.form.ltiAssignID = this.lti.ltiAssignID
             this.form.pointsPossible = this.lti.ltiPointsPossible
+            this.form.unlockDate = this.lti.ltiAssignUnlock.slice(0, -9)
+            this.form.dueDate = this.lti.ltiAssignDue.slice(0, -9)
+            this.form.lockDate = this.lti.ltiAssignLock.slice(0, -9)
             this.form.courseID = this.page.cID
         } else {
             this.form.courseID = this.$route.params.cID

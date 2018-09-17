@@ -22,10 +22,8 @@
                         </b-card>
                     </div>
                 </div>
-                <b-card  v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-                    <h2>{{ assignment.name }}</h2>
-                    <div v-html="assignment.description"/>
-                </b-card>
+                <journal-start-card v-else-if="currentNode === -1" :assignment="assignment"/>
+                <journal-end-card v-else :assignment="assignment"/>
             </b-col>
         </b-col>
 
@@ -63,7 +61,7 @@
                                 <icon name="arrow-right"/>
                             </b-button>
                         </div>
-                        <b-button v-if="$hasPermission('can_publish_assignment_grades')" class="add-button flex-grow-1 full-width" @click="publishGradesJournal">
+                        <b-button v-if="$hasPermission('can_publish_grades')" class="add-button flex-grow-1 full-width" @click="publishGradesJournal">
                             <icon name="upload"/>
                             Publish All Grades
                         </b-button>
@@ -82,6 +80,8 @@ import edag from '@/components/edag/Edag.vue'
 import studentCard from '@/components/assignment/StudentCard.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import journalStartCard from '@/components/journal/JournalStartCard.vue'
+import journalEndCard from '@/components/journal/JournalEndCard.vue'
 
 import icon from 'vue-awesome/components/Icon'
 import store from '@/Store.vue'
@@ -131,7 +131,7 @@ export default {
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
         if (store.state.filteredJournals.length === 0) {
-            if (this.$hasPermission('can_view_assignment_participants')) {
+            if (this.$hasPermission('can_view_assignment_journals')) {
                 journalAPI.getFromAssignment(this.aID)
                     .then(journals => { this.assignmentJournals = journals })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
@@ -152,7 +152,7 @@ export default {
     },
     watch: {
         currentNode: function () {
-            if (this.currentNode !== -1 && this.nodes[this.currentNode].type === 'p') {
+            if (this.currentNode !== -1 && this.currentNode !== this.nodes.length && this.nodes[this.currentNode].type === 'p') {
                 this.progressPoints(this.nodes[this.currentNode])
                 this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].id]
             }
@@ -184,7 +184,12 @@ export default {
                 return this.currentNode
             }
 
-            if (this.currentNode === -1 || this.nodes[this.currentNode].type !== 'e' ||
+            if (!this.discardChanges()) {
+                return
+            }
+
+            if (this.currentNode === -1 || this.currentNode === this.nodes.length ||
+                this.nodes[this.currentNode].type !== 'e' ||
                 this.nodes[this.currentNode].type !== 'd') {
                 this.currentNode = $event
                 return
@@ -196,7 +201,6 @@ export default {
                 }
             }
 
-            this.$refs['entry-template-card'].cancel()
             this.currentNode = $event
         },
         progressPoints (progressNode) {
@@ -284,6 +288,18 @@ export default {
             if (a < b) { return -1 }
             if (a > b) { return 1 }
             return 0
+        },
+        discardChanges () {
+            if (this.currentNode !== -1 && this.currentNode !== this.nodes.length && (this.nodes[this.currentNode].type === 'e' ||
+                (this.nodes[this.currentNode].type === 'd' && this.nodes[this.currentNode].entry !== null))) {
+                if ((this.$refs['entry-template-card'].grade !== this.nodes[this.currentNode].entry.grade ||
+                    this.$refs['entry-template-card'].published !== this.nodes[this.currentNode].entry.published) &&
+                    !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                    return false
+                }
+            }
+
+            return true
         }
     },
     components: {
@@ -295,7 +311,9 @@ export default {
         store,
         'student-card': studentCard,
         icon,
-        'progress-bar': progressBar
+        'progress-bar': progressBar,
+        'journal-start-card': journalStartCard,
+        'journal-end-card': journalEndCard
     },
     computed: {
         filteredJournals: function () {

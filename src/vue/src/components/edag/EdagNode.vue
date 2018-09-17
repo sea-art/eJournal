@@ -47,6 +47,8 @@ export default {
         nodeState () {
             if (this.node.type === 's') {
                 return 'start'
+            } else if (this.node.type === 'n') {
+                return 'end'
             } else if (this.node.type === 'a') {
                 return 'add'
             } else if (this.edit || this.node.type === 'p') {
@@ -54,7 +56,7 @@ export default {
             }
 
             var entry = this.node.entry
-            var isGrader = this.$hasPermission('can_grade_journal')
+            var isGrader = this.$hasPermission('can_grade')
 
             if (entry && entry.published) {
                 return 'graded'

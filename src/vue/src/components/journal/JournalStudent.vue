@@ -22,7 +22,7 @@
                             <entry-node :cID="cID" ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
                         </div>
                         <div v-else>
-                            <entry-preview v-if="checkDeadline()" ref="entry-template-card" @content-template="fillDeadline" :template="nodes[currentNode].template" :cID="cID"/>
+                            <entry-preview v-if="checkDeadline()" ref="entry-prev" @content-template="fillDeadline" :template="nodes[currentNode].template" :cID="cID"/>
                             <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                                 <h2 class="mb-2">{{nodes[currentNode].template.name}}</h2>
                                 <b>The deadline has passed. You can not submit an entry anymore.</b>
@@ -30,7 +30,7 @@
                         </div>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'a'">
-                        <add-card @info-entry="addNode" :addNode="nodes[currentNode]"/>
+                        <add-card @info-entry="addNode" ref="add-card-ref" :addNode="nodes[currentNode]"/>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'p'">
                         <b-card class="no-hover" :class="getProgressBorderClass()">
@@ -42,10 +42,8 @@
                         </b-card>
                     </div>
                 </div>
-                <b-card  v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-                    <h2>{{ assignment.name }}</h2>
-                    <div v-html="assignment.description"/>
-                </b-card>
+                <journal-start-card v-else-if="currentNode === -1" :assignment="assignment" :student="true"/>
+                <journal-end-card v-else :assignment="assignment" :student="true"/>
             </b-col>
         </b-col>
 
@@ -69,6 +67,8 @@ import addCard from '@/components/journal/AddCard.vue'
 import edag from '@/components/edag/Edag.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
+import journalStartCard from '@/components/journal/JournalStartCard.vue'
+import journalEndCard from '@/components/journal/JournalEndCard.vue'
 
 import journalAPI from '@/api/journal'
 import assignmentAPI from '@/api/assignment'
@@ -88,32 +88,37 @@ export default {
         }
     },
     created () {
-        journalAPI.getNodes(this.jID)
-            .then(nodes => {
-                this.nodes = nodes
-                if (this.$route.query.nID !== undefined) {
-                    this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
-                }
+        assignmentAPI.get(this.aID, this.cID)
+            .then(assignment => {
+                this.assignment = assignment
 
-                for (var node of this.nodes) {
-                    if (node.type === 'p') {
-                        this.progressPoints(node)
-                    }
+                if ((!this.assignment.unlock_date || new Date(this.assignment.unlock_date) < new Date()) &&
+                    (!this.assignment.lock_date || new Date(this.assignment.lock_date) > new Date())) {
+                    journalAPI.getNodes(this.jID)
+                        .then(nodes => {
+                            this.nodes = nodes
+                            if (this.$route.query.nID !== undefined) {
+                                this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
+                            }
+
+                            for (var node of this.nodes) {
+                                if (node.type === 'p') {
+                                    this.progressPoints(node)
+                                }
+                            }
+                        })
+                        .catch(error => { this.$toasted.error(error.response.data.description) })
                 }
             })
-            .catch(error => { this.$toasted.error(error.response.data.description) })
+            .catch(_ => this.$toasted.error('Error while loading assignment data.'))
 
         journalAPI.get(this.jID)
             .then(journal => { this.journal = journal })
             .catch(_ => this.$toasted.error('Error while loading journal data.'))
-
-        assignmentAPI.get(this.aID, this.cID)
-            .then(assignment => { this.assignment = assignment })
-            .catch(_ => this.$toasted.error('Error while loading assignment description.'))
     },
     watch: {
         currentNode: function () {
-            if (this.currentNode !== -1 && this.nodes[this.currentNode].type === 'p') {
+            if (this.currentNode !== -1 && this.currentNode !== this.nodes.length && this.nodes[this.currentNode].type === 'p') {
                 this.progressPoints(this.nodes[this.currentNode])
                 this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].nID]
             }
@@ -134,6 +139,37 @@ export default {
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
+        discardChanges () {
+            /*  Checks the node and depending of the type of node
+             *  it will look for possible unsaved changes.
+             *  If there are unsaved changes a confirmation will be asked.
+             */
+            if (this.currentNode !== -1 && this.currentNode !== this.nodes.length && this.nodes[this.currentNode].type === 'd' && this.nodes[this.currentNode].entry === null && this.checkDeadline()) {
+                if (this.$refs['entry-prev'].checkChanges() && !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                    return false
+                }
+            }
+
+            if (this.currentNode !== -1 && this.currentNode !== this.nodes.length && this.nodes[this.currentNode].type === 'd' && this.nodes[this.currentNode].entry !== null) {
+                if (this.$refs['entry-template-card'].saveEditMode === 'Save' && !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                    return false
+                }
+            }
+
+            if (this.currentNode !== -1 && this.currentNode !== this.nodes.length && this.nodes[this.currentNode].type === 'a') {
+                if (this.$refs['add-card-ref'].checkChanges() && !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                    return false
+                }
+            }
+
+            if (this.currentNode !== -1 && this.currentNode !== this.nodes.length && this.nodes[this.currentNode].type === 'e') {
+                if (this.$refs['entry-template-card'].saveEditMode === 'Save' && !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                    return false
+                }
+            }
+
+            return true
+        },
         selectNode ($event) {
             /* Function that prevents you from instant leaving an EntryNode
              * or a DeadlineNode when clicking on a different node in the
@@ -142,20 +178,9 @@ export default {
                 return this.currentNode
             }
 
-            if (this.currentNode === -1 || this.nodes[this.currentNode].type !== 'e' ||
-                this.nodes[this.currentNode].type !== 'd') {
+            if (this.discardChanges()) {
                 this.currentNode = $event
-                return
             }
-
-            if (this.$refs['entry-template-card'].saveEditMode === 'Save') {
-                if (!confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
-                    return
-                }
-            }
-
-            this.$refs['entry-template-card'].cancel()
-            this.currentNode = $event
         },
         addNode (infoEntry) {
             entryAPI.create({
@@ -216,7 +241,7 @@ export default {
             var currentDate = new Date()
             var deadline = new Date(this.nodes[this.currentNode].deadline)
 
-            return currentDate <= deadline
+            return currentDate <= deadline && currentDate <= new Date(this.assignment.due_date)
         }
     },
     components: {
@@ -226,7 +251,9 @@ export default {
         edag,
         'entry-node': entryNode,
         'entry-preview': entryPreview,
-        'progress-bar': progressBar
+        'progress-bar': progressBar,
+        'journal-start-card': journalStartCard,
+        'journal-end-card': journalEndCard
     }
 }
 </script>

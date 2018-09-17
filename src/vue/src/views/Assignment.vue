@@ -1,7 +1,7 @@
 <!-- TODO Is this check really required if we redirect, or even better have correct flow anyway? -->
-<template v-if="$hasPermission('can_view_assignment_participants')">
+<template v-if="$hasPermission('can_view_assignment_journals')">
     <content-columns>
-        <bread-crumb slot="main-content-column" @eye-click="customisePage" @edit-click="handleEdit()"/>
+        <bread-crumb slot="main-content-column" @edit-click="handleEdit()"/>
         <b-card slot="main-content-column" class="no-hover settings-card">
             <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
             <div class="d-flex">
@@ -20,7 +20,7 @@
                 </b-button>
             </div>
             <b-button
-                v-if="$hasPermission('can_publish_assignment_grades') && assignmentJournals.length > 0"
+                v-if="$hasPermission('can_publish_grades') && assignmentJournals.length > 0"
                 class="add-button full-width"
                 @click="publishGradesAssignment">
                 <icon name="upload"/>
@@ -99,7 +99,7 @@ export default {
     created () {
         // TODO Should be moved to the breadcrumb, ensuring there is no more natural flow left that can get you to this
         // page without manipulating the url manually. If someone does this, simply let the error be thrown (no checks required)
-        if (!this.$hasPermission('can_view_assignment_participants')) {
+        if (!this.$hasPermission('can_view_assignment_journals')) {
             if (this.$root.previousPage) {
                 this.$router.push({ name: this.$root.previousPage.name, params: this.$root.previousPage.params })
             } else {

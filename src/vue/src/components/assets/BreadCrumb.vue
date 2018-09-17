@@ -19,9 +19,6 @@
             </h4>
             <h1>
                 {{ crumbs.slice(-1)[0].displayName }}
-                <slot>
-                    <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
-                </slot>
             </h1>
         </div>
     </div>
@@ -116,17 +113,14 @@ export default {
                     .then(_ => { store.setCachedMap(this.cachedMap) })
             }
         },
-        eyeClick () {
-            this.$emit('eye-click')
-        },
         editClick () {
             this.$emit('edit-click')
         },
         canEdit () {
             var pageName = this.$route.name
 
-            if ((pageName === 'Home' && this.$hasPermission('is_superuser')) ||
-               (pageName === 'Course' && this.$hasPermission('can_edit_course')) ||
+            if ((pageName === 'Home' && this.$hasPermission('can_edit_institute_details')) ||
+               (pageName === 'Course' && this.$hasPermission('can_edit_course_details')) ||
                (pageName === 'Assignment' && this.$hasPermission('can_edit_assignment'))) {
                 return true
             }

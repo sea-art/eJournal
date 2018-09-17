@@ -8,9 +8,8 @@
         <div v-if="show && loaded && numPages !== 0" class="pdf-menu-container">
             <icon name="arrow-left" @click.native="page = (page - 1 > 0) ? page - 1 : numPages" class="action-icon"/>
             <icon name="arrow-right" @click.native="page = (page + 1 > numPages) ? 1 : page + 1" class="action-icon"/>
-            <!-- TODO find appropriate icons and decide if rotating is a wanted functionality -->
-            <!-- <button @click="rotate += 90">&#x27F3;</button> -->
-            <!-- <button @click="rotate -= 90">&#x27F2;</button> -->
+            <icon name="undo" @click.native="rotate -= 90" class="action-icon"/>
+            <icon name="undo" @click.native="rotate += 90" class="action-icon redo"/>
             <icon name="print" @click.native="print" class="action-icon"/>
             <icon @click.native="downloadLink.click()" name="save" class="action-icon"/>
             {{ page }} / {{ numPages }}
@@ -130,4 +129,11 @@ export default {
         text-decoration: underline !important
     svg
         margin-bottom: -2px
+
+.redo
+    -moz-transform: scale(-1, 1)
+    -webkit-transform: scale(-1, 1)
+    -o-transform: scale(-1, 1)
+    -ms-transform: scale(-1, 1)
+    transform: scale(-1, 1)
 </style>
