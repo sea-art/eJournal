@@ -62,11 +62,11 @@
                         Manage Permissions
                     </b-button>
                     <group-modal v-if="$hasPermission('can_edit_course_details')"
-                                 :cID="this.cID"
-                                 :groups="this.groups"
-                                 @create-group="createGroup"
-                                 @delete-group="deleteGroup"
-                                 @update-group="updateGroup">
+                        :cID="this.cID"
+                        :groups="this.groups"
+                        @create-group="createGroup"
+                        @delete-group="deleteGroup"
+                        @update-group="updateGroup">
                     </group-modal>
                 </b-col>
             </b-row>

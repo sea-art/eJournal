@@ -118,13 +118,8 @@ export default {
                     aID: aID
                 }
             }
-<<<<<<< HEAD
-            // TODO Permission revision can_grade
-            if (this.$hasPermission('can_view_assignment_participants', 'assignment', String(aID))) {
-=======
 
             if (this.$hasPermission('can_grade', 'assignment', String(aID))) {
->>>>>>> develop
                 route.name = 'Assignment'
             } else {
                 route.name = 'Journal'

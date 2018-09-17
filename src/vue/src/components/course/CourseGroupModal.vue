@@ -1,6 +1,7 @@
 <template>
     <div>
-        <b-btn class="change-button flex-grow-1" v-b-modal="'CourseGroupModal'">
+        <b-btn class="change-button flex-grow-1"
+            v-b-modal="'CourseGroupModal'">
             <icon name="users"/>
             Manage Groups
         </b-btn>
