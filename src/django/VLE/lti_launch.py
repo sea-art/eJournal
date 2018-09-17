@@ -153,13 +153,12 @@ def select_create_journal(request, user, assignment, roles):
         except (ValueError, KeyError):
             pass
 
-        if journal.grade_url is None or within_assignment_timeframe:
-            if 'lis_outcome_service_url' in request:
-                journal.grade_url = request['lis_outcome_service_url']
-                journal.save()
-            if 'lis_result_sourcedid' in request:
-                journal.sourcedid = request['lis_result_sourcedid']
-                journal.save()
+        if (journal.grade_url is None or within_assignment_timeframe) and 'lis_outcome_service_url' in request:
+            journal.grade_url = request['lis_outcome_service_url']
+            journal.save()
+        if (journal.sourcedid is None or within_assignment_timeframe) and 'lis_result_sourcedid' in request:
+            journal.sourcedid = request['lis_result_sourcedid']
+            journal.save()
     else:
         journal = None
     return journal
