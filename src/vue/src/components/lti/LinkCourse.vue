@@ -1,7 +1,7 @@
 <template>
     <b-card class="no-hover">
         <div v-for="c in courses" :key="c.id">
-            <div v-if="c.lti_id">
+            <div v-if="c.lti_couples">
                 <main-card
                     class="orange-border"
                     @click.native="linkCourse(c)"
@@ -31,7 +31,7 @@ export default {
     },
     methods: {
         linkCourse (c) {
-            if (!c.lti_id || confirm('This course is already linked to another course from the learning-environment, are you sure you also want to link it?')) {
+            if (!c.lti_couples || confirm('This course is already linked to ' + c.lti_couples + ' other course(s) from the learning-environment, are you sure you also want to link it?')) {
                 courseAPI.update(c.id, {lti_id: this.lti.ltiCourseID})
                     .then(course => { this.$emit('handleAction', course.id) })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
