@@ -24,7 +24,6 @@
             :key="g.id"
             :cID="cID"
             :group="g.name"/>
-        </b-modal>
     </div>
 </template>
 
