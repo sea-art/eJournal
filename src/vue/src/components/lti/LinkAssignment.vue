@@ -1,11 +1,11 @@
 <template>
     <b-card class="no-hover">
         <div v-for="a in assignments" :key="a.id">
-            <div v-if="a.lti_id">
-                <assignment-card class="orange-border" @click.native="linkAssignment(a.id, a.lti_id)" :line1="a.name"/>
+            <div v-if="a.lti_couples">
+                <assignment-card class="orange-border" @click.native="linkAssignment(a.id, a.lti_couples)" :line1="a.name"/>
             </div>
             <div v-else>
-                <assignment-card class="green-border" @click.native="linkAssignment(a.id, a.lti_id)" :line1="a.name"/>
+                <assignment-card class="green-border" @click.native="linkAssignment(a.id, a.lti_couples)" :line1="a.name"/>
             </div>
         </div>
     </b-card>
@@ -32,8 +32,8 @@ export default {
                 .then(assignments => { this.assignments = assignments })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
-        linkAssignment (aID, aLTI) {
-            if (!aLTI || confirm('This assignment is already linked to another course, are you sure you also want to link it?')) {
+        linkAssignment (aID, aLtiCouples) {
+            if (!aLtiCouples || confirm('This assignment is already linked to ' + aLtiCouples + ' other assignment(s) from the learning-environment, are you sure you also want to link it?')) {
                 assignmentAPI.update(aID, {lti_id: this.lti.ltiAssignID,
                     points_possible: this.lti.ltiPointsPossible,
                     unlock_date: this.lti.ltiAssignUnlock ? this.lti.ltiAssignUnlock.slice(0, -6) : null,

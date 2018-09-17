@@ -39,10 +39,10 @@ export default {
     data () {
         return {
             form: {
-                courseName: '',
-                courseAbbr: '',
-                courseStartdate: '',
-                courseEnddate: '',
+                name: '',
+                abbreviation: '',
+                startdate: '',
+                enddate: '',
                 lti_id: ''
             }
         }
@@ -61,19 +61,20 @@ export default {
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         onReset (evt) {
-            this.form.courseName = ''
-            this.form.courseAbbr = ''
-            this.form.courseStartdate = ''
-            this.form.courseEnddate = ''
+            this.form.name = ''
+            this.form.abbreviation = ''
+            this.form.startdate = ''
+            this.form.enddate = ''
         }
     },
     mounted () {
+        console.log(this.lti)
         if (this.lti !== undefined) {
-            this.form.courseName = this.lti.ltiCourseName
-            this.form.courseAbbr = this.lti.ltiCourseAbbr
+            this.form.name = this.lti.ltiCourseName
+            this.form.abbreviation = this.lti.ltiCourseAbbr
             this.form.lti_id = this.lti.ltiCourseID
-            this.form.courseStartdate = this.lti.ltiCourseStart.split(' ')[0]
-            this.form.courseEnddate = genericUtils.yearOffset(this.form.courseStartdate)
+            this.form.startdate = this.lti.ltiCourseStart.split(' ')[0]
+            this.form.enddate = genericUtils.yearOffset(this.form.startdate)
         }
     },
     components: {

@@ -7,7 +7,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 from VLE.serializers import AssignmentSerializer
-from VLE.models import Assignment, Course, Journal
+from VLE.models import Assignment, Course, Journal, Lti_ids
 import VLE.views.responses as response
 import VLE.permissions as permissions
 import VLE.factory as factory
@@ -69,7 +69,10 @@ class AssignmentView(viewsets.ViewSet):
         else:
             return self.upcoming()
 
-        return response.success({'assignments': serializer.data})
+        data = serializer.data
+        for i, assignment in enumerate(data):
+            data[i]['lti_couples'] = len(Lti_ids.objects.filter(assignment=assignment['id']))
+        return response.success({'assignments': data})
 
     def create(self, request):
         """Create a new assignment.
@@ -155,10 +158,10 @@ class AssignmentView(viewsets.ViewSet):
 
         try:
             if 'lti' in request.query_params:
-                assignment = Assignment.objects.get(lti_id=pk)
+                assignment = Lti_ids.objects.filter(lti_id=pk, for_model=Lti_ids.ASSIGNMENT)[0].assignment
             else:
                 assignment = Assignment.objects.get(pk=pk)
-        except Assignment.DoesNotExist:
+        except (Assignment.DoesNotExist, IndexError):
             return response.not_found('Assignment does not exist.')
 
         try:
@@ -218,7 +221,13 @@ class AssignmentView(viewsets.ViewSet):
             req_data = request.data
             if published is not None:
                 del req_data['published']
-            serializer = AssignmentSerializer(assignment, data=req_data, context={'user': request.user}, partial=True)
+
+            data = request.data
+
+            if 'lti_id' in data:
+                factory.make_lti_ids(lti_id=data['lti_id'], for_model=Lti_ids.ASSIGNMENT, assignment=assignment)
+
+            serializer = AssignmentSerializer(assignment, data=data, context={'user': request.user}, partial=True)
             if not serializer.is_valid():
                 response.bad_request()
             serializer.save()
