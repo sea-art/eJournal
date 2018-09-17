@@ -115,9 +115,7 @@ def get_assignment_id_permissions(user, aID):
     aID -- the assignment ID
     """
     assignment = Assignment.objects.get(pk=aID)
-
     roleDict = get_assignment_permissions(user, assignment)
-
     return roleDict
 
 
@@ -129,8 +127,9 @@ def get_assignment_permissions(user, assignment):
     """
     result = {}
     for course in assignment.courses.all():
-        result = {key: value or (result[key] if key in result else False)
-                  for key, value in get_permissions(user, course.pk).items()}
+        if Participation.objects.filter(user=user, course=course).count() > 0:
+            result = {key: value or (result[key] if key in result else False)
+                      for key, value in get_permissions(user, course.pk).items()}
     return result
 
 
@@ -224,6 +223,7 @@ def get_all_user_permissions(user):
         assignment{id}: permissions
         general: permissions
     }"""
+
     permissions = {}
     courses = user.participations.all()
 

@@ -144,15 +144,17 @@ def select_create_journal(request, user, assignment, roles):
         else:
             journal = factory.make_journal(assignment, user)
 
+        within_assignment_timeframe = False
         try:
             begin = datetime.strptime(request['custom_assignment_unlock'], '%Y-%m-%d %X %z')
             end = datetime.strptime(request['custom_assignment_due'], '%Y-%m-%d %X %z')
             now = datetime.now(timezone.utc)
+            within_assignment_timeframe = begin < now < end
         except Exception as e:
             if 'custom_assignment_unlock' in request:
                 print(e)
 
-        if journal.grade_url is None or begin < now < end:
+        if journal.grade_url is None or within_assignment_timeframe:
             if 'lis_outcome_service_url' in request:
                 journal.grade_url = request['lis_outcome_service_url']
                 journal.save()
