@@ -61,16 +61,27 @@
                         <icon name="cog"/>
                         Manage Permissions
                     </b-button>
-                    <group-modal v-if="$hasPermission('can_edit_course_details')"
-                                 :cID="this.cID"
-                                 :groups="this.groups"
-                                 @create-group="createGroup"
-                                 @delete-group="deleteGroup"
-                                 @update-group="updateGroup">
-                    </group-modal>
+                    <b-btn v-if="$hasPermission('can_edit_course_details')"
+                        class="change-button flex-grow-1"
+                        v-b-modal="'CourseGroupModal'">
+                        <icon name="users"/>
+                        Manage Groups
+                    </b-btn>
                 </b-col>
             </b-row>
         </b-card>
+
+        <b-modal id="CourseGroupModal"
+                 title="Manage Course Groups"
+                 hide-footer>
+                 <group-modal v-if="$hasPermission('can_edit_course_details')"
+                     :cID="this.cID"
+                     :groups="this.groups"
+                     @create-group="createGroup"
+                     @delete-group="deleteGroup"
+                     @update-group="updateGroup">
+                 </group-modal>
+        </b-modal>
 
         <div>
             <b-card v-if="$hasPermission('can_add_course_users')" class="no-hover">

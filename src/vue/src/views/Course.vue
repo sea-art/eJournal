@@ -32,22 +32,7 @@
         </b-modal>
 
         <h3 slot="right-content-column">To Do</h3>
-
-        <b-card v-if="$hasPermission('can_grade')"
-                class="no-hover"
-                slot="right-content-column">
-            <b-form-select v-model="selectedSortOption" :select-size="1">
-                <option value="sortDate">Sort by date</option>
-                <option value="sortNeedsMarking">Sort by marking needed</option>
-            </b-form-select>
-        </b-card>
-
-        <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal)">
-                <todo-card :deadline="d"/>
-            </b-link>
-        </div>
-
+        <deadline-deck slot="right-content-column" :deadlines="deadlines"/>
     </content-columns>
 </template>
 
@@ -59,6 +44,7 @@ import todoCard from '@/components/assets/TodoCard.vue'
 import mainCard from '@/components/assets/MainCard.vue'
 import icon from 'vue-awesome/components/Icon'
 import createAssignment from '@/components/assignment/CreateAssignment.vue'
+import deadlineDeck from '@/components/assets/DeadlineDeck.vue'
 
 import assignmentAPI from '@/api/assignment'
 
@@ -76,9 +62,7 @@ export default {
             cardColor: '',
             post: null,
             error: null,
-            selectedSortOption: 'sortDate',
-            deadlines: [],
-            needsMarkingStats: []
+            deadlines: []
         }
     },
     components: {
@@ -88,6 +72,7 @@ export default {
         'todo-card': todoCard,
         'main-card': mainCard,
         'create-assignment': createAssignment,
+        'deadline-deck': deadlineDeck,
         icon
     },
     created () {
@@ -140,7 +125,6 @@ export default {
                 route.name = 'Journal'
                 route.params.jID = jID
             }
-
             return route
         },
         deleteAssignment (assignment) {
@@ -153,35 +137,6 @@ export default {
                         this.loadAssignments()
                     })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
-            }
-        }
-    },
-    computed: {
-        computedDeadlines: function () {
-            var counter = 0
-
-            function compareDate (a, b) {
-                if (!a.deadline) { return b.deadline }
-                if (!b.deadline) { return a.deadline }
-                return new Date(a.deadline.Date) - new Date(b.deadline.Date)
-            }
-
-            function compareMarkingNeeded (a, b) {
-                if (a.stats.needs_marking > b.stats.needs_marking) { return -1 }
-                if (a.stats.needs_marking < b.stats.needs_marking) { return 1 }
-                return 0
-            }
-
-            function filterTop () {
-                return ++counter <= 5
-            }
-
-            if (this.selectedSortOption === 'sortDate') {
-                return this.deadlines.slice().sort(compareDate).filter(filterTop)
-            } else if (this.selectedSortOption === 'sortNeedsMarking') {
-                return this.deadlines.slice().sort(compareMarkingNeeded).filter(filterTop)
-            } else {
-                return this.deadlines.slice().sort(compareDate).filter(filterTop)
             }
         }
     }

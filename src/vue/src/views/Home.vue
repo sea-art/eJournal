@@ -19,20 +19,7 @@
         </b-button>
 
         <h3 slot="right-content-column">To Do</h3>
-        <b-card v-if="$hasPermission('can_grade')"
-                class="no-hover"
-                slot="right-content-column">
-            <b-form-select v-model="selectedSortOption" :select-size="1">
-                <option value="sortDate">Sort by date</option>
-                <option value="sortNeedsMarking">Sort by marking needed</option>
-            </b-form-select>
-        </b-card>
-
-        <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal)">
-                <todo-card :deadline="d"/>
-            </b-link>
-        </div>
+        <deadline-deck slot="right-content-column" :deadlines="deadlines"/>
 
         <b-modal
             slot="main-content-column"
@@ -61,6 +48,7 @@ import mainCard from '@/components/assets/MainCard.vue'
 import todoCard from '@/components/assets/TodoCard.vue'
 import createCourse from '@/components/course/CreateCourse.vue'
 import editHome from '@/components/home/EditHome.vue'
+import deadlineDeck from '@/components/assets/DeadlineDeck.vue'
 
 import courseAPI from '@/api/course'
 import assignmentAPI from '@/api/assignment'
@@ -73,7 +61,6 @@ export default {
         return {
             intituteName: 'Universiteit van Amsterdam (UvA)',
             courses: [],
-            selectedSortOption: 'sortDate',
             deadlines: []
         }
     },
@@ -84,6 +71,7 @@ export default {
         'todo-card': todoCard,
         'create-course': createCourse,
         'edit-home': editHome,
+        'deadline-deck': deadlineDeck,
         icon
     },
     created () {
@@ -117,51 +105,6 @@ export default {
         },
         customisePage () {
             this.$toasted.info('Wishlist: Customise page')
-        },
-        assignmentRoute (cID, aID, jID) {
-            var route = {
-                name: 'Assignment',
-                params: {
-                    cID: cID,
-                    aID: aID
-                }
-            }
-
-            if (jID) {
-                route.params.jID = jID
-                route.name = 'Journal'
-            }
-
-            return route
-        }
-    },
-    computed: {
-        computedDeadlines: function () {
-            var counter = 0
-
-            function compareDate (a, b) {
-                if (!a.deadline) return -1
-                else if (!b.deadline) return 1
-                return new Date(a.deadline) - new Date(b.deadline)
-            }
-
-            function compareMarkingNeeded (a, b) {
-                if (a.stats.needs_marking > b.stats.needs_marking) { return -1 }
-                if (a.stats.needs_marking < b.stats.needs_marking) { return 1 }
-                return 0
-            }
-
-            function filterTop () {
-                return (++counter <= 5)
-            }
-
-            if (this.selectedSortOption === 'sortDate') {
-                return this.deadlines.slice().sort(compareDate).filter(filterTop)
-            } else if (this.selectedSortOption === 'sortNeedsMarking') {
-                return this.deadlines.slice().sort(compareMarkingNeeded).filter(filterTop)
-            } else {
-                return this.deadlines.slice().sort(compareDate).filter(filterTop)
-            }
         }
     }
 }
