@@ -21,7 +21,7 @@
                 . -->
                 <selected-node-card
                     :class="{ 'input-disabled' : saveRequestInFlight }"
-                    v-if="nodes.length > 0 && currentNode != -1"
+                    v-if="nodes.length > 0 && currentNode !== -1 && currentNode !== nodes.length"
                     ref="entry-template-card"
                     :currentPreset="nodes[currentNode]"
                     :templates="templatePool"
@@ -34,6 +34,11 @@
                     v-else-if="currentNode === -1"
                     :assignmentDetails="assignmentDetails"
                     @changed="isChanged = true"/>
+
+                <b-card v-else-if="currentNode === nodes.length" class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+                    <h2>End of assignment</h2>
+                    <p>This is the end of the assignment.</p>
+                </b-card>
 
                 <main-card v-else class="no-hover" :line1="'No presets in format'" :class="'grey-border'"/>
 

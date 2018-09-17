@@ -9,13 +9,8 @@
     <div>
         <!-- Edit mode. -->
         <b-card v-if="saveEditMode == 'Save'" class="entry-card no-hover" :class="$root.getBorderClass(cID)">
-            <div class="grade-section shadow">
-                <span v-if="entryNode.entry.published">
-                    {{ entryNode.entry.grade }}
-                </span>
-                <span v-else>
-                    <icon name="hourglass-half"/>
-                </span>
+            <div class="ml-2 btn float-right multi-form shadow no-hover" v-if="entryNode.entry.published">
+                {{ entryNode.entry.grade }}
             </div>
 
             <h2 class="mb-2">{{ entryNode.entry.template.name }}</h2>
@@ -36,16 +31,14 @@
         </b-card>
         <!-- Overview mode. -->
         <b-card v-else class="entry-card no-hover" :class="$root.getBorderClass(cID)">
-            <div class="grade-section shadow">
-                <span v-if="entryNode.entry.published">
-                    {{ entryNode.entry.grade }}
-                </span>
-                <span v-else>
-                    <icon name="hourglass-half"/>
-                </span>
+            <div class="ml-2 grade-section shadow" v-if="entryNode.entry.published">
+                <span class="grade">{{ entryNode.entry.grade }}</span>
+            </div>
+            <div class="ml-2 grade-section shadow" v-else-if="!entryNode.entry.editable">
+                <icon name="hourglass-half"/>
             </div>
 
-            <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
+            <h2 class="mb-2">{{ entryNode.entry.template.name }}</h2>
             <entry-fields
                 :nodeID="entryNode.nID"
                 :template="entryNode.entry.template"
@@ -91,6 +84,7 @@ export default {
         entryNode: function () {
             this.completeContent = []
             this.tempNode = this.entryNode
+            this.saveEditMode = 'Edit'
             this.setContent()
         }
     },

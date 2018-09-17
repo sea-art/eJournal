@@ -51,7 +51,7 @@ import 'vue-awesome/icons/sort'
 import 'vue-awesome/icons/align-left'
 import 'vue-awesome/icons/long-arrow-up'
 import 'vue-awesome/icons/long-arrow-down'
-import 'vue-awesome/icons/print'
+import 'vue-awesome/icons/comments'
 import 'vue-awesome/icons/cog'
 
 import Toasted from 'vue-toasted'
@@ -81,7 +81,8 @@ new Vue({
         colors: ['pink-border', 'peach-border', 'blue-border'],
         previousPage: null,
         windowWidth: 0,
-        maxFileSizeBytes: 2097152
+        maxFileSizeBytes: 2097152,
+        maxEmailFileSizeBytes: 10485760
     },
     mounted () {
         this.$nextTick(function () {

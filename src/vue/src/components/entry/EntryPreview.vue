@@ -63,6 +63,14 @@ export default {
 
             return true
         },
+        checkChanges () {
+            for (var i = 0; i < this.completeContent.length; i++) {
+                if (this.completeContent[i].data !== null && this.completeContent[i].data !== '') {
+                    return true
+                }
+            }
+            return false
+        },
         save: function () {
             if (this.checkFilled()) {
                 this.$emit('content-template', this.completeContent)

@@ -18,8 +18,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('last_login', 'username', 'first_name', 'last_name', 'is_active', 'email', 'name',
-                  'profile_picture', 'is_teacher', 'lti_id', 'id', 'role', 'verified_email', 'group')
+        fields = ('username', 'first_name', 'last_name', 'email', 'name',
+                  'profile_picture', 'is_teacher', 'lti_id', 'id', 'role', 'group')
         read_only_fields = ('id', )
 
     def get_name(self, user):
@@ -42,7 +42,6 @@ class UserSerializer(serializers.ModelSerializer):
             return None
 
 
-# TODO: Merge userSerializer and OwnUserSerializer
 class OwnUserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     permissions = serializers.SerializerMethodField()
@@ -82,6 +81,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
     journal = serializers.SerializerMethodField()
     stats = serializers.SerializerMethodField()
     course = serializers.SerializerMethodField()
+    journals = serializers.SerializerMethodField()
 
     class Meta:
         model = Assignment
@@ -119,6 +119,12 @@ class AssignmentSerializer(serializers.ModelSerializer):
         except (KeyError, Journal.DoesNotExist):
             return None
 
+    def get_journals(self, assignment):
+        if 'journals' in self.context and self.context['journals']:
+            return JournalSerializer(Journal.objects.filter(assignment=assignment), many=True).data
+        else:
+            return None
+
     def get_stats(self, assignment):
         if 'user' not in self.context:
             return None
@@ -136,7 +142,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
         return stats
 
     def get_course(self, assignment):
-        if 'course' not in self.context:
+        if 'course' not in self.context or not self.context['course']:
             return None
         return CourseSerializer(self.context['course']).data
 
@@ -144,7 +150,10 @@ class AssignmentSerializer(serializers.ModelSerializer):
         return {
             'name': assignment.name,
             'description': assignment.description,
-            'points_possible': assignment.points_possible
+            'points_possible': assignment.points_possible,
+            'unlock_date': assignment.unlock_date,
+            'due_date': assignment.due_date,
+            'lock_date': assignment.lock_date
         }
 
 
@@ -168,8 +177,6 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class RoleSerializer(serializers.ModelSerializer):
-    # TODO This even adds keys such as 'id', 'name' and 'course', prob not wanted?
-    # Maybe all the permissions in a seperate variable would be nice
     class Meta:
         model = Role
         fields = '__all__'
@@ -252,7 +259,8 @@ class EntrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Entry
-        fields = ('id', 'createdate', 'published', 'template', 'content', 'editable', 'grade', 'comments')
+        fields = ('id', 'createdate', 'published', 'template', 'content',
+                  'editable', 'grade', 'last_edited', 'comments')
         read_only_fields = ('id', )
 
     def get_template(self, entry):

@@ -7,12 +7,19 @@ This includes:
 """
 from rest_framework.decorators import api_view
 import VLE.views.responses as response
-from VLE.models import User
 import VLE.utils.email_handling as email_handling
 import VLE.utils.generic_utils as utils
 import VLE.validators as validators
+from VLE.models import User
+
 from django.core.exceptions import ValidationError
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.utils.html import escape
+from django.http import HttpResponse
+
+
+def index(request):
+    return HttpResponse(escape(repr(request)))
 
 
 @api_view(['POST'])
@@ -20,8 +27,8 @@ def forgot_password(request):
     """Handles a forgot password request.
 
     Arguments:
-        username -- User claimed username
-        email -- User claimed email
+        username -- User claimed username.
+        email -- User claimed email.
         token -- Django stateless token, invalidated after password change or after a set time (by default three days).
 
     Generates a recovery token if a matching user can be found by either the prodived username or email.
@@ -51,10 +58,10 @@ def recover_password(request):
     """Handles a reset password request.
 
     Arguments:
-        username -- User claimed username
+        username -- User claimed username.
         recovery_token -- Django stateless token, invalidated after password change or after a set time
             (by default three days).
-        new_password -- The new user desired password
+        new_password -- The new user desired password.
 
     Updates password if the recovery_token is valid.
     """
@@ -125,3 +132,38 @@ def request_email_verification(request):
 
     return response.success(description='An email was sent to %s, please follow the email for instructions.'
                             % request.user.email)
+
+
+@api_view(['POST'])
+def send_feedback(request):
+    """Send an email with feedback to the developers.
+
+    Arguments:
+    request -- the request that was sent.
+        topic -- the topic of the feedback.
+        type -- the type of feedback.
+        feedback -- the actual feedback.
+        browser -- the browser of the user who sends the feedback.
+        files -- potential files as attachments.
+
+    Returns:
+    On failure:
+        bad request -- when required keys are missing or file sizes too big.
+        unauthorized -- when the user is not logged in.
+    On success:
+        success -- with a description.
+    """
+    if not request.user.is_authenticated:
+        return response.unauthorized()
+
+    if not all(x in request.POST for x in ['topic', 'feedback', 'ftype', 'user_agent']):
+        return response.bad_request('Required feedback field missing.')
+
+    files = request.FILES.getlist('files')
+    try:
+        validators.validate_email_files(files)
+    except ValidationError:
+        return response.bad_request('The selected files exceeds the total file size limit.')
+
+    email_handling.send_email_feedback(request.user, files, **request.POST)
+    return response.success(description='Feedback received')

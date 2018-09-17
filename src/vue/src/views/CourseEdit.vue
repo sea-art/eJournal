@@ -83,11 +83,11 @@
                         placeholder="Search..."/>
                     <b-button v-if="viewEnrolled" v-on:click.stop @click="toggleEnroled" class="multi-form">
                         <icon name="users"/>
-                        Show enrolled
+                        Enrolled
                     </b-button>
                     <b-button v-if="!viewEnrolled" v-on:click.stop @click="toggleEnroled" class="multi-form">
-                        <icon name="user"/>
-                        Show unenrolled
+                        <icon name="user-plus"/>
+                        Unenrolled
                     </b-button>
                 </div>
                 <div class="d-flex">
@@ -107,7 +107,7 @@
                         <icon name="long-arrow-down"/>
                         Ascending
                     </b-button>
-                    <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="full-width multi-form">
+                    <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="multi-form">
                         <icon name="long-arrow-up"/>
                         Descending
                     </b-button>
@@ -161,6 +161,7 @@ export default {
     data () {
         return {
             course: {},
+            originalCourse: {},
             form: {},
             participants: [],
             unenrolledStudents: [],
@@ -185,7 +186,10 @@ export default {
     },
     created () {
         courseAPI.get(this.cID)
-            .then(course => { this.course = course })
+            .then(course => {
+                this.course = course
+                this.originalCourse = this.deepCopyCourse(course)
+            })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
         groupAPI.getAllFromCourse(this.cID)
@@ -293,6 +297,23 @@ export default {
         },
         toggleEnroled () {
             this.viewEnrolled = !this.viewEnrolled
+        },
+        deepCopyCourse (course) {
+            var copyCourse = {
+                name: course.name, abbreviation: course.abbreviation, startdate: course.startdate, enddate: course.enddate
+            }
+
+            return copyCourse
+        },
+        checkChanged () {
+            if (this.course.name !== this.originalCourse.name ||
+                    this.course.abbreviation !== this.originalCourse.abbreviation ||
+                    this.course.startdate !== this.originalCourse.startdate ||
+                    this.course.enddate !== this.originalCourse.enddate) {
+                return true
+            }
+
+            return false
         }
     },
     computed: {
@@ -356,6 +377,14 @@ export default {
         'course-participant-card': courseParticipantCard,
         'group-modal': groupModal,
         icon
+    },
+    beforeRouteLeave (to, from, next) {
+        if (this.checkChanged() && !confirm('Unsaved changes will be lost if you leave. Do you wish to continue?')) {
+            next(false)
+            return
+        }
+
+        next()
     }
 }
 </script>
