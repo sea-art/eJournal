@@ -45,6 +45,11 @@ export default {
             this.$emit('info-entry', [this.selectedTemplate, content])
         },
         checkChanges () {
+            /* No template is selected, so no changes. */
+            if (!this.addNode.templates.length || !this.selectedTemplate) {
+                return false
+            }
+
             return this.$refs['entry-prev'].checkChanges()
         }
     },
