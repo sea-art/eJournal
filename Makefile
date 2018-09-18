@@ -63,7 +63,7 @@ reset-no-input:
 		pip install -r requirements.txt'
 
 	# Reinstall nodejs dependencies.
-	npm install --prefix ./src/vue
+	npm ci --prefix ./src/vue
 
 	# Remake the database
 	make fill-db
@@ -101,6 +101,10 @@ clean:
 
 superuser:
 	bash -c 'source ./venv/bin/activate && python3.6 src/django/manage.py createsuperuser && deactivate'
+
+update-dependencies:
+	npm update --dev --prefix ./src/vue
+	npm install --prefix ./src/vue
 
 fix-npm:
 	npm cache clean -f
