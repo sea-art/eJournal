@@ -3,10 +3,10 @@
         <b-row align-h="between">
             <b-col cols="12" lg="6">
                 <b-badge
-                v-if="lti"
-                class="ml-2 mt-2 info"
-                v-b-tooltip.hover
-                title="Linked via LTI">
+                    v-if="lti"
+                    class="ml-2 mt-2 info"
+                    v-b-tooltip.hover
+                    title="Linked via LTI">
                     LTI
                 </b-badge>
                 <h2 class="float-left">{{ line1 }}</h2>
