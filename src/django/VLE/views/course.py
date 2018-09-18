@@ -8,7 +8,7 @@ from rest_framework.decorators import action
 
 import VLE.views.responses as response
 import VLE.serializers as serialize
-from VLE.models import Course
+from VLE.models import Course, Lti_ids
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.factory as factory
@@ -136,7 +136,11 @@ class CourseView(viewsets.ViewSet):
         elif not role.can_edit_course_details:
             return response.unauthorized('You are unauthorized to edit this course.')
 
-        serializer = self.serializer_class(course, data=request.data, partial=True)
+        data = request.data
+        if 'lti_id' in data:
+            factory.make_lti_ids(lti_id=data['lti_id'], for_model=Lti_ids.COURSE, course=course)
+
+        serializer = self.serializer_class(course, data=data, partial=True)
         if not serializer.is_valid():
             response.bad_request()
         serializer.save()
@@ -200,10 +204,12 @@ class CourseView(viewsets.ViewSet):
             return response.forbidden("You are not allowed to link courses.")
 
         unlinked_courses = Course.objects.filter(participation__user=request.user.id,
-                                                 participation__role__can_edit_course_details=True,
-                                                 lti_id=None)
+                                                 participation__role__can_edit_course_details=True)
         serializer = serialize.CourseSerializer(unlinked_courses, many=True)
-        return response.success({'courses': serializer.data})
+        data = serializer.data
+        for i, course in enumerate(data):
+            data[i]['lti_couples'] = len(Lti_ids.objects.filter(course=course['id']))
+        return response.success({'courses': data})
 
     @action(methods=['get'], detail=False)
     def is_teacher(self, request):

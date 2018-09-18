@@ -95,7 +95,7 @@ class Course(models.Model):
     - author: the creator of the course.
     - abbrevation: a max three letter abbrevation of the course name.
     - startdate: the date that the course starts.
-    - lti_id: the id of the course linked over LTI.
+    - lti_ids: the ids of the course linked over LTI.
     """
 
     name = models.TextField()
@@ -122,11 +122,6 @@ class Course(models.Model):
     )
     enddate = models.DateField(
         null=True,
-    )
-
-    lti_id = models.TextField(
-        null=True,
-        unique=True,
     )
 
     def __str__(self):
@@ -277,7 +272,7 @@ class Assignment(models.Model):
     is part of.
     - format: a one-to-one key linked to the format this assignment
     holds. The format determines how a students' journal is structured.
-    - lti_id: The lti id of the assignment linked over lti.
+    - lti_ids: The lti ids of the assignment linked over lti.
     """
 
     name = models.TextField()
@@ -308,10 +303,6 @@ class Assignment(models.Model):
         'lock_date',
         null=True,
         blank=True
-    )
-    lti_id = models.TextField(
-        'lti_id',
-        null=True
     )
     courses = models.ManyToManyField(Course)
 
@@ -668,3 +659,40 @@ class Comment(models.Model):
         default=None,
         null=True
     )
+
+
+class Lti_ids(models.Model):
+    """Lti ids
+
+    Contains the lti ids for course and assignments as one course/assignment
+    on our site needs to be able to link to multiple course/assignment in the
+    linked VLE.
+    """
+    ASSIGNMENT = 'Assignment'
+    COURSE = 'Course'
+    TYPES = ((ASSIGNMENT, 'Assignment'), (COURSE, 'Course'))
+
+    assignment = models.ForeignKey(
+        'Assignment',
+        on_delete=models.CASCADE,
+        null=True
+    )
+
+    course = models.ForeignKey(
+        'Course',
+        on_delete=models.CASCADE,
+        null=True
+    )
+
+    lti_id = models.TextField()
+    for_model = models.TextField(
+        choices=TYPES
+    )
+
+    class Meta:
+        """A class for meta data.
+
+        - unique_together: assignment and user must be unique together.
+        """
+
+        unique_together = ('lti_id', 'for_model',)

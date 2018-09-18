@@ -2,8 +2,9 @@ from django.conf import settings
 import oauth2
 """Package for oauth authentication in python"""
 
-from VLE.models import User, Course, Assignment, Role, Journal
+from VLE.models import User, Role, Journal, Lti_ids
 import VLE.factory as factory
+from datetime import datetime, timezone
 
 
 class OAuthRequestValidater(object):
@@ -113,10 +114,10 @@ def create_lti_query_link(names, values):
 def check_course_lti(request, user, role):
     """Check is an course with the lti_id exists"""
     course_id = request['custom_course_id']
-    courses = Course.objects.filter(lti_id=course_id)
+    lti_couples = Lti_ids.objects.filter(lti_id=course_id, for_model=Lti_ids.COURSE)
 
-    if courses.count() > 0:
-        course = courses[0]
+    if lti_couples.count() > 0:
+        course = lti_couples[0].course
         if user not in course.users.all():
             factory.make_participation(user, course, Role.objects.get(name=role, course=course))
         return course
@@ -126,9 +127,9 @@ def check_course_lti(request, user, role):
 def check_assignment_lti(request):
     """Check is an assignment with the lti_id exists"""
     assign_id = request['custom_assignment_id']
-    assignments = Assignment.objects.filter(lti_id=assign_id)
-    if assignments.count() > 0:
-        return assignments[0]
+    lti_couples = Lti_ids.objects.filter(lti_id=assign_id, for_model=Lti_ids.ASSIGNMENT)
+    if lti_couples.count() > 0:
+        return lti_couples[0].assignment
     return None
 
 
@@ -143,10 +144,19 @@ def select_create_journal(request, user, assignment, roles):
         else:
             journal = factory.make_journal(assignment, user)
 
-        if 'lis_outcome_service_url' in request:
+        within_assignment_timeframe = False
+        try:
+            begin = datetime.strptime(request['custom_assignment_unlock'], '%Y-%m-%d %X %z')
+            end = datetime.strptime(request['custom_assignment_due'], '%Y-%m-%d %X %z')
+            now = datetime.now(timezone.utc)
+            within_assignment_timeframe = begin < now < end
+        except (ValueError, KeyError):
+            pass
+
+        if (journal.grade_url is None or within_assignment_timeframe) and 'lis_outcome_service_url' in request:
             journal.grade_url = request['lis_outcome_service_url']
             journal.save()
-        if 'lis_result_sourcedid' in request:
+        if (journal.sourcedid is None or within_assignment_timeframe) and 'lis_result_sourcedid' in request:
             journal.sourcedid = request['lis_result_sourcedid']
             journal.save()
     else:

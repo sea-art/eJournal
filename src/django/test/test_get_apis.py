@@ -120,7 +120,7 @@ class GetApiTests(TestCase):
         login = test.logging_in(self, self.username, self.password)
 
         response = test.api_get_call(self, '/courses/linkable/', login)
-        self.assertEquals(len(response.json()['courses']), 3)
+        self.assertEquals(len(response.json()['courses']), 7)
 
         # permissions and authorization check for the api call.
         login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)

@@ -24,7 +24,7 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i">
-            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal ? d.journal.id : null)">
+            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal)">
                 <todo-card :deadline="d"/>
             </b-link>
         </div>
@@ -72,10 +72,13 @@ export default {
                 }
             }
 
-            if (jID) {
-                route.params.jID = jID
+            if (this.$hasPermission('can_view_assignment_journals', 'assignment', String(aID))) {
+                route.name = 'Assignment'
+                return route
             }
 
+            route.name = 'Journal'
+            route.params.jID = jID
             return route
         },
         compare (a, b) {
@@ -100,7 +103,7 @@ export default {
             }
 
             function compareMarkingNeeded (a, b) {
-                return self.compare(a.stats.needs_marking, b.stats.needs_marking)
+                return self.compare(a.stats.needs_marking + a.stats.unpublished, b.stats.needs_marking + b.stats.unpublished)
             }
 
             function searchFilter (assignment) {
