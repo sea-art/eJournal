@@ -4,7 +4,7 @@
 
         <div slot="main-content-column" v-for="a in assignments" :key="a.id">
             <b-link tag="b-button" :to="assignmentRoute(cID, a.id, a.journal)">
-                <assignment-card :line1="a.name">
+                <assignment-card :line1="a.name" :lti="a.lti_couples > 0">
                     <b-button v-if="$hasPermission('can_delete_assignment')" @click.prevent.stop="deleteAssignment(a)" class="delete-button float-right">
                         <icon name="trash"/>
                         {{ a.courses.length > 1 ? "Remove" : "Delete" }}
