@@ -15,11 +15,11 @@
                 </option>
             </b-form-select>
             <br><br>
-            <entry-preview v-if="selectedTemplate !== null" ref="entry-prev" @content-template="createEntry" :template="selectedTemplate"/>
+            <entry-preview v-if="selectedTemplate !== null" ref="entry-prev" @content-template="createEntry" :template="selectedTemplate" :nodeID="addNode.nID"/>
         </div>
         <div v-else-if="addNode.templates.length === 1">
             <h2 class="mb-2">Selected template</h2>
-            <entry-preview @content-template="createEntry" ref="entry-prev" :template="selectedTemplate"/>
+            <entry-preview @content-template="createEntry" ref="entry-prev" :template="selectedTemplate" :nodeID="addNode.nID"/>
         </div>
     </b-card>
 </template>
@@ -45,6 +45,11 @@ export default {
             this.$emit('info-entry', [this.selectedTemplate, content])
         },
         checkChanges () {
+            /* No template is selected, so no changes. */
+            if (!this.addNode.templates.length || !this.selectedTemplate) {
+                return false
+            }
+
             return this.$refs['entry-prev'].checkChanges()
         }
     },

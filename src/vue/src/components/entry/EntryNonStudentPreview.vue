@@ -24,51 +24,15 @@
                     <icon name="hourglass-half"/>
                 </span>
             </div>
-            <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
 
-            <div v-for="(field, i) in entryNode.entry.template.field_set" v-if="field.required || completeContent[i].data" class="entry-field multi-form" :key="field.id">
-                <h2 v-if="field.title" class="field-heading">
-                    {{ field.title }} <span v-if="field.required">*</span>
-                </h2>
-                <div v-if="field.type=='t'">
-                    <span class="show-enters">{{ completeContent[i].data }}</span><br>
-                </div>
-                <div v-else-if="field.type=='i'">
-                    <image-file-display
-                        :fileName="completeContent[i].data"
-                        :authorUID="$parent.journal.student.uID"
-                    />
-                </div>
-                <div v-else-if="field.type=='f'">
-                    <file-download-button
-                        :fileName="completeContent[i].data"
-                        :authorUID="$parent.journal.student.uID"
-                    />
-                </div>
-                <div v-else-if="field.type=='v'">
-                    <b-embed type="iframe"
-                             aspect="16by9"
-                             :src="completeContent[i].data"
-                             allowfullscreen
-                    ></b-embed><br>
-                </div>
-                <div v-else-if="field.type == 'p'">
-                    <pdf-display
-                        :fileName="completeContent[i].data"
-                        :authorUID="$parent.journal.student.uID"
-                    />
-                </div>
-                <div v-else-if="field.type == 'rt'" v-html="completeContent[i].data"/>
-                <div v-if="field.type == 'u'">
-                    <a :href="completeContent[i].data">{{ completeContent[i].data }}</a>
-                </div>
-            </div>
-            <div v-if="entryNode.entry.last_edited">
-                <hr/>
-                <span class="timestamp">
-                    Last edited: {{ $root.beautifyDate(entryNode.entry.last_edited) }}<br/>
-                </span>
-            </div>
+            <h2 class="mb-2">{{ entryNode.entry.template.name }}</h2>
+            <entry-fields
+                :nodeID="entryNode.nID"
+                :template="entryNode.entry.template"
+                :completeContent="completeContent"
+                :displayMode="true"
+                :authorUID="$parent.journal.student.id"
+            />
         </b-card>
 
         <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published"/>
@@ -81,10 +45,7 @@
 
 <script>
 import commentCard from '@/components/journal/CommentCard.vue'
-import pdfDisplay from '@/components/assets/PdfDisplay.vue'
-import fileDownloadButton from '@/components/assets/file_handling/FileDownloadButton.vue'
-import imageFileDisplay from '@/components/assets/file_handling/ImageFileDisplay.vue'
-
+import entryFields from '@/components/entry/EntryFields.vue'
 import entryAPI from '@/api/entry'
 import icon from 'vue-awesome/components/Icon'
 
@@ -177,9 +138,7 @@ export default {
     },
     components: {
         'comment-card': commentCard,
-        'file-download-button': fileDownloadButton,
-        'pdf-display': pdfDisplay,
-        'image-file-display': imageFileDisplay,
+        'entry-fields': entryFields,
         icon
     }
 }

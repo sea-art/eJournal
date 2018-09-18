@@ -68,7 +68,6 @@ export default {
         }
     },
     mounted () {
-        console.log(this.lti)
         if (this.lti !== undefined) {
             this.form.name = this.lti.ltiCourseName
             this.form.abbreviation = this.lti.ltiCourseAbbr

@@ -26,7 +26,7 @@
                 :aID="$route.params.aID"
             />
             <b-input
-                v-else-if="field.type=='v'"
+                v-else-if="field.type == 'v'"
                 class="theme-input input-disabled"
                 placeholder="Enter YouTube URL..."
             />
