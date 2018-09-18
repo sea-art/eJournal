@@ -40,13 +40,14 @@ export default {
             delta -= minutes * 60
 
             if (days) {
-                return days + ' days(s)'
-            }
-            if (hours) {
-                return hours + ' hours(s)'
+                return days > 1 ? days + ' days' : '1 day'
             }
 
-            return minutes + ' minutes(s)'
+            if (hours) {
+                return hours > 1 ? hours + ' hours' : '1 hour'
+            }
+
+            return minutes > 1 ? minutes + ' minutes' : '1 minute'
         }
     }
 }
