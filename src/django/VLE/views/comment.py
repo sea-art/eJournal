@@ -7,7 +7,7 @@ from rest_framework import viewsets
 from datetime import datetime
 
 from VLE.serializers import CommentSerializer
-from VLE.models import Comment, Entry, User, Assignment, Journal
+from VLE.models import Comment, Entry, Assignment, Journal
 import VLE.views.responses as response
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
@@ -228,12 +228,11 @@ class CommentView(viewsets.ViewSet):
 
         try:
             comment = Comment.objects.get(pk=comment_id)
-            author = User.objects.get(pk=comment.author.id)
-        except (Comment.DoesNotExist, User.DoesNotExist):
-            return response.not_found('Comment or Author does not exist.')
+        except Comment.DoesNotExist:
+            return response.not_found('Comment does not exist.')
 
-        if not request.user.is_superuser or request.user is not author:
-            return response.forbidden()
+        if not request.user.is_superuser and request.user.id is not comment.author.id:
+            return response.forbidden(description='You are not allowed to delete this comment.')
 
         Comment.objects.get(id=comment_id).delete()
-        return response.success(description='Succesfully deleted comment.')
+        return response.success(description='Successfully deleted comment.')
