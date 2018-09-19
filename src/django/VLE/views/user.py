@@ -111,7 +111,7 @@ class UserView(viewsets.ViewSet):
                 return response.unauthorized(description='Invalid LTI parameters given. Please go back to your \
                                              learning environment and try again.')
             lti_id, user_image = utils.optional_params(lti_params, 'user_id', 'user_image')
-            is_teacher = json.load(open('config.json'))['Teacher'] in lti_params['roles']
+            is_teacher = json.load(open(settings.LTI_ROLE_CONFIG_PATH))['Teacher'] in lti_params['roles']
         else:
             lti_id, user_image, is_teacher = None, None, False
 
@@ -191,7 +191,7 @@ class UserView(viewsets.ViewSet):
             except jwt.exceptions.InvalidSignatureError:
                 return response.unauthorized(description='Invalid LTI parameters given. Please retry from canvas.')
             lti_id, user_image = utils.optional_params(lti_params, 'user_id', 'custom_user_image')
-            is_teacher = json.load(open('config.json'))['Teacher'] in lti_params['roles']
+            is_teacher = json.load(open(settings.LTI_ROLE_CONFIG_PATH))['Teacher'] in lti_params['roles']
         else:
             lti_id, user_image, is_teacher = None, None, False
         if user_image is not None:
