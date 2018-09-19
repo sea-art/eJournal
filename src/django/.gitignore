@@ -1,5 +1,3 @@
-# Remove migration files
-VLE/migrations
 VLE/settings/email.py
 static
 media
