@@ -10,7 +10,7 @@ source settings/variables.conf
 ###########
 
 # Sync django to the target directory
-sudo rsync -a --exclude='VLE.db' --exclude='settings/development.py' --exclude='test/' --exclude="__pycache__" --exclude="migrations/" ./src/django ${TARGET}
+sudo rsync -a --exclude='VLE.db' --exclude='settings/development.py' --exclude='test/' --exclude="__pycache__" ./src/django ${TARGET}
 
 # Set variables in the target directory
 sudo sed -i "s@{{DIR}}@${TARGET}/django@g" ${TARGET}/django/VLE/wsgi.py
@@ -36,8 +36,7 @@ sudo sed -i "s@'{{USER_MAX_TOTAL_STORAGE_BYTES}}'@${USER_MAX_TOTAL_STORAGE_BYTES
 
 # Migrate the database
 source ${TARGET}/venv/bin/activate
-    python ${TARGET}/django/manage.py makemigrations || sudo sh -c "${TARGET}/venv/bin/activate && python ${TARGET}/django/manage.py makemigrations"
-    python ${TARGET}/django/manage.py migrate
+    python ${TARGET}/django/manage.py migrate || sudo sh -c "${TARGET}/venv/bin/activate && python ${TARGET}/django/manage.py migrate"
     python ${TARGET}/django/manage.py collectstatic --noinput
     python ${TARGET}/django/manage.py check --deploy
 deactivate
