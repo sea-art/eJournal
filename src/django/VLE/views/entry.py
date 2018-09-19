@@ -150,7 +150,7 @@ class EntryView(viewsets.ViewSet):
            not permissions.has_assignment_permission(request.user, journal.assignment, 'can_grade'):
             return response.forbidden('You cannot grade or publish entries.')
         elif isinstance(grade, (int, float)) and grade < 0:
-            return response.bad_request('Grade must be between zero and ten.')
+            return response.bad_request('Grade must be greater or equal to zero.')
         elif grade:
             entry.grade = grade
 
