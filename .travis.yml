@@ -2,6 +2,8 @@ language: python
 python:
   - "3.6"
 sudo: enabled
+before_install:
+  - npm install -g npm@latest
 install:
   - make setup-no-input
 script: make test
