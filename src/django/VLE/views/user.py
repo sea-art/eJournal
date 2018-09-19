@@ -63,7 +63,7 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        if int(pk) is 0:
+        if int(pk) == 0:
             pk = request.user.id
 
         try:
@@ -172,7 +172,7 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
         pk = kwargs.get('pk')
-        if int(pk) is 0:
+        if int(pk) == 0:
             pk = request.user.id
         if request.user.pk != int(pk) and not request.user.is_superuser:
             return response.forbidden()
@@ -200,7 +200,7 @@ class UserView(viewsets.ViewSet):
             user.is_teacher = is_teacher
 
         if lti_id:
-            if User.objects.filter(lti_id=lti_id).exists() and User.objects.filter(lti_id=lti_id) is not user:
+            if User.objects.filter(lti_id=lti_id).exists() and User.objects.filter(lti_id=lti_id) != user:
                 return response.bad_request('User with this lti id already exists.')
             user.lti_id = lti_id
 
@@ -228,10 +228,10 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        if int(pk) is 0:
+        if int(pk) == 0:
             pk = request.user.id
 
-        if request.user.pk is not pk or not request.user.is_auperuser:
+        if request.user.pk != pk or not request.user.is_auperuser:
             return response.forbidden()
 
         try:
@@ -294,13 +294,13 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        if int(pk) is 0:
+        if int(pk) == 0:
             pk = request.user.id
 
         user = User.objects.get(pk=pk)
 
         # Check the right permissions to get this users data, either be the user of the data or be an admin.
-        if not user.is_superuser or request.user.id is not pk:
+        if not user.is_superuser or request.user.id != pk:
             return response.forbidden('You cannot view this users data.')
 
         profile = UserSerializer(user).data
@@ -339,7 +339,7 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        if int(pk) is 0:
+        if int(pk) == 0:
             pk = request.user.id
 
         try:
