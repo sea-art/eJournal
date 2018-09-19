@@ -60,7 +60,7 @@ def validate_entry_content(content_list):
 
         field = Field.objects.get(pk=id)
 
-        if field.type is URL:
+        if field.type == URL:
             try:
                 url_validate = URLValidator(schemes=('http', 'https', 'ftp', 'ftps'))
                 url_validate(data)
