@@ -51,6 +51,7 @@ echo "
     ServerAlias ${APIURL}
 
     <Directory ${TARGET}/django/static>
+        Options -Indexes
         Require all granted
     </Directory>
     <Directory ${TARGET}/django/VLE>
@@ -59,6 +60,7 @@ echo "
         </Files>
     </Directory>
     WSGIScriptAlias ${HOOKPOINT} ${TARGET}/django/VLE/wsgi.py
+    Alias ${HOOKPOINT}static ${TARGET}/django/static
 </VirtualHost>
 " | sudo tee "${APACHE_DIR}/sites-available/ejournalapi.conf"
 
