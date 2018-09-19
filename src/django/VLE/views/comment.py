@@ -231,7 +231,7 @@ class CommentView(viewsets.ViewSet):
         except Comment.DoesNotExist:
             return response.not_found('Comment does not exist.')
 
-        if not request.user.is_superuser and request.user.id is not comment.author.id:
+        if not request.user.is_superuser and request.user.id != comment.author.id:
             return response.forbidden(description='You are not allowed to delete this comment.')
 
         Comment.objects.get(id=comment_id).delete()
