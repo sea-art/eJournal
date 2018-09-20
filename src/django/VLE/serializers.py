@@ -122,9 +122,9 @@ class AssignmentSerializer(serializers.ModelSerializer):
     def get_journals(self, assignment):
         if 'journals' in self.context and self.context['journals']:
             return JournalSerializer(Journal.objects.filter(
-                    assignment=assignment),
-                    many=True,
-                    context=self.context).data
+                   assignment=assignment),
+                   many=True,
+                   context=self.context).data
         else:
             return None
 
