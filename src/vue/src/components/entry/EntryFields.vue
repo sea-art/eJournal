@@ -6,6 +6,7 @@
             </h2>
 
             <b-textarea v-if="field.type == 't'" class="theme-input" v-model="completeContent[i].data"/>
+            <b-input type="date" v-if="field.type == 'd'" class="theme-input" v-model="completeContent[i].data"/>
 
             <file-upload-input
                 v-else-if="field.type == 'i'"
@@ -60,6 +61,7 @@
             </h2>
 
             <span v-if="field.type == 't'" class="show-enters">{{ completeContent[i].data }}</span>
+            <span v-if="field.type == 'd'" class="show-enters">{{ $root.beautifyDate(completeContent[i].data) }}</span>
             <image-file-display
                 v-else-if="field.type == 'i'"
                 :id="'image-display-field-' + i"

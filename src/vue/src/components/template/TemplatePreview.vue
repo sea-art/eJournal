@@ -47,6 +47,11 @@
                 v-else-if="field.type == 'u'"
                 class="input-disabled"
             />
+            <b-input
+                type="date"
+                v-else-if="field.type == 'd'"
+                class="input-disabled"
+            />
         </div>
     </b-card>
 </template>

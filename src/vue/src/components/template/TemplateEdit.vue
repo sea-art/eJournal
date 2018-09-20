@@ -76,7 +76,8 @@ export default {
                 'p': 'PDF',
                 'f': 'File',
                 'v': 'YouTube Video',
-                'u': 'URL'
+                'u': 'URL',
+                'd': 'date'
             },
             mode: 'edit'
         }
@@ -97,6 +98,7 @@ export default {
             var newField = {
                 'type': 't',
                 'title': '',
+                'description': '',
                 'location': this.template.field_set.length,
                 'required': true
             }

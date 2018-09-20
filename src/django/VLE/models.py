@@ -586,6 +586,7 @@ class Field(models.Model):
     VIDEO = 'v'
     PDF = 'p'
     URL = 'u'
+    DATE = 'd'
     TYPES = (
         (TEXT, 'text'),
         (RICH_TEXT, 'rich text'),
@@ -593,7 +594,8 @@ class Field(models.Model):
         (PDF, 'pdf'),
         (FILE, 'file'),
         (VIDEO, 'vid'),
-        (URL, 'url')
+        (URL, 'url'),
+        (DATE, 'date')
     )
     type = models.TextField(
         max_length=4,
@@ -601,6 +603,7 @@ class Field(models.Model):
         default=TEXT,
     )
     title = models.TextField()
+    description = models.TextField()
     location = models.IntegerField()
     template = models.ForeignKey(
         'Template',
