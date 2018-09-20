@@ -78,7 +78,7 @@ export default {
                 'f': 'File',
                 'v': 'YouTube Video',
                 'u': 'URL',
-                'd': 'date'
+                'd': 'Date'
             },
             mode: 'edit'
         }
