@@ -348,7 +348,7 @@ export default {
                        fullName.includes(searchVariable)
             }
 
-            function checkGroup (user) {
+            function groupFIlter (user) {
                 if (self.selectedFilterGroupOption) {
                     if (!user.group) {
                         return user.group === self.selectedFilterGroupOption
@@ -378,7 +378,7 @@ export default {
                 viewList = viewList.sort(compareUsername)
             }
 
-            return viewList.filter(searchFilter).filter(checkGroup)
+            return viewList.filter(searchFilter).filter(groupFIlter)
         }
     },
     components: {
