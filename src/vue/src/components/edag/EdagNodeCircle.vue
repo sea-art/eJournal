@@ -34,7 +34,7 @@ export default {
             case 'graded':
                 return 'check'
             case 'failed':
-                return 'times'
+                return 'clock-o'
             case 'awaiting_grade':
                 return 'hourglass-half'
             case 'needs_grading':
