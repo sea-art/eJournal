@@ -186,6 +186,7 @@ export default {
                     'field_set': [{
                         'type': 'rt',
                         'title': 'Entry',
+                        'description': '',
                         'location': 0,
                         'required': true
                     }],
@@ -288,7 +289,6 @@ export default {
             if (missingAssignmentName | missingPointMax | invalidDate | invalidTemplate | invalidTarget | targetsOutOfOrder) {
                 return
             }
-
             this.saveRequestInFlight = true
             this.convertToDB()
             formatAPI.update(this.aID, {

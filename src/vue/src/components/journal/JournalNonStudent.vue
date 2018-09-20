@@ -30,7 +30,7 @@
         <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
             <b-row>
                 <b-col md="6" lg="12">
-                    <h3>Journal</h3>
+                    <h3>Journal progress</h3>
                     <student-card
                         v-if="journal"
                         :student="journal.student"

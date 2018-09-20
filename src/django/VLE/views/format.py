@@ -98,7 +98,7 @@ class FormatView(viewsets.ViewSet):
         serializer = AssignmentSerializer(assignment, data=assignment_details,
                                           context={'user': request.user}, partial=True)
         if not serializer.is_valid():
-            response.bad_request()
+            return response.bad_request('Invalid data.')
 
         serializer.save()
 
