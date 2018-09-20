@@ -6,7 +6,8 @@
             </b-col>
             <b-col order="2" cols="9" class="pl-3">
                 <todo-square v-if="numMarkingNeeded > 0 && !hideTodo" class="float-right" :num="numMarkingNeeded"/>
-                <b>{{ student.first_name + ' ' + student.last_name }}</b><br/>
+                <template v-if="student.group"><b>{{ student.first_name + ' ' + student.last_name }}</b> ({{ student.group }})<br/></template>
+                <template v-else><b>{{ student.first_name + ' ' + student.last_name }}</b><br/></template>
                 {{ student.username }}
                 <progress-bar v-if="!fullWidthProgress || $root.mdMax()" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
             </b-col>
