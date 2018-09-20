@@ -4,6 +4,7 @@
         <h2>{{ template.name }}</h2>
         <div v-for="(field, i) in template.field_set" :key="field.eID" class="multi-form">
             <h2 v-if="field.title" class="field-heading">{{ field.title }} <span v-if="field.required">*</span></h2>
+            <p v-if="field.description">{{ field.description }}</p>
 
             <b-textarea
                 v-if="field.type == 't'"
@@ -45,6 +46,11 @@
             />
             <url-input
                 v-else-if="field.type == 'u'"
+                class="input-disabled"
+            />
+            <b-input
+                type="date"
+                v-else-if="field.type == 'd'"
                 class="input-disabled"
             />
         </div>
