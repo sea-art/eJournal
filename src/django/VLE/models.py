@@ -603,7 +603,9 @@ class Field(models.Model):
         default=TEXT,
     )
     title = models.TextField()
-    description = models.TextField()
+    description = models.TextField(
+        null=True
+    )
     location = models.IntegerField()
     template = models.ForeignKey(
         'Template',
