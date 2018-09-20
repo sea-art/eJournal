@@ -24,6 +24,7 @@
                     <b-row align-h="between" no-gutters>
                         <b-col cols="12" sm="10" lg="11">
                             <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="field.title" placeholder="Field title" required/>
+                            <b-textarea class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="field.description" placeholder="Description" required/>
                             <div class="d-flex">
                                 <b-select class="multi-form mr-2" :options="fieldTypes" v-model="field.type"></b-select>
                                 <b-button v-on:click.stop v-if="!field.required" @click="field.required = !field.required" class="optional-field-template float-right multi-form">
@@ -106,7 +107,9 @@ export default {
             this.template.field_set.push(newField)
         },
         removeField (location) {
-            if (confirm('Are you sure you want to remove "' + this.template.field_set[location].title + '" from this template?')) {
+            if (this.template.field_set[location].title
+                ? confirm('Are you sure you want to remove "' + this.template.field_set[location].title + '" from this template?')
+                : confirm('Are you sure you want to remove this field from this template?')) {
                 this.template.field_set.splice(location, 1)
             }
 

@@ -4,6 +4,7 @@
             <h2 v-if="field.title" class="field-heading">
                 {{ field.title }} <span v-if="field.required">*</span>
             </h2>
+            <p v-if="field.description">{{ field.description }}</p>
 
             <b-textarea v-if="field.type == 't'" class="theme-input" v-model="completeContent[i].data"/>
             <b-input type="date" v-if="field.type == 'd'" class="theme-input" v-model="completeContent[i].data"/>
@@ -59,7 +60,6 @@
             <h2 v-if="field.title" class="field-heading">
                 {{ field.title }} <span v-if="field.required">*</span>
             </h2>
-
             <span v-if="field.type == 't'" class="show-enters">{{ completeContent[i].data }}</span>
             <span v-if="field.type == 'd'" class="show-enters">{{ $root.beautifyDate(completeContent[i].data) }}</span>
             <image-file-display
