@@ -48,7 +48,7 @@
         </b-col>
 
         <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
-            <h3>Progress</h3>
+            <h3>Journal progress</h3>
             <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                 <progress-bar v-if="journal.stats"
                               :currentPoints="journal.stats.acquired_points"
