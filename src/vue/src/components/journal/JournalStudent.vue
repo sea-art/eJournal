@@ -241,15 +241,7 @@ export default {
             var currentDate = new Date()
             var deadline = new Date(this.nodes[this.currentNode].deadline)
 
-<<<<<<< current
             return currentDate <= deadline
-=======
-            console.log(currentDate)
-            console.log(deadline)
-            console.log(new Date(this.assignment.due_date))
-
-            return currentDate <= deadline && currentDate <= new Date(this.assignment.due_date)
->>>>>>> before discard
         }
     },
     components: {
