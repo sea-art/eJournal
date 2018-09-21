@@ -29,7 +29,7 @@ class UserView(viewsets.ViewSet):
     serializer_class = UserSerializer
 
     def list(self, request):
-        """Get all the users.
+        """Get all users.
 
         Arguments:
         request -- request data
@@ -43,12 +43,16 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        # TODO I don't think everyone should have access to everyone's data.
+
+        if not request.user.is_teacher or not request.user.is_superuser:
+            return response.forbidden(description="Only teachers and administrators are allowed to request all user \
+                                       data.")
+
         serializer = self.serializer_class(User.objects.all(), many=True)
         return response.success({'users': serializer.data})
 
     def retrieve(self, request, pk):
-        """Get the user data of the given user.
+        """Get the user data of the requested user.
 
         Arguments:
         request -- request data
@@ -71,10 +75,10 @@ class UserView(viewsets.ViewSet):
         except User.DoesNotExist:
             return response.not_found('User does not exist.')
 
-        if request.user == user or request.user.is_superuser:
-            serializer = OwnUserSerializer(user, many=False)
-        else:
-            serializer = self.serializer_class(user, many=False)
+        if request.user != user or not request.user.is_superuser or not request.user.is_teacher:
+            return response.forbidden("You are not allowed to view this users information.")
+
+        serializer = OwnUserSerializer(user, many=False)
         return response.success({'user': serializer.data})
 
     def create(self, request):
@@ -171,6 +175,7 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
+
         pk = kwargs.get('pk')
         if int(pk) == 0:
             pk = request.user.id
@@ -231,7 +236,7 @@ class UserView(viewsets.ViewSet):
         if int(pk) == 0:
             pk = request.user.id
 
-        if request.user.pk != pk or not request.user.is_auperuser:
+        if request.user.pk != pk or not request.user.is_superuser:
             return response.forbidden()
 
         try:
@@ -359,6 +364,7 @@ class UserView(viewsets.ViewSet):
 
         return response.file(os.path.join(settings.MEDIA_ROOT, user_file.file.name))
 
+    # TODO P Test changes
     @action(methods=['post'], detail=False)
     def upload(self, request):
         """Update user profile picture.
@@ -386,8 +392,8 @@ class UserView(viewsets.ViewSet):
 
         try:
             validators.validate_user_file(request.FILES['file'])
-        except ValidationError:
-            return response.bad_request('The selected file exceeds the file limit.')
+        except ValidationError as e:
+            return response.bad_request(e.args[0])
 
         user_files = request.user.userfile_set.all()
 
@@ -411,8 +417,11 @@ class UserView(viewsets.ViewSet):
 
         try:
             assignment = Assignment.objects.get(pk=request.POST['assignment_id'])
-        except Journal.DoesNotExist:
-            return response.bad_request('Journal with id {:s} was not found.'.format(request.POST['assignment_id']))
+        except Assignment.DoesNotExist:
+            return response.bad_request('Assignment with id {:s} was not found.'.format(request.POST['assignment_id']))
+
+        if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
+            return response.forbidden('You cannot upload a file to: {:s}.'.format(assignment.name))
 
         factory.make_user_file(request.FILES['file'], request.user, assignment)
 
@@ -444,8 +453,8 @@ class UserView(viewsets.ViewSet):
 
         try:
             validators.validate_profile_picture_base64(request.data['file'])
-        except ValidationError:
-            return response.bad_request('Profile picture did not pass validation!')
+        except ValidationError as e:
+            return response.bad_request(e.args[0])
 
         request.user.profile_picture = request.data['file']
         request.user.save()
