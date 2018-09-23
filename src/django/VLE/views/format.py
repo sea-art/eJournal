@@ -39,7 +39,7 @@ class FormatView(viewsets.ViewSet):
         except Assignment.DoesNotExist:
             return response.not_found('Assignment not found.')
 
-        if not (assignment.courses.all() & user.participations.all()):
+        if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
             return response.forbidden('You are not allowed to view this assignment.')
 
         serializer = FormatSerializer(assignment.format)

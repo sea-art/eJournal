@@ -43,13 +43,13 @@ class GroupView(viewsets.ViewSet):
         try:
             course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
-            return response.not_found('Course does not exist')
+            return response.not_found('Course does not exist.')
 
         role = permissions.get_role(request.user, course)
         if role is None:
-            return response.forbidden('You are not in this course.')
-        if not role.can_edit_course_details:
-            return response.forbidden('You are not allowed to view the groups.')
+            return response.forbidden('You are not participating in this course.')
+        if not (role.can_edit_course_user_group or role.can_add_course_user_group or role.can_delete_course_user_group):
+            return response.forbidden('You are not allowed to interact with the course user groups.')
 
         queryset = Group.objects.filter(course=course)
         serializer = self.serializer_class(queryset, many=True, context={'user': request.user, 'course': course})
@@ -81,11 +81,11 @@ class GroupView(viewsets.ViewSet):
         except KeyError:
             return response.keyerror("name", "course_id")
 
-        # TODO Look for which permission check is better
         role = permissions.get_role(user, course_id)
-        if not role.can_edit_course_details:
+        if not role.can_add_course_user_group:
             return response.forbidden("You have no permissions to create a course group.")
 
+        # TODO P tot hier gekomen.
         try:
             course = Course.objects.get(pk=course_id)
         except Course.DoesNotExist:
