@@ -44,7 +44,7 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        if not request.user.is_teacher or not request.user.is_superuser:
+        if not request.user.is_teacher and not request.user.is_superuser:
             return response.forbidden(description="Only teachers and administrators are allowed to request all user \
                                        data.")
 
@@ -75,7 +75,7 @@ class UserView(viewsets.ViewSet):
         except User.DoesNotExist:
             return response.not_found('User does not exist.')
 
-        if request.user != user or not request.user.is_superuser or not request.user.is_teacher:
+        if (request.user != user) and not request.user.is_superuser and not request.user.is_teacher:
             return response.forbidden("You are not allowed to view this users information.")
 
         serializer = OwnUserSerializer(user, many=False)
@@ -210,7 +210,6 @@ class UserView(viewsets.ViewSet):
             user.lti_id = lti_id
 
         user.save()
-
         serializer = OwnUserSerializer(user, data=request.data, partial=True)
         if not serializer.is_valid():
             return response.bad_request()
@@ -233,11 +232,12 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
+
+        if not request.user.is_superuser:
+            return response.forbidden('You are not allowed to delete a user.')
+
         if int(pk) == 0:
             pk = request.user.id
-
-        if request.user.pk != pk or not request.user.is_superuser:
-            return response.forbidden()
 
         try:
             user = User.objects.get(pk=pk)
@@ -305,7 +305,7 @@ class UserView(viewsets.ViewSet):
         user = User.objects.get(pk=pk)
 
         # Check the right permissions to get this users data, either be the user of the data or be an admin.
-        if not user.is_superuser or request.user.id != pk:
+        if not user.is_superuser and request.user.id != pk:
             return response.forbidden('You cannot view this users data.')
 
         profile = UserSerializer(user).data
