@@ -44,13 +44,11 @@ class CommentView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        # Try to get the entry_id of the request.
         try:
             entry_id, = utils.required_params(request.query_params, "entry_id")
         except KeyError:
             return response.keyerror("entry_id")
 
-        # Try to get the Entry associated with the given entry_id.
         try:
             entry = Entry.objects.get(pk=entry_id)
         except Entry.DoesNotExist:
@@ -61,8 +59,8 @@ class CommentView(viewsets.ViewSet):
                 request.user, entry.node.journal.assignment, 'can_view_assignment_journals'):
             return response.forbidden('You are not allowed to view journals of other participants.')
 
-        if permissions.has_assignment_permission(request.user, entry.node.journal.assignment,
-                                                 'can_grade'):
+        if permissions.has_assignment_permission(request.user, entry.node.journal.assignment, 'can_grade') or not \
+           permissions.has_assignment_permission(request.user, entry.node.journal.assignment, 'can_have_journal'):
             comments = Comment.objects.filter(entry=entry)
         else:
             comments = Comment.objects.filter(entry=entry, published=True)
@@ -105,18 +103,11 @@ class CommentView(viewsets.ViewSet):
             return response.not_found('Entry, journal or assignment does not exist.')
 
         if not permissions.has_assignment_permission(request.user, assignment, 'can_comment') or \
-            not (permissions.has_assignment_permission(request.user, assignment, 'can_grade') or
-                 journal.user == request.user):
+           not (permissions.has_assignment_permission(request.user, assignment, 'can_grade') or
+                journal.user == request.user):
             return response.forbidden('You are not allowed to comment on this journal')
 
-        if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or
-            (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
-           not permissions.has_assignment_permission(request.user, journal.assignment,
-                                                     'can_view_assignment_journals'):
-            return response.bad_request('The assignment is locked and unavailable for students.')
-
-        published = published or not permissions.has_assignment_permission(request.user, assignment,
-                                                                           'can_grade')
+        published = permissions.has_assignment_permission(request.user, assignment, 'can_grade') and published
 
         comment = factory.make_comment(entry, request.user, text, published)
         return response.created({'comment': CommentSerializer(comment).data})
@@ -188,13 +179,10 @@ class CommentView(viewsets.ViewSet):
 
         if not permissions.has_assignment_permission(request.user, journal.assignment,
                                                      'can_comment'):
-            return response.forbidden('You cannot comment on entries.')
+            return response.forbidden('You are not allowed to comment on this entry.')
 
-        if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or
-            (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
-           not permissions.has_assignment_permission(request.user, journal.assignment,
-                                                     'can_view_assignment_journals'):
-            return response.bad_request('The assignment is locked and unavailable for students.')
+        if comment.author.id != request.user.id and not request.user.is_superuser:
+            return response.forbidden('You are not allowed to edit this comment.')
 
         req_data = request.data
         req_data['last_edited'] = datetime.now()
