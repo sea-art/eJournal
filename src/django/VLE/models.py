@@ -239,6 +239,7 @@ class Participation(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    # TODO P Why can there be a participation without a defined role, we always assume a role is present
     role = models.ForeignKey(
         Role,
         null=True,
