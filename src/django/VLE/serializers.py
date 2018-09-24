@@ -26,16 +26,19 @@ class UserSerializer(serializers.ModelSerializer):
         return user.first_name + ' ' + user.last_name
 
     def get_role(self, user):
-        if 'course' not in self.context:
+        if 'course' not in self.context or not self.context['course']:
             return None
 
         return permissions.get_role(user, self.context['course']).name
 
     def get_group(self, user):
-        if 'course' not in self.context:
+        if 'course' not in self.context or not self.context['course']:
+            return None
+        try:
+            group = Participation.objects.get(user=user, course=self.context['course']).group
+        except Participation.DoesNotExist:
             return None
 
-        group = Participation.objects.get(user=user, course=self.context['course']).group
         if group:
             return group.name
         else:
@@ -73,6 +76,13 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = '__all__'
+        read_only_fields = ('id', )
+
+
+class AssignmentDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assignment
+        fields = ('name', 'description', 'points_possible', 'unlock_date', 'due_date', 'lock_date')
         read_only_fields = ('id', )
 
 
@@ -148,16 +158,6 @@ class AssignmentSerializer(serializers.ModelSerializer):
         if 'course' not in self.context or not self.context['course']:
             return None
         return CourseSerializer(self.context['course']).data
-
-    def get_details(self, assignment):
-        return {
-            'name': assignment.name,
-            'description': assignment.description,
-            'points_possible': assignment.points_possible,
-            'unlock_date': assignment.unlock_date,
-            'due_date': assignment.due_date,
-            'lock_date': assignment.lock_date
-        }
 
 
 class NodeSerializer(serializers.ModelSerializer):

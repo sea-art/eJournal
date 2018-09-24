@@ -9,7 +9,7 @@ from VLE.models import Assignment
 import VLE.views.responses as response
 import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
-from VLE.serializers import FormatSerializer, AssignmentSerializer
+from VLE.serializers import FormatSerializer, AssignmentSerializer, AssignmentDetailsSerializer
 
 
 class FormatView(viewsets.ViewSet):
@@ -43,7 +43,7 @@ class FormatView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to view this assignment.')
 
         serializer = FormatSerializer(assignment.format)
-        assignment_details = AssignmentSerializer.get_details(self, assignment)
+        assignment_details = AssignmentDetailsSerializer(self, assignment)
 
         return response.success({'format': serializer.data, 'assignment_details': assignment_details})
 
@@ -119,6 +119,6 @@ class FormatView(viewsets.ViewSet):
         utils.delete_templates(format.unused_templates, removed_templates)
 
         serializer = FormatSerializer(format)
-        assignment_details = AssignmentSerializer.get_details(self, assignment)
+        assignment_details = AssignmentDetailsSerializer(self, assignment)
 
         return response.success({'format': serializer.data, 'assignment_details': assignment_details})

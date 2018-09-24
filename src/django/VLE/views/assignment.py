@@ -168,6 +168,7 @@ class AssignmentView(viewsets.ViewSet):
         try:
             course = Course.objects.get(id=request.query_params['course_id'])
         # TODO P Why this distinction, should an assignment without correct course parameter not simply alwalys return?
+        # Calling with a specific course_id makes more sense.
         except (ValueError, KeyError):
             course = None
         except Course.DoesNotExist:
@@ -178,19 +179,10 @@ class AssignmentView(viewsets.ViewSet):
 
         get_journals = permissions.has_assignment_permission(request.user, assignment, 'can_grade')
 
-        if course is None:
-            print("\n\n$################$\n\n")
-
-        if course:
-            serializer = AssignmentSerializer(
-                assignment,
-                context={'user': request.user, 'course': course, 'journals': get_journals}
-            )
-        else:
-            serializer = AssignmentSerializer(
-                assignment,
-                context={'user': request.user, 'journals': get_journals}
-            )
+        serializer = AssignmentSerializer(
+            assignment,
+            context={'user': request.user, 'course': course, 'journals': get_journals}
+        )
 
         return response.success({'assignment': serializer.data})
 
