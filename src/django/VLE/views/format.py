@@ -43,9 +43,9 @@ class FormatView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to view this assignment.')
 
         serializer = FormatSerializer(assignment.format)
-        assignment_details = AssignmentDetailsSerializer(self, assignment)
+        assignment_details = AssignmentDetailsSerializer(assignment)
 
-        return response.success({'format': serializer.data, 'assignment_details': assignment_details})
+        return response.success({'format': serializer.data, 'assignment_details': assignment_details.data})
 
     def partial_update(self, request, pk):
         """Update an existing journal format.
@@ -119,6 +119,6 @@ class FormatView(viewsets.ViewSet):
         utils.delete_templates(format.unused_templates, removed_templates)
 
         serializer = FormatSerializer(format)
-        assignment_details = AssignmentDetailsSerializer(self, assignment)
+        assignment_details = AssignmentDetailsSerializer(assignment)
 
-        return response.success({'format': serializer.data, 'assignment_details': assignment_details})
+        return response.success({'format': serializer.data, 'assignment_details': assignment_details.data})
