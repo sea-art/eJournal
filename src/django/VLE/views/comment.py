@@ -181,7 +181,7 @@ class CommentView(viewsets.ViewSet):
                                                      'can_comment'):
             return response.forbidden('You are not allowed to comment on this entry.')
 
-        if comment.author.id != request.user.id and not request.user.is_superuser:
+        if not (comment.author.id == request.user.id or request.user.is_superuser):
             return response.forbidden('You are not allowed to edit this comment.')
 
         req_data = request.data
@@ -219,7 +219,7 @@ class CommentView(viewsets.ViewSet):
         except Comment.DoesNotExist:
             return response.not_found('Comment does not exist.')
 
-        if not request.user.is_superuser and request.user.id != comment.author.id:
+        if not (request.user.is_superuser or request.user.id == comment.author.id):
             return response.forbidden(description='You are not allowed to delete this comment.')
 
         Comment.objects.get(id=comment_id).delete()

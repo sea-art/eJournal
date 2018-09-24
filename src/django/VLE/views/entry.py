@@ -182,7 +182,7 @@ class EntryView(viewsets.ViewSet):
 
         # Attempt to edit the entries content.
         if content_list:
-            if journal.user != request.user and not request.user.is_superuser:
+            if not (journal.user == request.user or request.user.is_superuser):
                 response.forbidden('You are not allowed to edit someone else\'s entry.')
 
             if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal'):
@@ -258,7 +258,7 @@ class EntryView(viewsets.ViewSet):
         except Entry.DoesNotExist:
             return response.not_found('Entry does not exist.')
 
-        if journal.user != request.user and not request.user.is_superuser:
+        if not (journal.user == request.user or request.user.is_superuser):
             return response.forbidden('You can only delete your own entries.')
 
         if entry.grade:

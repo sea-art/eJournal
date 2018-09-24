@@ -200,7 +200,7 @@ class CourseView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        if not request.user.is_teacher:
+        if not (request.user.is_teacher or request.user.is_superuser):
             return response.forbidden("You are not allowed to link courses.")
 
         unlinked_courses = Course.objects.filter(participation__user=request.user.id,
