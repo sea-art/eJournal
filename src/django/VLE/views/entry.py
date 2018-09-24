@@ -60,7 +60,7 @@ class EntryView(viewsets.ViewSet):
         except (Journal.DoesNotExist, Template.DoesNotExist):
             return response.not_found('Journal or Template does not exist.')
 
-        if not journal.assignment.format.available_templates_set.filter(template=template).exists():
+        if not journal.assignment.format.available_templates.all().filter(pk=template.pk).exists():
             return response.forbidden('Entry template is not available.')
 
         if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal'):

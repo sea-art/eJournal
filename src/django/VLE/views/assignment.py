@@ -177,10 +177,20 @@ class AssignmentView(viewsets.ViewSet):
             return response.forbidden("You cannot view this assignment.")
 
         get_journals = permissions.has_assignment_permission(request.user, assignment, 'can_grade')
-        serializer = AssignmentSerializer(
-            assignment,
-            context={'user': request.user, 'course': course, 'journals': get_journals}
-        )
+
+        if course is None:
+            print("\n\n$################$\n\n")
+
+        if course:
+            serializer = AssignmentSerializer(
+                assignment,
+                context={'user': request.user, 'course': course, 'journals': get_journals}
+            )
+        else:
+            serializer = AssignmentSerializer(
+                assignment,
+                context={'user': request.user, 'journals': get_journals}
+            )
 
         return response.success({'assignment': serializer.data})
 
