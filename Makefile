@@ -21,7 +21,7 @@ fill-db: migrate-back
 	bash -c 'source ./venv/bin/activate && cd ./src/django && echo "delete from sqlite_sequence where name like \"VLE_%\";" | sqlite3 VLE.db && python3.6 manage.py flush --no-input && python3.6 manage.py preset_db && deactivate'
 
 migrate-back:
-	bash -c "source ./venv/bin/activate && cd ./src/django && (rm VLE.db || echo "0") && python3.6 manage.py makemigrations VLE && python3.6 manage.py migrate && deactivate"
+	bash -c "source ./venv/bin/activate && cd ./src/django && python3.6 manage.py makemigrations VLE && python3.6 manage.py migrate && deactivate"
 
 #
 # DEVELOP COMMANDS
@@ -45,16 +45,11 @@ setup-no-input:
 	sudo apt install npm nodejs git-flow python3.6 python3-pip pep8 sqlite3 -y
 	sudo pip3 install virtualenv
 
-	make reset-no-input
+	make reset
 
 	@echo "DONE!"
 
 reset:
-	@echo "This operation will clean old files, press enter to continue (ctrl+c to cancel)"
-	@read -r a
-	@make clean
-	@make reset-no-input
-reset-no-input:
 	# Reinstall venv packages
 	virtualenv -p python3.6 venv
 	bash -c '\
@@ -66,7 +61,7 @@ reset-no-input:
 	npm ci --prefix ./src/vue
 
 	# Remake the database
-	make fill-db
+	make migrate-back
 
 	@echo "DONE!"
 
@@ -92,7 +87,6 @@ default:
 clean:
 	rm -rf ./venv
 	rm -rf ./src/vue/node_modules
-	rm -rf ./src/django/VLE/migrations
 	rm -rf ./src/django/VLE.db
 
 #
