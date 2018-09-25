@@ -237,6 +237,7 @@ export default {
             var missingAssignmentName = false
             var missingPointMax = false
 
+            var deadlineAfterDueDate = false
             var invalidDate = false
             var invalidTemplate = false
             var invalidTarget = false
@@ -284,9 +285,15 @@ export default {
                     invalidTarget = true
                     this.$toasted.error('One or more presets have an invalid target. Please check the format and try again.')
                 }
+                if (!deadlineAfterDueDate && this.assignmentDetails.due_date &&
+                    Date.parse(node.deadline) > Date.parse(this.assignmentDetails.due_date)) {
+                    deadlineAfterDueDate = true
+                    this.$toasted.error('One or more presets have a deadline after the assignment due date. Please check the format and try again.')
+                }
             }
 
-            if (missingAssignmentName | missingPointMax | invalidDate | invalidTemplate | invalidTarget | targetsOutOfOrder) {
+            if (missingAssignmentName | missingPointMax | invalidDate | invalidTemplate | invalidTarget | targetsOutOfOrder |
+                deadlineAfterDueDate) {
                 return
             }
             this.saveRequestInFlight = true

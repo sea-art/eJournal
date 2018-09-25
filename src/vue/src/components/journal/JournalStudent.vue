@@ -241,7 +241,7 @@ export default {
             var currentDate = new Date()
             var deadline = new Date(this.nodes[this.currentNode].deadline)
 
-            return currentDate <= deadline && currentDate <= new Date(this.assignment.due_date)
+            return currentDate <= deadline
         }
     },
     components: {
