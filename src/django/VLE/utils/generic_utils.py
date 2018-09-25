@@ -166,8 +166,9 @@ def parse_template(template_dict):
         title = field['title']
         location = field['location']
         required = field['required']
+        description = field['description']
 
-        factory.make_field(template, title, location, type, required)
+        factory.make_field(template, title, location, type, required, description)
 
     template.save()
     return template

@@ -10,7 +10,6 @@ import datetime
 import json
 import jwt
 
-
 # VUE ENTRY STATE
 BAD_AUTH = '-1'
 
@@ -44,7 +43,7 @@ def get_lti_params_from_jwt(request, jwt_params):
     except jwt.exceptions.InvalidSignatureError:
         return response.unauthorized(description='Invalid LTI parameters given. Please retry from canvas.')
 
-    roles = json.load(open('config.json'))
+    roles = json.load(open(settings.LTI_ROLE_CONFIG_PATH))
     lti_roles = dict((roles[k], k) for k in roles)
     role = lti_roles[lti_params['roles']]
 
@@ -116,7 +115,7 @@ def lti_launch(request):
         key, secret, request)
 
     if authenticated:
-        roles = json.load(open('config.json'))
+        roles = json.load(open(settings.LTI_ROLE_CONFIG_PATH))
         params = request.POST.dict()
 
         user = lti.check_user_lti(params, roles)

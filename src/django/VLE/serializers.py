@@ -121,7 +121,10 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
     def get_journals(self, assignment):
         if 'journals' in self.context and self.context['journals']:
-            return JournalSerializer(Journal.objects.filter(assignment=assignment), many=True).data
+            return JournalSerializer(
+                Journal.objects.filter(assignment=assignment),
+                many=True,
+                context=self.context).data
         else:
             return None
 
@@ -193,7 +196,7 @@ class JournalSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', )
 
     def get_student(self, journal):
-        return UserSerializer(journal.user).data
+        return UserSerializer(journal.user, context=self.context).data
 
     def get_stats(self, journal):
         entries = utils.get_journal_entries(journal)

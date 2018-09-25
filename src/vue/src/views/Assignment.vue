@@ -5,6 +5,13 @@
         <b-card slot="main-content-column" class="no-hover settings-card">
             <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
             <div class="d-flex">
+                <b-form-select class="multi-form mr-2" v-model="selectedFilterGroupOption"
+                               :select-size="1">
+                    <option :value="null">Filter group by ...</option>
+                    <option v-for="group in groups" :key="group.name" :value="group.name">
+                        {{ group.name }}
+                    </option>
+                </b-form-select>
                 <b-form-select class="multi-form mr-2" v-model="selectedSortOption" :select-size="1">
                    <option value="sortFullName">Sort by name</option>
                    <option value="sortUsername">Sort by username</option>
@@ -64,6 +71,7 @@ import breadCrumb from '@/components/assets/BreadCrumb.vue'
 
 import store from '@/Store.vue'
 import assignmentAPI from '@/api/assignment'
+import groupAPI from '@/api/group'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
@@ -81,7 +89,9 @@ export default {
         return {
             assignmentJournals: [],
             stats: [],
+            groups: [],
             selectedSortOption: 'sortUsername',
+            selectedFilterGroupOption: null,
             searchVariable: '',
             query: {},
             order: false
@@ -115,6 +125,10 @@ export default {
             .catch(error => {
                 this.$toasted.error(error.response.data.description)
             })
+
+        groupAPI.getAllFromCourse(this.cID)
+            .then(groups => { this.groups = groups })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
 
         if (this.$route.query.sort === 'sortFullName' ||
             this.$route.query.sort === 'sortUsername' ||
@@ -191,7 +205,7 @@ export default {
                 return self.compare(a.stats.submitted - a.stats.graded, b.stats.submitted - b.stats.graded)
             }
 
-            function checkFilter (assignment) {
+            function searchFilter (assignment) {
                 var username = assignment.student.username.toLowerCase()
                 var fullName = assignment.student.name.toLowerCase()
                 var searchVariable = self.searchVariable.toLowerCase()
@@ -200,18 +214,30 @@ export default {
                        fullName.includes(searchVariable)
             }
 
+            function groupFilter (assignment) {
+                if (self.selectedFilterGroupOption) {
+                    if (!assignment.student.group) {
+                        return assignment.student.group === self.selectedFilterGroupOption
+                    } else {
+                        return assignment.student.group.includes(self.selectedFilterGroupOption)
+                    }
+                }
+
+                return true
+            }
+
             /* Filter list based on search input. */
             if (this.selectedSortOption === 'sortFullName') {
-                store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareFullName))
+                store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareFullName))
             } else if (this.selectedSortOption === 'sortUsername') {
-                store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareUsername))
+                store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareUsername))
             } else if (this.selectedSortOption === 'sortMarking') {
-                store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded))
+                store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareMarkingNeeded))
             }
 
             this.updateQuery()
 
-            return store.state.filteredJournals.slice()
+            return store.state.filteredJournals.filter(groupFilter).slice()
         }
     }
 }

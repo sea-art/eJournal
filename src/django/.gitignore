@@ -1,5 +1,5 @@
 VLE/settings/email.py
-static
+./static
 media
 
 

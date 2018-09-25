@@ -10,8 +10,8 @@ source settings/variables.conf
 ###########
 
 # Sync django to the target directory
-sudo rsync -a --exclude='VLE.db' --exclude='settings/development.py' --exclude='test/' --exclude="__pycache__" ./src/django ${TARGET}
-
+sudo rsync -a --exclude='VLE.db' --exclude='settings/development.py' --exclude='test/' --exclude="__pycache__"
+sudo rsync -a --exclude='example_current_lti_params' ./lti ${TARGET}
 # Set variables in the target directory
 sudo sed -i "s@{{DIR}}@${TARGET}/django@g" ${TARGET}/django/VLE/wsgi.py
 
@@ -45,7 +45,6 @@ deactivate
 sudo mkdir ${TARGET}/django/media
 sudo chmod g+w ${TARGET}/django/media
 sudo chgrp www-data ${TARGET}/django/media
-sudo rsync -a ${TARGET}/django/static ${TARGET}/static
 ############
 # FRONTEND #
 ############
