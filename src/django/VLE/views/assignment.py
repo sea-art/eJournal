@@ -167,8 +167,6 @@ class AssignmentView(viewsets.ViewSet):
 
         try:
             course = Course.objects.get(id=request.query_params['course_id'])
-        # TODO P Why this distinction, should an assignment without correct course parameter not simply alwalys return?
-        # Calling with a specific course_id makes more sense.
         except (ValueError, KeyError):
             course = None
         except Course.DoesNotExist:
