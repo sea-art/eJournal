@@ -1,5 +1,5 @@
 <!--
-    Mini component representing the date for a node in the EDAG.
+    Mini component representing the date for a node in the Timeline.
     Handles its own style depending on a state given by parent.
 -->
 

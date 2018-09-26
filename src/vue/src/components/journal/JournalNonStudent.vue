@@ -1,12 +1,12 @@
 <template>
-    <b-row class="outer-container-edag-page" no-gutters>
-        <b-col md="12" lg="8" xl="9" class="inner-container-edag-page">
-            <b-col md="12" lg="auto" xl="4" class="left-content-edag-page">
+    <b-row class="outer-container-timeline-page" no-gutters>
+        <b-col md="12" lg="8" xl="9" class="inner-container-timeline-page">
+            <b-col md="12" lg="auto" xl="4" class="left-content-timeline-page">
                 <bread-crumb v-if="$root.lgMax()">&nbsp;</bread-crumb>
-                <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
+                <timeline @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
             </b-col>
 
-            <b-col md="12" lg="auto" xl="8" class="main-content-edag-page">
+            <b-col md="12" lg="auto" xl="8" class="main-content-timeline-page">
                 <bread-crumb v-if="$root.xl()">&nbsp;</bread-crumb>
                 <div v-if="nodes.length > currentNode && currentNode !== -1">
                     <div v-if="nodes[currentNode].type == 'e' || nodes[currentNode].type == 'd'">
@@ -27,7 +27,7 @@
             </b-col>
         </b-col>
 
-        <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
+        <b-col md="12" lg="4" xl="3" class="right-content-timeline-page right-content">
             <b-row>
                 <b-col md="6" lg="12">
                     <h3>Journal progress</h3>
@@ -76,7 +76,7 @@
 import contentColumns from '@/components/columns/ContentColumns.vue'
 import entryNonStudentPreview from '@/components/entry/EntryNonStudentPreview.vue'
 import addCard from '@/components/journal/AddCard.vue'
-import edag from '@/components/edag/Edag.vue'
+import timeline from '@/components/timeline/Timeline.vue'
 import studentCard from '@/components/assignment/StudentCard.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
@@ -307,7 +307,7 @@ export default {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'add-card': addCard,
-        edag,
+        timeline,
         store,
         'student-card': studentCard,
         icon,

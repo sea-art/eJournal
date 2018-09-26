@@ -1,5 +1,5 @@
 <!--
-    Component representing a node in the EDAG.
+    Component representing a node in the Timeline.
     Handles the compositing of circle and date subcomponents, its own style
     depending on state given by parent, and passes relevant parts of the state
     to the subcomponents.
@@ -9,25 +9,25 @@
     <b-row class="node-container">
         <b-col cols="4" sm="1"/>
         <b-col cols="4" sm="5" class="d-flex h-100 align-items-center justify-content-center">
-            <edag-node-date :date="node.deadline" :selected="selected"/>
+            <timeline-node-date :date="node.deadline" :selected="selected"/>
         </b-col>
         <b-col cols="4" sm="5" class="d-flex h-100 align-items-center justify-content-center">
             <div class="time-line" :class="timeLineClass"></div>
-            <edag-node-circle @click.native="$emit('select-node', index)" class="position-absolute" :type="node.type" :text="node.target" :selected="selected" :nodeState="nodeState()"/>
+            <timeline-node-circle @click.native="$emit('select-node', index)" class="position-absolute" :type="node.type" :text="node.target" :selected="selected" :nodeState="nodeState()"/>
         </b-col>
         <b-col cols="4" sm="1"/>
     </b-row>
 </template>
 
 <script>
-import edagNodeCircle from '@/components/edag/EdagNodeCircle.vue'
-import edagNodeDate from '@/components/edag/EdagNodeDate.vue'
+import timelineNodeCircle from '@/components/timeline/TimelineNodeCircle.vue'
+import timelineNodeDate from '@/components/timeline/TimelineNodeDate.vue'
 
 export default {
     props: ['node', 'selected', 'index', 'last', 'edit'],
     components: {
-        'edag-node-date': edagNodeDate,
-        'edag-node-circle': edagNodeCircle
+        'timeline-node-date': timelineNodeDate,
+        'timeline-node-circle': timelineNodeCircle
     },
     computed: {
         deadlineHasPassed () {

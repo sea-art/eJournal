@@ -360,7 +360,7 @@ class Journal(models.Model):
 class Node(models.Model):
     """Node.
 
-    The Node is an EDAG component.
+    The Node is an Timeline component.
     It can represent many things.
     There are three types of nodes:
     -Progress

@@ -6,14 +6,14 @@
 -->
 
 <template>
-    <b-row class="outer-container-edag-page" no-gutters>
-        <b-col md="12" lg="8" xl="9" class="inner-container-edag-page">
-            <b-col md="12" lg="auto" xl="4" class="left-content-edag-page">
+    <b-row class="outer-container-timeline-page" no-gutters>
+        <b-col md="12" lg="8" xl="9" class="inner-container-timeline-page">
+            <b-col md="12" lg="auto" xl="4" class="left-content-timeline-page">
                 <bread-crumb v-if="$root.lgMax()" class="main-content">&nbsp;</bread-crumb>
-                <edag @select-node="selectNode" @add-node="addNode" :selected="currentNode" :nodes="nodes" :edit="true"/>
+                <timeline @select-node="selectNode" @add-node="addNode" :selected="currentNode" :nodes="nodes" :edit="true"/>
             </b-col>
 
-            <b-col md="12" lg="auto" xl="8" class="main-content-edag-page">
+            <b-col md="12" lg="auto" xl="8" class="main-content-timeline-page">
                 <bread-crumb v-if="$root.xl()">&nbsp;</bread-crumb>
                 <!--
                     Fill in the template using the corresponding data
@@ -52,7 +52,7 @@
             </b-col>
         </b-col>
 
-        <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
+        <b-col md="12" lg="4" xl="3" class="right-content-timeline-page right-content">
             <h3>Entry Templates</h3>
             <div :class="{ 'input-disabled' : saveRequestInFlight }">
                 <available-template-card
@@ -83,7 +83,7 @@
 <script>
 import contentColumns from '@/components/columns/ContentColumns.vue'
 import mainCard from '@/components/assets/MainCard.vue'
-import edag from '@/components/edag/Edag.vue'
+import timeline from '@/components/timeline/Timeline.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import FormatEditAssignmentDetailsCard from '@/components/format/FormatEditAssignmentDetailsCard.vue'
 import formatEditAvailableTemplateCard from '@/components/format/FormatEditAvailableTemplateCard.vue'
@@ -379,7 +379,7 @@ export default {
         'selected-node-card': formatEditSelectTemplateCard,
         'template-editor': templateEdit,
         'main-card': mainCard,
-        edag,
+        timeline,
         icon
     },
 
@@ -396,5 +396,5 @@ export default {
 </script>
 
 <style lang="sass">
-@import '~sass/partials/edag-page-layout.sass'
+@import '~sass/partials/timeline-page-layout.sass'
 </style>

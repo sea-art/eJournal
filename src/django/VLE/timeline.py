@@ -1,7 +1,7 @@
 """
-edag.py.
+timeline.py.
 
-Useful edag functions.
+Useful timeline functions.
 """
 from django.db.models import Case, When
 from django.utils import timezone
