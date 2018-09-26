@@ -4,7 +4,7 @@
         class="fileinput"
         @change="fileHandler"
         :state="Boolean(file)"
-        :placeholder="placeholder"/>
+        :placeholder="placeholderText"/>
 </template>
 
 <script>
@@ -25,7 +25,8 @@ export default {
             String
         },
         autoUpload: {
-            default: false
+            required: true,
+            Boolean
         },
         placeholder: {
             default: 'Select a file.'
@@ -33,6 +34,7 @@ export default {
     },
     data () {
         return {
+            placeholderText: 'Select a file.',
             file: null
         }
     },
@@ -55,9 +57,9 @@ export default {
         uploadFile () {
             let formData = new FormData()
             formData.append('file', this.file)
-            formData.append('aID', this.aID)
+            formData.append('assignment_id', this.aID)
 
-            userAPI.updateUserFile(formData)
+            userAPI.uploadUserFile(formData)
                 .then(_ => {
                     this.$emit('fileUploadSuccess', this.file.name)
                     this.$toasted.success('File upload success.')
@@ -71,8 +73,9 @@ export default {
     },
     created () {
         // Assume the given file is present in the backend
-        if (this.placeholder !== 'Select a file.') {
+        if (this.placeholder !== null && this.placeholder !== 'Select a file.') {
             this.file = true
+            this.placeholderText = this.placeholder
         }
     }
 }

@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Router from 'vue-router'
 import store from '@/store'
 import Home from '@/views/Home'
+import Test from '@/views/Test'
 import Journal from '@/views/Journal'
 import Assignment from '@/views/Assignment'
 import Course from '@/views/Course'
@@ -14,7 +15,6 @@ import LtiLaunch from '@/views/LtiLaunch'
 import AssignmentsOverview from '@/views/AssignmentsOverview'
 import ErrorPage from '@/views/ErrorPage'
 import CourseEdit from '@/views/CourseEdit'
-import AssignmentEdit from '@/views/AssignmentEdit'
 import UserRoleConfiguration from '@/views/UserRoleConfiguration'
 import FormatEdit from '@/views/FormatEdit'
 import LtiLogin from '@/views/LtiLogin'
@@ -29,6 +29,10 @@ var router = new Router({
         path: '/',
         name: 'Guest',
         component: Guest
+    }, {
+        path: '/test',
+        name: 'Test',
+        component: Test
     }, {
         path: '/Home',
         name: 'Home',
@@ -95,11 +99,6 @@ var router = new Router({
         path: '/Home/Course/:cID/Assignment/:aID',
         name: 'Assignment',
         component: Assignment,
-        props: true
-    }, {
-        path: '/Home/Course/:cID/Assignment/:aID/AssignmentEdit',
-        name: 'AssignmentEdit',
-        component: AssignmentEdit,
         props: true
     }, {
         path: '/Home/Course/:cID/Assignment/:aID/Format',

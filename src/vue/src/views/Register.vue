@@ -1,9 +1,12 @@
 <template>
     <content-single-column>
         <bread-crumb>&nbsp;</bread-crumb>
-        <register-user v-if="!accountCreated" @handleAction="accountCreated=true"/>
+        <b-card v-if="!accountCreated" class="blue-border no-hover card-last-elem-button">
+            <register-user @handleAction="accountCreated=true"/>
+        </b-card>
         <b-card v-if="accountCreated" class="blue-border no-hover">
             <b-form @submit.prevent="verifyEmail">
+                <h2 class="field-heading">Email verification token</h2>
                 <b-input class="multi-form theme-input" v-model="emailVerificationToken" required placeholder="Email verification token"/>
                 <b-button class="float-right multi-form add-button" type="submit">
                     <icon name="save"/>
@@ -19,7 +22,7 @@ import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import icon from 'vue-awesome/components/Icon'
 import registerUser from '@/components/account/RegisterUser.vue'
-import userAPI from '@/api/user.js'
+import userAPI from '@/api/user'
 
 export default {
     name: 'Register',

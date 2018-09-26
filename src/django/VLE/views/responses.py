@@ -8,7 +8,7 @@ to receive the appropriate error code.
 from django.http import JsonResponse, HttpResponse, FileResponse
 
 import os
-from VLE.settings.base import MEDIA_ROOT
+from django.conf import settings
 import base64
 
 
@@ -84,16 +84,16 @@ def internal_server_error(description='Oops! The server experienced internal hic
     return json_response(description=description, status=500)
 
 
-def response(status, message, description='', payload={}):
+def response(status, message, description=None, payload={}):
     """Return a generic response header with customizable fields.
 
     Arguments:
     status -- HTTP status number
     message -- response message
-    description -- header description (usable for example in the front end)
+    description -- header description
     payload -- payload to deliver
     """
-    return JsonResponse({'result': message, 'description': description, **payload}, status=status)
+    return json_response({'result': message, 'description': description, **payload}, status=status)
 
 
 def http_response(content=b'', content_type=None, status=None, reason=None, charset=None):
@@ -110,7 +110,7 @@ def http_response(content=b'', content_type=None, status=None, reason=None, char
 
     Additional headers can be set by treating the response as a dictionary.
     """
-    return HttpResponse(content=content, content_type=content_type, status=status, reason=reason, charset=None)
+    return HttpResponse(content=content, content_type=content_type, status=status, reason=reason, charset=charset)
 
 
 def json_response(payload={}, description='', status=None, reason=None, charset=None):
@@ -125,7 +125,7 @@ def json_response(payload={}, description='', status=None, reason=None, charset=
     charset      -- A string denoting the charset in which the response will be encodedself.
                     Default: django.conf settings.DEFAULT_CHARSET = utf-8
     """
-    return JsonResponse(data={**payload, 'description': description}, status=status, reason=reason, charset=None)
+    return JsonResponse(data={**payload, 'description': description}, status=status, reason=reason, charset=charset)
 
 
 def keyerror(*keys):
@@ -138,7 +138,7 @@ def keyerror(*keys):
 
 def user_file_b64(user_file):
     """Return a file as base64 encoded binary string if found, otherwise returns a not found response."""
-    file_path = os.path.join(MEDIA_ROOT, user_file.file.name)
+    file_path = os.path.join(settings.MEDIA_ROOT, user_file.file.name)
     if os.path.exists(file_path):
         with open(file_path, 'rb') as fp:
             response = HttpResponse(base64.b64encode(fp.read()), content_type=user_file.content_type)

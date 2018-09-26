@@ -19,18 +19,16 @@
             </h4>
             <h1>
                 {{ crumbs.slice(-1)[0].displayName }}
-                <slot>
-                    <icon name="eye" @click.native="eyeClick()" class="eye-icon" scale="1.75"></icon>
-                </slot>
             </h1>
         </div>
     </div>
 </template>
 
 <script>
-import commonAPI from '@/api/common.js'
 import icon from 'vue-awesome/components/Icon'
 import store from '@/Store.vue'
+
+import common from '@/api/common'
 
 export default {
     components: {
@@ -47,7 +45,6 @@ export default {
                     'Home': 'Courses',
                     'FormatEdit': 'Format Editor',
                     'CourseEdit': 'Course Editor',
-                    'AssignmentEdit': 'Assignment Editor',
                     'AssignmentsOverview': 'Assignments',
                     'UserRoleConfiguration': 'User Role Configuration'
                 },
@@ -103,10 +100,10 @@ export default {
             }
 
             if (crumbsMissingDisplayName.length > 0) {
-                commonAPI.get_names(request)
-                    .then(data => {
+                common.getNames(request)
+                    .then(names => {
                         for (var crumb of crumbsMissingDisplayName) {
-                            crumb.displayName = data[this.settings.namedViews[crumb.routeName].apiReturnValue]
+                            crumb.displayName = names[this.settings.namedViews[crumb.routeName].apiReturnValue]
                             this.cachedMap[crumb.route] = crumb.displayName
                         }
                     })
@@ -116,17 +113,14 @@ export default {
                     .then(_ => { store.setCachedMap(this.cachedMap) })
             }
         },
-        eyeClick () {
-            this.$emit('eye-click')
-        },
         editClick () {
             this.$emit('edit-click')
         },
         canEdit () {
             var pageName = this.$route.name
 
-            if ((pageName === 'Home' && this.$hasPermission('is_superuser')) ||
-               (pageName === 'Course' && this.$hasPermission('can_edit_course')) ||
+            if ((pageName === 'Home' && this.$hasPermission('can_edit_institute_details')) ||
+               (pageName === 'Course' && this.$hasPermission('can_edit_course_details')) ||
                (pageName === 'Assignment' && this.$hasPermission('can_edit_assignment'))) {
                 return true
             }

@@ -32,14 +32,14 @@ const mutations = {
         state.jwtRefresh = refresh
     },
     [types.HYDRATE_USER] (state, data) {
-        const userData = data.user_data
-        const permissions = data.all_permissions
+        const userData = data.user
+        const permissions = data.user.permissions
 
-        state.uID = userData.uID
+        state.uID = userData.id
         state.username = userData.username
         state.email = userData.email
         state.verifiedEmail = userData.verified_email
-        state.profilePicture = userData.picture
+        state.profilePicture = userData.profile_picture
         state.firstName = userData.first_name
         state.lastName = userData.last_name
         state.ltiID = userData.lti_id
@@ -96,7 +96,7 @@ const actions = {
                 dispatch('populateStore').then(response => {
                     resolve('JWT and store are set succesfully.')
                 }, error => {
-                    Vue.toasted.error(error.response.description)
+                    Vue.toasted.error(error.response.data.description)
                     reject(error) // Login success but hydration failed
                 })
             }, error => {
@@ -114,32 +114,32 @@ const actions = {
      * Fails if the refresh fails or if the store needed to be populated if that fails as well. */
     validateToken ({ commit, dispatch, getters }, error = null) {
         return new Promise((resolve, reject) => {
-            // TODO can still be improved by shortcircuit rejecting on errors due to something other than an invalid token
-            // Rather than refreshing for nearly all errors
-            if (error && error.response.data.code === 'token_not_valid') { return reject(error) }
+            if (!error || (error && error.response.data.code === 'token_not_valid')) {
+                connection.conn.post('token/refresh/', {refresh: getters.jwtRefresh}).then(response => {
+                    commit(types.SET_ACCES_TOKEN, response.data.access) // Refresh token valid, update access token.
 
-            connection.conn.post('token/refresh/', {refresh: getters.jwtRefresh}).then(response => {
-                commit(types.SET_ACCES_TOKEN, response.data.access) // Refresh token valid, update access token.
-
-                if (!getters.storePopulated) {
-                    dispatch('populateStore')
-                        .then(_ => { resolve() })
-                        .catch(error => { reject(error) })
-                } else {
-                    resolve('JWT refreshed succesfully, store was already populated.')
-                }
-            }, error => {
-                reject(error) // Refresh token invalid, reject
-            })
+                    if (!getters.storePopulated) {
+                        dispatch('populateStore')
+                            .then(_ => { resolve() })
+                            .catch(error => { reject(error) })
+                    } else {
+                        resolve('JWT refreshed succesfully, store was already populated.')
+                    }
+                }, error => {
+                    reject(error) // Refresh token invalid, reject
+                })
+            } else {
+                reject(error) // We should not validate if the error has nothing to do with the token
+            }
         })
     },
     populateStore ({ commit }) {
         return new Promise((resolve, reject) => {
-            connection.conn.get('/get_user_store_data/').then(response => {
+            connection.conn.get('/users/0/').then(response => {
                 commit(types.HYDRATE_USER, response.data)
                 resolve('Store is populated succesfully')
             }, error => {
-                Vue.toasted.error(error.response.description)
+                Vue.toasted.error(error.response.data.description)
                 reject(error)
             })
         })

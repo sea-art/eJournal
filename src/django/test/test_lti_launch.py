@@ -3,11 +3,13 @@ test_lti_launch.py.
 
 Test lti launch.
 """
-import VLE.lti_launch as lti
 from django.test import TestCase
+from django.conf import settings
+from VLE.models import Participation, Journal, Role, Lti_ids
+
+import VLE.lti_launch as lti
 import VLE.factory as factory
 import json
-from VLE.models import Participation, Journal, Role
 
 
 class lti_launch_test(TestCase):
@@ -18,7 +20,7 @@ class lti_launch_test(TestCase):
 
     def setUp(self):
         """Setup."""
-        self.roles = json.load(open('../../config.json'))
+        self.roles = json.load(open(settings.LTI_ROLE_CONFIG_PATH))
 
         self.created_user = factory.make_user('TestUser', 'Pass', "ltiTest@test.com", lti_id='awefd')
         self.created_course = factory.make_course('TestCourse', 'aaaa', lti_id='asdf')
@@ -46,7 +48,7 @@ class lti_launch_test(TestCase):
     def test_select_course(self):
         """Hopefully select a course."""
         selected_course = lti.check_course_lti({
-            'custom_course_id': self.created_course.lti_id,
+            'custom_course_id': Lti_ids.objects.filter(course=self.created_course)[0].lti_id,
         },
             user=self.created_user,
             role=self.roles['Teacher']
@@ -56,7 +58,7 @@ class lti_launch_test(TestCase):
     def test_select_assignment(self):
         """Hopefully select a assignment."""
         selected_assignment = lti.check_assignment_lti({
-            'custom_assignment_id': self.created_assignment.lti_id,
+            'custom_assignment_id': Lti_ids.objects.filter(assignment=self.created_assignment)[0].lti_id,
         })
         self.assertEquals(selected_assignment, self.created_assignment)
 

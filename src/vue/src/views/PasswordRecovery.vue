@@ -3,7 +3,9 @@
         <h1>Password Recovery</h1>
         <b-card class="blue-border no-hover">
             <b-form @submit.prevent="recoverPassword()">
+                <h2 class="field-heading">New password</h2>
                 <b-input class="multi-form theme-input" type="password" v-model="password" required placeholder="New password"/>
+                <h2 class="field-heading">Repeat new password</h2>
                 <b-input class="multi-form theme-input" type="password" v-model="passwordRepeated" @keyup.enter="handleLogin()" required placeholder="Repeat new password"/>
                 <b-button class="float-right multi-form add-button" type="submit">
                     <icon name="save"/>
@@ -17,7 +19,8 @@
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import icon from 'vue-awesome/components/Icon'
-import authAPI from '@/api/auth.js'
+
+import authAPI from '@/api/auth'
 import validation from '@/utils/validation.js'
 
 export default {

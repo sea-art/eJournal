@@ -19,6 +19,8 @@
         font-weight: bold
         font-size: 1.5em
         text-align: center
+    .grade
+        font-weight: normal
     .custom-checkbos:checked
         background-color: red !important
     .btn
@@ -26,6 +28,9 @@
         flex-basis: 100%
     .entry-field
         clear: both
+    &.sticky
+        position: sticky
+        top: 10px
 
 .entry-card-teacher
     .grade-section
@@ -33,3 +38,16 @@
         height: auto
         @include xs-max
             width: 50%
+
+
+hr.full-width
+    width: 120%
+    margin-left: -10px !important
+    border-color: $theme-dark-grey
+    margin: 30px 0px 5px 0px
+.timestamp
+    float: right
+    font-family: 'Roboto Condensed', sans-serif
+    color: grey
+    svg
+    fill: grey

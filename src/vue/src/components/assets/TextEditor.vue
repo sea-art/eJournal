@@ -135,7 +135,11 @@ export default {
         }
     },
     watch: {
-        content: function (newVal) { this.$emit('content-update', this.content) }
+        content: function (newVal) { this.$emit('content-update', this.content) },
+        id: function () {
+            this.content = this.givenContent
+            this.editor.setContent(this.givenContent)
+        }
     },
     methods: {
         editorInit (editor) {
@@ -289,6 +293,11 @@ export default {
                 {start: '* ', cmd: 'InsertUnorderedList'},
                 {start: '- ', cmd: 'InsertUnorderedList'}
             ]
+        },
+        clearContent () {
+            this.editor.setContent('')
+            this.editor.execCommand('fontName', false, 'roboto condensed')
+            this.content = ''
         }
     },
     mounted () {

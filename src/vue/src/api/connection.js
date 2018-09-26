@@ -15,5 +15,11 @@ export default {
         headers: {
             'Content-Type': 'multipart/form-data'
         }
+    }),
+    connFileEmail: axios.create({
+        baseURL: 'http://localhost:8000/',
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
     })
 }

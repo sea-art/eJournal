@@ -10,10 +10,17 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
+from VLE.settings.base import *
+import VLE.settings.email as email_config
+
 # SECURITY WARNING: KEEP secret
 SECRET_KEY = '{{SECRET_KEY}}'
 
-from VLE.settings.base import *
+EMAIL_USE_TLS = email_config.EMAIL_USE_TLS
+EMAIL_HOST = email_config.EMAIL_HOST
+EMAIL_HOST_USER = email_config.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = email_config.EMAIL_HOST_PASSWORD
+EMAIL_PORT = email_config.EMAIL_PORT
 
 # SECURITY WARNING: KEEP secret
 LTI_SECRET = '{{LTI_SECRET}}'
@@ -22,11 +29,11 @@ LTI_KEY = '{{LTI_KEY}}'
 BASELINK = '{{BASELINK}}'
 CORS_ORIGIN_ALLOW_ALL = True
 
-USER_MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024
-USER_MAX_TOTAL_STORAGE_BYTES = 100 * 1024 * 1024
+FILE_UPLOAD_PERMISSIONS = 0o644
+USER_MAX_FILE_SIZE_BYTES = '{{USER_MAX_FILE_SIZE_BYTES}}'
+USER_MAX_TOTAL_STORAGE_BYTES = '{{USER_MAX_TOTAL_STORAGE_BYTES}}'
 
 MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware'] + MIDDLEWARE
-# TODO More select selection, only allow our host directly to avoid cross site securiy flaws
 ALLOWED_HOSTS = ['*']
 
 SESSION_COOKIE_SECURE = True

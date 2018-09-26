@@ -1,9 +1,8 @@
 <template>
-    <b-button
-        @click="fileDownload">
+    <div @click="fileDownload" class="file-controls">
         <icon name="download"/>
-        {{ fileName }}
-    </b-button>
+        <i><span>{{ fileName }}</span></i>
+    </div>
 </template>
 
 <script>
@@ -26,7 +25,7 @@ export default {
     },
     methods: {
         fileDownload (e) {
-            userAPI.getUserFile(this.fileName, this.authorUID)
+            userAPI.download(this.authorUID, this.fileName)
                 .then(response => {
                     let blob = new Blob([response.data], { type: response.headers['content-type'] })
                     let link = document.createElement('a')
@@ -45,3 +44,13 @@ export default {
     }
 }
 </script>
+
+<style lang="sass">
+.file-controls
+    &:hover
+        cursor: pointer
+    span
+        text-decoration: underline !important
+    svg
+        margin-bottom: -4px
+</style>

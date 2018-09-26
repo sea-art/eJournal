@@ -1,111 +1,150 @@
+<!-- TODO: You shouldnt be able to change your own role. -->
 <template>
     <content-single-column>
         <bread-crumb>&nbsp;</bread-crumb>
         <b-card class="no-hover settings-card">
             <h2 class="mb-2">Manage course data</h2>
+
             <b-form @submit.prevent="onSubmit">
+                <h2 class="field-heading">Course name</h2>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                    :readonly="!$hasPermission('can_edit_course')"
+                    :readonly="!$hasPermission('can_edit_course_details')"
                     v-model="course.name"
                     placeholder="Course name"
                     required/>
+                <h2 class="field-heading">Course abbreviation</h2>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                    :readonly="!$hasPermission('can_edit_course')"
-                    v-model="course.abbr"
+                    :readonly="!$hasPermission('can_edit_course_details')"
+                    v-model="course.abbreviation"
                     maxlength="10"
-                    placeholder="Course Abbreviation (Max 10 letters)"
+                    placeholder="Course abbreviation (max 10 characters)"
                     required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                    :readonly="!$hasPermission('can_edit_course')"
-                    v-model="course.startdate"
-                    type="date"
-                    required/>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                    :readonly="!$hasPermission('can_edit_course')"
-                    v-model="course.enddate"
-                    type="date"
-                    required/>
-
                 <b-row>
-                    <b-col class="d-flex flex-wrap">
-                        <b-button v-if="$hasPermission('can_delete_course')"
-                            @click.prevent.stop="deleteCourse()"
-                            class="delete-button flex-grow-1 multi-form">
-                            <icon name="trash"/>
-                            Delete Course
-                        </b-button>
-                        <b-button v-if="$hasPermission('can_edit_course_roles')"
-                            @click.prevent.stop="routeToEditCourseRoles"
-                            class="change-button flex-grow-1 multi-form">
-                            <icon name="users"/>
-                            Manage Roles and Permissions
-                        </b-button>
-                        <b-button class="add-button flex-grow-1 multi-form"
-                            type="submit"
-                            v-if="$hasPermission('can_edit_course')">
-                            <icon name="save"/>
-                            Save
-                        </b-button>
+                    <b-col xs="6">
+                        <h2 class="field-heading">From</h2>
+                        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                            :readonly="!$hasPermission('can_edit_course_details')"
+                            v-model="course.startdate"
+                            type="date"
+                            required/>
+                    </b-col>
+                    <b-col xs="6">
+                        <h2 class="field-heading">To</h2>
+                        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                            :readonly="!$hasPermission('can_edit_course_details')"
+                            v-model="course.enddate"
+                            type="date"
+                            required/>
                     </b-col>
                 </b-row>
+                <b-button class="add-button float-right"
+                    type="submit"
+                    v-if="$hasPermission('can_edit_course_details')">
+                    <icon name="save"/>
+                    Save
+                </b-button>
             </b-form>
         </b-card>
 
-        <div v-if="this.participants.length > 0">
-            <b-card class="no-hover">
+        <b-card class="no-hover">
+            <b-row>
+                <b-col class="d-flex flex-wrap">
+                    <b-button v-if="$hasPermission('can_delete_course')"
+                        @click.prevent.stop="deleteCourse()"
+                        class="delete-button flex-grow-1">
+                        <icon name="trash"/>
+                        Delete Course
+                    </b-button>
+                    <b-button v-if="$hasPermission('can_edit_course_roles')"
+                        @click.prevent.stop="routeToEditCourseRoles"
+                        class="change-button flex-grow-1">
+                        <icon name="cog"/>
+                        Manage Permissions
+                    </b-button>
+                    <b-btn v-if="$hasPermission('can_edit_course_details')"
+                        class="change-button flex-grow-1"
+                        v-b-modal="'CourseGroupModal'">
+                        <icon name="users"/>
+                        Manage Groups
+                    </b-btn>
+                </b-col>
+            </b-row>
+        </b-card>
+
+        <b-modal id="CourseGroupModal"
+                 title="Manage Course Groups"
+                 hide-footer>
+                 <group-modal v-if="$hasPermission('can_edit_course_details')"
+                     :cID="this.cID"
+                     :groups="this.groups"
+                     @create-group="createGroup"
+                     @delete-group="deleteGroup"
+                     @update-group="updateGroup">
+                 </group-modal>
+        </b-modal>
+
+        <div>
+            <b-card v-if="$hasPermission('can_add_course_users')" class="no-hover">
                 <h2 class="mb-2">Manage course members</h2>
-                    <b-row>
-                        <b-col sm="6" class="d-flex flex-wrap">
-                            <b-form-select class="flex-grow-1 multi-form" v-model="selectedSortOption" :select-size="1">
-                               <option :value="null">Sort by ...</option>
-                               <option value="sortFullName">Sort by name</option>
-                               <option value="sortUsername">Sort by username</option>
-                            </b-form-select>
-                        </b-col>
-                        <b-col sm="6" class="d-flex flex-wrap">
-                            <b-form-select
-                                v-if="$hasPermission('can_add_course_participants')"
-                                class="flex-grow-1 multi-form"
-                                v-model="selectedView"
-                                :select-size="1">
-                                <option value="enrolled">Enrolled</option>
-                                <option value="unenrolled">Unenrolled</option>
-                            </b-form-select>
-                            <input v-else class="multi-form theme-input full-width" type="text" v-model="searchVariable" placeholder="Search..."/>
-                        </b-col>
-                    </b-row>
+                <div class="d-flex">
                     <input
-                        v-if="!$hasPermission('can_add_course_participants')"
-                        class="multi-form theme-input full-width"
+                        class="theme-input flex-grow-1 no-width multi-form mr-2"
                         type="text"
                         v-model="searchVariable"
                         placeholder="Search..."/>
+                    <b-button v-if="viewEnrolled" v-on:click.stop @click="toggleEnroled" class="multi-form">
+                        <icon name="users"/>
+                        Enrolled
+                    </b-button>
+                    <b-button v-if="!viewEnrolled" v-on:click.stop @click="toggleEnroled" class="multi-form">
+                        <icon name="user-plus"/>
+                        Unenrolled
+                    </b-button>
+                </div>
+                <div class="d-flex">
+                    <b-form-select class="multi-form mr-2" v-model="selectedSortOption" :select-size="1">
+                        <option :value="null">Sort by ...</option>
+                        <option value="sortFullName">Sort by name</option>
+                        <option value="sortUsername">Sort by username</option>
+                    </b-form-select>
+                    <b-form-select class="multi-form mr-2" v-model="selectedFilterGroupOption"
+                                   :select-size="1">
+                        <option :value="null">Filter group by ...</option>
+                        <option v-for="group in groups" :key="group.name" :value="group.name">
+                            {{ group.name }}
+                        </option>
+                    </b-form-select>
+                    <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="multi-form">
+                        <icon name="long-arrow-down"/>
+                        Ascending
+                    </b-button>
+                    <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="multi-form">
+                        <icon name="long-arrow-up"/>
+                        Descending
+                    </b-button>
+                </div>
+                <b-col sm="8" class="d-flex flex-wrap">
+                </b-col>
             </b-card>
 
-            <course-participant-card v-if="selectedView === 'enrolled'"
+            <course-participant-card v-if="viewEnrolled"
                 @delete-participant="deleteParticipantLocally"
-                v-for="(p, i) in filteredUsers"
+                v-for="p in filteredUsers"
                 :class="{ 'input-disabled': p.role === 'Teacher' && numTeachers <= 1 }"
-                :key="p.uID"
+                :key="p.id"
                 :cID="cID"
-                :uID="p.uID"
-                :index="i"
-                :username="p.role"
-                :fullName="p.first_name + ' ' + p.last_name"
-                :portraitPath="p.picture"
-                :role.sync="p.role"/>
+                :group.sync="p.group"
+                :groups="groups"
+                :user="p"
+                :roles="roles"/>
 
-            <add-user-card v-if="selectedView === 'unenrolled'"
+            <add-user-card v-if="!viewEnrolled"
                 @add-participant="addParticipantLocally"
                 v-for="p in filteredUsers"
-                :key="p.uID"
+                :key="p.id"
                 :cID="cID"
-                :uID="p.uID"
-                :username="p.name"
-                :fullName="p.first_name + ' ' + p.last_name"
-                :portraitPath="p.picture"/>
+                :user="p"/>
         </div>
-
     </content-single-column>
 </template>
 
@@ -114,9 +153,14 @@ import addUsersToCourseCard from '@/components/course/AddUsersToCourseCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import courseParticipantCard from '@/components/course/CourseParticipantCard.vue'
-import courseApi from '@/api/course.js'
+import groupModal from '@/components/course/CourseGroupModal.vue'
+
 import store from '@/Store'
 import icon from 'vue-awesome/components/Icon'
+import courseAPI from '@/api/course'
+import groupAPI from '@/api/group'
+import roleAPI from '@/api/role'
+import participationAPI from '@/api/participation'
 
 export default {
     name: 'CourseEdit',
@@ -128,14 +172,19 @@ export default {
     data () {
         return {
             course: {},
+            originalCourse: {},
             form: {},
             participants: [],
             unenrolledStudents: [],
+            groups: [],
             selectedSortOption: null,
+            selectedFilterGroupOption: null,
             searchVariable: '',
-            selectedView: 'enrolled',
             unenrolledLoaded: false,
-            numTeachers: 0
+            numTeachers: 0,
+            roles: [],
+            viewEnrolled: true,
+            order: false
         }
     },
     watch: {
@@ -147,19 +196,34 @@ export default {
         }
     },
     created () {
-        courseApi.get_course_data(this.cID)
-            .then(course => { this.course = course })
+        courseAPI.get(this.cID)
+            .then(course => {
+                this.course = course
+                this.originalCourse = this.deepCopyCourse(course)
+            })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
-        if (this.$hasPermission('can_view_course_participants')) {
-            courseApi.get_course_users(this.cID)
+        groupAPI.getAllFromCourse(this.cID)
+            .then(groups => { this.groups = groups })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
+
+        roleAPI.getFromCourse(this.cID)
+            .then(roles => { this.roles = roles })
+            .catch(error => { this.$toated.error(error.response.data.description) })
+
+        if (this.$hasPermission('can_view_course_users')) {
+            roleAPI.getFromCourse(this.cID)
+                .then(roles => { this.roles = roles })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
+
+            participationAPI.getEnrolled(this.cID)
                 .then(users => { this.participants = users })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     },
     methods: {
         onSubmit () {
-            courseApi.update_course(this.cID, this.course.name, this.course.abbr, this.course.startdate, this.course.enddate)
+            courseAPI.update(this.cID, this.course)
                 .then(course => {
                     this.course = course
                     this.$toasted.success('Succesfully updated the course.')
@@ -169,37 +233,61 @@ export default {
         },
         deleteCourse () {
             if (confirm('Are you sure you want to delete ' + this.course.name + '?')) {
-                courseApi.delete_course(this.cID)
+                courseAPI.delete(this.cID)
                     .then(response => {
                         this.$router.push({name: 'Home'})
-                        this.$toasted.success(response.data.description)
+                        this.$toasted.success(response.description)
                     })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         },
-        deleteParticipantLocally (role, name, picture, uID) {
+        deleteParticipantLocally (user) {
             this.participants = this.participants.filter(function (item) {
-                return uID !== item.uID
+                return user.id !== item.id
             })
             if (this.unenrolledLoaded === true) {
-                this.unenrolledStudents.push({ 'role': role,
-                    'name': name,
-                    'picture': picture,
-                    'uID': uID })
+                this.unenrolledStudents.push(user)
             }
         },
-        addParticipantLocally (role, name, picture, uID) {
+        addParticipantLocally (user) {
             this.unenrolledStudents = this.unenrolledStudents.filter(function (item) {
-                return uID !== item.uID
+                return user.id !== item.id
             })
-            this.participants.push({ 'role': role,
-                'name': name,
-                'picture': picture,
-                'uID': uID
+            user.role = 'Student'
+            user.group = null
+            this.participants.push(user)
+        },
+        createGroup (groupName) {
+            this.groups.push({
+                'name': groupName
             })
         },
+        deleteGroup (groupName) {
+            groupAPI.getAllFromCourse(this.cID)
+                .then(groups => { this.groups = groups })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
+
+            // TODO replace api function with frontend function
+            if (this.$hasPermission('can_view_course_users')) {
+                participationAPI.getEnrolled(this.cID)
+                    .then(users => { this.participants = users })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
+            }
+        },
+        updateGroup (oldGroupName, newGroupName) {
+            // TODO replace api function with frontend function
+            groupAPI.getAllFromCourse(this.cID)
+                .then(groups => { this.groups = groups })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
+
+            if (this.$hasPermission('can_view_course_users')) {
+                participationAPI.getEnrolled(this.cID)
+                    .then(users => { this.participants = users })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
+            }
+        },
         loadUnenrolledStudents () {
-            courseApi.get_unenrolled_users(this.cID)
+            participationAPI.getUnenrolled(this.cID)
                 .then(users => { this.unenrolledStudents = users })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
             this.unenrolledLoaded = !this.unenrolledLoaded
@@ -209,45 +297,74 @@ export default {
                 name: 'UserRoleConfiguration',
                 params: { cID: this.cID }
             })
+        },
+        compare (a, b) {
+            if (a < b) { return this.order ? 1 : -1 }
+            if (a > b) { return this.order ? -1 : 1 }
+            return 0
+        },
+        toggleOrder () {
+            this.order = !this.order
+        },
+        toggleEnroled () {
+            this.viewEnrolled = !this.viewEnrolled
+        },
+        deepCopyCourse (course) {
+            var copyCourse = {
+                name: course.name, abbreviation: course.abbreviation, startdate: course.startdate, enddate: course.enddate
+            }
+
+            return copyCourse
+        },
+        checkChanged () {
+            if (this.course.name !== this.originalCourse.name ||
+                    this.course.abbreviation !== this.originalCourse.abbreviation ||
+                    this.course.startdate !== this.originalCourse.startdate ||
+                    this.course.enddate !== this.originalCourse.enddate) {
+                return true
+            }
+
+            return false
         }
     },
     computed: {
-        filteredUsers: function () {
+        filteredUsers () {
             let self = this
 
             function compareFullName (a, b) {
-                var fullNameA = a.first_name + ' ' + a.last_name
-                var fullNameB = b.first_name + ' ' + b.last_name
-
-                if (fullNameA < fullNameB) { return -1 }
-                if (fullNameA > fullNameB) { return 1 }
-                return 0
+                return self.compare(a.name, b.name)
             }
 
             function compareUsername (a, b) {
-                if (a.name < b.name) { return -1 }
-                if (a.name > b.name) { return 1 }
-                return 0
+                return self.compare(a.username, b.username)
             }
 
-            function checkFilter (user) {
+            function searchFilter (user) {
                 var username = user.username.toLowerCase()
                 var fullName = user.first_name.toLowerCase() + ' ' + user.last_name.toLowerCase()
                 var searchVariable = self.searchVariable.toLowerCase()
 
-                if (username.includes(searchVariable) ||
-                    fullName.includes(searchVariable)) {
-                    return true
-                } else {
-                    return false
+                return username.includes(searchVariable) ||
+                       fullName.includes(searchVariable)
+            }
+
+            function groupFilter (user) {
+                if (self.selectedFilterGroupOption) {
+                    if (!user.group) {
+                        return user.group === self.selectedFilterGroupOption
+                    } else {
+                        return user.group.includes(self.selectedFilterGroupOption)
+                    }
                 }
+
+                return true
             }
 
             var viewList = this.participants
 
             /* Switch view list with drop down menu and load unenrolled
                students when accessing other students at first time. */
-            if (this.selectedView === 'unenrolled') {
+            if (!this.viewEnrolled) {
                 if (this.unenrolledLoaded === false) {
                     this.loadUnenrolledStudents()
                 }
@@ -256,12 +373,12 @@ export default {
 
             /* Filter list based on search input. */
             if (this.selectedSortOption === 'sortFullName') {
-                return viewList.filter(checkFilter).sort(compareFullName)
+                viewList = viewList.sort(compareFullName)
             } else if (this.selectedSortOption === 'sortUsername') {
-                return viewList.filter(checkFilter).sort(compareUsername)
-            } else {
-                return viewList.filter(checkFilter)
+                viewList = viewList.sort(compareUsername)
             }
+
+            return viewList.filter(searchFilter).filter(groupFilter)
         }
     },
     components: {
@@ -269,7 +386,16 @@ export default {
         'bread-crumb': breadCrumb,
         'content-single-column': contentSingleColumn,
         'course-participant-card': courseParticipantCard,
+        'group-modal': groupModal,
         icon
+    },
+    beforeRouteLeave (to, from, next) {
+        if (this.checkChanged() && !confirm('Unsaved changes will be lost if you leave. Do you wish to continue?')) {
+            next(false)
+            return
+        }
+
+        next()
     }
 }
 </script>

@@ -11,6 +11,9 @@
     border-radius: 0px
     .card
         border-width: 2px
+        border-color: $theme-dark-grey !important
+        &.unselected
+            opacity: 0.5
     &:hover:not(.no-hover)
         cursor: pointer
         background-color: $theme-medium-grey
@@ -24,7 +27,8 @@
         border-left-color: $theme-red
     &.green-border
         border-left-color: $theme-green
-
+    &.orange-border
+        border-left-color: $theme-orange
 .settings-card
     display: flex
     .btn, .theme-input, select

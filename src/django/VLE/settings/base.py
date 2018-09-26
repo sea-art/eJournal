@@ -19,8 +19,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
+LTI_ROLE_CONFIG_PATH = BASE_DIR + '/../../lti/role_config.json'
+
 # TODO Whitelist image extensions
-# TODO Define profile picture max size, user file max size and max total files
 
 # TODO Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/

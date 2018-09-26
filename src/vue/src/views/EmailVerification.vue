@@ -22,6 +22,7 @@ export default {
         userAPI.verifyEmail(this.token)
             .then(response => {
                 this.$toasted.success(response.data.description)
+                this.$store.commit('user/EMAIL_VERIFIED')
                 this.$router.push({ name: 'Home' })
             })
             .catch(error => {

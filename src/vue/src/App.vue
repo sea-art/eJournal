@@ -2,15 +2,18 @@
     <div id="app">
         <header-bar/>
         <router-view :key="$route.path" class="min-height-100"/>
+        <feedback-section/>
     </div>
 </template>
 
 <script>
 import Header from '@/Header'
+import FeedbackSection from '@/FeedbackSection'
 
 export default {
     components: {
-        'header-bar': Header
+        'header-bar': Header,
+        'feedback-section': FeedbackSection
     }
 }
 </script>

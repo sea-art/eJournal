@@ -15,11 +15,14 @@ import 'vue-awesome/icons/trash'
 import 'vue-awesome/icons/plus-square'
 import 'vue-awesome/icons/hourglass-half'
 import 'vue-awesome/icons/check'
+import 'vue-awesome/icons/asterisk'
 import 'vue-awesome/icons/times'
 import 'vue-awesome/icons/exclamation'
 import 'vue-awesome/icons/plus'
 import 'vue-awesome/icons/list-ul'
 import 'vue-awesome/icons/paper-plane'
+import 'vue-awesome/icons/paperclip'
+import 'vue-awesome/icons/image'
 import 'vue-awesome/icons/save'
 import 'vue-awesome/icons/upload'
 import 'vue-awesome/icons/download'
@@ -37,10 +40,20 @@ import 'vue-awesome/icons/sign-out'
 import 'vue-awesome/icons/ban'
 import 'vue-awesome/icons/link'
 import 'vue-awesome/icons/envelope'
+import 'vue-awesome/icons/flag'
+import 'vue-awesome/icons/flag-checkered'
 import 'vue-awesome/icons/home'
 import 'vue-awesome/icons/calendar'
+import 'vue-awesome/icons/key'
 import 'vue-awesome/icons/question'
 import 'vue-awesome/icons/spinner'
+import 'vue-awesome/icons/sort'
+import 'vue-awesome/icons/align-left'
+import 'vue-awesome/icons/long-arrow-up'
+import 'vue-awesome/icons/long-arrow-down'
+import 'vue-awesome/icons/comments'
+import 'vue-awesome/icons/cog'
+import 'vue-awesome/icons/clock-o'
 
 import Toasted from 'vue-toasted'
 
@@ -69,7 +82,8 @@ new Vue({
         colors: ['pink-border', 'peach-border', 'blue-border'],
         previousPage: null,
         windowWidth: 0,
-        maxFileSizeBytes: 2097152
+        maxFileSizeBytes: 2097152,
+        maxEmailFileSizeBytes: 10485760
     },
     mounted () {
         this.$nextTick(function () {
@@ -102,7 +116,6 @@ new Vue({
             if (!date) {
                 return ''
             }
-
             var year = date.substring(0, 4)
             var month = date.substring(5, 7)
             var day = date.substring(8, 10)

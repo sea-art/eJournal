@@ -56,31 +56,32 @@ class PermissionTests(TestCase):
         factory.make_participation(self.usr, self.crs, role)
 
         self.assertTrue(permissions.has_permissions(self.usr, self.crs.id, ["can_delete_assignment"]))
-        self.assertFalse(permissions.has_permissions(self.usr, self.crs.id, ["can_grade_journal"]))
+        self.assertFalse(permissions.has_permissions(self.usr, self.crs.id, ["can_grade"]))
 
     def test_permission_multiple(self):
         """Test a request that needs multiple permissions."""
-        role = factory.make_role_default_no_perms("TA1", self.crs, can_delete_assignment=True, can_grade_journal=True,
-                                                  can_add_assignment=True)
+        role = factory.make_role_default_no_perms("TA1", self.crs, can_delete_assignment=True, can_grade=True,
+                                                  can_view_assignment_journals=True, can_add_assignment=True)
 
         factory.make_participation(self.usr, self.crs, role)
 
-        self.assertTrue(permissions.has_permissions(self.usr, self.crs.id, ["can_grade_journal"]))
+        self.assertTrue(permissions.has_permissions(self.usr, self.crs.id, ["can_grade"]))
         self.assertFalse(permissions.has_permissions(self.usr, self.crs.id,
-                                                     ["can_grade_journal", "can_edit_journal"]))
+                                                     ["can_grade", "can_have_journal"]))
 
     def test_get_permissions_admin(self):
         """Test if the admin had the right permissions."""
         user = factory.make_user(email='some@other', username='teun2', password='1234',
                                  lti_id='abcde', is_superuser=True)
         role = factory.make_role_default_no_perms("TA1", self.crs, can_delete_assignment=True,
-                                                  can_grade_journal=True, can_add_assignment=True)
+                                                  can_view_assignment_journals=True,
+                                                  can_grade=True, can_add_assignment=True)
 
         factory.make_participation(user, self.crs, role)
 
         perm = permissions.get_permissions(user, self.crs.id)
 
-        self.assertTrue(perm["is_superuser"])
+        self.assertTrue(perm["can_edit_institute_details"])
 
     def test_get_permissions_teacher(self):
         """Test if the admin had the right permissions."""
@@ -97,13 +98,14 @@ class PermissionTests(TestCase):
         The created user should NOT be provided with the admin permission.
         """
         role = factory.make_role_default_no_perms("TA1", self.crs, can_delete_assignment=True,
-                                                  can_grade_journal=True, can_add_assignment=True)
+                                                  can_view_assignment_journals=True,
+                                                  can_grade=True, can_add_assignment=True)
 
         factory.make_participation(self.usr, self.crs, role)
 
         perm = permissions.get_permissions(self.usr, self.crs.id)
 
-        self.assertFalse(perm["is_superuser"])
+        self.assertFalse(perm["can_edit_institute_details"])
 
     def test_get_permissions_can_add_course(self):
         """Test whether the admin has the can_add_course permission."""
@@ -128,21 +130,21 @@ class PermissionTests(TestCase):
 
         self.assertTrue(perm["can_add_course"])
 
-    def test_get_permissions_can_edit_institute(self):
+    def test_get_permissions_can_edit_institute_details(self):
         """Test whether the admin can edit the application institute data."""
         usr = factory.make_user(email='a@other', username='teun2', password='a', lti_id='a', is_superuser=True)
         usr.save()
 
         perm = permissions.get_permissions(usr)
 
-        self.assertTrue(perm["can_edit_institute"])
+        self.assertTrue(perm["can_edit_institute_details"])
 
         usr = factory.make_user(email='some@other', username='teun3', password='b', lti_id='b', is_superuser=False)
         usr.save()
 
         perm = permissions.get_permissions(usr)
 
-        self.assertFalse(perm["can_edit_institute"])
+        self.assertFalse(perm["can_edit_institute_details"])
 
     def test_get_role(self):
         """Test whether the get_role function returns the right type of value."""

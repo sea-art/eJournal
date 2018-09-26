@@ -7,6 +7,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
 from VLE.utils.file_handling import get_path
+from django.core.exceptions import ValidationError
 
 
 class UserFile(models.Model):
@@ -94,7 +95,7 @@ class Course(models.Model):
     - author: the creator of the course.
     - abbrevation: a max three letter abbrevation of the course name.
     - startdate: the date that the course starts.
-    - lti_id: the id of the course linked over LTI.
+    - lti_ids: the ids of the course linked over LTI.
     """
 
     name = models.TextField()
@@ -123,14 +124,36 @@ class Course(models.Model):
         null=True,
     )
 
-    lti_id = models.TextField(
-        null=True,
-        unique=True,
-    )
-
     def __str__(self):
         """toString."""
         return self.name + " (" + str(self.id) + ")"
+
+
+class Group(models.Model):
+    """Group.
+
+    A Group entity has the following features:
+    - name: the name of the group
+    - course: the course where the group belongs to
+    """
+    name = models.TextField()
+
+    course = models.ForeignKey(
+        Course,
+        on_delete=models.CASCADE
+    )
+
+    lti_id = models.TextField(
+        null=True,
+        unique=False,
+    )
+
+    class Meta:
+        """Meta data for the model: unique_together."""
+        unique_together = ('name', 'course')
+
+    def __str__(self):
+        return self.name
 
 
 class Role(models.Model):
@@ -149,29 +172,52 @@ class Role(models.Model):
         Course,
         on_delete=models.CASCADE
     )
-    # GLOBAL: is_superuser
-    # GLOBAL: can_edit_institute
 
-    # Course permissions.
-    can_edit_course_roles = models.BooleanField(default=False)
-    # GLOBAL: can_add_course
-    can_view_course_participants = models.BooleanField(default=False)
-    can_add_course_participants = models.BooleanField(default=False)
-    can_edit_course = models.BooleanField(default=False)
+    can_add_course = models.BooleanField(default=False)
+
+    can_edit_course_details = models.BooleanField(default=False)
     can_delete_course = models.BooleanField(default=False)
-
-    # Assignment permissions
+    can_edit_course_roles = models.BooleanField(default=False)
+    can_view_course_users = models.BooleanField(default=False)
+    can_add_course_users = models.BooleanField(default=False)
+    can_delete_course_users = models.BooleanField(default=False)
+    can_add_course_user_group = models.BooleanField(default=False)
+    can_delete_course_user_group = models.BooleanField(default=False)
+    can_edit_course_user_group = models.BooleanField(default=False)
     can_add_assignment = models.BooleanField(default=False)
-    can_edit_assignment = models.BooleanField(default=False)
-    can_view_assignment_participants = models.BooleanField(default=False)
     can_delete_assignment = models.BooleanField(default=False)
-    can_publish_assignment_grades = models.BooleanField(default=False)
 
-    # Journal permissions.
-    can_grade_journal = models.BooleanField(default=False)
-    can_publish_journal_grades = models.BooleanField(default=False)
-    can_edit_journal = models.BooleanField(default=False)
-    can_comment_journal = models.BooleanField(default=False)
+    can_edit_assignment = models.BooleanField(default=False)
+    can_view_assignment_journals = models.BooleanField(default=False)
+    can_grade = models.BooleanField(default=False)
+    can_publish_grades = models.BooleanField(default=False)
+    can_have_journal = models.BooleanField(default=False)
+    can_comment = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        if self.can_add_course_users and not self.can_view_course_users:
+            raise ValidationError('A user needs to view course users in order to add them.')
+
+        if self.can_delete_course_users and not self.can_view_course_users:
+            raise ValidationError('A user needs to view course users in order to remove them.')
+
+        if self.can_edit_course_user_group and not self.can_view_course_users:
+            raise ValidationError('A user needs to view course users in order to manage user groups.')
+
+        if self.can_view_assignment_journals and self.can_have_journal:
+            raise ValidationError('An administrative user is not allowed to have a journal in the same course.')
+
+        if self.can_grade and not self.can_view_assignment_journals:
+            raise ValidationError('A user needs to be able to view journals in order to grade them.')
+
+        if self.can_publish_grades and not (self.can_view_assignment_journals and self.can_grade):
+            raise ValidationError('A user should not be able to publish grades without being able to view or grade \
+                                  the journals.')
+
+        if self.can_comment and not (self.can_view_assignment_journals or self.can_have_journal):
+            raise ValidationError('A user requires a journal to comment on.')
+
+        super(Role, self).save(*args, **kwargs)
 
     def __str__(self):
         """toString."""
@@ -179,6 +225,7 @@ class Role(models.Model):
 
     class Meta:
         """Meta data for the model: unique_together."""
+
         unique_together = ('name', 'course',)
 
 
@@ -198,6 +245,12 @@ class Participation(models.Model):
         on_delete=models.CASCADE,
         related_name='role',
     )
+    group = models.ForeignKey(
+        Group,
+        null=True,
+        on_delete=models.CASCADE,
+        default=None,
+    )
 
     class Meta:
         """Meta data for the model: unique_together."""
@@ -210,7 +263,7 @@ class Participation(models.Model):
 
 
 class Assignment(models.Model):
-    """Assignemnt.
+    """Assignment.
 
     An Assignment entity has the following features:
     - name: name of the assignment.
@@ -219,7 +272,7 @@ class Assignment(models.Model):
     is part of.
     - format: a one-to-one key linked to the format this assignment
     holds. The format determines how a students' journal is structured.
-    - lti_id: The lti id of the assignment linked over lti.
+    - lti_ids: The lti ids of the assignment linked over lti.
     """
 
     name = models.TextField()
@@ -236,14 +289,25 @@ class Assignment(models.Model):
         null=True,
         blank=True
     )
-    lti_id = models.TextField(
-        'lti_id',
-        null=True
+    unlock_date = models.DateTimeField(
+        'unlock_date',
+        null=True,
+        blank=True
+    )
+    due_date = models.DateTimeField(
+        'due_date',
+        null=True,
+        blank=True
+    )
+    lock_date = models.DateTimeField(
+        'lock_date',
+        null=True,
+        blank=True
     )
     courses = models.ManyToManyField(Course)
 
     format = models.OneToOneField(
-        'JournalFormat',
+        'Format',
         on_delete=models.CASCADE
     )
 
@@ -330,6 +394,7 @@ class Node(models.Model):
     PROGRESS = 'p'
     ENTRY = 'e'
     ENTRYDEADLINE = 'd'
+    ADDNODE = 'a'
     TYPES = (
         (PROGRESS, 'progress'),
         (ENTRY, 'entry'),
@@ -359,8 +424,8 @@ class Node(models.Model):
     )
 
 
-class JournalFormat(models.Model):
-    """JournalFormat.
+class Format(models.Model):
+    """Format.
 
     Format of a journal.
     The format determines how a students' journal is structured.
@@ -384,12 +449,12 @@ class JournalFormat(models.Model):
         default=10
     )
     unused_templates = models.ManyToManyField(
-        'EntryTemplate',
+        'Template',
         related_name='unused_templates',
     )
 
     available_templates = models.ManyToManyField(
-        'EntryTemplate',
+        'Template',
         related_name='available_templates',
     )
 
@@ -426,13 +491,13 @@ class PresetNode(models.Model):
     deadline = models.DateTimeField()
 
     forced_template = models.ForeignKey(
-        'EntryTemplate',
+        'Template',
         on_delete=models.SET_NULL,
         null=True,
     )
 
     format = models.ForeignKey(
-        'JournalFormat',
+        'Format',
         on_delete=models.CASCADE
     )
 
@@ -443,24 +508,29 @@ class Entry(models.Model):
     An Entry has the following features:
     - journal: a foreign key linked to an Journal.
     - createdate: the date and time when the entry was posted.
-    - late: if the entry was posted late or not.
-    - TODO: edited_at
+    - grade: grade the entry has
+    - published: if its a published grade or not
+    - last_edited: when the etry was last edited
     """
 
     template = models.ForeignKey(
-        'EntryTemplate',
+        'Template',
         on_delete=models.SET_NULL,
         null=True,
     )
     createdate = models.DateTimeField(
         default=now,
     )
-    grade = models.IntegerField(
+    grade = models.FloatField(
         default=None,
         null=True,
     )
     published = models.BooleanField(
         default=False
+    )
+    last_edited = models.DateTimeField(
+        default=None,
+        null=True
     )
 
     def __str__(self):
@@ -487,8 +557,8 @@ class Counter(models.Model):
         return self.name + " is on " + self.count
 
 
-class EntryTemplate(models.Model):
-    """EntryTemplate.
+class Template(models.Model):
+    """Template.
 
     A template for an Entry.
     """
@@ -506,7 +576,7 @@ class EntryTemplate(models.Model):
 class Field(models.Model):
     """Field.
 
-    Defines the fields of an EntryTemplate
+    Defines the fields of an Template
     """
 
     TEXT = 't'
@@ -516,6 +586,7 @@ class Field(models.Model):
     VIDEO = 'v'
     PDF = 'p'
     URL = 'u'
+    DATE = 'd'
     TYPES = (
         (TEXT, 'text'),
         (RICH_TEXT, 'rich text'),
@@ -523,7 +594,8 @@ class Field(models.Model):
         (PDF, 'pdf'),
         (FILE, 'file'),
         (VIDEO, 'vid'),
-        (URL, 'url')
+        (URL, 'url'),
+        (DATE, 'date')
     )
     type = models.TextField(
         max_length=4,
@@ -531,11 +603,15 @@ class Field(models.Model):
         default=TEXT,
     )
     title = models.TextField()
+    description = models.TextField(
+        null=True
+    )
     location = models.IntegerField()
     template = models.ForeignKey(
-        'EntryTemplate',
+        'Template',
         on_delete=models.CASCADE
     )
+    required = models.BooleanField()
 
     def __str__(self):
         """toString."""
@@ -558,13 +634,15 @@ class Content(models.Model):
         null=True
     )
     # TODO Consider a size limit 10MB unencoded posts? so 10 * 1024 * 1024 * 1.37?
-    data = models.TextField()
+    data = models.TextField(
+        null=True
+    )
 
 
-class EntryComment(models.Model):
-    """EntryComment.
+class Comment(models.Model):
+    """Comment.
 
-    EntryComments contain the comments given to the entries.
+    Comments contain the comments given to the entries.
     It is linked to a single entry with a single author and the comment text.
     """
 
@@ -582,3 +660,44 @@ class EntryComment(models.Model):
     published = models.BooleanField(
         default=True
     )
+    last_edited = models.DateTimeField(
+        default=None,
+        null=True
+    )
+
+
+class Lti_ids(models.Model):
+    """Lti ids
+
+    Contains the lti ids for course and assignments as one course/assignment
+    on our site needs to be able to link to multiple course/assignment in the
+    linked VLE.
+    """
+    ASSIGNMENT = 'Assignment'
+    COURSE = 'Course'
+    TYPES = ((ASSIGNMENT, 'Assignment'), (COURSE, 'Course'))
+
+    assignment = models.ForeignKey(
+        'Assignment',
+        on_delete=models.CASCADE,
+        null=True
+    )
+
+    course = models.ForeignKey(
+        'Course',
+        on_delete=models.CASCADE,
+        null=True
+    )
+
+    lti_id = models.TextField()
+    for_model = models.TextField(
+        choices=TYPES
+    )
+
+    class Meta:
+        """A class for meta data.
+
+        - unique_together: assignment and user must be unique together.
+        """
+
+        unique_together = ('lti_id', 'for_model',)
