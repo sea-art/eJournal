@@ -78,18 +78,10 @@ export default {
 .closed
     max-height: 0px
     -webkit-transition: height, .6s linear
-    -moz-transition: height, .6s linear
-    -ms-transition: height, .6s linear
-    -o-transition: height, .6s linear
-    transition: height, .6s linear
 
 .open
     max-height: 100vh
     -webkit-transition: height, .6s linear
-    -moz-transition: height, .6s linear
-    -ms-transition: height, .6s linear
-    -o-transition: height, .6s linear
-    transition: height, .6s linear
 
 .image-field
     img
