@@ -61,10 +61,6 @@
             <h3>Format</h3>
             <div :class="{ 'input-disabled' : saveRequestInFlight }">
                 <b-card class="no-hover settings-card mb-4" :class="$root.getBorderClass($route.params.cID)">
-                    <div class="point-maximum multi-form">
-                        <b>Point Maximum</b>
-                        <input class="theme-input" v-model="max_points" placeholder="Points" type="number">
-                    </div>
                     <b-button @click.prevent.stop="saveFormat" class="add-button full-width">
                         <icon name="save"/>
                         Save Format
@@ -132,9 +128,7 @@ export default {
             wipTemplateId: -1,
 
             deletedTemplates: [],
-            deletedPresets: [],
-
-            max_points: 0
+            deletedPresets: []
         }
     },
     created () {
@@ -221,8 +215,8 @@ export default {
         addNode () {
             var newNode = {
                 'type': 'p',
-                'deadline': this.newDate(),
-                'target': this.max_points
+                'deadline': this.assignmentDetails.due_date,
+                'target': this.assignmentDetails.points_possible
             }
 
             this.nodes.push(newNode)
@@ -255,9 +249,9 @@ export default {
                 this.$toasted.error('Assignment name is missing. Please check the format and try again.')
             }
 
-            if (!missingPointMax && isNaN(parseInt(this.max_points))) {
+            if (!missingPointMax && isNaN(parseInt(this.assignmentDetails.points_possible))) {
                 missingPointMax = true
-                this.$toasted.error('Point maximum is missing. Please check the format and try again.')
+                this.$toasted.error('Points possible is missing. Please check the format and try again.')
             }
 
             for (var node of this.nodes) {
@@ -301,7 +295,6 @@ export default {
             formatAPI.update(this.aID, {
                 'assignment_details': this.assignmentDetails,
                 'templates': this.templates,
-                'max_points': this.max_points,
                 'presets': this.presets,
                 'unused_templates': this.unusedTemplates,
                 'removed_templates': this.deletedTemplates,
@@ -326,7 +319,6 @@ export default {
             this.unusedTemplates = data.format.unused_templates
             this.deletedTemplates = []
             this.deletedPresets = []
-            this.max_points = data.format.max_points
         },
         // Utility func to translate from db format to internal
         convertFromDB () {
@@ -400,16 +392,4 @@ export default {
 
 <style lang="sass">
 @import '~sass/partials/edag-page-layout.sass'
-.point-maximum
-    display: flex
-    align-items: center
-    b
-        flex-grow: 1
-    .theme-input
-        float: right
-        width: 4em
-    input[type=number]::-webkit-inner-spin-button,
-    input[type=number]::-webkit-outer-spin-button
-        -webkit-appearance: none
-        margin: 0
 </style>
