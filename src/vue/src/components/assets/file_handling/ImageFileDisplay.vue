@@ -4,7 +4,9 @@
             <icon name="image"/>
             <i><span>{{ fileName }}</span></i>
         </div>
-        <img :class="showImage" v-if="fileURL" :src="fileURL">
+        <transition name="fade">
+            <img :class="showImage" v-if="fileURL && show" :src="fileURL">
+        </transition>
     </div>
 </template>
 
