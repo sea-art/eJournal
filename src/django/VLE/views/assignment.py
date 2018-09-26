@@ -314,7 +314,6 @@ class AssignmentView(viewsets.ViewSet):
 
         try:
             courses = [Course.objects.get(pk=int(request.query_params['course_id']))]
-        # TODO P Hacky way to define not giving a key as the match for getting all participations?
         except KeyError:
             courses = request.user.participations.all()
         except Course.DoesNotExist:
