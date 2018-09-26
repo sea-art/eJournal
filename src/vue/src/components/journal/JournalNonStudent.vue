@@ -40,10 +40,10 @@
                         :assignment="assignment"
                         :class="'mb-4 no-hover'"/>
                 </b-col>
-                <b-col md="6" lg="12">
+                <b-col v-if="$hasPermission('can_publish_grades') || filteredJournals.length > 1" md="6" lg="12">
                     <h3>Controls</h3>
                     <b-card class="no-hover settings-card" :class="$root.getBorderClass($route.params.cID)">
-                        <div class="d-flex">
+                        <div class="d-flex" v-if="filteredJournals.length > 1">
                             <b-button
                                 class="multi-form flex-grow-1"
                                 tag="b-button"

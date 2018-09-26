@@ -147,14 +147,14 @@ export default {
             this.editor = editor
 
             /* Set default font in the editor instance */
-            editor.execCommand('fontName', false, 'roboto condensed')
+            editor.execCommand('fontName', false, 'roboto condensed', {skip_focus: true})
 
             this.content = this.givenContent
             /* set content resets the default font for some reason */
             editor.setContent(this.givenContent)
 
             /* Set default font in the editor instance */
-            editor.execCommand('fontName', false, 'roboto condensed')
+            editor.execCommand('fontName', false, 'roboto condensed', {skip_focus: true})
 
             if (this.displayInline) {
                 this.setupInlineDisplay(editor)
@@ -192,7 +192,7 @@ export default {
         },
         handleShortCuts (e) {
             if (this.editor.plugins.fullscreen.isFullscreen() && e.key === 'Escape') {
-                this.editor.execCommand('mceFullScreen')
+                this.editor.execCommand('mceFullScreen', {skip_focus: true})
             }
         },
         insertDataURL () {
@@ -296,7 +296,7 @@ export default {
         },
         clearContent () {
             this.editor.setContent('')
-            this.editor.execCommand('fontName', false, 'roboto condensed')
+            this.editor.execCommand('fontName', false, 'roboto condensed', {skip_focus: true})
             this.content = ''
         }
     },

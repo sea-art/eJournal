@@ -21,11 +21,17 @@
                         v-for="(node, index) in this.nodes"
                         @select-node="$emit('select-node', $event)"
                         :index="index"
-                        :last="index === nodes.length - 1"
                         :node="node"
                         :selected="isSelected(index)"
                         :edit="edit"
                         :key="node.id"/>
+                    <edag-node
+                        v-if="edit"
+                        @select-node="$emit('add-node')"
+                        :node="{
+                            'type': 'a'
+                        }"
+                        :edit="edit"/>
                     <edag-node
                         @select-node="$emit('select-node', $event)"
                         :index="nodes.length"
@@ -53,6 +59,13 @@
                         :selected="isSelected(index)"
                         :edit="edit"
                         :key="node.id"/>
+                    <edag-node
+                        v-if="edit"
+                        @select-node="$emit('add-node')"
+                        :node="{
+                            'type': 'a'
+                        }"
+                        :edit="edit"/>
                     <edag-node
                         @select-node="$emit('select-node', $event)"
                         :index="nodes.length"

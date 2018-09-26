@@ -10,7 +10,7 @@
         <b-col md="12" lg="8" xl="9" class="inner-container-edag-page">
             <b-col md="12" lg="auto" xl="4" class="left-content-edag-page">
                 <bread-crumb v-if="$root.lgMax()" class="main-content">&nbsp;</bread-crumb>
-                <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :edit="true"/>
+                <edag @select-node="selectNode" @add-node="addNode" :selected="currentNode" :nodes="nodes" :edit="true"/>
             </b-col>
 
             <b-col md="12" lg="auto" xl="8" class="main-content-edag-page">
@@ -42,11 +42,6 @@
 
                 <main-card v-else class="no-hover" :line1="'No presets in format'" :class="'grey-border'"/>
 
-                <b-button :class="{ 'input-disabled' : saveRequestInFlight }" class="add-button grey-background full-width mb-4" @click="addNode">
-                    <icon name="plus"/>
-                    Add New Preset to Format
-                </b-button>
-
                 <b-modal
                     ref="templateModal"
                     size="lg"
@@ -58,24 +53,30 @@
         </b-col>
 
         <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
-            <h3>Format</h3>
-            <div :class="{ 'input-disabled' : saveRequestInFlight }">
-                <b-card class="no-hover settings-card mb-4" :class="$root.getBorderClass($route.params.cID)">
-                    <b-button @click.prevent.stop="saveFormat" class="add-button full-width">
-                        <icon name="save"/>
-                        Save Format
-                    </b-button>
-                </b-card>
-            </div>
             <h3>Entry Templates</h3>
             <div :class="{ 'input-disabled' : saveRequestInFlight }">
-                <available-template-card v-for="template in templatePool" :key="template.t.id" @click.native="showTemplateModal(template)" :template="template" @delete-template="deleteTemplate"/>
+                <available-template-card
+                    v-for="template in templatePool"
+                    :key="template.t.id"
+                    @click.native="showTemplateModal(template)"
+                    :template="template"
+                    @delete-template="deleteTemplate"/>
                 <b-button class="add-button grey-background full-width multi-form" @click="showTemplateModal(newTemplate())">
                     <icon name="plus"/>
                     Create New Template
                 </b-button>
             </div>
         </b-col>
+
+        <transition name="fade">
+            <b-button
+                v-if="isChanged"
+                @click.prevent.stop="saveFormat"
+                :class="{ 'input-disabled' : saveRequestInFlight }"
+                class="add-button fab">
+                <icon name="save"/>
+            </b-button>
+        </transition>
     </b-row>
 </template>
 
@@ -150,7 +151,11 @@ export default {
     },
     watch: {
         templatePool: {
-            handler: function () { this.isChanged = true },
+            handler: function () {
+                if (!this.saveRequestInFlight) {
+                    this.isChanged = true
+                }
+            },
             deep: true
         }
     },

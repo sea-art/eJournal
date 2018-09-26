@@ -1,7 +1,7 @@
 <template>
     <b-card :class="$root.getBorderClass($route.params.cID)">
         <b-row align-h="between">
-            <b-col cols="12" lg="6">
+            <b-col cols="12" sm="6">
                 <b-badge
                     v-if="lti"
                     class="ml-2 mt-2 info"
@@ -12,7 +12,7 @@
                 <h2 class="float-left">{{ line1 }}</h2>
                 {{ line2 }}
             </b-col>
-            <b-col cols="12" lg="6">
+            <b-col cols="12" sm="6">
                 <slot></slot>
             </b-col>
         </b-row>
