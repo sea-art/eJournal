@@ -108,10 +108,12 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
     On success, returns a new assignment.
     """
     if format is None:
-        if not due_date:
-            due_date = timezone.now()
+        if due_date:
+            deadline = due_date
+        else:
+            deadline = timezone.now()
 
-        format = make_default_format(due_date, points_possible)
+        format = make_default_format(deadline, points_possible)
     assign = Assignment(name=name, description=description, author=author, format=format)
     assign.save()
     if course_ids:
