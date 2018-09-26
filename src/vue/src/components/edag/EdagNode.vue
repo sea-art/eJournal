@@ -13,7 +13,7 @@
         </b-col>
         <b-col cols="4" sm="5" class="d-flex h-100 align-items-center justify-content-center">
             <div class="time-line" :class="timeLineClass"></div>
-            <edag-node-circle @click.native="$emit('select-node', index)" class="position-absolute" :type="node.type" :text="node.target" :selected="selected" :nodeState="nodeState()"></edag-node-circle>
+            <edag-node-circle @click.native="$emit('select-node', index)" class="position-absolute" :type="node.type" :text="node.target" :selected="selected" :nodeState="nodeState()"/>
         </b-col>
         <b-col cols="4" sm="1"/>
     </b-row>

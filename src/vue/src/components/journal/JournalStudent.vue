@@ -55,6 +55,15 @@
                               :totalPoints="journal.stats.total_points"
                               :comparePoints="assignment.stats ? assignment.stats.average_points : -1" />
             </b-card>
+
+            <transition name="fade">
+                <b-button
+                    v-if="$root.lgMax() && addIndex > -1 && currentNode !== addIndex"
+                    @click="currentNode = addIndex"
+                    class="fab">
+                    <icon name="plus" scale="1.5"/>
+                </b-button>
+            </transition>
         </b-col>
     </b-row>
 </template>
@@ -69,6 +78,7 @@ import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
 import journalStartCard from '@/components/journal/JournalStartCard.vue'
 import journalEndCard from '@/components/journal/JournalEndCard.vue'
+import icon from 'vue-awesome/components/Icon'
 
 import journalAPI from '@/api/journal'
 import assignmentAPI from '@/api/assignment'
@@ -244,11 +254,19 @@ export default {
             return currentDate <= deadline
         }
     },
+    computed: {
+        addIndex () {
+            return this.nodes.findIndex(function (node) {
+                return node.type === 'a'
+            })
+        }
+    },
     components: {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'add-card': addCard,
         edag,
+        icon,
         'entry-node': entryNode,
         'entry-preview': entryPreview,
         'progress-bar': progressBar,
