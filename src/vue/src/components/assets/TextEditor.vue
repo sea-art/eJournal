@@ -6,7 +6,7 @@
 
 <template>
     <div class="editor-container" >
-        <textarea :id="id"/>
+        <textarea :class="theme-input" :id="id"/>
     </div>
 </template>
 

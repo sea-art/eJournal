@@ -79,7 +79,7 @@ new Vue({
     store,
     components: { App },
     data: {
-        colors: ['pink-border', 'peach-border', 'blue-border'],
+        colors: ['pink-border', 'purple-border', 'yellow-border', 'blue-border'],
         previousPage: null,
         windowWidth: 0,
         maxFileSizeBytes: 2097152,
