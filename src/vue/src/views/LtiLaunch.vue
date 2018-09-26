@@ -117,9 +117,9 @@ export default {
                     course_id: this.page.cID,
                     lti_id: this.lti.ltiAssignID,
                     points_possible: this.lti.ltiPointsPossible,
-                    unlock_date: this.lti.ltiAssignUnlock,
-                    due_date: this.lti.ltiAssignDue,
-                    lock_date: this.lti.ltiAssignLock
+                    unlock_date: this.lti.ltiAssignUnlock.slice(0, -9),
+                    due_date: this.lti.ltiAssignDue.slice(0, -9),
+                    lock_date: this.lti.ltiAssignLock.slice(0, -9)
                 }).then(assignment => {
                     this.page.aID = assignment.id
                     this.updateState(this.states.finish_t)
