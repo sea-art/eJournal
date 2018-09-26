@@ -75,9 +75,9 @@ export default {
         iconClass () {
             switch (this.nodeState) {
             case 'graded':
-                return 'fill-positive'
+                return 'fill-green'
             case 'failed':
-                return 'fill-negative'
+                return 'fill-red'
             }
 
             return 'fill-white'
@@ -113,10 +113,10 @@ export default {
 .fill-white
     fill: white
 
-.fill-negative
+.fill-red
     fill: $theme-red
 
-.fill-positive
+.fill-green
     fill: $theme-green
 
 .edag-node-circle-border

@@ -29,12 +29,10 @@ class UserSerializer(serializers.ModelSerializer):
         if 'course' not in self.context or not self.context['course']:
             return None
 
-        print(self.context['course'])
-
         return permissions.get_role(user, self.context['course']).name
 
     def get_group(self, user):
-        if 'course' not in self.context:
+        if 'course' not in self.context or not self.context['course']:
             return None
 
         group = Participation.objects.get(user=user, course=self.context['course']).group
