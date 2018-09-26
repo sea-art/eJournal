@@ -349,7 +349,7 @@ class AssignmentView(viewsets.ViewSet):
         try:
             published, = utils.required_params(request.data, 'published')
         except KeyError:
-            return response.bad_request('Published state of the assignment expected.')
+            return response.bad_request('Publish state of the assignment expected.')
 
         try:
             assign = Assignment.objects.get(pk=aID)
