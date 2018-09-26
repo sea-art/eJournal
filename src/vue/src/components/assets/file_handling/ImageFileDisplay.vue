@@ -76,7 +76,6 @@ export default {
 @import '~sass/modules/colors.sass'
 
 .closed
-    max-height: 0px
     -webkit-transition: height, .6s linear
 
 .open
