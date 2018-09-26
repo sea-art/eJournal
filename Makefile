@@ -8,7 +8,7 @@ superuser:
 test-back:
 	pep8 ./src/django --max-line-length=120 --exclude='./src/django/VLE/migrations','./src/django/VLE/settings*'
 	make test-flake
-	bash -c "source ./venv/bin/activate && cd ./src/django/ && python3.6 manage.py test && deactivate"
+	bash -c "source ./venv/bin/activate && cd ./src/django/ && coverage run --source='.' manage.py test VLE && coverage report && deactivate"
 
 test-front:
 	npm run lint --prefix ./src/vue
