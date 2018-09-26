@@ -26,8 +26,10 @@ class UserSerializer(serializers.ModelSerializer):
         return user.first_name + ' ' + user.last_name
 
     def get_role(self, user):
-        if 'course' not in self.context:
+        if 'course' not in self.context or not self.context['course']:
             return None
+
+        print(self.context['course'])
 
         return permissions.get_role(user, self.context['course']).name
 
