@@ -25,6 +25,7 @@ EMAIL_PORT = email_config.EMAIL_PORT
 # SECURITY WARNING: KEEP secret
 LTI_SECRET = '{{LTI_SECRET}}'
 LTI_KEY = '{{LTI_KEY}}'
+LTI_ROLE_CONFIG_PATH = BASE_DIR + '/../lti/role_config.json'
 
 BASELINK = '{{BASELINK}}'
 if BASELINK[-1] == '/'

@@ -19,8 +19,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 MEDIA_URL = 'media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
-LTI_ROLE_CONFIG_PATH = BASE_DIR + '/../lti/role_config.json'
-
 # TODO Whitelist image extensions
 
 # TODO Quick-start development settings - unsuitable for production
