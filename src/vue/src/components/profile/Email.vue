@@ -1,7 +1,7 @@
 <template>
     <div>
         <b-input-group class="multi-form">
-            <b-input readonly :value="$store.getters['user/email']" type="text"/>
+            <b-input readonly class="theme-input input-disabled" :value="$store.getters['user/email']" type="text"/>
             <b-input-group-text slot="append" class="input-append-icon">
                 <icon
                     v-if="!$store.getters['user/verifiedEmail']"
@@ -24,6 +24,7 @@
         <b-form v-if="!$store.getters['user/verifiedEmail'] && showEmailValidationInput" >
             <b-input-group class="multi-form">
                 <b-form-input
+                class="theme-input"
                     v-b-tooltip.hover
                     :title="(emailVerificationTokenMessage) ? emailVerificationTokenMessage : 'Enter your token'"
                     required

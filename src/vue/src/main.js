@@ -58,7 +58,7 @@ import 'vue-awesome/icons/clock-o'
 import Toasted from 'vue-toasted'
 
 Vue.config.productionTip = false
-Vue.use(Toasted, { position: 'bottom-right', duration: 4000 })
+Vue.use(Toasted, { position: 'top-center', duration: 4000 })
 Vue.use(BootstrapVue)
 
 /* Checks the store for for permissions according to the current route cID or aID. */
@@ -79,7 +79,7 @@ new Vue({
     store,
     components: { App },
     data: {
-        colors: ['pink-border', 'peach-border', 'blue-border'],
+        colors: ['pink-border', 'purple-border', 'yellow-border', 'blue-border'],
         previousPage: null,
         windowWidth: 0,
         maxFileSizeBytes: 2097152,

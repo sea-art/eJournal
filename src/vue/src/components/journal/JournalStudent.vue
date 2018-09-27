@@ -1,12 +1,12 @@
 <template>
-    <b-row class="outer-container-edag-page" no-gutters>
-        <b-col md="12" lg="8" xl="9" class="inner-container-edag-page">
-            <b-col md="12" lg="auto" xl="4" class="left-content-edag-page">
+    <b-row class="outer-container-timeline-page" no-gutters>
+        <b-col md="12" lg="8" xl="9" class="inner-container-timeline-page">
+            <b-col md="12" lg="auto" xl="4" class="left-content-timeline-page">
                 <bread-crumb v-if="$root.lgMax()">&nbsp;</bread-crumb>
-                <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
+                <timeline @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
             </b-col>
 
-            <b-col md="12" lg="auto" xl="8" class="main-content-edag-page">
+            <b-col md="12" lg="auto" xl="8" class="main-content-timeline-page">
                 <bread-crumb v-if="$root.xl()">&nbsp;</bread-crumb>
                 <div v-if="nodes.length > currentNode && currentNode !== -1">
                     <div v-if="nodes[currentNode].type == 'e'">
@@ -47,7 +47,7 @@
             </b-col>
         </b-col>
 
-        <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
+        <b-col md="12" lg="4" xl="3" class="right-content-timeline-page right-content">
             <h3>Journal progress</h3>
             <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                 <progress-bar v-if="journal.stats"
@@ -55,6 +55,15 @@
                               :totalPoints="journal.stats.total_points"
                               :comparePoints="assignment.stats ? assignment.stats.average_points : -1" />
             </b-card>
+
+            <transition name="fade">
+                <b-button
+                    v-if="$root.lgMax() && addIndex > -1 && currentNode !== addIndex"
+                    @click="currentNode = addIndex"
+                    class="fab">
+                    <icon name="plus" scale="1.5"/>
+                </b-button>
+            </transition>
         </b-col>
     </b-row>
 </template>
@@ -64,11 +73,12 @@ import contentColumns from '@/components/columns/ContentColumns.vue'
 import entryNode from '@/components/entry/EntryNode.vue'
 import entryPreview from '@/components/entry/EntryPreview.vue'
 import addCard from '@/components/journal/AddCard.vue'
-import edag from '@/components/edag/Edag.vue'
+import timeline from '@/components/timeline/Timeline.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
 import journalStartCard from '@/components/journal/JournalStartCard.vue'
 import journalEndCard from '@/components/journal/JournalEndCard.vue'
+import icon from 'vue-awesome/components/Icon'
 
 import journalAPI from '@/api/journal'
 import assignmentAPI from '@/api/assignment'
@@ -244,11 +254,19 @@ export default {
             return currentDate <= deadline
         }
     },
+    computed: {
+        addIndex () {
+            return this.nodes.findIndex(function (node) {
+                return node.type === 'a'
+            })
+        }
+    },
     components: {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'add-card': addCard,
-        edag,
+        timeline,
+        icon,
         'entry-node': entryNode,
         'entry-preview': entryPreview,
         'progress-bar': progressBar,
