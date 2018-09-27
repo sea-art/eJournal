@@ -11,7 +11,8 @@
                 </b-col>
             </b-col>
             <b-col sm="12" lg="4">
-                <div class="shadow">
+                <div class="shadow"
+                    v-if="selectedRole !== 'Teacher' || numTeachers > 1">
                     <b-form-select v-if="$hasPermission('can_edit_course_roles')"
                                    v-model="selectedRole"
                                    :select-size="1">
@@ -20,7 +21,7 @@
                         </option>
                     </b-form-select>
                 </div>
-                <div class="shadow" >
+                <div class="shadow">
                     <b-form-select v-if="$hasPermission('can_edit_course_user_group')"
                                    v-model="selectedGroup"
                                    :select-size="1">
@@ -30,7 +31,8 @@
                         </option>
                     </b-form-select>
                 </div>
-                <b-button v-if="$hasPermission('can_delete_course_users')"
+                <b-button v-if="$hasPermission('can_delete_course_users') &&
+                          selectedRole !== 'Teacher'"
                           @click.prevent.stop="removeFromCourse()"
                           class="delete-button full-width">
                     <icon name="user-times"/>
@@ -61,6 +63,9 @@ export default {
             required: true
         },
         groups: {
+            required: true
+        },
+        numTeachers: {
             required: true
         }
     },
@@ -96,6 +101,7 @@ export default {
             } else {
                 this.selectedRole = val
                 this.$emit('update:role', val)
+                this.$emit('update-participants', val, this.user.id)
                 participationAPI.update(this.cID, {user_id: this.user.id, role: this.selectedRole, group: this.selectedGroup}).then(_ => {
                     if (this.$store.getters['user/uID'] === this.user.id) {
                         this.$store.dispatch('user/populateStore').then(_ => {
