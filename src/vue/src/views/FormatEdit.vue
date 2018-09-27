@@ -74,7 +74,7 @@
                 @click.prevent.stop="saveFormat"
                 :class="{ 'input-disabled' : saveRequestInFlight }"
                 class="add-button fab">
-                <icon name="save"/>
+                <icon name="save" scale="1.5"/>
             </b-button>
         </transition>
     </b-row>

@@ -41,7 +41,7 @@
 
         <transition name="fade">
             <b-button @click="update()" v-if="JSON.stringify(roleConfig) !== JSON.stringify(originalRoleConfig)" class="add-button fab">
-                <icon name="save"/>
+                <icon name="save" scale="1.5"/>
             </b-button>
         </transition>
 
