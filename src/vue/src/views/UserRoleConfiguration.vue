@@ -41,7 +41,7 @@
 
         <transition name="fade">
             <b-button @click="update()" v-if="JSON.stringify(roleConfig) !== JSON.stringify(originalRoleConfig)" class="add-button fab">
-                <icon name="save"/>
+                <icon name="save" scale="1.5"/>
             </b-button>
         </transition>
 
@@ -163,7 +163,6 @@ export default {
                     this.defaultRoles = Array.from(this.roles)
                     this.$toasted.success('Course roles succesfully updated.')
                     this.checkPermission()
-                    this.isChanged = false
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
