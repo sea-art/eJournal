@@ -18,8 +18,8 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'name',
-                  'profile_picture', 'is_teacher', 'lti_id', 'id', 'role', 'group')
+        fields = ('username', 'first_name', 'last_name', 'name', 'profile_picture', 'is_teacher', 'lti_id', 'id',
+                  'role', 'group')
         read_only_fields = ('id', )
 
     def get_name(self, user):
@@ -82,7 +82,7 @@ class GroupSerializer(serializers.ModelSerializer):
 class AssignmentDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assignment
-        fields = ('name', 'description', 'points_possible', 'unlock_date', 'due_date', 'lock_date')
+        fields = ('id', 'name', 'description', 'points_possible', 'unlock_date', 'due_date', 'lock_date')
         read_only_fields = ('id', )
 
 

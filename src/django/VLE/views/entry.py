@@ -68,7 +68,7 @@ class EntryView(viewsets.ViewSet):
 
         if (journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or \
            (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now()):
-            return response.forbidden('The assignment is locked, no entries can be made.')
+            return response.forbidden('The assignment is locked, no entries can be added.')
 
         # If node id is passed, the entry should be attached to a pre-existing node (entrydeadline node)
         if node_id:
@@ -108,7 +108,6 @@ class EntryView(viewsets.ViewSet):
         # Find the new index of the new node so that the client can automatically scroll to it.
         result = edag.get_nodes(journal, request.user)
 
-        # TODO P Shame on magic -1
         added = -1
         for i, result_node in enumerate(result):
             if result_node['nID'] == node.id:
@@ -189,11 +188,11 @@ class EntryView(viewsets.ViewSet):
                 return response.forbidden('You are not allowed to have a journal.')
 
             if entry.grade is not None:
-                return response.bad_request('Cannot edit entry: it is already graded.')
+                return response.bad_request('You are not allowed to edit graded entries.')
 
             if entry.node.type == Node.ENTRYDEADLINE and entry.node.preset.deadline < now() or \
                (journal.assignment.due_date and journal.assignment.due_date < datetime.now()):
-                return response.bad_request('Cannot edit entry, the deadline has already passed.')
+                return response.bad_request('You are not allowed to edit entries past their due date.')
 
             try:
                 validators.validate_entry_content(content_list)
@@ -259,17 +258,22 @@ class EntryView(viewsets.ViewSet):
             return response.not_found('Entry does not exist.')
 
         if not (journal.user == request.user or request.user.is_superuser):
-            return response.forbidden('You can only delete your own entries.')
+            return response.forbidden('You are not allowed to delete someone else\'s entry.')
 
         if entry.grade:
             return response.forbidden('You cannot delete graded entries.')
 
-        if entry.node.type == Node.ENTRYDEADLINE and entry.node.preset.deadline < now() or \
-           (journal.assignment.due_date and journal.assignment.due_date < datetime.now()):
+        if entry.node.type == Node.ENTRYDEADLINE and \
+           permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal'):
+            return response.forbidden('You cannot delete deadlines.')
+
+        if journal.assignment.due_date and journal.assignment.due_date < datetime.now() and \
+           permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal'):
             return response.forbidden('You cannot delete an entry whose deadline deadline has already passed.')
 
         if (journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or \
-           (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now()):
+           (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now()) and \
+           permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal'):
             return response.forbidden('You cannot delete a locked entry.')
 
         entry.node.delete()

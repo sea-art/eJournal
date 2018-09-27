@@ -60,7 +60,7 @@ class CourseView(viewsets.ViewSet):
         perm = permissions.get_permissions(request.user)
 
         if not perm['can_add_course']:
-            return response.forbidden('You lack the permission to create a course.')
+            return response.forbidden('You are not allowed to create a course.')
 
         try:
             name, abbr = utils.required_params(request.data, 'name', 'abbreviation')
@@ -97,7 +97,7 @@ class CourseView(viewsets.ViewSet):
             return response.not_found('Course does not exist.')
 
         if not permissions.is_user_in_course(request.user, course):
-            return response.forbidden('You are not participating in this course.')
+            return response.forbidden('You are not a participant of this course.')
 
         serializer = self.serializer_class(course, many=False)
         return response.success({'course': serializer.data})
@@ -183,7 +183,7 @@ class CourseView(viewsets.ViewSet):
     def linkable(self, request):
         """Get linkable courses.
 
-        Get all courses that the current user is a participant of can is allowed to edit the course details.
+        Gets all courses that the current user either participates in or is allowed to edit the course details of.
         A user can then link this course to Canvas.
 
         Arguments:

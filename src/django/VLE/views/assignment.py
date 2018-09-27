@@ -49,11 +49,7 @@ class AssignmentView(viewsets.ViewSet):
         try:
             course_id = int(request.query_params['course_id'])
         except (KeyError, ValueError):
-            course_id = None
-
-        # TODO P Why is this function dilluted with an upcoming deadlines call?
-        if course_id is None:
-            return self.upcoming()
+            return response.keyerror('course_id')
 
         try:
             course = Course.objects.get(pk=course_id)
@@ -363,13 +359,9 @@ class AssignmentView(viewsets.ViewSet):
 
         for journ in Journal.objects.filter(assignment=assign):
             if journ.sourcedid is not None and journ.grade_url is not None:
-                payload = lti_grade.replace_result(journ)
-            else:
-                payload = dict()
+                lti_grade.replace_result(journ)
 
-        # TODO P payload is overwritten in the loop, what is the purpose of the return payload
-        payload['new_published'] = published
-        return response.success(payload=payload)
+        return response.success(payload={'new_published': published})
 
     def publish(self, request, assignment, published=True):
         if permissions.has_assignment_permission(request.user, assignment, 'can_publish_grades'):

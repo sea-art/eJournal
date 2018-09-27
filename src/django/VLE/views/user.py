@@ -26,8 +26,6 @@ import os
 
 
 class UserView(viewsets.ViewSet):
-    serializer_class = UserSerializer
-
     def list(self, request):
         """Get all users.
 
@@ -44,11 +42,11 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        if not (request.user.is_teacher or request.user.is_superuser):
+        if not (permissions.can_add_users_to_a_course(request.user) or request.user.is_superuser):
             return response.forbidden(description="Only teachers and administrators are allowed to request all user \
                                        data.")
 
-        serializer = self.serializer_class(User.objects.all(), many=True)
+        serializer = UserSerializer(User.objects.all(), many=True)
         return response.success({'users': serializer.data})
 
     def retrieve(self, request, pk):
@@ -75,7 +73,7 @@ class UserView(viewsets.ViewSet):
         except User.DoesNotExist:
             return response.not_found('User does not exist.')
 
-        if not ((request.user == user) or request.user.is_superuser or request.user.is_teacher):
+        if not (request.user == user or request.user.is_superuser):
             return response.forbidden("You are not allowed to view this users information.")
 
         serializer = OwnUserSerializer(user, many=False)
@@ -151,7 +149,7 @@ class UserView(viewsets.ViewSet):
         if lti_id is None:
             email_handling.send_email_verification_link(user)
 
-        return response.created({'user': self.serializer_class(user).data})
+        return response.created({'user': UserSerializer(user).data})
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing user.
@@ -306,7 +304,7 @@ class UserView(viewsets.ViewSet):
 
         # Check the right permissions to get this users data, either be the user of the data or be an admin.
         if not (user.is_superuser or request.user.id == pk):
-            return response.forbidden('You cannot view this users data.')
+            return response.forbidden('You are not allowed to view this user\'s data.')
 
         profile = UserSerializer(user).data
         journals = Journal.objects.filter(user=pk)

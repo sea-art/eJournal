@@ -57,18 +57,7 @@ class JournalView(viewsets.ViewSet):
         queryset = assignment.journal_set.all()
         journals = JournalSerializer(queryset, many=True).data
 
-        stats = {}
-        if journals:
-            # TODO: Maybe make this efficient for minimal delay?
-            # TODO: Add real stats !!!
-            stats['needsMarking'] = 5  # sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
-            # points = [x['stats']['acquired_points'] for x in journals]
-            stats['avgPoints'] = 2  # round(st.mean(points), 2)
-
-        return response.success({
-            'stats': stats if stats else None,
-            'journals': journals
-        })
+        return response.success({'journals': journals})
 
     def retrieve(self, request, pk):
         """Get a student submitted journal.
@@ -131,9 +120,9 @@ class JournalView(viewsets.ViewSet):
 
         role = permissions.get_assignment_id_permissions(request.user, assignment_id)
         if role is None:
-            return response.forbidden("You are not a participant of this assignment.")
+            return response.forbidden("You are not a participant in this assignment.")
         elif not role["can_have_journal"]:
-            return response.forbidden("You lack the permission to create a journal.")
+            return response.forbidden("You are not allowed to create a journal.")
 
         try:
             assignment = Assignment.objects.get(pk=assignment_id)
@@ -214,7 +203,7 @@ class JournalView(viewsets.ViewSet):
             return response.not_found('Journal does not exist.')
 
         if not request.user.is_superuser:
-            return response.forbidden('You lack the permission to delete a journal.')
+            return response.forbidden('You are not allowed to delete a journal.')
 
         journal.delete()
         return response.success(description='Sucesfully deleted journal.')
