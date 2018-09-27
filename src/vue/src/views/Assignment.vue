@@ -237,6 +237,11 @@ export default {
                 return true
             }
 
+            /* TODO should work on users with no view journal permissions, */
+            function studentFilter (assignment) {
+                return assignment.student.role === 'Student'
+            }
+
             /* Filter list based on search input. */
             if (this.selectedSortOption === 'sortFullName') {
                 store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareFullName))
@@ -248,7 +253,7 @@ export default {
 
             this.updateQuery()
 
-            return store.state.filteredJournals.filter(groupFilter).slice()
+            return store.state.filteredJournals.filter(studentFilter).filter(groupFilter).slice()
         }
     }
 }
