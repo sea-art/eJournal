@@ -237,7 +237,7 @@ export default {
                 return true
             }
 
-            /* TODO should work on users with no view journal permissions, */
+            /* TODO should work on users with no view journal permissions. */
             function studentFilter (assignment) {
                 return assignment.student.role === 'Student'
             }
