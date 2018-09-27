@@ -1,13 +1,13 @@
 <!--
-    Mini component representing the circle for a node in the EDAG.
+    Mini component representing the circle for a node in the Timeline.
     Handles its own style depending on a state given by parent.
 -->
 
 <template>
-    <div class="edag-node-circle-border">
-        <div class="edag-node-circle unselectable" data-toggle="tooltip" :title="nodeTitle" :class="nodeClass">
+    <div class="timeline-node-circle-border">
+        <div class="timeline-node-circle unselectable" data-toggle="tooltip" :title="nodeTitle" :class="nodeClass">
             <icon v-if="this.type !== 'p'" :name="iconName" :class="iconClass" :scale="iconScale"/>
-            <div v-else class="edag-node-circle-text">{{ text }}</div>
+            <div v-else class="timeline-node-circle-text">{{ text }}</div>
         </div>
     </div>
 </template>
@@ -75,9 +75,9 @@ export default {
         iconClass () {
             switch (this.nodeState) {
             case 'graded':
-                return 'fill-positive'
+                return 'fill-green'
             case 'failed':
-                return 'fill-negative'
+                return 'fill-red'
             }
 
             return 'fill-white'
@@ -113,18 +113,18 @@ export default {
 .fill-white
     fill: white
 
-.fill-negative
+.fill-red
     fill: $theme-red
 
-.fill-positive
+.fill-green
     fill: $theme-green
 
-.edag-node-circle-border
+.timeline-node-circle-border
     border-radius: 50% !important
     background-color: white
     padding: 5px
 
-.edag-node-circle
+.timeline-node-circle
     @extend .small-shadow
     width: 55px
     height: 55px
@@ -158,7 +158,7 @@ export default {
         background-color: $theme-dark-blue
     svg
         transition: all 0.6s cubic-bezier(.25,.8,.25,1)
-    .edag-node-circle-text
+    .timeline-node-circle-text
         color: white
         font-family: 'Roboto Condensed', sans-serif
         font-weight: bold

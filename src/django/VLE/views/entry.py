@@ -13,7 +13,7 @@ import VLE.views.responses as response
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
 import VLE.lti_grade_passback as lti_grade
-import VLE.edag as edag
+import VLE.timeline as timeline
 import VLE.permissions as permissions
 import VLE.serializers as serialize
 import VLE.validators as validators
@@ -106,8 +106,7 @@ class EntryView(viewsets.ViewSet):
             factory.make_content(node.entry, content['data'], field)
 
         # Find the new index of the new node so that the client can automatically scroll to it.
-        result = edag.get_nodes(journal, request.user)
-
+        result = timeline.get_nodes(journal, request.user)
         added = -1
         for i, result_node in enumerate(result):
             if result_node['nID'] == node.id:
@@ -116,7 +115,7 @@ class EntryView(viewsets.ViewSet):
 
         return response.created({
             'added': added,
-            'nodes': edag.get_nodes(journal, request.user)
+            'nodes': timeline.get_nodes(journal, request.user)
         })
 
     def partial_update(self, request, *args, **kwargs):

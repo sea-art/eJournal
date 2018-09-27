@@ -52,7 +52,6 @@ class FormatView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
-            max_points -- the max points possible.
             templates -- the list of templates to bind to the format
             presets -- the list of presets to bind to the format
             unused_templates -- the list of templates that are bound to the template
@@ -78,11 +77,11 @@ class FormatView(viewsets.ViewSet):
         assignment_id = pk
 
         try:
-            assignment_details, templates, presets, unused_templates, max_points, removed_presets, removed_templates \
+            assignment_details, templates, presets, unused_templates, removed_presets, removed_templates \
                 = utils.required_params(request.data, "assignment_details", "templates", "presets",
-                                        "unused_templates", "max_points", "removed_presets", "removed_templates")
+                                        "unused_templates", "removed_presets", "removed_templates")
         except KeyError:
-            return response.keyerror("assignment_details", "templates", "presets", "unused_templates", "max_points",
+            return response.keyerror("assignment_details", "templates", "presets", "unused_templates",
                                      "removed_presets", "removed_templates")
 
         try:
@@ -102,7 +101,6 @@ class FormatView(viewsets.ViewSet):
 
         serializer.save()
 
-        format.max_points = max_points
         format.save()
         template_map = {}
         utils.update_presets(assignment, presets, template_map)

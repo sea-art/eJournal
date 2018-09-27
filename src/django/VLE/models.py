@@ -287,8 +287,7 @@ class Assignment(models.Model):
     )
     points_possible = models.IntegerField(
         'points_possible',
-        null=True,
-        blank=True
+        default=10
     )
     unlock_date = models.DateTimeField(
         'unlock_date',
@@ -362,7 +361,7 @@ class Journal(models.Model):
 class Node(models.Model):
     """Node.
 
-    The Node is an EDAG component.
+    The Node is an Timeline component.
     It can represent many things.
     There are three types of nodes:
     -Progress
@@ -445,9 +444,6 @@ class Format(models.Model):
         max_length=2,
         choices=TYPES,
         default=PERCENTAGE,
-    )
-    max_points = models.IntegerField(
-        default=10
     )
     unused_templates = models.ManyToManyField(
         'Template',

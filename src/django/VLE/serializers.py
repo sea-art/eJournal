@@ -205,7 +205,7 @@ class JournalSerializer(serializers.ModelSerializer):
             'graded': utils.get_graded_count(entries),
             'published': utils.get_published_count(entries),
             'submitted': utils.get_submitted_count(entries),
-            'total_points': utils.get_max_points(journal),
+            'total_points': utils.get_points_possible(journal),
         }
 
 
@@ -216,7 +216,7 @@ class FormatSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Format
-        fields = ('id', 'grade_type', 'max_points', 'unused_templates', 'templates', 'presets')
+        fields = ('id', 'grade_type', 'unused_templates', 'templates', 'presets')
         read_only_fields = ('id', )
 
     def get_unused_templates(self, entry):

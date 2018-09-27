@@ -1,16 +1,6 @@
 <template>
     <content-single-table-column>
         <bread-crumb>&nbsp;</bread-crumb>
-        <b-card class="settings-card mb-4 no-hover">
-            <b-button @click="reset()" class="multi-form change-button">
-                <icon name="undo"/>
-                Undo Changes
-            </b-button>
-            <b-button @click="update()" class=" float-right multi-form add-button">
-                <icon name="save"/>
-                Save
-            </b-button>
-        </b-card>
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
                 <thead>
@@ -48,6 +38,12 @@
                 </tbody>
             </table>
         </div>
+
+        <transition name="fade">
+            <b-button @click="update()" v-if="JSON.stringify(roleConfig) !== JSON.stringify(originalRoleConfig)" class="add-button fab">
+                <icon name="save" scale="1.5"/>
+            </b-button>
+        </transition>
 
         <b-modal
             @shown="focusRoleNameInput"
@@ -94,21 +90,13 @@ export default {
         return {
             roles: [],
             permissions: [],
-            backupPermissions: [],
             roleConfig: [],
             originalRoleConfig: [],
             defaultRoles: [],
-            selectRoles: [
-                {value: null, text: 'Please select a role'},
-                {value: 'Student', text: 'Student'},
-                {value: 'TA', text: 'TA'},
-                {}
-            ],
             undeleteableRoles: ['Student', 'TA', 'Teacher'],
-            selectedRole: null,
             modalShow: false,
             newRole: '',
-            essentialPermissions: {'Teacher': ['can_edit_course_roles']}
+            essentialPermissions: {'Teacher': ['can_edit_course_roles', 'can_edit_course_details']}
         }
     },
     methods: {
@@ -139,10 +127,9 @@ export default {
             var deepCopy = []
 
             for (var i = 0; i < roles.length; i++) {
-                deepCopy.push({ name: roles[i].name, id: roles[i].id })
-
-                for (var j = 0; j < this.permissions.length; j++) {
-                    deepCopy[i][this.permissions[j]] = roles[i][this.permissions[j]]
+                deepCopy.push({})
+                for (var key in roles[i]) {
+                    deepCopy[i][key] = roles[i][key]
                 }
             }
 
@@ -168,27 +155,6 @@ export default {
             }
 
             return false
-        },
-        // TODO: Undo changes button doesnt work
-        reset () {
-            /* Resets the configuration to the defaults by deep copies.
-             * Forces reupdate of custom checkbox components,
-             * by temporarily clearing the roles and permissions lists.
-             * This could be prevented by creating a custom data model which
-             * could interact with v-model.
-             * However scaling should not be a problem here (time choice to keep
-             * working with the databse given format.)  */
-            if (confirm('This will undo all unsaved changes\n Are you sure you want to continue?')) {
-                this.roleConfig = this.deepCopyRoles(this.originalRoleConfig)
-
-                this.roles = []
-                this.backupPermissions = Array.from(this.permissions)
-                this.permissions = []
-                this.$nextTick(() => {
-                    this.roles = Array.from(this.defaultRoles)
-                    this.permissions = this.backupPermissions
-                })
-            }
         },
         update () {
             roleAPI.update(this.cID, this.roleConfig)

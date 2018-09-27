@@ -66,7 +66,7 @@ class CreateApiTests(TestCase):
 
         course = factory.make_course('Portfolio', 'PAV', author=user2)
         template = factory.make_entry_template("some_template")
-        format = factory.make_format([template], 10)
+        format = factory.make_format([template])
         assignment = factory.make_assignment("Assignment", "Your favorite assignment", format=format, courses=[course])
         journal = factory.make_journal(assignment, self.user)
         field = factory.make_field(template, 'Some field', 0)
