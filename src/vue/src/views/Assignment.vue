@@ -72,6 +72,7 @@ import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import store from '@/Store.vue'
 import assignmentAPI from '@/api/assignment'
 import groupAPI from '@/api/group'
+import participationAPI from '@/api/participation'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
@@ -127,7 +128,17 @@ export default {
             })
 
         groupAPI.getAllFromCourse(this.cID)
-            .then(groups => { this.groups = groups })
+            .then(groups => {
+                this.groups = groups
+            })
+            .catch(error => { this.$toasted.error(error.response.data.description) })
+
+        participationAPI.get(this.cID)
+            .then(participant => {
+                if (participant.group) {
+                    this.selectedFilterGroupOption = participant.group
+                }
+            })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
         if (this.$route.query.sort === 'sortFullName' ||

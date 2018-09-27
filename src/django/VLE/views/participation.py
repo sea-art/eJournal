@@ -49,6 +49,35 @@ class ParticipationView(viewsets.ViewSet):
         users = UserSerializer(course.users, context={'course': course}, many=True).data
         return response.success({'participants': users})
 
+    def retrieve(self, request, pk=None):
+        """Get own participation data from the course ID.
+
+        Arguments:
+        request -- request data
+        pk -- course ID
+
+        Returns:
+        On failure:
+            unauthorized -- when the user is not logged in
+            not found -- when the course does not exist
+            forbidden -- when the user is not in the course
+        On success:
+            success -- with the participation data
+        """
+        if not request.user.is_authenticated:
+            return response.unauthorized()
+
+        try:
+            course = Course.objects.get(pk=pk)
+        except Course.DoesNotExist:
+            return response.not_found('Course does not exist.')
+
+        if not permissions.is_user_in_course(request.user, course):
+            return response.forbidden('You are not in this course.')
+
+        user = UserSerializer(request.user, context={'course': course}, many=False).data
+        return response.success({'participant': user})
+
     def create(self, request):
         """Add a user to a course.
 
