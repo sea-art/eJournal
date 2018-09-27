@@ -48,7 +48,7 @@ class GroupView(viewsets.ViewSet):
         role = permissions.get_role(request.user, course)
         if role is None:
             return response.forbidden('You are not in this course.')
-        if not role.can_edit_course_details:
+        if not role.can_view_course_users:
             return response.forbidden('You are not allowed to view the groups.')
 
         queryset = Group.objects.filter(course=course)
