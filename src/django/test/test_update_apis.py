@@ -105,7 +105,7 @@ class UpdateApiTests(TestCase):
         """Test update format function."""
         course = factory.make_course('Portfolio', 'PAV', author=self.rein)
         template = factory.make_entry_template('template')
-        format = factory.make_format([template], 10)
+        format = factory.make_format([template])
         assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course])
 
         login = test.logging_in(self, self.rein_user, self.rein_pass)
@@ -115,7 +115,6 @@ class UpdateApiTests(TestCase):
                 'name': 'Colloq',
                 'description': 'description1'
             },
-            'max_points': 11,
             'templates': [serialize.TemplateSerializer(template).data
                           for template in format.available_templates.all()],
             'removed_presets': [],
@@ -125,9 +124,6 @@ class UpdateApiTests(TestCase):
         }
 
         test.api_patch_call(self, '/formats/' + str(assignment.pk) + '/', update_dict, login)
-
-        q_assign = Assignment.objects.get(pk=assignment.pk)
-        self.assertEquals(q_assign.format.max_points, 11)
 
     def test_update_user_role_course(self):
         """Test user role update in a course."""
@@ -175,7 +171,7 @@ class UpdateApiTests(TestCase):
         """Test update comment function."""
         course = factory.make_course('Portfolio', 'PAV', author=self.rein)
         template = factory.make_entry_template('template')
-        format = factory.make_format([template], 10)
+        format = factory.make_format([template])
         assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course])
         student_user, student_pass, student = test.set_up_user_and_auth('student', 'pass', 'student@student.com')
         test.set_up_participation(student, course, 'Student')

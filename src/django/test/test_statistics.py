@@ -23,7 +23,7 @@ class StatisticsTests(TestCase):
     def test_journal_stats(self):
         """Test the journal stats functions in the serializer."""
         template = factory.make_entry_template('template_test')
-        format = factory.make_format([template], 5)
+        format = factory.make_format([template])
         assign = factory.make_assignment("Colloq", "In de opdracht...1", self.teacher, format=format)
         journal = factory.make_journal(assign, self.user)
         entries = test.set_up_entries(template, 4)
@@ -39,6 +39,5 @@ class StatisticsTests(TestCase):
                 entries[i].published = True
                 entries[i].save()
         self.assertEquals(utils.get_acquired_points(entries), 3)
-        self.assertEquals(utils.get_max_points(journal), 5)
         self.assertEquals(utils.get_submitted_count(entries), 4)
         self.assertEquals(utils.get_graded_count(entries), 3)

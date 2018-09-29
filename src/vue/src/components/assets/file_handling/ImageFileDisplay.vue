@@ -4,7 +4,9 @@
             <icon name="image"/>
             <i><span>{{ fileName }}</span></i>
         </div>
-        <img :class="showImage" v-if="fileURL" :src="fileURL">
+        <transition name="fade">
+            <img :class="showImage" v-if="fileURL && show" :src="fileURL">
+        </transition>
     </div>
 </template>
 
@@ -74,20 +76,11 @@ export default {
 @import '~sass/modules/colors.sass'
 
 .closed
-    max-height: 0px
     -webkit-transition: height, .6s linear
-    -moz-transition: height, .6s linear
-    -ms-transition: height, .6s linear
-    -o-transition: height, .6s linear
-    transition: height, .6s linear
 
 .open
     max-height: 100vh
     -webkit-transition: height, .6s linear
-    -moz-transition: height, .6s linear
-    -ms-transition: height, .6s linear
-    -o-transition: height, .6s linear
-    transition: height, .6s linear
 
 .image-field
     img
