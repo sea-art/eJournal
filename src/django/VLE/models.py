@@ -173,8 +173,6 @@ class Role(models.Model):
         on_delete=models.CASCADE
     )
 
-    can_add_course = models.BooleanField(default=False)
-
     can_edit_course_details = models.BooleanField(default=False)
     can_delete_course = models.BooleanField(default=False)
     can_edit_course_roles = models.BooleanField(default=False)
