@@ -23,24 +23,21 @@
             <b-row>
                 <b-col xl="4">
                     <h2 class="field-heading">Unlock date</h2>
-                    <b-input class="multi-form theme-input"
-                    :value="form.unlockDate && form.unlockDate.replace(' ', 'T')"
-                    @input="form.unlockDate = $event && $event.replace('T', ' ')"
-                    type="datetime-local"/>
+                    <flat-pickr class="multi-form theme-input"
+                    v-model="form.unlockDate"
+                    :config="flatPickrConfig"/>
                 </b-col>
                 <b-col xl="4">
                     <h2 class="field-heading">Due date</h2>
-                    <b-input class="multi-form theme-input"
-                    :value="form.dueDate && form.dueDate.replace(' ', 'T')"
-                    @input="form.dueDate = $event && $event.replace('T', ' ')"
-                    type="datetime-local"/>
+                    <flat-pickr class="multi-form theme-input"
+                    v-model="form.dueDate"
+                    :config="flatPickrConfig"/>
                 </b-col>
                 <b-col xl="4">
                     <h2 class="field-heading">Lock date</h2>
-                    <b-input class="multi-form theme-input"
-                    :value="form.lockDate && form.lockDate.replace(' ', 'T')"
-                    @input="form.lockDate = $event && $event.replace('T', ' ')"
-                    type="datetime-local"/>
+                    <flat-pickr class="multi-form theme-input"
+                    v-model="form.lockDate"
+                    :config="flatPickrConfig"/>
                 </b-col>
             </b-row>
             <b-button class="float-left change-button mt-2" type="reset">
@@ -58,6 +55,8 @@
 <script>
 import textEditor from '@/components/assets/TextEditor.vue'
 import icon from 'vue-awesome/components/Icon'
+import flatPickr from 'vue-flatpickr-component'
+import 'flatpickr/dist/flatpickr.css'
 
 import assignmentAPI from '@/api/assignment'
 
@@ -75,11 +74,16 @@ export default {
                 unlockDate: null,
                 dueDate: null,
                 lockDate: null
+            },
+            flatPickrConfig: {
+                enableTime: true,
+                time_24hr: true
             }
         }
     },
     components: {
         'text-editor': textEditor,
+        flatPickr,
         icon
     },
     methods: {
