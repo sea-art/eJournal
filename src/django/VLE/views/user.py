@@ -73,10 +73,13 @@ class UserView(viewsets.ViewSet):
         except User.DoesNotExist:
             return response.not_found('User does not exist.')
 
-        if not (request.user == user or request.user.is_superuser):
+        if request.user == user or request.user.is_superuser:
+            serializer = OwnUserSerializer(user, many=False)
+        elif permissions.is_user_supervisor(user, request.user):
+            serializer = UserSerializer(user, many=False)
+        else:
             return response.forbidden("You are not allowed to view this users information.")
 
-        serializer = OwnUserSerializer(user, many=False)
         return response.success({'user': serializer.data})
 
     def create(self, request):
