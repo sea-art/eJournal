@@ -50,8 +50,6 @@
 <script>
 import textEditor from '@/components/assets/TextEditor.vue'
 import icon from 'vue-awesome/components/Icon'
-import flatPickr from 'vue-flatpickr-component'
-import 'flatpickr/dist/flatpickr.css'
 
 export default {
     name: 'FormatEditAssignmentDetailsCard',
@@ -70,7 +68,6 @@ export default {
     },
     components: {
         'text-editor': textEditor,
-        flatPickr,
         icon
     }
 }

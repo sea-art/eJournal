@@ -48,10 +48,9 @@
                 v-else-if="field.type == 'u'"
                 class="input-disabled"
             />
-            <b-input
-                type="date"
+            <flat-pickr
                 v-else-if="field.type == 'd'"
-                class="input-disabled"
+                class="input-disabled theme-input full-width"
             />
         </div>
     </b-card>

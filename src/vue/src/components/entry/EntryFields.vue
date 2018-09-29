@@ -7,7 +7,7 @@
             <p v-if="field.description">{{ field.description }}</p>
 
             <b-textarea v-if="field.type == 't'" class="theme-input" v-model="completeContent[i].data"/>
-            <b-input type="date" v-if="field.type == 'd'" class="theme-input" v-model="completeContent[i].data"/>
+            <flat-pickr v-if="field.type == 'd'" class="theme-input full-width" v-model="completeContent[i].data"/>
 
             <file-upload-input
                 v-else-if="field.type == 'i'"

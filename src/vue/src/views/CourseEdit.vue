@@ -10,31 +10,25 @@
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                     :readonly="!$hasPermission('can_edit_course_details')"
                     v-model="course.name"
-                    placeholder="Course name"
-                    required/>
+                    placeholder="Course name"/>
                 <h2 class="field-heading">Course abbreviation</h2>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                     :readonly="!$hasPermission('can_edit_course_details')"
                     v-model="course.abbreviation"
                     maxlength="10"
-                    placeholder="Course abbreviation (max 10 characters)"
-                    required/>
+                    placeholder="Course abbreviation (max 10 characters)"/>
                 <b-row>
                     <b-col xs="6">
                         <h2 class="field-heading">From</h2>
-                        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                            :readonly="!$hasPermission('can_edit_course_details')"
-                            v-model="course.startdate"
-                            type="date"
-                            required/>
+                        <flat-pickr class="multi-form theme-input full-width"
+                            :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
+                            v-model="course.startdate"/>
                     </b-col>
                     <b-col xs="6">
                         <h2 class="field-heading">To</h2>
-                        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                            :readonly="!$hasPermission('can_edit_course_details')"
-                            v-model="course.enddate"
-                            type="date"
-                            required/>
+                        <flat-pickr class="multi-form theme-input full-width"
+                            :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
+                            v-model="course.enddate"/>
                     </b-col>
                 </b-row>
                 <b-button class="add-button float-right"
@@ -173,7 +167,6 @@ export default {
         return {
             course: {},
             originalCourse: {},
-            form: {},
             participants: [],
             unenrolledStudents: [],
             groups: [],
@@ -222,14 +215,21 @@ export default {
         }
     },
     methods: {
+        formFilled () {
+            return this.course.name && this.course.abbreviation && this.course.startdate && this.course.enddate
+        },
         onSubmit () {
-            courseAPI.update(this.cID, this.course)
-                .then(course => {
-                    this.course = course
-                    this.$toasted.success('Succesfully updated the course.')
-                    store.clearCache()
-                })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
+            if (this.formFilled()) {
+                courseAPI.update(this.cID, this.course)
+                    .then(course => {
+                        this.course = course
+                        this.$toasted.success('Succesfully updated the course.')
+                        store.clearCache()
+                    })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
+            } else {
+                this.$toasted.error('One or more required fields empty.')
+            }
         },
         deleteCourse () {
             if (confirm('Are you sure you want to delete ' + this.course.name + '?')) {
