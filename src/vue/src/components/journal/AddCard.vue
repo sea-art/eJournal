@@ -2,7 +2,7 @@
     Shows the functionality of an Add-Node. It will give the user options
     to select an Entry-Template, this was set by the teacher, and then fill in
     this corresponding Entry-Template so it can be saved and added to the
-    EDAG-Tree.
+    Timeline-Tree.
 -->
 <template>
     <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">

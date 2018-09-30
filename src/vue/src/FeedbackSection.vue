@@ -51,13 +51,13 @@ export default {
 @import '~sass/modules/breakpoints.sass'
 
 .feedback-wrapper
-    display: absolute
+    position: absolute
     .feedback-button
         cursor: pointer
         padding: 2px 10px 2px 10px
         position: fixed
         bottom: 0px
-        right: 50px
+        left: 50px
         background-color: $theme-medium-grey
         @include md-max
             float: right

@@ -9,9 +9,10 @@
     align-items: center
     flex-wrap: wrap
     margin: 0px 0px 10px 0px
-    .theme-input, span
+    .theme-input, span, .theme-input:hover:not(.no-hover), .theme-input:focus
         width: 3em
         display: inline-block
+        box-shadow: none
         border: 0px
         margin: 0px
         padding: 0px !important
@@ -21,8 +22,6 @@
         text-align: center
     .grade
         font-weight: normal
-    .custom-checkbos:checked
-        background-color: red !important
     .btn
         border-top: 1px solid $theme-dark-grey
         flex-basis: 100%
