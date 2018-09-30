@@ -110,7 +110,7 @@ class UserView(viewsets.ViewSet):
             except jwt.exceptions.InvalidSignatureError:
                 return response.unauthorized(description='Invalid LTI parameters given. Please go back to your \
                                              learning environment and try again.')
-            lti_id, user_image = utils.optional_params(lti_params, 'user_id', 'user_image')
+            lti_id, user_image = utils.optional_params(lti_params, 'user_id', 'custom_user_image')
             is_teacher = json.load(open(settings.LTI_ROLE_CONFIG_PATH))['Teacher'] in lti_params['roles']
         else:
             lti_id, user_image, is_teacher = None, None, False
@@ -190,12 +190,22 @@ class UserView(viewsets.ViewSet):
                     description='The canvas link has expired, 15 minutes have passed. Please retry from canvas.')
             except jwt.exceptions.InvalidSignatureError:
                 return response.unauthorized(description='Invalid LTI parameters given. Please retry from canvas.')
-            lti_id, user_image = utils.optional_params(lti_params, 'user_id', 'custom_user_image')
+            lti_id, user_email, user_full_name, user_image = utils.optional_params(lti_params, 'user_id',
+                                                                                   'custom_user_email',
+                                                                                   'custom_user_full_name',
+                                                                                   'custom_user_image')
             is_teacher = json.load(open(settings.LTI_ROLE_CONFIG_PATH))['Teacher'] in lti_params['roles']
         else:
-            lti_id, user_image, is_teacher = None, None, False
+            lti_id, user_email, user_full_name, user_image, is_teacher = None, None, None, None, False
         if user_image is not None:
             user.profile_picture = user_image
+        if user_email is not None:
+            user.email = user_email
+            user.verified_email = True
+        if user_full_name is not None:
+            splitname = user_full_name.split(' ')
+            user.first_name = splitname[0]
+            user.last_name = user_full_name[len(splitname[0])+1:]
         if is_teacher:
             user.is_teacher = is_teacher
 
