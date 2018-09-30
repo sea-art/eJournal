@@ -171,11 +171,10 @@ def replace_result(journal):
     """Replace a grade on the LTI instance based on the request.
 
     Arguments:
-        journal -- the journal of which the grade needs to be updated in lti
+        journal -- the journal of which the grade needs to be updated through lti.
 
-    returns de lti reponses
+    returns the lti reponse.
     """
-
     secret = settings.LTI_SECRET
     key = settings.LTI_KEY
 
