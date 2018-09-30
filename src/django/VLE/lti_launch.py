@@ -28,8 +28,7 @@ class OAuthRequestValidater(object):
 
     def parse_request(self, request):
         """
-        Parses een django request om de method, url header en post data terug
-        te geven.
+        Parses a django request to return the method, url, header and post data.
         """
         return request.method, request.build_absolute_uri(), request.META, \
             request.POST.dict()
