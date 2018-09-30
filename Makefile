@@ -5,7 +5,7 @@
 test-back:
 	pep8 ./src/django --max-line-length=120 --exclude='./src/django/VLE/migrations','./src/django/VLE/settings*'
 	bash -c 'source ./venv/bin/activate && flake8 --max-line-length=120 src/django --exclude="src/django/VLE/migrations/*","src/django/VLE/settings/*","src/django/VLE/settings.py" && deactivate'
-	bash -c "source ./venv/bin/activate && cd ./src/django/ && coverage run --source=VLE manage.py test && coverage report && deactivate"
+	bash -c "source ./venv/bin/activate && cd ./src/django/ && coverage run --source=VLE --omit=VLE/settings/* manage.py test && coverage report && deactivate"
 
 test-front:
 	npm run lint --prefix ./src/vue
