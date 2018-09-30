@@ -11,7 +11,7 @@ test-front:
 	npm run lint --prefix ./src/vue
 	npm run test --prefix ./src/vue
 
-test: test-back test-front
+test: test-front test-back
 
 #
 # DATABSE COMMANDS
