@@ -26,10 +26,8 @@ import os
 
 
 class UserView(viewsets.ViewSet):
-    serializer_class = UserSerializer
-
     def list(self, request):
-        """Get all the users.
+        """Get all users.
 
         Arguments:
         request -- request data
@@ -43,12 +41,16 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        # TODO I don't think everyone should have access to everyone's data.
-        serializer = self.serializer_class(User.objects.all(), many=True)
+
+        if not (permissions.can_add_users_to_a_course(request.user) or request.user.is_superuser):
+            return response.forbidden(description="Only teachers and administrators are allowed to request all user \
+                                       data.")
+
+        serializer = UserSerializer(User.objects.all(), many=True)
         return response.success({'users': serializer.data})
 
     def retrieve(self, request, pk):
-        """Get the user data of the given user.
+        """Get the user data of the requested user.
 
         Arguments:
         request -- request data
@@ -73,8 +75,11 @@ class UserView(viewsets.ViewSet):
 
         if request.user == user or request.user.is_superuser:
             serializer = OwnUserSerializer(user, many=False)
+        elif permissions.is_user_supervisor(user, request.user):
+            serializer = UserSerializer(user, many=False)
         else:
-            serializer = self.serializer_class(user, many=False)
+            return response.forbidden("You are not allowed to view this users information.")
+
         return response.success({'user': serializer.data})
 
     def create(self, request):
@@ -147,7 +152,7 @@ class UserView(viewsets.ViewSet):
         if lti_id is None:
             email_handling.send_email_verification_link(user)
 
-        return response.created({'user': self.serializer_class(user).data})
+        return response.created({'user': UserSerializer(user).data})
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing user.
@@ -171,10 +176,11 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
+
         pk = kwargs.get('pk')
         if int(pk) == 0:
             pk = request.user.id
-        if request.user.pk != int(pk) and not request.user.is_superuser:
+        if not (request.user.pk == int(pk) or request.user.is_superuser):
             return response.forbidden()
 
         try:
@@ -205,7 +211,6 @@ class UserView(viewsets.ViewSet):
             user.lti_id = lti_id
 
         user.save()
-
         serializer = OwnUserSerializer(user, data=request.data, partial=True)
         if not serializer.is_valid():
             return response.bad_request()
@@ -228,11 +233,12 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
+
+        if not request.user.is_superuser:
+            return response.forbidden('You are not allowed to delete a user.')
+
         if int(pk) == 0:
             pk = request.user.id
-
-        if request.user.pk != pk or not request.user.is_auperuser:
-            return response.forbidden()
 
         try:
             user = User.objects.get(pk=pk)
@@ -300,8 +306,8 @@ class UserView(viewsets.ViewSet):
         user = User.objects.get(pk=pk)
 
         # Check the right permissions to get this users data, either be the user of the data or be an admin.
-        if not user.is_superuser or request.user.id != pk:
-            return response.forbidden('You cannot view this users data.')
+        if not (user.is_superuser or request.user.id == pk):
+            return response.forbidden('You are not allowed to view this user\'s data.')
 
         profile = UserSerializer(user).data
         journals = Journal.objects.filter(user=pk)
@@ -359,6 +365,7 @@ class UserView(viewsets.ViewSet):
 
         return response.file(os.path.join(settings.MEDIA_ROOT, user_file.file.name))
 
+    # TODO P Test changes
     @action(methods=['post'], detail=False)
     def upload(self, request):
         """Update user profile picture.
@@ -386,8 +393,8 @@ class UserView(viewsets.ViewSet):
 
         try:
             validators.validate_user_file(request.FILES['file'])
-        except ValidationError:
-            return response.bad_request('The selected file exceeds the file limit.')
+        except ValidationError as e:
+            return response.bad_request(e.args[0])
 
         user_files = request.user.userfile_set.all()
 
@@ -411,8 +418,11 @@ class UserView(viewsets.ViewSet):
 
         try:
             assignment = Assignment.objects.get(pk=request.POST['assignment_id'])
-        except Journal.DoesNotExist:
-            return response.bad_request('Journal with id {:s} was not found.'.format(request.POST['assignment_id']))
+        except Assignment.DoesNotExist:
+            return response.bad_request('Assignment with id {:s} was not found.'.format(request.POST['assignment_id']))
+
+        if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
+            return response.forbidden('You cannot upload a file to: {:s}.'.format(assignment.name))
 
         factory.make_user_file(request.FILES['file'], request.user, assignment)
 
@@ -444,8 +454,8 @@ class UserView(viewsets.ViewSet):
 
         try:
             validators.validate_profile_picture_base64(request.data['file'])
-        except ValidationError:
-            return response.bad_request('Profile picture did not pass validation!')
+        except ValidationError as e:
+            return response.bad_request(e.args[0])
 
         request.user.profile_picture = request.data['file']
         request.user.save()
