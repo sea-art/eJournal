@@ -31,13 +31,8 @@ class OAuthRequestValidater(object):
         Parses een django request om de method, url header en post data terug
         te geven.
         """
-        headers = dict([(k, request.META[k])
-                        for k in request.META if
-                        k.upper().startswith('HTTP_') or
-                        k.upper().startswith('CONTENT_')])
-
-        return request.method, request.build_absolute_uri(), headers, \
-            request.POST
+        return request.method, request.build_absolute_uri(), request.META, \
+            request.POST.dict()
 
     def is_valid(self, request):
         """
@@ -48,12 +43,8 @@ class OAuthRequestValidater(object):
             method, url, head, param = self.parse_request(request)
 
             oauth_request = oauth2.Request.from_request(
-                method, url, headers=head, parameters=(param))
+                method, url, headers=head, parameters=param)
 
-            oauth_request = oauth2.Request.from_request(
-                request.method, request.build_absolute_uri(),
-                headers=request.META, parameters=request.POST.dict()
-            )
             self.oauth_server.verify_request(oauth_request,
                                              self.oauth_consumer, {})
 
