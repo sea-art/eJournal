@@ -26,13 +26,13 @@ class UserSerializer(serializers.ModelSerializer):
         return user.first_name + ' ' + user.last_name
 
     def get_role(self, user):
-        if 'course' not in self.context:
+        if 'course' not in self.context or not self.context['course']:
             return None
 
         return permissions.get_role(user, self.context['course']).name
 
     def get_group(self, user):
-        if 'course' not in self.context:
+        if 'course' not in self.context or not self.context['course']:
             return None
 
         group = Participation.objects.get(user=user, course=self.context['course']).group
@@ -205,7 +205,7 @@ class JournalSerializer(serializers.ModelSerializer):
             'graded': utils.get_graded_count(entries),
             'published': utils.get_published_count(entries),
             'submitted': utils.get_submitted_count(entries),
-            'total_points': utils.get_max_points(journal),
+            'total_points': utils.get_points_possible(journal),
         }
 
 
@@ -216,7 +216,7 @@ class FormatSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Format
-        fields = ('id', 'grade_type', 'max_points', 'unused_templates', 'templates', 'presets')
+        fields = ('id', 'grade_type', 'unused_templates', 'templates', 'presets')
         read_only_fields = ('id', )
 
     def get_unused_templates(self, entry):

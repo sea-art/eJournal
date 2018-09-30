@@ -24,11 +24,11 @@
                 <div class="profile-picture-container" slot="button-content">
                     <img class="profile-picture" :src="profileImg">
                 </div>
-                <b-button :to="{ name: 'Profile' }" class="multi-form">
+                <b-button :to="{ name: 'Profile' }">
                     <icon name="user"/>
                     &nbsp;Profile
                 </b-button>
-                <b-button :to="{ name: 'Logout' }">
+                <b-button :to="{ name: 'Logout' }" class="button-top-border">
                     <icon name="sign-out"/>
                     Log out
                 </b-button>
@@ -45,11 +45,11 @@
                 <div class="profile-picture-container bg-white d-flex justify-content-center align-items-center" slot="button-content">
                     <icon name="user" scale="2.5"/>
                 </div>
-                <b-button class="multi-form" :to="{ name: 'Register' }">
+                <b-button :to="{ name: 'Register' }">
                     <icon name="user-plus"/>
                     Register
                 </b-button>
-                <b-button :to="{ name: 'Login' }">
+                <b-button :to="{ name: 'Login' }" class="button-top-border">
                     <icon name="sign-in"/>
                     Log in
                 </b-button>
@@ -150,7 +150,7 @@ export default {
 .dropdown-menu
     background: $theme-dark-grey !important
     border: none !important
-    padding: 10px 5px
+    padding: 5px 5px
     margin-top: 10px
     .btn
         justify-content: left

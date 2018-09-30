@@ -155,8 +155,8 @@ class GetApiTests(TestCase):
         """Test the get assignment data function."""
         course = factory.make_course('Portfolio', 'PAV', author=self.rein)
         template = factory.make_entry_template('template')
-        format1 = factory.make_format([template], 10)
-        format2 = factory.make_format([template], 10)
+        format1 = factory.make_format([template])
+        format2 = factory.make_format([template])
         assignment1 = factory.make_assignment('Colloq', 'description1', format=format1, courses=[course])
         assignment2 = factory.make_assignment('Portfolio', 'description2', format=format2, courses=[course])
 
@@ -182,7 +182,7 @@ class GetApiTests(TestCase):
         """Test the get assignment journals function."""
         course = factory.make_course('Portfolio', 'PAV', author=self.rein)
         template = factory.make_entry_template('template')
-        format = factory.make_format([template], 10)
+        format = factory.make_format([template])
         assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course])
         students = test.set_up_users('student', 2)
         for student in students:
@@ -206,7 +206,7 @@ class GetApiTests(TestCase):
         """Test the get nodes function."""
         course = factory.make_course('Portfolio', 'PAV', author=self.rein)
         template = factory.make_entry_template('template')
-        format = factory.make_format([template], 10)
+        format = factory.make_format([template])
         assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course])
         student_user, student_pass, student = test.set_up_user_and_auth('student', 'pass', 'student@student.com')
         test.set_up_participation(student, course, 'Student')
@@ -234,7 +234,7 @@ class GetApiTests(TestCase):
         course2 = factory.make_course('Portfolio2017', 'PAV', author=self.rein)
         course3 = factory.make_course('Portfolio2018', 'PAV')
         template = factory.make_entry_template('template')
-        format = factory.make_format([template], 10)
+        format = factory.make_format([template])
         assignment = factory.make_assignment('Colloq', 'description1', format=format,
                                              courses=[course1, course2, course3])
         login = test.logging_in(self, self.rein_user, self.rein_pass)
@@ -286,7 +286,7 @@ class GetApiTests(TestCase):
         """Test get names function."""
         course = factory.make_course('Portfolio', 'PAV', author=self.rein)
         template = factory.make_entry_template('template')
-        format = factory.make_format([template], 10)
+        format = factory.make_format([template])
         assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course])
         student_user, student_pass, student = test.set_up_user_and_auth('student', 'pass', 's@s.com', 'first', 'last')
         test.set_up_participation(student, course, 'Student')
@@ -307,7 +307,7 @@ class GetApiTests(TestCase):
         """Test get comments function."""
         course = factory.make_course('Portfolio', 'PAV', author=self.rein)
         template = factory.make_entry_template('template')
-        format = factory.make_format([template], 10)
+        format = factory.make_format([template])
         assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course])
         student_user, student_pass, student = test.set_up_user_and_auth('student', 'pass', 's@s.com')
         test.set_up_participation(student, course, 'Student')
@@ -326,20 +326,3 @@ class GetApiTests(TestCase):
         test.api_get_call(self, '/comments/', login, status=403, params={'entry_id': entry.pk})
         test.api_get_call(self, '/comments/', login, status=404, params={'entry_id': self.not_found_pk})
         test.test_unauthorized_api_get_call(self, '/comments/', params={'entry_id': entry.pk})
-
-    # def test_get_assignment_by_lti_id(self):
-    #     """Test get assignment by lti id function."""
-    #     course = factory.make_course('Portfolio', 'PAV', author=self.rein)
-    #     template = factory.make_entry_template('template')
-    #     format = factory.make_format([template], 10)
-    #     factory.make_assignment('Colloq', 'description1', format=format, courses=[course], lti_id='12xy')
-    #
-    #     login = test.logging_in(self, self.rein_user, self.rein_pass)
-    #     result = test.api_get_call(self, '/get_assignment_by_lti_id/12xy/', login).json()
-    #     self.assertEquals(result['assignment']['name'], 'Colloq')
-    #
-    #     # permissions and authorization check for the api call.
-    #     login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
-    #     test.api_get_call(self, '/get_assignment_by_lti_id/12xy/', login, status=403)
-    #     test.api_get_call(self, '/get_assignment_by_lti_id/random/', login, status=404)
-    #     test.test_unauthorized_api_get_call(self, '/get_assignment_by_lti_id/12xy/')

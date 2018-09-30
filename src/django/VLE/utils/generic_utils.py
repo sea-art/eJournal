@@ -50,9 +50,9 @@ def get_journal_entries(journal):
     return Entry.objects.filter(node__journal=journal)
 
 
-def get_max_points(journal):
+def get_points_possible(journal):
     """Get the maximum amount of points for an assignment."""
-    return journal.assignment.format.max_points
+    return journal.assignment.points_possible
 
 
 def get_acquired_points(entries):

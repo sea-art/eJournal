@@ -10,7 +10,7 @@ import VLE.views.responses as response
 import VLE.permissions as permissions
 
 from VLE.models import Journal
-import VLE.edag as edag
+import VLE.timeline as timeline
 
 
 class NodeView(viewsets.ModelViewSet):
@@ -66,4 +66,4 @@ class NodeView(viewsets.ModelViewSet):
                                                      'can_view_assignment_journals'):
             return response.bad_request('The assignment is locked and unavailable for students.')
 
-        return response.success({'nodes': edag.get_nodes(journal, request.user)})
+        return response.success({'nodes': timeline.get_nodes(journal, request.user)})
