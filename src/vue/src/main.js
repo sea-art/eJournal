@@ -86,7 +86,12 @@ new Vue({
         previousPage: null,
         windowWidth: 0,
         maxFileSizeBytes: 2097152,
-        maxEmailFileSizeBytes: 10485760
+        maxEmailFileSizeBytes: 10485760,
+        flatPickrTimeConfig: {
+            enableTime: true,
+            time_24hr: true
+        }
+
     },
     mounted () {
         this.$nextTick(function () {

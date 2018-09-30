@@ -1,17 +1,17 @@
 <template>
     <b-card class="no-hover">
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset" :v-model="form.lti_id">
-            <h2 class="field-heading">Course name</h2>
+            <h2 class="field-heading required">Course name</h2>
             <b-input class="multi-form theme-input" v-model="form.name" placeholder="Course name"/>
-            <h2 class="field-heading">Course abbreviation</h2>
+            <h2 class="field-heading required">Course abbreviation</h2>
             <b-input class="multi-form theme-input" v-model="form.abbreviation" maxlength="10" placeholder="Course abbreviation (max 10 characters)"/>
             <b-row>
                 <b-col cols="6">
-                    <h2 class="field-heading">From</h2>
+                    <h2 class="field-heading required">From</h2>
                     <flat-pickr class="multi-form multi-date-input theme-input full-width" v-model="form.startdate"/>
                 </b-col>
                 <b-col cols="6">
-                    <h2 class="field-heading">To</h2>
+                    <h2 class="field-heading required">To</h2>
                     <flat-pickr class="multi-form multi-date-input theme-input full-width" v-model="form.enddate"/>
                 </b-col>
             </b-row>
@@ -64,7 +64,7 @@ export default {
                     })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             } else {
-                this.$toasted.error('One or more required fields empty.')
+                this.$toasted.error('One or more required fields are empty.')
             }
         },
         onReset (evt) {

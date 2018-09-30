@@ -47,7 +47,7 @@
             </b-col>
         </b-row>
         <h2 class="field-heading">Deadline</h2>
-        <flat-pickr class="theme-input full-width" v-model="currentPreset.deadline" :config="flatPickrConfig"/>
+        <flat-pickr class="theme-input multi-form full-width" v-model="currentPreset.deadline" :config="$root.flatPickrTimeConfig"/>
 
         <div v-if="currentPreset.type === 'd'">
             <h2 class="field-heading">Preset Template</h2>
@@ -77,11 +77,7 @@ export default {
     props: ['currentPreset', 'templates'],
     data () {
         return {
-            templateNames: [],
-            flatPickrConfig: {
-                enableTime: true,
-                time_24hr: true
-            }
+            templateNames: []
         }
     },
     methods: {

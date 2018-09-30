@@ -26,21 +26,21 @@
                     <flat-pickr class="multi-form theme-input"
                     v-model="assignmentDetails.unlock_date"
                     @on-change="$emit('changed')"
-                    :config="flatPickrConfig"/>
+                    :config="$root.flatPickrTimeConfig"/>
                 </b-col>
                 <b-col xl="4">
                     <h2 class="field-heading">Due date</h2>
                     <flat-pickr class="multi-form theme-input"
                     v-model="assignmentDetails.due_date"
                     @on-change="$emit('changed')"
-                    :config="flatPickrConfig"/>
+                    :config="$root.flatPickrTimeConfig"/>
                 </b-col>
                 <b-col xl="4">
                     <h2 class="field-heading">Lock date</h2>
                     <flat-pickr class="multi-form theme-input"
                     v-model="assignmentDetails.lock_date"
                     @on-change="$emit('changed')"
-                    :config="flatPickrConfig"/>
+                    :config="$root.flatPickrTimeConfig"/>
                 </b-col>
             </b-row>
         </b-form>
@@ -53,14 +53,6 @@ import icon from 'vue-awesome/components/Icon'
 
 export default {
     name: 'FormatEditAssignmentDetailsCard',
-    data () {
-        return {
-            flatPickrConfig: {
-                enableTime: true,
-                time_24hr: true
-            }
-        }
-    },
     props: {
         assignmentDetails: {
             required: true

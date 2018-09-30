@@ -6,12 +6,12 @@
             <h2 class="mb-2">Manage course data</h2>
 
             <b-form @submit.prevent="onSubmit">
-                <h2 class="field-heading">Course name</h2>
+                <h2 class="field-heading required">Course name</h2>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                     :readonly="!$hasPermission('can_edit_course_details')"
                     v-model="course.name"
                     placeholder="Course name"/>
-                <h2 class="field-heading">Course abbreviation</h2>
+                <h2 class="field-heading required">Course abbreviation</h2>
                 <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
                     :readonly="!$hasPermission('can_edit_course_details')"
                     v-model="course.abbreviation"
@@ -19,13 +19,13 @@
                     placeholder="Course abbreviation (max 10 characters)"/>
                 <b-row>
                     <b-col xs="6">
-                        <h2 class="field-heading">From</h2>
+                        <h2 class="field-heading required">From</h2>
                         <flat-pickr class="multi-form theme-input full-width"
                             :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
                             v-model="course.startdate"/>
                     </b-col>
                     <b-col xs="6">
-                        <h2 class="field-heading">To</h2>
+                        <h2 class="field-heading required">To</h2>
                         <flat-pickr class="multi-form theme-input full-width"
                             :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
                             v-model="course.enddate"/>
@@ -228,7 +228,7 @@ export default {
                     })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             } else {
-                this.$toasted.error('One or more required fields empty.')
+                this.$toasted.error('One or more required fields are empty.')
             }
         },
         deleteCourse () {

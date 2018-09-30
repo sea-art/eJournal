@@ -25,19 +25,19 @@
                     <h2 class="field-heading">Unlock date</h2>
                     <flat-pickr class="multi-form theme-input"
                     v-model="form.unlockDate"
-                    :config="flatPickrConfig"/>
+                    :config="$root.flatPickrTimeConfig"/>
                 </b-col>
                 <b-col xl="4">
                     <h2 class="field-heading">Due date</h2>
                     <flat-pickr class="multi-form theme-input"
                     v-model="form.dueDate"
-                    :config="flatPickrConfig"/>
+                    :config="$root.flatPickrTimeConfig"/>
                 </b-col>
                 <b-col xl="4">
                     <h2 class="field-heading">Lock date</h2>
                     <flat-pickr class="multi-form theme-input"
                     v-model="form.lockDate"
-                    :config="flatPickrConfig"/>
+                    :config="$root.flatPickrTimeConfig"/>
                 </b-col>
             </b-row>
             <b-button class="float-left change-button mt-2" type="reset">
@@ -72,10 +72,6 @@ export default {
                 unlockDate: null,
                 dueDate: null,
                 lockDate: null
-            },
-            flatPickrConfig: {
-                enableTime: true,
-                time_24hr: true
             }
         }
     },
