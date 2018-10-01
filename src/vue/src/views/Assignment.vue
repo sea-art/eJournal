@@ -135,8 +135,8 @@ export default {
 
         participationAPI.get(this.cID)
             .then(participant => {
-                if (participant.group) {
-                    this.selectedFilterGroupOption = participant.group
+                if (participant.group.name) {
+                    this.selectedFilterGroupOption = participant.group.name
                 }
             })
             .catch(error => { this.$toasted.error(error.response.data.description) })
