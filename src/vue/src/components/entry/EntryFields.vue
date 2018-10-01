@@ -17,6 +17,8 @@
                 :autoUpload="true"
                 @fileUploadSuccess="completeContent[i].data = $event"
                 :aID="$route.params.aID"
+                :nID="nodeID"
+                :contentID="completeContent[i].id"
             />
             <file-upload-input
                 v-else-if="field.type == 'f'"
@@ -26,6 +28,8 @@
                 :autoUpload="true"
                 @fileUploadSuccess="completeContent[i].data = $event"
                 :aID="$route.params.aID"
+                :nID="nodeID"
+                :contentID="completeContent[i].id"
             />
             <b-input v-else-if="field.type == 'v'"
                 class="theme-input"
@@ -40,6 +44,8 @@
                 :autoUpload="true"
                 @fileUploadSuccess="completeContent[i].data = $event"
                 :aID="$route.params.aID"
+                :nID="nodeID"
+                :contentID="completeContent[i].id"
             />
             <text-editor
                 v-else-if="field.type == 'rt'"

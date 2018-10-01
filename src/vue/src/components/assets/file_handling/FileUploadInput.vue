@@ -24,6 +24,14 @@ export default {
             required: true,
             String
         },
+        nID: {
+            required: true,
+            String
+        },
+        contentID: {
+            required: true,
+            String
+        },
         autoUpload: {
             required: true,
             Boolean
@@ -58,6 +66,8 @@ export default {
             let formData = new FormData()
             formData.append('file', this.file)
             formData.append('assignment_id', this.aID)
+            formData.append('node_id', this.nID)
+            formData.append('content_id', this.contentID)
 
             userAPI.uploadUserFile(formData)
                 .then(_ => {
@@ -65,6 +75,7 @@ export default {
                     this.$toasted.success('File upload success.')
                 })
                 .catch(error => {
+                    console.log(error.response)
                     this.$emit('fileUploadFailed', this.file.name)
                     this.$toasted.error(error.response.data.description)
                     this.file = null

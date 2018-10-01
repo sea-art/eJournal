@@ -8,8 +8,17 @@ from django.conf import settings
 
 
 def get_path(instance, filename):
-    """Upload user files into their respective directories. Following MEDIA_ROOT/uID/aID/..."""
-    return str(instance.author.id) + '/' + str(instance.assignment.id) + '/' + filename
+    """Upload user files into their respective directories. Following MEDIA_ROOT/uID/aID/node_link/contentID/<file>
+
+    Where node_link can be -1 if the node is not created yet, this file is temporary untill the corresponding entry
+    is created."""
+    if instance.node is None:
+        node_link = '-1'
+    else:
+        node_link = str(instance.node.id)
+
+    return str(instance.author.id) + '/' + str(instance.assignment.id) + '/' + node_link + '/' \
+        + str(instance.content.id) + '/' + filename
 
 
 def compress_all_user_data(user, extra_data_dict=None, archive_extension='zip'):

@@ -1,4 +1,4 @@
-<!-- Loads a preview of a template. -->
+<!-- Loads a preview of a template. nID are required but unused as autoupload is disabled. -->
 <template>
     <b-card class="no-hover">
         <h2>{{ template.name }}</h2>
@@ -17,6 +17,7 @@
                 :maxSizeBytes="$root.maxFileSizeBytes"
                 :autoUpload="false"
                 :aID="$route.params.aID"
+                :nID="'1'"
             />
             <file-upload-input
                 v-else-if="field.type == 'f'"
@@ -25,6 +26,7 @@
                 :maxSizeBytes="$root.maxFileSizeBytes"
                 :autoUpload="false"
                 :aID="$route.params.aID"
+                :nID="'1'"
             />
             <b-input
                 v-else-if="field.type == 'v'"
@@ -38,6 +40,7 @@
                 :maxSizeBytes="$root.maxFileSizeBytes"
                 :autoUpload="false"
                 :aID="$route.params.aID"
+                :nID="'1'"
             />
             <text-editor
                 v-else-if="field.type == 'rt'"

@@ -105,6 +105,10 @@ class EntryView(viewsets.ViewSet):
 
             factory.make_content(node.entry, content['data'], field)
 
+            print(field)
+            print(field.TYPES)
+            print(field.type)
+
         # Find the new index of the new node so that the client can automatically scroll to it.
         result = timeline.get_nodes(journal, request.user)
         added = -1

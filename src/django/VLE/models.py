@@ -13,12 +13,19 @@ from django.core.exceptions import ValidationError
 class UserFile(models.Model):
     """UserFile.
 
-    UserFile is a file uploaded by the user stored in MEDIA_ROOT/uID/aID/...
+    UserFile is a file uploaded by the user stored in MEDIA_ROOT/uID/aID/nID/contentID/<file>
     - author: The user who uploaded the file.
     - file_name: The name of the file (no parts of the path to the file included).
     - creation_date: The time and date the file was uploaded.
     - content_type: The mimetype supplied by the user (unvalidated).
     - assignment: The assignment that the UserFile is linked to.
+    - node: The node that the UserFile is linked to.
+    - entry: The entry that the UserFile is linked to.
+    - content: The content that UserFile is linked to.
+
+    Note that deleting the assignment, node or content will also delete the UserFile.
+    UserFiles uploaded initially have no node set, and are considered temporary untill the journal post is made
+    and the corresponding node is set.
     """
     file = models.FileField(
         null=False,
@@ -40,6 +47,21 @@ class UserFile(models.Model):
     )
     assignment = models.ForeignKey(
         'Assignment',
+        on_delete=models.CASCADE,
+        null=False
+    )
+    node = models.ForeignKey(
+        'Node',
+        on_delete=models.CASCADE,
+        null=True
+    )
+    entry = models.ForeignKey(
+        'Entry',
+        on_delete=models.CASCADE,
+        null=True
+    )
+    content = models.ForeignKey(
+        'Content',
         on_delete=models.CASCADE,
         null=False
     )
@@ -506,6 +528,7 @@ class Entry(models.Model):
     - last_edited: when the etry was last edited
     """
 
+    # TODO P Should not be nullable
     template = models.ForeignKey(
         'Template',
         on_delete=models.SET_NULL,
@@ -643,6 +666,7 @@ class Comment(models.Model):
         'Entry',
         on_delete=models.CASCADE
     )
+    # TODO P Should not be nullable
     author = models.ForeignKey(
         'User',
         on_delete=models.SET_NULL,

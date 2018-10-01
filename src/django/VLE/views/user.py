@@ -11,7 +11,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 from VLE.serializers import UserSerializer, OwnUserSerializer, EntrySerializer
-from VLE.models import User, Journal, UserFile, Assignment, Node, Entry
+from VLE.models import User, Journal, UserFile, Assignment, Node, Entry, Content
 from VLE.views import responses as response
 import VLE.utils.generic_utils as utils
 import VLE.factory as factory
@@ -365,7 +365,6 @@ class UserView(viewsets.ViewSet):
 
         return response.file(os.path.join(settings.MEDIA_ROOT, user_file.file.name))
 
-    # TODO P Test changes
     @action(methods=['post'], detail=False)
     def upload(self, request):
         """Update user profile picture.
@@ -388,8 +387,14 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        if not request.FILES or 'file' not in request.FILES or 'assignment_id' not in request.POST:
-            return response.bad_request('File or assignment_id not found')
+        if not (request.FILES and 'file' in request.FILES):
+            return response.bad_request('File not found')
+
+        print('GOT 1')
+        print(request.POST)
+        if not all(key in request.POST for key in ('assignment_id', 'node_id', 'content_id')):
+            return response.keyerror('assignment_id', 'node_id', 'content_id')
+        print('GOT 2')
 
         try:
             validators.validate_user_file(request.FILES['file'])
@@ -409,6 +414,7 @@ class UserView(viewsets.ViewSet):
                 return response.bad_request('Unsufficient user storage space.')
 
         # Ensure an old copy of the file is removed when updating a file with the same name.
+        # TODO F filter on name and node or additional parameters
         try:
             old_user_file = user_files.get(file_name=request.FILES['file'].name)
             old_user_file.file.delete()
@@ -421,10 +427,29 @@ class UserView(viewsets.ViewSet):
         except Assignment.DoesNotExist:
             return response.bad_request('Assignment with id {:s} was not found.'.format(request.POST['assignment_id']))
 
-        if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
+        if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk).exists():
             return response.forbidden('You cannot upload a file to: {:s}.'.format(assignment.name))
 
-        factory.make_user_file(request.FILES['file'], request.user, assignment)
+        print('GOT 3')
+        # There is no entry (and thus node) created yet, file will be treated as temporary untill the entry is created.
+        if int(request.POST['node_id']) == -1:
+            node = None
+        else:
+            print('IN else')
+            print(request.POST['node_id'])
+            # TODO F Does the node or content require further checking?
+            try:
+                node = Node.objects.get(pk=request.POST['node_id'])
+            except Node.DoesNotExist:
+                return response.bad_request('Node with id {:s} was not found.'.format(request.POST['node_id']))
+
+        print('GOT NODE')
+        try:
+            content = Content.objects.get(pk=request.POST['content_id'])
+        except Content.DoesNotExist:
+            return response.bad_request('Content with id {:s} was not found.'.format(request.POST['content_id']))
+
+        factory.make_user_file(request.FILES['file'], request.user, assignment, node, content)
 
         return response.success(description='Succesfully uploaded {:s}.'.format(request.FILES['file'].name))
 
