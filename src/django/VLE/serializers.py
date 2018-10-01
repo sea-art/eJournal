@@ -139,7 +139,8 @@ class AssignmentSerializer(serializers.ModelSerializer):
             journals = Journal.objects.filter(assignment=assignment)
 
             if 'course' in self.context:
-                journals = [journ for journ in journals if Participation.objects.filter(user=journ.user, course=self.context['course']).count() > 0]
+                journals = [journ for journ in journals
+                            if Participation.objects.filter(user=journ.user, course=self.context['course']).count() > 0]
 
             return JournalSerializer(
                 journals,
