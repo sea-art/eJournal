@@ -77,7 +77,6 @@ class ParticipationView(viewsets.ViewSet):
             return response.forbidden('You are not in this course.')
 
         serializer = ParticipationSerializer(participation)
-        # user = UserSerializer(request.user, context={'course': course}, many=False).data
         return response.success({'participant': serializer.data})
 
     def create(self, request):
