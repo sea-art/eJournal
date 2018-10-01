@@ -28,7 +28,7 @@ LTI_KEY = '{{LTI_KEY}}'
 LTI_ROLE_CONFIG_PATH = BASE_DIR + '/../lti/role_config.json'
 
 BASELINK = '{{BASELINK}}'
-if BASELINK[-1] == '/'
+if BASELINK[-1] == '/':
     BASELINK = BASELINK[:-1]
 
 CORS_ORIGIN_ALLOW_ALL = True
