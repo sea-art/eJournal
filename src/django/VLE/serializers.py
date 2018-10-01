@@ -79,6 +79,14 @@ class GroupSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', )
 
 
+class ParticipationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Participation
+        fields = '__all__'
+        read_only_fields = ('id', )
+        depth = 1
+
+
 class AssignmentDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assignment

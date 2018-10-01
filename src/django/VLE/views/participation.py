@@ -6,7 +6,7 @@ import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.factory as factory
 import VLE.views.responses as response
-from VLE.serializers import UserSerializer
+from VLE.serializers import UserSerializer, ParticipationSerializer
 
 
 class ParticipationView(viewsets.ViewSet):
@@ -69,14 +69,16 @@ class ParticipationView(viewsets.ViewSet):
 
         try:
             course = Course.objects.get(pk=pk)
-        except Course.DoesNotExist:
-            return response.not_found('Course does not exist.')
+            participation = Participation.objects.get(user=request.user, course=course)
+        except (Participation.DoesNotExist, Course.DoesNotExist, User.DoesNotExist):
+            return response.not_found('Participation or Course does not exist.')
 
         if not permissions.is_user_in_course(request.user, course):
             return response.forbidden('You are not in this course.')
 
-        user = UserSerializer(request.user, context={'course': course}, many=False).data
-        return response.success({'participant': user})
+        serializer = ParticipationSerializer(participation)
+        # user = UserSerializer(request.user, context={'course': course}, many=False).data
+        return response.success({'participant': serializer.data})
 
     def create(self, request):
         """Add a user to a course.
