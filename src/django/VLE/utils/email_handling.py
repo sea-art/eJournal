@@ -44,7 +44,7 @@ def send_email_feedback(user, files, topic, ftype, feedback, user_agent, url):
     f_subject = "[Feedback] {}".format(topic[0])
     f_body = "TYPE: {}\n\n".format(ftype[0])
     f_body += "FEEDBACK BY: {}\n".format(user.username)
-    f_body += "EMAIL: {}\n".format("" if user.email is None else user.email)
+    f_body += "EMAIL: {}\n".format(user.email)
     f_body += "TEACHER: {}\n".format(user.is_teacher)
     f_body += "ROLES: {}\n".format(Role.objects.filter(role__user=user).values('name'))
     f_body += "USER-AGENT: {}\n".format(user_agent[0])
