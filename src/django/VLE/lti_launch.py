@@ -82,22 +82,19 @@ def check_user_lti(request, roles):
     return None
 
 
-def create_lti_query_link(names, values):
+def create_lti_query_link(query):
     """
     Creates link to lti page with the given parameters
 
     Arguments
-    names -- names of the query variables
-    values -- values correnspanding to the names
+    query -- QueryDict of the query variables
 
     returns the link
     """
     link = settings.BASELINK
     link += '/LtiLogin'
-    start = '?'
-    for i, name in enumerate(names):
-        link += start + name + '={0}'.format(values[i])
-        start = '&'
+    link += '?'
+    link += query.urlencode()
     return link
 
 
