@@ -237,9 +237,8 @@ export default {
                 return true
             }
 
-            /* TODO should work on users with no view journal permissions. */
             function studentFilter (assignment) {
-                return assignment.student.role === 'Student'
+                return assignment.student.can_have_journal_permission
             }
 
             /* Filter list based on search input. */
