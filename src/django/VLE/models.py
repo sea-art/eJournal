@@ -173,8 +173,6 @@ class Role(models.Model):
         on_delete=models.CASCADE
     )
 
-    can_add_course = models.BooleanField(default=False)
-
     can_edit_course_details = models.BooleanField(default=False)
     can_delete_course = models.BooleanField(default=False)
     can_edit_course_roles = models.BooleanField(default=False)
@@ -241,7 +239,6 @@ class Participation(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     role = models.ForeignKey(
         Role,
-        null=True,
         on_delete=models.CASCADE,
         related_name='role',
     )
@@ -286,8 +283,7 @@ class Assignment(models.Model):
     )
     points_possible = models.IntegerField(
         'points_possible',
-        null=True,
-        blank=True
+        default=10
     )
     unlock_date = models.DateTimeField(
         'unlock_date',
@@ -361,7 +357,7 @@ class Journal(models.Model):
 class Node(models.Model):
     """Node.
 
-    The Node is an EDAG component.
+    The Node is an Timeline component.
     It can represent many things.
     There are three types of nodes:
     -Progress
@@ -444,9 +440,6 @@ class Format(models.Model):
         max_length=2,
         choices=TYPES,
         default=PERCENTAGE,
-    )
-    max_points = models.IntegerField(
-        default=10
     )
     unused_templates = models.ManyToManyField(
         'Template',

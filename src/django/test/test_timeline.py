@@ -1,7 +1,7 @@
 """
-test_edag.py.
+test_timeline.py.
 
-Test all about the edag.
+Test all about the timeline.
 """
 from django.test import TestCase
 import datetime
@@ -9,11 +9,11 @@ import datetime
 from VLE.models import Template, Role
 
 import VLE.factory as factory
-import VLE.edag as edag
+import VLE.timeline as timeline
 
 
-class EdagTests(TestCase):
-    """Test the edag."""
+class TimelineTests(TestCase):
+    """Test the timeline."""
 
     def setUp(self):
         """Setup."""
@@ -62,7 +62,7 @@ class EdagTests(TestCase):
         """Test is the sort function works."""
         entry = factory.make_entry(self.template, datetime.date(2022, 1, 1))
         node = factory.make_node(self.j_rick_colloq, entry)
-        nodes = edag.get_sorted_nodes(self.j_rick_colloq)
+        nodes = timeline.get_sorted_nodes(self.j_rick_colloq)
 
         self.assertEquals(nodes[0].preset, self.deadlineentry)
         self.assertEquals(nodes[1], node)
@@ -73,7 +73,7 @@ class EdagTests(TestCase):
         entry = factory.make_entry(self.template, datetime.date(2022, 1, 1))
         factory.make_node(self.j_rick_colloq, entry)
 
-        nodes = edag.get_nodes(self.j_rick_colloq, self.u_rick)
+        nodes = timeline.get_nodes(self.j_rick_colloq, self.u_rick)
 
         self.assertEquals(len(nodes), 4)
 

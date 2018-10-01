@@ -9,7 +9,7 @@ from VLE.models import Assignment
 import VLE.views.responses as response
 import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
-from VLE.serializers import FormatSerializer, AssignmentSerializer
+from VLE.serializers import FormatSerializer, AssignmentSerializer, AssignmentDetailsSerializer
 
 
 class FormatView(viewsets.ViewSet):
@@ -39,20 +39,19 @@ class FormatView(viewsets.ViewSet):
         except Assignment.DoesNotExist:
             return response.not_found('Assignment not found.')
 
-        if not (assignment.courses.all() & user.participations.all()):
+        if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
             return response.forbidden('You are not allowed to view this assignment.')
 
         serializer = FormatSerializer(assignment.format)
-        assignment_details = AssignmentSerializer.get_details(self, assignment)
+        assignment_details = AssignmentDetailsSerializer(assignment)
 
-        return response.success({'format': serializer.data, 'assignment_details': assignment_details})
+        return response.success({'format': serializer.data, 'assignment_details': assignment_details.data})
 
     def partial_update(self, request, pk):
         """Update an existing journal format.
 
         Arguments:
         request -- request data
-            max_points -- the max points possible.
             templates -- the list of templates to bind to the format
             presets -- the list of presets to bind to the format
             unused_templates -- the list of templates that are bound to the template
@@ -78,11 +77,11 @@ class FormatView(viewsets.ViewSet):
         assignment_id = pk
 
         try:
-            assignment_details, templates, presets, unused_templates, max_points, removed_presets, removed_templates \
+            assignment_details, templates, presets, unused_templates, removed_presets, removed_templates \
                 = utils.required_params(request.data, "assignment_details", "templates", "presets",
-                                        "unused_templates", "max_points", "removed_presets", "removed_templates")
+                                        "unused_templates", "removed_presets", "removed_templates")
         except KeyError:
-            return response.keyerror("assignment_details", "templates", "presets", "unused_templates", "max_points",
+            return response.keyerror("assignment_details", "templates", "presets", "unused_templates",
                                      "removed_presets", "removed_templates")
 
         try:
@@ -102,7 +101,6 @@ class FormatView(viewsets.ViewSet):
 
         serializer.save()
 
-        format.max_points = max_points
         format.save()
         template_map = {}
         utils.update_presets(assignment, presets, template_map)
@@ -119,6 +117,6 @@ class FormatView(viewsets.ViewSet):
         utils.delete_templates(format.unused_templates, removed_templates)
 
         serializer = FormatSerializer(format)
-        assignment_details = AssignmentSerializer.get_details(self, assignment)
+        assignment_details = AssignmentDetailsSerializer(assignment)
 
-        return response.success({'format': serializer.data, 'assignment_details': assignment_details})
+        return response.success({'format': serializer.data, 'assignment_details': assignment_details.data})

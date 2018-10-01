@@ -18,24 +18,27 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'name',
-                  'profile_picture', 'is_teacher', 'lti_id', 'id', 'role', 'group')
+        fields = ('username', 'first_name', 'last_name', 'name', 'profile_picture', 'is_teacher', 'lti_id', 'id',
+                  'role', 'group')
         read_only_fields = ('id', )
 
     def get_name(self, user):
         return user.first_name + ' ' + user.last_name
 
     def get_role(self, user):
-        if 'course' not in self.context:
+        if 'course' not in self.context or not self.context['course']:
             return None
 
         return permissions.get_role(user, self.context['course']).name
 
     def get_group(self, user):
-        if 'course' not in self.context:
+        if 'course' not in self.context or not self.context['course']:
+            return None
+        try:
+            group = Participation.objects.get(user=user, course=self.context['course']).group
+        except Participation.DoesNotExist:
             return None
 
-        group = Participation.objects.get(user=user, course=self.context['course']).group
         if group:
             return group.name
         else:
@@ -73,6 +76,13 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = '__all__'
+        read_only_fields = ('id', )
+
+
+class AssignmentDetailsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Assignment
+        fields = ('id', 'name', 'description', 'points_possible', 'unlock_date', 'due_date', 'lock_date')
         read_only_fields = ('id', )
 
 
@@ -149,16 +159,6 @@ class AssignmentSerializer(serializers.ModelSerializer):
             return None
         return CourseSerializer(self.context['course']).data
 
-    def get_details(self, assignment):
-        return {
-            'name': assignment.name,
-            'description': assignment.description,
-            'points_possible': assignment.points_possible,
-            'unlock_date': assignment.unlock_date,
-            'due_date': assignment.due_date,
-            'lock_date': assignment.lock_date
-        }
-
 
 class NodeSerializer(serializers.ModelSerializer):
     class Meta:
@@ -205,7 +205,7 @@ class JournalSerializer(serializers.ModelSerializer):
             'graded': utils.get_graded_count(entries),
             'published': utils.get_published_count(entries),
             'submitted': utils.get_submitted_count(entries),
-            'total_points': utils.get_max_points(journal),
+            'total_points': utils.get_points_possible(journal),
         }
 
 
@@ -216,7 +216,7 @@ class FormatSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Format
-        fields = ('id', 'grade_type', 'max_points', 'unused_templates', 'templates', 'presets')
+        fields = ('id', 'grade_type', 'unused_templates', 'templates', 'presets')
         read_only_fields = ('id', )
 
     def get_unused_templates(self, entry):

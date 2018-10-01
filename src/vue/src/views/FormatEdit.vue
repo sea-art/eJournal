@@ -6,14 +6,14 @@
 -->
 
 <template>
-    <b-row class="outer-container-edag-page" no-gutters>
-        <b-col md="12" lg="8" xl="9" class="inner-container-edag-page">
-            <b-col md="12" lg="auto" xl="4" class="left-content-edag-page">
+    <b-row class="outer-container-timeline-page" no-gutters>
+        <b-col md="12" lg="8" xl="9" class="inner-container-timeline-page">
+            <b-col md="12" lg="auto" xl="4" class="left-content-timeline-page">
                 <bread-crumb v-if="$root.lgMax()" class="main-content">&nbsp;</bread-crumb>
-                <edag @select-node="selectNode" :selected="currentNode" :nodes="nodes" :edit="true"/>
+                <timeline @select-node="selectNode" @add-node="addNode" :selected="currentNode" :nodes="nodes" :edit="true"/>
             </b-col>
 
-            <b-col md="12" lg="auto" xl="8" class="main-content-edag-page">
+            <b-col md="12" lg="auto" xl="8" class="main-content-timeline-page">
                 <bread-crumb v-if="$root.xl()">&nbsp;</bread-crumb>
                 <!--
                     Fill in the template using the corresponding data
@@ -42,11 +42,6 @@
 
                 <main-card v-else class="no-hover" :line1="'No presets in format'" :class="'grey-border'"/>
 
-                <b-button :class="{ 'input-disabled' : saveRequestInFlight }" class="add-button grey-background full-width mb-4" @click="addNode">
-                    <icon name="plus"/>
-                    Add New Preset to Format
-                </b-button>
-
                 <b-modal
                     ref="templateModal"
                     size="lg"
@@ -57,36 +52,38 @@
             </b-col>
         </b-col>
 
-        <b-col md="12" lg="4" xl="3" class="right-content-edag-page right-content">
-            <h3>Format</h3>
-            <div :class="{ 'input-disabled' : saveRequestInFlight }">
-                <b-card class="no-hover settings-card mb-4" :class="$root.getBorderClass($route.params.cID)">
-                    <div class="point-maximum multi-form">
-                        <b>Point Maximum</b>
-                        <input class="theme-input" v-model="max_points" placeholder="Points" type="number">
-                    </div>
-                    <b-button @click.prevent.stop="saveFormat" class="add-button full-width">
-                        <icon name="save"/>
-                        Save Format
-                    </b-button>
-                </b-card>
-            </div>
+        <b-col md="12" lg="4" xl="3" class="right-content-timeline-page right-content">
             <h3>Entry Templates</h3>
             <div :class="{ 'input-disabled' : saveRequestInFlight }">
-                <available-template-card v-for="template in templatePool" :key="template.t.id" @click.native="showTemplateModal(template)" :template="template" @delete-template="deleteTemplate"/>
+                <available-template-card
+                    v-for="template in templatePool"
+                    :key="template.t.id"
+                    @click.native="showTemplateModal(template)"
+                    :template="template"
+                    @delete-template="deleteTemplate"/>
                 <b-button class="add-button grey-background full-width multi-form" @click="showTemplateModal(newTemplate())">
                     <icon name="plus"/>
                     Create New Template
                 </b-button>
             </div>
         </b-col>
+
+        <transition name="fade">
+            <b-button
+                v-if="isChanged"
+                @click.prevent.stop="saveFormat"
+                :class="{ 'input-disabled' : saveRequestInFlight }"
+                class="add-button fab">
+                <icon name="save" scale="1.5"/>
+            </b-button>
+        </transition>
     </b-row>
 </template>
 
 <script>
 import contentColumns from '@/components/columns/ContentColumns.vue'
 import mainCard from '@/components/assets/MainCard.vue'
-import edag from '@/components/edag/Edag.vue'
+import timeline from '@/components/timeline/Timeline.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import FormatEditAssignmentDetailsCard from '@/components/format/FormatEditAssignmentDetailsCard.vue'
 import formatEditAvailableTemplateCard from '@/components/format/FormatEditAvailableTemplateCard.vue'
@@ -132,9 +129,7 @@ export default {
             wipTemplateId: -1,
 
             deletedTemplates: [],
-            deletedPresets: [],
-
-            max_points: 0
+            deletedPresets: []
         }
     },
     created () {
@@ -156,7 +151,11 @@ export default {
     },
     watch: {
         templatePool: {
-            handler: function () { this.isChanged = true },
+            handler: function () {
+                if (!this.saveRequestInFlight) {
+                    this.isChanged = true
+                }
+            },
             deep: true
         }
     },
@@ -219,10 +218,16 @@ export default {
             return new Date().toISOString().split('T')[0].slice(0, 10) + ' ' + new Date().toISOString().split('T')[1].slice(0, 5)
         },
         addNode () {
+            var deadline = this.assignmentDetails.due_date
+
+            if (!deadline) {
+                deadline = this.newDate()
+            }
+
             var newNode = {
                 'type': 'p',
-                'deadline': this.newDate(),
-                'target': this.max_points
+                'deadline': deadline,
+                'target': this.assignmentDetails.points_possible
             }
 
             this.nodes.push(newNode)
@@ -255,9 +260,9 @@ export default {
                 this.$toasted.error('Assignment name is missing. Please check the format and try again.')
             }
 
-            if (!missingPointMax && isNaN(parseInt(this.max_points))) {
+            if (!missingPointMax && isNaN(parseInt(this.assignmentDetails.points_possible))) {
                 missingPointMax = true
-                this.$toasted.error('Point maximum is missing. Please check the format and try again.')
+                this.$toasted.error('Points possible is missing. Please check the format and try again.')
             }
 
             for (var node of this.nodes) {
@@ -301,7 +306,6 @@ export default {
             formatAPI.update(this.aID, {
                 'assignment_details': this.assignmentDetails,
                 'templates': this.templates,
-                'max_points': this.max_points,
                 'presets': this.presets,
                 'unused_templates': this.unusedTemplates,
                 'removed_templates': this.deletedTemplates,
@@ -326,7 +330,6 @@ export default {
             this.unusedTemplates = data.format.unused_templates
             this.deletedTemplates = []
             this.deletedPresets = []
-            this.max_points = data.format.max_points
         },
         // Utility func to translate from db format to internal
         convertFromDB () {
@@ -382,7 +385,7 @@ export default {
         'selected-node-card': formatEditSelectTemplateCard,
         'template-editor': templateEdit,
         'main-card': mainCard,
-        edag,
+        timeline,
         icon
     },
 
@@ -399,17 +402,5 @@ export default {
 </script>
 
 <style lang="sass">
-@import '~sass/partials/edag-page-layout.sass'
-.point-maximum
-    display: flex
-    align-items: center
-    b
-        flex-grow: 1
-    .theme-input
-        float: right
-        width: 4em
-    input[type=number]::-webkit-inner-spin-button,
-    input[type=number]::-webkit-outer-spin-button
-        -webkit-appearance: none
-        margin: 0
+@import '~sass/partials/timeline-page-layout.sass'
 </style>

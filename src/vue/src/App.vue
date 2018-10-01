@@ -28,8 +28,9 @@ export default {
     font-size: 1em
     -webkit-font-smoothing: antialiased
     -moz-osx-font-smoothing: grayscale
-
     padding-top: 70px
+    min-height: 100%
+
     @include lg
         height: 100%
 </style>
