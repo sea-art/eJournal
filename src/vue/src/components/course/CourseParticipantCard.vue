@@ -11,10 +11,11 @@
                 </b-col>
             </b-col>
             <b-col sm="4">
-                <div v-if="selectedRole !== 'Teacher' || numTeachers > 1">
+                <div>
                     <b-form-select v-if="$hasPermission('can_edit_course_roles')"
                                    v-model="selectedRole"
-                                   :select-size="1">
+                                   :select-size="1"
+                                   :disabled="selectedRole !== 'Teacher' || numTeachers > 1">
                         <option v-for="r in roles" :key="r.name" :value="r.name">
                             {{ r.name }}
                         </option>
@@ -30,10 +31,10 @@
                         </option>
                     </b-form-select>
                 </div>
-                <b-button v-if="$hasPermission('can_delete_course_users') &&
-                          selectedRole !== 'Teacher'"
+                <b-button v-if="$hasPermission('can_delete_course_users')"
                           @click.prevent.stop="removeFromCourse()"
-                          class="delete-button full-width">
+                          class="delete-button full-width"
+                          :disabled="selectedRole !== 'Teacher'">
                     <icon name="user-times"/>
                     Remove
                 </b-button>
