@@ -23,21 +23,21 @@
             <b-row>
                 <b-col xl="4">
                     <h2 class="field-heading">Unlock date</h2>
-                    <flat-pickr class="multi-form theme-input"
+                    <flat-pickr class="multi-form theme-input full-width"
                     v-model="assignmentDetails.unlock_date"
                     @on-change="$emit('changed')"
                     :config="$root.flatPickrTimeConfig"/>
                 </b-col>
                 <b-col xl="4">
                     <h2 class="field-heading">Due date</h2>
-                    <flat-pickr class="multi-form theme-input"
+                    <flat-pickr class="multi-form theme-input full-width"
                     v-model="assignmentDetails.due_date"
                     @on-change="$emit('changed')"
                     :config="$root.flatPickrTimeConfig"/>
                 </b-col>
                 <b-col xl="4">
                     <h2 class="field-heading">Lock date</h2>
-                    <flat-pickr class="multi-form theme-input"
+                    <flat-pickr class="multi-form theme-input full-width"
                     v-model="assignmentDetails.lock_date"
                     @on-change="$emit('changed')"
                     :config="$root.flatPickrTimeConfig"/>
