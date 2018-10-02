@@ -3,15 +3,15 @@
 .btn
     @extend .small-shadow
     position: relative
-    font-family: 'Roboto Condensed', sans-serif
-    font-size: 1.2em
-    background-color: white
-    border: none
-    display: inline-flex
-    justify-content: center
-    align-items: center
-    color: $theme-dark-blue
     transition: all 0.6s cubic-bezier(.25,.8,.25,1) !important
+    font-family: 'Roboto Condensed', sans-serif
+    color: $theme-dark-blue
+    background-color: white
+    justify-content: center
+    display: inline-flex
+    align-items: center
+    font-size: 1.2em
+    border: none
     svg
         transition: all 0.6s cubic-bezier(.25,.8,.25,1) !important
         margin: 5px
@@ -24,6 +24,17 @@
             fill: white !important
     &.no-hover:hover
         background-color: white
+    &.fab
+        @extend .large-shadow
+        background-color: $theme-blue
+        border-radius: 50% !important
+        position: fixed
+        bottom: 30px
+        right: 30px
+        width: 60px
+        height: 60px
+        svg
+            fill: white !important
 
 .button-top-border
     border-top: 1px solid $theme-dark-grey
@@ -42,19 +53,19 @@
 .add-button
     svg
         fill: $theme-green !important
-    &:hover:not(.no-hover), &.active
+    &:hover:not(.no-hover), &.active, &.fab
         background-color: $theme-green !important
 
 .delete-button
     svg
         fill: $theme-red !important
-    &:hover:not(.no-hover), &.active
+    &:hover:not(.no-hover), &.active, &.fab
         background-color: $theme-red !important
 
 .change-button
     svg
         fill: $theme-orange !important
-    &:hover:not(.no-hover), &.active
+    &:hover:not(.no-hover), &.active, &.fab
         background-color: $theme-orange !important
 
 .preset-type-button

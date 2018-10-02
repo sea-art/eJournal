@@ -93,7 +93,7 @@ def make_course_group(name, course, lti_id=None):
 
 
 def make_assignment(name, description, author=None, format=None, lti_id=None,
-                    points_possible=None, unlock_date=None, due_date=None,
+                    points_possible=10, unlock_date=None, due_date=None,
                     lock_date=None, course_ids=None, courses=None):
     """Make a new assignment.
 
@@ -108,12 +108,10 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
     On success, returns a new assignment.
     """
     if format is None:
-        # TODO: Use deadline from assignment - currently insane defaults
-        if courses:
-            deadline = courses[0].enddate
+        if due_date:
+            deadline = due_date
         else:
             deadline = timezone.now()
-        # END TODO
 
         format = make_default_format(deadline, points_possible)
     assign = Assignment(name=name, description=description, author=author, format=format)
@@ -151,7 +149,7 @@ def make_lti_ids(lti_id, for_model, course=None, assignment=None):
     return lti_id_couple
 
 
-def make_format(templates=[], max_points=10):
+def make_format(templates=[]):
     """Make a format.
 
     Arguments:
@@ -160,22 +158,19 @@ def make_format(templates=[], max_points=10):
 
     Returns the format
     """
-    format = Format(max_points=max_points)
+    format = Format()
     format.save()
     format.available_templates.add(*templates)
     return format
 
 
-def make_default_format(due_date, points_possible):
+def make_default_format(due_date, points_possible=10):
     template = make_entry_template("Default Template")
     make_field(template, "Submission", 0, Field.RICH_TEXT, True)
 
-    if not points_possible:
-        format = make_format([template])
-    else:
-        format = make_format([template], points_possible)
+    format = make_format([template])
 
-    make_progress_node(format, due_date, format.max_points)
+    make_progress_node(format, due_date, points_possible)
     return format
 
 
@@ -273,13 +268,13 @@ def make_content(entry, data, field=None):
     return content
 
 
-def make_role_default_no_perms(name, course, can_add_course=False,
-                               can_edit_course_details=False, can_delete_course=False, can_edit_course_roles=False,
-                               can_view_course_users=False, can_add_course_users=False, can_delete_course_users=False,
-                               can_add_course_user_group=False, can_delete_course_user_group=False,
-                               can_edit_course_user_group=False, can_add_assignment=False, can_delete_assignment=False,
-                               can_edit_assignment=False, can_view_assignment_journals=False, can_grade=False,
-                               can_publish_grades=False, can_have_journal=False, can_comment=False):
+def make_role_default_no_perms(name, course, can_edit_course_details=False, can_delete_course=False,
+                               can_edit_course_roles=False, can_view_course_users=False, can_add_course_users=False,
+                               can_delete_course_users=False, can_add_course_user_group=False,
+                               can_delete_course_user_group=False, can_edit_course_user_group=False,
+                               can_add_assignment=False, can_delete_assignment=False, can_edit_assignment=False,
+                               can_view_assignment_journals=False, can_grade=False, can_publish_grades=False,
+                               can_have_journal=False, can_comment=False):
     """Make a role with all permissions set to false.
 
     Arguments:
@@ -289,8 +284,6 @@ def make_role_default_no_perms(name, course, can_add_course=False,
     role = Role(
         name=name,
         course=course,
-
-        can_add_course=can_add_course,
 
         can_edit_course_details=can_edit_course_details,
         can_delete_course=can_delete_course,
@@ -315,16 +308,15 @@ def make_role_default_no_perms(name, course, can_add_course=False,
     return role
 
 
-def make_role_default_all_perms(name, course, can_add_course=True,
-                                can_edit_course_details=True, can_delete_course=True, can_edit_course_roles=True,
-                                can_view_course_users=True, can_add_course_users=True, can_delete_course_users=True,
-                                can_add_course_user_group=True, can_delete_course_user_group=True,
-                                can_edit_course_user_group=True, can_add_assignment=True, can_delete_assignment=True,
-                                can_edit_assignment=True, can_view_assignment_journals=True, can_grade=True,
-                                can_publish_grades=True, can_have_journal=True, can_comment=True):
+def make_role_default_all_perms(name, course, can_edit_course_details=True, can_delete_course=True,
+                                can_edit_course_roles=True, can_view_course_users=True, can_add_course_users=True,
+                                can_delete_course_users=True, can_add_course_user_group=True,
+                                can_delete_course_user_group=True, can_edit_course_user_group=True,
+                                can_add_assignment=True, can_delete_assignment=True, can_edit_assignment=True,
+                                can_view_assignment_journals=True, can_grade=True, can_publish_grades=True,
+                                can_have_journal=True, can_comment=True):
     """Makes a role with all permissions set to true."""
-    return make_role_default_no_perms(name, course, can_add_course,
-                                      can_edit_course_details, can_delete_course, can_edit_course_roles,
+    return make_role_default_no_perms(name, course, can_edit_course_details, can_delete_course, can_edit_course_roles,
                                       can_view_course_users, can_add_course_users, can_delete_course_users,
                                       can_add_course_user_group, can_delete_course_user_group,
                                       can_edit_course_user_group, can_add_assignment, can_delete_assignment,

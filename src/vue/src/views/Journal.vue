@@ -40,5 +40,5 @@ export default {
 </script>
 
 <style lang="sass">
-@import '~sass/partials/edag-page-layout.sass'
+@import '~sass/partials/timeline-page-layout.sass'
 </style>
