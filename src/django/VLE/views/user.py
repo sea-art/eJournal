@@ -108,7 +108,7 @@ class UserView(viewsets.ViewSet):
         """
         if 'jwt_params' in request.data and request.data['jwt_params'] != '':
             try:
-                lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
+                lti_params = jwt.decode(request.data['jwt_params'], settings.SECRET_KEY, algorithms=['HS256'])
             except jwt.exceptions.ExpiredSignatureError:
                 return response.forbidden(
                     description='Your session has expired. Please go back to your learning environment and try again.')
@@ -190,7 +190,7 @@ class UserView(viewsets.ViewSet):
 
         if 'jwt_params' in request.data and request.data['jwt_params'] != '':
             try:
-                lti_params = jwt.decode(request.data['jwt_params'], settings.LTI_SECRET, algorithms=['HS256'])
+                lti_params = jwt.decode(request.data['jwt_params'], settings.SECRET_KEY, algorithms=['HS256'])
             except jwt.exceptions.ExpiredSignatureError:
                 return response.forbidden(
                     description='The canvas link has expired, 15 minutes have passed. Please retry from canvas.')
