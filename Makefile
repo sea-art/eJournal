@@ -18,10 +18,13 @@ test: test-front test-back
 #
 
 fill-db: migrate-back
-	bash -c 'source ./venv/bin/activate && cd ./src/django && echo "delete from sqlite_sequence where name like \"VLE_%\";" | sqlite3 VLE.db && python3.6 manage.py flush --no-input && python3.6 manage.py preset_db && deactivate'
+	bash -c 'source ./venv/bin/activate && cd ./src/django && echo "delete from sqlite_sequence where name like \"VLE_%\";" | sqlite3 VLE.db && python manage.py flush --no-input && python manage.py preset_db && deactivate'
 
 migrate-back:
-	bash -c "source ./venv/bin/activate && cd ./src/django && python3.6 manage.py makemigrations VLE && python3.6 manage.py migrate && deactivate"
+	bash -c "source ./venv/bin/activate && cd ./src/django && python manage.py makemigrations VLE && python manage.py migrate && deactivate"
+
+migrate-merge:
+	bash -c "source ./venv/bin/activate && cd ./src/django && python manage.py makemigrations --merge"
 
 #
 # DEVELOP COMMANDS
@@ -31,7 +34,7 @@ run-front:
 	bash -c "source ./venv/bin/activate && npm run dev --prefix ./src/vue && deactivate"
 
 run-back:
-	bash -c "source ./venv/bin/activate && python3.6 ./src/django/manage.py runserver && deactivate"
+	bash -c "source ./venv/bin/activate && python ./src/django/manage.py runserver && deactivate"
 
 setup:
 	@echo "This operation will clean old files, press enter to continue (ctrl+c to cancel)"
@@ -40,7 +43,7 @@ setup:
 setup-no-input:
 	@make clean
 	# Install apt dependencies and ppa's.
-	(sudo apt-cache show python3.6 | grep "Package: python3.6") || \
+	(sudo apt-cache show python | grep "Package: python3.6") || \
 	(sudo add-apt-repository ppa:deadsnakes/ppa -y; sudo apt update) || echo "0"
 	sudo apt install npm nodejs git-flow python3.6 python3-pip pep8 sqlite3 -y
 	sudo pip3 install virtualenv
@@ -94,7 +97,7 @@ clean:
 #
 
 superuser:
-	bash -c 'source ./venv/bin/activate && python3.6 src/django/manage.py createsuperuser && deactivate'
+	bash -c 'source ./venv/bin/activate && python src/django/manage.py createsuperuser && deactivate'
 
 update-dependencies:
 	npm update --dev --prefix ./src/vue
