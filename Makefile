@@ -75,7 +75,7 @@ ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 install:
 	bash -c 'bash $(ROOT_DIR)/scripts/install.sh $(ROOT_DIR)'
 deploy:
-	bash -c 'bash $(ROOT_DIR)/scripts/build.sh $(ROOT_DIR)'
+	bash -c 'bash $(ROOT_DIR)/scripts/deploy.sh $(ROOT_DIR)'
 serve:
 	bash -c 'bash $(ROOT_DIR)/scripts/serve.sh $(ROOT_DIR)'
 
