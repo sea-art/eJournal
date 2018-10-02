@@ -43,7 +43,7 @@ setup:
 setup-no-input:
 	@make clean
 	# Install apt dependencies and ppa's.
-	(sudo apt-cache show python | grep "Package: python3.6") || \
+	(sudo apt-cache show python3.6 | grep "Package: python3.6") || \
 	(sudo add-apt-repository ppa:deadsnakes/ppa -y; sudo apt update) || echo "0"
 	sudo apt install npm nodejs git-flow python3.6 python3-pip pep8 sqlite3 -y
 	sudo pip3 install virtualenv
