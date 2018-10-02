@@ -145,8 +145,8 @@ def lti_launch(request):
 
         refresh = TokenObtainPairSerializer.get_token(user)
         query = QueryDict.fromkeys(['lti_params'], lti_params, mutable=True)
-        query['jwt_access'] = refresh.access_token
-        query['jwt_refresh'] = refresh
+        query['jwt_access'] = str(refresh.access_token)
+        query['jwt_refresh'] = str(refresh)
         query['state'] = LOGGED_IN
         return redirect(lti.create_lti_query_link(query))
 
