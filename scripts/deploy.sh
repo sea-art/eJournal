@@ -18,8 +18,8 @@ sudo sed -i "s@{{DIR}}@${TARGET}/django@g" ${TARGET}/django/VLE/wsgi.py
 
 # Email variables
 sudo sed -i "s@{{SMTP_HOST}}@${SMTP_HOST}@g" ${TARGET}/django/VLE/settings/production.py
-sudo sed -i "s@{{SMTP_LOGIN_MAIL}}@${SMTP_LOGIN_MAIL}@g" ${TARGET}/django/VLE/settings/production.py
-sudo sed -i "s@{{SMTP_LOGIN_PASSWORD}}@${SMTP_LOGIN_PASSWORD}@g" ${TARGET}/django/VLE/settings/production.py
+sudo sed -i "s~{{SMTP_LOGIN_MAIL}}~${SMTP_LOGIN_MAIL}~g" ${TARGET}/django/VLE/settings/production.py
+sudo sed -i "s~{{SMTP_LOGIN_PASSWORD}}~${SMTP_LOGIN_PASSWORD}~g" ${TARGET}/django/VLE/settings/production.py
 sudo sed -i "s@{{SMTP_PORT}}@${SMTP_PORT}@g" ${TARGET}/django/VLE/settings/production.py
 
 # DB variables
