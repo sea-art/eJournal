@@ -15,7 +15,7 @@
                     <b-form-select v-if="$hasPermission('can_edit_course_roles')"
                                    v-model="selectedRole"
                                    :select-size="1"
-                                   :disabled="selectedRole !== 'Teacher' || numTeachers > 1">
+                                   :disabled="numTeachers === 1 && selectedRole === 'Teacher'">
                         <option v-for="r in roles" :key="r.name" :value="r.name">
                             {{ r.name }}
                         </option>
@@ -34,7 +34,7 @@
                 <b-button v-if="$hasPermission('can_delete_course_users')"
                           @click.prevent.stop="removeFromCourse()"
                           class="delete-button full-width"
-                          :disabled="selectedRole !== 'Teacher'">
+                          :disabled="selectedRole === 'Teacher'">
                     <icon name="user-times"/>
                     Remove
                 </b-button>
