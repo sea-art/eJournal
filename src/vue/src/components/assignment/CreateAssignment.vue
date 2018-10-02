@@ -23,19 +23,19 @@
             <b-row>
                 <b-col xl="4">
                     <h2 class="field-heading">Unlock date</h2>
-                    <flat-pickr class="multi-form theme-input"
+                    <flat-pickr class="multi-form theme-input full-width"
                     v-model="form.unlockDate"
                     :config="$root.flatPickrTimeConfig"/>
                 </b-col>
                 <b-col xl="4">
                     <h2 class="field-heading">Due date</h2>
-                    <flat-pickr class="multi-form theme-input"
+                    <flat-pickr class="multi-form theme-input full-width"
                     v-model="form.dueDate"
                     :config="$root.flatPickrTimeConfig"/>
                 </b-col>
                 <b-col xl="4">
                     <h2 class="field-heading">Lock date</h2>
-                    <flat-pickr class="multi-form theme-input"
+                    <flat-pickr class="multi-form theme-input full-width"
                     v-model="form.lockDate"
                     :config="$root.flatPickrTimeConfig"/>
                 </b-col>

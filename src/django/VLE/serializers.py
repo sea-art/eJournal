@@ -29,7 +29,12 @@ class UserSerializer(serializers.ModelSerializer):
         if 'course' not in self.context or not self.context['course']:
             return None
 
-        return permissions.get_role(user, self.context['course']).name
+        role = permissions.get_role(user, self.context['course'])
+
+        if role:
+            return role.name
+        else:
+            return None
 
     def get_group(self, user):
         if 'course' not in self.context or not self.context['course']:
@@ -141,11 +146,12 @@ class AssignmentSerializer(serializers.ModelSerializer):
         """Retrieves the journals of an assignment of the users who have the permission
         to own a journal.
         """
-        if 'journals' in self.context and self.context['journals']:
-            users = assignment.courses.filter(participation__role__can_have_journal=True).values('participation__user')
+        if 'journals' in self.context and 'course' in self.context \
+           and self.context['journals'] and self.context['course']:
+            course = self.context['course']
+            users = course.participation_set.filter(role__can_have_journal=True).values('user')
             journals = Journal.objects.filter(assignment=assignment, user__in=users)
             return JournalSerializer(journals, many=True, context=self.context).data
-
         else:
             return None
 
