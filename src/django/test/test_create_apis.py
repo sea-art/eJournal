@@ -4,7 +4,7 @@ test_apis.py.
 Test API calls.
 """
 from django.test import TestCase
-from VLE.models import Journal, Entry, Content, Lti_ids
+from VLE.models import Journal, Entry, Content, Lti_ids, Group
 
 import VLE.factory as factory
 import test.test_utils as test
@@ -59,6 +59,18 @@ class CreateApiTests(TestCase):
 
         test.api_post_call(self, '/journals/', params=create_journal_dict, login=login, status=201)
         self.assertTrue(Journal.objects.filter(user=self.user).exists())
+
+    def test_create_group(self):
+        """test create group."""
+        login = test.logging_in(self, self.username, self.password)
+        course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
+        create_group_dict = {'name': 'TestGroup', 'course_id': course.pk}
+
+        role = factory.make_role_default_no_perms("teacher", course, can_add_course_user_group=True)
+        factory.make_participation(user=self.user, course=course, role=role)
+
+        test.api_post_call(self, '/groups/', params=create_group_dict, login=login, status=201)
+        self.assertTrue(Group.objects.filter(name='TestGroup', course=course).exists())
 
     def test_create_entry(self):
         """"Test create entry."""
