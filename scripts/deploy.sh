@@ -12,7 +12,7 @@ source settings/variables.conf
 
 # Sync django to the target directory
 sudo rsync -a --exclude='VLE.db' --exclude='settings/development.py' --exclude='test/' --exclude="__pycache__" ./src/django ${TARGET}
-sudo rsync -a --exclude='example_current_lti_params' ./lti ${TARGET}
+sudo rsync -a --exclude='example_current_lti_params' --exclude='lti_generator..py' --exclude='lti_setup.xml' ./lti ${TARGET}
 # Set variables in the target directory
 sudo sed -i "s@{{DIR}}@${TARGET}/django@g" ${TARGET}/django/VLE/wsgi.py
 
@@ -41,6 +41,12 @@ sudo sed -i "s@development@production@g" ${TARGET}/django/manage.py
 sudo sed -i "s@'{{USER_MAX_FILE_SIZE_BYTES}}'@${USER_MAX_FILE_SIZE_BYTES}@g" ${TARGET}/django/VLE/settings/production.py
 sudo sed -i "s@'{{USER_MAX_TOTAL_STORAGE_BYTES}}'@${USER_MAX_TOTAL_STORAGE_BYTES}@g" ${TARGET}/django/VLE/settings/production.py
 sudo sed -i "s@'{{USER_MAX_EMAIL_ATTACHMENT_BYTES}}'@${USER_MAX_EMAIL_ATTACHMENT_BYTES}@g" ${TARGET}/django/VLE/settings/production.py
+
+# LTI launch xml
+sudo rsync -a ./lti/lti_setup.xml ${TARGET}/static/.
+sudo sed -i "s@{{URL}}@${TYPE}://${SERVERNAME}${HOOKPOINT}@g" ${TARGET}/static/lti_setup.xml
+sudo sed -i "s@{{API_URL}}@${TYPE}://${APIURL}${HOOKPOINT}@g" ${TARGET}/static/lti_setup.xml
+
 
 # Migrate the database
 source ${TARGET}/venv/bin/activate
