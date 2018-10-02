@@ -237,10 +237,6 @@ export default {
                 return true
             }
 
-            function studentFilter (assignment) {
-                return assignment.student.can_have_journal_permission
-            }
-
             /* Filter list based on search input. */
             if (this.selectedSortOption === 'sortFullName') {
                 store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareFullName))
@@ -252,7 +248,7 @@ export default {
 
             this.updateQuery()
 
-            return store.state.filteredJournals.filter(studentFilter).filter(groupFilter).slice()
+            return store.state.filteredJournals.filter(groupFilter).slice()
         }
     }
 }

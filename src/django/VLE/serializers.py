@@ -14,13 +14,12 @@ import statistics as st
 class UserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
-    can_have_journal_permission = serializers.SerializerMethodField()
     group = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ('username', 'first_name', 'last_name', 'name', 'profile_picture', 'is_teacher', 'lti_id', 'id',
-                  'role', 'can_have_journal_permission', 'group')
+                  'role', 'group')
         read_only_fields = ('id', )
 
     def get_name(self, user):
@@ -31,12 +30,6 @@ class UserSerializer(serializers.ModelSerializer):
             return None
 
         return permissions.get_role(user, self.context['course']).name
-
-    def get_can_have_journal_permission(self, user):
-        if 'course' not in self.context or not self.context['course']:
-            return None
-
-        return permissions.get_role(user, self.context['course']).can_have_journal
 
     def get_group(self, user):
         if 'course' not in self.context or not self.context['course']:
@@ -145,11 +138,14 @@ class AssignmentSerializer(serializers.ModelSerializer):
             return None
 
     def get_journals(self, assignment):
+        """Retrieves the journals of an assignment of the users who have the permission
+        to own a journal.
+        """
         if 'journals' in self.context and self.context['journals']:
-            return JournalSerializer(
-                Journal.objects.filter(assignment=assignment),
-                many=True,
-                context=self.context).data
+            users = assignment.courses.filter(participation__role__can_have_journal=True).values('participation__user')
+            journals = Journal.objects.filter(assignment=assignment, user__in=users)
+            return JournalSerializer(journals, many=True, context=self.context).data
+
         else:
             return None
 
