@@ -40,6 +40,7 @@ sudo sed -i "s@development@production@g" ${TARGET}/django/manage.py
 # File variables
 sudo sed -i "s@'{{USER_MAX_FILE_SIZE_BYTES}}'@${USER_MAX_FILE_SIZE_BYTES}@g" ${TARGET}/django/VLE/settings/production.py
 sudo sed -i "s@'{{USER_MAX_TOTAL_STORAGE_BYTES}}'@${USER_MAX_TOTAL_STORAGE_BYTES}@g" ${TARGET}/django/VLE/settings/production.py
+sudo sed -i "s@'{{USER_MAX_EMAIL_ATTACHMENT_BYTES}}'@${USER_MAX_EMAIL_ATTACHMENT_BYTES}@g" ${TARGET}/django/VLE/settings/production.py
 
 # Migrate the database
 source ${TARGET}/venv/bin/activate
