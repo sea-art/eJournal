@@ -37,7 +37,7 @@ def get_lti_params_from_jwt(request, jwt_params):
 
     user = request.user
     try:
-        lti_params = jwt.decode(jwt_params, settings.LTI_SECRET, algorithms=['HS256'])
+        lti_params = jwt.decode(jwt_params, settings.SECRET_KEY, algorithms=['HS256'])
     except jwt.exceptions.ExpiredSignatureError:
         return response.forbidden(
             description='The canvas link has expired, 15 minutes have passed. Please retry from canvas.')
@@ -122,7 +122,7 @@ def lti_launch(request):
         user = lti.check_user_lti(params, roles)
 
         params['exp'] = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
-        lti_params = jwt.encode(params, secret, algorithm='HS256').decode('utf-8')
+        lti_params = jwt.encode(params, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
 
         if user is None:
             query = QueryDict(mutable=True)
@@ -145,8 +145,8 @@ def lti_launch(request):
 
         refresh = TokenObtainPairSerializer.get_token(user)
         query = QueryDict.fromkeys(['lti_params'], lti_params, mutable=True)
-        query['jwt_access'] = refresh.access_token
-        query['jwt_refresh'] = refresh
+        query['jwt_access'] = str(refresh.access_token)
+        query['jwt_refresh'] = str(refresh)
         query['state'] = LOGGED_IN
         return redirect(lti.create_lti_query_link(query))
 
