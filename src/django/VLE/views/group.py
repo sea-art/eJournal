@@ -157,6 +157,7 @@ class GroupView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
+            group_name -- name of the course
         pk -- course ID
 
         Returns:

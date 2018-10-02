@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from VLE.models import Course, Assignment, Role, Group
+from VLE.models import Course, Assignment, Role
 
 import VLE.factory as factory
 import VLE.serializers as serialize
@@ -42,7 +42,7 @@ class DeleteApiTests(TestCase):
         factory.make_participation(lars, course, role=role)
 
         test.api_del_call(self,
-                          '/participations/' + course.pk + '/',
+                          '/participations/' + str(course.pk) + '/',
                           {'user_id': rein.user_role.pk},
                           login)
 
@@ -97,8 +97,7 @@ class DeleteApiTests(TestCase):
         factory.make_course_group('group2', course)
 
         test.api_del_call(self,
-                          '/participations/' + course.pk + '/',
-                          {'group_name': 'group1'},
+                          '/groups/' + str(course.pk) + '/?group_name=group1',
                           login)
 
     def test_delete_course_role(self):
