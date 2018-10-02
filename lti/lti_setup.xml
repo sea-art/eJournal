@@ -10,8 +10,8 @@
     http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd">
     <blti:title>eJournal</blti:title>
     <blti:description>Incremental Long-Term Assignments for Canvas VLE</blti:description>
-    <blti:icon>{{URL}}/static/favicon/favicon-16x16.png</blti:icon>
-    <blti:launch_url>{{API_URL}}/lti/launch</blti:launch_url>
+    <blti:icon>{{URL}}static/favicon/favicon-16x16.png</blti:icon>
+    <blti:launch_url>{{API_URL}}lti/launch</blti:launch_url>
       <blti:custom>
         <lticm:property name="user_full_name">$Person.name.full</lticm:property>
         <lticm:property name="username">$User.username</lticm:property>
