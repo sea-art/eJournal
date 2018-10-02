@@ -12,16 +12,6 @@
             </b-col>
             <b-col sm="4">
                 <div>
-                    <b-form-select v-if="$hasPermission('can_edit_course_roles')"
-                                   v-model="selectedRole"
-                                   :select-size="1"
-                                   :disabled="numTeachers === 1 && selectedRole === 'Teacher'">
-                        <option v-for="r in roles" :key="r.name" :value="r.name">
-                            {{ r.name }}
-                        </option>
-                    </b-form-select>
-                </div>
-                <div>
                     <b-form-select v-if="$hasPermission('can_edit_course_user_group')"
                                    v-model="selectedGroup"
                                    :select-size="1">
@@ -31,13 +21,21 @@
                         </option>
                     </b-form-select>
                 </div>
+                <div :class="{ 'input-disabled': numTeachers === 1 && selectedRole === 'Teacher'}">
+                    <b-form-select v-if="$hasPermission('can_edit_course_roles')"
+                                   v-model="selectedRole"
+                                   :select-size="1">
+                        <option v-for="r in roles" :key="r.name" :value="r.name">
+                            {{ r.name }}
+                        </option>
+                    </b-form-select>
                 <b-button v-if="$hasPermission('can_delete_course_users')"
                           @click.prevent.stop="removeFromCourse()"
-                          class="delete-button full-width"
-                          :disabled="selectedRole === 'Teacher'">
+                          class="delete-button full-width">
                     <icon name="user-times"/>
                     Remove
                 </b-button>
+                </div>
             </b-col>
         </b-row>
     </b-card>
