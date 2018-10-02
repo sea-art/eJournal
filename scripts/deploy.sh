@@ -12,7 +12,7 @@ source settings/variables.conf
 
 # Sync django to the target directory
 sudo rsync -a --exclude='VLE.db' --exclude='settings/development.py' --exclude='test/' --exclude="__pycache__" ./src/django ${TARGET}
-sudo rsync -a --exclude='example_current_lti_params' --exclude='lti_generator..py' --exclude='lti_setup.xml' ./lti ${TARGET}
+sudo rsync -a --exclude='example_current_lti_params' --exclude='lti_generator.py' --exclude='lti_setup.xml' ./lti ${TARGET}
 # Set variables in the target directory
 sudo sed -i "s@{{DIR}}@${TARGET}/django@g" ${TARGET}/django/VLE/wsgi.py
 
