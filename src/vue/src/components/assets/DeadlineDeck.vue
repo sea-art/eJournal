@@ -40,7 +40,7 @@ export default {
                 }
             }
 
-            if (this.$hasPermission('can_view_assignment_journals', 'course', String(cID))) {
+            if (this.$hasPermission('can_view_assignment_journals', 'assignment', String(aID))) {
                 route.name = 'Assignment'
                 return route
             }

@@ -110,7 +110,7 @@ export default {
     created () {
         // TODO Should be moved to the breadcrumb, ensuring there is no more natural flow left that can get you to this
         // page without manipulating the url manually. If someone does this, simply let the error be thrown (no checks required)
-        if (!this.$hasPermission('can_view_assignment_journals')) {
+        if (!this.$hasPermission('can_view_assignment_journals', 'assignment', String(this.aID))) {
             if (this.$root.previousPage) {
                 this.$router.push({ name: this.$root.previousPage.name, params: this.$root.previousPage.params })
             } else {
@@ -127,11 +127,13 @@ export default {
                 this.$toasted.error(error.response.data.description)
             })
 
-        groupAPI.getAllFromCourse(this.cID)
-            .then(groups => {
-                this.groups = groups
-            })
-            .catch(error => { this.$toasted.error(error.response.data.description) })
+        if (this.$hasPermission('can_view_course_users')) {
+            groupAPI.getAllFromCourse(this.cID)
+                .then(groups => {
+                    this.groups = groups
+                })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
+        }
 
         participationAPI.get(this.cID)
             .then(participant => {
