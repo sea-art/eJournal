@@ -70,7 +70,7 @@ class ParticipationView(viewsets.ViewSet):
         try:
             course = Course.objects.get(pk=pk)
             participation = Participation.objects.get(user=request.user, course=course)
-        except (Participation.DoesNotExist, Course.DoesNotExist, User.DoesNotExist):
+        except (Participation.DoesNotExist, Course.DoesNotExist):
             return response.not_found('Participation or Course does not exist.')
 
         if not permissions.is_user_in_course(request.user, course):

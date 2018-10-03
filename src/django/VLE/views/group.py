@@ -52,7 +52,7 @@ class GroupView(viewsets.ViewSet):
                 role.can_edit_course_user_group or
                 role.can_add_course_user_group or
                 role.can_delete_course_user_group):
-            return response.forbidden('You are not allowed to manage the user groups of this course.')
+            return response.forbidden('You are not allowed to view or manage the user groups of this course.')
 
         queryset = Group.objects.filter(course=course)
         serializer = self.serializer_class(queryset, many=True, context={'user': request.user, 'course': course})
