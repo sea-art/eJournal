@@ -7,7 +7,7 @@
                 <assignment-card :line1="a.name" :lti="a.lti_couples > 0">
                     <b-button v-if="$hasPermission('can_delete_assignment')" @click.prevent.stop="deleteAssignment(a)" class="delete-button float-right">
                         <icon name="trash"/>
-                        {{ a.courses.length > 1 ? "Remove" : "Delete" }}
+                        Delete
                     </b-button>
                 </assignment-card>
             </b-link>
