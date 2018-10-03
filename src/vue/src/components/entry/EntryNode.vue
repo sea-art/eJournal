@@ -56,8 +56,6 @@
                 :displayMode="true"
                 :authorUID="$parent.journal.student.id"
             />
-
-
         </b-card>
 
         <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published"/>
