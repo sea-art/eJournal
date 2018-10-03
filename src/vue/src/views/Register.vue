@@ -42,6 +42,7 @@ export default {
         verifyEmail () {
             userAPI.verifyEmail(this.emailVerificationToken)
                 .then(response => {
+                    this.$store.commit('user/EMAIL_VERIFIED')
                     this.$toasted.success(response.data.description)
                     this.$router.push({ name: 'Home' })
                 })
