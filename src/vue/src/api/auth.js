@@ -1,7 +1,7 @@
 import connection from '@/api/connection'
 import statuses from '@/utils/constants/status_codes.js'
 import router from '@/router'
-import store from '@/store'
+import store from '@/Store.vue'
 
 const errorsToRedirect = new Set([
     statuses.FORBIDDEN,
@@ -79,18 +79,12 @@ export default {
             for (var key in data) { url += key + '=' + encodeURIComponent(data[key]) + '&' }
             url = url.slice(0, -1)
         }
-        return connection.conn.get(url)
-            .catch(error => store.dispatch('user/validateToken', error)
-                .then(_ => connection.conn.get(url)))
-            .catch(error => handleError(error, noRedirect))
+        return this.validatedSend(connection.conn.get, url, data, noRedirect)
     },
     post (url, data, noRedirect = false) {
         if (url[0] !== '/') url = '/' + url
         if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
-        return connection.conn.post(url, data)
-            .catch(error => store.dispatch('user/validateToken', error)
-                .then(_ => connection.conn.post(url, data)))
-            .catch(error => handleError(error, noRedirect))
+        return this.validatedSend(connection.conn.post, url, data, noRedirect)
     },
     create (url, data, noRedirect = false) {
         return this.post(url, data, noRedirect)
@@ -98,10 +92,7 @@ export default {
     patch (url, data, noRedirect = false) {
         if (url[0] !== '/') url = '/' + url
         if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
-        return connection.conn.patch(url, data)
-            .catch(error => store.dispatch('user/validateToken', error)
-                .then(_ => connection.conn.patch(url)))
-            .catch(error => handleError(error, noRedirect))
+        return this.validatedSend(connection.conn.patch, url, data, noRedirect)
     },
     update (url, data, noRedirect = false) {
         return this.patch(url, data, noRedirect)
@@ -114,22 +105,13 @@ export default {
             for (var key in data) { url += key + '=' + encodeURIComponent(data[key]) + '&' }
             url = url.slice(0, -1)
         }
-        return connection.conn.delete(url)
-            .catch(error => store.dispatch('user/validateToken', error)
-                .then(_ => connection.conn.delete(url)))
-            .catch(error => handleError(error, noRedirect))
+        return this.validatedSend(connection.conn.delete, url, data, noRedirect)
     },
     uploadFile (url, data, noRedirect = false) {
-        return connection.connFile.post(url, data)
-            .catch(error => store.dispatch('user/validateToken', error)
-                .then(_ => connection.connFile.post(url, data)))
-            .catch(error => handleError(error, noRedirect))
+        return this.validatedSend(connection.connFile.post, url, data, noRedirect)
     },
     uploadFileEmail (url, data, noRedirect = false) {
-        return connection.connFileEmail.post(url, data)
-            .catch(error => store.dispatch('user/validateToken', error)
-                .then(_ => connection.connFileEmail.post(url, data)))
-            .catch(error => handleError(error, noRedirect))
+        return this.validatedSend(connection.connFileEmail.post, url, data, noRedirect)
     },
     downloadFile (url, data, noRedirect = false) {
         if (url[0] !== '/') url = '/' + url
@@ -143,5 +125,28 @@ export default {
             .catch(error => store.dispatch('user/validateToken', error)
                 .then(_ => connection.connFile.get(url)))
             .catch(error => handleError(error, noRedirect))
+    },
+
+    validatedSend (func, url, data, noRedirect = false) {
+        store.loadingApiRequests++
+        return func(url, data)
+            .then(resp => {
+                store.loadingApiRequests--
+                return resp
+            })
+            .catch(error => store.dispatch('user/validateToken', error)
+                .then(_ => func(url, data)
+                    .then(resp => {
+                        store.loadingApiRequests--
+                        return resp
+                    })
+                    .catch(err => {
+                        store.loadingApiRequests--
+                        return err
+                    })))
+            .catch(error => {
+                store.loadingApiRequests--
+                return handleError(error, noRedirect)
+            })
     }
 }

@@ -1,5 +1,6 @@
 <script>
 export default {
+    loadingApiRequests: 0,
     debug: false,
     state: {
         cachedMap: {},

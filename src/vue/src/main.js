@@ -91,7 +91,6 @@ new Vue({
             enableTime: true,
             time_24hr: true
         }
-
     },
     mounted () {
         this.$nextTick(function () {
