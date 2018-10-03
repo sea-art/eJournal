@@ -18,10 +18,13 @@ test: test-front test-back
 #
 
 fill-db: migrate-back
-	bash -c 'source ./venv/bin/activate && cd ./src/django && echo "delete from sqlite_sequence where name like \"VLE_%\";" | sqlite3 VLE.db && python3.6 manage.py flush --no-input && python3.6 manage.py preset_db && deactivate'
+	bash -c 'source ./venv/bin/activate && cd ./src/django && echo "delete from sqlite_sequence where name like \"VLE_%\";" | sqlite3 VLE.db && python manage.py flush --no-input && python manage.py preset_db && deactivate'
 
 migrate-back:
-	bash -c "source ./venv/bin/activate && cd ./src/django && python3.6 manage.py makemigrations VLE && python3.6 manage.py migrate && deactivate"
+	bash -c "source ./venv/bin/activate && cd ./src/django && python manage.py makemigrations VLE && python manage.py migrate && deactivate"
+
+migrate-merge:
+	bash -c "source ./venv/bin/activate && cd ./src/django && python manage.py makemigrations --merge"
 
 #
 # DEVELOP COMMANDS
@@ -31,7 +34,7 @@ run-front:
 	bash -c "source ./venv/bin/activate && npm run dev --prefix ./src/vue && deactivate"
 
 run-back:
-	bash -c "source ./venv/bin/activate && python3.6 ./src/django/manage.py runserver && deactivate"
+	bash -c "source ./venv/bin/activate && python ./src/django/manage.py runserver && deactivate"
 
 setup:
 	@echo "This operation will clean old files, press enter to continue (ctrl+c to cancel)"
@@ -72,7 +75,7 @@ ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 install:
 	bash -c 'bash $(ROOT_DIR)/scripts/install.sh $(ROOT_DIR)'
 deploy:
-	bash -c 'bash $(ROOT_DIR)/scripts/build.sh $(ROOT_DIR)'
+	bash -c 'bash $(ROOT_DIR)/scripts/deploy.sh $(ROOT_DIR)'
 serve:
 	bash -c 'bash $(ROOT_DIR)/scripts/serve.sh $(ROOT_DIR)'
 
@@ -94,7 +97,7 @@ clean:
 #
 
 superuser:
-	bash -c 'source ./venv/bin/activate && python3.6 src/django/manage.py createsuperuser && deactivate'
+	bash -c 'source ./venv/bin/activate && python src/django/manage.py createsuperuser && deactivate'
 
 update-dependencies:
 	npm update --dev --prefix ./src/vue
