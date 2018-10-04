@@ -1,8 +1,8 @@
 <template>
     <!-- Section visible if user logged in -->
     <b-navbar v-if="loggedIn" id="header" class="shadow" toggleable="md" type="dark" fixed=top>
-        <div class="spinner" id="spinner-loading-api-request" v-if="store.loadingApiRequests > 0">
-            <icon name="spinner" pulse scale="1.5"/>
+        <div class="spinner small-shadow" id="spinner-loading-api-request" v-if="store.loadingApiRequests > 0">
+            <icon name="spinner" pulse scale='1.3'/>
         </div>
         <b-navbar-brand :to="{ name: 'Home' }" class="brand-name"><span>e</span>Journal</b-navbar-brand>
 
@@ -166,15 +166,15 @@ export default {
         margin-top: 70px
 
 .spinner
-    background: $theme-light-grey
+    background: $theme-dark-grey
     position: fixed
-    padding: 5px 10px
+    height: 28px
     line-height: 24px
-    top: 10%
+    text-align: center
+    width: 45px
+    bottom: 0
     margin-top: 10px
-    left: 50%
+    left: 0
     font-size: 1.1rem!important
-    transform: translateX(-50%)
     z-index: 9000
-    box-shadow: 0 1px 3px rgba(0,0,0,.12),0 1px 2px rgba(0,0,0,.24)
 </style>
