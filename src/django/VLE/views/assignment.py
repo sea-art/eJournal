@@ -125,8 +125,7 @@ class AssignmentView(viewsets.ViewSet):
 
         for user in course.users.all():
             role = permissions.get_role(user, course_id)
-            if role.can_have_journal:
-                factory.make_journal(assignment, user)
+            factory.make_journal(assignment, user)
 
         serializer = AssignmentSerializer(assignment, context={'user': request.user, 'course': course})
         return response.created({'assignment': serializer.data})
