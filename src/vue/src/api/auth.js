@@ -113,15 +113,9 @@ export default {
         url = improveUrl(url)
         return validatedSend(connection.conn.post, url, data, noRedirect)
     },
-    create (url, data, noRedirect = false) {
-        return this.post(url, data, noRedirect)
-    },
     patch (url, data, noRedirect = false) {
         url = improveUrl(url)
         return validatedSend(connection.conn.patch, url, data, noRedirect)
-    },
-    update (url, data, noRedirect = false) {
-        return this.patch(url, data, noRedirect)
     },
     delete (url, data = null, noRedirect = false) {
         url = improveUrl(url, data)
@@ -138,5 +132,8 @@ export default {
     downloadFile (url, data, noRedirect = false) {
         url = improveUrl(url, data)
         return validatedSend(connection.connFile.get, url, null, noRedirect)
-    }
+    },
+
+    create (url, data, noRedirect = false) { return this.post(url, data, noRedirect) },
+    update (url, data, noRedirect = false) { return this.patch(url, data, noRedirect) }
 }
