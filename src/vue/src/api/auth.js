@@ -37,6 +37,40 @@ function handleError (error, noRedirect = false) {
     throw error
 }
 
+function validatedSend (func, url, data = null, noRedirect = false) {
+    store.loadingApiRequests++
+    return func(url, data)
+        .then(resp => {
+            store.loadingApiRequests--
+            return resp
+        })
+        .catch(error => store.dispatch('user/validateToken', error)
+            .then(_ => func(url, data)
+                .then(resp => {
+                    store.loadingApiRequests--
+                    return resp
+                })
+                .catch(err => {
+                    store.loadingApiRequests--
+                    return err
+                })))
+        .catch(error => {
+            store.loadingApiRequests--
+            return handleError(error, noRedirect)
+        })
+}
+
+function improveUrl (url, data = null) {
+    if (url[0] !== '/') url = '/' + url
+    if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
+    if (data) {
+        url += '?'
+        for (var key in data) { url += key + '=' + encodeURIComponent(data[key]) + '&' }
+        url = url.slice(0, -1)
+    }
+
+    return url
+}
 /*
  * Previous functions are 'private', following are 'public'.
  */
@@ -72,81 +106,37 @@ export default {
     },
 
     get (url, data = null, noRedirect = false) {
-        if (url[0] !== '/') url = '/' + url
-        if (url.slice(-1) !== '/') url += '/'
-        if (data) {
-            url += '?'
-            for (var key in data) { url += key + '=' + encodeURIComponent(data[key]) + '&' }
-            url = url.slice(0, -1)
-        }
-        return this.validatedSend(connection.conn.get, url, data, noRedirect)
+        url = improveUrl(url, data)
+        return validatedSend(connection.conn.get, url, null, noRedirect)
     },
     post (url, data, noRedirect = false) {
-        if (url[0] !== '/') url = '/' + url
-        if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
-        return this.validatedSend(connection.conn.post, url, data, noRedirect)
+        url = improveUrl(url)
+        return validatedSend(connection.conn.post, url, data, noRedirect)
     },
     create (url, data, noRedirect = false) {
         return this.post(url, data, noRedirect)
     },
     patch (url, data, noRedirect = false) {
-        if (url[0] !== '/') url = '/' + url
-        if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
-        return this.validatedSend(connection.conn.patch, url, data, noRedirect)
+        url = improveUrl(url)
+        return validatedSend(connection.conn.patch, url, data, noRedirect)
     },
     update (url, data, noRedirect = false) {
         return this.patch(url, data, noRedirect)
     },
     delete (url, data = null, noRedirect = false) {
-        if (url[0] !== '/') url = '/' + url
-        if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
-        if (data) {
-            url += '?'
-            for (var key in data) { url += key + '=' + encodeURIComponent(data[key]) + '&' }
-            url = url.slice(0, -1)
-        }
-        return this.validatedSend(connection.conn.delete, url, data, noRedirect)
+        url = improveUrl(url, data)
+        return validatedSend(connection.conn.delete, url, null, noRedirect)
     },
     uploadFile (url, data, noRedirect = false) {
-        return this.validatedSend(connection.connFile.post, url, data, noRedirect)
+        url = improveUrl(url)
+        return validatedSend(connection.connFile.post, url, data, noRedirect)
     },
     uploadFileEmail (url, data, noRedirect = false) {
-        return this.validatedSend(connection.connFileEmail.post, url, data, noRedirect)
+        url = improveUrl(url)
+        return validatedSend(connection.connFileEmail.post, url, data, noRedirect)
     },
     downloadFile (url, data, noRedirect = false) {
-        if (url[0] !== '/') url = '/' + url
-        if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
-        if (data) {
-            url += '?'
-            for (var key in data) { url += key + '=' + encodeURIComponent(data[key]) + '&' }
-            url = url.slice(0, -1)
-        }
-        return connection.connFile.get(url)
-            .catch(error => store.dispatch('user/validateToken', error)
-                .then(_ => connection.connFile.get(url)))
-            .catch(error => handleError(error, noRedirect))
-    },
-
-    validatedSend (func, url, data, noRedirect = false) {
-        store.loadingApiRequests++
-        return func(url, data)
-            .then(resp => {
-                store.loadingApiRequests--
-                return resp
-            })
-            .catch(error => store.dispatch('user/validateToken', error)
-                .then(_ => func(url, data)
-                    .then(resp => {
-                        store.loadingApiRequests--
-                        return resp
-                    })
-                    .catch(err => {
-                        store.loadingApiRequests--
-                        return err
-                    })))
-            .catch(error => {
-                store.loadingApiRequests--
-                return handleError(error, noRedirect)
-            })
+        url = improveUrl(url, data)
+        return validatedSend(connection.connFile.get, url, null, noRedirect)
     }
 }
