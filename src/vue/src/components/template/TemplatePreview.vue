@@ -52,6 +52,12 @@
                 v-else-if="field.type == 'd'"
                 class="input-disabled theme-input full-width"
             />
+            <b-form-select
+                v-else-if="field.type == 's'"
+                class="input-disabled"
+                :value="null"
+                :options="parseSelectionOptions(field.options)"
+            />
         </div>
     </b-card>
 </template>
@@ -71,6 +77,13 @@ export default {
         'text-editor': textEditor,
         'url-input': urlInput,
         icon
+    },
+    methods: {
+        parseSelectionOptions (fieldOptions) {
+            var options = fieldOptions.split(';').filter(e => e).map(x => { return { value: x.trim(), text: x.trim() } })
+            options.unshift({ value: null, text: 'Please select an option' })
+            return options
+        }
     }
 }
 </script>

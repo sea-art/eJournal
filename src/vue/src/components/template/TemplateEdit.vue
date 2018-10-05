@@ -23,8 +23,8 @@
                 <b-card v-for="field in template.field_set" :key="field.location" class="field-card">
                     <b-row align-h="between" no-gutters>
                         <b-col cols="12" sm="10" lg="11">
-                            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="field.title" placeholder="Field title" required/>
-                            <b-textarea class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="field.description" placeholder="Description" required/>
+                            <b-input class="multi-form theme-input" v-model="field.title" placeholder="Field title" required/>
+                            <b-textarea class="multi-form theme-input" v-model="field.description" placeholder="Description" required/>
                             <div class="d-flex">
                                 <b-select class="multi-form mr-2" :options="fieldTypes" v-model="field.type"></b-select>
                                 <b-button v-on:click.stop v-if="!field.required" @click="field.required = !field.required" class="optional-field-template float-right multi-form">
@@ -36,6 +36,7 @@
                                     Required
                                 </b-button>
                             </div>
+                            <b-textarea class="multi-form theme-input" v-if="fieldOptionsPlaceholder(field.type)" v-model="field.options" :placeholder="fieldOptionsPlaceholder(field.type)" required/>
                         </b-col>
                         <b-col cols="12" sm="2" lg="1" class="icon-box">
                             <div class="handle d-inline d-sm-block">
@@ -78,7 +79,8 @@ export default {
                 'f': 'File',
                 'v': 'YouTube Video',
                 'u': 'URL',
-                'd': 'Date'
+                'd': 'Date',
+                's': 'Selection'
             },
             mode: 'edit'
         }
@@ -117,6 +119,14 @@ export default {
         },
         onUpdate () {
             this.updateLocations()
+        },
+        fieldOptionsPlaceholder (type) {
+            switch (type) {
+            case 's':
+                return 'Enter selection options separated by ";"'
+            default:
+                return ''
+            }
         }
     }
 }

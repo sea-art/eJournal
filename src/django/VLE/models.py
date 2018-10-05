@@ -580,6 +580,7 @@ class Field(models.Model):
     PDF = 'p'
     URL = 'u'
     DATE = 'd'
+    SELECTION = 's'
     TYPES = (
         (TEXT, 'text'),
         (RICH_TEXT, 'rich text'),
@@ -588,7 +589,8 @@ class Field(models.Model):
         (FILE, 'file'),
         (VIDEO, 'vid'),
         (URL, 'url'),
-        (DATE, 'date')
+        (DATE, 'date'),
+        (SELECTION, 'selection')
     )
     type = models.TextField(
         max_length=4,
@@ -597,6 +599,9 @@ class Field(models.Model):
     )
     title = models.TextField()
     description = models.TextField(
+        null=True
+    )
+    options = models.TextField(
         null=True
     )
     location = models.IntegerField()
