@@ -13,8 +13,8 @@
                             </h2>
                         </b-button>
                         <hr/>
-                        If this is the first time you are here, click the button above to register a new account.
-                        This user however won't be linked to any course. Contact the teacher or connect you account with Canvas to connect to a course.
+                        Click the button above to register a new account.
+                        In the beginning you will not be linked to any course however. Contact a teacher or connect you account with Canvas to connect to a course.
                     </b-card>
                 </b-col>
                 <b-col md="6">
@@ -56,7 +56,7 @@
                         </b-button>
                         <hr/>
                         This is an open source project. This means you can also deploy it yourself to try it out.
-                        The button above will bring you to the Github repository where there are further instructions on how to deploy.
+                        The button above will bring you to the GitHub repository where there are further instructions on how to deploy.
                     </b-card>
                 </b-col>
             </b-row>
