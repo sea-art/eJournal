@@ -103,10 +103,9 @@ class ParticipationView(viewsets.ViewSet):
 
         assignments = course.assignment_set.all()
         role = permissions.get_role(user, course_id)
-        if role.can_have_journal:
-            for assignment in assignments:
-                if not Journal.objects.filter(assignment=assignment, user=user).exists():
-                    factory.make_journal(assignment, user)
+        for assignment in assignments:
+            if not Journal.objects.filter(assignment=assignment, user=user).exists():
+                factory.make_journal(assignment, user)
         return response.success(description='Succesfully added student to course.')
 
     def partial_update(self, request, pk):

@@ -60,7 +60,15 @@ class EntryView(viewsets.ViewSet):
         except (Journal.DoesNotExist, Template.DoesNotExist):
             return response.not_found('Journal or Template does not exist.')
 
-        if not journal.assignment.format.available_templates.all().filter(pk=template.pk).exists():
+        if node_id:
+            try:
+                node = Node.objects.get(pk=node_id, journal=journal)
+            except Node.DoesNotExist:
+                return response.not_found('Node does not exist.')
+
+            if not (node.preset and node.preset.forced_template == template):
+                return response.forbidden('Invalid template for preset node.')
+        elif not journal.assignment.format.available_templates.all().filter(pk=template.pk).exists():
             return response.forbidden('Entry template is not available.')
 
         if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal'):
@@ -72,11 +80,6 @@ class EntryView(viewsets.ViewSet):
 
         # If node id is passed, the entry should be attached to a pre-existing node (entrydeadline node)
         if node_id:
-            try:
-                node = Node.objects.get(pk=node_id, journal=journal)
-            except Node.DoesNotExist:
-                return response.not_found('Node does not exist.')
-
             if node.type != Node.ENTRYDEADLINE:
                 return response.bad_request('Passed node is not an EntryDeadline node.')
 
