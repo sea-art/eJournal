@@ -3,7 +3,9 @@ from django.conf import settings
 from django.core.validators import URLValidator
 from VLE.models import Field
 import VLE.utils.generic_utils as utils
+from datetime import datetime
 import re
+import json
 
 
 TEXT = 't'
@@ -13,6 +15,8 @@ FILE = 'f'
 VIDEO = 'v'
 PDF = 'p'
 URL = 'u'
+DATE = 'd'
+SELECTION = 's'
 
 
 # Base 64 image is roughly 37% larger than a plain image
@@ -67,3 +71,13 @@ def validate_entry_content(content_list):
                 url_validate(data)
             except ValidationError as e:
                 raise e
+
+        if field.type == SELECTION:
+            if data not in json.loads(field.options):
+                raise ValidationError("Selection not in options")
+
+        if field.type == DATE:
+            try:
+                datetime.strptime(data, '%Y-%m-%d')
+            except ValueError as e:
+                raise ValidationError(str(e))
