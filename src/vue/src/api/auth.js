@@ -42,17 +42,23 @@ function validatedSend (func, url, data = null, noRedirect = false) {
     Store.loadingApiRequests++
     return func(url, data).then(
         resp => {
-            Store.loadingApiRequests--
+            setTimeout(function () {
+                Store.loadingApiRequests--
+            }, 300)
             return resp
         }, error =>
             store.dispatch('user/validateToken', error).then(_ =>
                 func(url, data).then(resp => {
-                    Store.loadingApiRequests--
+                    setTimeout(function () {
+                        Store.loadingApiRequests--
+                    }, 300)
                     return resp
                 })
             )
     ).catch(error => {
-        Store.loadingApiRequests--
+        setTimeout(function () {
+            Store.loadingApiRequests--
+        }, 300)
         return handleError(error, noRedirect)
     })
 }
@@ -62,11 +68,15 @@ function unvalidatedSend (func, url, data = null, noRedirect = true) {
     console.log(Store.loadingApiRequests)
     return func(url, data).then(
         resp => {
-            Store.loadingApiRequests--
+            setTimeout(function () {
+                Store.loadingApiRequests--
+            }, 300)
             console.log(Store.loadingApiRequests)
             return resp
         }, error => {
-            Store.loadingApiRequests--
+            setTimeout(function () {
+                Store.loadingApiRequests--
+            }, 300)
             console.log(Store.loadingApiRequests)
             return handleError(error, noRedirect)
         })

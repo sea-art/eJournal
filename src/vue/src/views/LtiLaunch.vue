@@ -6,7 +6,7 @@
             <lti-create-link-assignment v-else-if="handleAssignmentChoice" @handleAction="handleActions" :lti="lti" :page="page"/>
             <div v-else class="center-content">
                 <h2 class="center-content">Setting up a link to your learning environment</h2><br/>
-                <icon name="spinner" pulse scale="1.5"/>
+                <icon name="circle-o-notch" pulse scale="1.5"/>
             </div>
         </b-card>
     </content-single-column>

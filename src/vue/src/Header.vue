@@ -1,9 +1,11 @@
 <template>
     <!-- Section visible if user logged in -->
     <b-navbar v-if="loggedIn" id="header" class="shadow" toggleable="md" type="dark" fixed=top>
-        <div class="spinner small-shadow" id="spinner-loading-api-request" v-if="store.loadingApiRequests > 0">
-            <icon name="spinner" pulse scale='1.3'/>
-        </div>
+        <transition name="fade">
+            <div class="spinner small-shadow" v-if="store.loadingApiRequests > 0">
+                <icon name="circle-o-notch" spin scale='1.3'/>
+            </div>
+        </transition>
         <b-navbar-brand :to="{ name: 'Home' }" class="brand-name"><span>e</span>Journal</b-navbar-brand>
 
         <b-navbar-toggle class="ml-auto mr-auto" target="nav-collapse" aria-expanded="false" aria-controls="nav-collapse">
@@ -41,9 +43,11 @@
 
     <!-- Section visible if user logged out -->
     <b-navbar v-else id="header" class="shadow" toggleable="md" type="dark" fixed=top>
-        <div class="spinner small-shadow" id="spinner-loading-api-request" v-if="store.loadingApiRequests > 0">
-            <icon name="spinner" pulse scale='1.3'/>
-        </div>
+        <transition name="fade">
+            <div class="spinner small-shadow" v-if="store.loadingApiRequests > 0">
+                <icon name="circle-o-notch" spin scale='1.3'/>
+            </div>
+        </transition>
         <b-navbar-brand  :to="{ name: 'Guest' }" class="brand-name"><span>e</span>Journal</b-navbar-brand>
 
         <b-navbar-nav class="ml-auto">
@@ -180,4 +184,9 @@ export default {
     left: 0
     font-size: 1.1rem!important
     z-index: 9000
+    &.fade-enter-active, &.fade-leave-active
+        transition: opacity .5s
+    &.fade-enter, &.fade-leave-to
+        opacity: 0
+
 </style>
