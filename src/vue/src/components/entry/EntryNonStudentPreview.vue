@@ -33,6 +33,15 @@
                 :displayMode="true"
                 :authorUID="$parent.journal.student.id"
             />
+            <div>
+                <hr class="full-width"/>
+                <span class="timestamp" v-if="entryNode.entry.last_edited">
+                    Last edited: {{ $root.beautifyDate(entryNode.entry.last_edited) }}<br/>
+                </span>
+                <span class="timestamp" v-else>
+                    Submitted on: {{ $root.beautifyDate(entryNode.entry.createdate) }}<br/>
+                </span>
+            </div>
         </b-card>
 
         <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published"/>
