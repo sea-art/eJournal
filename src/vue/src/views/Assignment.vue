@@ -52,6 +52,7 @@
         </div>
         <main-card v-if="loadingJournals && assignmentJournals.length === 0" slot="main-content-column" class="no-hover" :line1="'Loading journals...'"/>
         <main-card v-else-if="assignmentJournals.length === 0" slot="main-content-column" class="no-hover" :line1="'No participants with a journal'"/>
+        <main-card v-else-if="filteredJournals.length === 0" slot="main-content-column" class="no-hover" :line1="'No journals found'"/>
 
         <div v-if="stats" slot="right-content-column">
             <h3>Insights</h3>
