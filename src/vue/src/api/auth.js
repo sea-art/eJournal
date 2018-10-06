@@ -1,7 +1,7 @@
 import connection from '@/api/connection'
 import statuses from '@/utils/constants/status_codes.js'
 import router from '@/router'
-import store from '@/Store.vue'
+import store from '@/store'
 
 const errorsToRedirect = new Set([
     statuses.FORBIDDEN,
@@ -39,25 +39,21 @@ function handleError (error, noRedirect = false) {
 
 function validatedSend (func, url, data = null, noRedirect = false) {
     store.loadingApiRequests++
-    return func(url, data)
-        .then(resp => {
+    return func(url, data).then(
+        resp => {
             store.loadingApiRequests--
             return resp
-        })
-        .catch(error => store.dispatch('user/validateToken', error)
-            .then(_ => func(url, data)
-                .then(resp => {
+        }, error =>
+            store.dispatch('user/validateToken', error).then(_ =>
+                func(url, data).then(resp => {
                     store.loadingApiRequests--
                     return resp
                 })
-                .catch(err => {
-                    store.loadingApiRequests--
-                    return err
-                })))
-        .catch(error => {
-            store.loadingApiRequests--
-            return handleError(error, noRedirect)
-        })
+            )
+    ).catch(error => {
+        store.loadingApiRequests--
+        return handleError(error, noRedirect)
+    })
 }
 
 function improveUrl (url, data = null) {
