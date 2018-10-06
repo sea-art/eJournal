@@ -2,7 +2,6 @@ import connection from '@/api/connection'
 import statuses from '@/utils/constants/status_codes.js'
 import router from '@/router'
 import store from '@/store'
-import Store from '@/Store.vue'
 
 const errorsToRedirect = new Set([
     statuses.FORBIDDEN,
@@ -39,32 +38,32 @@ function handleError (error, noRedirect = false) {
 }
 
 function validatedSend (func, url, data = null, noRedirect = false) {
-    Store.loadingApiRequests++
+    store.commit('connection/OPEN_API_CALL')
     return func(url, data).then(
         resp => {
-            Store.loadingApiRequests--
+            store.commit('connection/CLOSE_API_CALL')
             return resp
         }, error =>
             store.dispatch('user/validateToken', error).then(_ =>
                 func(url, data).then(resp => {
-                    Store.loadingApiRequests--
+                    store.commit('connection/CLOSE_API_CALL')
                     return resp
                 })
             )
     ).catch(error => {
-        Store.loadingApiRequests--
+        store.commit('connection/CLOSE_API_CALL')
         return handleError(error, noRedirect)
     })
 }
 
 function unvalidatedSend (func, url, data = null, noRedirect = true) {
-    Store.loadingApiRequests++
+    store.commit('connection/OPEN_API_CALL')
     return func(url, data).then(
         resp => {
-            Store.loadingApiRequests--
+            store.commit('connection/CLOSE_API_CALL')
             return resp
         }, error => {
-            Store.loadingApiRequests--
+            store.commit('connection/CLOSE_API_CALL')
             return handleError(error, noRedirect)
         })
 }

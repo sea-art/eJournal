@@ -1,7 +1,7 @@
 <template>
     <!-- Section visible if user logged in -->
     <b-navbar v-if="loggedIn" id="header" class="shadow" toggleable="md" type="dark" fixed=top>
-        <div class="spinner small-shadow" id="spinner-loading-api-request" v-if="store.loadingApiRequests > 0">
+        <div class="spinner small-shadow" id="spinner-loading-api-request" v-if="$store.getters['connection/openApiCalls'] > 0">
             <icon name="spinner" pulse scale='1.3'/>
         </div>
         <b-navbar-brand :to="{ name: 'Home' }" class="brand-name"><span>e</span>Journal</b-navbar-brand>
@@ -41,7 +41,7 @@
 
     <!-- Section visible if user logged out -->
     <b-navbar v-else id="header" class="shadow" toggleable="md" type="dark" fixed=top>
-        <div class="spinner small-shadow" id="spinner-loading-api-request" v-if="store.loadingApiRequests > 0">
+        <div class="spinner small-shadow" id="spinner-loading-api-request" v-if="$store.getters['connection/openApiCalls'] > 0">
             <icon name="spinner" pulse scale='1.3'/>
         </div>
         <b-navbar-brand  :to="{ name: 'Guest' }" class="brand-name"><span>e</span>Journal</b-navbar-brand>
@@ -65,19 +65,16 @@
 </template>
 
 <script>
-import store from '@/Store.vue'
 import icon from 'vue-awesome/components/Icon'
 import { mapGetters } from 'vuex'
 
 export default {
     components: {
-        store,
         icon
     },
     data () {
         return {
-            defaultProfileImg: '/static/unknown-profile.png',
-            store: store
+            defaultProfileImg: '/static/unknown-profile.png'
         }
     },
     computed: {
