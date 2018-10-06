@@ -59,15 +59,12 @@ function validatedSend (func, url, data = null, noRedirect = false) {
 
 function unvalidatedSend (func, url, data = null, noRedirect = true) {
     Store.loadingApiRequests++
-    console.log(Store.loadingApiRequests)
     return func(url, data).then(
         resp => {
             Store.loadingApiRequests--
-            console.log(Store.loadingApiRequests)
             return resp
         }, error => {
             Store.loadingApiRequests--
-            console.log(Store.loadingApiRequests)
             return handleError(error, noRedirect)
         })
 }
