@@ -36,7 +36,10 @@
                                     Required
                                 </b-button>
                             </div>
-                            <b-textarea class="multi-form theme-input" v-if="fieldOptionsPlaceholder(field.type)" v-model="field.options" :placeholder="fieldOptionsPlaceholder(field.type)" required/>
+
+                            <!-- Field Options -->
+                            <b-textarea class="multi-form theme-input" v-if="field.type == 's'" v-model="field.options" placeholder="Enter selection options separated by ';'" required/>
+
                         </b-col>
                         <b-col cols="12" sm="2" lg="1" class="icon-box">
                             <div class="handle d-inline d-sm-block">
@@ -119,14 +122,6 @@ export default {
         },
         onUpdate () {
             this.updateLocations()
-        },
-        fieldOptionsPlaceholder (type) {
-            switch (type) {
-            case 's':
-                return 'Enter selection options separated by ";"'
-            default:
-                return ''
-            }
         }
     }
 }
