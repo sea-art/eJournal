@@ -28,6 +28,10 @@ export default {
             required: true,
             String
         },
+        entryID: {
+            required: true,
+            String
+        },
         contentID: {
             required: true,
             String
@@ -67,6 +71,7 @@ export default {
             formData.append('file', this.file)
             formData.append('assignment_id', this.aID)
             formData.append('node_id', this.nID)
+            formData.append('entry_id', this.entryID)
             formData.append('content_id', this.contentID)
 
             userAPI.uploadUserFile(formData)

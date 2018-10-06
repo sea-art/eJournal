@@ -18,7 +18,8 @@
                 @fileUploadSuccess="completeContent[i].data = $event"
                 :aID="$route.params.aID"
                 :nID="nodeID"
-                :contentID="completeContent[i].id"
+                :contentID="completeContent[i].contentID"
+                :entryID="entryID"
             />
             <file-upload-input
                 v-else-if="field.type == 'f'"
@@ -29,7 +30,8 @@
                 @fileUploadSuccess="completeContent[i].data = $event"
                 :aID="$route.params.aID"
                 :nID="nodeID"
-                :contentID="completeContent[i].id"
+                :contentID="completeContent[i].contentID"
+                :entryID="entryID"
             />
             <b-input v-else-if="field.type == 'v'"
                 class="theme-input"
@@ -45,7 +47,8 @@
                 @fileUploadSuccess="completeContent[i].data = $event"
                 :aID="$route.params.aID"
                 :nID="nodeID"
-                :contentID="completeContent[i].id"
+                :contentID="completeContent[i].contentID"
+                :entryID="entryID"
             />
             <text-editor
                 v-else-if="field.type == 'rt'"
@@ -122,6 +125,9 @@ export default {
         },
         authorUID: {
             required: false
+        },
+        entryID: {
+            default: '-1'
         }
     },
     components: {

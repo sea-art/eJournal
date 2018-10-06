@@ -24,8 +24,8 @@ class UserFile(models.Model):
     - content: The content that UserFile is linked to.
 
     Note that deleting the assignment, node or content will also delete the UserFile.
-    UserFiles uploaded initially have no node set, and are considered temporary untill the journal post is made
-    and the corresponding node is set.
+    UserFiles uploaded initially have no node or content set, and are considered temporary untill the journal post
+    is made and the corresponding node and content are set.
     """
     file = models.FileField(
         null=False,
@@ -63,12 +63,16 @@ class UserFile(models.Model):
     content = models.ForeignKey(
         'Content',
         on_delete=models.CASCADE,
-        null=False
+        null=True
     )
+
+    def delete(self, *args, **kwargs):
+        self.file.delete()
+        super(UserFile, self).delete(*args, **kwargs)
 
     def __str__(self):
         """toString."""
-        return self.file_name
+        return self.file.name
 
 
 class User(AbstractUser):

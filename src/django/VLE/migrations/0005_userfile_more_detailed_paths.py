@@ -7,20 +7,23 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('VLE', '0003_participation_role_required'),
+        ('VLE', '0004_participation_role_required'),
     ]
 
     operations = [
         migrations.AddField(
             model_name='userfile',
             name='content',
-            field=models.ForeignKey(default=1, on_delete=django.db.models.deletion.CASCADE, to='VLE.Content'),
-            preserve_default=False,
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='VLE.Content'),
         ),
         migrations.AddField(
             model_name='userfile',
             name='node',
             field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='VLE.Node'),
-            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='userfile',
+            name='entry',
+            field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='VLE.Entry'),
         ),
     ]

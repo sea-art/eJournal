@@ -366,14 +366,18 @@ def make_comment(entry, author, text, published):
     )
 
 
-def make_user_file(uploaded_file, author, assignment, node, content):
-    """Make a user file from an UploadedFile in memory."""
+def make_user_file(uploaded_file, author, assignment, entry=None, node=None, content=None):
+    """Make a user file from an UploadedFile in memory.
+
+    At the time of creation, the UserFile is uploaded but not attached to an entry yet. This UserFile be treated
+    as temporary untill the actual entry is created. And the node, entry, and content are updated."""
     return UserFile.objects.create(
         file=uploaded_file,
         file_name=uploaded_file.name,
         author=author,
         content_type=uploaded_file.content_type,
         assignment=assignment,
+        entry=entry,
         node=node,
         content=content
     )

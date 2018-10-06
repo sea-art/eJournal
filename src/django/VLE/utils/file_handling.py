@@ -8,17 +8,15 @@ from django.conf import settings
 
 
 def get_path(instance, filename):
-    """Upload user files into their respective directories. Following MEDIA_ROOT/uID/aID/node_link/contentID/<file>
+    """Upload user files into their respective directories. Following MEDIA_ROOT/uID/aID/nID/contentID/<file>
 
-    Where node_link can be -1 if the node is not created yet, this file is temporary untill the corresponding entry
-    is created."""
+    Uploaded files not part of an entry yet, are uploaded to MEDIA_ROOT/uID/-1/<file>, and are treated as temporary
+    untill link to an entry."""
     if instance.node is None:
-        node_link = '-1'
+        return str(instance.author.id) + '/-1/' + filename
     else:
-        node_link = str(instance.node.id)
-
-    return str(instance.author.id) + '/' + str(instance.assignment.id) + '/' + node_link + '/' \
-        + str(instance.content.id) + '/' + filename
+        return str(instance.author.id) + '/' + str(instance.assignment.id) + '/' + str(instance.node.id) + '/' \
+               + str(instance.content.id) + '/' + filename
 
 
 def compress_all_user_data(user, extra_data_dict=None, archive_extension='zip'):
@@ -43,3 +41,18 @@ def compress_all_user_data(user, extra_data_dict=None, archive_extension='zip'):
     shutil.make_archive(archive_ouput_base_name, archive_extension, user_file_dir_path)
 
     return archive_ouput_path
+
+
+def make_permanent_file_content(user_file, content, node):
+    user_file.content = content
+    user_file.node = node
+    user_file.entry = content.entry
+    user_file.save()
+
+    org = os.path.join(settings.MEDIA_ROOT, user_file.file.name)
+    dest = str(user_file.author.id) + '/' + str(user_file.assignment.id) + '/' + str(user_file.node.id) + '/' + \
+        str(user_file.content.id) + '/' + user_file.file_name
+    dest = os.path.join(settings.MEDIA_ROOT, dest)
+    os.makedirs(os.path.dirname(dest), exist_ok=True)
+
+    shutil.move(org, dest)

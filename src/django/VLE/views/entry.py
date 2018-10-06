@@ -8,10 +8,11 @@ from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 from datetime import datetime
 
-from VLE.models import Journal, Node, Content, Field, Template, Entry, Comment
+from VLE.models import Journal, Node, Content, Field, Template, Entry, Comment, UserFile
 import VLE.views.responses as response
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
+from VLE.utils import file_handling
 import VLE.lti_grade_passback as lti_grade
 import VLE.timeline as timeline
 import VLE.permissions as permissions
@@ -29,6 +30,8 @@ class EntryView(viewsets.ViewSet):
 
     def create(self, request):
         """Create a new entry.
+
+        Deletes remaining temporary user files if successfull.
 
         Arguments:
         request -- the request that was send with
@@ -92,7 +95,6 @@ class EntryView(viewsets.ViewSet):
 
             node.entry = factory.make_entry(template)
             node.save()
-
         else:
             entry = factory.make_entry(template)
             node = factory.make_node(journal, entry)
@@ -106,11 +108,21 @@ class EntryView(viewsets.ViewSet):
             except Field.DoesNotExist:
                 return response.not_found('Field does not exist.')
 
-            factory.make_content(node.entry, content['data'], field)
+            created_content = factory.make_content(node.entry, content['data'], field)
 
-            print(field)
-            print(field.TYPES)
-            print(field.type)
+            # TODO F Catch failed get of user file, get field types more dynamically
+            if field.type in ['i', 'f', 'p']:
+                try:
+                    user_file = UserFile.objects.filter(author=request.user, assignment=journal.assignment, node=None,
+                                                        entry=None, content=None, file_name=content['data'])[0]
+                    print(user_file.file.name)
+                    file_handling.make_permanent_file_content(user_file, created_content, node)
+                except (UserFile.DoesNotExist, IndexError):
+                    node.entry.delete()
+                    return response.bad_request('One of your files was not correctly uploaded, please try gain.')
+
+        for user_file in request.user.userfile_set.all().filter(node=None, entry=None, content=None):
+            user_file.delete()
 
         # Find the new index of the new node so that the client can automatically scroll to it.
         result = timeline.get_nodes(journal, request.user)

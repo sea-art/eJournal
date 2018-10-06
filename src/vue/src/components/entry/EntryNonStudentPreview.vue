@@ -32,6 +32,7 @@
                 :completeContent="completeContent"
                 :displayMode="true"
                 :authorUID="$parent.journal.student.id"
+                :entryID="entryNode.entry.id"
             />
         </b-card>
 
