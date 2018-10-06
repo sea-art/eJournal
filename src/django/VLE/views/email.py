@@ -7,7 +7,7 @@ This includes:
 """
 from rest_framework.decorators import api_view
 import VLE.views.responses as response
-import VLE.utils.email_handling as email_handling
+from VLE.utils import email_handling
 import VLE.utils.generic_utils as utils
 import VLE.validators as validators
 from VLE.models import User
@@ -33,6 +33,7 @@ def forgot_password(request):
 
     Generates a recovery token if a matching user can be found by either the prodived username or email.
     """
+    print('asd')
     try:
         username, email = utils.required_params(request.data, 'username', 'email')
     except KeyError:
@@ -47,10 +48,12 @@ def forgot_password(request):
         except User.DoesNotExist:
             return response.bad_request('No user found with that username or email.')
 
-    email_handling.send_password_recovery_link(user)
-
-    return response.success(description='An email was sent to %s, please follow the email for instructions.'
-                            % user.email)
+    if email_handling.send_password_recovery_link(user):
+        return response.success(description='An email was sent to %s, please follow the email for instructions.'
+                                % user.email)
+    else:
+        return response.bad_request(
+            description='Mailserver is not configured correctly, please contact a server admin.')
 
 
 @api_view(['POST'])
@@ -128,10 +131,12 @@ def request_email_verification(request):
     if request.user.verified_email:
         return response.bad_request(description='Email address already verified.')
 
-    email_handling.send_email_verification_link(request.user)
-
-    return response.success(description='An email was sent to %s, please follow the email for instructions.'
-                            % request.user.email)
+    if email_handling.send_email_verification_link(request.user):
+        return response.success(description='An email was sent to %s, please follow the email for instructions.'
+                                            % request.user.email)
+    else:
+        return response.bad_request(
+            description='Mailserver is not configured correctly, please contact a server admin.')
 
 
 @api_view(['POST'])
@@ -165,5 +170,8 @@ def send_feedback(request):
     except ValidationError as e:
         return response.bad_request(e.args[0])
 
-    email_handling.send_email_feedback(request.user, files, **request.POST)
-    return response.success(description='Feedback was succesfully received, thank you!')
+    if email_handling.send_email_feedback(request.user, files, **request.POST):
+        return response.success(description='Feedback was succesfully received, thank you!')
+    else:
+        return response.bad_request(
+            description='Mailserver is not configured correctly, please contact a server admin.')

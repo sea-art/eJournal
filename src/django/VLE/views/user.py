@@ -150,7 +150,9 @@ class UserView(viewsets.ViewSet):
                                  verified_email=True if lti_id else False)
 
         if lti_id is None:
-            email_handling.send_email_verification_link(user)
+            if not email_handling.send_email_verification_link(user):
+                return response.bad_request(
+                    description='Mailserver is not configured correctly, please contact a server admin.')
 
         return response.created({'user': UserSerializer(user).data})
 
