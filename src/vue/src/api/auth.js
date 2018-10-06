@@ -2,6 +2,7 @@ import connection from '@/api/connection'
 import statuses from '@/utils/constants/status_codes.js'
 import router from '@/router'
 import store from '@/store'
+import Store from '@/Store.vue'
 
 const errorsToRedirect = new Set([
     statuses.FORBIDDEN,
@@ -21,7 +22,7 @@ function handleError (error, noRedirect = false) {
     const response = error.response
     const status = response.status
 
-    if (status === statuses.UNAUTHORIZED) {
+    if (!noRedirect && status === statuses.UNAUTHORIZED) {
         store.commit('user/LOGOUT')
         router.push({name: 'Login'})
     } else if (!noRedirect && errorsToRedirect.has(status)) {
@@ -38,22 +39,37 @@ function handleError (error, noRedirect = false) {
 }
 
 function validatedSend (func, url, data = null, noRedirect = false) {
-    store.loadingApiRequests++
+    Store.loadingApiRequests++
     return func(url, data).then(
         resp => {
-            store.loadingApiRequests--
+            Store.loadingApiRequests--
             return resp
         }, error =>
             store.dispatch('user/validateToken', error).then(_ =>
                 func(url, data).then(resp => {
-                    store.loadingApiRequests--
+                    Store.loadingApiRequests--
                     return resp
                 })
             )
     ).catch(error => {
-        store.loadingApiRequests--
+        Store.loadingApiRequests--
         return handleError(error, noRedirect)
     })
+}
+
+function unvalidatedSend (func, url, data = null, noRedirect = true) {
+    Store.loadingApiRequests++
+    console.log(Store.loadingApiRequests)
+    return func(url, data).then(
+        resp => {
+            Store.loadingApiRequests--
+            console.log(Store.loadingApiRequests)
+            return resp
+        }, error => {
+            Store.loadingApiRequests--
+            console.log(Store.loadingApiRequests)
+            return handleError(error, noRedirect)
+        })
 }
 
 function improveUrl (url, data = null) {
@@ -74,7 +90,7 @@ export default {
 
     /* Create a user and add it to the database. */
     register (username, password, firstname, lastname, email, jwtParams = null) {
-        return connection.conn.post('/users/', {
+        return unvalidatedSend(connection.conn.post, improveUrl('users'), {
             username: username,
             password: password,
             first_name: firstname,
@@ -93,41 +109,34 @@ export default {
     /* Forgot password.
      * Checks if a user is known by the given email or username. Sends an email with a link to reset the password. */
     forgotPassword (username, email) {
-        return connection.conn.post('/forgot_password/', {username: username, email: email})
+        return unvalidatedSend(connection.conn.post, improveUrl('forgot_password'), {username: username, email: email})
     },
 
     /* Recover password */
     recoverPassword (username, recoveryToken, newPassword) {
-        return connection.conn.post('/recover_password/', {username: username, recovery_token: recoveryToken, new_password: newPassword})
+        return unvalidatedSend(connection.conn.post, improveUrl('recover_password'), {username: username, recovery_token: recoveryToken, new_password: newPassword})
     },
 
     get (url, data = null, noRedirect = false) {
-        url = improveUrl(url, data)
-        return validatedSend(connection.conn.get, url, null, noRedirect)
+        return validatedSend(connection.conn.get, improveUrl(url, data), null, noRedirect)
     },
     post (url, data, noRedirect = false) {
-        url = improveUrl(url)
-        return validatedSend(connection.conn.post, url, data, noRedirect)
+        return validatedSend(connection.conn.post, improveUrl(url), data, noRedirect)
     },
     patch (url, data, noRedirect = false) {
-        url = improveUrl(url)
-        return validatedSend(connection.conn.patch, url, data, noRedirect)
+        return validatedSend(connection.conn.patch, improveUrl(url), data, noRedirect)
     },
     delete (url, data = null, noRedirect = false) {
-        url = improveUrl(url, data)
-        return validatedSend(connection.conn.delete, url, null, noRedirect)
+        return validatedSend(connection.conn.delete, improveUrl(url, data), null, noRedirect)
     },
     uploadFile (url, data, noRedirect = false) {
-        url = improveUrl(url)
-        return validatedSend(connection.connFile.post, url, data, noRedirect)
+        return validatedSend(connection.connFile.post, improveUrl(url), data, noRedirect)
     },
     uploadFileEmail (url, data, noRedirect = false) {
-        url = improveUrl(url)
-        return validatedSend(connection.connFileEmail.post, url, data, noRedirect)
+        return validatedSend(connection.connFileEmail.post, improveUrl(url), data, noRedirect)
     },
     downloadFile (url, data, noRedirect = false) {
-        url = improveUrl(url, data)
-        return validatedSend(connection.connFile.get, url, null, noRedirect)
+        return validatedSend(connection.connFile.get, improveUrl(url, data), null, noRedirect)
     },
 
     create (url, data, noRedirect = false) { return this.post(url, data, noRedirect) },

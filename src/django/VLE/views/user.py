@@ -151,6 +151,7 @@ class UserView(viewsets.ViewSet):
 
         if lti_id is None:
             if not email_handling.send_email_verification_link(user):
+                user.delete()
                 return response.bad_request(
                     description='Mailserver is not configured correctly, please contact a server admin.')
 
