@@ -41,17 +41,23 @@ function validatedSend (func, url, data = null, noRedirect = false) {
     store.commit('connection/OPEN_API_CALL')
     return func(url, data).then(
         resp => {
-            store.commit('connection/CLOSE_API_CALL')
+            setTimeout(function () {
+                store.commit('connection/CLOSE_API_CALL')
+            }, 300)
             return resp
         }, error =>
             store.dispatch('user/validateToken', error).then(_ =>
                 func(url, data).then(resp => {
-                    store.commit('connection/CLOSE_API_CALL')
+                    setTimeout(function () {
+                        store.commit('connection/CLOSE_API_CALL')
+                    }, 300)
                     return resp
                 })
             )
     ).catch(error => {
-        store.commit('connection/CLOSE_API_CALL')
+        setTimeout(function () {
+            store.commit('connection/CLOSE_API_CALL')
+        }, 300)
         return handleError(error, noRedirect)
     })
 }
@@ -60,10 +66,14 @@ function unvalidatedSend (func, url, data = null, noRedirect = true) {
     store.commit('connection/OPEN_API_CALL')
     return func(url, data).then(
         resp => {
-            store.commit('connection/CLOSE_API_CALL')
+            setTimeout(function () {
+                store.commit('connection/CLOSE_API_CALL')
+            }, 300)
             return resp
         }, error => {
-            store.commit('connection/CLOSE_API_CALL')
+            setTimeout(function () {
+                store.commit('connection/CLOSE_API_CALL')
+            }, 300)
             return handleError(error, noRedirect)
         })
 }
