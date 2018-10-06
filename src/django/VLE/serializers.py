@@ -84,6 +84,14 @@ class GroupSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', )
 
 
+class ParticipationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Participation
+        fields = '__all__'
+        read_only_fields = ('id', )
+        depth = 1
+
+
 class AssignmentDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assignment
@@ -135,18 +143,15 @@ class AssignmentSerializer(serializers.ModelSerializer):
             return None
 
     def get_journals(self, assignment):
-        if 'journals' in self.context and self.context['journals']:
-            journals = Journal.objects.filter(assignment=assignment)
-
-            if 'course' in self.context:
-                journals = [journ for journ in journals
-                            if Participation.objects.filter(user=journ.user, course=self.context['course']).count() > 0]
-
-            return JournalSerializer(
-                journals,
-                many=True,
-                context=self.context).data
-
+        """Retrieves the journals of an assignment of the users who have the permission
+        to own a journal.
+        """
+        if 'journals' in self.context and 'course' in self.context \
+           and self.context['journals'] and self.context['course']:
+            course = self.context['course']
+            users = course.participation_set.filter(role__can_have_journal=True).values('user')
+            journals = Journal.objects.filter(assignment=assignment, user__in=users)
+            return JournalSerializer(journals, many=True, context=self.context).data
         else:
             return None
 
