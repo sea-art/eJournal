@@ -26,7 +26,7 @@
                             <b-input class="multi-form theme-input" v-model="field.title" placeholder="Field title" required/>
                             <b-textarea class="multi-form theme-input" v-model="field.description" placeholder="Description" required/>
                             <div class="d-flex">
-                                <b-select class="multi-form mr-2" :options="fieldTypes" v-model="field.type"></b-select>
+                                <b-select class="multi-form mr-2" :options="fieldTypes" v-model="field.type" @change="field.options = ''"></b-select>
                                 <b-button v-on:click.stop v-if="!field.required" @click="field.required = !field.required" class="optional-field-template float-right multi-form">
                                     <icon name="asterisk"/>
                                     Optional
@@ -38,7 +38,20 @@
                             </div>
 
                             <!-- Field Options -->
-                            <b-textarea class="multi-form theme-input" v-if="field.type == 's'" v-model="field.options" placeholder="Enter selection options separated by ';'" required/>
+                            <div v-if="field.type == 's'">
+                                <!-- Event targeting allows us to access the input value -->
+                                <div class="d-flex">
+                                    <b-input class="multi-form mr-2 theme-input" placeholder="Enter an option" @keyup.enter.native="addSelectionOption($event.target, field)" @focus.native="selectedLocation = field.location" @focusout.native="selectedLocation = null"/>
+                                    <b-button @click.stop="addSelectionOption($event.target.previousElementSibling, field)" v-if="field.required" class="float-right multi-form" @focus="selectedLocation = field.location">
+                                        Add option
+                                    </b-button>
+                                </div>
+                                <ul v-if="field.location == selectedLocation && field.options">
+                                    <li v-for="option in JSON.parse(field.options)">
+                                        {{ option }}
+                                    </li>
+                                </ul>
+                            </div>
 
                         </b-col>
                         <b-col cols="12" sm="2" lg="1" class="icon-box">
@@ -85,7 +98,8 @@ export default {
                 'd': 'Date',
                 's': 'Selection'
             },
-            mode: 'edit'
+            mode: 'edit',
+            selectedLocation: null
         }
     },
     components: {
@@ -122,6 +136,18 @@ export default {
         },
         onUpdate () {
             this.updateLocations()
+        },
+        addSelectionOption (target, field) {
+            if (!field.options) {
+                field.options = JSON.stringify([])
+            }
+            if (target.value.trim()) {
+                var options = JSON.parse(field.options)
+                options.push(target.value.trim())
+                field.options = JSON.stringify(options)
+                target.value = ''
+                target.focus()
+            }
         }
     }
 }

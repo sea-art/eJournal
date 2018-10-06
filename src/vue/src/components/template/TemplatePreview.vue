@@ -80,7 +80,10 @@ export default {
     },
     methods: {
         parseSelectionOptions (fieldOptions) {
-            var options = fieldOptions.split(';').filter(e => e).map(x => { return { value: x.trim(), text: x.trim() } })
+            if (!fieldOptions) {
+                return [{ value: null, text: 'Please select an option' }]
+            }
+            var options = JSON.parse(fieldOptions).filter(e => e).map(x => { return { value: x, text: x } })
             options.unshift({ value: null, text: 'Please select an option' })
             return options
         }
