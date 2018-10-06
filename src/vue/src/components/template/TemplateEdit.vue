@@ -47,7 +47,7 @@
                                     </b-button>
                                 </div>
                                 <ul v-if="field.location == selectedLocation && field.options">
-                                    <li v-for="option in JSON.parse(field.options)">
+                                    <li v-for="option in JSON.parse(field.options)" :key="option">
                                         {{ option }}
                                     </li>
                                 </ul>
