@@ -1,6 +1,10 @@
 import auth from '@/api/auth'
 
 export default {
+    get (id) {
+        return auth.get('participations/' + id)
+            .then(response => response.data.participant)
+    },
 
     getEnrolled (id) {
         return auth.get('participations', {course_id: id})
