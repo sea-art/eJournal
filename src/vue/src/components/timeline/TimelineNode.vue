@@ -8,8 +8,9 @@
 <template>
     <b-row class="node-container">
         <b-col cols="4" sm="1"/>
-        <b-col cols="4" sm="5" class="d-flex h-100 align-items-center justify-content-center">
-            <timeline-node-date :date="node.deadline" :selected="selected"/>
+        <b-col cols="4" sm="5" class="d-flex h-100 align-items-center">
+            <!-- {{node.deadline ? node.deadline : (node.entry ? node.entry.createdate : null)}} -->
+            <timeline-node-date :date="node.deadline ? node.deadline : (node.entry ? node.entry.createdate : null)" :selected="selected" :deadline="node.deadline != null"/>
         </b-col>
         <b-col cols="4" sm="5" class="d-flex h-100 align-items-center justify-content-center">
             <div class="time-line" :class="timeLineClass"></div>

@@ -4,15 +4,15 @@
 -->
 
 <template>
-    <span v-if="date" class="date-text" :class="dateClass">{{ $root.beautifyDate(date)}}</span>
+    <span v-if="date" class="date-text" :class="dateClass">{{ $root.beautifyDate(date, true, this.deadline)}}</span>
 </template>
 
 <script>
 export default {
-    props: ['date', 'selected'],
+    props: ['date', 'selected', 'deadline'],
     computed: {
         dateClass () {
-            return (this.selected) ? 'date-selected' : 'date-unselected'
+            return this.deadline ? 'deadline-class' : (this.selected ? 'date-selected' : 'date-unselected')
         }
     }
 }
@@ -21,12 +21,18 @@ export default {
 <style lang="sass">
 @import '~sass/modules/colors.sass'
 
+.deadline-class
+    opacity: 1
+    color: $theme-blue
+    font-weight: bold
+
 .date-selected
     opacity: 1
 
 .date-unselected
-    opacity: 0.5
+    opacity: 0.35
 
 .date-text
     text-align: right
+    width: 100%
 </style>
