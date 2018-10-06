@@ -2,7 +2,7 @@
     <!-- Section visible if user logged in -->
     <b-navbar v-if="loggedIn" id="header" class="shadow" toggleable="md" type="dark" fixed=top>
         <transition name="fade">
-            <div class="spinner small-shadow" v-if="store.loadingApiRequests > 0">
+            <div class="spinner small-shadow" v-if="$store.getters['connection/checkOpenApiCalls']">
                 <icon name="circle-o-notch" spin scale='1.3'/>
             </div>
         </transition>
@@ -44,7 +44,7 @@
     <!-- Section visible if user logged out -->
     <b-navbar v-else id="header" class="shadow" toggleable="md" type="dark" fixed=top>
         <transition name="fade">
-            <div class="spinner small-shadow" v-if="store.loadingApiRequests > 0">
+            <div class="spinner small-shadow" v-if="$store.getters['connection/checkOpenApiCalls']">
                 <icon name="circle-o-notch" spin scale='1.3'/>
             </div>
         </transition>
@@ -69,19 +69,16 @@
 </template>
 
 <script>
-import store from '@/Store.vue'
 import icon from 'vue-awesome/components/Icon'
 import { mapGetters } from 'vuex'
 
 export default {
     components: {
-        store,
         icon
     },
     data () {
         return {
-            defaultProfileImg: '/static/unknown-profile.png',
-            store: store
+            defaultProfileImg: '/static/unknown-profile.png'
         }
     },
     computed: {

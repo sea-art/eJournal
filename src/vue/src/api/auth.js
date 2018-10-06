@@ -2,7 +2,6 @@ import connection from '@/api/connection'
 import statuses from '@/utils/constants/status_codes.js'
 import router from '@/router'
 import store from '@/store'
-import Store from '@/Store.vue'
 
 const errorsToRedirect = new Set([
     statuses.FORBIDDEN,
@@ -39,45 +38,42 @@ function handleError (error, noRedirect = false) {
 }
 
 function validatedSend (func, url, data = null, noRedirect = false) {
-    Store.loadingApiRequests++
+    store.commit('connection/OPEN_API_CALL')
     return func(url, data).then(
         resp => {
             setTimeout(function () {
-                Store.loadingApiRequests--
+                store.commit('connection/CLOSE_API_CALL')
             }, 300)
             return resp
         }, error =>
             store.dispatch('user/validateToken', error).then(_ =>
                 func(url, data).then(resp => {
                     setTimeout(function () {
-                        Store.loadingApiRequests--
+                        store.commit('connection/CLOSE_API_CALL')
                     }, 300)
                     return resp
                 })
             )
     ).catch(error => {
         setTimeout(function () {
-            Store.loadingApiRequests--
+            store.commit('connection/CLOSE_API_CALL')
         }, 300)
         return handleError(error, noRedirect)
     })
 }
 
 function unvalidatedSend (func, url, data = null, noRedirect = true) {
-    Store.loadingApiRequests++
-    console.log(Store.loadingApiRequests)
+    store.commit('connection/OPEN_API_CALL')
     return func(url, data).then(
         resp => {
             setTimeout(function () {
-                Store.loadingApiRequests--
+                store.commit('connection/CLOSE_API_CALL')
             }, 300)
-            console.log(Store.loadingApiRequests)
             return resp
         }, error => {
             setTimeout(function () {
-                Store.loadingApiRequests--
+                store.commit('connection/CLOSE_API_CALL')
             }, 300)
-            console.log(Store.loadingApiRequests)
             return handleError(error, noRedirect)
         })
 }
