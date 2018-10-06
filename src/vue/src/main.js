@@ -55,6 +55,7 @@ import 'vue-awesome/icons/long-arrow-down'
 import 'vue-awesome/icons/comments'
 import 'vue-awesome/icons/cog'
 import 'vue-awesome/icons/clock-o'
+import 'vue-awesome/icons/print'
 
 import Toasted from 'vue-toasted'
 import flatPickr from 'vue-flatpickr-component'
