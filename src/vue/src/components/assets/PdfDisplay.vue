@@ -13,7 +13,7 @@
             <icon name="print" @click.native="print" class="action-icon"/>
             <icon @click.native="downloadLink.click()" name="save" class="action-icon"/>
             {{ page }} / {{ numPages }}
-            <input v-model.number="page" type="number" min="1" :max="numPages">
+            <input v-model="displayPageNumber" @input="validatePageInput" type="number" min="1" :max="numPages">
         </div>
         <div>
             <div
@@ -68,11 +68,15 @@ export default {
             fileURL: null,
             loadedRatio: 0,
             page: 1,
+            displayPageNumber: 1,
             numPages: 0,
             rotate: 0,
             loaded: false,
             downloadLink: null
         }
+    },
+    watch: {
+        page: function (val) { this.displayPageNumber = val }
     },
     methods: {
         handleDownload () {
@@ -80,6 +84,18 @@ export default {
 
             if (!this.fileURL && this.show) {
                 this.fileDownload()
+            }
+        },
+        /* Ensures the input is within range of the PDF pages. */
+        validatePageInput (input) {
+            let parsed = parseInt(input.data)
+
+            if (parsed < 1) {
+                this.page = 1
+            } else if (parsed > this.numPages) {
+                this.page = this.numPages
+            } else if (!isNaN(parsed)) {
+                this.page = parseInt(input.data)
             }
         },
         password (updatePassword, reason) {
