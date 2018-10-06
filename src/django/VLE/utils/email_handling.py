@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import EmailMessage
-from smtplib import SMTPAuthenticationError
 from VLE.models import Role
 
 
@@ -28,11 +27,7 @@ Or copy the token manually: {token}\
         to=[user.email]
     )
 
-    try:
-        email.send()
-        return True
-    except SMTPAuthenticationError:
-        return False
+    email.send()
 
 
 def send_password_recovery_link(user):
@@ -56,11 +51,7 @@ If you did make the request please visit the link below and set a new password:
         to=[user.email]
     )
 
-    try:
-        email.send()
-        return True
-    except SMTPAuthenticationError:
-        return False
+    email.send()
 
 
 def send_email_feedback(user, files, topic, ftype, feedback, user_agent, url):
@@ -105,9 +96,5 @@ def send_email_feedback(user, files, topic, ftype, feedback, user_agent, url):
         headers={'Content-Type': 'text/plain'},
         reply_to=[user.email]
     )
-    try:
-        reply.send()
-        forward.send()
-        return True
-    except SMTPAuthenticationError:
-        return False
+    reply.send()
+    forward.send()

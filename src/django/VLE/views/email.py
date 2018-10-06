@@ -12,6 +12,7 @@ import VLE.utils.generic_utils as utils
 import VLE.validators as validators
 from VLE.models import User
 
+from smtplib import SMTPAuthenticationError
 from django.core.exceptions import ValidationError
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.html import escape
@@ -47,10 +48,11 @@ def forgot_password(request):
         except User.DoesNotExist:
             return response.bad_request('No user found with that username or email.')
 
-    if email_handling.send_password_recovery_link(user):
+    try:
+        email_handling.send_password_recovery_link(user)
         return response.success(description='An email was sent to %s, please follow the email for instructions.'
                                 % user.email)
-    else:
+    except SMTPAuthenticationError:
         return response.internal_server_error(
             description='Mailserver is not configured correctly, please contact a server admin.')
 
@@ -130,10 +132,11 @@ def request_email_verification(request):
     if request.user.verified_email:
         return response.bad_request(description='Email address already verified.')
 
-    if email_handling.send_email_verification_link(request.user):
+    try:
+        email_handling.send_email_verification_link(request.user)
         return response.success(description='An email was sent to %s, please follow the email for instructions.'
                                             % request.user.email)
-    else:
+    except SMTPAuthenticationError:
         return response.internal_server_error(
             description='Mailserver is not configured correctly, please contact a server admin.')
 
@@ -169,8 +172,9 @@ def send_feedback(request):
     except ValidationError as e:
         return response.bad_request(e.args[0])
 
-    if email_handling.send_email_feedback(request.user, files, **request.POST):
+    try:
+        email_handling.send_email_feedback(request.user, files, **request.POST)
         return response.success(description='Feedback was succesfully received, thank you!')
-    else:
+    except SMTPAuthenticationError:
         return response.internal_server_error(
             description='Mailserver is not configured correctly, please contact a server admin.')
