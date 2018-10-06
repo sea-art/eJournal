@@ -33,7 +33,6 @@ def forgot_password(request):
 
     Generates a recovery token if a matching user can be found by either the prodived username or email.
     """
-    print('asd')
     try:
         username, email = utils.required_params(request.data, 'username', 'email')
     except KeyError:
