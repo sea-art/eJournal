@@ -51,7 +51,7 @@ def forgot_password(request):
         return response.success(description='An email was sent to %s, please follow the email for instructions.'
                                 % user.email)
     else:
-        return response.bad_request(
+        return response.internal_server_error(
             description='Mailserver is not configured correctly, please contact a server admin.')
 
 
@@ -134,7 +134,7 @@ def request_email_verification(request):
         return response.success(description='An email was sent to %s, please follow the email for instructions.'
                                             % request.user.email)
     else:
-        return response.bad_request(
+        return response.internal_server_error(
             description='Mailserver is not configured correctly, please contact a server admin.')
 
 
@@ -172,5 +172,5 @@ def send_feedback(request):
     if email_handling.send_email_feedback(request.user, files, **request.POST):
         return response.success(description='Feedback was succesfully received, thank you!')
     else:
-        return response.bad_request(
+        return response.internal_server_error(
             description='Mailserver is not configured correctly, please contact a server admin.')
