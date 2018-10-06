@@ -48,8 +48,11 @@ class GroupView(viewsets.ViewSet):
         role = permissions.get_role(request.user, course)
         if role is None:
             return response.forbidden('You are not a participant of this course.')
-        if not (role.can_edit_course_user_group or role.can_add_course_user_group or role.can_delete_course_user_group):
-            return response.forbidden('You are not allowed to manage the user groups of this course.')
+        if not (role.can_view_course_users or
+                role.can_edit_course_user_group or
+                role.can_add_course_user_group or
+                role.can_delete_course_user_group):
+            return response.forbidden('You are not allowed to view or manage the user groups of this course.')
 
         queryset = Group.objects.filter(course=course)
         serializer = self.serializer_class(queryset, many=True, context={'user': request.user, 'course': course})
@@ -154,6 +157,7 @@ class GroupView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
+            group_name -- name of the course
         pk -- course ID
 
         Returns:

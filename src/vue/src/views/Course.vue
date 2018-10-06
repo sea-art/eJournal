@@ -119,7 +119,7 @@ export default {
                 }
             }
 
-            if (this.$hasPermission('can_grade', 'assignment', String(aID))) {
+            if (this.$hasPermission('can_view_assignment_journals', 'course', String(cID))) {
                 route.name = 'Assignment'
             } else {
                 route.name = 'Journal'
