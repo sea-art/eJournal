@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.core.validators import URLValidator
-from VLE.models import Field
+from VLE.models import Field, Content
 import VLE.utils.generic_utils as utils
 import re
 
@@ -22,10 +22,21 @@ def validate_profile_picture_base64(urlData):
         raise ValidationError("Max size of file is %s Bytes" % settings.USER_MAX_FILE_SIZE_BYTES)
 
 
-def validate_user_file(inMemoryUploadedFile):
-    """Checks if size does not exceed 2MB."""
+def validate_user_file(inMemoryUploadedFile, user):
+    """Checks if size does not exceed 2MB. Or the user has reached his maximum storage space."""
     if inMemoryUploadedFile.size > settings.USER_MAX_FILE_SIZE_BYTES:
         raise ValidationError("Max size of file is %s Bytes" % settings.USER_MAX_FILE_SIZE_BYTES)
+
+    user_files = user.userfile_set.all()
+    # Fast check for allowed user storage space
+    if settings.USER_MAX_TOTAL_STORAGE_BYTES - len(user_files) * settings.USER_MAX_FILE_SIZE_BYTES <= \
+       inMemoryUploadedFile.size:
+        # Slow check for allowed user storage space
+        file_size_sum = 0
+        for user_file in user_files:
+            file_size_sum += user_file.file.size
+        if file_size_sum > settings.USER_MAX_TOTAL_STORAGE_BYTES:
+            raise ValidationError('Unsufficient storage space.')
 
 
 def validate_email_files(files):
@@ -67,3 +78,12 @@ def validate_entry_content(content_list):
                 url_validate(data)
             except ValidationError as e:
                 raise e
+
+
+def validate_entry_content2(data, field):
+    if not data:
+        return
+
+    if field.type == URL:
+        url_validate = URLValidator(schemes=('http', 'https', 'ftp', 'ftps'))
+        url_validate(data)

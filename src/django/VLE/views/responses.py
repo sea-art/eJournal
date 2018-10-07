@@ -166,7 +166,10 @@ def file_b64(file_path, content_type):
 def file(file_path):
     """Return a file as bytestring if found, otherwise returns a not found response."""
     try:
+        # TODO F Rewrite to accept userfile, set non unique file name manually?
         response = FileResponse(open(file_path, 'rb'), as_attachment=True)
+        # TODO F fix file name for attachment
+        print(response['Content-Disposition'])
         return response
     except FileNotFoundError:
         return not_found(description='File not found.')

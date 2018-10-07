@@ -11,7 +11,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 from VLE.serializers import UserSerializer, OwnUserSerializer, EntrySerializer
-from VLE.models import User, Journal, UserFile, Assignment, Node, Entry
+from VLE.models import User, Journal, UserFile, Assignment, Node, Entry, Content
 from VLE.views import responses as response
 import VLE.utils.generic_utils as utils
 import VLE.factory as factory
@@ -359,13 +359,22 @@ class UserView(viewsets.ViewSet):
             pk = request.user.id
 
         try:
-            file_name, = utils.required_params(request.query_params, 'file_name')
+            file_name, entry_id, node_id, content_id = utils.required_params(request.query_params, 'file_name',
+                                                                             'entry_id', 'node_id', 'content_id')
         except KeyError:
-            return response.keyerror('file_name')
+            return response.keyerror('file_name', 'entry_id', 'node_id', 'content_id')
+
+        print('FILENAME ' + file_name)
+        print('ENTRY ' + entry_id)
+        print('NODE ' + node_id)
+        print('CONTENT ' + content_id)
 
         try:
-            user_file = UserFile.objects.get(author=pk, file_name=file_name)
-        except UserFile.DoesNotExist:
+            print('FETCHING FILE')
+            user_file = UserFile.objects.get(author=pk, file_name=file_name, entry=int(entry_id), node=int(node_id),
+                                             content=int(content_id))
+            print('GOT FILE')
+        except (UserFile.DoesNotExist, ValueError):
             return response.bad_request(file_name + ' was not found.')
 
         if user_file.author.id is not request.user.id and \
@@ -373,6 +382,7 @@ class UserView(viewsets.ViewSet):
                 request.user, user_file.assignment, 'can_view_assignment_journals'):
             return response.forbidden('Forbidden to view: %s by author ID: %s.' % (file_name, pk))
 
+        print('USERFILE FILE NAME ' + user_file.file.name)
         return response.file(os.path.join(settings.MEDIA_ROOT, user_file.file.name))
 
     @action(methods=['post'], detail=False)
@@ -381,22 +391,22 @@ class UserView(viewsets.ViewSet):
 
         No validation is performed beyond a size check of the file and the available space for the user.
 
-        At the time of creation, the UserFile is uploaded but not attached to an entry yet. This UserFile be treated
-        as temporary untill the actual entry is created. And the node and content are updated. To indicate this
-        scenario -1 is used for the node_id as it does not exist yet.
+        At the time of creation, the UserFile is uploaded but not attached to an entry yet. This UserFile is treated
+        as temporary untill the actual entry is created and the node and content are updated.
 
         Arguments:
         request -- request data
             file -- filelike data
             assignment_id -- assignment ID
+            content_id -- content ID, should be null when creating a NEW entry.
 
         Returns
         On failure:
             unauthorized -- when the user is not logged in
             keyerror -- when file is not set
-            bad_request -- when the file was not found
+            bad_request -- when the file, assignment was not found or the validation failed.
         On success:
-            success -- a zip file of all the userdata with all their files
+            success -- name of the file.
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
@@ -405,55 +415,35 @@ class UserView(viewsets.ViewSet):
             return response.bad_request('No accompanying file found in the request.')
 
         try:
-            assignment_id, node_id = utils.required_params(request.POST, 'assignment_id', 'node_id')
-            content_id, = utils.optional_params(request.POST, 'content_id')
+            assignment_id, content_id = utils.required_params(request.POST, 'assignment_id', 'content_id')
         except KeyError:
-            return response.keyerror('assignment_id', 'node_id')
-
-        PRE_ENTRY_CREATION = '-1'
+            return response.keyerror('assignment_id', 'content_id')
 
         try:
-            validators.validate_user_file(request.FILES['file'])
+            validators.validate_user_file(request.FILES['file'], request.user)
         except ValidationError as e:
             return response.bad_request(e.args[0])
 
-        user_files = request.user.userfile_set.all()
-
-        # Fast check for allowed user storage space
-        if settings.USER_MAX_TOTAL_STORAGE_BYTES - len(user_files) * settings.USER_MAX_FILE_SIZE_BYTES <= \
-           request.FILES['file'].size:
-            # Slow check for allowed user storage space
-            file_size_sum = 0
-            for user_file in user_files:
-                file_size_sum += user_file.file.size
-            if file_size_sum > settings.USER_MAX_TOTAL_STORAGE_BYTES:
-                return response.bad_request('Unsufficient user storage space.')
-
         try:
-            assignment = Assignment.objects.get(pk=request.POST['assignment_id'])
+            assignment = Assignment.objects.get(pk=assignment_id)
         except Assignment.DoesNotExist:
-            return response.bad_request('Assignment with id {:s} was not found.'.format(request.POST['assignment_id']))
+            return response.bad_request('Assignment with id {:s} was not found.'.format(assignment_id))
 
         if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk).exists():
             return response.forbidden('You cannot upload a file to: {:s}.'.format(assignment.name))
 
-        if request.POST['node_id'] == PRE_ENTRY_CREATION:
-            # These files can be named similarly, and will recieve a random name appended if so.
+        if content_id == 'null':
             factory.make_user_file(request.FILES['file'], request.user, assignment)
         else:
             try:
-                # As these are the users own files, no validation is required for the 'content_id'.
-                old_file = user_files.get(content=int(content_id))
-            except (ValueError, UserFile.DoesNotExist):
-                return response.bad_request('UserFile with contentID {:s} was not found.'.format(content_id))
+                content = Content.objects.get(pk=content_id, entry__node__journal__user=request.user)
+            except Content.DoesNotExist:
+                return response.bad_request('Content with id {:s} was not found.'.format(content_id))
 
-            old_entry = old_file.entry
-            old_node = old_file.node
-            old_content = old_file.content
-            old_file.delete()
-
-            factory.make_user_file(request.FILES['file'], request.user, assignment, entry=old_entry, node=old_node,
-                                   content=old_content)
+            file = factory.make_user_file(request.FILES['file'], request.user, assignment, content=content)
+            print(file.entry)
+            print(file.node)
+            print(file.content)
 
         return response.success(description='Succesfully uploaded {:s}.'.format(request.FILES['file'].name))
 

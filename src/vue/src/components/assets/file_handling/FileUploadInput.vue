@@ -24,24 +24,15 @@ export default {
             required: true,
             String
         },
-        nID: {
-            required: true,
-            String
-        },
-        entryID: {
-            required: true,
-            String
-        },
-        contentID: {
-            required: true,
-            String
-        },
         autoUpload: {
             required: true,
             Boolean
         },
         placeholder: {
             default: 'Select a file.'
+        },
+        contentID: {
+            default: null
         }
     },
     data () {
@@ -70,9 +61,9 @@ export default {
             let formData = new FormData()
             formData.append('file', this.file)
             formData.append('assignment_id', this.aID)
-            formData.append('node_id', this.nID)
-            formData.append('entry_id', this.entryID)
             formData.append('content_id', this.contentID)
+            console.log(this.contentID)
+            if (this.contentID) { console.log('Content ID SET') }
 
             userAPI.uploadUserFile(formData)
                 .then(_ => {

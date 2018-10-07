@@ -61,7 +61,6 @@
 
 <script>
 import fileUploadInput from '@/components/assets/file_handling/FileUploadInput.vue'
-import pdfDisplay from '@/components/assets/PdfDisplay.vue'
 import textEditor from '@/components/assets/TextEditor.vue'
 import icon from 'vue-awesome/components/Icon'
 import urlInput from '@/components/assets/UrlInput.vue'
@@ -69,7 +68,6 @@ import urlInput from '@/components/assets/UrlInput.vue'
 export default {
     props: ['template'],
     components: {
-        'pdf-display': pdfDisplay,
         'file-upload-input': fileUploadInput,
         'text-editor': textEditor,
         'url-input': urlInput,

@@ -8,10 +8,11 @@ from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 from datetime import datetime
 
-from VLE.models import Journal, Node, Content, Field, Template, Entry, Comment, UserFile
+from VLE.models import Journal, Node, Field, Template, Entry, Comment
 import VLE.views.responses as response
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
+import VLE.utils.entry_utils as entry_utils
 from VLE.utils import file_handling
 import VLE.lti_grade_passback as lti_grade
 import VLE.timeline as timeline
@@ -49,13 +50,6 @@ class EntryView(viewsets.ViewSet):
             node_id, = utils.optional_params(request.data, "node_id")
         except KeyError:
             return response.keyerror("journal_id", "template_id", "content")
-
-        try:
-            validators.validate_entry_content(content_list)
-        except ValidationError as e:
-            return response.bad_request(e.args[0])
-        except KeyError:
-            return response.keyerror('content.id', 'content.data')
 
         try:
             journal = Journal.objects.get(pk=journal_id, user=request.user)
@@ -104,25 +98,28 @@ class EntryView(viewsets.ViewSet):
 
         for content in content_list:
             try:
-                field = Field.objects.get(pk=content['id'])
+                data, field_id = utils.required_params(content, 'data', 'id')
+                field = Field.objects.get(pk=field_id)
+                validators.validate_entry_content2(data, field)
+            except KeyError:
+                return response.keyerror('content.data', 'content.id')
             except Field.DoesNotExist:
                 return response.not_found('Field does not exist.')
+            except ValidationError as e:
+                return response.bad_request(e.args[0])
 
-            created_content = factory.make_content(node.entry, content['data'], field)
+            created_content = factory.make_content(node.entry, data, field)
 
-            # TODO F Catch failed get of user file, get field types more dynamically
+            # TODO F get field types more dynamically
             if field.type in ['i', 'f', 'p']:
-                try:
-                    user_file = UserFile.objects.filter(author=request.user, assignment=journal.assignment, node=None,
-                                                        entry=None, content=None, file_name=content['data'])[0]
-                    print(user_file.file.name)
-                    file_handling.make_permanent_file_content(user_file, created_content, node)
-                except (UserFile.DoesNotExist, IndexError):
+                user_file = file_handling.get_temp_user_file(request.user, journal.assignment, content['data'])
+                if user_file is None:
                     node.entry.delete()
                     return response.bad_request('One of your files was not correctly uploaded, please try gain.')
 
-        for user_file in request.user.userfile_set.all().filter(node=None, entry=None, content=None):
-            user_file.delete()
+                file_handling.make_permanent_file_content(user_file, created_content, node)
+
+        file_handling.remove_temp_user_files(request.user)
 
         # Find the new index of the new node so that the client can automatically scroll to it.
         result = timeline.get_nodes(journal, request.user)
@@ -212,23 +209,57 @@ class EntryView(viewsets.ViewSet):
                (journal.assignment.due_date and journal.assignment.due_date < datetime.now()):
                 return response.bad_request('You are not allowed to edit entries past their due date.')
 
-            try:
-                validators.validate_entry_content(content_list)
-            except ValidationError as e:
-                return response.bad_request(e.args[0])
-            except KeyError:
-                return response.keyerror('content.id', 'content.data')
-
-            Content.objects.filter(entry=entry).all().delete()
-
             for content in content_list:
                 try:
-                    field = Field.objects.get(pk=content['id'])
-                except Field.DoesNotExist:
-                    return response.not_found('Field does not exist.')
+                    old_content, field, data = entry_utils.get_validated_field_and_content(content, entry)
+                    validators.validate_entry_content2(data, field)
+                except KeyError:
+                    return response.keyerror('content.contentID', 'content.id', 'content.data')
+                except ValidationError as e:
+                    return response.bad_request(e.args[0])
 
-                if content['data']:
-                    factory.make_content(entry, content['data'], field)
+                if not data:
+                    old_content.delete()
+                    continue
+
+                entry_utils.patch_entry_content(request.user, entry, old_content, field, data, journal.assignment)
+
+            # WORKING BELOW
+            # try:
+            #     validators.validate_entry_content(content_list)
+            # except ValidationError as e:
+            #     return response.bad_request(e.args[0])
+            # except KeyError:
+            #     return response.keyerror('content.id', 'content.data')
+            #
+            # for content in content_list:
+            #     try:
+            #         field = Field.objects.get(pk=content['id'])
+            #         old_content = entry.content_set.get(pk=content['contentID'])
+            #     except (Field.DoesNotExist, Content.DoesNotExist):
+            #         return response.not_found('Field or content does not exist.')
+            #
+            #     if old_content.field.pk != int(content['id']):
+            #         return response.bad_request('The given content does not match the according field type.')
+            #
+            #     if not content['data']:
+            #         old_content.delete()
+            #         continue
+            #
+            #     if field.type in ['i', 'f', 'p']:
+            #         new_file = file_handling.get_temp_user_file(request.user, journal.assignment, content['data'],
+            #                                                     entry=entry, node=entry.node, content=old_content)
+            #
+            #         # Only create new file content if a temp file is found, and thus the replacement file is present.
+            #         if new_file:
+            #             new_content = factory.make_content(entry, content['data'], field)
+            #             file_handling.make_permanent_file_content(new_file, new_content, entry.node)
+            #             old_content.delete()
+            #     else:
+            #         old_content.delete()
+            #         factory.make_content(entry, content['data'], field)
+
+            file_handling.remove_temp_user_files(request.user)
 
         req_data = request.data
         if 'content' in req_data:

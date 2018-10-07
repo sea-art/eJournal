@@ -18,6 +18,18 @@ export default {
         authorUID: {
             required: true,
             String
+        },
+        entryID: {
+            required: true,
+            String
+        },
+        nodeID: {
+            required: true,
+            String
+        },
+        contentID: {
+            required: true,
+            String
         }
     },
     components: {
@@ -25,7 +37,7 @@ export default {
     },
     methods: {
         fileDownload (e) {
-            userAPI.download(this.authorUID, this.fileName)
+            userAPI.download(this.authorUID, this.fileName, this.entryID, this.nodeID, this.contentID)
                 .then(response => {
                     let blob = new Blob([response.data], { type: response.headers['content-type'] })
                     let link = document.createElement('a')

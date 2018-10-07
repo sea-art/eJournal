@@ -8,12 +8,15 @@ from django.contrib.auth.models import AbstractUser
 from django.utils.timezone import now
 from VLE.utils.file_handling import get_path
 from django.core.exceptions import ValidationError
+from django.dispatch import receiver
+import os
 
 
+# TODO F Cascade related deletes do not actually delete the file itself.
 class UserFile(models.Model):
     """UserFile.
 
-    UserFile is a file uploaded by the user stored in MEDIA_ROOT/uID/aID/nID/contentID/<file>
+    UserFile is a file uploaded by the user stored in MEDIA_ROOT/uID/aID/<file>
     - author: The user who uploaded the file.
     - file_name: The name of the file (no parts of the path to the file included).
     - creation_date: The time and date the file was uploaded.
@@ -73,6 +76,14 @@ class UserFile(models.Model):
     def __str__(self):
         """toString."""
         return self.file.name
+
+
+@receiver(models.signals.post_delete, sender=UserFile)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """Deletes file from filesystem when corresponding `UserFile` object is deleted."""
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
 
 
 class User(AbstractUser):
