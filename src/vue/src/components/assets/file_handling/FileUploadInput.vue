@@ -62,8 +62,6 @@ export default {
             formData.append('file', this.file)
             formData.append('assignment_id', this.aID)
             formData.append('content_id', this.contentID)
-            console.log(this.contentID)
-            if (this.contentID) { console.log('Content ID SET') }
 
             userAPI.uploadUserFile(formData)
                 .then(_ => {
@@ -71,7 +69,6 @@ export default {
                     this.$toasted.success('File upload success.')
                 })
                 .catch(error => {
-                    console.log(error.response)
                     this.$emit('fileUploadFailed', this.file.name)
                     this.$toasted.error(error.response.data.description)
                     this.file = null

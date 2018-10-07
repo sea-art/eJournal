@@ -110,7 +110,6 @@ class EntryView(viewsets.ViewSet):
 
             created_content = factory.make_content(node.entry, data, field)
 
-            # TODO F get field types more dynamically
             if field.type in ['i', 'f', 'p']:
                 user_file = file_handling.get_temp_user_file(request.user, journal.assignment, content['data'])
                 if user_file is None:
@@ -229,7 +228,7 @@ class EntryView(viewsets.ViewSet):
                     old_content.delete()
                     continue
 
-                entry_utils.replace_entry_content(request.user, entry, old_content, field, data, journal.assignment)
+                entry_utils.patch_entry_content(request.user, entry, old_content, field, data, journal.assignment)
 
             file_handling.remove_temp_user_files(request.user)
 

@@ -46,8 +46,9 @@ export default {
                     document.body.appendChild(link)
                     link.click()
                     link.remove()
-                }, error => {
-                    this.$toasted.error(error.response.data.description)
+                }, _ => {
+                    // TODO Translate error from server for all responseType: 'arraybuffer' responses.
+                    this.$toasted.error('Error downloading ' + this.fileName)
                 })
                 .catch(_ => {
                     this.$toasted.error('Error creating file.')

@@ -12,7 +12,6 @@ from django.dispatch import receiver
 import os
 
 
-# TODO F Cascade related deletes do not actually delete the file itself.
 class UserFile(models.Model):
     """UserFile.
 

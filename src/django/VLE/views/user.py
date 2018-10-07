@@ -365,7 +365,6 @@ class UserView(viewsets.ViewSet):
             return response.keyerror('file_name', 'entry_id', 'node_id', 'content_id')
 
         try:
-            print('DOWNLOAD: ' + entry_id, node_id, content_id)
             user_file = UserFile.objects.get(author=pk, file_name=file_name, entry=int(entry_id), node=int(node_id),
                                              content=int(content_id))
         except (UserFile.DoesNotExist, ValueError):
@@ -376,7 +375,7 @@ class UserView(viewsets.ViewSet):
                 request.user, user_file.assignment, 'can_view_assignment_journals'):
             return response.forbidden('Forbidden to view: %s by author ID: %s.' % (file_name, pk))
 
-        return response.file(os.path.join(settings.MEDIA_ROOT, user_file.file.name))
+        return response.file(user_file)
 
     @action(methods=['post'], detail=False)
     def upload(self, request):
@@ -426,7 +425,6 @@ class UserView(viewsets.ViewSet):
             return response.forbidden('You cannot upload a file to: {:s}.'.format(assignment.name))
 
         if content_id == 'null':
-            print('\n UPLOAD CONTENT ID NULL \n')
             factory.make_user_file(request.FILES['file'], request.user, assignment)
         else:
             try:
@@ -434,8 +432,7 @@ class UserView(viewsets.ViewSet):
             except Content.DoesNotExist:
                 return response.bad_request('Content with id {:s} was not found.'.format(content_id))
 
-            file = factory.make_user_file(request.FILES['file'], request.user, assignment, content=content)
-            print('UPLOAD: ' + str(file.entry), str(file.node), str(file.content))
+            factory.make_user_file(request.FILES['file'], request.user, assignment, content=content)
 
         return response.success(description='Succesfully uploaded {:s}.'.format(request.FILES['file'].name))
 
