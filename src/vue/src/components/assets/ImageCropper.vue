@@ -1,39 +1,36 @@
 <template>
-    <div>
-        <b-card class="no-hover">
-            <h2>Preview:</h2>
-            <div class="profile-portrait small-shadow">
-                <croppa v-model="croppa"
-                    :width="250"
-                    :height="250"
-                    canvas-color="transparent"
-                    :show-remove-button="false"
-                    :show-loading="true"
-                    :loading-size="50"
-                    accept="image/*"
-                    :file-size-limit="this.$root.maxFileSizeBytes"
-                    @file-type-mismatch="onFileTypeMismatch"
-                    @file-size-exceed="onFileSizeExceed">
-                 >
-                <img :src="$store.getters['user/profilePicture']"
-                    slot="initial">
-                </croppa>
-            </div>
-            <br/><br/>
-            <b-button @click="croppa.chooseFile()">
-                <icon name="upload"/>
-                Upload
-            </b-button>
-            <b-button class="change-button" @click="refreshPicture()">
-                <icon name="undo"/>
-                Refresh
-            </b-button>
-            <b-button class="add-button float-right" @click="savePicture()">
-                <icon name="save"/>
-                Save
-            </b-button>
-        </b-card>
-    </div>
+    <b-card class="no-hover">
+        <h2>Preview:</h2>
+        <div class="profile-portrait small-shadow">
+            <croppa v-model="croppa"
+                :width="250"
+                :height="250"
+                canvas-color="transparent"
+                :show-remove-button="false"
+                :show-loading="true"
+                :loading-size="50"
+                accept="image/*"
+                :file-size-limit="this.$root.maxFileSizeBytes"
+                @file-type-mismatch="onFileTypeMismatch"
+                @file-size-exceed="onFileSizeExceed">
+            <img :src="$store.getters['user/profilePicture']"
+                slot="initial">
+            </croppa>
+        </div>
+        <br/><br/>
+        <b-button @click="croppa.chooseFile()">
+            <icon name="upload"/>
+            Upload
+        </b-button>
+        <b-button class="change-button" @click="refreshPicture()">
+            <icon name="undo"/>
+            Refresh
+        </b-button>
+        <b-button class="add-button float-right" @click="savePicture()">
+            <icon name="save"/>
+            Save
+        </b-button>
+    </b-card>
 </template>
 
 <script>
@@ -45,7 +42,6 @@ export default {
     components: {
         icon
     },
-
     data () {
         return {
             croppa: {}
@@ -112,7 +108,6 @@ export default {
     background-color: #000000
     height: 100%
     width: 100%
-
 .croppa-container:hover
     opacity: 1
     background-color: #000000
