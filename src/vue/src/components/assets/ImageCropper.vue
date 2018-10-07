@@ -74,7 +74,7 @@ export default {
 @import '~sass/modules/colors.sass'
 
 .profile-portrait
-    display: inline-block
+    display: block
     position: relative
     width: 100%
     max-width: 250px
@@ -82,6 +82,8 @@ export default {
     margin-bottom: 20px
     border-radius: 50% !important
     overflow: hidden
+    margin-left: auto
+    margin-right: auto
     @include lg
         left: 10px
         top: 20px
