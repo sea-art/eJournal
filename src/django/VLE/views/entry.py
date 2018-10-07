@@ -32,7 +32,7 @@ class EntryView(viewsets.ViewSet):
     def create(self, request):
         """Create a new entry.
 
-        Deletes remaining temporary user files if successfull.
+        Deletes remaining temporary user files if successful.
 
         Arguments:
         request -- the request that was send with
@@ -211,8 +211,8 @@ class EntryView(viewsets.ViewSet):
             for content in content_list:
                 try:
                     field_id, data, content_id = utils.required_params(content, 'id', 'data', 'contentID')
-                    field = Field.objects.get(pk=field_id)
-                    old_content = entry.content_set.get(pk=content_id)
+                    field = Field.objects.get(pk=int(field_id))
+                    old_content = entry.content_set.get(pk=int(content_id))
                     validators.validate_entry_content(data, field)
                 except KeyError:
                     return response.keyerror('content.id', 'content.data', 'content.contentID')

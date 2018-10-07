@@ -5,9 +5,11 @@ This file contains functions to easily generate common HTTP error responses
 using JsonResponses. These functions should be used whenever the client needs
 to receive the appropriate error code.
 """
+from VLE.models import UserFile
+
 from django.http import JsonResponse, HttpResponse, FileResponse
 from django.conf import settings
-from VLE.models import UserFile
+
 import os
 import base64
 

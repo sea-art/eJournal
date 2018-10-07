@@ -387,7 +387,6 @@ class UserView(viewsets.ViewSet):
         """Update user profile picture.
 
         No validation is performed beyond a size check of the file and the available space for the user.
-
         At the time of creation, the UserFile is uploaded but not attached to an entry yet. This UserFile is treated
         as temporary untill the actual entry is created and the node and content are updated.
 
