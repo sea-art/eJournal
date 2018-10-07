@@ -1,7 +1,7 @@
 <template>
     <b-card class="no-hover">
         <h2>Preview:</h2>
-        <div class="profile-portrait small-shadow">
+        <div class="profile-portrait-edit small-shadow">
             <croppa v-model="croppa"
                 :width="250"
                 :height="250"
@@ -13,8 +13,9 @@
                 :file-size-limit="this.$root.maxFileSizeBytes"
                 @file-type-mismatch="onFileTypeMismatch"
                 @file-size-exceed="onFileSizeExceed">
-            <img :src="$store.getters['user/profilePicture']"
-                slot="initial">
+                <img
+                    :src="$store.getters['user/profilePicture']"
+                    slot="initial">
             </croppa>
         </div>
         <br/><br/>
@@ -73,7 +74,8 @@ export default {
 @import '~sass/modules/breakpoints.sass'
 @import '~sass/modules/colors.sass'
 
-.profile-portrait
+.profile-portrait-edit
+    overflow: hidden
     display: block
     position: relative
     width: 100%
@@ -82,11 +84,7 @@ export default {
     margin-bottom: 20px
     border-radius: 50% !important
     overflow: hidden
-    margin-left: auto
-    margin-right: auto
-    @include lg
-        left: 10px
-        top: 20px
+    margin: 0 auto
     croppa
         position: absolute
         height: 100%
