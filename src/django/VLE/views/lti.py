@@ -115,6 +115,8 @@ def lti_launch(request):
     authenticated, err = lti.OAuthRequestValidater.check_signature(
         key, secret, request)
 
+    print(err)
+
     if authenticated:
         roles = json.load(open(settings.LTI_ROLE_CONFIG_PATH))
         params = request.POST.dict()
