@@ -1,20 +1,18 @@
 <template>
     <b-row>
         <b-col md="5" sm="12" class="text-center">
+            <b-modal
+                ref="cropperModal"
+                title="Edit your profile picture"
+                hide-footer>
+                    <cropper v-if="this.profileImageDataURL" :pictureUrl="this.profileImageDataURL" @newPicture="fileHandler" :refresh="updateCropper"/>
+            </b-modal>
             <div class="profile-portrait small-shadow">
                 <img :src="$store.getters['user/profilePicture']">
-                <!-- TODO Add cropping tool to help with the square aspect ratio Croppa seems most active and a solid choice -->
-                <b-button @click="$refs.file.click()">
-                    <icon name="upload"/>
-                    Upload
+                <b-button @click="showCropperModal()">
+                    <icon name="edit"/>
+                    Edit
                 </b-button>
-                <input
-                    class="fileinput"
-                    @change="fileHandler"
-                    ref="file"
-                    accept="image/*"
-                    style="display: none"
-                    type="file"/>
             </div>
         </b-col>
         <b-col md="7" sm="12">
@@ -42,10 +40,13 @@ import email from '@/components/profile/Email.vue'
 import userAPI from '@/api/user'
 import icon from 'vue-awesome/components/Icon'
 
+import cropper from '@/components/assets/ImageCropper'
+
 export default {
     components: {
         icon,
-        email
+        email,
+        cropper
     },
     data () {
         return {
@@ -55,10 +56,18 @@ export default {
             emailVerificationToken: null,
             emailVerificationTokenMessage: null,
             firstName: null,
-            lastName: null
+            lastName: null,
+            updateCropper: false
         }
     },
     methods: {
+        showCropperModal () {
+            this.updateCropper = !this.updateCropper
+            this.$refs['cropperModal'].show()
+        },
+        hideCropper (ref) {
+            this.$refs[ref].hide()
+        },
         saveUserdata () {
             userAPI.update(0, {first_name: this.firstName, last_name: this.lastName})
                 .then(_ => {
@@ -67,37 +76,14 @@ export default {
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
-        fileHandler (e) {
-            let files = e.target.files
-
-            if (!files.length) { return }
-            if (files[0].size > this.$root.maxFileSizeBytes) {
-                this.$toasted.error('The profile picture exceeds the maximum file size of ' + this.$root.maxFileSizeBytes + ' bytes.')
-                return
-            }
-
-            var vm = this
-
-            var reader = new FileReader()
-            reader.onload = () => {
-                var dataURL = reader.result
-
-                var img = new Image()
-                img.onload = () => {
-                    if (img.width !== img.height) {
-                        this.$toasted.error('Please submit a square image.')
-                    } else {
-                        userAPI.updateProfilePictureBase64(dataURL)
-                            .then(_ => {
-                                vm.$store.commit('user/SET_PROFILE_PICTURE', dataURL)
-                                vm.profileImageDataURL = dataURL
-                            })
-                            .catch(error => { this.$toasted.error(error.response.data.description) })
-                    }
-                }
-                img.src = dataURL
-            }
-            reader.readAsDataURL(files[0])
+        fileHandler (dataURL) {
+            userAPI.updateProfilePictureBase64(dataURL)
+                .then(_ => {
+                    this.$store.commit('user/SET_PROFILE_PICTURE', dataURL)
+                    this.profileImageDataURL = dataURL
+                    this.$toasted.success('Profile picture updated.')
+                })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         downloadUserData () {
             userAPI.GDPR()

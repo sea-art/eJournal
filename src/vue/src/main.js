@@ -7,6 +7,7 @@ import BootstrapVue from 'bootstrap-vue'
 import '../node_modules/bootstrap/dist/css/bootstrap.css'
 import '../node_modules/bootstrap-vue/dist/bootstrap-vue.css'
 import '../node_modules/flatpickr/dist/flatpickr.css'
+import '../node_modules/vue-croppa/dist/vue-croppa.css'
 
 import 'vue-awesome/icons/eye'
 import 'vue-awesome/icons/caret-up'
@@ -60,11 +61,13 @@ import 'vue-awesome/icons/github'
 
 import Toasted from 'vue-toasted'
 import flatPickr from 'vue-flatpickr-component'
+import Croppa from 'vue-croppa'
 
 Vue.config.productionTip = false
 Vue.use(Toasted, { position: 'top-center', duration: 4000 })
 Vue.use(BootstrapVue)
 Vue.use(flatPickr)
+Vue.use(Croppa)
 
 /* Checks the store for for permissions according to the current route cID or aID. */
 Vue.prototype.$hasPermission = store.getters['permissions/hasPermission']
