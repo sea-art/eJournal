@@ -47,7 +47,7 @@ import 'vue-awesome/icons/home'
 import 'vue-awesome/icons/calendar'
 import 'vue-awesome/icons/key'
 import 'vue-awesome/icons/question'
-import 'vue-awesome/icons/spinner'
+import 'vue-awesome/icons/circle-o-notch'
 import 'vue-awesome/icons/sort'
 import 'vue-awesome/icons/align-left'
 import 'vue-awesome/icons/long-arrow-up'
@@ -55,6 +55,8 @@ import 'vue-awesome/icons/long-arrow-down'
 import 'vue-awesome/icons/comments'
 import 'vue-awesome/icons/cog'
 import 'vue-awesome/icons/clock-o'
+import 'vue-awesome/icons/print'
+import 'vue-awesome/icons/github'
 
 import Toasted from 'vue-toasted'
 import flatPickr from 'vue-flatpickr-component'
@@ -91,7 +93,6 @@ new Vue({
             enableTime: true,
             time_24hr: true
         }
-
     },
     mounted () {
         this.$nextTick(function () {

@@ -50,7 +50,8 @@
                 </student-card>
             </b-link>
         </div>
-        <main-card v-if="assignmentJournals.length === 0" slot="main-content-column" class="no-hover" :line1="'No participants with a journal'"/>
+        <main-card v-if="loadingJournals && assignmentJournals.length === 0" slot="main-content-column" class="no-hover" :line1="'Loading journals...'"/>
+        <main-card v-else-if="assignmentJournals.length === 0" slot="main-content-column" class="no-hover" :line1="'No participants with a journal'"/>
         <main-card v-else-if="filteredJournals.length === 0" slot="main-content-column" class="no-hover" :line1="'No journals found'"/>
 
         <div v-if="stats" slot="right-content-column">
@@ -72,6 +73,7 @@ import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import store from '@/Store.vue'
 import assignmentAPI from '@/api/assignment'
 import groupAPI from '@/api/group'
+import participationAPI from '@/api/participation'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
@@ -94,6 +96,7 @@ export default {
             selectedFilterGroupOption: null,
             searchVariable: '',
             query: {},
+            loadingJournals: true,
             order: false
         }
     },
@@ -109,7 +112,7 @@ export default {
     created () {
         // TODO Should be moved to the breadcrumb, ensuring there is no more natural flow left that can get you to this
         // page without manipulating the url manually. If someone does this, simply let the error be thrown (no checks required)
-        if (!this.$hasPermission('can_view_assignment_journals')) {
+        if (!this.$hasPermission('can_view_assignment_journals', 'assignment', String(this.aID))) {
             if (this.$root.previousPage) {
                 this.$router.push({ name: this.$root.previousPage.name, params: this.$root.previousPage.params })
             } else {
@@ -119,6 +122,7 @@ export default {
 
         assignmentAPI.get(this.aID, this.cID)
             .then(assignment => {
+                this.loadingJournals = false
                 this.assignmentJournals = assignment.journals
                 this.stats = assignment.stats
             })
@@ -126,8 +130,20 @@ export default {
                 this.$toasted.error(error.response.data.description)
             })
 
-        groupAPI.getAllFromCourse(this.cID)
-            .then(groups => { this.groups = groups })
+        if (this.$hasPermission('can_view_course_users')) {
+            groupAPI.getAllFromCourse(this.cID)
+                .then(groups => {
+                    this.groups = groups
+                })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
+        }
+
+        participationAPI.get(this.cID)
+            .then(participant => {
+                if (participant.group.name) {
+                    this.selectedFilterGroupOption = participant.group.name
+                }
+            })
             .catch(error => { this.$toasted.error(error.response.data.description) })
 
         if (this.$route.query.sort === 'sortFullName' ||
