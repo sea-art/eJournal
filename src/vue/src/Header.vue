@@ -2,7 +2,7 @@
     <!-- Section visible if user logged in -->
     <b-navbar v-if="loggedIn" id="header" class="shadow" toggleable="md" type="dark" fixed=top>
         <transition name="fade">
-            <div class="spinner small-shadow" v-if="$store.getters['connection/checkOpenApiCalls']">
+            <div class="spinner small-shadow" v-if="openApiCalls">
                 <icon name="circle-o-notch" spin scale='1.3'/>
             </div>
         </transition>
@@ -44,7 +44,7 @@
     <!-- Section visible if user logged out -->
     <b-navbar v-else id="header" class="shadow" toggleable="md" type="dark" fixed=top>
         <transition name="fade">
-            <div class="spinner small-shadow" v-if="$store.getters['connection/checkOpenApiCalls']">
+            <div class="spinner small-shadow" v-if="openApiCalls">
                 <icon name="circle-o-notch" spin scale='1.3'/>
             </div>
         </transition>
@@ -84,7 +84,8 @@ export default {
     computed: {
         ...mapGetters({
             loggedIn: 'user/loggedIn',
-            profileImg: 'user/profilePicture'
+            profileImg: 'user/profilePicture',
+            openApiCalls: 'connection/checkOpenApiCalls'
         })
     }
 }
