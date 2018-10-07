@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import EmailMessage
-
 from VLE.models import Role
 
 
@@ -97,6 +96,5 @@ def send_email_feedback(user, files, topic, ftype, feedback, user_agent, url):
         headers={'Content-Type': 'text/plain'},
         reply_to=[user.email]
     )
-
     reply.send()
     forward.send()

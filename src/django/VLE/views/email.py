@@ -7,11 +7,12 @@ This includes:
 """
 from rest_framework.decorators import api_view
 import VLE.views.responses as response
-import VLE.utils.email_handling as email_handling
+from VLE.utils import email_handling
 import VLE.utils.generic_utils as utils
 import VLE.validators as validators
 from VLE.models import User
 
+from smtplib import SMTPAuthenticationError
 from django.core.exceptions import ValidationError
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.html import escape
@@ -47,10 +48,13 @@ def forgot_password(request):
         except User.DoesNotExist:
             return response.bad_request('No user found with that username or email.')
 
-    email_handling.send_password_recovery_link(user)
-
-    return response.success(description='An email was sent to %s, please follow the email for instructions.'
-                            % user.email)
+    try:
+        email_handling.send_password_recovery_link(user)
+        return response.success(description='An email was sent to %s, please follow the email for instructions.'
+                                % user.email)
+    except SMTPAuthenticationError:
+        return response.internal_server_error(
+            description='Mailserver is not configured correctly, please contact a server admin.')
 
 
 @api_view(['POST'])
@@ -128,10 +132,13 @@ def request_email_verification(request):
     if request.user.verified_email:
         return response.bad_request(description='Email address already verified.')
 
-    email_handling.send_email_verification_link(request.user)
-
-    return response.success(description='An email was sent to %s, please follow the email for instructions.'
-                            % request.user.email)
+    try:
+        email_handling.send_email_verification_link(request.user)
+        return response.success(description='An email was sent to %s, please follow the email for instructions.'
+                                            % request.user.email)
+    except SMTPAuthenticationError:
+        return response.internal_server_error(
+            description='Mailserver is not configured correctly, please contact a server admin.')
 
 
 @api_view(['POST'])
@@ -165,5 +172,9 @@ def send_feedback(request):
     except ValidationError as e:
         return response.bad_request(e.args[0])
 
-    email_handling.send_email_feedback(request.user, files, **request.POST)
-    return response.success(description='Feedback was succesfully received, thank you!')
+    try:
+        email_handling.send_email_feedback(request.user, files, **request.POST)
+        return response.success(description='Feedback was succesfully received, thank you!')
+    except SMTPAuthenticationError:
+        return response.internal_server_error(
+            description='Mailserver is not configured correctly, please contact a server admin.')
