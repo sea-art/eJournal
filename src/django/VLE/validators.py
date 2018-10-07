@@ -1,8 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.core.validators import URLValidator
-from VLE.models import Field, Content
-import VLE.utils.generic_utils as utils
 import re
 
 

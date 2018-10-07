@@ -23,7 +23,6 @@ import VLE.permissions as permissions
 
 import jwt
 import json
-import os
 
 
 class UserView(viewsets.ViewSet):
