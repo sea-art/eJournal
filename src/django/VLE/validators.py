@@ -59,28 +59,8 @@ def validate_password(password):
         raise ValidationError("Password needs to contain a special character.")
 
 
-def validate_entry_content(content_list):
-    """Validates the given data based on its field type, any validation error will be raised."""
-    for content in content_list:
-        try:
-            id, data = utils.required_params(content, "id", "data")
-        except KeyError as e:
-            raise e
-
-        if not data:
-            continue
-
-        field = Field.objects.get(pk=id)
-
-        if field.type == URL:
-            try:
-                url_validate = URLValidator(schemes=('http', 'https', 'ftp', 'ftps'))
-                url_validate(data)
-            except ValidationError as e:
-                raise e
-
-
-def validate_entry_content2(data, field):
+def validate_entry_content(data, field):
+    """Validates the given data based on its field type, any validation error will be thrown."""
     if not data:
         return
 

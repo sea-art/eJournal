@@ -364,16 +364,10 @@ class UserView(viewsets.ViewSet):
         except KeyError:
             return response.keyerror('file_name', 'entry_id', 'node_id', 'content_id')
 
-        print('FILENAME ' + file_name)
-        print('ENTRY ' + entry_id)
-        print('NODE ' + node_id)
-        print('CONTENT ' + content_id)
-
         try:
-            print('FETCHING FILE')
+            print('DOWNLOAD: ' + entry_id, node_id, content_id)
             user_file = UserFile.objects.get(author=pk, file_name=file_name, entry=int(entry_id), node=int(node_id),
                                              content=int(content_id))
-            print('GOT FILE')
         except (UserFile.DoesNotExist, ValueError):
             return response.bad_request(file_name + ' was not found.')
 
@@ -382,7 +376,6 @@ class UserView(viewsets.ViewSet):
                 request.user, user_file.assignment, 'can_view_assignment_journals'):
             return response.forbidden('Forbidden to view: %s by author ID: %s.' % (file_name, pk))
 
-        print('USERFILE FILE NAME ' + user_file.file.name)
         return response.file(os.path.join(settings.MEDIA_ROOT, user_file.file.name))
 
     @action(methods=['post'], detail=False)
@@ -433,17 +426,16 @@ class UserView(viewsets.ViewSet):
             return response.forbidden('You cannot upload a file to: {:s}.'.format(assignment.name))
 
         if content_id == 'null':
+            print('\n UPLOAD CONTENT ID NULL \n')
             factory.make_user_file(request.FILES['file'], request.user, assignment)
         else:
             try:
-                content = Content.objects.get(pk=content_id, entry__node__journal__user=request.user)
+                content = Content.objects.get(pk=int(content_id), entry__node__journal__user=request.user)
             except Content.DoesNotExist:
                 return response.bad_request('Content with id {:s} was not found.'.format(content_id))
 
             file = factory.make_user_file(request.FILES['file'], request.user, assignment, content=content)
-            print(file.entry)
-            print(file.node)
-            print(file.content)
+            print('UPLOAD: ' + str(file.entry), str(file.node), str(file.content))
 
         return response.success(description='Succesfully uploaded {:s}.'.format(request.FILES['file'].name))
 

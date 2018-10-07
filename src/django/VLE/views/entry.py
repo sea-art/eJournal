@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.utils.timezone import now
 from datetime import datetime
 
-from VLE.models import Journal, Node, Field, Template, Entry, Comment
+from VLE.models import Journal, Node, Field, Template, Entry, Comment, Content
 import VLE.views.responses as response
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
@@ -100,7 +100,7 @@ class EntryView(viewsets.ViewSet):
             try:
                 data, field_id = utils.required_params(content, 'data', 'id')
                 field = Field.objects.get(pk=field_id)
-                validators.validate_entry_content2(data, field)
+                validators.validate_entry_content(data, field)
             except KeyError:
                 return response.keyerror('content.data', 'content.id')
             except Field.DoesNotExist:
@@ -211,53 +211,25 @@ class EntryView(viewsets.ViewSet):
 
             for content in content_list:
                 try:
-                    old_content, field, data = entry_utils.get_validated_field_and_content(content, entry)
-                    validators.validate_entry_content2(data, field)
+                    field_id, data, content_id = utils.required_params(content, 'id', 'data', 'contentID')
+                    field = Field.objects.get(pk=field_id)
+                    old_content = entry.content_set.get(pk=content_id)
+                    validators.validate_entry_content(data, field)
                 except KeyError:
-                    return response.keyerror('content.contentID', 'content.id', 'content.data')
+                    return response.keyerror('content.id', 'content.data', 'content.contentID')
+                except (Field.DoesNotExist, Content.DoesNotExist):
+                    return response.not_found('Field or content does not exist.')
                 except ValidationError as e:
                     return response.bad_request(e.args[0])
+
+                if old_content.field.pk != int(field_id):
+                    return response.bad_request('The given content does not match the accompanying field type.')
 
                 if not data:
                     old_content.delete()
                     continue
 
-                entry_utils.patch_entry_content(request.user, entry, old_content, field, data, journal.assignment)
-
-            # WORKING BELOW
-            # try:
-            #     validators.validate_entry_content(content_list)
-            # except ValidationError as e:
-            #     return response.bad_request(e.args[0])
-            # except KeyError:
-            #     return response.keyerror('content.id', 'content.data')
-            #
-            # for content in content_list:
-            #     try:
-            #         field = Field.objects.get(pk=content['id'])
-            #         old_content = entry.content_set.get(pk=content['contentID'])
-            #     except (Field.DoesNotExist, Content.DoesNotExist):
-            #         return response.not_found('Field or content does not exist.')
-            #
-            #     if old_content.field.pk != int(content['id']):
-            #         return response.bad_request('The given content does not match the according field type.')
-            #
-            #     if not content['data']:
-            #         old_content.delete()
-            #         continue
-            #
-            #     if field.type in ['i', 'f', 'p']:
-            #         new_file = file_handling.get_temp_user_file(request.user, journal.assignment, content['data'],
-            #                                                     entry=entry, node=entry.node, content=old_content)
-            #
-            #         # Only create new file content if a temp file is found, and thus the replacement file is present.
-            #         if new_file:
-            #             new_content = factory.make_content(entry, content['data'], field)
-            #             file_handling.make_permanent_file_content(new_file, new_content, entry.node)
-            #             old_content.delete()
-            #     else:
-            #         old_content.delete()
-            #         factory.make_content(entry, content['data'], field)
+                entry_utils.replace_entry_content(request.user, entry, old_content, field, data, journal.assignment)
 
             file_handling.remove_temp_user_files(request.user)
 

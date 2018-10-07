@@ -566,7 +566,7 @@ class Entry(models.Model):
 
     def __str__(self):
         """toString."""
-        return str(self.pk) + " " + str(self.grade)
+        return 'Entry id: {} grade: {}'.format(self.pk, self.grade)
 
 
 class Counter(models.Model):
