@@ -3,6 +3,7 @@ user.py.
 
 In this file are all the user api requests.
 """
+from smtplib import SMTPAuthenticationError
 from django.conf import settings
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
@@ -150,7 +151,12 @@ class UserView(viewsets.ViewSet):
                                  verified_email=True if lti_id else False)
 
         if lti_id is None:
-            email_handling.send_email_verification_link(user)
+            try:
+                email_handling.send_email_verification_link(user)
+            except SMTPAuthenticationError:
+                user.delete()
+                return response.internal_server_error(
+                    description='Mailserver is not configured correctly, please contact a server admin.')
 
         return response.created({'user': UserSerializer(user).data})
 

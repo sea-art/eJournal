@@ -71,7 +71,7 @@ export default {
         return {
             selectedRole: '',
             selectedGroup: '',
-            init: true
+            init: 2
         }
     },
     methods: {
@@ -94,8 +94,8 @@ export default {
     },
     watch: {
         selectedRole (val) {
-            if (this.init) {
-                this.init = false
+            if (this.init > 0) {
+                this.init--
             } else {
                 this.selectedRole = val
                 this.$emit('update:role', val)
@@ -114,8 +114,8 @@ export default {
             }
         },
         selectedGroup: function (val) {
-            if (this.init) {
-                this.init = false
+            if (this.init > 0) {
+                this.init--
             } else {
                 this.selectedGroup = val
                 this.$emit('update:group', val)
