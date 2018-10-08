@@ -12,7 +12,9 @@ export default {
     props: ['date', 'selected', 'deadline'],
     computed: {
         dateClass () {
-            return this.deadline ? 'deadline-class' : (this.selected ? 'date-selected' : 'date-unselected')
+            var classes = this.deadline ? 'deadline-class' : ''
+            classes += this.selected ? ' date-selected' : ' date-unselected'
+            return classes
         }
     }
 }
@@ -21,6 +23,9 @@ export default {
 <style lang="sass">
 @import '~sass/modules/colors.sass'
 
+.date-unselected
+    opacity: 0.35
+
 .deadline-class
     opacity: 1
     color: $theme-blue
@@ -28,9 +33,9 @@ export default {
 
 .date-selected
     opacity: 1
+    color: black
 
-.date-unselected
-    opacity: 0.35
+
 
 .date-text
     text-align: right
