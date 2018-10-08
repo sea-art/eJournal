@@ -9,7 +9,6 @@ from VLE.models import Journal, Assignment
 import VLE.permissions as permissions
 import VLE.views.responses as response
 import VLE.utils.generic_utils as utils
-import VLE.factory as factory
 import VLE.lti_grade_passback as lti_grade
 
 
