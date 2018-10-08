@@ -4,13 +4,13 @@ test_statisticspy.
 Test the authentication calls.
 """
 
+import test.test_utils as test
+
 from django.test import TestCase
 
-from VLE.models import Journal
-
 import VLE.factory as factory
-import test.test_utils as test
 import VLE.utils.generic_utils as utils
+from VLE.models import Journal
 
 
 class StatisticsTests(TestCase):
