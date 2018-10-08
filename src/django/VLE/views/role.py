@@ -6,7 +6,6 @@ import VLE.views.responses as response
 from VLE.serializers import RoleSerializer
 from VLE.models import Course, Role, User
 import VLE.factory as factory
-from django.core.exceptions import ValidationError
 
 
 class RoleView(viewsets.ViewSet):

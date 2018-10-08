@@ -6,7 +6,6 @@ In this file are all the user api requests.
 from smtplib import SMTPAuthenticationError
 from django.conf import settings
 from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
 
 from rest_framework import viewsets
 from rest_framework.decorators import action
