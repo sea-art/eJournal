@@ -6,9 +6,6 @@ from django.conf import settings
 import VLE.factory as factory
 from VLE.models import Journal, Lti_ids, Role, User
 
-"""Package for oauth authentication in python"""
-
-
 
 class OAuthRequestValidater(object):
     """OAuth request validater class for Django Requests"""

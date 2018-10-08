@@ -6,9 +6,6 @@ from django.conf import settings
 import VLE.utils.generic_utils as utils
 from VLE.models import Counter
 
-"""Package for oauth authentication in python"""
-
-
 
 class GradePassBackRequest(object):
     """Class to send Grade replace lti requests."""
