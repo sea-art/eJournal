@@ -1,4 +1,5 @@
 import VLE.views.responses as response
+from django.core.exceptions import ObjectDoesNotExist
 import re
 
 
@@ -10,8 +11,8 @@ class ErrorMiddleware:
         return self.get_response(request)
 
     def process_exception(self, request, exception):
-        DoesNotExist = re.search(
-                r'([\']+)([A-z .]*)matching query does not exist([A-z .]*[\']+)',
+        if isinstance(exception, ObjectDoesNotExist):
+            DoesNotExist = re.search(
+                r'([A-z .]*)matching query does not exist([A-z .]*[\']+)',
                 getattr(exception, 'message', repr(exception)))
-        if DoesNotExist:
-            return response.not_found(f'{DoesNotExist.group(2)} does not exist.')
+            return response.not_found(f'{DoesNotExist.group(1)} does not exist.')
