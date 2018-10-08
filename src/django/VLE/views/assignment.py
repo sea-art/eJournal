@@ -46,11 +46,7 @@ class AssignmentView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            course_id = int(request.query_params['course_id'])
-        except (KeyError, ValueError):
-            return response.keyerror('course_id')
-
+        course_id = int(request.query_params['course_id'])
         course = Course.objects.get(pk=course_id)
 
         role = permissions.get_role(request.user, course)
@@ -96,12 +92,9 @@ class AssignmentView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            name, description, course_id = utils.required_params(request.data, "name", "description", "course_id")
-            points_possible, unlock_date, due_date, lock_date, lti_id = \
-                utils.optional_params(request.data, "points_possible", "unlock_date", "due_date", "lock_date", "lti_id")
-        except KeyError:
-            return response.keyerror("name", "description", "course_id")
+        name, description, course_id = utils.required_params(request.data, "name", "description", "course_id")
+        points_possible, unlock_date, due_date, lock_date, lti_id = \
+            utils.optional_params(request.data, "points_possible", "unlock_date", "due_date", "lock_date", "lti_id")
 
         course = Course.objects.get(pk=course_id)
 
@@ -155,7 +148,7 @@ class AssignmentView(viewsets.ViewSet):
             return response.not_found('Assignment does not exist.')
 
         try:
-            course = Course.objects.get(id=request.query_params['course_id'])
+            course = Course.objects.get(id=int(request.query_params['course_id']))
         except (ValueError, KeyError):
             course = None
 
@@ -246,10 +239,7 @@ class AssignmentView(viewsets.ViewSet):
 
         assignment_id = kwargs.get('pk')
 
-        try:
-            course_id = int(request.query_params['course_id'])
-        except (KeyError, ValueError):
-            return response.keyerror('course_id')
+        course_id = int(request.query_params['course_id'])
 
         assignment = Assignment.objects.get(pk=assignment_id)
         course = Course.objects.get(pk=course_id)
@@ -325,10 +315,7 @@ class AssignmentView(viewsets.ViewSet):
 
         aID = kwargs.get('pk')
 
-        try:
-            published, = utils.required_params(request.data, 'published')
-        except KeyError:
-            return response.bad_request('Publish state of the assignment expected.')
+        published, = utils.required_params(request.data, 'published')
 
         assign = Assignment.objects.get(pk=aID)
 

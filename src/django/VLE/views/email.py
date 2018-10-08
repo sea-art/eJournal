@@ -12,8 +12,6 @@ import VLE.utils.generic_utils as utils
 import VLE.validators as validators
 from VLE.models import User
 
-from smtplib import SMTPAuthenticationError
-from django.core.exceptions import ValidationError
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.html import escape
 from django.http import HttpResponse
@@ -34,10 +32,7 @@ def forgot_password(request):
 
     Generates a recovery token if a matching user can be found by either the prodived username or email.
     """
-    try:
-        username, email = utils.required_params(request.data, 'username', 'email')
-    except KeyError:
-        return response.keyerror('username', 'email')
+    username, email = utils.required_params(request.data, 'username', 'email')
 
     # We are retrieving the username based on either the username or email
     try:
@@ -45,13 +40,9 @@ def forgot_password(request):
     except User.DoesNotExist:
         user = User.objects.get(email=email)
 
-    try:
-        email_handling.send_password_recovery_link(user)
-        return response.success(description='An email was sent to %s, please follow the email for instructions.'
-                                % user.email)
-    except SMTPAuthenticationError:
-        return response.internal_server_error(
-            description='Mailserver is not configured correctly, please contact a server admin.')
+    email_handling.send_password_recovery_link(user)
+    return response.success(description='An email was sent to %s, please follow the email for instructions.'
+                            % user.email)
 
 
 @api_view(['POST'])
@@ -66,10 +57,7 @@ def recover_password(request):
 
     Updates password if the recovery_token is valid.
     """
-    try:
-        utils.required_params(request.data, 'username', 'recovery_token', 'new_password')
-    except KeyError:
-        return response.keyerror('username', 'recovery_token', 'new_password')
+    utils.required_params(request.data, 'username', 'recovery_token', 'new_password')
 
     user = User.objects.get(username=request.data['username'])
 
@@ -77,10 +65,7 @@ def recover_password(request):
     if not token_generator.check_token(user, request.data['recovery_token']):
         return response.bad_request('Invalid recovery token.')
 
-    try:
-        validators.validate_password(request.data['new_password'])
-    except ValidationError as e:
-        return response.bad_request(e.args[0])
+    validators.validate_password(request.data['new_password'])
 
     user.set_password(request.data['new_password'])
     user.save()
@@ -103,10 +88,7 @@ def verify_email(request):
     if request.user.verified_email:
         return response.success(description='Email address already verified.')
 
-    try:
-        utils.required_params(request.data, 'token')
-    except KeyError:
-        return response.keyerror('token')
+    utils.required_params(request.data, 'token')
 
     token_generator = PasswordResetTokenGenerator()
     if not token_generator.check_token(request.user, request.data['token']):
@@ -126,13 +108,9 @@ def request_email_verification(request):
     if request.user.verified_email:
         return response.bad_request(description='Email address already verified.')
 
-    try:
-        email_handling.send_email_verification_link(request.user)
-        return response.success(description='An email was sent to %s, please follow the email for instructions.'
-                                            % request.user.email)
-    except SMTPAuthenticationError:
-        return response.internal_server_error(
-            description='Mailserver is not configured correctly, please contact a server admin.')
+    email_handling.send_email_verification_link(request.user)
+    return response.success(description='An email was sent to %s, please follow the email for instructions.'
+                                        % request.user.email)
 
 
 @api_view(['POST'])
@@ -161,14 +139,6 @@ def send_feedback(request):
         return response.bad_request('Required feedback field missing.')
 
     files = request.FILES.getlist('files')
-    try:
-        validators.validate_email_files(files)
-    except ValidationError as e:
-        return response.bad_request(e.args[0])
-
-    try:
-        email_handling.send_email_feedback(request.user, files, **request.POST)
-        return response.success(description='Feedback was succesfully received, thank you!')
-    except SMTPAuthenticationError:
-        return response.internal_server_error(
-            description='Mailserver is not configured correctly, please contact a server admin.')
+    validators.validate_email_files(files)
+    email_handling.send_email_feedback(request.user, files, **request.POST)
+    return response.success(description='Feedback was succesfully received, thank you!')

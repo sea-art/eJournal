@@ -44,10 +44,7 @@ class CommentView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            entry_id, = utils.required_params(request.query_params, "entry_id")
-        except KeyError:
-            return response.keyerror("entry_id")
+        entry_id, = utils.required_params(request.query_params, "entry_id")
 
         entry = Entry.objects.get(pk=entry_id)
 
@@ -86,10 +83,7 @@ class CommentView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            entry_id, text, published = utils.required_params(request.data, "entry_id", "text", "published")
-        except KeyError:
-            return response.keyerror("entry_id", "text", "published")
+        entry_id, text, published = utils.required_params(request.data, "entry_id", "text", "published")
 
         entry = Entry.objects.get(pk=entry_id)
         journal = Journal.objects.get(node__entry=entry)
@@ -148,7 +142,6 @@ class CommentView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            keyerror -- when comment_id or text is not set
             not found -- when the comment does not exist
             forbidden -- when the user is not allowed to comment
             unauthorized -- when the user is unauthorized to edit the assignment

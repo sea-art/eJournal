@@ -62,11 +62,8 @@ class CourseView(viewsets.ViewSet):
         if not perm['can_add_course']:
             return response.forbidden('You are not allowed to create a course.')
 
-        try:
-            name, abbr = utils.required_params(request.data, 'name', 'abbreviation')
-            startdate, enddate, lti_id = utils.optional_params(request.data, 'startdate', 'enddate', 'lti_id')
-        except KeyError:
-            return response.keyerror('name', 'abbreviation')
+        name, abbr = utils.required_params(request.data, 'name', 'abbreviation')
+        startdate, enddate, lti_id = utils.optional_params(request.data, 'startdate', 'enddate', 'lti_id')
 
         course = factory.make_course(name, abbr, startdate, enddate, request.user, lti_id)
 

@@ -73,13 +73,9 @@ class FormatView(viewsets.ViewSet):
 
         assignment_id = pk
 
-        try:
-            assignment_details, templates, presets, unused_templates, removed_presets, removed_templates \
-                = utils.required_params(request.data, "assignment_details", "templates", "presets",
-                                        "unused_templates", "removed_presets", "removed_templates")
-        except KeyError:
-            return response.keyerror("assignment_details", "templates", "presets", "unused_templates",
-                                     "removed_presets", "removed_templates")
+        assignment_details, templates, presets, unused_templates, removed_presets, removed_templates \
+            = utils.required_params(request.data, "assignment_details", "templates", "presets",
+                                    "unused_templates", "removed_presets", "removed_templates")
 
         assignment = Assignment.objects.get(pk=assignment_id)
 

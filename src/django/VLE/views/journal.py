@@ -33,7 +33,6 @@ class JournalView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            keyerror -- when assignment_id is not set
             not found -- when the assignment does not exist
             forbidden -- when the user has no permission to view the journals of the assignment
         On succes:
@@ -43,10 +42,7 @@ class JournalView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            assignment = Assignment.objects.get(pk=request.query_params['assignment_id'])
-        except KeyError:
-            return response.keyerror('assignment_id')
+        assignment = Assignment.objects.get(pk=request.query_params['assignment_id'])
 
         if not permissions.has_assignment_permission(request.user, assignment, 'can_view_assignment_journals'):
             return response.forbidden('You are not allowed to view assignment participants.')

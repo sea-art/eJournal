@@ -35,10 +35,7 @@ class GroupView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            course_id = int(request.query_params['course_id'])
-        except KeyError:
-            return response.key_error('course_id')
+        course_id = int(request.query_params['course_id'])
 
         course = Course.objects.get(pk=course_id)
 
@@ -75,11 +72,8 @@ class GroupView(viewsets.ViewSet):
         if not user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            name, course_id = utils.required_params(request.data, "name", "course_id")
-            lti_id = utils.optional_params(request.data, 'lti_id')
-        except KeyError:
-            return response.keyerror("name", "course_id")
+        name, course_id = utils.required_params(request.data, "name", "course_id")
+        lti_id = utils.optional_params(request.data, 'lti_id')
 
         role = permissions.get_role(user, course_id)
         if not role.can_add_course_user_group:
@@ -115,10 +109,7 @@ class GroupView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            old_group_name, new_group_name = utils.required_params(request.data, "old_group_name", "new_group_name")
-        except KeyError:
-            return response.keyerror("old_group_name", "new_group_name")
+        old_group_name, new_group_name = utils.required_params(request.data, "old_group_name", "new_group_name")
 
         course_id = kwargs.get('pk')
         course = Course.objects.get(pk=course_id)
@@ -164,10 +155,7 @@ class GroupView(viewsets.ViewSet):
 
         course_id = kwargs.get('pk')
 
-        try:
-            name = request.query_params['group_name']
-        except KeyError:
-            return response.keyerror('group_name')
+        name = request.query_params['group_name']
 
         course = Course.objects.get(pk=course_id)
 

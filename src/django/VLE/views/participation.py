@@ -20,7 +20,6 @@ class ParticipationView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            keyerror -- when course_id is not set as a parameter
             not found -- when the course does not exist
             forbidden -- when the user is not in the course
             forbidden -- when the user is unauthorized to view its participants
@@ -30,10 +29,7 @@ class ParticipationView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            course_id, = utils.required_params(request.query_params, "course_id")
-        except KeyError:
-            return response.keyerror('course_id')
+        course_id, = utils.required_params(request.query_params, "course_id")
 
         course = Course.objects.get(pk=course_id)
 
@@ -95,13 +91,10 @@ class ParticipationView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            user_id, course_id = utils.required_params(request.data, 'user_id', 'course_id')
-            role_name, = utils.optional_params(request.data, 'role')
-            if not role_name:
-                role_name = 'Student'
-        except KeyError:
-            return response.keyerror('user_id', 'course_id')
+        user_id, course_id = utils.required_params(request.data, 'user_id', 'course_id')
+        role_name, = utils.optional_params(request.data, 'role')
+        if not role_name:
+            role_name = 'Student'
 
         user = User.objects.get(pk=user_id)
         course = Course.objects.get(pk=course_id)
@@ -138,7 +131,6 @@ class ParticipationView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            keyerror -- when the user_id is not set
             not found -- when the perticipation is not found
             forbidden -- when the user is not connected to the course
             forbidden -- when the user is not allowed to change the perticipation
@@ -147,13 +139,10 @@ class ParticipationView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        try:
-            user_id, = utils.required_params(request.data, 'user_id')
-            role_name, group_name = utils.optional_params(request.data, 'role', 'group')
-            if not role_name:
-                role_name = 'Student'
-        except KeyError:
-            return response.keyerror("user_id")
+        user_id, = utils.required_params(request.data, 'user_id')
+        role_name, group_name = utils.optional_params(request.data, 'role', 'group')
+        if not role_name:
+            role_name = 'Student'
 
         user = User.objects.get(pk=user_id)
         course = Course.objects.get(pk=pk)
@@ -185,10 +174,7 @@ class ParticipationView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        try:
-            user_id, = utils.required_params(request.query_params, 'user_id')
-        except KeyError:
-            return response.keyerror('user_id')
+        user_id, = utils.required_params(request.query_params, 'user_id')
 
         user = User.objects.get(pk=user_id)
         course = Course.objects.get(pk=pk)
@@ -214,7 +200,6 @@ class ParticipationView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            keyerror -- when course_id is not set as a parameter
             not found -- when the course does not exist
             forbidden -- when the user is not in the course
             forbidden -- when the user is unauthorized to view its participants
@@ -224,10 +209,7 @@ class ParticipationView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            course_id, = utils.required_params(request.query_params, "course_id")
-        except KeyError:
-            return response.keyerror('course_id')
+        course_id, = utils.required_params(request.query_params, "course_id")
 
         course = Course.objects.get(pk=course_id)
 

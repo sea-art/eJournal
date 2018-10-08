@@ -40,19 +40,11 @@ class EntryView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            journal_id, template_id, content_list = utils.required_params(
-                request.data, "journal_id", "template_id", "content")
-            node_id, = utils.optional_params(request.data, "node_id")
-        except KeyError:
-            return response.keyerror("journal_id", "template_id", "content")
+        journal_id, template_id, content_list = utils.required_params(
+            request.data, "journal_id", "template_id", "content")
+        node_id, = utils.optional_params(request.data, "node_id")
 
-        try:
-            validators.validate_entry_content(content_list)
-        except ValidationError as e:
-            return response.bad_request(e.args[0])
-        except KeyError:
-            return response.keyerror('content.id', 'content.data')
+        validators.validate_entry_content(content_list)
 
         journal = Journal.objects.get(pk=journal_id, user=request.user)
         template = Template.objects.get(pk=template_id)
@@ -184,12 +176,7 @@ class EntryView(viewsets.ViewSet):
                (journal.assignment.due_date and journal.assignment.due_date < datetime.now()):
                 return response.bad_request('You are not allowed to edit entries past their due date.')
 
-            try:
-                validators.validate_entry_content(content_list)
-            except ValidationError as e:
-                return response.bad_request(e.args[0])
-            except KeyError:
-                return response.keyerror('content.id', 'content.data')
+            validators.validate_entry_content(content_list)
 
             Content.objects.filter(entry=entry).all().delete()
 

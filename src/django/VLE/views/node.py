@@ -45,10 +45,7 @@ class NodeView(viewsets.ModelViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            journal_id = request.query_params['journal_id']
-        except KeyError:
-            return response.keyerror('journal_id')
+        journal_id = int(request.query_params['journal_id'])
 
         journal = Journal.objects.get(pk=journal_id)
 
