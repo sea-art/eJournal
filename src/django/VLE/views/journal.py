@@ -78,52 +78,14 @@ class JournalView(viewsets.ViewSet):
 
         journal = Journal.objects.get(pk=pk)
 
-        if journal.user != request.user and \
-           not permissions.has_assignment_permission(request.user, journal.assignment,
-                                                     'can_view_assignment_journals'):
+        if not (journal.user == request.user and
+                permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal')) and \
+           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_view_assignment_journals'):
             return response.forbidden('You are not allowed to view this journal.')
 
         serializer = JournalSerializer(journal)
 
         return response.success({'journal': serializer.data})
-
-    def create(self, request):
-        """Create a new journal.
-
-        Arguments:
-        request -- request data
-            assignment_id -- assignment ID
-
-        Returns:
-        On failure:
-            unauthorized -- when the user is not logged in
-            not_found -- could not find the journal with the given id
-            key_error -- missing keys
-            forbidden -- the user is not allowed to create assignments in this journal
-
-        On success:
-            succes -- with the journal data
-
-        """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
-        try:
-            assignment_id, = utils.required_params(request.data, "assignment_id")
-        except KeyError:
-            return response.keyerror("assignment_id")
-
-        role = permissions.get_assignment_id_permissions(request.user, assignment_id)
-        if role is None:
-            return response.forbidden("You are not a participant in this assignment.")
-        elif not role["can_have_journal"]:
-            return response.forbidden("You are not allowed to create a journal.")
-
-        assignment = Assignment.objects.get(pk=assignment_id)
-
-        journal = factory.make_journal(assignment, request.user)
-        serializer = JournalSerializer(journal, many=False)
-        return response.created({'journal': serializer.data})
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing journal.
@@ -166,33 +128,6 @@ class JournalView(viewsets.ViewSet):
         serializer.save()
 
         return response.success({'journal': serializer.data})
-
-    def destroy(self, request, *args, **kwargs):
-        """Delete a journal.
-
-        Arguments:
-        request -- request data
-        pk -- journal ID
-
-        Returns:
-        On failure:
-            not found -- when the journal does not exist
-            unauthorized -- when the user is not logged in
-            forbidden -- when the user is not in the journal
-        On success:
-            success -- with a message that the journal was deleted
-        """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-        pk = kwargs.get('pk')
-
-        journal = Journal.objects.get(pk=pk)
-
-        if not request.user.is_superuser:
-            return response.forbidden('You are not allowed to delete a journal.')
-
-        journal.delete()
-        return response.success(description='Sucesfully deleted journal.')
 
     def publish(self, request, journal, published=True):
         if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_grades'):
