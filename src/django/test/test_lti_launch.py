@@ -15,8 +15,8 @@ import oauth2
 import time
 
 
-class lti_launch_test(TestCase):
-    """Lti lanch test.
+class canEnterThroughLTI(TestCase):
+    """Lti launch test.
 
     Test if the gradepassback XML can be created.
     """
@@ -44,8 +44,7 @@ class lti_launch_test(TestCase):
                         "lti_message_type": "basic-lti-launch-request",
                         "lti_version": "LTI-1p0",
                         "roles": "Instructor",
-                        "user_id": "0000",
-                        "oauth_signature": "sxmVoGtVMxAVseeqTh8bc0ZFue8="}
+                        "user_id": "0000"}
 
         self.oauth_consumer = oauth2.Consumer(
             settings.LTI_KEY, settings.LTI_SECRET
@@ -61,14 +60,14 @@ class lti_launch_test(TestCase):
         self.assertEquals(selected_user, self.created_user)
 
     def test_lti_launch_no_user(self):
-        """ ."""
-        self.request["oauth_timestamp"] = int(time.time())
+        """Hopefully gives redirect with start = NO_USER."""
+        self.request["oauth_timestamp"] = str(int(time.time()))
         self.request["oauth_nonce"] = oauth2.generate_nonce()
         oauth_request = oauth2.Request.from_request(
-            'POST', 'http://127.0.0.1:8000/lti/launch', parameters=self.request
+            'POST', 'http://testserver/lti/launch', parameters=self.request
         )
-        oauth_request.sign_request(oauth2.SignatureMethod_HMAC_SHA1(), self.oauth_consumer, {})
-        self.request['oauth_signature'] = oauth_request['oauth_signature'].decode('utf-8')
+        signature = oauth2.SignatureMethod_HMAC_SHA1().sign(oauth_request, self.oauth_consumer, {}).decode('utf-8')
+        self.request['oauth_signature'] = signature
         request = self.factory.post('http://127.0.0.1:8000/lti/launch', self.request)
         response = lti_view.lti_launch(request)
         self.assertEquals(response.status_code, 302)
