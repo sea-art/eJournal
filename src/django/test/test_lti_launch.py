@@ -5,14 +5,17 @@ Test lti launch.
 """
 from django.test import TestCase, RequestFactory
 from django.conf import settings
-# from VLE.models import Journal, Lti_ids
+from VLE.models import Lti_ids, Role
 
 import VLE.lti_launch as lti
 import VLE.factory as factory
 import VLE.views.lti as lti_view
+import test.test_utils as test
 import json
+import datetime
 import oauth2
 import time
+import jwt
 
 
 class canEnterThroughLTI(TestCase):
@@ -37,29 +40,35 @@ class canEnterThroughLTI(TestCase):
                         "custom_assignment_points": "10",
                         "custom_course_id": "asdf",
                         "custom_course_name": "TestCourse",
+                        "custom_course_start": "2018-06-15 14:41:00 +0200",
                         "context_label": "aaaa",
-                        "custom_user_email": "ltiTest@test.com",
-                        "custom_user_full_name": "testpersoon voor Science",
-                        "custom_username": "TestUser",
                         "lti_message_type": "basic-lti-launch-request",
                         "lti_version": "LTI-1p0",
                         "roles": "Instructor",
+                        "custom_user_image": "https://uvadlo-tes.instructure.com/images/thumbnails/11601/ +\
+                            6ivT7povCYWoXPCVOSnfPqWADsLktcGXTXkAUYDv",
                         "user_id": "0000"}
 
         self.oauth_consumer = oauth2.Consumer(
             settings.LTI_KEY, settings.LTI_SECRET
         )
 
-        self.created_user = factory.make_user('TestUser', 'Pass', "ltiTest@test.com", lti_id='awefd')
+        self.username, self.password, self.user = test.set_up_user_and_auth('TestUser', 'Pass', 'ltiTest@test.com')
+        self.user.lti_id = 'awefd'
+        self.user.verified_email = True
+        self.user.save()
+
+        self.created_assignment = factory.make_assignment("TestAss", "TestDescr")
+        self.created_journal = factory.make_journal(self.created_assignment, self.user)
 
     def test_select_user(self):
         """Hopefully select a user."""
         selected_user = lti.check_user_lti({
-            'user_id': self.created_user.lti_id
+            'user_id': self.user.lti_id,
         }, self.roles)
-        self.assertEquals(selected_user, self.created_user)
+        self.assertEquals(selected_user, self.user)
 
-    def test_lti_launch_no_user(self):
+    def test_lti_launch_no_user_no_info(self):
         """Hopefully gives redirect with start = NO_USER."""
         self.request["oauth_timestamp"] = str(int(time.time()))
         self.request["oauth_nonce"] = oauth2.generate_nonce()
@@ -71,55 +80,155 @@ class canEnterThroughLTI(TestCase):
         request = self.factory.post('http://127.0.0.1:8000/lti/launch', self.request)
         response = lti_view.lti_launch(request)
         self.assertEquals(response.status_code, 302)
-        self.assertIs('state={0}'.format(lti_view.NO_USER) in response.url, True)
+        self.assertIn('state={0}'.format(lti_view.NO_USER), response.url)
 
-    # def test_select_course(self):
-    #     """Hopefully select a course."""
-    #     selected_course = lti.check_course_lti({
-    #         'custom_course_id': Lti_ids.objects.filter(course=self.created_course)[0].lti_id,
-    #     },
-    #         user=self.created_user,
-    #         role=self.roles['Teacher']
-    #     )
-    #     self.assertEquals(selected_course, self.created_course)
-    #
-    # def test_select_assignment(self):
-    #     """Hopefully select a assignment."""
-    #     selected_assignment = lti.check_assignment_lti({
-    #         'custom_assignment_id': Lti_ids.objects.filter(assignment=self.created_assignment)[0].lti_id,
-    #     })
-    #     self.assertEquals(selected_assignment, self.created_assignment)
-    #
-    # def test_select_journal(self):
-    #     """Hopefully select a journal."""
-    #     selected_journal = lti.select_create_journal({
-    #         'roles': self.roles['Student'],
-    #     },
-    #         user=self.created_user,
-    #         assignment=self.created_assignment,
-    #         roles=self.roles
-    #     )
-    #     self.assertEquals(selected_journal, self.created_journal)
-    #
-    # def test_create_journal(self):
-    #     """Hopefully create a journal."""
-    #     self.created_journal.delete()
-    #     selected_journal = lti.select_create_journal({
-    #         'roles': self.roles['Student'],
-    #     },
-    #         user=self.created_user,
-    #         assignment=self.created_assignment,
-    #         roles=self.roles
-    #     )
-    #     self.assertIsInstance(selected_journal, Journal)
-    #
-    # def test_create_journal_unauthorized(self):
-    #     """Only a teacher should be able to create journal if non can be selected."""
-    #     selected_journal = lti.select_create_journal({
-    #         'roles': self.roles['TA'],
-    #     },
-    #         user=self.created_user,
-    #         assignment=self.created_assignment,
-    #         roles=self.roles
-    #     )
-    #     self.assertEquals(None, selected_journal)
+    def test_lti_launch_no_user(self):
+        """Hopefully gives redirect with start = NO_USER."""
+        self.request["oauth_timestamp"] = str(int(time.time()))
+        self.request["oauth_nonce"] = oauth2.generate_nonce()
+        self.request["custom_user_full_name"] = "testpersoon voor Science"
+        self.request["custom_username"] = "TestUser"
+        self.request["custom_user_email"] = "ltiTest@test.com"
+        oauth_request = oauth2.Request.from_request(
+            'POST', 'http://testserver/lti/launch', parameters=self.request
+        )
+        signature = oauth2.SignatureMethod_HMAC_SHA1().sign(oauth_request, self.oauth_consumer, {}).decode('utf-8')
+        self.request['oauth_signature'] = signature
+        request = self.factory.post('http://127.0.0.1:8000/lti/launch', self.request)
+        response = lti_view.lti_launch(request)
+        self.assertEquals(response.status_code, 302)
+        self.assertIn('state={0}'.format(lti_view.NO_USER), response.url)
+
+    def test_lti_launch_user(self):
+        """Hopefully gives redirect with start = LOGGED_IN."""
+        self.request["oauth_timestamp"] = str(int(time.time()))
+        self.request["oauth_nonce"] = oauth2.generate_nonce()
+        self.request["user_id"] = "awefd"
+        oauth_request = oauth2.Request.from_request(
+            'POST', 'http://testserver/lti/launch', parameters=self.request
+        )
+        signature = oauth2.SignatureMethod_HMAC_SHA1().sign(oauth_request, self.oauth_consumer, {}).decode('utf-8')
+        self.request['oauth_signature'] = signature
+        request = self.factory.post('http://127.0.0.1:8000/lti/launch', self.request)
+        response = lti_view.lti_launch(request)
+        self.assertEquals(response.status_code, 302)
+        self.assertIn('state={0}'.format(lti_view.LOGGED_IN), response.url)
+
+    def test_lti_launch_wrong_signature(self):
+        """Hopefully gives redirect with start = BAD_AUTH."""
+        self.request["oauth_timestamp"] = str(int(time.time()))
+        self.request["oauth_nonce"] = oauth2.generate_nonce()
+        self.request["user_id"] = "awefd"
+        self.request["oauth_signature"] = "1a2f3r"
+        request = self.factory.post('http://127.0.0.1:8000/lti/launch', self.request)
+        response = lti_view.lti_launch(request)
+        self.assertEquals(response.status_code, 302)
+        self.assertIn('state={0}'.format(lti_view.BAD_AUTH), response.url)
+
+    def test_get_lti_params_from_jwt_invalid(self):
+        """Hopefully returns the lti course and assignment data."""
+        login = test.logging_in(self, self.username, self.password)
+        self.request["user_id"] = "awefd"
+        jwt_params = jwt.encode(self.request, 'fa12f4', algorithm='HS256').decode('utf-8')
+        response = test.api_get_call(self, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), login=login, status=401)
+        self.assertIn('Invalid', response.content.decode('utf-8'))
+
+    def test_get_lti_params_from_jwt_unauthorized(self):
+        """Hopefully returns the lti course and assignment data."""
+        self.request["user_id"] = "awefd"
+        jwt_params = jwt.encode(self.request, 'fa12f4', algorithm='HS256').decode('utf-8')
+        request = self.factory.get('/get_lti_params_from_jwt/{0}/'.format(jwt_params))
+        response = lti_view.get_lti_params_from_jwt(request, jwt_params)
+        self.assertEquals(response.status_code, 401)
+        self.assertIn('not authenticated', response.content.decode('utf-8'))
+
+    def test_get_lti_params_from_jwt_expired(self):
+        """Hopefully returns the lti course and assignment data."""
+        login = test.logging_in(self, self.username, self.password)
+        self.request["user_id"] = "awefd"
+        self.request['exp'] = datetime.datetime.utcnow() - datetime.timedelta(minutes=30)
+        jwt_params = jwt.encode(self.request, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
+        response = test.api_get_call(self, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), login=login, status=403)
+        self.assertIn('expired', response.content.decode('utf-8'))
+
+    def test_get_lti_params_from_jwt_course_teacher(self):
+        """Hopefully returns the lti course and assignment data."""
+        login = test.logging_in(self, self.username, self.password)
+        self.request["user_id"] = "awefd"
+        jwt_params = jwt.encode(self.request, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
+        response = test.api_get_call(self, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), login=login, status=200)
+        self.assertIn('"state": "{0}"'.format(lti_view.NEW_COURSE), response.content.decode('utf-8'))
+
+    def test_get_lti_params_from_jwt_course_student(self):
+        """Hopefully returns the lti course and assignment data."""
+        login = test.logging_in(self, self.username, self.password)
+        self.request["user_id"] = "awefd"
+        self.request["roles"] = self.roles["Student"]
+        jwt_params = jwt.encode(self.request, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
+        response = test.api_get_call(self, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), login=login, status=404)
+        self.assertIn('course', response.content.decode('utf-8'))
+
+    def test_get_lti_params_from_jwt_assignment_teacher(self):
+        """Hopefully returns the lti assignment data."""
+        factory.make_course('TestCourse', 'aaaa', lti_id='asdf')
+        login = test.logging_in(self, self.username, self.password)
+        self.request["user_id"] = "awefd"
+        jwt_params = jwt.encode(self.request, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
+        response = test.api_get_call(self, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), login=login, status=200)
+        self.assertIn('"state": "{0}"'.format(lti_view.NEW_ASSIGN), response.content.decode('utf-8'))
+
+    def test_get_lti_params_from_jwt_assignment_student(self):
+        """Hopefully returns the lti assignment data."""
+        factory.make_course('TestCourse', 'aaaa', lti_id='asdf')
+        login = test.logging_in(self, self.username, self.password)
+        self.request["user_id"] = "awefd"
+        self.request["roles"] = self.roles["Student"]
+        jwt_params = jwt.encode(self.request, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
+        response = test.api_get_call(self, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), login=login, status=404)
+        self.assertIn('assignment', response.content.decode('utf-8'))
+
+    def test_get_lti_params_from_jwt_journal_teacher(self):
+        """Hopefully returns the LTI assignment and course."""
+        factory.make_course('TestCourse', 'aaaa', lti_id='asdf')
+        factory.make_assignment("TestAss", "TestDescr", lti_id='bughh')
+        login = test.logging_in(self, self.username, self.password)
+        self.request["user_id"] = "awefd"
+        jwt_params = jwt.encode(self.request, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
+        response = test.api_get_call(self, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), login=login, status=200)
+        self.assertIn('"state": "{0}"'.format(lti_view.FINISH_T), response.content.decode('utf-8'))
+
+    def test_get_lti_params_from_jwt_journal_student(self):
+        """Hopefully returns the lti journal data."""
+        factory.make_course('TestCourse', 'aaaa', lti_id='asdf')
+        factory.make_assignment("TestAss", "TestDescr", lti_id='bughh')
+        login = test.logging_in(self, self.username, self.password)
+        self.request["user_id"] = "awefd"
+        self.request["roles"] = self.roles["Student"]
+        jwt_params = jwt.encode(self.request, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
+        response = test.api_get_call(self, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), login=login, status=200)
+        self.assertIn('"state": "{0}"'.format(lti_view.FINISH_S), response.content.decode('utf-8'))
+
+    def test_select_course_with_participation(self):
+        """Hopefully select a course."""
+        course = factory.make_course('TestCourse', 'aaaa', lti_id='asdf')
+        factory.make_participation(self.user, course, Role.objects.create(name='role', course=course))
+        selected_course = lti.check_course_lti({
+            'custom_course_id': Lti_ids.objects.filter(course=course)[0].lti_id,
+        },
+            user=self.user,
+            role=self.roles['Teacher']
+        )
+        self.assertEquals(selected_course, course)
+
+    def test_select_journal(self):
+        """Hopefully select a journal."""
+        selected_journal = lti.select_create_journal({
+            'roles': self.roles['Student'],
+            'lis_result_sourcedid': "267-686-2694-585-0afc8c37342732c97b011855389af1f2c2f6d552",
+            'lis_outcome_service_url': "https://uvadlo-tes.instructure.com/api/lti/v1/tools/267/grade_passback"
+        },
+            user=self.user,
+            assignment=self.created_assignment,
+            roles=self.roles
+        )
+        self.assertEquals(selected_journal, self.created_journal)

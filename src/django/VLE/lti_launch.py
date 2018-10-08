@@ -73,7 +73,7 @@ def check_user_lti(request, roles):
             user.profile_picture = request['custom_user_image']
             user.save()
 
-        if roles['Teacher'] in request:
+        if 'roles' in request and roles['Teacher'] in request['roles']:
             user.is_teacher = True
             user.save()
         return user

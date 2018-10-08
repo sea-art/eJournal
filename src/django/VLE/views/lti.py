@@ -23,7 +23,6 @@ NEW_COURSE = '2'
 NEW_ASSIGN = '3'
 FINISH_T = '4'
 FINISH_S = '5'
-GRADE_CENTER = '6'
 
 
 @api_view(['GET'])
