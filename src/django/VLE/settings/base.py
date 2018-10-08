@@ -57,7 +57,6 @@ SIMPLE_JWT = {
 
 MIDDLEWARE = [
     'VLE.utils.error_handling.ErrorMiddleware',
-
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
