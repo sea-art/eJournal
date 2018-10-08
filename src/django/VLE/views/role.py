@@ -4,7 +4,7 @@ from rest_framework import viewsets
 import VLE.permissions as permissions
 import VLE.views.responses as response
 from VLE.serializers import RoleSerializer
-from VLE.models import Course, Role, Assignment, User
+from VLE.models import Course, Role, User
 import VLE.factory as factory
 from django.core.exceptions import ValidationError
 
