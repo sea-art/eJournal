@@ -35,8 +35,6 @@ export default {
     opacity: 1
     color: black
 
-
-
 .date-text
     text-align: right
     width: 100%
