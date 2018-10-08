@@ -9,10 +9,8 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
-from VLE.settings.base import *
-
-from VLE.settings.base import *
 import VLE.settings.email as email_config
+from VLE.settings.base import *
 
 SECRET_KEY = '@a4c3cpgfe0@8s!be=23d5+3e30vyj7!q%tolqpewafp^-@=br'
 

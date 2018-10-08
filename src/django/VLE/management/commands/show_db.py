@@ -3,8 +3,9 @@ Print the database.
 
 Print the user, course, assignment and journal table.
 """
-from django.core.management.base import BaseCommand
 import sqlite3
+
+from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):

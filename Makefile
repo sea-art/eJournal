@@ -91,6 +91,7 @@ clean:
 	rm -rf ./venv
 	rm -rf ./src/vue/node_modules
 	rm -rf ./src/django/VLE.db
+	bash -c 'source ./venv/bin/activate && isort -rc src/django/VLE && deactivate'
 
 #
 # EXTRA COMMANDS

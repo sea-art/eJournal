@@ -5,11 +5,14 @@ A script that generates demo data.
 It generates a teacher and student account. The teacher has permissions.
 """
 
-from django.core.management.base import BaseCommand
-from VLE.models import Field, Node, Role, Journal
-import VLE.factory as factory
-from faker import Faker
 import random
+
+from django.core.management.base import BaseCommand
+from faker import Faker
+
+import VLE.factory as factory
+from VLE.models import Field, Journal, Node, Role
+
 faker = Faker()
 
 

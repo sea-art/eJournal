@@ -3,20 +3,21 @@ entry.py.
 
 In this file are all the entry api requests.
 """
-from rest_framework import viewsets
-from django.core.exceptions import ValidationError
-from django.utils.timezone import now
 from datetime import datetime
 
-from VLE.models import Journal, Node, Content, Field, Template, Entry, Comment
-import VLE.views.responses as response
+from django.core.exceptions import ValidationError
+from django.utils.timezone import now
+from rest_framework import viewsets
+
 import VLE.factory as factory
-import VLE.utils.generic_utils as utils
 import VLE.lti_grade_passback as lti_grade
-import VLE.timeline as timeline
 import VLE.permissions as permissions
 import VLE.serializers as serialize
+import VLE.timeline as timeline
+import VLE.utils.generic_utils as utils
 import VLE.validators as validators
+import VLE.views.responses as response
+from VLE.models import Comment, Content, Entry, Field, Journal, Node, Template
 
 
 class EntryView(viewsets.ViewSet):

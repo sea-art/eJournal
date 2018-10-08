@@ -1,10 +1,11 @@
-from django.core.exceptions import ValidationError
-from django.conf import settings
-from django.core.validators import URLValidator
-from VLE.models import Field
-import VLE.utils.generic_utils as utils
 import re
 
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
+
+import VLE.utils.generic_utils as utils
+from VLE.models import Field
 
 TEXT = 't'
 RICH_TEXT = 'rt'

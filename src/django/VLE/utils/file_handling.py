@@ -1,9 +1,10 @@
 """
 File handling related utilites.
 """
-import shutil
 import json
 import os
+import shutil
+
 from django.conf import settings
 
 

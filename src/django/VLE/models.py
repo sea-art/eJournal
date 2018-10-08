@@ -3,11 +3,12 @@ models.py.
 
 Database file
 """
-from django.db import models
 from django.contrib.auth.models import AbstractUser
-from django.utils.timezone import now
-from VLE.utils.file_handling import get_path
 from django.core.exceptions import ValidationError
+from django.db import models
+from django.utils.timezone import now
+
+from VLE.utils.file_handling import get_path
 
 
 class UserFile(models.Model):

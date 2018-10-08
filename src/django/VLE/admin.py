@@ -5,7 +5,9 @@ Give admin rights to edit the VLE models. This is mostly used for editing
 inside the web interface through http://site/admin/VLE/user/
 """
 from django.contrib import admin
-from VLE.models import User, Course, Assignment, Journal, Entry, Participation, Role
+
+from VLE.models import (Assignment, Course, Entry, Journal, Participation,
+                        Role, User)
 
 admin.site.register(User)
 admin.site.register(Course)
