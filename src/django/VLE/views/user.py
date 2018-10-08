@@ -69,10 +69,7 @@ class UserView(viewsets.ViewSet):
         if int(pk) == 0:
             pk = request.user.id
 
-        try:
-            user = User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            return response.not_found('User does not exist.')
+        user = User.objects.get(pk=pk)
 
         if request.user == user or request.user.is_superuser:
             serializer = OwnUserSerializer(user, many=False)
@@ -189,10 +186,7 @@ class UserView(viewsets.ViewSet):
         if not (request.user.pk == int(pk) or request.user.is_superuser):
             return response.forbidden()
 
-        try:
-            user = User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            return request.not_found('User does not exist.')
+        user = User.objects.get(pk=pk)
 
         if 'jwt_params' in request.data and request.data['jwt_params'] != '':
             try:
@@ -256,10 +250,7 @@ class UserView(viewsets.ViewSet):
         if int(pk) == 0:
             pk = request.user.id
 
-        try:
-            user = User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            return response.not_found('User does not exist.')
+        user = User.objects.get(pk=pk)
 
         user.delete()
         return response.deleted(description='Sucesfully deleted user.')
@@ -432,10 +423,7 @@ class UserView(viewsets.ViewSet):
         except UserFile.DoesNotExist:
             pass
 
-        try:
-            assignment = Assignment.objects.get(pk=request.POST['assignment_id'])
-        except Assignment.DoesNotExist:
-            return response.bad_request('Assignment with id {:s} was not found.'.format(request.POST['assignment_id']))
+        assignment = Assignment.objects.get(pk=request.POST['assignment_id'])
 
         if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
             return response.forbidden('You cannot upload a file to: {:s}.'.format(assignment.name))

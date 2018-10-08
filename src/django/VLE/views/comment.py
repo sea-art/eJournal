@@ -49,10 +49,7 @@ class CommentView(viewsets.ViewSet):
         except KeyError:
             return response.keyerror("entry_id")
 
-        try:
-            entry = Entry.objects.get(pk=entry_id)
-        except Entry.DoesNotExist:
-            return response.not_found('Entry does not exist.')
+        entry = Entry.objects.get(pk=entry_id)
 
         if entry.node.journal.user != request.user and \
            not permissions.has_assignment_permission(
@@ -94,12 +91,9 @@ class CommentView(viewsets.ViewSet):
         except KeyError:
             return response.keyerror("entry_id", "text", "published")
 
-        try:
-            entry = Entry.objects.get(pk=entry_id)
-            journal = Journal.objects.get(node__entry=entry)
-            assignment = Assignment.objects.get(journal=journal)
-        except (Assignment.DoesNotExist, Journal.DoesNotExist, Entry.DoesNotExist):
-            return response.not_found('Entry, journal or assignment does not exist.')
+        entry = Entry.objects.get(pk=entry_id)
+        journal = Journal.objects.get(node__entry=entry)
+        assignment = Assignment.objects.get(journal=journal)
 
         if not permissions.has_assignment_permission(request.user, assignment, 'can_comment') or \
            not (permissions.has_assignment_permission(request.user, assignment, 'can_view_assignment_journals') or
@@ -132,10 +126,7 @@ class CommentView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            comment = Comment.objects.get(pk=pk)
-        except Comment.DoesNotExist:
-            return response.not_found('Comment does not exist.')
+        comment = Comment.objects.get(pk=pk)
 
         if comment.entry.node.journal.user != request.user and \
            not permissions.has_assignment_permission(
@@ -170,10 +161,7 @@ class CommentView(viewsets.ViewSet):
 
         comment_id = kwargs.get('pk')
 
-        try:
-            comment = Comment.objects.get(pk=comment_id)
-        except Comment.DoesNotExist:
-            return response.not_found('Comment does not exist.')
+        comment = Comment.objects.get(pk=comment_id)
 
         journal = comment.entry.node.journal
 
@@ -214,10 +202,7 @@ class CommentView(viewsets.ViewSet):
 
         comment_id = kwargs.get('pk')
 
-        try:
-            comment = Comment.objects.get(pk=comment_id)
-        except Comment.DoesNotExist:
-            return response.not_found('Comment does not exist.')
+        comment = Comment.objects.get(pk=comment_id)
 
         if not (request.user.is_superuser or request.user.id == comment.author.id):
             return response.forbidden(description='You are not allowed to delete this comment.')

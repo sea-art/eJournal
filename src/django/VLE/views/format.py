@@ -34,10 +34,7 @@ class FormatView(viewsets.ViewSet):
         if not user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            assignment = Assignment.objects.get(pk=pk)
-        except Assignment.DoesNotExist:
-            return response.not_found('Assignment not found.')
+        assignment = Assignment.objects.get(pk=pk)
 
         if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
             return response.forbidden('You are not allowed to view this assignment.')
@@ -84,10 +81,7 @@ class FormatView(viewsets.ViewSet):
             return response.keyerror("assignment_details", "templates", "presets", "unused_templates",
                                      "removed_presets", "removed_templates")
 
-        try:
-            assignment = Assignment.objects.get(pk=assignment_id)
-        except Assignment.DoesNotExist:
-            return response.not_found('Assignment does not exist.')
+        assignment = Assignment.objects.get(pk=assignment_id)
 
         format = assignment.format
 

@@ -50,10 +50,7 @@ class NodeView(viewsets.ModelViewSet):
         except KeyError:
             return response.keyerror('journal_id')
 
-        try:
-            journal = Journal.objects.get(pk=journal_id)
-        except Journal.DoesNotExist:
-            return response.not_found('Journal does not exist.')
+        journal = Journal.objects.get(pk=journal_id)
 
         if journal.user != request.user and \
             not permissions.has_assignment_permission(request.user, journal.assignment,

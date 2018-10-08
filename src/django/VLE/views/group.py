@@ -40,10 +40,7 @@ class GroupView(viewsets.ViewSet):
         except KeyError:
             return response.key_error('course_id')
 
-        try:
-            course = Course.objects.get(pk=course_id)
-        except Course.DoesNotExist:
-            return response.not_found('Course does not exist.')
+        course = Course.objects.get(pk=course_id)
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -88,10 +85,7 @@ class GroupView(viewsets.ViewSet):
         if not role.can_add_course_user_group:
             return response.forbidden("You are not allowed to create a course group.")
 
-        try:
-            course = Course.objects.get(pk=course_id)
-        except Course.DoesNotExist:
-            return response.not_found('Course does not exist.')
+        course = Course.objects.get(pk=course_id)
 
         if Group.objects.filter(name=name, course=course).exists():
             return response.bad_request('Course group with that name already exists.')
@@ -127,11 +121,8 @@ class GroupView(viewsets.ViewSet):
             return response.keyerror("old_group_name", "new_group_name")
 
         course_id = kwargs.get('pk')
-        try:
-            course = Course.objects.get(pk=course_id)
-            group = Group.objects.get(name=old_group_name, course=course)
-        except (Course.DoesNotExist, Group.DoesNotExist):
-            return response.not_found('Course or group does not exist.')
+        course = Course.objects.get(pk=course_id)
+        group = Group.objects.get(name=old_group_name, course=course)
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -178,10 +169,7 @@ class GroupView(viewsets.ViewSet):
         except KeyError:
             return response.keyerror('group_name')
 
-        try:
-            course = Course.objects.get(pk=course_id)
-        except Course.DoesNotExist:
-            return response.not_found('Course does not exist')
+        course = Course.objects.get(pk=course_id)
 
         role = permissions.get_role(request.user, course_id)
         if role is None:
@@ -189,10 +177,7 @@ class GroupView(viewsets.ViewSet):
         elif not role.can_delete_course_user_group:
             return response.forbidden(description="You are unauthorized to delete this course group.")
 
-        try:
-            group = Group.objects.get(name=name, course=course)
-        except Group.DoesNotExist:
-            return response.not_found('Group does not exists')
+        group = Group.objects.get(name=name, course=course)
 
         group.delete()
         return response.success(description='Sucesfully deleted course group.')

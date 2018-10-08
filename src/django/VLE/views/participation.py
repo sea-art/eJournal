@@ -35,10 +35,7 @@ class ParticipationView(viewsets.ViewSet):
         except KeyError:
             return response.keyerror('course_id')
 
-        try:
-            course = Course.objects.get(pk=course_id)
-        except Course.DoesNotExist:
-            return response.not_found('Course does not exist')
+        course = Course.objects.get(pk=course_id)
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -67,11 +64,8 @@ class ParticipationView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            course = Course.objects.get(pk=pk)
-            participation = Participation.objects.get(user=request.user, course=course)
-        except (Participation.DoesNotExist, Course.DoesNotExist):
-            return response.not_found('Participation or Course does not exist.')
+        course = Course.objects.get(pk=pk)
+        participation = Participation.objects.get(user=request.user, course=course)
 
         if not permissions.is_user_in_course(request.user, course):
             return response.forbidden('You are not in this course.')
@@ -109,11 +103,8 @@ class ParticipationView(viewsets.ViewSet):
         except KeyError:
             return response.keyerror('user_id', 'course_id')
 
-        try:
-            user = User.objects.get(pk=user_id)
-            course = Course.objects.get(pk=course_id)
-        except (User.DoesNotExist, Course.DoesNotExist):
-            return response.not_found('User or course does not exist')
+        user = User.objects.get(pk=user_id)
+        course = Course.objects.get(pk=course_id)
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -124,10 +115,7 @@ class ParticipationView(viewsets.ViewSet):
         if permissions.is_user_in_course(user, course):
             return response.bad_request('User already participates in the course.')
 
-        try:
-            role = Role.objects.get(name=role_name, course=course)
-        except Role.DoesNotExist:
-            return response.not_found('Role does not exist.')
+        role = Role.objects.get(name=role_name, course=course)
 
         factory.make_participation(user, course, role)
 
@@ -167,12 +155,9 @@ class ParticipationView(viewsets.ViewSet):
         except KeyError:
             return response.keyerror("user_id")
 
-        try:
-            user = User.objects.get(pk=user_id)
-            course = Course.objects.get(pk=pk)
-            participation = Participation.objects.get(user=user, course=course)
-        except (Participation.DoesNotExist, Course.DoesNotExist, User.DoesNotExist):
-            return response.not_found('Participation, User or Course does not exist.')
+        user = User.objects.get(pk=user_id)
+        course = Course.objects.get(pk=pk)
+        participation = Participation.objects.get(user=user, course=course)
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -183,10 +168,7 @@ class ParticipationView(viewsets.ViewSet):
         participation.role = Role.objects.get(name=role_name, course=course)
 
         if group_name:
-            try:
-                participation.group = Group.objects.get(name=group_name, course=course)
-            except (Group.DoesNotExist):
-                return response.not_found('Group does not exist.')
+            participation.group = Group.objects.get(name=group_name, course=course)
         else:
             participation.group = None
 
@@ -208,12 +190,9 @@ class ParticipationView(viewsets.ViewSet):
         except KeyError:
             return response.keyerror('user_id')
 
-        try:
-            user = User.objects.get(pk=user_id)
-            course = Course.objects.get(pk=pk)
-            participation = Participation.objects.get(user=user, course=course)
-        except (Participation.DoesNotExist, Role.DoesNotExist, Course.DoesNotExist):
-            return response.not_found('Participation or Course')
+        user = User.objects.get(pk=user_id)
+        course = Course.objects.get(pk=pk)
+        participation = Participation.objects.get(user=user, course=course)
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -250,10 +229,7 @@ class ParticipationView(viewsets.ViewSet):
         except KeyError:
             return response.keyerror('course_id')
 
-        try:
-            course = Course.objects.get(pk=course_id)
-        except Course.DoesNotExist:
-            return response.not_found('Course does not exist.')
+        course = Course.objects.get(pk=course_id)
 
         role = permissions.get_role(request.user, course)
         if role is None:

@@ -211,10 +211,7 @@ def update_presets(assignment, presets, template_map):
         exists = 'id' in preset
 
         if exists:
-            try:
-                preset_node = PresetNode.objects.get(pk=preset['id'])
-            except Template.DoesNotExist:
-                return responses.not_found('Preset does not exist.')
+            preset_node = PresetNode.objects.get(pk=preset['id'])
         else:
             preset_node = PresetNode(format=format)
 

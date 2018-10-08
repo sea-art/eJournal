@@ -34,10 +34,7 @@ class RoleView(viewsets.ViewSet):
             course_id = request.query_params['course_id']
         except KeyError:
             return response.keyerror('course_id')
-        try:
-            course = Course.objects.get(pk=course_id)
-        except Course.DoesNotExist:
-            return response.not_found('Course does not exist.')
+        course = Course.objects.get(pk=course_id)
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -70,19 +67,13 @@ class RoleView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            user = request.user if int(pk) == 0 else User.objects.get(int(pk))
-        except User.DoesNotExist:
-            return response.not_found('User does not exist.')
+        user = request.user if int(pk) == 0 else User.objects.get(int(pk))
 
         # Return course permissions if course_id is set
         try:
-            course_id = request.query_params['course_id']
-            try:
-                if int(course_id) > 0:
-                    Course.objects.get(pk=course_id)
-            except Course.DoesNotExist:
-                return response.not_found('Course does not exist.')
+            course_id = int(request.query_params['course_id'])
+            if course_id > 0:
+                Course.objects.get(pk=course_id)
 
             perms = permissions.get_permissions(user, int(course_id))
             if perms is None:
@@ -93,14 +84,13 @@ class RoleView(viewsets.ViewSet):
         except KeyError:
             try:
                 assignment_id = request.query_params['assignment_id']
-                try:
-                    perms = permissions.get_assignment_id_permissions(request.user, assignment_id)
-                    return response.success({'role': perms})
-                except Assignment.DoesNotExist:
-                    return response.not_found('Assignment does not exist.')
+                perms = permissions.get_assignment_id_permissions(request.user, assignment_id)
+                return response.success({'role': perms})
         # Return keyerror is course_id nor assignment_id is set
             except KeyError:
                 return response.keyerror('course_id or assignment_id')
+        except ValueError:
+            return response.keyerror('course_id')
 
     def create(self, request):
         """Create course role.
@@ -124,10 +114,7 @@ class RoleView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            course = Course.objects.get(pk=request.data['course_id'])
-        except Course.DoesNotExist:
-            return response.not_found('Course does not exist.')
+        course = Course.objects.get(pk=request.data['course_id'])
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -168,10 +155,7 @@ class RoleView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            course = Course.objects.get(pk=pk)
-        except Course.DoesNotExist:
-            return response.not_found('Course does not exist.')
+        course = Course.objects.get(pk=pk)
 
         role = permissions.get_role(request.user, course)
         if role is None:

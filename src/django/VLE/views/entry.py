@@ -54,17 +54,11 @@ class EntryView(viewsets.ViewSet):
         except KeyError:
             return response.keyerror('content.id', 'content.data')
 
-        try:
-            journal = Journal.objects.get(pk=journal_id, user=request.user)
-            template = Template.objects.get(pk=template_id)
-        except (Journal.DoesNotExist, Template.DoesNotExist):
-            return response.not_found('Journal or Template does not exist.')
+        journal = Journal.objects.get(pk=journal_id, user=request.user)
+        template = Template.objects.get(pk=template_id)
 
         if node_id:
-            try:
-                node = Node.objects.get(pk=node_id, journal=journal)
-            except Node.DoesNotExist:
-                return response.not_found('Node does not exist.')
+            node = Node.objects.get(pk=node_id, journal=journal)
 
             if not (node.preset and node.preset.forced_template == template):
                 return response.forbidden('Invalid template for preset node.')
@@ -101,10 +95,7 @@ class EntryView(viewsets.ViewSet):
             lti_grade.needs_grading(journal, node.id)
 
         for content in content_list:
-            try:
-                field = Field.objects.get(pk=content['id'])
-            except Field.DoesNotExist:
-                return response.not_found('Field does not exist.')
+            field = Field.objects.get(pk=content['id'])
 
             factory.make_content(node.entry, content['data'], field)
 
@@ -145,10 +136,7 @@ class EntryView(viewsets.ViewSet):
 
         pk = kwargs.get('pk')
 
-        try:
-            entry = Entry.objects.get(pk=pk)
-        except Entry.DoesNotExist:
-            return response.not_found('Entry does not exist.')
+        entry = Entry.objects.get(pk=pk)
 
         grade, published, content_list = utils.optional_params(request.data, "grade", "published", "content")
 
@@ -206,10 +194,7 @@ class EntryView(viewsets.ViewSet):
             Content.objects.filter(entry=entry).all().delete()
 
             for content in content_list:
-                try:
-                    field = Field.objects.get(pk=content['id'])
-                except Field.DoesNotExist:
-                    return response.not_found('Field does not exist.')
+                field = Field.objects.get(pk=content['id'])
 
                 if content['data']:
                     factory.make_content(entry, content['data'], field)
@@ -253,11 +238,8 @@ class EntryView(viewsets.ViewSet):
             return response.unauthorized()
         pk = kwargs.get('pk')
 
-        try:
-            entry = Entry.objects.get(pk=pk)
-            journal = entry.node.journal
-        except Entry.DoesNotExist:
-            return response.not_found('Entry does not exist.')
+        entry = Entry.objects.get(pk=pk)
+        journal = entry.node.journal
 
         if not (journal.user == request.user or request.user.is_superuser):
             return response.forbidden('You are not allowed to delete someone else\'s entry.')

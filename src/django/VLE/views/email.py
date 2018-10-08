@@ -43,10 +43,7 @@ def forgot_password(request):
     try:
         user = User.objects.get(username=username)
     except User.DoesNotExist:
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            return response.bad_request('No user found with that username or email.')
+        user = User.objects.get(email=email)
 
     try:
         email_handling.send_password_recovery_link(user)
@@ -74,10 +71,7 @@ def recover_password(request):
     except KeyError:
         return response.keyerror('username', 'recovery_token', 'new_password')
 
-    try:
-        user = User.objects.get(username=request.data['username'])
-    except User.DoesNotExist:
-        return response.not_found('The username is unkown.')
+    user = User.objects.get(username=request.data['username'])
 
     token_generator = PasswordResetTokenGenerator()
     if not token_generator.check_token(user, request.data['recovery_token']):

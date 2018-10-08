@@ -51,10 +51,7 @@ class AssignmentView(viewsets.ViewSet):
         except (KeyError, ValueError):
             return response.keyerror('course_id')
 
-        try:
-            course = Course.objects.get(pk=course_id)
-        except Course.DoesNotExist:
-            return response.not_found('Course does not exist.')
+        course = Course.objects.get(pk=course_id)
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -106,10 +103,7 @@ class AssignmentView(viewsets.ViewSet):
         except KeyError:
             return response.keyerror("name", "description", "course_id")
 
-        try:
-            course = Course.objects.get(pk=course_id)
-        except Course.DoesNotExist:
-            return response.not_found('Course does not exist.')
+        course = Course.objects.get(pk=course_id)
 
         role = permissions.get_role(request.user, course_id)
         if role is None:
@@ -157,15 +151,13 @@ class AssignmentView(viewsets.ViewSet):
                 assignment = Lti_ids.objects.filter(lti_id=pk, for_model=Lti_ids.ASSIGNMENT)[0].assignment
             else:
                 assignment = Assignment.objects.get(pk=pk)
-        except (Assignment.DoesNotExist, IndexError):
+        except IndexError:
             return response.not_found('Assignment does not exist.')
 
         try:
             course = Course.objects.get(id=request.query_params['course_id'])
         except (ValueError, KeyError):
             course = None
-        except Course.DoesNotExist:
-            return response.not_found('Course does not exist.')
 
         if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
             return response.forbidden("You cannot view this assignment.")
@@ -203,10 +195,7 @@ class AssignmentView(viewsets.ViewSet):
 
         pk = kwargs.get('pk')
 
-        try:
-            assignment = Assignment.objects.get(pk=pk)
-        except Assignment.DoesNotExist:
-            return response.not_found('Assignment does not exist.')
+        assignment = Assignment.objects.get(pk=pk)
 
         published, = utils.optional_params(request.data, 'published')
         published_response = None
@@ -262,11 +251,8 @@ class AssignmentView(viewsets.ViewSet):
         except (KeyError, ValueError):
             return response.keyerror('course_id')
 
-        try:
-            assignment = Assignment.objects.get(pk=assignment_id)
-            course = Course.objects.get(pk=course_id)
-        except (Assignment.DoesNotExist, Course.DoesNotExist):
-            return response.not_found('course or assignment does not exist.')
+        assignment = Assignment.objects.get(pk=assignment_id)
+        course = Course.objects.get(pk=course_id)
 
         # Assignments can only be deleted with can_delete_assignment permission.
         role = permissions.get_role(request.user, course)
@@ -311,8 +297,6 @@ class AssignmentView(viewsets.ViewSet):
             courses = [Course.objects.get(pk=int(request.query_params['course_id']))]
         except KeyError:
             courses = request.user.participations.all()
-        except Course.DoesNotExist:
-            return response.not_found('Course does not exist.')
 
         deadline_list = []
 
@@ -346,10 +330,7 @@ class AssignmentView(viewsets.ViewSet):
         except KeyError:
             return response.bad_request('Publish state of the assignment expected.')
 
-        try:
-            assign = Assignment.objects.get(pk=aID)
-        except Assignment.DoesNotExist:
-            return response.not_found('Assignment does not exist.')
+        assign = Assignment.objects.get(pk=aID)
 
         if not permissions.has_assignment_permission(request.user, assign, 'can_publish_grades'):
             return response.forbidden('You are not allowed to publish grades for this assignment.')

@@ -48,8 +48,6 @@ class JournalView(viewsets.ViewSet):
             assignment = Assignment.objects.get(pk=request.query_params['assignment_id'])
         except KeyError:
             return response.keyerror('assignment_id')
-        except Assignment.DoesNotExist:
-            return response.not_found('Assignment does not exist.')
 
         if not permissions.has_assignment_permission(request.user, assignment, 'can_view_assignment_journals'):
             return response.forbidden('You are not allowed to view assignment participants.')
@@ -78,10 +76,7 @@ class JournalView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            journal = Journal.objects.get(pk=pk)
-        except Journal.DoesNotExist:
-            return response.not_found('Journal does not exist.')
+        journal = Journal.objects.get(pk=pk)
 
         if journal.user != request.user and \
            not permissions.has_assignment_permission(request.user, journal.assignment,
@@ -124,10 +119,7 @@ class JournalView(viewsets.ViewSet):
         elif not role["can_have_journal"]:
             return response.forbidden("You are not allowed to create a journal.")
 
-        try:
-            assignment = Assignment.objects.get(pk=assignment_id)
-        except Assignment.DoesNotExist:
-            return response.not_found('Assignment does not exist.')
+        assignment = Assignment.objects.get(pk=assignment_id)
 
         journal = factory.make_journal(assignment, request.user)
         serializer = JournalSerializer(journal, many=False)
@@ -157,10 +149,7 @@ class JournalView(viewsets.ViewSet):
 
         pk = kwargs.get('pk')
 
-        try:
-            journal = Journal.objects.get(pk=pk)
-        except Journal.DoesNotExist:
-            return response.not_found('Journal does not exist.')
+        journal = Journal.objects.get(pk=pk)
 
         published, = utils.optional_params(request.data, 'published')
         if published:
@@ -197,10 +186,7 @@ class JournalView(viewsets.ViewSet):
             return response.unauthorized()
         pk = kwargs.get('pk')
 
-        try:
-            journal = Journal.objects.get(pk=pk)
-        except Journal.DoesNotExist:
-            return response.not_found('Journal does not exist.')
+        journal = Journal.objects.get(pk=pk)
 
         if not request.user.is_superuser:
             return response.forbidden('You are not allowed to delete a journal.')
