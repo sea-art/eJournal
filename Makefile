@@ -59,6 +59,7 @@ reset:
 		source ./venv/bin/activate && \
 		pip install git+https://github.com/joestump/python-oauth2.git && \
 		pip install -r requirements.txt'
+	bash -c 'source ./venv/bin/activate && isort -rc src/django/ && deactivate'
 
 	# Reinstall nodejs dependencies.
 	npm ci --prefix ./src/vue
@@ -91,7 +92,6 @@ clean:
 	rm -rf ./venv
 	rm -rf ./src/vue/node_modules
 	rm -rf ./src/django/VLE.db
-	bash -c 'source ./venv/bin/activate && isort -rc src/django/ && deactivate'
 
 #
 # EXTRA COMMANDS
