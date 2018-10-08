@@ -3,6 +3,7 @@
         <h2>Preview:</h2>
         <div class="profile-portrait-edit small-shadow">
             <croppa v-model="croppa"
+                disable-click-to-choose
                 :width="250"
                 :height="250"
                 canvas-color="transparent"
@@ -12,11 +13,10 @@
                 accept="image/*"
                 :file-size-limit="this.$root.maxFileSizeBytes"
                 @file-type-mismatch="onFileTypeMismatch"
-                @file-size-exceed="onFileSizeExceed">
-                <img
-                    :src="$store.getters['user/profilePicture']"
-                    slot="initial">
-            </croppa>
+                @file-size-exceed="onFileSizeExceed"
+                :initial-image="pictureUrl"
+                initial-size="natural"
+                initial-position="center"/>
         </div>
         <br/><br/>
         <b-button @click="croppa.chooseFile()">
