@@ -3,15 +3,16 @@ Utilities.
 
 A library with useful functions.
 """
-from VLE.models import Entry, Node, Template, Comment, PresetNode
 import VLE.factory as factory
+from VLE.models import Comment, Entry, Node, PresetNode, Template
+from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
 
 
 # START: API-POST functions
 def required_params(post, *keys):
     """Get required post parameters, throwing KeyError if not present."""
     if keys and not post:
-        raise KeyError()
+        raise VLEMissingRequiredKey()
 
     result = []
     for key in keys:
@@ -23,7 +24,7 @@ def required_params(post, *keys):
 def optional_params(post, *keys):
     """Get optional post parameters, filling them as None if not present."""
     if keys and not post:
-        raise KeyError()
+        raise VLEMissingRequiredKey()
 
     result = []
     for key in keys:
@@ -34,6 +35,20 @@ def optional_params(post, *keys):
                 result.append(post[key])
         else:
             result.append(None)
+    return result
+
+
+def required_typed_params(post, *keys):
+    if keys and not post:
+        raise VLEMissingRequiredKey()
+
+    result = []
+    for func, key in keys:
+        try:
+            result.append(func(post[key]))
+        except ValueError as err:
+            raise VLEParamWrongType(err)
+
     return result
 # END: API-POST functions
 

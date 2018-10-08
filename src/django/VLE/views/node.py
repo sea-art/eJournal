@@ -3,14 +3,15 @@ node.py.
 
 In this file are all the node api requests.
 """
-from rest_framework import viewsets
 from datetime import datetime
 
-import VLE.views.responses as response
-import VLE.permissions as permissions
+from rest_framework import viewsets
 
-from VLE.models import Journal
+import VLE.permissions as permissions
 import VLE.timeline as timeline
+import VLE.utils.generic_utils as utils
+import VLE.views.responses as response
+from VLE.models import Journal
 
 
 class NodeView(viewsets.ModelViewSet):
@@ -45,7 +46,7 @@ class NodeView(viewsets.ModelViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        journal_id = int(request.query_params['journal_id'])
+        journal_id, = utils.required_typed_params(request.query_params, (int, 'journal_id'))
 
         journal = Journal.objects.get(pk=journal_id)
 

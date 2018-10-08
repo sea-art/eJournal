@@ -1,11 +1,13 @@
 
 from rest_framework import viewsets
 
-import VLE.permissions as permissions
-import VLE.views.responses as response
-from VLE.serializers import RoleSerializer
-from VLE.models import Course, Role, User
 import VLE.factory as factory
+import VLE.permissions as permissions
+import VLE.utils.generic_utils as utils
+import VLE.views.responses as response
+from VLE.models import Course, Role, User
+from VLE.serializers import RoleSerializer
+from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
 
 
 class RoleView(viewsets.ViewSet):
@@ -63,22 +65,22 @@ class RoleView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        user = request.user if int(pk) == 0 else User.objects.get(int(pk))
+        user = request.user if pk == 0 else User.objects.get(pk)
 
         # Return course permissions if course_id is set
         try:
-            course_id = int(request.query_params['course_id'])
+            course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
             if course_id > 0:
                 Course.objects.get(pk=course_id)
 
-            perms = permissions.get_permissions(user, int(course_id))
+            perms = permissions.get_permissions(user, course_id)
             if perms is None:
                 return response.forbidden('You are not a participant of this course.')
 
             return response.success({'role': perms})
         # Return assignment permissions if assignment_id is set
-        except KeyError:
-            assignment_id = int(request.query_params['assignment_id'])
+        except (VLEMissingRequiredKey, VLEParamWrongType):
+            assignment_id, = utils.required_typed_params(request.query_params, (int, 'assignment_id'))
             perms = permissions.get_assignment_id_permissions(request.user, assignment_id)
             return response.success({'role': perms})
         # Returns keyerror if course_id nor assignment_id is set

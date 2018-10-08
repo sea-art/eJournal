@@ -3,26 +3,24 @@ user.py.
 
 In this file are all the user api requests.
 """
+import json
+import os
 from smtplib import SMTPAuthenticationError
+
+import jwt
 from django.conf import settings
 from django.core.validators import validate_email
-
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from VLE.serializers import UserSerializer, OwnUserSerializer, EntrySerializer
-from VLE.models import User, Journal, UserFile, Assignment, Node, Entry
-from VLE.views import responses as response
-import VLE.utils.generic_utils as utils
 import VLE.factory as factory
-from VLE.utils import email_handling
-from VLE.utils import file_handling
-import VLE.validators as validators
 import VLE.permissions as permissions
-
-import jwt
-import json
-import os
+import VLE.utils.generic_utils as utils
+import VLE.validators as validators
+from VLE.models import Assignment, Entry, Journal, Node, User, UserFile
+from VLE.serializers import EntrySerializer, OwnUserSerializer, UserSerializer
+from VLE.utils import email_handling, file_handling
+from VLE.views import responses as response
 
 
 class UserView(viewsets.ViewSet):
@@ -65,7 +63,7 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        if int(pk) == 0:
+        if pk == 0:
             pk = request.user.id
 
         user = User.objects.get(pk=pk)
@@ -167,11 +165,10 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-
-        pk = kwargs.get('pk')
-        if int(pk) == 0:
+        pk, = utils.required_typed_params(kwargs.get, (int, 'pk'))
+        if pk == 0:
             pk = request.user.id
-        if not (request.user.pk == int(pk) or request.user.is_superuser):
+        if not (request.user.pk == pk or request.user.is_superuser):
             return response.forbidden()
 
         user = User.objects.get(pk=pk)
@@ -235,7 +232,7 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_superuser:
             return response.forbidden('You are not allowed to delete a user.')
 
-        if int(pk) == 0:
+        if pk == 0:
             pk = request.user.id
 
         user = User.objects.get(pk=pk)
@@ -291,7 +288,7 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        if int(pk) == 0:
+        if pk == 0:
             pk = request.user.id
 
         user = User.objects.get(pk=pk)
@@ -335,7 +332,7 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        if int(pk) == 0:
+        if pk == 0:
             pk = request.user.id
 
         file_name, = utils.required_params(request.query_params, 'file_name')

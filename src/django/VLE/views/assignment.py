@@ -6,13 +6,14 @@ In this file are all the assignment api requests.
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from VLE.serializers import AssignmentSerializer
-from VLE.models import Assignment, Course, Journal, Lti_ids
-import VLE.views.responses as response
-import VLE.permissions as permissions
 import VLE.factory as factory
-import VLE.utils.generic_utils as utils
 import VLE.lti_grade_passback as lti_grade
+import VLE.permissions as permissions
+import VLE.utils.generic_utils as utils
+import VLE.views.responses as response
+from VLE.models import Assignment, Course, Journal, Lti_ids
+from VLE.serializers import AssignmentSerializer
+from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
 
 
 class AssignmentView(viewsets.ViewSet):
@@ -46,7 +47,7 @@ class AssignmentView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        course_id = int(request.query_params['course_id'])
+        course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
         course = Course.objects.get(pk=course_id)
 
         role = permissions.get_role(request.user, course)
@@ -148,8 +149,9 @@ class AssignmentView(viewsets.ViewSet):
             return response.not_found('Assignment does not exist.')
 
         try:
-            course = Course.objects.get(id=int(request.query_params['course_id']))
-        except (ValueError, KeyError):
+            course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
+            course = Course.objects.get(id=course_id)
+        except (VLEMissingRequiredKey, VLEParamWrongType):
             course = None
 
         if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
@@ -239,7 +241,7 @@ class AssignmentView(viewsets.ViewSet):
 
         assignment_id = kwargs.get('pk')
 
-        course_id = int(request.query_params['course_id'])
+        course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
 
         assignment = Assignment.objects.get(pk=assignment_id)
         course = Course.objects.get(pk=course_id)
@@ -284,8 +286,9 @@ class AssignmentView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            courses = [Course.objects.get(pk=int(request.query_params['course_id']))]
-        except KeyError:
+            course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
+            courses = [Course.objects.get(pk=course_id)]
+        except (VLEMissingRequiredKey, VLEParamWrongType):
             courses = request.user.participations.all()
 
         deadline_list = []

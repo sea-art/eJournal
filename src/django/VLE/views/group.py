@@ -5,12 +5,12 @@ In this file are all the group api requests.
 """
 from rest_framework import viewsets
 
+import VLE.factory as factory
+import VLE.permissions as permissions
 import VLE.serializers as serialize
+import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
 from VLE.models import Course, Group
-import VLE.permissions as permissions
-import VLE.utils.generic_utils as utils
-import VLE.factory as factory
 
 
 class GroupView(viewsets.ViewSet):
@@ -35,7 +35,7 @@ class GroupView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        course_id = int(request.query_params['course_id'])
+        course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
 
         course = Course.objects.get(pk=course_id)
 

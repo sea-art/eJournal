@@ -1,7 +1,16 @@
-import VLE.views.responses as response
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.exceptions import ValidationError
 from smtplib import SMTPAuthenticationError
+
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+
+import VLE.views.responses as response
+
+
+class VLEMissingRequiredKey(KeyError):
+    pass
+
+
+class VLEParamWrongType(ValueError):
+    pass
 
 
 class ErrorMiddleware:
@@ -16,9 +25,9 @@ class ErrorMiddleware:
             return response.not_found(f'{str(exception).split()[0]} does not exist.')
         elif isinstance(exception, ValidationError):
             return response.bad_request(exception.args[0])
-        elif isinstance(exception, KeyError):
+        elif isinstance(exception, VLEMissingRequiredKey):
             return response.key_error(str(exception))
-        elif isinstance(exception, ValueError):
+        elif isinstance(exception, VLEParamWrongType):
             return response.value_error(str(exception))
         elif isinstance(exception, SMTPAuthenticationError):
             return response.internal_server_error(
