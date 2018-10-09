@@ -4,17 +4,19 @@
 -->
 
 <template>
-    <span v-if="date" class="date-text" :class="dateClass">{{ $root.beautifyDate(date, true, this.deadline)}}</span>
+    <span v-if="date" class="date-text" v-bind:class="dateClass">{{ $root.beautifyDate(date, true, this.isDeadline) }}</span>
 </template>
 
 <script>
 export default {
-    props: ['date', 'selected', 'deadline'],
+    props: ['date', 'selected', 'isDeadline'],
     computed: {
         dateClass () {
-            var classes = this.deadline ? 'deadline-class' : ''
-            classes += this.selected ? ' date-selected' : ' date-unselected'
-            return classes
+            return {
+                'deadline-class': this.isDeadline,
+                'date-selected': this.selected,
+                'date-unselected': !this.selected
+            }
         }
     }
 }
