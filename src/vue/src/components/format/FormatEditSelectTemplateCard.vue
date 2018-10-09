@@ -47,11 +47,11 @@
             </b-col>
         </b-row>
 
-        <h2 class="field-heading">Description</h2>
-        <b-textarea class="multi-form theme-input" v-model="currentPreset.description" placeholder="Description"/>
-
         <h2 class="field-heading">Deadline</h2>
         <flat-pickr class="theme-input multi-form full-width" v-model="currentPreset.deadline" :config="$root.flatPickrTimeConfig"/>
+
+        <h2 class="field-heading">Description</h2>
+        <b-textarea class="multi-form theme-input" v-model="currentPreset.description" placeholder="Description"/>
 
         <div v-if="currentPreset.type === 'd'">
             <h2 class="field-heading">Preset Template</h2>
