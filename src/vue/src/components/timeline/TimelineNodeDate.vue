@@ -4,7 +4,7 @@
 -->
 
 <template>
-    <span v-if="date" class="date-text" v-bind:class="dateClass">{{ $root.beautifyDate(date, true, this.isDeadline) }}</span>
+    <span v-if="date" class="date-text" :class="dateClass">{{ $root.beautifyDate(date, true, this.isDeadline) }}</span>
 </template>
 
 <script>
