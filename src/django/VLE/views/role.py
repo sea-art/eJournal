@@ -65,7 +65,10 @@ class RoleView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        user = request.user if pk == 0 else User.objects.get(pk)
+        if pk == '0':
+            pk = request.user.id
+
+        user = User.objects.get(pk=pk)
 
         # Return course permissions if course_id is set
         try:
