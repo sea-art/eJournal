@@ -542,7 +542,7 @@ class Entry(models.Model):
     - last_edited: when the etry was last edited
     """
 
-    # TODO P Should not be nullable
+    # TODO Should not be nullable
     template = models.ForeignKey(
         'Template',
         on_delete=models.SET_NULL,
