@@ -3,14 +3,14 @@ timeline.py.
 
 Useful timeline functions.
 """
-from django.db.models import Case, When
-from django.utils import timezone
 from datetime import datetime
 
-from VLE.models import Node
+from django.db.models import Case, When
+from django.utils import timezone
+
 import VLE.permissions as permissions
-from VLE.serializers import TemplateSerializer
-from VLE.serializers import EntrySerializer
+from VLE.models import Node
+from VLE.serializers import EntrySerializer, TemplateSerializer
 
 
 def get_sorted_nodes(journal):

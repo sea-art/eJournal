@@ -1,12 +1,12 @@
 
+from django.core.exceptions import ValidationError
 from rest_framework import viewsets
 
+import VLE.factory as factory
 import VLE.permissions as permissions
 import VLE.views.responses as response
+from VLE.models import Assignment, Course, Role, User
 from VLE.serializers import RoleSerializer
-from VLE.models import Course, Role, Assignment, User
-import VLE.factory as factory
-from django.core.exceptions import ValidationError
 
 
 class RoleView(viewsets.ViewSet):

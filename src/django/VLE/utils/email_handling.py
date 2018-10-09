@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.core.mail import EmailMessage
+
 from VLE.models import Role
 
 

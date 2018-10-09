@@ -3,14 +3,14 @@ node.py.
 
 In this file are all the node api requests.
 """
-from rest_framework import viewsets
 from datetime import datetime
 
-import VLE.views.responses as response
-import VLE.permissions as permissions
+from rest_framework import viewsets
 
-from VLE.models import Journal
+import VLE.permissions as permissions
 import VLE.timeline as timeline
+import VLE.views.responses as response
+from VLE.models import Journal
 
 
 class NodeView(viewsets.ModelViewSet):
