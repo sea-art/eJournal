@@ -3,13 +3,14 @@ test_lti_launch.py.
 
 Test lti launch.
 """
-from django.test import TestCase
-from django.conf import settings
-from VLE.models import Participation, Journal, Role, Lti_ids
-
-import VLE.lti_launch as lti
-import VLE.factory as factory
 import json
+
+from django.conf import settings
+from django.test import TestCase
+
+import VLE.factory as factory
+import VLE.lti_launch as lti
+from VLE.models import Journal, Lti_ids, Participation, Role
 
 
 class lti_launch_test(TestCase):

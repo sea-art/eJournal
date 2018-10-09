@@ -3,9 +3,9 @@ permissions.py.
 
 All the permission functions.
 """
-from VLE.models import Participation, Assignment
-
 from django.forms.models import model_to_dict
+
+from VLE.models import Assignment, Participation
 
 
 def get_role(user, course):

@@ -5,11 +5,12 @@ In this file are all the Format api requests.
 """
 from rest_framework import viewsets
 
-from VLE.models import Assignment
-import VLE.views.responses as response
-import VLE.utils.generic_utils as utils
 import VLE.permissions as permissions
-from VLE.serializers import FormatSerializer, AssignmentSerializer, AssignmentDetailsSerializer
+import VLE.utils.generic_utils as utils
+import VLE.views.responses as response
+from VLE.models import Assignment
+from VLE.serializers import (AssignmentDetailsSerializer, AssignmentSerializer,
+                             FormatSerializer)
 
 
 class FormatView(viewsets.ViewSet):
@@ -34,10 +35,7 @@ class FormatView(viewsets.ViewSet):
         if not user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            assignment = Assignment.objects.get(pk=pk)
-        except Assignment.DoesNotExist:
-            return response.not_found('Assignment not found.')
+        assignment = Assignment.objects.get(pk=pk)
 
         if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
             return response.forbidden('You are not allowed to view this assignment.')
@@ -76,18 +74,11 @@ class FormatView(viewsets.ViewSet):
 
         assignment_id = pk
 
-        try:
-            assignment_details, templates, presets, unused_templates, removed_presets, removed_templates \
-                = utils.required_params(request.data, "assignment_details", "templates", "presets",
-                                        "unused_templates", "removed_presets", "removed_templates")
-        except KeyError:
-            return response.keyerror("assignment_details", "templates", "presets", "unused_templates",
-                                     "removed_presets", "removed_templates")
+        assignment_details, templates, presets, unused_templates, removed_presets, removed_templates \
+            = utils.required_params(request.data, "assignment_details", "templates", "presets",
+                                    "unused_templates", "removed_presets", "removed_templates")
 
-        try:
-            assignment = Assignment.objects.get(pk=assignment_id)
-        except Assignment.DoesNotExist:
-            return response.not_found('Assignment does not exist.')
+        assignment = Assignment.objects.get(pk=assignment_id)
 
         format = assignment.format
 

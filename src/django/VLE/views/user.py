@@ -3,26 +3,24 @@ user.py.
 
 In this file are all the user api requests.
 """
+import json
 from smtplib import SMTPAuthenticationError
+
+import jwt
 from django.conf import settings
 from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
-
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from VLE.serializers import UserSerializer, OwnUserSerializer, EntrySerializer
-from VLE.models import User, Journal, UserFile, Assignment, Node, Entry, Content
-from VLE.views import responses as response
-import VLE.utils.generic_utils as utils
 import VLE.factory as factory
-from VLE.utils import email_handling
-from VLE.utils import file_handling
-import VLE.validators as validators
 import VLE.permissions as permissions
-
-import jwt
-import json
+import VLE.utils.generic_utils as utils
+import VLE.validators as validators
+from VLE.models import (Assignment, Content, Entry, Journal, Node, User,
+                        UserFile)
+from VLE.serializers import EntrySerializer, OwnUserSerializer, UserSerializer
+from VLE.utils import email_handling, file_handling
+from VLE.views import responses as response
 
 
 class UserView(viewsets.ViewSet):
@@ -65,13 +63,10 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        if int(pk) == 0:
+        if pk == 0:
             pk = request.user.id
 
-        try:
-            user = User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            return response.not_found('User does not exist.')
+        user = User.objects.get(pk=pk)
 
         if request.user == user or request.user.is_superuser:
             serializer = OwnUserSerializer(user, many=False)
@@ -100,7 +95,6 @@ class UserView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            keyerror -- when username or password is not set
             bad request -- when email/username/lti id already exists
             bad request -- when email/password is invalid
         On succes:
@@ -120,19 +114,13 @@ class UserView(viewsets.ViewSet):
         else:
             lti_id, user_image, is_teacher = None, None, False
 
-        try:
-            username, password = utils.required_params(request.data, 'username', 'password')
-            first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
-        except KeyError:
-            return response.keyerror('username', 'password')
+        username, password = utils.required_params(request.data, 'username', 'password')
+        first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
 
         if email and User.objects.filter(email=email).exists():
             return response.bad_request('That email address belongs to another user.')
 
-        try:
-            validate_email(email)
-        except ValidationError:
-            return response.bad_request('Invalid email address.')
+        validate_email(email)
 
         if User.objects.filter(username=username).exists():
             return response.bad_request('User with this username already exists.')
@@ -140,10 +128,7 @@ class UserView(viewsets.ViewSet):
         if lti_id is not None and User.objects.filter(lti_id=lti_id).exists():
             return response.bad_request('User with this lti id already exists.')
 
-        try:
-            validators.validate_password(password)
-        except ValidationError as e:
-            return response.bad_request(e.args[0])
+        validators.validate_password(password)
 
         user = factory.make_user(username, password, email=email, lti_id=lti_id, is_teacher=is_teacher,
                                  first_name=first_name, last_name=last_name, profile_picture=user_image,
@@ -154,8 +139,7 @@ class UserView(viewsets.ViewSet):
                 email_handling.send_email_verification_link(user)
             except SMTPAuthenticationError:
                 user.delete()
-                return response.internal_server_error(
-                    description='Mailserver is not configured correctly, please contact a server admin.')
+                raise SMTPAuthenticationError
 
         return response.created({'user': UserSerializer(user).data})
 
@@ -181,17 +165,13 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-
-        pk = kwargs.get('pk')
-        if int(pk) == 0:
+        pk, = utils.required_typed_params(kwargs.get, (int, 'pk'))
+        if pk == 0:
             pk = request.user.id
-        if not (request.user.pk == int(pk) or request.user.is_superuser):
+        if not (request.user.pk == pk or request.user.is_superuser):
             return response.forbidden()
 
-        try:
-            user = User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            return request.not_found('User does not exist.')
+        user = User.objects.get(pk=pk)
 
         if 'jwt_params' in request.data and request.data['jwt_params'] != '':
             try:
@@ -252,13 +232,10 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_superuser:
             return response.forbidden('You are not allowed to delete a user.')
 
-        if int(pk) == 0:
+        if pk == 0:
             pk = request.user.id
 
-        try:
-            user = User.objects.get(pk=pk)
-        except User.DoesNotExist:
-            return response.not_found('User does not exist.')
+        user = User.objects.get(pk=pk)
 
         user.delete()
         return response.deleted(description='Sucesfully deleted user.')
@@ -275,17 +252,13 @@ class UserView(viewsets.ViewSet):
         Returns
         On failure:
             unauthorized -- when the user is not logged in
-            keyerror -- when new or old password is not set
             bad request -- when the password is invalid
         On success:
             success -- with a success description
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        try:
-            new_password, old_password = utils.required_params(request.data, 'new_password', 'old_password')
-        except KeyError:
-            return response.keyerror('new_password', 'old_password')
+        new_password, old_password = utils.required_params(request.data, 'new_password', 'old_password')
 
         if not request.user.check_password(old_password):
             return response.bad_request('Wrong password.')
@@ -315,7 +288,7 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        if int(pk) == 0:
+        if pk == 0:
             pk = request.user.id
 
         user = User.objects.get(pk=pk)
@@ -352,7 +325,6 @@ class UserView(viewsets.ViewSet):
         Returns
         On failure:
             unauthorized -- when the user is not logged in
-            keyerror -- when file_name is not set
             bad_request -- when the file was not found
             forbidden -- when its not a superuser nor their own data
         On success:
@@ -360,14 +332,11 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        if int(pk) == 0:
+        if pk == 0:
             pk = request.user.id
 
-        try:
-            file_name, entry_id, node_id, content_id = utils.required_params(request.query_params, 'file_name',
-                                                                             'entry_id', 'node_id', 'content_id')
-        except KeyError:
-            return response.keyerror('file_name', 'entry_id', 'node_id', 'content_id')
+        file_name, entry_id, node_id, content_id = utils.required_typed_params(
+            request.query_params, (str, 'file_name'), (int, 'entry_id'), (int, 'node_id'), (int, 'content_id'))
 
         try:
             user_file = UserFile.objects.get(author=pk, file_name=file_name, entry=int(entry_id), node=int(node_id),
@@ -399,7 +368,6 @@ class UserView(viewsets.ViewSet):
         Returns
         On failure:
             unauthorized -- when the user is not logged in
-            keyerror -- when file is not set
             bad_request -- when the file, assignment was not found or the validation failed.
         On success:
             success -- name of the file.
@@ -410,20 +378,11 @@ class UserView(viewsets.ViewSet):
         if not (request.FILES and 'file' in request.FILES):
             return response.bad_request('No accompanying file found in the request.')
 
-        try:
-            assignment_id, content_id = utils.required_params(request.POST, 'assignment_id', 'content_id')
-        except KeyError:
-            return response.keyerror('assignment_id', 'content_id')
+        assignment_id, content_id = utils.required_params(request.POST, 'assignment_id', 'content_id')
 
-        try:
-            validators.validate_user_file(request.FILES['file'], request.user)
-        except ValidationError as e:
-            return response.bad_request(e.args[0])
+        validators.validate_user_file(request.FILES['file'], request.user)
 
-        try:
-            assignment = Assignment.objects.get(pk=assignment_id)
-        except Assignment.DoesNotExist:
-            return response.bad_request('Assignment with id {:s} was not found.'.format(assignment_id))
+        assignment = Assignment.objects.get(pk=assignment_id)
 
         if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk).exists():
             return response.forbidden('You cannot upload a file to: {:s}.'.format(assignment.name))
@@ -451,7 +410,6 @@ class UserView(viewsets.ViewSet):
         Returns
         On failure:
             unauthorized -- when the user is not logged in
-            keyerror -- when url_data is not set
             bad_request -- when the file is not valid
         On success:
             success -- a zip file of all the userdata with all their files
@@ -459,15 +417,9 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            utils.required_params(request.data, 'file')
-        except KeyError:
-            return response.keyerror('file')
+        utils.required_params(request.data, 'file')
 
-        try:
-            validators.validate_profile_picture_base64(request.data['file'])
-        except ValidationError as e:
-            return response.bad_request(e.args[0])
+        validators.validate_profile_picture_base64(request.data['file'])
 
         request.user.profile_picture = request.data['file']
         request.user.save()
