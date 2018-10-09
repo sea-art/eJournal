@@ -680,7 +680,6 @@ class Comment(models.Model):
         'Entry',
         on_delete=models.CASCADE
     )
-    # TODO P Should not be nullable
     author = models.ForeignKey(
         'User',
         on_delete=models.SET_NULL,
