@@ -22,9 +22,9 @@ export default {
     computed: {
         dateClass () {
             return {
-                'deadline-class': this.checkDeadline(),
                 'date-selected': this.selected,
-                'date-unselected': !this.selected
+                'date-unselected': !this.selected,
+                'date-deadline': this.checkDeadline()
             }
         }
     },
