@@ -18,12 +18,14 @@
 import icon from 'vue-awesome/components/Icon'
 
 export default {
-    props: ['date', 'selected', 'deadline'],
+    props: ['date', 'selected', 'isDeadline'],
     computed: {
         dateClass () {
-            var classes = this.checkDeadline() ? 'date-deadline' : ''
-            classes += this.selected ? ' date-selected' : ' date-unselected'
-            return classes
+            return {
+                'deadline-class': this.checkDeadline(),
+                'date-selected': this.selected,
+                'date-unselected': !this.selected
+            }
         }
     },
     components: {
@@ -34,7 +36,7 @@ export default {
             var currentDate = new Date()
             var deadlineDate = new Date(this.date)
 
-            return currentDate <= deadlineDate && this.deadline
+            return currentDate <= deadlineDate && this.isDeadline
         }
     }
 }
