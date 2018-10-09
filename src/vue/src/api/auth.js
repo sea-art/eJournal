@@ -10,7 +10,7 @@ const errorsToRedirect = new Set([
 ])
 
 /*
- * Redirects the following unsuccessfull request responses:
+ * Redirects the following unsuccessful request responses:
  * UNAUTHORIZED to Login, logs the client out and clears store.
  * FORBIDDEN, NOT_FOUND, INTERNAL_SERVER_ERROR to Error page.
  *
