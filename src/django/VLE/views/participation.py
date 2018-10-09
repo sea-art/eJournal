@@ -1,12 +1,12 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from VLE.models import Course, User, Role, Journal, Participation, Group
+import VLE.factory as factory
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
-import VLE.factory as factory
 import VLE.views.responses as response
-from VLE.serializers import UserSerializer, ParticipationSerializer
+from VLE.models import Course, Group, Journal, Participation, Role, User
+from VLE.serializers import ParticipationSerializer, UserSerializer
 
 
 class ParticipationView(viewsets.ViewSet):

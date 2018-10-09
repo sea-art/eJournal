@@ -1,12 +1,11 @@
-from django.test import TestCase
-
-from VLE.models import Participation, Course, User, Role, Assignment, Comment
-import VLE.serializers as serialize
-
-import VLE.factory as factory
 import test.test_utils as test
 
 import django.utils.timezone as timezone
+from django.test import TestCase
+
+import VLE.factory as factory
+import VLE.serializers as serialize
+from VLE.models import Assignment, Comment, Course, Participation, Role, User
 
 
 class UpdateApiTests(TestCase):

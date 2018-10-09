@@ -3,15 +3,16 @@ comment.py.
 
 In this file are all the comment api requests.
 """
-from rest_framework import viewsets
 from datetime import datetime
 
-from VLE.serializers import CommentSerializer
-from VLE.models import Comment, Entry, Assignment, Journal
-import VLE.views.responses as response
+from rest_framework import viewsets
+
+import VLE.factory as factory
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
-import VLE.factory as factory
+import VLE.views.responses as response
+from VLE.models import Assignment, Comment, Entry, Journal
+from VLE.serializers import CommentSerializer
 
 
 class CommentView(viewsets.ViewSet):

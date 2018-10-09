@@ -1,6 +1,6 @@
-from django.test import TestCase
-
 import test.test_utils as test
+
+from django.test import TestCase
 
 
 class EmailApiTests(TestCase):

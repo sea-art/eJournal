@@ -3,9 +3,10 @@ test_gradepassback.py.
 
 Test the grade passback.
 """
-from VLE.lti_grade_passback import GradePassBackRequest
 from django.conf import settings
 from django.test import TestCase
+
+from VLE.lti_grade_passback import GradePassBackRequest
 
 
 class GradePassBackRequestXMLTest(TestCase):

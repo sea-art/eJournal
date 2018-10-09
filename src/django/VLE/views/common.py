@@ -7,9 +7,9 @@ This includes:
 """
 from rest_framework.decorators import api_view
 
-import VLE.views.responses as response
-from VLE.models import Course, Journal, Assignment, Participation
 import VLE.permissions as permissions
+import VLE.views.responses as response
+from VLE.models import Assignment, Course, Journal, Participation
 
 
 @api_view(['GET'])

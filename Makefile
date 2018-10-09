@@ -6,6 +6,7 @@ test-back:
 	pep8 ./src/django --max-line-length=120 --exclude='./src/django/VLE/migrations','./src/django/VLE/settings*'
 	bash -c 'source ./venv/bin/activate && flake8 --max-line-length=120 src/django --exclude="src/django/VLE/migrations/*","src/django/VLE/settings/*","src/django/VLE/settings.py" && deactivate'
 	bash -c "source ./venv/bin/activate && coverage run src/django/manage.py test src/django && coverage report && deactivate"
+	bash -c 'source ./venv/bin/activate && isort -rc src/django/ && deactivate'
 
 test-front:
 	npm run lint --prefix ./src/vue
@@ -59,6 +60,7 @@ reset:
 		source ./venv/bin/activate && \
 		pip install git+https://github.com/joestump/python-oauth2.git && \
 		pip install -r requirements.txt'
+	bash -c 'source ./venv/bin/activate && isort -rc src/django/ && deactivate'
 
 	# Reinstall nodejs dependencies.
 	npm ci --prefix ./src/vue
