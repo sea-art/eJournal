@@ -7,10 +7,12 @@ from rest_framework import viewsets
 from django.utils.timezone import now
 from datetime import datetime
 
-from VLE.models import Journal, Node, Content, Field, Template, Entry, Comment
+from VLE.models import Journal, Node, Field, Template, Entry, Comment, Content
 import VLE.views.responses as response
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
+import VLE.utils.entry_utils as entry_utils
+from VLE.utils import file_handling
 import VLE.lti_grade_passback as lti_grade
 import VLE.timeline as timeline
 import VLE.permissions as permissions
@@ -29,6 +31,8 @@ class EntryView(viewsets.ViewSet):
     def create(self, request):
         """Create a new entry.
 
+        Deletes remaining temporary user files if successful.
+
         Arguments:
         request -- the request that was send with
             journal_id -- the journal id
@@ -42,8 +46,6 @@ class EntryView(viewsets.ViewSet):
         journal_id, template_id, content_list = utils.required_params(
             request.data, "journal_id", "template_id", "content")
         node_id, = utils.optional_params(request.data, "node_id")
-
-        validators.validate_entry_content(content_list)
 
         journal = Journal.objects.get(pk=journal_id, user=request.user)
         template = Template.objects.get(pk=template_id)
@@ -77,7 +79,6 @@ class EntryView(viewsets.ViewSet):
 
             node.entry = factory.make_entry(template)
             node.save()
-
         else:
             entry = factory.make_entry(template)
             node = factory.make_node(journal, entry)
@@ -86,9 +87,21 @@ class EntryView(viewsets.ViewSet):
             lti_grade.needs_grading(journal, node.id)
 
         for content in content_list:
-            field = Field.objects.get(pk=content['id'])
+            data, field_id = utils.required_params(content, 'data', 'id')
+            field = Field.objects.get(pk=field_id)
+            validators.validate_entry_content(data, field)
 
-            factory.make_content(node.entry, content['data'], field)
+            created_content = factory.make_content(node.entry, data, field)
+
+            if field.type in ['i', 'f', 'p']:
+                user_file = file_handling.get_temp_user_file(request.user, journal.assignment, content['data'])
+                if user_file is None:
+                    node.entry.delete()
+                    return response.bad_request('One of your files was not correctly uploaded, please try gain.')
+
+                file_handling.make_permanent_file_content(user_file, created_content, node)
+
+        file_handling.remove_temp_user_files(request.user)
 
         # Find the new index of the new node so that the client can automatically scroll to it.
         result = timeline.get_nodes(journal, request.user)
@@ -175,15 +188,22 @@ class EntryView(viewsets.ViewSet):
                (journal.assignment.due_date and journal.assignment.due_date < datetime.now()):
                 return response.bad_request('You are not allowed to edit entries past their due date.')
 
-            validators.validate_entry_content(content_list)
-
-            Content.objects.filter(entry=entry).all().delete()
-
             for content in content_list:
-                field = Field.objects.get(pk=content['id'])
+                field_id, data, content_id = utils.required_params(content, 'id', 'data', 'contentID')
+                field = Field.objects.get(pk=int(field_id))
+                old_content = entry.content_set.get(pk=int(content_id))
+                validators.validate_entry_content(data, field)
 
-                if content['data']:
-                    factory.make_content(entry, content['data'], field)
+                if old_content.field.pk != int(field_id):
+                    return response.bad_request('The given content does not match the accompanying field type.')
+
+                if not data:
+                    old_content.delete()
+                    continue
+
+                entry_utils.patch_entry_content(request.user, entry, old_content, field, data, journal.assignment)
+
+            file_handling.remove_temp_user_files(request.user)
 
         req_data = request.data
         if 'content' in req_data:

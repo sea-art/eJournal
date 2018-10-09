@@ -4,7 +4,6 @@ user.py.
 In this file are all the user api requests.
 """
 import json
-import os
 from smtplib import SMTPAuthenticationError
 
 import jwt
@@ -17,7 +16,7 @@ import VLE.factory as factory
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.validators as validators
-from VLE.models import Assignment, Entry, Journal, Node, User, UserFile
+from VLE.models import Assignment, Entry, Journal, Node, User, UserFile, Content
 from VLE.serializers import EntrySerializer, OwnUserSerializer, UserSerializer
 from VLE.utils import email_handling, file_handling
 from VLE.views import responses as response
@@ -335,11 +334,13 @@ class UserView(viewsets.ViewSet):
         if pk == 0:
             pk = request.user.id
 
-        file_name, = utils.required_params(request.query_params, 'file_name')
+        file_name, entry_id, node_id, content_id = utils.required_typed_params(
+            request.query_params, (str, 'file_name'), (int, 'entry_id'), (int, 'node_id'), (int, 'content_id'))
 
         try:
-            user_file = UserFile.objects.get(author=pk, file_name=file_name)
-        except UserFile.DoesNotExist:
+            user_file = UserFile.objects.get(author=pk, file_name=file_name, entry=int(entry_id), node=int(node_id),
+                                             content=int(content_id))
+        except (UserFile.DoesNotExist, ValueError):
             return response.bad_request(file_name + ' was not found.')
 
         if user_file.author.id is not request.user.id and \
@@ -347,61 +348,53 @@ class UserView(viewsets.ViewSet):
                 request.user, user_file.assignment, 'can_view_assignment_journals'):
             return response.forbidden('Forbidden to view: %s by author ID: %s.' % (file_name, pk))
 
-        return response.file(os.path.join(settings.MEDIA_ROOT, user_file.file.name))
+        return response.file(user_file)
 
-    # TODO P Test changes
     @action(methods=['post'], detail=False)
     def upload(self, request):
         """Update user profile picture.
 
         No validation is performed beyond a size check of the file and the available space for the user.
+        At the time of creation, the UserFile is uploaded but not attached to an entry yet. This UserFile is treated
+        as temporary untill the actual entry is created and the node and content are updated.
 
         Arguments:
         request -- request data
             file -- filelike data
             assignment_id -- assignment ID
+            content_id -- content ID, should be null when creating a NEW entry.
 
         Returns
         On failure:
             unauthorized -- when the user is not logged in
-            bad_request -- when the file was not found
+            bad_request -- when the file, assignment was not found or the validation failed.
         On success:
-            success -- a zip file of all the userdata with all their files
+            success -- name of the file.
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        if not request.FILES or 'file' not in request.FILES or 'assignment_id' not in request.POST:
-            return response.bad_request('File or assignment_id not found')
+        if not (request.FILES and 'file' in request.FILES):
+            return response.bad_request('No accompanying file found in the request.')
 
-        validators.validate_user_file(request.FILES['file'])
+        assignment_id, content_id = utils.required_params(request.POST, 'assignment_id', 'content_id')
 
-        user_files = request.user.userfile_set.all()
+        validators.validate_user_file(request.FILES['file'], request.user)
 
-        # Fast check for allowed user storage space
-        if settings.USER_MAX_TOTAL_STORAGE_BYTES - len(user_files) * settings.USER_MAX_FILE_SIZE_BYTES <= \
-           request.FILES['file'].size:
-            # Slow check for allowed user storage space
-            file_size_sum = 0
-            for user_file in user_files:
-                file_size_sum += user_file.file.size
-            if file_size_sum > settings.USER_MAX_TOTAL_STORAGE_BYTES:
-                return response.bad_request('Unsufficient user storage space.')
+        assignment = Assignment.objects.get(pk=assignment_id)
 
-        # Ensure an old copy of the file is removed when updating a file with the same name.
-        try:
-            old_user_file = user_files.get(file_name=request.FILES['file'].name)
-            old_user_file.file.delete()
-            old_user_file.delete()
-        except UserFile.DoesNotExist:
-            pass
-
-        assignment = Assignment.objects.get(pk=request.POST['assignment_id'])
-
-        if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
+        if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk).exists():
             return response.forbidden('You cannot upload a file to: {:s}.'.format(assignment.name))
 
-        factory.make_user_file(request.FILES['file'], request.user, assignment)
+        if content_id == 'null':
+            factory.make_user_file(request.FILES['file'], request.user, assignment)
+        else:
+            try:
+                content = Content.objects.get(pk=int(content_id), entry__node__journal__user=request.user)
+            except Content.DoesNotExist:
+                return response.bad_request('Content with id {:s} was not found.'.format(content_id))
+
+            factory.make_user_file(request.FILES['file'], request.user, assignment, content=content)
 
         return response.success(description='Succesfully uploaded {:s}.'.format(request.FILES['file'].name))
 
