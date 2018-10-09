@@ -4,15 +4,15 @@ Utilities.
 A library with useful functions.
 """
 import VLE.factory as factory
-import VLE.views.responses as responses
 from VLE.models import Comment, Entry, Node, PresetNode, Template
+from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
 
 
 # START: API-POST functions
 def required_params(post, *keys):
     """Get required post parameters, throwing KeyError if not present."""
     if keys and not post:
-        raise KeyError()
+        raise VLEMissingRequiredKey()
 
     result = []
     for key in keys:
@@ -24,7 +24,7 @@ def required_params(post, *keys):
 def optional_params(post, *keys):
     """Get optional post parameters, filling them as None if not present."""
     if keys and not post:
-        raise KeyError()
+        raise VLEMissingRequiredKey()
 
     result = []
     for key in keys:
@@ -35,6 +35,20 @@ def optional_params(post, *keys):
                 result.append(post[key])
         else:
             result.append(None)
+    return result
+
+
+def required_typed_params(post, *keys):
+    if keys and not post:
+        raise VLEMissingRequiredKey()
+
+    result = []
+    for func, key in keys:
+        try:
+            result.append(func(post[key]))
+        except ValueError as err:
+            raise VLEParamWrongType(err)
+
     return result
 # END: API-POST functions
 
@@ -211,10 +225,7 @@ def update_presets(assignment, presets, template_map):
         exists = 'id' in preset
 
         if exists:
-            try:
-                preset_node = PresetNode.objects.get(pk=preset['id'])
-            except Template.DoesNotExist:
-                return responses.not_found('Preset does not exist.')
+            preset_node = PresetNode.objects.get(pk=preset['id'])
         else:
             preset_node = PresetNode(format=format)
 

@@ -3,7 +3,7 @@ import auth from '@/api/auth'
 export default {
     /* Common file for multi-purpose api calls. */
     getNames (data) {
-        return auth.get('names/' + (data.cID || 0) + '/' + (data.aID || 0) + '/' + (data.jID || 0))
+        return auth.get('names/' + (data.cID || 0) + '/' + (data.aID || 0) + '/' + (data.jID || 0), null, true)
             .then(response => response.data.names)
     },
 
