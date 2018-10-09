@@ -38,7 +38,6 @@ def get_permissions(user, cID=-1):
 
     if user.is_superuser:
         # For system wide permissions, not course specific.
-        # Administrators should not be able to view grades.
         roleDict = {
             "can_edit_institute_details": True,
             "can_add_course": True,

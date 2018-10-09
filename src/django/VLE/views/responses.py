@@ -5,10 +5,12 @@ This file contains functions to easily generate common HTTP error responses
 using JsonResponses. These functions should be used whenever the client needs
 to receive the appropriate error code.
 """
+from VLE.models import UserFile
+
 from django.http import JsonResponse, HttpResponse, FileResponse
+from django.conf import settings
 
 import os
-from django.conf import settings
 import base64
 
 
@@ -166,7 +168,11 @@ def file_b64(file_path, content_type):
 def file(file_path):
     """Return a file as bytestring if found, otherwise returns a not found response."""
     try:
+        if isinstance(file_path, UserFile):
+            file_path = file_path.file.path
         response = FileResponse(open(file_path, 'rb'), as_attachment=True)
+        if isinstance(file_path, UserFile):
+            response['Content-Disposition'] = 'attachment; filename=' + file_path.file_name
         return response
     except FileNotFoundError:
         return not_found(description='File not found.')

@@ -17,6 +17,7 @@
                 :autoUpload="true"
                 @fileUploadSuccess="completeContent[i].data = $event"
                 :aID="$route.params.aID"
+                :contentID="completeContent[i].contentID"
             />
             <file-upload-input
                 v-else-if="field.type == 'f'"
@@ -26,6 +27,7 @@
                 :autoUpload="true"
                 @fileUploadSuccess="completeContent[i].data = $event"
                 :aID="$route.params.aID"
+                :contentID="completeContent[i].contentID"
             />
             <b-input v-else-if="field.type == 'v'"
                 class="theme-input"
@@ -40,6 +42,7 @@
                 :autoUpload="true"
                 @fileUploadSuccess="completeContent[i].data = $event"
                 :aID="$route.params.aID"
+                :contentID="completeContent[i].contentID"
             />
             <text-editor
                 v-else-if="field.type == 'rt'"
@@ -67,11 +70,17 @@
                 :id="'image-display-field-' + i"
                 :fileName="completeContent[i].data"
                 :authorUID="authorUID"
+                :entryID="entryID"
+                :nodeID="nodeID"
+                :contentID="completeContent[i].contentID"
             />
             <file-download-button
                 v-else-if="field.type == 'f'"
                 :fileName="completeContent[i].data"
                 :authorUID="authorUID"
+                :entryID="entryID"
+                :nodeID="nodeID"
+                :contentID="completeContent[i].contentID"
             />
             <b-embed
                 v-else-if="field.type == 'v'"
@@ -84,6 +93,9 @@
                 v-else-if="field.type == 'p'"
                 :fileName="completeContent[i].data"
                 :authorUID="authorUID"
+                :entryID="entryID"
+                :nodeID="nodeID"
+                :contentID="completeContent[i].contentID"
             />
             <div v-else-if="field.type == 'rt'" v-html="completeContent[i].data"/>
             <a v-else-if="field.type == 'u'" :href="completeContent[i].data">{{ completeContent[i].data }}</a>
@@ -116,6 +128,9 @@ export default {
         },
         authorUID: {
             required: false
+        },
+        entryID: {
+            default: '-1'
         }
     },
     components: {
