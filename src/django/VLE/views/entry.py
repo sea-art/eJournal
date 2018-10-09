@@ -10,16 +10,16 @@ from django.utils.timezone import now
 from rest_framework import viewsets
 
 import VLE.factory as factory
-from VLE.models import Journal, Node, Field, Template, Entry, Comment, Content
-import VLE.views.responses as response
-import VLE.utils.generic_utils as utils
-import VLE.utils.entry_utils as entry_utils
-from VLE.utils import file_handling
 import VLE.lti_grade_passback as lti_grade
 import VLE.permissions as permissions
 import VLE.serializers as serialize
 import VLE.timeline as timeline
+import VLE.utils.entry_utils as entry_utils
+import VLE.utils.generic_utils as utils
 import VLE.validators as validators
+import VLE.views.responses as response
+from VLE.models import Comment, Content, Entry, Field, Journal, Node, Template
+from VLE.utils import file_handling
 
 
 class EntryView(viewsets.ViewSet):

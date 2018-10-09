@@ -13,14 +13,15 @@ from django.core.validators import validate_email
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from VLE.serializers import UserSerializer, OwnUserSerializer, EntrySerializer
-from VLE.models import User, Journal, UserFile, Assignment, Node, Entry, Content
-from VLE.views import responses as response
-import VLE.utils.generic_utils as utils
 import VLE.factory as factory
 import VLE.permissions as permissions
+import VLE.utils.generic_utils as utils
 import VLE.validators as validators
+from VLE.models import (Assignment, Content, Entry, Journal, Node, User,
+                        UserFile)
+from VLE.serializers import EntrySerializer, OwnUserSerializer, UserSerializer
 from VLE.utils import email_handling, file_handling
+from VLE.views import responses as response
 
 
 class UserView(viewsets.ViewSet):
