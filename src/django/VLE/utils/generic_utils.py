@@ -219,6 +219,7 @@ def update_presets(assignment, presets, template_map):
             preset_node = PresetNode(format=format)
 
         type_changed = preset_node.type != preset['type']
+        preset_node.description = preset['description']
         preset_node.type = preset['type']
         preset_node.deadline = preset['deadline']
 

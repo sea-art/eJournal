@@ -253,7 +253,7 @@ class PresetNodeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PresetNode
-        fields = ('id', 'type', 'deadline', 'target', 'template')
+        fields = ('id', 'description', 'type', 'deadline', 'target', 'template')
         read_only_fields = ('id', )
 
     def get_deadline(self, entry):
