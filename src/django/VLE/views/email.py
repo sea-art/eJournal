@@ -14,7 +14,6 @@ import VLE.utils.generic_utils as utils
 import VLE.validators as validators
 import VLE.views.responses as response
 from VLE.models import User
-
 from VLE.utils import email_handling
 
 

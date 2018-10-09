@@ -3,10 +3,10 @@ entry.py.
 
 In this file are all the entry api requests.
 """
-from rest_framework import viewsets
 from datetime import datetime
 
 from django.utils.timezone import now
+from rest_framework import viewsets
 
 import VLE.factory as factory
 import VLE.lti_grade_passback as lti_grade
