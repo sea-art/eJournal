@@ -6,13 +6,13 @@ In this file are all the assignment api requests.
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from VLE.serializers import AssignmentSerializer
-from VLE.models import Assignment, Course, Journal, Lti_ids
-import VLE.views.responses as response
-import VLE.permissions as permissions
 import VLE.factory as factory
-import VLE.utils.generic_utils as utils
 import VLE.lti_grade_passback as lti_grade
+import VLE.permissions as permissions
+import VLE.utils.generic_utils as utils
+import VLE.views.responses as response
+from VLE.models import Assignment, Course, Journal, Lti_ids
+from VLE.serializers import AssignmentSerializer
 
 
 class AssignmentView(viewsets.ViewSet):

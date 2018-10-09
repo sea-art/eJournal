@@ -4,13 +4,14 @@ journal.py.
 In this file are all the journal api requests.
 """
 from rest_framework import viewsets
-from VLE.serializers import JournalSerializer
-from VLE.models import Journal, Assignment
-import VLE.permissions as permissions
-import VLE.views.responses as response
-import VLE.utils.generic_utils as utils
+
 import VLE.factory as factory
 import VLE.lti_grade_passback as lti_grade
+import VLE.permissions as permissions
+import VLE.utils.generic_utils as utils
+import VLE.views.responses as response
+from VLE.models import Assignment, Journal
+from VLE.serializers import JournalSerializer
 
 
 class JournalView(viewsets.ViewSet):

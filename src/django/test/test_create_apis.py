@@ -3,12 +3,13 @@ test_apis.py.
 
 Test API calls.
 """
+import test.test_utils as test
+
+import django.utils.timezone as timezone
 from django.test import TestCase
-from VLE.models import Journal, Entry, Content, Lti_ids, Group
 
 import VLE.factory as factory
-import test.test_utils as test
-import django.utils.timezone as timezone
+from VLE.models import Content, Entry, Group, Journal, Lti_ids
 
 
 class CreateApiTests(TestCase):

@@ -6,12 +6,12 @@ In this file are all the course api requests.
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-import VLE.views.responses as response
-import VLE.serializers as serialize
-from VLE.models import Course, Lti_ids, Participation
-import VLE.permissions as permissions
-import VLE.utils.generic_utils as utils
 import VLE.factory as factory
+import VLE.permissions as permissions
+import VLE.serializers as serialize
+import VLE.utils.generic_utils as utils
+import VLE.views.responses as response
+from VLE.models import Course, Lti_ids, Participation
 
 
 class CourseView(viewsets.ViewSet):

@@ -30,6 +30,9 @@ export default {
         },
         placeholder: {
             default: 'Select a file.'
+        },
+        contentID: {
+            default: null
         }
     },
     data () {
@@ -58,6 +61,7 @@ export default {
             let formData = new FormData()
             formData.append('file', this.file)
             formData.append('assignment_id', this.aID)
+            formData.append('content_id', this.contentID)
 
             userAPI.uploadUserFile(formData)
                 .then(_ => {

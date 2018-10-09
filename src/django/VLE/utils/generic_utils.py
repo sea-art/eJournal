@@ -3,9 +3,9 @@ Utilities.
 
 A library with useful functions.
 """
-from VLE.models import Entry, Node, Template, Comment, PresetNode
 import VLE.factory as factory
 import VLE.views.responses as responses
+from VLE.models import Comment, Entry, Node, PresetNode, Template
 
 
 # START: API-POST functions

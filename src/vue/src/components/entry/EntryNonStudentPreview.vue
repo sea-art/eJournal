@@ -32,6 +32,7 @@
                 :completeContent="completeContent"
                 :displayMode="true"
                 :authorUID="$parent.journal.student.id"
+                :entryID="entryNode.entry.id"
             />
             <div>
                 <hr class="full-width"/>
@@ -105,7 +106,8 @@ export default {
                         if (content.field === templateField.id) {
                             this.completeContent.push({
                                 data: content.data,
-                                id: content.field
+                                id: content.field,
+                                contentID: content.id
                             })
 
                             checkFound = true
