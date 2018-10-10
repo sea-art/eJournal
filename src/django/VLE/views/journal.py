@@ -43,7 +43,7 @@ class JournalView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        assignment = Assignment.objects.get(pk=request.query_params['assignment_id'])
+        assignment, = Assignment.objects.get(pk=request.query_params['assignment_id'])
 
         if not permissions.has_assignment_permission(request.user, assignment, 'can_view_assignment_journals'):
             return response.forbidden('You are not allowed to view assignment participants.')

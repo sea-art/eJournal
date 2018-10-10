@@ -155,7 +155,7 @@ class GroupView(viewsets.ViewSet):
 
         course_id = kwargs.get('pk')
 
-        name = request.query_params['group_name']
+        name, = utils.required_typed_params(request.query_params, (str, 'group_name'))
 
         course = Course.objects.get(pk=course_id)
 

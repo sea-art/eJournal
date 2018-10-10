@@ -31,7 +31,7 @@ class RoleView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        course_id = request.query_params['course_id']
+        course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
         course = Course.objects.get(pk=course_id)
 
         role = permissions.get_role(request.user, course)
@@ -192,7 +192,7 @@ class RoleView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        name = request.query_params['name']
+        name, = utils.required_typed_params(request.query_params, (str, 'name'))
 
         # Users can only delete course roles with can_edit_course_roles
         role = permissions.get_role(request.user, pk)
