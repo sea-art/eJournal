@@ -3,14 +3,14 @@ timeline.py.
 
 Useful timeline functions.
 """
-from django.db.models import Case, When
-from django.utils import timezone
 from datetime import datetime
 
-from VLE.models import Node
+from django.db.models import Case, When
+from django.utils import timezone
+
 import VLE.permissions as permissions
-from VLE.serializers import TemplateSerializer
-from VLE.serializers import EntrySerializer
+from VLE.models import Node
+from VLE.serializers import EntrySerializer, TemplateSerializer
 
 
 def get_sorted_nodes(journal):
@@ -33,10 +33,10 @@ def get_nodes(journal, user):
     add-node if the user can add to the journal, the subsequent
     progress node is in the future and maximally one.
     """
-    can_add = journal.user == user
-    can_add = can_add and permissions.has_assignment_permission(user, journal.assignment, 'can_have_journal')
+    can_add = journal.user == user and \
+        permissions.has_assignment_permission(user, journal.assignment, 'can_have_journal')
 
-    node_dict = []
+    node_list = []
     for node in get_sorted_nodes(journal):
         # If there is a progress node upcoming, and there are stackable entries before the deadline
         # add an ADDNODE
@@ -45,22 +45,22 @@ def get_nodes(journal, user):
             if can_add and is_future:
                 add_node = get_add_node(journal)
                 if add_node:
-                    node_dict.append(add_node)
+                    node_list.append(add_node)
                 can_add = False
 
         if node.type == Node.ENTRY:
-            node_dict.append(get_entry_node(node, user))
+            node_list.append(get_entry_node(node, user))
         elif node.type == Node.ENTRYDEADLINE:
-            node_dict.append(get_deadline(node, user))
+            node_list.append(get_deadline(node, user))
         elif node.type == Node.PROGRESS:
-            node_dict.append(get_progress(node))
+            node_list.append(get_progress(node))
 
     if can_add and journal.assignment.due_date and journal.assignment.due_date > datetime.now():
         add_node = get_add_node(journal)
         if add_node:
-            node_dict.append(add_node)
+            node_list.append(add_node)
 
-    return node_dict
+    return node_list
 
 
 # TODO: Make serializers for these functions as well (if possible)
@@ -87,6 +87,7 @@ def get_entry_node(node, user):
 def get_deadline(node, user):
     """Convert entrydeadline to a dictionary."""
     return {
+        'description': node.preset.description,
         'type': node.type,
         'nID': node.id,
         'jID': node.journal.id,
@@ -99,6 +100,7 @@ def get_deadline(node, user):
 def get_progress(node):
     """Convert progress node to dictionary."""
     return {
+        'description': node.preset.description,
         'type': node.type,
         'nID': node.id,
         'jID': node.journal.id,

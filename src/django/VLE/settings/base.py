@@ -49,13 +49,14 @@ REST_FRAMEWORK = {
 AUTH_USER_MODEL = "VLE.User"
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
     'USER_ID_FIELD': 'id',
     'USER_ID_CLAIM': 'id',
 }
 
 MIDDLEWARE = [
+    'VLE.utils.error_handling.ErrorMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

@@ -6,6 +6,7 @@ test-back:
 	pep8 ./src/django --max-line-length=120 --exclude='./src/django/VLE/migrations','./src/django/VLE/settings*'
 	bash -c 'source ./venv/bin/activate && flake8 --max-line-length=120 src/django --exclude="src/django/VLE/migrations/*","src/django/VLE/settings/*","src/django/VLE/settings.py" && deactivate'
 	bash -c "source ./venv/bin/activate && coverage run src/django/manage.py test src/django && coverage report && deactivate"
+	bash -c 'source ./venv/bin/activate && isort -rc src/django/ && deactivate'
 
 test-front:
 	npm run lint --prefix ./src/vue
@@ -45,7 +46,7 @@ setup-no-input:
 	# Install apt dependencies and ppa's.
 	(sudo apt-cache show python3.6 | grep "Package: python3.6") || \
 	(sudo add-apt-repository ppa:deadsnakes/ppa -y; sudo apt update) || echo "0"
-	sudo apt install npm nodejs git-flow python3.6 python3-pip pep8 sqlite3 -y
+	sudo apt install npm nodejs git-flow python3 python3-pip pep8 sqlite3 -y
 	sudo pip3 install virtualenv
 
 	make reset
@@ -54,11 +55,12 @@ setup-no-input:
 
 reset:
 	# Reinstall venv packages
-	virtualenv -p python3.6 venv
+	virtualenv -p python3 venv
 	bash -c '\
 		source ./venv/bin/activate && \
 		pip install git+https://github.com/joestump/python-oauth2.git && \
 		pip install -r requirements.txt'
+	bash -c 'source ./venv/bin/activate && isort -rc src/django/ && deactivate'
 
 	# Reinstall nodejs dependencies.
 	npm ci --prefix ./src/vue

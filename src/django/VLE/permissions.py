@@ -3,9 +3,9 @@ permissions.py.
 
 All the permission functions.
 """
-from VLE.models import Participation, Assignment
-
 from django.forms.models import model_to_dict
+
+from VLE.models import Assignment, Participation
 
 
 def get_role(user, course):
@@ -38,7 +38,6 @@ def get_permissions(user, cID=-1):
 
     if user.is_superuser:
         # For system wide permissions, not course specific.
-        # Administrators should not be able to view grades.
         roleDict = {
             "can_edit_institute_details": True,
             "can_add_course": True,
