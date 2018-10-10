@@ -1,3 +1,4 @@
+
 """
 assignment.py.
 
@@ -54,7 +55,7 @@ class AssignmentView(viewsets.ViewSet):
         if role is None:
             return response.forbidden('You are not in this course.')
 
-        if role.can_grade:
+        if role.can_view_assignment_journals:
             queryset = course.assignment_set.all()
         else:
             queryset = Assignment.objects.filter(courses=course, journal__user=request.user)
@@ -198,7 +199,11 @@ class AssignmentView(viewsets.ViewSet):
             published_response = self.publish(request, assignment)
             if published_response is False:
                 return response.forbidden('You are not allowed to grade this assignment.')
-        if permissions.has_assignment_permission(request.user, assignment, 'can_edit_assignment'):
+
+        if not permissions.has_assignment_permission(request.user, assignment, 'can_edit_assignment'):
+            if not published:
+                return response.forbidden('You are not allowed to edit this assignment.')
+        else:
             req_data = request.data
             if published is not None:
                 del req_data['published']
@@ -209,11 +214,8 @@ class AssignmentView(viewsets.ViewSet):
                 factory.make_lti_ids(lti_id=data['lti_id'], for_model=Lti_ids.ASSIGNMENT, assignment=assignment)
 
             serializer = AssignmentSerializer(assignment, data=data, context={'user': request.user}, partial=True)
-            if not serializer.is_valid():
-                response.bad_request()
             serializer.save()
-        elif not published:
-            return response.forbidden('You are not allowed to edit this assignment.')
+
         if published_response is not False:
             return response.success({'assignment': serializer.data, 'published': published_response})
         return response.success({'assignment': serializer.data})

@@ -385,12 +385,12 @@ class UserView(viewsets.ViewSet):
 
         assignment_id, content_id = utils.required_params(request.POST, 'assignment_id', 'content_id')
 
-        validators.validate_user_file(request.FILES['file'], request.user)
-
         assignment = Assignment.objects.get(pk=assignment_id)
 
         if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk).exists():
             return response.forbidden('You cannot upload a file to: {:s}.'.format(assignment.name))
+
+        validators.validate_user_file(request.FILES['file'], request.user)
 
         if content_id == 'null':
             factory.make_user_file(request.FILES['file'], request.user, assignment)
