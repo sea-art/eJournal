@@ -137,9 +137,9 @@ class UserView(viewsets.ViewSet):
         if lti_id is None:
             try:
                 email_handling.send_email_verification_link(user)
-            except SMTPAuthenticationError:
+            except SMTPAuthenticationError as err:
                 user.delete()
-                raise SMTPAuthenticationError
+                raise err
 
         return response.created({'user': UserSerializer(user).data})
 
@@ -201,7 +201,7 @@ class UserView(viewsets.ViewSet):
             user.is_teacher = is_teacher
 
         if lti_id:
-            if User.objects.filter(lti_id=lti_id).exists() and User.objects.filter(lti_id=lti_id) != user:
+            if User.objects.filter(lti_id=lti_id) != user:
                 return response.bad_request('User with this lti id already exists.')
             user.lti_id = lti_id
 
@@ -236,6 +236,9 @@ class UserView(viewsets.ViewSet):
             pk = request.user.id
 
         user = User.objects.get(pk=pk)
+
+        if len(User.objects.filter(is_superuser=True)) == 1:
+            return response.bad_request('There is only 1 superuser left and therefor cannot be deleted')
 
         user.delete()
         return response.deleted(description='Sucesfully deleted user.')
@@ -294,8 +297,9 @@ class UserView(viewsets.ViewSet):
         user = User.objects.get(pk=pk)
 
         # Check the right permissions to get this users data, either be the user of the data or be an admin.
-        if not (user.is_superuser or request.user.id == pk):
-            return response.forbidden('You are not allowed to view this user\'s data.')
+        if not user.is_superuser:
+            return response.bad_request(description='You are not allowed to download all the user data. ' +
+                                        'If you want to download your own data, please contact your supervisor')
 
         profile = UserSerializer(user).data
         journals = Journal.objects.filter(user=pk)

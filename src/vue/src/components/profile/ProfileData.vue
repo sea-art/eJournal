@@ -109,10 +109,10 @@ export default {
                     document.body.appendChild(link)
                     link.click()
                     link.remove()
-                }, error => {
-                    this.$toasted.error(error.response.data.description)
+                }, _ => {
+                    this.$toasted.error('If you want to download userdata, please contact your supervisor.')
                 })
-                .catch(e => {
+                .catch(_ => {
                     this.$toasted.error('Error creating file.')
                 })
         }
