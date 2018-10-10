@@ -499,6 +499,7 @@ class PresetNode(models.Model):
 
     A preset node is a node that has been pre-defined by the teacher.
     It contains the following features:
+    - description: user defined text description of the preset node.
     - type: the type of the preset node (progress or entrydeadline node).
     - deadline: the deadline for this preset node.
     - forced_template: the template for this preset node - null if PROGRESS node.
@@ -508,6 +509,10 @@ class PresetNode(models.Model):
     TYPES = (
         (Node.PROGRESS, 'progress'),
         (Node.ENTRYDEADLINE, 'entrydeadline'),
+    )
+
+    description = models.TextField(
+        null=True,
     )
 
     type = models.TextField(
