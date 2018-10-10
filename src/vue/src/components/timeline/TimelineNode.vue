@@ -9,7 +9,7 @@
     <b-row class="node-container" @click="$emit('select-node', index)">
         <b-col cols="4" sm="1"/>
         <b-col cols="4" sm="5" class="d-flex h-100 align-items-center">
-            <timeline-node-date :date="node.deadline ? node.deadline : (node.entry ? node.entry.createdate : null)" :selected="selected" :isDeadline="node.deadline != null"/>
+            <timeline-node-date :date="nodeDate" :selected="selected" :isDeadline="node.deadline != null"/>
         </b-col>
         <b-col cols="4" sm="5" class="d-flex h-100 align-items-center justify-content-center">
             <div class="time-line" :class="timeLineClass"></div>
@@ -40,6 +40,15 @@ export default {
             return {
                 'top': this.index === -1,
                 'bottom': this.last
+            }
+        },
+        nodeDate () {
+            if (this.node.deadline) {
+                return this.node.deadline
+            } else if (this.node.entry) {
+                return this.node.entry.createdate
+            } else {
+                return null
             }
         }
     },
