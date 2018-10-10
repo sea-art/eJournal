@@ -9,6 +9,7 @@ from rest_framework import viewsets
 
 import VLE.permissions as permissions
 import VLE.timeline as timeline
+import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
 from VLE.models import Journal
 
@@ -45,15 +46,9 @@ class NodeView(viewsets.ModelViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            journal_id = request.query_params['journal_id']
-        except KeyError:
-            return response.keyerror('journal_id')
+        journal_id, = utils.required_typed_params(request.query_params, (int, 'journal_id'))
 
-        try:
-            journal = Journal.objects.get(pk=journal_id)
-        except Journal.DoesNotExist:
-            return response.not_found('Journal does not exist.')
+        journal = Journal.objects.get(pk=journal_id)
 
         if not (journal.user == request.user or permissions.has_assignment_permission(request.user, journal.assignment,
                 'can_view_assignment_journals')):

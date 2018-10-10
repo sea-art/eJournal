@@ -130,12 +130,20 @@ def json_response(payload={}, description='', status=None, reason=None, charset=
     return JsonResponse(data={**payload, 'description': description}, status=status, reason=reason, charset=charset)
 
 
-def keyerror(*keys):
+def key_error(*keys):
     """Generate a bad request response with each given key formatted in the description."""
     if len(keys) == 1:
-        return bad_request(description='Field {0} is required but is missing.'.format(keys))
+        return bad_request(description='Field {0} is required but is missing.'.format(keys[0]))
     else:
-        return bad_request(description='Fields {0} are required but one or more are missing.'.format(keys))
+        return bad_request(description='Fields {0} are required but one or more are missing.'.format(', '.join(keys)))
+
+
+def value_error(message=None):
+    """Generate a bad request response with each given key formatted in the description."""
+    if message:
+        return bad_request(description='One or more fields are invalid: {0}'.format(message))
+    else:
+        return bad_request(description='One or more fields are invalid.')
 
 
 def user_file_b64(user_file):
