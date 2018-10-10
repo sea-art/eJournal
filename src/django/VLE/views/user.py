@@ -63,9 +63,7 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        print(pk)
-        print(type(pk))
-        if pk == '0':
+        if int(pk) == 0:
             pk = request.user.id
 
         user = User.objects.get(pk=pk)
@@ -168,7 +166,7 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
         pk, = utils.required_typed_params(kwargs.get, (int, 'pk'))
-        if pk == '0':
+        if int(pk) == 0:
             pk = request.user.id
         if not (request.user.pk == pk or request.user.is_superuser):
             return response.forbidden()
@@ -234,7 +232,7 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_superuser:
             return response.forbidden('You are not allowed to delete a user.')
 
-        if pk == '0':
+        if int(pk) == 0:
             pk = request.user.id
 
         user = User.objects.get(pk=pk)
@@ -290,7 +288,7 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        if pk == '0':
+        if int(pk) == 0:
             pk = request.user.id
 
         user = User.objects.get(pk=pk)
@@ -334,7 +332,7 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        if pk == '0':
+        if int(pk) == 0:
             pk = request.user.id
 
         file_name, entry_id, node_id, content_id = utils.required_typed_params(

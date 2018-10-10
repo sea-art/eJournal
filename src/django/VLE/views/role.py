@@ -65,7 +65,7 @@ class RoleView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        if pk == '0':
+        if int(pk) == 0:
             pk = request.user.id
 
         user = User.objects.get(pk=pk)
