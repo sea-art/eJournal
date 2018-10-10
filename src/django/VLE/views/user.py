@@ -345,13 +345,14 @@ class UserView(viewsets.ViewSet):
         try:
             user_file = UserFile.objects.get(author=pk, file_name=file_name, entry=int(entry_id), node=int(node_id),
                                              content=int(content_id))
+
+            if user_file.author.id is not request.user.id and \
+               not permissions.has_assignment_permission(
+                    request.user, user_file.assignment, 'can_view_assignment_journals'):
+                return response.forbidden('Forbidden to view: {0} by author ID: {1}.'.format(file_name, pk))
+
         except (UserFile.DoesNotExist, ValueError):
             return response.bad_request(file_name + ' was not found.')
-
-        if user_file.author.id is not request.user.id and \
-           not permissions.has_assignment_permission(
-                request.user, user_file.assignment, 'can_view_assignment_journals'):
-            return response.forbidden('Forbidden to view: %s by author ID: %s.' % (file_name, pk))
 
         return response.file(user_file)
 
