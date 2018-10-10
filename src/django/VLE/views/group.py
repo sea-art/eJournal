@@ -111,7 +111,7 @@ class GroupView(viewsets.ViewSet):
 
         old_group_name, new_group_name = utils.required_params(request.data, "old_group_name", "new_group_name")
 
-        course_id = kwargs.get('pk')
+        course_id, = utils.required_typed_params(kwargs, (int, 'pk'))
         course = Course.objects.get(pk=course_id)
         group = Group.objects.get(name=old_group_name, course=course)
 
@@ -153,7 +153,7 @@ class GroupView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        course_id = kwargs.get('pk')
+        course_id, = utils.required_typed_params(kwargs, (int, 'pk'))
 
         name = request.query_params['group_name']
 

@@ -188,7 +188,7 @@ class AssignmentView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        pk = kwargs.get('pk')
+        pk, = utils.required_typed_params(kwargs, (int, 'pk'))
 
         assignment = Assignment.objects.get(pk=pk)
 
@@ -239,7 +239,7 @@ class AssignmentView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        assignment_id = kwargs.get('pk')
+        assignment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
 
         course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
 
@@ -309,18 +309,18 @@ class AssignmentView(viewsets.ViewSet):
         Arguments:
         request -- the request that was send with
             published -- new published state
-            aID -- assignment ID
+            assignment_id -- assignment ID
 
         Returns a json string if it was successful or not.
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        aID = kwargs.get('pk')
+        assignment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
 
         published, = utils.required_params(request.data, 'published')
 
-        assign = Assignment.objects.get(pk=aID)
+        assign = Assignment.objects.get(pk=assignment_id)
 
         if not permissions.has_assignment_permission(request.user, assign, 'can_publish_grades'):
             return response.forbidden('You are not allowed to publish grades for this assignment.')
