@@ -46,7 +46,7 @@ setup-no-input:
 	# Install apt dependencies and ppa's.
 	(sudo apt-cache show python3.6 | grep "Package: python3.6") || \
 	(sudo add-apt-repository ppa:deadsnakes/ppa -y; sudo apt update) || echo "0"
-	sudo apt install npm nodejs git-flow python3.6 python3-pip pep8 sqlite3 -y
+	sudo apt install npm nodejs git-flow python3 python3-pip pep8 sqlite3 -y
 	sudo pip3 install virtualenv
 
 	make reset
@@ -55,7 +55,7 @@ setup-no-input:
 
 reset:
 	# Reinstall venv packages
-	virtualenv -p python3.6 venv
+	virtualenv -p python3 venv
 	bash -c '\
 		source ./venv/bin/activate && \
 		pip install git+https://github.com/joestump/python-oauth2.git && \

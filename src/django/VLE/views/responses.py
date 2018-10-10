@@ -141,7 +141,7 @@ def key_error(*keys):
 def value_error(message=None):
     """Generate a bad request response with each given key formatted in the description."""
     if message:
-        return bad_request(description=f'One or more fields are invalid: {message}')
+        return bad_request(description='One or more fields are invalid: {0}'.format(message))
     else:
         return bad_request(description='One or more fields are invalid.')
 
