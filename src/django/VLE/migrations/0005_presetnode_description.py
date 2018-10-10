@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('VLE', '0004_participation_role_required'),
+        ('VLE', '0004_userfile_more_detailed_paths'),
     ]
 
     operations = [
