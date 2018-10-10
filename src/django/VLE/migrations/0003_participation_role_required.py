@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('VLE', '0003_remove_role_can_add_course'),
+        ('VLE', '0002_remove_role_can_add_course'),
     ]
 
     operations = [
