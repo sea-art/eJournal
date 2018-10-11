@@ -139,7 +139,7 @@ class EntryView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        pk = kwargs.get('pk')
+        pk, = utils.required_typed_params(kwargs, (int, 'pk'))
 
         entry = Entry.objects.get(pk=pk)
 
@@ -243,7 +243,7 @@ class EntryView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        pk = kwargs.get('pk')
+        pk, = utils.required_typed_params(kwargs, (int, 'pk'))
 
         entry = Entry.objects.get(pk=pk)
         journal = entry.node.journal

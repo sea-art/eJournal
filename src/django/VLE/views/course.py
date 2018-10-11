@@ -114,7 +114,7 @@ class CourseView(viewsets.ViewSet):
         On success:
             success -- with the new course data
         """
-        pk = kwargs.get('pk')
+        pk, = utils.required_typed_params(kwargs, (int, 'pk'))
         if not request.user.is_authenticated or \
            not request.user.participations.filter(pk=pk):
             return response.unauthorized()
@@ -151,7 +151,7 @@ class CourseView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        pk = kwargs.get('pk')
+        pk, = utils.required_typed_params(kwargs, (int, 'pk'))
 
         course = Course.objects.get(pk=pk)
 
