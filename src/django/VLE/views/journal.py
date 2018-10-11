@@ -106,7 +106,7 @@ class JournalView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        pk = kwargs.get('pk')
+        pk, = utils.required_typed_params(kwargs, (int, 'pk'))
 
         journal = Journal.objects.get(pk=pk)
 

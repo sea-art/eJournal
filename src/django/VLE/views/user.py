@@ -165,7 +165,7 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        pk, = utils.required_typed_params(kwargs.get, (int, 'pk'))
+        pk, = utils.required_typed_params(kwargs, (int, 'pk'))
         if int(pk) == 0:
             pk = request.user.id
         if not (request.user.pk == pk or request.user.is_superuser):
