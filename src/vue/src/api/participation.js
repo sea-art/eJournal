@@ -26,8 +26,8 @@ export default {
             .then(response => response.data)
     },
 
-    getUnenrolled (id) {
-        return auth.get('participations/unenrolled', {course_id: id})
+    getUnenrolled (id, unenrolledQuery) {
+        return auth.get('participations/unenrolled', {course_id: id, unenrolled_query: unenrolledQuery})
             .then(response => response.data.participants)
     }
 

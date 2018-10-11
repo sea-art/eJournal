@@ -196,6 +196,7 @@ class ParticipationView(viewsets.ViewSet):
         Arguments:
         request -- request data
             course_id -- course ID
+            unenrolled_query -- query that needs to match with the unenrolled users
 
         Returns:
         On failure:
@@ -209,7 +210,7 @@ class ParticipationView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        course_id, = utils.required_params(request.query_params, "course_id")
+        course_id, unenrolled_query = utils.required_params(request.query_params, 'course_id', 'unenrolled_query')
 
         course = Course.objects.get(pk=course_id)
 
@@ -220,5 +221,5 @@ class ParticipationView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to add course users.')
 
         ids_in_course = course.participation_set.all().values('user__id')
-        users = User.objects.all().exclude(id__in=ids_in_course)
+        users = User.objects.all().exclude(id__in=ids_in_course).filter(username__contains=unenrolled_query)
         return response.success({'participants': UserSerializer(users, many=True).data})

@@ -133,6 +133,22 @@
                 :numTeachers="numTeachers"
                 :roles="roles"/>
 
+            <b-card class="no-hover settings-card" v-if="!viewEnrolled">
+                <h2 class="mb-2">Search unenrolled users</h2>
+                <div class="d-flex">
+                    <input
+                        class="theme-input flex-grow-1 no-width multi-form mr-2"
+                        type="text"
+                        v-model="unenrolledQuery"
+                        placeholder="Student ID with at least 5 numbers"/>
+                    <b-button class="multi-form"
+                        @click="searchUnenrolled"
+                        v-if="$hasPermission('can_add_course_users')">
+                        Search users
+                    </b-button>
+                </div>
+            </b-card>
+
             <add-user-card v-if="!viewEnrolled"
                 @add-participant="addParticipantLocally"
                 v-for="p in filteredUsers"
@@ -178,7 +194,8 @@ export default {
             numTeachers: 0,
             roles: [],
             viewEnrolled: true,
-            order: false
+            order: false,
+            unenrolledQuery: ''
         }
     },
     watch: {
@@ -246,9 +263,6 @@ export default {
             this.participants = this.participants.filter(function (item) {
                 return user.id !== item.id
             })
-            if (this.unenrolledLoaded === true) {
-                this.unenrolledStudents.push(user)
-            }
         },
         addParticipantLocally (user) {
             this.unenrolledStudents = this.unenrolledStudents.filter(function (item) {
@@ -287,12 +301,6 @@ export default {
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         },
-        loadUnenrolledStudents () {
-            participationAPI.getUnenrolled(this.cID)
-                .then(users => { this.unenrolledStudents = users })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
-            this.unenrolledLoaded = !this.unenrolledLoaded
-        },
         routeToEditCourseRoles () {
             this.$router.push({
                 name: 'UserRoleConfiguration',
@@ -309,6 +317,7 @@ export default {
         },
         toggleEnroled () {
             this.viewEnrolled = !this.viewEnrolled
+            this.unenrolledStudents = []
         },
         deepCopyCourse (course) {
             var copyCourse = {
@@ -334,6 +343,19 @@ export default {
                 }
             }
             this.numTeachers = this.participants.filter(p => p.role === 'Teacher').length
+        },
+        searchUnenrolled () {
+            if (this.unenrolledQuery.length > 4) {
+                participationAPI.getUnenrolled(this.cID, this.unenrolledQuery)
+                    .then(users => {
+                        this.unenrolledStudents = users
+                        this.unenrolledQuery = null
+                        this.$toasted.success('Succesfully found users.')
+                    })
+                    .catch(error => { this.$toasted.error(error.response.data.description) })
+            } else {
+                this.$toasted.error('Search query needs to be longer than 5 numbers')
+            }
         }
     },
     computed: {
@@ -374,9 +396,9 @@ export default {
             /* Switch view list with drop down menu and load unenrolled
                students when accessing other students at first time. */
             if (!this.viewEnrolled) {
-                if (this.unenrolledLoaded === false) {
-                    this.loadUnenrolledStudents()
-                }
+                // if (this.unenrolledLoaded === false) {
+                //     this.loadUnenrolledStudents()
+                // }
                 viewList = this.unenrolledStudents
             }
 
