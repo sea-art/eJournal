@@ -213,6 +213,8 @@ class AssignmentView(viewsets.ViewSet):
                 factory.make_lti_ids(lti_id=data['lti_id'], for_model=Lti_ids.ASSIGNMENT, assignment=assignment)
 
             serializer = AssignmentSerializer(assignment, data=data, context={'user': request.user}, partial=True)
+            if not serializer.is_valid():
+                response.bad_request()
             serializer.save()
 
         if published_response is not False:
