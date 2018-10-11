@@ -238,7 +238,7 @@ class UserView(viewsets.ViewSet):
         user = User.objects.get(pk=pk)
 
         if len(User.objects.filter(is_superuser=True)) == 1:
-            return response.bad_request('There is only 1 superuser left and therefor cannot be deleted')
+            return response.bad_request('There is only 1 superuser left and therefore cannot be deleted')
 
         user.delete()
         return response.deleted(description='Sucesfully deleted user.')
