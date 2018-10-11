@@ -86,11 +86,11 @@
                         type="text"
                         v-model="searchVariable"
                         placeholder="Search..."/>
-                    <b-button v-if="viewEnrolled" v-on:click.stop @click="toggleEnroled" class="multi-form">
+                    <b-button v-if="viewEnrolled" v-on:click.stop @click="toggleEnrolled" class="multi-form">
                         <icon name="users"/>
                         Enrolled
                     </b-button>
-                    <b-button v-if="!viewEnrolled" v-on:click.stop @click="toggleEnroled" class="multi-form">
+                    <b-button v-if="!viewEnrolled" v-on:click.stop @click="toggleEnrolled" class="multi-form">
                         <icon name="user-plus"/>
                         Unenrolled
                     </b-button>
@@ -315,7 +315,7 @@ export default {
         toggleOrder () {
             this.order = !this.order
         },
-        toggleEnroled () {
+        toggleEnrolled () {
             this.viewEnrolled = !this.viewEnrolled
             this.unenrolledStudents = []
         },
