@@ -189,15 +189,15 @@ class AssignmentView(viewsets.ViewSet):
             return response.unauthorized()
 
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
-
         assignment = Assignment.objects.get(pk=pk)
-
         published, = utils.optional_params(request.data, 'published')
         published_response = None
+
         if published:
             published_response = self.publish(request, assignment)
             if published_response is False:
                 return response.forbidden('You are not allowed to grade this assignment.')
+
         if permissions.has_assignment_permission(request.user, assignment, 'can_edit_assignment'):
             req_data = request.data
             if published is not None:
@@ -240,9 +240,7 @@ class AssignmentView(viewsets.ViewSet):
             return response.unauthorized()
 
         assignment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
-
         course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
-
         assignment = Assignment.objects.get(pk=assignment_id)
         course = Course.objects.get(pk=course_id)
 
@@ -317,9 +315,7 @@ class AssignmentView(viewsets.ViewSet):
             return response.unauthorized()
 
         assignment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
-
         published, = utils.required_params(request.data, 'published')
-
         assign = Assignment.objects.get(pk=assignment_id)
 
         if not permissions.has_assignment_permission(request.user, assign, 'can_publish_grades'):
