@@ -1,6 +1,5 @@
 <template>
     <b-card class="no-hover">
-        <h2>Preview:</h2>
         <div class="profile-portrait-edit small-shadow">
             <croppa v-model="croppa"
                 disable-click-to-choose
@@ -18,14 +17,13 @@
                 initial-size="natural"
                 initial-position="center"/>
         </div>
-        <br/><br/>
         <b-button @click="croppa.chooseFile()">
             <icon name="upload"/>
             Upload
         </b-button>
         <b-button class="change-button" @click="refreshPicture()">
             <icon name="undo"/>
-            Refresh
+            Reset
         </b-button>
         <b-button class="add-button float-right" @click="savePicture()">
             <icon name="save"/>
@@ -75,20 +73,16 @@ export default {
 @import '~sass/modules/colors.sass'
 
 .profile-portrait-edit
-    overflow: hidden
     display: block
     position: relative
     width: 100%
     max-width: 250px
     max-height: 250px
-    margin-bottom: 20px
     border-radius: 50% !important
     overflow: hidden
     margin: 0 auto
-    croppa
-        position: absolute
-        height: 100%
-        width: 100%
+    margin-top: 10px
+    margin-bottom: 20px
     .btn
         position: absolute
         width: 100%
@@ -99,6 +93,7 @@ export default {
         .btn
             bottom: 0px
             opacity: 1
+
 .profile-portrait:after
     content: ""
     display: block

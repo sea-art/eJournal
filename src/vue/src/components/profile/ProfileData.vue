@@ -3,7 +3,7 @@
         <b-col md="5" sm="12" class="text-center">
             <b-modal
                 ref="cropperModal"
-                title="Edit your profile picture"
+                title="Edit profile picture"
                 hide-footer>
                     <cropper v-if="this.profileImageDataURL" :pictureUrl="this.profileImageDataURL" @newPicture="fileHandler" :refresh="updateCropper"/>
             </b-modal>
