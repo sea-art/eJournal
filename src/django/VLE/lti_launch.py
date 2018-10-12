@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timezone
 
 import oauth2
@@ -5,8 +6,6 @@ from django.conf import settings
 
 import VLE.factory as factory
 from VLE.models import Journal, Lti_ids, Role, User
-
-import json
 
 
 class OAuthRequestValidater(object):
