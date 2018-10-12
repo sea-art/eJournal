@@ -72,8 +72,8 @@ class RoleView(viewsets.ViewSet):
             course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
             if course_id > 0:
                 course = Course.objects.get(pk=course_id)
-                if permissions.is_participant(user, course):
-                    return response.forbidden('You are not a participant of this course.')
+                if not permissions.is_participant(user, course):
+                    return response.forbidden('You are not participating in this course.')
 
                 return response.success({'role': permissions.serialize_course_permissions(request.user, course)})
         # Return assignment permissions if assignment_id is set
