@@ -345,16 +345,16 @@ export default {
             this.numTeachers = this.participants.filter(p => p.role === 'Teacher').length
         },
         searchUnenrolled () {
-            if (this.unenrolledQuery.length > 4) {
+            if (this.unenrolledQuery.length < 5) {
+                this.$toasted.error('Search query needs to be longer than 5 numbers')
+            } else {
                 participationAPI.getUnenrolled(this.cID, this.unenrolledQuery)
                     .then(users => {
                         this.unenrolledStudents = users
                         this.unenrolledQuery = null
-                        this.$toasted.success('Succesfully found users.')
+                        this.$toasted.success('Succesfully found user(s).')
                     })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
-            } else {
-                this.$toasted.error('Search query needs to be longer than 5 numbers')
             }
         }
     },

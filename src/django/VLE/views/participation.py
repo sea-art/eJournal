@@ -212,6 +212,9 @@ class ParticipationView(viewsets.ViewSet):
 
         course_id, unenrolled_query = utils.required_params(request.query_params, 'course_id', 'unenrolled_query')
 
+        if len(unenrolled_query) < 5:
+            return response.bad_request('Query is too short.')
+
         course = Course.objects.get(pk=course_id)
 
         role = permissions.get_role(request.user, course)
