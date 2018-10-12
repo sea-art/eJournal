@@ -1,10 +1,11 @@
-from django.conf import settings
-import oauth2
-"""Package for oauth authentication in python"""
-
-from VLE.models import User, Role, Journal, Lti_ids
-import VLE.factory as factory
 from datetime import datetime, timezone
+
+import oauth2
+from django.conf import settings
+
+import VLE.factory as factory
+from VLE.models import Journal, Lti_ids, Role, User
+
 import json
 
 

@@ -1,16 +1,16 @@
+import datetime
+import json
+
+import jwt
 from django.conf import settings
+from django.http import QueryDict
 from django.shortcuts import redirect
 from rest_framework.decorators import api_view
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.http import QueryDict
 
-import VLE.views.responses as response
 import VLE.lti_launch as lti
+import VLE.views.responses as response
 import VLE.permissions as permissions
-
-import datetime
-import json
-import jwt
 
 # VUE ENTRY STATE
 BAD_AUTH = '-1'

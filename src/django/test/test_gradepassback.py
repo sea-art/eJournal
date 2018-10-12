@@ -3,10 +3,11 @@ test_gradepassback.py.
 
 Test the lti grade passback.
 """
-from VLE.lti_grade_passback import GradePassBackRequest
 from django.conf import settings
 from django.test import TestCase
 import VLE.factory as factory
+
+from VLE.lti_grade_passback import GradePassBackRequest
 
 
 class GradePassBackRequestXMLTest(TestCase):
