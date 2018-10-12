@@ -76,13 +76,18 @@ export default {
     props: ['currentPreset', 'templates'],
     data () {
         return {
-            templateNames: []
+            templateNames: [],
+            prevID: this.currentPreset.id
         }
     },
     watch: {
         currentPreset: {
             handler: function (newPreset) {
-                this.$emit('changed')
+                if (newPreset.id === this.prevID) {
+                    this.$emit('changed')
+                }
+
+                this.prevID = newPreset.id
             },
             deep: true
         }

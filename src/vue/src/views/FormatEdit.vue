@@ -151,10 +151,8 @@ export default {
     },
     watch: {
         templatePool: {
-            handler: function (newTemplatePool) {
-                var tempPool = JSON.stringify(newTemplatePool)
-
-                if (tempPool !== this.prevTemplatePool && !this.saveRequestInFlight) {
+            handler: function () {
+                if (!this.saveRequestInFlight) {
                     this.isChanged = true
                 }
             },

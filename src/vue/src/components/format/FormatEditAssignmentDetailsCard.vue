@@ -56,10 +56,27 @@ export default {
         'text-editor': textEditor,
         icon
     },
+    data () {
+        return {
+            prevDate: ''
+        }
+    },
     watch: {
         assignmentDetails: {
             handler: function (newAssignmentDetails) {
-                this.$emit('changed')
+                var patt = new RegExp('T')
+
+                /*  When the date is loaded in from the db this format
+                    will be adapted to the flatpickr format,
+                    which triggers this watcher.
+                    These changes happen in the initial load and when it's
+                    saved. This will be ignored as an unsaved change by the
+                    following regex if-statement.  */
+                if (!patt.test(newAssignmentDetails.lock_date) && !patt.test(this.prevDate)) {
+                    this.$emit('changed')
+                }
+
+                this.prevDate = newAssignmentDetails.lock_date
             },
             deep: true
         }
