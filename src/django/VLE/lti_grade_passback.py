@@ -107,6 +107,8 @@ class GradePassBackRequest(object):
                 body=self.create_xml(),
                 headers={'Content-Type': 'application/xml'}
             )
+            print(content)
+            print(ET.fromstring(content))
             return self.parse_return_xml(content)
         return {'severity': 'status',
                 'code_mayor': 'No grade passback url set',
@@ -179,6 +181,4 @@ def replace_result(journal):
     key = settings.LTI_KEY
 
     grade_request = GradePassBackRequest(key, secret, journal, send_score=True)
-    response = grade_request.send_post_request()
-
-    return response
+    return grade_request.send_post_request()

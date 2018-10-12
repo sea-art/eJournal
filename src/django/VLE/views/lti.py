@@ -45,12 +45,12 @@ def get_lti_params_from_jwt(request, jwt_params):
 
     roles = json.load(open(settings.LTI_ROLE_CONFIG_PATH))
     lti_roles = dict((roles[k], k) for k in roles)
-    role = lti_roles[lti_params['roles']]
+    role = lti_roles[lti.roles_to_list(lti_params)]
 
     payload = dict()
     course = lti.check_course_lti(lti_params, user, role)
     if course is None:
-        if role == 'Teacher':
+        if 'Teacher' in role:
             payload['state'] = NEW_COURSE
             payload['lti_cName'] = lti_params['custom_course_name']
             payload['lti_abbr'] = lti_params['context_label']
@@ -70,7 +70,7 @@ def get_lti_params_from_jwt(request, jwt_params):
 
     assignment = lti.check_assignment_lti(lti_params)
     if assignment is None:
-        if role == 'Teacher':
+        if 'Teacher' in role:
             payload['state'] = NEW_ASSIGN
             payload['cID'] = course.pk
             payload['lti_aName'] = lti_params['custom_assignment_title']

@@ -62,6 +62,13 @@ class OAuthRequestValidater(object):
         return validator.is_valid(request)
 
 
+def roles_to_list(params):
+    roles = list()
+    for role in params['roles'].split(','):
+        roles.append(role.split('/')[-1].lower())
+    return roles
+
+
 def check_user_lti(request, roles):
     """Check is an user with the lti_id exists"""
     lti_user_id = request['user_id']
@@ -73,7 +80,7 @@ def check_user_lti(request, roles):
             user.profile_picture = request['custom_user_image']
             user.save()
 
-        if 'roles' in request and roles['Teacher'] in request['roles']:
+        if 'roles' in request and roles['Teacher'] in roles_to_list(request):
             user.is_teacher = True
             user.save()
         return user
@@ -122,7 +129,7 @@ def select_create_journal(request, user, assignment, roles):
     """
     Select or create the requested journal.
     """
-    if roles['Student'] in request['roles'] and assignment is not None and user is not None:
+    if roles['Student'] in roles_to_list(request) and assignment is not None and user is not None:
         journals = Journal.objects.filter(user=user, assignment=assignment)
         if journals.count() > 0:
             journal = journals[0]
