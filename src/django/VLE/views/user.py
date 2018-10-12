@@ -3,7 +3,6 @@ user.py.
 
 In this file are all the user api requests.
 """
-import json
 from datetime import datetime, timedelta
 from smtplib import SMTPAuthenticationError
 
@@ -14,6 +13,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 import VLE.factory as factory
+import VLE.lti_launch as lti
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.validators as validators
@@ -111,7 +111,7 @@ class UserView(viewsets.ViewSet):
                 return response.unauthorized(description='Invalid LTI parameters given. Please go back to your \
                                              learning environment and try again.')
             lti_id, user_image = utils.optional_params(lti_params, 'user_id', 'custom_user_image')
-            is_teacher = json.load(open(settings.LTI_ROLE_CONFIG_PATH))['Teacher'] in lti_params['roles']
+            is_teacher = settings.ROLES['Teacher'] in lti.roles_to_list(lti_params)
         else:
             lti_id, user_image, is_teacher = None, None, False
 
@@ -186,7 +186,7 @@ class UserView(viewsets.ViewSet):
                                                                                    'custom_user_email',
                                                                                    'custom_user_full_name',
                                                                                    'custom_user_image')
-            is_teacher = json.load(open(settings.LTI_ROLE_CONFIG_PATH))['Teacher'] in lti_params['roles']
+            is_teacher = settings.ROLES['Teacher'] in lti.roles_to_list(lti_params)
         else:
             lti_id, user_email, user_full_name, user_image, is_teacher = None, None, None, None, False
         if user_image is not None:

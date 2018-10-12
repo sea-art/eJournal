@@ -31,6 +31,7 @@ To start the development django server type `make run-back` in the `eJournal` fo
 Tests are written in `src/vue/test` and `src/django/test` respectively.
 To run the tests and linters, use `make test`. Make sure to run this before starting a Pull Request, else it is certain to fail.
 If you only want to test the frontend or backend, use `make test-front` and `make test-back` respectively.
+If you want to get the coverage with the missed line numbers, use `make test-coverage`.
 
 ## Git Flow
 
