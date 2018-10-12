@@ -93,8 +93,8 @@ class GradePassBackRequestXMLTest(TestCase):
 <imsx_POXHeader><imsx_POXRequestHeaderInfo><imsx_version>V1.0</imsx_version><imsx_messageIdentifier>0\
 </imsx_messageIdentifier></imsx_POXRequestHeaderInfo></imsx_POXHeader><imsx_POXBody><replaceResultRequest>\
 <resultRecord><sourcedGUID><sourcedId>f6d552</sourcedId></sourcedGUID><result><resultData>\
-<ltiLaunchUrl>http://127.0.0.1:8000/grade_passback</ltiLaunchUrl></resultData></result></resultRecord></replaceResultRequest>\
-</imsx_POXBody></imsx_POXEnvelopeRequest>'
+<ltiLaunchUrl>http://127.0.0.1:8000/grade_passback</ltiLaunchUrl></resultData></result></resultRecord>\
+</replaceResultRequest></imsx_POXBody></imsx_POXEnvelopeRequest>'
         self.assertEqual(result, passback.create_xml())
 
     def test_message_id_incrementor(self):
