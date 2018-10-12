@@ -6,6 +6,8 @@
 -->
 
 <template>
+    <div>
+        {{templatePool}}
     <b-row class="outer-container-timeline-page" no-gutters>
         <b-col md="12" lg="8" xl="9" class="inner-container-timeline-page">
             <b-col md="12" lg="auto" xl="4" class="left-content-timeline-page">
@@ -78,6 +80,7 @@
             </b-button>
         </transition>
     </b-row>
+</div>
 </template>
 
 <script>
@@ -128,6 +131,7 @@ export default {
             },
             wipTemplateId: -1,
 
+            prevTemplatePool: [],
             deletedTemplates: [],
             deletedPresets: []
         }
@@ -151,9 +155,16 @@ export default {
     },
     watch: {
         templatePool: {
-            handler: function () {
-                if (!this.saveRequestInFlight) {
+            handler: function (newTemplatePool) {
+                var tempPool = JSON.stringify(newTemplatePool)
+
+                if (tempPool !== this.prevTemplatePool && !this.saveRequestInFlight) {
+                    console.log(tempPool)
+                    console.log('---------------')
+                    console.log(this.prevTemplatePool)
+                    console.log('entered pool change!')
                     this.isChanged = true
+                    this.prevTemplatePool = tempPool
                 }
             },
             deep: true
@@ -314,9 +325,10 @@ export default {
                 .then(data => {
                     this.saveFromDB(data)
                     this.convertFromDB()
-                    this.isChanged = false
                     this.saveRequestInFlight = false
                     this.$toasted.success('New format saved')
+                    this.isChanged = false
+                    console.log('just saved!')
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
