@@ -57,9 +57,7 @@ class CourseView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        perm = permissions.get_permissions(request.user)
-
-        if not perm['can_add_course']:
+        if not request.user.has_permission('can_add_course'):
             return response.forbidden('You are not allowed to create a course.')
 
         name, abbr = utils.required_params(request.data, 'name', 'abbreviation')
@@ -90,8 +88,8 @@ class CourseView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=pk)
 
-        if not permissions.is_user_in_course(request.user, course):
-            return response.forbidden('You are not a participant of this course.')
+        if not permissions.is_participant(request.user, course):
+            return response.forbidden('You are not participating in this course.')
 
         serializer = self.serializer_class(course, many=False)
         return response.success({'course': serializer.data})
@@ -121,7 +119,7 @@ class CourseView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=pk)
 
-        if not permissions.get_role(request.user, course).can_edit_course_details:
+        if not course.has_permission(request.user, 'can_edit_course_details'):
             return response.unauthorized('You are unauthorized to edit this course.')
 
         data = request.data
@@ -158,7 +156,7 @@ class CourseView(viewsets.ViewSet):
         if not Participation.objects.filter(user=request.user, course=course).exists():
             return response.unauthorized(description="You are unauthorized to view this course.")
 
-        if not permissions.get_role(request.user, pk).can_delete_course:
+        if not course.has_permission(request.user, 'can_delete_course'):
             return response.forbidden(description="You are unauthorized to delete this course.")
 
         course.delete()

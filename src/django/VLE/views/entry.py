@@ -10,7 +10,6 @@ from rest_framework import viewsets
 
 import VLE.factory as factory
 import VLE.lti_grade_passback as lti_grade
-import VLE.permissions as permissions
 import VLE.serializers as serialize
 import VLE.timeline as timeline
 import VLE.utils.entry_utils as entry_utils
@@ -59,7 +58,7 @@ class EntryView(viewsets.ViewSet):
         elif not journal.assignment.format.available_templates.all().filter(pk=template.pk).exists():
             return response.forbidden('Entry template is not available.')
 
-        if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal'):
+        if not journal.assignment.has_permission(request.user, 'can_have_journal'):
             return response.forbidden('You are not allowed to create an entry for this journal.')
 
         if (journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or \
@@ -148,7 +147,7 @@ class EntryView(viewsets.ViewSet):
         journal = entry.node.journal
 
         if grade and \
-           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_grade'):
+           not journal.assignment.has_permission(request.user, 'can_grade'):
             return response.forbidden('You cannot grade or publish entries.')
         elif isinstance(grade, (int, float)) and grade < 0:
             return response.bad_request('Grade must be greater or equal to zero.')
@@ -156,13 +155,12 @@ class EntryView(viewsets.ViewSet):
             entry.grade = grade
 
         if published is not None and \
-           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_grades'):
+           not journal.assignment.has_permission(request.user, 'can_publish_grades'):
             return response.forbidden('You cannot publish entries.')
 
         if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or
             (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
-           not permissions.has_assignment_permission(request.user, journal.assignment,
-                                                     'can_view_assignment_journals'):
+           not journal.assignment.has_permission(request.user, 'can_view_assignment_journals'):
             return response.bad_request('The assignment is locked and unavailable for students.')
 
         if published is not None:
@@ -179,7 +177,7 @@ class EntryView(viewsets.ViewSet):
             if not (journal.user == request.user or request.user.is_superuser):
                 response.forbidden('You are not allowed to edit someone else\'s entry.')
 
-            if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal'):
+            if not journal.assignment.has_permission(request.user, 'can_have_journal'):
                 return response.forbidden('You are not allowed to have a journal.')
 
             if entry.grade is not None:
@@ -255,16 +253,16 @@ class EntryView(viewsets.ViewSet):
             return response.forbidden('You cannot delete graded entries.')
 
         if entry.node.type == Node.ENTRYDEADLINE and \
-           permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal'):
+           journal.assignment.has_permission(request.user, 'can_have_journal'):
             return response.forbidden('You cannot delete deadlines.')
 
         if journal.assignment.due_date and journal.assignment.due_date < datetime.now() and \
-           permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal'):
+           journal.assignment.has_permission(request.user, 'can_have_journal'):
             return response.forbidden('You cannot delete an entry whose deadline deadline has already passed.')
 
         if (journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or \
            (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now()) and \
-           permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal'):
+           journal.assignment.has_permission(request.user, 'can_have_journal'):
             return response.forbidden('You cannot delete a locked entry.')
 
         entry.node.delete()

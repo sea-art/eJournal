@@ -8,7 +8,6 @@ from datetime import datetime
 from django.db.models import Case, When
 from django.utils import timezone
 
-import VLE.permissions as permissions
 from VLE.models import Node
 from VLE.serializers import EntrySerializer, TemplateSerializer
 
@@ -33,8 +32,7 @@ def get_nodes(journal, user):
     add-node if the user can add to the journal, the subsequent
     progress node is in the future and maximally one.
     """
-    can_add = journal.user == user and \
-        permissions.has_assignment_permission(user, journal.assignment, 'can_have_journal')
+    can_add = journal.user == user and journal.assignment.has_permission(user, 'can_have_journal')
 
     node_list = []
     for node in get_sorted_nodes(journal):

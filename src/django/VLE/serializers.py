@@ -7,7 +7,7 @@ import statistics as st
 
 from rest_framework import serializers
 
-import VLE.permissions as permissions
+import VLE.permissions as perms
 import VLE.utils.generic_utils as utils
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
                         Format, Group, Journal, Node, Participation,
@@ -32,7 +32,7 @@ class UserSerializer(serializers.ModelSerializer):
         if 'course' not in self.context or not self.context['course']:
             return None
 
-        role = permissions.get_role(user, self.context['course'])
+        role = Participation.objects.get(user=user, course=self.context['course']).role
 
         if role:
             return role.name
@@ -68,8 +68,36 @@ class OwnUserSerializer(serializers.ModelSerializer):
         return user.first_name + ' ' + user.last_name
 
     def get_permissions(self, user):
-        # TODO: Use a serializer for this
-        return permissions.get_all_user_permissions(user)
+        """Returns a dictionary with all user permissions.
+
+        Arguments:
+        user -- The user whose permissions are requested.
+
+        Returns {all_permission:
+            course{id}: permisions
+            assignment{id}: permissions
+            general: permissions
+        }"""
+        permissions = {}
+        courses = user.participations.all()
+
+        permissions['general'] = perms.serialize_global_permissions(user)
+
+        for course in courses:
+            permissions['course' + str(course.id)] = perms.serialize_course_permissions(user, course)
+
+        assignments = Assignment.objects.none()
+        for course in courses:
+            # Consider all assignments linked to a course if the user can grade the course.
+            if course.has_permission(user, 'can_grade'):
+                assignments |= course.assignment_set.all()
+            else:
+                assignments |= Assignment.objects.filter(courses=course, journal__user=user)
+
+        for assignment in assignments.distinct():
+            permissions['assignment' + str(assignment.id)] = perms.serialize_assignment_permissions(user, assignment)
+
+        return permissions
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -119,7 +147,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
         # TODO: When all assignments are graded, set deadline to next deadline?
         # If the user doesnt have a journal, take the deadline that is the first upcoming deadline
         if 'user' not in self.context or \
-           permissions.has_assignment_permission(self.context['user'], assignment, 'can_grade'):
+           assignment.has_permission(self.context['user'], 'can_grade'):
             nodes = assignment.format.presetnode_set.all().order_by('deadline')
             if not nodes:
                 return None
@@ -166,7 +194,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
         if not journals:
             return None
         stats = {}
-        if permissions.has_assignment_permission(self.context['user'], assignment, 'can_grade'):
+        if assignment.has_permission(self.context['user'], 'can_grade'):
             stats['needs_marking'] = sum([x['stats']['submitted'] - x['stats']['graded'] for x in journals])
             stats['unpublished'] = sum([x['stats']['submitted'] - x['stats']['published']
                                         for x in journals]) - stats['needs_marking']
@@ -299,8 +327,8 @@ class EntrySerializer(serializers.ModelSerializer):
         # TODO: Add permission can_view_grade
         if 'user' not in self.context:
             return None
-        if entry.published or permissions.has_assignment_permission(
-                self.context['user'], entry.node.journal.assignment, 'can_grade'):
+        if entry.published or entry.node.journal.assignment.has_permission(
+                self.context['user'], 'can_grade'):
             return entry.grade
         return None
 

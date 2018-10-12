@@ -8,7 +8,6 @@ from datetime import datetime
 from rest_framework import viewsets
 
 import VLE.factory as factory
-import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
 from VLE.models import Assignment, Comment, Entry, Journal
@@ -48,13 +47,13 @@ class CommentView(viewsets.ViewSet):
         entry_id, = utils.required_params(request.query_params, "entry_id")
 
         entry = Entry.objects.get(pk=entry_id)
+        assignment = entry.node.journal.assignment
 
-        if entry.node.journal.user != request.user and \
-           not permissions.has_assignment_permission(
-                request.user, entry.node.journal.assignment, 'can_view_assignment_journals'):
+        if entry.node.journal.user != request.user and not \
+                assignment.has_permission(request.user, 'can_view_assignment_journals'):
             return response.forbidden('You are not allowed to view journals of other participants.')
 
-        if permissions.has_assignment_permission(request.user, entry.node.journal.assignment, 'can_grade'):
+        if assignment.has_permission(request.user, 'can_grade'):
             comments = Comment.objects.filter(entry=entry)
         else:
             comments = Comment.objects.filter(entry=entry, published=True)
@@ -90,13 +89,12 @@ class CommentView(viewsets.ViewSet):
         journal = Journal.objects.get(node__entry=entry)
         assignment = Assignment.objects.get(journal=journal)
 
-        if not permissions.has_assignment_permission(request.user, assignment, 'can_comment') or \
-           not (permissions.has_assignment_permission(request.user, assignment, 'can_view_assignment_journals') or
+        if not assignment.has_permission(request.user, 'can_comment') or \
+           not (assignment.has_permission(request.user, 'can_view_assignment_journals') or
                 journal.user == request.user):
             return response.forbidden('You are not allowed to comment on this journal')
 
-        published = published or not permissions.has_assignment_permission(request.user, assignment,
-                                                                           'can_grade')
+        published = published or not assignment.has_permission(request.user, 'can_grade')
 
         comment = factory.make_comment(entry, request.user, text, published)
         return response.created({'comment': CommentSerializer(comment).data})
@@ -124,8 +122,7 @@ class CommentView(viewsets.ViewSet):
         comment = Comment.objects.get(pk=pk)
 
         if comment.entry.node.journal.user != request.user and \
-           not permissions.has_assignment_permission(
-                request.user, comment.entry.node.journal.assignment, 'can_view_assignment_journals'):
+           not comment.entry.node.journal.assignment.has_permission(request.user, 'can_view_assignment_journals'):
             return response.forbidden('You are not allowed to view journals of other participants.')
 
         serializer = CommentSerializer(comment)
@@ -159,8 +156,7 @@ class CommentView(viewsets.ViewSet):
 
         journal = comment.entry.node.journal
 
-        if not permissions.has_assignment_permission(request.user, journal.assignment,
-                                                     'can_comment'):
+        if not journal.assignment.has_permission(request.user, 'can_comment'):
             return response.forbidden('You are not allowed to comment on this entry.')
 
         if not (comment.author.id == request.user.id or request.user.is_superuser):

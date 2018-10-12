@@ -6,7 +6,6 @@ In this file are all the journal api requests.
 from rest_framework import viewsets
 
 import VLE.lti_grade_passback as lti_grade
-import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
 from VLE.models import Assignment, Journal
@@ -45,7 +44,7 @@ class JournalView(viewsets.ViewSet):
 
         assignment = Assignment.objects.get(pk=request.query_params['assignment_id'])
 
-        if not permissions.has_assignment_permission(request.user, assignment, 'can_view_assignment_journals'):
+        if not assignment.has_permission(request.user, 'can_view_assignment_journals'):
             return response.forbidden('You are not allowed to view assignment participants.')
 
         queryset = assignment.journal_set.all()
@@ -75,8 +74,8 @@ class JournalView(viewsets.ViewSet):
         journal = Journal.objects.get(pk=pk)
 
         if not (journal.user == request.user and
-                permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal')) and \
-           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_view_assignment_journals'):
+                journal.assignment.has_permission(request.user, 'can_have_journal')) and \
+           not journal.assignment.has_permission(request.user, 'can_view_assignment_journals'):
             return response.forbidden('You are not allowed to view this journal.')
 
         serializer = JournalSerializer(journal)
@@ -126,7 +125,7 @@ class JournalView(viewsets.ViewSet):
         return response.success({'journal': serializer.data})
 
     def publish(self, request, journal, published=True):
-        if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_grades'):
+        if not journal.assignment.has_permission(request.user, 'can_publish_grades'):
             return response.forbidden('You cannot publish assignments.')
 
         utils.publish_all_journal_grades(journal, published)

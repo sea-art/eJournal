@@ -40,7 +40,7 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        if not (permissions.can_add_users_to_a_course(request.user) or request.user.is_superuser):
+        if not (request.user.is_teacher or request.user.is_superuser):
             return response.forbidden(description="Only teachers and administrators are allowed to request all user \
                                        data.")
 
@@ -70,7 +70,7 @@ class UserView(viewsets.ViewSet):
 
         if request.user == user or request.user.is_superuser:
             serializer = OwnUserSerializer(user, many=False)
-        elif permissions.is_user_supervisor(user, request.user):
+        elif permissions.is_user_supervisor_of(request.user, user):
             serializer = UserSerializer(user, many=False)
         else:
             return response.forbidden("You are not allowed to view this users information.")
@@ -345,8 +345,7 @@ class UserView(viewsets.ViewSet):
             return response.bad_request(file_name + ' was not found.')
 
         if user_file.author.id is not request.user.id and \
-           not permissions.has_assignment_permission(
-                request.user, user_file.assignment, 'can_view_assignment_journals'):
+           not user_file.assignment.has_permission(request.user, 'can_view_assignment_journals'):
             return response.forbidden('Forbidden to view: %s by author ID: %s.' % (file_name, pk))
 
         return response.file(user_file)

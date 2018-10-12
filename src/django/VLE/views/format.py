@@ -5,7 +5,6 @@ In this file are all the Format api requests.
 """
 from rest_framework import viewsets
 
-import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
 from VLE.models import Assignment
@@ -82,7 +81,7 @@ class FormatView(viewsets.ViewSet):
 
         format = assignment.format
 
-        if not permissions.has_assignment_permission(request.user, assignment, 'can_edit_assignment'):
+        if not assignment.has_permission(request.user, 'can_edit_assignment'):
             return response.forbidden('You are not allowed to edit this assignment.')
 
         serializer = AssignmentSerializer(assignment, data=assignment_details,

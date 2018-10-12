@@ -8,8 +8,7 @@ import datetime
 from django.test import TestCase
 
 import VLE.factory as factory
-import VLE.permissions as permissions
-from VLE.models import Role
+from VLE.models import Participation, Role
 
 
 class PermissionTests(TestCase):
@@ -36,18 +35,7 @@ class PermissionTests(TestCase):
         # Connect a participation to a user, course and role.
         factory.make_participation(self.usr, self.crs, role)
 
-        perm = permissions.get_permissions(self.usr, self.crs.id)
-
-        self.assertFalse(perm['can_delete_course'])
-
-    def test_emptyPermissions(self):
-        """Test a request that doesn't need permissions."""
-        role = factory.make_role_default_no_perms('SD', self.crs)
-
-        # Connect a participation to a user, course and role.
-        factory.make_participation(self.usr, self.crs, role)
-
-        self.assertTrue(permissions.has_permissions(self.usr, self.crs.id, []))
+        self.assertFalse(self.crs.has_permission(self.usr, 'can_delete_course'))
 
     def test_permission(self):
         """Test a request that needs a single permission."""
@@ -55,19 +43,8 @@ class PermissionTests(TestCase):
 
         factory.make_participation(self.usr, self.crs, role)
 
-        self.assertTrue(permissions.has_permissions(self.usr, self.crs.id, ["can_delete_assignment"]))
-        self.assertFalse(permissions.has_permissions(self.usr, self.crs.id, ["can_grade"]))
-
-    def test_permission_multiple(self):
-        """Test a request that needs multiple permissions."""
-        role = factory.make_role_default_no_perms("TA1", self.crs, can_delete_assignment=True, can_grade=True,
-                                                  can_view_assignment_journals=True, can_add_assignment=True)
-
-        factory.make_participation(self.usr, self.crs, role)
-
-        self.assertTrue(permissions.has_permissions(self.usr, self.crs.id, ["can_grade"]))
-        self.assertFalse(permissions.has_permissions(self.usr, self.crs.id,
-                                                     ["can_grade", "can_have_journal"]))
+        self.assertTrue(self.crs.has_permission(self.usr, 'can_delete_assignment'))
+        self.assertFalse(self.crs.has_permission(self.usr, 'can_delete_course_user_group'))
 
     def test_get_permissions_admin(self):
         """Test if the admin had the right permissions."""
@@ -79,18 +56,14 @@ class PermissionTests(TestCase):
 
         factory.make_participation(user, self.crs, role)
 
-        perm = permissions.get_permissions(user, self.crs.id)
-
-        self.assertTrue(perm["can_edit_institute_details"])
+        self.assertTrue(user.has_permission('can_edit_institute_details'))
 
     def test_get_permissions_teacher(self):
         """Test if the admin had the right permissions."""
         usr = factory.make_user(email='some@other', username='teun2', password='1234', lti_id='abcde', is_teacher=True)
         usr.save()
 
-        perm = permissions.get_permissions(usr)
-
-        self.assertTrue(perm["can_add_course"])
+        self.assertTrue(usr.has_permission('can_add_course'))
 
     def test_get_permissions_no_admin(self):
         """Test a request that returns a dictionary of permissions.
@@ -102,49 +75,31 @@ class PermissionTests(TestCase):
                                                   can_grade=True, can_add_assignment=True)
 
         factory.make_participation(self.usr, self.crs, role)
-
-        perm = permissions.get_permissions(self.usr, self.crs.id)
-
-        self.assertFalse(perm["can_edit_institute_details"])
+        self.assertFalse(self.usr.has_permission('can_edit_institute_details'))
 
     def test_get_permissions_can_add_course(self):
         """Test whether the admin has the can_add_course permission."""
         usr = factory.make_user(email='a@other', username='teun2', password='a', lti_id='a', is_teacher=True)
         usr.save()
-
-        perm = permissions.get_permissions(usr)
-
-        self.assertTrue(perm["can_add_course"])
+        self.assertTrue(usr.has_permission('can_add_course'))
 
         usr = factory.make_user(email='b@other', username='teun3', password='b', lti_id='b', is_teacher=False)
         usr.save()
-
-        perm = permissions.get_permissions(usr)
-
-        self.assertFalse(perm["can_add_course"])
+        self.assertFalse(usr.has_permission('can_add_course'))
 
         usr = factory.make_user(email='c@other', username='teun4', password='b', lti_id='c', is_superuser=True)
         usr.save()
-
-        perm = permissions.get_permissions(usr)
-
-        self.assertTrue(perm["can_add_course"])
+        self.assertTrue(usr.has_permission('can_add_course'))
 
     def test_get_permissions_can_edit_institute_details(self):
         """Test whether the admin can edit the application institute data."""
         usr = factory.make_user(email='a@other', username='teun2', password='a', lti_id='a', is_superuser=True)
         usr.save()
-
-        perm = permissions.get_permissions(usr)
-
-        self.assertTrue(perm["can_edit_institute_details"])
+        self.assertTrue(usr.has_permission('can_edit_institute_details'))
 
         usr = factory.make_user(email='some@other', username='teun3', password='b', lti_id='b', is_superuser=False)
         usr.save()
-
-        perm = permissions.get_permissions(usr)
-
-        self.assertFalse(perm["can_edit_institute_details"])
+        self.assertFalse(usr.has_permission('can_edit_institute_details'))
 
     def test_get_role(self):
         """Test whether the get_role function returns the right type of value."""
@@ -153,5 +108,5 @@ class PermissionTests(TestCase):
 
         factory.make_participation(self.usr, self.crs, role)
 
-        role = permissions.get_role(self.usr, self.crs)
+        role = Participation.objects.get(user=self.usr, course=self.crs).role
         self.assertTrue(isinstance(role, Role))

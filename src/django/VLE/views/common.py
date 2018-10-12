@@ -7,7 +7,6 @@ This includes:
 """
 from rest_framework.decorators import api_view
 
-import VLE.permissions as permissions
 import VLE.views.responses as response
 from VLE.models import Assignment, Course, Journal, Participation
 
@@ -42,8 +41,8 @@ def names(request, course_id, assignment_id, journal_id):
         result['assignment'] = assignment.name
     if journal_id:
         journal = Journal.objects.get(pk=journal_id)
-        if not (journal.user == request.user or permissions.has_assignment_permission(request.user,
-                journal.assignment, 'can_view_assignment_journals')):
+        if not (journal.user == request.user or
+                journal.assignment.has_permission(request.user, 'can_view_assignment_journals')):
             return response.forbidden('You are not allowed to view journals of other participants.')
         result['journal'] = journal.user.first_name + " " + journal.user.last_name
 

@@ -6,7 +6,6 @@ In this file are all the group api requests.
 from rest_framework import viewsets
 
 import VLE.factory as factory
-import VLE.permissions as permissions
 import VLE.serializers as serialize
 import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
@@ -39,13 +38,10 @@ class GroupView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=course_id)
 
-        role = permissions.get_role(request.user, course)
-        if role is None:
-            return response.forbidden('You are not a participant of this course.')
-        if not (role.can_view_course_users or
-                role.can_edit_course_user_group or
-                role.can_add_course_user_group or
-                role.can_delete_course_user_group):
+        if not (course.has_permission(request.user, 'can_view_course_users') or
+                course.has_permission(request.user, 'can_edit_course_user_group') or
+                course.has_permission(request.user, 'can_add_course_user_group') or
+                course.has_permission(request.user, 'can_delete_course_user_group')):
             return response.forbidden('You are not allowed to view or manage the user groups of this course.')
 
         queryset = Group.objects.filter(course=course)
@@ -75,11 +71,10 @@ class GroupView(viewsets.ViewSet):
         name, course_id = utils.required_params(request.data, "name", "course_id")
         lti_id = utils.optional_params(request.data, 'lti_id')
 
-        role = permissions.get_role(user, course_id)
-        if not role.can_add_course_user_group:
-            return response.forbidden("You are not allowed to create a course group.")
-
         course = Course.objects.get(pk=course_id)
+
+        if not course.has_permission(user, 'can_add_course_user_group'):
+            return response.forbidden("You are not allowed to create a course group.")
 
         if Group.objects.filter(name=name, course=course).exists():
             return response.bad_request('Course group with that name already exists.')
@@ -115,10 +110,7 @@ class GroupView(viewsets.ViewSet):
         course = Course.objects.get(pk=course_id)
         group = Group.objects.get(name=old_group_name, course=course)
 
-        role = permissions.get_role(request.user, course)
-        if role is None:
-            return response.forbidden('You are not a participant of this course.')
-        elif not role.can_edit_course_user_group:
+        if not course.has_permission(request.user, 'can_edit_course_user_group'):
             return response.unauthorized('You are unauthorized to edit this course group.')
 
         if not new_group_name:
@@ -131,6 +123,7 @@ class GroupView(viewsets.ViewSet):
         serializer = self.serializer_class(group, data=request.data, partial=True)
         if not serializer.is_valid():
             response.bad_request()
+
         serializer.save()
         return response.success({'group': serializer.data})
 
@@ -159,10 +152,7 @@ class GroupView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=course_id)
 
-        role = permissions.get_role(request.user, course_id)
-        if role is None:
-            return response.unauthorized(description="You are unauthorized to view this course.")
-        elif not role.can_delete_course_user_group:
+        if not course.has_permission(request.user, 'can_delete_course_user_group'):
             return response.forbidden(description="You are unauthorized to delete this course group.")
 
         group = Group.objects.get(name=name, course=course)

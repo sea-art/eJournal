@@ -11,6 +11,7 @@ from django.db import models
 from django.dispatch import receiver
 from django.utils.timezone import now
 
+import VLE.permissions as permissions
 from VLE.utils.file_handling import get_path
 
 
@@ -120,6 +121,9 @@ class User(AbstractUser):
         default=False
     )
 
+    def has_permission(self, permission):
+        return permissions.has_general_permission(self, permission)
+
     def __str__(self):
         """toString."""
         return self.username + " (" + str(self.id) + ")"
@@ -161,6 +165,9 @@ class Course(models.Model):
     enddate = models.DateField(
         null=True,
     )
+
+    def has_permission(self, user, permission):
+        return permissions.has_course_permission(user, permission, self)
 
     def __str__(self):
         """toString."""
@@ -204,8 +211,8 @@ class Role(models.Model):
     - name: name of the role
     - list of permissions (can_...)
     """
-
     name = models.TextField()
+
     course = models.ForeignKey(
         Course,
         on_delete=models.CASCADE
@@ -344,6 +351,9 @@ class Assignment(models.Model):
         'Format',
         on_delete=models.CASCADE
     )
+
+    def has_permission(self, user, permission):
+        return permissions.has_assignment_permission(user, permission, self)
 
     def __str__(self):
         """toString."""
