@@ -57,7 +57,7 @@ class AssignmentView(viewsets.ViewSet):
         ids = []
         for assignment in course.assignment_set.all():
             if request.user.has_permission('can_grade', assignment) or \
-                   assignment.journal_set.filter(user=request.user).exists():
+               assignment.journal_set.filter(user=request.user).exists():
                 ids.append(assignment.id)
 
         queryset = Assignment.objects.filter(id__in=ids)
