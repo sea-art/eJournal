@@ -120,7 +120,7 @@ def is_user_supervisor_of(supervisor, user):
     return False
 
 
-def serialize_global_permissions(user):
+def serialize_general_permissions(user):
     return {key: has_general_permission(user, key) for key in GENERAL_PERMISSIONS}
 
 

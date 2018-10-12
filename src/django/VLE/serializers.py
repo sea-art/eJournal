@@ -81,7 +81,7 @@ class OwnUserSerializer(serializers.ModelSerializer):
         permissions = {}
         courses = user.participations.all()
 
-        permissions['general'] = perms.serialize_global_permissions(user)
+        permissions['general'] = perms.serialize_general_permissions(user)
 
         for course in courses:
             permissions['course' + str(course.id)] = perms.serialize_course_permissions(user, course)
