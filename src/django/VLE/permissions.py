@@ -88,7 +88,7 @@ def has_assignment_permission(user, permission, assignment):
 
     # Apply negations
     if permissions['can_have_journal'] and permissions['can_view_assignment_journals']:
-        permissions['can_view_journal'] = False
+        permissions['can_have_journal'] = False
 
     return permissions[permission]
 
