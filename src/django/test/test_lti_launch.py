@@ -4,19 +4,20 @@ test_lti_launch.py.
 Test lti launch.
 """
 
-from django.test import TestCase, RequestFactory
-from django.conf import settings
-from VLE.models import Lti_ids, Role, User
+import datetime
 import json
+import test.test_utils as test
+import time
+
+import jwt
+import oauth2
+from django.conf import settings
+from django.test import RequestFactory, TestCase
 
 import VLE.factory as factory
-import VLE.views.lti as lti_view
-import test.test_utils as test
-import datetime
-import oauth2
-import time
-import jwt
 import VLE.lti_launch as lti
+import VLE.views.lti as lti_view
+from VLE.models import Lti_ids, Role, User
 
 
 class canEnterThroughLTI(TestCase):
