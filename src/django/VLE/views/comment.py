@@ -153,7 +153,7 @@ class CommentView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        comment_id = kwargs.get('pk')
+        comment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
 
         comment = Comment.objects.get(pk=comment_id)
 
@@ -194,7 +194,7 @@ class CommentView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        comment_id = kwargs.get('pk')
+        comment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
 
         comment = Comment.objects.get(pk=comment_id)
 
