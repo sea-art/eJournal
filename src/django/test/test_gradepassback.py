@@ -4,24 +4,11 @@ test_gradepassback.py.
 Test the lti grade passback.
 """
 from VLE.lti_grade_passback import GradePassBackRequest
-# from django.http import HttpResponse
 from django.conf import settings
 from django.test import LiveServerTestCase
-# from django.test.utils import override_settings
-# from django.urls import path
 import VLE.factory as factory
 
 
-# def grade_passback_answer():
-#     return HttpResponse(b'<?xml version="1.0" encoding="UTF-8"?>\n<imsx_POXEnvelopeResponse xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">\n        <imsx_POXHeader>\n          <imsx_POXResponseHeaderInfo>\n            <imsx_version>V1.0</imsx_version>\n            <imsx_messageIdentifier/>\n            <imsx_statusInfo>\n              <imsx_codeMajor>success</imsx_codeMajor>\n              <imsx_severity>status</imsx_severity>\n              <imsx_description/>\n              <imsx_messageRefIdentifier>2</imsx_messageRefIdentifier>\n              <imsx_operationRefIdentifier>replaceResult</imsx_operationRefIdentifier>\n            </imsx_statusInfo>\n          </imsx_POXResponseHeaderInfo>\n        </imsx_POXHeader>\n        <imsx_POXBody><replaceResultResponse/></imsx_POXBody>\n      </imsx_POXEnvelopeResponse>\n')
-
-
-# urlpatterns = [
-#     path('grade_passback', grade_passback_answer, name='grade_passback_answer'),
-# ]
-
-
-# @override_settings(ROOT_URLCONF=__name__)
 class GradePassBackRequestXMLTest(LiveServerTestCase):
     """Test XML grade passpack.
 
@@ -113,11 +100,3 @@ class GradePassBackRequestXMLTest(LiveServerTestCase):
         """Test if the ID incrementor is implemented."""
         now = GradePassBackRequest.get_message_id_and_increment()
         self.assertTrue(int(now) + 1 == int(GradePassBackRequest.get_message_id_and_increment()))
-
-    # def test_replace_result(self):
-    #     """"""
-    #     print(replace_result(self.journal))
-    #
-    # def test_needs_grading(self):
-    #     """"""
-    #     print(needs_grading(self.journal, 0))
