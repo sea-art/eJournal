@@ -1,15 +1,16 @@
+import datetime
+import json
+
+import jwt
 from django.conf import settings
+from django.http import QueryDict
 from django.shortcuts import redirect
 from rest_framework.decorators import api_view
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
-from django.http import QueryDict
 
-import VLE.views.responses as response
 import VLE.lti_launch as lti
-
-import datetime
-import json
-import jwt
+import VLE.views.responses as response
+import VLE.permissions as permissions
 
 # VUE ENTRY STATE
 BAD_AUTH = '-1'
@@ -45,8 +46,7 @@ def get_lti_params_from_jwt(request, jwt_params):
 
     roles = json.load(open(settings.LTI_ROLE_CONFIG_PATH))
     lti_roles = dict((roles[k], k) for k in roles)
-    role = [lti_roles[r] for r in lti.roles_to_list(lti_params)]
-
+    role = [lti_roles[r] if r in lti_roles else r for r in lti.roles_to_list(lti_params)]
     payload = dict()
     course = lti.check_course_lti(lti_params, user, role)
     if course is None:
@@ -88,7 +88,7 @@ def get_lti_params_from_jwt(request, jwt_params):
 
     journal = lti.select_create_journal(lti_params, user, assignment, roles)
     jID = journal.pk if journal is not None else None
-    state = FINISH_T if jID is None else FINISH_S
+    state = FINISH_T if permissions.has_permission(user, course.pk, 'can_grade') else FINISH_S
 
     payload['state'] = state
     payload['cID'] = course.pk

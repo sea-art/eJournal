@@ -3,19 +3,20 @@ test_lti_launch.py.
 
 Test lti launch.
 """
+
 from django.test import TestCase, RequestFactory
 from django.conf import settings
 from VLE.models import Lti_ids, Role, User
+import json
 
-import VLE.lti_launch as lti
 import VLE.factory as factory
 import VLE.views.lti as lti_view
 import test.test_utils as test
-import json
 import datetime
 import oauth2
 import time
 import jwt
+import VLE.lti_launch as lti
 
 
 class canEnterThroughLTI(TestCase):
@@ -131,12 +132,12 @@ class canEnterThroughLTI(TestCase):
         self.assertIn('state={0}'.format(lti_view.LOGGED_IN), response.url)
         self.assertTrue(User.objects.filter(lti_id='awefd')[0].is_teacher)
 
-    def test_lti_launch_no_roles(self):
+    def test_lti_launch_unknown_role(self):
         """Hopefully gives redirect with start = LOGGED_IN."""
         self.request["oauth_timestamp"] = str(int(time.time()))
         self.request["oauth_nonce"] = oauth2.generate_nonce()
         self.request["user_id"] = "awefd"
-        self.request["roles"] = ''
+        self.request["roles"] = 'urn:lti:instrole:ims/lis/Administrator'
         oauth_request = oauth2.Request.from_request(
             'POST', 'http://testserver/lti/launch', parameters=self.request
         )
@@ -241,6 +242,28 @@ class canEnterThroughLTI(TestCase):
         response = test.api_get_call(self, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), login=login, status=200)
         self.assertIn('"state": "{0}"'.format(lti_view.FINISH_S), response.content.decode('utf-8'))
 
+    def test_get_lti_params_from_jwt_multiple_roles(self):
+        """Test case for when multible roles are given ."""
+        course = factory.make_course('TestCourse', 'aaaa', lti_id='asdf')
+        factory.make_assignment("TestAss", "TestDescr", lti_id='bughh', courses=[course])
+        login = test.logging_in(self, self.username, self.password)
+        self.request["user_id"] = "awefd"
+        self.request["roles"] = 'Learner,Instructor'
+        jwt_params = jwt.encode(self.request, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
+        response = test.api_get_call(self, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), login=login, status=200)
+        self.assertIn('"state": "{0}"'.format(lti_view.FINISH_T), response.content.decode('utf-8'))
+
+    def test_get_lti_params_from_jwt_unknown_role(self):
+        """Test case for when a unknown role is given ."""
+        course = factory.make_course('TestCourse', 'aaaa', lti_id='asdf')
+        factory.make_assignment("TestAss", "TestDescr", lti_id='bughh', courses=[course])
+        login = test.logging_in(self, self.username, self.password)
+        self.request["user_id"] = "awefd"
+        self.request["roles"] = 'urn:lti:instrole:ims/lis/Administrator'
+        jwt_params = jwt.encode(self.request, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
+        response = test.api_get_call(self, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), login=login, status=200)
+        self.assertIn('"state": "{0}"'.format(lti_view.FINISH_S), response.content.decode('utf-8'))
+
     def test_select_course_with_participation(self):
         """Hopefully select a course."""
         course = factory.make_course('TestCourse', 'aaaa', lti_id='asdf')
@@ -265,3 +288,16 @@ class canEnterThroughLTI(TestCase):
             roles=self.roles
         )
         self.assertEquals(selected_journal, self.created_journal)
+
+    def test_select_journal_no_assign(self):
+        """Hopefully select None."""
+        selected_journal = lti.select_create_journal({
+            'roles': self.roles['Student'],
+            'lis_result_sourcedid': "267-686-2694-585-0afc8c37342732c97b011855389af1f2c2f6d552",
+            'lis_outcome_service_url': "https://uvadlo-tes.instructure.com/api/lti/v1/tools/267/grade_passback"
+        },
+            user=self.user,
+            assignment=None,
+            roles=self.roles
+        )
+        self.assertEquals(selected_journal, None)

@@ -3,8 +3,7 @@ test_online.py.
 
 Test if the server is online.
 """
-from django.test import Client
-from django.test import TestCase
+from django.test import Client, TestCase
 
 
 class IsOnline(TestCase):

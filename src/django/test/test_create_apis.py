@@ -3,12 +3,13 @@ test_apis.py.
 
 Test API calls.
 """
+import test.test_utils as test
+
+import django.utils.timezone as timezone
 from django.test import TestCase
-from VLE.models import Journal, Entry, Content, Lti_ids, Group
 
 import VLE.factory as factory
-import test.test_utils as test
-import django.utils.timezone as timezone
+from VLE.models import Content, Entry, Group, Lti_ids
 
 
 class CreateApiTests(TestCase):
@@ -44,21 +45,6 @@ class CreateApiTests(TestCase):
 
         test.api_post_call(self, '/assignments/', params=create_assign_dict, login=login, status=201)
         self.assertEquals(Lti_ids.objects.get(lti_id=lti_id).assignment.name, 'SIFT')
-
-    def test_create_journal(self):
-        """test create journal."""
-        assign = factory.make_assignment("Assignment", "Your favorite assignment")
-        create_journal_dict = {'assignment_id': assign.pk}
-        login = test.logging_in(self, self.username, self.password)
-
-        course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
-        assign.courses.add(course)
-
-        role = factory.make_role_default_no_perms("student", course, can_have_journal=True)
-        factory.make_participation(user=self.user, course=course, role=role)
-
-        test.api_post_call(self, '/journals/', params=create_journal_dict, login=login, status=201)
-        self.assertTrue(Journal.objects.filter(user=self.user).exists())
 
     def test_create_group(self):
         """test create group."""

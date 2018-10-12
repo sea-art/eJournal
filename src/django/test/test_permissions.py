@@ -4,11 +4,11 @@ test_permissions.py
 This file tests whether all permissions behave as required.
 """
 import datetime
+
 from django.test import TestCase
 
 import VLE.factory as factory
 import VLE.permissions as permissions
-
 from VLE.models import Role
 
 

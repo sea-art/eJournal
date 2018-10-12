@@ -22,8 +22,13 @@ export default {
             .then(response => response.data)
     },
 
-    download (id = 0, fileName) {
-        return auth.downloadFile('users/' + id + '/download', {file_name: fileName})
+    download (id = 0, fileName, entryID, nodeID, contentID) {
+        return auth.downloadFile('users/' + id + '/download', {
+            file_name: fileName,
+            entry_id: entryID,
+            node_id: nodeID,
+            content_id: contentID
+        })
     },
 
     GDPR (id = 0) {

@@ -1,10 +1,11 @@
-from django.conf import settings
-import oauth2
-"""Package for oauth authentication in python"""
-
-from VLE.models import User, Role, Journal, Lti_ids
-import VLE.factory as factory
 from datetime import datetime, timezone
+
+import oauth2
+from django.conf import settings
+
+import VLE.factory as factory
+from VLE.models import Journal, Lti_ids, Role, User
+
 import json
 
 
@@ -113,7 +114,7 @@ def check_course_lti(request, user, role):
         course = lti_couples[0].course
         if user not in course.users.all():
             for r in json.load(open(settings.LTI_ROLE_CONFIG_PATH)):
-                if r in role:
+                if r in role or r == 'Student':
                     factory.make_participation(user, course, Role.objects.get(name=r, course=course))
                     break
         return course
@@ -133,7 +134,7 @@ def select_create_journal(request, user, assignment, roles):
     """
     Select or create the requested journal.
     """
-    if roles['Student'] in roles_to_list(request) and assignment is not None and user is not None:
+    if assignment is not None and user is not None:
         journals = Journal.objects.filter(user=user, assignment=assignment)
         if journals.count() > 0:
             journal = journals[0]
