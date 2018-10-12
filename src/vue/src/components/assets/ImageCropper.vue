@@ -34,6 +34,10 @@
 
 <script>
 import icon from 'vue-awesome/components/Icon'
+import Vue from 'vue'
+import Croppa from 'vue-croppa'
+
+Vue.use(Croppa, { componentName: 'croppa' })
 
 export default {
     name: 'ImageCropper',

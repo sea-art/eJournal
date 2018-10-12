@@ -61,13 +61,11 @@ import 'vue-awesome/icons/github'
 
 import Toasted from 'vue-toasted'
 import flatPickr from 'vue-flatpickr-component'
-import Croppa from 'vue-croppa'
 
 Vue.config.productionTip = false
 Vue.use(Toasted, { position: 'top-center', duration: 4000 })
 Vue.use(BootstrapVue)
 Vue.use(flatPickr)
-Vue.use(Croppa)
 
 /* Checks the store for for permissions according to the current route cID or aID. */
 Vue.prototype.$hasPermission = store.getters['permissions/hasPermission']
