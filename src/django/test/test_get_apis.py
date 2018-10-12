@@ -3,13 +3,13 @@ test_get_apis.py.
 
 Test the get apis.
 """
+import test.test_utils as test
+
+import django.utils.timezone as timezone
 from django.test import TestCase
 
-from VLE.models import Role
-
 import VLE.factory as factory
-import test.test_utils as test
-import django.utils.timezone as timezone
+from VLE.models import Role
 
 
 class GetApiTests(TestCase):

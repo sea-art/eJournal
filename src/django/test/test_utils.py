@@ -4,11 +4,12 @@ test_utils.py.
 Test helper functions.
 """
 
-from django.urls import reverse
 import json
 
-from VLE.models import Role
+from django.urls import reverse
+
 import VLE.factory as factory
+from VLE.models import Role
 
 
 def set_up_user_and_auth(username, password, email, first_name=None, last_name=None,

@@ -3,12 +3,15 @@ Serializers.
 
 Functions to convert certain data to other formats.
 """
-from rest_framework import serializers
-from VLE.models import User, Course, Node, Comment, Assignment, Role, Journal, Entry, Template, Field, Content, \
-    Format, PresetNode, Group, Participation
-import VLE.utils.generic_utils as utils
-import VLE.permissions as permissions
 import statistics as st
+
+from rest_framework import serializers
+
+import VLE.permissions as permissions
+import VLE.utils.generic_utils as utils
+from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
+                        Format, Group, Journal, Node, Participation,
+                        PresetNode, Role, Template, User)
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -253,7 +256,7 @@ class PresetNodeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PresetNode
-        fields = ('id', 'type', 'deadline', 'target', 'template')
+        fields = ('id', 'description', 'type', 'deadline', 'target', 'template')
         read_only_fields = ('id', )
 
     def get_deadline(self, entry):

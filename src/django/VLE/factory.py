@@ -4,9 +4,11 @@ factory.py.
 The facory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
-from VLE.models import User, Participation, Course, Assignment, Role, Format, PresetNode, Node, Comment, \
-    Entry, Template, Field, Content, Journal, UserFile, Group, Lti_ids
 from django.utils import timezone
+
+from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
+                        Format, Group, Journal, Lti_ids, Node, Participation,
+                        PresetNode, Role, Template, User, UserFile)
 
 
 def make_user(username, password, email, lti_id=None, profile_picture=None,
@@ -366,12 +368,18 @@ def make_comment(entry, author, text, published):
     )
 
 
-def make_user_file(uploaded_file, author, assignment):
-    """Make a user file from an UploadedFile in memory."""
+def make_user_file(uploaded_file, author, assignment, entry=None, node=None, content=None):
+    """Make a user file from an UploadedFile in memory.
+
+    At the time of creation, the UserFile is uploaded but not attached to an entry yet. This UserFile be treated
+    as temporary untill the actual entry is created. And the node, entry, and content are updated."""
     return UserFile.objects.create(
         file=uploaded_file,
         file_name=uploaded_file.name,
         author=author,
         content_type=uploaded_file.content_type,
-        assignment=assignment
+        assignment=assignment,
+        entry=entry,
+        node=node,
+        content=content
     )

@@ -4,10 +4,11 @@ test_authentication.py.
 Test the authentication calls.
 """
 
+import test.test_utils as test
+
 from django.test import TestCase
 
 import VLE.factory as factory
-import test.test_utils as test
 
 
 class AuthenticationTests(TestCase):

@@ -1,10 +1,10 @@
-from django.test import TestCase
+import test.test_utils as test
 
-from VLE.models import Course, Assignment, Role
+from django.test import TestCase
 
 import VLE.factory as factory
 import VLE.serializers as serialize
-import test.test_utils as test
+from VLE.models import Assignment, Course, Role
 
 
 class DeleteApiTests(TestCase):

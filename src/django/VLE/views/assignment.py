@@ -6,13 +6,14 @@ In this file are all the assignment api requests.
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
-from VLE.serializers import AssignmentSerializer
-from VLE.models import Assignment, Course, Journal, Lti_ids
-import VLE.views.responses as response
-import VLE.permissions as permissions
 import VLE.factory as factory
-import VLE.utils.generic_utils as utils
 import VLE.lti_grade_passback as lti_grade
+import VLE.permissions as permissions
+import VLE.utils.generic_utils as utils
+import VLE.views.responses as response
+from VLE.models import Assignment, Course, Journal, Lti_ids
+from VLE.serializers import AssignmentSerializer
+from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
 
 
 class AssignmentView(viewsets.ViewSet):
@@ -46,15 +47,8 @@ class AssignmentView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            course_id = int(request.query_params['course_id'])
-        except (KeyError, ValueError):
-            return response.keyerror('course_id')
-
-        try:
-            course = Course.objects.get(pk=course_id)
-        except Course.DoesNotExist:
-            return response.not_found('Course does not exist.')
+        course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
+        course = Course.objects.get(pk=course_id)
 
         role = permissions.get_role(request.user, course)
         if role is None:
@@ -99,17 +93,11 @@ class AssignmentView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        try:
-            name, description, course_id = utils.required_params(request.data, "name", "description", "course_id")
-            points_possible, unlock_date, due_date, lock_date, lti_id = \
-                utils.optional_params(request.data, "points_possible", "unlock_date", "due_date", "lock_date", "lti_id")
-        except KeyError:
-            return response.keyerror("name", "description", "course_id")
+        name, description, course_id = utils.required_params(request.data, "name", "description", "course_id")
+        points_possible, unlock_date, due_date, lock_date, lti_id = \
+            utils.optional_params(request.data, "points_possible", "unlock_date", "due_date", "lock_date", "lti_id")
 
-        try:
-            course = Course.objects.get(pk=course_id)
-        except Course.DoesNotExist:
-            return response.not_found('Course does not exist.')
+        course = Course.objects.get(pk=course_id)
 
         role = permissions.get_role(request.user, course_id)
         if role is None:
@@ -157,15 +145,14 @@ class AssignmentView(viewsets.ViewSet):
                 assignment = Lti_ids.objects.filter(lti_id=pk, for_model=Lti_ids.ASSIGNMENT)[0].assignment
             else:
                 assignment = Assignment.objects.get(pk=pk)
-        except (Assignment.DoesNotExist, IndexError):
+        except IndexError:
             return response.not_found('Assignment does not exist.')
 
         try:
-            course = Course.objects.get(id=request.query_params['course_id'])
-        except (ValueError, KeyError):
+            course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
+            course = Course.objects.get(id=course_id)
+        except (VLEMissingRequiredKey, VLEParamWrongType):
             course = None
-        except Course.DoesNotExist:
-            return response.not_found('Course does not exist.')
 
         if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
             return response.forbidden("You cannot view this assignment.")
@@ -203,10 +190,7 @@ class AssignmentView(viewsets.ViewSet):
 
         pk = kwargs.get('pk')
 
-        try:
-            assignment = Assignment.objects.get(pk=pk)
-        except Assignment.DoesNotExist:
-            return response.not_found('Assignment does not exist.')
+        assignment = Assignment.objects.get(pk=pk)
 
         published, = utils.optional_params(request.data, 'published')
         published_response = None
@@ -257,16 +241,10 @@ class AssignmentView(viewsets.ViewSet):
 
         assignment_id = kwargs.get('pk')
 
-        try:
-            course_id = int(request.query_params['course_id'])
-        except (KeyError, ValueError):
-            return response.keyerror('course_id')
+        course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
 
-        try:
-            assignment = Assignment.objects.get(pk=assignment_id)
-            course = Course.objects.get(pk=course_id)
-        except (Assignment.DoesNotExist, Course.DoesNotExist):
-            return response.not_found('course or assignment does not exist.')
+        assignment = Assignment.objects.get(pk=assignment_id)
+        course = Course.objects.get(pk=course_id)
 
         # Assignments can only be deleted with can_delete_assignment permission.
         role = permissions.get_role(request.user, course)
@@ -308,11 +286,10 @@ class AssignmentView(viewsets.ViewSet):
             return response.unauthorized()
 
         try:
-            courses = [Course.objects.get(pk=int(request.query_params['course_id']))]
-        except KeyError:
+            course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
+            courses = [Course.objects.get(pk=course_id)]
+        except (VLEMissingRequiredKey, VLEParamWrongType):
             courses = request.user.participations.all()
-        except Course.DoesNotExist:
-            return response.not_found('Course does not exist.')
 
         deadline_list = []
 
@@ -341,15 +318,9 @@ class AssignmentView(viewsets.ViewSet):
 
         aID = kwargs.get('pk')
 
-        try:
-            published, = utils.required_params(request.data, 'published')
-        except KeyError:
-            return response.bad_request('Publish state of the assignment expected.')
+        published, = utils.required_params(request.data, 'published')
 
-        try:
-            assign = Assignment.objects.get(pk=aID)
-        except Assignment.DoesNotExist:
-            return response.not_found('Assignment does not exist.')
+        assign = Assignment.objects.get(pk=aID)
 
         if not permissions.has_assignment_permission(request.user, assign, 'can_publish_grades'):
             return response.forbidden('You are not allowed to publish grades for this assignment.')
