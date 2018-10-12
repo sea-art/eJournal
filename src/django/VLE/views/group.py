@@ -38,10 +38,10 @@ class GroupView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=course_id)
 
-        if not (course.has_permission(request.user, 'can_view_course_users') or
-                course.has_permission(request.user, 'can_edit_course_user_group') or
-                course.has_permission(request.user, 'can_add_course_user_group') or
-                course.has_permission(request.user, 'can_delete_course_user_group')):
+        if not (request.user.has_permission('can_view_course_users', course) or
+                request.user.has_permission('can_edit_course_user_group', course) or
+                request.user.has_permission('can_add_course_user_group', course) or
+                request.user.has_permission('can_delete_course_user_group', course)):
             return response.forbidden('You are not allowed to view or manage the user groups of this course.')
 
         queryset = Group.objects.filter(course=course)
@@ -73,7 +73,7 @@ class GroupView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=course_id)
 
-        if not course.has_permission(user, 'can_add_course_user_group'):
+        if not user.has_permission('can_add_course_user_group', course):
             return response.forbidden("You are not allowed to create a course group.")
 
         if Group.objects.filter(name=name, course=course).exists():
@@ -110,7 +110,7 @@ class GroupView(viewsets.ViewSet):
         course = Course.objects.get(pk=course_id)
         group = Group.objects.get(name=old_group_name, course=course)
 
-        if not course.has_permission(request.user, 'can_edit_course_user_group'):
+        if not request.user.has_permission('can_edit_course_user_group', course):
             return response.unauthorized('You are unauthorized to edit this course group.')
 
         if not new_group_name:
@@ -152,7 +152,7 @@ class GroupView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=course_id)
 
-        if not course.has_permission(request.user, 'can_delete_course_user_group'):
+        if not request.user.has_permission('can_delete_course_user_group', course):
             return response.forbidden(description="You are unauthorized to delete this course group.")
 
         group = Group.objects.get(name=name, course=course)

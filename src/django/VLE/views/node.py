@@ -50,12 +50,12 @@ class NodeView(viewsets.ModelViewSet):
         journal = Journal.objects.get(pk=journal_id)
 
         if not (journal.user == request.user or
-                journal.assignment.has_permission(request.user, 'can_view_assignment_journals')):
+                request.user.has_permission('can_view_assignment_journals', journal.assignment)):
             return response.forbidden('You are not allowed to view journals of other participants.')
 
         if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or
             (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
-           not journal.assignment.has_permission(request.user, 'can_view_assignment_journals'):
+           not request.user.has_permission('can_view_assignment_journals', journal.assignment):
             return response.bad_request('The assignment is locked and unavailable for students.')
 
         return response.success({'nodes': timeline.get_nodes(journal, request.user)})

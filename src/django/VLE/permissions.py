@@ -47,7 +47,7 @@ def has_course_permission(user, permission, course):
     course -- course used to check against.
     permission -- the permission string to check.
     """
-    if permission not in COURSE_PERMISSIONS and permission not in ASSIGNMENT_PERMISSIONS:
+    if permission not in COURSE_PERMISSIONS:
         raise VLEProgrammingError("Permission " + permission + " is not a course level permission.")
 
     if user.is_superuser:
@@ -111,23 +111,23 @@ def is_user_supervisor_of(supervisor, user):
     can_view_course_users or where the supervisor is linked to the user through an assignment where the supervisor
     has the permission can_view_assignment_journals."""
     for course in supervisor.participations.all():
-        if course.has_permission(supervisor, 'can_view_course_users'):
+        if supervisor.has_permission('can_view_course_users', course):
             if course.participations.filter(user=user).exists():
                 return True
             if course.assignment_set.filter(journal__user=user).exists() and \
-               course.has_permission(supervisor, 'can_view_assignment_journals'):
+               supervisor.has_permission('can_view_assignment_journals', course):
                 return True
 
     return False
 
 
 def serialize_global_permissions(user):
-    return {key: user.has_permission(key) for key in GENERAL_PERMISSIONS}
+    return {key: has_general_permission(user, key) for key in GENERAL_PERMISSIONS}
 
 
 def serialize_course_permissions(user, course):
-    return {key: course.has_permission(user, key) for key in COURSE_PERMISSIONS + ASSIGNMENT_PERMISSIONS}
+    return {key: has_course_permission(user, key, course) for key in COURSE_PERMISSIONS}
 
 
 def serialize_assignment_permissions(user, assignment):
-    return {key: assignment.has_permission(user, key) for key in ASSIGNMENT_PERMISSIONS}
+    return {key: has_assignment_permission(user, key, assignment) for key in ASSIGNMENT_PERMISSIONS}

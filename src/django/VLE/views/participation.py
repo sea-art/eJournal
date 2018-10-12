@@ -33,7 +33,7 @@ class ParticipationView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=course_id)
 
-        if not course.has_permission(request.user, 'can_view_course_users'):
+        if not request.user.has_permission('can_view_course_users', course):
             return response.forbidden('You cannot view the participants of this course.')
 
         users = UserSerializer(course.users, context={'course': course}, many=True).data
@@ -96,7 +96,7 @@ class ParticipationView(viewsets.ViewSet):
         user = User.objects.get(pk=user_id)
         course = Course.objects.get(pk=course_id)
 
-        if not course.has_permission(request.user, 'can_add_course_users'):
+        if not request.user.has_permission('can_add_course_users', course):
             return response.forbidden('You cannot add users to this course.')
 
         if permissions.is_participant(user, course):
@@ -141,7 +141,7 @@ class ParticipationView(viewsets.ViewSet):
         course = Course.objects.get(pk=pk)
         participation = Participation.objects.get(user=user, course=course)
 
-        if not course.has_permission(request.user, 'can_edit_course_roles'):
+        if not request.user.has_permission('can_edit_course_roles', course):
             return response.forbidden('You cannot edit the roles of this course.')
 
         participation.role = Role.objects.get(name=role_name, course=course)
@@ -170,7 +170,7 @@ class ParticipationView(viewsets.ViewSet):
         course = Course.objects.get(pk=pk)
         participation = Participation.objects.get(user=user, course=course)
 
-        if not course.has_permission(request.user, 'can_delete_course_users'):
+        if not request.user.has_permission('can_delete_course_users', course):
             return response.forbidden(description="You are not allowed to delete this user.")
 
         participation.delete()
@@ -200,7 +200,7 @@ class ParticipationView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=course_id)
 
-        if not course.has_permission(request.user, 'can_add_course_users'):
+        if not request.user.has_permission('can_add_course_users', course):
             return response.forbidden('You are not allowed to add course users.')
 
         ids_in_course = course.participation_set.all().values('user__id')

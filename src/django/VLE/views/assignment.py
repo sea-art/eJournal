@@ -53,10 +53,14 @@ class AssignmentView(viewsets.ViewSet):
         if not permissions.is_participant(request.user, course):
             return response.forbidden('You are not participating in this course.')
 
-        if course.has_permission(request.user, 'can_grade'):
-            queryset = course.assignment_set.all()
-        else:
-            queryset = Assignment.objects.filter(courses=course, journal__user=request.user)
+        # Consider all assignments that the user is in, or can grade.
+        ids = []
+        for assignment in course.assignment_set.all():
+            if request.user.has_permission('can_grade', assignment) or \
+                   assignment.journal_set.filter(user=request.user).exists():
+                ids.append(assignment.id)
+
+        queryset = Assignment.objects.filter(id__in=ids)
         serializer = AssignmentSerializer(queryset, many=True, context={'user': request.user, 'course': course})
 
         data = serializer.data
@@ -98,7 +102,7 @@ class AssignmentView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=course_id)
 
-        if not course.has_permission(request.user, 'can_add_assignment'):
+        if not request.user.has_permission('can_add_assignment', course):
             return response.forbidden('You have no permissions to create an assignment.')
 
         assignment = factory.make_assignment(name, description, courses=[course],
@@ -152,7 +156,7 @@ class AssignmentView(viewsets.ViewSet):
         if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk).exists():
             return response.forbidden("You cannot view this assignment.")
 
-        get_journals = assignment.has_permission(request.user, 'can_grade')
+        get_journals = request.user.has_permission('can_grade', assignment)
 
         serializer = AssignmentSerializer(
             assignment,
@@ -193,7 +197,7 @@ class AssignmentView(viewsets.ViewSet):
             if published_response is False:
                 return response.forbidden('You are not allowed to grade this assignment.')
 
-        if assignment.has_permission(request.user, 'can_edit_assignment'):
+        if request.user.has_permission('can_edit_assignment', assignment):
             req_data = request.data
             if published is not None:
                 del req_data['published']
@@ -240,7 +244,7 @@ class AssignmentView(viewsets.ViewSet):
         course = Course.objects.get(pk=course_id)
 
         # Assignments can only be deleted with can_delete_assignment permission.
-        if not course.has_permission(request.user, 'can_delete_assignment'):
+        if not request.user.has_permission('can_delete_assignment', course):
             return response.forbidden(description="You have no permission to delete this assignment.")
 
         data = {
@@ -310,7 +314,7 @@ class AssignmentView(viewsets.ViewSet):
         published, = utils.required_params(request.data, 'published')
         assign = Assignment.objects.get(pk=assignment_id)
 
-        if not assign.has_permission(request.user, 'can_publish_grades'):
+        if not request.user.has_permission('can_publish_grades', assign):
             return response.forbidden('You are not allowed to publish grades for this assignment.')
 
         utils.publish_all_assignment_grades(assign, published)
@@ -322,7 +326,7 @@ class AssignmentView(viewsets.ViewSet):
         return response.success(payload={'new_published': published})
 
     def publish(self, request, assignment, published=True):
-        if assignment.has_permission(request.user, 'can_publish_grades'):
+        if request.user.has_permission('can_publish_grades', assignment):
             utils.publish_all_assignment_grades(assignment, published)
 
             for journal in Journal.objects.filter(assignment=assignment):

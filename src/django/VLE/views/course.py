@@ -11,7 +11,7 @@ import VLE.permissions as permissions
 import VLE.serializers as serialize
 import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
-from VLE.models import Course, Lti_ids, Participation
+from VLE.models import Course, Lti_ids
 
 
 class CourseView(viewsets.ViewSet):
@@ -119,7 +119,7 @@ class CourseView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=pk)
 
-        if not course.has_permission(request.user, 'can_edit_course_details'):
+        if not request.user.has_permission('can_edit_course_details', course):
             return response.unauthorized('You are unauthorized to edit this course.')
 
         data = request.data
@@ -153,10 +153,10 @@ class CourseView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=pk)
 
-        if not Participation.objects.filter(user=request.user, course=course).exists():
+        if not permissions.is_participant(request.user, course):
             return response.unauthorized(description="You are unauthorized to view this course.")
 
-        if not course.has_permission(request.user, 'can_delete_course'):
+        if not request.user.has_permission('can_delete_course', course):
             return response.forbidden(description="You are unauthorized to delete this course.")
 
         course.delete()

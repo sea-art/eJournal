@@ -12,6 +12,7 @@ from django.dispatch import receiver
 from django.utils.timezone import now
 
 import VLE.permissions as permissions
+from VLE.utils.error_handling import VLEProgrammingError
 from VLE.utils.file_handling import get_path
 
 
@@ -121,8 +122,21 @@ class User(AbstractUser):
         default=False
     )
 
-    def has_permission(self, permission):
-        return permissions.has_general_permission(self, permission)
+    def has_permission(self, permission, obj=None):
+        """
+        Returns whether the user has the given permission.
+        If obj is None, it tests the general permissions.
+        If obj is a Course, it tests the course permissions.
+        If obj is an Assignment, it tests the assignment permissions.
+        Raises a VLEProgramming error when misused.
+        """
+        if obj is None:
+            return permissions.has_general_permission(self, permission)
+        if isinstance(obj, Course):
+            return permissions.has_course_permission(self, permission, obj)
+        if isinstance(obj, Assignment):
+            return permissions.has_assignment_permission(self, permission, obj)
+        raise VLEProgrammingError("Permission object must be of type None, Course or Assignment.")
 
     def __str__(self):
         """toString."""
@@ -165,9 +179,6 @@ class Course(models.Model):
     enddate = models.DateField(
         null=True,
     )
-
-    def has_permission(self, user, permission):
-        return permissions.has_course_permission(user, permission, self)
 
     def __str__(self):
         """toString."""
@@ -351,9 +362,6 @@ class Assignment(models.Model):
         'Format',
         on_delete=models.CASCADE
     )
-
-    def has_permission(self, user, permission):
-        return permissions.has_assignment_permission(user, permission, self)
 
     def __str__(self):
         """toString."""

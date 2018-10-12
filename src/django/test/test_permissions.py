@@ -35,7 +35,7 @@ class PermissionTests(TestCase):
         # Connect a participation to a user, course and role.
         factory.make_participation(self.usr, self.crs, role)
 
-        self.assertFalse(self.crs.has_permission(self.usr, 'can_delete_course'))
+        self.assertFalse(self.usr.has_permission('can_delete_course', self.crs))
 
     def test_permission(self):
         """Test a request that needs a single permission."""
@@ -43,8 +43,8 @@ class PermissionTests(TestCase):
 
         factory.make_participation(self.usr, self.crs, role)
 
-        self.assertTrue(self.crs.has_permission(self.usr, 'can_delete_assignment'))
-        self.assertFalse(self.crs.has_permission(self.usr, 'can_delete_course_user_group'))
+        self.assertTrue(self.usr.has_permission('can_delete_assignment', self.crs))
+        self.assertFalse(self.usr.has_permission('can_delete_course_user_group', self.crs))
 
     def test_get_permissions_admin(self):
         """Test if the admin had the right permissions."""

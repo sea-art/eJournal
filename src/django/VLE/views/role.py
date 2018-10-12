@@ -34,7 +34,7 @@ class RoleView(viewsets.ViewSet):
         course_id = request.query_params['course_id']
         course = Course.objects.get(pk=course_id)
 
-        if not course.has_permission(request.user, 'can_edit_course_roles'):
+        if not request.user.has_permission('can_edit_course_roles', course):
             return response.forbidden('You are not allowed to edit course roles.')
 
         roles = Role.objects.filter(course=course)
@@ -108,7 +108,7 @@ class RoleView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=request.data['course_id'])
 
-        if not course.has_permission(request.user, 'can_edit_course_roles'):
+        if not request.user.has_permission('can_edit_course_roles', course):
             return response.forbidden('You do not have the permission to create roles for this course.')
 
         try:
@@ -144,7 +144,7 @@ class RoleView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=pk)
 
-        if not course.has_permission(request.user, 'can_edit_course_roles'):
+        if not request.user.has_permission('can_edit_course_roles', course):
             return response.forbidden('You cannot edit roles of this course.')
 
         resp = []
@@ -187,7 +187,7 @@ class RoleView(viewsets.ViewSet):
         course = Course.objects.get(pk=pk)
 
         # Users can only delete course roles with can_edit_course_roles
-        if not course.has_permission(request.user, 'can_edit_course_roles'):
+        if not request.user.has_permission('can_edit_course_roles', course):
             return response.forbidden(description="You have no permissions to delete this course role.")
 
         if name in ['Student', 'TA', 'Teacher']:
