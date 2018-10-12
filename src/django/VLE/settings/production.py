@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
+import json
+
 import VLE.settings.email as email_config
 from VLE.settings.base import *
 
@@ -26,6 +28,10 @@ EMAIL_PORT = '{{SMTP_PORT}}'
 LTI_SECRET = '{{LTI_SECRET}}'
 LTI_KEY = '{{LTI_KEY}}'
 LTI_ROLE_CONFIG_PATH = BASE_DIR + '/../lti/role_config.json'
+
+with open(LTI_ROLE_CONFIG_PATH) as role_config:
+    ROLES = json.load(role_config)
+    LTI_ROLES = dict((ROLES[k], k) for k in ROLES)
 
 BASELINK = '{{BASELINK}}'
 if BASELINK[-1] == '/':

@@ -12,6 +12,9 @@ test-front:
 	npm run lint --prefix ./src/vue
 	npm run test --prefix ./src/vue
 
+test-coverage:
+	bash -c "source ./venv/bin/activate && coverage run src/django/manage.py test src/django && coverage report -m && deactivate"
+
 test: test-front test-back
 
 #
