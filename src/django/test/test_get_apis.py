@@ -95,6 +95,24 @@ class GetApiTests(TestCase):
         test.set_up_participation(self.no_permission_user, self.course, 'Student')
         test.api_get_call(self, '/participations/unenrolled/', login, status=403, params={'course_id': self.course.pk})
 
+    def test_GDPR(self):
+        # Test normal user
+        login = test.logging_in(self, self.username, self.password)
+        _, _, other_user = test.set_up_user_and_auth('teacher', 'pass', 'teach@teach.com')
+
+        test.api_get_call(self, '/users/{0}/GDPR/'.format(other_user.pk), login, status=400)
+        test.api_get_call(self, '/users/0/GDPR/', login)
+        test.api_get_call(self, '/users/0/GDPR/', login, status=400)
+
+        # Test super user
+        self.user.is_superuser = True
+        self.user.save()
+
+        test.api_get_call(self, '/users/{0}/GDPR/'.format(other_user.pk), login, status=400)
+
+        self.user.is_superuser = False
+        self.user.save()
+
     def test_get_user_courses(self):
         """Test the get user courses function."""
         for course in test.set_up_courses('course', 4):

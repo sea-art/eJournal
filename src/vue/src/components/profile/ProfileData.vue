@@ -109,8 +109,12 @@ export default {
                     document.body.appendChild(link)
                     link.click()
                     link.remove()
-                }, _ => {
-                    this.$toasted.error('If you want to download userdata, please contact your supervisor.')
+                }, error => {
+                    if (error.response.status === 400) {
+                        this.$toasted.error('You have to wait a day before you can get your user data again.')
+                    } else {
+                        throw error
+                    }
                 })
                 .catch(_ => {
                     this.$toasted.error('Error creating file.')

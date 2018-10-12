@@ -4,6 +4,7 @@ user.py.
 In this file are all the user api requests.
 """
 import json
+from datetime import datetime, timedelta
 from smtplib import SMTPAuthenticationError
 
 import jwt
@@ -273,7 +274,6 @@ class UserView(viewsets.ViewSet):
         request.user.save()
         return response.success(description='Succesfully changed the password.')
 
-    # TODO: limit this request for end users, otherwise its really easy to DDOS the server.
     @action(methods=['get'], detail=True)
     def GDPR(self, request, pk):
         """Get a zip file of all the userdata.
@@ -297,9 +297,16 @@ class UserView(viewsets.ViewSet):
         user = User.objects.get(pk=pk)
 
         # Check the right permissions to get this users data, either be the user of the data or be an admin.
-        if not user.is_superuser:
-            return response.bad_request(description='You are not allowed to download all the user data. ' +
-                                        'If you want to download your own data, please contact your supervisor')
+        if not (user.is_superuser or request.user.id == pk):
+            return response.bad_request(description='You are not allowed to view this user\'s data.')
+
+        if request.user.id == pk and not user.is_superuser:
+            if request.user.last_gdpr and request.user.last_gdpr > datetime.now() - timedelta(days=1):
+                return response.bad_request(
+                    description='You have to wait a day before you can get your user data again.')
+            else:
+                request.user.last_gdpr = datetime.now()
+                request.user.save()
 
         profile = UserSerializer(user).data
         journals = Journal.objects.filter(user=pk)
