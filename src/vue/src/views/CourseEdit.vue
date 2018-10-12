@@ -346,7 +346,7 @@ export default {
         },
         searchUnenrolled () {
             if (this.unenrolledQuery.length < 5) {
-                this.$toasted.error('Search query needs to be longer than 5 numbers')
+                this.$toasted.error('Search query needs to be at least 5 numbers')
             } else {
                 participationAPI.getUnenrolled(this.cID, this.unenrolledQuery)
                     .then(users => {
@@ -396,9 +396,6 @@ export default {
             /* Switch view list with drop down menu and load unenrolled
                students when accessing other students at first time. */
             if (!this.viewEnrolled) {
-                // if (this.unenrolledLoaded === false) {
-                //     this.loadUnenrolledStudents()
-                // }
                 viewList = this.unenrolledStudents
             }
 
