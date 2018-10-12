@@ -5,7 +5,7 @@
                 ref="cropperModal"
                 title="Edit profile picture"
                 hide-footer>
-                    <cropper v-if="this.profileImageDataURL" :pictureUrl="this.profileImageDataURL" @newPicture="fileHandler" :refresh="updateCropper"/>
+                    <cropper v-if="this.profileImageDataURL" ref="cropperRef" :pictureUrl="this.profileImageDataURL" @newPicture="fileHandler"/>
             </b-modal>
             <div class="profile-portrait small-shadow">
                 <img :src="$store.getters['user/profilePicture']">
@@ -62,7 +62,7 @@ export default {
     },
     methods: {
         showCropperModal () {
-            this.updateCropper = !this.updateCropper
+            this.$refs.cropperRef.refreshPicture()
             this.$refs['cropperModal'].show()
         },
         hideCropper (ref) {

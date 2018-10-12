@@ -41,18 +41,13 @@ Vue.use(Croppa, { componentName: 'croppa' })
 
 export default {
     name: 'ImageCropper',
-    props: ['pictureUrl', 'refresh'],
+    props: ['pictureUrl'],
     components: {
         icon
     },
     data () {
         return {
             croppa: {}
-        }
-    },
-    watch: {
-        refresh: function () {
-            this.refreshPicture()
         }
     },
     methods: {
