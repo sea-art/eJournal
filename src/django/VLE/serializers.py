@@ -7,7 +7,7 @@ import statistics as st
 
 from rest_framework import serializers
 
-import VLE.permissions as perms
+import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
                         Format, Group, Journal, Node, Participation,
@@ -78,13 +78,13 @@ class OwnUserSerializer(serializers.ModelSerializer):
             assignment{id}: permissions
             general: permissions
         }"""
-        permissions = {}
+        perms = {}
         courses = user.participations.all()
 
-        permissions['general'] = perms.serialize_general_permissions(user)
+        perms['general'] = permissions.serialize_general_permissions(user)
 
         for course in courses:
-            permissions['course' + str(course.id)] = perms.serialize_course_permissions(user, course)
+            perms['course' + str(course.id)] = permissions.serialize_course_permissions(user, course)
 
         ids = []
         for course in courses:
@@ -96,9 +96,9 @@ class OwnUserSerializer(serializers.ModelSerializer):
         assignments = Assignment.objects.filter(id__in=ids)
 
         for assignment in assignments.distinct():
-            permissions['assignment' + str(assignment.id)] = perms.serialize_assignment_permissions(user, assignment)
+            perms['assignment' + str(assignment.id)] = permissions.serialize_assignment_permissions(user, assignment)
 
-        return permissions
+        return perms
 
 
 class CourseSerializer(serializers.ModelSerializer):

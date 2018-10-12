@@ -114,7 +114,6 @@ class RoleView(viewsets.ViewSet):
         try:
             role = factory.make_role_default_no_perms(request.data['name'], course, **request.data['permissions'])
         except Exception:
-            # Dubious code...
             return response.bad_request()
 
         serializer = RoleSerializer(role, many=False)
