@@ -75,13 +75,13 @@ class RoleView(viewsets.ViewSet):
                 if permissions.is_participant(user, course):
                     return response.forbidden('You are not a participant of this course.')
 
-                return response.success({'role': course.serialize_permissions(request.user)})
+                return response.success({'role': permissions.serialize_course_permissions(request.user, course)})
         # Return assignment permissions if assignment_id is set
         except (VLEMissingRequiredKey, VLEParamWrongType):
             assignment_id, = utils.required_typed_params(request.query_params, (int, 'assignment_id'))
             assignment = Assignment.objects.get(pk=assignment_id)
 
-            return response.success({'role': assignment.serialize_permissions(request.user)})
+            return response.success({'role': permissions.serialize_assignment_permissions(request.user, assignment)})
         # Returns keyerror if course_id nor assignment_id is set
 
     def create(self, request):

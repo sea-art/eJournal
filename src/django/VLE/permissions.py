@@ -93,7 +93,6 @@ def has_assignment_permission(user, permission, assignment):
     return permissions[permission]
 
 
-# TODO: Change to Course.users.contains(user)
 def is_participant(user, course):
     """Check whether the user is in a given course or not.
 
