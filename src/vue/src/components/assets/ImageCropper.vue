@@ -34,16 +34,14 @@
 
 <script>
 import icon from 'vue-awesome/components/Icon'
-import Vue from 'vue'
 import Croppa from 'vue-croppa'
-
-Vue.use(Croppa, { componentName: 'croppa' })
 
 export default {
     name: 'ImageCropper',
     props: ['pictureUrl'],
     components: {
-        icon
+        icon,
+        'croppa': Croppa.component
     },
     data () {
         return {
@@ -92,6 +90,7 @@ export default {
         .btn
             bottom: 0px
             opacity: 1
+    cursor: move
 
 .profile-portrait:after
     content: ""

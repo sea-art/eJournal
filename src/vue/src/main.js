@@ -7,7 +7,6 @@ import BootstrapVue from 'bootstrap-vue'
 import '../node_modules/bootstrap/dist/css/bootstrap.css'
 import '../node_modules/bootstrap-vue/dist/bootstrap-vue.css'
 import '../node_modules/flatpickr/dist/flatpickr.css'
-import '../node_modules/vue-croppa/dist/vue-croppa.css'
 
 import 'vue-awesome/icons/eye'
 import 'vue-awesome/icons/caret-up'
