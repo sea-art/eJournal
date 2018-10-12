@@ -1,4 +1,3 @@
-import json
 from datetime import datetime, timezone
 
 import oauth2
@@ -70,7 +69,7 @@ def roles_to_list(params):
     return roles
 
 
-def check_user_lti(request, roles):
+def check_user_lti(request):
     """Check is an user with the lti_id exists"""
     lti_user_id = request['user_id']
 
@@ -81,7 +80,7 @@ def check_user_lti(request, roles):
             user.profile_picture = request['custom_user_image']
             user.save()
 
-        if 'roles' in request and roles['Teacher'] in roles_to_list(request):
+        if 'roles' in request and settings.ROLES['Teacher'] in roles_to_list(request):
             user.is_teacher = True
             user.save()
         return user
@@ -112,7 +111,7 @@ def check_course_lti(request, user, role):
     if lti_couples.count() > 0:
         course = lti_couples[0].course
         if user not in course.users.all():
-            for r in json.load(open(settings.LTI_ROLE_CONFIG_PATH)):
+            for r in settings.ROLES:
                 if r in role or r == 'Student':
                     factory.make_participation(user, course, Role.objects.get(name=r, course=course))
                     break
@@ -129,7 +128,7 @@ def check_assignment_lti(request):
     return None
 
 
-def select_create_journal(request, user, assignment, roles):
+def select_create_journal(request, user, assignment):
     """
     Select or create the requested journal.
     """

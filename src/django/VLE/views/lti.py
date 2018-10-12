@@ -1,5 +1,4 @@
 import datetime
-import json
 
 import jwt
 from django.conf import settings
@@ -44,9 +43,7 @@ def get_lti_params_from_jwt(request, jwt_params):
     except jwt.exceptions.InvalidSignatureError:
         return response.unauthorized(description='Invalid LTI parameters given. Please retry from canvas.')
 
-    roles = json.load(open(settings.LTI_ROLE_CONFIG_PATH))
-    lti_roles = dict((roles[k], k) for k in roles)
-    role = [lti_roles[r] if r in lti_roles else r for r in lti.roles_to_list(lti_params)]
+    role = [settings.LTI_ROLES[r] if r in settings.LTI_ROLES else r for r in lti.roles_to_list(lti_params)]
     payload = dict()
     course = lti.check_course_lti(lti_params, user, role)
     if course is None:
@@ -86,7 +83,7 @@ def get_lti_params_from_jwt(request, jwt_params):
                 Either your teacher has not finished setting up the assignment, or it has been moved to another \
                 course. Please contact your course administrator.')
 
-    journal = lti.select_create_journal(lti_params, user, assignment, roles)
+    journal = lti.select_create_journal(lti_params, user, assignment)
     jID = journal.pk if journal is not None else None
     state = FINISH_T if permissions.has_permission(user, course.pk, 'can_grade') else FINISH_S
 
@@ -115,10 +112,9 @@ def lti_launch(request):
         key, secret, request)
 
     if authenticated:
-        roles = json.load(open(settings.LTI_ROLE_CONFIG_PATH))
         params = request.POST.dict()
 
-        user = lti.check_user_lti(params, roles)
+        user = lti.check_user_lti(params)
 
         params['exp'] = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
         lti_params = jwt.encode(params, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')

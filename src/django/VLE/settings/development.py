@@ -9,6 +9,8 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
+import json
+
 import VLE.settings.email as email_config
 from VLE.settings.base import *
 
@@ -23,6 +25,10 @@ EMAIL_PORT = email_config.EMAIL_PORT
 LTI_SECRET = '4339900ae5861f3086861ea492772864'
 LTI_KEY = '0cd500938a8e7414ccd31899710c98ce'
 LTI_ROLE_CONFIG_PATH = BASE_DIR + '/../../lti/role_config.json'
+
+with open(LTI_ROLE_CONFIG_PATH) as role_config:
+    ROLES = json.load(role_config)
+    LTI_ROLES = dict((ROLES[k], k) for k in ROLES)
 
 USER_MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024
 USER_MAX_TOTAL_STORAGE_BYTES = 100 * 1024 * 1024

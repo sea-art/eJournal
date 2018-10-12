@@ -5,7 +5,6 @@ Test lti launch.
 """
 
 import datetime
-import json
 import test.test_utils as test
 import time
 
@@ -28,7 +27,6 @@ class canEnterThroughLTI(TestCase):
 
     def setUp(self):
         """Setup."""
-        self.roles = json.load(open(settings.LTI_ROLE_CONFIG_PATH))
         self.factory = RequestFactory()
 
         self.request = {"oauth_consumer_key": settings.LTI_KEY,
@@ -67,7 +65,7 @@ class canEnterThroughLTI(TestCase):
         """Hopefully select a user."""
         selected_user = lti.check_user_lti({
             'user_id': self.user.lti_id,
-        }, self.roles)
+        })
         self.assertEquals(selected_user, self.user)
 
     def test_lti_launch_no_user_no_info(self):
@@ -198,7 +196,7 @@ class canEnterThroughLTI(TestCase):
         """Hopefully returns the lti course and assignment data."""
         login = test.logging_in(self, self.username, self.password)
         self.request["user_id"] = "awefd"
-        self.request["roles"] = self.roles["Student"]
+        self.request["roles"] = settings.ROLES["Student"]
         jwt_params = jwt.encode(self.request, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
         response = test.api_get_call(self, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), login=login, status=404)
         self.assertIn('course', response.content.decode('utf-8'))
@@ -217,7 +215,7 @@ class canEnterThroughLTI(TestCase):
         factory.make_course('TestCourse', 'aaaa', lti_id='asdf')
         login = test.logging_in(self, self.username, self.password)
         self.request["user_id"] = "awefd"
-        self.request["roles"] = self.roles["Student"]
+        self.request["roles"] = settings.ROLES["Student"]
         jwt_params = jwt.encode(self.request, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
         response = test.api_get_call(self, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), login=login, status=404)
         self.assertIn('assignment', response.content.decode('utf-8'))
@@ -238,7 +236,7 @@ class canEnterThroughLTI(TestCase):
         factory.make_assignment("TestAss", "TestDescr", lti_id='bughh')
         login = test.logging_in(self, self.username, self.password)
         self.request["user_id"] = "awefd"
-        self.request["roles"] = self.roles["Student"]
+        self.request["roles"] = settings.ROLES["Student"]
         jwt_params = jwt.encode(self.request, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
         response = test.api_get_call(self, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), login=login, status=200)
         self.assertIn('"state": "{0}"'.format(lti_view.FINISH_S), response.content.decode('utf-8'))
@@ -273,32 +271,30 @@ class canEnterThroughLTI(TestCase):
             'custom_course_id': Lti_ids.objects.filter(course=course)[0].lti_id,
         },
             user=self.user,
-            role=self.roles['Teacher']
+            role=settings.ROLES['Teacher']
         )
         self.assertEquals(selected_course, course)
 
     def test_select_journal(self):
         """Hopefully select a journal."""
         selected_journal = lti.select_create_journal({
-            'roles': self.roles['Student'],
+            'roles': settings.ROLES['Student'],
             'lis_result_sourcedid': "267-686-2694-585-0afc8c37342732c97b011855389af1f2c2f6d552",
             'lis_outcome_service_url': "https://uvadlo-tes.instructure.com/api/lti/v1/tools/267/grade_passback"
         },
             user=self.user,
-            assignment=self.created_assignment,
-            roles=self.roles
+            assignment=self.created_assignment
         )
         self.assertEquals(selected_journal, self.created_journal)
 
     def test_select_journal_no_assign(self):
         """Hopefully select None."""
         selected_journal = lti.select_create_journal({
-            'roles': self.roles['Student'],
+            'roles': settings.ROLES['Student'],
             'lis_result_sourcedid': "267-686-2694-585-0afc8c37342732c97b011855389af1f2c2f6d552",
             'lis_outcome_service_url': "https://uvadlo-tes.instructure.com/api/lti/v1/tools/267/grade_passback"
         },
             user=self.user,
-            assignment=None,
-            roles=self.roles
+            assignment=None
         )
         self.assertEquals(selected_journal, None)
