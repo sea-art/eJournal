@@ -13,9 +13,10 @@ const getters = {
 
         if (givenKeyLevel && id) {
             if (permissions[givenKeyLevel + id] === undefined) { throw Error('Permission type input error, no match for the given key: ' + givenKeyLevel + id + '.') }
+            if (permissions[givenKeyLevel + id][permission] === undefined) { throw Error('Permission ' + permission + ' is not a valid permission for the context: ' + givenKeyLevel + id + '.') }
             return permissions[givenKeyLevel + id][permission]
         } else if (givenKeyLevel) {
-            return permissions[givenKeyLevel]
+            return permissions[givenKeyLevel][permission]
         } else if ('cID' in routeParams && types.COURSE_LEVEL_PERMISSIONS.has(permission)) {
             return permissions['course' + routeParams.cID][permission]
         } else if ('aID' in routeParams && types.ASSIGNMENT_LEVEL_PERMISSIONS.has(permission)) {
