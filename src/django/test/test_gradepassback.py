@@ -4,25 +4,12 @@ test_gradepassback.py.
 Test the lti grade passback.
 """
 from VLE.lti_grade_passback import GradePassBackRequest
-# from django.http import HttpResponse
 from django.conf import settings
-from django.test import LiveServerTestCase
-# from django.test.utils import override_settings
-# from django.urls import path
+from django.test import TestCase
 import VLE.factory as factory
 
 
-# def grade_passback_answer():
-#     return HttpResponse(b'<?xml version="1.0" encoding="UTF-8"?>\n<imsx_POXEnvelopeResponse xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">\n        <imsx_POXHeader>\n          <imsx_POXResponseHeaderInfo>\n            <imsx_version>V1.0</imsx_version>\n            <imsx_messageIdentifier/>\n            <imsx_statusInfo>\n              <imsx_codeMajor>success</imsx_codeMajor>\n              <imsx_severity>status</imsx_severity>\n              <imsx_description/>\n              <imsx_messageRefIdentifier>2</imsx_messageRefIdentifier>\n              <imsx_operationRefIdentifier>replaceResult</imsx_operationRefIdentifier>\n            </imsx_statusInfo>\n          </imsx_POXResponseHeaderInfo>\n        </imsx_POXHeader>\n        <imsx_POXBody><replaceResultResponse/></imsx_POXBody>\n      </imsx_POXEnvelopeResponse>\n')
-
-
-# urlpatterns = [
-#     path('grade_passback', grade_passback_answer, name='grade_passback_answer'),
-# ]
-
-
-# @override_settings(ROOT_URLCONF=__name__)
-class GradePassBackRequestXMLTest(LiveServerTestCase):
+class GradePassBackRequestXMLTest(TestCase):
     """Test XML grade passpack.
 
     Test if the gradepassback XML can be created.
@@ -114,10 +101,33 @@ class GradePassBackRequestXMLTest(LiveServerTestCase):
         now = GradePassBackRequest.get_message_id_and_increment()
         self.assertTrue(int(now) + 1 == int(GradePassBackRequest.get_message_id_and_increment()))
 
-    # def test_replace_result(self):
-    #     """"""
-    #     print(replace_result(self.journal))
-    #
-    # def test_needs_grading(self):
-    #     """"""
-    #     print(needs_grading(self.journal, 0))
+    def test_parse_return_xml(self):
+        """"""
+        passback = GradePassBackRequest(settings.LTI_SECRET, settings.LTI_KEY, self.journal)
+        xml = b'<?xml version="1.0" encoding="UTF-8"?>\
+<imsx_POXEnvelopeResponse xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">\
+<imsx_POXHeader><imsx_POXResponseHeaderInfo><imsx_version>V1.0</imsx_version><imsx_messageIdentifier/>\
+<imsx_statusInfo><imsx_codeMajor>success</imsx_codeMajor><imsx_severity>status</imsx_severity>\
+<imsx_description>grade replaced</imsx_description><imsx_messageRefIdentifier>2</imsx_messageRefIdentifier>\
+<imsx_operationRefIdentifier>replaceResult</imsx_operationRefIdentifier></imsx_statusInfo>\
+</imsx_POXResponseHeaderInfo></imsx_POXHeader><imsx_POXBody>\
+<replaceResultResponse/></imsx_POXBody></imsx_POXEnvelopeResponse>'
+        data = passback.parse_return_xml(xml)
+        self.assertEqual(data['severity'], 'status')
+        self.assertEqual(data['code_mayor'], 'success')
+        self.assertEqual(data['description'],  'grade replaced')
+
+    def test_parse_return_empty_xml(self):
+        """"""
+        passback = GradePassBackRequest(settings.LTI_SECRET, settings.LTI_KEY, self.journal)
+        xml = b'<?xml version="1.0" encoding="UTF-8"?>\
+<imsx_POXEnvelopeResponse xmlns="http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0">\
+<imsx_POXHeader><imsx_POXResponseHeaderInfo><imsx_version>V1.0</imsx_version><imsx_messageIdentifier/>\
+<imsx_statusInfo><imsx_messageRefIdentifier>2</imsx_messageRefIdentifier>\
+<imsx_operationRefIdentifier>replaceResult</imsx_operationRefIdentifier></imsx_statusInfo>\
+</imsx_POXResponseHeaderInfo></imsx_POXHeader><imsx_POXBody>\
+<replaceResultResponse/></imsx_POXBody></imsx_POXEnvelopeResponse>'
+        data = passback.parse_return_xml(xml)
+        self.assertEqual(data['severity'], None)
+        self.assertEqual(data['code_mayor'], None)
+        self.assertEqual(data['description'],  'not found')
