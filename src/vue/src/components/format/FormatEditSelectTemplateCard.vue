@@ -76,21 +76,13 @@ export default {
     props: ['currentPreset', 'templates'],
     data () {
         return {
-            templateNames: [],
-            prevPreset: []
+            templateNames: []
         }
     },
     watch: {
         currentPreset: {
             handler: function (newPreset) {
-                var tempPreset = JSON.stringify(newPreset)
-                console.log(this.oldPreset)
-                console.log(newPreset)
-                console.log('fin')
-                if (tempPreset !== this.oldPreset) {
-                    this.$emit('changed')
-                    this.oldPreset = tempPreset
-                }
+                this.$emit('changed')
             },
             deep: true
         }

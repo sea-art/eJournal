@@ -1,7 +1,6 @@
 <template>
     <b-card class="no-hover settings-card" :class="$root.getBorderClass($route.params.cID)">
         <h2>Assignment details</h2>
-        {{assignmentDetails}}
         <b-form @submit.prevent="onSubmit">
             <h2 class="field-heading">Assignment name</h2>
             <b-input class="multi-form theme-input"
@@ -57,21 +56,10 @@ export default {
         'text-editor': textEditor,
         icon
     },
-    data () {
-        return {
-            prevAssignmentDetails: []
-        }
-    },
     watch: {
         assignmentDetails: {
             handler: function (newAssignmentDetails) {
-                var tempDetails = JSON.stringify(newAssignmentDetails)
-
-                if (tempDetails !== this.prevAssignmentDetails) {
-                    console.log('ghallo')
-                    this.prevAssignmentDetails = tempDetails
-                    this.$emit('changed')
-                }
+                this.$emit('changed')
             },
             deep: true
         }
