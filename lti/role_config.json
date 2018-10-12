@@ -1,5 +1,5 @@
 {
+  "Teacher": "instructor",
   "TA": "teachingAssistant",
-  "Student": "learner",
-  "Teacher": "instructor"
+  "Student": "learner"
 }

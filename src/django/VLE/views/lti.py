@@ -45,7 +45,7 @@ def get_lti_params_from_jwt(request, jwt_params):
 
     roles = json.load(open(settings.LTI_ROLE_CONFIG_PATH))
     lti_roles = dict((roles[k], k) for k in roles)
-    role = lti_roles[lti.roles_to_list(lti_params)]
+    role = [lti_roles[r] for r in lti.roles_to_list(lti_params)]
 
     payload = dict()
     course = lti.check_course_lti(lti_params, user, role)

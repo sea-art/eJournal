@@ -5,6 +5,7 @@ import oauth2
 from VLE.models import User, Role, Journal, Lti_ids
 import VLE.factory as factory
 from datetime import datetime, timezone
+import json
 
 
 class OAuthRequestValidater(object):
@@ -111,7 +112,10 @@ def check_course_lti(request, user, role):
     if lti_couples.count() > 0:
         course = lti_couples[0].course
         if user not in course.users.all():
-            factory.make_participation(user, course, Role.objects.get(name=role, course=course))
+            for r in json.load(open(settings.LTI_ROLE_CONFIG_PATH)):
+                if r in role:
+                    factory.make_participation(user, course, Role.objects.get(name=r, course=course))
+                    break
         return course
     return None
 

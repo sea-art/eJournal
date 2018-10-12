@@ -131,6 +131,22 @@ class canEnterThroughLTI(TestCase):
         self.assertIn('state={0}'.format(lti_view.LOGGED_IN), response.url)
         self.assertTrue(User.objects.filter(lti_id='awefd')[0].is_teacher)
 
+    def test_lti_launch_no_roles(self):
+        """Hopefully gives redirect with start = LOGGED_IN."""
+        self.request["oauth_timestamp"] = str(int(time.time()))
+        self.request["oauth_nonce"] = oauth2.generate_nonce()
+        self.request["user_id"] = "awefd"
+        self.request["roles"] = ''
+        oauth_request = oauth2.Request.from_request(
+            'POST', 'http://testserver/lti/launch', parameters=self.request
+        )
+        signature = oauth2.SignatureMethod_HMAC_SHA1().sign(oauth_request, self.oauth_consumer, {}).decode('utf-8')
+        self.request['oauth_signature'] = signature
+        request = self.factory.post('http://127.0.0.1:8000/lti/launch', self.request)
+        response = lti_view.lti_launch(request)
+        self.assertEquals(response.status_code, 302)
+        self.assertIn('state={0}'.format(lti_view.LOGGED_IN), response.url)
+
     def test_lti_launch_wrong_signature(self):
         """Hopefully gives redirect with start = BAD_AUTH."""
         self.request["oauth_timestamp"] = str(int(time.time()))
