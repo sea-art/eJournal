@@ -2,7 +2,6 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 import VLE.factory as factory
-import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
 from VLE.models import Course, Group, Journal, Participation, Role, User
@@ -60,7 +59,7 @@ class ParticipationView(viewsets.ViewSet):
         course = Course.objects.get(pk=pk)
         participation = Participation.objects.get(user=request.user, course=course)
 
-        if not permissions.is_participant(request.user, course):
+        if not request.user.is_participant(course):
             return response.forbidden('You are not participating in this course.')
 
         serializer = ParticipationSerializer(participation)
@@ -99,7 +98,7 @@ class ParticipationView(viewsets.ViewSet):
         if not request.user.has_permission('can_add_course_users', course):
             return response.forbidden('You cannot add users to this course.')
 
-        if permissions.is_participant(user, course):
+        if user.is_participant(course):
             return response.bad_request('User already participates in the course.')
 
         role = Role.objects.get(name=role_name, course=course)

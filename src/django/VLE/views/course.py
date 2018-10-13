@@ -7,7 +7,6 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 import VLE.factory as factory
-import VLE.permissions as permissions
 import VLE.serializers as serialize
 import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
@@ -88,7 +87,7 @@ class CourseView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=pk)
 
-        if not permissions.is_participant(request.user, course):
+        if not request.user.is_participant(course):
             return response.forbidden('You are not participating in this course.')
 
         serializer = self.serializer_class(course, many=False)
@@ -153,7 +152,7 @@ class CourseView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=pk)
 
-        if not permissions.is_participant(request.user, course):
+        if not request.user.is_participant(course):
             return response.unauthorized(description="You are unauthorized to view this course.")
 
         if not request.user.has_permission('can_delete_course', course):

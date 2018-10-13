@@ -49,8 +49,8 @@ class CommentView(viewsets.ViewSet):
         entry = Entry.objects.get(pk=entry_id)
         assignment = entry.node.journal.assignment
 
-        if entry.node.journal.user != request.user and not \
-                request.user.has_permission('can_view_assignment_journals', assignment):
+        if entry.node.journal.user != request.user and \
+           not request.user.has_permission('can_view_assignment_journals', assignment):
             return response.forbidden('You are not allowed to view journals of other participants.')
 
         if request.user.has_permission('can_grade', assignment):
@@ -90,8 +90,8 @@ class CommentView(viewsets.ViewSet):
         assignment = Assignment.objects.get(journal=journal)
 
         if not request.user.has_permission('can_comment', assignment) or \
-           not (request.user.has_permission('can_view_assignment_journals', assignment) or
-                journal.user == request.user):
+           not request.user.has_permission('can_view_assignment_journals', assignment) or \
+           journal.user != request.user:
             return response.forbidden('You are not allowed to comment on this journal')
 
         published = published or not request.user.has_permission('can_grade', assignment)

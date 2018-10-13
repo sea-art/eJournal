@@ -8,7 +8,6 @@ from rest_framework.decorators import action
 
 import VLE.factory as factory
 import VLE.lti_grade_passback as lti_grade
-import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
 from VLE.models import Assignment, Course, Journal, Lti_ids
@@ -50,14 +49,14 @@ class AssignmentView(viewsets.ViewSet):
         course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
         course = Course.objects.get(pk=course_id)
 
-        if not permissions.is_participant(request.user, course):
+        if not request.user.is_participant(course):
             return response.forbidden('You are not participating in this course.')
 
         # Consider all assignments that the user is in, or can grade.
         ids = []
         for assignment in course.assignment_set.all():
             if request.user.has_permission('can_grade', assignment) or \
-               assignment.journal_set.filter(user=request.user).exists():
+               request.user.has_permission('can_have_journal', assignment):
                 ids.append(assignment.id)
 
         queryset = Assignment.objects.filter(id__in=ids)
@@ -153,7 +152,7 @@ class AssignmentView(viewsets.ViewSet):
         except (VLEMissingRequiredKey, VLEParamWrongType):
             course = None
 
-        if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk).exists():
+        if not request.user.is_participant(assignment):
             return response.forbidden("You cannot view this assignment.")
 
         get_journals = request.user.has_permission('can_grade', assignment)
@@ -289,7 +288,7 @@ class AssignmentView(viewsets.ViewSet):
 
         # TODO: change query to a query that selects all upcoming assignments connected to the user.
         for course in courses:
-            if permissions.is_participant(request.user, course):
+            if request.user.is_participant(course):
                 for assignment in Assignment.objects.filter(courses=course.id).all():
                     deadline_list.append(
                         AssignmentSerializer(assignment, context={'user': request.user, 'course': course}).data)
@@ -312,16 +311,16 @@ class AssignmentView(viewsets.ViewSet):
 
         assignment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
         published, = utils.required_params(request.data, 'published')
-        assign = Assignment.objects.get(pk=assignment_id)
+        assignment = Assignment.objects.get(pk=assignment_id)
 
-        if not request.user.has_permission('can_publish_grades', assign):
+        if not request.user.has_permission('can_publish_grades', assignment):
             return response.forbidden('You are not allowed to publish grades for this assignment.')
 
-        utils.publish_all_assignment_grades(assign, published)
+        utils.publish_all_assignment_grades(assignment, published)
 
-        for journ in Journal.objects.filter(assignment=assign):
-            if journ.sourcedid is not None and journ.grade_url is not None:
-                lti_grade.replace_result(journ)
+        for journal in Journal.objects.filter(assignment=assignment):
+            if journal.sourcedid is not None and journal.grade_url is not None:
+                lti_grade.replace_result(journal)
 
         return response.success(payload={'new_published': published})
 

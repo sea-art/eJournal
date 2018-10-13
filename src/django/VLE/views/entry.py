@@ -48,6 +48,7 @@ class EntryView(viewsets.ViewSet):
         node_id, = utils.optional_params(request.data, "node_id")
 
         journal = Journal.objects.get(pk=journal_id, user=request.user)
+        assignment = journal.assignment
         template = Template.objects.get(pk=template_id)
 
         if node_id:
@@ -55,14 +56,14 @@ class EntryView(viewsets.ViewSet):
 
             if not (node.preset and node.preset.forced_template == template):
                 return response.forbidden('Invalid template for preset node.')
-        elif not journal.assignment.format.available_templates.all().filter(pk=template.pk).exists():
+        elif not assignment.format.available_templates.all().filter(pk=template.pk).exists():
             return response.forbidden('Entry template is not available.')
 
-        if not request.user.has_permission('can_have_journal', journal.assignment):
+        if not request.user.has_permission('can_have_journal', assignment):
             return response.forbidden('You are not allowed to create an entry for this journal.')
 
-        if (journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or \
-           (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now()):
+        if (assignment.unlock_date and assignment.unlock_date > datetime.now()) or \
+           (assignment.lock_date and assignment.lock_date < datetime.now()):
             return response.forbidden('The assignment is locked, no entries can be added.')
 
         # If node id is passed, the entry should be attached to a pre-existing node (entrydeadline node)
@@ -74,7 +75,7 @@ class EntryView(viewsets.ViewSet):
                 return response.bad_request('Passed node already contains an entry.')
 
             if node.preset.deadline < now() or \
-               (journal.assignment.due_date and journal.assignment.due_date < datetime.now()):
+               (assignment.due_date and assignment.due_date < datetime.now()):
                 return response.bad_request('The deadline has already passed.')
 
             node.entry = factory.make_entry(template)
@@ -94,7 +95,7 @@ class EntryView(viewsets.ViewSet):
             created_content = factory.make_content(node.entry, data, field)
 
             if field.type in ['i', 'f', 'p']:
-                user_file = file_handling.get_temp_user_file(request.user, journal.assignment, content['data'])
+                user_file = file_handling.get_temp_user_file(request.user, assignment, content['data'])
                 if user_file is None:
                     node.entry.delete()
                     return response.bad_request('One of your files was not correctly uploaded, please try gain.')
@@ -145,20 +146,21 @@ class EntryView(viewsets.ViewSet):
         grade, published, content_list = utils.optional_params(request.data, "grade", "published", "content")
 
         journal = entry.node.journal
+        assignment = journal.assignment
 
-        if grade and not request.user.has_permission('can_grade', journal.assignment):
+        if grade and not request.user.has_permission('can_grade', assignment):
             return response.forbidden('You cannot grade or publish entries.')
         elif isinstance(grade, (int, float)) and grade < 0:
             return response.bad_request('Grade must be greater or equal to zero.')
         elif grade:
             entry.grade = grade
 
-        if published is not None and not request.user.has_permission('can_publish_grades', journal.assignment):
+        if published is not None and not request.user.has_permission('can_publish_grades', assignment):
             return response.forbidden('You cannot publish entries.')
 
-        if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or
-            (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
-           not request.user.has_permission('can_view_assignment_journals', journal.assignment):
+        if ((assignment.unlock_date and assignment.unlock_date > datetime.now()) or
+            (assignment.lock_date and assignment.lock_date < datetime.now())) and \
+           not request.user.has_permission('can_view_assignment_journals', assignment):
             return response.bad_request('The assignment is locked and unavailable for students.')
 
         if published is not None:
@@ -175,14 +177,14 @@ class EntryView(viewsets.ViewSet):
             if not (journal.user == request.user or request.user.is_superuser):
                 response.forbidden('You are not allowed to edit someone else\'s entry.')
 
-            if not request.user.has_permission('can_have_journal', journal.assignment):
+            if not request.user.has_permission('can_have_journal', assignment):
                 return response.forbidden('You are not allowed to have a journal.')
 
             if entry.grade is not None:
                 return response.bad_request('You are not allowed to edit graded entries.')
 
             if entry.node.type == Node.ENTRYDEADLINE and entry.node.preset.deadline < now() or \
-               (journal.assignment.due_date and journal.assignment.due_date < datetime.now()):
+               (assignment.due_date and assignment.due_date < datetime.now()):
                 return response.bad_request('You are not allowed to edit entries past their due date.')
 
             for content in content_list:
@@ -198,7 +200,7 @@ class EntryView(viewsets.ViewSet):
                     old_content.delete()
                     continue
 
-                entry_utils.patch_entry_content(request.user, entry, old_content, field, data, journal.assignment)
+                entry_utils.patch_entry_content(request.user, entry, old_content, field, data, assignment)
 
             file_handling.remove_temp_user_files(request.user)
 
@@ -243,6 +245,7 @@ class EntryView(viewsets.ViewSet):
 
         entry = Entry.objects.get(pk=pk)
         journal = entry.node.journal
+        assignment = journal.assignment
 
         if not (journal.user == request.user or request.user.is_superuser):
             return response.forbidden('You are not allowed to delete someone else\'s entry.')
@@ -251,18 +254,18 @@ class EntryView(viewsets.ViewSet):
             return response.forbidden('You cannot delete graded entries.')
 
         if entry.node.type == Node.ENTRYDEADLINE and \
-           request.user.has_permission('can_have_journal', journal.assignment):
+           request.user.has_permission('can_have_journal', assignment):
             return response.forbidden('You cannot delete deadlines.')
 
-        if journal.assignment.due_date and journal.assignment.due_date < datetime.now() and \
-           request.user.has_permission('can_have_journal', journal.assignment):
-            return response.forbidden('You cannot delete an entry whose deadline deadline has already passed.')
+        if assignment.due_date and assignment.due_date < datetime.now() and \
+           request.user.has_permission('can_have_journal', assignment):
+            return response.forbidden('You cannot delete an entry for which the deadline has already passed.')
 
-        if (journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or \
-           (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now()) and \
-           request.user.has_permission('can_have_journal', journal.assignment):
+        if (assignment.unlock_date and assignment.unlock_date > datetime.now()) or \
+           (assignment.lock_date and assignment.lock_date < datetime.now()) and \
+           request.user.has_permission('can_have_journal', assignment):
             return response.forbidden('You cannot delete a locked entry.')
 
         entry.node.delete()
         entry.delete()
-        return response.success(description='Sucesfully deleted entry.')
+        return response.success(description='Successfully deleted entry.')

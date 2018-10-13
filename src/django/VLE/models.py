@@ -138,6 +138,13 @@ class User(AbstractUser):
             return permissions.has_assignment_permission(self, permission, obj)
         raise VLEProgrammingError("Permission object must be of type None, Course or Assignment.")
 
+    def is_participant(self, obj):
+        if isinstance(obj, Course):
+            return Course.objects.filter(pk=obj.pk, users=self).exists()
+        if isinstance(obj, Assignment):
+            return Assignment.objects.filter(pk=obj.pk, courses__users=self).exists()
+        raise VLEProgrammingError("obj must be of type Course or Assignment.")
+
     def __str__(self):
         """toString."""
         return self.username + " (" + str(self.id) + ")"

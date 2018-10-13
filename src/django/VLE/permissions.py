@@ -53,7 +53,7 @@ def has_course_permission(user, permission, course):
     if user.is_superuser:
         return True
 
-    if not is_participant(user, course):
+    if not user.is_participant(course):
         return False
 
     role = VLE.models.Participation.objects.get(user=user, course=course).role
@@ -81,7 +81,7 @@ def has_assignment_permission(user, permission, assignment):
 
     permissions = defaultdict(lambda: False)
     for course in assignment.courses.all():
-        if is_participant(user, course):
+        if user.is_participant(course):
             role = VLE.models.Participation.objects.get(user=user, course=course).role
             role_permissions = model_to_dict(role)
             permissions = {key: (role_permissions[key] or permissions[key]) for key in ASSIGNMENT_PERMISSIONS}
@@ -91,18 +91,6 @@ def has_assignment_permission(user, permission, assignment):
         permissions['can_have_journal'] = False
 
     return permissions[permission]
-
-
-def is_participant(user, course):
-    """Check whether the user is in a given course or not.
-
-    Arguments:
-    user -- the user to be checked if in a course or not
-    course -- the course to check with
-
-    Returns True if the user is in the course, else False.
-    """
-    return VLE.models.Participation.objects.filter(user=user, course=course).exists()
 
 
 def is_user_supervisor_of(supervisor, user):

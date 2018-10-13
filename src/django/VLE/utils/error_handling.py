@@ -36,3 +36,6 @@ class ErrorMiddleware:
         elif isinstance(exception, SMTPAuthenticationError):
             return response.internal_server_error(
                 description='Mailserver is not configured correctly, please contact a server admin.')
+        elif isinstance(exception, VLEProgrammingError):
+            return response.internal_server_error(
+                description='Someone made a programming mistake. Please contact a server admin.')
