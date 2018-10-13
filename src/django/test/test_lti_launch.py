@@ -44,6 +44,7 @@ class canEnterThroughLTI(TestCase):
                         "context_label": "aaaa",
                         "lti_message_type": "basic-lti-launch-request",
                         "lti_version": "LTI-1p0",
+                        'custom_username': 'Test',
                         "roles": "Instructor",
                         "custom_user_image": "https://uvadlo-tes.instructure.com/images/thumbnails/11601/\
 6ivT7povCYWoXPCVOSnfPqWADsLktcGXTXkAUYDv",
@@ -69,7 +70,7 @@ class canEnterThroughLTI(TestCase):
         self.assertEquals(selected_user, self.user)
 
     def test_lti_launch_no_user_no_info(self):
-        """Hopefully gives redirect with start = NO_USER."""
+        """Hopefully gives redirect with state = NO_USER."""
         self.request["oauth_timestamp"] = str(int(time.time()))
         self.request["oauth_nonce"] = oauth2.generate_nonce()
         oauth_request = oauth2.Request.from_request(
@@ -83,7 +84,7 @@ class canEnterThroughLTI(TestCase):
         self.assertIn('state={0}'.format(lti_view.NO_USER), response.url)
 
     def test_lti_launch_no_user(self):
-        """Hopefully gives redirect with start = NO_USER."""
+        """Hopefully gives redirect with state = NO_USER."""
         self.request["oauth_timestamp"] = str(int(time.time()))
         self.request["oauth_nonce"] = oauth2.generate_nonce()
         self.request["custom_user_full_name"] = "testpersoon voor Science"
@@ -100,7 +101,7 @@ class canEnterThroughLTI(TestCase):
         self.assertIn('state={0}'.format(lti_view.NO_USER), response.url)
 
     def test_lti_launch_user(self):
-        """Hopefully gives redirect with start = LOGGED_IN."""
+        """Hopefully gives redirect with state = LOGGED_IN."""
         self.request["oauth_timestamp"] = str(int(time.time()))
         self.request["oauth_nonce"] = oauth2.generate_nonce()
         self.request["user_id"] = "awefd"
@@ -115,7 +116,7 @@ class canEnterThroughLTI(TestCase):
         self.assertIn('state={0}'.format(lti_view.LOGGED_IN), response.url)
 
     def test_lti_launch_multiple_roles(self):
-        """Hopefully gives redirect with start = LOGGED_IN."""
+        """Hopefully gives redirect with state = LOGGED_IN."""
         self.request["oauth_timestamp"] = str(int(time.time()))
         self.request["oauth_nonce"] = oauth2.generate_nonce()
         self.request["user_id"] = "awefd"
@@ -132,7 +133,7 @@ class canEnterThroughLTI(TestCase):
         self.assertTrue(User.objects.filter(lti_id='awefd')[0].is_teacher)
 
     def test_lti_launch_unknown_role(self):
-        """Hopefully gives redirect with start = LOGGED_IN."""
+        """Hopefully gives redirect with state = LOGGED_IN."""
         self.request["oauth_timestamp"] = str(int(time.time()))
         self.request["oauth_nonce"] = oauth2.generate_nonce()
         self.request["user_id"] = "awefd"
@@ -148,7 +149,7 @@ class canEnterThroughLTI(TestCase):
         self.assertIn('state={0}'.format(lti_view.LOGGED_IN), response.url)
 
     def test_lti_launch_wrong_signature(self):
-        """Hopefully gives redirect with start = BAD_AUTH."""
+        """Hopefully gives redirect with state = BAD_AUTH."""
         self.request["oauth_timestamp"] = str(int(time.time()))
         self.request["oauth_nonce"] = oauth2.generate_nonce()
         self.request["user_id"] = "awefd"
@@ -157,6 +158,21 @@ class canEnterThroughLTI(TestCase):
         response = lti_view.lti_launch(request)
         self.assertEquals(response.status_code, 302)
         self.assertIn('state={0}'.format(lti_view.BAD_AUTH), response.url)
+
+    def test_lti_launch_key_error(self):
+        """Hopefully gives redirect with state = KEY_ERR."""
+        self.request["oauth_timestamp"] = str(int(time.time()))
+        self.request["oauth_nonce"] = oauth2.generate_nonce()
+        del self.request['custom_username']
+        oauth_request = oauth2.Request.from_request(
+            'POST', 'http://testserver/lti/launch', parameters=self.request
+        )
+        signature = oauth2.SignatureMethod_HMAC_SHA1().sign(oauth_request, self.oauth_consumer, {}).decode('utf-8')
+        self.request['oauth_signature'] = signature
+        request = self.factory.post('http://127.0.0.1:8000/lti/launch', self.request)
+        response = lti_view.lti_launch(request)
+        self.assertEquals(response.status_code, 302)
+        self.assertIn('state={0}'.format(lti_view.KEY_ERR), response.url)
 
     def test_get_lti_params_from_jwt_invalid(self):
         """Hopefully returns the lti course and assignment data."""
@@ -210,6 +226,15 @@ class canEnterThroughLTI(TestCase):
         response = test.api_get_call(self, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), login=login, status=200)
         self.assertIn('"state": "{0}"'.format(lti_view.NEW_ASSIGN), response.content.decode('utf-8'))
 
+    def test_get_lti_params_from_jwt_no_context_label(self):
+        """Hopefully returns the lti course data."""
+        login = test.logging_in(self, self.username, self.password)
+        self.request["user_id"] = "awefd"
+        del self.request['context_label']
+        jwt_params = jwt.encode(self.request, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
+        response = test.api_get_call(self, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), login=login, status=200)
+        self.assertIn('"state": "{0}"'.format(lti_view.NEW_COURSE), response.content.decode('utf-8'))
+
     def test_get_lti_params_from_jwt_assignment_student(self):
         """Hopefully returns the lti assignment data."""
         factory.make_course('TestCourse', 'aaaa', lti_id='asdf')
@@ -262,6 +287,15 @@ class canEnterThroughLTI(TestCase):
         jwt_params = jwt.encode(self.request, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
         response = test.api_get_call(self, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), login=login, status=200)
         self.assertIn('"state": "{0}"'.format(lti_view.FINISH_S), response.content.decode('utf-8'))
+
+    def test_get_lti_params_from_jwt_key_Error(self):
+        """Hopefully returns the lti course data."""
+        login = test.logging_in(self, self.username, self.password)
+        self.request["user_id"] = "awefd"
+        del self.request['custom_course_id']
+        jwt_params = jwt.encode(self.request, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
+        response = test.api_get_call(self, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), login=login, status=400)
+        self.assertIn('KeyError', response.content.decode('utf-8'))
 
     def test_select_course_with_participation(self):
         """Hopefully select a course."""
