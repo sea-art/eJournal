@@ -30,6 +30,7 @@ export default {
             /* Possible states for the control flow */
             states: {
                 state: '',
+                key_error: '-2',
                 bad_auth: '-1',
                 no_user: '0',
                 logged_in: '1'
@@ -63,6 +64,16 @@ export default {
                     reasonPhrase: 'Network authorization required',
                     description: `Invalid credentials from the LTI environment.
                                   Please contact the system administrator.`
+                }
+            })
+        } else if (this.$route.query.state === this.states.key_error) {
+            this.$router.push({
+                name: 'ErrorPage',
+                params: {
+                    code: '400',
+                    reasonPhrase: 'Missing parameter in LTI request',
+                    description: this.$route.query.description + `
+                    Please contact the system administrator.`
                 }
             })
         } else {
