@@ -211,6 +211,9 @@ class ParticipationView(viewsets.ViewSet):
             return response.unauthorized()
 
         course_id, unenrolled_query = utils.required_params(request.query_params, 'course_id', 'unenrolled_query')
+        if ' ' in unenrolled_query:
+            first_name = unenrolled_query.split(' ', 1)[0]
+            last_name = unenrolled_query.split(' ', 1)[1]
 
         if len(unenrolled_query) < 5:
             return response.bad_request('Query is too short.')
@@ -224,5 +227,13 @@ class ParticipationView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to add course users.')
 
         ids_in_course = course.participation_set.all().values('user__id')
-        users = User.objects.all().exclude(id__in=ids_in_course).filter(username__contains=unenrolled_query)
-        return response.success({'participants': UserSerializer(users, many=True).data})
+        users = User.objects.all().exclude(id__in=ids_in_course)
+
+        found_users = users.filter(username__contains=unenrolled_query) | \
+            users.filter(first_name__contains=unenrolled_query) | \
+            users.filter(last_name__contains=unenrolled_query)
+
+        if ' ' in unenrolled_query:
+            found_users = found_users | users.filter(first_name__contains=first_name, last_name__contains=last_name)
+
+        return response.success({'participants': UserSerializer(found_users, many=True).data})

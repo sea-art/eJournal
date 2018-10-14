@@ -92,7 +92,7 @@
                         class="theme-input flex-grow-1 no-width multi-form mr-2"
                         type="text"
                         v-model="unenrolledQuery"
-                        placeholder="Username with at least 5 characters"
+                        placeholder="Name or username with at least 5 characters"
                         v-on:keyup.enter="searchUnenrolled"/>
                     <b-button
                         v-if="!viewEnrolled"
@@ -352,6 +352,7 @@ export default {
             this.numTeachers = this.participants.filter(p => p.role === 'Teacher').length
         },
         searchUnenrolled () {
+            this.unenrolledQuery = this.unenrolledQuery.trim()
             if (this.unenrolledQuery.length < 5) {
                 this.unenrolledQueryDescription = 'Search query needs to be at least 5 characters'
                 this.unenrolledStudents = []
@@ -361,7 +362,7 @@ export default {
                         this.unenrolledStudents = users
                         this.$toasted.success('Succesfully found user(s).')
                         if (!this.unenrolledStudents.length) {
-                            this.unenrolledQueryDescription = 'No students found'
+                            this.unenrolledQueryDescription = 'No users found'
                         }
                     })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
