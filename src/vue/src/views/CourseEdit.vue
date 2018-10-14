@@ -93,7 +93,7 @@
                         type="text"
                         v-model="unenrolledQuery"
                         placeholder="Name or username with at least 5 characters"
-                        v-on:keyup.enter="searchUnenrolled"/>
+                        @keyup.enter="searchUnenrolled"/>
                     <b-button
                         v-if="!viewEnrolled"
                         class="multi-form"
@@ -137,7 +137,7 @@
 
             <b-card class="no-hover" v-if="!viewEnrolled && !this.unenrolledStudents.length">
                 <div class="float-left">
-                    <b>{{unenrolledQueryDescription}}</b>
+                    <b>{{ unenrolledQueryDescription }}</b>
                 </div>
             </b-card>
 
@@ -324,7 +324,7 @@ export default {
             this.viewEnrolled = !this.viewEnrolled
             this.unenrolledStudents = []
             this.unenrolledQuery = ''
-            this.unenrolledQueryDescription = 'Search unenrolled users by using the search field in "Manage course members"'
+            this.unenrolledQueryDescription = 'Search unenrolled users by using the search field in "Manage course members in the search field above"'
         },
         deepCopyCourse (course) {
             var copyCourse = {
