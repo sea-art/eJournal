@@ -67,7 +67,6 @@ export default {
 
 <style lang="sass">
 @import '~sass/modules/breakpoints.sass'
-@import '~sass/modules/colors.sass'
 
 .profile-portrait-edit
     display: block
