@@ -45,13 +45,13 @@
                 <b-col class="d-flex flex-wrap">
                     <b-button v-if="$hasPermission('can_delete_course')"
                         @click.prevent.stop="deleteCourse()"
-                        class="multi-form delete-button flex-grow-1">
+                        class="multi-form delete-button flex-grow-1 mr-2">
                         <icon name="trash"/>
                         Delete Course
                     </b-button>
                     <b-button v-if="$hasPermission('can_edit_course_roles')"
                         @click.prevent.stop="routeToEditCourseRoles"
-                        class="multi-form change-button flex-grow-1">
+                        class="multi-form change-button flex-grow-1 mr-2">
                         <icon name="cog"/>
                         Manage Permissions
                     </b-button>
@@ -96,7 +96,7 @@
                         @keyup.enter="searchUnenrolled"/>
                     <b-button
                         v-if="!viewEnrolled"
-                        class="multi-form"
+                        class="multi-form mr-2"
                         @click="searchUnenrolled">
                         Search users
                     </b-button>
