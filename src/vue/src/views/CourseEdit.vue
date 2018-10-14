@@ -82,10 +82,24 @@
                 <h2 class="mb-2">Manage course members</h2>
                 <div class="d-flex">
                     <input
+                        v-if="viewEnrolled"
                         class="theme-input flex-grow-1 no-width multi-form mr-2"
                         type="text"
                         v-model="searchVariable"
                         placeholder="Search..."/>
+                    <input
+                        v-if="!viewEnrolled"
+                        class="theme-input flex-grow-1 no-width multi-form mr-2"
+                        type="text"
+                        v-model="unenrolledQuery"
+                        placeholder="Username with at least 5 characters"
+                        v-on:keyup.enter="searchUnenrolled"/>
+                    <b-button
+                        v-if="!viewEnrolled"
+                        class="multi-form"
+                        @click="searchUnenrolled">
+                        Search users
+                    </b-button>
                     <b-button v-if="viewEnrolled" v-on:click.stop @click="toggleEnrolled" class="multi-form">
                         <icon name="users"/>
                         Enrolled
@@ -121,6 +135,12 @@
                 </b-col>
             </b-card>
 
+            <b-card class="no-hover" v-if="!viewEnrolled && !this.unenrolledStudents.length">
+                <div class="float-left">
+                    <b>{{unenrolledQueryDescription}}</b>
+                </div>
+            </b-card>
+
             <course-participant-card v-if="viewEnrolled"
                 @delete-participant="deleteParticipantLocally"
                 @update-participants="updateParticipants"
@@ -132,22 +152,6 @@
                 :user="p"
                 :numTeachers="numTeachers"
                 :roles="roles"/>
-
-            <b-card class="no-hover settings-card" v-if="!viewEnrolled">
-                <h2 class="mb-2">Search unenrolled users</h2>
-                <div class="d-flex">
-                    <input
-                        class="theme-input flex-grow-1 no-width multi-form mr-2"
-                        type="text"
-                        v-model="unenrolledQuery"
-                        placeholder="Student ID with at least 5 numbers"/>
-                    <b-button class="multi-form"
-                        @click="searchUnenrolled"
-                        v-if="$hasPermission('can_add_course_users')">
-                        Search users
-                    </b-button>
-                </div>
-            </b-card>
 
             <add-user-card v-if="!viewEnrolled"
                 @add-participant="addParticipantLocally"
@@ -195,7 +199,8 @@ export default {
             roles: [],
             viewEnrolled: true,
             order: false,
-            unenrolledQuery: ''
+            unenrolledQuery: '',
+            unenrolledQueryDescription: 'Search unenrolled users by using the search field in "Manage course members"'
         }
     },
     watch: {
@@ -318,6 +323,8 @@ export default {
         toggleEnrolled () {
             this.viewEnrolled = !this.viewEnrolled
             this.unenrolledStudents = []
+            this.unenrolledQuery = ''
+            this.unenrolledQueryDescription = 'Search unenrolled users by using the search field in "Manage course members"'
         },
         deepCopyCourse (course) {
             var copyCourse = {
@@ -346,13 +353,16 @@ export default {
         },
         searchUnenrolled () {
             if (this.unenrolledQuery.length < 5) {
-                this.$toasted.error('Search query needs to be at least 5 numbers')
+                this.unenrolledQueryDescription = 'Search query needs to be at least 5 characters'
+                this.unenrolledStudents = []
             } else {
                 participationAPI.getUnenrolled(this.cID, this.unenrolledQuery)
                     .then(users => {
                         this.unenrolledStudents = users
-                        this.unenrolledQuery = null
                         this.$toasted.success('Succesfully found user(s).')
+                        if (!this.unenrolledStudents.length) {
+                            this.unenrolledQueryDescription = 'No students found'
+                        }
                     })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }

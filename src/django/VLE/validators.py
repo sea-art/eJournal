@@ -47,6 +47,12 @@ def validate_email_files(files):
                                   settings.USER_MAX_EMAIL_ATTACHMENT_BYTES)
 
 
+def validate_username(username):
+    """Validates username by length"""
+    if len(username) < 5:
+        raise ValidationError("Username needs to contain at least 5 characters.")
+
+
 def validate_password(password):
     """Validates password by length, having a capital letter and a special character."""
     if len(password) < 8:
