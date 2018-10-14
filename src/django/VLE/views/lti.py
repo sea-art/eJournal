@@ -1,5 +1,4 @@
 import datetime
-import json
 
 import jwt
 from django.conf import settings
@@ -9,6 +8,7 @@ from rest_framework.decorators import api_view
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 import VLE.lti_launch as lti
+import VLE.permissions as permissions
 import VLE.views.responses as response
 
 # VUE ENTRY STATE
@@ -23,7 +23,6 @@ NEW_COURSE = '2'
 NEW_ASSIGN = '3'
 FINISH_T = '4'
 FINISH_S = '5'
-GRADE_CENTER = '6'
 
 
 @api_view(['GET'])
@@ -44,14 +43,11 @@ def get_lti_params_from_jwt(request, jwt_params):
     except jwt.exceptions.InvalidSignatureError:
         return response.unauthorized(description='Invalid LTI parameters given. Please retry from canvas.')
 
-    roles = json.load(open(settings.LTI_ROLE_CONFIG_PATH))
-    lti_roles = dict((roles[k], k) for k in roles)
-    role = lti_roles[lti_params['roles']]
-
+    role = [settings.LTI_ROLES[r] if r in settings.LTI_ROLES else r for r in lti.roles_to_list(lti_params)]
     payload = dict()
     course = lti.check_course_lti(lti_params, user, role)
     if course is None:
-        if role == 'Teacher':
+        if 'Teacher' in role:
             payload['state'] = NEW_COURSE
             payload['lti_cName'] = lti_params['custom_course_name']
             payload['lti_abbr'] = lti_params['context_label']
@@ -71,7 +67,7 @@ def get_lti_params_from_jwt(request, jwt_params):
 
     assignment = lti.check_assignment_lti(lti_params)
     if assignment is None:
-        if role == 'Teacher':
+        if 'Teacher' in role:
             payload['state'] = NEW_ASSIGN
             payload['cID'] = course.pk
             payload['lti_aName'] = lti_params['custom_assignment_title']
@@ -87,9 +83,9 @@ def get_lti_params_from_jwt(request, jwt_params):
                 Either your teacher has not finished setting up the assignment, or it has been moved to another \
                 course. Please contact your course administrator.')
 
-    journal = lti.select_create_journal(lti_params, user, assignment, roles)
+    journal = lti.select_create_journal(lti_params, user, assignment)
     jID = journal.pk if journal is not None else None
-    state = FINISH_T if jID is None else FINISH_S
+    state = FINISH_T if permissions.has_permission(user, course.pk, 'can_grade') else FINISH_S
 
     payload['state'] = state
     payload['cID'] = course.pk
@@ -116,10 +112,9 @@ def lti_launch(request):
         key, secret, request)
 
     if authenticated:
-        roles = json.load(open(settings.LTI_ROLE_CONFIG_PATH))
         params = request.POST.dict()
 
-        user = lti.check_user_lti(params, roles)
+        user = lti.check_user_lti(params)
 
         params['exp'] = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
         lti_params = jwt.encode(params, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
