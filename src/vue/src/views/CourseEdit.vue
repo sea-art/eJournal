@@ -100,7 +100,7 @@
                         v-if="!viewEnrolled"
                         class="multi-form mr-2"
                         @click="searchUnenrolled">
-                        Search users
+                        <icon name="search"/>
                     </b-button>
                     <b-button v-if="viewEnrolled" v-on:click.stop @click="toggleEnrolled" class="multi-form">
                         <icon name="users"/>
