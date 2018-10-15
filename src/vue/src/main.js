@@ -124,7 +124,7 @@ new Vue({
         getBorderClass (cID) {
             return this.colors[cID % this.colors.length]
         },
-        beautifyDate (date) {
+        beautifyDate (date, displayDate = true, displayTime = true) {
             if (!date) {
                 return ''
             }
@@ -132,8 +132,17 @@ new Vue({
             var month = date.substring(5, 7)
             var day = date.substring(8, 10)
             var time = date.substring(11, 16)
-
-            return day + '-' + month + '-' + year + ' ' + time
+            var s = ''
+            if (displayDate) {
+                s += day + '-' + month + '-' + year
+            }
+            if (displayDate && displayTime) {
+                s += ' '
+            }
+            if (displayTime) {
+                s += time
+            }
+            return s
         }
     },
     template: '<App/>'

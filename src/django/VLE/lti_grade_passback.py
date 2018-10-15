@@ -1,9 +1,9 @@
 import xml.etree.cElementTree as ET
+
 import oauth2
-"""Package for oauth authentication in python"""
+from django.conf import settings
 
 import VLE.utils.generic_utils as utils
-from django.conf import settings
 from VLE.models import Counter
 
 
@@ -127,13 +127,13 @@ class GradePassBackRequest(object):
         imsx_head_info = head.find(namespace + 'imsx_POXResponseHeaderInfo')
         imsx_status_info = imsx_head_info.find(namespace + 'imsx_statusInfo')
         imsx_code_mayor = imsx_status_info.find(namespace + 'imsx_codeMajor')
-        if imsx_code_mayor is not None:
+        if imsx_code_mayor is not None and imsx_code_mayor.text is not None:
             code_mayor = imsx_code_mayor.text
         else:
             code_mayor = None
 
         imsx_severity = imsx_status_info.find(namespace + 'imsx_severity')
-        if imsx_severity is not None:
+        if imsx_severity is not None and imsx_severity.text is not None:
             severity = imsx_severity.text
         else:
             severity = None
@@ -179,6 +179,4 @@ def replace_result(journal):
     key = settings.LTI_KEY
 
     grade_request = GradePassBackRequest(key, secret, journal, send_score=True)
-    response = grade_request.send_post_request()
-
-    return response
+    return grade_request.send_post_request()

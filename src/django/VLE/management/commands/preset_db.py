@@ -4,11 +4,14 @@ Generate preset data.
 Generate preset data and save it to the database.
 """
 
-from django.core.management.base import BaseCommand
-from VLE.models import Field, Node, Role
-import VLE.factory as factory
-from faker import Faker
 import random
+
+from django.core.management.base import BaseCommand
+from faker import Faker
+
+import VLE.factory as factory
+from VLE.models import Field, Node, Role
+
 faker = Faker()
 
 

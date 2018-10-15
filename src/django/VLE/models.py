@@ -3,22 +3,33 @@ models.py.
 
 Database file
 """
-from django.db import models
+import os
+
 from django.contrib.auth.models import AbstractUser
-from django.utils.timezone import now
-from VLE.utils.file_handling import get_path
 from django.core.exceptions import ValidationError
+from django.db import models
+from django.dispatch import receiver
+from django.utils.timezone import now
+
+from VLE.utils.file_handling import get_path
 
 
 class UserFile(models.Model):
     """UserFile.
 
-    UserFile is a file uploaded by the user stored in MEDIA_ROOT/uID/aID/...
+    UserFile is a file uploaded by the user stored in MEDIA_ROOT/uID/aID/<file>
     - author: The user who uploaded the file.
     - file_name: The name of the file (no parts of the path to the file included).
     - creation_date: The time and date the file was uploaded.
     - content_type: The mimetype supplied by the user (unvalidated).
     - assignment: The assignment that the UserFile is linked to.
+    - node: The node that the UserFile is linked to.
+    - entry: The entry that the UserFile is linked to.
+    - content: The content that UserFile is linked to.
+
+    Note that deleting the assignment, node or content will also delete the UserFile.
+    UserFiles uploaded initially have no node or content set, and are considered temporary untill the journal post
+    is made and the corresponding node and content are set.
     """
     file = models.FileField(
         null=False,
@@ -43,10 +54,37 @@ class UserFile(models.Model):
         on_delete=models.CASCADE,
         null=False
     )
+    node = models.ForeignKey(
+        'Node',
+        on_delete=models.CASCADE,
+        null=True
+    )
+    entry = models.ForeignKey(
+        'Entry',
+        on_delete=models.CASCADE,
+        null=True
+    )
+    content = models.ForeignKey(
+        'Content',
+        on_delete=models.CASCADE,
+        null=True
+    )
+
+    def delete(self, *args, **kwargs):
+        self.file.delete()
+        super(UserFile, self).delete(*args, **kwargs)
 
     def __str__(self):
         """toString."""
-        return self.file_name
+        return self.file.name
+
+
+@receiver(models.signals.post_delete, sender=UserFile)
+def auto_delete_file_on_delete(sender, instance, **kwargs):
+    """Deletes file from filesystem when corresponding `UserFile` object is deleted."""
+    if instance.file:
+        if os.path.isfile(instance.file.path):
+            os.remove(instance.file.path)
 
 
 class User(AbstractUser):
@@ -461,6 +499,7 @@ class PresetNode(models.Model):
 
     A preset node is a node that has been pre-defined by the teacher.
     It contains the following features:
+    - description: user defined text description of the preset node.
     - type: the type of the preset node (progress or entrydeadline node).
     - deadline: the deadline for this preset node.
     - forced_template: the template for this preset node - null if PROGRESS node.
@@ -470,6 +509,10 @@ class PresetNode(models.Model):
     TYPES = (
         (Node.PROGRESS, 'progress'),
         (Node.ENTRYDEADLINE, 'entrydeadline'),
+    )
+
+    description = models.TextField(
+        null=True,
     )
 
     type = models.TextField(
@@ -506,6 +549,7 @@ class Entry(models.Model):
     - last_edited: when the etry was last edited
     """
 
+    # TODO Should not be nullable
     template = models.ForeignKey(
         'Template',
         on_delete=models.SET_NULL,
@@ -528,7 +572,7 @@ class Entry(models.Model):
 
     def __str__(self):
         """toString."""
-        return str(self.pk) + " " + str(self.grade)
+        return 'Entry id: {} grade: {}'.format(self.pk, self.grade)
 
 
 class Counter(models.Model):
