@@ -18,8 +18,18 @@
         <b-col md="7" sm="12">
             <h2 class="mb-2">User details</h2>
             <b-form-input :readonly="true" class="theme-input multi-form input-disabled" :value="$store.getters['user/username']" type="text"/>
-            <b-form-input :readonly="($store.getters['user/ltiID']) ? true : false" :class="{'input-disabled': ($store.getters['user/ltiID']) ? true : false}" class="theme-input multi-form" v-model="firstName" type="text"/>
-            <b-form-input :readonly="($store.getters['user/ltiID']) ? true : false" :class="{'input-disabled': ($store.getters['user/ltiID']) ? true : false}" class="theme-input multi-form" v-model="lastName" type="text"/>
+            <b-form-input :readonly="($store.getters['user/ltiID']) ? true : false"
+                :class="{'input-disabled': ($store.getters['user/ltiID']) ? true : false}"
+                class="theme-input multi-form"
+                v-model="firstName"
+                type="text"
+                placeholder="First name"/>
+            <b-form-input :readonly="($store.getters['user/ltiID']) ? true : false"
+                :class="{'input-disabled': ($store.getters['user/ltiID']) ? true : false}"
+                class="theme-input multi-form"
+                v-model="lastName"
+                type="text"
+                placeholder="Surname"/>
             <email/>
 
             <b-button v-if="!$store.getters['user/ltiID']" class="add-button multi-form float-right" @click="saveUserdata">
@@ -101,6 +111,13 @@ export default {
                 .catch(e => {
                     this.$toasted.error('Error creating file.')
                 })
+        },
+        isChanged () {
+            if (this.firstName !== this.$store.getters['user/firstName'] || this.lastName !== this.$store.getters['user/lastName']) {
+                return true
+            }
+
+            return false
         }
     },
     mounted () {
