@@ -190,15 +190,28 @@ class GetApiTests(TestCase):
             test.set_up_journal(assignment, template, student, 4)
 
         login = test.logging_in(self, self.rein_user, self.rein_pass)
-        response = test.api_get_call(self, '/journals/', login, params={'assignment_id': assignment.pk})
+        response = test.api_get_call(self,
+                                     '/journals/',
+                                     login,
+                                     params={'course_id': course.pk, 'assignment_id': assignment.pk})
         result = response.json()
         self.assertEquals(len(result['journals']), 2)
 
         # permissions and authorization check for the api call.
         login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
-        test.api_get_call(self, '/journals/', login, status=403, params={'assignment_id': assignment.pk})
-        test.api_get_call(self, '/journals/', login, status=404, params={'assignment_id': self.not_found_pk})
-        test.test_unauthorized_api_get_call(self, '/journals/', params={'assignment_id': self.not_found_pk})
+        test.api_get_call(self,
+                          '/journals/',
+                          login,
+                          status=403,
+                          params={'course_id': course.pk, 'assignment_id': assignment.pk})
+        test.api_get_call(self,
+                          '/journals/',
+                          login,
+                          status=404,
+                          params={'course_id': course.pk, 'assignment_id': self.not_found_pk})
+        test.test_unauthorized_api_get_call(self,
+                                            '/journals/',
+                                            params={'course_id': course.pk, 'assignment_id': self.not_found_pk})
 
     def test_get_nodes(self):
         """Test the get nodes function."""
