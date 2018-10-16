@@ -384,8 +384,7 @@ class Assignment(models.Model):
     )
 
     def is_locked(self):
-        return self.unlock_date and self.unlock_date > now() or \
-               self.lock_date and self.lock_date < now()
+        return self.unlock_date and self.unlock_date > now() or self.lock_date and self.lock_date < now()
 
     def is_due(self):
         return self.due_date and self.due_date < now()
