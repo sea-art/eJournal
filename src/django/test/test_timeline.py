@@ -3,13 +3,13 @@ test_timeline.py.
 
 Test all about the timeline.
 """
-from django.test import TestCase
 import datetime
 
-from VLE.models import Template, Role
+from django.test import TestCase
 
 import VLE.factory as factory
 import VLE.timeline as timeline
+from VLE.models import Role, Template
 
 
 class TimelineTests(TestCase):

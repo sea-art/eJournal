@@ -1,14 +1,18 @@
 """
 File handling related utilites.
 """
-import shutil
 import json
 import os
+import shutil
+
 from django.conf import settings
+from django.db.models import Q
 
 
 def get_path(instance, filename):
-    """Upload user files into their respective directories. Following MEDIA_ROOT/uID/aID/..."""
+    """Upload user files into their respective directories. Following MEDIA_ROOT/uID/aID/<file>
+
+    Uploaded files not part of an entry yet, and are treated as temporary untill linked to an entry."""
     return str(instance.author.id) + '/' + str(instance.assignment.id) + '/' + filename
 
 
@@ -34,3 +38,24 @@ def compress_all_user_data(user, extra_data_dict=None, archive_extension='zip'):
     shutil.make_archive(archive_ouput_base_name, archive_extension, user_file_dir_path)
 
     return archive_ouput_path
+
+
+def make_permanent_file_content(user_file, content, node):
+    """Upates a UserFile content, node and enty. Removing temp status."""
+    user_file.content = content
+    user_file.node = node
+    user_file.entry = content.entry
+    user_file.save()
+
+
+def get_temp_user_file(user, assignment, file_name, entry=None, node=None, content=None):
+    """Retrieves the most recently added tempfile specified by assignment and name.
+
+    Returns None if no file was found."""
+    return user.userfile_set.filter(author=user, assignment=assignment, node=node, entry=entry,
+                                    content=content, file_name=file_name).order_by('-creation_date').first()
+
+
+def remove_temp_user_files(user):
+    """Deletes floating user files."""
+    user.userfile_set.filter(Q(node=None) | Q(entry=None) | Q(content=None)).delete()

@@ -47,7 +47,7 @@ import 'vue-awesome/icons/home'
 import 'vue-awesome/icons/calendar'
 import 'vue-awesome/icons/key'
 import 'vue-awesome/icons/question'
-import 'vue-awesome/icons/spinner'
+import 'vue-awesome/icons/circle-o-notch'
 import 'vue-awesome/icons/sort'
 import 'vue-awesome/icons/align-left'
 import 'vue-awesome/icons/long-arrow-up'
@@ -93,7 +93,6 @@ new Vue({
             enableTime: true,
             time_24hr: true
         }
-
     },
     mounted () {
         this.$nextTick(function () {
@@ -122,7 +121,7 @@ new Vue({
         getBorderClass (cID) {
             return this.colors[cID % this.colors.length]
         },
-        beautifyDate (date) {
+        beautifyDate (date, displayDate = true, displayTime = true) {
             if (!date) {
                 return ''
             }
@@ -130,8 +129,17 @@ new Vue({
             var month = date.substring(5, 7)
             var day = date.substring(8, 10)
             var time = date.substring(11, 16)
-
-            return day + '-' + month + '-' + year + ' ' + time
+            var s = ''
+            if (displayDate) {
+                s += day + '-' + month + '-' + year
+            }
+            if (displayDate && displayTime) {
+                s += ' '
+            }
+            if (displayTime) {
+                s += time
+            }
+            return s
         }
     },
     template: '<App/>'

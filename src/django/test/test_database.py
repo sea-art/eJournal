@@ -4,10 +4,11 @@ test_database.py.
 Test the database tables.
 """
 import datetime
+
 from django.test import TestCase
 
 import VLE.factory as factory
-from VLE.models import Field, Content, Entry, Journal
+from VLE.models import Content, Entry, Field, Journal
 
 
 class DataBaseTests(TestCase):

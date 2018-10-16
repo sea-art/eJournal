@@ -14,7 +14,13 @@
             </div>
 
             <h2 class="mb-2">{{ entryNode.entry.template.name }}</h2>
-            <entry-fields :template="entryNode.entry.template" :completeContent="completeContent" :displayMode="false" :nodeID="entryNode.nID"/>
+            <entry-fields
+                :template="entryNode.entry.template"
+                :completeContent="completeContent"
+                :displayMode="false"
+                :nodeID="entryNode.nID"
+                :entryID="entryNode.entry.id"
+            />
 
             <b-alert :show="dismissCountDown" dismissible variant="secondary"
                 @dismissed="dismissCountDown=0">
@@ -55,7 +61,17 @@
                 :completeContent="completeContent"
                 :displayMode="true"
                 :authorUID="$parent.journal.student.id"
+                :entryID="entryNode.entry.id"
             />
+            <div>
+                <hr class="full-width"/>
+                <span class="timestamp" v-if="entryNode.entry.last_edited">
+                    Last edited: {{ $root.beautifyDate(entryNode.entry.last_edited) }}<br/>
+                </span>
+                <span class="timestamp" v-else>
+                    Submitted on: {{ $root.beautifyDate(entryNode.entry.createdate) }}<br/>
+                </span>
+            </div>
         </b-card>
 
         <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published"/>
@@ -129,7 +145,8 @@ export default {
                     if (content.field === templateField.id) {
                         this.completeContent.push({
                             data: content.data,
-                            id: content.field
+                            id: content.field,
+                            contentID: content.id
                         })
 
                         checkFound = true

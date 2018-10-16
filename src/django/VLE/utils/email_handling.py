@@ -97,6 +97,5 @@ def send_email_feedback(user, files, topic, ftype, feedback, user_agent, url):
         headers={'Content-Type': 'text/plain'},
         reply_to=[user.email]
     )
-
     reply.send()
     forward.send()

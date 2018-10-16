@@ -4,7 +4,7 @@
         <b-card class="blue-border no-hover">
             <div class="center-content">
                 <h2 class="center-content">Verifying</h2><br/>
-                <icon name="spinner" pulse scale="1.5"/>
+                <icon name="circle-o-notch" pulse scale="1.5"/>
             </div>
         </b-card>
     </content-single-column>
