@@ -68,8 +68,8 @@ class Command(BaseCommand):
                 "is_teacher": True
             }, {
                 "username": "Superuser",
-                "first_name": "Gerrit",
-                "last_name": "Oomens",
+                "first_name": "Super",
+                "last_name": "User",
                 "pass": "pass",
                 "is_superuser": True,
                 "is_teacher": True
