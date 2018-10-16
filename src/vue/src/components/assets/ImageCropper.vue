@@ -1,6 +1,6 @@
 <template>
     <b-card class="no-hover">
-        <div class="profile-portrait-edit small-shadow">
+        <div class="profile-picture-lg profile-picture-cropper">
             <croppa v-model="croppa"
                 disable-click-to-choose
                 :width="250"
@@ -66,41 +66,14 @@ export default {
 </script>
 
 <style lang="sass">
-@import '~sass/modules/breakpoints.sass'
-
-.profile-portrait-edit
-    display: block
-    position: relative
-    width: 100%
-    max-width: 250px
-    max-height: 250px
-    border-radius: 50% !important
-    overflow: hidden
-    margin: 0 auto
-    margin-top: 10px
-    margin-bottom: 20px
-    .btn
-        position: absolute
-        width: 100%
-        height: 25%
-        bottom: -25%
-        opacity: 0
-    &:hover
-        .btn
-            bottom: 0px
-            opacity: 1
-    cursor: move
-
-.profile-portrait:after
-    content: ""
-    display: block
-    padding-bottom: 100%
+@import '~sass/modules/colors.sass'
 
 .croppa-container
-    background-color: #000000
+    background-color: $theme-dark-blue
     height: 100%
     width: 100%
+
 .croppa-container:hover
     opacity: 1
-    background-color: #000000
+    background-color: $theme-dark-blue
 </style>
