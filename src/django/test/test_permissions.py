@@ -9,6 +9,7 @@ from django.core.validators import ValidationError
 from django.test import TestCase
 
 import VLE.factory as factory
+from VLE.models import Participation
 import VLE.permissions as permissions
 from VLE.utils.error_handling import (VLEParticipationError,
                                       VLEPermissionError, VLEProgrammingError)
@@ -249,3 +250,32 @@ class PermissionTests(TestCase):
         self.assertTrue(result['can_edit_assignment'])
         self.assertFalse(result['can_have_journal'])
         self.assertEquals(len(permissions.ASSIGNMENT_PERMISSIONS), len(result))
+
+    def test_is_supervisor(self):
+        middle = factory.make_user('Username2', 'Password', email='some2@email.address')
+        student = factory.make_user('Username3', 'Password', email='some3@email.address')
+
+        role = factory.make_role_default_no_perms("TE", self.course1,
+                                                  can_view_course_users=True, can_view_assignment_journals=True)
+        factory.make_participation(self.user, self.course1, role)
+
+        role = factory.make_role_default_no_perms("MD", self.course1, can_view_course_users=True)
+        factory.make_participation(middle, self.course1, role)
+
+        role = factory.make_role_default_no_perms("SD", self.course1)
+        factory.make_participation(student, self.course1, role)
+        factory.make_journal(self.assignment, student)
+
+        self.assertTrue(permissions.is_user_supervisor_of(self.user, student))
+        self.assertTrue(permissions.is_user_supervisor_of(self.user, middle))
+        self.assertTrue(permissions.is_user_supervisor_of(middle, self.user))
+        self.assertTrue(permissions.is_user_supervisor_of(middle, student))
+        self.assertFalse(permissions.is_user_supervisor_of(student, self.user))
+        self.assertFalse(permissions.is_user_supervisor_of(student, middle))
+
+        Participation.objects.get(course=self.course1, user=student).delete()
+
+        self.assertTrue(permissions.is_user_supervisor_of(self.user, student))
+        self.assertFalse(permissions.is_user_supervisor_of(middle, student))
+        self.assertFalse(permissions.is_user_supervisor_of(student, self.user))
+        self.assertFalse(permissions.is_user_supervisor_of(student, middle))

@@ -108,11 +108,11 @@ def is_user_supervisor_of(supervisor, user):
     has the permission can_view_assignment_journals."""
     for course in supervisor.participations.all():
         if supervisor.has_permission('can_view_course_users', course):
-            if course.participations.filter(user=user).exists():
+            if course.participation_set.filter(user=user).exists():
                 return True
-            if course.assignment_set.filter(journal__user=user).exists() and \
-               supervisor.has_permission('can_view_assignment_journals', course):
-                return True
+            for assignment in course.assignment_set.filter(journal__user=user):
+                if supervisor.has_permission('can_view_assignment_journals', assignment):
+                    return True
 
     return False
 

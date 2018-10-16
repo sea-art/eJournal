@@ -187,4 +187,4 @@ class RoleView(viewsets.ViewSet):
             return response.bad_request("Default roles 'Student', 'TA' and 'Teacher' cannot be deleted.")
 
         Role.objects.get(name=name, course=pk).delete()
-        return response.success(description='Succesfully deleted role from course.')
+        return response.success(description='Successfully deleted role from course.')
