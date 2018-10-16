@@ -96,7 +96,7 @@ export default {
                     link.click()
                     link.remove()
                 }, error => {
-                    if (error.response.status === 400) {
+                    if (error.response.status === 429) {
                         this.$toasted.error('You have to wait a day before you can get your user data again.')
                     } else {
                         throw error

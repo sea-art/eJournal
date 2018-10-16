@@ -3,7 +3,6 @@ user.py.
 
 In this file are all the user api requests.
 """
-from datetime import datetime, timedelta
 from smtplib import SMTPAuthenticationError
 
 import jwt
@@ -299,14 +298,6 @@ class UserView(viewsets.ViewSet):
         # Check the right permissions to get this users data, either be the user of the data or be an admin.
         if not (user.is_superuser or request.user.id == pk):
             return response.bad_request(description='You are not allowed to view this user\'s data.')
-
-        if request.user.id == pk and not user.is_superuser:
-            if request.user.last_gdpr and request.user.last_gdpr > datetime.now() - timedelta(days=1):
-                return response.bad_request(
-                    description='You have to wait a day before you can get your user data again.')
-            else:
-                request.user.last_gdpr = datetime.now()
-                request.user.save()
 
         profile = UserSerializer(user).data
         journals = Journal.objects.filter(user=pk)

@@ -100,15 +100,23 @@ class GetApiTests(TestCase):
         login = test.logging_in(self, self.username, self.password)
         _, _, other_user = test.set_up_user_and_auth('teacher', 'pass', 'teach@teach.com')
 
+        # Other user
         test.api_get_call(self, '/users/{0}/GDPR/'.format(other_user.pk), login, status=400)
+
+        # Multiple times its own
         test.api_get_call(self, '/users/0/GDPR/', login)
-        test.api_get_call(self, '/users/0/GDPR/', login, status=400)
+        test.api_get_call(self, '/users/0/GDPR/', login, status=429)
 
         # Test super user
         self.user.is_superuser = True
         self.user.save()
 
+        # Other user
         test.api_get_call(self, '/users/{0}/GDPR/'.format(other_user.pk), login, status=400)
+
+        # Multiple times its own
+        test.api_get_call(self, '/users/0/GDPR/', login)
+        test.api_get_call(self, '/users/0/GDPR/', login)
 
         self.user.is_superuser = False
         self.user.save()

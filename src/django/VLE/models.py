@@ -119,7 +119,6 @@ class User(AbstractUser):
     comment_notifications = models.BooleanField(
         default=False
     )
-    last_gdpr = models.DateTimeField(null=True)
 
     def __str__(self):
         """toString."""

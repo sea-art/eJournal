@@ -66,6 +66,13 @@ class Command(BaseCommand):
                 "pass": "pass",
                 "is_superuser": False,
                 "is_teacher": True
+            }, {
+                "username": "Superuser",
+                "first_name": "Gerrit",
+                "last_name": "Oomens",
+                "pass": "pass",
+                "is_superuser": True,
+                "is_teacher": True
             }
         ]
 
