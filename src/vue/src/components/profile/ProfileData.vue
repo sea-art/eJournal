@@ -3,11 +3,11 @@
         <b-col md="5" sm="12" class="text-center">
             <b-modal
                 ref="cropperModal"
-                title="Edit your profile picture"
+                title="Edit profile picture"
                 hide-footer>
-                    <cropper v-if="this.profileImageDataURL" :pictureUrl="this.profileImageDataURL" @newPicture="fileHandler" :refresh="updateCropper"/>
+                    <cropper v-if="this.profileImageDataURL" ref="cropperRef" :pictureUrl="this.profileImageDataURL" @newPicture="fileHandler"/>
             </b-modal>
-            <div class="profile-portrait small-shadow">
+            <div class="profile-picture-lg">
                 <img :src="$store.getters['user/profilePicture']">
                 <b-button @click="showCropperModal()">
                     <icon name="edit"/>
@@ -72,7 +72,7 @@ export default {
     },
     methods: {
         showCropperModal () {
-            this.updateCropper = !this.updateCropper
+            this.$refs.cropperRef.refreshPicture()
             this.$refs['cropperModal'].show()
         },
         hideCropper (ref) {
@@ -127,37 +127,3 @@ export default {
     }
 }
 </script>
-
-<style lang="sass">
-@import '~sass/modules/breakpoints.sass'
-
-.profile-portrait
-    display: inline-block
-    position: relative
-    width: 100%
-    max-width: 250px
-    margin-bottom: 20px
-    border-radius: 50% !important
-    overflow: hidden
-    @include lg
-        left: 10px
-        top: 20px
-    img
-        position: absolute
-        height: 100%
-        width: 100%
-    .btn
-        position: absolute
-        width: 100%
-        height: 25%
-        bottom: -25%
-        opacity: 0
-    &:hover
-        .btn
-            bottom: 0px
-            opacity: 1
-.profile-portrait:after
-    content: ""
-    display: block
-    padding-bottom: 100%
-</style>

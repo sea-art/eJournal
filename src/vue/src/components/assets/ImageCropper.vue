@@ -1,7 +1,6 @@
 <template>
     <b-card class="no-hover">
-        <h2>Preview:</h2>
-        <div class="profile-portrait-edit small-shadow">
+        <div class="profile-picture-lg profile-picture-cropper">
             <croppa v-model="croppa"
                 disable-click-to-choose
                 :width="250"
@@ -18,14 +17,13 @@
                 initial-size="natural"
                 initial-position="center"/>
         </div>
-        <br/><br/>
         <b-button @click="croppa.chooseFile()">
             <icon name="upload"/>
             Upload
         </b-button>
         <b-button class="change-button" @click="refreshPicture()">
             <icon name="undo"/>
-            Refresh
+            Reset
         </b-button>
         <b-button class="add-button float-right" @click="savePicture()">
             <icon name="save"/>
@@ -36,21 +34,18 @@
 
 <script>
 import icon from 'vue-awesome/components/Icon'
+import Croppa from 'vue-croppa'
 
 export default {
     name: 'ImageCropper',
-    props: ['pictureUrl', 'refresh'],
+    props: ['pictureUrl'],
     components: {
-        icon
+        icon,
+        'croppa': Croppa.component
     },
     data () {
         return {
             croppa: {}
-        }
-    },
-    watch: {
-        refresh: function () {
-            this.refreshPicture()
         }
     },
     methods: {
@@ -71,44 +66,14 @@ export default {
 </script>
 
 <style lang="sass">
-@import '~sass/modules/breakpoints.sass'
 @import '~sass/modules/colors.sass'
 
-.profile-portrait-edit
-    overflow: hidden
-    display: block
-    position: relative
-    width: 100%
-    max-width: 250px
-    max-height: 250px
-    margin-bottom: 20px
-    border-radius: 50% !important
-    overflow: hidden
-    margin: 0 auto
-    croppa
-        position: absolute
-        height: 100%
-        width: 100%
-    .btn
-        position: absolute
-        width: 100%
-        height: 25%
-        bottom: -25%
-        opacity: 0
-    &:hover
-        .btn
-            bottom: 0px
-            opacity: 1
-.profile-portrait:after
-    content: ""
-    display: block
-    padding-bottom: 100%
-
 .croppa-container
-    background-color: #000000
+    background-color: $theme-dark-blue
     height: 100%
     width: 100%
+
 .croppa-container:hover
     opacity: 1
-    background-color: #000000
+    background-color: $theme-dark-blue
 </style>
