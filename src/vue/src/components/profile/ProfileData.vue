@@ -29,7 +29,7 @@
                 class="theme-input multi-form"
                 v-model="lastName"
                 type="text"
-                placeholder="Surname"/>
+                placeholder="Last name"/>
             <email/>
 
             <b-button v-if="!$store.getters['user/ltiID']" class="add-button multi-form float-right" @click="saveUserdata">
