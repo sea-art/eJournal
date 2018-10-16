@@ -34,8 +34,7 @@ class RoleView(viewsets.ViewSet):
         course_id = request.query_params['course_id']
         course = Course.objects.get(pk=course_id)
 
-        if not request.user.has_permission('can_edit_course_roles', course):
-            return response.forbidden('You are not allowed to edit course roles.')
+        request.user.check_permission('can_edit_course_roles', course)
 
         roles = Role.objects.filter(course=course)
         serializer = RoleSerializer(roles, many=True)
@@ -72,9 +71,7 @@ class RoleView(viewsets.ViewSet):
             course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
             if course_id > 0:
                 course = Course.objects.get(pk=course_id)
-                if not user.is_participant(course):
-                    return response.forbidden('The user is not participating in this course.')
-
+                user.check_participation(course)
                 return response.success({'role': permissions.serialize_course_permissions(request.user, course)})
         # Return assignment permissions if assignment_id is set
         except (VLEMissingRequiredKey, VLEParamWrongType):
@@ -108,8 +105,7 @@ class RoleView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=request.data['course_id'])
 
-        if not request.user.has_permission('can_edit_course_roles', course):
-            return response.forbidden('You do not have the permission to create roles for this course.')
+        request.user.check_permission('can_edit_course_roles', course)
 
         try:
             role = factory.make_role_default_no_perms(request.data['name'], course, **request.data['permissions'])
@@ -143,8 +139,7 @@ class RoleView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=pk)
 
-        if not request.user.has_permission('can_edit_course_roles', course):
-            return response.forbidden('You cannot edit roles of this course.')
+        request.user.check_permission('can_edit_course_roles', course)
 
         resp = []
 
@@ -186,8 +181,7 @@ class RoleView(viewsets.ViewSet):
         course = Course.objects.get(pk=pk)
 
         # Users can only delete course roles with can_edit_course_roles
-        if not request.user.has_permission('can_edit_course_roles', course):
-            return response.forbidden(description="You have no permissions to delete this course role.")
+        request.user.check_permission('can_edit_course_roles', course)
 
         if name in ['Student', 'TA', 'Teacher']:
             return response.bad_request("Default roles 'Student', 'TA' and 'Teacher' cannot be deleted.")

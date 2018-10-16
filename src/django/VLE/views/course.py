@@ -56,8 +56,7 @@ class CourseView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        if not request.user.has_permission('can_add_course'):
-            return response.forbidden('You are not allowed to create a course.')
+        request.user.check_permission('can_add_course')
 
         name, abbr = utils.required_params(request.data, 'name', 'abbreviation')
         startdate, enddate, lti_id = utils.optional_params(request.data, 'startdate', 'enddate', 'lti_id')
@@ -87,8 +86,7 @@ class CourseView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=pk)
 
-        if not request.user.is_participant(course):
-            return response.forbidden('You are not participating in this course.')
+        request.user.check_participation(course)
 
         serializer = self.serializer_class(course, many=False)
         return response.success({'course': serializer.data})
@@ -118,8 +116,7 @@ class CourseView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=pk)
 
-        if not request.user.has_permission('can_edit_course_details', course):
-            return response.unauthorized('You are unauthorized to edit this course.')
+        request.user.check_permission('can_edit_course_details', course)
 
         data = request.data
         if 'lti_id' in data:
@@ -152,14 +149,10 @@ class CourseView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=pk)
 
-        if not request.user.is_participant(course):
-            return response.unauthorized(description="You are unauthorized to view this course.")
-
-        if not request.user.has_permission('can_delete_course', course):
-            return response.forbidden(description="You are unauthorized to delete this course.")
+        request.user.check_permission('can_delete_course', course)
 
         course.delete()
-        return response.success(description='Sucesfully deleted course.')
+        return response.success(description='Successfully deleted course.')
 
     @action(methods=['get'], detail=False)
     def linkable(self, request):

@@ -49,8 +49,7 @@ class AssignmentView(viewsets.ViewSet):
         course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
         course = Course.objects.get(pk=course_id)
 
-        if not request.user.is_participant(course):
-            return response.forbidden('You are not participating in this course.')
+        request.user.check_participation(course)
 
         # Consider all assignments that the user is in, or can grade.
         ids = []
@@ -101,8 +100,7 @@ class AssignmentView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=course_id)
 
-        if not request.user.has_permission('can_add_assignment', course):
-            return response.forbidden('You have no permissions to create an assignment.')
+        request.user.check_permission('can_add_assignment', course)
 
         assignment = factory.make_assignment(name, description, courses=[course],
                                              author=request.user, lti_id=lti_id,
@@ -152,8 +150,7 @@ class AssignmentView(viewsets.ViewSet):
         except (VLEMissingRequiredKey, VLEParamWrongType):
             course = None
 
-        if not request.user.is_participant(assignment):
-            return response.forbidden("You cannot view this assignment.")
+        request.user.check_participation(assignment)
 
         get_journals = request.user.has_permission('can_grade', assignment)
 
@@ -243,8 +240,7 @@ class AssignmentView(viewsets.ViewSet):
         course = Course.objects.get(pk=course_id)
 
         # Assignments can only be deleted with can_delete_assignment permission.
-        if not request.user.has_permission('can_delete_assignment', course):
-            return response.forbidden(description="You have no permission to delete this assignment.")
+        request.user.check_permission('can_delete_assignment', course)
 
         data = {
             'removed_completely': False,
@@ -313,8 +309,7 @@ class AssignmentView(viewsets.ViewSet):
         published, = utils.required_params(request.data, 'published')
         assignment = Assignment.objects.get(pk=assignment_id)
 
-        if not request.user.has_permission('can_publish_grades', assignment):
-            return response.forbidden('You are not allowed to publish grades for this assignment.')
+        request.user.check_permission('can_publish_grades', assignment)
 
         utils.publish_all_assignment_grades(assignment, published)
 

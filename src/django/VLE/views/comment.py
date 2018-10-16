@@ -49,9 +49,8 @@ class CommentView(viewsets.ViewSet):
         entry = Entry.objects.get(pk=entry_id)
         assignment = entry.node.journal.assignment
 
-        if entry.node.journal.user != request.user and \
-           not request.user.has_permission('can_view_assignment_journals', assignment):
-            return response.forbidden('You are not allowed to view journals of other participants.')
+        if request.user != entry.node.journal.user:
+            request.user.check_permission('can_view_assignment_journals', assignment)
 
         if request.user.has_permission('can_grade', assignment):
             comments = Comment.objects.filter(entry=entry)
@@ -89,10 +88,9 @@ class CommentView(viewsets.ViewSet):
         journal = Journal.objects.get(node__entry=entry)
         assignment = Assignment.objects.get(journal=journal)
 
-        if not request.user.has_permission('can_comment', assignment) or \
-           not request.user.has_permission('can_view_assignment_journals', assignment) or \
-           journal.user != request.user:
-            return response.forbidden('You are not allowed to comment on this journal')
+        request.user.check_permission('can_comment', assignment)
+        if request.user != journal.user:
+            request.user.check_permission('can_view_assignment_journals', assignment)
 
         published = published or not request.user.has_permission('can_grade', assignment)
 
@@ -122,9 +120,8 @@ class CommentView(viewsets.ViewSet):
         comment = Comment.objects.get(pk=pk)
         assignment = comment.entry.node.journal.assignment
 
-        if comment.entry.node.journal.user != request.user and \
-           not request.user.has_permission('can_view_assignment_journals', assignment):
-            return response.forbidden('You are not allowed to view journals of other participants.')
+        if request.user != comment.entry.node.journal.user:
+            request.user.check_permission('can_view_assignment_journals', assignment)
 
         serializer = CommentSerializer(comment)
 
@@ -157,8 +154,7 @@ class CommentView(viewsets.ViewSet):
 
         assignment = comment.entry.node.journal.assignment
 
-        if not request.user.has_permission('can_comment', assignment):
-            return response.forbidden('You are not allowed to comment on this entry.')
+        request.user.check_permission('can_comment', assignment)
 
         if not (comment.author.id == request.user.id or request.user.is_superuser):
             return response.forbidden('You are not allowed to edit this comment.')

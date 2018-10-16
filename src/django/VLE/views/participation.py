@@ -32,8 +32,7 @@ class ParticipationView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=course_id)
 
-        if not request.user.has_permission('can_view_course_users', course):
-            return response.forbidden('You cannot view the participants of this course.')
+        request.user.check_permission('can_view_course_users', course)
 
         users = UserSerializer(course.users, context={'course': course}, many=True).data
         return response.success({'participants': users})
@@ -57,10 +56,10 @@ class ParticipationView(viewsets.ViewSet):
             return response.unauthorized()
 
         course = Course.objects.get(pk=pk)
-        participation = Participation.objects.get(user=request.user, course=course)
 
-        if not request.user.is_participant(course):
-            return response.forbidden('You are not participating in this course.')
+        request.user.check_participation(course)
+
+        participation = Participation.objects.get(user=request.user, course=course)
 
         serializer = ParticipationSerializer(participation)
         return response.success({'participant': serializer.data})
@@ -95,8 +94,7 @@ class ParticipationView(viewsets.ViewSet):
         user = User.objects.get(pk=user_id)
         course = Course.objects.get(pk=course_id)
 
-        if not request.user.has_permission('can_add_course_users', course):
-            return response.forbidden('You cannot add users to this course.')
+        request.user.check_permission('can_add_course_users', course)
 
         if user.is_participant(course):
             return response.bad_request('User already participates in the course.')
@@ -109,7 +107,7 @@ class ParticipationView(viewsets.ViewSet):
         for assignment in assignments:
             if not Journal.objects.filter(assignment=assignment, user=user).exists():
                 factory.make_journal(assignment, user)
-        return response.success(description='Succesfully added student to course.')
+        return response.success(description='Successfully added student to course.')
 
     def partial_update(self, request, pk):
         """Update user role in a course.
@@ -140,8 +138,7 @@ class ParticipationView(viewsets.ViewSet):
         course = Course.objects.get(pk=pk)
         participation = Participation.objects.get(user=user, course=course)
 
-        if not request.user.has_permission('can_edit_course_roles', course):
-            return response.forbidden('You cannot edit the roles of this course.')
+        request.user.check_permission('can_edit_course_roles', course)
 
         participation.role = Role.objects.get(name=role_name, course=course)
 
@@ -169,8 +166,7 @@ class ParticipationView(viewsets.ViewSet):
         course = Course.objects.get(pk=pk)
         participation = Participation.objects.get(user=user, course=course)
 
-        if not request.user.has_permission('can_delete_course_users', course):
-            return response.forbidden(description="You are not allowed to delete this user.")
+        request.user.check_permission('can_delete_course_users', course)
 
         participation.delete()
         return response.success(description='Sucesfully removed user from course.')
@@ -199,8 +195,7 @@ class ParticipationView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=course_id)
 
-        if not request.user.has_permission('can_add_course_users', course):
-            return response.forbidden('You are not allowed to add course users.')
+        request.user.check_permission('can_add_course_users', course)
 
         ids_in_course = course.participation_set.all().values('user__id')
         users = User.objects.all().exclude(id__in=ids_in_course)

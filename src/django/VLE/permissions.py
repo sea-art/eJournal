@@ -25,6 +25,8 @@ def has_general_permission(user, permission):
     Arguments:
     user -- user that did the request.
     permission -- the permission string to check.
+
+    Raises VLEProgrammingError when the passed permission is not a "General Permission".
     """
     if permission not in GENERAL_PERMISSIONS:
         raise VLEProgrammingError("Permission " + permission + " is not a general level permission.")
@@ -46,6 +48,9 @@ def has_course_permission(user, permission, course):
     user -- user that did the request.
     course -- course used to check against.
     permission -- the permission string to check.
+
+    Raises VLEProgrammingError when the passed permission is not a "Course Permission".
+    Raises VLEParticipationError when the user is not participating in the course.
     """
     if permission not in COURSE_PERMISSIONS:
         raise VLEProgrammingError("Permission " + permission + " is not a course level permission.")
@@ -53,8 +58,7 @@ def has_course_permission(user, permission, course):
     if user.is_superuser:
         return True
 
-    if not user.is_participant(course):
-        return False
+    user.check_participation(course)
 
     role = VLE.models.Participation.objects.get(user=user, course=course).role
     permissions = model_to_dict(role)
@@ -69,6 +73,9 @@ def has_assignment_permission(user, permission, assignment):
     user -- user that did the request.
     assignment -- assignment used to check against.
     permission -- the permission string to check.
+
+    Raises VLEProgrammingError when the passed permission is not an "Assignment Permission".
+    Raises VLEParticipationError when the user is not participating in the assignment.
     """
 
     if permission not in ASSIGNMENT_PERMISSIONS:
@@ -78,6 +85,8 @@ def has_assignment_permission(user, permission, assignment):
         if permission == 'can_have_journal':
             return False
         return True
+
+    user.check_participation(assignment)
 
     permissions = defaultdict(lambda: False)
     for course in assignment.courses.all():

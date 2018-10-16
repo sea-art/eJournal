@@ -59,8 +59,7 @@ class EntryView(viewsets.ViewSet):
         elif not assignment.format.available_templates.all().filter(pk=template.pk).exists():
             return response.forbidden('Entry template is not available.')
 
-        if not request.user.has_permission('can_have_journal', assignment):
-            return response.forbidden('You are not allowed to create an entry for this journal.')
+        request.user.check_permission('can_have_journal', assignment)
 
         if (assignment.unlock_date and assignment.unlock_date > datetime.now()) or \
            (assignment.lock_date and assignment.lock_date < datetime.now()):
@@ -161,7 +160,7 @@ class EntryView(viewsets.ViewSet):
         if ((assignment.unlock_date and assignment.unlock_date > datetime.now()) or
             (assignment.lock_date and assignment.lock_date < datetime.now())) and \
            not request.user.has_permission('can_view_assignment_journals', assignment):
-            return response.bad_request('The assignment is locked and unavailable for students.')
+            return response.forbidden('The assignment is locked and unavailable for students.')
 
         if published is not None:
             entry.published = published
@@ -177,8 +176,7 @@ class EntryView(viewsets.ViewSet):
             if not (journal.user == request.user or request.user.is_superuser):
                 response.forbidden('You are not allowed to edit someone else\'s entry.')
 
-            if not request.user.has_permission('can_have_journal', assignment):
-                return response.forbidden('You are not allowed to have a journal.')
+            request.user.check_permission('can_have_journal', assignment)
 
             if entry.grade is not None:
                 return response.bad_request('You are not allowed to edit graded entries.')

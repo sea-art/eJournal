@@ -73,8 +73,7 @@ class GroupView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=course_id)
 
-        if not user.has_permission('can_add_course_user_group', course):
-            return response.forbidden("You are not allowed to create a course group.")
+        request.user.check_permission('can_add_course_user_group', course)
 
         if Group.objects.filter(name=name, course=course).exists():
             return response.bad_request('Course group with that name already exists.')
@@ -110,8 +109,7 @@ class GroupView(viewsets.ViewSet):
         course = Course.objects.get(pk=course_id)
         group = Group.objects.get(name=old_group_name, course=course)
 
-        if not request.user.has_permission('can_edit_course_user_group', course):
-            return response.unauthorized('You are unauthorized to edit this course group.')
+        request.user.check_permission('can_edit_course_user_group', course)
 
         if not new_group_name:
             return response.bad_request('Group name is not allowed to be empty.')
@@ -152,10 +150,9 @@ class GroupView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=course_id)
 
-        if not request.user.has_permission('can_delete_course_user_group', course):
-            return response.forbidden(description="You are unauthorized to delete this course group.")
+        request.user.check_permission('can_delete_course_user_group', course)
 
         group = Group.objects.get(name=name, course=course)
 
         group.delete()
-        return response.success(description='Sucesfully deleted course group.')
+        return response.success(description='Successfully deleted course group.')

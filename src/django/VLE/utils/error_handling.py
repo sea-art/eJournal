@@ -17,6 +17,16 @@ class VLEProgrammingError(Exception):
     pass
 
 
+class VLEPermissionError(Exception):
+    def __init__(self, permission):
+        super(VLEPermissionError, self).__init__('User does not have permission ' + permission)
+
+
+class VLEParticipationError(Exception):
+    def __init__(self, obj):
+        super(VLEParticipationError, self).__init__('User is not participating in ' + str(obj))
+
+
 class ErrorMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -35,7 +45,10 @@ class ErrorMiddleware:
             return response.value_error(str(exception))
         elif isinstance(exception, SMTPAuthenticationError):
             return response.internal_server_error(
-                description='Mailserver is not configured correctly, please contact a server admin.')
+                'Mailserver is not configured correctly, please contact a server admin.')
         elif isinstance(exception, VLEProgrammingError):
-            return response.internal_server_error(
-                description='Someone made a programming mistake. Please contact a server admin.')
+            return response.internal_server_error(str(exception))
+        elif isinstance(exception, VLEParticipationError):
+            return response.forbidden(str(exception))
+        elif isinstance(exception, VLEPermissionError):
+            return response.forbidden(str(exception))

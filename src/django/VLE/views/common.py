@@ -8,7 +8,7 @@ This includes:
 from rest_framework.decorators import api_view
 
 import VLE.views.responses as response
-from VLE.models import Assignment, Course, Journal, Participation
+from VLE.models import Assignment, Course, Journal
 
 
 @api_view(['GET'])
@@ -31,19 +31,23 @@ def names(request, course_id, assignment_id, journal_id):
     result = {}
     if course_id:
         course = Course.objects.get(pk=course_id)
-        if not Participation.objects.filter(user=request.user, course=course).exists():
-            return response.forbidden('You are not a particpant of this course.')
+
+        request.user.check_participation(course)
+
         result['course'] = course.name
     if assignment_id:
         assignment = Assignment.objects.get(pk=assignment_id)
-        if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk).exists():
-            return response.forbidden('You are not allowed to view this assignment.')
+
+        request.user.check_participation(assignment)
+
         result['assignment'] = assignment.name
+
     if journal_id:
         journal = Journal.objects.get(pk=journal_id)
-        if not (journal.user == request.user or
-                request.user.has_permission('can_view_assignment_journals', journal.assignment)):
-            return response.forbidden('You are not allowed to view journals of other participants.')
+
+        if request.user != journal.user:
+            request.user.check_permission('can_view_assignment_journals', journal.assignment)
+
         result['journal'] = journal.user.first_name + " " + journal.user.last_name
 
     return response.success({'names': result})

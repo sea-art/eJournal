@@ -5,20 +5,16 @@ This file tests whether all permissions behave as required.
 """
 import datetime
 
-from django.test import TestCase
 from django.core.validators import ValidationError
+from django.test import TestCase
 
 import VLE.factory as factory
 import VLE.permissions as permissions
-from VLE.utils.error_handling import VLEProgrammingError
+from VLE.utils.error_handling import (VLEParticipationError,
+                                      VLEPermissionError, VLEProgrammingError)
 
 
 class PermissionTests(TestCase):
-    """Test the permission system.
-
-    Test whether the permissions behave as required.
-    """
-
     def setUp(self):
         self.user = factory.make_user('Username', 'Password', email='some@email.address')
 
@@ -49,8 +45,8 @@ class PermissionTests(TestCase):
         self.assertTrue(self.user.has_permission('can_delete_assignment', self.course_independent))
 
         self.assertFalse(self.user.has_permission('can_delete_course_user_group', self.course_independent))
-        self.assertFalse(self.user.has_permission('can_delete_assignment', self.course1))
-        self.assertFalse(self.user.has_permission('can_delete_assignment', self.course2))
+        self.assertRaises(VLEParticipationError, self.user.has_permission, 'can_delete_assignment', self.course1)
+        self.assertRaises(VLEParticipationError, self.user.has_permission, 'can_delete_assignment', self.course2)
 
     def test_assignment_permission(self):
         """Test whether the user has only the given assignment permission."""
@@ -61,7 +57,7 @@ class PermissionTests(TestCase):
 
         self.assertFalse(self.user.has_permission('can_add_course'))
         self.assertFalse(self.user.has_permission('can_edit_assignment', self.assignment_independent))
-        self.assertFalse(self.user.has_permission('can_have_journal', self.assignment))
+        self.assertRaises(VLEParticipationError, self.user.has_permission, 'can_have_journal', self.assignment)
 
     def test_multi_course_assignment_permission(self):
         """Test whether the assignment has the correct permissions when bound to multiple courses."""
@@ -146,9 +142,30 @@ class PermissionTests(TestCase):
         self.assertTrue(user.has_permission('can_add_course'))
 
         self.assertFalse(user.has_permission('can_edit_institute_details'))
-        self.assertFalse(user.has_permission('can_delete_course', self.course_independent))
-        self.assertFalse(user.has_permission('can_edit_assignment', self.assignment_independent))
-        self.assertFalse(user.has_permission('can_have_journal', self.assignment_independent))
+        self.assertRaises(VLEParticipationError, user.has_permission, 'can_delete_course', self.course_independent)
+        self.assertRaises(VLEParticipationError, user.has_permission, 'can_have_journal', self.assignment_independent)
+
+    def test_check_permission(self):
+        """Test whether check_permission throws VLEPermissionError when it should throw."""
+        role = factory.make_role_default_no_perms("SD", self.course1, can_delete_course=True, can_have_journal=True)
+        factory.make_participation(self.user, self.course1, role)
+
+        self.user.check_permission('can_delete_course', self.course1)
+        self.assertRaises(VLEPermissionError, self.user.check_permission, 'can_view_course_users', self.course1)
+        self.user.check_permission('can_have_journal', self.assignment)
+        self.assertRaises(VLEPermissionError, self.user.check_permission, 'can_grade', self.assignment)
+
+    def test_check_participation(self):
+        """Tests whether check_participation throws VLEParticipationError when it should throw."""
+        role = factory.make_role_default_no_perms("SD", self.course1)
+        factory.make_participation(self.user, self.course1, role)
+
+        self.user.check_participation(self.course1)
+        self.assertRaises(VLEParticipationError, self.user.check_participation, self.course_independent)
+        self.assertRaises(VLEParticipationError, self.user.check_participation, self.course2)
+
+        self.user.check_participation(self.assignment)
+        self.assertRaises(VLEParticipationError, self.user.check_participation, self.assignment_independent)
 
     def test_invalid_permission(self):
         """Ensure the call does not silently fail when passed an invalid permission."""

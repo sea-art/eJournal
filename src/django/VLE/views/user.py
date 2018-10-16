@@ -344,9 +344,8 @@ class UserView(viewsets.ViewSet):
         except (UserFile.DoesNotExist, ValueError):
             return response.bad_request(file_name + ' was not found.')
 
-        if user_file.author.id is not request.user.id and \
-           not request.user.has_permission('can_view_assignment_journals', user_file.assignment):
-            return response.forbidden('Forbidden to view: %s by author ID: %s.' % (file_name, pk))
+        if user_file.author.id is not request.user.id:
+            request.check_permission('can_view_assignment_journals', user_file.assignment)
 
         return response.file(user_file)
 

@@ -89,8 +89,7 @@ class OwnUserSerializer(serializers.ModelSerializer):
         ids = []
         for course in courses:
             for assignment in course.assignment_set.all():
-                if user.has_permission('can_grade', assignment) or \
-                        assignment.journal_set.filter(user=user).exists():
+                if user.has_permission('can_grade', assignment) or user.has_permission('can_have_journal', assignment):
                     ids.append(assignment.id)
 
         assignments = Assignment.objects.filter(id__in=ids)

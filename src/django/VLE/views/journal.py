@@ -44,8 +44,7 @@ class JournalView(viewsets.ViewSet):
 
         assignment = Assignment.objects.get(pk=request.query_params['assignment_id'])
 
-        if not request.user.has_permission('can_view_assignment_journals', assignment):
-            return response.forbidden('You are not allowed to view assignment participants.')
+        request.user.check_permission('can_view_assignment_journals', assignment)
 
         queryset = assignment.journal_set.all()
         journals = JournalSerializer(queryset, many=True).data
@@ -73,10 +72,10 @@ class JournalView(viewsets.ViewSet):
 
         journal = Journal.objects.get(pk=pk)
 
-        if not (journal.user == request.user and
-                request.user.has_permission('can_have_journal', journal.assignment)) and \
-           not request.user.has_permission('can_view_assignment_journals', journal.assignment):
-            return response.forbidden('You are not allowed to view this journal.')
+        if journal.user != request.user:
+            if not request.user.has_permission('can_have_journal', journal.assignment) and \
+               not request.user.has_permission('can_view_assignment_journals', journal.assignment):
+                return response.forbidden('You are not allowed to view this journal.')
 
         serializer = JournalSerializer(journal)
 
@@ -125,8 +124,7 @@ class JournalView(viewsets.ViewSet):
         return response.success({'journal': serializer.data})
 
     def publish(self, request, journal, published=True):
-        if not request.user.has_permission('can_publish_grades', journal.assignment):
-            return response.forbidden('You cannot publish assignments.')
+        request.user.check_permission('can_publish_grades', journal.assignment)
 
         utils.publish_all_journal_grades(journal, published)
         if journal.sourcedid is not None and journal.grade_url is not None:

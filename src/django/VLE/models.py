@@ -12,7 +12,8 @@ from django.dispatch import receiver
 from django.utils.timezone import now
 
 import VLE.permissions as permissions
-from VLE.utils.error_handling import VLEProgrammingError
+from VLE.utils.error_handling import (VLEParticipationError,
+                                      VLEPermissionError, VLEProgrammingError)
 from VLE.utils.file_handling import get_path
 
 
@@ -122,6 +123,14 @@ class User(AbstractUser):
         default=False
     )
 
+    def check_permission(self, permission, obj=None):
+        """
+        Throws a VLEPermissionError when the user does not have the specified permission, as defined by
+        has_permission.
+        """
+        if not self.has_permission(permission, obj):
+            raise VLEPermissionError(permission)
+
     def has_permission(self, permission, obj=None):
         """
         Returns whether the user has the given permission.
@@ -137,6 +146,10 @@ class User(AbstractUser):
         if isinstance(obj, Assignment):
             return permissions.has_assignment_permission(self, permission, obj)
         raise VLEProgrammingError("Permission object must be of type None, Course or Assignment.")
+
+    def check_participation(self, obj):
+        if not self.is_participant(obj):
+            raise VLEParticipationError(obj)
 
     def is_participant(self, obj):
         if isinstance(obj, Course):
