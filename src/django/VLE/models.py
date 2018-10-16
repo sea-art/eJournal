@@ -319,6 +319,7 @@ class Assignment(models.Model):
         on_delete=models.SET_NULL,
         null=True
     )
+    is_published = models.BooleanField(default=False)
     points_possible = models.IntegerField(
         'points_possible',
         default=10

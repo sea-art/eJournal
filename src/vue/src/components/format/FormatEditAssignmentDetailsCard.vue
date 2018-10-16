@@ -14,12 +14,24 @@
                 @content-update="assignmentDetails.description = $event"
                 @change="$emit('changed')"
                 :footer="false"/>
-            <h2 class="field-heading">Points possible</h2>
-            <b-input class="multi-form theme-input"
-                v-model="assignmentDetails.points_possible"
-                placeholder="Points"
-                @change="$emit('changed')"
-                type="number"/>
+            <b-row>
+                <b-col xl="8">
+                    <h2 class="field-heading">Points possible</h2>
+                    <b-input class="multi-form theme-input"
+                        v-model="assignmentDetails.points_possible"
+                        placeholder="Points"
+                        @change="$emit('changed')"
+                        type="number"/>
+                </b-col>
+                <b-col xl="2">
+                    <!-- TODO front-end make beautifull -->
+                    <h2 class="field-heading">Publish</h2>
+                    <input class="multi-form theme-input"
+                    v-model="assignmentDetails.is_published"
+                    @click="$emit('changed')"
+                    type="checkbox"/>
+                </b-col>
+            </b-row>
             <b-row>
                 <b-col xl="4">
                     <h2 class="field-heading">Unlock date</h2>

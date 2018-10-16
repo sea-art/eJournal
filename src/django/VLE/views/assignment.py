@@ -94,8 +94,9 @@ class AssignmentView(viewsets.ViewSet):
             return response.unauthorized()
 
         name, description, course_id = utils.required_params(request.data, "name", "description", "course_id")
-        points_possible, unlock_date, due_date, lock_date, lti_id = \
-            utils.optional_params(request.data, "points_possible", "unlock_date", "due_date", "lock_date", "lti_id")
+        points_possible, unlock_date, due_date, lock_date, lti_id, is_published = \
+            utils.optional_params(request.data, "points_possible", "unlock_date", "due_date", "lock_date", "lti_id",
+                                  "is_published")
 
         course = Course.objects.get(pk=course_id)
 
@@ -109,7 +110,7 @@ class AssignmentView(viewsets.ViewSet):
                                              author=request.user, lti_id=lti_id,
                                              points_possible=points_possible,
                                              unlock_date=unlock_date, due_date=due_date,
-                                             lock_date=lock_date)
+                                             lock_date=lock_date, is_published=is_published)
 
         for user in course.users.all():
             role = permissions.get_role(user, course_id)
@@ -294,7 +295,7 @@ class AssignmentView(viewsets.ViewSet):
         # TODO: change query to a query that selects all upcoming assignments connected to the user.
         for course in courses:
             if permissions.get_role(request.user, course):
-                for assignment in Assignment.objects.filter(courses=course.id).all():
+                for assignment in Assignment.objects.filter(courses=course.id, is_published=True).all():
                     deadline_list.append(
                         AssignmentSerializer(assignment, context={'user': request.user, 'course': course}).data)
 

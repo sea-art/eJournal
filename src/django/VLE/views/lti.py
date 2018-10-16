@@ -65,6 +65,7 @@ def get_lti_params_from_jwt(request, jwt_params):
                 payload['lti_aDue'] = lti_params['custom_assignment_due']
                 payload['lti_aLock'] = lti_params['custom_assignment_lock']
                 payload['lti_points_possible'] = lti_params['custom_assignment_points']
+                payload['lti_aPublished'] = lti_params['custom_assignment_publish']
 
                 return response.success({'params': payload})
             else:
@@ -82,6 +83,7 @@ def get_lti_params_from_jwt(request, jwt_params):
                 payload['lti_aDue'] = lti_params['custom_assignment_due']
                 payload['lti_aLock'] = lti_params['custom_assignment_lock']
                 payload['lti_points_possible'] = lti_params['custom_assignment_points']
+                payload['lti_aPublished'] = lti_params['custom_assignment_publish']
 
                 return response.success({'params': payload})
             else:
@@ -115,6 +117,9 @@ def lti_launch(request):
     """
     secret = settings.LTI_SECRET
     key = settings.LTI_KEY
+
+    # from django.http import JsonResponse
+    # return JsonResponse(request.POST)
 
     authenticated, err = lti.OAuthRequestValidater.check_signature(
         key, secret, request)

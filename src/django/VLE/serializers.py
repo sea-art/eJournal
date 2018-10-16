@@ -98,7 +98,8 @@ class ParticipationSerializer(serializers.ModelSerializer):
 class AssignmentDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assignment
-        fields = ('id', 'name', 'description', 'points_possible', 'unlock_date', 'due_date', 'lock_date')
+        fields = ('id', 'name', 'description', 'points_possible', 'unlock_date', 'due_date', 'lock_date',
+                  'is_published')
         read_only_fields = ('id', )
 
 

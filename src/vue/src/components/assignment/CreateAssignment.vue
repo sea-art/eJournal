@@ -15,11 +15,22 @@
                 @content-update="form.assignmentDescription = $event"
                 :footer="false"
             />
-            <h2 class="field-heading">Points possible</h2>
-            <b-input class="multi-form theme-input"
-            v-model="form.pointsPossible"
-            placeholder="Points"
-            type="number"/>
+            <b-row>
+                <b-col xl="10">
+                    <h2 class="field-heading">Points possible</h2>
+                    <b-input class="multi-form theme-input"
+                    v-model="form.pointsPossible"
+                    placeholder="Points"
+                    type="number"/>
+                </b-col>
+                <b-col xl="2">
+                    <!-- TODO front-end make beautifull -->
+                    <h2 class="field-heading">Publish</h2>
+                    <input class="multi-form theme-input"
+                    v-model="form.is_published"
+                    type="checkbox"/>
+                </b-col>
+            </b-row>
             <b-row>
                 <b-col xl="4">
                     <h2 class="field-heading">Unlock date</h2>
@@ -89,7 +100,8 @@ export default {
                 points_possible: this.form.pointsPossible,
                 unlock_date: this.form.unlockDate,
                 due_date: this.form.dueDate,
-                lock_date: this.form.lockDate
+                lock_date: this.form.lockDate,
+                is_published: this.form.is_published
             })
                 .then(assignment => {
                     this.$emit('handleAction', assignment.id)
@@ -125,6 +137,7 @@ export default {
             this.form.dueDate = this.lti.ltiAssignDue.slice(0, -9)
             this.form.lockDate = this.lti.ltiAssignLock.slice(0, -9)
             this.form.courseID = this.page.cID
+            this.form.is_published = this.lti.ltiAssignPublished
         } else {
             this.form.courseID = this.$route.params.cID
         }
