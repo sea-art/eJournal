@@ -43,14 +43,20 @@
                                 <div class="d-flex">
                                     <b-input class="multi-form mr-2 theme-input" placeholder="Enter an option" @keyup.enter.native="addSelectionOption($event.target, field)" @focus.native="selectedLocation = field.location" @focusout.native="selectedLocation = null"/>
                                     <b-button @click.stop="addSelectionOption($event.target.previousElementSibling, field)" v-if="field.required" class="float-right multi-form" @focus="selectedLocation = field.location">
+                                        <icon name="plus"/>
                                         Add option
                                     </b-button>
                                 </div>
-                                <ul v-if="field.location == selectedLocation && field.options">
-                                    <li v-for="option in JSON.parse(field.options)" :key="option">
+                                <div v-if="field.options">
+                                    <b-button
+                                        v-for="option in JSON.parse(field.options)"
+                                        :key="option"
+                                        class="delete-button mr-2 mb-2"
+                                        @click.stop="removeSelectionOption(option, field)">
+                                        <icon name="trash"/>
                                         {{ option }}
-                                    </li>
-                                </ul>
+                                    </b-button>
+                                </div>
                             </div>
 
                         </b-col>
@@ -148,6 +154,11 @@ export default {
                 target.value = ''
                 target.focus()
             }
+        },
+        removeSelectionOption (option, field) {
+            var options = JSON.parse(field.options)
+            options.splice(options.indexOf(option.trim()), 1)
+            field.options = JSON.stringify(options)
         }
     }
 }
