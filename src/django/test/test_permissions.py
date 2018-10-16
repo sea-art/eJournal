@@ -9,8 +9,8 @@ from django.core.validators import ValidationError
 from django.test import TestCase
 
 import VLE.factory as factory
-from VLE.models import Participation
 import VLE.permissions as permissions
+from VLE.models import Participation
 from VLE.utils.error_handling import (VLEParticipationError,
                                       VLEPermissionError, VLEProgrammingError)
 

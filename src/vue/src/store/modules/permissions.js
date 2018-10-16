@@ -24,7 +24,7 @@ const getters = {
         } else if (types.GENERAL_LEVEL_PERMISSIONS.has(permission)) {
             return permissions['general'][permission]
         } else {
-            throw Error('Permission ' + permission + ' is not a valid permission for this context.')
+            throw Error('Permission ' + permission + ' is not a valid permission for the context: {course' + routeParams.cID + ', assignment' + routeParams.aID + ', general}.')
         }
     }
 }

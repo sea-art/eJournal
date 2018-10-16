@@ -3,8 +3,6 @@ timeline.py.
 
 Useful timeline functions.
 """
-from datetime import datetime
-
 from django.db.models import Case, When
 from django.utils import timezone
 
@@ -53,7 +51,7 @@ def get_nodes(journal, user):
         elif node.type == Node.PROGRESS:
             node_list.append(get_progress(node))
 
-    if can_add and journal.assignment.due_date and journal.assignment.due_date > datetime.now():
+    if can_add and not journal.assignment.is_due():
         add_node = get_add_node(journal)
         if add_node:
             node_list.append(add_node)

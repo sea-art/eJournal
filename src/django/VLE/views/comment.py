@@ -10,7 +10,7 @@ from rest_framework import viewsets
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
-from VLE.models import Assignment, Comment, Entry, Journal
+from VLE.models import Comment, Entry
 from VLE.serializers import CommentSerializer
 
 
@@ -85,8 +85,8 @@ class CommentView(viewsets.ViewSet):
         entry_id, text, published = utils.required_params(request.data, "entry_id", "text", "published")
 
         entry = Entry.objects.get(pk=entry_id)
-        journal = Journal.objects.get(node__entry=entry)
-        assignment = Assignment.objects.get(journal=journal)
+        journal = entry.node.journal
+        assignment = journal.assignment
 
         request.user.check_permission('can_comment', assignment)
         if request.user != journal.user:
@@ -118,9 +118,10 @@ class CommentView(viewsets.ViewSet):
             return response.unauthorized()
 
         comment = Comment.objects.get(pk=pk)
-        assignment = comment.entry.node.journal.assignment
+        journal = comment.entry.node.journal
+        assignment = journal.assignment
 
-        if request.user != comment.entry.node.journal.user:
+        if request.user != journal.user:
             request.user.check_permission('can_view_assignment_journals', assignment)
 
         serializer = CommentSerializer(comment)

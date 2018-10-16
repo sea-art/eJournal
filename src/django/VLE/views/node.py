@@ -3,8 +3,6 @@ node.py.
 
 In this file are all the node api requests.
 """
-from datetime import datetime
-
 from rest_framework import viewsets
 
 import VLE.timeline as timeline
@@ -49,12 +47,8 @@ class NodeView(viewsets.ModelViewSet):
 
         journal = Journal.objects.get(pk=journal_id)
 
-        if request.user != journal.user:
-            request.user.check_permission('can_view_assignment_journals', journal.assignment)
-
-        if ((journal.assignment.unlock_date and journal.assignment.unlock_date > datetime.now()) or
-            (journal.assignment.lock_date and journal.assignment.lock_date < datetime.now())) and \
-           not request.user.has_permission('can_view_assignment_journals', journal.assignment):
-            return response.forbidden('The assignment is locked and unavailable for students.')
+        if request.user != journal.user or journal.assignment.is_locked():
+            request.user.check_permission('can_view_assignment_journals', journal.assignment,
+                                          'The assignment is locked and therefore unavailable for students.')
 
         return response.success({'nodes': timeline.get_nodes(journal, request.user)})

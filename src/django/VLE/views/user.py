@@ -41,8 +41,7 @@ class UserView(viewsets.ViewSet):
             return response.unauthorized()
 
         if not (request.user.is_teacher or request.user.is_superuser):
-            return response.forbidden(description="Only teachers and administrators are allowed to request all user \
-                                       data.")
+            return response.forbidden('Only teachers and administrators are allowed to request all user data.')
 
         serializer = UserSerializer(User.objects.all(), many=True)
         return response.success({'users': serializer.data})

@@ -52,14 +52,13 @@ class AssignmentView(viewsets.ViewSet):
         request.user.check_participation(course)
 
         # Consider all assignments that the user is in, or can grade.
-        ids = []
+        assignments = []
         for assignment in course.assignment_set.all():
             if request.user.has_permission('can_grade', assignment) or \
                request.user.has_permission('can_have_journal', assignment):
-                ids.append(assignment.id)
+                assignments.append(assignment)
 
-        queryset = Assignment.objects.filter(id__in=ids)
-        serializer = AssignmentSerializer(queryset, many=True, context={'user': request.user, 'course': course})
+        serializer = AssignmentSerializer(assignments, many=True, context={'user': request.user, 'course': course})
 
         data = serializer.data
         for i, assignment in enumerate(data):
@@ -152,11 +151,10 @@ class AssignmentView(viewsets.ViewSet):
 
         request.user.check_participation(assignment)
 
-        get_journals = request.user.has_permission('can_grade', assignment)
-
         serializer = AssignmentSerializer(
             assignment,
-            context={'user': request.user, 'course': course, 'journals': get_journals}
+            context={'user': request.user, 'course': course,
+                     'journals': request.user.has_permission('can_grade', assignment)}
         )
 
         return response.success({'assignment': serializer.data})

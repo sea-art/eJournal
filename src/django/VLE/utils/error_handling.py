@@ -18,8 +18,11 @@ class VLEProgrammingError(Exception):
 
 
 class VLEPermissionError(Exception):
-    def __init__(self, permission):
-        super(VLEPermissionError, self).__init__('User does not have permission ' + permission)
+    def __init__(self, permission, message=None):
+        if message:
+            super(VLEPermissionError, self).__init__(message)
+        else:
+            super(VLEPermissionError, self).__init__('User does not have permission ' + permission)
 
 
 class VLEParticipationError(Exception):

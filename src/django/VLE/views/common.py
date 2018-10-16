@@ -31,20 +31,16 @@ def names(request, course_id, assignment_id, journal_id):
     result = {}
     if course_id:
         course = Course.objects.get(pk=course_id)
-
         request.user.check_participation(course)
-
         result['course'] = course.name
+
     if assignment_id:
         assignment = Assignment.objects.get(pk=assignment_id)
-
         request.user.check_participation(assignment)
-
         result['assignment'] = assignment.name
 
     if journal_id:
         journal = Journal.objects.get(pk=journal_id)
-
         if request.user != journal.user:
             request.user.check_permission('can_view_assignment_journals', journal.assignment)
 

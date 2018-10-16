@@ -212,7 +212,7 @@ class GetApiTests(TestCase):
         login = test.logging_in(self, student_user, student_pass)
         response = test.api_get_call(self, '/nodes/', login, params={'journal_id': journal.pk})
         result = response.json()
-        self.assertEquals(len(result['nodes']), 4)
+        self.assertEquals(len(result['nodes']), 5)
 
         login = test.logging_in(self, self.rein_user, self.rein_pass)
         response = test.api_get_call(self, '/nodes/', login, params={'journal_id': journal.pk})

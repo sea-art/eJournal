@@ -86,15 +86,13 @@ class OwnUserSerializer(serializers.ModelSerializer):
         for course in courses:
             perms['course' + str(course.id)] = permissions.serialize_course_permissions(user, course)
 
-        ids = []
+        assignments = set()
         for course in courses:
             for assignment in course.assignment_set.all():
                 if user.has_permission('can_grade', assignment) or user.has_permission('can_have_journal', assignment):
-                    ids.append(assignment.id)
+                    assignments.add(assignment)
 
-        assignments = Assignment.objects.filter(id__in=ids)
-
-        for assignment in assignments.distinct():
+        for assignment in assignments:
             perms['assignment' + str(assignment.id)] = permissions.serialize_assignment_permissions(user, assignment)
 
         return perms

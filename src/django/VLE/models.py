@@ -123,13 +123,13 @@ class User(AbstractUser):
         default=False
     )
 
-    def check_permission(self, permission, obj=None):
+    def check_permission(self, permission, obj=None, message=None):
         """
         Throws a VLEPermissionError when the user does not have the specified permission, as defined by
         has_permission.
         """
         if not self.has_permission(permission, obj):
-            raise VLEPermissionError(permission)
+            raise VLEPermissionError(permission, message)
 
     def has_permission(self, permission, obj=None):
         """
@@ -156,7 +156,7 @@ class User(AbstractUser):
             return Course.objects.filter(pk=obj.pk, users=self).exists()
         if isinstance(obj, Assignment):
             return Assignment.objects.filter(pk=obj.pk, courses__users=self).exists()
-        raise VLEProgrammingError("obj must be of type Course or Assignment.")
+        raise VLEProgrammingError("Participant object must be of type Course or Assignment.")
 
     def __str__(self):
         """toString."""
@@ -383,6 +383,13 @@ class Assignment(models.Model):
         on_delete=models.CASCADE
     )
 
+    def is_locked(self):
+        return self.unlock_date and self.unlock_date > now() or \
+               self.lock_date and self.lock_date < now()
+
+    def is_due(self):
+        return self.due_date and self.due_date < now()
+
     def __str__(self):
         """toString."""
         return self.name + " (" + str(self.id) + ")"
@@ -575,6 +582,9 @@ class PresetNode(models.Model):
         on_delete=models.CASCADE
     )
 
+    def is_due(self):
+        return self.deadline < now() or self.format.assignment.is_due()
+
 
 class Entry(models.Model):
     """Entry.
@@ -607,6 +617,9 @@ class Entry(models.Model):
         default=None,
         null=True
     )
+
+    def is_due(self):
+        return (self.node.preset and self.node.preset.is_due()) or self.node.journal.assignment.is_due()
 
     def __str__(self):
         """toString."""
