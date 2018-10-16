@@ -9,7 +9,7 @@ import VLE.lti_grade_passback as lti_grade
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
-from VLE.models import Assignment, Course, Journal, User
+from VLE.models import Assignment, Course, Journal
 from VLE.serializers import JournalSerializer
 
 
@@ -44,15 +44,16 @@ class JournalView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        assignment = Assignment.objects.get(pk=request.query_params['assignment_id'])
-        course = Course.objects.get(pk=request.query_params['course_id'])
+        assignment_id, course_id = utils.required_params(request.query_params, "assignment_id", "course_id")
+
+        assignment = Assignment.objects.get(pk=assignment_id)
+        course = Course.objects.get(pk=course_id)
 
         if not permissions.has_assignment_permission(request.user, assignment, 'can_view_assignment_journals'):
             return response.forbidden('You are not allowed to view assignment participants.')
 
-        ids_in_course = course.participation_set.all().values('user__id').filter(role__can_have_journal=True)
-        users = User.objects.all().filter(id__in=ids_in_course)
-        queryset = assignment.journal_set.all().filter(user__in=users)
+        users = course.participation_set.filter(role__can_have_journal=True).values('user')
+        queryset = assignment.journal_set.filter(user__in=users)
         journals = JournalSerializer(queryset, many=True).data
 
         return response.success({'journals': journals})

@@ -209,6 +209,12 @@ class GetApiTests(TestCase):
                           login,
                           status=404,
                           params={'course_id': course.pk, 'assignment_id': self.not_found_pk})
+
+        test.api_get_call(self,
+                          '/journals/',
+                          login,
+                          status=400,
+                          params={})
         test.test_unauthorized_api_get_call(self,
                                             '/journals/',
                                             params={'course_id': course.pk, 'assignment_id': self.not_found_pk})
