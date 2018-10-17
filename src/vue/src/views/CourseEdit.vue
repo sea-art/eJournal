@@ -224,6 +224,7 @@ export default {
                 courseAPI.update(this.cID, this.course)
                     .then(course => {
                         this.course = course
+                        this.originalCourse = this.deepCopyCourse(course)
                         this.$toasted.success('Succesfully updated the course.')
                         store.clearCache()
                     })
