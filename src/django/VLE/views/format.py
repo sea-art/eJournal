@@ -36,7 +36,7 @@ class FormatView(viewsets.ViewSet):
 
         assignment = Assignment.objects.get(pk=pk)
 
-        request.user.check_permission('can_edit_assignment')
+        request.user.check_permission('can_edit_assignment', assignment)
 
         serializer = FormatSerializer(assignment.format)
         assignment_details = AssignmentDetailsSerializer(assignment)
