@@ -6,10 +6,9 @@ In this file are all the journal api requests.
 from rest_framework import viewsets
 
 import VLE.lti_grade_passback as lti_grade
-import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
-from VLE.models import Assignment, Journal
+from VLE.models import Assignment, Course, Journal
 from VLE.serializers import JournalSerializer
 
 
@@ -25,10 +24,11 @@ class JournalView(viewsets.ViewSet):
     """
 
     def list(self, request):
-        """Get the student submitted journals of one assignment.
+        """Get the student submitted journals of one assignment from a course.
 
         Arguments:
         request -- request data
+            course_id -- course ID
             assignment_id -- assignment ID
 
         Returns:
@@ -43,12 +43,15 @@ class JournalView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        assignment = Assignment.objects.get(pk=request.query_params['assignment_id'])
+        assignment_id, course_id = utils.required_typed_params(request.query_params,
+                                                               (int, 'assignment_id'), (int, 'course_id'))
+        assignment = Assignment.objects.get(pk=assignment_id)
+        course = Course.objects.get(pk=course_id)
 
-        if not permissions.has_assignment_permission(request.user, assignment, 'can_view_assignment_journals'):
-            return response.forbidden('You are not allowed to view assignment participants.')
+        request.user.check_permission('can_view_assignment_journals', assignment)
 
-        queryset = assignment.journal_set.all()
+        users = course.participation_set.filter(role__can_have_journal=True).values('user')
+        queryset = assignment.journal_set.filter(user__in=users)
         journals = JournalSerializer(queryset, many=True).data
 
         return response.success({'journals': journals})
@@ -74,13 +77,9 @@ class JournalView(viewsets.ViewSet):
 
         journal = Journal.objects.get(pk=pk)
 
-        if not (journal.user == request.user and
-                permissions.has_assignment_permission(request.user, journal.assignment, 'can_have_journal')) and \
-           not permissions.has_assignment_permission(request.user, journal.assignment, 'can_view_assignment_journals'):
-            return response.forbidden('You are not allowed to view this journal.')
+        request.user.check_can_view(journal)
 
         serializer = JournalSerializer(journal)
-
         return response.success({'journal': serializer.data})
 
     def partial_update(self, request, *args, **kwargs):
@@ -106,8 +105,9 @@ class JournalView(viewsets.ViewSet):
             return response.unauthorized()
 
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
-
         journal = Journal.objects.get(pk=pk)
+
+        request.user.check_can_view(journal)
 
         published, = utils.optional_params(request.data, 'published')
         if published:
@@ -117,7 +117,8 @@ class JournalView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to edit this journal.')
 
         req_data = request.data
-        del req_data['published']
+        if 'published' in req_data:
+            del req_data['published']
         serializer = JournalSerializer(journal, data=req_data, partial=True)
         if not serializer.is_valid():
             response.bad_request()
@@ -126,8 +127,7 @@ class JournalView(viewsets.ViewSet):
         return response.success({'journal': serializer.data})
 
     def publish(self, request, journal, published=True):
-        if not permissions.has_assignment_permission(request.user, journal.assignment, 'can_publish_grades'):
-            return response.forbidden('You cannot publish assignments.')
+        request.user.check_permission('can_publish_grades', journal.assignment)
 
         utils.publish_all_journal_grades(journal, published)
         if journal.sourcedid is not None and journal.grade_url is not None:

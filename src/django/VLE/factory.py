@@ -73,9 +73,9 @@ def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=
         make_lti_ids(lti_id=lti_id, for_model=Lti_ids.COURSE, course=course)
 
     # Student, TA and Teacher role are created on course creation as is saves check for lti.
-    make_role_student("Student", course)
-    make_role_ta("TA", course)
-    role = make_role_teacher("Teacher", course)
+    make_role_student('Student', course)
+    make_role_ta('TA', course)
+    role = make_role_teacher('Teacher', course)
     if author is not None:
         make_participation(author, course, role)
     return course
@@ -167,8 +167,8 @@ def make_format(templates=[]):
 
 
 def make_default_format(due_date, points_possible=10):
-    template = make_entry_template("Default Template")
-    make_field(template, "Submission", 0, Field.RICH_TEXT, True)
+    template = make_entry_template('Default Template')
+    make_field(template, 'Submission', 0, Field.RICH_TEXT, True)
 
     format = make_format([template])
 

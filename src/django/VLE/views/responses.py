@@ -11,7 +11,7 @@ import os
 from django.conf import settings
 from django.http import FileResponse, HttpResponse, JsonResponse
 
-from VLE.models import UserFile
+import VLE.models
 
 
 def success(payload={}, description=''):
@@ -176,10 +176,10 @@ def file_b64(file_path, content_type):
 def file(file_path):
     """Return a file as bytestring if found, otherwise returns a not found response."""
     try:
-        if isinstance(file_path, UserFile):
+        if isinstance(file_path, VLE.models.UserFile):
             file_path = file_path.file.path
         response = FileResponse(open(file_path, 'rb'), as_attachment=True)
-        if isinstance(file_path, UserFile):
+        if isinstance(file_path, VLE.models.UserFile):
             response['Content-Disposition'] = 'attachment; filename=' + file_path.file_name
         return response
     except FileNotFoundError:
