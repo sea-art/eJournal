@@ -141,7 +141,7 @@ class AssignmentView(viewsets.ViewSet):
             else:
                 assignment = Assignment.objects.get(pk=pk)
         except IndexError:
-            return response.not_found('Assignment does not exist.')
+            raise Assignment.DoesNotExist
 
         try:
             course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))

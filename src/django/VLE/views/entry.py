@@ -133,12 +133,10 @@ class EntryView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        pk, = utils.required_typed_params(kwargs, (int, 'pk'))
-
-        entry = Entry.objects.get(pk=pk)
-
         grade, published, content_list = utils.optional_params(request.data, "grade", "published", "content")
 
+        entry_id, = utils.required_typed_params(kwargs, (int, 'pk'))
+        entry = Entry.objects.get(pk=entry_id)
         journal = entry.node.journal
         assignment = journal.assignment
 
@@ -236,22 +234,19 @@ class EntryView(viewsets.ViewSet):
         journal = entry.node.journal
         assignment = journal.assignment
 
-        if not (journal.user == request.user or request.user.is_superuser):
+        if journal.user == request.user:
+            request.user.check_permission('can_have_journal', assignment, 'You cannot delete entries.')
+            if entry.grade:
+                return response.forbidden('You cannot delete graded entries.')
+            if entry.is_due():
+                return response.forbidden('You cannot delete an entry for which the deadline has already passed.')
+            if assignment.is_locked():
+                return response.forbidden('You cannot delete a locked entry.')
+
+        elif not request.user.is_superuser:
             return response.forbidden('You are not allowed to delete someone else\'s entry.')
 
-        if entry.grade:
-            return response.forbidden('You cannot delete graded entries.')
-
-        if entry.node.type == Node.ENTRYDEADLINE:
-            request.user.check_permission('can_have_journal', assignment, 'You cannot delete deadlines.')
-
-        if entry.is_due():
-            request.user.check_permission('can_have_journal', assignment,
-                                          'You cannot delete an entry for which the deadline has already passed.')
-
-        if assignment.is_locked():
-            request.user.check_permission('can_have_journal', assignment, 'You cannot delete a locked entry.')
-
-        entry.node.delete()
+        if entry.node.type != Node.ENTRYDEADLINE:
+            entry.node.delete()
         entry.delete()
         return response.success(description='Successfully deleted entry.')

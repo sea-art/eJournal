@@ -109,12 +109,11 @@ class CourseView(viewsets.ViewSet):
         On success:
             success -- with the new course data
         """
-        pk, = utils.required_typed_params(kwargs, (int, 'pk'))
-        if not request.user.is_authenticated or \
-           not request.user.participations.filter(pk=pk):
+        if not request.user.is_authenticated:
             return response.unauthorized()
 
-        course = Course.objects.get(pk=pk)
+        course_id, = utils.required_typed_params(kwargs, (int, 'pk'))
+        course = Course.objects.get(pk=course_id)
 
         request.user.check_permission('can_edit_course_details', course)
 
@@ -145,9 +144,9 @@ class CourseView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        pk, = utils.required_typed_params(kwargs, (int, 'pk'))
 
-        course = Course.objects.get(pk=pk)
+        course_id, = utils.required_typed_params(kwargs, (int, 'pk'))
+        course = Course.objects.get(pk=course_id)
 
         request.user.check_permission('can_delete_course', course)
 

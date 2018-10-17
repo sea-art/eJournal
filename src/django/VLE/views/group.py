@@ -103,7 +103,7 @@ class GroupView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        old_group_name, new_group_name = utils.required_params(request.data, "old_group_name", "new_group_name")
+        old_group_name, new_group_name = utils.required_params(request.data, 'old_group_name', 'new_group_name')
 
         course_id, = utils.required_typed_params(kwargs, (int, 'pk'))
         course = Course.objects.get(pk=course_id)
@@ -145,14 +145,11 @@ class GroupView(viewsets.ViewSet):
             return response.unauthorized()
 
         course_id, = utils.required_typed_params(kwargs, (int, 'pk'))
-
         name = request.query_params['group_name']
-
         course = Course.objects.get(pk=course_id)
 
         request.user.check_permission('can_delete_course_user_group', course)
 
         group = Group.objects.get(name=name, course=course)
-
         group.delete()
         return response.success(description='Successfully deleted course group.')

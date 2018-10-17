@@ -100,8 +100,8 @@ class JournalView(viewsets.ViewSet):
             return response.unauthorized()
 
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
-
         journal = Journal.objects.get(pk=pk)
+
         request.user.check_can_view(journal)
 
         published, = utils.optional_params(request.data, 'published')
@@ -112,7 +112,8 @@ class JournalView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to edit this journal.')
 
         req_data = request.data
-        del req_data['published']
+        if 'published' in req_data:
+            del req_data['published']
         serializer = JournalSerializer(journal, data=req_data, partial=True)
         if not serializer.is_valid():
             response.bad_request()

@@ -36,8 +36,7 @@ class FormatView(viewsets.ViewSet):
 
         assignment = Assignment.objects.get(pk=pk)
 
-        if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
-            return response.forbidden('You are not allowed to view this assignment.')
+        request.user.check_permission('can_edit_assignment')
 
         serializer = FormatSerializer(assignment.format)
         assignment_details = AssignmentDetailsSerializer(assignment)
@@ -72,13 +71,11 @@ class FormatView(viewsets.ViewSet):
             return response.unauthorized()
 
         assignment_id = pk
-
         assignment_details, templates, presets, unused_templates, removed_presets, removed_templates \
             = utils.required_params(request.data, "assignment_details", "templates", "presets",
                                     "unused_templates", "removed_presets", "removed_templates")
 
         assignment = Assignment.objects.get(pk=assignment_id)
-
         format = assignment.format
 
         request.user.check_permission('can_edit_assignment', assignment)
