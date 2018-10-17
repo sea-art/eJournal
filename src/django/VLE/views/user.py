@@ -296,7 +296,7 @@ class UserView(viewsets.ViewSet):
 
         # Check the right permissions to get this users data, either be the user of the data or be an admin.
         if not (user.is_superuser or request.user.id == pk):
-            return response.bad_request(description='You are not allowed to view this user\'s data.')
+            return response.forbidden('You are not allowed to view this user\'s data.')
 
         profile = UserSerializer(user).data
         journals = Journal.objects.filter(user=pk)
