@@ -162,7 +162,7 @@ class RoleView(viewsets.ViewSet):
                 response.bad_request()
             serializer.save()
 
-            roles.append(serializer.data)
+            roles_response.append(serializer.data)
         return response.success({'roles': roles_response})
 
     def destroy(self, request, pk):
