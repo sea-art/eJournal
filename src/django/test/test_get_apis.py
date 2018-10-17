@@ -105,6 +105,8 @@ class GetApiTests(TestCase):
 
         # Multiple times its own
         test.api_get_call(self, '/users/0/GDPR/', login)
+        test.api_get_call(self, '/users/0/GDPR/', login)
+        test.api_get_call(self, '/users/0/GDPR/', login)
         test.api_get_call(self, '/users/0/GDPR/', login, status=429)
 
         # Test super user
@@ -115,6 +117,8 @@ class GetApiTests(TestCase):
         test.api_get_call(self, '/users/{0}/GDPR/'.format(other_user.pk), login, status=400)
 
         # Multiple times its own
+        test.api_get_call(self, '/users/0/GDPR/', login)
+        test.api_get_call(self, '/users/0/GDPR/', login)
         test.api_get_call(self, '/users/0/GDPR/', login)
         test.api_get_call(self, '/users/0/GDPR/', login)
 
