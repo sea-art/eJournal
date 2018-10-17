@@ -73,9 +73,7 @@ class JournalView(viewsets.ViewSet):
         journal = Journal.objects.get(pk=pk)
 
         if journal.user != request.user:
-            if not request.user.has_permission('can_have_journal', journal.assignment) and \
-               not request.user.has_permission('can_view_assignment_journals', journal.assignment):
-                return response.forbidden('You are not allowed to view this journal.')
+               request.user.check_permission('can_view_assignment_journals', journal.assignment):
 
         serializer = JournalSerializer(journal)
 
