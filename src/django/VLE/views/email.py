@@ -61,9 +61,9 @@ def recover_password(request):
 
     user = User.objects.get(username=request.data['username'])
 
-    token, = utils.required_params(request.data, 'token')
+    recovery_token, = utils.required_params(request.data, 'recovery_token')
     token_generator = PasswordResetTokenGenerator()
-    if not token_generator.check_token(user, token):
+    if not token_generator.check_token(user, recovery_token):
         return response.bad_request('Invalid recovery token.')
 
     validators.validate_password(request.data['new_password'])
