@@ -32,7 +32,7 @@ def forgot_password(request):
 
     Generates a recovery token if a matching user can be found by either the prodived username or email.
     """
-    username, email = utils.required_params(request.data, 'username', 'email')
+    username, email = utils.optional_params(request.data, 'username', 'email')
 
     # We are retrieving the username based on either the username or email
     try:
