@@ -8,7 +8,7 @@ from rest_framework import viewsets
 import VLE.lti_grade_passback as lti_grade
 import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
-from VLE.models import Assignment, Journal
+from VLE.models import Assignment, Course, Journal
 from VLE.serializers import JournalSerializer
 
 
@@ -24,10 +24,11 @@ class JournalView(viewsets.ViewSet):
     """
 
     def list(self, request):
-        """Get the student submitted journals of one assignment.
+        """Get the student submitted journals of one assignment from a course.
 
         Arguments:
         request -- request data
+            course_id -- course ID
             assignment_id -- assignment ID
 
         Returns:
@@ -42,11 +43,15 @@ class JournalView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        assignment = Assignment.objects.get(pk=request.query_params['assignment_id'])
+        assignment_id, course_id = utils.required_typed_params(request.query_params,
+                                                               (int, 'assignment_id'), (int, 'course_id'))
+        assignment = Assignment.objects.get(pk=assignment_id)
+        course = Course.objects.get(pk=course_id)
 
         request.user.check_permission('can_view_assignment_journals', assignment)
 
-        queryset = assignment.journal_set.all()
+        users = course.participation_set.filter(role__can_have_journal=True).values('user')
+        queryset = assignment.journal_set.filter(user__in=users)
         journals = JournalSerializer(queryset, many=True).data
 
         return response.success({'journals': journals})
