@@ -343,7 +343,7 @@ class UserView(viewsets.ViewSet):
             user_file = UserFile.objects.get(author=pk, file_name=file_name, entry=entry_id, node=node_id,
                                              content=content_id)
 
-            if user_file.author.id != request.user:
+            if user_file.author != request.user:
                 request.user.check_permission('can_view_assignment_journals', user_file.assignment)
 
         except (UserFile.DoesNotExist, ValueError):

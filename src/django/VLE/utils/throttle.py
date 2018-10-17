@@ -8,6 +8,13 @@ class GDPRThrottle(SimpleRateThrottle):
     history = []
 
     def allow_request(self, request, view):
+        """
+        allow_request is run before every call.
+        This is to potentially throttle a user when it calls a certain api call too many times
+
+        When user calls user/{id}/GDPR for more then api_settings.DEFAULT_THROTTLE_RATES['gdpr'] a day,
+        it returns a 429 error.
+        """
         if request.path != '/users/0/GDPR/':
             return True
         if request.user.is_superuser:
