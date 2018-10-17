@@ -2,7 +2,6 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 import VLE.factory as factory
-import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
 from VLE.models import Course, Group, Journal, Participation, Role, User
@@ -33,11 +32,7 @@ class ParticipationView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=course_id)
 
-        role = permissions.get_role(request.user, course)
-        if role is None:
-            return response.forbidden('You are not a participant of this course.')
-        elif not role.can_view_course_users:
-            return response.forbidden('You cannot view the participants of this course.')
+        request.user.check_permission('can_view_course_users', course)
 
         users = UserSerializer(course.users, context={'course': course}, many=True).data
         return response.success({'participants': users})
@@ -61,10 +56,10 @@ class ParticipationView(viewsets.ViewSet):
             return response.unauthorized()
 
         course = Course.objects.get(pk=pk)
-        participation = Participation.objects.get(user=request.user, course=course)
 
-        if not permissions.is_user_in_course(request.user, course):
-            return response.forbidden('You are not in this course.')
+        request.user.check_participation(course)
+
+        participation = Participation.objects.get(user=request.user, course=course)
 
         serializer = ParticipationSerializer(participation)
         return response.success({'participant': serializer.data})
@@ -99,13 +94,9 @@ class ParticipationView(viewsets.ViewSet):
         user = User.objects.get(pk=user_id)
         course = Course.objects.get(pk=course_id)
 
-        role = permissions.get_role(request.user, course)
-        if role is None:
-            return response.forbidden('You are not in this course.')
-        elif not role.can_add_course_users:
-            return response.forbidden('You cannot add users to this course.')
+        request.user.check_permission('can_add_course_users', course)
 
-        if permissions.is_user_in_course(user, course):
+        if user.is_participant(course):
             return response.bad_request('User already participates in the course.')
 
         role = Role.objects.get(name=role_name, course=course)
@@ -113,11 +104,10 @@ class ParticipationView(viewsets.ViewSet):
         factory.make_participation(user, course, role)
 
         assignments = course.assignment_set.all()
-        role = permissions.get_role(user, course_id)
         for assignment in assignments:
             if not Journal.objects.filter(assignment=assignment, user=user).exists():
                 factory.make_journal(assignment, user)
-        return response.success(description='Succesfully added student to course.')
+        return response.success(description='Successfully added student to course.')
 
     def partial_update(self, request, pk):
         """Update user role in a course.
@@ -148,11 +138,7 @@ class ParticipationView(viewsets.ViewSet):
         course = Course.objects.get(pk=pk)
         participation = Participation.objects.get(user=user, course=course)
 
-        role = permissions.get_role(request.user, course)
-        if role is None:
-            return response.forbidden('You are not in this course.')
-        elif not role.can_edit_course_roles:
-            return response.forbidden('You cannot edit the roles of this course.')
+        request.user.check_permission('can_edit_course_roles', course)
 
         participation.role = Role.objects.get(name=role_name, course=course)
 
@@ -180,11 +166,7 @@ class ParticipationView(viewsets.ViewSet):
         course = Course.objects.get(pk=pk)
         participation = Participation.objects.get(user=user, course=course)
 
-        role = permissions.get_role(request.user, course)
-        if role is None:
-            return response.unauthorized(description="You have no access to this course")
-        elif not role.can_delete_course_users:
-            return response.forbidden(description="You are not allowed to delete this user.")
+        request.user.check_permission('can_delete_course_users', course)
 
         participation.delete()
         return response.success(description='Sucesfully removed user from course.')
@@ -213,11 +195,7 @@ class ParticipationView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=course_id)
 
-        role = permissions.get_role(request.user, course)
-        if role is None:
-            return response.forbidden('You are not in this course.')
-        elif not role.can_add_course_users:
-            return response.forbidden('You are not allowed to add course users.')
+        request.user.check_permission('can_add_course_users', course)
 
         ids_in_course = course.participation_set.all().values('user__id')
         users = User.objects.all().exclude(id__in=ids_in_course)

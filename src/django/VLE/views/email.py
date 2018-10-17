@@ -61,8 +61,9 @@ def recover_password(request):
 
     user = User.objects.get(username=request.data['username'])
 
+    recovery_token, = utils.required_params(request.data, 'recovery_token')
     token_generator = PasswordResetTokenGenerator()
-    if not token_generator.check_token(user, request.data['recovery_token']):
+    if not token_generator.check_token(user, recovery_token):
         return response.bad_request('Invalid recovery token.')
 
     validators.validate_password(request.data['new_password'])
@@ -88,10 +89,9 @@ def verify_email(request):
     if request.user.verified_email:
         return response.success(description='Email address already verified.')
 
-    utils.required_params(request.data, 'token')
-
+    token, = utils.required_params(request.data, 'token')
     token_generator = PasswordResetTokenGenerator()
-    if not token_generator.check_token(request.user, request.data['token']):
+    if not token_generator.check_token(request.user, token):
         return response.bad_request(description='Invalid email recovery token.')
 
     request.user.verified_email = True
