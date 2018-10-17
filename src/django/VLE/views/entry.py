@@ -142,7 +142,7 @@ class EntryView(viewsets.ViewSet):
         journal = entry.node.journal
         assignment = journal.assignment
 
-        if grade:
+        if grade is not None:
             request.user.check_permission('can_grade', assignment)
 
             if isinstance(grade, (int, float)) or grade < 0:
