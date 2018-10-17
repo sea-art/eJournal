@@ -40,9 +40,8 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        if not (permissions.can_add_users_to_a_course(request.user) or request.user.is_superuser):
-            return response.forbidden(description="Only teachers and administrators are allowed to request all user \
-                                       data.")
+        if not request.user.is_superuser:
+            return response.forbidden('Only administrators are allowed to request all user data.')
 
         serializer = UserSerializer(User.objects.all(), many=True)
         return response.success({'users': serializer.data})
@@ -70,10 +69,10 @@ class UserView(viewsets.ViewSet):
 
         if request.user == user or request.user.is_superuser:
             serializer = OwnUserSerializer(user, many=False)
-        elif permissions.is_user_supervisor(user, request.user):
+        elif permissions.is_user_supervisor_of(request.user, user):
             serializer = UserSerializer(user, many=False)
         else:
-            return response.forbidden("You are not allowed to view this users information.")
+            return response.forbidden('You are not allowed to view this users information.')
 
         return response.success({'user': serializer.data})
 
@@ -118,7 +117,7 @@ class UserView(viewsets.ViewSet):
         first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
 
         if email and User.objects.filter(email=email).exists():
-            return response.bad_request('That email address belongs to another user.')
+            return response.bad_request('User with this email already exists.')
 
         validate_email(email)
 
@@ -166,8 +165,8 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
-        if int(pk) == 0:
-            pk = request.user.id
+        if pk == 0:
+            pk = request.user.pk
         if not (request.user.pk == pk or request.user.is_superuser):
             return response.forbidden()
 
@@ -341,13 +340,11 @@ class UserView(viewsets.ViewSet):
             request.query_params, (str, 'file_name'), (int, 'entry_id'), (int, 'node_id'), (int, 'content_id'))
 
         try:
-            user_file = UserFile.objects.get(author=pk, file_name=file_name, entry=int(entry_id), node=int(node_id),
-                                             content=int(content_id))
+            user_file = UserFile.objects.get(author=pk, file_name=file_name, entry=entry_id, node=node_id,
+                                             content=content_id)
 
-            if user_file.author.id is not request.user.id and \
-               not permissions.has_assignment_permission(
-                    request.user, user_file.assignment, 'can_view_assignment_journals'):
-                return response.forbidden('Forbidden to view: {0} by author ID: {1}.'.format(file_name, pk))
+            if user_file.author.id != request.user:
+                request.user.check_permission('can_view_assignment_journals', user_file.assignment)
 
         except (UserFile.DoesNotExist, ValueError):
             return response.bad_request(file_name + ' was not found.')

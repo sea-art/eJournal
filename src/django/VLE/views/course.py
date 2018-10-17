@@ -7,11 +7,10 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 import VLE.factory as factory
-import VLE.permissions as permissions
 import VLE.serializers as serialize
 import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
-from VLE.models import Course, Lti_ids, Participation
+from VLE.models import Course, Lti_ids
 
 
 class CourseView(viewsets.ViewSet):
@@ -57,10 +56,7 @@ class CourseView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        perm = permissions.get_permissions(request.user)
-
-        if not perm['can_add_course']:
-            return response.forbidden('You are not allowed to create a course.')
+        request.user.check_permission('can_add_course')
 
         name, abbr = utils.required_params(request.data, 'name', 'abbreviation')
         startdate, enddate, lti_id = utils.optional_params(request.data, 'startdate', 'enddate', 'lti_id')
@@ -90,8 +86,7 @@ class CourseView(viewsets.ViewSet):
 
         course = Course.objects.get(pk=pk)
 
-        if not permissions.is_user_in_course(request.user, course):
-            return response.forbidden('You are not a participant of this course.')
+        request.user.check_participation(course)
 
         serializer = self.serializer_class(course, many=False)
         return response.success({'course': serializer.data})
@@ -114,15 +109,13 @@ class CourseView(viewsets.ViewSet):
         On success:
             success -- with the new course data
         """
-        pk, = utils.required_typed_params(kwargs, (int, 'pk'))
-        if not request.user.is_authenticated or \
-           not request.user.participations.filter(pk=pk):
+        if not request.user.is_authenticated:
             return response.unauthorized()
 
-        course = Course.objects.get(pk=pk)
+        course_id, = utils.required_typed_params(kwargs, (int, 'pk'))
+        course = Course.objects.get(pk=course_id)
 
-        if not permissions.get_role(request.user, course).can_edit_course_details:
-            return response.unauthorized('You are unauthorized to edit this course.')
+        request.user.check_permission('can_edit_course_details', course)
 
         data = request.data
         if 'lti_id' in data:
@@ -151,18 +144,14 @@ class CourseView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
-        pk, = utils.required_typed_params(kwargs, (int, 'pk'))
 
-        course = Course.objects.get(pk=pk)
+        course_id, = utils.required_typed_params(kwargs, (int, 'pk'))
+        course = Course.objects.get(pk=course_id)
 
-        if not Participation.objects.filter(user=request.user, course=course).exists():
-            return response.unauthorized(description="You are unauthorized to view this course.")
-
-        if not permissions.get_role(request.user, pk).can_delete_course:
-            return response.forbidden(description="You are unauthorized to delete this course.")
+        request.user.check_permission('can_delete_course', course)
 
         course.delete()
-        return response.success(description='Sucesfully deleted course.')
+        return response.success(description='Successfully deleted course.')
 
     @action(methods=['get'], detail=False)
     def linkable(self, request):

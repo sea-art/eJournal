@@ -162,19 +162,18 @@ class GetApiTests(TestCase):
         factory.make_journal(assigns[1], self.user)
 
         login_user = test.logging_in(self, self.username, self.password)
-        response = test.api_get_call(self, '/assignments/?course_id={}'.format(course.pk), login_user)
+        response = test.api_get_call(self, '/assignments/', login_user, params={'course_id': course.pk})
         self.assertEquals(len(response.json()['assignments']), 2)
         self.assertIn('journal', response.json()['assignments'][0])
 
         login_rein = test.logging_in(self, self.rein_user, self.rein_pass)
-        response = test.api_get_call(self, '/assignments/?course_id={}'.format(course.pk), login_rein)
+        response = test.api_get_call(self, '/assignments/', login_rein, params={'course_id': course.pk})
         self.assertEquals(len(response.json()['assignments']), 2)
 
         # permissions and authorization check for the api call.
         login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
-        response = test.api_get_call(self, '/assignments/?course_id={}'.format(course.pk), login, status=403,)
-        response = test.api_get_call(self, '/assignments/?course_id={}'.format(self.not_found_pk), login,
-                                     status=404)
+        test.api_get_call(self, '/assignments/', login, status=403, params={'course_id': course.pk})
+        test.api_get_call(self, '/assignments/', login, status=404, params={'course_id': self.not_found_pk})
         test.test_unauthorized_api_get_call(self, '/assignments/' + str(course.pk) + '/')
 
     def test_get_assignment_data(self):
@@ -258,7 +257,7 @@ class GetApiTests(TestCase):
         login = test.logging_in(self, student_user, student_pass)
         response = test.api_get_call(self, '/nodes/', login, params={'journal_id': journal.pk})
         result = response.json()
-        self.assertEquals(len(result['nodes']), 4)
+        self.assertEquals(len(result['nodes']), 5)
 
         login = test.logging_in(self, self.rein_user, self.rein_pass)
         response = test.api_get_call(self, '/nodes/', login, params={'journal_id': journal.pk})

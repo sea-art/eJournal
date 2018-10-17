@@ -48,7 +48,7 @@ REST_FRAMEWORK = {
         'VLE.utils.throttle.GDPRThrottle',
     ),
     'DEFAULT_THROTTLE_RATES': {
-        'gdpr': '1/day',
+        'gdpr': '3/day',
     },
 }
 
