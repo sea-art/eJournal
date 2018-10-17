@@ -7,6 +7,7 @@ import test.test_utils as test
 
 import django.utils.timezone as timezone
 from django.test import TestCase
+from rest_framework.settings import api_settings
 
 import VLE.factory as factory
 from VLE.models import Role
@@ -104,9 +105,8 @@ class GetApiTests(TestCase):
         test.api_get_call(self, '/users/{0}/GDPR/'.format(other_user.pk), login, status=403)
 
         # Multiple times its own
-        test.api_get_call(self, '/users/0/GDPR/', login)
-        test.api_get_call(self, '/users/0/GDPR/', login)
-        test.api_get_call(self, '/users/0/GDPR/', login)
+        for _ in range(int(api_settings.DEFAULT_THROTTLE_RATES['gdpr'].split('/')[0])):
+            test.api_get_call(self, '/users/0/GDPR/', login)
         test.api_get_call(self, '/users/0/GDPR/', login, status=429)
 
         # Test super user
@@ -117,9 +117,8 @@ class GetApiTests(TestCase):
         test.api_get_call(self, '/users/{0}/GDPR/'.format(other_user.pk), login, status=403)
 
         # Multiple times its own
-        test.api_get_call(self, '/users/0/GDPR/', login)
-        test.api_get_call(self, '/users/0/GDPR/', login)
-        test.api_get_call(self, '/users/0/GDPR/', login)
+        for _ in range(int(api_settings.DEFAULT_THROTTLE_RATES['gdpr'].split('/')[0])):
+            test.api_get_call(self, '/users/0/GDPR/', login)
         test.api_get_call(self, '/users/0/GDPR/', login)
 
         self.user.is_superuser = False
