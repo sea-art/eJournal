@@ -41,9 +41,7 @@ def names(request, course_id, assignment_id, journal_id):
 
     if journal_id:
         journal = Journal.objects.get(pk=journal_id)
-        if request.user != journal.user:
-            request.user.check_permission('can_view_assignment_journals', journal.assignment)
-
+        request.user.check_can_view(journal)
         result['journal'] = journal.user.first_name + " " + journal.user.last_name
 
     return response.success({'names': result})

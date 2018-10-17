@@ -47,10 +47,10 @@ class CommentView(viewsets.ViewSet):
         entry_id, = utils.required_params(request.query_params, "entry_id")
 
         entry = Entry.objects.get(pk=entry_id)
-        assignment = entry.node.journal.assignment
+        journal = entry.node.journal
+        assignment = journal.assignment
 
-        if request.user != entry.node.journal.user:
-            request.user.check_permission('can_view_assignment_journals', assignment)
+        request.user.check_can_view(journal)
 
         if request.user.has_permission('can_grade', assignment):
             comments = Comment.objects.filter(entry=entry)
@@ -89,10 +89,7 @@ class CommentView(viewsets.ViewSet):
         assignment = journal.assignment
 
         request.user.check_permission('can_comment', assignment)
-        if request.user != journal.user:
-            request.user.check_permission('can_view_assignment_journals', assignment)
-
-        published = published or not request.user.has_permission('can_grade', assignment)
+        request.user.check_can_view(journal)
 
         comment = factory.make_comment(entry, request.user, text, published)
         return response.created({'comment': CommentSerializer(comment).data})
@@ -119,10 +116,8 @@ class CommentView(viewsets.ViewSet):
 
         comment = Comment.objects.get(pk=pk)
         journal = comment.entry.node.journal
-        assignment = journal.assignment
 
-        if request.user != journal.user:
-            request.user.check_permission('can_view_assignment_journals', assignment)
+        request.user.check_can_view(journal)
 
         serializer = CommentSerializer(comment)
 
@@ -152,10 +147,11 @@ class CommentView(viewsets.ViewSet):
         comment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
 
         comment = Comment.objects.get(pk=comment_id)
-
-        assignment = comment.entry.node.journal.assignment
+        journal = comment.entry.node.journal
+        assignment = journal.assignment
 
         request.user.check_permission('can_comment', assignment)
+        request.user.check_can_view(journal)
 
         if not (comment.author.id == request.user.id or request.user.is_superuser):
             return response.forbidden('You are not allowed to edit this comment.')
@@ -189,11 +185,13 @@ class CommentView(viewsets.ViewSet):
             return response.unauthorized()
 
         comment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
-
         comment = Comment.objects.get(pk=comment_id)
+        journal = comment.entry.node.journal
+
+        request.user.check_can_view(journal)
 
         if not (request.user.is_superuser or request.user.id == comment.author.id):
             return response.forbidden(description='You are not allowed to delete this comment.')
 
-        Comment.objects.get(id=comment_id).delete()
+        comment.delete()
         return response.success(description='Successfully deleted comment.')

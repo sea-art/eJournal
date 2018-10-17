@@ -158,6 +158,17 @@ class User(AbstractUser):
             return Assignment.objects.filter(pk=obj.pk, courses__users=self).exists()
         raise VLEProgrammingError("Participant object must be of type Course or Assignment.")
 
+    def check_can_view(self, obj):
+        if not self.can_view(obj):
+            raise VLEPermissionError(message='You are not allowed to view {}'.format(str(obj)))
+
+    def can_view(self, obj):
+        if isinstance(obj, Journal):
+            if obj.user != self:
+                return self.has_permission('can_view_assignment_journals', obj.assignment)
+            else:
+                return self.has_permission('can_have_journal', obj.assignment)
+
     def __str__(self):
         """toString."""
         return self.username + " (" + str(self.id) + ")"
@@ -425,7 +436,7 @@ class Journal(models.Model):
 
     def __str__(self):
         """toString."""
-        return self.assignment.name + " from " + self.user.username
+        return 'the {0} journal of {1}'.format(self.assignment.name, self.user.username)
 
     class Meta:
         """A class for meta data.

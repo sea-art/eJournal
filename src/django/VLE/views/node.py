@@ -44,11 +44,8 @@ class NodeView(viewsets.ModelViewSet):
             return response.unauthorized()
 
         journal_id, = utils.required_typed_params(request.query_params, (int, 'journal_id'))
-
         journal = Journal.objects.get(pk=journal_id)
 
-        if request.user != journal.user or journal.assignment.is_locked():
-            request.user.check_permission('can_view_assignment_journals', journal.assignment,
-                                          'The assignment is locked and therefore unavailable for students.')
+        request.user.check_can_view(journal)
 
         return response.success({'nodes': timeline.get_nodes(journal, request.user)})

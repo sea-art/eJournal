@@ -72,10 +72,7 @@ class JournalView(viewsets.ViewSet):
 
         journal = Journal.objects.get(pk=pk)
 
-        if journal.user != request.user:
-            request.user.check_permission('can_view_assignment_journals', journal.assignment)
-        else:
-            request.user.check_permission('can_have_journal', journal.assignment)
+        request.user.check_can_view(journal)
 
         serializer = JournalSerializer(journal)
         return response.success({'journal': serializer.data})
@@ -105,6 +102,7 @@ class JournalView(viewsets.ViewSet):
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
 
         journal = Journal.objects.get(pk=pk)
+        request.user.check_can_view(journal)
 
         published, = utils.optional_params(request.data, 'published')
         if published:

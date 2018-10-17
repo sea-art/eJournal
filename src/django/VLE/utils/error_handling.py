@@ -18,7 +18,7 @@ class VLEProgrammingError(Exception):
 
 
 class VLEPermissionError(Exception):
-    def __init__(self, permission, message=None):
+    def __init__(self, permission=None, message=None):
         if message:
             super(VLEPermissionError, self).__init__(message)
         else:
