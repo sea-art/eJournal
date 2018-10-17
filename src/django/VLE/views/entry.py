@@ -150,13 +150,11 @@ class EntryView(viewsets.ViewSet):
 
             entry.grade = grade
 
-        if published:
-            request.user.check_permission('can_publish_grades', assignment)
-
         if assignment.is_locked():
             request.user.check_permission('can_view_assignment_journals', assignment)
 
         if published is not None:
+            request.user.check_permission('can_publish_grades', assignment)
             entry.published = published
             try:
                 entry.save()
