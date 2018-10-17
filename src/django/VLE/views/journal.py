@@ -44,8 +44,8 @@ class JournalView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        assignment_id, course_id = utils.required_params(request.query_params, "assignment_id", "course_id")
-
+        assignment_id, course_id = utils.required_typed_params(request.query_params,
+                                                               (int, 'assignment_id'), (int, 'course_id'))
         assignment = Assignment.objects.get(pk=assignment_id)
         course = Course.objects.get(pk=course_id)
 
