@@ -23,7 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'first_name', 'last_name', 'name', 'profile_picture', 'is_teacher', 'lti_id', 'id',
                   'role', 'group')
-        read_only_fields = ('id', )
+        read_only_fields = ('id', 'lti_id', 'is_teacher')
 
     def get_name(self, user):
         return user.first_name + ' ' + user.last_name
@@ -62,7 +62,7 @@ class OwnUserSerializer(serializers.ModelSerializer):
         fields = ('id', 'last_login', 'username', 'first_name', 'last_name', 'is_active', 'email', 'permissions',
                   'name', 'lti_id', 'profile_picture', 'is_teacher', 'grade_notifications', 'comment_notifications',
                   'verified_email')
-        read_only_fields = ('id', )
+        read_only_fields = ('id', 'last_login', 'is_active', 'permissions', 'lti_id', 'is_teacher', 'verified_email')
 
     def get_name(self, user):
         return user.first_name + ' ' + user.last_name
@@ -110,7 +110,7 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = '__all__'
-        read_only_fields = ('id', )
+        read_only_fields = ('id', 'course', 'lti_id')
 
 
 class ParticipationSerializer(serializers.ModelSerializer):
@@ -219,7 +219,7 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
-        read_only_fields = ('id', )
+        read_only_fields = ('id', 'entry', 'author')
 
     def get_author(self, comment):
         return UserSerializer(comment.author).data
@@ -229,7 +229,7 @@ class RoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Role
         fields = '__all__'
-        read_only_fields = ('id', )
+        read_only_fields = ('id', 'course')
 
 
 class JournalSerializer(serializers.ModelSerializer):
@@ -239,7 +239,7 @@ class JournalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Journal
         fields = '__all__'
-        read_only_fields = ('id', )
+        read_only_fields = ('id', 'assignment', 'user')
 
     def get_student(self, journal):
         return UserSerializer(journal.user, context=self.context).data
@@ -310,7 +310,7 @@ class EntrySerializer(serializers.ModelSerializer):
         model = Entry
         fields = ('id', 'createdate', 'published', 'template', 'content',
                   'editable', 'grade', 'last_edited', 'comments')
-        read_only_fields = ('id', )
+        read_only_fields = ('id', 'template', 'createdate')
 
     def get_template(self, entry):
         return TemplateSerializer(entry.template).data

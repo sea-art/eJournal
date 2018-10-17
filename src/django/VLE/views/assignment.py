@@ -197,6 +197,8 @@ class AssignmentView(viewsets.ViewSet):
                 del req_data['published']
 
             data = request.data
+            if not request.user.is_superuser and 'author' in data:
+                del data['author']
 
             if 'lti_id' in data:
                 factory.make_lti_ids(lti_id=data['lti_id'], for_model=Lti_ids.ASSIGNMENT, assignment=assignment)

@@ -16,7 +16,10 @@ def required_params(post, *keys):
 
     result = []
     for key in keys:
-        result.append(post[key])
+        try:
+            result.append(post[key])
+        except KeyError as err:
+            raise VLEMissingRequiredKey(err)
 
     return result
 
@@ -48,6 +51,8 @@ def required_typed_params(post, *keys):
             result.append(func(post[key]))
         except ValueError as err:
             raise VLEParamWrongType(err)
+        except KeyError as err:
+            raise VLEMissingRequiredKey(err)
 
     return result
 # END: API-POST functions
