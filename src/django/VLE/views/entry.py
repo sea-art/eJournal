@@ -196,6 +196,9 @@ class EntryView(viewsets.ViewSet):
             del req_data['content']
         if content_list:
             req_data['last_edited'] = datetime.now()
+        else:
+            if 'last_edited' in req_data:
+                del req_data['last_edited']
         serializer = serialize.EntrySerializer(entry, data=req_data, partial=True, context={'user': request.user})
         if not serializer.is_valid():
             response.bad_request()
