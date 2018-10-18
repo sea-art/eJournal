@@ -8,7 +8,6 @@ from rest_framework.decorators import api_view
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 import VLE.lti_launch as lti
-import VLE.permissions as permissions
 import VLE.views.responses as response
 from VLE.utils.error_handling import VLEMissingRequiredKey
 
@@ -93,7 +92,7 @@ def get_lti_params_from_jwt(request, jwt_params):
 
         journal = lti.select_create_journal(lti_params, user, assignment)
         jID = journal.pk if journal is not None else None
-        state = FINISH_T if permissions.has_permission(user, course.pk, 'can_grade') else FINISH_S
+        state = FINISH_T if user.has_permission('can_grade', assignment) else FINISH_S
     except KeyError as err:
         raise VLEMissingRequiredKey(err)
 

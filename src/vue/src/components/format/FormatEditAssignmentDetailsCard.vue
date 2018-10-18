@@ -5,14 +5,12 @@
             <h2 class="field-heading">Assignment name</h2>
             <b-input class="multi-form theme-input"
                      v-model="assignmentDetails.name"
-                     placeholder="Assignment name"
-                     @change="$emit('changed')"/>
+                     placeholder="Assignment name"/>
             <h2 class="field-heading">Description</h2>
             <text-editor class="multi-form"
                 :id="'text-editor-assignment-edit-description'"
                 :givenContent="assignmentDetails.description"
                 @content-update="assignmentDetails.description = $event"
-                @change="$emit('changed')"
                 :footer="false"/>
             <b-row>
                 <b-col xl="8">
@@ -20,7 +18,6 @@
                     <b-input class="multi-form theme-input"
                         v-model="assignmentDetails.points_possible"
                         placeholder="Points"
-                        @change="$emit('changed')"
                         type="number"/>
                 </b-col>
                 <b-col xl="2">
@@ -28,7 +25,6 @@
                     <h2 class="field-heading">Publish</h2>
                     <input class="multi-form theme-input"
                     v-model="assignmentDetails.is_published"
-                    @click="$emit('changed')"
                     type="checkbox"/>
                 </b-col>
             </b-row>
@@ -37,21 +33,18 @@
                     <h2 class="field-heading">Unlock date</h2>
                     <flat-pickr class="multi-form theme-input full-width"
                     v-model="assignmentDetails.unlock_date"
-                    @on-change="$emit('changed')"
                     :config="$root.flatPickrTimeConfig"/>
                 </b-col>
                 <b-col xl="4">
                     <h2 class="field-heading">Due date</h2>
                     <flat-pickr class="multi-form theme-input full-width"
                     v-model="assignmentDetails.due_date"
-                    @on-change="$emit('changed')"
                     :config="$root.flatPickrTimeConfig"/>
                 </b-col>
                 <b-col xl="4">
                     <h2 class="field-heading">Lock date</h2>
                     <flat-pickr class="multi-form theme-input full-width"
                     v-model="assignmentDetails.lock_date"
-                    @on-change="$emit('changed')"
                     :config="$root.flatPickrTimeConfig"/>
                 </b-col>
             </b-row>
@@ -73,6 +66,31 @@ export default {
     components: {
         'text-editor': textEditor,
         icon
+    },
+    data () {
+        return {
+            prevDate: ''
+        }
+    },
+    watch: {
+        assignmentDetails: {
+            handler: function (newAssignmentDetails) {
+                var patt = new RegExp('T')
+
+                /*  When the date is loaded in from the db this format
+                    will be adapted to the flatpickr format,
+                    which triggers this watcher.
+                    These changes happen in the initial load and when it's
+                    saved. This will be ignored as an unsaved change by the
+                    following regex if-statement.  */
+                if (!patt.test(newAssignmentDetails.lock_date) && !patt.test(this.prevDate)) {
+                    this.$emit('changed')
+                }
+
+                this.prevDate = newAssignmentDetails.lock_date
+            },
+            deep: true
+        }
     }
 }
 </script>
