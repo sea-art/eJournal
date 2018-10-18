@@ -23,7 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('username', 'first_name', 'last_name', 'name', 'profile_picture', 'is_teacher', 'lti_id', 'id',
                   'role', 'group')
-        read_only_fields = ('id', 'lti_id', 'is_teacher')
+        read_only_fields = ('id', 'lti_id', 'is_teacher', 'username')
 
     def get_name(self, user):
         return user.first_name + ' ' + user.last_name
@@ -59,10 +59,10 @@ class OwnUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'last_login', 'username', 'first_name', 'last_name', 'is_active', 'email', 'permissions',
+        fields = ('id', 'username', 'first_name', 'last_name', 'email', 'permissions',
                   'name', 'lti_id', 'profile_picture', 'is_teacher', 'grade_notifications', 'comment_notifications',
                   'verified_email')
-        read_only_fields = ('id', 'last_login', 'is_active', 'permissions', 'lti_id', 'is_teacher', 'verified_email')
+        read_only_fields = ('id', 'permissions', 'lti_id', 'is_teacher', 'verified_email', 'username')
 
     def get_name(self, user):
         return user.first_name + ' ' + user.last_name
@@ -219,7 +219,7 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = '__all__'
-        read_only_fields = ('id', 'entry', 'author')
+        read_only_fields = ('id', 'entry', 'author', 'timestamp')
 
     def get_author(self, comment):
         return UserSerializer(comment.author).data
@@ -239,7 +239,7 @@ class JournalSerializer(serializers.ModelSerializer):
     class Meta:
         model = Journal
         fields = '__all__'
-        read_only_fields = ('id', 'assignment', 'user')
+        read_only_fields = ('id', 'assignment', 'user', 'grade_url', 'sourcedid')
 
     def get_student(self, journal):
         return UserSerializer(journal.user, context=self.context).data

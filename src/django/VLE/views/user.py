@@ -205,7 +205,17 @@ class UserView(viewsets.ViewSet):
             user.lti_id = lti_id
 
         user.save()
-        serializer = OwnUserSerializer(user, data=request.data, partial=True)
+        if user.lti_id:
+            gn, cn, pp = utils.optional_params(
+                request.data, 'grade_notifications', 'comment_notifications', 'profile_picture')
+            data = {
+                'grade_notifications': gn,
+                'comment_notifications': cn,
+                'profile_picture': pp
+            }
+        else:
+            data = request.data
+        serializer = OwnUserSerializer(user, data=data, partial=True)
         if not serializer.is_valid():
             return response.bad_request()
         serializer.save()
