@@ -39,9 +39,6 @@ class EntryView(viewsets.ViewSet):
             node_id -- optional: the node to bind the entry to (only for entrydeadlines)
             content -- the list of {tag, data} tuples to bind data to a template field.
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         journal_id, template_id, content_list = utils.required_params(
             request.data, "journal_id", "template_id", "content")
         node_id, = utils.optional_params(request.data, "node_id")
@@ -130,9 +127,6 @@ class EntryView(viewsets.ViewSet):
             success -- with the new entry data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         grade, published, content_list = utils.optional_params(request.data, "grade", "published", "content")
 
         entry_id, = utils.required_typed_params(kwargs, (int, 'pk'))
@@ -226,8 +220,6 @@ class EntryView(viewsets.ViewSet):
         On success:
             success -- with a message that the course was deleted
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
 
         entry = Entry.objects.get(pk=pk)

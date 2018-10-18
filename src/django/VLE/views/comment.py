@@ -41,9 +41,6 @@ class CommentView(viewsets.ViewSet):
             success -- with a list of the comments belonging to the entry
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         entry_id, = utils.required_params(request.query_params, "entry_id")
 
         entry = Entry.objects.get(pk=entry_id)
@@ -79,9 +76,6 @@ class CommentView(viewsets.ViewSet):
             succes -- with the assignment data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         entry_id, text, published = utils.required_params(request.data, "entry_id", "text", "published")
 
         entry = Entry.objects.get(pk=entry_id)
@@ -112,9 +106,6 @@ class CommentView(viewsets.ViewSet):
             succes -- with the comment data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         comment = Comment.objects.get(pk=pk)
         journal = comment.entry.node.journal
 
@@ -142,9 +133,6 @@ class CommentView(viewsets.ViewSet):
             success -- with the updated comment
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         comment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
 
         comment = Comment.objects.get(pk=comment_id)
@@ -182,9 +170,6 @@ class CommentView(viewsets.ViewSet):
             success -- with a message that the comment was deleted
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         comment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
         comment = Comment.objects.get(pk=comment_id)
         journal = comment.entry.node.journal

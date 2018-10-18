@@ -32,9 +32,6 @@ def get_lti_params_from_jwt(request, jwt_params):
 
     Returns the data needed for the correct entry place.
     """
-    if not request.user.is_authenticated:
-        return response.unauthorized()
-
     user = request.user
     try:
         lti_params = jwt.decode(jwt_params, settings.SECRET_KEY, algorithms=['HS256'])

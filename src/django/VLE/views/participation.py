@@ -25,9 +25,6 @@ class ParticipationView(viewsets.ViewSet):
         On success:
             success -- list of all the users and their role
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         course_id, = utils.required_params(request.query_params, "course_id")
 
         course = Course.objects.get(pk=course_id)
@@ -52,9 +49,6 @@ class ParticipationView(viewsets.ViewSet):
         On success:
             success -- with the participation data
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         course = Course.objects.get(pk=pk)
 
         request.user.check_participation(course)
@@ -83,9 +77,6 @@ class ParticipationView(viewsets.ViewSet):
         On success:
             success -- success message
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         user_id, course_id = utils.required_params(request.data, 'user_id', 'course_id')
         role_name, = utils.optional_params(request.data, 'role')
         if not role_name:
@@ -127,8 +118,6 @@ class ParticipationView(viewsets.ViewSet):
         On success:
             success -- with the new role name
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
         user_id, = utils.required_params(request.data, 'user_id')
         role_name, group_name = utils.optional_params(request.data, 'role', 'group')
         if not role_name:
@@ -158,8 +147,6 @@ class ParticipationView(viewsets.ViewSet):
             user_id -- user ID
         pk -- course ID
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
         user_id, = utils.required_params(request.query_params, 'user_id')
 
         user = User.objects.get(pk=user_id)
@@ -188,9 +175,6 @@ class ParticipationView(viewsets.ViewSet):
         On success:
             success -- list of all the users and their role
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         course_id, = utils.required_params(request.query_params, "course_id")
 
         course = Course.objects.get(pk=course_id)

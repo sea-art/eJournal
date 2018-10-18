@@ -30,12 +30,26 @@ class VLEParticipationError(Exception):
         super(VLEParticipationError, self).__init__('User is not participating in ' + str(obj))
 
 
+class VLEUnauthorized(Exception):
+    pass
+
+
 class ErrorMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
 
     def __call__(self, request):
+        print(request.user)
         return self.get_response(request)
+        # if request.user.is_authenticated:
+        #     pass
+        # elif request.path in ['/forgot_password/', '/recover_password/',
+        #                       '/lti/launch/', '/token/', '/token/refresh/', '/token/verify/', ]:
+        #     return self.get_response(request)
+        # elif request.path in ['/users/'] and request.method == 'POST':
+        #     return self.get_response(request)
+        #
+        # return response.unauthorized()
 
     def process_exception(self, request, exception):
         if isinstance(exception, ObjectDoesNotExist):
@@ -55,3 +69,5 @@ class ErrorMiddleware:
             return response.forbidden(str(exception))
         elif isinstance(exception, VLEPermissionError):
             return response.forbidden(str(exception))
+        elif isinstance(exception, VLEUnauthorized):
+            return response.unauthorized(str(exception))
