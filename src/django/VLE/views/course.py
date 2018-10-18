@@ -118,8 +118,7 @@ class CourseView(viewsets.ViewSet):
         request.user.check_permission('can_edit_course_details', course)
 
         data = request.data
-        if not request.user.is_superuser and 'author' in data:
-            del data['author']
+        data.pop('author', None)
         if 'lti_id' in data:
             factory.make_lti_ids(lti_id=data['lti_id'], for_model=Lti_ids.COURSE, course=course)
 
