@@ -11,6 +11,9 @@ from django.db import models
 from django.dispatch import receiver
 from django.utils.timezone import now
 
+import VLE.permissions as permissions
+from VLE.utils.error_handling import (VLEParticipationError,
+                                      VLEPermissionError, VLEProgrammingError)
 from VLE.utils.file_handling import get_path
 
 
@@ -120,6 +123,52 @@ class User(AbstractUser):
         default=False
     )
 
+    def check_permission(self, permission, obj=None, message=None):
+        """
+        Throws a VLEPermissionError when the user does not have the specified permission, as defined by
+        has_permission.
+        """
+        if not self.has_permission(permission, obj):
+            raise VLEPermissionError(permission, message)
+
+    def has_permission(self, permission, obj=None):
+        """
+        Returns whether the user has the given permission.
+        If obj is None, it tests the general permissions.
+        If obj is a Course, it tests the course permissions.
+        If obj is an Assignment, it tests the assignment permissions.
+        Raises a VLEProgramming error when misused.
+        """
+        if obj is None:
+            return permissions.has_general_permission(self, permission)
+        if isinstance(obj, Course):
+            return permissions.has_course_permission(self, permission, obj)
+        if isinstance(obj, Assignment):
+            return permissions.has_assignment_permission(self, permission, obj)
+        raise VLEProgrammingError("Permission object must be of type None, Course or Assignment.")
+
+    def check_participation(self, obj):
+        if not self.is_participant(obj):
+            raise VLEParticipationError(obj)
+
+    def is_participant(self, obj):
+        if isinstance(obj, Course):
+            return Course.objects.filter(pk=obj.pk, users=self).exists()
+        if isinstance(obj, Assignment):
+            return Assignment.objects.filter(pk=obj.pk, courses__users=self).exists()
+        raise VLEProgrammingError("Participant object must be of type Course or Assignment.")
+
+    def check_can_view(self, obj):
+        if not self.can_view(obj):
+            raise VLEPermissionError(message='You are not allowed to view {}'.format(str(obj)))
+
+    def can_view(self, obj):
+        if isinstance(obj, Journal):
+            if obj.user != self:
+                return self.has_permission('can_view_assignment_journals', obj.assignment)
+            else:
+                return self.has_permission('can_have_journal', obj.assignment)
+
     def __str__(self):
         """toString."""
         return self.username + " (" + str(self.id) + ")"
@@ -204,8 +253,8 @@ class Role(models.Model):
     - name: name of the role
     - list of permissions (can_...)
     """
-
     name = models.TextField()
+
     course = models.ForeignKey(
         Course,
         on_delete=models.CASCADE
@@ -345,6 +394,12 @@ class Assignment(models.Model):
         on_delete=models.CASCADE
     )
 
+    def is_locked(self):
+        return self.unlock_date and self.unlock_date > now() or self.lock_date and self.lock_date < now()
+
+    def is_due(self):
+        return self.due_date and self.due_date < now()
+
     def __str__(self):
         """toString."""
         return self.name + " (" + str(self.id) + ")"
@@ -381,7 +436,7 @@ class Journal(models.Model):
 
     def __str__(self):
         """toString."""
-        return self.assignment.name + " from " + self.user.username
+        return 'the {0} journal of {1}'.format(self.assignment.name, self.user.username)
 
     class Meta:
         """A class for meta data.
@@ -537,6 +592,9 @@ class PresetNode(models.Model):
         on_delete=models.CASCADE
     )
 
+    def is_due(self):
+        return self.deadline < now() or self.format.assignment.is_due()
+
 
 class Entry(models.Model):
     """Entry.
@@ -569,6 +627,9 @@ class Entry(models.Model):
         default=None,
         null=True
     )
+
+    def is_due(self):
+        return (self.node.preset and self.node.preset.is_due()) or self.node.journal.assignment.is_due()
 
     def __str__(self):
         """toString."""
