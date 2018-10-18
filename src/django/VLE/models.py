@@ -229,6 +229,7 @@ class Role(models.Model):
     can_publish_grades = models.BooleanField(default=False)
     can_have_journal = models.BooleanField(default=False)
     can_comment = models.BooleanField(default=False)
+    can_view_unpublished = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if self.can_add_course_users and not self.can_view_course_users:

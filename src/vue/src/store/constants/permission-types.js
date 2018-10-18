@@ -21,7 +21,8 @@ const ASSIGNMENT_LEVEL_PERMISSIONS = new Set([
     'can_delete_assignment',
     'can_view_assignment_journals',
     'can_grade',
-    'can_publish_grades'
+    'can_publish_grades',
+    'can_view_unpublished'
 ])
 
 const JOURNAL_LEVEL_PERMISSIONS = new Set([
