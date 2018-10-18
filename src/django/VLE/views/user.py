@@ -5,14 +5,13 @@ In this file are all the user api requests.
 """
 from smtplib import SMTPAuthenticationError
 
-import jwt
 from django.conf import settings
 from django.core.validators import validate_email
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
 import VLE.factory as factory
-import VLE.lti_launch as lti
+import VLE.lti_launch as lti_launch
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.validators as validators
@@ -20,6 +19,7 @@ from VLE.models import (Assignment, Content, Entry, Journal, Node, User,
                         UserFile)
 from VLE.serializers import EntrySerializer, OwnUserSerializer, UserSerializer
 from VLE.utils import email_handling, file_handling
+from VLE.views import lti
 from VLE.views import responses as response
 
 
@@ -86,7 +86,7 @@ class UserView(viewsets.ViewSet):
             first_name -- (optinal) first name
             last_name -- (optinal) last name
             email -- (optinal) email
-            jwt_params -- (optinal) jwt params to get the lti information from
+            _params -- (optinal) jwt params to get the lti information from
                 user_id -- id of the user
                 user_image -- user image
                 roles -- role of the user
@@ -99,17 +99,11 @@ class UserView(viewsets.ViewSet):
         On succes:
             success -- with the newly created user data
         """
-        if 'jwt_params' in request.data and request.data['jwt_params'] != '':
-            try:
-                lti_params = jwt.decode(request.data['jwt_params'], settings.SECRET_KEY, algorithms=['HS256'])
-            except jwt.exceptions.ExpiredSignatureError:
-                return response.forbidden(
-                    description='Your session has expired. Please go back to your learning environment and try again.')
-            except jwt.exceptions.InvalidSignatureError:
-                return response.unauthorized(description='Invalid LTI parameters given. Please go back to your \
-                                             learning environment and try again.')
+        jwt_params = utils.optional_params(request.data, 'jwt_params')
+        if jwt_params:
+            lti_params = lti.decode(jwt_params)
             lti_id, user_image = utils.optional_params(lti_params, 'user_id', 'custom_user_image')
-            is_teacher = settings.ROLES['Teacher'] in lti.roles_to_list(lti_params)
+            is_teacher = settings.ROLES['Teacher'] in lti_launch.roles_to_list(lti_params)
         else:
             lti_id, user_image, is_teacher = None, None, False
 
@@ -172,19 +166,12 @@ class UserView(viewsets.ViewSet):
 
         user = User.objects.get(pk=pk)
 
-        if 'jwt_params' in request.data and request.data['jwt_params'] != '':
-            try:
-                lti_params = jwt.decode(request.data['jwt_params'], settings.SECRET_KEY, algorithms=['HS256'])
-            except jwt.exceptions.ExpiredSignatureError:
-                return response.forbidden(
-                    description='The canvas link has expired, 15 minutes have passed. Please retry from canvas.')
-            except jwt.exceptions.InvalidSignatureError:
-                return response.unauthorized(description='Invalid LTI parameters given. Please retry from canvas.')
-            lti_id, user_email, user_full_name, user_image = utils.optional_params(lti_params, 'user_id',
-                                                                                   'custom_user_email',
-                                                                                   'custom_user_full_name',
-                                                                                   'custom_user_image')
-            is_teacher = settings.ROLES['Teacher'] in lti.roles_to_list(lti_params)
+        jwt_params = utils.optional_params(request.data, 'jwt_params')
+        if jwt_params:
+            lti_params = lti.decode(jwt_params)
+            lti_id, user_email, user_full_name, user_image = utils.optional_params(
+                lti_params, 'user_id', 'custom_user_email', 'custom_user_full_name', 'custom_user_image')
+            is_teacher = settings.ROLES['Teacher'] in lti_launch.roles_to_list(lti_params)
         else:
             lti_id, user_email, user_full_name, user_image, is_teacher = None, None, None, None, False
         if user_image is not None:
@@ -317,7 +304,8 @@ class UserView(viewsets.ViewSet):
             entries = Entry.objects.filter(id__in=entry_ids)
             # Serialize all entries and put them into the entries dictionary with the assignment name key.
             journal_dict.update({
-                journal.assignment.name: EntrySerializer(entries, context={'user': request.user}, many=True).data
+                journal.assignment.name: EntrySerializer(
+                    entries, context={'user': request.user, 'comments': True}, many=True).data
             })
 
         archive_path = file_handling.compress_all_user_data(user, {'profile': profile, 'journals': journal_dict})
@@ -385,16 +373,14 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        if not (request.FILES and 'file' in request.FILES):
-            return response.bad_request('No accompanying file found in the request.')
-
         assignment_id, content_id = utils.required_params(request.POST, 'assignment_id', 'content_id')
-
         assignment = Assignment.objects.get(pk=assignment_id)
 
         if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk).exists():
             return response.forbidden('You cannot upload a file to: {:s}.'.format(assignment.name))
 
+        if not (request.FILES and 'file' in request.FILES):
+            return response.bad_request('No accompanying file found in the request.')
         validators.validate_user_file(request.FILES['file'], request.user)
 
         if content_id == 'null':
