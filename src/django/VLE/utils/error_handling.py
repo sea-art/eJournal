@@ -31,7 +31,6 @@ class VLEPermissionError(Exception):
             super(VLEPermissionError, self).__init__('User does not have permission ' + permission)
 
 
-
 class VLEParticipationError(Exception):
     def __init__(self, obj):
         super(VLEParticipationError, self).__init__('User is not participating in ' + str(obj))
