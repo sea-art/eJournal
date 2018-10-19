@@ -188,7 +188,8 @@ class AssignmentView(viewsets.ViewSet):
             if 'lti_id' in req_data:
                 factory.make_lti_ids(lti_id=req_data['lti_id'], for_model=Lti_ids.ASSIGNMENT, assignment=assignment)
 
-            if 'is_published' in req_data and not req_data['is_published'] and assignment.is_published and \
+            # If a entry has been submitted to one of the journals of the journal it cannot be unpublished
+            if assignment.is_published and 'is_published' in req_data and not req_data['is_published'] and \
                Entry.objects.filter(node__journal__assignment=assignment).exists():
                 req_data['is_published'] = True
 

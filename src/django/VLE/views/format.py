@@ -72,8 +72,9 @@ class FormatView(viewsets.ViewSet):
         assignment = Assignment.objects.get(pk=assignment_id)
         format = assignment.format
 
-        if 'is_published' in assignment_details and not assignment_details['is_published'] \
-           and assignment.is_published and Entry.objects.filter(node__journal__assignment=assignment).exists():
+        # If a entry has been submitted to one of the journals of the journal it cannot be unpublished
+        if assignment.is_published and 'is_published' in assignment_details and not assignment_details['is_published'] \
+           and Entry.objects.filter(node__journal__assignment=assignment).exists():
             assignment_details['is_published'] = True
 
         request.user.check_permission('can_edit_assignment', assignment)

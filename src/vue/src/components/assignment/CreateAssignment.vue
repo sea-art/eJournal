@@ -139,7 +139,7 @@ export default {
             this.form.dueDate = this.lti.ltiAssignDue.slice(0, -9)
             this.form.lockDate = this.lti.ltiAssignLock.slice(0, -9)
             this.form.courseID = this.page.cID
-            this.form.is_published = (this.lti.ltiAssignPublished === 'true')
+            this.form.is_published = this.lti.ltiAssignPublished
         } else {
             this.form.courseID = this.$route.params.cID
         }
