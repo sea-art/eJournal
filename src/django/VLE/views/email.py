@@ -8,7 +8,8 @@ This includes:
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.http import HttpResponse
 from django.utils.html import escape
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 
 import VLE.utils.generic_utils as utils
 import VLE.validators as validators
@@ -22,6 +23,7 @@ def index(request):
 
 
 @api_view(['POST'])
+@permission_classes((AllowAny, ))
 def forgot_password(request):
     """Handles a forgot password request.
 
@@ -32,7 +34,7 @@ def forgot_password(request):
 
     Generates a recovery token if a matching user can be found by either the prodived username or email.
     """
-    username, email = utils.required_params(request.data, 'username', 'email')
+    username, email = utils.optional_params(request.data, 'username', 'email')
 
     # We are retrieving the username based on either the username or email
     try:
@@ -46,6 +48,7 @@ def forgot_password(request):
 
 
 @api_view(['POST'])
+@permission_classes((AllowAny, ))
 def recover_password(request):
     """Handles a reset password request.
 
@@ -61,8 +64,9 @@ def recover_password(request):
 
     user = User.objects.get(username=request.data['username'])
 
+    recovery_token, = utils.required_params(request.data, 'recovery_token')
     token_generator = PasswordResetTokenGenerator()
-    if not token_generator.check_token(user, request.data['recovery_token']):
+    if not token_generator.check_token(user, recovery_token):
         return response.bad_request('Invalid recovery token.')
 
     validators.validate_password(request.data['new_password'])
@@ -82,16 +86,12 @@ def verify_email(request):
 
     Updates the email verification status.
     """
-    if not request.user.is_authenticated:
-        return response.unauthorized()
-
     if request.user.verified_email:
         return response.success(description='Email address already verified.')
 
-    utils.required_params(request.data, 'token')
-
+    token, = utils.required_params(request.data, 'token')
     token_generator = PasswordResetTokenGenerator()
-    if not token_generator.check_token(request.user, request.data['token']):
+    if not token_generator.check_token(request.user, token):
         return response.bad_request(description='Invalid email recovery token.')
 
     request.user.verified_email = True
@@ -102,9 +102,6 @@ def verify_email(request):
 @api_view(['POST'])
 def request_email_verification(request):
     """Request an email with a verifcation link for the users email address."""
-    if not request.user.is_authenticated:
-        return response.unauthorized()
-
     if request.user.verified_email:
         return response.bad_request(description='Email address already verified.')
 
@@ -132,9 +129,6 @@ def send_feedback(request):
     On success:
         success -- with a description.
     """
-    if not request.user.is_authenticated:
-        return response.unauthorized()
-
     if not all(x in request.POST for x in ['topic', 'feedback', 'ftype', 'user_agent']):
         return response.bad_request('Required feedback field missing.')
 
