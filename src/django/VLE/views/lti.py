@@ -31,7 +31,7 @@ def decode_lti_params(jwt_params):
 
 
 def encode_lti_params(jwt_params):
-    return jwt.encode(jwt_params, settings.SECRET_KEY, algorithm='HS256')
+    return jwt.encode(jwt_params, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
 
 
 @api_view(['GET'])
@@ -126,7 +126,7 @@ def lti_launch(request):
         user = lti.check_user_lti(params)
 
         params['exp'] = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
-        lti_params = encode_lti_params(params).decode('utf-8')
+        lti_params = encode_lti_params(params)
 
         try:
             if user is None:

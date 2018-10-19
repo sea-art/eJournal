@@ -86,7 +86,7 @@ class UserView(viewsets.ViewSet):
             first_name -- (optinal) first name
             last_name -- (optinal) last name
             email -- (optinal) email
-            _params -- (optinal) jwt params to get the lti information from
+            jwt_params -- (optinal) jwt params to get the lti information from
                 user_id -- id of the user
                 user_image -- user image
                 roles -- role of the user

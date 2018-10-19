@@ -189,7 +189,7 @@ class AssignmentView(viewsets.ViewSet):
         # Remove data that must not be changed by the serializer
         req_data = request.data
         req_data.pop('published', None)
-        if not request.user.is_superuser or request.user == assignment.author:
+        if not (request.user.is_superuser or request.user == assignment.author):
             req_data.pop('author', None)
 
         response_data = {}
@@ -208,7 +208,7 @@ class AssignmentView(viewsets.ViewSet):
             if not serializer.is_valid():
                 response.bad_request()
             serializer.save()
-            response_data['ssignment'] = serializer.data
+            response_data['assignment'] = serializer.data
 
         return response.success(response_data)
 
