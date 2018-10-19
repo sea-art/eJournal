@@ -14,7 +14,7 @@ import VLE.timeline as timeline
 import VLE.utils.entry_utils as entry_utils
 import VLE.utils.generic_utils as utils
 import VLE.validators as validators
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.models import Comment, Entry, Field, Journal, Node, Template
 from VLE.utils import file_handling
 
@@ -149,7 +149,7 @@ class EntryView(viewsets.ViewSet):
             entry.grade = grade
 
         if assignment.is_locked():
-            request.user.check_permission('can_view_assignment_journals', assignment)
+            request.user.check_permission('can_view_all_assignment_journals', assignment)
 
         if published is not None:
             request.user.check_permission('can_publish_grades', assignment)

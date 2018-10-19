@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 import VLE.lti_launch as lti
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.utils.error_handling import VLEMissingRequiredKey
 
 # VUE ENTRY STATE

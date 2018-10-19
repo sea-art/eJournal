@@ -8,7 +8,7 @@ from rest_framework import viewsets
 import VLE.factory as factory
 import VLE.serializers as serialize
 import VLE.utils.generic_utils as utils
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.models import Course, Group
 
 

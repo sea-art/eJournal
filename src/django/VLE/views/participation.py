@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.models import Course, Group, Journal, Participation, Role, User
 from VLE.serializers import ParticipationSerializer, UserSerializer
 
@@ -71,7 +71,6 @@ class ParticipationView(viewsets.ViewSet):
         request -- request data
             user_id -- user ID
             course_id -- course ID
-            role -- name of the role (default: Student)
 
         Returns:
         On failure:
@@ -87,9 +86,7 @@ class ParticipationView(viewsets.ViewSet):
             return response.unauthorized()
 
         user_id, course_id = utils.required_params(request.data, 'user_id', 'course_id')
-        role_name, = utils.optional_params(request.data, 'role')
-        if not role_name:
-            role_name = 'Student'
+        role_name = 'Student'
 
         user = User.objects.get(pk=user_id)
         course = Course.objects.get(pk=course_id)

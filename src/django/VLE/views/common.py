@@ -7,7 +7,7 @@ This includes:
 """
 from rest_framework.decorators import api_view
 
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.models import Assignment, Course, Journal
 
 

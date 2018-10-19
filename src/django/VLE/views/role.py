@@ -4,7 +4,7 @@ from rest_framework import viewsets
 import VLE.factory as factory
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.models import Assignment, Course, Role, User
 from VLE.serializers import RoleSerializer
 from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
@@ -83,7 +83,7 @@ class RoleView(viewsets.ViewSet):
 
             if user != request.user:
                 # TODO: P Add a permission for this
-                request.user.check_permission('can_view_assignment_journals', course)
+                request.user.check_permission('can_view_all_assignment_journals', course)
 
             return response.success({'role': permissions.serialize_assignment_permissions(request.user, assignment)})
         # Returns keyerror if course_id nor assignment_id is set

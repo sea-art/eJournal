@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 import VLE.factory as factory
 import VLE.lti_grade_passback as lti_grade
 import VLE.utils.generic_utils as utils
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.models import Assignment, Course, Journal, Lti_ids
 from VLE.serializers import AssignmentSerializer
 from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
