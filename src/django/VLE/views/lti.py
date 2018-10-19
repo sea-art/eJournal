@@ -28,7 +28,6 @@ FINISH_S = '5'
 
 
 @api_view(['GET'])
-@permission_classes((AllowAny, ))
 def get_lti_params_from_jwt(request, jwt_params):
     """Handle the controlflow for course/assignment create, connect and select.
 
