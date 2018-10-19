@@ -28,7 +28,7 @@ class RoleView(viewsets.ViewSet):
             success -- list of all the roles in the course
 
         """
-        course_id = request.query_params['course_id']
+        course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
         course = Course.objects.get(pk=course_id)
 
         # TODO: P Is this the right permission
@@ -101,13 +101,14 @@ class RoleView(viewsets.ViewSet):
             success -- newly created course
 
         """
-        course = Course.objects.get(pk=request.data['course_id'])
+        course_id, name, permissions = utils.required_params(request.data, 'course_id', 'name', 'permissions')
+        course = Course.objects.get(pk=course_id)
 
         # TODO: P Is this the right permission
         request.user.check_permission('can_edit_course_roles', course)
 
         try:
-            role = factory.make_role_default_no_perms(request.data['name'], course, **request.data['permissions'])
+            role = factory.make_role_default_no_perms(name, course, **permissions)
         except Exception:
             return response.bad_request()
 
@@ -170,7 +171,7 @@ class RoleView(viewsets.ViewSet):
             success -- newly created course
 
         """
-        name = request.query_params['name']
+        name, = utils.required_typed_params(request.query_params, (str, 'name'))
         course = Course.objects.get(pk=pk)
 
         # Users can only delete course roles with can_edit_course_roles

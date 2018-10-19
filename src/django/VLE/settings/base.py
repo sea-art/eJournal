@@ -44,6 +44,12 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_THROTTLE_CLASSES': (
+        'VLE.utils.throttle.GDPRThrottle',
+    ),
+    'DEFAULT_THROTTLE_RATES': {
+        'gdpr': '3/day',
+    },
 }
 
 AUTH_USER_MODEL = "VLE.User"

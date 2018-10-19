@@ -104,10 +104,9 @@ class GroupView(viewsets.ViewSet):
         if not new_group_name:
             return response.bad_request('Group name is not allowed to be empty.')
 
-        if Group.objects.filter(name=request.data['new_group_name'], course=course).exists():
+        if Group.objects.filter(name=new_group_name, course=course).exists():
             return response.bad_request('Course group with that name already exists.')
 
-        group.name = new_group_name
         serializer = self.serializer_class(group, data=request.data, partial=True)
         if not serializer.is_valid():
             response.bad_request()
@@ -132,7 +131,8 @@ class GroupView(viewsets.ViewSet):
             success -- with a message that the course group was deleted
         """
         course_id, = utils.required_typed_params(kwargs, (int, 'pk'))
-        name = request.query_params['group_name']
+        name, = utils.required_typed_params(request.query_params, (str, 'group_name'))
+
         course = Course.objects.get(pk=course_id)
 
         request.user.check_permission('can_delete_course_user_group', course)
