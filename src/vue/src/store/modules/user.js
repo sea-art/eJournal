@@ -137,7 +137,7 @@ const actions = {
         return new Promise((resolve, reject) => {
             connection.conn.get('/users/0/').then(response => {
                 commit(types.HYDRATE_USER, response.data)
-                resolve('Store is populated Successfully')
+                resolve('Store is populated successfully')
             }, error => {
                 Vue.toasted.error(error.response.data.description)
                 reject(error)
