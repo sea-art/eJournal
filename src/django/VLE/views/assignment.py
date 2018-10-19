@@ -193,21 +193,19 @@ class AssignmentView(viewsets.ViewSet):
 
         if request.user.has_permission('can_edit_assignment', assignment):
             req_data = request.data
-            if published is not None:
-                del req_data['published']
+            req_data.pop('published', None)
+            if not request.user.is_superuser:
+                req_data.pop('author', None)
 
-            data = request.data
+            if 'lti_id' in req_data:
+                factory.make_lti_ids(lti_id=req_data['lti_id'], for_model=Lti_ids.ASSIGNMENT, assignment=assignment)
 
-            if 'lti_id' in data:
-                factory.make_lti_ids(lti_id=data['lti_id'], for_model=Lti_ids.ASSIGNMENT, assignment=assignment)
-
-            serializer = AssignmentSerializer(assignment, data=data, context={'user': request.user}, partial=True)
+            serializer = AssignmentSerializer(assignment, data=req_data, context={'user': request.user}, partial=True)
             if not serializer.is_valid():
                 response.bad_request()
             serializer.save()
-        elif not published:
-            return response.forbidden('You are not allowed to edit this assignment.')
-        if published_response is not False:
+
+        if published_response is not None:
             return response.success({'assignment': serializer.data, 'published': published_response})
         return response.success({'assignment': serializer.data})
 
