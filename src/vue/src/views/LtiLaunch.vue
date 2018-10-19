@@ -67,6 +67,7 @@ export default {
                 ltiCourseStart: '',
                 ltiAssignName: '',
                 ltiAssignID: '',
+                ltiAssignPublished: '',
                 ltiPointsPossible: '',
                 ltiAssignUnlock: '',
                 ltiAssignDue: '',

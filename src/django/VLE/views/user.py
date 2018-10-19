@@ -381,8 +381,7 @@ class UserView(viewsets.ViewSet):
 
         assignment = Assignment.objects.get(pk=assignment_id)
 
-        if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk).exists():
-            return response.forbidden('You cannot upload a file to: {:s}.'.format(assignment.name))
+        request.user.check_can_view(assignment)
 
         if content_id == 'null':
             factory.make_user_file(request.FILES['file'], request.user, assignment)

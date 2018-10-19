@@ -168,6 +168,9 @@ class User(AbstractUser):
                 return self.has_permission('can_view_assignment_journals', obj.assignment)
             else:
                 return self.has_permission('can_have_journal', obj.assignment)
+        elif isinstance(obj, Assignment):
+            self.check_participation(obj)
+            return obj.is_published or self.has_permission('can_view_unpublished_assignment', obj)
 
     def __str__(self):
         """toString."""
@@ -278,7 +281,7 @@ class Role(models.Model):
     can_publish_grades = models.BooleanField(default=False)
     can_have_journal = models.BooleanField(default=False)
     can_comment = models.BooleanField(default=False)
-    can_view_unpublished = models.BooleanField(default=False)
+    can_view_unpublished_assignment = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if self.can_add_course_users and not self.can_view_course_users:

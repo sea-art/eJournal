@@ -10,7 +10,7 @@ import VLE.factory as factory
 import VLE.lti_grade_passback as lti_grade
 import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
-from VLE.models import Assignment, Course, Journal, Lti_ids
+from VLE.models import Assignment, Course, Entry, Journal, Lti_ids
 from VLE.serializers import AssignmentSerializer
 from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
 
@@ -54,8 +54,7 @@ class AssignmentView(viewsets.ViewSet):
         # Consider all assignments that the user is in, or can grade.
         assignments = []
         for assignment in course.assignment_set.all():
-            if request.user.has_permission('can_grade', assignment) or \
-               request.user.has_permission('can_have_journal', assignment):
+            if request.user.can_view(assignment):
                 assignments.append(assignment)
 
         serializer = AssignmentSerializer(assignments, many=True, context={'user': request.user, 'course': course})
@@ -97,7 +96,6 @@ class AssignmentView(viewsets.ViewSet):
         points_possible, unlock_date, due_date, lock_date, lti_id, is_published = \
             utils.optional_params(request.data, "points_possible", "unlock_date", "due_date", "lock_date", "lti_id",
                                   "is_published")
-
         course = Course.objects.get(pk=course_id)
 
         request.user.check_permission('can_add_assignment', course)
@@ -141,6 +139,7 @@ class AssignmentView(viewsets.ViewSet):
                 assignment = Lti_ids.objects.filter(lti_id=pk, for_model=Lti_ids.ASSIGNMENT)[0].assignment
             else:
                 assignment = Assignment.objects.get(pk=pk)
+
         except IndexError:
             raise Assignment.DoesNotExist
 
@@ -150,7 +149,7 @@ class AssignmentView(viewsets.ViewSet):
         except (VLEMissingRequiredKey, VLEParamWrongType):
             course = None
 
-        request.user.check_participation(assignment)
+        request.user.check_can_view(assignment)
 
         serializer = AssignmentSerializer(
             assignment,
@@ -198,6 +197,10 @@ class AssignmentView(viewsets.ViewSet):
                 del req_data['published']
 
             data = request.data
+
+            if 'is_published' in data and not data['is_published'] and assignment.is_published and \
+               Entry.objects.filter(node__journal__assignment=assignment).exists():
+                data['is_published'] = True
 
             if 'lti_id' in data:
                 factory.make_lti_ids(lti_id=data['lti_id'], for_model=Lti_ids.ASSIGNMENT, assignment=assignment)

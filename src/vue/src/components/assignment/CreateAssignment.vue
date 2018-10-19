@@ -82,7 +82,8 @@ export default {
                 pointsPossible: null,
                 unlockDate: null,
                 dueDate: null,
-                lockDate: null
+                lockDate: null,
+                is_published: false
             }
         }
     },
@@ -122,6 +123,7 @@ export default {
             this.form.unlockDate = undefined
             this.form.dueDate = undefined
             this.form.lockDate = undefined
+            this.form.is_published = false
 
             /* Trick to reset/clear native browser form validation state */
             this.show = false
@@ -137,7 +139,7 @@ export default {
             this.form.dueDate = this.lti.ltiAssignDue.slice(0, -9)
             this.form.lockDate = this.lti.ltiAssignLock.slice(0, -9)
             this.form.courseID = this.page.cID
-            this.form.is_published = this.lti.ltiAssignPublished
+            this.form.is_published = (this.lti.ltiAssignPublished === 'true')
         } else {
             this.form.courseID = this.$route.params.cID
         }
