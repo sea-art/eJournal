@@ -157,10 +157,9 @@ class CommentView(viewsets.ViewSet):
         if not (comment.author.id == request.user.id or request.user.is_superuser):
             return response.forbidden('You are not allowed to edit this comment.')
 
-        req_data = request.data
-        req_data['last_edited'] = datetime.now()
-
-        serializer = CommentSerializer(comment, data=req_data, partial=True)
+        text, = utils.required_params(request.data, 'text')
+        serializer = CommentSerializer(
+            comment, data={'text': text, 'last_edited': datetime.now()}, partial=True)
         if not serializer.is_valid():
             response.bad_request()
         serializer.save()
