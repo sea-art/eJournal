@@ -30,10 +30,6 @@ class VLEParticipationError(Exception):
         super(VLEParticipationError, self).__init__('User is not participating in ' + str(obj))
 
 
-class VLEUnauthorized(Exception):
-    pass
-
-
 class ErrorMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -59,5 +55,3 @@ class ErrorMiddleware:
             return response.forbidden(str(exception))
         elif isinstance(exception, VLEPermissionError):
             return response.forbidden(str(exception))
-        elif isinstance(exception, VLEUnauthorized):
-            return response.unauthorized(str(exception))
