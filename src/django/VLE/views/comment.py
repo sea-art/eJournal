@@ -91,7 +91,7 @@ class CommentView(viewsets.ViewSet):
         request.user.check_permission('can_comment', assignment)
         request.user.check_can_view(journal)
 
-        # A comment can always be published, only graders can delay publishing.
+        # By default a comment will be published, only grades can delay publishing.
         published = published or not request.user.has_permission('can_grade', assignment)
         comment = factory.make_comment(entry, request.user, text, published)
         return response.created({'comment': CommentSerializer(comment).data})

@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.RenameField(
             model_name='role',
             old_name='can_view_assignment_journals',
-            new_name='can_view_all_assignment_journals',
+            new_name='can_view_journals',
         ),
     ]
