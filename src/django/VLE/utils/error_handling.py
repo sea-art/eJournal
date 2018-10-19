@@ -39,15 +39,17 @@ class ErrorMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        print(request.user)
         return self.get_response(request)
+
+    def process_view(request, view_func, view_args, view_kwargs):
+        pass
         # if request.user.is_authenticated:
-        #     pass
+        #     return None
         # elif request.path in ['/forgot_password/', '/recover_password/',
         #                       '/lti/launch/', '/token/', '/token/refresh/', '/token/verify/', ]:
-        #     return self.get_response(request)
+        #     return None
         # elif request.path in ['/users/'] and request.method == 'POST':
-        #     return self.get_response(request)
+        #     return None
         #
         # return response.unauthorized()
 
