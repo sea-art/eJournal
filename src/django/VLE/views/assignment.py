@@ -43,9 +43,6 @@ class AssignmentView(viewsets.ViewSet):
             success -- with the assignment data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
         course = Course.objects.get(pk=course_id)
 
@@ -89,9 +86,6 @@ class AssignmentView(viewsets.ViewSet):
             succes -- with the assignment data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         name, description, course_id = utils.required_params(request.data, "name", "description", "course_id")
         points_possible, unlock_date, due_date, lock_date, lti_id, is_published = \
             utils.optional_params(request.data, "points_possible", "unlock_date", "due_date", "lock_date", "lti_id",
@@ -131,9 +125,6 @@ class AssignmentView(viewsets.ViewSet):
             succes -- with the assignment data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         try:
             if 'lti' in request.query_params:
                 assignment = Lti_ids.objects.filter(lti_id=pk, for_model=Lti_ids.ASSIGNMENT)[0].assignment
@@ -178,9 +169,6 @@ class AssignmentView(viewsets.ViewSet):
             success -- with the new assignment data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
         assignment = Assignment.objects.get(pk=pk)
         published, = utils.optional_params(request.data, 'published')
@@ -234,9 +222,6 @@ class AssignmentView(viewsets.ViewSet):
             success -- with a message that the course was deleted
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         assignment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
         course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
         assignment = Assignment.objects.get(pk=assignment_id)
@@ -274,9 +259,6 @@ class AssignmentView(viewsets.ViewSet):
             success -- upcoming assignments
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         try:
             course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
             courses = [Course.objects.get(pk=course_id)]
@@ -305,9 +287,6 @@ class AssignmentView(viewsets.ViewSet):
 
         Returns a json string if it was successful or not.
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         assignment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
         published, = utils.required_params(request.data, 'published')
         assignment = Assignment.objects.get(pk=assignment_id)

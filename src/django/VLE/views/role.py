@@ -28,9 +28,6 @@ class RoleView(viewsets.ViewSet):
             success -- list of all the roles in the course
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
         course = Course.objects.get(pk=course_id)
 
@@ -59,9 +56,6 @@ class RoleView(viewsets.ViewSet):
             success -- with a list of the permissions
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         if int(pk) == 0:
             pk = request.user.id
         user = User.objects.get(pk=pk)
@@ -111,9 +105,6 @@ class RoleView(viewsets.ViewSet):
             success -- newly created course
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         course_id, name, permissions = utils.required_params(request.data, 'course_id', 'name', 'permissions')
         course = Course.objects.get(pk=course_id)
 
@@ -147,9 +138,6 @@ class RoleView(viewsets.ViewSet):
             success -- list of all the roles in the course
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         course = Course.objects.get(pk=pk)
 
         request.user.check_permission('can_edit_course_roles', course)
@@ -187,9 +175,6 @@ class RoleView(viewsets.ViewSet):
             success -- newly created course
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         name, = utils.required_typed_params(request.query_params, (str, 'name'))
         course = Course.objects.get(pk=pk)
 

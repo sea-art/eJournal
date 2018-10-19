@@ -4,7 +4,8 @@ import jwt
 from django.conf import settings
 from django.http import QueryDict
 from django.shortcuts import redirect
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 import VLE.lti_launch as lti
@@ -32,9 +33,6 @@ def get_lti_params_from_jwt(request, jwt_params):
 
     Returns the data needed for the correct entry place.
     """
-    if not request.user.is_authenticated:
-        return response.unauthorized()
-
     user = request.user
     try:
         lti_params = jwt.decode(jwt_params, settings.SECRET_KEY, algorithms=['HS256'])
@@ -104,6 +102,7 @@ def get_lti_params_from_jwt(request, jwt_params):
 
 
 @api_view(['POST'])
+@permission_classes((AllowAny, ))
 def lti_launch(request):
     """Django view for the lti post request.
 
