@@ -9,7 +9,8 @@ import jwt
 from django.conf import settings
 from django.core.validators import validate_email
 from rest_framework import viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, permission_classes
+from rest_framework.permissions import AllowAny
 
 import VLE.factory as factory
 import VLE.lti_launch as lti
@@ -72,6 +73,7 @@ class UserView(viewsets.ViewSet):
 
         return response.success({'user': serializer.data})
 
+    @permission_classes((AllowAny, ))
     def create(self, request):
         """Create a new user.
 
