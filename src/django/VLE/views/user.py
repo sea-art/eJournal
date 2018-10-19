@@ -8,7 +8,7 @@ from smtplib import SMTPAuthenticationError
 from django.conf import settings
 from django.core.validators import validate_email
 from rest_framework import viewsets
-from rest_framework.decorators import action, permission_classes
+from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 
 import VLE.factory as factory
@@ -72,7 +72,6 @@ class UserView(viewsets.ViewSet):
 
         return response.success({'user': serializer.data})
 
-    @permission_classes((AllowAny, ))
     def create(self, request):
         """Create a new user.
 
@@ -96,9 +95,9 @@ class UserView(viewsets.ViewSet):
         On succes:
             success -- with the newly created user data
         """
-        jwt_params = utils.optional_params(request.data, 'jwt_params')
+        jwt_params, = utils.optional_params(request.data, 'jwt_params')
         if jwt_params:
-            lti_params = lti.decode(jwt_params)
+            lti_params = lti.decode_lti_params(jwt_params)
             lti_id, user_image = utils.optional_params(lti_params, 'user_id', 'custom_user_image')
             is_teacher = settings.ROLES['Teacher'] in lti_launch.roles_to_list(lti_params)
         else:
@@ -163,7 +162,7 @@ class UserView(viewsets.ViewSet):
 
         jwt_params = utils.optional_params(request.data, 'jwt_params')
         if jwt_params:
-            lti_params = lti.decode(jwt_params)
+            lti_params = lti.decode_lti_params(jwt_params)
             lti_id, user_email, user_full_name, user_image = utils.optional_params(
                 lti_params, 'user_id', 'custom_user_email', 'custom_user_full_name', 'custom_user_image')
             is_teacher = settings.ROLES['Teacher'] in lti_launch.roles_to_list(lti_params)
@@ -400,3 +399,9 @@ class UserView(viewsets.ViewSet):
         request.user.save()
 
         return response.success(description='Successfully updated profile picture')
+
+    def get_permissions(self):
+        if self.request.path == '/users/' and self.request.method == 'POST':
+            return [AllowAny()]
+        else:
+            return [permission() for permission in self.permission_classes]
