@@ -58,7 +58,6 @@ class UserView(viewsets.ViewSet):
         On success:
             success -- with the user data
         """
-        print(request.user)
         if int(pk) == 0:
             pk = request.user.id
 
