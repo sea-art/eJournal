@@ -10,7 +10,7 @@ import VLE.factory as factory
 import VLE.lti_grade_passback as lti_grade
 import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
-from VLE.models import Assignment, Course, Journal, Lti_ids
+from VLE.models import Assignment, Course, Lti_ids
 from VLE.serializers import AssignmentSerializer
 from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
 
@@ -307,16 +307,13 @@ class AssignmentView(viewsets.ViewSet):
 
         request.user.check_permission('can_publish_grades', assignment)
 
-        utils.publish_all_assignment_grades(assignment, published)
-
-        for journal in assignment.journal_set:
-            if journal.sourcedid is not None and journal.grade_url is not None:
-                lti_grade.replace_result(journal)
+        self.publish(request, assignment, published)
 
         return response.success(payload={'new_published': published})
 
     def publish(self, request, assignment, published=True):
         utils.publish_all_assignment_grades(assignment, published)
-        for journal in Journal.objects.filter(assignment=assignment):
-            if journal.sourcedid is not None and journal.grade_url is not None:
-                lti_grade.replace_result(journal)
+        if published:
+            for journal in assignment.journal_set:
+                if journal.sourcedid is not None and journal.grade_url is not None:
+                    lti_grade.replace_result(journal)

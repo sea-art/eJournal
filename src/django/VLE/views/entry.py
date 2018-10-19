@@ -133,17 +133,18 @@ class EntryView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
 
-        grade, published, content_list = utils.optional_params(request.data, "grade", "published", "content")
+        published, content_list = utils.optional_params(request.data, 'published', 'content')
 
         entry_id, = utils.required_typed_params(kwargs, (int, 'pk'))
         entry = Entry.objects.get(pk=entry_id)
         journal = entry.node.journal
         assignment = journal.assignment
 
-        if grade is not None:
+        if 'grade' in request.data:
+            grade, = utils.required_typed_params(request.data, (float, 'grade'))
             request.user.check_permission('can_grade', assignment)
 
-            if isinstance(grade, (int, float)) or grade < 0:
+            if grade < 0:
                 return response.bad_request('Grade must be greater than or equal to zero.')
 
             entry.grade = grade
