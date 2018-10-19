@@ -106,9 +106,13 @@ export default {
                     link.click()
                     link.remove()
                 }, error => {
-                    this.$toasted.error(error.response.data.description)
+                    if (error.response.status === 429) {
+                        this.$toasted.error('You have to wait before you can get your user data again.')
+                    } else {
+                        throw error
+                    }
                 })
-                .catch(e => {
+                .catch(_ => {
                     this.$toasted.error('Error creating file.')
                 })
         },

@@ -136,9 +136,9 @@ class UserView(viewsets.ViewSet):
         if lti_id is None:
             try:
                 email_handling.send_email_verification_link(user)
-            except SMTPAuthenticationError:
+            except SMTPAuthenticationError as err:
                 user.delete()
-                raise SMTPAuthenticationError
+                raise err
 
         return response.created({'user': UserSerializer(user).data})
 
@@ -165,7 +165,7 @@ class UserView(viewsets.ViewSet):
         if not request.user.is_authenticated:
             return response.unauthorized()
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
-        if int(pk) == 0:
+        if pk == 0:
             pk = request.user.pk
         if not (request.user.pk == pk or request.user.is_superuser):
             return response.forbidden()
@@ -200,12 +200,22 @@ class UserView(viewsets.ViewSet):
             user.is_teacher = is_teacher
 
         if lti_id:
-            if User.objects.filter(lti_id=lti_id).exists() and User.objects.filter(lti_id=lti_id) != user:
+            if User.objects.filter(lti_id=lti_id) != user:
                 return response.bad_request('User with this lti id already exists.')
             user.lti_id = lti_id
 
         user.save()
-        serializer = OwnUserSerializer(user, data=request.data, partial=True)
+        if user.lti_id:
+            gn, cn, pp = utils.optional_params(
+                request.data, 'grade_notifications', 'comment_notifications', 'profile_picture')
+            data = {
+                'grade_notifications': gn,
+                'comment_notifications': cn,
+                'profile_picture': pp
+            }
+        else:
+            data = request.data
+        serializer = OwnUserSerializer(user, data=data, partial=True)
         if not serializer.is_valid():
             return response.bad_request()
         serializer.save()
@@ -235,6 +245,9 @@ class UserView(viewsets.ViewSet):
             pk = request.user.id
 
         user = User.objects.get(pk=pk)
+
+        if len(User.objects.filter(is_superuser=True)) == 1:
+            return response.bad_request('There is only 1 superuser left and therefore cannot be deleted')
 
         user.delete()
         return response.deleted(description='Sucesfully deleted user.')
@@ -269,7 +282,6 @@ class UserView(viewsets.ViewSet):
         request.user.save()
         return response.success(description='Succesfully changed the password.')
 
-    # TODO: limit this request for end users, otherwise its really easy to DDOS the server.
     @action(methods=['get'], detail=True)
     def GDPR(self, request, pk):
         """Get a zip file of all the userdata.
@@ -338,13 +350,14 @@ class UserView(viewsets.ViewSet):
             request.query_params, (str, 'file_name'), (int, 'entry_id'), (int, 'node_id'), (int, 'content_id'))
 
         try:
-            user_file = UserFile.objects.get(author=pk, file_name=file_name, entry=int(entry_id), node=int(node_id),
-                                             content=int(content_id))
+            user_file = UserFile.objects.get(author=pk, file_name=file_name, entry=entry_id, node=node_id,
+                                             content=content_id)
+
+            if user_file.author != request.user:
+                request.user.check_permission('can_view_assignment_journals', user_file.assignment)
+
         except (UserFile.DoesNotExist, ValueError):
             return response.bad_request(file_name + ' was not found.')
-
-        if user_file.author.id is not request.user.id:
-            request.check_permission('can_view_assignment_journals', user_file.assignment)
 
         return response.file(user_file)
 
@@ -377,11 +390,11 @@ class UserView(viewsets.ViewSet):
 
         assignment_id, content_id = utils.required_params(request.POST, 'assignment_id', 'content_id')
 
-        validators.validate_user_file(request.FILES['file'], request.user)
-
         assignment = Assignment.objects.get(pk=assignment_id)
 
         request.user.check_can_view(assignment)
+
+        validators.validate_user_file(request.FILES['file'], request.user)
 
         if content_id == 'null':
             factory.make_user_file(request.FILES['file'], request.user, assignment)

@@ -192,10 +192,12 @@ class EntryView(viewsets.ViewSet):
             file_handling.remove_temp_user_files(request.user)
 
         req_data = request.data
-        if 'content' in req_data:
-            del req_data['content']
+        req_data.pop('content', None)
+        req_data.pop('published', None)
         if content_list:
             req_data['last_edited'] = datetime.now()
+        else:
+            req_data.pop('last_edited', None)
         serializer = serialize.EntrySerializer(entry, data=req_data, partial=True, context={'user': request.user})
         if not serializer.is_valid():
             response.bad_request()
