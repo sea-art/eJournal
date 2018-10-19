@@ -94,7 +94,7 @@ const actions = {
                 commit(types.SET_JWT, response.data)
 
                 dispatch('populateStore').then(response => {
-                    resolve('JWT and store are set succesfully.')
+                    resolve('JWT and store are set Successfully.')
                 }, error => {
                     Vue.toasted.error(error.response.data.description)
                     reject(error) // Login success but hydration failed
@@ -123,7 +123,7 @@ const actions = {
                             .then(_ => { resolve() })
                             .catch(error => { reject(error) })
                     } else {
-                        resolve('JWT refreshed succesfully, store was already populated.')
+                        resolve('JWT refreshed Successfully, store was already populated.')
                     }
                 }, error => {
                     reject(error) // Refresh token invalid, reject
@@ -137,7 +137,7 @@ const actions = {
         return new Promise((resolve, reject) => {
             connection.conn.get('/users/0/').then(response => {
                 commit(types.HYDRATE_USER, response.data)
-                resolve('Store is populated succesfully')
+                resolve('Store is populated Successfully')
             }, error => {
                 Vue.toasted.error(error.response.data.description)
                 reject(error)

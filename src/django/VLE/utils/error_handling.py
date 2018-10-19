@@ -18,9 +18,9 @@ class VLEProgrammingError(Exception):
     pass
 
 
-class VLEVerifiedEmail(Exception):
+class VLEVerifiedEmailError(Exception):
     def __init__(self, message='You need to verify your email before an email can be send to this account.'):
-        super(VLEVerifiedEmail, self).__init__(message)
+        super(VLEVerifiedEmailError, self).__init__(message)
 
 
 class VLEPermissionError(Exception):
@@ -61,7 +61,7 @@ class ErrorMiddleware:
             return response.forbidden(str(exception))
         elif isinstance(exception, VLEPermissionError):
             return response.forbidden(str(exception))
-        elif isinstance(exception, VLEVerifiedEmail):
+        elif isinstance(exception, VLEVerifiedEmailError):
             return response.forbidden(str(exception))
 
         # Programming exceptions

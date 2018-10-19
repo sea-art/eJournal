@@ -146,7 +146,7 @@ class ParticipationView(viewsets.ViewSet):
 
         participation.save()
         serializer = UserSerializer(participation.user, context={'course': course})
-        return response.success({'user': serializer.data}, description='Succesfully updated participation.')
+        return response.success({'user': serializer.data}, description='Successfully updated participation.')
 
     def destroy(self, request, pk):
         """Remove a user from the course.

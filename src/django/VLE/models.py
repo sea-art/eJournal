@@ -14,7 +14,7 @@ from django.utils.timezone import now
 import VLE.permissions as permissions
 from VLE.utils.error_handling import (VLEParticipationError,
                                       VLEPermissionError, VLEProgrammingError,
-                                      VLEVerifiedEmail)
+                                      VLEVerifiedEmailError)
 from VLE.utils.file_handling import get_path
 
 
@@ -154,7 +154,7 @@ class User(AbstractUser):
 
     def check_verified_email(self):
         if not self.verified_email:
-            raise VLEVerifiedEmail()
+            raise VLEVerifiedEmailError()
 
     def is_participant(self, obj):
         if isinstance(obj, Course):

@@ -197,6 +197,7 @@ class AssignmentView(viewsets.ViewSet):
         # Publish is possible and asked for
         if published:
             request.user.check_permission('can_publish_grades', assignment)
+            self.publish(request, assignment)
             response_data['published'] = published
 
         # Update assignment data is possible and asked for
@@ -308,7 +309,7 @@ class AssignmentView(viewsets.ViewSet):
 
         utils.publish_all_assignment_grades(assignment, published)
 
-        for journal in Journal.objects.filter(assignment=assignment):
+        for journal in assignment.journal_set:
             if journal.sourcedid is not None and journal.grade_url is not None:
                 lti_grade.replace_result(journal)
 

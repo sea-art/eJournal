@@ -72,7 +72,7 @@ def recover_password(request):
     user.set_password(new_password)
     user.save()
 
-    return response.success(description='Succesfully changed the password, you can login now.')
+    return response.success(description='Successfully changed the password, you can login now.')
 
 
 @api_view(['POST'])
@@ -97,7 +97,7 @@ def verify_email(request):
 
     request.user.verified_email = True
     request.user.save()
-    return response.success(description='Succesfully verified your email address.')
+    return response.success(description='Successfully verified your email address.')
 
 
 @api_view(['POST'])
@@ -143,4 +143,4 @@ def send_feedback(request):
     files = request.FILES.getlist('files')
     validators.validate_email_files(files)
     email_handling.send_email_feedback(request.user, files, **request.POST)
-    return response.success(description='Feedback was succesfully received, thank you!')
+    return response.success(description='Feedback was Successfully received, thank you!')

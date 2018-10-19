@@ -267,7 +267,7 @@ class UserView(viewsets.ViewSet):
 
         request.user.set_password(new_password)
         request.user.save()
-        return response.success(description='Succesfully changed the password.')
+        return response.success(description='Successfully changed the password.')
 
     @action(methods=['get'], detail=True)
     def GDPR(self, request, pk):
@@ -376,8 +376,7 @@ class UserView(viewsets.ViewSet):
         assignment_id, content_id = utils.required_params(request.POST, 'assignment_id', 'content_id')
         assignment = Assignment.objects.get(pk=assignment_id)
 
-        if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk).exists():
-            return response.forbidden('You cannot upload a file to: {:s}.'.format(assignment.name))
+        request.user.check_participation()
 
         if not (request.FILES and 'file' in request.FILES):
             return response.bad_request('No accompanying file found in the request.')
@@ -393,7 +392,7 @@ class UserView(viewsets.ViewSet):
 
             factory.make_user_file(request.FILES['file'], request.user, assignment, content=content)
 
-        return response.success(description='Succesfully uploaded {:s}.'.format(request.FILES['file'].name))
+        return response.success(description='Successfully uploaded {:s}.'.format(request.FILES['file'].name))
 
     @action(['post'], detail=False)
     def set_profile_picture(self, request):
@@ -420,4 +419,4 @@ class UserView(viewsets.ViewSet):
         request.user.profile_picture = request.data['file']
         request.user.save()
 
-        return response.success(description='Succesfully updated profile picture')
+        return response.success(description='Successfully updated profile picture')
