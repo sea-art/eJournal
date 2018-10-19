@@ -12,7 +12,12 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='assignment',
-            name='published',
+            name='is_published',
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name='role',
+            name='can_view_unpublished_assignment',
             field=models.BooleanField(default=False),
         ),
     ]
