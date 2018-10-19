@@ -41,18 +41,6 @@ class ErrorMiddleware:
     def __call__(self, request):
         return self.get_response(request)
 
-    def process_view(request, view_func, view_args, view_kwargs):
-        pass
-        # if request.user.is_authenticated:
-        #     return None
-        # elif request.path in ['/forgot_password/', '/recover_password/',
-        #                       '/lti/launch/', '/token/', '/token/refresh/', '/token/verify/', ]:
-        #     return None
-        # elif request.path in ['/users/'] and request.method == 'POST':
-        #     return None
-        #
-        # return response.unauthorized()
-
     def process_exception(self, request, exception):
         if isinstance(exception, ObjectDoesNotExist):
             return response.not_found('{0} does not exist.'.format(str(exception).split()[0]))

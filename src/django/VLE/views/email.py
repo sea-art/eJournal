@@ -8,7 +8,8 @@ This includes:
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.http import HttpResponse
 from django.utils.html import escape
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 
 import VLE.utils.generic_utils as utils
 import VLE.validators as validators
@@ -22,6 +23,7 @@ def index(request):
 
 
 @api_view(['POST'])
+@permission_classes((AllowAny, ))
 def forgot_password(request):
     """Handles a forgot password request.
 
@@ -46,6 +48,7 @@ def forgot_password(request):
 
 
 @api_view(['POST'])
+@permission_classes((AllowAny, ))
 def recover_password(request):
     """Handles a reset password request.
 
