@@ -36,16 +36,21 @@
             @change="filesHandler"
             placeholder="Choose a file...">
         </b-form-file>
+        <pretty-checkbox v-model="privacyAgreement" class="p-default p-fill multi-form">
+            With this I agree to share my username, email and first name with eJournal's email provider zoho.
+        </pretty-checkbox>
         <b-button class="add-button float-right" @click="$emit(sendFeedback())">
             <icon name="paper-plane"/>
             Send
         </b-button>
+
     </b-card>
 </template>
 
 <script>
 import icon from 'vue-awesome/components/Icon'
 import feedback from '@/api/feedback'
+import prettyCheckbox from 'pretty-checkbox-vue/check'
 
 export default {
     data () {
@@ -57,10 +62,12 @@ export default {
                 {text: 'Select one', value: null},
                 'Issue/Bug', 'Suggestion', 'Other'
             ],
-            files: null
+            files: null,
+            privacyAgreement: false
         }
     },
     components: {
+        'pretty-checkbox': prettyCheckbox,
         icon
     },
     methods: {
@@ -88,6 +95,8 @@ export default {
                 this.$toasted.error('Please choose a feedback type')
             } else if (this.feedback === '') {
                 this.$toasted.error('Please describe your feedback')
+            } else if (!this.privacyAgreement) {
+                this.$toasted.error('You will have to agree to share, in order for us to read your feedback!')
             } else {
                 var data = new FormData()
                 data.append('topic', this.topic)
@@ -124,3 +133,7 @@ export default {
 
 }
 </script>
+
+<style lang="scss">
+@import '~sass/vendor/pretty-checkbox/pretty-checkbox.scss'
+</style>

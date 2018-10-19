@@ -6,15 +6,13 @@ In this file are all the group api requests.
 from rest_framework import viewsets
 
 import VLE.factory as factory
-import VLE.serializers as serialize
+from VLE.serializers import GroupSerializer
 import VLE.utils.generic_utils as utils
 import VLE.views.responses as response
 from VLE.models import Course, Group
 
 
 class GroupView(viewsets.ViewSet):
-    serializer_class = serialize.GroupSerializer
-
     def list(self, request):
         """Get the groups from a course for the user.
 
@@ -45,7 +43,7 @@ class GroupView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to view or manage the user groups of this course.')
 
         queryset = Group.objects.filter(course=course)
-        serializer = self.serializer_class(queryset, many=True, context={'user': request.user, 'course': course})
+        serializer = GroupSerializer(queryset, many=True, context={'user': request.user, 'course': course})
 
         return response.success({'groups': serializer.data})
 
@@ -79,7 +77,7 @@ class GroupView(viewsets.ViewSet):
             return response.bad_request('Course group with that name already exists.')
 
         course_group = factory.make_course_group(name, course, lti_id)
-        serializer = self.serializer_class(course_group, many=False)
+        serializer = GroupSerializer(course_group, many=False)
         return response.created({'group': serializer.data})
 
     def partial_update(self, request, *args, **kwargs):
@@ -118,7 +116,7 @@ class GroupView(viewsets.ViewSet):
             return response.bad_request('Course group with that name already exists.')
 
         group.name = new_group_name
-        serializer = self.serializer_class(group, data=request.data, partial=True)
+        serializer = GroupSerializer(group, data=request.data, partial=True)
         if not serializer.is_valid():
             response.bad_request()
 

@@ -164,6 +164,7 @@ class UserView(viewsets.ViewSet):
         """
         if not request.user.is_authenticated:
             return response.unauthorized()
+
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
         if int(pk) == 0:
             pk = request.user.pk
@@ -187,6 +188,7 @@ class UserView(viewsets.ViewSet):
             is_teacher = settings.ROLES['Teacher'] in lti.roles_to_list(lti_params)
         else:
             lti_id, user_email, user_full_name, user_image, is_teacher = None, None, None, None, False
+
         if user_image is not None:
             user.profile_picture = user_image
         if user_email is not None:
