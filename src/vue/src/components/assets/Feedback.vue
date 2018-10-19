@@ -37,7 +37,7 @@
             placeholder="Choose a file...">
         </b-form-file>
         <pretty-checkbox v-model="privacyAgreement" class="p-default p-fill multi-form">
-            With this I agree to share my username, email and first name with eJournal's email provider zoho.
+            I agree to share my username, email, first name and feedback with eJournal's email provider zoho.
         </pretty-checkbox>
         <b-button class="add-button float-right" @click="$emit(sendFeedback())">
             <icon name="paper-plane"/>
