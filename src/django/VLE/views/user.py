@@ -15,8 +15,8 @@ import VLE.factory as factory
 import VLE.lti_launch as lti
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
-import VLE.validators as validators
 import VLE.utils.responses as response
+import VLE.validators as validators
 from VLE.models import (Assignment, Content, Entry, Journal, Node, User,
                         UserFile)
 from VLE.serializers import EntrySerializer, OwnUserSerializer, UserSerializer

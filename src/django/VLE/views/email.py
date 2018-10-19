@@ -11,8 +11,8 @@ from django.utils.html import escape
 from rest_framework.decorators import api_view
 
 import VLE.utils.generic_utils as utils
-import VLE.validators as validators
 import VLE.utils.responses as response
+import VLE.validators as validators
 from VLE.models import User
 from VLE.utils import email_handling
 
