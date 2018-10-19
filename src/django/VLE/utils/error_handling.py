@@ -19,7 +19,7 @@ class VLEProgrammingError(Exception):
 
 
 class VLEVerifiedEmailError(Exception):
-    def __init__(self, message='You need to verify your email before an email can be send to this account.'):
+    def __init__(self, message='You need to verify your email before an email can be sent to this account.'):
         super(VLEVerifiedEmailError, self).__init__(message)
 
 
@@ -29,6 +29,7 @@ class VLEPermissionError(Exception):
             super(VLEPermissionError, self).__init__(message)
         else:
             super(VLEPermissionError, self).__init__('User does not have permission ' + permission)
+
 
 
 class VLEParticipationError(Exception):
@@ -74,7 +75,7 @@ class ErrorMiddleware:
         # LTI exceptions
         elif isinstance(exception, jwt.exceptions.ExpiredSignatureError):
             return response.forbidden(
-                'The canvas link has expired, 15 minutes have passed. Please retry from your LTI instance.')
+                'The LTI instance link has expired, 15 minutes have passed. Please try again.')
         elif isinstance(exception, jwt.exceptions.InvalidSignatureError):
             return response.unauthorized(
                 'Invalid LTI parameters given. Please retry from your LTI instance or notify a server admin.')

@@ -173,7 +173,7 @@ export default {
                 .then(_ => {
                     this.originalRoleConfig = this.deepCopyRoles(this.roleConfig)
                     this.defaultRoles = Array.from(this.roles)
-                    this.$toasted.success('Course roles Successfully updated.')
+                    this.$toasted.success('Course roles successfully updated.')
                     this.checkPermission()
                     this.$nextTick(function () {
                         this.isChanged = false
@@ -194,7 +194,7 @@ export default {
                         .then(_ => {
                             this.deleteRoleLocalConfig(role)
                             this.deleteRoleServerLoadedConfig(role)
-                            this.$toasted.success('Role deleted Successfully!')
+                            this.$toasted.success('Role deleted successfully!')
                         })
                         .catch(error => this.$toasted.error(error.response.data.description))
                 } else {
