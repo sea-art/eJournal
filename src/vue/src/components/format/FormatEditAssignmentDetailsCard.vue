@@ -1,5 +1,13 @@
 <template>
     <b-card class="no-hover settings-card" :class="$root.getBorderClass($route.params.cID)">
+        <div class="float-right mt-1">
+            <h2 class="field-heading float-right d-inline">Published</h2>
+            <b-form-checkbox
+                class="mr-0"
+                v-model="assignmentDetails.is_published"
+                v-b-tooltip.hover
+                :title="assignmentDetails.is_published ? 'Visible to students' : 'Not visible to students' "/>
+        </div>
         <h2>Assignment details</h2>
         <b-form @submit.prevent="onSubmit">
             <h2 class="field-heading">Assignment name</h2>
@@ -12,22 +20,11 @@
                 :givenContent="assignmentDetails.description"
                 @content-update="assignmentDetails.description = $event"
                 :footer="false"/>
-            <b-row>
-                <b-col xl="8">
-                    <h2 class="field-heading">Points possible</h2>
-                    <b-input class="multi-form theme-input"
-                        v-model="assignmentDetails.points_possible"
-                        placeholder="Points"
-                        type="number"/>
-                </b-col>
-                <b-col xl="2">
-                    <!-- TODO front-end make beautifull -->
-                    <h2 class="field-heading">Publish</h2>
-                    <input class="multi-form theme-input"
-                    v-model="assignmentDetails.is_published"
-                    type="checkbox"/>
-                </b-col>
-            </b-row>
+            <h2 class="field-heading">Points possible</h2>
+            <b-input class="multi-form theme-input"
+                v-model="assignmentDetails.points_possible"
+                placeholder="Points"
+                type="number"/>
             <b-row>
                 <b-col xl="4">
                     <h2 class="field-heading">Unlock date</h2>

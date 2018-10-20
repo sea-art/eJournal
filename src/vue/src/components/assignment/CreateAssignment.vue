@@ -1,7 +1,14 @@
 <template>
     <b-card class="no-hover">
-        <!-- TODO: Create default formats. -->
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
+            <div class="float-right mt-1">
+                <h2 class="field-heading float-right d-inline">Published</h2>
+                <b-form-checkbox
+                class="mr-0"
+                v-model="form.is_published"
+                v-b-tooltip.hover
+                :title="form.is_published ? 'Visible to students' : 'Not visible to students' "/>
+            </div>
             <h2 class="field-heading">Assignment Name</h2>
             <b-input class="multi-form theme-input"
                 v-model="form.assignmentName"
@@ -15,22 +22,11 @@
                 @content-update="form.assignmentDescription = $event"
                 :footer="false"
             />
-            <b-row>
-                <b-col xl="10">
-                    <h2 class="field-heading">Points possible</h2>
-                    <b-input class="multi-form theme-input"
-                    v-model="form.pointsPossible"
-                    placeholder="Points"
-                    type="number"/>
-                </b-col>
-                <b-col xl="2">
-                    <!-- TODO front-end make beautifull -->
-                    <h2 class="field-heading">Publish</h2>
-                    <input class="multi-form theme-input"
-                    v-model="form.is_published"
-                    type="checkbox"/>
-                </b-col>
-            </b-row>
+            <h2 class="field-heading">Points possible</h2>
+            <b-input class="multi-form theme-input"
+            v-model="form.pointsPossible"
+            placeholder="Points"
+            type="number"/>
             <b-row>
                 <b-col xl="4">
                     <h2 class="field-heading">Unlock date</h2>
