@@ -168,6 +168,7 @@ class UserView(viewsets.ViewSet):
             is_teacher = settings.ROLES['Teacher'] in lti_launch.roles_to_list(lti_params)
         else:
             lti_id, user_email, user_full_name, user_image, is_teacher = None, None, None, None, False
+
         if user_image is not None:
             user.profile_picture = user_image
         if user_email is not None:

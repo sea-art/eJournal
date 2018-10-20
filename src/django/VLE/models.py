@@ -736,7 +736,6 @@ class Content(models.Model):
         on_delete=models.SET_NULL,
         null=True
     )
-    # TODO Consider a size limit 10MB unencoded posts? so 10 * 1024 * 1024 * 1.37?
     data = models.TextField(
         null=True
     )
