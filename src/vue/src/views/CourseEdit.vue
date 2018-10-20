@@ -357,20 +357,16 @@ export default {
         },
         searchUnenrolled () {
             this.unenrolledQuery = this.unenrolledQuery.trim()
-            if (this.unenrolledQuery.length < 5) {
-                this.unenrolledQueryDescription = 'Search query needs to be at least 5 characters'
-                this.unenrolledStudents = []
-            } else {
-                participationAPI.getUnenrolled(this.cID, this.unenrolledQuery)
-                    .then(users => {
-                        this.unenrolledStudents = users
+            participationAPI.getUnenrolled(this.cID, this.unenrolledQuery)
+                .then(users => {
+                    this.unenrolledStudents = users
+                    if (!this.unenrolledStudents.length) {
+                        this.unenrolledQueryDescription = 'No users found'
+                    } else {
                         this.$toasted.success('Succesfully found user(s).')
-                        if (!this.unenrolledStudents.length) {
-                            this.unenrolledQueryDescription = 'No users found'
-                        }
-                    })
-                    .catch(error => { this.$toasted.error(error.response.data.description) })
-            }
+                    }
+                })
+                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     },
     computed: {

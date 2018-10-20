@@ -197,15 +197,18 @@ class ParticipationView(viewsets.ViewSet):
             first_name = unenrolled_query.split(' ', 1)[0]
             last_name = unenrolled_query.split(' ', 1)[1]
 
-        if len(unenrolled_query) < 5:
-            return response.bad_request('Query is too short.')
-
         course = Course.objects.get(pk=course_id)
-
         request.user.check_permission('can_add_course_users', course)
 
         ids_in_course = course.participation_set.all().values('user__id')
         users = User.objects.all().exclude(id__in=ids_in_course)
+
+        if len(unenrolled_query) < 5:
+            user = users.filter(username=unenrolled_query)
+            if user:
+                return response.success({'participants': UserSerializer(user, many=True).data})
+            else:
+                return response.success({'participants': []})
 
         found_users = users.filter(username__contains=unenrolled_query) | \
             users.filter(first_name__contains=unenrolled_query) | \

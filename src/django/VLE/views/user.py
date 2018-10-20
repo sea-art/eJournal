@@ -128,7 +128,6 @@ class UserView(viewsets.ViewSet):
             return response.bad_request('User with this lti id already exists.')
 
         validators.validate_password(password)
-        validators.validate_username(username)
 
         user = factory.make_user(username, password, email=email, lti_id=lti_id, is_teacher=is_teacher,
                                  first_name=first_name, last_name=last_name, profile_picture=user_image,
