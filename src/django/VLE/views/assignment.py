@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 import VLE.factory as factory
 import VLE.lti_grade_passback as lti_grade
 import VLE.utils.generic_utils as utils
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.models import Assignment, Course, Entry, Lti_ids
 from VLE.serializers import AssignmentSerializer
 from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
@@ -196,7 +196,8 @@ class AssignmentView(viewsets.ViewSet):
             # If a entry has been submitted to one of the journals of the journal it cannot be unpublished
             if assignment.is_published and 'is_published' in req_data and not req_data['is_published'] and \
                Entry.objects.filter(node__journal__assignment=assignment).exists():
-                req_data['is_published'] = True
+                return response.bad_request(
+                    'You are not allowed to unpublish an assignment that already has submissions.')
 
             if 'lti_id' in req_data:
                 factory.make_lti_ids(lti_id=req_data['lti_id'], for_model=Lti_ids.ASSIGNMENT, assignment=assignment)

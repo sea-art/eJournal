@@ -320,7 +320,10 @@ export default {
                         this.isChanged = false
                     })
                 })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
+                .catch(error => {
+                    // TODO restore original values and stop grayed out.
+                    this.$toasted.error(error.response.data.description)
+                })
         },
         customisePage () {
             this.$toasted.info('Wishlist: Customise page')

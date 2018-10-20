@@ -6,7 +6,7 @@ In this file are all the Format api requests.
 from rest_framework import viewsets
 
 import VLE.utils.generic_utils as utils
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.models import Assignment, Entry
 from VLE.serializers import (AssignmentDetailsSerializer, AssignmentSerializer,
                              FormatSerializer)
@@ -75,7 +75,7 @@ class FormatView(viewsets.ViewSet):
         # If a entry has been submitted to one of the journals of the journal it cannot be unpublished
         if assignment.is_published and 'is_published' in assignment_details and not assignment_details['is_published'] \
            and Entry.objects.filter(node__journal__assignment=assignment).exists():
-            assignment_details['is_published'] = True
+            return response.bad_request('You are not allowed to unpublish an assignment that already has submissions.')
 
         request.user.check_permission('can_edit_assignment', assignment)
 
