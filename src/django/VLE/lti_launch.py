@@ -122,6 +122,7 @@ def check_assignment_lti(request):
     if lti_couples.count() > 0:
         assignment = lti_couples[0].assignment
         assignment.is_published = request['custom_assignment_publish']
+        assignment.save()
         return assignment
     return None
 

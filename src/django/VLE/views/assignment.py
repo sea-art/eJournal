@@ -199,9 +199,6 @@ class AssignmentView(viewsets.ViewSet):
                 return response.bad_request(
                     'You are not allowed to unpublish an assignment that already has submissions.')
 
-            if 'lti_id' in req_data:
-                factory.make_lti_ids(lti_id=req_data['lti_id'], for_model=Lti_ids.ASSIGNMENT, assignment=assignment)
-
             serializer = AssignmentSerializer(assignment, data=req_data, context={'user': request.user}, partial=True)
             if not serializer.is_valid():
                 response.bad_request()
