@@ -5,9 +5,9 @@
                 <h2 class="field-heading float-right d-inline">Published</h2>
                 <b-form-checkbox
                 class="mr-0"
-                v-model="form.is_published"
+                v-model="form.isPublished"
                 v-b-tooltip.hover
-                :title="form.is_published ? 'Visible to students' : 'Not visible to students' "/>
+                :title="form.isPublished ? 'Visible to students' : 'Not visible to students' "/>
             </div>
             <h2 class="field-heading">Assignment Name</h2>
             <b-input class="multi-form theme-input"
@@ -79,7 +79,7 @@ export default {
                 unlockDate: null,
                 dueDate: null,
                 lockDate: null,
-                is_published: false
+                isPublished: false
             }
         }
     },
@@ -98,7 +98,7 @@ export default {
                 unlock_date: this.form.unlockDate,
                 due_date: this.form.dueDate,
                 lock_date: this.form.lockDate,
-                is_published: this.form.is_published
+                is_published: this.form.isPublished
             })
                 .then(assignment => {
                     this.$emit('handleAction', assignment.id)
@@ -119,7 +119,7 @@ export default {
             this.form.unlockDate = undefined
             this.form.dueDate = undefined
             this.form.lockDate = undefined
-            this.form.is_published = false
+            this.form.isPublished = false
 
             /* Trick to reset/clear native browser form validation state */
             this.show = false
@@ -135,7 +135,7 @@ export default {
             this.form.dueDate = this.lti.ltiAssignDue.slice(0, -9)
             this.form.lockDate = this.lti.ltiAssignLock.slice(0, -9)
             this.form.courseID = this.page.cID
-            this.form.is_published = this.lti.ltiAssignPublished
+            this.form.isPublished = this.lti.ltiAssignPublished
         } else {
             this.form.courseID = this.$route.params.cID
         }
