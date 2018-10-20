@@ -40,9 +40,6 @@ class NodeView(viewsets.ModelViewSet):
             success -- with the node data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         journal_id, = utils.required_typed_params(request.query_params, (int, 'journal_id'))
         journal = Journal.objects.get(pk=journal_id)
 

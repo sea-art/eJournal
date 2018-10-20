@@ -9,7 +9,8 @@ import jwt
 from django.conf import settings
 from django.core.validators import validate_email
 from rest_framework import viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, permission_classes
+from rest_framework.permissions import AllowAny
 
 import VLE.factory as factory
 import VLE.lti_launch as lti
@@ -37,9 +38,6 @@ class UserView(viewsets.ViewSet):
             success -- with the course data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         if not request.user.is_superuser:
             return response.forbidden('Only administrators are allowed to request all user data.')
 
@@ -60,8 +58,6 @@ class UserView(viewsets.ViewSet):
         On success:
             success -- with the user data
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
         if int(pk) == 0:
             pk = request.user.id
 
@@ -76,6 +72,7 @@ class UserView(viewsets.ViewSet):
 
         return response.success({'user': serializer.data})
 
+    @permission_classes((AllowAny, ))
     def create(self, request):
         """Create a new user.
 
@@ -162,8 +159,6 @@ class UserView(viewsets.ViewSet):
         On success:
             success -- with the updated user
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
         if pk == 0:
             pk = request.user.pk
@@ -187,6 +182,7 @@ class UserView(viewsets.ViewSet):
             is_teacher = settings.ROLES['Teacher'] in lti.roles_to_list(lti_params)
         else:
             lti_id, user_email, user_full_name, user_image, is_teacher = None, None, None, None, False
+
         if user_image is not None:
             user.profile_picture = user_image
         if user_email is not None:
@@ -235,9 +231,6 @@ class UserView(viewsets.ViewSet):
         On success:
             success -- deleted message
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         if not request.user.is_superuser:
             return response.forbidden('You are not allowed to delete a user.')
 
@@ -268,8 +261,6 @@ class UserView(viewsets.ViewSet):
         On success:
             success -- with a success description
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
         new_password, old_password = utils.required_params(request.data, 'new_password', 'old_password')
 
         if not request.user.check_password(old_password):
@@ -297,8 +288,6 @@ class UserView(viewsets.ViewSet):
         On success:
             success -- a zip file of all the userdata with all their files
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
         if int(pk) == 0:
             pk = request.user.id
 
@@ -341,8 +330,6 @@ class UserView(viewsets.ViewSet):
         On success:
             success -- a zip file of all the userdata with all their files
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
         if int(pk) == 0:
             pk = request.user.id
 
@@ -382,9 +369,6 @@ class UserView(viewsets.ViewSet):
         On success:
             success -- name of the file.
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         if not (request.FILES and 'file' in request.FILES):
             return response.bad_request('No accompanying file found in the request.')
 
@@ -424,9 +408,6 @@ class UserView(viewsets.ViewSet):
         On success:
             success -- a zip file of all the userdata with all their files
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         utils.required_params(request.data, 'file')
 
         validators.validate_profile_picture_base64(request.data['file'])
