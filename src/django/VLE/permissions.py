@@ -15,7 +15,7 @@ COURSE_PERMISSIONS = ['can_edit_course_details', 'can_delete_course', 'can_edit_
                       'can_view_course_users', 'can_add_course_users', 'can_delete_course_users',
                       'can_add_course_user_group', 'can_delete_course_user_group', 'can_edit_course_user_group',
                       'can_add_assignment', 'can_delete_assignment']
-ASSIGNMENT_PERMISSIONS = ['can_edit_assignment', 'can_all_view_journals', 'can_grade',
+ASSIGNMENT_PERMISSIONS = ['can_edit_assignment', 'can_view_all_journals', 'can_grade',
                           'can_publish_grades', 'can_have_journal', 'can_comment']
 
 
@@ -96,7 +96,7 @@ def has_assignment_permission(user, permission, assignment):
             permissions = {key: (role_permissions[key] or permissions[key]) for key in ASSIGNMENT_PERMISSIONS}
 
     # Apply negations
-    if permissions['can_have_journal'] and permissions['can_all_view_journals']:
+    if permissions['can_have_journal'] and permissions['can_view_all_journals']:
         permissions['can_have_journal'] = False
 
     return permissions[permission]
@@ -105,13 +105,13 @@ def has_assignment_permission(user, permission, assignment):
 def is_user_supervisor_of(supervisor, user):
     """Checks whether the user is a participant in any of the assignments where the supervisor has the permission of
     can_view_course_users or where the supervisor is linked to the user through an assignment where the supervisor
-    has the permission can_all_view_journals."""
+    has the permission can_view_all_journals."""
     for course in supervisor.participations.all():
         if supervisor.has_permission('can_view_course_users', course):
             if course.participation_set.filter(user=user).exists():
                 return True
             for assignment in course.assignment_set.filter(journal__user=user):
-                if supervisor.has_permission('can_all_view_journals', assignment):
+                if supervisor.has_permission('can_view_all_journals', assignment):
                     return True
 
     return False

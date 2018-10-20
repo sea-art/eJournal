@@ -76,10 +76,10 @@ class PermissionTests(TestCase):
         by negation."""
         role = factory.make_role_default_no_perms("SD", self.course1, can_have_journal=True)
         factory.make_participation(self.user, self.course1, role)
-        role = factory.make_role_default_no_perms("SD", self.course2, can_all_view_journals=True)
+        role = factory.make_role_default_no_perms("SD", self.course2, can_view_all_journals=True)
         factory.make_participation(self.user, self.course2, role)
 
-        self.assertTrue(self.user.has_permission('can_all_view_journals', self.assignment))
+        self.assertTrue(self.user.has_permission('can_view_all_journals', self.assignment))
 
         self.assertFalse(self.user.has_permission('can_have_journal', self.assignment))
 
@@ -87,9 +87,9 @@ class PermissionTests(TestCase):
         factory.make_role_default_no_perms("SD1", self.course1,
                                            can_have_journal=True)
         factory.make_role_default_no_perms("SD2", self.course1,
-                                           can_all_view_journals=True)
+                                           can_view_all_journals=True)
         self.assertRaises(ValidationError, factory.make_role_default_no_perms, "SD3", self.course1,
-                          can_have_journal=True, can_all_view_journals=True)
+                          can_have_journal=True, can_view_all_journals=True)
 
         self.assertRaises(ValidationError, factory.make_role_default_no_perms, "SD4", self.course1,
                           can_add_course_users=True)
@@ -107,22 +107,22 @@ class PermissionTests(TestCase):
         self.assertRaises(ValidationError, factory.make_role_default_no_perms, "SDA", self.course1,
                           can_grade=True)
         factory.make_role_default_no_perms("SDB", self.course1,
-                                           can_grade=True, can_all_view_journals=True)
+                                           can_grade=True, can_view_all_journals=True)
 
         self.assertRaises(ValidationError, factory.make_role_default_no_perms, "SDC", self.course1,
                           can_publish_grades=True)
         self.assertRaises(ValidationError, factory.make_role_default_no_perms, "SDD", self.course1,
-                          can_publish_grades=True, can_all_view_journals=True)
+                          can_publish_grades=True, can_view_all_journals=True)
         self.assertRaises(ValidationError, factory.make_role_default_no_perms, "SDE", self.course1,
                           can_publish_grades=True, can_grade=True)
         factory.make_role_default_no_perms("SDF", self.course1,
                                            can_publish_grades=True, can_grade=True,
-                                           can_all_view_journals=True)
+                                           can_view_all_journals=True)
 
         self.assertRaises(ValidationError, factory.make_role_default_no_perms, "SDG", self.course1,
                           can_comment=True)
         factory.make_role_default_no_perms("SDH", self.course1,
-                                           can_comment=True, can_all_view_journals=True)
+                                           can_comment=True, can_view_all_journals=True)
         factory.make_role_default_no_perms("SDI", self.course1,
                                            can_comment=True, can_have_journal=True)
 
@@ -257,7 +257,7 @@ class PermissionTests(TestCase):
         student = factory.make_user('Username3', 'Password', email='some3@email.address')
 
         role = factory.make_role_default_no_perms("TE", self.course1,
-                                                  can_view_course_users=True, can_all_view_journals=True)
+                                                  can_view_course_users=True, can_view_all_journals=True)
         factory.make_participation(self.user, self.course1, role)
 
         role = factory.make_role_default_no_perms("MD", self.course1, can_view_course_users=True)

@@ -83,7 +83,7 @@ class RoleView(viewsets.ViewSet):
 
             if user != request.user:
                 # TODO: P Add a permission for this
-                request.user.check_permission('can_all_view_journals', course)
+                request.user.check_permission('can_view_all_journals', course)
 
             return response.success({'role': permissions.serialize_assignment_permissions(request.user, assignment)})
         # Returns keyerror if course_id nor assignment_id is set
