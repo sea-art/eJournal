@@ -10,7 +10,8 @@ import VLE.factory as factory
 import VLE.serializers as serialize
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
-from VLE.models import Course, Lti_ids
+import VLE.utils.group_utils as group_utils
+from VLE.models import Course, Lti_ids, Participation
 
 
 class CourseView(viewsets.ViewSet):
@@ -42,6 +43,7 @@ class CourseView(viewsets.ViewSet):
             startdate -- (optional) date when the course starts
             enddate -- (optional) date when the course ends
             lti_id -- (optional) lti_id to link the course to
+            group_name -- (optional) group_name of the group the author is in within the course.
 
         Returns:
         On failure:
@@ -53,9 +55,12 @@ class CourseView(viewsets.ViewSet):
         request.user.check_permission('can_add_course')
 
         name, abbr = utils.required_params(request.data, 'name', 'abbreviation')
-        startdate, enddate, lti_id = utils.optional_params(request.data, 'startdate', 'enddate', 'lti_id')
-
-        course = factory.make_course(name, abbr, startdate, enddate, request.user, lti_id)
+        startdate, enddate, lti_id, group_name = utils.optional_params(request.data, 'startdate', 'enddate',
+                                                                       'lti_id', 'group_name')
+        # The make_course want '' if no group
+        if group_name is None:
+            group_name = ''
+        course = factory.make_course(name, abbr, startdate, enddate, request.user, lti_id, group_name)
 
         serializer = self.serializer_class(course, many=False)
         return response.created({'course': serializer.data})
@@ -108,6 +113,11 @@ class CourseView(viewsets.ViewSet):
         data = request.data
         if 'lti_id' in data:
             factory.make_lti_ids(lti_id=data['lti_id'], for_model=Lti_ids.COURSE, course=course)
+
+        if 'group_name' in data:
+            participation = Participation.object.get(user=request.user, course=course)
+            participation.group = group_utils.get_and_init_group(data['group_name'], course)
+            participation.save()
 
         serializer = self.serializer_class(course, data=data, partial=True)
         if not serializer.is_valid():

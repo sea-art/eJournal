@@ -32,7 +32,7 @@ export default {
     methods: {
         linkCourse (c) {
             if (!c.lti_couples || confirm('This course is already linked to ' + c.lti_couples + ' other course(s) from the learning-environment, are you sure you also want to link it?')) {
-                courseAPI.update(c.id, {lti_id: this.lti.ltiCourseID})
+                courseAPI.update(c.id, {lti_id: this.lti.ltiCourseID, group_name: this.lti.ltiCourseGroupName})
                     .then(course => { this.$emit('handleAction', course.id) })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }

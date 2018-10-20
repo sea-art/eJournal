@@ -4,7 +4,8 @@ import oauth2
 from django.conf import settings
 
 import VLE.factory as factory
-from VLE.models import Journal, Lti_ids, Role, User
+import VLE.utils.group_utils as group_utils
+from VLE.models import Journal, Lti_ids, Role, User, Participation
 
 
 class OAuthRequestValidater(object):
@@ -106,10 +107,16 @@ def check_course_lti(request, user, role):
 
     if lti_couples.count() > 0:
         course = lti_couples[0].course
-        if user not in course.users.all():
+        group = group_utils.get_and_init_group(request.get('custom_group_name', ''), course)
+        # always update the group through lti params
+        if user in course.users.all():
+            participation = Participation.object.get(user=request.user, course=course)
+            participation.group = group
+            participation.save()
+        else:
             for r in settings.ROLES:
                 if r in role or r == 'Student':
-                    factory.make_participation(user, course, Role.objects.get(name=r, course=course))
+                    factory.make_participation(user, course, Role.objects.get(name=r, course=course), group=group)
                     break
         return course
     return None
