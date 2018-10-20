@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import * as types from '../constants/mutation-types.js'
 import connection from '@/api/connection.js'
+import genericUtils from '@/utils/generic_utils.js'
 
 const getters = {
     jwtAccess: state => state.jwtAccess,
@@ -113,8 +114,17 @@ const actions = {
     /* An attempt is made at refreshing the JW access token, store is populated if needed.
      * Fails if the refresh fails or if the store needed to be populated if that fails as well. */
     validateToken ({ commit, dispatch, getters }, error = null) {
+        if (error) {
+            var code
+            if (error.response.data instanceof ArrayBuffer) {
+                code = genericUtils.parseArrayBufferResponseErrorData(error).code
+            } else {
+                code = error.response.data.code
+            }
+        }
+
         return new Promise((resolve, reject) => {
-            if (!error || (error && error.response.data.code === 'token_not_valid')) {
+            if (!error || code === 'token_not_valid') {
                 connection.conn.post('token/refresh/', {refresh: getters.jwtRefresh}).then(response => {
                     commit(types.SET_ACCES_TOKEN, response.data.access) // Refresh token valid, update access token.
 
@@ -129,11 +139,6 @@ const actions = {
                     reject(error) // Refresh token invalid, reject
                 })
             } else {
-                console.log(error)
-                console.log(error.response)
-                console.log(error.response.data)
-                console.log(error.response.data instanceof ArrayBuffer)
-                console.log('Token validation, error sucks')
                 reject(error) // We should not validate if the error has nothing to do with the token
             }
         })
