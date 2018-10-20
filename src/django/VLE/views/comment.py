@@ -9,7 +9,7 @@ from rest_framework import viewsets
 
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.models import Comment, Entry
 from VLE.serializers import CommentSerializer
 
@@ -85,6 +85,7 @@ class CommentView(viewsets.ViewSet):
         request.user.check_permission('can_comment', assignment)
         request.user.check_can_view(journal)
 
+        # By default a comment will be published, only users who can grade can delay publishing.
         published = published or not request.user.has_permission('can_grade', assignment)
         comment = factory.make_comment(entry, request.user, text, published)
         return response.created({'comment': CommentSerializer(comment).data})
