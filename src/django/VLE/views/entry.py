@@ -13,8 +13,8 @@ import VLE.serializers as serialize
 import VLE.timeline as timeline
 import VLE.utils.entry_utils as entry_utils
 import VLE.utils.generic_utils as utils
+import VLE.utils.responses as response
 import VLE.validators as validators
-import VLE.views.responses as response
 from VLE.models import Comment, Entry, Field, Journal, Node, Template
 from VLE.utils import file_handling
 
@@ -39,9 +39,6 @@ class EntryView(viewsets.ViewSet):
             node_id -- optional: the node to bind the entry to (only for entrydeadlines)
             content -- the list of {tag, data} tuples to bind data to a template field.
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         journal_id, template_id, content_list = utils.required_params(
             request.data, "journal_id", "template_id", "content")
         node_id, = utils.optional_params(request.data, "node_id")
@@ -130,26 +127,24 @@ class EntryView(viewsets.ViewSet):
             success -- with the new entry data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
-        grade, published, content_list = utils.optional_params(request.data, "grade", "published", "content")
+        published, content_list = utils.optional_params(request.data, 'published', 'content')
 
         entry_id, = utils.required_typed_params(kwargs, (int, 'pk'))
         entry = Entry.objects.get(pk=entry_id)
         journal = entry.node.journal
         assignment = journal.assignment
 
-        if grade is not None:
+        if 'grade' in request.data:
+            grade, = utils.required_typed_params(request.data, (float, 'grade'))
             request.user.check_permission('can_grade', assignment)
 
-            if isinstance(grade, (int, float)) or grade < 0:
+            if grade < 0:
                 return response.bad_request('Grade must be greater than or equal to zero.')
 
             entry.grade = grade
 
         if assignment.is_locked():
-            request.user.check_permission('can_view_assignment_journals', assignment)
+            request.user.check_permission('can_view_all_journals', assignment)
 
         if published is not None:
             request.user.check_permission('can_publish_grades', assignment)
@@ -192,10 +187,12 @@ class EntryView(viewsets.ViewSet):
             file_handling.remove_temp_user_files(request.user)
 
         req_data = request.data
-        if 'content' in req_data:
-            del req_data['content']
+        req_data.pop('content', None)
+        req_data.pop('published', None)
         if content_list:
             req_data['last_edited'] = datetime.now()
+        else:
+            req_data.pop('last_edited', None)
         serializer = serialize.EntrySerializer(entry, data=req_data, partial=True, context={'user': request.user})
         if not serializer.is_valid():
             response.bad_request()
@@ -226,8 +223,6 @@ class EntryView(viewsets.ViewSet):
         On success:
             success -- with a message that the course was deleted
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
 
         entry = Entry.objects.get(pk=pk)

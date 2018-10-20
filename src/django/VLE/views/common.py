@@ -7,7 +7,7 @@ This includes:
 """
 from rest_framework.decorators import api_view
 
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.models import Assignment, Course, Journal
 
 
@@ -25,9 +25,6 @@ def names(request, course_id, assignment_id, journal_id):
     course_id populates 'course', assignment_id populates 'assignment', tID populates
     'template' and journal_id populates 'journal' with the users' name.
     """
-    if not request.user.is_authenticated:
-        return response.unauthorized()
-
     result = {}
     if course_id:
         course = Course.objects.get(pk=course_id)

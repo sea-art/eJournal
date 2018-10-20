@@ -250,7 +250,7 @@ export default {
                     .then(course => {
                         this.course = course
                         this.originalCourse = this.deepCopyCourse(course)
-                        this.$toasted.success('Succesfully updated the course.')
+                        this.$toasted.success('Successfully updated the course.')
                         store.clearCache()
                     })
                     .catch(error => { this.$toasted.error(error.response.data.description) })

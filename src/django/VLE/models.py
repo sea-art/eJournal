@@ -13,7 +13,8 @@ from django.utils.timezone import now
 
 import VLE.permissions as permissions
 from VLE.utils.error_handling import (VLEParticipationError,
-                                      VLEPermissionError, VLEProgrammingError)
+                                      VLEPermissionError, VLEProgrammingError,
+                                      VLEUnverifiedEmailError)
 from VLE.utils.file_handling import get_path
 
 
@@ -151,6 +152,10 @@ class User(AbstractUser):
         if not self.is_participant(obj):
             raise VLEParticipationError(obj)
 
+    def check_verified_email(self):
+        if not self.verified_email:
+            raise VLEUnverifiedEmailError()
+
     def is_participant(self, obj):
         if isinstance(obj, Course):
             return Course.objects.filter(pk=obj.pk, users=self).exists()
@@ -165,7 +170,7 @@ class User(AbstractUser):
     def can_view(self, obj):
         if isinstance(obj, Journal):
             if obj.user != self:
-                return self.has_permission('can_view_assignment_journals', obj.assignment)
+                return self.has_permission('can_view_all_journals', obj.assignment)
             else:
                 return self.has_permission('can_have_journal', obj.assignment)
 
@@ -273,7 +278,7 @@ class Role(models.Model):
     can_delete_assignment = models.BooleanField(default=False)
 
     can_edit_assignment = models.BooleanField(default=False)
-    can_view_assignment_journals = models.BooleanField(default=False)
+    can_view_all_journals = models.BooleanField(default=False)
     can_grade = models.BooleanField(default=False)
     can_publish_grades = models.BooleanField(default=False)
     can_have_journal = models.BooleanField(default=False)
@@ -289,17 +294,17 @@ class Role(models.Model):
         if self.can_edit_course_user_group and not self.can_view_course_users:
             raise ValidationError('A user needs to view course users in order to manage user groups.')
 
-        if self.can_view_assignment_journals and self.can_have_journal:
+        if self.can_view_all_journals and self.can_have_journal:
             raise ValidationError('An administrative user is not allowed to have a journal in the same course.')
 
-        if self.can_grade and not self.can_view_assignment_journals:
+        if self.can_grade and not self.can_view_all_journals:
             raise ValidationError('A user needs to be able to view journals in order to grade them.')
 
-        if self.can_publish_grades and not (self.can_view_assignment_journals and self.can_grade):
+        if self.can_publish_grades and not (self.can_view_all_journals and self.can_grade):
             raise ValidationError('A user should not be able to publish grades without being able to view or grade \
                                   the journals.')
 
-        if self.can_comment and not (self.can_view_assignment_journals or self.can_have_journal):
+        if self.can_comment and not (self.can_view_all_journals or self.can_have_journal):
             raise ValidationError('A user requires a journal to comment on.')
 
         super(Role, self).save(*args, **kwargs)
@@ -731,7 +736,6 @@ class Content(models.Model):
         on_delete=models.SET_NULL,
         null=True
     )
-    # TODO Consider a size limit 10MB unencoded posts? so 10 * 1024 * 1024 * 1.37?
     data = models.TextField(
         null=True
     )

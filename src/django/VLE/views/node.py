@@ -7,7 +7,7 @@ from rest_framework import viewsets
 
 import VLE.timeline as timeline
 import VLE.utils.generic_utils as utils
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.models import Journal
 
 
@@ -40,9 +40,6 @@ class NodeView(viewsets.ModelViewSet):
             success -- with the node data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         journal_id, = utils.required_typed_params(request.query_params, (int, 'journal_id'))
         journal = Journal.objects.get(pk=journal_id)
 
