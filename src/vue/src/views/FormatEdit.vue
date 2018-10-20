@@ -321,8 +321,8 @@ export default {
                     })
                 })
                 .catch(error => {
-                    // TODO restore original values and stop grayed out.
                     this.$toasted.error(error.response.data.description)
+                    this.saveRequestInFlight = false
                 })
         },
         customisePage () {
