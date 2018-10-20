@@ -129,6 +129,11 @@ const actions = {
                     reject(error) // Refresh token invalid, reject
                 })
             } else {
+                console.log(error)
+                console.log(error.response)
+                console.log(error.response.data)
+                console.log(error.response.data instanceof ArrayBuffer)
+                console.log('Token validation, error sucks')
                 reject(error) // We should not validate if the error has nothing to do with the token
             }
         })

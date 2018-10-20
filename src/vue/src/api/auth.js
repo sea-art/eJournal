@@ -38,26 +38,22 @@ function handleError (error, noRedirect = false) {
 }
 
 function validatedSend (func, url, data = null, noRedirect = false) {
+    console.log('Validated send start')
     store.commit('connection/OPEN_API_CALL')
-    return func(url, data).then(
-        resp => {
-            setTimeout(function () {
-                store.commit('connection/CLOSE_API_CALL')
-            }, 300)
-            return resp
-        }, error =>
-            store.dispatch('user/validateToken', error).then(_ =>
-                func(url, data).then(resp => {
-                    setTimeout(function () {
-                        store.commit('connection/CLOSE_API_CALL')
-                    }, 300)
-                    return resp
-                })
-            )
-    ).catch(error => {
-        setTimeout(function () {
-            store.commit('connection/CLOSE_API_CALL')
-        }, 300)
+    return func(url, data).then(resp => {
+        console.log('Validated send first then success')
+        setTimeout(function () { store.commit('connection/CLOSE_API_CALL') }, 300)
+        return resp
+    }, error => {
+        console.log('Validated send first then REJECT')
+        store.dispatch('user/validateToken', error).then(_ => {
+            func(url, data).then(resp => {
+                setTimeout(function () { store.commit('connection/CLOSE_API_CALL') }, 300)
+                return resp
+            })
+        })
+    }).catch(error => {
+        setTimeout(function () { store.commit('connection/CLOSE_API_CALL') }, 300)
         return handleError(error, noRedirect)
     })
 }
