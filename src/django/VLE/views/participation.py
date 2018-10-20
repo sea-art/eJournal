@@ -117,25 +117,22 @@ class ParticipationView(viewsets.ViewSet):
         """
         user_id, = utils.required_params(request.data, 'user_id')
         role_name, group_name = utils.optional_params(request.data, 'role', 'group')
-        if not role_name:
-            role_name = 'Student'
 
         user = User.objects.get(pk=user_id)
         course = Course.objects.get(pk=pk)
         participation = Participation.objects.get(user=user, course=course)
 
-        request.user.check_permission('can_edit_course_roles', course)
-
-        participation.role = Role.objects.get(name=role_name, course=course)
+        if role_name:
+            request.user.check_permission('can_edit_course_roles', course)
+            participation.role = Role.objects.get(name=role_name, course=course)
 
         if group_name:
+            request.user.check_permission('can_edit_course_user_group', course)
             participation.group = Group.objects.get(name=group_name, course=course)
-        else:
-            participation.group = None
 
         participation.save()
         serializer = UserSerializer(participation.user, context={'course': course})
-        return response.success({'user': serializer.data}, description='Succesfully updated participation.')
+        return response.success({'user': serializer.data}, description='Successfully updated participation.')
 
     def destroy(self, request, pk):
         """Remove a user from the course.

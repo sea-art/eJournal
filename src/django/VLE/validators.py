@@ -17,13 +17,13 @@ URL = 'u'
 def validate_profile_picture_base64(urlData):
     """Checks if the original size does not exceed 2MB AFTER encoding."""
     if len(urlData) > settings.USER_MAX_FILE_SIZE_BYTES * 1.37:
-        raise ValidationError("Max size of file is %s Bytes" % settings.USER_MAX_FILE_SIZE_BYTES)
+        raise ValidationError("Max size of file is {} Bytes".format(settings.USER_MAX_FILE_SIZE_BYTES))
 
 
 def validate_user_file(inMemoryUploadedFile, user):
     """Checks if size does not exceed 2MB. Or the user has reached his maximum storage space."""
     if inMemoryUploadedFile.size > settings.USER_MAX_FILE_SIZE_BYTES:
-        raise ValidationError("Max size of file is %s Bytes" % settings.USER_MAX_FILE_SIZE_BYTES)
+        raise ValidationError("Max size of file is {} Bytes".format(settings.USER_MAX_FILE_SIZE_BYTES))
 
     user_files = user.userfile_set.all()
     # Fast check for allowed user storage space
@@ -40,8 +40,8 @@ def validate_email_files(files):
     for file in files:
         size += file.size
         if size > settings.USER_MAX_EMAIL_ATTACHMENT_BYTES:
-            raise ValidationError("Maximum email attachments size is %s Bytes." %
-                                  settings.USER_MAX_EMAIL_ATTACHMENT_BYTES)
+            raise ValidationError(
+                "Maximum email attachments size is {} Bytes.".format(settings.USER_MAX_EMAIL_ATTACHMENT_BYTES))
 
 
 def validate_password(password):

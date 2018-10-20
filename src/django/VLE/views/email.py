@@ -43,8 +43,8 @@ def forgot_password(request):
         user = User.objects.get(email=email)
 
     email_handling.send_password_recovery_link(user)
-    return response.success(description='An email was sent to %s, please follow the email for instructions.'
-                            % user.email)
+    return response.success(
+        description='An email was sent to {}, please follow the email for instructions.'.format(user.email))
 
 
 @api_view(['POST'])
@@ -60,21 +60,22 @@ def recover_password(request):
 
     Updates password if the recovery_token is valid.
     """
-    utils.required_params(request.data, 'username', 'recovery_token', 'new_password')
+    username, recovery_token, new_password = utils.required_params(
+        request.data, 'username', 'recovery_token', 'new_password')
 
-    user = User.objects.get(username=request.data['username'])
+    user = User.objects.get(username=username)
 
     recovery_token, = utils.required_params(request.data, 'recovery_token')
     token_generator = PasswordResetTokenGenerator()
     if not token_generator.check_token(user, recovery_token):
         return response.bad_request('Invalid recovery token.')
 
-    validators.validate_password(request.data['new_password'])
+    validators.validate_password(new_password)
 
-    user.set_password(request.data['new_password'])
+    user.set_password(new_password)
     user.save()
 
-    return response.success(description='Succesfully changed the password, please login.')
+    return response.success(description='Successfully changed the password, you can now log in.')
 
 
 @api_view(['POST'])
@@ -96,7 +97,7 @@ def verify_email(request):
 
     request.user.verified_email = True
     request.user.save()
-    return response.success(description='Succesfully verified your email address.')
+    return response.success(description='Successfully verified your email address.')
 
 
 @api_view(['POST'])
@@ -106,8 +107,8 @@ def request_email_verification(request):
         return response.bad_request(description='Email address already verified.')
 
     email_handling.send_email_verification_link(request.user)
-    return response.success(description='An email was sent to %s, please follow the email for instructions.'
-                                        % request.user.email)
+    return response.success(
+        description='An email was sent to {}, please follow the email for instructions.'.format(request.user.email))
 
 
 @api_view(['POST'])
@@ -129,10 +130,10 @@ def send_feedback(request):
     On success:
         success -- with a description.
     """
-    if not all(x in request.POST for x in ['topic', 'feedback', 'ftype', 'user_agent']):
-        return response.bad_request('Required feedback field missing.')
+    request.user.check_verified_email()
+    utils.required_params(request.POST, 'topic', 'feedback', 'ftype', 'user_agent')
 
     files = request.FILES.getlist('files')
     validators.validate_email_files(files)
     email_handling.send_email_feedback(request.user, files, **request.POST)
-    return response.success(description='Feedback was succesfully received, thank you!')
+    return response.success(description='Feedback was successfully received, thank you!')
