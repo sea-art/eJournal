@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 import VLE.factory as factory
 import VLE.serializers as serialize
 import VLE.utils.generic_utils as utils
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.models import Course, Lti_ids
 
 
@@ -106,7 +106,6 @@ class CourseView(viewsets.ViewSet):
         request.user.check_permission('can_edit_course_details', course)
 
         data = request.data
-        data.pop('author', None)
         if 'lti_id' in data:
             factory.make_lti_ids(lti_id=data['lti_id'], for_model=Lti_ids.COURSE, course=course)
 
