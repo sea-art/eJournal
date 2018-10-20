@@ -2,7 +2,11 @@
     <b-card class="no-hover settings-card" :class="$root.getBorderClass($route.params.cID)">
         <div class="float-right mt-1">
             <h2 class="field-heading float-right d-inline">Published</h2>
-            <b-form-checkbox class="mr-0" v-model="assignmentDetails.is_published"/>
+            <b-form-checkbox
+                class="mr-0"
+                v-model="assignmentDetails.is_published"
+                v-b-tooltip.hover
+                :title="assignmentDetails.is_published ? 'Visible to students' : 'Not visible to students' "/>
         </div>
         <h2>Assignment details</h2>
         <b-form @submit.prevent="onSubmit">
