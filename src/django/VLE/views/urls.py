@@ -14,7 +14,7 @@ from VLE.views.role import RoleView
 from VLE.views.user import UserView
 
 router = routers.DefaultRouter()
-router.register(r'instance', InstanceView, base_name='instance/0')
+router.register(r'instance', InstanceView, base_name='instance')
 router.register(r'courses', CourseView, base_name='course')
 router.register(r'groups', GroupView, base_name='group')
 router.register(r'roles', RoleView, base_name='role')

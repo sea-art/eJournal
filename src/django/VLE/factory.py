@@ -7,8 +7,9 @@ Sometimes this also supports extra functionallity like adding courses to assignm
 from django.utils import timezone
 
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
-                        Format, Group, Journal, Lti_ids, Node, Participation,
-                        PresetNode, Role, Template, User, UserFile)
+                        Format, Group, Instance, Journal, Lti_ids, Node,
+                        Participation, PresetNode, Role, Template, User,
+                        UserFile)
 
 
 def make_instance():

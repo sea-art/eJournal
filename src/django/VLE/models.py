@@ -23,6 +23,9 @@ class Instance(models.Model):
     allow_standalone_registration = models.BooleanField(
         default=True
     )
+    name = models.TextField(
+        default='eJournal'
+    )
 
 
 class UserFile(models.Model):

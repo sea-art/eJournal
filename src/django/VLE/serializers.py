@@ -15,11 +15,9 @@ from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
 
 
 class InstanceSerializer(serializers.ModelSerializer):
-    allow_standalone_registration = serializers.SerializerMethodField()
-
     class Meta:
         model = Instance
-        fields = ('allow_standalone_registration')
+        fields = ('allow_standalone_registration', 'name')
 
 
 class UserSerializer(serializers.ModelSerializer):
