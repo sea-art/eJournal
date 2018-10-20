@@ -10,8 +10,16 @@ from rest_framework import serializers
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
-                        Format, Group, Journal, Node, Participation,
+                        Format, Group, Instance, Journal, Node, Participation,
                         PresetNode, Role, Template, User)
+
+
+class InstanceSerializer(serializers.ModelSerializer):
+    allow_standalone_registration = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Instance
+        fields = ('allow_standalone_registration')
 
 
 class UserSerializer(serializers.ModelSerializer):

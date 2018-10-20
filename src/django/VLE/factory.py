@@ -11,6 +11,12 @@ from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
                         PresetNode, Role, Template, User, UserFile)
 
 
+def make_instance():
+    instance = Instance(allow_standalone_registration=True)
+    instance.save()
+    return instance
+
+
 def make_user(username, password, email, lti_id=None, profile_picture=None,
               is_superuser=False, is_teacher=False, first_name=None, last_name=None, verified_email=False):
     """Create a user.
