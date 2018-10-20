@@ -29,9 +29,6 @@ class GroupView(viewsets.ViewSet):
             success -- with the group data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
 
         course = Course.objects.get(pk=course_id)
@@ -62,10 +59,6 @@ class GroupView(viewsets.ViewSet):
             forbidden -- when the user has no permission to create new groups
         On success, with the course group.
         """
-        user = request.user
-        if not user.is_authenticated:
-            return response.unauthorized()
-
         name, course_id = utils.required_params(request.data, "name", "course_id")
         lti_id = utils.optional_params(request.data, 'lti_id')
 
@@ -98,9 +91,6 @@ class GroupView(viewsets.ViewSet):
         On success:
             success -- with the new course data
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         old_group_name, new_group_name = utils.required_params(request.data, 'old_group_name', 'new_group_name')
 
         course_id, = utils.required_typed_params(kwargs, (int, 'pk'))
@@ -138,9 +128,6 @@ class GroupView(viewsets.ViewSet):
         On success:
             success -- with a message that the course group was deleted
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         course_id, = utils.required_typed_params(kwargs, (int, 'pk'))
         name, = utils.required_typed_params(request.query_params, (str, 'group_name'))
 

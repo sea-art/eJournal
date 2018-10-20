@@ -8,7 +8,8 @@ This includes:
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.http import HttpResponse
 from django.utils.html import escape
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 
 import VLE.utils.generic_utils as utils
 import VLE.validators as validators
@@ -22,6 +23,7 @@ def index(request):
 
 
 @api_view(['POST'])
+@permission_classes((AllowAny, ))
 def forgot_password(request):
     """Handles a forgot password request.
 
@@ -46,6 +48,7 @@ def forgot_password(request):
 
 
 @api_view(['POST'])
+@permission_classes((AllowAny, ))
 def recover_password(request):
     """Handles a reset password request.
 
@@ -83,9 +86,6 @@ def verify_email(request):
 
     Updates the email verification status.
     """
-    if not request.user.is_authenticated:
-        return response.unauthorized()
-
     if request.user.verified_email:
         return response.success(description='Email address already verified.')
 
@@ -102,9 +102,6 @@ def verify_email(request):
 @api_view(['POST'])
 def request_email_verification(request):
     """Request an email with a verifcation link for the users email address."""
-    if not request.user.is_authenticated:
-        return response.unauthorized()
-
     if request.user.verified_email:
         return response.bad_request(description='Email address already verified.')
 
@@ -132,9 +129,6 @@ def send_feedback(request):
     On success:
         success -- with a description.
     """
-    if not request.user.is_authenticated:
-        return response.unauthorized()
-
     if not all(x in request.POST for x in ['topic', 'feedback', 'ftype', 'user_agent']):
         return response.bad_request('Required feedback field missing.')
 
