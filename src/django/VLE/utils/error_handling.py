@@ -3,7 +3,7 @@ from smtplib import SMTPAuthenticationError
 import jwt
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 
-import VLE.views.responses as response
+import VLE.utils.responses as response
 
 
 class VLEMissingRequiredKey(KeyError):

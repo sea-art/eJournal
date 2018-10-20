@@ -30,10 +30,7 @@ def validate_user_file(inMemoryUploadedFile, user):
     if settings.USER_MAX_TOTAL_STORAGE_BYTES - len(user_files) * settings.USER_MAX_FILE_SIZE_BYTES <= \
        inMemoryUploadedFile.size:
         # Slow check for allowed user storage space
-        file_size_sum = 0
-        for user_file in user_files:
-            file_size_sum += user_file.file.size
-        if file_size_sum > settings.USER_MAX_TOTAL_STORAGE_BYTES:
+        if sum(user_file.file.size for user_file in user_files) > settings.USER_MAX_TOTAL_STORAGE_BYTES:
             raise ValidationError('Unsufficient storage space.')
 
 

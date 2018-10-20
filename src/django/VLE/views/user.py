@@ -15,13 +15,13 @@ import VLE.factory as factory
 import VLE.lti_launch as lti_launch
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
+import VLE.utils.responses as response
 import VLE.validators as validators
 from VLE.models import (Assignment, Content, Entry, Journal, Node, User,
                         UserFile)
 from VLE.serializers import EntrySerializer, OwnUserSerializer, UserSerializer
 from VLE.utils import email_handling, file_handling
 from VLE.views import lti
-from VLE.views import responses as response
 
 
 class UserView(viewsets.ViewSet):
@@ -328,7 +328,7 @@ class UserView(viewsets.ViewSet):
                                              content=content_id)
 
             if user_file.author != request.user:
-                request.user.check_permission('can_view_assignment_journals', user_file.assignment)
+                request.user.check_permission('can_view_all_journals', user_file.assignment)
 
         except (UserFile.DoesNotExist, ValueError):
             return response.bad_request(file_name + ' was not found.')
@@ -337,7 +337,7 @@ class UserView(viewsets.ViewSet):
 
     @action(methods=['post'], detail=False)
     def upload(self, request):
-        """Update user profile picture.
+        """Upload a user file.
 
         No validation is performed beyond a size check of the file and the available space for the user.
         At the time of creation, the UserFile is uploaded but not attached to an entry yet. This UserFile is treated

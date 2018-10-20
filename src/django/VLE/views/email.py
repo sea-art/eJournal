@@ -12,8 +12,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 
 import VLE.utils.generic_utils as utils
+import VLE.utils.responses as response
 import VLE.validators as validators
-import VLE.views.responses as response
 from VLE.models import User
 from VLE.utils import email_handling
 
