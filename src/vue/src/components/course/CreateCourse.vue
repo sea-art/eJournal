@@ -44,7 +44,7 @@ export default {
                 startdate: '',
                 enddate: '',
                 lti_id: '',
-                group_name
+                group_name: ''
             }
         }
     },
