@@ -40,9 +40,6 @@ class JournalView(viewsets.ViewSet):
             success -- with journals and stats about the journals
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         assignment_id, course_id = utils.required_typed_params(request.query_params,
                                                                (int, 'assignment_id'), (int, 'course_id'))
         assignment = Assignment.objects.get(pk=assignment_id)
@@ -72,9 +69,6 @@ class JournalView(viewsets.ViewSet):
             success -- with journals and stats about the journals
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         journal = Journal.objects.get(pk=pk)
 
         request.user.check_can_view(journal)
@@ -101,9 +95,6 @@ class JournalView(viewsets.ViewSet):
             success -- with the new journal data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
         journal = Journal.objects.get(pk=pk)
 
