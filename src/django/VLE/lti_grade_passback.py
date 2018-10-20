@@ -156,8 +156,7 @@ def needs_grading(journal, nID):
 
     jID = journal.pk
     aID = journal.assignment.pk
-    # TODO Is this first call desired? Should this not be based on date of coupling or an equivalent?
-    cID = journal.assignment.courses.first().pk
+    cID = journal.assignment.courses_set.order_by('-startdate').first().pk
 
     result_data = {'url': '{0}/Home/Course/{1}/Assignment/{2}/Journal/{3}?nID={4}'.format(settings.BASELINK,
                                                                                           cID, aID, jID, nID)}

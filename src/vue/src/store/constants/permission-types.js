@@ -19,7 +19,7 @@ export const COURSE_LEVEL_PERMISSIONS = new Set([
 
 export const ASSIGNMENT_LEVEL_PERMISSIONS = new Set([
     'can_edit_assignment',
-    'can_view_journals',
+    'can_all_view_journals',
     'can_grade',
     'can_publish_grades',
     // Journal level

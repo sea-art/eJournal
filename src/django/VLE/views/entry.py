@@ -149,7 +149,7 @@ class EntryView(viewsets.ViewSet):
             entry.grade = grade
 
         if assignment.is_locked():
-            request.user.check_permission('can_view_journals', assignment)
+            request.user.check_permission('can_all_view_journals', assignment)
 
         if published is not None:
             request.user.check_permission('can_publish_grades', assignment)
