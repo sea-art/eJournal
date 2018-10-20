@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 import VLE.factory as factory
 import VLE.serializers as serialize
 import VLE.utils.generic_utils as utils
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.models import Course, Lti_ids
 
 
@@ -28,9 +28,6 @@ class CourseView(viewsets.ViewSet):
         On succes:
             success -- with the course data
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         queryset = request.user.participations.all()
         serializer = self.serializer_class(queryset, many=True)
         return response.success({'courses': serializer.data})
@@ -53,9 +50,6 @@ class CourseView(viewsets.ViewSet):
         On succes:
             success -- with the course data
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         request.user.check_permission('can_add_course')
 
         name, abbr = utils.required_params(request.data, 'name', 'abbreviation')
@@ -81,9 +75,6 @@ class CourseView(viewsets.ViewSet):
         On success:
             success -- with the course data
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         course = Course.objects.get(pk=pk)
 
         request.user.check_participation(course)
@@ -109,9 +100,6 @@ class CourseView(viewsets.ViewSet):
         On success:
             success -- with the new course data
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         course_id, = utils.required_typed_params(kwargs, (int, 'pk'))
         course = Course.objects.get(pk=course_id)
 
@@ -142,9 +130,6 @@ class CourseView(viewsets.ViewSet):
         On success:
             success -- with a message that the course was deleted
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         course_id, = utils.required_typed_params(kwargs, (int, 'pk'))
         course = Course.objects.get(pk=course_id)
 
@@ -171,9 +156,6 @@ class CourseView(viewsets.ViewSet):
         On success:
             success -- with a message that the course was deleted
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         if not (request.user.is_teacher or request.user.is_superuser):
             return response.forbidden("You are not allowed to get linkable courses.")
 

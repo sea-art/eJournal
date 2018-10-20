@@ -6,15 +6,13 @@ In this file are all the group api requests.
 from rest_framework import viewsets
 
 import VLE.factory as factory
-import VLE.serializers as serialize
 import VLE.utils.generic_utils as utils
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.models import Course, Group
+from VLE.serializers import GroupSerializer
 
 
 class GroupView(viewsets.ViewSet):
-    serializer_class = serialize.GroupSerializer
-
     def list(self, request):
         """Get the groups from a course for the user.
 
@@ -31,9 +29,6 @@ class GroupView(viewsets.ViewSet):
             success -- with the group data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
 
         course = Course.objects.get(pk=course_id)
@@ -45,7 +40,7 @@ class GroupView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to view or manage the user groups of this course.')
 
         queryset = Group.objects.filter(course=course)
-        serializer = self.serializer_class(queryset, many=True, context={'user': request.user, 'course': course})
+        serializer = GroupSerializer(queryset, many=True, context={'user': request.user, 'course': course})
 
         return response.success({'groups': serializer.data})
 
@@ -64,10 +59,6 @@ class GroupView(viewsets.ViewSet):
             forbidden -- when the user has no permission to create new groups
         On success, with the course group.
         """
-        user = request.user
-        if not user.is_authenticated:
-            return response.unauthorized()
-
         name, course_id = utils.required_params(request.data, "name", "course_id")
         lti_id = utils.optional_params(request.data, 'lti_id')
 
@@ -79,7 +70,7 @@ class GroupView(viewsets.ViewSet):
             return response.bad_request('Course group with that name already exists.')
 
         course_group = factory.make_course_group(name, course, lti_id)
-        serializer = self.serializer_class(course_group, many=False)
+        serializer = GroupSerializer(course_group, many=False)
         return response.created({'group': serializer.data})
 
     def partial_update(self, request, *args, **kwargs):
@@ -100,9 +91,6 @@ class GroupView(viewsets.ViewSet):
         On success:
             success -- with the new course data
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         old_group_name, new_group_name = utils.required_params(request.data, 'old_group_name', 'new_group_name')
 
         course_id, = utils.required_typed_params(kwargs, (int, 'pk'))
@@ -114,11 +102,10 @@ class GroupView(viewsets.ViewSet):
         if not new_group_name:
             return response.bad_request('Group name is not allowed to be empty.')
 
-        if Group.objects.filter(name=request.data['new_group_name'], course=course).exists():
+        if Group.objects.filter(name=new_group_name, course=course).exists():
             return response.bad_request('Course group with that name already exists.')
 
-        group.name = new_group_name
-        serializer = self.serializer_class(group, data=request.data, partial=True)
+        serializer = GroupSerializer(group, data=request.data, partial=True)
         if not serializer.is_valid():
             response.bad_request()
 
@@ -141,11 +128,9 @@ class GroupView(viewsets.ViewSet):
         On success:
             success -- with a message that the course group was deleted
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         course_id, = utils.required_typed_params(kwargs, (int, 'pk'))
-        name = request.query_params['group_name']
+        name, = utils.required_typed_params(request.query_params, (str, 'group_name'))
+
         course = Course.objects.get(pk=course_id)
 
         request.user.check_permission('can_delete_course_user_group', course)

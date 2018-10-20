@@ -4,7 +4,7 @@ from rest_framework import viewsets
 import VLE.factory as factory
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.models import Assignment, Course, Role, User
 from VLE.serializers import RoleSerializer
 from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
@@ -28,10 +28,7 @@ class RoleView(viewsets.ViewSet):
             success -- list of all the roles in the course
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
-        course_id = request.query_params['course_id']
+        course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
         course = Course.objects.get(pk=course_id)
 
         # TODO: P Is this the right permission
@@ -59,9 +56,6 @@ class RoleView(viewsets.ViewSet):
             success -- with a list of the permissions
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         if int(pk) == 0:
             pk = request.user.id
         user = User.objects.get(pk=pk)
@@ -83,7 +77,7 @@ class RoleView(viewsets.ViewSet):
 
             if user != request.user:
                 # TODO: P Add a permission for this
-                request.user.check_permission('can_view_assignment_journals', course)
+                request.user.check_permission('can_view_all_journals', course)
 
             return response.success({'role': permissions.serialize_assignment_permissions(request.user, assignment)})
         # Returns keyerror if course_id nor assignment_id is set
@@ -107,16 +101,14 @@ class RoleView(viewsets.ViewSet):
             success -- newly created course
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
-        course = Course.objects.get(pk=request.data['course_id'])
+        course_id, name, permissions = utils.required_params(request.data, 'course_id', 'name', 'permissions')
+        course = Course.objects.get(pk=course_id)
 
         # TODO: P Is this the right permission
         request.user.check_permission('can_edit_course_roles', course)
 
         try:
-            role = factory.make_role_default_no_perms(request.data['name'], course, **request.data['permissions'])
+            role = factory.make_role_default_no_perms(name, course, **permissions)
         except Exception:
             return response.bad_request()
 
@@ -142,9 +134,6 @@ class RoleView(viewsets.ViewSet):
             success -- list of all the roles in the course
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         course = Course.objects.get(pk=pk)
 
         request.user.check_permission('can_edit_course_roles', course)
@@ -182,10 +171,7 @@ class RoleView(viewsets.ViewSet):
             success -- newly created course
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
-        name = request.query_params['name']
+        name, = utils.required_typed_params(request.query_params, (str, 'name'))
         course = Course.objects.get(pk=pk)
 
         # Users can only delete course roles with can_edit_course_roles

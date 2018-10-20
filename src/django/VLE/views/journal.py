@@ -7,7 +7,7 @@ from rest_framework import viewsets
 
 import VLE.lti_grade_passback as lti_grade
 import VLE.utils.generic_utils as utils
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.models import Assignment, Course, Journal
 from VLE.serializers import JournalSerializer
 
@@ -40,15 +40,12 @@ class JournalView(viewsets.ViewSet):
             success -- with journals and stats about the journals
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         assignment_id, course_id = utils.required_typed_params(request.query_params,
                                                                (int, 'assignment_id'), (int, 'course_id'))
         assignment = Assignment.objects.get(pk=assignment_id)
         course = Course.objects.get(pk=course_id)
 
-        request.user.check_permission('can_view_assignment_journals', assignment)
+        request.user.check_permission('can_view_all_journals', assignment)
 
         users = course.participation_set.filter(role__can_have_journal=True).values('user')
         queryset = assignment.journal_set.filter(user__in=users)
@@ -72,9 +69,6 @@ class JournalView(viewsets.ViewSet):
             success -- with journals and stats about the journals
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         journal = Journal.objects.get(pk=pk)
 
         request.user.check_can_view(journal)
@@ -101,9 +95,6 @@ class JournalView(viewsets.ViewSet):
             success -- with the new journal data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
         journal = Journal.objects.get(pk=pk)
 
@@ -111,6 +102,7 @@ class JournalView(viewsets.ViewSet):
 
         published, = utils.optional_params(request.data, 'published')
         if published:
+            request.user.check_permission('can_publish_grades', journal.assignment)
             return self.publish(request, journal)
 
         if not request.user.is_superuser:
@@ -127,8 +119,6 @@ class JournalView(viewsets.ViewSet):
         return response.success({'journal': serializer.data})
 
     def publish(self, request, journal, published=True):
-        request.user.check_permission('can_publish_grades', journal.assignment)
-
         utils.publish_all_journal_grades(journal, published)
         if journal.sourcedid is not None and journal.grade_url is not None:
             payload = lti_grade.replace_result(journal)

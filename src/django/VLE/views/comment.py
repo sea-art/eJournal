@@ -9,7 +9,7 @@ from rest_framework import viewsets
 
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.models import Comment, Entry
 from VLE.serializers import CommentSerializer
 
@@ -41,9 +41,6 @@ class CommentView(viewsets.ViewSet):
             success -- with a list of the comments belonging to the entry
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         entry_id, = utils.required_params(request.query_params, "entry_id")
 
         entry = Entry.objects.get(pk=entry_id)
@@ -79,9 +76,6 @@ class CommentView(viewsets.ViewSet):
             succes -- with the assignment data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         entry_id, text, published = utils.required_params(request.data, "entry_id", "text", "published")
 
         entry = Entry.objects.get(pk=entry_id)
@@ -91,6 +85,7 @@ class CommentView(viewsets.ViewSet):
         request.user.check_permission('can_comment', assignment)
         request.user.check_can_view(journal)
 
+        # By default a comment will be published, only users who can grade can delay publishing.
         published = published or not request.user.has_permission('can_grade', assignment)
         comment = factory.make_comment(entry, request.user, text, published)
         return response.created({'comment': CommentSerializer(comment).data})
@@ -112,9 +107,6 @@ class CommentView(viewsets.ViewSet):
             succes -- with the comment data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         comment = Comment.objects.get(pk=pk)
         journal = comment.entry.node.journal
 
@@ -142,9 +134,6 @@ class CommentView(viewsets.ViewSet):
             success -- with the updated comment
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         comment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
 
         comment = Comment.objects.get(pk=comment_id)
@@ -157,10 +146,9 @@ class CommentView(viewsets.ViewSet):
         if not (comment.author.id == request.user.id or request.user.is_superuser):
             return response.forbidden('You are not allowed to edit this comment.')
 
-        req_data = request.data
-        req_data['last_edited'] = datetime.now()
-
-        serializer = CommentSerializer(comment, data=req_data, partial=True)
+        text, = utils.required_params(request.data, 'text')
+        serializer = CommentSerializer(
+            comment, data={'text': text, 'last_edited': datetime.now()}, partial=True)
         if not serializer.is_valid():
             response.bad_request()
         serializer.save()
@@ -182,9 +170,6 @@ class CommentView(viewsets.ViewSet):
             success -- with a message that the comment was deleted
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         comment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
         comment = Comment.objects.get(pk=comment_id)
         journal = comment.entry.node.journal

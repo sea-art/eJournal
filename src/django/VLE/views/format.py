@@ -6,7 +6,7 @@ In this file are all the Format api requests.
 from rest_framework import viewsets
 
 import VLE.utils.generic_utils as utils
-import VLE.views.responses as response
+import VLE.utils.responses as response
 from VLE.models import Assignment
 from VLE.serializers import (AssignmentDetailsSerializer, AssignmentSerializer,
                              FormatSerializer)
@@ -30,10 +30,6 @@ class FormatView(viewsets.ViewSet):
         Returns a json string containing the format as well as the
         corresponding assignment name and description.
         """
-        user = request.user
-        if not user.is_authenticated:
-            return response.unauthorized()
-
         assignment = Assignment.objects.get(pk=pk)
 
         request.user.check_permission('can_edit_assignment', assignment)
@@ -67,9 +63,6 @@ class FormatView(viewsets.ViewSet):
             success -- with the new assignment data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         assignment_id = pk
         assignment_details, templates, presets, unused_templates, removed_presets, removed_templates \
             = utils.required_params(request.data, "assignment_details", "templates", "presets",
