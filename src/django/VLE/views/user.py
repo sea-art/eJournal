@@ -359,7 +359,7 @@ class UserView(viewsets.ViewSet):
         assignment_id, content_id = utils.required_params(request.POST, 'assignment_id', 'content_id')
         assignment = Assignment.objects.get(pk=assignment_id)
 
-        request.user.check_participation()
+        request.user.check_participation(assignment)
 
         if not (request.FILES and 'file' in request.FILES):
             return response.bad_request('No accompanying file found in the request.')
