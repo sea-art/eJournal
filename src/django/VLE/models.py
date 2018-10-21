@@ -18,6 +18,16 @@ from VLE.utils.error_handling import (VLEParticipationError,
 from VLE.utils.file_handling import get_path
 
 
+class Instance(models.Model):
+    """Global settings for the running instance."""
+    allow_standalone_registration = models.BooleanField(
+        default=True
+    )
+    name = models.TextField(
+        default='eJournal'
+    )
+
+
 class UserFile(models.Model):
     """UserFile.
 
