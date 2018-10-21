@@ -49,8 +49,8 @@
                                 </div>
                                 <div v-if="field.options">
                                     <b-button
-                                        v-for="option in JSON.parse(field.options)"
-                                        :key="option"
+                                        v-for="(option, index) in JSON.parse(field.options)"
+                                        :key="index"
                                         class="delete-button mr-2 mb-2"
                                         @click.stop="removeSelectionOption(option, field)">
                                         <icon name="trash"/>
@@ -125,6 +125,7 @@ export default {
                 'type': 't',
                 'title': '',
                 'description': '',
+                'options': null,
                 'location': this.template.field_set.length,
                 'required': true
             }
@@ -144,10 +145,10 @@ export default {
             this.updateLocations()
         },
         addSelectionOption (target, field) {
-            if (!field.options) {
-                field.options = JSON.stringify([])
-            }
             if (target.value.trim()) {
+                if (!field.options) {
+                    field.options = JSON.stringify([])
+                }
                 var options = JSON.parse(field.options)
                 options.push(target.value.trim())
                 field.options = JSON.stringify(options)
