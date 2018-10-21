@@ -8,7 +8,7 @@
                     <cropper v-if="this.profileImageDataURL" ref="cropperRef" :pictureUrl="this.profileImageDataURL" @newPicture="fileHandler"/>
             </b-modal>
             <div class="profile-picture-lg">
-                <img :src="$store.getters['user/profilePicture']">
+                <img :src="storeProfilePic">
                 <b-button @click="showCropperModal()">
                     <icon name="edit"/>
                     Edit
@@ -17,22 +17,22 @@
         </b-col>
         <b-col md="7" sm="12">
             <h2 class="mb-2">User details</h2>
-            <b-form-input :readonly="true" class="theme-input multi-form input-disabled" :value="$store.getters['user/username']" type="text"/>
-            <b-form-input :readonly="($store.getters['user/ltiID']) ? true : false"
-                :class="{'input-disabled': ($store.getters['user/ltiID']) ? true : false}"
+            <b-form-input :readonly="true" class="theme-input multi-form input-disabled" :value="storeUsername" type="text"/>
+            <b-form-input :readonly="(storeLtiID) ? true : false"
+                :class="{'input-disabled': (storeLtiID) ? true : false}"
                 class="theme-input multi-form"
                 v-model="firstName"
                 type="text"
                 placeholder="First name"/>
-            <b-form-input :readonly="($store.getters['user/ltiID']) ? true : false"
-                :class="{'input-disabled': ($store.getters['user/ltiID']) ? true : false}"
+            <b-form-input :readonly="(storeLtiID) ? true : false"
+                :class="{'input-disabled': (storeLtiID) ? true : false}"
                 class="theme-input multi-form"
                 v-model="lastName"
                 type="text"
                 placeholder="Last name"/>
             <email/>
 
-            <b-button v-if="!$store.getters['user/ltiID']" class="add-button multi-form float-right" @click="saveUserdata">
+            <b-button v-if="!storeLtiID" class="add-button multi-form float-right" @click="saveUserdata">
                 <icon name="save"/>
                 Save
             </b-button>
@@ -46,11 +46,11 @@
 
 <script>
 import email from '@/components/profile/Email.vue'
-
 import userAPI from '@/api/user'
 import icon from 'vue-awesome/components/Icon'
-
 import cropper from '@/components/assets/ImageCropper'
+import { mapGetters } from 'vuex'
+import genericUtils from '@/utils/generic_utils.js'
 
 export default {
     components: {
@@ -70,13 +70,19 @@ export default {
             updateCropper: false
         }
     },
+    computed: {
+        ...mapGetters({
+            storeUsername: 'user/username',
+            storeLtiID: 'user/ltiID',
+            storeProfilePic: 'user/profilePicture',
+            storeFirstName: 'user/firstName',
+            storeLastName: 'user/lastName'
+        })
+    },
     methods: {
         showCropperModal () {
             this.$refs.cropperRef.refreshPicture()
             this.$refs['cropperModal'].show()
-        },
-        hideCropper (ref) {
-            this.$refs[ref].hide()
         },
         saveUserdata () {
             userAPI.update(0, {first_name: this.firstName, last_name: this.lastName})
@@ -92,6 +98,7 @@ export default {
                     this.$store.commit('user/SET_PROFILE_PICTURE', dataURL)
                     this.profileImageDataURL = dataURL
                     this.$toasted.success('Profile picture updated.')
+                    this.$refs['cropperModal'].hide()
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
         },
@@ -101,33 +108,25 @@ export default {
                     let blob = new Blob([response.data], { type: response.headers['content-type'] })
                     let link = document.createElement('a')
                     link.href = window.URL.createObjectURL(blob)
-                    link.download = this.$store.getters['user/username'] + '_all_user_data.zip'
+                    link.download = this.storeUsername + '_all_user_data.zip'
                     document.body.appendChild(link)
                     link.click()
                     link.remove()
                 }, error => {
-                    if (error.response.status === 429) {
-                        this.$toasted.error('You have to wait before you can get your user data again.')
-                    } else {
-                        throw error
-                    }
+                    genericUtils.displayArrayBufferRequestError(this, error)
                 })
                 .catch(_ => {
-                    this.$toasted.error('Error creating file.')
+                    this.$toasted.error('Error creating file locally.')
                 })
         },
         isChanged () {
-            if (this.firstName !== this.$store.getters['user/firstName'] || this.lastName !== this.$store.getters['user/lastName']) {
-                return true
-            }
-
-            return false
+            return (this.firstName !== this.storeFirstName || this.lastName !== this.storeLastName)
         }
     },
     mounted () {
-        this.profileImageDataURL = this.$store.getters['user/profilePicture']
-        this.firstName = this.$store.getters['user/firstName']
-        this.lastName = this.$store.getters['user/lastName']
+        this.profileImageDataURL = this.storeProfilePic
+        this.firstName = this.storeFirstName
+        this.lastName = this.storeLastName
     }
 }
 </script>
