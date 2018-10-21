@@ -12,8 +12,11 @@ from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
                         UserFile)
 
 
-def make_instance():
-    instance = Instance(allow_standalone_registration=True)
+def make_instance(allow_standalone_registration=None):
+    if allow_standalone_registration is not None:
+        instance = Instance(allow_standalone_registration=allow_standalone_registration)
+    else:
+        instance = Instance()
     instance.save()
     return instance
 

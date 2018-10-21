@@ -17,8 +17,8 @@ import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 import VLE.validators as validators
-from VLE.models import (Assignment, Content, Entry, Journal, Node, User,
-                        UserFile, Instance)
+from VLE.models import (Assignment, Content, Entry, Instance, Journal, Node,
+                        User, UserFile)
 from VLE.serializers import EntrySerializer, OwnUserSerializer, UserSerializer
 from VLE.utils import email_handling, file_handling
 from VLE.views import lti
@@ -108,8 +108,8 @@ class UserView(viewsets.ViewSet):
             try:
                 instance = Instance.objects.get(pk=1)
                 if not instance.allow_standalone_registration:
-                    return response.bad_request('{} does not allow you to register through the website,' +
-                                                ' please use an LTI instance.'.format(instance.name))
+                    return response.bad_request(('{} does not allow you to register through the website,' +
+                                                ' please use an LTI instance.').format(instance.name))
             except Instance.DoesNotExist:
                 pass
 

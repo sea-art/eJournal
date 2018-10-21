@@ -4,6 +4,7 @@ instance.py.
 In this file are all the instance api requests.
 """
 from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
 
 import VLE.factory as factory
 import VLE.utils.responses as response
@@ -56,3 +57,9 @@ class InstanceView(viewsets.ViewSet):
         serializer.save()
 
         return response.success({'instance': serializer.data})
+
+    def get_permissions(self):
+        if self.request.path == '/instance/0/' and self.request.method == 'GET':
+            return [AllowAny()]
+        else:
+            return [permission() for permission in self.permission_classes]
