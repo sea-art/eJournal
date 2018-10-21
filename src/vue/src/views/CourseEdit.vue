@@ -203,7 +203,7 @@ export default {
             viewEnrolled: true,
             order: false,
             unenrolledQuery: '',
-            unenrolledQueryDescription: 'Search unenrolled users by using the search field in "Manage course members"'
+            unenrolledQueryDescription: 'Search unenrolled users by using the search field in the search field above.'
         }
     },
     watch: {
