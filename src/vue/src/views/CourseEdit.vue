@@ -203,7 +203,7 @@ export default {
             viewEnrolled: true,
             order: false,
             unenrolledQuery: '',
-            unenrolledQueryDescription: 'Search unenrolled users by using the search field in the search field above.'
+            unenrolledQueryDescription: 'Search unenrolled users in the search field above.'
         }
     },
     watch: {
@@ -328,7 +328,7 @@ export default {
             this.viewEnrolled = !this.viewEnrolled
             this.unenrolledStudents = []
             this.unenrolledQuery = ''
-            this.unenrolledQueryDescription = 'Search unenrolled users by using the search field in "Manage course members in the search field above"'
+            this.unenrolledQueryDescription = 'Search unenrolled users in the search field above.'
         },
         deepCopyCourse (course) {
             var copyCourse = {
