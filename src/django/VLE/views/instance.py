@@ -16,7 +16,8 @@ class InstanceView(viewsets.ViewSet):
     """Instance view.
 
     This class creates the following api paths:
-
+    GET /instance/0 -- gets the instance information
+    PATCH /instance/0 -- partially update the instance infromation
     """
     def retrieve(self, request, pk=0):
         """Get all instance details."""

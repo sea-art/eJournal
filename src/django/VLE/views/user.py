@@ -104,7 +104,7 @@ class UserView(viewsets.ViewSet):
             lti_id, user_image, is_teacher = None, None, False
 
         if lti_id is None:
-            # Check is instance allows standable registration is user didnt register through some LTI instance
+            # Check if instance allows standable registration is user did not register through some LTI instance
             try:
                 instance = Instance.objects.get(pk=1)
                 if not instance.allow_standalone_registration:
