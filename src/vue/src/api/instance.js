@@ -10,6 +10,6 @@ export default {
     update (data) {
         return auth.update('instance/0', data)
             .then(response => response.data.instance)
-    },
+    }
 
 }
