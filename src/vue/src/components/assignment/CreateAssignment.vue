@@ -1,14 +1,23 @@
 <template>
     <b-card class="no-hover">
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
-            <div class="float-right mt-1">
-                <h2 class="field-heading float-right d-inline">Published</h2>
-                <b-form-checkbox
-                class="mr-0"
+            <pretty-checkbox
+                class="p-svg float-right mt-1"
+                color="primary"
+                id="publishCheckbox"
+                @change="updatePublishTooltip"
                 v-model="form.isPublished"
-                v-b-tooltip.hover
-                :title="form.isPublished ? 'Visible to students' : 'Not visible to students' "/>
-            </div>
+                v-b-tooltip.hover="form.isPublished ? 'Visible to students' : 'Invisible to students'"
+                toggle>
+                <svg slot="extra" class="svg svg-icon" viewBox="0 0 20 20">
+                    <path d="M7.629,14.566c0.125,0.125,0.291,0.188,0.456,0.188c0.164,0,0.329-0.062,0.456-0.188l8.219-8.221c0.252-0.252,0.252-0.659,0-0.911c-0.252-0.252-0.659-0.252-0.911,0l-7.764,7.763L4.152,9.267c-0.252-0.251-0.66-0.251-0.911,0c-0.252,0.252-0.252,0.66,0,0.911L7.629,14.566z"
+                          style="stroke: white;fill:white">
+                    </path>
+                </svg>
+                    <b>Published</b>
+                <label slot="off-label">Unpublished</label>
+            </pretty-checkbox>
+
             <h2 class="field-heading">Assignment Name</h2>
             <b-input class="multi-form theme-input"
                 v-model="form.assignmentName"
@@ -124,6 +133,14 @@ export default {
             /* Trick to reset/clear native browser form validation state */
             this.show = false
             this.$nextTick(() => { this.show = true })
+        },
+        updatePublishTooltip () {
+            /* Ensures correct value of is_publish is set through v-model and the title bind can update.
+             * Still has issues with fast cursor movement triggering focus inbetween. */
+            this.$nextTick(() => {
+                this.$root.$emit('bv::hide::tooltip', 'publishCheckboxTooltip')
+                this.$root.$emit('bv::show::tooltip', 'publishCheckboxTooltip')
+            })
         }
     },
     mounted () {
@@ -142,3 +159,8 @@ export default {
     }
 }
 </script>
+
+<style lang="scss">
+$pretty--color-primary: #252C39;
+@import 'pretty-checkbox/src/pretty-checkbox.scss';
+</style>

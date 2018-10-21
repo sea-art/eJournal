@@ -1,6 +1,5 @@
 <template>
     <b-card class="no-hover settings-card" :class="$root.getBorderClass($route.params.cID)">
-
         <pretty-checkbox
             class="p-svg float-right mt-1"
             color="primary"
@@ -82,7 +81,7 @@ export default {
         }
     },
     methods: {
-        updatePublishTooltip (val) {
+        updatePublishTooltip () {
             /* Ensures correct value of is_publish is set through v-model and the title bind can update.
              * Still has issues with fast cursor movement triggering focus inbetween. */
             this.$nextTick(() => {
