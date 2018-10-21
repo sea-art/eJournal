@@ -1,11 +1,10 @@
-from django.core.exceptions import ValidationError
-from django.conf import settings
-from django.core.validators import URLValidator
+import json
+import re
 from datetime import datetime
 
-import re
-import json
-
+from django.conf import settings
+from django.core.exceptions import ValidationError
+from django.core.validators import URLValidator
 
 TEXT = 't'
 RICH_TEXT = 'rt'
