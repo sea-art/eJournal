@@ -17,8 +17,8 @@ import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 import VLE.validators as validators
-from VLE.models import (Assignment, Content, Entry, Journal, Node, User,
-                        UserFile)
+from VLE.models import (Assignment, Content, Entry, Instance, Journal, Node,
+                        User, UserFile)
 from VLE.serializers import EntrySerializer, OwnUserSerializer, UserSerializer
 from VLE.utils import email_handling, file_handling
 from VLE.views import lti
@@ -102,6 +102,16 @@ class UserView(viewsets.ViewSet):
             is_teacher = settings.ROLES['Teacher'] in lti_launch.roles_to_list(lti_params)
         else:
             lti_id, user_image, is_teacher = None, None, False
+
+        if lti_id is None:
+            # Check if instance allows standalone registration if user did not register through some LTI instance
+            try:
+                instance = Instance.objects.get(pk=1)
+                if not instance.allow_standalone_registration:
+                    return response.bad_request(('{} does not allow you to register through the website,' +
+                                                ' please use an LTI instance.').format(instance.name))
+            except Instance.DoesNotExist:
+                pass
 
         username, password = utils.required_params(request.data, 'username', 'password')
         first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
