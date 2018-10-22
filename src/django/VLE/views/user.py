@@ -170,7 +170,7 @@ class UserView(viewsets.ViewSet):
 
         user = User.objects.get(pk=pk)
 
-        jwt_params = utils.optional_params(request.data, 'jwt_params')
+        jwt_params, = utils.optional_params(request.data, 'jwt_params')
         if jwt_params:
             lti_params = lti.decode_lti_params(jwt_params)
             lti_id, user_email, user_full_name, user_image = utils.optional_params(
@@ -191,19 +191,19 @@ class UserView(viewsets.ViewSet):
         if is_teacher:
             user.is_teacher = is_teacher
 
-        if lti_id:
-            if User.objects.filter(lti_id=lti_id) != user:
+        if lti_id is not None:
+            if User.objects.filter(lti_id=lti_id).exists():
                 return response.bad_request('User with this lti id already exists.')
             user.lti_id = lti_id
 
         user.save()
-        if user.lti_id:
+        if user.lti_id is not None:
             gn, cn, pp = utils.optional_params(
                 request.data, 'grade_notifications', 'comment_notifications', 'profile_picture')
             data = {
-                'grade_notifications': gn,
-                'comment_notifications': cn,
-                'profile_picture': pp
+                'grade_notifications': gn if gn else user.grade_notifications,
+                'comment_notifications': cn if cn else user.comment_notifications,
+                'profile_picture': pp if pp else user.profile_picture
             }
         else:
             data = request.data
@@ -369,7 +369,7 @@ class UserView(viewsets.ViewSet):
         assignment_id, content_id = utils.required_params(request.POST, 'assignment_id', 'content_id')
         assignment = Assignment.objects.get(pk=assignment_id)
 
-        request.user.check_participation()
+        request.user.check_can_view(assignment)
 
         if not (request.FILES and 'file' in request.FILES):
             return response.bad_request('No accompanying file found in the request.')
