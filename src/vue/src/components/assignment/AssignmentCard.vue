@@ -13,7 +13,8 @@
                     v-if="!published"
                     class="ml-2 mt-2"
                     v-b-tooltip.hover
-                    title="Not visible to students: click to edit">
+                    title="Not visible to students:
+                    click to edit">
                     Unpublished
                 </b-badge>
                 <h2 class="float-left">{{ line1 }}</h2>
