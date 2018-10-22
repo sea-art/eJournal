@@ -192,10 +192,10 @@ class AssignmentSerializer(serializers.ModelSerializer):
             return None
 
     def get_stats(self, assignment):
-        if 'user' not in self.context or 'course' not in self.context:
+        if 'user' not in self.context or 'course' not in self.context or not self.context['course']:
             return None
 
-        course = Course.objects.get(pk=self.context['course'].pk)
+        course = self.context['course']
         users = course.participation_set.filter(role__can_have_journal=True).values('user')
         queryset = assignment.journal_set.filter(user__in=users)
         journals = JournalSerializer(queryset, many=True).data
