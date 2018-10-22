@@ -72,16 +72,6 @@ export default {
             prevDate: ''
         }
     },
-    methods: {
-        updatePublishTooltip () {
-            /* Ensures correct value of is_publish is set through v-model and the title bind can update.
-             * Still has issues with fast cursor movement triggering focus inbetween. */
-            this.$nextTick(() => {
-                this.$root.$emit('bv::hide::tooltip', 'publishCheckboxTooltip')
-                this.$root.$emit('bv::show::tooltip', 'publishCheckboxTooltip')
-            })
-        }
-    },
     watch: {
         assignmentDetails: {
             handler: function (newAssignmentDetails) {
