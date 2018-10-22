@@ -7,8 +7,18 @@ Sometimes this also supports extra functionallity like adding courses to assignm
 from django.utils import timezone
 
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
-                        Format, Group, Journal, Lti_ids, Node, Participation,
-                        PresetNode, Role, Template, User, UserFile)
+                        Format, Group, Instance, Journal, Lti_ids, Node,
+                        Participation, PresetNode, Role, Template, User,
+                        UserFile)
+
+
+def make_instance(allow_standalone_registration=None):
+    if allow_standalone_registration is not None:
+        instance = Instance(allow_standalone_registration=allow_standalone_registration)
+    else:
+        instance = Instance()
+    instance.save()
+    return instance
 
 
 def make_user(username, password, email, lti_id=None, profile_picture=None,
