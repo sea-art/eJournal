@@ -1,21 +1,15 @@
 <template>
     <b-card class="no-hover settings-card" :class="$root.getBorderClass($route.params.cID)">
-        <pretty-checkbox
-            class="p-svg float-right mt-1"
-            color="primary"
-            id="publishCheckbox"
-            @change="updatePublishTooltip"
-            v-model="assignmentDetails.is_published"
-            v-b-tooltip.hover="assignmentDetails.is_published ? 'Visible to students' : 'Invisible to students'"
-            toggle>
-            <svg slot="extra" class="svg svg-icon" viewBox="0 0 20 20">
-                <path d="M7.629,14.566c0.125,0.125,0.291,0.188,0.456,0.188c0.164,0,0.329-0.062,0.456-0.188l8.219-8.221c0.252-0.252,0.252-0.659,0-0.911c-0.252-0.252-0.659-0.252-0.911,0l-7.764,7.763L4.152,9.267c-0.252-0.251-0.66-0.251-0.911,0c-0.252,0.252-0.252,0.66,0,0.911L7.629,14.566z"
-                      style="stroke: white;fill:white">
-                </path>
-            </svg>
-                <b>Published</b>
-            <label slot="off-label">Unpublished</label>
-        </pretty-checkbox>
+        <div class="d-flex float-right multi-form">
+            <b-button v-if="assignmentDetails.is_published" @click="assignmentDetails.is_published = false" class="add-button flex-grow-1">
+                <icon name="check"/>
+                Published
+            </b-button>
+            <b-button v-if="!assignmentDetails.is_published" @click="assignmentDetails.is_published = true" class="delete-button flex-grow-1">
+                <icon name="times"/>
+                Unpublished
+            </b-button>
+        </div>
 
         <h2>Assignment details</h2>
         <b-form @submit.prevent="onSubmit">
@@ -61,7 +55,6 @@
 <script>
 import textEditor from '@/components/assets/TextEditor.vue'
 import icon from 'vue-awesome/components/Icon'
-import prettyCheckbox from 'pretty-checkbox-vue/check'
 
 export default {
     name: 'FormatEditAssignmentDetailsCard',
@@ -72,7 +65,6 @@ export default {
     },
     components: {
         'text-editor': textEditor,
-        'pretty-checkbox': prettyCheckbox,
         icon
     },
     data () {
@@ -112,8 +104,3 @@ export default {
     }
 }
 </script>
-
-<style lang="scss">
-$pretty--color-primary: #252C39;
-@import 'pretty-checkbox/src/pretty-checkbox.scss';
-</style>

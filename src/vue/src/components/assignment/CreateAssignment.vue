@@ -2,11 +2,11 @@
     <b-card class="no-hover">
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
             <div class="d-flex float-right multi-form">
-                <b-button v-if="form.isPublished" @click="form.isPublished = true" class="add-button flex-grow-1">
+                <b-button v-if="form.isPublished" @click="form.isPublished = false" class="add-button flex-grow-1">
                     <icon name="check"/>
                     Published
                 </b-button>
-                <b-button v-if="!form.isPublished" @click="form.isPublished = false" class="delete-button flex-grow-1">
+                <b-button v-if="!form.isPublished" @click="form.isPublished = true" class="delete-button flex-grow-1">
                     <icon name="times"/>
                     Unpublished
                 </b-button>
