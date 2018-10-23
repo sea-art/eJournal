@@ -31,3 +31,9 @@
         &, &.inRange, &:focus, &:hover, &.prevMonthDay, &.nextMonthDay
             background: $theme-blue
             border-color: $theme-blue
+
+.custom-checkbox
+    .custom-control-label:before
+        background-color: $theme-dark-grey
+    .custom-control-input:checked~.custom-control-label::before
+        background-color: $theme-blue

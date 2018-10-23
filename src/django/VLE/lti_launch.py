@@ -120,7 +120,10 @@ def check_assignment_lti(request):
     assign_id = request['custom_assignment_id']
     lti_couples = Lti_ids.objects.filter(lti_id=assign_id, for_model=Lti_ids.ASSIGNMENT)
     if lti_couples.count() > 0:
-        return lti_couples[0].assignment
+        assignment = lti_couples[0].assignment
+        assignment.is_published = request['custom_assignment_publish']
+        assignment.save()
+        return assignment
     return None
 
 
