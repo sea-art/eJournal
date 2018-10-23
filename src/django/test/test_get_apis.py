@@ -105,8 +105,8 @@ class GetApiTests(TestCase):
                                      '/participations/unenrolled/',
                                      login,
                                      params={'course_id': self.course.pk, 'unenrolled_query': 'no_perm'})
-
         self.assertEquals(len(response.json()['participants']), 1)
+        self.assertEquals(response.json()['participants'][0]['username'], self.no_perm_user)
 
         login = test.logging_in(self, self.no_perm_user, self.no_perm_pass)
         test.api_get_call(self,
@@ -117,6 +117,13 @@ class GetApiTests(TestCase):
         test.test_unauthorized_api_get_call(self,
                                             '/participations/unenrolled/',
                                             params={'course_id': self.course.pk, 'unenrolled_query': ''})
+
+        test.set_up_participation(self.no_permission_user, self.course, 'Student')
+        test.api_get_call(self,
+                          '/participations/unenrolled/',
+                          login,
+                          status=403,
+                          params={'course_id': self.course.pk, 'unenrolled_query': ''})
 
     def test_GDPR(self):
         # Test normal user
@@ -207,8 +214,10 @@ class GetApiTests(TestCase):
         template = factory.make_entry_template('template')
         format1 = factory.make_format([template])
         format2 = factory.make_format([template])
-        assignment1 = factory.make_assignment('Colloq', 'description1', format=format1, courses=[course])
-        assignment2 = factory.make_assignment('Portfolio', 'description2', format=format2, courses=[course])
+        assignment1 = factory.make_assignment('Colloq', 'description1', format=format1, courses=[course],
+                                              is_published=True)
+        assignment2 = factory.make_assignment('Portfolio', 'description2', format=format2, courses=[course],
+                                              is_published=True)
 
         test.set_up_participation(self.user, course, 'Student')
 
@@ -354,7 +363,8 @@ class GetApiTests(TestCase):
         course = factory.make_course('Portfolio', 'PAV', author=self.rein)
         template = factory.make_entry_template('template')
         format = factory.make_format([template])
-        assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course])
+        assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course],
+                                             is_published=True)
         student_user, student_pass, student = test.set_up_user_and_auth('student', 'pass', 's@s.com', 'first', 'last')
         test.set_up_participation(student, course, 'Student')
         journal = test.set_up_journal(assignment, template, student, 4)

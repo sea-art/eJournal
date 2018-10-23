@@ -189,10 +189,6 @@ class ParticipationView(viewsets.ViewSet):
             else:
                 return response.success({'participants': []})
 
-        # found_users = users.filter(username__contains=unenrolled_query) | \
-        #     users.filter(first_name__contains=unenrolled_query) | \
-        #     users.filter(last_name__contains=unenrolled_query)
-
         found_users = users.filter(Q(username__contains=unenrolled_query) |
                                    Q(first_name__contains=unenrolled_query) |
                                    Q(last_name__contains=unenrolled_query))
