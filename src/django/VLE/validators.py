@@ -64,11 +64,8 @@ def validate_entry_content(data, field):
         return
 
     if field.type == URL:
-        try:
-            url_validate = URLValidator(schemes=('http', 'https', 'ftp', 'ftps'))
-            url_validate(data)
-        except ValidationError as e:
-            raise e
+        url_validate = URLValidator(schemes=('http', 'https', 'ftp', 'ftps'))
+        url_validate(data)
 
     if field.type == SELECTION:
         if data not in json.loads(field.options):

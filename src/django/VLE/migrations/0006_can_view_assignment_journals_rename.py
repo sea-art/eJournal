@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('VLE', '0007_add_selection_field'),
+        ('VLE', '0005_presetnode_description'),
     ]
 
     operations = [

@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('VLE', '0005_presetnode_description'),
+        ('VLE', '0007_instance'),
     ]
 
     operations = [
