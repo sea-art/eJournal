@@ -41,8 +41,10 @@
                             <div v-if="field.type == 's'">
                                 <!-- Event targeting allows us to access the input value -->
                                 <div class="d-flex">
-                                    <b-input class="multi-form mr-2 theme-input" placeholder="Enter an option" @keyup.enter.native="addSelectionOption($event.target, field)" @focus.native="selectedLocation = field.location" @focusout.native="selectedLocation = null"/>
-                                    <b-button @click.stop="addSelectionOption($event.target.previousElementSibling, field)" v-if="field.required" class="float-right multi-form" @focus="selectedLocation = field.location">
+                                    <b-input class="multi-form mr-2 theme-input" placeholder="Enter an option"
+                                    @keyup.enter.native="addSelectionOption($event.target, field)"/>
+                                    <b-button class="float-right multi-form"
+                                    @click.stop="addSelectionOption($event.target.previousElementSibling, field)">
                                         <icon name="plus"/>
                                         Add option
                                     </b-button>

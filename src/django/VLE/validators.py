@@ -72,7 +72,7 @@ def validate_entry_content(data, field):
 
     if field.type == SELECTION:
         if data not in json.loads(field.options):
-            raise ValidationError("Selection not in options")
+            raise ValidationError("Selected option is not in the given options")
 
     if field.type == DATE:
         try:
