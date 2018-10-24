@@ -186,6 +186,7 @@ export default {
                         'type': 'rt',
                         'title': 'Entry',
                         'description': '',
+                        'options': null,
                         'location': 0,
                         'required': true
                     }],
