@@ -14,7 +14,7 @@
                         </b-button>
                         <hr/>
                         Click the button above to register a new account.
-                        In the beginning you will not be linked to any course however. Contact a teacher or connect you account with Canvas to connect to a course.
+                        In the beginning you will not be linked to any course however. Contact a teacher or connect your account with Canvas to connect to a course.
                     </b-card>
                 </b-col>
                 <b-col md="6">

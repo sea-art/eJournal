@@ -125,14 +125,10 @@ class AssignmentView(viewsets.ViewSet):
             succes -- with the assignment data
 
         """
-        try:
-            if 'lti' in request.query_params:
-                assignment = Lti_ids.objects.filter(lti_id=pk, for_model=Lti_ids.ASSIGNMENT)[0].assignment
-            else:
-                assignment = Assignment.objects.get(pk=pk)
-
-        except IndexError:
-            raise Assignment.DoesNotExist
+        if 'lti' in request.query_params:
+            assignment = Assignment.objects.get(lti_ids__lti_id=pk, lti_ids__for_model=Lti_ids.ASSIGNMENT)
+        else:
+            assignment = Assignment.objects.get(pk=pk)
 
         try:
             course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
