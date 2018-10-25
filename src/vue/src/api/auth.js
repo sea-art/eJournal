@@ -17,14 +17,18 @@ const errorsToRedirect = new Set([
  * The response is thrown and further promise handling should take place.
  * This because this is generic response handling, and we dont know what should happen in case of an error.
  */
-function handleError (error, noRedirect = false) {
+function handleError (error, redirect = true, toast = true) {
     const response = error.response
     const status = response.status
 
-    if (!noRedirect && status === statuses.UNAUTHORIZED) {
+    if (toast) {
+        this.$toasted.error(error.response.data.description)
+    }
+
+    if (redirect && status === statuses.UNAUTHORIZED) {
         store.commit('user/LOGOUT')
         router.push({name: 'Login'})
-    } else if (!noRedirect && errorsToRedirect.has(status)) {
+    } else if (redirect && errorsToRedirect.has(status)) {
         router.push({name: 'ErrorPage',
             params: {
                 code: status,
@@ -37,7 +41,7 @@ function handleError (error, noRedirect = false) {
     throw error
 }
 
-function validatedSend (func, url, data = null, noRedirect = false) {
+function validatedSend (func, url, data = null, redirect = true, toast = true) {
     store.commit('connection/OPEN_API_CALL')
     return func(url, data).then(
         resp => {
@@ -58,11 +62,11 @@ function validatedSend (func, url, data = null, noRedirect = false) {
         setTimeout(function () {
             store.commit('connection/CLOSE_API_CALL')
         }, 300)
-        return handleError(error, noRedirect)
+        return handleError(error, redirect, toast)
     })
 }
 
-function unvalidatedSend (func, url, data = null, noRedirect = true) {
+function unvalidatedSend (func, url, data = null, redirect = true, toast = true) {
     store.commit('connection/OPEN_API_CALL')
     return func(url, data).then(
         resp => {
@@ -74,7 +78,7 @@ function unvalidatedSend (func, url, data = null, noRedirect = true) {
             setTimeout(function () {
                 store.commit('connection/CLOSE_API_CALL')
             }, 300)
-            return handleError(error, noRedirect)
+            return handleError(error, redirect, toast)
         })
 }
 
@@ -123,28 +127,28 @@ export default {
         return unvalidatedSend(connection.conn.post, improveUrl('recover_password'), {username: username, recovery_token: recoveryToken, new_password: newPassword})
     },
 
-    get (url, data = null, noRedirect = false) {
-        return validatedSend(connection.conn.get, improveUrl(url, data), null, noRedirect)
+    get (url, data = null, redirect = true, toast = true) {
+        return validatedSend(connection.conn.get, improveUrl(url, data), null, redirect, toast)
     },
-    post (url, data, noRedirect = false) {
-        return validatedSend(connection.conn.post, improveUrl(url), data, noRedirect)
+    post (url, data, redirect = true, toast = true) {
+        return validatedSend(connection.conn.post, improveUrl(url), data, redirect, toast)
     },
-    patch (url, data, noRedirect = false) {
-        return validatedSend(connection.conn.patch, improveUrl(url), data, noRedirect)
+    patch (url, data, redirect = true, toast = true) {
+        return validatedSend(connection.conn.patch, improveUrl(url), data, redirect, toast)
     },
-    delete (url, data = null, noRedirect = false) {
-        return validatedSend(connection.conn.delete, improveUrl(url, data), null, noRedirect)
+    delete (url, data = null, redirect = true, toast = true) {
+        return validatedSend(connection.conn.delete, improveUrl(url, data), null, redirect, toast)
     },
-    uploadFile (url, data, noRedirect = false) {
-        return validatedSend(connection.connFile.post, improveUrl(url), data, noRedirect)
+    uploadFile (url, data, redirect = true, toast = true) {
+        return validatedSend(connection.connFile.post, improveUrl(url), data, redirect, toast)
     },
-    uploadFileEmail (url, data, noRedirect = false) {
-        return validatedSend(connection.connFileEmail.post, improveUrl(url), data, noRedirect)
+    uploadFileEmail (url, data, redirect = true, toast = true) {
+        return validatedSend(connection.connFileEmail.post, improveUrl(url), data, redirect, toast)
     },
-    downloadFile (url, data, noRedirect = false) {
-        return validatedSend(connection.connFile.get, improveUrl(url, data), null, noRedirect)
+    downloadFile (url, data, redirect = true, toast = true) {
+        return validatedSend(connection.connFile.get, improveUrl(url, data), null, redirect, toast)
     },
 
-    create (url, data, noRedirect = false) { return this.post(url, data, noRedirect) },
-    update (url, data, noRedirect = false) { return this.patch(url, data, noRedirect) }
+    create (url, data, redirect = true, toast = true) { return this.post(url, data, redirect, toast) },
+    update (url, data, redirect = true, toast = true) { return this.patch(url, data, redirect, toast) }
 }

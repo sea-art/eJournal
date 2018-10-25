@@ -41,6 +41,6 @@ export default {
     },
 
     getWithLti (id) {
-        return auth.get('assignments/' + id, {lti: true}, true)
+        return auth.get('assignments/' + id, {lti: true}, false)
     }
 }
