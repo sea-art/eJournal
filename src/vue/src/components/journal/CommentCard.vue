@@ -20,8 +20,8 @@
                         <div v-html="comment.text"/>
                         <hr class="full-width"/>
                         <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b>
-                        <span v-if="comment.published && $root.beautifyDate(comment.last_edited) === $root.beautifyDate(comment.timestamp)" class="timestamp">
-                            {{ $root.beautifyDate(comment.timestamp) }}<br/>
+                        <span v-if="comment.published && $root.beautifyDate(comment.last_edited) === $root.beautifyDate(comment.creation_date)" class="timestamp">
+                            {{ $root.beautifyDate(comment.creation_date) }}<br/>
                         </span>
                         <span v-else-if="comment.published" class="timestamp">
                             Last edited: {{ $root.beautifyDate(comment.last_edited) }}<br/>
