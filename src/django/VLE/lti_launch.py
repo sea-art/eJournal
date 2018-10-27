@@ -64,8 +64,9 @@ class OAuthRequestValidater(object):
 
 def roles_to_list(params):
     roles = list()
-    for role in params['roles'].split(','):
-        roles.append(role.split('/')[-1].lower())
+    if 'roles' in params:
+        for role in params['roles'].split(','):
+            roles.append(role.split('/')[-1].lower())
     return roles
 
 
