@@ -55,7 +55,7 @@ function toastError (error, connArgs) {
         var message = data.description ? data.description : data.detail
         if (message) { router.app.$toasted.error(sanitization.escapeHtml(message)) }
     } else {
-        router.app.$toasted.error(connArgs.customErrorToast)
+        router.app.$toasted.error(sanitization.escapeHtml(connArgs.customErrorToast))
     }
 }
 
