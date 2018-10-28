@@ -17,7 +17,7 @@ const ERRORS_TO_REDIRECT = new Set([
  * Changes can be made by overwriting the DEFAULT_CONN_ARGS keys in an API call.
  * Handled errors are redirected by default when present in ERRORS_TO_REDIRECT unless redirect set to false.
  * Handled errors messages default to: response.data.description, unless customErrorToast set.
- * Handled successes do not redirect or display an message unless:
+ * Handled successes do not redirect or display a message unless:
  *    - responseSuccessToast set, toasting the response description
  *    - customSuccessToast is set, toasting the given message.
  */
@@ -30,6 +30,10 @@ const DEFAULT_CONN_ARGS = {
 
 /* Sets default connection arguments to missing keys, otherwise use the given connArgs value. */
 function packConnArgs (connArgs) {
+    if (!(connArgs instanceof Object) || Object.keys(connArgs).length === 0) {
+        throw Error('Connection arguments should be a non emtpy object.')
+    }
+
     for (let key in connArgs) {
         if (!(key in DEFAULT_CONN_ARGS)) { throw Error('Unkown connection argument key: ' + key) }
     }
@@ -40,11 +44,15 @@ function packConnArgs (connArgs) {
 /* Toasts an error safely, escaping html and parsing an array buffer. */
 function toastError (error, connArgs) {
     if (!connArgs.customErrorToast) {
+        var data
         if (error.response.data instanceof ArrayBuffer) {
-            router.app.$toasted.error(sanitization.escapeHtml(genericUtils.parseArrayBufferResponseErrorData(error).description))
+            data = genericUtils.parseArrayBuffer(error.response.data)
         } else {
-            router.app.$toasted.error(sanitization.escapeHtml(error.response.data.description))
+            data = error.response.data
         }
+
+        var message = data.description ? data.description : data.detail
+        if (message) { router.app.$toasted.error(sanitization.escapeHtml(message)) }
     } else {
         router.app.$toasted.error(connArgs.customErrorToast)
     }
@@ -55,7 +63,14 @@ function handleSuccess (resp, connArgs) {
     setTimeout(function () { store.commit('connection/CLOSE_API_CALL') }, 300)
 
     if (connArgs.responseSuccessToast) {
-        router.app.$toasted.success(sanitization.escapeHtml(resp.data.description))
+        var message
+        if (resp.data instanceof ArrayBuffer) {
+            message = genericUtils.parseArrayBuffer(resp.data).description
+        } else {
+            message = resp.data.description
+        }
+
+        if (message) { router.app.$toasted.success(sanitization.escapeHtml(message)) }
     } else if (connArgs.customSuccessToast) {
         router.app.$toasted.success(sanitization.escapeHtml(connArgs.customSuccessToast))
     }
@@ -74,11 +89,11 @@ function handleError (error, connArgs) {
     const status = response.status
 
     setTimeout(function () { store.commit('connection/CLOSE_API_CALL') }, 300)
-    toastError(error, connArgs)
 
     if (connArgs.redirect && status === statuses.UNAUTHORIZED) {
         store.commit('user/LOGOUT')
         router.push({name: 'Login'})
+        toastError(error, connArgs)
     } else if (connArgs.redirect && ERRORS_TO_REDIRECT.has(status)) {
         router.push({name: 'ErrorPage',
             params: {
@@ -87,6 +102,8 @@ function handleError (error, connArgs) {
                 description: response.data.description
             }
         })
+    } else {
+        toastError(error, connArgs)
     }
 
     throw error

@@ -118,7 +118,7 @@ const actions = {
         if (error) {
             var code
             if (error.response.data instanceof ArrayBuffer) {
-                code = genericUtils.parseArrayBufferResponseErrorData(error).code
+                code = genericUtils.parseArrayBuffer(error.response.data).code
             } else {
                 code = error.response.data.code
             }

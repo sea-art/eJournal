@@ -52,11 +52,8 @@ export default {
     },
     methods: {
         createUserGroup () {
-            groupAPI.create({
-                name: this.form.groupName,
-                course_id: this.cID,
-                lti_id: this.lti_id
-            }, {customSuccessToast: 'Successfully created group.'})
+            groupAPI.create({name: this.form.groupName, course_id: this.cID, lti_id: this.lti_id},
+                {customSuccessToast: 'Successfully created group.'})
                 .then(group => {
                     this.$emit('create-group', group.name)
                     this.resetFormInput()

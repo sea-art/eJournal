@@ -106,7 +106,7 @@ export default {
         }
     },
     created () {
-        assignmentAPI.get(this.aID, null)
+        assignmentAPI.get(this.aID)
             .then(assignment => { this.assignment = assignment })
         journalAPI.getNodes(this.jID)
             .then(nodes => {

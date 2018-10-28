@@ -77,7 +77,7 @@ export default {
     created () {
         this.loadCourses()
 
-        assignmentAPI.getUpcoming(null)
+        assignmentAPI.getUpcoming()
             .then(deadlines => { this.deadlines = deadlines })
     },
     methods: {

@@ -1,4 +1,4 @@
-var entityMap = {
+const ENTITY_MAP = {
     '&': '&amp;',
     '<': '&lt;',
     '>': '&gt;',
@@ -13,7 +13,7 @@ var entityMap = {
 export default {
     escapeHtml (string) {
         return String(string).replace(/[&<>"'`=/]/g, function fromEntityMap (s) {
-            return entityMap[s]
+            return ENTITY_MAP[s]
         })
     }
 }

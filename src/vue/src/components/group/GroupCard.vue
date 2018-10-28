@@ -38,10 +38,8 @@ export default {
     },
     methods: {
         updateGroupName () {
-            groupAPI.update(this.cID, {
-                old_group_name: this.group,
-                new_group_name: this.form.newGroupName
-            }, {customSuccessToast: 'Successfully updated the group.'})
+            groupAPI.update(this.cID, {old_group_name: this.group, new_group_name: this.form.newGroupName},
+                {customSuccessToast: 'Successfully updated the group.'})
                 .then(group => {
                     this.groupName = this.form.newGroupName
                     this.$emit('update-group', this.groupName, group.name)

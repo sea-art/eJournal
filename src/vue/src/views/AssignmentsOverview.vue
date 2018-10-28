@@ -51,7 +51,7 @@ export default {
         }
     },
     created () {
-        assignmentAPI.getUpcoming(null)
+        assignmentAPI.getUpcoming()
             .then(deadlines => { this.deadlines = deadlines })
     },
     components: {

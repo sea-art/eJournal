@@ -100,15 +100,18 @@ export default {
         downloadUserData () {
             userAPI.GDPR(0)
                 .then(response => {
-                    let blob = new Blob([response.data], { type: response.headers['content-type'] })
-                    let link = document.createElement('a')
-                    link.href = window.URL.createObjectURL(blob)
-                    link.download = this.storeUsername + '_all_user_data.zip'
-                    document.body.appendChild(link)
-                    link.click()
-                    link.remove()
+                    try {
+                        let blob = new Blob([response.data], { type: response.headers['content-type'] })
+                        let link = document.createElement('a')
+                        link.href = window.URL.createObjectURL(blob)
+                        link.download = this.storeUsername + '_all_user_data.zip'
+                        document.body.appendChild(link)
+                        link.click()
+                        link.remove()
+                    } catch (_) {
+                        this.$toasted.error('Error creating file locally.')
+                    }
                 })
-                .catch(_ => { this.$toasted.error('Error creating file locally.') })
         },
         isChanged () {
             return (this.firstName !== this.storeFirstName || this.lastName !== this.storeLastName)

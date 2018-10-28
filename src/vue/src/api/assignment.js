@@ -1,7 +1,7 @@
 import auth from '@/api/auth'
 
 export default {
-    get (aID, cID, connArgs = auth.DEFAULT_CONN_ARGS) {
+    get (aID, cID = null, connArgs = auth.DEFAULT_CONN_ARGS) {
         return auth.get('assignments/' + aID, {course_id: cID}, connArgs)
             .then(response => response.data.assignment)
     },
@@ -26,7 +26,7 @@ export default {
             .then(response => response.data.assignments)
     },
 
-    getUpcoming (cID, connArgs = auth.DEFAULT_CONN_ARGS) {
+    getUpcoming (cID = null, connArgs = auth.DEFAULT_CONN_ARGS) {
         return auth.get('assignments/upcoming', {course_id: cID}, connArgs)
             .then(response => response.data.upcoming)
     },

@@ -65,10 +65,13 @@ export default {
         fileDownload () {
             userAPI.download(this.authorUID, this.fileName, this.entryID, this.nodeID, this.contentID)
                 .then(response => {
-                    let blob = new Blob([response.data], { type: response.headers['content-type'] })
-                    this.fileURL = window.URL.createObjectURL(blob)
+                    try {
+                        let blob = new Blob([response.data], { type: response.headers['content-type'] })
+                        this.fileURL = window.URL.createObjectURL(blob)
+                    } catch (_) {
+                        this.$toasted.error('Error creating file.')
+                    }
                 })
-                .catch(_ => { this.$toasted.error('Error creating file.') })
         }
     },
     created () {
