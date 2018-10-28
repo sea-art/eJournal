@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('VLE', '0006_can_view_assignment_journals_rename'),
+        ('VLE', '0007_instance'),
     ]
 
     operations = [

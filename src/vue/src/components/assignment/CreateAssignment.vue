@@ -1,14 +1,17 @@
 <template>
     <b-card class="no-hover">
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
-            <div class="float-right mt-1">
-                <h2 class="field-heading float-right d-inline">Published</h2>
-                <b-form-checkbox
-                class="mr-0"
-                v-model="form.isPublished"
-                v-b-tooltip.hover
-                :title="form.isPublished ? 'Visible to students' : 'Not visible to students' "/>
+            <div class="d-flex float-right multi-form">
+                <b-button v-if="form.isPublished" @click="form.isPublished = false" class="add-button flex-grow-1">
+                    <icon name="check"/>
+                    Published
+                </b-button>
+                <b-button v-if="!form.isPublished" @click="form.isPublished = true" class="delete-button flex-grow-1">
+                    <icon name="times"/>
+                    Unpublished
+                </b-button>
             </div>
+
             <h2 class="field-heading">Assignment Name</h2>
             <b-input class="multi-form theme-input"
                 v-model="form.assignmentName"
