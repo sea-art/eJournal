@@ -16,17 +16,12 @@ export default {
     },
 
     GDPR (id, connArgs = auth.DEFAULT_CONN_ARGS) {
-        return auth.downloadFile('users/' + id + '/GDPR/', connArgs)
+        return auth.downloadFile('users/' + id + '/GDPR/', null, connArgs)
     },
 
     /* Update user file. */
     uploadUserFile (data, connArgs = auth.DEFAULT_CONN_ARGS) {
         return auth.uploadFile('/users/upload/', data, connArgs)
-    },
-
-    /* Get user file. */
-    getUserFile (fileName, authorUID, connArgs = auth.DEFAULT_CONN_ARGS) {
-        return auth.downloadFile('/get_user_file/' + fileName + '/' + authorUID + '/', connArgs)
     },
 
     /* Upload an image that is base64 encoded. */
