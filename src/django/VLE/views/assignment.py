@@ -94,7 +94,6 @@ class AssignmentView(viewsets.ViewSet):
 
         request.user.check_permission('can_add_assignment', course)
 
-        description = utils.strip_script_tags(description)
         assignment = factory.make_assignment(name, description, courses=[course],
                                              author=request.user, lti_id=lti_id,
                                              points_possible=points_possible,
@@ -196,8 +195,6 @@ class AssignmentView(viewsets.ViewSet):
                 return response.bad_request(
                     'You are not allowed to unpublish an assignment that already has submissions.')
 
-            if 'description' in req_data:
-                req_data['description'] = utils.strip_script_tags(req_data['description'])
             serializer = AssignmentSerializer(assignment, data=req_data, context={'user': request.user}, partial=True)
             if not serializer.is_valid():
                 response.bad_request()

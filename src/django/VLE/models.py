@@ -4,6 +4,7 @@ models.py.
 Database file
 """
 import os
+import re
 
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
@@ -17,6 +18,18 @@ from VLE.utils.error_handling import (VLEParticipationError,
                                       VLEPermissionError, VLEProgrammingError,
                                       VLEUnverifiedEmailError)
 from VLE.utils.file_handling import get_path
+
+
+# from https://stackoverflow.com/q/25121165/5173684
+def strip_script_tags(page_source):
+    if page_source is None or page_source == '':
+        return page_source
+    pattern = re.compile(r'\s?on\w+="[^"]+"\s?')
+    pattern = re.compile(r"\s?on\w+='[^']+'\s?")
+    result = re.sub(pattern, "", page_source)
+    pattern2 = re.compile(r'<script[\s\S]+?/script>')
+    result = re.sub(pattern2, "", result)
+    return result
 
 
 class Instance(models.Model):
@@ -427,6 +440,11 @@ class Assignment(models.Model):
     def is_due(self):
         return self.due_date and self.due_date < now()
 
+    def save(self, *args, **kwargs):
+        self.description = strip_script_tags(self.description)
+
+        return super(Assignment, self).save(*args, **kwargs)
+
     def __str__(self):
         """toString."""
         return self.name + " (" + str(self.id) + ")"
@@ -769,6 +787,11 @@ class Content(models.Model):
         null=True
     )
 
+    def save(self, *args, **kwargs):
+        self.data = strip_script_tags(self.data)
+
+        return super(Content, self).save(*args, **kwargs)
+
 
 class Comment(models.Model):
     """Comment.
@@ -797,7 +820,7 @@ class Comment(models.Model):
         if not self.pk:
             self.creation_date = timezone.now()
         self.last_edited = timezone.now()
-
+        self.text = strip_script_tags(self.text)
         return super(Comment, self).save(*args, **kwargs)
 
 

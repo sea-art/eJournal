@@ -75,7 +75,6 @@ class CommentView(viewsets.ViewSet):
 
         """
         entry_id, text, published = utils.required_params(request.data, "entry_id", "text", "published")
-        text = utils.strip_script_tags(text)
 
         entry = Entry.objects.get(pk=entry_id)
         journal = entry.node.journal
@@ -146,7 +145,6 @@ class CommentView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to edit this comment.')
 
         text, = utils.required_params(request.data, 'text')
-        text = utils.strip_script_tags(text)
         serializer = CommentSerializer(
             comment, data={'text': text}, partial=True)
         if not serializer.is_valid():

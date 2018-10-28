@@ -81,7 +81,6 @@ class EntryView(viewsets.ViewSet):
         for content in content_list:
             data, field_id = utils.required_params(content, 'data', 'id')
             field = Field.objects.get(pk=field_id)
-            data = utils.strip_script_tags(data)
             validators.validate_entry_content(data, field)
 
             created_content = factory.make_content(node.entry, data, field)
@@ -174,7 +173,6 @@ class EntryView(viewsets.ViewSet):
                 field_id, data, content_id = utils.required_params(content, 'id', 'data', 'contentID')
                 field = Field.objects.get(pk=field_id)
                 old_content = entry.content_set.get(pk=content_id)
-                data = utils.strip_script_tags(data)
                 validators.validate_entry_content(data, field)
 
                 if old_content.field.pk != int(field_id):
