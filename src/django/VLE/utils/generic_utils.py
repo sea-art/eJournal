@@ -15,6 +15,7 @@ def strip_script_tags(page_source):
     if page_source is None or page_source == '':
         return page_source
     pattern = re.compile(r'\s?on\w+="[^"]+"\s?')
+    pattern = re.compile(r"\s?on\w+='[^']+'\s?")
     result = re.sub(pattern, "", page_source)
     pattern2 = re.compile(r'<script[\s\S]+?/script>')
     result = re.sub(pattern2, "", result)
