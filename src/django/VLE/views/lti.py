@@ -49,7 +49,10 @@ def get_lti_params_from_jwt(request, jwt_params):
         payload = dict()
 
         # convert LTI param for True to python True
-        lti_params['custom_assignment_publish'] = lti_params['custom_assignment_publish'] == 'true'
+        if 'custom_assignment_publish' in lti_params:
+            lti_params['custom_assignment_publish'] = lti_params['custom_assignment_publish'] == 'true'
+        else:
+            lti_params['custom_assignment_publish'] = False
         course = lti.check_course_lti(lti_params, user, role)
         if course is None:
             if 'Teacher' in role:
