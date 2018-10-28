@@ -50,7 +50,6 @@ import userAPI from '@/api/user'
 import icon from 'vue-awesome/components/Icon'
 import cropper from '@/components/assets/ImageCropper'
 import { mapGetters } from 'vuex'
-import genericUtils from '@/utils/generic_utils.js'
 
 export default {
     components: {
@@ -85,25 +84,21 @@ export default {
             this.$refs['cropperModal'].show()
         },
         saveUserdata () {
-            userAPI.update(0, {first_name: this.firstName, last_name: this.lastName})
+            userAPI.update(0, {first_name: this.firstName, last_name: this.lastName}, {customSuccessToast: 'Saved profile data.'})
                 .then(_ => {
-                    this.$store.commit('user/SET_FULL_USER_NAME', { firstName: this.firstName, lastName: this.lastName })
-                    this.$toasted.success('Saved profile data.')
+                    this.$store.commit('user/SET_FULL_USER_NAME', {firstName: this.firstName, lastName: this.lastName})
                 })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         fileHandler (dataURL) {
-            userAPI.updateProfilePictureBase64(dataURL)
+            userAPI.updateProfilePictureBase64(dataURL, {customSuccessToast: 'Profile picture updated.'})
                 .then(_ => {
                     this.$store.commit('user/SET_PROFILE_PICTURE', dataURL)
                     this.profileImageDataURL = dataURL
-                    this.$toasted.success('Profile picture updated.')
                     this.$refs['cropperModal'].hide()
                 })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         downloadUserData () {
-            userAPI.GDPR()
+            userAPI.GDPR(0)
                 .then(response => {
                     let blob = new Blob([response.data], { type: response.headers['content-type'] })
                     let link = document.createElement('a')
@@ -112,12 +107,8 @@ export default {
                     document.body.appendChild(link)
                     link.click()
                     link.remove()
-                }, error => {
-                    genericUtils.displayArrayBufferRequestError(this, error)
                 })
-                .catch(_ => {
-                    this.$toasted.error('Error creating file locally.')
-                })
+                .catch(_ => { this.$toasted.error('Error creating file locally.') })
         },
         isChanged () {
             return (this.firstName !== this.storeFirstName || this.lastName !== this.storeLastName)

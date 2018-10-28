@@ -77,15 +77,13 @@ export default {
     created () {
         this.loadCourses()
 
-        assignmentAPI.getUpcoming()
+        assignmentAPI.getUpcoming(null)
             .then(deadlines => { this.deadlines = deadlines })
-            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         loadCourses () {
             courseAPI.getUserEnrolled()
                 .then(courses => { this.courses = courses })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         showModal (ref) {
             this.$refs[ref].show()
@@ -102,9 +100,6 @@ export default {
         },
         hideModal (ref) {
             this.$refs[ref].hide()
-        },
-        customisePage () {
-            this.$toasted.info('Wishlist: Customise page')
         }
     }
 }

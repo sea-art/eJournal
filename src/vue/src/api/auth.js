@@ -2,12 +2,64 @@ import connection from '@/api/connection'
 import statuses from '@/utils/constants/status_codes.js'
 import router from '@/router'
 import store from '@/store'
+import sanitization from '@/utils/sanitization.js'
+import genericUtils from '@/utils/generic_utils.js'
 
-const errorsToRedirect = new Set([
+const ERRORS_TO_REDIRECT = new Set([
     statuses.FORBIDDEN,
     statuses.NOT_FOUND,
     statuses.INTERNAL_SERVER_ERROR
 ])
+
+/*
+ * Defines how success and error responses are handled and toasted by default.
+ *
+ * Changes can be made by overwriting the DEFAULT_CONN_ARGS keys in an API call.
+ * Handled errors are redirected by default when present in ERRORS_TO_REDIRECT unless redirect set to false.
+ * Handled errors messages default to: response.data.description, unless customErrorToast set.
+ * Handled successes do not redirect or display an message unless:
+ *    - responseSuccessToast set, toasting the response description
+ *    - customSuccessToast is set, toasting the given message.
+ */
+const DEFAULT_CONN_ARGS = {
+    redirect: true,
+    customSuccessToast: false,
+    responseSuccessToast: false,
+    customErrorToast: false
+}
+
+/* Sets default connection arguments to missing keys, otherwise use the given connArgs value. */
+function packConnArgs (connArgs) {
+    for (let key in connArgs) {
+        if (!(key in DEFAULT_CONN_ARGS)) { throw Error('Unkown connection argument key: ' + key) }
+    }
+
+    return {...DEFAULT_CONN_ARGS, ...connArgs}
+}
+
+/* Toasts an error safely, escaping html and parsing an array buffer. */
+function toastError (error, connArgs) {
+    if (!connArgs.customErrorToast) {
+        if (error.response.data instanceof ArrayBuffer) {
+            router.app.$toasted.error(sanitization.escapeHtml(genericUtils.parseArrayBufferResponseErrorData(error).description))
+        } else {
+            router.app.$toasted.error(sanitization.escapeHtml(error.response.data.description))
+        }
+    } else {
+        router.app.$toasted.error(connArgs.customErrorToast)
+    }
+}
+
+/* Lowers the connection count and toast a success message if a custom one is provided or responseSuccessToast is set. */
+function handleSuccess (resp, connArgs) {
+    setTimeout(function () { store.commit('connection/CLOSE_API_CALL') }, 300)
+
+    if (connArgs.responseSuccessToast) {
+        router.app.$toasted.success(sanitization.escapeHtml(resp.data.description))
+    } else if (connArgs.customSuccessToast) {
+        router.app.$toasted.success(sanitization.escapeHtml(connArgs.customSuccessToast))
+    }
+}
 
 /*
  * Redirects the following unsuccessful request responses:
@@ -17,18 +69,17 @@ const errorsToRedirect = new Set([
  * The response is thrown and further promise handling should take place.
  * This because this is generic response handling, and we dont know what should happen in case of an error.
  */
-function handleError (error, redirect = true, toast = true) {
+function handleError (error, connArgs) {
     const response = error.response
     const status = response.status
 
-    if (toast) {
-        this.$toasted.error(error.response.data.description)
-    }
+    setTimeout(function () { store.commit('connection/CLOSE_API_CALL') }, 300)
+    toastError(error, connArgs)
 
-    if (redirect && status === statuses.UNAUTHORIZED) {
+    if (connArgs.redirect && status === statuses.UNAUTHORIZED) {
         store.commit('user/LOGOUT')
         router.push({name: 'Login'})
-    } else if (redirect && errorsToRedirect.has(status)) {
+    } else if (connArgs.redirect && ERRORS_TO_REDIRECT.has(status)) {
         router.push({name: 'ErrorPage',
             params: {
                 code: status,
@@ -41,44 +92,36 @@ function handleError (error, redirect = true, toast = true) {
     throw error
 }
 
-function validatedSend (func, url, data = null, redirect = true, toast = true) {
+function validatedSend (func, url, data, connArgs) {
+    connArgs = packConnArgs(connArgs)
+
     store.commit('connection/OPEN_API_CALL')
     return func(url, data).then(
         resp => {
-            setTimeout(function () {
-                store.commit('connection/CLOSE_API_CALL')
-            }, 300)
+            handleSuccess(resp, connArgs)
             return resp
         }, error =>
             store.dispatch('user/validateToken', error).then(_ =>
                 func(url, data).then(resp => {
-                    setTimeout(function () {
-                        store.commit('connection/CLOSE_API_CALL')
-                    }, 300)
+                    handleSuccess(resp, connArgs)
                     return resp
                 })
             )
     ).catch(error => {
-        setTimeout(function () {
-            store.commit('connection/CLOSE_API_CALL')
-        }, 300)
-        return handleError(error, redirect, toast)
+        return handleError(error, connArgs)
     })
 }
 
-function unvalidatedSend (func, url, data = null, redirect = true, toast = true) {
+function unvalidatedSend (func, url, data = null, connArgs = DEFAULT_CONN_ARGS) {
+    connArgs = packConnArgs(connArgs)
+
     store.commit('connection/OPEN_API_CALL')
     return func(url, data).then(
         resp => {
-            setTimeout(function () {
-                store.commit('connection/CLOSE_API_CALL')
-            }, 300)
+            handleSuccess(resp, connArgs)
             return resp
         }, error => {
-            setTimeout(function () {
-                store.commit('connection/CLOSE_API_CALL')
-            }, 300)
-            return handleError(error, redirect, toast)
+            return handleError(error, connArgs)
         })
 }
 
@@ -97,6 +140,7 @@ function improveUrl (url, data = null) {
  * Previous functions are 'private', following are 'public'.
  */
 export default {
+    DEFAULT_CONN_ARGS: DEFAULT_CONN_ARGS,
 
     /* Create a user and add it to the database. */
     register (username, password, firstname, lastname, email, jwtParams = null) {
@@ -113,7 +157,7 @@ export default {
 
     /* Change password. */
     changePassword (newPassword, oldPassword) {
-        return this.update('users/password', { new_password: newPassword, old_password: oldPassword })
+        return this.update('users/password', {new_password: newPassword, old_password: oldPassword})
     },
 
     /* Forgot password.
@@ -127,28 +171,27 @@ export default {
         return unvalidatedSend(connection.conn.post, improveUrl('recover_password'), {username: username, recovery_token: recoveryToken, new_password: newPassword})
     },
 
-    get (url, data = null, redirect = true, toast = true) {
-        return validatedSend(connection.conn.get, improveUrl(url, data), null, redirect, toast)
+    get (url, data, connArgs) {
+        return validatedSend(connection.conn.get, improveUrl(url, data), null, connArgs)
     },
-    post (url, data, redirect = true, toast = true) {
-        return validatedSend(connection.conn.post, improveUrl(url), data, redirect, toast)
+    post (url, data, connArgs) {
+        return validatedSend(connection.conn.post, improveUrl(url), data, connArgs)
     },
-    patch (url, data, redirect = true, toast = true) {
-        return validatedSend(connection.conn.patch, improveUrl(url), data, redirect, toast)
+    patch (url, data, connArgs) {
+        return validatedSend(connection.conn.patch, improveUrl(url), data, connArgs)
     },
-    delete (url, data = null, redirect = true, toast = true) {
-        return validatedSend(connection.conn.delete, improveUrl(url, data), null, redirect, toast)
+    delete (url, data, connArgs) {
+        return validatedSend(connection.conn.delete, improveUrl(url, data), null, connArgs)
     },
-    uploadFile (url, data, redirect = true, toast = true) {
-        return validatedSend(connection.connFile.post, improveUrl(url), data, redirect, toast)
+    uploadFile (url, data, connArgs) {
+        return validatedSend(connection.connFile.post, improveUrl(url), data, connArgs)
     },
-    uploadFileEmail (url, data, redirect = true, toast = true) {
-        return validatedSend(connection.connFileEmail.post, improveUrl(url), data, redirect, toast)
+    uploadFileEmail (url, data, connArgs) {
+        return validatedSend(connection.connFileEmail.post, improveUrl(url), data, connArgs)
     },
-    downloadFile (url, data, redirect = true, toast = true) {
-        return validatedSend(connection.connFile.get, improveUrl(url, data), null, redirect, toast)
+    downloadFile (url, data, connArgs) {
+        return validatedSend(connection.connFile.get, improveUrl(url, data), null, connArgs)
     },
-
-    create (url, data, redirect = true, toast = true) { return this.post(url, data, redirect, toast) },
-    update (url, data, redirect = true, toast = true) { return this.patch(url, data, redirect, toast) }
+    create (url, data, connArgs) { return this.post(url, data, connArgs) },
+    update (url, data, connArgs) { return this.patch(url, data, connArgs) }
 }

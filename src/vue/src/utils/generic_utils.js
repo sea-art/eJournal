@@ -22,10 +22,6 @@ export default {
 
     /* Converts an arraybuffer response to a humanreadable description and displays it as an error. */
     displayArrayBufferRequestError (context, error) {
-        try {
-            context.$toasted.error('aaaa')
-        } catch (e) {
-            context.$toasted.error('asdfasdfasdf')
-        }
+        context.$toasted.error(this.parseArrayBufferResponseErrorData(error).description)
     }
 }

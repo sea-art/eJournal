@@ -7,8 +7,7 @@
 
 <script>
 import icon from 'vue-awesome/components/Icon'
-import userAPI from '@/api/user.js'
-import genericUtils from '@/utils/generic_utils.js'
+import userAPI from '@/api/user'
 
 export default {
     props: {
@@ -47,12 +46,8 @@ export default {
                     document.body.appendChild(link)
                     link.click()
                     link.remove()
-                }, error => {
-                    genericUtils.displayArrayBufferRequestError(this, error)
                 })
-                .catch(_ => {
-                    this.$toasted.error('Error creating file.')
-                })
+                .catch(_ => { this.$toasted.error('Error creating file.') })
         }
     }
 }
