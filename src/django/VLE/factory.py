@@ -4,9 +4,21 @@ factory.py.
 The facory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
-from VLE.models import User, Participation, Course, Assignment, Role, Format, PresetNode, Node, Comment, \
-    Entry, Template, Field, Content, Journal, UserFile, Group, Lti_ids
 from django.utils import timezone
+
+from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
+                        Format, Group, Instance, Journal, Lti_ids, Node,
+                        Participation, PresetNode, Role, Template, User,
+                        UserFile)
+
+
+def make_instance(allow_standalone_registration=None):
+    if allow_standalone_registration is not None:
+        instance = Instance(allow_standalone_registration=allow_standalone_registration)
+    else:
+        instance = Instance()
+    instance.save()
+    return instance
 
 
 def make_user(username, password, email, lti_id=None, profile_picture=None,
@@ -71,9 +83,9 @@ def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=
         make_lti_ids(lti_id=lti_id, for_model=Lti_ids.COURSE, course=course)
 
     # Student, TA and Teacher role are created on course creation as is saves check for lti.
-    make_role_student("Student", course)
-    make_role_ta("TA", course)
-    role = make_role_teacher("Teacher", course)
+    make_role_student('Student', course)
+    make_role_ta('TA', course)
+    role = make_role_teacher('Teacher', course)
     if author is not None:
         make_participation(author, course, role)
     return course
@@ -93,7 +105,7 @@ def make_course_group(name, course, lti_id=None):
 
 
 def make_assignment(name, description, author=None, format=None, lti_id=None,
-                    points_possible=10, unlock_date=None, due_date=None,
+                    points_possible=10, is_published=None, unlock_date=None, due_date=None,
                     lock_date=None, course_ids=None, courses=None):
     """Make a new assignment.
 
@@ -126,6 +138,8 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
         make_lti_ids(lti_id=lti_id, for_model=Lti_ids.ASSIGNMENT, assignment=assign)
     if points_possible is not None:
         assign.points_possible = points_possible
+    if is_published is not None:
+        assign.is_published = is_published
     if unlock_date is not None:
         if len(unlock_date.split(' ')) > 2:
             unlock_date = unlock_date[:-1-len(unlock_date.split(' ')[2])]
@@ -165,8 +179,8 @@ def make_format(templates=[]):
 
 
 def make_default_format(due_date, points_possible=10):
-    template = make_entry_template("Default Template")
-    make_field(template, "Submission", 0, Field.RICH_TEXT, True)
+    template = make_entry_template('Default Template')
+    make_field(template, 'Submission', 0, Field.RICH_TEXT, True)
 
     format = make_format([template])
 
@@ -232,7 +246,7 @@ def make_journal(assignment, user):
     return journal
 
 
-def make_entry(template, posttime=timezone.now()):
+def make_entry(template):
     """Create a new entry in a journal.
 
     Posts it at the specified moment, or when unset, now.
@@ -242,7 +256,7 @@ def make_entry(template, posttime=timezone.now()):
     """
     # TODO: Too late logic.
 
-    entry = Entry(template=template, createdate=posttime)
+    entry = Entry(template=template)
     entry.save()
     return entry
 
@@ -254,9 +268,15 @@ def make_entry_template(name):
     return entry_template
 
 
-def make_field(template, title, loc, type=Field.TEXT, required=True, description=None):
+def make_field(template, title, loc, type=Field.TEXT, required=True, description=None, options=None):
     """Make a field."""
-    field = Field(type=type, title=title, location=loc, template=template, required=required, description=description)
+    field = Field(type=type,
+                  title=title,
+                  location=loc,
+                  template=template,
+                  required=required,
+                  description=description,
+                  options=options)
     field.save()
     return field
 
@@ -273,8 +293,8 @@ def make_role_default_no_perms(name, course, can_edit_course_details=False, can_
                                can_delete_course_users=False, can_add_course_user_group=False,
                                can_delete_course_user_group=False, can_edit_course_user_group=False,
                                can_add_assignment=False, can_delete_assignment=False, can_edit_assignment=False,
-                               can_view_assignment_journals=False, can_grade=False, can_publish_grades=False,
-                               can_have_journal=False, can_comment=False):
+                               can_view_all_journals=False, can_grade=False, can_publish_grades=False,
+                               can_have_journal=False, can_comment=False, can_view_unpublished_assignment=False):
     """Make a role with all permissions set to false.
 
     Arguments:
@@ -298,7 +318,8 @@ def make_role_default_no_perms(name, course, can_edit_course_details=False, can_
         can_delete_assignment=can_delete_assignment,
 
         can_edit_assignment=can_edit_assignment,
-        can_view_assignment_journals=can_view_assignment_journals,
+        can_view_unpublished_assignment=can_view_unpublished_assignment,
+        can_view_all_journals=can_view_all_journals,
         can_grade=can_grade,
         can_publish_grades=can_publish_grades,
         can_have_journal=can_have_journal,
@@ -313,15 +334,16 @@ def make_role_default_all_perms(name, course, can_edit_course_details=True, can_
                                 can_delete_course_users=True, can_add_course_user_group=True,
                                 can_delete_course_user_group=True, can_edit_course_user_group=True,
                                 can_add_assignment=True, can_delete_assignment=True, can_edit_assignment=True,
-                                can_view_assignment_journals=True, can_grade=True, can_publish_grades=True,
-                                can_have_journal=True, can_comment=True):
+                                can_view_all_journals=True, can_grade=True, can_publish_grades=True,
+                                can_have_journal=True, can_comment=True, can_view_unpublished_assignment=True):
     """Makes a role with all permissions set to true."""
     return make_role_default_no_perms(name, course, can_edit_course_details, can_delete_course, can_edit_course_roles,
                                       can_view_course_users, can_add_course_users, can_delete_course_users,
                                       can_add_course_user_group, can_delete_course_user_group,
                                       can_edit_course_user_group, can_add_assignment, can_delete_assignment,
-                                      can_edit_assignment, can_view_assignment_journals, can_grade, can_publish_grades,
-                                      can_have_journal, can_comment)
+                                      can_edit_assignment, can_view_all_journals, can_grade,
+                                      can_publish_grades, can_have_journal, can_comment,
+                                      can_view_unpublished_assignment)
 
 
 def make_role_student(name, course):
@@ -332,19 +354,19 @@ def make_role_student(name, course):
 def make_role_ta(name, course):
     """Make a default teacher assitant role."""
     return make_role_default_no_perms(name, course, can_view_course_users=True, can_edit_course_user_group=True,
-                                      can_view_assignment_journals=True, can_grade=True, can_publish_grades=True,
-                                      can_comment=True)
+                                      can_view_all_journals=True, can_grade=True, can_publish_grades=True,
+                                      can_comment=True, can_view_unpublished_assignment=True)
 
 
 def make_role_observer(name, course):
     """"Make a default observer role."""
     return make_role_default_no_perms(name, course, can_view_course_users=True,
-                                      can_view_assignment_journals=True)
+                                      can_view_all_journals=True)
 
 
 def make_role_teacher(name, course):
     """Make a default teacher role."""
-    return make_role_default_all_perms(name, course, can_have_journal=False)
+    return make_role_default_all_perms(name, course, can_have_journal=False, can_view_unpublished_assignment=True)
 
 
 def make_comment(entry, author, text, published):
@@ -366,12 +388,18 @@ def make_comment(entry, author, text, published):
     )
 
 
-def make_user_file(uploaded_file, author, assignment):
-    """Make a user file from an UploadedFile in memory."""
+def make_user_file(uploaded_file, author, assignment, entry=None, node=None, content=None):
+    """Make a user file from an UploadedFile in memory.
+
+    At the time of creation, the UserFile is uploaded but not attached to an entry yet. This UserFile be treated
+    as temporary untill the actual entry is created. And the node, entry, and content are updated."""
     return UserFile.objects.create(
         file=uploaded_file,
         file_name=uploaded_file.name,
         author=author,
         content_type=uploaded_file.content_type,
-        assignment=assignment
+        assignment=assignment,
+        entry=entry,
+        node=node,
+        content=content
     )

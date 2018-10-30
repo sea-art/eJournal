@@ -1,9 +1,9 @@
 import xml.etree.cElementTree as ET
+
 import oauth2
-"""Package for oauth authentication in python"""
+from django.conf import settings
 
 import VLE.utils.generic_utils as utils
-from django.conf import settings
 from VLE.models import Counter
 
 
@@ -127,13 +127,13 @@ class GradePassBackRequest(object):
         imsx_head_info = head.find(namespace + 'imsx_POXResponseHeaderInfo')
         imsx_status_info = imsx_head_info.find(namespace + 'imsx_statusInfo')
         imsx_code_mayor = imsx_status_info.find(namespace + 'imsx_codeMajor')
-        if imsx_code_mayor is not None:
+        if imsx_code_mayor is not None and imsx_code_mayor.text is not None:
             code_mayor = imsx_code_mayor.text
         else:
             code_mayor = None
 
         imsx_severity = imsx_status_info.find(namespace + 'imsx_severity')
-        if imsx_severity is not None:
+        if imsx_severity is not None and imsx_severity.text is not None:
             severity = imsx_severity.text
         else:
             severity = None
@@ -154,9 +154,9 @@ def needs_grading(journal, nID):
     secret = settings.LTI_SECRET
     key = settings.LTI_KEY
 
-    jID = str(journal.pk)
-    aID = str(journal.assignment.pk)
-    cID = str(journal.assignment.courses.first().pk)
+    jID = journal.pk
+    aID = journal.assignment.pk
+    cID = journal.assignment.courses.order_by('-startdate').first().pk
 
     result_data = {'url': '{0}/Home/Course/{1}/Assignment/{2}/Journal/{3}?nID={4}'.format(settings.BASELINK,
                                                                                           cID, aID, jID, nID)}
@@ -179,6 +179,4 @@ def replace_result(journal):
     key = settings.LTI_KEY
 
     grade_request = GradePassBackRequest(key, secret, journal, send_score=True)
-    response = grade_request.send_post_request()
-
-    return response
+    return grade_request.send_post_request()

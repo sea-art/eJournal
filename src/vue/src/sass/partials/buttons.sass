@@ -50,6 +50,12 @@
     &:hover:not(.no-hover), &.active
         opacity: 1
 
+.default-button
+    svg
+        fill: $theme-blue !important
+    &:hover:not(.no-hover), &.active, &.fab
+        background-color: $theme-blue !important
+
 .add-button
     svg
         fill: $theme-green !important
@@ -67,6 +73,10 @@
         fill: $theme-orange !important
     &:hover:not(.no-hover), &.active, &.fab
         background-color: $theme-orange !important
+
+.black-button
+    &:hover:not(.no-hover), &.active, &.fab
+        background-color: #24292e !important
 
 .preset-type-button
     width: 75px

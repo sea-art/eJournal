@@ -3,20 +3,23 @@ Utilities.
 
 A library with useful functions.
 """
-from VLE.models import Entry, Node, Template, Comment, PresetNode
 import VLE.factory as factory
-import VLE.views.responses as responses
+from VLE.models import Comment, Entry, Node, PresetNode, Template
+from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
 
 
 # START: API-POST functions
 def required_params(post, *keys):
     """Get required post parameters, throwing KeyError if not present."""
     if keys and not post:
-        raise KeyError()
+        raise VLEMissingRequiredKey()
 
     result = []
     for key in keys:
-        result.append(post[key])
+        try:
+            result.append(post[key])
+        except KeyError as err:
+            raise VLEMissingRequiredKey(err)
 
     return result
 
@@ -24,7 +27,7 @@ def required_params(post, *keys):
 def optional_params(post, *keys):
     """Get optional post parameters, filling them as None if not present."""
     if keys and not post:
-        raise KeyError()
+        raise VLEMissingRequiredKey()
 
     result = []
     for key in keys:
@@ -35,6 +38,22 @@ def optional_params(post, *keys):
                 result.append(post[key])
         else:
             result.append(None)
+    return result
+
+
+def required_typed_params(post, *keys):
+    if keys and not post:
+        raise VLEMissingRequiredKey()
+
+    result = []
+    for func, key in keys:
+        try:
+            result.append(func(post[key]))
+        except ValueError as err:
+            raise VLEParamWrongType(err)
+        except KeyError as err:
+            raise VLEMissingRequiredKey(err)
+
     return result
 # END: API-POST functions
 
@@ -167,8 +186,9 @@ def parse_template(template_dict):
         location = field['location']
         required = field['required']
         description = field['description']
+        options = field['options']
 
-        factory.make_field(template, title, location, type, required, description)
+        factory.make_field(template, title, location, type, required, description, options)
 
     template.save()
     return template
@@ -209,23 +229,23 @@ def update_presets(assignment, presets, template_map):
     format = assignment.format
     for preset in presets:
         exists = 'id' in preset
+        id, type, description, deadline, target, template = \
+            optional_params(preset, 'id', 'type', 'description', 'deadline', 'target', 'template')
 
         if exists:
-            try:
-                preset_node = PresetNode.objects.get(pk=preset['id'])
-            except Template.DoesNotExist:
-                return responses.not_found('Preset does not exist.')
+            preset_node = PresetNode.objects.get(pk=preset['id'])
         else:
             preset_node = PresetNode(format=format)
 
-        type_changed = preset_node.type != preset['type']
-        preset_node.type = preset['type']
-        preset_node.deadline = preset['deadline']
+        type_changed = preset_node.type != type
+        preset_node.description = description
+        preset_node.type = type
+        preset_node.deadline = deadline
 
         if preset_node.type == Node.PROGRESS:
-            preset_node.target = preset['target']
+            preset_node.target = target
         elif preset_node.type == Node.ENTRYDEADLINE:
-            template_field = preset['template']
+            template_field = template
 
             if 'id' in template_field:
                 if template_field['id'] > 0:

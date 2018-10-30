@@ -1,12 +1,11 @@
-from django.test import TestCase
-
-from VLE.models import Participation, Course, User, Role, Assignment, Comment
-import VLE.serializers as serialize
-
-import VLE.factory as factory
 import test.test_utils as test
 
 import django.utils.timezone as timezone
+from django.test import TestCase
+
+import VLE.factory as factory
+import VLE.serializers as serialize
+from VLE.models import Assignment, Comment, Course, Participation, Role, User
 
 
 class UpdateApiTests(TestCase):
@@ -94,7 +93,8 @@ class UpdateApiTests(TestCase):
         test.api_patch_call(self,
                             '/assignments/' + str(assign.pk) + '/',
                             {'name': 'Assign2',
-                             'description': 'summary'},
+                             'description': 'summary',
+                             'is_published': True},
                             login)
 
         assign = Assignment.objects.get(pk=assign.pk)
@@ -113,7 +113,8 @@ class UpdateApiTests(TestCase):
         update_dict = {
             'assignment_details': {
                 'name': 'Colloq',
-                'description': 'description1'
+                'description': 'description1',
+                'is_published': True
             },
             'templates': [serialize.TemplateSerializer(template).data
                           for template in format.available_templates.all()],

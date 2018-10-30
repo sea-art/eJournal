@@ -5,11 +5,11 @@ In this file are all the Format api requests.
 """
 from rest_framework import viewsets
 
-from VLE.models import Assignment
-import VLE.views.responses as response
 import VLE.utils.generic_utils as utils
-import VLE.permissions as permissions
-from VLE.serializers import FormatSerializer, AssignmentSerializer, AssignmentDetailsSerializer
+import VLE.utils.responses as response
+from VLE.models import Assignment, Entry
+from VLE.serializers import (AssignmentDetailsSerializer, AssignmentSerializer,
+                             FormatSerializer)
 
 
 class FormatView(viewsets.ViewSet):
@@ -30,17 +30,10 @@ class FormatView(viewsets.ViewSet):
         Returns a json string containing the format as well as the
         corresponding assignment name and description.
         """
-        user = request.user
-        if not user.is_authenticated:
-            return response.unauthorized()
+        assignment = Assignment.objects.get(pk=pk)
 
-        try:
-            assignment = Assignment.objects.get(pk=pk)
-        except Assignment.DoesNotExist:
-            return response.not_found('Assignment not found.')
-
-        if not Assignment.objects.filter(courses__users=request.user, pk=assignment.pk):
-            return response.forbidden('You are not allowed to view this assignment.')
+        request.user.check_can_view(assignment)
+        request.user.check_permission('can_edit_assignment', assignment)
 
         serializer = FormatSerializer(assignment.format)
         assignment_details = AssignmentDetailsSerializer(assignment)
@@ -71,28 +64,20 @@ class FormatView(viewsets.ViewSet):
             success -- with the new assignment data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
-
         assignment_id = pk
+        assignment_details, templates, presets, unused_templates, removed_presets, removed_templates \
+            = utils.required_params(request.data, "assignment_details", "templates", "presets",
+                                    "unused_templates", "removed_presets", "removed_templates")
 
-        try:
-            assignment_details, templates, presets, unused_templates, removed_presets, removed_templates \
-                = utils.required_params(request.data, "assignment_details", "templates", "presets",
-                                        "unused_templates", "removed_presets", "removed_templates")
-        except KeyError:
-            return response.keyerror("assignment_details", "templates", "presets", "unused_templates",
-                                     "removed_presets", "removed_templates")
-
-        try:
-            assignment = Assignment.objects.get(pk=assignment_id)
-        except Assignment.DoesNotExist:
-            return response.not_found('Assignment does not exist.')
-
+        assignment = Assignment.objects.get(pk=assignment_id)
         format = assignment.format
 
-        if not permissions.has_assignment_permission(request.user, assignment, 'can_edit_assignment'):
-            return response.forbidden('You are not allowed to edit this assignment.')
+        # If a entry has been submitted to one of the journals of the journal it cannot be unpublished
+        if assignment.is_published and 'is_published' in assignment_details and not assignment_details['is_published'] \
+           and Entry.objects.filter(node__journal__assignment=assignment).exists():
+            return response.bad_request('You are not allowed to unpublish an assignment that already has submissions.')
+
+        request.user.check_permission('can_edit_assignment', assignment)
 
         serializer = AssignmentSerializer(assignment, data=assignment_details,
                                           context={'user': request.user}, partial=True)

@@ -3,18 +3,42 @@ test_apis.py.
 
 Test API calls.
 """
+import test.test_utils as test
+
+import django.utils.timezone as timezone
 from django.test import TestCase
-from VLE.models import Journal, Entry, Content, Lti_ids
 
 import VLE.factory as factory
-import test.test_utils as test
-import django.utils.timezone as timezone
+from VLE.models import Content, Entry, Group, Lti_ids
 
 
 class CreateApiTests(TestCase):
     def setUp(self):
         """Setup."""
         self.username, self.password, self.user = test.set_up_user_and_auth('test', 'test123', 'test@test.com')
+
+    def test_create_user(self):
+        user = {
+            'username': 'Student',
+            'password': 'Pa$$word!',
+            'first_name': 'Student',
+            'last_name': 'Testing',
+        }
+        # No email
+        test.api_post_call(self, '/users/', params=user, status=400)
+
+        user['email'] = 'student@ejourn.al'
+        test.api_post_call(self, '/users/', params=user, status=201)
+
+        # Not allowed by instance
+        self.user.is_superuser = True
+        self.user.save()
+        login = test.logging_in(self, self.username, self.password)
+        test.api_patch_call(
+            self, '/instance/1/', params={'allow_standalone_registration': False}, login=login, status=200)
+        user['username'] = 'Student2'
+        user['email'] = 'student2@ejourn.al'
+        test.api_post_call(self, '/users/', params=user, status=400)
 
     def test_create_new_course(self):
         """Test create new course."""
@@ -45,20 +69,17 @@ class CreateApiTests(TestCase):
         test.api_post_call(self, '/assignments/', params=create_assign_dict, login=login, status=201)
         self.assertEquals(Lti_ids.objects.get(lti_id=lti_id).assignment.name, 'SIFT')
 
-    def test_create_journal(self):
-        """test create journal."""
-        assign = factory.make_assignment("Assignment", "Your favorite assignment")
-        create_journal_dict = {'assignment_id': assign.pk}
+    def test_create_group(self):
+        """test create group."""
         login = test.logging_in(self, self.username, self.password)
-
         course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
-        assign.courses.add(course)
+        create_group_dict = {'name': 'TestGroup', 'course_id': course.pk}
 
-        role = factory.make_role_default_no_perms("student", course, can_have_journal=True)
+        role = factory.make_role_default_no_perms("teacher", course, can_add_course_user_group=True)
         factory.make_participation(user=self.user, course=course, role=role)
 
-        test.api_post_call(self, '/journals/', params=create_journal_dict, login=login, status=201)
-        self.assertTrue(Journal.objects.filter(user=self.user).exists())
+        test.api_post_call(self, '/groups/', params=create_group_dict, login=login, status=201)
+        self.assertTrue(Group.objects.filter(name='TestGroup', course=course).exists())
 
     def test_create_entry(self):
         """"Test create entry."""

@@ -6,7 +6,7 @@
             <lti-create-link-assignment v-else-if="handleAssignmentChoice" @handleAction="handleActions" :lti="lti" :page="page"/>
             <div v-else class="center-content">
                 <h2 class="center-content">Setting up a link to your learning environment</h2><br/>
-                <icon name="spinner" pulse scale="1.5"/>
+                <icon name="circle-o-notch" pulse scale="1.5"/>
             </div>
         </b-card>
     </content-single-column>
@@ -16,7 +16,7 @@
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import ltiCreateLinkCourse from '@/components/lti/LtiCreateLinkCourse.vue'
 import ltiCreateLinkAssignment from '@/components/lti/LtiCreateLinkAssignment.vue'
-import ltiAPI from '@/api/ltilaunch.js'
+import ltiAPI from '@/api/lti'
 import router from '@/router'
 import courseAPI from '@/api/course.js'
 import assignmentAPI from '@/api/assignment.js'
@@ -67,6 +67,7 @@ export default {
                 ltiCourseStart: '',
                 ltiAssignName: '',
                 ltiAssignID: '',
+                ltiAssignPublished: '',
                 ltiPointsPossible: '',
                 ltiAssignUnlock: '',
                 ltiAssignDue: '',
@@ -97,6 +98,7 @@ export default {
                     this.lti.ltiAssignUnlock = response.lti_aUnlock
                     this.lti.ltiAssignDue = response.lti_aDue
                     this.lti.ltiAssignLock = response.lti_aLock
+                    this.lti.ltiAssignPublished = response.lti_aPublished
                     this.page.cID = response.cID
                     this.page.aID = response.aID
                     this.page.jID = response.jID
@@ -176,8 +178,6 @@ export default {
                     .catch(error => {
                         if (error.response.status === 404) {
                             this.states.state = this.states.new_assign
-                        } else {
-                            this.$toasted.error(error.response.description)
                         }
                     })
                 break

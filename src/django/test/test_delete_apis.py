@@ -1,10 +1,10 @@
-from django.test import TestCase
+import test.test_utils as test
 
-from VLE.models import Course, Assignment, Role
+from django.test import TestCase
 
 import VLE.factory as factory
 import VLE.serializers as serialize
-import test.test_utils as test
+from VLE.models import Assignment, Course, Role
 
 
 class DeleteApiTests(TestCase):
@@ -42,7 +42,7 @@ class DeleteApiTests(TestCase):
         factory.make_participation(lars, course, role=role)
 
         test.api_del_call(self,
-                          '/participations/' + course.pk + '/',
+                          '/participations/' + str(course.pk) + '/',
                           {'user_id': rein.user_role.pk},
                           login)
 
@@ -82,6 +82,23 @@ class DeleteApiTests(TestCase):
 
         test.api_del_call(self, '/assignments/1/?course_id=1', login)
         self.assertEquals(Assignment.objects.filter(pk=1).count(), 1)
+
+    def test_delete_group(self):
+        """test create group."""
+        login = test.logging_in(self, self.username, self.password)
+        course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
+        role = factory.make_role_default_no_perms("teacher",
+                                                  course,
+                                                  can_add_course_user_group=True,
+                                                  can_delete_course_user_group=True)
+
+        factory.make_participation(user=self.user, course=course, role=role)
+        factory.make_course_group('group1', course)
+        factory.make_course_group('group2', course)
+
+        test.api_del_call(self,
+                          '/groups/' + str(course.pk) + '/?group_name=group1',
+                          login)
 
     def test_delete_course_role(self):
         """Test delete course roles"""

@@ -19,10 +19,11 @@
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'd'">
                         <div v-if="nodes[currentNode].entry !== null">
-                            <entry-node :cID="cID" ref="entry-template-card" @edit-node="adaptData" :entryNode="nodes[currentNode]"/>
+                            <entry-node :cID="cID" ref="entry-template-card" @edit-node="adaptData"
+                            @delete-node="deleteNode" :entryNode="nodes[currentNode]"/>
                         </div>
                         <div v-else>
-                            <entry-preview v-if="checkDeadline()" ref="entry-prev" @content-template="fillDeadline" :template="nodes[currentNode].template" :nodeID="nodes[currentNode].nID"/>
+                            <entry-preview v-if="checkDeadline()" ref="entry-prev" @content-template="fillDeadline" :template="nodes[currentNode].template" :nodeID="nodes[currentNode].nID" :description="nodes[currentNode].description"/>
                             <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                                 <h2 class="mb-2">{{nodes[currentNode].template.name}}</h2>
                                 <b>The deadline has passed. You can not submit an entry anymore.</b>
@@ -98,7 +99,7 @@ export default {
         }
     },
     created () {
-        assignmentAPI.get(this.aID, this.cID)
+        assignmentAPI.get(this.aID, this.cID, {customErrorToast: 'Error while loading assignment data.'})
             .then(assignment => {
                 this.assignment = assignment
 
@@ -117,14 +118,11 @@ export default {
                                 }
                             }
                         })
-                        .catch(error => { this.$toasted.error(error.response.data.description) })
                 }
             })
-            .catch(_ => this.$toasted.error('Error while loading assignment data.'))
 
         journalAPI.get(this.jID)
             .then(journal => { this.journal = journal })
-            .catch(_ => this.$toasted.error('Error while loading journal data.'))
     },
     watch: {
         currentNode: function () {
@@ -139,15 +137,17 @@ export default {
             this.nodes[this.currentNode] = editedData
             entryAPI.update(this.nodes[this.currentNode].entry.id, { content: editedData.entry.content })
                 .then(entry => { this.nodes[this.currentNode].entry = entry })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         deleteNode () {
-            entryAPI.delete(this.nodes[this.currentNode].entry.id)
+            entryAPI.delete(this.nodes[this.currentNode].entry.id, {responseSuccessToast: true})
                 .then(data => {
-                    this.$toasted.success(data.description)
-                    this.nodes.splice(this.currentNode, 1)
+                    if (this.nodes[this.currentNode].type === 'd') {
+                        this.nodes[this.currentNode].entry = null
+                        this.currentNode = 0
+                    } else {
+                        this.nodes.splice(this.currentNode, 1)
+                    }
                 })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         discardChanges () {
             /*  Checks the node and depending of the type of node
@@ -202,7 +202,6 @@ export default {
                     this.nodes = data.nodes
                     this.currentNode = data.added
                 })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         fillDeadline (data) {
             entryAPI.create({
@@ -215,7 +214,6 @@ export default {
                     this.nodes = data.nodes
                     this.currentNode = data.added
                 })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         progressPoints (progressNode) {
             /* The function will update a given progressNode by

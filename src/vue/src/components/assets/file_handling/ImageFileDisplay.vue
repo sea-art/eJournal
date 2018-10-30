@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import userAPI from '@/api/user.js'
+import userAPI from '@/api/user'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
@@ -26,6 +26,18 @@ export default {
         },
         display: {
             default: false
+        },
+        entryID: {
+            required: true,
+            String
+        },
+        nodeID: {
+            required: true,
+            String
+        },
+        contentID: {
+            required: true,
+            String
         }
     },
     components: {
@@ -51,15 +63,14 @@ export default {
             }
         },
         fileDownload () {
-            userAPI.download(this.authorUID, this.fileName)
+            userAPI.download(this.authorUID, this.fileName, this.entryID, this.nodeID, this.contentID)
                 .then(response => {
-                    let blob = new Blob([response.data], { type: response.headers['content-type'] })
-                    this.fileURL = window.URL.createObjectURL(blob)
-                }, error => {
-                    this.$toasted.error(error.response.data.description)
-                })
-                .catch(_ => {
-                    this.$toasted.error('Error creating file.')
+                    try {
+                        let blob = new Blob([response.data], { type: response.headers['content-type'] })
+                        this.fileURL = window.URL.createObjectURL(blob)
+                    } catch (_) {
+                        this.$toasted.error('Error creating file.')
+                    }
                 })
         }
     },

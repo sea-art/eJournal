@@ -4,14 +4,12 @@ comment.py.
 In this file are all the comment api requests.
 """
 from rest_framework import viewsets
-from datetime import datetime
 
-from VLE.serializers import CommentSerializer
-from VLE.models import Comment, Entry, Assignment, Journal
-import VLE.views.responses as response
-import VLE.permissions as permissions
-import VLE.utils.generic_utils as utils
 import VLE.factory as factory
+import VLE.utils.generic_utils as utils
+import VLE.utils.responses as response
+from VLE.models import Comment, Entry
+from VLE.serializers import CommentSerializer
 
 
 class CommentView(viewsets.ViewSet):
@@ -41,25 +39,15 @@ class CommentView(viewsets.ViewSet):
             success -- with a list of the comments belonging to the entry
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
+        entry_id, = utils.required_params(request.query_params, "entry_id")
 
-        try:
-            entry_id, = utils.required_params(request.query_params, "entry_id")
-        except KeyError:
-            return response.keyerror("entry_id")
+        entry = Entry.objects.get(pk=entry_id)
+        journal = entry.node.journal
+        assignment = journal.assignment
 
-        try:
-            entry = Entry.objects.get(pk=entry_id)
-        except Entry.DoesNotExist:
-            return response.not_found('Entry does not exist.')
+        request.user.check_can_view(journal)
 
-        if entry.node.journal.user != request.user and \
-           not permissions.has_assignment_permission(
-                request.user, entry.node.journal.assignment, 'can_view_assignment_journals'):
-            return response.forbidden('You are not allowed to view journals of other participants.')
-
-        if permissions.has_assignment_permission(request.user, entry.node.journal.assignment, 'can_grade'):
+        if request.user.has_permission('can_grade', assignment):
             comments = Comment.objects.filter(entry=entry)
         else:
             comments = Comment.objects.filter(entry=entry, published=True)
@@ -86,29 +74,17 @@ class CommentView(viewsets.ViewSet):
             succes -- with the assignment data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
+        entry_id, text, published = utils.required_params(request.data, "entry_id", "text", "published")
 
-        try:
-            entry_id, text, published = utils.required_params(request.data, "entry_id", "text", "published")
-        except KeyError:
-            return response.keyerror("entry_id", "text", "published")
+        entry = Entry.objects.get(pk=entry_id)
+        journal = entry.node.journal
+        assignment = journal.assignment
 
-        try:
-            entry = Entry.objects.get(pk=entry_id)
-            journal = Journal.objects.get(node__entry=entry)
-            assignment = Assignment.objects.get(journal=journal)
-        except (Assignment.DoesNotExist, Journal.DoesNotExist, Entry.DoesNotExist):
-            return response.not_found('Entry, journal or assignment does not exist.')
+        request.user.check_permission('can_comment', assignment)
+        request.user.check_can_view(journal)
 
-        if not permissions.has_assignment_permission(request.user, assignment, 'can_comment') or \
-           not (permissions.has_assignment_permission(request.user, assignment, 'can_view_assignment_journals') or
-                journal.user == request.user):
-            return response.forbidden('You are not allowed to comment on this journal')
-
-        published = published or not permissions.has_assignment_permission(request.user, assignment,
-                                                                           'can_grade')
-
+        # By default a comment will be published, only users who can grade can delay publishing.
+        published = published or not request.user.has_permission('can_grade', assignment)
         comment = factory.make_comment(entry, request.user, text, published)
         return response.created({'comment': CommentSerializer(comment).data})
 
@@ -129,18 +105,10 @@ class CommentView(viewsets.ViewSet):
             succes -- with the comment data
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
+        comment = Comment.objects.get(pk=pk)
+        journal = comment.entry.node.journal
 
-        try:
-            comment = Comment.objects.get(pk=pk)
-        except Comment.DoesNotExist:
-            return response.not_found('Comment does not exist.')
-
-        if comment.entry.node.journal.user != request.user and \
-           not permissions.has_assignment_permission(
-                request.user, comment.entry.node.journal.assignment, 'can_view_assignment_journals'):
-            return response.forbidden('You are not allowed to view journals of other participants.')
+        request.user.check_can_view(journal)
 
         serializer = CommentSerializer(comment)
 
@@ -157,7 +125,6 @@ class CommentView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            keyerror -- when comment_id or text is not set
             not found -- when the comment does not exist
             forbidden -- when the user is not allowed to comment
             unauthorized -- when the user is unauthorized to edit the assignment
@@ -165,29 +132,21 @@ class CommentView(viewsets.ViewSet):
             success -- with the updated comment
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
+        comment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
 
-        comment_id = kwargs.get('pk')
-
-        try:
-            comment = Comment.objects.get(pk=comment_id)
-        except Comment.DoesNotExist:
-            return response.not_found('Comment does not exist.')
-
+        comment = Comment.objects.get(pk=comment_id)
         journal = comment.entry.node.journal
+        assignment = journal.assignment
 
-        if not permissions.has_assignment_permission(request.user, journal.assignment,
-                                                     'can_comment'):
-            return response.forbidden('You are not allowed to comment on this entry.')
+        request.user.check_permission('can_comment', assignment)
+        request.user.check_can_view(journal)
 
         if not (comment.author.id == request.user.id or request.user.is_superuser):
             return response.forbidden('You are not allowed to edit this comment.')
 
-        req_data = request.data
-        req_data['last_edited'] = datetime.now()
-
-        serializer = CommentSerializer(comment, data=req_data, partial=True)
+        text, = utils.required_params(request.data, 'text')
+        serializer = CommentSerializer(
+            comment, data={'text': text}, partial=True)
         if not serializer.is_valid():
             response.bad_request()
         serializer.save()
@@ -209,18 +168,14 @@ class CommentView(viewsets.ViewSet):
             success -- with a message that the comment was deleted
 
         """
-        if not request.user.is_authenticated:
-            return response.unauthorized()
+        comment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
+        comment = Comment.objects.get(pk=comment_id)
+        journal = comment.entry.node.journal
 
-        comment_id = kwargs.get('pk')
-
-        try:
-            comment = Comment.objects.get(pk=comment_id)
-        except Comment.DoesNotExist:
-            return response.not_found('Comment does not exist.')
+        request.user.check_can_view(journal)
 
         if not (request.user.is_superuser or request.user.id == comment.author.id):
             return response.forbidden(description='You are not allowed to delete this comment.')
 
-        Comment.objects.get(id=comment_id).delete()
+        comment.delete()
         return response.success(description='Successfully deleted comment.')

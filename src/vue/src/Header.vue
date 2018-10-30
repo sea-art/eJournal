@@ -1,6 +1,11 @@
 <template>
     <!-- Section visible if user logged in -->
     <b-navbar v-if="loggedIn" id="header" class="shadow" toggleable="md" type="dark" fixed=top>
+        <transition name="fade">
+            <div class="spinner small-shadow" v-if="openApiCalls">
+                <icon name="circle-o-notch" spin scale='1.3'/>
+            </div>
+        </transition>
         <b-navbar-brand :to="{ name: 'Home' }" class="brand-name"><span>e</span>Journal</b-navbar-brand>
 
         <b-navbar-toggle class="ml-auto mr-auto" target="nav-collapse" aria-expanded="false" aria-controls="nav-collapse">
@@ -22,7 +27,7 @@
         <b-navbar-nav class="ml-auto">
             <b-nav-dropdown no-caret right id="nav-dropdown-options">
                 <div class="profile-picture-container" slot="button-content">
-                    <img class="profile-picture" :src="profileImg">
+                    <img class="profile-picture-sm" :src="profileImg">
                 </div>
                 <b-button :to="{ name: 'Profile' }">
                     <icon name="user"/>
@@ -38,6 +43,11 @@
 
     <!-- Section visible if user logged out -->
     <b-navbar v-else id="header" class="shadow" toggleable="md" type="dark" fixed=top>
+        <transition name="fade">
+            <div class="spinner small-shadow" v-if="openApiCalls">
+                <icon name="circle-o-notch" spin scale='1.3'/>
+            </div>
+        </transition>
         <b-navbar-brand  :to="{ name: 'Guest' }" class="brand-name"><span>e</span>Journal</b-navbar-brand>
 
         <b-navbar-nav class="ml-auto">
@@ -74,7 +84,8 @@ export default {
     computed: {
         ...mapGetters({
             loggedIn: 'user/loggedIn',
-            profileImg: 'user/profilePicture'
+            profileImg: 'user/profilePicture',
+            openApiCalls: 'connection/checkOpenApiCalls'
         })
     }
 }
@@ -158,4 +169,22 @@ export default {
             margin-left: 0px
     @include md-max
         margin-top: 70px
+
+.spinner
+    background: $theme-dark-grey
+    position: fixed
+    height: 28px
+    line-height: 24px
+    text-align: center
+    width: 45px
+    bottom: 0
+    margin-top: 10px
+    left: 0
+    font-size: 1.1rem!important
+    z-index: 9000
+    &.fade-enter-active, &.fade-leave-active
+        transition: opacity .5s
+    &.fade-enter, &.fade-leave-to
+        opacity: 0
+
 </style>

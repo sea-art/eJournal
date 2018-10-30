@@ -1,10 +1,10 @@
-from django.conf import settings
-import oauth2
-"""Package for oauth authentication in python"""
-
-from VLE.models import User, Role, Journal, Lti_ids
-import VLE.factory as factory
 from datetime import datetime, timezone
+
+import oauth2
+from django.conf import settings
+
+import VLE.factory as factory
+from VLE.models import Journal, Lti_ids, Role, User
 
 
 class OAuthRequestValidater(object):
@@ -48,8 +48,6 @@ class OAuthRequestValidater(object):
                                              self.oauth_consumer, {})
 
         except (oauth2.Error, ValueError) as err:
-            oauth_request.sign_request(oauth2.SignatureMethod_HMAC_SHA1(),
-                                       self.oauth_consumer, {})
             return False, err
         # Signature was valid
         return True, None
@@ -64,7 +62,14 @@ class OAuthRequestValidater(object):
         return validator.is_valid(request)
 
 
-def check_user_lti(request, roles):
+def roles_to_list(params):
+    roles = list()
+    for role in params['roles'].split(','):
+        roles.append(role.split('/')[-1].lower())
+    return roles
+
+
+def check_user_lti(request):
     """Check is an user with the lti_id exists"""
     lti_user_id = request['user_id']
 
@@ -75,7 +80,7 @@ def check_user_lti(request, roles):
             user.profile_picture = request['custom_user_image']
             user.save()
 
-        if roles['Teacher'] in request:
+        if 'roles' in request and settings.ROLES['Teacher'] in roles_to_list(request):
             user.is_teacher = True
             user.save()
         return user
@@ -91,11 +96,7 @@ def create_lti_query_link(query):
 
     returns the link
     """
-    link = settings.BASELINK
-    link += '/LtiLogin'
-    link += '?'
-    link += query.urlencode()
-    return link
+    return ''.join((settings.BASELINK, '/LtiLogin', '?', query.urlencode()))
 
 
 def check_course_lti(request, user, role):
@@ -106,7 +107,10 @@ def check_course_lti(request, user, role):
     if lti_couples.count() > 0:
         course = lti_couples[0].course
         if user not in course.users.all():
-            factory.make_participation(user, course, Role.objects.get(name=role, course=course))
+            for r in settings.ROLES:
+                if r in role or r == 'Student':
+                    factory.make_participation(user, course, Role.objects.get(name=r, course=course))
+                    break
         return course
     return None
 
@@ -116,15 +120,20 @@ def check_assignment_lti(request):
     assign_id = request['custom_assignment_id']
     lti_couples = Lti_ids.objects.filter(lti_id=assign_id, for_model=Lti_ids.ASSIGNMENT)
     if lti_couples.count() > 0:
-        return lti_couples[0].assignment
+        assignment = lti_couples[0].assignment
+        # TODO: When custom_assignment_publish is propperly configures, uncomment this
+        # if 'custom_assignment_publish' in request:
+        #     assignment.is_published = request['custom_assignment_publish'] == 'true'
+        # assignment.save()
+        return assignment
     return None
 
 
-def select_create_journal(request, user, assignment, roles):
+def select_create_journal(request, user, assignment):
     """
     Select or create the requested journal.
     """
-    if roles['Student'] in request['roles'] and assignment is not None and user is not None:
+    if assignment is not None and user is not None:
         journals = Journal.objects.filter(user=user, assignment=assignment)
         if journals.count() > 0:
             journal = journals[0]

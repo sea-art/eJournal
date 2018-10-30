@@ -14,7 +14,13 @@
             </div>
 
             <h2 class="mb-2">{{ entryNode.entry.template.name }}</h2>
-            <entry-fields :template="entryNode.entry.template" :completeContent="completeContent" :displayMode="false" :nodeID="entryNode.nID"/>
+            <entry-fields
+                :template="entryNode.entry.template"
+                :completeContent="completeContent"
+                :displayMode="false"
+                :nodeID="entryNode.nID"
+                :entryID="entryNode.entry.id"
+            />
 
             <b-alert :show="dismissCountDown" dismissible variant="secondary"
                 @dismissed="dismissCountDown=0">
@@ -37,6 +43,16 @@
             <div class="ml-2 grade-section shadow" v-else-if="!entryNode.entry.editable">
                 <icon name="hourglass-half"/>
             </div>
+            <div v-else>
+                <b-button v-if="entryNode.entry.editable" class="ml-2 delete-button float-right multi-form" @click="deleteEntry">
+                    <icon name="trash"/>
+                    Delete
+                </b-button>
+                <b-button v-if="entryNode.entry.editable" class="ml-2 change-button float-right multi-form" @click="saveEdit">
+                    <icon name="edit"/>
+                    Edit
+                </b-button>
+            </div>
 
             <h2 class="mb-2">{{ entryNode.entry.template.name }}</h2>
             <entry-fields
@@ -45,16 +61,17 @@
                 :completeContent="completeContent"
                 :displayMode="true"
                 :authorUID="$parent.journal.student.id"
+                :entryID="entryNode.entry.id"
             />
-
-            <b-button v-if="entryNode.entry.editable" class="change-button float-right mt-2" @click="saveEdit">
-                <icon name="edit"/>
-                Edit
-            </b-button>
-            <b-button v-if="entryNode.entry.editable" class="delete-button float-right mt-2" @click="deleteEntry">
-                <icon name="trash"/>
-                Delete
-            </b-button>
+            <div>
+                <hr class="full-width"/>
+                <span class="timestamp" v-if="entryNode.entry.last_edited">
+                    Last edited: {{ $root.beautifyDate(entryNode.entry.last_edited) }}<br/>
+                </span>
+                <span class="timestamp" v-else>
+                    Submitted on: {{ $root.beautifyDate(entryNode.entry.creation_date) }}<br/>
+                </span>
+            </div>
         </b-card>
 
         <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published"/>
@@ -128,7 +145,8 @@ export default {
                     if (content.field === templateField.id) {
                         this.completeContent.push({
                             data: content.data,
-                            id: content.field
+                            id: content.field,
+                            contentID: content.id
                         })
 
                         checkFound = true

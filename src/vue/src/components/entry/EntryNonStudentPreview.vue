@@ -8,7 +8,7 @@
         <b-card class="entry-card no-hover entry-card-teacher" :class="$root.getBorderClass($route.params.cID)">
             <div v-if="$hasPermission('can_grade')" class="grade-section shadow sticky">
                 <b-form-input type="number" class="theme-input" step="0.01" size="2" v-model="grade" autofocus placeholder="0" min="0.0"/>
-                <b-form-checkbox v-model="published" value=true unchecked-value=false data-toggle="tooltip" title="Show grade to student">
+                <b-form-checkbox v-model="published" fieldValue=true unchecked-fieldValue=false data-toggle="tooltip" title="Show grade to student">
                     Published
                 </b-form-checkbox>
                 <b-button class="add-button" @click="commitGrade">
@@ -32,7 +32,17 @@
                 :completeContent="completeContent"
                 :displayMode="true"
                 :authorUID="$parent.journal.student.id"
+                :entryID="entryNode.entry.id"
             />
+            <div>
+                <hr class="full-width"/>
+                <span class="timestamp" v-if="entryNode.entry.last_edited">
+                    Last edited: {{ $root.beautifyDate(entryNode.entry.last_edited) }}<br/>
+                </span>
+                <span class="timestamp" v-else>
+                    Submitted on: {{ $root.beautifyDate(entryNode.entry.creation_date) }}<br/>
+                </span>
+            </div>
         </b-card>
 
         <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published"/>
@@ -96,7 +106,8 @@ export default {
                         if (content.field === templateField.id) {
                             this.completeContent.push({
                                 data: content.data,
-                                id: content.field
+                                id: content.field,
+                                contentID: content.id
                             })
 
                             checkFound = true
@@ -116,22 +127,14 @@ export default {
         commitGrade () {
             if (this.grade !== null) {
                 this.tempNode.entry.grade = this.grade
-                this.tempNode.entry.published = (this.published === 'true' || this.published === true)
+                this.tempNode.entry.published = this.published
 
-                if (this.published === 'true' || this.published === true) {
-                    entryAPI.update(this.entryNode.entry.id, {grade: this.grade, published: 1})
-                        .then(_ => {
-                            this.$toasted.success('Grade updated and published.')
-                            this.$emit('check-grade')
-                        })
-                        .catch(error => { this.$toasted.error(error.response.data.description) })
+                if (this.published) {
+                    entryAPI.update(this.entryNode.entry.id, {grade: this.grade, published: 1}, {customSuccessToast: 'Grade updated and published.'})
+                        .then(_ => { this.$emit('check-grade') })
                 } else {
-                    entryAPI.update(this.entryNode.entry.id, {grade: this.grade, published: 0})
-                        .then(_ => {
-                            this.$toasted.success('Grade updated but not published.')
-                            this.$emit('check-grade')
-                        })
-                        .catch(error => { this.$toasted.error(error.response.data.description) })
+                    entryAPI.update(this.entryNode.entry.id, {grade: this.grade, published: 0}, {customSuccessToast: 'Grade updated but not published.'})
+                        .then(_ => { this.$emit('check-grade') })
                 }
             }
         }

@@ -4,21 +4,21 @@
         Hi {{ $store.getters['user/firstName'] }}! If you have any suggestions for improvements or encountered
         any issues/bugs, please inform us by filling in the form below. We aim to get back to you as soon as possible.
         <hr/>
-        <h2 class='field-heading'>Topic:</h2>
+        <h2 class='field-heading'>Topic:*</h2>
         <b-input
             class="theme-input multi-form"
             v-model="topic"
             type="text"
             required
         />
-        <h2 class='field-heading'>Type of feedback:</h2>
+        <h2 class='field-heading'>Type of feedback:*</h2>
         <b-form-select
             class="theme-input multi-form"
             :options="types"
             required
             v-model="type"/>
 
-        <h2 class='field-heading'>Feedback:</h2>
+        <h2 class='field-heading'>Feedback:*</h2>
         <b-form-textarea
            class="theme-input multi-form"
            v-model="feedback"
@@ -36,6 +36,11 @@
             @change="filesHandler"
             placeholder="Choose a file...">
         </b-form-file>
+
+        <b-form-checkbox v-model="privacyAgreement">
+            I agree to share my username, email, first name and feedback with eJournal's email provider Zoho.*
+        </b-form-checkbox>
+
         <b-button class="add-button float-right" @click="$emit(sendFeedback())">
             <icon name="paper-plane"/>
             Send
@@ -45,7 +50,7 @@
 
 <script>
 import icon from 'vue-awesome/components/Icon'
-import feedback from '@/api/feedback'
+import feedbackAPI from '@/api/feedback'
 
 export default {
     data () {
@@ -57,7 +62,8 @@ export default {
                 {text: 'Select one', value: null},
                 'Issue/Bug', 'Suggestion', 'Other'
             ],
-            files: null
+            files: null,
+            privacyAgreement: false
         }
     },
     components: {
@@ -88,6 +94,8 @@ export default {
                 this.$toasted.error('Please choose a feedback type')
             } else if (this.feedback === '') {
                 this.$toasted.error('Please describe your feedback')
+            } else if (!this.privacyAgreement) {
+                this.$toasted.error('You will have to agree to the privacy agreement in order for us to read your feedback!')
             } else {
                 var data = new FormData()
                 data.append('topic', this.topic)
@@ -101,11 +109,7 @@ export default {
                     }
                 }
 
-                feedback.sendFeedback(data)
-                    .then(response => {
-                        this.$toasted.success(response.data.description)
-                    })
-                    .catch(error => { this.$toasted.error(error.response.data.description) })
+                feedbackAPI.sendFeedback(data, {responseSuccessToast: true})
 
                 this.resetFeedback()
                 return 'feedbackSent'
@@ -121,6 +125,5 @@ export default {
             this.$refs.fileinput.reset()
         }
     }
-
 }
 </script>

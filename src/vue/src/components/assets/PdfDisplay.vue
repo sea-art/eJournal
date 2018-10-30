@@ -13,7 +13,7 @@
             <icon name="print" @click.native="print" class="action-icon"/>
             <icon @click.native="downloadLink.click()" name="save" class="action-icon"/>
             {{ page }} / {{ numPages }}
-            <input v-model.number="page" type="number" min="1" :max="numPages">
+            <input v-model="displayPageNumber" @input="validatePageInput" type="number" min="1" :max="numPages">
         </div>
         <div>
             <div
@@ -41,8 +41,9 @@
 
 <script>
 import pdf from 'vue-pdf'
-import userAPI from '@/api/user.js'
+import userAPI from '@/api/user'
 import icon from 'vue-awesome/components/Icon'
+import sanitization from '@/utils/sanitization.js'
 
 export default {
     props: {
@@ -56,6 +57,18 @@ export default {
         },
         display: {
             default: false
+        },
+        entryID: {
+            required: true,
+            String
+        },
+        nodeID: {
+            required: true,
+            String
+        },
+        contentID: {
+            required: true,
+            String
         }
     },
     components: {
@@ -68,11 +81,15 @@ export default {
             fileURL: null,
             loadedRatio: 0,
             page: 1,
+            displayPageNumber: 1,
             numPages: 0,
             rotate: 0,
             loaded: false,
             downloadLink: null
         }
+    },
+    watch: {
+        page: function (val) { this.displayPageNumber = val }
     },
     methods: {
         handleDownload () {
@@ -82,30 +99,41 @@ export default {
                 this.fileDownload()
             }
         },
+        /* Ensures the input is within range of the PDF pages. */
+        validatePageInput (input) {
+            let parsed = parseInt(input.data)
+
+            if (parsed < 1) {
+                this.page = 1
+            } else if (parsed > this.numPages) {
+                this.page = this.numPages
+            } else if (!isNaN(parsed)) {
+                this.page = parseInt(input.data)
+            }
+        },
         password (updatePassword, reason) {
             this.$toasted.error('Password handling is not implemented.')
         },
         error (err) {
-            this.$toasted.error(err)
+            this.$toasted.error(sanitization.escapeHtml(err))
         },
         print () {
             this.$refs.pdf.print()
         },
         fileDownload () {
-            userAPI.download(this.authorUID, this.fileName)
+            userAPI.download(this.authorUID, this.fileName, this.entryID, this.nodeID, this.contentID)
                 .then(response => {
-                    let blob = new Blob([response.data], { type: response.headers['content-type'] })
-                    this.fileURL = window.URL.createObjectURL(blob)
+                    try {
+                        let blob = new Blob([response.data], { type: response.headers['content-type'] })
+                        this.fileURL = window.URL.createObjectURL(blob)
 
-                    this.downloadLink = document.createElement('a')
-                    this.downloadLink.href = this.fileURL
-                    this.downloadLink.download = this.fileName
-                    document.body.appendChild(this.downloadLink)
-                }, error => {
-                    this.$toasted.error(error.response.data.description)
-                })
-                .catch(_ => {
-                    this.$toasted.error('Error creating file.')
+                        this.downloadLink = document.createElement('a')
+                        this.downloadLink.href = this.fileURL
+                        this.downloadLink.download = this.fileName
+                        document.body.appendChild(this.downloadLink)
+                    } catch (_) {
+                        this.$toasted.error('Error creating file.')
+                    }
                 })
         }
     },

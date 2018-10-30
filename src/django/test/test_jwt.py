@@ -3,13 +3,13 @@ test_jwt.py.
 
 Test if the JWT token system works.
 """
+import test.test_utils as test
+
 from django.contrib import auth
 from django.test import TestCase
 from django.urls import reverse
 
 from VLE.models import User
-
-import test.test_utils as test
 
 
 class JWTTests(TestCase):

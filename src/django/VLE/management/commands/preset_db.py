@@ -4,11 +4,14 @@ Generate preset data.
 Generate preset data and save it to the database.
 """
 
-from django.core.management.base import BaseCommand
-from VLE.models import Field, Node, Role
-import VLE.factory as factory
-from faker import Faker
 import random
+
+from django.core.management.base import BaseCommand
+from faker import Faker
+
+import VLE.factory as factory
+from VLE.models import Field, Node, Role
+
 faker = Faker()
 
 
@@ -62,6 +65,13 @@ class Command(BaseCommand):
                 "last_name": "van Dommelen",
                 "pass": "pass",
                 "is_superuser": False,
+                "is_teacher": True
+            }, {
+                "username": "Superuser",
+                "first_name": "Super",
+                "last_name": "User",
+                "pass": "pass",
+                "is_superuser": True,
                 "is_teacher": True
             }
         ]
@@ -206,7 +216,7 @@ class Command(BaseCommand):
             author = self.users[a["author"]]
             format = self.formats[a["format"]]
             faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
-            assignment = factory.make_assignment(a["name"], a["description"], author, format)
+            assignment = factory.make_assignment(a["name"], a["description"], author, format, is_published=True)
 
             for course in a["courses"]:
                 assignment.courses.add(self.courses[course])
@@ -225,10 +235,7 @@ class Command(BaseCommand):
         for journal in self.journals:
             for node in journal.node_set.all():
                 if node.type == Node.ENTRYDEADLINE:
-                    entry = factory.make_entry(
-                        node.preset.forced_template,
-                        faker.date_time_this_month(before_now=True)
-                    )
+                    entry = factory.make_entry(node.preset.forced_template)
                     entry.late = faker.boolean()
                     entry.grade = random.randint(1, 10)
                     entry.save()
@@ -239,7 +246,7 @@ class Command(BaseCommand):
                 random_entries = random.randint(0, 8)
                 for _ in range(random_entries):
                     template = random.choice(journal.assignment.format.available_templates.all())
-                    entry = factory.make_entry(template, faker.date_time_this_month(before_now=True))
+                    entry = factory.make_entry(template)
                     entry.late = faker.boolean()
                     entry.grade = random.randint(1, 10)
                     entry.save()

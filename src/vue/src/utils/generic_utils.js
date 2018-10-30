@@ -12,5 +12,12 @@ export default {
 
         split[0] = String(yearOff)
         return split.join('-')
+    },
+
+    /* Converts an arraybuffer response to a humanreadable text. */
+    parseArrayBuffer (arrayBuffer) {
+        let enc = new TextDecoder('utf-8')
+
+        return JSON.parse(enc.decode(arrayBuffer))
     }
 }

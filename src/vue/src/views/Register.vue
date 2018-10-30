@@ -40,12 +40,11 @@ export default {
     },
     methods: {
         verifyEmail () {
-            userAPI.verifyEmail(this.emailVerificationToken)
+            userAPI.verifyEmail(this.emailVerificationToken, {responseSuccessToast: true})
                 .then(response => {
-                    this.$toasted.success(response.data.description)
+                    this.$store.commit('user/EMAIL_VERIFIED')
                     this.$router.push({ name: 'Home' })
                 })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
         }
     }
 }

@@ -4,11 +4,19 @@ test_utils.py.
 Test helper functions.
 """
 
-from django.urls import reverse
 import json
 
-from VLE.models import Role
+from django.urls import reverse
+
 import VLE.factory as factory
+from VLE.models import Role
+
+
+def assert_response(obj, result, status):
+    try:
+        obj.assertEquals(result.status_code, status, 'Failed response was: ' + str(result.json()))
+    except ValueError:
+        obj.assertEquals(result.status_code, status, 'Failed response was: ' + str(result))
 
 
 def set_up_user_and_auth(username, password, email, first_name=None, last_name=None,
@@ -104,7 +112,7 @@ def set_up_courses(name, n, author=None, lti_id=False):
     return courses
 
 
-def set_up_assignments(name, desc, n, course, lti_id=False):
+def set_up_assignments(name, desc, n, course, lti_id=False, is_published=True):
     """Set up some assignments.
 
     Arguments:
@@ -119,10 +127,11 @@ def set_up_assignments(name, desc, n, course, lti_id=False):
     if lti_id:
         for i in range(n):
             assignments.append(factory.make_assignment(name + str(i), desc + str(i),
-                                                       lti_id=str(i), courses=[course]))
+                                                       lti_id=str(i), courses=[course], is_published=is_published))
     else:
         for i in range(n):
-            assignments.append(factory.make_assignment(name + str(i), desc + str(i), courses=[course]))
+            assignments.append(factory.make_assignment(name + str(i), desc + str(i), courses=[course],
+                                                       is_published=is_published))
     return assignments
 
 
@@ -139,7 +148,7 @@ def logging_in(obj, username, password, status=200):
     result = obj.client.post(reverse('token_obtain_pair'),
                              json.dumps({'username': username, 'password': password}),
                              content_type='application/json')
-    obj.assertEquals(result.status_code, status)
+    assert_response(obj, result, status)
     return result
 
 
@@ -155,7 +164,7 @@ def api_get_call(obj, url, login, status=200, params={}):
     """
     result = obj.client.get(url, params,
                             HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access']))
-    obj.assertEquals(result.status_code, status)
+    assert_response(obj, result, status)
     return result
 
 
@@ -167,10 +176,10 @@ def test_unauthorized_api_get_call(obj, url, params={}):
     params -- extra parameters that the api needs
     """
     result = obj.client.get(url, params, format='json')
-    obj.assertEquals(result.status_code, 401)
+    obj.assertEquals(result.status_code, 401, 'Failed response was: ' + str(result.json()))
 
 
-def api_post_call(obj, url, params, login, status=200):
+def api_post_call(obj, url, params, login=None, status=200):
     """Send and get api call.
 
     Arguments:
@@ -181,9 +190,12 @@ def api_post_call(obj, url, params, login, status=200):
 
     returns the whatever the api call returns
     """
-    result = obj.client.post(url, json.dumps(params), content_type='application/json',
-                             HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access']))
-    obj.assertEquals(result.status_code, status)
+    if not login:
+        result = obj.client.post(url, json.dumps(params), content_type='application/json')
+    else:
+        result = obj.client.post(url, json.dumps(params), content_type='application/json',
+                                 HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access']))
+    assert_response(obj, result, status)
     return result
 
 
@@ -200,7 +212,7 @@ def api_patch_call(obj, url, params, login, status=200):
     """
     result = obj.client.patch(url, json.dumps(params), content_type='application/json',
                               HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access']))
-    obj.assertEquals(result.status_code, status)
+    assert_response(obj, result, status)
     return result
 
 
@@ -217,7 +229,7 @@ def api_del_call(obj, url, login, params={}, status=200):
     """
     result = obj.client.delete(url, params, content_type='application/json',
                                HTTP_AUTHORIZATION='Bearer {0}'.format(login.data['access']))
-    obj.assertEquals(result.status_code, status)
+    assert_response(obj, result, status)
     return result
 
 
@@ -229,4 +241,4 @@ def test_unauthorized_api_post_call(obj, url, params):
     params -- extra parameters that the api needs
     """
     result = obj.client.post(url, json.dumps(params), content_type='application/json')
-    obj.assertEquals(result.status_code, 401)
+    obj.assertEquals(result.status_code, 401, 'Failed response was: ' + str(result.json()))

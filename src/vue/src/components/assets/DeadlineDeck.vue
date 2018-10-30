@@ -40,11 +40,10 @@ export default {
                 }
             }
 
-            if (this.$hasPermission('can_view_assignment_journals', 'assignment', String(aID))) {
+            if (this.$hasPermission('can_view_all_journals', 'assignment', String(aID))) {
                 route.name = 'Assignment'
                 return route
             }
-
             route.name = 'Journal'
             route.params.jID = jID
             return route
@@ -53,7 +52,6 @@ export default {
     computed: {
         computedDeadlines: function () {
             var counter = 0
-
             function compareDate (a, b) {
                 return new Date(a.deadline) - new Date(b.deadline)
             }

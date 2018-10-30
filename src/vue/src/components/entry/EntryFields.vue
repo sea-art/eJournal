@@ -17,6 +17,7 @@
                 :autoUpload="true"
                 @fileUploadSuccess="completeContent[i].data = $event"
                 :aID="$route.params.aID"
+                :contentID="completeContent[i].contentID"
             />
             <file-upload-input
                 v-else-if="field.type == 'f'"
@@ -26,6 +27,7 @@
                 :autoUpload="true"
                 @fileUploadSuccess="completeContent[i].data = $event"
                 :aID="$route.params.aID"
+                :contentID="completeContent[i].contentID"
             />
             <b-input v-else-if="field.type == 'v'"
                 class="theme-input"
@@ -40,6 +42,7 @@
                 :autoUpload="true"
                 @fileUploadSuccess="completeContent[i].data = $event"
                 :aID="$route.params.aID"
+                :contentID="completeContent[i].contentID"
             />
             <text-editor
                 v-else-if="field.type == 'rt'"
@@ -51,6 +54,11 @@
                 v-else-if="field.type == 'u'"
                 :placeholder="completeContent[i].data"
                 @correctUrlInput="completeContent[i].data = $event"
+            />
+            <b-form-select
+                v-else-if="field.type == 's'"
+                v-model="completeContent[i].data"
+                :options="parseSelectionOptions(field.options)"
             />
         </div>
     </div>
@@ -67,11 +75,17 @@
                 :id="'image-display-field-' + i"
                 :fileName="completeContent[i].data"
                 :authorUID="authorUID"
+                :entryID="entryID"
+                :nodeID="nodeID"
+                :contentID="completeContent[i].contentID"
             />
             <file-download-button
                 v-else-if="field.type == 'f'"
                 :fileName="completeContent[i].data"
                 :authorUID="authorUID"
+                :entryID="entryID"
+                :nodeID="nodeID"
+                :contentID="completeContent[i].contentID"
             />
             <b-embed
                 v-else-if="field.type == 'v'"
@@ -84,9 +98,13 @@
                 v-else-if="field.type == 'p'"
                 :fileName="completeContent[i].data"
                 :authorUID="authorUID"
+                :entryID="entryID"
+                :nodeID="nodeID"
+                :contentID="completeContent[i].contentID"
             />
             <div v-else-if="field.type == 'rt'" v-html="completeContent[i].data"/>
             <a v-else-if="field.type == 'u'" :href="completeContent[i].data">{{ completeContent[i].data }}</a>
+            <span v-else-if="field.type == 's'">{{ completeContent[i].data }}</span>
         </div>
     </div>
 </template>
@@ -116,6 +134,9 @@ export default {
         },
         authorUID: {
             required: false
+        },
+        entryID: {
+            default: '-1'
         }
     },
     components: {
@@ -136,6 +157,14 @@ export default {
             } else {
                 return null
             }
+        },
+        parseSelectionOptions (fieldOptions) {
+            if (!fieldOptions) {
+                return [{ value: null, text: 'Please select an option' }]
+            }
+            var options = JSON.parse(fieldOptions).filter(e => e).map(x => { return { value: x, text: x } })
+            options.unshift({ value: null, text: 'Please select an option' })
+            return options
         },
         checkChanges () {
             for (var i = 0; i < this.completeContent.length; i++) {

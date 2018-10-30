@@ -24,7 +24,7 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i">
-            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal)">
+            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal, d.is_published)">
                 <todo-card :deadline="d"/>
             </b-link>
         </div>
@@ -53,7 +53,6 @@ export default {
     created () {
         assignmentAPI.getUpcoming()
             .then(deadlines => { this.deadlines = deadlines })
-            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     components: {
         'content-single-column': contentSingleColumn,
@@ -72,7 +71,7 @@ export default {
                 }
             }
 
-            if (this.$hasPermission('can_view_assignment_journals', 'assignment', String(aID))) {
+            if (this.$hasPermission('can_view_all_journals', 'assignment', aID)) {
                 route.name = 'Assignment'
                 return route
             }

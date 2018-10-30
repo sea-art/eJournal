@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import userAPI from '@/api/user.js'
+import userAPI from '@/api/user'
 
 export default {
     props: {
@@ -30,6 +30,9 @@ export default {
         },
         placeholder: {
             default: 'Select a file.'
+        },
+        contentID: {
+            default: null
         }
     },
     data () {
@@ -58,15 +61,14 @@ export default {
             let formData = new FormData()
             formData.append('file', this.file)
             formData.append('assignment_id', this.aID)
+            formData.append('content_id', this.contentID)
 
-            userAPI.uploadUserFile(formData)
+            userAPI.uploadUserFile(formData, {customSuccessToast: 'File upload success.'})
                 .then(_ => {
                     this.$emit('fileUploadSuccess', this.file.name)
-                    this.$toasted.success('File upload success.')
                 })
-                .catch(error => {
+                .catch(_ => {
                     this.$emit('fileUploadFailed', this.file.name)
-                    this.$toasted.error(error.response.data.description)
                     this.file = null
                 })
         }

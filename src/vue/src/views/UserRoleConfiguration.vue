@@ -40,7 +40,7 @@
         </div>
 
         <transition name="fade">
-            <b-button @click="update()" v-if="JSON.stringify(roleConfig) !== JSON.stringify(originalRoleConfig)" class="add-button fab">
+            <b-button @click="update()" v-if="isChanged" class="add-button fab">
                 <icon name="save" scale="1.5"/>
             </b-button>
         </transition>
@@ -96,7 +96,19 @@ export default {
             undeleteableRoles: ['Student', 'TA', 'Teacher'],
             modalShow: false,
             newRole: '',
-            essentialPermissions: {'Teacher': ['can_edit_course_roles', 'can_edit_course_details']}
+            essentialPermissions: {'Teacher': ['can_edit_course_roles', 'can_edit_course_details']},
+            setRoleConfig: false,
+            isChanged: false
+        }
+    },
+    watch: {
+        roleConfig: {
+            handler: function () {
+                if (this.setRoleConfig) {
+                    this.isChanged = true
+                }
+            },
+            deep: true
         }
     },
     methods: {
@@ -157,14 +169,15 @@ export default {
             return false
         },
         update () {
-            roleAPI.update(this.cID, this.roleConfig)
+            roleAPI.update(this.cID, this.roleConfig, {customSuccessToast: 'Course roles successfully updated.'})
                 .then(_ => {
                     this.originalRoleConfig = this.deepCopyRoles(this.roleConfig)
                     this.defaultRoles = Array.from(this.roles)
-                    this.$toasted.success('Course roles succesfully updated.')
                     this.checkPermission()
+                    this.$nextTick(function () {
+                        this.isChanged = false
+                    })
                 })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         formatPermissionString (str) {
             /* Converts underscores to spaces and capatilises the first letter. */
@@ -175,13 +188,11 @@ export default {
             if (confirm('Are you sure you want to delete the role "' + role + '" from this course?')) {
                 if (this.defaultRoles.includes(role)) {
                     /* handle server update. */
-                    roleAPI.delete(this.cID, role)
+                    roleAPI.delete(this.cID, role, {customSuccessToast: 'Role deleted successfully!'})
                         .then(_ => {
                             this.deleteRoleLocalConfig(role)
                             this.deleteRoleServerLoadedConfig(role)
-                            this.$toasted.success('Role deleted succesfully!')
                         })
-                        .catch(error => this.$toasted.error(error.response.data.description))
                 } else {
                     this.deleteRoleLocalConfig(role)
                 }
@@ -205,7 +216,6 @@ export default {
                     this.$store.commit('user/UPDATE_PERMISSIONS', { permissions: coursePermissions, key: 'course' + this.cID })
                     if (!this.$hasPermission('can_edit_course_roles')) { this.$router.push({ name: 'Home' }) }
                 })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         checkChanged () {
             for (var i = 0; i < this.roleConfig.length; i++) {
@@ -236,8 +246,11 @@ export default {
                 this.permissions.splice(this.permissions.indexOf('course'), 1)
 
                 this.originalRoleConfig = this.deepCopyRoles(roleConfig)
+
+                this.$nextTick(function () {
+                    this.setRoleConfig = true
+                })
             })
-            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     components: {
         'content-single-table-column': contentSingleTableColumn,

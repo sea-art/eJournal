@@ -1,5 +1,5 @@
 <template>
-    <input type="checkbox" v-model="checked" @click="checkboxToggle">
+    <b-form-checkbox v-model="checked" @click.native="checkboxToggle"/>
 </template>
 
 <script>
@@ -32,3 +32,8 @@ export default {
     }
 }
 </script>
+
+<style lang="sass">
+.custom-checkbox
+    margin-right: 0px
+</style>

@@ -139,7 +139,6 @@ export default {
                 this.convertFromDB()
             })
             .then(_ => { this.isChanged = false })
-            .catch(error => { this.$toasted.error(error.response.data.description) })
 
         window.addEventListener('beforeunload', e => {
             if (this.$route.name === 'FormatEdit' && this.isChanged) {
@@ -186,6 +185,7 @@ export default {
                         'type': 'rt',
                         'title': 'Entry',
                         'description': '',
+                        'options': null,
                         'location': 0,
                         'required': true
                     }],
@@ -310,18 +310,16 @@ export default {
                 'unused_templates': this.unusedTemplates,
                 'removed_templates': this.deletedTemplates,
                 'removed_presets': this.deletedPresets
-            })
+            }, {customSuccessToast: 'New format saved'})
                 .then(data => {
                     this.saveFromDB(data)
                     this.convertFromDB()
-                    this.isChanged = false
                     this.saveRequestInFlight = false
-                    this.$toasted.success('New format saved')
+                    this.$nextTick(function () {
+                        this.isChanged = false
+                    })
                 })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
-        },
-        customisePage () {
-            this.$toasted.info('Wishlist: Customise page')
+                .catch(_ => { this.saveRequestInFlight = false })
         },
         saveFromDB (data) {
             this.assignmentDetails = data.assignment_details
