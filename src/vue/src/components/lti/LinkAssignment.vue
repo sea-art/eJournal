@@ -30,7 +30,6 @@ export default {
         loadAssignments () {
             assignmentAPI.getAllFromCourse(this.page.cID)
                 .then(assignments => { this.assignments = assignments })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         linkAssignment (aID, aLtiCouples) {
             if (!aLtiCouples || confirm('This assignment is already linked to ' + aLtiCouples + ' other assignment(s) from the learning-environment, are you sure you also want to link it?')) {
@@ -42,7 +41,6 @@ export default {
                     lock_date: this.lti.ltiAssignLock ? this.lti.ltiAssignLock.slice(0, -6) : null,
                     published: true})
                     .then(assignment => { this.$emit('handleAction', assignment.id) })
-                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         }
     },
