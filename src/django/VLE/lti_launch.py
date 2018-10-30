@@ -38,19 +38,13 @@ class OAuthRequestValidater(object):
         Checks if the signature of the given request is valid based on the
         consumers secret en key
         """
-        try:
-            method, url, head, param = self.parse_request(request)
+        method, url, head, param = self.parse_request(request)
 
-            oauth_request = oauth2.Request.from_request(
-                method, url, headers=head, parameters=param)
+        oauth_request = oauth2.Request.from_request(
+            method, url, headers=head, parameters=param)
 
-            self.oauth_server.verify_request(oauth_request,
-                                             self.oauth_consumer, {})
-
-        except (oauth2.Error, ValueError) as err:
-            return False, err
-        # Signature was valid
-        return True, None
+        self.oauth_server.verify_request(oauth_request,
+                                         self.oauth_consumer, {})
 
     @classmethod
     def check_signature(cls, key, secret, request):
@@ -59,7 +53,7 @@ class OAuthRequestValidater(object):
         https://github.com/simplegeo/python-oauth2.
         """
         validator = OAuthRequestValidater(key, secret)
-        return validator.is_valid(request)
+        validator.is_valid(request)
 
 
 def roles_to_list(params):

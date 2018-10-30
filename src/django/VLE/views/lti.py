@@ -2,6 +2,7 @@ import datetime
 import enum
 
 import jwt
+import oauth2
 from django.conf import settings
 from django.http import QueryDict
 from django.shortcuts import redirect
@@ -138,34 +139,34 @@ def lti_launch(request):
     secret = settings.LTI_SECRET
     key = settings.LTI_KEY
 
-    authenticated, err = lti.OAuthRequestValidater.check_signature(key, secret, request)
+    try:
+        lti.OAuthRequestValidater.check_signature(key, secret, request)
+    except (oauth2.Error, ValueError) as err:
+        return redirect(lti.create_lti_query_link(QueryDict.fromkeys(['state'], LTI_STATES.BAD_AUTH.value)))
 
-    if authenticated:
-        params = request.POST.dict()
+    params = request.POST.dict()
 
-        user = lti.check_user_lti(params)
+    user = lti.check_user_lti(params)
 
-        params['exp'] = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
-        lti_params = encode_lti_params(params)
+    params['exp'] = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
+    lti_params = encode_lti_params(params)
 
-        try:
-            if user is None:
-                query = QueryDict(mutable=True)
-                query['state'] = LTI_STATES.NO_USER.value
-                query['lti_params'] = lti_params
-                query['username'] = params['custom_username']
-                return redirect(lti.create_lti_query_link(query))
-
-            refresh = TokenObtainPairSerializer.get_token(user)
-            query = QueryDict.fromkeys(['lti_params'], lti_params, mutable=True)
-            query['jwt_access'] = str(refresh.access_token)
-            query['jwt_refresh'] = str(refresh)
-            query['state'] = LTI_STATES.LOGGED_IN.value
-        except KeyError as err:
-            query = QueryDict.fromkeys(['state'], LTI_STATES.KEY_ERR.value, mutable=True)
-            query['description'] = 'The request is missing the following parameter: {0}.'.format(err)
+    try:
+        if user is None:
+            query = QueryDict(mutable=True)
+            query['state'] = LTI_STATES.NO_USER.value
+            query['lti_params'] = lti_params
+            query['username'] = params['custom_username']
             return redirect(lti.create_lti_query_link(query))
 
+        refresh = TokenObtainPairSerializer.get_token(user)
+        query = QueryDict.fromkeys(['lti_params'], lti_params, mutable=True)
+        query['jwt_access'] = str(refresh.access_token)
+        query['jwt_refresh'] = str(refresh)
+        query['state'] = LTI_STATES.LOGGED_IN.value
+    except KeyError as err:
+        query = QueryDict.fromkeys(['state'], LTI_STATES.KEY_ERR.value, mutable=True)
+        query['description'] = 'The request is missing the following parameter: {0}.'.format(err)
         return redirect(lti.create_lti_query_link(query))
 
-    return redirect(lti.create_lti_query_link(QueryDict.fromkeys(['state'], LTI_STATES.BAD_AUTH.value)))
+    return redirect(lti.create_lti_query_link(query))

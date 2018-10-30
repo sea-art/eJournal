@@ -39,7 +39,8 @@ export default {
                     is_published: this.lti.ltiAssignPublished,
                     unlock_date: this.lti.ltiAssignUnlock ? this.lti.ltiAssignUnlock.slice(0, -6) : null,
                     due_date: this.lti.ltiAssignDue ? this.lti.ltiAssignDue.slice(0, -6) : null,
-                    lock_date: this.lti.ltiAssignLock ? this.lti.ltiAssignLock.slice(0, -6) : null})
+                    lock_date: this.lti.ltiAssignLock ? this.lti.ltiAssignLock.slice(0, -6) : null,
+                    published: true})
                     .then(assignment => { this.$emit('handleAction', assignment.id) })
                     .catch(error => { this.$toasted.error(error.response.data.description) })
             }
