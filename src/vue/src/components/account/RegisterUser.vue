@@ -54,11 +54,7 @@ export default {
         onSubmit () {
             if (this.lti) {
                 this.form.username = this.lti.username
-                // this.form.firstname = this.lti.firstname
-                // this.form.lastname = this.lti.lastname
-                // this.form.email = this.lti.email
                 this.form.ltiJWT = this.lti.ltiJWT
-                console.log('tester')
             }
 
             if (validation.validatePassword(this.form.password, this.form.password2) && (this.lti || validation.validateEmail(this.form.email))) {
