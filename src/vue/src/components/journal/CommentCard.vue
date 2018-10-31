@@ -20,10 +20,10 @@
                         <div v-html="comment.text"/>
                         <hr class="full-width"/>
                         <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b>
-                        <span v-if="comment.published && !comment.last_edited" class="timestamp">
-                            {{ $root.beautifyDate(comment.timestamp) }}<br/>
+                        <span v-if="comment.published && $root.beautifyDate(comment.last_edited) === $root.beautifyDate(comment.creation_date)" class="timestamp">
+                            {{ $root.beautifyDate(comment.creation_date) }}<br/>
                         </span>
-                        <span v-else-if="comment.published && comment.last_edited" class="timestamp">
+                        <span v-else-if="comment.published" class="timestamp">
                             Last edited: {{ $root.beautifyDate(comment.last_edited) }}<br/>
                         </span>
                         <span v-else class="timestamp">
@@ -125,14 +125,10 @@ export default {
                         this.editCommentTemp.push('')
                     }
                 })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         getComments () {
             commentAPI.getFromEntry(this.eID)
-                .then(comments => {
-                    this.commentObject = comments
-                })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
+                .then(comments => { this.commentObject = comments })
         },
         addComment () {
             if (this.tempComment !== '') {
@@ -150,7 +146,6 @@ export default {
                         this.tempComment = ''
                         this.$refs['comment-text-editor-ref'].clearContent()
                     })
-                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         },
         editCommentView (index, status, text) {
@@ -167,7 +162,6 @@ export default {
                 text: this.editCommentTemp[index]
             })
                 .then(comment => { this.$set(this.commentObject, index, comment) })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         deleteComment (cID) {
             if (confirm('Are you sure you want to delete this comment?')) {
@@ -183,7 +177,6 @@ export default {
                             this.editCommentTemp.push('')
                         }
                     })
-                    .catch(error => { this.$toasted.error(error.response.data.description) })
             }
         }
     }

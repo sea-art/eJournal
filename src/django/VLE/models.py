@@ -9,9 +9,11 @@ from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.dispatch import receiver
+from django.utils import timezone
 from django.utils.timezone import now
 
 import VLE.permissions as permissions
+from VLE.utils import sanitization
 from VLE.utils.error_handling import (VLEParticipationError,
                                       VLEPermissionError, VLEProgrammingError,
                                       VLEUnverifiedEmailError)
@@ -57,9 +59,6 @@ class UserFile(models.Model):
         on_delete=models.CASCADE,
         null=False
     )
-    creation_date = models.DateTimeField(
-        auto_now_add=True
-    )
     content_type = models.TextField(
         null=False
     )
@@ -83,6 +82,15 @@ class UserFile(models.Model):
         on_delete=models.CASCADE,
         null=True
     )
+    creation_date = models.DateTimeField(editable=False)
+    last_edited = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.creation_date = timezone.now()
+        self.last_edited = timezone.now()
+
+        return super(UserFile, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
         self.file.delete()
@@ -420,6 +428,11 @@ class Assignment(models.Model):
     def is_due(self):
         return self.due_date and self.due_date < now()
 
+    def save(self, *args, **kwargs):
+        self.description = sanitization.strip_script_tags(self.description)
+
+        return super(Assignment, self).save(*args, **kwargs)
+
     def __str__(self):
         """toString."""
         return self.name + " (" + str(self.id) + ")"
@@ -621,7 +634,7 @@ class Entry(models.Model):
 
     An Entry has the following features:
     - journal: a foreign key linked to an Journal.
-    - createdate: the date and time when the entry was posted.
+    - creation_date: the date and time when the entry was posted.
     - grade: grade the entry has
     - published: if its a published grade or not
     - last_edited: when the etry was last edited
@@ -633,9 +646,6 @@ class Entry(models.Model):
         on_delete=models.SET_NULL,
         null=True,
     )
-    createdate = models.DateTimeField(
-        default=now,
-    )
     grade = models.FloatField(
         default=None,
         null=True,
@@ -643,13 +653,18 @@ class Entry(models.Model):
     published = models.BooleanField(
         default=False
     )
-    last_edited = models.DateTimeField(
-        default=None,
-        null=True
-    )
+    creation_date = models.DateTimeField(editable=False)
+    last_edited = models.DateTimeField()
 
     def is_due(self):
         return (self.node.preset and self.node.preset.is_due()) or self.node.journal.assignment.is_due()
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.creation_date = timezone.now()
+        self.last_edited = timezone.now()
+
+        return super(Entry, self).save(*args, **kwargs)
 
     def __str__(self):
         """toString."""
@@ -760,6 +775,11 @@ class Content(models.Model):
         null=True
     )
 
+    def save(self, *args, **kwargs):
+        self.data = sanitization.strip_script_tags(self.data)
+
+        return super(Content, self).save(*args, **kwargs)
+
 
 class Comment(models.Model):
     """Comment.
@@ -778,14 +798,18 @@ class Comment(models.Model):
         null=True
     )
     text = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
     published = models.BooleanField(
         default=True
     )
-    last_edited = models.DateTimeField(
-        default=None,
-        null=True
-    )
+    creation_date = models.DateTimeField(editable=False)
+    last_edited = models.DateTimeField()
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.creation_date = timezone.now()
+        self.last_edited = timezone.now()
+        self.text = sanitization.strip_script_tags(self.text)
+        return super(Comment, self).save(*args, **kwargs)
 
 
 class Lti_ids(models.Model):
