@@ -52,6 +52,8 @@ export default {
     computed: {
         computedDeadlines: function () {
             var counter = 0
+            var dateNow = new Date()
+
             function compareDate (a, b) {
                 return new Date(a.deadline) - new Date(b.deadline)
             }
@@ -66,16 +68,22 @@ export default {
                 return (++counter <= 5)
             }
 
-            function filterNoEntries (deadline) {
-                return deadline.totalNeedsMarking !== 0
+            function filterNoEntries (assignment) {
+                return assignment.totalNeedsMarking !== 0
             }
 
+            function filterExpired (assignment) {
+                var dateAssignment = new Date(assignment.deadline.replace(/-/g, '/').replace('T', ' '))
+                return dateNow < dateAssignment
+            }
+
+            var deadlines = this.deadlines.slice().filter(filterExpired)
             if (this.selectedSortOption === 'sortDate') {
-                return this.deadlines.slice().sort(compareDate).filter(filterTop)
+                return deadlines.sort(compareDate).filter(filterTop)
             } else if (this.selectedSortOption === 'sortNeedsMarking') {
-                return this.deadlines.slice().sort(compareMarkingNeeded).filter(filterTop).filter(filterNoEntries)
+                return deadlines.sort(compareMarkingNeeded).filter(filterTop).filter(filterNoEntries)
             } else {
-                return this.deadlines.slice().sort(compareDate).filter(filterTop)
+                return deadlines.sort(compareDate).filter(filterTop)
             }
         }
     }
