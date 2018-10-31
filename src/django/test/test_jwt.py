@@ -3,13 +3,13 @@ test_jwt.py.
 
 Test if the JWT token system works.
 """
+import test.test_utils as test
+
 from django.contrib import auth
 from django.test import TestCase
 from django.urls import reverse
 
 from VLE.models import User
-
-import test.test_utils as test
 
 
 class JWTTests(TestCase):
@@ -34,7 +34,7 @@ class JWTTests(TestCase):
 
     def test_anonymous(self):
         """Test simple anonymous access."""
-        result = self.client.get(reverse('get_user_courses'), {}, format='json')
+        result = self.client.get('/courses/', {}, format='json')
 
         self.assertEquals(result.status_code, 401)
 
@@ -44,7 +44,7 @@ class JWTTests(TestCase):
                                   {'username': self.username,
                                    'password': self.password}, format='json')
 
-        result = self.client.get(reverse('get_user_courses'), {},
+        result = self.client.get('/courses/', {},
                                  HTTP_AUTHORIZATION='Bearer {0}'.format(result.json()['access']))
 
         self.assertEquals(result.status_code, 200)

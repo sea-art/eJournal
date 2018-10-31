@@ -1,7 +1,6 @@
 <template>
-    <!-- TODO Permission revision should be if can_grade -->
-    <journal-non-student v-if="$hasPermission('can_view_assignment_participants')" :cID="cID" :aID="aID" :jID="jID"/>
-    <journal-student v-else-if="$hasPermission('can_edit_journal')" :cID="cID" :aID="aID" :jID="jID"/>
+    <journal-non-student v-if="$hasPermission('can_grade')" ref="journal-non-student-ref" :cID="cID" :aID="aID" :jID="jID"/>
+    <journal-student v-else-if="$hasPermission('can_have_journal')" ref="journal-student-ref" :cID="cID" :aID="aID" :jID="jID"/>
 </template>
 
 <script>
@@ -13,20 +12,28 @@ import breadCrumb from '@/components/assets/BreadCrumb.vue'
 export default {
     name: 'Journal',
     props: ['cID', 'aID', 'jID'],
-    methods: {
-        customisePage () {
-            this.$toasted.info('Wishlist: Customise page')
-        }
-    },
     components: {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'journal-student': journalStudent,
         'journal-non-student': journalNonStudent
+    },
+    beforeRouteLeave (to, from, next) {
+        if (this.$hasPermission('can_have_journal') && !this.$refs['journal-student-ref'].discardChanges()) {
+            next(false)
+            return
+        }
+
+        if (this.$hasPermission('can_grade') && !this.$refs['journal-non-student-ref'].discardChanges()) {
+            next(false)
+            return
+        }
+
+        next()
     }
 }
 </script>
 
 <style lang="sass">
-@import '~sass/partials/edag-page-layout.sass'
+@import '~sass/partials/timeline-page-layout.sass'
 </style>

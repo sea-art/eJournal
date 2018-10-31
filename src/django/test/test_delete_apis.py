@@ -1,10 +1,10 @@
-from django.test import TestCase
+import test.test_utils as test
 
-from VLE.models import Course, Assignment, Role
+from django.test import TestCase
 
 import VLE.factory as factory
 import VLE.serializers as serialize
-import test.test_utils as test
+from VLE.models import Assignment, Course, Role
 
 
 class DeleteApiTests(TestCase):
@@ -23,7 +23,7 @@ class DeleteApiTests(TestCase):
         role = factory.make_role_default_no_perms("teacher", bb, can_delete_course=True)
         factory.make_participation(user=self.user, course=bb, role=role)
 
-        test.api_post_call(self, '/delete_course/', {'cID':  bb.pk}, login)
+        test.api_del_call(self, '/courses/' + str(bb.pk) + '/', login)
 
         self.assertEquals(Course.objects.filter(name="Beeldbewerken").count(), 1)
         self.assertEquals(Course.objects.filter(name="Portfolio Academische Vaardigheden").count(), 1)
@@ -37,13 +37,14 @@ class DeleteApiTests(TestCase):
         rein = factory.make_user("Rein", "123", "r@r.com")
         lars = factory.make_user("Lars", "123", "l@l.com")
 
-        factory.make_participation(rein, course)
-        factory.make_participation(lars, course)
+        role = factory.make_role_default_no_perms("test", course)
+        factory.make_participation(rein, course, role=role)
+        factory.make_participation(lars, course, role=role)
 
-        test.api_post_call(self,
-                           '/delete_user_from_course/',
-                           {'cID': course.pk, 'uID': rein.user_role.pk},
-                           login)
+        test.api_del_call(self,
+                          '/participations/' + str(course.pk) + '/',
+                          {'user_id': rein.user_role.pk},
+                          login)
 
         participations = course.participation_set.all()
         participations = [serialize.participation_to_dict(participation)
@@ -75,12 +76,29 @@ class DeleteApiTests(TestCase):
         assign1.courses.add(course2)
         assign2.courses.add(course1)
 
-        test.api_post_call(self, '/delete_assignment/', {'cID': 1, 'aID': 1}, login)
+        test.api_del_call(self, '/assignments/' + str(assign1.pk) + '/?course_id=1', login)
         assignment = Assignment.objects.get(pk=1)
         self.assertEquals(assignment.courses.count(), 2)
 
-        test.api_post_call(self, '/delete_assignment/', {'cID': 2, 'aID': 1}, login)
+        test.api_del_call(self, '/assignments/1/?course_id=1', login)
         self.assertEquals(Assignment.objects.filter(pk=1).count(), 1)
+
+    def test_delete_group(self):
+        """test create group."""
+        login = test.logging_in(self, self.username, self.password)
+        course = factory.make_course("Portfolio Academische Vaardigheden", "PAV")
+        role = factory.make_role_default_no_perms("teacher",
+                                                  course,
+                                                  can_add_course_user_group=True,
+                                                  can_delete_course_user_group=True)
+
+        factory.make_participation(user=self.user, course=course, role=role)
+        factory.make_course_group('group1', course)
+        factory.make_course_group('group2', course)
+
+        test.api_del_call(self,
+                          '/groups/' + str(course.pk) + '/?group_name=group1',
+                          login)
 
     def test_delete_course_role(self):
         """Test delete course roles"""
@@ -91,6 +109,7 @@ class DeleteApiTests(TestCase):
         factory.make_participation(teacher, self.course, teacher_role)
         factory.make_role_ta('TA2', self.course)
         login = test.logging_in(self, teacher_user, teacher_pass)
-        test.api_post_call(self, '/delete_course_role/', {'cID': 1, 'name': 'TA2'}, login)
+        test.api_del_call(
+            self, '/roles/' + str(self.course.pk) + '/?name=TA2', login)
 
         self.assertEquals(Role.objects.filter(name='TA2', course=Course.objects.get(pk=1)).count(), 0)

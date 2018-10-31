@@ -1,0 +1,47 @@
+@import '~sass/modules/colors.sass'
+@import '~sass/modules/breakpoints.sass'
+
+.left-content-timeline-page
+    padding: 0px
+    @include lg-max
+        background-color: $theme-medium-grey
+        padding-top: 30px
+    @include xl
+        height: 100%
+        overflow: hidden
+    @include lg-max
+        padding-top: 30px
+
+.main-content-timeline-page
+    background-color: $theme-medium-grey
+    padding: 30px 0px 0px 0px
+    flex-grow: 1
+    @include xl
+        height: 100%
+        overflow-y: auto
+        overflow-x: hidden
+    @include md-max
+        margin-bottom: 30px
+
+.right-content-timeline-page
+    @include xl
+        height: 100%
+        overflow-y: auto
+        overflow-x: hidden
+    @include lg
+        padding: 30px 30px 0 30px !important
+
+.outer-container-timeline-page
+    @include xl
+        height: 100%
+        overflow: hidden
+
+.inner-container-timeline-page
+    display: flex
+    height: 100%
+    flex-direction: row
+    flex-wrap: wrap
+    @include lg
+        flex-direction: column
+    @include xl
+        flex-direction: row

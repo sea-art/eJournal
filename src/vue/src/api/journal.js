@@ -1,67 +1,33 @@
 import auth from '@/api/auth'
 
 export default {
-    /* Get assignment journals.
-     * Requests all the assignment journals.
-     * returns a list of all journals.
-     */
-    get_assignment_journals (aID) {
-        return auth.authenticatedGet('/get_assignment_journals/' + aID + '/')
+    get (id, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.get('journals/' + id, null, connArgs)
+            .then(response => response.data.journal)
+    },
+
+    create (data, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.create('journals', data, connArgs)
+            .then(response => response.data.journal)
+    },
+
+    update (id, data, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.update('journals/' + id, data, connArgs)
+            .then(response => response.data.journal)
+    },
+
+    delete (id, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.delete('journals/' + id, null, connArgs)
             .then(response => response.data)
     },
 
-    get_journal (jID) {
-        return auth.authenticatedGet('/get_journal/' + jID + '/')
-            .then(response => response.data)
+    getNodes (id, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.get('nodes', {journal_id: id}, connArgs)
+            .then(response => response.data.nodes)
     },
 
-    get_nodes (jID) {
-        return auth.authenticatedGet('/get_nodes/' + jID + '/')
-            .then(response => response.data)
-    },
-
-    create_entry (jID, tID, content, nID = undefined) {
-        var data = {tID: tID, jID: jID, content: content}
-        if (nID) {
-            data.nID = nID
-        }
-
-        return auth.authenticatedPost('/create_entry/', data)
-            .then(response => response.data)
-    },
-
-    create_template (name, fields) {
-        return auth.authenticatedPost('/create_template/', {name: name, fields: fields})
-            .then(response => response.data)
-    },
-
-    get_format (aID) {
-        return auth.authenticatedGet('/get_format/' + aID + '/')
-            .then(response => response.data)
-    },
-
-    update_format (aID, templates, maxPoints, presets, unusedTemplates, removedTemplates, removedPresets) {
-        return auth.authenticatedPost('/update_format/', {aID: aID, templates: templates, max_points: maxPoints, presets: presets, unused_templates: unusedTemplates, removed_templates: removedTemplates, removed_presets: removedPresets})
-            .then(response => response.data)
-    },
-
-    update_grade_entry (eID, grade, published) {
-        return auth.authenticatedPost('/update_grade_entry/', {eID: eID, grade: grade, published: published})
-            .then(response => response.data)
-    },
-
-    update_publish_grade_entry (eID, published) {
-        return auth.authenticatedPost('/update_publish_grade_entry/', {eID: eID, published: published})
-            .then(response => response.data)
-    },
-
-    update_publish_grades_assignment (aID, published) {
-        return auth.authenticatedPost('/update_publish_grades_assignment/', {aID: aID, published: published})
-            .then(response => response.data)
-    },
-
-    update_publish_grades_journal (jID, published) {
-        return auth.authenticatedPost('/update_publish_grades_journal/', {jID: jID, published: published})
-            .then(response => response.data)
+    getFromAssignment (cID, aID, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.get('journals', {course_id: cID, assignment_id: aID}, connArgs)
+            .then(response => response.data.journals)
     }
 }

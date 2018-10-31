@@ -1,13 +1,14 @@
-# Ignore user uploaded files
-/src/django/media/*
-
 /venv
 /build
 VLE.db
 npm-debug.log
+core
 /settings/*
 
 .vscode/*
+
+# Coverage
+.coverage
 
 # Created by https://www.gitignore.io/intellij
 

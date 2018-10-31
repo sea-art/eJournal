@@ -4,11 +4,11 @@
         class="fileinput"
         @change="fileHandler"
         :state="Boolean(file)"
-        :placeholder="placeholder"/>
+        :placeholder="placeholderText"/>
 </template>
 
 <script>
-import userAPI from '@/api/user.js'
+import userAPI from '@/api/user'
 
 export default {
     props: {
@@ -25,14 +25,19 @@ export default {
             String
         },
         autoUpload: {
-            default: false
+            required: true,
+            Boolean
         },
         placeholder: {
             default: 'Select a file.'
+        },
+        contentID: {
+            default: null
         }
     },
     data () {
         return {
+            placeholderText: 'Select a file.',
             file: null
         }
     },
@@ -55,24 +60,24 @@ export default {
         uploadFile () {
             let formData = new FormData()
             formData.append('file', this.file)
-            formData.append('aID', this.aID)
+            formData.append('assignment_id', this.aID)
+            formData.append('content_id', this.contentID)
 
-            userAPI.updateUserFile(formData)
+            userAPI.uploadUserFile(formData, {customSuccessToast: 'File upload success.'})
                 .then(_ => {
                     this.$emit('fileUploadSuccess', this.file.name)
-                    this.$toasted.success('File upload success.')
                 })
-                .catch(error => {
+                .catch(_ => {
                     this.$emit('fileUploadFailed', this.file.name)
-                    this.$toasted.error(error.response.data.description)
                     this.file = null
                 })
         }
     },
     created () {
         // Assume the given file is present in the backend
-        if (this.placeholder !== 'Select a file.') {
+        if (this.placeholder !== null && this.placeholder !== 'Select a file.') {
             this.file = true
+            this.placeholderText = this.placeholder
         }
     }
 }

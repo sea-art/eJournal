@@ -6,14 +6,14 @@
 <template>
     <div v-if="entryNode.entry !== null">
         <b-card class="entry-card no-hover entry-card-teacher" :class="$root.getBorderClass($route.params.cID)">
-            <div v-if="$hasPermission('can_grade_journal')" class="grade-section shadow">
-                <b-form-input class="theme-input" type="number" size="2" v-model="grade" placeholder="0" min=0></b-form-input>
-                <b-form-checkbox v-model="published" value=true unchecked-value=false data-toggle="tooltip" title="Show grade to student">
-                    Publish
+            <div v-if="$hasPermission('can_grade')" class="grade-section shadow sticky">
+                <b-form-input type="number" class="theme-input" step="0.01" size="2" v-model="grade" autofocus placeholder="0" min="0.0"/>
+                <b-form-checkbox v-model="published" fieldValue=true unchecked-fieldValue=false data-toggle="tooltip" title="Show grade to student">
+                    Published
                 </b-form-checkbox>
                 <b-button class="add-button" @click="commitGrade">
                     <icon name="save" scale="1"/>
-                    Save
+                    Save grade
                 </b-button>
             </div>
             <div v-else class="grade-section shadow">
@@ -24,48 +24,28 @@
                     <icon name="hourglass-half"/>
                 </span>
             </div>
-            <h2 class="mb-2">{{entryNode.entry.template.name}}</h2>
 
-            <div v-for="(field, i) in entryNode.entry.template.fields" class="entry-field" :key="field.eID">
-                <div v-if="field.title != ''">
-                    <b>{{ field.title }}</b>
-                </div>
-                <div v-if="field.type=='t'">
-                    <span class="show-enters">{{ completeContent[i].data }}</span><br>
-                </div>
-                <div v-else-if="field.type=='i'">
-                    <image-file-display
-                        :fileName="completeContent[i].data"
-                        :authorUID="$parent.journal.student.uID"
-                    />
-                </div>
-                <div v-else-if="field.type=='f'">
-                    <file-download-button
-                        :fileName="completeContent[i].data"
-                        :authorUID="$parent.journal.student.uID"
-                    />
-                </div>
-                <div v-else-if="field.type=='v'">
-                    <b-embed type="iframe"
-                             aspect="16by9"
-                             :src="completeContent[i].data"
-                             allowfullscreen
-                    ></b-embed><br>
-                </div>
-                <div v-else-if="field.type == 'p'">
-                    <pdf-display
-                        :fileName="completeContent[i].data"
-                        :authorUID="$parent.journal.student.uID"
-                    />
-                </div>
-                <div v-else-if="field.type == 'rt'" v-html="completeContent[i].data"/>
-                <div v-if="field.type == 'u'">
-                    <a :href="completeContent[i].data">{{ completeContent[i].data }}</a>
-                </div>
+            <h2 class="mb-2">{{ entryNode.entry.template.name }}</h2>
+            <entry-fields
+                :nodeID="entryNode.nID"
+                :template="entryNode.entry.template"
+                :completeContent="completeContent"
+                :displayMode="true"
+                :authorUID="$parent.journal.student.id"
+                :entryID="entryNode.entry.id"
+            />
+            <div>
+                <hr class="full-width"/>
+                <span class="timestamp" v-if="entryNode.entry.last_edited">
+                    Last edited: {{ $root.beautifyDate(entryNode.entry.last_edited) }}<br/>
+                </span>
+                <span class="timestamp" v-else>
+                    Submitted on: {{ $root.beautifyDate(entryNode.entry.creation_date) }}<br/>
+                </span>
             </div>
         </b-card>
 
-        <comment-card :eID="entryNode.entry.eID" :entryGradePublished="entryNode.entry.published"/>
+        <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published"/>
     </div>
     <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
         <h2 class="mb-2">{{entryNode.template.name}}</h2>
@@ -75,10 +55,8 @@
 
 <script>
 import commentCard from '@/components/journal/CommentCard.vue'
-import pdfDisplay from '@/components/assets/PdfDisplay.vue'
-import fileDownloadButton from '@/components/assets/file_handling/FileDownloadButton.vue'
-import imageFileDisplay from '@/components/assets/file_handling/ImageFileDisplay.vue'
-import journalApi from '@/api/journal.js'
+import entryFields from '@/components/entry/EntryFields.vue'
+import entryAPI from '@/api/entry'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
@@ -121,14 +99,15 @@ export default {
             var checkFound = false
 
             if (this.entryNode.entry !== null) {
-                for (var templateField of this.entryNode.entry.template.fields) {
+                for (var templateField of this.entryNode.entry.template.field_set) {
                     checkFound = false
 
                     for (var content of this.entryNode.entry.content) {
-                        if (content.tag === templateField.tag) {
+                        if (content.field === templateField.id) {
                             this.completeContent.push({
                                 data: content.data,
-                                tag: content.tag
+                                id: content.field,
+                                contentID: content.id
                             })
 
                             checkFound = true
@@ -139,7 +118,7 @@ export default {
                     if (!checkFound) {
                         this.completeContent.push({
                             data: null,
-                            tag: templateField.tag
+                            id: templateField.id
                         })
                     }
                 }
@@ -148,33 +127,37 @@ export default {
         commitGrade () {
             if (this.grade !== null) {
                 this.tempNode.entry.grade = this.grade
-                this.tempNode.entry.published = (this.published === 'true' || this.published === true)
+                this.tempNode.entry.published = this.published
 
-                if (this.published === 'true' || this.published === true) {
-                    journalApi.update_grade_entry(this.entryNode.entry.eID, this.grade, 1)
-                        .then(_ => {
-                            this.$toasted.success('Grade updated and published.')
-                            this.$emit('check-grade')
-                        })
-                        .catch(error => { this.$toasted.error(error.response.data.description) })
+                if (this.published) {
+                    entryAPI.update(this.entryNode.entry.id, {grade: this.grade, published: 1}, {customSuccessToast: 'Grade updated and published.'})
+                        .then(_ => { this.$emit('check-grade') })
                 } else {
-                    journalApi.update_grade_entry(this.entryNode.entry.eID,
-                        this.grade, 0)
-                        .then(_ => {
-                            this.$toasted.success('Grade updated but not published.')
-                            this.$emit('check-grade')
-                        })
-                        .catch(error => { this.$toasted.error(error.response.data.description) })
+                    entryAPI.update(this.entryNode.entry.id, {grade: this.grade, published: 0}, {customSuccessToast: 'Grade updated but not published.'})
+                        .then(_ => { this.$emit('check-grade') })
                 }
             }
         }
     },
     components: {
         'comment-card': commentCard,
-        'file-download-button': fileDownloadButton,
-        'pdf-display': pdfDisplay,
-        'image-file-display': imageFileDisplay,
+        'entry-fields': entryFields,
         icon
     }
 }
 </script>
+<style lang="sass">
+@import '~sass/modules/colors.sass'
+.timestamp
+    float: right
+    font-family: 'Roboto Condensed', sans-serif
+    color: grey
+    svg
+        fill: grey
+
+hr
+    width: 120%
+    margin-left: -10px !important
+    border-color: $theme-dark-grey
+    margin: 30px 0px 5px 0px
+</style>

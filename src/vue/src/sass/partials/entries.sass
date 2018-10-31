@@ -1,4 +1,4 @@
-.grade-section,
+.grade-section
     width: 3em
     height: 3em
     background-color: white
@@ -9,27 +9,46 @@
     align-items: center
     flex-wrap: wrap
     margin: 0px 0px 10px 0px
-    .theme-input, span
+    .theme-input, span, .theme-input:hover:not(.no-hover), .theme-input:focus
         width: 3em
         display: inline-block
-        border: 0px
+        box-shadow: none
+        border: none !important
         margin: 0px
         padding: 0px !important
         font-family: 'Roboto', sans-serif
         font-weight: bold
         font-size: 1.5em
-        text-align: center
-    .custom-checkbos:checked
-        background-color: red !important
+        text-align: right
+    .grade
+        font-weight: normal
     .btn
         border-top: 1px solid $theme-dark-grey
         flex-basis: 100%
     .entry-field
         clear: both
+    &.sticky
+        position: sticky
+        top: 10px
 
 .entry-card-teacher
     .grade-section
-        width: 30%
+        width: 35%
         height: auto
         @include xs-max
             width: 50%
+        .custom-checkbox
+            margin: auto
+
+
+hr.full-width
+    width: 120%
+    margin-left: -10px !important
+    border-color: $theme-dark-grey
+    margin: 30px 0px 5px 0px
+.timestamp
+    float: right
+    font-family: 'Roboto Condensed', sans-serif
+    color: grey
+    svg
+    fill: grey

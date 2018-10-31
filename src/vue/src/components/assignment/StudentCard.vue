@@ -1,17 +1,20 @@
 <template>
     <b-card :class="$root.getBorderClass($route.params.cID)">
-        <b-row>
-            <b-col order="1" cols="4">
-                <img class="img-fluid student-card-portrait" :src="student.picture">
+        <b-row no-gutters class="multi-form">
+            <b-col order="1" cols="3" class="d-flex align-items-center">
+                <img class="student-card-portrait" :src="student.profile_picture">
             </b-col>
-            <b-col order="2" cols="8">
+            <b-col order="2" cols="9" class="pl-3">
                 <todo-square v-if="numMarkingNeeded > 0 && !hideTodo" class="float-right" :num="numMarkingNeeded"/>
-                <b>{{ student.first_name + ' ' + student.last_name }}</b><br/>
-                {{ student.username }}<br/><br/>
+                <b>{{ student.first_name + ' ' + student.last_name }}</b> <span v-if="student.group">({{ student.group }})</span> <br/>
+                {{ student.username }}
                 <progress-bar v-if="!fullWidthProgress || $root.mdMax()" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
             </b-col>
         </b-row>
-        <progress-bar v-if="fullWidthProgress && $root.lg()" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
+        <progress-bar v-if="fullWidthProgress && $root.lg()"
+                      :currentPoints="this.stats.acquired_points"
+                      :totalPoints="this.stats.total_points"
+                      :comparePoints="this.assignment && this.assignment.stats ? this.assignment.stats.average_points : -1"/>
     </b-card>
 </template>
 
@@ -34,6 +37,9 @@ export default {
         'fullWidthProgress': {
             type: Boolean,
             default: false
+        },
+        'assignment': {
+            required: false
         }
     },
     components: {
@@ -56,5 +62,5 @@ export default {
     border-radius: 50% !important
     display: block
     margin: auto
-    max-height: 150px
+    max-height: 100px
 </style>

@@ -9,19 +9,30 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
+import json
+
+import VLE.settings.email as email_config
+from VLE.settings.base import *
 
 SECRET_KEY = '@a4c3cpgfe0@8s!be=23d5+3e30vyj7!q%tolqpewafp^-@=br'
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'ejourn.al.trial@gmail.com'
-EMAIL_HOST_PASSWORD = 'M@@rten1523'
-EMAIL_PORT = 587
-
-from VLE.settings.base import *
+EMAIL_USE_TLS = email_config.EMAIL_USE_TLS
+EMAIL_HOST = email_config.EMAIL_HOST
+EMAIL_HOST_USER = email_config.EMAIL_HOST_USER
+EMAIL_HOST_PASSWORD = email_config.EMAIL_HOST_PASSWORD
+EMAIL_PORT = email_config.EMAIL_PORT
 
 LTI_SECRET = '4339900ae5861f3086861ea492772864'
 LTI_KEY = '0cd500938a8e7414ccd31899710c98ce'
+LTI_ROLE_CONFIG_PATH = BASE_DIR + '/../../lti/role_config.json'
+
+with open(LTI_ROLE_CONFIG_PATH) as role_config:
+    ROLES = json.load(role_config)
+    LTI_ROLES = dict((ROLES[k], k) for k in ROLES)
+
+USER_MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024
+USER_MAX_TOTAL_STORAGE_BYTES = 100 * 1024 * 1024
+USER_MAX_EMAIL_ATTACHMENT_BYTES = 10 * 1024 * 1024
 
 BASELINK = 'http://localhost:8080'
 CORS_ORIGIN_ALLOW_ALL = True

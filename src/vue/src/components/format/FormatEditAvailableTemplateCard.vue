@@ -4,24 +4,24 @@
 
 <template>
     <b-card :class="$root.getBorderClass($route.params.cID)">
-        <div class="float-right ml-2">
-            <b-button v-on:click.stop v-if="!template.available" @click="toggleActive" class="delete-button full-width">
-                <icon name="times"/>
-                Disabled
-            </b-button>
-            <b-button v-on:click.stop v-if="template.available" @click="toggleActive" class="add-button full-width">
-                <icon name="check"/>
-                Enabled
-            </b-button><br>
-            <b-button v-on:click.stop @click="emitDeleteTemplate" class="delete-button button-top-border full-width">
+        <div class="multi-form">
+            <icon name="edit" class="edit-template-icon"/>
+            <h2 class="field-heading">{{ template.t.name }}</h2>
+        </div>
+        <div class="d-flex">
+            <b-button v-on:click.stop @click="emitDeleteTemplate" class="delete-button flex-grow-1">
                 <icon name="trash"/>
                 Delete
             </b-button>
+            <b-button v-on:click.stop v-if="!template.available" @click="toggleActive" class="delete-button flex-grow-1">
+                <icon name="times"/>
+                Disabled
+            </b-button>
+            <b-button v-on:click.stop v-if="template.available" @click="toggleActive" class="add-button flex-grow-1">
+                <icon name="check"/>
+                Enabled
+            </b-button><br>
         </div>
-        <span>
-            <icon name="edit" class="edit-template-icon"/>
-            <b clas>{{ template.t.name }}</b>
-        </span>
     </b-card>
 </template>
 
@@ -37,7 +37,7 @@ export default {
     },
     methods: {
         emitDeleteTemplate () {
-            if (confirm('Are you sure you want to delete template "' + this.template + '" from this format?')) {
+            if (confirm('Are you sure you want to delete template "' + this.template.t.name + '" from this format?')) {
                 this.$emit('delete-template', this.template)
             }
         },
@@ -53,6 +53,7 @@ export default {
 
 <style lang="sass">
 .edit-template-icon
+    float: right
     position: relative
     top: 2px
 </style>

@@ -4,6 +4,7 @@ import createPersistedState from 'vuex-persistedstate'
 
 import user from './modules/user'
 import permissions from './modules/permissions'
+import connection from './modules/connection'
 
 Vue.use(Vuex)
 
@@ -15,7 +16,8 @@ plugins.push(createPersistedState({ paths: ['user', 'permissions'] }))
 export default new Vuex.Store({
     modules: {
         user,
-        permissions
+        permissions,
+        connection
     },
     strict: debug,
     plugins

@@ -1,14 +1,13 @@
 <template>
-    <b-button
-        @click="fileDownload">
+    <div @click="fileDownload" class="file-controls">
         <icon name="download"/>
-        {{ fileName }}
-    </b-button>
+        <i><span>{{ fileName }}</span></i>
+    </div>
 </template>
 
 <script>
 import icon from 'vue-awesome/components/Icon'
-import userAPI from '@/api/user.js'
+import userAPI from '@/api/user'
 
 export default {
     props: {
@@ -19,6 +18,18 @@ export default {
         authorUID: {
             required: true,
             String
+        },
+        entryID: {
+            required: true,
+            String
+        },
+        nodeID: {
+            required: true,
+            String
+        },
+        contentID: {
+            required: true,
+            String
         }
     },
     components: {
@@ -26,22 +37,31 @@ export default {
     },
     methods: {
         fileDownload (e) {
-            userAPI.getUserFile(this.fileName, this.authorUID)
+            userAPI.download(this.authorUID, this.fileName, this.entryID, this.nodeID, this.contentID)
                 .then(response => {
-                    let blob = new Blob([response.data], { type: response.headers['content-type'] })
-                    let link = document.createElement('a')
-                    link.href = window.URL.createObjectURL(blob)
-                    link.download = this.fileName
-                    document.body.appendChild(link)
-                    link.click()
-                    link.remove()
-                }, error => {
-                    this.$toasted.error(error.response.data.description)
-                })
-                .catch(_ => {
-                    this.$toasted.error('Error creating file.')
+                    try {
+                        let blob = new Blob([response.data], { type: response.headers['content-type'] })
+                        let link = document.createElement('a')
+                        link.href = window.URL.createObjectURL(blob)
+                        link.download = this.fileName
+                        document.body.appendChild(link)
+                        link.click()
+                        link.remove()
+                    } catch (_) {
+                        this.$toasted.error('Error creating file.')
+                    }
                 })
         }
     }
 }
 </script>
+
+<style lang="sass">
+.file-controls
+    &:hover
+        cursor: pointer
+    span
+        text-decoration: underline !important
+    svg
+        margin-bottom: -4px
+</style>

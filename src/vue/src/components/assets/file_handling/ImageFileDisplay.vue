@@ -1,17 +1,17 @@
 <template>
-    <div>
-        <h5>
-            {{ fileName }}
-            <icon v-if="!show" @click.native="handleDownload" name="eye" class="action-icon"/>
-            <icon v-if="show" @click.native="handleDownload" name="ban" class="crossed-icon"/>
-            <icon v-if="show && fileURL" @click.native="downloadLink.click()" name="save" class="action-icon"/>
-        </h5>
-        <img v-if="show && fileURL" :src="fileURL">
+    <div class="image-field">
+        <div class="image-controls mb-2 unselectable" @click="handleDownload">
+            <icon name="image"/>
+            <i><span>{{ fileName }}</span></i>
+        </div>
+        <transition name="fade">
+            <img :class="showImage" v-if="fileURL && show" :src="fileURL">
+        </transition>
     </div>
 </template>
 
 <script>
-import userAPI from '@/api/user.js'
+import userAPI from '@/api/user'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
@@ -26,6 +26,18 @@ export default {
         },
         display: {
             default: false
+        },
+        entryID: {
+            required: true,
+            String
+        },
+        nodeID: {
+            required: true,
+            String
+        },
+        contentID: {
+            required: true,
+            String
         }
     },
     components: {
@@ -34,8 +46,12 @@ export default {
     data () {
         return {
             show: false,
-            fileURL: null,
-            downloadLink: null
+            fileURL: null
+        }
+    },
+    computed: {
+        showImage () {
+            return this.show ? 'open' : 'closed'
         }
     },
     methods: {
@@ -47,20 +63,14 @@ export default {
             }
         },
         fileDownload () {
-            userAPI.getUserFile(this.fileName, this.authorUID)
+            userAPI.download(this.authorUID, this.fileName, this.entryID, this.nodeID, this.contentID)
                 .then(response => {
-                    let blob = new Blob([response.data], { type: response.headers['content-type'] })
-                    this.fileURL = window.URL.createObjectURL(blob)
-
-                    this.downloadLink = document.createElement('a')
-                    this.downloadLink.href = this.fileURL
-                    this.downloadLink.download = this.fileName
-                    document.body.appendChild(this.downloadLink)
-                }, error => {
-                    this.$toasted.error(error.response.data.description)
-                })
-                .catch(_ => {
-                    this.$toasted.error('Error creating file.')
+                    try {
+                        let blob = new Blob([response.data], { type: response.headers['content-type'] })
+                        this.fileURL = window.URL.createObjectURL(blob)
+                    } catch (_) {
+                        this.$toasted.error('Error creating file.')
+                    }
                 })
         }
     },
@@ -72,3 +82,25 @@ export default {
     destroy () { this.downloadLink.remove() }
 }
 </script>
+
+<style lang="sass">
+@import '~sass/modules/colors.sass'
+
+.closed
+    -webkit-transition: height, .6s linear
+
+.open
+    max-height: 100vh
+    -webkit-transition: height, .6s linear
+
+.image-field
+    img
+        display: inline
+    .image-controls
+        &:hover
+            cursor: pointer
+        span
+            text-decoration: underline !important
+        svg
+            margin-bottom: -2px
+</style>

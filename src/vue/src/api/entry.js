@@ -1,30 +1,28 @@
 import auth from '@/api/auth'
 
 export default {
-    /* Get entrycomments based on an eID. */
-    getEntryComments (eID) {
-        return auth.authenticatedGet('/get_entrycomments/' + eID + '/')
+    get (id, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.get('entries/' + id, null, connArgs)
+            .then(response => response.data.entry)
+    },
+
+    create (data, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.create('entries', data, connArgs)
             .then(response => response.data)
     },
-    /* Create Entry Comment with given text, author and entry.
-       Decide wether to publish straight away based on the current state
-       of the grade corresponding to the entry. */
-    createEntryComment (eID, uID, text, entryGradePublished, publishAfterGrade) {
-        return auth.authenticatedPost('/create_entrycomment/', {
-            eID: eID,
-            uID: uID,
-            text: text,
-            published: entryGradePublished || !publishAfterGrade
-        })
-            .then(response => response.data.comment)
+
+    update (id, data, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.update('entries/' + id, data, connArgs)
+            .then(response => response.data.entry)
     },
-    deleteEntryComment (ecID) {
-        return auth.authenticatedPost('/delete_entrycomment/', { ecID: ecID })
+
+    delete (id, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.delete('entries/' + id, null, connArgs)
             .then(response => response.data)
     },
-    /* Update Entry Comment with given text and EntryComment. */
-    updateEntryComments (ecID, text) {
-        return auth.authenticatedGet('/update_entrycomments/', { ecID: ecID, text: text })
-            .then(response => response.data)
+
+    publish (id, published = true, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.update('entries/' + id, {published: published}, connArgs)
+            .then(response => response.data.entry)
     }
 }

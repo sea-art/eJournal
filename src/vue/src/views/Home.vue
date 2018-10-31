@@ -1,19 +1,13 @@
 <template>
     <content-columns>
-        <bread-crumb
-            @eye-click="customisePage()"
-            @edit-click="showModal('editCourseRef')"
-            slot="main-content-column"
-            :currentPage="'Courses'">
-        </bread-crumb>
+        <bread-crumb slot="main-content-column" :currentPage="'Courses'" @edit-click="handleEdit()"/>
 
-        <div v-for="c in courses" :key="c.cID" slot="main-content-column">
-            <b-link :to="{name: 'Course', params: {cID: c.cID, courseName: c.name}}">
+        <div v-for="c in courses" :key="c.id" slot="main-content-column">
+            <b-link :to="{ name: 'Course', params: { cID: c.id, courseName: c.name } }">
                 <main-card
                     :line1="c.name"
-                    :line2="c.startdate.substring(0, 4) + '-' + c.enddate.substring(0, 4)"
-                    :class="$root.getBorderClass(c.cID)">
-                </main-card>
+                    :line2="c.startdate ? (c.startdate.substring(0, 4) + (c.enddate ? ' - ' + c.enddate.substring(0, 4) : '')) : ''"
+                    :color="$root.getBorderClass(c.id)" />
             </b-link>
         </div>
         <b-button v-if="$hasPermission('can_add_course')"
@@ -24,22 +18,8 @@
             Create New Course
         </b-button>
 
-        <h3 slot="right-content-column">Upcoming</h3>
-        <!-- TODO: This seems like an inappropriate permission check. Will have to be reconsidered in the rework. -->
-        <b-card v-if="$hasPermission('can_add_course')"
-                class="no-hover"
-                slot="right-content-column">
-            <b-form-select v-model="selectedSortOption" :select-size="1">
-                <option value="sortDate">Sort by date</option>
-                <option value="sortNeedsMarking">Sort by marking needed</option>
-            </b-form-select>
-        </b-card>
-
-        <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="assignmentRoute(d.cID, d.aID, d.jID)">
-                <todo-card :deadline="d"/>
-            </b-link>
-        </div>
+        <h3 slot="right-content-column">To Do</h3>
+        <deadline-deck slot="right-content-column" :deadlines="deadlines"/>
 
         <b-modal
             slot="main-content-column"
@@ -68,9 +48,12 @@ import mainCard from '@/components/assets/MainCard.vue'
 import todoCard from '@/components/assets/TodoCard.vue'
 import createCourse from '@/components/course/CreateCourse.vue'
 import editHome from '@/components/home/EditHome.vue'
+import deadlineDeck from '@/components/assets/DeadlineDeck.vue'
+
+import courseAPI from '@/api/course'
+import assignmentAPI from '@/api/assignment'
+
 import icon from 'vue-awesome/components/Icon'
-import course from '@/api/course'
-import assignmentApi from '@/api/assignment.js'
 
 export default {
     name: 'Home',
@@ -78,7 +61,6 @@ export default {
         return {
             intituteName: 'Universiteit van Amsterdam (UvA)',
             courses: [],
-            selectedSortOption: 'sortDate',
             deadlines: []
         }
     },
@@ -89,20 +71,19 @@ export default {
         'todo-card': todoCard,
         'create-course': createCourse,
         'edit-home': editHome,
+        'deadline-deck': deadlineDeck,
         icon
     },
     created () {
         this.loadCourses()
 
-        assignmentApi.get_upcoming_deadlines()
+        assignmentAPI.getUpcoming()
             .then(deadlines => { this.deadlines = deadlines })
-            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         loadCourses () {
-            course.get_user_courses()
+            courseAPI.getUserEnrolled()
                 .then(courses => { this.courses = courses })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
         },
         showModal (ref) {
             this.$refs[ref].show()
@@ -110,63 +91,15 @@ export default {
         handleConfirm (ref) {
             if (ref === 'createCourseRef') {
                 this.loadCourses()
-            } else if (ref === 'editCourseRef') {
-                // TODO: Handle edit assignment
             }
 
             this.hideModal(ref)
         },
+        handleEdit () {
+            // TODO: Open EditHome
+        },
         hideModal (ref) {
             this.$refs[ref].hide()
-        },
-        customisePage () {
-            this.$toasted.info('Wishlist: Customise page')
-        },
-        assignmentRoute (cID, aID, jID) {
-            var route = {
-                name: 'Assignment',
-                params: {
-                    cID: cID,
-                    aID: aID
-                }
-            }
-
-            if (jID) {
-                route.params.jID = jID
-            }
-
-            return route
-        }
-    },
-    computed: {
-        computedDeadlines: function () {
-            var counter = 0
-
-            function compareDate (a, b) {
-                return new Date(a.deadline.Date) - new Date(b.deadline.Date)
-            }
-
-            function compareMarkingNeeded (a, b) {
-                if (a.totalNeedsMarking > b.totalNeedsMarking) { return -1 }
-                if (a.totalNeedsMarking < b.totalNeedsMarking) { return 1 }
-                return 0
-            }
-
-            function filterTop () {
-                return (++counter <= 5)
-            }
-
-            function filterNoEntries (deadline) {
-                return deadline.totalNeedsMarking !== 0
-            }
-
-            if (this.selectedSortOption === 'sortDate') {
-                return this.deadlines.slice().sort(compareDate).filter(filterTop)
-            } else if (this.selectedSortOption === 'sortNeedsMarking') {
-                return this.deadlines.slice().sort(compareMarkingNeeded).filter(filterTop).filter(filterNoEntries)
-            } else {
-                return this.deadlines.slice().sort(compareDate).filter(filterTop)
-            }
         }
     }
 }

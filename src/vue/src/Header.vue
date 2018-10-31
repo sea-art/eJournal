@@ -1,6 +1,11 @@
 <template>
     <!-- Section visible if user logged in -->
-    <b-navbar v-if="loggedIn" id="header" toggleable="md" type="dark" fixed=top>
+    <b-navbar v-if="loggedIn" id="header" class="shadow" toggleable="md" type="dark" fixed=top>
+        <transition name="fade">
+            <div class="spinner small-shadow" v-if="openApiCalls">
+                <icon name="circle-o-notch" spin scale='1.3'/>
+            </div>
+        </transition>
         <b-navbar-brand :to="{ name: 'Home' }" class="brand-name"><span>e</span>Journal</b-navbar-brand>
 
         <b-navbar-toggle class="ml-auto mr-auto" target="nav-collapse" aria-expanded="false" aria-controls="nav-collapse">
@@ -22,13 +27,13 @@
         <b-navbar-nav class="ml-auto">
             <b-nav-dropdown no-caret right id="nav-dropdown-options">
                 <div class="profile-picture-container" slot="button-content">
-                    <img class="profile-picture" :src="profileImg">
+                    <img class="profile-picture-sm" :src="profileImg">
                 </div>
-                <b-button :to="{ name: 'Profile' }" class="multi-form">
+                <b-button :to="{ name: 'Profile' }">
                     <icon name="user"/>
                     &nbsp;Profile
                 </b-button>
-                <b-button :to="{ name: 'Logout' }">
+                <b-button :to="{ name: 'Logout' }" class="button-top-border">
                     <icon name="sign-out"/>
                     Log out
                 </b-button>
@@ -37,7 +42,12 @@
     </b-navbar>
 
     <!-- Section visible if user logged out -->
-    <b-navbar v-else id="header" toggleable="md" type="dark" fixed=top>
+    <b-navbar v-else id="header" class="shadow" toggleable="md" type="dark" fixed=top>
+        <transition name="fade">
+            <div class="spinner small-shadow" v-if="openApiCalls">
+                <icon name="circle-o-notch" spin scale='1.3'/>
+            </div>
+        </transition>
         <b-navbar-brand  :to="{ name: 'Guest' }" class="brand-name"><span>e</span>Journal</b-navbar-brand>
 
         <b-navbar-nav class="ml-auto">
@@ -45,11 +55,11 @@
                 <div class="profile-picture-container bg-white d-flex justify-content-center align-items-center" slot="button-content">
                     <icon name="user" scale="2.5"/>
                 </div>
-                <b-button class="multi-form" :to="{ name: 'Register' }">
+                <b-button :to="{ name: 'Register' }">
                     <icon name="user-plus"/>
                     Register
                 </b-button>
-                <b-button :to="{ name: 'Login' }">
+                <b-button :to="{ name: 'Login' }" class="button-top-border">
                     <icon name="sign-in"/>
                     Log in
                 </b-button>
@@ -68,13 +78,14 @@ export default {
     },
     data () {
         return {
-            defaultProfileImg: '../static/unknown-profile.png'
+            defaultProfileImg: '/static/unknown-profile.png'
         }
     },
     computed: {
         ...mapGetters({
             loggedIn: 'user/loggedIn',
-            profileImg: 'user/profilePicture'
+            profileImg: 'user/profilePicture',
+            openApiCalls: 'connection/checkOpenApiCalls'
         })
     }
 }
@@ -150,7 +161,7 @@ export default {
 .dropdown-menu
     background: $theme-dark-grey !important
     border: none !important
-    padding: 10px 5px
+    padding: 5px 5px
     margin-top: 10px
     .btn
         justify-content: left
@@ -158,4 +169,22 @@ export default {
             margin-left: 0px
     @include md-max
         margin-top: 70px
+
+.spinner
+    background: $theme-dark-grey
+    position: fixed
+    height: 28px
+    line-height: 24px
+    text-align: center
+    width: 45px
+    bottom: 0
+    margin-top: 10px
+    left: 0
+    font-size: 1.1rem!important
+    z-index: 9000
+    &.fade-enter-active, &.fade-leave-active
+        transition: opacity .5s
+    &.fade-enter, &.fade-leave-to
+        opacity: 0
+
 </style>

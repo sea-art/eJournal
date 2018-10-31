@@ -1,6 +1,7 @@
-# Remove migration files
-VLE/migrations
-static
+VLE/settings/email.py
+./static
+media
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

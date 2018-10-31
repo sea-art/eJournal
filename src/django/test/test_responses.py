@@ -3,12 +3,12 @@ test_responses.py
 
 This file tests whether all HTTP responses behave as required.
 """
+import json
+
+from django.http import JsonResponse
 from django.test import TestCase
 
-import VLE.views.responses as responses
-from django.http import JsonResponse
-
-import json
+import VLE.utils.responses as responses
 
 
 class ResponsesTests(TestCase):

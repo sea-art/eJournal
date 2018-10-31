@@ -1,18 +1,18 @@
 <template>
-    <div>
-        <b-form @submit.prevent="onSubmit" @reset.prevent="onReset" :v-model="form.ltiCourseID">
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.courseName" placeholder="Course name" required/>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" v-model="form.courseAbbr" maxlength="10" placeholder="Course Abbreviation (Max 10 letters)" required/>
+    <b-card class="no-hover">
+        <b-form @submit.prevent="onSubmit" @reset.prevent="onReset" :v-model="form.lti_id">
+            <h2 class="field-heading required">Course name</h2>
+            <b-input class="multi-form theme-input" v-model="form.name" placeholder="Course name"/>
+            <h2 class="field-heading required">Course abbreviation</h2>
+            <b-input class="multi-form theme-input" v-model="form.abbreviation" maxlength="10" placeholder="Course abbreviation (max 10 characters)"/>
             <b-row>
                 <b-col cols="6">
-                    <b-form-group label="From:">
-                        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input" v-model="form.courseStartdate" type="date" placeholder="From" required/>
-                    </b-form-group>
+                    <h2 class="field-heading required">From</h2>
+                    <flat-pickr class="multi-form multi-date-input theme-input full-width" v-model="form.startdate"/>
                 </b-col>
                 <b-col cols="6">
-                    <b-form-group label="To:">
-                        <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form multi-date-input theme-input" v-model="form.courseEnddate" type="date" placeholder="To" required/>
-                    </b-form-group>
+                    <h2 class="field-heading required">To</h2>
+                    <flat-pickr class="multi-form multi-date-input theme-input full-width" v-model="form.enddate"/>
                 </b-col>
             </b-row>
             <b-button class="float-left change-button" type="reset">
@@ -24,12 +24,14 @@
                 Create
             </b-button>
         </b-form>
-    </div>
+    </b-card>
 </template>
 
 <script>
-import courseApi from '@/api/course.js'
+import courseAPI from '@/api/course'
 import icon from 'vue-awesome/components/Icon'
+import genericUtils from '@/utils/generic_utils.js'
+import commonAPI from '@/api/common'
 
 export default {
     name: 'CreateCourse',
@@ -37,56 +39,47 @@ export default {
     data () {
         return {
             form: {
-                courseName: '',
-                courseAbbr: '',
-                courseStartdate: '',
-                courseEnddate: '',
-                ltiCourseID: ''
+                name: '',
+                abbreviation: '',
+                startdate: '',
+                enddate: '',
+                lti_id: ''
             }
         }
     },
     methods: {
+        formFilled () {
+            return this.form.name && this.form.abbreviation && this.form.startdate && this.form.enddate
+        },
         onSubmit () {
-            courseApi.create_new_course(this.form.courseName,
-                this.form.courseAbbr, this.form.courseStartdate,
-                this.form.courseEnddate,
-                this.form.ltiCourseID)
-                .then(course => {
-                    this.onReset(undefined)
-                    this.$emit('handleAction', course.cID)
-                })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
+            if (this.formFilled()) {
+                courseAPI.create(this.form)
+                    .then(course => {
+                        if (!this.lti) { // If we are here via LTI a full store update will take place anyway.
+                            commonAPI.getPermissions(course.id).then(coursePermissions => {
+                                this.$store.commit('user/UPDATE_PERMISSIONS', { permissions: coursePermissions, key: 'course' + course.id })
+                            })
+                        }
+                        this.$emit('handleAction', course.id)
+                    })
+            } else {
+                this.$toasted.error('One or more required fields are empty.')
+            }
         },
         onReset (evt) {
-            if (evt !== undefined) {
-                evt.preventDefault()
-            }
-
-            /* Reset our form values */
-            this.form.courseName = ''
-            this.form.courseAbbr = ''
-            this.form.courseStartdate = ''
-            this.form.courseEnddate = ''
-
-            /* Trick to reset/clear native browser form validation state */
-            this.show = false
-            this.$nextTick(() => { this.show = true })
-        },
-        yearOffset (startDate) {
-            let split = startDate.split('-')
-            let yearOff = parseInt(split[0]) + 1
-
-            split[0] = String(yearOff)
-            return split.join('-')
+            this.form.name = ''
+            this.form.abbreviation = ''
+            this.form.startdate = ''
+            this.form.enddate = ''
         }
     },
     mounted () {
         if (this.lti !== undefined) {
-            this.form.courseName = this.lti.ltiCourseName
-            this.form.courseAbbr = this.lti.ltiCourseAbbr
-            this.form.ltiCourseID = this.lti.ltiCourseID
-            this.form.courseStartdate = this.lti.ltiCourseStart.split(' ')[0]
-            this.form.courseEnddate = this.yearOffset(this.form.courseStartdate)
+            this.form.name = this.lti.ltiCourseName
+            this.form.abbreviation = this.lti.ltiCourseAbbr
+            this.form.lti_id = this.lti.ltiCourseID
+            this.form.startdate = this.lti.ltiCourseStart.split(' ')[0]
+            this.form.enddate = genericUtils.yearOffset(this.form.startdate)
         }
     },
     components: {

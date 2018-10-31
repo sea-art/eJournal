@@ -6,6 +6,7 @@ import axios from 'axios'
 import BootstrapVue from 'bootstrap-vue'
 import '../node_modules/bootstrap/dist/css/bootstrap.css'
 import '../node_modules/bootstrap-vue/dist/bootstrap-vue.css'
+import '../node_modules/flatpickr/dist/flatpickr.css'
 
 import 'vue-awesome/icons/eye'
 import 'vue-awesome/icons/caret-up'
@@ -15,11 +16,14 @@ import 'vue-awesome/icons/trash'
 import 'vue-awesome/icons/plus-square'
 import 'vue-awesome/icons/hourglass-half'
 import 'vue-awesome/icons/check'
+import 'vue-awesome/icons/asterisk'
 import 'vue-awesome/icons/times'
 import 'vue-awesome/icons/exclamation'
 import 'vue-awesome/icons/plus'
 import 'vue-awesome/icons/list-ul'
 import 'vue-awesome/icons/paper-plane'
+import 'vue-awesome/icons/paperclip'
+import 'vue-awesome/icons/image'
 import 'vue-awesome/icons/save'
 import 'vue-awesome/icons/upload'
 import 'vue-awesome/icons/download'
@@ -37,16 +41,32 @@ import 'vue-awesome/icons/sign-out'
 import 'vue-awesome/icons/ban'
 import 'vue-awesome/icons/link'
 import 'vue-awesome/icons/envelope'
+import 'vue-awesome/icons/flag'
+import 'vue-awesome/icons/flag-checkered'
 import 'vue-awesome/icons/home'
 import 'vue-awesome/icons/calendar'
+import 'vue-awesome/icons/key'
 import 'vue-awesome/icons/question'
-import 'vue-awesome/icons/spinner'
+import 'vue-awesome/icons/circle-o-notch'
+import 'vue-awesome/icons/sort'
+import 'vue-awesome/icons/align-left'
+import 'vue-awesome/icons/long-arrow-up'
+import 'vue-awesome/icons/long-arrow-down'
+import 'vue-awesome/icons/comments'
+import 'vue-awesome/icons/cog'
+import 'vue-awesome/icons/clock-o'
+import 'vue-awesome/icons/print'
+import 'vue-awesome/icons/github'
+import 'vue-awesome/icons/linkedin'
+import 'vue-awesome/icons/file'
 
 import Toasted from 'vue-toasted'
+import flatPickr from 'vue-flatpickr-component'
 
 Vue.config.productionTip = false
-Vue.use(Toasted, { position: 'bottom-right', duration: 4000 })
+Vue.use(Toasted, { position: 'top-center', duration: 4000 })
 Vue.use(BootstrapVue)
+Vue.use(flatPickr)
 
 /* Checks the store for for permissions according to the current route cID or aID. */
 Vue.prototype.$hasPermission = store.getters['permissions/hasPermission']
@@ -66,10 +86,15 @@ new Vue({
     store,
     components: { App },
     data: {
-        colors: ['pink-border', 'peach-border', 'blue-border'],
+        colors: ['pink-border', 'purple-border', 'yellow-border', 'blue-border'],
         previousPage: null,
         windowWidth: 0,
-        maxFileSizeBytes: 2097152
+        maxFileSizeBytes: 2097152,
+        maxEmailFileSizeBytes: 10485760,
+        flatPickrTimeConfig: {
+            enableTime: true,
+            time_24hr: true
+        }
     },
     mounted () {
         this.$nextTick(function () {
@@ -98,17 +123,25 @@ new Vue({
         getBorderClass (cID) {
             return this.colors[cID % this.colors.length]
         },
-        beautifyDate (date) {
+        beautifyDate (date, displayDate = true, displayTime = true) {
             if (!date) {
                 return ''
             }
-
             var year = date.substring(0, 4)
             var month = date.substring(5, 7)
             var day = date.substring(8, 10)
             var time = date.substring(11, 16)
-
-            return day + '-' + month + '-' + year + ' ' + time
+            var s = ''
+            if (displayDate) {
+                s += day + '-' + month + '-' + year
+            }
+            if (displayDate && displayTime) {
+                s += ' '
+            }
+            if (displayTime) {
+                s += time
+            }
+            return s
         }
     },
     template: '<App/>'

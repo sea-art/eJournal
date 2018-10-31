@@ -1,55 +1,38 @@
 <template>
     <content-columns>
-        <bread-crumb
-            slot="main-content-column"
-            @eye-click="customisePage"
-            @edit-click="handleEdit()"/>
+        <bread-crumb slot="main-content-column" @edit-click="handleEdit()"/>
 
-        <div slot="main-content-column" v-for="a in assignments" :key="a.aID">
-            <b-link tag="b-button" :to="$hasPermission('can_view_assignment_participants', 'assignment', String(a.aID)) ? assignmentRoute(cID, a.aID) : assignmentRoute(cID, a.aID, a.journal.jID)">
-                <assignment-card :line1="a.name">
-                    <progress-bar
-                        v-if="a.journal && a.journal.stats"
-                        :currentPoints="a.journal.stats.acquired_points"
-                        :totalPoints="a.journal.stats.total_points"/>
+        <div slot="main-content-column" v-for="a in assignments" :key="a.id">
+            <b-link tag="b-button" :to="assignmentRoute(cID, a.id, a.journal, a.is_published)">
+                <assignment-card :line1="a.name" :lti="a.lti_couples > 0" :published="a.is_published">
+                    <b-button v-if="$hasPermission('can_delete_assignment')" @click.prevent.stop="deleteAssignment(a)" class="delete-button float-right">
+                        <icon name="trash"/>
+                        Delete
+                    </b-button>
                 </assignment-card>
             </b-link>
         </div>
 
-        <b-button v-if="$hasPermission('can_add_assignment')"
+        <b-button
+            v-if="$hasPermission('can_add_assignment')"
             slot="main-content-column"
-            class="add-button grey-background full-width"
-            @click="showModal('createAssignmentRef')">
+            @click="showModal('createAssignmentRef')"
+            class="add-button grey-background full-width">
             <icon name="plus"/>
             Create New Assignment
         </b-button>
 
-        <h3 slot="right-content-column">Upcoming</h3>
-
-        <!-- TODO Permission revision should be can_grade -->
-        <b-card v-if="$hasPermission('can_view_assignment_participants')"
-                class="no-hover"
-                slot="right-content-column">
-            <b-form-select v-model="selectedSortOption" :select-size="1">
-                <option value="sortDate">Sort by date</option>
-                <option value="sortNeedsMarking">Sort by marking needed</option>
-            </b-form-select>
-        </b-card>
-
-        <div v-for="(d, i) in computedDeadlines" :key="i" slot="right-content-column">
-            <b-link tag="b-button" :to="$hasPermission('can_view_assignment_participants', 'assignment', String(d.aID)) ? assignmentRoute(d.cID, d.aID) : assignmentRoute(d.cID, d.aID, d.jID)">
-                <todo-card :deadline="d"/>
-            </b-link>
-        </div>
         <b-modal
             slot="main-content-column"
             ref="createAssignmentRef"
-            title="New Assignment"
+            title="Create new assignment"
             size="lg"
             hide-footer>
-                <create-assignment @handleAction="handleConfirm('createAssignmentRef')"></create-assignment>
+                <create-assignment @handleAction="handleCreated"/>
         </b-modal>
 
+        <h3 slot="right-content-column">To Do</h3>
+        <deadline-deck slot="right-content-column" :deadlines="deadlines"/>
     </content-columns>
 </template>
 
@@ -58,12 +41,12 @@ import contentColumns from '@/components/columns/ContentColumns.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import assignmentCard from '@/components/assignment/AssignmentCard.vue'
 import todoCard from '@/components/assets/TodoCard.vue'
-import progressBar from '@/components/assets/ProgressBar.vue'
-import assignment from '@/api/assignment.js'
 import mainCard from '@/components/assets/MainCard.vue'
 import icon from 'vue-awesome/components/Icon'
 import createAssignment from '@/components/assignment/CreateAssignment.vue'
-import courseApi from '@/api/course.js'
+import deadlineDeck from '@/components/assets/DeadlineDeck.vue'
+
+import assignmentAPI from '@/api/assignment'
 
 export default {
     name: 'Course',
@@ -79,9 +62,7 @@ export default {
             cardColor: '',
             post: null,
             error: null,
-            selectedSortOption: 'sortDate',
-            deadlines: [],
-            needsMarkingStats: []
+            deadlines: []
         }
     },
     components: {
@@ -89,41 +70,21 @@ export default {
         'bread-crumb': breadCrumb,
         'assignment-card': assignmentCard,
         'todo-card': todoCard,
-        'progress-bar': progressBar,
         'main-card': mainCard,
         'create-assignment': createAssignment,
+        'deadline-deck': deadlineDeck,
         icon
     },
     created () {
         this.loadAssignments()
-
-        courseApi.get_upcoming_course_deadlines(this.cID)
-            .then(deadlines => { this.deadlines = deadlines })
-            .catch(error => { this.$toasted.error(error.response.data.description) })
     },
     methods: {
         loadAssignments () {
-            assignment.get_course_assignments(this.cID)
+            assignmentAPI.getAllFromCourse(this.cID)
                 .then(assignments => { this.assignments = assignments })
-                .catch(error => { this.$toasted.error(error.response.data.description) })
-        },
-        showModal (ref) {
-            this.$refs[ref].show()
-        },
-        handleConfirm (ref) {
-            if (ref === 'createAssignmentRef') {
-                this.loadAssignments()
-            } else if (ref === 'editAssignmentRef') {
-                // TODO: handle edit assignment
-            }
 
-            this.hideModal(ref)
-        },
-        hideModal (ref) {
-            this.$refs[ref].hide()
-        },
-        customisePage () {
-            this.$toasted.info('Wishlist: Customise page')
+            assignmentAPI.getUpcoming(this.cID)
+                .then(deadlines => { this.deadlines = deadlines })
         },
         handleEdit () {
             this.$router.push({
@@ -133,7 +94,19 @@ export default {
                 }
             })
         },
-        assignmentRoute (cID, aID, jID) {
+        handleCreated (aID) {
+            this.$router.push({
+                name: 'FormatEdit',
+                params: {
+                    cID: this.cID,
+                    aID: aID
+                }
+            })
+        },
+        showModal (ref) {
+            this.$refs[ref].show()
+        },
+        assignmentRoute (cID, aID, jID, isPublished) {
             var route = {
                 params: {
                     cID: cID,
@@ -141,45 +114,24 @@ export default {
                 }
             }
 
-            // TODO Permission revision can_grade
-            if (this.$hasPermission('can_view_assignment_participants', 'assignment', String(aID))) {
+            if (!isPublished) {
+                route.name = 'FormatEdit'
+            } else if (this.$hasPermission('can_view_all_journals', 'assignment', aID)) {
                 route.name = 'Assignment'
             } else {
                 route.name = 'Journal'
                 route.params.jID = jID
             }
-
             return route
-        }
-    },
-    computed: {
-        computedDeadlines: function () {
-            var counter = 0
-
-            function compareDate (a, b) {
-                return new Date(a.deadline.Date) - new Date(b.deadline.Date)
-            }
-
-            function compareMarkingNeeded (a, b) {
-                if (a.totalNeedsMarking > b.totalNeedsMarking) { return -1 }
-                if (a.totalNeedsMarking < b.totalNeedsMarking) { return 1 }
-                return 0
-            }
-
-            function filterTop () {
-                return (++counter <= 5)
-            }
-
-            function filterNoEntries (deadline) {
-                return deadline.totalNeedsMarking !== 0
-            }
-
-            if (this.selectedSortOption === 'sortDate') {
-                return this.deadlines.slice().sort(compareDate).filter(filterTop)
-            } else if (this.selectedSortOption === 'sortNeedsMarking') {
-                return this.deadlines.slice().sort(compareMarkingNeeded).filter(filterTop).filter(filterNoEntries)
-            } else {
-                return this.deadlines.slice().sort(compareDate).filter(filterTop)
+        },
+        deleteAssignment (assignment) {
+            if (assignment.courses.length > 1
+                ? confirm('Are you sure you want to remove this assignment from the course?')
+                : confirm('Are you sure you want to delete this assignment?')) {
+                assignmentAPI.delete(assignment.id, this.cID, {
+                    customSuccessToast: assignment.courses.length > 1 ? 'Removed assignment.' : 'Deleted assignment.'
+                })
+                    .then(_ => { this.loadAssignments() })
             }
         }
     }

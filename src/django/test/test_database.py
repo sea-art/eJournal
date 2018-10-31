@@ -4,10 +4,11 @@ test_database.py.
 Test the database tables.
 """
 import datetime
+
 from django.test import TestCase
 
 import VLE.factory as factory
-from VLE.models import Field, Content, Entry, Journal
+from VLE.models import Content, Entry, Field, Journal
 
 
 class DataBaseTests(TestCase):
@@ -20,13 +21,13 @@ class DataBaseTests(TestCase):
         """Setup."""
         self.u1 = factory.make_user("Zi", "pass", "z@z.com")
 
-        self.a1 = factory.make_assignment('tcolloq', 'description')
+        self.jf1 = factory.make_format()
+        self.jf2 = factory.make_format()
+
+        self.a1 = factory.make_assignment('tcolloq', 'description', format=self.jf1)
 
         self.et1 = factory.make_entry_template('temp1')
         self.et2 = factory.make_entry_template('temp2')
-
-        self.jf1 = factory.make_journal_format()
-        self.jf2 = factory.make_journal_format()
 
         self.f1 = factory.make_field(self.et1, "test0", "1")
         self.f2 = factory.make_field(self.et1, "test2", "2")
@@ -51,7 +52,7 @@ class DataBaseTests(TestCase):
         """Test the foreign keys in the database."""
         user_test = factory.make_user('lers', 'lers123', 'lers@uva.nl', '123456')
         course_test = factory.make_course('tname', 'XXXX', datetime.date.today())
-        factory.make_journal_format()
+        factory.make_format()
         template = factory.make_entry_template("some_template")
         entr_test = factory.make_entry(template)
         field = factory.make_field(template, "test1", "1")

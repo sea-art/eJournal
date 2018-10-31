@@ -135,22 +135,20 @@ export default {
         }
     },
     watch: {
-        content: function (newVal) { this.$emit('content-update', this.content) }
+        content: function (newVal) { this.$emit('content-update', this.content) },
+        id: function () {
+            this.content = this.givenContent
+            this.editor.setContent(this.givenContent)
+        }
     },
     methods: {
         editorInit (editor) {
             var vm = this
             this.editor = editor
 
-            /* Set default font in the editor instance */
-            editor.execCommand('fontName', false, 'roboto condensed')
-
             this.content = this.givenContent
             /* set content resets the default font for some reason */
             editor.setContent(this.givenContent)
-
-            /* Set default font in the editor instance */
-            editor.execCommand('fontName', false, 'roboto condensed')
 
             if (this.displayInline) {
                 this.setupInlineDisplay(editor)
@@ -167,8 +165,6 @@ export default {
         },
         setupInlineDisplay (editor) {
             var vm = this
-            /* Disables auto focus of the editor. */
-            editor.execCommand('mceInlineCommentIsDirty', false, {skip_focus: true})
 
             editor.theme.panel.find('toolbar')[0].$el.hide()
             if (!this.basic) { editor.theme.panel.find('menubar')[0].$el.hide() }
@@ -188,7 +184,7 @@ export default {
         },
         handleShortCuts (e) {
             if (this.editor.plugins.fullscreen.isFullscreen() && e.key === 'Escape') {
-                this.editor.execCommand('mceFullScreen')
+                this.editor.execCommand('mceFullScreen', {skip_focus: true})
             }
         },
         insertDataURL () {
@@ -289,6 +285,11 @@ export default {
                 {start: '* ', cmd: 'InsertUnorderedList'},
                 {start: '- ', cmd: 'InsertUnorderedList'}
             ]
+        },
+        clearContent () {
+            this.editor.setContent('')
+            this.editor.execCommand('fontName', false, 'roboto condensed', {skip_focus: true})
+            this.content = ''
         }
     },
     mounted () {
