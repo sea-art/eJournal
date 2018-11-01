@@ -113,7 +113,7 @@ def get_lti_params_from_jwt(request, jwt_params):
 
         journal = lti.select_create_journal(lti_params, user, assignment)
         jID = journal.pk if journal is not None else None
-        state = LTI_STATES.FINISH_T.value if user.has_permission('can_grade', assignment) else LTI_STATES.FINISH_S.value
+        state = LTI_STATES.FINISH_T.value if user.has_permission('can_view_all_journals', assignment) else LTI_STATES.FINISH_S.value
     except KeyError as err:
         raise VLEMissingRequiredKey(err)
 
