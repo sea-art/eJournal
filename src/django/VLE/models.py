@@ -645,6 +645,7 @@ class Entry(models.Model):
     LINK_COMPLETE = 'Everything is send to VLE'
     TYPES = (
         (NEED_SUBMISSION, 'entry_submission'),
+        (SEND_SUBMISSION, 'entry_submitted'),
         (GRADING, 'grade_submission'),
         (LINK_COMPLETE, 'done'),
     )

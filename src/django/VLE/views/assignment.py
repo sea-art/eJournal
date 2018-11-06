@@ -3,8 +3,7 @@ assignment.py.
 
 In this file are all the assignment api requests.
 """
-import datetime
-
+from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
@@ -264,8 +263,7 @@ class AssignmentView(viewsets.ViewSet):
 
         deadline_list = []
 
-        # TODO: change query to a query that selects all upcoming assignments connected to the user.
-        now = datetime.datetime.now()
+        now = timezone.now()
         for course in courses:
             if request.user.is_participant(course):
                 for assignment in Assignment.objects.filter(courses=course.id, is_published=True, unlock_date__lt=now,

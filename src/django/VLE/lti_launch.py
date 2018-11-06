@@ -3,9 +3,8 @@ from datetime import datetime, timezone
 import oauth2
 from django.conf import settings
 
-import VLE.lti_grade_passback as lti_grade
 import VLE.factory as factory
-from VLE.models import Journal, Lti_ids, Role, User, Entry, Node
+from VLE.models import Journal, Lti_ids, Role, User
 
 
 class OAuthRequestValidater(object):
@@ -118,13 +117,6 @@ def check_assignment_lti(request):
     return None
 
 
-def check_if_need_VLE_publish(journal):
-    if Node.objects.filter(entry__published=True, journal=journal, entry__vle_coupling=Entry.GRADING):
-        lti_grade.replace_result(journal)
-    for node in Node.objects.filter(journal=journal, entry__vle_coupling=Entry.NEED_SUBMISSION):
-        lti_grade.needs_grading(journal, node)
-
-
 def select_create_journal(request, user, assignment):
     """
     Select or create the requested journal.
@@ -151,9 +143,6 @@ def select_create_journal(request, user, assignment):
         if (journal.sourcedid is None or within_assignment_timeframe) and 'lis_result_sourcedid' in request:
             journal.sourcedid = request['lis_result_sourcedid']
             journal.save()
-
-        check_if_need_VLE_publish(journal)
-
     else:
         journal = None
     return journal

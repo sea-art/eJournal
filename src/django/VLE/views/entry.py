@@ -75,7 +75,7 @@ class EntryView(viewsets.ViewSet):
             entry = factory.make_entry(template)
             node = factory.make_node(journal, entry)
 
-        lti_grade.needs_grading(journal, node.id)
+        lti_grade.needs_grading(journal, node)
 
         for content in content_list:
             data, field_id = utils.required_params(content, 'data', 'id')

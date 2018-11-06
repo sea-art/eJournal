@@ -4,7 +4,7 @@ import oauth2
 from django.conf import settings
 
 import VLE.utils.generic_utils as utils
-from VLE.models import Counter, Entry, Node
+from VLE.models import Counter, Entry, Journal, Node
 
 
 class GradePassBackRequest(object):
@@ -25,7 +25,8 @@ class GradePassBackRequest(object):
         self.sourcedid = None if journal is None else journal.sourcedid
         self.timestamp = submitted_at
 
-        if send_score and journal.assignment is not None and journal.assignment.points_possible is not None:
+        if (send_score and journal is not None and journal.assignment is not None and
+           journal.assignment.points_possible is not None):
             entries = utils.get_journal_entries(journal)
             score = utils.get_acquired_points(entries)
             score /= float(journal.assignment.points_possible)
@@ -157,30 +158,31 @@ class GradePassBackRequest(object):
                 'description': description}
 
 
-def needs_grading(journal, nID):
+def needs_grading(journal, node):
     """Give the teacher a needs grading notification in lti instancie."""
     if journal.sourcedid is not None and journal.grade_url is not None:
         secret = settings.LTI_SECRET
         key = settings.LTI_KEY
 
+        nID = node.pk
         jID = journal.pk
         aID = journal.assignment.pk
         cID = journal.assignment.courses.order_by('-startdate').first().pk
 
         result_data = {'url': '{0}/Home/Course/{1}/Assignment/{2}/Journal/{3}?nID={4}'.format(settings.BASELINK,
                                                                                               cID, aID, jID, nID)}
-
         grade_request = GradePassBackRequest(key, secret, journal, result_data=result_data,
-                                             submitted_at=nID.entry.last_edited)
+                                             submitted_at=str(node.entry.last_edited))
+
         response = grade_request.send_post_request()
-        print(response)
-        if response['code_mayor'] == 'Success':
-            nID.entry.VLE_COUPLING = Entry.SEND_SUBMISSION
+        if response['code_mayor'] == 'success':
+            node.entry.vle_coupling = Entry.SEND_SUBMISSION
+            node.entry.save()
 
 
 def change_Entry_vle_coupling(journal, status):
-    Node.objects.filter(entry__published=True, journal=journal).exclude(
-        entry__vle_coupling=Entry.LINK_COMPLETE).update(vle_coupling=status)
+    Entry.objects.filter(published=True, node__journal=journal).exclude(
+        vle_coupling=Entry.LINK_COMPLETE).update(vle_coupling=status)
 
 
 def replace_result(journal):
@@ -201,8 +203,16 @@ def replace_result(journal):
         grade_request = GradePassBackRequest(key, secret, journal, send_score=True)
         response = grade_request.send_post_request()
 
-        if response['code_mayor'] == 'Success':
+        if response['code_mayor'] == 'success':
             change_Entry_vle_coupling(journal, Entry.LINK_COMPLETE)
         return response
     else:
         return None
+
+
+def check_if_need_VLE_publish(assignment):
+    for journal in Journal.objects.filter(assignment=assignment, user__participation__role__can_have_journal=True):
+        if Entry.objects.filter(published=True, vle_coupling=Entry.GRADING):
+            replace_result(journal)
+        for node in Node.objects.filter(journal=journal, entry__vle_coupling=Entry.NEED_SUBMISSION):
+            needs_grading(journal, node)
