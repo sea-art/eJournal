@@ -178,9 +178,9 @@ class GradePassBackRequestXMLTest(TestCase):
         entry.save()
         factory.make_node(self.journal, entry)
         lti_grade.change_Entry_vle_coupling(self.journal, Entry.GRADING)
-        for e in Entry.objects.filter(published=True, node__journal=self.journal).exclude(
-                                      vle_coupling=Entry.LINK_COMPLETE):
-            self.assertEqual(e.vle_coupling, Entry.GRADING)
+        for entry in Entry.objects.filter(published=True,
+                                          node__journal=self.journal).exclude(vle_coupling=Entry.LINK_COMPLETE):
+            self.assertEqual(entry.vle_coupling, Entry.GRADING)
 
     def test_replace_result_no_url(self):
         """Hopefully doesnt crash."""

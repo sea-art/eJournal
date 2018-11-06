@@ -160,24 +160,26 @@ class GradePassBackRequest(object):
 
 def needs_grading(journal, node):
     """Give the teacher a needs grading notification in lti instancie."""
-    if journal.sourcedid is not None and journal.grade_url is not None:
-        secret = settings.LTI_SECRET
-        key = settings.LTI_KEY
+    if journal.sourcedid is None or journal.grade_url is not None:
+        return
 
-        nID = node.pk
-        jID = journal.pk
-        aID = journal.assignment.pk
-        cID = journal.assignment.courses.order_by('-startdate').first().pk
+    secret = settings.LTI_SECRET
+    key = settings.LTI_KEY
 
-        result_data = {'url': '{0}/Home/Course/{1}/Assignment/{2}/Journal/{3}?nID={4}'.format(settings.BASELINK,
-                                                                                              cID, aID, jID, nID)}
-        grade_request = GradePassBackRequest(key, secret, journal, result_data=result_data,
-                                             submitted_at=str(node.entry.last_edited))
+    nID = node.pk
+    jID = journal.pk
+    aID = journal.assignment.pk
+    cID = journal.assignment.courses.order_by('-startdate').first().pk
 
-        response = grade_request.send_post_request()
-        if response['code_mayor'] == 'success':
-            node.entry.vle_coupling = Entry.SEND_SUBMISSION
-            node.entry.save()
+    result_data = {'url': '{0}/Home/Course/{1}/Assignment/{2}/Journal/{3}?nID={4}'.format(settings.BASELINK,
+                                                                                          cID, aID, jID, nID)}
+    grade_request = GradePassBackRequest(key, secret, journal, result_data=result_data,
+                                         submitted_at=str(node.entry.last_edited))
+
+    response = grade_request.send_post_request()
+    if response['code_mayor'] == 'success':
+        node.entry.vle_coupling = Entry.SEND_SUBMISSION
+        node.entry.save()
 
 
 def change_Entry_vle_coupling(journal, status):
@@ -196,18 +198,18 @@ def replace_result(journal):
 
     change_Entry_vle_coupling(journal, Entry.GRADING)
 
-    if journal.sourcedid is not None and journal.grade_url is not None:
-        secret = settings.LTI_SECRET
-        key = settings.LTI_KEY
-
-        grade_request = GradePassBackRequest(key, secret, journal, send_score=True)
-        response = grade_request.send_post_request()
-
-        if response['code_mayor'] == 'success':
-            change_Entry_vle_coupling(journal, Entry.LINK_COMPLETE)
-        return response
-    else:
+    if journal.sourcedid is None or journal.grade_url is None:
         return None
+
+    secret = settings.LTI_SECRET
+    key = settings.LTI_KEY
+
+    grade_request = GradePassBackRequest(key, secret, journal, send_score=True)
+    response = grade_request.send_post_request()
+
+    if response['code_mayor'] == 'success':
+        change_Entry_vle_coupling(journal, Entry.LINK_COMPLETE)
+    return response
 
 
 def check_if_need_VLE_publish(assignment):
