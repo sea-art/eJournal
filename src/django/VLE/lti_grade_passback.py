@@ -4,13 +4,13 @@ import oauth2
 from django.conf import settings
 
 import VLE.utils.generic_utils as utils
-from VLE.models import Counter
+from VLE.models import Counter, Entry, Node
 
 
 class GradePassBackRequest(object):
     """Class to send Grade replace lti requests."""
 
-    def __init__(self, key, secret, journal, send_score=False, result_data=None):
+    def __init__(self, key, secret, journal, send_score=False, result_data=None, submitted_at=None):
         """
         Create the instancie to set the needed variables.
 
@@ -23,6 +23,8 @@ class GradePassBackRequest(object):
         self.secret = secret
         self.url = None if journal is None else journal.grade_url
         self.sourcedid = None if journal is None else journal.sourcedid
+        self.timestamp = submitted_at
+
         if send_score and journal.assignment is not None and journal.assignment.points_possible is not None:
             entries = utils.get_journal_entries(journal)
             score = utils.get_acquired_points(entries)
@@ -60,6 +62,12 @@ class GradePassBackRequest(object):
         msg_id.text = GradePassBackRequest.get_message_id_and_increment()
         body = ET.SubElement(root, 'imsx_POXBody')
         request = ET.SubElement(body, 'replaceResultRequest')
+
+        if self.timestamp is not None:
+            submission_details = ET.SubElement(request, 'submissionDetails')
+            timestamp = ET.SubElement(submission_details, 'submittedAT')
+            timestamp.text = self.timestamp
+
         result_record = ET.SubElement(request, 'resultRecord')
         sourced_guid = ET.SubElement(result_record, 'sourcedGUID')
         sourced_id = ET.SubElement(sourced_guid, "sourcedId")
@@ -151,20 +159,28 @@ class GradePassBackRequest(object):
 
 def needs_grading(journal, nID):
     """Give the teacher a needs grading notification in lti instancie."""
-    secret = settings.LTI_SECRET
-    key = settings.LTI_KEY
+    if journal.sourcedid is not None and journal.grade_url is not None:
+        secret = settings.LTI_SECRET
+        key = settings.LTI_KEY
 
-    jID = journal.pk
-    aID = journal.assignment.pk
-    cID = journal.assignment.courses.order_by('-startdate').first().pk
+        jID = journal.pk
+        aID = journal.assignment.pk
+        cID = journal.assignment.courses.order_by('-startdate').first().pk
 
-    result_data = {'url': '{0}/Home/Course/{1}/Assignment/{2}/Journal/{3}?nID={4}'.format(settings.BASELINK,
-                                                                                          cID, aID, jID, nID)}
+        result_data = {'url': '{0}/Home/Course/{1}/Assignment/{2}/Journal/{3}?nID={4}'.format(settings.BASELINK,
+                                                                                              cID, aID, jID, nID)}
 
-    grade_request = GradePassBackRequest(key, secret, journal, result_data=result_data)
-    response = grade_request.send_post_request()
+        grade_request = GradePassBackRequest(key, secret, journal, result_data=result_data,
+                                             submitted_at=nID.entry.last_edited)
+        response = grade_request.send_post_request()
+        print(response)
+        if response['code_mayor'] == 'Success':
+            nID.entry.VLE_COUPLING = Entry.SEND_SUBMISSION
 
-    return response
+
+def change_Entry_vle_coupling(journal, status):
+    Node.objects.filter(entry__published=True, journal=journal).exclude(
+        entry__vle_coupling=Entry.LINK_COMPLETE).update(vle_coupling=status)
 
 
 def replace_result(journal):
@@ -175,8 +191,18 @@ def replace_result(journal):
 
     returns the lti reponse.
     """
-    secret = settings.LTI_SECRET
-    key = settings.LTI_KEY
 
-    grade_request = GradePassBackRequest(key, secret, journal, send_score=True)
-    return grade_request.send_post_request()
+    change_Entry_vle_coupling(journal, Entry.GRADING)
+
+    if journal.sourcedid is not None and journal.grade_url is not None:
+        secret = settings.LTI_SECRET
+        key = settings.LTI_KEY
+
+        grade_request = GradePassBackRequest(key, secret, journal, send_score=True)
+        response = grade_request.send_post_request()
+
+        if response['code_mayor'] == 'Success':
+            change_Entry_vle_coupling(journal, Entry.LINK_COMPLETE)
+        return response
+    else:
+        return None

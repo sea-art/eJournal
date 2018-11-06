@@ -300,5 +300,4 @@ class AssignmentView(viewsets.ViewSet):
         utils.publish_all_assignment_grades(assignment, published)
         if published:
             for journal in assignment.journal_set.all():
-                if journal.sourcedid is not None and journal.grade_url is not None:
-                    lti_grade.replace_result(journal)
+                lti_grade.replace_result(journal)
