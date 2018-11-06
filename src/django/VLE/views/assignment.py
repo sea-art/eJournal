@@ -13,6 +13,8 @@ import VLE.utils.responses as response
 from VLE.models import Assignment, Course, Entry, Lti_ids
 from VLE.serializers import AssignmentSerializer
 from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
+from django.db.models import Q
+from datetime import datetime
 
 
 class AssignmentView(viewsets.ViewSet):
@@ -265,7 +267,8 @@ class AssignmentView(viewsets.ViewSet):
         # TODO: change query to a query that selects all upcoming assignments connected to the user.
         for course in courses:
             if request.user.is_participant(course):
-                for assignment in Assignment.objects.filter(courses=course.id, is_published=True).all():
+                for assignment in Assignment.objects.filter(Q(lock_date__gt=datetime.now()) | Q(lock_date=None),
+                                                            courses=course.id, is_published=True).all():
                     deadline_list.append(
                         AssignmentSerializer(assignment, context={'user': request.user, 'course': course}).data)
 
