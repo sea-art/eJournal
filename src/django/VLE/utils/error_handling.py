@@ -33,7 +33,7 @@ class VLEPermissionError(Exception):
 
 class VLEParticipationError(Exception):
     def __init__(self, obj):
-        super(VLEParticipationError, self).__init__('User is not participating in ' + str(obj))
+        super(VLEParticipationError, self).__init__('User is not participating in ' + obj.to_string())
 
 
 class ErrorMiddleware:

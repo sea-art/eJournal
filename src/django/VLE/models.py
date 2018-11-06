@@ -195,9 +195,14 @@ class User(AbstractUser):
             self.check_participation(obj)
             return obj.is_published or self.has_permission('can_view_unpublished_assignment', obj)
 
+    def to_string(self, request):
+        if self != request.user:
+            if not permissions.is_user_supervisor_of(request.user, self):
+                raise VLEPermissionError
+        return self.username + " (" + str(self.pk) + ")"
+
     def __str__(self):
-        """toString."""
-        return self.username + " (" + str(self.id) + ")"
+        raise VLEPermissionError
 
 
 class Course(models.Model):
@@ -237,9 +242,12 @@ class Course(models.Model):
         null=True,
     )
 
+    def to_string(self, request):
+        request.user.check_can_view(self.course)
+        return self.name + " (" + str(self.pk) + ")"
+
     def __str__(self):
-        """toString."""
-        return self.name + " (" + str(self.id) + ")"
+        raise VLEPermissionError
 
 
 class Group(models.Model):
@@ -265,8 +273,12 @@ class Group(models.Model):
         """Meta data for the model: unique_together."""
         unique_together = ('name', 'course')
 
+    def to_string(self, request):
+        request.user.check_can_view(self.course)
+        return self.name + " (" + str(self.pk) + ")"
+
     def __str__(self):
-        return self.name
+        raise VLEPermissionError
 
 
 class Role(models.Model):
@@ -331,9 +343,13 @@ class Role(models.Model):
 
         super(Role, self).save(*args, **kwargs)
 
+    def to_string(self, request):
+        request.user.check_can_view(self.course)
+
+        return self.name + " (" + str(self.pk) + ")"
+
     def __str__(self):
-        """toString."""
-        return str(self.name) + " (" + str(self.id) + ")"
+        raise VLEPermissionError
 
     class Meta:
         """Meta data for the model: unique_together."""
@@ -368,9 +384,17 @@ class Participation(models.Model):
 
         unique_together = ('user', 'course',)
 
+    def to_string(self, request=None):
+        request.user.check_can_view(self.course)
+
+        if request.user != self.user:
+            request.user.check_permission('can_view_course_users', self.course)
+
+        return "user: {}, course: {}, role: {}".format(
+            self.user.to_string(), self.course.to_string(), self.role.to_string())
+
     def __str__(self):
-        """toString."""
-        return "usr: " + str(self.user) + ", crs: " + str(self.course) + ", role: " + str(self.role)
+        raise VLEPermissionError
 
 
 class Assignment(models.Model):
@@ -433,9 +457,13 @@ class Assignment(models.Model):
 
         return super(Assignment, self).save(*args, **kwargs)
 
+    def to_string(self, request=None):
+        request.user.check_can_view(self)
+
+        return self.name + " (" + str(self.pk) + ")"
+
     def __str__(self):
-        """toString."""
-        return self.name + " (" + str(self.id) + ")"
+        raise VLEPermissionError
 
 
 class Journal(models.Model):
@@ -467,9 +495,13 @@ class Journal(models.Model):
         null=True
     )
 
+    def to_string(self, request=None):
+        request.user.check_can_view(self)
+
+        return "the {0} journal of {1}".format(self.assignment.name, self.user.username)
+
     def __str__(self):
-        """toString."""
-        return 'the {0} journal of {1}'.format(self.assignment.name, self.user.username)
+        raise VLEPermissionError
 
     class Meta:
         """A class for meta data.
@@ -666,10 +698,6 @@ class Entry(models.Model):
 
         return super(Entry, self).save(*args, **kwargs)
 
-    def __str__(self):
-        """toString."""
-        return 'Entry id: {} grade: {}'.format(self.pk, self.grade)
-
 
 class Counter(models.Model):
     """Counter.
@@ -686,7 +714,6 @@ class Counter(models.Model):
     )
 
     def __str__(self):
-        """toString."""
         return self.name + " is on " + self.count
 
 
@@ -702,7 +729,6 @@ class Template(models.Model):
     )
 
     def __str__(self):
-        """toString."""
         return self.name
 
 
@@ -752,7 +778,6 @@ class Field(models.Model):
     required = models.BooleanField()
 
     def __str__(self):
-        """toString."""
         return self.template.name + " type: " + str(self.type) + ", location: " + str(self.location)
 
 
