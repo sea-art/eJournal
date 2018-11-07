@@ -74,10 +74,7 @@ def get_lti_params_from_jwt(request, jwt_params):
             if 'Teacher' in role:
                 payload['state'] = LTI_STATES.NEW_COURSE.value
                 payload['lti_cName'] = lti_params['custom_course_name']
-                if 'context_label' in lti_params:
-                    payload['lti_abbr'] = lti_params['context_label']
-                else:
-                    payload['lti_abbr'] = ''
+                payload['lti_abbr'] = lti_params.get('context_label', '')
                 payload['lti_cID'] = lti_params['custom_course_id']
                 payload['lti_course_start'] = lti_params['custom_course_start']
                 payload['lti_aName'] = lti_params['custom_assignment_title']
@@ -162,13 +159,12 @@ def lti_launch(request):
             query['state'] = LTI_STATES.NO_USER.value
             query['lti_params'] = lti_params
             query['username'] = params['custom_username']
-            return redirect(lti.create_lti_query_link(query))
-
-        refresh = TokenObtainPairSerializer.get_token(user)
-        query = QueryDict.fromkeys(['lti_params'], lti_params, mutable=True)
-        query['jwt_access'] = str(refresh.access_token)
-        query['jwt_refresh'] = str(refresh)
-        query['state'] = LTI_STATES.LOGGED_IN.value
+        else:
+            refresh = TokenObtainPairSerializer.get_token(user)
+            query = QueryDict.fromkeys(['lti_params'], lti_params, mutable=True)
+            query['jwt_access'] = str(refresh.access_token)
+            query['jwt_refresh'] = str(refresh)
+            query['state'] = LTI_STATES.LOGGED_IN.value
     except KeyError as err:
         query = QueryDict.fromkeys(['state'], LTI_STATES.KEY_ERR.value, mutable=True)
         query['description'] = 'The request is missing the following parameter: {0}.'.format(err)
