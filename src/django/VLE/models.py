@@ -30,7 +30,7 @@ class Instance(models.Model):
     )
 
     def to_string(self, user=None):
-        return ""
+        return self.name
 
 
 class UserFile(models.Model):
