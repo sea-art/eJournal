@@ -1,13 +1,16 @@
 <template>
-    <b-card :class="$root.getBorderClass(deadline.course.id)">
+    <b-card :class="$root.getBorderClass(course.id)">
         <todo-square
             v-if="deadline.stats && deadline.stats.unpublished"
             :num="deadline.stats.needs_marking + deadline.stats.unpublished"
             class="float-right" />
-        <h6>{{ $root.beautifyDate(deadline.deadline) }}</h6>
+
         <h5>{{ deadline.name }}</h5>
-        {{ deadline.course.abbreviation }} <br/>
-        Due in {{ timeLeft }}
+        {{ course.abbreviation }}
+        <h6 v-if="this.deadline.deadline">
+            Due in {{ timeLeft }}
+            <span class="right">{{ $root.beautifyDate(deadline.deadline) }}</span>
+        </h6>
     </b-card>
 </template>
 
@@ -15,12 +18,13 @@
 import todoSquare from '@/components/assets/TodoSquare.vue'
 
 export default {
-    props: ['deadline'],
+    props: ['deadline', 'course'],
     components: {
         'todo-square': todoSquare
     },
     computed: {
         timeLeft: function () {
+            if (!this.deadline.deadline) { return '' }
             var dateNow = new Date()
             var dateFuture = new Date(this.deadline.deadline.replace(/-/g, '/').replace('T', ' '))
 
@@ -56,8 +60,8 @@ export default {
 <style lang="sass" scoped>
 @import "~sass/modules/colors.sass"
 
-h6
-    display: inline
+.right
+    float: right
 
 p
     text-align: right

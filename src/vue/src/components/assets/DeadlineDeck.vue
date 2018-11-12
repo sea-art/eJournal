@@ -9,8 +9,11 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i">
-            <b-link tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal)">
-                <todo-card :deadline="d"/>
+            <b-link v-if="d.course" tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal)">
+                <todo-card :deadline="d" :course="d.course" />
+            </b-link>
+            <b-link v-else v-for="(course, j) in d.courses" tag="b-button" :to="assignmentRoute(course.id, d.id, d.journal)"  :key="i + '-' + j">
+                <todo-card :deadline="d" :course="course" />
             </b-link>
         </div>
     </div>
@@ -54,6 +57,8 @@ export default {
             var counter = 0
 
             function compareDate (a, b) {
+                if (!a.deadline) { return 1 }
+                if (!b.deadline) { return -1 }
                 return new Date(a.deadline) - new Date(b.deadline)
             }
 

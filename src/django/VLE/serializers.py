@@ -140,6 +140,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
     journal = serializers.SerializerMethodField()
     stats = serializers.SerializerMethodField()
     course = serializers.SerializerMethodField()
+    courses = serializers.SerializerMethodField()
     journals = serializers.SerializerMethodField()
 
     class Meta:
@@ -150,27 +151,26 @@ class AssignmentSerializer(serializers.ModelSerializer):
     def get_deadline(self, assignment):
         # TODO: Check from which course it came from as well
         # TODO: When all assignments are graded, set deadline to next deadline?
-        # If the user doesnt have a journal, take the deadline that is the first upcoming deadline
-        if 'user' not in self.context or \
-           self.context['user'].has_permission('can_grade', assignment):
-            nodes = assignment.format.presetnode_set.all().order_by('deadline')
-            if not nodes:
-                return None
-            return nodes[0].deadline
-
         # If the user has a journal, take the first upcoming not submitted deadline
-        else:
+        if 'user' in self.context and self.context['user'].has_permission('can_have_journal', assignment):
             try:
                 journal = Journal.objects.get(assignment=assignment, user=self.context['user'])
             except Journal.DoesNotExist:
-                return None
+                return assignment.due_date
 
             # TODO Incorporate assigment end date
             deadlines = journal.node_set.exclude(preset=None).values('preset__deadline').order_by('preset__deadline')
             if not deadlines:
-                return None
+                return assignment.due_date
 
             return deadlines[0]['preset__deadline']
+
+        # If the user doesnt have a journal, take the deadline that is the first upcoming deadline
+        else:
+            nodes = assignment.format.presetnode_set.all().order_by('deadline')
+            if not nodes:
+                return None
+            return nodes[0].deadline
 
     def get_journal(self, assignment):
         try:
@@ -192,11 +192,12 @@ class AssignmentSerializer(serializers.ModelSerializer):
             return None
 
     def get_stats(self, assignment):
-        if 'user' not in self.context or 'course' not in self.context or not self.context['course']:
+        if 'user' not in self.context or not self.context['user']:
             return None
 
-        course = self.context['course']
-        users = course.participation_set.filter(role__can_have_journal=True).values('user')
+        users = User.objects.filter(
+            participation__course__in=assignment.courses.all(), participation__role__can_have_journal=True
+        )
         queryset = assignment.journal_set.filter(user__in=users)
         journals = JournalSerializer(queryset, many=True).data
 
@@ -215,7 +216,14 @@ class AssignmentSerializer(serializers.ModelSerializer):
     def get_course(self, assignment):
         if 'course' not in self.context or not self.context['course']:
             return None
+        if not self.context['course'] in assignment.courses.all():
+            return None
         return CourseSerializer(self.context['course']).data
+
+    def get_courses(self, assignment):
+        if 'course' in self.context and self.context['course']:
+            return None
+        return CourseSerializer(assignment.courses, many=True).data
 
 
 class NodeSerializer(serializers.ModelSerializer):

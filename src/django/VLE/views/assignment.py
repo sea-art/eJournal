@@ -45,18 +45,18 @@ class AssignmentView(viewsets.ViewSet):
             success -- with the assignment data
 
         """
-        course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
-        course = Course.objects.get(pk=course_id)
-
-        request.user.check_participation(course)
-
+        try:
+            course_id, = utils.optional_typed_params(request.query_params, (int, 'course_id'))
+            course = Course.objects.get(pk=course_id)
+            request.user.check_participation(course)
+            courses = [course]
+        except (Course.DoesNotExist, VLEParamWrongType):
+            course = None
+            courses = request.user.participations.all()
         # Consider all assignments that the user is in, or can grade.
-        assignments = []
-        for assignment in course.assignment_set.all():
-            if request.user.can_view(assignment):
-                assignments.append(assignment)
 
-        serializer = AssignmentSerializer(assignments, many=True, context={'user': request.user, 'course': course})
+        query = Assignment.objects.filter(is_published=True, courses__in=courses).distinct()
+        serializer = AssignmentSerializer(query, many=True, context={'user': request.user, 'course': course})
 
         data = serializer.data
         for i, assignment in enumerate(data):
@@ -258,21 +258,18 @@ class AssignmentView(viewsets.ViewSet):
         """
         try:
             course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
-            courses = [Course.objects.get(pk=course_id)]
+            course = Course.objects.get(pk=course_id)
+            courses = [course]
         except (VLEMissingRequiredKey, VLEParamWrongType):
+            course = None
             courses = request.user.participations.all()
 
-        deadline_list = []
+        query = Assignment.objects.filter(
+            Q(lock_date__gt=datetime.now()) | Q(lock_date=None), is_published=True, courses__in=courses
+        ).distinct()
+        upcoming = AssignmentSerializer(query, context={'user': request.user, 'course': course}, many=True).data
 
-        # TODO: change query to a query that selects all upcoming assignments connected to the user.
-        for course in courses:
-            if request.user.is_participant(course):
-                for assignment in Assignment.objects.filter(Q(lock_date__gt=datetime.now()) | Q(lock_date=None),
-                                                            courses=course.id, is_published=True).all():
-                    deadline_list.append(
-                        AssignmentSerializer(assignment, context={'user': request.user, 'course': course}).data)
-
-        return response.success({'upcoming': deadline_list})
+        return response.success({'upcoming': upcoming})
 
     @action(methods=['patch'], detail=True)
     def published_state(self, request, *args, **kwargs):
