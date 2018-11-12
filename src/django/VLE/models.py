@@ -29,6 +29,9 @@ class Instance(models.Model):
         default='eJournal'
     )
 
+    def to_string(self, user=None):
+        return ""
+
 
 class UserFile(models.Model):
     """UserFile.
@@ -96,9 +99,8 @@ class UserFile(models.Model):
         self.file.delete()
         super(UserFile, self).delete(*args, **kwargs)
 
-    def __str__(self):
-        """toString."""
-        return self.file.name
+    def to_string(self, user=None):
+        return "UserFile"
 
 
 @receiver(models.signals.post_delete, sender=UserFile)
@@ -168,7 +170,7 @@ class User(AbstractUser):
 
     def check_participation(self, obj):
         if not self.is_participant(obj):
-            raise VLEParticipationError(obj)
+            raise VLEParticipationError(obj, self)
 
     def check_verified_email(self):
         if not self.verified_email:
@@ -192,17 +194,17 @@ class User(AbstractUser):
             else:
                 return self.has_permission('can_have_journal', obj.assignment)
         elif isinstance(obj, Assignment):
-            self.check_participation(obj)
-            return obj.is_published or self.has_permission('can_view_unpublished_assignment', obj)
+            if self.is_participant(obj):
+                return obj.is_published or self.has_permission('can_view_unpublished_assignment', obj)
+            else:
+                return False
 
-    def to_string(self, request):
-        if self != request.user:
-            if not permissions.is_user_supervisor_of(request.user, self):
-                raise VLEPermissionError
+    def to_string(self, user=None):
+        if user is None:
+            return "User"
+        if not (self.is_superuser or self == user and permissions.is_user_supervisor_of(user, self)):
+            return "User"
         return self.username + " (" + str(self.pk) + ")"
-
-    def __str__(self):
-        raise VLEPermissionError
 
 
 class Course(models.Model):
@@ -242,12 +244,13 @@ class Course(models.Model):
         null=True,
     )
 
-    def to_string(self, request):
-        request.user.check_can_view(self.course)
-        return self.name + " (" + str(self.pk) + ")"
+    def to_string(self, user=None):
+        if user is None:
+            return "Course"
+        if not user.can_view(self):
+            return "Course"
 
-    def __str__(self):
-        raise VLEPermissionError
+        return self.name + " (" + str(self.pk) + ")"
 
 
 class Group(models.Model):
@@ -273,12 +276,12 @@ class Group(models.Model):
         """Meta data for the model: unique_together."""
         unique_together = ('name', 'course')
 
-    def to_string(self, request):
-        request.user.check_can_view(self.course)
+    def to_string(self, user=None):
+        if user is None:
+            return "Group"
+        if not user.can_view(self.course):
+            return "Group"
         return self.name + " (" + str(self.pk) + ")"
-
-    def __str__(self):
-        raise VLEPermissionError
 
 
 class Role(models.Model):
@@ -343,13 +346,13 @@ class Role(models.Model):
 
         super(Role, self).save(*args, **kwargs)
 
-    def to_string(self, request):
-        request.user.check_can_view(self.course)
+    def to_string(self, user=None):
+        if user is None:
+            return "Role"
+        if not user.can_view(self.course):
+            return "Role"
 
         return self.name + " (" + str(self.pk) + ")"
-
-    def __str__(self):
-        raise VLEPermissionError
 
     class Meta:
         """Meta data for the model: unique_together."""
@@ -384,17 +387,14 @@ class Participation(models.Model):
 
         unique_together = ('user', 'course',)
 
-    def to_string(self, request=None):
-        request.user.check_can_view(self.course)
-
-        if request.user != self.user:
-            request.user.check_permission('can_view_course_users', self.course)
+    def to_string(self, user=None):
+        if user is None:
+            return "Participation"
+        if not user.can_view(self.course):
+            return "Participation"
 
         return "user: {}, course: {}, role: {}".format(
-            self.user.to_string(), self.course.to_string(), self.role.to_string())
-
-    def __str__(self):
-        raise VLEPermissionError
+            self.user.to_string(user), self.course.to_string(user), self.role.to_string(user))
 
 
 class Assignment(models.Model):
@@ -457,13 +457,13 @@ class Assignment(models.Model):
 
         return super(Assignment, self).save(*args, **kwargs)
 
-    def to_string(self, request=None):
-        request.user.check_can_view(self)
+    def to_string(self, user=None):
+        if user is None:
+            return "Assignment"
+        if not user.can_view(self):
+            return "Assignment"
 
         return self.name + " (" + str(self.pk) + ")"
-
-    def __str__(self):
-        raise VLEPermissionError
 
 
 class Journal(models.Model):
@@ -495,13 +495,13 @@ class Journal(models.Model):
         null=True
     )
 
-    def to_string(self, request=None):
-        request.user.check_can_view(self)
+    def to_string(self, user=None):
+        if user is None:
+            return "Journal"
+        if not user.can_view(self):
+            return "Journal"
 
         return "the {0} journal of {1}".format(self.assignment.name, self.user.username)
-
-    def __str__(self):
-        raise VLEPermissionError
 
     class Meta:
         """A class for meta data.
@@ -577,6 +577,9 @@ class Node(models.Model):
         on_delete=models.CASCADE,
     )
 
+    def to_string(self, user=None):
+        return "Node"
+
 
 class Format(models.Model):
     """Format.
@@ -609,9 +612,8 @@ class Format(models.Model):
         related_name='available_templates',
     )
 
-    def __str__(self):
-        """toString."""
-        return str(self.pk)
+    def to_string(self, user=None):
+        return "Format"
 
 
 class PresetNode(models.Model):
@@ -660,6 +662,9 @@ class PresetNode(models.Model):
     def is_due(self):
         return self.deadline < now() or self.format.assignment.is_due()
 
+    def to_string(self, user=None):
+        return "PresetNode"
+
 
 class Entry(models.Model):
     """Entry.
@@ -698,6 +703,9 @@ class Entry(models.Model):
 
         return super(Entry, self).save(*args, **kwargs)
 
+    def to_string(self, user=None):
+        return "Entry"
+
 
 class Counter(models.Model):
     """Counter.
@@ -713,7 +721,7 @@ class Counter(models.Model):
         default=0
     )
 
-    def __str__(self):
+    def to_string(self, user=None):
         return self.name + " is on " + self.count
 
 
@@ -728,8 +736,8 @@ class Template(models.Model):
         default=1,
     )
 
-    def __str__(self):
-        return self.name
+    def to_string(self, user=None):
+        return "Template"
 
 
 class Field(models.Model):
@@ -777,8 +785,8 @@ class Field(models.Model):
     )
     required = models.BooleanField()
 
-    def __str__(self):
-        return self.template.name + " type: " + str(self.type) + ", location: " + str(self.location)
+    def to_string(self, user=None):
+        return "Field"
 
 
 class Content(models.Model):
@@ -804,6 +812,9 @@ class Content(models.Model):
         self.data = sanitization.strip_script_tags(self.data)
 
         return super(Content, self).save(*args, **kwargs)
+
+    def to_string(self, user=None):
+        return "Content"
 
 
 class Comment(models.Model):
@@ -836,6 +847,9 @@ class Comment(models.Model):
         self.text = sanitization.strip_script_tags(self.text)
         return super(Comment, self).save(*args, **kwargs)
 
+    def to_string(self, user=None):
+        return "Comment"
+
 
 class Lti_ids(models.Model):
     """Lti ids
@@ -864,6 +878,9 @@ class Lti_ids(models.Model):
     for_model = models.TextField(
         choices=TYPES
     )
+
+    def to_string(self, user=None):
+        return "Lti_ids"
 
     class Meta:
         """A class for meta data.
