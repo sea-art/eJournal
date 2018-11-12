@@ -52,7 +52,7 @@ export default {
                 route.params.jID = jID
             }
             return route
-        },
+        }
     },
     computed: {
         computedDeadlines: function () {
