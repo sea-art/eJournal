@@ -55,8 +55,9 @@ class AssignmentView(viewsets.ViewSet):
             course = None
             courses = request.user.participations.all()
 
-        query = Assignment.objects.filter(is_published=True, courses__in=courses).distinct()
-        serializer = AssignmentSerializer(query, many=True, context={'user': request.user, 'course': course})
+        query = Assignment.objects.filter(courses__in=courses).distinct()
+        viewable = [assignment for assignment in query if request.user.can_view(assignment)]
+        serializer = AssignmentSerializer(viewable, many=True, context={'user': request.user, 'course': course})
 
         data = serializer.data
         for i, assignment in enumerate(data):
@@ -265,9 +266,10 @@ class AssignmentView(viewsets.ViewSet):
             courses = request.user.participations.all()
 
         query = Assignment.objects.filter(
-            Q(lock_date__gt=datetime.now()) | Q(lock_date=None), is_published=True, courses__in=courses
+            Q(lock_date__gt=datetime.now()) | Q(lock_date=None), courses__in=courses
         ).distinct()
-        upcoming = AssignmentSerializer(query, context={'user': request.user, 'course': course}, many=True).data
+        viewable = [assignment for assignment in query if request.user.can_view(assignment)]
+        upcoming = AssignmentSerializer(viewable, context={'user': request.user, 'course': course}, many=True).data
 
         return response.success({'upcoming': upcoming})
 
