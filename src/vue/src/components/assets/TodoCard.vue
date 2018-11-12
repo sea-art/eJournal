@@ -6,7 +6,14 @@
             class="float-right" />
 
         <h5>{{ deadline.name }}</h5>
+        <b-badge
+            v-if="!deadline.is_published"
+            class="ml-2 mt-2">
+            Unpublished
+        </b-badge>
+        <br />
         {{ course.abbreviation }}
+
         <h6 v-if="this.deadline.deadline">
             Due in {{ timeLeft }}
             <span class="right">{{ $root.beautifyDate(deadline.deadline) }}</span>
@@ -62,6 +69,9 @@ export default {
 
 .right
     float: right
+
+h5
+    display: inline-block
 
 p
     text-align: right

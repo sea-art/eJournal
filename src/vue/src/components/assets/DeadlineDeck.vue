@@ -9,10 +9,10 @@
         </b-card>
 
         <div v-for="(d, i) in computedDeadlines" :key="i">
-            <b-link v-if="d.course" tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal)">
+            <b-link v-if="d.course" tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal, d.is_published)">
                 <todo-card :deadline="d" :course="d.course" />
             </b-link>
-            <b-link v-else v-for="(course, j) in d.courses" tag="b-button" :to="assignmentRoute(course.id, d.id, d.journal)"  :key="i + '-' + j">
+            <b-link v-else v-for="(course, j) in d.courses" tag="b-button" :to="assignmentRoute(course.id, d.id, d.journal, d.is_published)"  :key="i + '-' + j">
                 <todo-card :deadline="d" :course="course" />
             </b-link>
         </div>
@@ -35,7 +35,7 @@ export default {
         'todo-square': todoSquare
     },
     methods: {
-        assignmentRoute (cID, aID, jID) {
+        assignmentRoute (cID, aID, jID, isPublished) {
             var route = {
                 params: {
                     cID: cID,
@@ -43,14 +43,16 @@ export default {
                 }
             }
 
-            if (this.$hasPermission('can_view_all_journals', 'assignment', String(aID))) {
+            if (!isPublished) {
+                route.name = 'FormatEdit'
+            } else if (this.$hasPermission('can_view_all_journals', 'assignment', aID)) {
                 route.name = 'Assignment'
-                return route
+            } else {
+                route.name = 'Journal'
+                route.params.jID = jID
             }
-            route.name = 'Journal'
-            route.params.jID = jID
             return route
-        }
+        },
     },
     computed: {
         computedDeadlines: function () {
