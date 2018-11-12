@@ -3,6 +3,9 @@ assignment.py.
 
 In this file are all the assignment api requests.
 """
+from datetime import datetime
+
+from django.db.models import Q
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
@@ -13,8 +16,6 @@ import VLE.utils.responses as response
 from VLE.models import Assignment, Course, Entry, Lti_ids
 from VLE.serializers import AssignmentSerializer
 from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
-from django.db.models import Q
-from datetime import datetime
 
 
 class AssignmentView(viewsets.ViewSet):
@@ -53,7 +54,6 @@ class AssignmentView(viewsets.ViewSet):
         except VLEParamWrongType:
             course = None
             courses = request.user.participations.all()
-        # Consider all assignments that the user is in, or can grade.
 
         query = Assignment.objects.filter(is_published=True, courses__in=courses).distinct()
         serializer = AssignmentSerializer(query, many=True, context={'user': request.user, 'course': course})
