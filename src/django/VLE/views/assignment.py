@@ -50,7 +50,7 @@ class AssignmentView(viewsets.ViewSet):
             course = Course.objects.get(pk=course_id)
             request.user.check_participation(course)
             courses = [course]
-        except (Course.DoesNotExist, VLEParamWrongType):
+        except VLEParamWrongType:
             course = None
             courses = request.user.participations.all()
         # Consider all assignments that the user is in, or can grade.
