@@ -9,8 +9,8 @@ from rest_framework.decorators import action
 import VLE.factory as factory
 import VLE.serializers as serialize
 import VLE.utils.generic_utils as utils
-import VLE.utils.responses as response
 import VLE.utils.group_utils as group_utils
+import VLE.utils.responses as response
 from VLE.models import Course, Lti_ids, Participation
 
 

@@ -235,6 +235,11 @@ class Group(models.Model):
         on_delete=models.CASCADE
     )
 
+    lti_id = models.TextField(
+        null=True,
+        unique=False,
+    )
+
     class Meta:
         """Meta data for the model: unique_together."""
         unique_together = ('name', 'course')

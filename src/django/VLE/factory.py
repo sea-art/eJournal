@@ -5,7 +5,6 @@ The facory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
 from django.utils import timezone
-from VLE.utils import group_utils
 
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
                         Format, Group, Journal, Lti_ids, Node, Participation,
@@ -56,7 +55,7 @@ def make_participation(user=None, course=None, role=None, group=None):
     return participation
 
 
-def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=None, group_name=''):
+def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=None, group_name=None):
     """Create a course.
 
     Arguments:
@@ -78,7 +77,7 @@ def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=
     make_role_ta('TA', course)
     role = make_role_teacher('Teacher', course)
     if author is not None:
-        group = group_utils.get_and_init_group(group_name, course)
+        group = None if group_name == '' else make_course_group(group_name, course)
         make_participation(author, course, role, group)
     return course
 

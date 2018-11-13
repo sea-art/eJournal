@@ -3,8 +3,8 @@ group utilities.
 
 A library with utilities related to groups.
 """
-from VLE.models import Group
 import VLE.factory as factory
+from VLE.models import Group
 
 
 def get_and_init_group(name, course):

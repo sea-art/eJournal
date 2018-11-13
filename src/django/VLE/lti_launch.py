@@ -5,7 +5,7 @@ from django.conf import settings
 
 import VLE.factory as factory
 import VLE.utils.group_utils as group_utils
-from VLE.models import Journal, Lti_ids, Role, User, Participation
+from VLE.models import Journal, Lti_ids, Participation, Role, User
 
 
 class OAuthRequestValidater(object):
@@ -110,7 +110,7 @@ def check_course_lti(request, user, role):
         group = group_utils.get_and_init_group(request.get('custom_group_name', ''), course)
         # always update the group through lti params
         if user in course.users.all():
-            participation = Participation.object.get(user=request.user, course=course)
+            participation = Participation.objects.get(user=user, course=course)
             participation.group = group
             participation.save()
         else:
