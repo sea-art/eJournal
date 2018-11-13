@@ -44,11 +44,6 @@ def get_lti_params_from_jwt(request, jwt_params):
     user = request.user
     lti_params = decode_lti_params(jwt_params)
 
-    # only for testing
-    nam = ['Cobal', 'Python']
-    print(user.pk % len(nam), nam[user.pk % len(nam)])
-    lti_params['custom_group_name'] = nam[user.pk % len(nam)]
-
     try:
         role = [settings.LTI_ROLES[r] if r in settings.LTI_ROLES else r for r in lti.roles_to_list(lti_params)]
         payload = dict()
@@ -128,8 +123,6 @@ def lti_launch(request):
     """
     secret = settings.LTI_SECRET
     key = settings.LTI_KEY
-
-    print(request.POST.dict())
 
     authenticated, err = lti.OAuthRequestValidater.check_signature(
         key, secret, request)

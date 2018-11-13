@@ -87,7 +87,7 @@ def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=
     make_role_ta('TA', course)
     role = make_role_teacher('Teacher', course)
     if author is not None:
-        group = None if group_name == '' else make_course_group(group_name, course)
+        group = None if group_name == '' or group_name is None else make_course_group(group_name, course)
         make_participation(author, course, role, group)
     return course
 

@@ -57,9 +57,7 @@ class CourseView(viewsets.ViewSet):
         name, abbr = utils.required_params(request.data, 'name', 'abbreviation')
         startdate, enddate, lti_id, group_name = utils.optional_params(request.data, 'startdate', 'enddate',
                                                                        'lti_id', 'group_name')
-        # The make_course want '' if no group
-        if group_name is None:
-            group_name = ''
+
         course = factory.make_course(name, abbr, startdate, enddate, request.user, lti_id, group_name)
 
         serializer = self.serializer_class(course, many=False)
