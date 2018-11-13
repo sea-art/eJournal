@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import * as types from '../constants/mutation-types.js'
 import connection from '@/api/connection.js'
+import genericUtils from '@/utils/generic_utils.js'
+import sanitization from '@/utils/sanitization.js'
 
 const getters = {
     jwtAccess: state => state.jwtAccess,
@@ -96,7 +98,7 @@ const actions = {
                 dispatch('populateStore').then(response => {
                     resolve('JWT and store are set successfully.')
                 }, error => {
-                    Vue.toasted.error(error.response.data.description)
+                    Vue.toasted.error(sanitization.escapeHtml(error.response.data.description))
                     reject(error) // Login success but hydration failed
                 })
             }, error => {
@@ -113,8 +115,17 @@ const actions = {
     /* An attempt is made at refreshing the JW access token, store is populated if needed.
      * Fails if the refresh fails or if the store needed to be populated if that fails as well. */
     validateToken ({ commit, dispatch, getters }, error = null) {
+        if (error) {
+            var code
+            if (error.response.data instanceof ArrayBuffer) {
+                code = genericUtils.parseArrayBuffer(error.response.data).code
+            } else {
+                code = error.response.data.code
+            }
+        }
+
         return new Promise((resolve, reject) => {
-            if (!error || (error && error.response.data.code === 'token_not_valid')) {
+            if (!error || code === 'token_not_valid') {
                 connection.conn.post('token/refresh/', {refresh: getters.jwtRefresh}).then(response => {
                     commit(types.SET_ACCES_TOKEN, response.data.access) // Refresh token valid, update access token.
 
@@ -139,7 +150,7 @@ const actions = {
                 commit(types.HYDRATE_USER, response.data)
                 resolve('Store is populated successfully')
             }, error => {
-                Vue.toasted.error(error.response.data.description)
+                Vue.toasted.error(sanitization.escapeHtml(error.response.data.description))
                 reject(error)
             })
         })

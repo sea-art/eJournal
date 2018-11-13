@@ -10,8 +10,14 @@ from rest_framework import serializers
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
-                        Format, Group, Journal, Node, Participation,
+                        Format, Group, Instance, Journal, Node, Participation,
                         PresetNode, Role, Template, User)
+
+
+class InstanceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Instance
+        fields = ('allow_standalone_registration', 'name')
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -124,7 +130,8 @@ class ParticipationSerializer(serializers.ModelSerializer):
 class AssignmentDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assignment
-        fields = ('id', 'name', 'description', 'points_possible', 'unlock_date', 'due_date', 'lock_date')
+        fields = ('id', 'name', 'description', 'points_possible', 'unlock_date', 'due_date', 'lock_date',
+                  'is_published')
         read_only_fields = ('id', )
 
 
@@ -185,10 +192,14 @@ class AssignmentSerializer(serializers.ModelSerializer):
             return None
 
     def get_stats(self, assignment):
-        if 'user' not in self.context:
+        if 'user' not in self.context or 'course' not in self.context or not self.context['course']:
             return None
 
-        journals = JournalSerializer(assignment.journal_set.all(), many=True).data
+        course = self.context['course']
+        users = course.participation_set.filter(role__can_have_journal=True).values('user')
+        queryset = assignment.journal_set.filter(user__in=users)
+        journals = JournalSerializer(queryset, many=True).data
+
         if not journals:
             return None
         stats = {}
@@ -198,6 +209,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
                                         for x in journals]) - stats['needs_marking']
         points = [x['stats']['acquired_points'] for x in journals]
         stats['average_points'] = round(st.mean(points), 2)
+
         return stats
 
     def get_course(self, assignment):
@@ -308,9 +320,9 @@ class EntrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Entry
-        fields = ('id', 'createdate', 'published', 'template', 'content',
+        fields = ('id', 'creation_date', 'published', 'template', 'content',
                   'editable', 'grade', 'last_edited', 'comments')
-        read_only_fields = ('id', 'template', 'createdate', 'content', 'published')
+        read_only_fields = ('id', 'template', 'creation_date', 'content', 'published')
 
     def get_template(self, entry):
         return TemplateSerializer(entry.template).data

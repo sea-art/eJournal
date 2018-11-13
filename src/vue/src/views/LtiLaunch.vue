@@ -16,7 +16,7 @@
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import ltiCreateLinkCourse from '@/components/lti/LtiCreateLinkCourse.vue'
 import ltiCreateLinkAssignment from '@/components/lti/LtiCreateLinkAssignment.vue'
-import ltiAPI from '@/api/ltilaunch.js'
+import ltiAPI from '@/api/lti'
 import router from '@/router'
 import courseAPI from '@/api/course.js'
 import assignmentAPI from '@/api/assignment.js'
@@ -68,6 +68,7 @@ export default {
                 ltiCourseGroupName: '',
                 ltiAssignName: '',
                 ltiAssignID: '',
+                ltiAssignPublished: '',
                 ltiPointsPossible: '',
                 ltiAssignUnlock: '',
                 ltiAssignDue: '',
@@ -99,6 +100,7 @@ export default {
                     this.lti.ltiAssignUnlock = response.lti_aUnlock
                     this.lti.ltiAssignDue = response.lti_aDue
                     this.lti.ltiAssignLock = response.lti_aLock
+                    this.lti.ltiAssignPublished = response.lti_aPublished
                     this.page.cID = response.cID
                     this.page.aID = response.aID
                     this.page.jID = response.jID
@@ -178,8 +180,6 @@ export default {
                     .catch(error => {
                         if (error.response.status === 404) {
                             this.states.state = this.states.new_assign
-                        } else {
-                            this.$toasted.error(error.response.description)
                         }
                     })
                 break
@@ -216,15 +216,27 @@ export default {
                 })
                 break
             case this.states.finish_t:
-                /* Teacher has created or linked a new course and or assignment, we need to update the store. */
+                /* Teacher might have created or linked a new course and or assignment, we need to update the store. */
                 this.$store.dispatch('user/populateStore').then(_ => {
-                    this.$router.push({
-                        name: 'FormatEdit',
-                        params: {
-                            cID: this.page.cID,
-                            aID: this.page.aID
-                        }
-                    })
+                    if (this.tempStateToCheckIfWeCanAutoSetup === this.states.finish_t) {
+                        /* The assignment already existed. */
+                        this.$router.push({
+                            name: 'Assignment',
+                            params: {
+                                cID: this.page.cID,
+                                aID: this.page.aID
+                            }
+                        })
+                    } else {
+                        /* A new assignment has been created, yet to be configured. */
+                        this.$router.push({
+                            name: 'FormatEdit',
+                            params: {
+                                cID: this.page.cID,
+                                aID: this.page.aID
+                            }
+                        })
+                    }
                 }, error => {
                     this.$router.push({
                         name: 'ErrorPage',

@@ -14,10 +14,10 @@ export default {
         return split.join('-')
     },
 
-    /* Converts an arraybuffer response to a humanreadable description and displays it as an error. */
-    displayArrayBufferRequestError (context, error) {
+    /* Converts an arraybuffer response to a humanreadable text. */
+    parseArrayBuffer (arrayBuffer) {
         let enc = new TextDecoder('utf-8')
 
-        context.$toasted.error(JSON.parse(enc.decode(error.response.data)).description)
+        return JSON.parse(enc.decode(arrayBuffer))
     }
 }

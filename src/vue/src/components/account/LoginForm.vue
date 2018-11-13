@@ -3,9 +3,24 @@
         <b-card class="blue-border no-hover card-last-elem-button">
             <b-form @submit.prevent="handleLogin()">
                 <h2 class="field-heading">Username</h2>
-                <b-input class="multi-form theme-input" v-model="username" autofocus required placeholder="Username"/>
+                <b-input
+                    class="multi-form theme-input"
+                    v-model="username"
+                    autofocus
+                    required
+                    placeholder="Username"
+                    autocomplete="username"
+                />
                 <h2 class="field-heading">Password</h2>
-                <b-input class="multi-form theme-input" type="password" @keyup.enter="handleLogin()" v-model="password" required placeholder="Password"/>
+                <b-input
+                    class="multi-form theme-input"
+                    type="password"
+                    @keyup.enter="handleLogin()"
+                    v-model="password"
+                    required
+                    placeholder="Password"
+                    autocomplete="current-password"
+                />
                 <b-button class="multi-form change-button" v-b-modal.forgotPasswordModal>
                     <icon name="question"/>
                     Forgot password
@@ -74,23 +89,13 @@ export default {
                 username = this.usernameEmail
             }
 
-            authAPI.forgotPassword(username, emailAdress)
-                .then(response => {
-                    this.$refs.forgotPasswordModalRef.hide()
-                    this.$toasted.success(response.data.description)
-                })
-                .catch(error => {
-                    this.$toasted.error(error.response.data.description)
-                })
+            authAPI.forgotPassword(username, emailAdress, {responseSuccessToast: true})
+                .then(response => { this.$refs.forgotPasswordModalRef.hide() })
         },
         handleLogin () {
             this.$store.dispatch('user/login', { username: this.username, password: this.password })
-                .then(_ => {
-                    this.$emit('handleAction')
-                })
-                .catch(_ => {
-                    this.$toasted.error('Could not login')
-                })
+                .then(_ => { this.$emit('handleAction') })
+                .catch(_ => { this.$toasted.error('Could not login') })
         }
     },
     mounted () {
