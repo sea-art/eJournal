@@ -308,9 +308,8 @@ class JournalSerializer(serializers.ModelSerializer):
 
     def get_stats(self, journal):
         return {
-            'acquired_points':
-                journal.node_set.filter(entry__published=True)
-                .values('entry__grade').aggregate(Sum('entry__grade'))['entry__grade__sum'],
+            'acquired_points': journal.node_set.filter(entry__published=True)
+            .values('entry__grade').aggregate(Sum('entry__grade'))['entry__grade__sum'],
             'graded': journal.node_set.filter(entry__published=True, entry__grade__isnull=False).count(),
             'published': journal.node_set.filter(entry__published=True).count(),
             'submitted': journal.node_set.filter(entry__isnull=False).count(),
