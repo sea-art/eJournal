@@ -202,7 +202,7 @@ class User(AbstractUser):
     def to_string(self, user=None):
         if user is None:
             return "User"
-        if not (self.is_superuser or self == user and permissions.is_user_supervisor_of(user, self)):
+        if not (self.is_superuser or self == user or permissions.is_user_supervisor_of(user, self)):
             return "User"
         return self.username + " (" + str(self.pk) + ")"
 
