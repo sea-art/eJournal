@@ -65,6 +65,7 @@ export default {
                 ltiCourseName: '',
                 ltiCourseAbbr: '',
                 ltiCourseStart: '',
+                ltiCourseGroupName: '',
                 ltiAssignName: '',
                 ltiAssignID: '',
                 ltiAssignPublished: '',
@@ -92,6 +93,7 @@ export default {
                     this.lti.ltiCourseAbbr = response.lti_abbr
                     this.lti.ltiCourseID = response.lti_cID
                     this.lti.ltiCourseStart = response.lti_course_start
+                    this.lti.ltiCourseGroupName = response.lti_course_group_name
                     this.lti.ltiAssignName = response.lti_aName
                     this.lti.ltiAssignID = response.lti_aID
                     this.lti.ltiPointsPossible = response.lti_points_possible

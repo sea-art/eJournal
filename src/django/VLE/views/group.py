@@ -51,8 +51,6 @@ class GroupView(viewsets.ViewSet):
         request -- the request that was send with
             name -- name of the course group
             course_id -- course ID of the course
-            lti_id -- (optional) lti_id to link the course to
-
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
@@ -60,7 +58,6 @@ class GroupView(viewsets.ViewSet):
         On success, with the course group.
         """
         name, course_id = utils.required_params(request.data, "name", "course_id")
-        lti_id = utils.optional_params(request.data, 'lti_id')
 
         course = Course.objects.get(pk=course_id)
 
@@ -69,7 +66,7 @@ class GroupView(viewsets.ViewSet):
         if Group.objects.filter(name=name, course=course).exists():
             return response.bad_request('Course group with that name already exists.')
 
-        course_group = factory.make_course_group(name, course, lti_id)
+        course_group = factory.make_course_group(name, course)
         serializer = GroupSerializer(course_group, many=False)
         return response.created({'group': serializer.data})
 

@@ -4,7 +4,8 @@ import oauth2
 from django.conf import settings
 
 import VLE.factory as factory
-from VLE.models import Journal, Lti_ids, Role, User
+import VLE.utils.group_utils as group_utils
+from VLE.models import Journal, Lti_ids, Participation, Role, User
 
 
 class OAuthRequestValidater(object):
@@ -102,17 +103,24 @@ def create_lti_query_link(query):
 def check_course_lti(request, user, role):
     """Check is an course with the lti_id exists"""
     course_id = request['custom_course_id']
-    lti_couples = Lti_ids.objects.filter(lti_id=course_id, for_model=Lti_ids.COURSE)
+    lti_couples = Lti_ids.objects.filter(lti_id=course_id, for_model=Lti_ids.COURSE).first()
 
-    if lti_couples.count() > 0:
-        course = lti_couples[0].course
-        if user not in course.users.all():
+    if lti_couples:
+        course = lti_couples.course
+        group = group_utils.get_and_init_group(request.get('custom_group_name', ''), course)
+        # always update the group through lti params
+        if not course.users.filter(pk=user.pk).exists():
             for r in settings.ROLES:
                 if r in role or r == 'Student':
-                    factory.make_participation(user, course, Role.objects.get(name=r, course=course))
+                    factory.make_participation(user, course, Role.objects.get(name=r, course=course), group=group)
                     break
+        elif group:
+            participation = Participation.objects.get(user=user, course=course)
+            participation.group = group
+            participation.save()
         return course
-    return None
+    else:
+        return None
 
 
 def check_assignment_lti(request):

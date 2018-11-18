@@ -58,12 +58,12 @@ def get_lti_params_from_jwt(request, jwt_params):
             if 'Teacher' in role:
                 payload['state'] = NEW_COURSE
                 payload['lti_cName'] = lti_params['custom_course_name']
-                if 'context_label' in lti_params:
-                    payload['lti_abbr'] = lti_params['context_label']
-                else:
-                    payload['lti_abbr'] = ''
+                payload['lti_abbr'] = lti_params.get('context_label', '')
                 payload['lti_cID'] = lti_params['custom_course_id']
                 payload['lti_course_start'] = lti_params['custom_course_start']
+
+                # Default should be the same as LTI parameter when not in a group
+                payload['lti_course_group_name'] = lti_params.get('custom_group_name', '')
                 payload['lti_aName'] = lti_params['custom_assignment_title']
                 payload['lti_aID'] = lti_params['custom_assignment_id']
                 payload['lti_aUnlock'] = lti_params['custom_assignment_unlock']
