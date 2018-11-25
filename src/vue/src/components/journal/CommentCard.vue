@@ -17,7 +17,7 @@
                             <icon name="edit"/>
                             Edit
                         </b-button>
-                        <div v-html="comment.text"/>
+                        <sandboxed-iframe :content="comment.text"/>
                         <hr class="full-width"/>
                         <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b>
                         <span v-if="comment.published && $root.beautifyDate(comment.last_edited) === $root.beautifyDate(comment.creation_date)" class="timestamp">
@@ -77,6 +77,7 @@
 <script>
 import icon from 'vue-awesome/components/Icon'
 import textEditor from '@/components/assets/TextEditor.vue'
+import sandboxedIframe from '@/components/assets/SandboxedIframe.vue'
 
 import commentAPI from '@/api/comment'
 
@@ -92,7 +93,8 @@ export default {
     },
     components: {
         'text-editor': textEditor,
-        icon
+        icon,
+        sandboxedIframe
     },
     data () {
         return {

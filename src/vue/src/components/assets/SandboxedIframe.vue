@@ -5,6 +5,7 @@
         frameBorder="0"
         marginwidth="0"
         marginheight="0"
+        scrolling="no"
         class="w-100 theme-iframe"
     />
 </template>
@@ -21,7 +22,7 @@ export default {
     methods: {
         scaleIframe (obj) {
             obj.height = 0
-            obj.height = obj.contentWindow.document.body.scrollHeight + 'px'
+            obj.height = obj.contentWindow.document.body.offsetHeight + 'px'
         },
         injectContent (obj) {
             var doc = obj.contentWindow.document
