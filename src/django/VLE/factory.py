@@ -65,7 +65,7 @@ def make_participation(user=None, course=None, role=None, group=None):
     return participation
 
 
-def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=None, group_name=None):
+def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=None):
     """Create a course.
 
     Arguments:
@@ -87,19 +87,19 @@ def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=
     make_role_ta('TA', course)
     role = make_role_teacher('Teacher', course)
     if author is not None:
-        group = None if group_name == '' or group_name is None else make_course_group(group_name, course)
-        make_participation(author, course, role, group)
+        make_participation(author, course, role)
     return course
 
 
-def make_course_group(name, course):
+def make_course_group(name, course, lti_id=None):
     """Make a new course group.
 
     Arguments:
     name -- name of course group
     course -- course the group belongs to
+    lti_id -- potential lti_id, this is to link the canvas course to the VLE course.
     """
-    course_group = Group(name=name, course=course)
+    course_group = Group(name=name, course=course, lti_id=lti_id)
     course_group.save()
     return course_group
 
