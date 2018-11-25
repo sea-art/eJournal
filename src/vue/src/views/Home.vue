@@ -2,6 +2,18 @@
     <content-columns>
         <bread-crumb slot="main-content-column" :currentPage="'Courses'" @edit-click="handleEdit()"/>
 
+        <h2 slot="main-content-column">Input to be displayed</h2>
+        <textarea slot="main-content-column" v-model="test" class="w-100" @input="injectContent($refs['iframe1'])"/>
+
+        <h2 slot="main-content-column">V-html</h2>
+        <div v-html="test" slot="main-content-column"/>
+
+        <h2 slot="main-content-column">Sandboxed iframe</h2>
+        <iframe slot="main-content-column" ref="iframe1" @load="test2" id="iframe1" sandbox="allow-same-origin" frameBorder="0" marginwidth="0" marginheight="0" class="w-100" scrolling="no"/>
+
+        <h2 slot="main-content-column">V-html-sanitized</h2>
+        <div v-html="$sanitize(test)" slot="main-content-column"/>
+
         <div v-for="c in courses" :key="c.id" slot="main-content-column">
             <b-link :to="{ name: 'Course', params: { cID: c.id, courseName: c.name } }">
                 <main-card
@@ -59,6 +71,7 @@ export default {
     name: 'Home',
     data () {
         return {
+            test: '<button onclick="alert(\'hoi\')">Click me</button>',
             intituteName: 'Universiteit van Amsterdam (UvA)',
             courses: [],
             deadlines: []
@@ -80,7 +93,24 @@ export default {
         assignmentAPI.getUpcoming()
             .then(deadlines => { this.deadlines = deadlines })
     },
+    mounted () {
+        this.test1()
+    },
     methods: {
+        injectContent (obj) {
+            var doc = obj.contentWindow.document
+            doc.open()
+            doc.write(this.test)
+            doc.close()
+        },
+        test1 () {
+            console.log(this.$refs['iframe1'])
+            this.$refs['iframe1'].height = 21
+        },
+        test2 (e) {
+            console.log(e)
+            console.log('2')
+        },
         loadCourses () {
             courseAPI.getUserEnrolled()
                 .then(courses => { this.courses = courses })

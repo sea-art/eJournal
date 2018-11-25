@@ -19,6 +19,7 @@ import FormatEdit from '@/views/FormatEdit'
 import LtiLogin from '@/views/LtiLogin'
 import Logout from '@/views/Logout'
 import EmailVerification from '@/views/EmailVerification'
+import Test from '@/views/Test'
 
 Vue.use(Router)
 
@@ -28,6 +29,10 @@ var router = new Router({
         path: '/',
         name: 'Guest',
         component: Guest
+    }, {
+        path: '/Test',
+        name: 'Test',
+        component: Test
     }, {
         path: '/Home',
         name: 'Home',
@@ -121,7 +126,8 @@ const permissionlessContent = new Set([
     'ErrorPage',
     'PasswordRecovery',
     'EmailVerification',
-    'Guest'
+    'Guest',
+    'Test'
 ])
 
 const unavailableWhenLoggedIn = new Set([
