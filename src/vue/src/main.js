@@ -9,7 +9,6 @@ import '../node_modules/bootstrap-vue/dist/bootstrap-vue.css'
 import '../node_modules/flatpickr/dist/flatpickr.css'
 
 import '@/helpers/vue-awesome-icons.js'
-import sanitizeHtmlSetup from '@/helpers/sanitize-html-setup.js'
 
 import Toasted from 'vue-toasted'
 import flatPickr from 'vue-flatpickr-component'
@@ -18,7 +17,6 @@ Vue.config.productionTip = false
 Vue.use(Toasted, { position: 'top-center', duration: 4000 })
 Vue.use(BootstrapVue)
 Vue.use(flatPickr)
-sanitizeHtmlSetup(Vue)
 
 /* Checks the store for for permissions according to the current route cID or aID. */
 Vue.prototype.$hasPermission = store.getters['permissions/hasPermission']
