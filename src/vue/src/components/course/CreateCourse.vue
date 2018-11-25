@@ -43,8 +43,7 @@ export default {
                 abbreviation: '',
                 startdate: '',
                 enddate: '',
-                lti_id: '',
-                group_name: ''
+                lti_id: ''
             }
         }
     },
@@ -81,7 +80,6 @@ export default {
             this.form.lti_id = this.lti.ltiCourseID
             this.form.startdate = this.lti.ltiCourseStart.split(' ')[0]
             this.form.enddate = genericUtils.yearOffset(this.form.startdate)
-            this.from.group_name = this.lti.ltiCourseGroupName
         }
     },
     components: {
