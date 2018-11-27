@@ -8,6 +8,7 @@
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import loginForm from '@/components/account/LoginForm.vue'
+import routerConstraints from '@/utils/constants/router_constraints.js'
 
 export default {
     name: 'Login',
@@ -19,22 +20,12 @@ export default {
     },
     methods: {
         handleLoginSucces () {
-            if (this.$root.previousPage === null) {
+            if (this.$root.previousPage === null || this.$root.previousPage.name === null ||
+                routerConstraints.PERMISSIONLESS_CONTENT.has(this.$root.previousPage.name)) {
                 this.$router.push({name: 'Home'})
             }
 
-            switch (this.$root.previousPage.name) {
-            case null:
-            case 'PasswordRecovery':
-            case 'ErrorPage':
-            case 'Login':
-            case 'LtiLaunch':
-            case 'LtiLogin':
-                this.$router.push({name: 'Home'})
-                break
-            default:
-                this.$router.push({name: this.$root.previousPage.name, params: this.$root.previousPage.params})
-            }
+            this.$router.push({name: this.$root.previousPage.name, params: this.$root.previousPage.params})
         }
     },
     components: {
