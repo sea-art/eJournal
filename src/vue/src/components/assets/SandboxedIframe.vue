@@ -12,7 +12,7 @@
 
 <script>
 export default {
-    name: 'Test',
+    name: 'SandboxedIframe',
     props: {
         content: {
             type: String,

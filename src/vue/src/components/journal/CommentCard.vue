@@ -9,17 +9,21 @@
                 <img class="profile-picture-sm no-hover" :src="comment.author.profile_picture">
                 <b-card class="no-hover comment-card" :class="$root.getBorderClass($route.params.cID)">
                     <div v-if="!editCommentStatus[index]">
-                        <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="ml-2 delete-button float-right multi-form" @click="deleteComment(comment.id)">
-                            <icon name="trash"/>
-                            Delete
-                        </b-button>
-                        <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="ml-2 change-button float-right multi-form" @click="editCommentView(index, true, comment.text)">
-                            <icon name="edit"/>
-                            Edit
-                        </b-button>
                         <sandboxed-iframe :content="comment.text"/>
                         <hr class="full-width"/>
                         <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b>
+                        <icon
+                            v-if="$store.getters['user/uID'] == comment.author.id"
+                            name="trash"
+                            class="float-icon trash-icon"
+                            @click.native="deleteComment(comment.id)"
+                        />
+                        <icon
+                            v-if="$store.getters['user/uID'] == comment.author.id"
+                            name="edit" scale="1.07"
+                            class="float-icon edit-icon"
+                            @click.native="editCommentView(index, true, comment.text)"
+                        />
                         <span v-if="comment.published && $root.beautifyDate(comment.last_edited) === $root.beautifyDate(comment.creation_date)" class="timestamp">
                             {{ $root.beautifyDate(comment.creation_date) }}<br/>
                         </span>
@@ -186,6 +190,26 @@ export default {
 </script>
 
 <style lang="sass">
+@import '~sass/modules/colors.sass'
+
+.float-icon
+    float: right
+    margin-left: 5px
+
+.trash-icon
+    margin-top: 3px
+    fill: $theme-dark-blue !important
+    cursor: pointer
+    &:hover:not(.no-hover)
+        fill: $theme-red !important
+
+.edit-icon
+    margin-top: 4px
+    fill: $theme-dark-blue !important
+    cursor: pointer
+    &:hover:not(.no-hover)
+        fill: $theme-orange !important
+
 .comment-section
     display: flex
     .profile-picture-sm
