@@ -24,15 +24,16 @@ export default {
             }
 
             switch (this.$root.previousPage.name) {
-                case null:
-                case 'PasswordRecovery':
-                case 'ErrorPage':
-                case 'Login':
-                case 'LtiLaunch':
-                case 'LtiLogin':
-                    this.$router.push({name: 'Home'})
-                default:
-                    this.$router.push({name: this.$root.previousPage.name, params: this.$root.previousPage.params})
+            case null:
+            case 'PasswordRecovery':
+            case 'ErrorPage':
+            case 'Login':
+            case 'LtiLaunch':
+            case 'LtiLogin':
+                this.$router.push({name: 'Home'})
+                break
+            default:
+                this.$router.push({name: this.$root.previousPage.name, params: this.$root.previousPage.params})
             }
         }
     },
