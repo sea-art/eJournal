@@ -19,12 +19,20 @@ export default {
     },
     methods: {
         handleLoginSucces () {
-            if (this.$root.previousPage === null || this.$root.previousPage.name === null ||
-                this.$root.previousPage.name === 'PasswordRecovery' || this.$root.previousPage.name === 'ErrorPage' ||
-                this.$root.previousPage.name === 'Login') {
+            if (this.$root.previousPage === null) {
                 this.$router.push({name: 'Home'})
-            } else {
-                this.$router.push({name: this.$root.previousPage.name, params: this.$root.previousPage.params})
+            }
+
+            switch (this.$root.previousPage.name) {
+                case null:
+                case 'PasswordRecovery':
+                case 'ErrorPage':
+                case 'Login':
+                case 'LtiLaunch':
+                case 'LtiLogin':
+                    this.$router.push({name: 'Home'})
+                default:
+                    this.$router.push({name: this.$root.previousPage.name, params: this.$root.previousPage.params})
             }
         }
     },
