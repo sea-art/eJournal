@@ -27,9 +27,11 @@
                     <tr v-for="permission in permissions" :key="permission">
                         <td class="permission-column">{{ formatPermissionString(permission) }}</td>
                         <td v-for="role in roles" :key="role + '-' + permission">
+                            <!-- eslint-disable -->
                             <b-form-checkbox
                                 :class="{ 'input-disabled': essentialPermission(role, permission) }"
                                 v-model="roleConfig[getIndex(role)][permission]"/>
+                            <!-- eslint-enable -->
                         </td>
                     </tr>
                 </tbody>
