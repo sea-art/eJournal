@@ -148,7 +148,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', )
 
     def get_deadline(self, assignment):
-        # Student dealines
+        # Student deadlines
         if 'user' in self.context and self.context['user'] and \
            self.context['user'].has_permission('can_have_journal', assignment):
             journal = Journal.objects.get(assignment=assignment, user=self.context['user'])
