@@ -15,13 +15,13 @@
                         <icon
                             v-if="$store.getters['user/uID'] == comment.author.id"
                             name="trash"
-                            class="float-icon trash-icon"
+                            class="float-right trash-icon"
                             @click.native="deleteComment(comment.id)"
                         />
                         <icon
                             v-if="$store.getters['user/uID'] == comment.author.id"
                             name="edit" scale="1.07"
-                            class="float-icon edit-icon"
+                            class="float-right ml-2 edit-icon"
                             @click.native="editCommentView(index, true, comment.text)"
                         />
                         <span v-if="comment.published && $root.beautifyDate(comment.last_edited) === $root.beautifyDate(comment.creation_date)" class="timestamp">
@@ -190,26 +190,6 @@ export default {
 </script>
 
 <style lang="sass">
-@import '~sass/modules/colors.sass'
-
-.float-icon
-    float: right
-    margin-left: 5px
-
-.trash-icon
-    margin-top: 3px
-    fill: $theme-dark-blue !important
-    cursor: pointer
-    &:hover:not(.no-hover)
-        fill: $theme-red !important
-
-.edit-icon
-    margin-top: 4px
-    fill: $theme-dark-blue !important
-    cursor: pointer
-    &:hover:not(.no-hover)
-        fill: $theme-orange !important
-
 .comment-section
     display: flex
     .profile-picture-sm
@@ -224,4 +204,7 @@ export default {
     .comment-card
         .card-body
             padding-bottom: 5px
+            .trash-icon, .edit-icon
+                margin-top: 4px
+                margin-left: 4px
 </style>
