@@ -8,8 +8,9 @@ from rest_framework import viewsets
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
-from VLE.models import Course, Group
+from VLE.models import Course, Group, Lti_ids
 from VLE.serializers import GroupSerializer
+from rest_framework.decorators import action
 
 
 class GroupView(viewsets.ViewSet):
@@ -138,3 +139,21 @@ class GroupView(viewsets.ViewSet):
         group = Group.objects.get(name=name, course=course)
         group.delete()
         return response.success(description='Successfully deleted course group.')
+
+    @action(['get'], detail=False)
+    def datanose(self, request):
+        course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
+        course = Course.objects.get(pk=course_id)
+        if not (request.user.has_permission('can_view_course_users', course) or
+                request.user.has_permission('can_edit_course_user_group', course) or
+                request.user.has_permission('can_add_course_user_group', course) or
+                request.user.has_permission('can_delete_course_user_group', course)):
+            return response.forbidden('You are not allowed to view or manage the user groups of this course.')
+
+        for lti_id in Lti_ids.objects.filter(course=course):
+            factory.make_lti_groups(lti_id.lti_id, lti_id.course)
+
+        queryset = Group.objects.filter(course=course)
+        serializer = GroupSerializer(queryset, many=True, context={'user': request.user, 'course': course})
+
+        return response.success({'groups': serializer.data})

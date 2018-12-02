@@ -54,7 +54,7 @@ def get_lti_params_from_jwt(request, jwt_params):
     """
     user = request.user
     lti_params = decode_lti_params(jwt_params)
-
+    print(lti_params)
     if user != User.objects.get(lti_id=lti_params['user_id']):
         return response.forbidden(
             "The user specified that should be logged in according to the request is not the logged in user.")
@@ -146,7 +146,7 @@ def lti_launch(request):
 
     params = request.POST.dict()
 
-    user = lti.check_user_lti(params)
+    user = lti.get_user_lti(params)
 
     params['exp'] = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
     lti_params = encode_lti_params(params)
@@ -166,6 +166,5 @@ def lti_launch(request):
     except KeyError as err:
         query = QueryDict.fromkeys(['state'], LTI_STATES.KEY_ERR.value, mutable=True)
         query['description'] = 'The request is missing the following parameter: {0}.'.format(err)
-        return redirect(lti.create_lti_query_link(query))
 
     return redirect(lti.create_lti_query_link(query))

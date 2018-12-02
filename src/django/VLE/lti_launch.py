@@ -3,8 +3,9 @@ from datetime import datetime, timezone
 import oauth2
 from django.conf import settings
 
+import VLE.utils.generic_utils as utils
 import VLE.factory as factory
-from VLE.models import Journal, Lti_ids, Role, User
+from VLE.models import Journal, Lti_ids, Role, User, Participation, Group
 
 
 class OAuthRequestValidater(object):
@@ -88,19 +89,44 @@ def create_lti_query_link(query):
 
 
 def check_course_lti(request, user, role):
-    """Check is an course with the lti_id exists"""
-    course_id = request['custom_course_id']
-    lti_couples = Lti_ids.objects.filter(lti_id=course_id, for_model=Lti_ids.COURSE)
+    """Check if a course with the lti_id exists.
 
-    if lti_couples.count() > 0:
-        course = lti_couples[0].course
-        if user not in course.users.all():
-            for r in settings.ROLES:
-                if r in role or r == 'Student':
-                    factory.make_participation(user, course, Role.objects.get(name=r, course=course))
-                    break
+    If it does, put the user in the group with the right group and role."""
+    course_id = request['custom_course_id']
+    lti_couple = Lti_ids.objects.filter(lti_id=course_id, for_model=Lti_ids.COURSE).first()
+
+    if not lti_couple:
+        return None
+
+    course = lti_couple.course
+    lti_id, = utils.optional_params(request, 'custom_group_context_id')
+    print("\n\n\n\n", request.get('custom_group_name', '-------------'))
+    # If the user is participation, but not yet in a group, put the user in the Canvas related group.
+    if user.is_participant(course):
+        participation = Participation.objects.get(course=course, user=user)
+        if not participation.group and lti_id:
+            groups = Group.objects.filter(lti_id=lti_id, course=course)
+            if groups.exists():
+                participation.group = groups[0]
+            else:
+                group = factory.make_course_group(request.get('custom_group_name', lti_id), course, lti_id)
+                participation.group = group
+
+            participation.save()
         return course
-    return None
+
+    participation = None
+    for r in settings.ROLES:
+        if r in role:
+            participation = factory.make_participation(user, course, Role.objects.get(name=r, course=course))
+            break
+    if not participation:
+        participation = factory.make_participation(user, course, Role.objects.get(name='Student', course=course))
+
+    group = factory.make_course_group(request.get('custom_group_name', lti_id), course, lti_id)
+    participation.group = group
+    participation.save()
+    return course
 
 
 def check_assignment_lti(request):
