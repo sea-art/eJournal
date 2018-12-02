@@ -57,8 +57,8 @@ def roles_to_list(params):
     return roles
 
 
-def check_user_lti(request):
-    """Check is an user with the lti_id exists"""
+def get_user_lti(request):
+    """Check if a user with the lti_id exists"""
     lti_user_id = request['user_id']
 
     users = User.objects.filter(lti_id=lti_user_id)
