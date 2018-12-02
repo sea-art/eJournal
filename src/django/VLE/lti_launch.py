@@ -3,9 +3,9 @@ from datetime import datetime, timezone
 import oauth2
 from django.conf import settings
 
-import VLE.utils.generic_utils as utils
 import VLE.factory as factory
-from VLE.models import Journal, Lti_ids, Role, User, Participation, Group
+import VLE.utils.generic_utils as utils
+from VLE.models import Group, Journal, Lti_ids, Participation, Role, User
 
 
 class OAuthRequestValidater(object):
@@ -100,8 +100,7 @@ def check_course_lti(request, user, role):
 
     course = lti_couple.course
     lti_id, = utils.optional_params(request, 'custom_group_context_id')
-    print("\n\n\n\n", request.get('custom_group_name', '-------------'))
-    # If the user is participation, but not yet in a group, put the user in the Canvas related group.
+    # If the user is participatant, but not yet in a group, put the user in the Canvas related group.
     if user.is_participant(course):
         participation = Participation.objects.get(course=course, user=user)
         if not participation.group and lti_id:
@@ -109,7 +108,7 @@ def check_course_lti(request, user, role):
             if groups.exists():
                 participation.group = groups[0]
             else:
-                group = factory.make_course_group(request.get('custom_group_name', lti_id), course, lti_id)
+                group = factory.make_course_group(request.get('custom_group_name', lti_id) or lti_id, course, lti_id)
                 participation.group = group
 
             participation.save()
@@ -123,8 +122,12 @@ def check_course_lti(request, user, role):
     if not participation:
         participation = factory.make_participation(user, course, Role.objects.get(name='Student', course=course))
 
-    group = factory.make_course_group(request.get('custom_group_name', lti_id), course, lti_id)
-    participation.group = group
+    groups = Group.objects.filter(lti_id=lti_id, course=course)
+    if groups.exists():
+        participation.group = groups[0]
+    else:
+        group = factory.make_course_group(request.get('custom_group_name', lti_id) or lti_id, course, lti_id)
+        participation.group = group
     participation.save()
     return course
 

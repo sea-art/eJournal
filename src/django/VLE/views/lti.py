@@ -54,7 +54,6 @@ def get_lti_params_from_jwt(request, jwt_params):
     """
     user = request.user
     lti_params = decode_lti_params(jwt_params)
-    print(lti_params)
     if user != User.objects.get(lti_id=lti_params['user_id']):
         return response.forbidden(
             "The user specified that should be logged in according to the request is not the logged in user.")

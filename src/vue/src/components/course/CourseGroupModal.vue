@@ -13,7 +13,7 @@
                         <icon name="plus-square"/>
                         Create
                     </b-button>
-                    <b-button v-if="this.lti_id" class="float-right multi-form mr-2 default-button" type="submit"  @click.prevent.stop="getDataNoseGroups()">
+                    <b-button v-if="this.lti_linked" class="float-right multi-form mr-2 default-button" type="submit"  @click.prevent.stop="getDataNoseGroups()">
                         <icon name="sync-alt"/>
                         Sync from DataNose
                     </b-button>
@@ -44,6 +44,9 @@ export default {
         },
         groups: {
             required: true
+        },
+        lti_id: {
+            required: false
         }
     },
     data () {
@@ -57,9 +60,9 @@ export default {
     methods: {
         getDataNoseGroups () {
             groupAPI.getDataNose(this.cID, {customSuccessToast: 'Successfully syncronized from DataNose.'})
-                .then(groups =>
+                .then(groups => {
                     this.groups = groups
-                )
+                })
         },
         createUserGroup () {
             groupAPI.create({name: this.form.groupName, course_id: this.cID, lti_id: this.lti_id},

@@ -73,6 +73,7 @@
                  <group-modal v-if="$hasPermission('can_edit_course_details')"
                      :cID="this.cID"
                      :groups="this.groups"
+                     :lti_linked="this.course.lti_linked"
                      @create-group="createGroup"
                      @delete-group="deleteGroup"
                      @update-group="updateGroup">

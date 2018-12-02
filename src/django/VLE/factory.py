@@ -4,8 +4,8 @@ factory.py.
 The facory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
-from django.utils import timezone
 import requests
+from django.utils import timezone
 
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
                         Format, Group, Instance, Journal, Lti_ids, Node,
@@ -100,6 +100,8 @@ def make_course_group(name, course, lti_id=None):
     course -- course the group belongs to
     lti_id -- potential lti_id, this is to link the canvas course to the VLE course.
     """
+    if name is None:
+        return None
     course_group = Group(name=name, course=course, lti_id=lti_id)
     course_group.save()
     return course_group
@@ -168,7 +170,6 @@ def make_lti_ids(lti_id, for_model, course=None, assignment=None):
 
 def make_lti_groups(lti_id, course):
     groups = requests.get('https://api.datanose.nl/Groups/{}'.format(course.pk)).json()
-    print(groups, course.pk)
     for group in groups:
         try:
             name = group['Name']

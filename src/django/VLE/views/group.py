@@ -4,13 +4,13 @@ group.py.
 In this file are all the group api requests.
 """
 from rest_framework import viewsets
+from rest_framework.decorators import action
 
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 from VLE.models import Course, Group, Lti_ids
 from VLE.serializers import GroupSerializer
-from rest_framework.decorators import action
 
 
 class GroupView(viewsets.ViewSet):
@@ -61,7 +61,7 @@ class GroupView(viewsets.ViewSet):
         On success, with the course group.
         """
         name, course_id = utils.required_params(request.data, "name", "course_id")
-        lti_id = utils.optional_params(request.data, 'lti_id')
+        lti_id, = utils.optional_params(request.data, 'lti_id')
 
         course = Course.objects.get(pk=course_id)
 

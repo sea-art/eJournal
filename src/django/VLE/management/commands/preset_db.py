@@ -10,7 +10,7 @@ from django.core.management.base import BaseCommand
 from faker import Faker
 
 import VLE.factory as factory
-from VLE.models import Field, Node, Role, Course
+from VLE.models import Course, Field, Node, Role
 
 faker = Faker()
 

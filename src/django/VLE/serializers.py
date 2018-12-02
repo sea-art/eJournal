@@ -10,8 +10,8 @@ from rest_framework import serializers
 import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
-                        Format, Group, Instance, Journal, Node, Participation,
-                        PresetNode, Role, Template, User)
+                        Format, Group, Instance, Journal, Lti_ids, Node,
+                        Participation, PresetNode, Role, Template, User)
 
 
 class InstanceSerializer(serializers.ModelSerializer):
@@ -105,11 +105,16 @@ class OwnUserSerializer(serializers.ModelSerializer):
 
 
 class CourseSerializer(serializers.ModelSerializer):
+    lti_linked = serializers.SerializerMethodField()
+
     class Meta:
         model = Course
         exclude = ('author', 'users', )
         read_only_fields = ('id', )
         depth = 1
+
+    def get_lti_linked(self, course):
+        return Lti_ids.objects.filter(course=course.pk).count() > 0
 
 
 class GroupSerializer(serializers.ModelSerializer):
