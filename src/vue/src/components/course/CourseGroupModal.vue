@@ -13,7 +13,7 @@
                         <icon name="plus-square"/>
                         Create
                     </b-button>
-                    <b-button class="float-right multi-form mr-2 default-button" type="submit"  @click.prevent.stop="getDataNoseGroups()">
+                    <b-button v-if="this.lti_id" class="float-right multi-form mr-2 default-button" type="submit"  @click.prevent.stop="getDataNoseGroups()">
                         <icon name="sync-alt"/>
                         Sync from DataNose
                     </b-button>
@@ -56,7 +56,7 @@ export default {
     },
     methods: {
         getDataNoseGroups () {
-            groupAPI.getDataNose(1697, {customSuccessToast: 'Successfully syncronized from DataNose.'})
+            groupAPI.getDataNose(this.cID, {customSuccessToast: 'Successfully syncronized from DataNose.'})
                 .then(groups =>
                     this.groups = groups
                 )
