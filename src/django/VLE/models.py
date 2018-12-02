@@ -639,6 +639,16 @@ class Entry(models.Model):
     - published: if its a published grade or not
     - last_edited: when the etry was last edited
     """
+    NEED_SUBMISSION = 'Submission need to be send to VLE'
+    SEND_SUBMISSION = 'Submission is successfully recieved by VLE'
+    GRADING = 'Grade need to be send to VLE'
+    LINK_COMPLETE = 'Everything is send to VLE'
+    TYPES = (
+        (NEED_SUBMISSION, 'entry_submission'),
+        (SEND_SUBMISSION, 'entry_submitted'),
+        (GRADING, 'grade_submission'),
+        (LINK_COMPLETE, 'done'),
+    )
 
     # TODO Should not be nullable
     template = models.ForeignKey(
@@ -655,6 +665,11 @@ class Entry(models.Model):
     )
     creation_date = models.DateTimeField(editable=False)
     last_edited = models.DateTimeField()
+
+    vle_coupling = models.TextField(
+        default=NEED_SUBMISSION,
+        choices=TYPES,
+    )
 
     def is_due(self):
         return (self.node.preset and self.node.preset.is_due()) or self.node.journal.assignment.is_due()

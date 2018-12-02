@@ -3,6 +3,7 @@ assignment.py.
 
 In this file are all the assignment api requests.
 """
+from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
@@ -262,10 +263,11 @@ class AssignmentView(viewsets.ViewSet):
 
         deadline_list = []
 
-        # TODO: change query to a query that selects all upcoming assignments connected to the user.
+        now = timezone.now()
         for course in courses:
             if request.user.is_participant(course):
-                for assignment in Assignment.objects.filter(courses=course.id, is_published=True).all():
+                for assignment in Assignment.objects.filter(courses=course.id, is_published=True, unlock_date__lt=now,
+                                                            lock_date__gt=now).all():
                     deadline_list.append(
                         AssignmentSerializer(assignment, context={'user': request.user, 'course': course}).data)
 
@@ -296,5 +298,4 @@ class AssignmentView(viewsets.ViewSet):
         utils.publish_all_assignment_grades(assignment, published)
         if published:
             for journal in assignment.journal_set.all():
-                if journal.sourcedid is not None and journal.grade_url is not None:
-                    lti_grade.replace_result(journal)
+                lti_grade.replace_result(journal)
