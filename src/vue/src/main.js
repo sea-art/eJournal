@@ -86,7 +86,7 @@ new Vue({
                 s += day + '-' + month + '-' + year
             }
             if (displayDate && displayTime) {
-                s += ' '
+                s += ' at '
             }
             if (displayTime) {
                 s += time
