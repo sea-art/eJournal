@@ -36,8 +36,12 @@ export default {
             var css = `
 body {
     font-family: 'Roboto', sans-serif;
-    text-decoration: none;
     color: #252C39;
+}
+
+p a {
+    text-decoration: none;
+    color: #22648A;
 }`
 
             var style = document.createElement('style')
