@@ -3,6 +3,7 @@ assignment.py.
 
 In this file are all the assignment api requests.
 """
+from django.db.models import Q
 from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -44,18 +45,18 @@ class AssignmentView(viewsets.ViewSet):
             success -- with the assignment data
 
         """
-        course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
-        course = Course.objects.get(pk=course_id)
+        try:
+            course_id, = utils.optional_typed_params(request.query_params, (int, 'course_id'))
+            course = Course.objects.get(pk=course_id)
+            request.user.check_participation(course)
+            courses = [course]
+        except VLEParamWrongType:
+            course = None
+            courses = request.user.participations.all()
 
-        request.user.check_participation(course)
-
-        # Consider all assignments that the user is in, or can grade.
-        assignments = []
-        for assignment in course.assignment_set.all():
-            if request.user.can_view(assignment):
-                assignments.append(assignment)
-
-        serializer = AssignmentSerializer(assignments, many=True, context={'user': request.user, 'course': course})
+        query = Assignment.objects.filter(courses__in=courses).distinct()
+        viewable = [assignment for assignment in query if request.user.can_view(assignment)]
+        serializer = AssignmentSerializer(viewable, many=True, context={'user': request.user, 'course': course})
 
         data = serializer.data
         for i, assignment in enumerate(data):
@@ -257,21 +258,20 @@ class AssignmentView(viewsets.ViewSet):
         """
         try:
             course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
-            courses = [Course.objects.get(pk=course_id)]
+            course = Course.objects.get(pk=course_id)
+            courses = [course]
         except (VLEMissingRequiredKey, VLEParamWrongType):
+            course = None
             courses = request.user.participations.all()
 
-        deadline_list = []
-
         now = timezone.now()
-        for course in courses:
-            if request.user.is_participant(course):
-                for assignment in Assignment.objects.filter(courses=course.id, is_published=True, unlock_date__lt=now,
-                                                            lock_date__gt=now).all():
-                    deadline_list.append(
-                        AssignmentSerializer(assignment, context={'user': request.user, 'course': course}).data)
+        query = Assignment.objects.filter(
+            Q(lock_date__gt=now) | Q(lock_date=None), courses__in=courses
+        ).distinct()
+        viewable = [assignment for assignment in query if request.user.can_view(assignment)]
+        upcoming = AssignmentSerializer(viewable, context={'user': request.user, 'course': course}, many=True).data
 
-        return response.success({'upcoming': deadline_list})
+        return response.success({'upcoming': upcoming})
 
     @action(methods=['patch'], detail=True)
     def published_state(self, request, *args, **kwargs):
