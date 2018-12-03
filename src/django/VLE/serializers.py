@@ -179,7 +179,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
     def _get_student_deadline(self, nodes):
         """Get student deadline.
 
-        This function gets the first upcomming deadline.
+        This function gets the first upcoming deadline.
         It checks for the first entrydeadline that still need to submitted and still can be, or for the first
         progressnode that is not yet fullfilled.
         """
@@ -251,7 +251,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
             .values('node__entry__grade') \
             .aggregate(Sum('node__entry__grade'))['node__entry__grade__sum']
         if stats['average_points']:
-            stats['average_points'] /= len(journal_set.filter(user__in=users))
+            stats['average_points'] /= journal_set.filter(user__in=users).count()
 
         return stats
 

@@ -14,10 +14,12 @@
         <br />
         {{ course.abbreviation }}
 
-        <h6 v-if="this.deadline.deadline && (this.deadline.stats.needs_marking + deadline.stats.unpublished) ">
-            <template>{{ timeLeft[1] }} ago</template>
+        <!-- Teacher deadline shows last submitted entry date  -->
+        <h6 v-if="this.deadline.deadline && (this.deadline.stats.needs_marking + deadline.stats.unpublished)">
+            {{ timeLeft[1] }} ago
             <span class="float-right">{{ $root.beautifyDate(deadline.deadline) }}</span>
         </h6>
+        <!-- Student deadline shows last not submitted deadline -->
         <h6 v-else-if="this.deadline.deadline">
             <template v-if="timeLeft[0] < 0">Due in {{ timeLeft[1] }}</template>
             <span class="text-red" v-else>{{ timeLeft[1] }} late</span>
