@@ -3,9 +3,8 @@ assignment.py.
 
 In this file are all the assignment api requests.
 """
-from datetime import datetime
-
 from django.db.models import Q
+from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
 
@@ -265,8 +264,9 @@ class AssignmentView(viewsets.ViewSet):
             course = None
             courses = request.user.participations.all()
 
+        now = timezone.now()
         query = Assignment.objects.filter(
-            Q(lock_date__gt=datetime.now()) | Q(lock_date=None), courses__in=courses
+            Q(lock_date__gt=now) | Q(lock_date=None), courses__in=courses
         ).distinct()
         viewable = [assignment for assignment in query if request.user.can_view(assignment)]
         upcoming = AssignmentSerializer(viewable, context={'user': request.user, 'course': course}, many=True).data
@@ -298,5 +298,4 @@ class AssignmentView(viewsets.ViewSet):
         utils.publish_all_assignment_grades(assignment, published)
         if published:
             for journal in assignment.journal_set.all():
-                if journal.sourcedid is not None and journal.grade_url is not None:
-                    lti_grade.replace_result(journal)
+                lti_grade.replace_result(journal)
