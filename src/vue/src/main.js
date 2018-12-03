@@ -39,7 +39,7 @@ new Vue({
         colors: ['pink-border', 'purple-border', 'yellow-border', 'blue-border'],
         previousPage: null,
         windowWidth: 0,
-        maxFileSizeBytes: 2097152,
+        maxFileSizeBytes: 5242880,
         maxEmailFileSizeBytes: 10485760,
         flatPickrTimeConfig: {
             enableTime: true,
