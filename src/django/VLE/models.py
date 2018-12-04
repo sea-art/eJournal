@@ -713,8 +713,9 @@ class Entry(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.pk:
-            self.creation_date = timezone.now()
-        self.last_edited = timezone.now()
+            now = timezone.now()
+            self.creation_date = now
+            self.last_edited = now
 
         return super(Entry, self).save(*args, **kwargs)
 
