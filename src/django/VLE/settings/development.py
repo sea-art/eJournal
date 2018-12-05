@@ -30,7 +30,7 @@ with open(LTI_ROLE_CONFIG_PATH) as role_config:
     ROLES = json.load(role_config)
     LTI_ROLES = {value: key for (key, value) in ROLES.items()}
 
-USER_MAX_FILE_SIZE_BYTES = 2 * 1024 * 1024
+USER_MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024
 USER_MAX_TOTAL_STORAGE_BYTES = 100 * 1024 * 1024
 USER_MAX_EMAIL_ATTACHMENT_BYTES = 10 * 1024 * 1024
 
