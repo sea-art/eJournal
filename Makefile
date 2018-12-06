@@ -21,7 +21,7 @@ test-coverage:
 test: test-front test-back
 
 run-test:
-	bash -c 'source ./venv/bin/activate && cd ./src/django && python manage.py test VLE.tests.test_$(arg)'
+	bash -c 'source ./venv/bin/activate && cd ./src/django && python manage.py test test.test_$(arg)'
 
 ##### DEVELOP COMMANDS #####
 
