@@ -74,6 +74,7 @@
                      :cID="this.cID"
                      :groups="this.groups"
                      :lti_linked="this.course.lti_linked"
+                     :lti_id="this.course.lti_id"
                      @create-group="createGroup"
                      @delete-group="deleteGroup"
                      @update-group="updateGroup">

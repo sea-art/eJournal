@@ -47,6 +47,9 @@ export default {
         },
         lti_id: {
             required: false
+        },
+        lti_linked: {
+            required: false
         }
     },
     data () {
