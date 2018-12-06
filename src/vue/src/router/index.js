@@ -116,7 +116,10 @@ var router = new Router({
 
 router.beforeEach((to, from, next) => {
     const loggedIn = store.getters['user/loggedIn']
-    router.app.previousPage = from
+
+    if (from.name) {
+        router.app.previousPage = from
+    }
 
     if (loggedIn && routerConstraints.UNAVAILABLE_WHEN_LOGGED_IN.has(to.name)) {
         next({name: 'Home'})
@@ -124,6 +127,7 @@ router.beforeEach((to, from, next) => {
         store.dispatch('user/validateToken')
             .then(_ => { next() })
             .catch(_ => {
+                router.app.previousPage = to
                 next({name: 'Login'})
             })
     } else { next() }
