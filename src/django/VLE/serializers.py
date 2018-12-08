@@ -113,7 +113,7 @@ class CourseSerializer(serializers.ModelSerializer):
         depth = 1
 
     def get_lti_linked(self, course):
-        return Lti_ids.objects.filter(course=course.pk).count() > 0
+        return Lti_ids.objects.filter(course=course.pk).exists()
 
 
 class GroupSerializer(serializers.ModelSerializer):
