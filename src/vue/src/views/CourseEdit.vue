@@ -77,7 +77,8 @@
                      :lti_id="this.course.lti_id"
                      @create-group="createGroup"
                      @delete-group="deleteGroup"
-                     @update-group="updateGroup">
+                     @update-group="updateGroup"
+                     @update-groups="updateGroups">
                  </group-modal>
         </b-modal>
 
@@ -296,6 +297,9 @@ export default {
                 participationAPI.getEnrolled(this.cID)
                     .then(users => { this.participants = users })
             }
+        },
+        updateGroups (groups) {
+            this.groups = groups
         },
         routeToEditCourseRoles () {
             this.$router.push({

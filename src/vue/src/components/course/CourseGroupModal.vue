@@ -64,7 +64,7 @@ export default {
         getDataNoseGroups () {
             groupAPI.getDataNose(this.cID, {customSuccessToast: 'Successfully syncronized from DataNose.'})
                 .then(groups => {
-                    this.groups = groups
+                    this.$emit('update-groups', groups)
                 })
         },
         createUserGroup () {
