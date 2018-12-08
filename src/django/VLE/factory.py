@@ -5,8 +5,8 @@ The facory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
 import requests
-from django.utils import timezone
 from django.conf import settings
+from django.utils import timezone
 
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
                         Format, Group, Instance, Journal, Lti_ids, Node,
@@ -179,14 +179,15 @@ def make_lti_ids(lti_id, for_model, course=None, assignment=None):
 
 def make_lti_groups(lti_id, course):
     groups = requests.get(settings.GROUP_API.format(lti_id)).json()
-    for group in groups:
-        try:
-            name = group['Name']
-            lti_id = int(group['CanvasSectionID'])
-            if not Group.objects.filter(course=course, lti_id=lti_id).exists():
-                make_course_group(name, course, lti_id)
-        except (ValueError, KeyError):
-            continue
+    if isinstance(groups, list):
+        for group in groups:
+            try:
+                name = group['Name']
+                lti_id = int(group['CanvasSectionID'])
+                if not Group.objects.filter(course=course, lti_id=lti_id).exists():
+                    make_course_group(name, course, lti_id)
+            except (ValueError, KeyError):
+                continue
 
 
 def make_format(templates=[]):
