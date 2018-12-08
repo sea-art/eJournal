@@ -177,7 +177,7 @@ def make_lti_ids(lti_id, for_model, course=None, assignment=None):
 
 
 def make_lti_groups(lti_id, course):
-    groups = requests.get('https://api.datanose.nl/Groups/{}'.format(course.pk)).json()
+    groups = requests.get('https://api.datanose.nl/Groups/{}'.format(lti_id)).json()
     for group in groups:
         try:
             name = group['Name']
