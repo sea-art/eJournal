@@ -65,7 +65,7 @@ class canEnterThroughLTI(TestCase):
 
     def test_select_user(self):
         """Hopefully select a user."""
-        selected_user = lti.check_user_lti({
+        selected_user = lti.get_user_lti({
             'user_id': self.user.lti_id,
         })
         self.assertEquals(selected_user, self.user)

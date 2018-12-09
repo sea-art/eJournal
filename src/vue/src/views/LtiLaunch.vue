@@ -166,7 +166,7 @@ export default {
                 this.handleAssignmentChoice = true
                 break
             case this.states.check_assign:
-                assignmentAPI.getWithLti(this.lti.ltiAssignID)
+                assignmentAPI.getWithLti(this.lti.ltiAssignID, {redirect: false, customErrorToast: ''})
                     .then(assignment => {
                         if (assignment === undefined) {
                             this.states.state = this.states.new_assign

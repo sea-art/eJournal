@@ -1,3 +1,19 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2016 GU Yiling
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+*/
+
 import 'vue-awesome/icons/eye'
 import 'vue-awesome/icons/caret-up'
 import 'vue-awesome/icons/caret-down'
@@ -50,3 +66,15 @@ import 'vue-awesome/icons/github'
 import 'vue-awesome/icons/linkedin'
 import 'vue-awesome/icons/file'
 import 'vue-awesome/icons/search'
+
+import Icon from 'vue-awesome/components/Icon'
+
+Icon.register({
+    'sync-alt': {
+        'width': 512,
+        'height': 512,
+        'paths': [{
+            'd': 'M370.7 133.3C339.5 104 298.9 88 255.8 88 178.4 88.1 111.5 141.2 93.1 214.8 91.7 220.2 86.9 224 81.4 224H24.1C16.6 224 10.9 217.2 12.3 209.8 33.9 94.9 134.8 8 256 8 322.4 8 382.8 34.1 427.3 76.7L463 41C478.1 25.9 504 36.6 504 57.9V192C504 205.3 493.3 216 480 216H345.9C324.6 216 313.9 190.1 329 175L370.7 133.3zM32 296H166.1C187.4 296 198.1 321.9 183 337L141.3 378.7C172.5 408 213.1 424 256.2 424 333.6 423.9 400.5 370.9 418.9 297.2 420.3 291.8 425.1 288 430.6 288H487.9C495.4 288 501.1 294.8 499.7 302.2 478.1 417.1 377.2 504 256 504 189.6 504 129.2 477.9 84.7 435.3L49 471C33.9 486.1 8 475.4 8 454.1V320C8 306.7 18.7 296 32 296z'
+        }]
+    }
+})

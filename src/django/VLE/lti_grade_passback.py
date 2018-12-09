@@ -158,7 +158,7 @@ class GradePassBackRequest(object):
 
 
 def needs_grading(journal, node):
-    """Give the teacher a needs grading notification in lti instancie."""
+    """Give the teacher a needs grading notification in lti instance."""
     if journal.sourcedid is None or journal.grade_url is not None:
         return
 
