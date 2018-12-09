@@ -99,7 +99,7 @@ def check_course_lti(request, user, role):
         return None
 
     course = lti_couple.course
-    lti_id, = utils.optional_params(request, 'custom_section_ids')
+    lti_id, = utils.optional_params(request, 'custom_section_id')
     # If the user is participatant, but not yet in a group, put the user in the Canvas related group.
     if user.is_participant(course):
         participation = Participation.objects.get(course=course, user=user)
