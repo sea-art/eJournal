@@ -45,9 +45,7 @@ function packConnArgs (connArgs) {
 function toastError (error, connArgs) {
     if (connArgs.customErrorToast) {
         router.app.$toasted.error(sanitization.escapeHtml(connArgs.customErrorToast))
-    } else if (connArgs.customErrorToast === '') {
-        /* Pass */
-    } else {
+    } else if (connArgs.customErrorToast !== '') {
         var data
         if (error.response.data instanceof ArrayBuffer) {
             data = genericUtils.parseArrayBuffer(error.response.data)
