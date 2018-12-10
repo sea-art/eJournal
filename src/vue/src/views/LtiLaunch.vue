@@ -166,7 +166,7 @@ export default {
                 this.handleAssignmentChoice = true
                 break
             case this.states.check_assign:
-                assignmentAPI.getWithLti(this.lti.ltiAssignID)
+                assignmentAPI.getWithLti(this.lti.ltiAssignID, {redirect: false, customErrorToast: ''})
                     .then(assignment => {
                         if (assignment === undefined) {
                             this.states.state = this.states.new_assign
@@ -214,15 +214,27 @@ export default {
                 })
                 break
             case this.states.finish_t:
-                /* Teacher has created or linked a new course and or assignment, we need to update the store. */
+                /* Teacher might have created or linked a new course and or assignment, we need to update the store. */
                 this.$store.dispatch('user/populateStore').then(_ => {
-                    this.$router.push({
-                        name: 'FormatEdit',
-                        params: {
-                            cID: this.page.cID,
-                            aID: this.page.aID
-                        }
-                    })
+                    if (this.tempStateToCheckIfWeCanAutoSetup === this.states.finish_t) {
+                        /* The assignment already existed. */
+                        this.$router.push({
+                            name: 'Assignment',
+                            params: {
+                                cID: this.page.cID,
+                                aID: this.page.aID
+                            }
+                        })
+                    } else {
+                        /* A new assignment has been created, yet to be configured. */
+                        this.$router.push({
+                            name: 'FormatEdit',
+                            params: {
+                                cID: this.page.cID,
+                                aID: this.page.aID
+                            }
+                        })
+                    }
                 }, error => {
                     this.$router.push({
                         name: 'ErrorPage',

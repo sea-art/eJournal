@@ -4,6 +4,8 @@ factory.py.
 The facory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
+import requests
+from django.conf import settings
 from django.utils import timezone
 
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
@@ -62,6 +64,10 @@ def make_participation(user=None, course=None, role=None, group=None):
     """
     participation = Participation(user=user, course=course, role=role, group=group)
     participation.save()
+
+    for assignment in course.assignment_set.all():
+        if not Journal.objects.filter(assignment=assignment, user=user).exists():
+            make_journal(assignment, user)
     return participation
 
 
@@ -99,6 +105,8 @@ def make_course_group(name, course, lti_id=None):
     course -- course the group belongs to
     lti_id -- potential lti_id, this is to link the canvas course to the VLE course.
     """
+    if name is None:
+        return None
     course_group = Group(name=name, course=course, lti_id=lti_id)
     course_group.save()
     return course_group
@@ -154,13 +162,32 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
         assign.lock_date = lock_date
     assign.save()
 
+    for user in User.objects.filter(participation__course__in=assign.courses.all()).distinct():
+        if not Journal.objects.filter(assignment=assign, user=user).exists():
+            make_journal(assign, user)
+
     return assign
 
 
 def make_lti_ids(lti_id, for_model, course=None, assignment=None):
+    if for_model == 'Course':
+        make_lti_groups(lti_id, course)
     lti_id_couple = Lti_ids(lti_id=lti_id, for_model=for_model, assignment=assignment, course=course)
     lti_id_couple.save()
     return lti_id_couple
+
+
+def make_lti_groups(lti_id, course):
+    groups = requests.get(settings.GROUP_API.format(lti_id)).json()
+    if isinstance(groups, list):
+        for group in groups:
+            try:
+                name = group['Name']
+                lti_id = int(group['CanvasSectionID'])
+                if not Group.objects.filter(course=course, lti_id=lti_id).exists():
+                    make_course_group(name, course, lti_id)
+            except (ValueError, KeyError):
+                continue
 
 
 def make_format(templates=[]):
@@ -235,6 +262,8 @@ def make_journal(assignment, user):
     as those in the format, so any changes should
     be reflected in the Nodes as well.
     """
+    if Journal.objects.filter(assignment=assignment, user=user).exists():
+        return Journal.objects.get(assignment=assignment, user=user)
     preset_nodes = assignment.format.presetnode_set.all()
     journal = Journal(assignment=assignment, user=user)
     journal.save()

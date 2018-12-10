@@ -10,7 +10,7 @@ from django.core.management.base import BaseCommand
 from faker import Faker
 
 import VLE.factory as factory
-from VLE.models import Field, Node, Role
+from VLE.models import Course, Field, Node, Role
 
 faker = Faker()
 
@@ -53,7 +53,7 @@ class Command(BaseCommand):
                 "is_superuser": False,
                 "is_teacher": False
             }, {
-                "username": "Student5",
+                "username": "zzhu",
                 "first_name": "Zi Long",
                 "last_name": "Zhu",
                 "pass": "pass",
@@ -91,16 +91,18 @@ class Command(BaseCommand):
         """Generate courses."""
         courses_examples = [
             {
+                "pk": 1697,
                 "name": "Portfolio Academische Vaardigheden 1",
-                "abbr": "PAV",
+                "abbr": "PAV1",
                 "students": [0, 1, 2, 3, 4],
                 "teachers": [5],
                 "start_date": faker.date("2018-09-01"),
                 "end_date": faker.date("2019-09-01"),
             },
             {
+                "pk": 1698,
                 "name": "Portfolio Academische Vaardigheden 2",
-                "abbr": "PAV",
+                "abbr": "PAV2",
                 "students": [0, 1, 2, 3, 4],
                 "teachers": [5],
                 "start_date": faker.date("2018-09-01"),
@@ -110,18 +112,20 @@ class Command(BaseCommand):
 
         self.courses = []
         for c in courses_examples:
-            author = self.users[random.choice(c["teachers"])]
-            course = factory.make_course(c["name"], c["abbr"], c["start_date"], c["end_date"], author)
+            author = self.users[c["teachers"][0]]
+            course = Course(pk=c["pk"], name=c["name"], abbreviation=c["abbr"], startdate=c["start_date"],
+                            enddate=c["end_date"], author=author)
+            course.save()
+            factory.make_role_student('Student', course)
+            factory.make_role_ta('TA', course)
+            factory.make_role_teacher('Teacher', course)
+
             role_teacher = Role.objects.get(name='Teacher', course=course)
             role_student = Role.objects.get(name='Student', course=course)
             for sid in c["students"]:
-                student = self.users[sid]
-                factory.make_participation(student, course, role_student)
+                factory.make_participation(self.users[sid], course, role_student)
             for cid in c["teachers"]:
-                if self.users[cid] == author:  # TODO why is no participation required if the user is author
-                    continue
-                teacher = self.users[cid]
-                factory.make_participation(teacher, course, role_teacher)
+                factory.make_participation(self.users[cid], course, role_teacher)
 
             self.courses.append(course)
 
