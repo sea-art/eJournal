@@ -1,7 +1,7 @@
 <template>
     <iframe
         @load="init($event)"
-        sandbox="allow-same-origin"
+        sandbox="allow-same-origin allow-popups"
         frameBorder="0"
         marginwidth="0"
         marginheight="0"
@@ -49,9 +49,16 @@ p a {
             style.appendChild(document.createTextNode(css))
             doc.head.append(style)
         },
+        setLinkTarget (obj) {
+            var doc = obj.contentWindow.document
+            var base = document.createElement('base')
+            base.target = '_blank'
+            doc.head.append(base)
+        },
         init (e) {
             this.injectContent(e.target)
             this.setCustomStyle(e.target)
+            this.setLinkTarget(e.target)
             this.scaleIframe(e.target)
         }
     }
