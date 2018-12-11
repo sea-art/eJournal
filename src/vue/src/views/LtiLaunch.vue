@@ -121,7 +121,8 @@ export default {
                     points_possible: this.lti.ltiPointsPossible,
                     unlock_date: this.lti.ltiAssignUnlock.slice(0, -9),
                     due_date: this.lti.ltiAssignDue.slice(0, -9),
-                    lock_date: this.lti.ltiAssignLock.slice(0, -9)
+                    lock_date: this.lti.ltiAssignLock.slice(0, -9),
+                    is_published:  this.lti.ltiAssignPublished
                 }).then(assignment => {
                     this.page.aID = assignment.id
                     this.updateState(this.states.finish_t)
