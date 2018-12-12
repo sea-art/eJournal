@@ -140,9 +140,11 @@ export default {
             this.content = this.givenContent
             this.editor.setContent(this.givenContent)
         },
-        givenContent: function () {
+        givenContent: () => {
             this.content = this.givenContent
-            this.editor.setContent(this.givenContent)
+            if (this.editor) {
+                this.editor.setContent(this.givenContent)
+            }
         }
     },
     methods: {
