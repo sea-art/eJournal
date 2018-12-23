@@ -77,11 +77,11 @@ class DeleteApiTests(TestCase):
         assign2.courses.add(course1)
 
         # Stupid test to begin with, glad this is replaced soon
-        test.api_del_call(self, '/assignments/' + str(assign1.pk) + f'/?course_id={self.course.pk}', login)
+        test.api_del_call(self, '/assignments/{}/?course_id={}'.format(str(assign1.pk), self.course.pk), login)
         assignment = Assignment.objects.get(pk=assign1.pk)
         self.assertEquals(assignment.courses.count(), 2)
 
-        test.api_del_call(self, f'/assignments/{assign1.pk}/?course_id={self.course.pk}', login)
+        test.api_del_call(self, '/assignments/{}/?course_id={}'.format(self.course.pk, self.course.pk), login)
         self.assertEquals(Assignment.objects.filter(pk=assign1.pk).count(), 1)
 
     def test_delete_group(self):

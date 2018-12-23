@@ -53,7 +53,7 @@ class UpdateApiTests(TestCase):
                 role['can_grade'] = 1
 
         roles.append(serialize.RoleSerializer(factory.make_role_default_no_perms('test_role', self.course)).data)
-        test.api_patch_call(self, f'/roles/{self.course.pk}/', {'roles': roles}, login)
+        test.api_patch_call(self, '/roles/{}/'.format(self.course.pk), {'roles': roles}, login)
 
         role_test = Role.objects.get(name='TA2', course=self.course)
         self.assertTrue(role_test.can_grade)
