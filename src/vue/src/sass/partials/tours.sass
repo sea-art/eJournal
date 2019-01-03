@@ -1,0 +1,39 @@
+.introjs-helperNumberLayer
+    visibility: hidden
+
+.introjs-tooltip
+    @extend .shadow
+    background-color: $theme-light-grey
+    &:before
+        font-weight: bold
+        font-size: 20px
+        margin: -10px -10px 0px -10px
+        background-color: $theme-dark-blue
+        display: block
+        padding: 5px 10px 5px 10px
+        color: white
+        margin-bottom: 10px
+        content: "Tutorial"
+    .introjs-arrow
+        &.left
+            border-right-color: $theme-dark-blue
+        &.right
+            border-left-color: $theme-dark-blue
+        &.top
+            border-bottom-color: $theme-dark-blue
+    .introjs-bullets ul li a
+        background-color: $theme-dark-grey
+        &:hover
+            background-color: $theme-medium-grey
+        &.active
+            background-color: $theme-blue
+            &:hover
+                cursor: default
+    .introjs-button
+        @extend .btn
+        background-image: none
+        &.introjs-disabled, &:hover.introjs-disabled
+            opacity: 0.7
+            box-shadow: 0 4px 7px rgba(0,0,0,0.16), 0 4px 7px rgba(0,0,0,0.23)
+            color: $theme-dark-blue !important
+            background-color: white !important

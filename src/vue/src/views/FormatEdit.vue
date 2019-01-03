@@ -9,8 +9,8 @@
     <b-row class="outer-container-timeline-page" no-gutters>
         <b-col md="12" lg="8" xl="9" class="inner-container-timeline-page">
             <b-col md="12" lg="auto" xl="4" class="left-content-timeline-page">
-                <bread-crumb v-if="$root.lgMax()" class="main-content">&nbsp;</bread-crumb>
-                <timeline @select-node="selectNode" @add-node="addNode" :selected="currentNode" :nodes="nodes" :edit="true"/>
+                <bread-crumb v-if="$root.lgMax()">&nbsp;</bread-crumb>
+                <timeline v-intro="'The content of tooltip'" v-intro-step="2" @select-node="selectNode" @add-node="addNode" :selected="currentNode" :nodes="nodes" :edit="true"/>
             </b-col>
 
             <b-col md="12" lg="auto" xl="8" class="main-content-timeline-page">
@@ -53,7 +53,7 @@
         </b-col>
 
         <b-col md="12" lg="4" xl="3" class="right-content-timeline-page right-content">
-            <h3>Entry Templates</h3>
+            <h3 v-intro="'The content of tooltip'">Entry Templates</h3>
             <div :class="{ 'input-disabled' : saveRequestInFlight }">
                 <available-template-card
                     v-for="template in templatePool"
@@ -137,6 +137,7 @@ export default {
             .then(data => {
                 this.saveFromDB(data)
                 this.convertFromDB()
+                this.$intro().start()
             })
             .then(_ => { this.isChanged = false })
 

@@ -4,19 +4,22 @@ import router from './router'
 import store from './store'
 import axios from 'axios'
 import BootstrapVue from 'bootstrap-vue'
-import '../node_modules/bootstrap/dist/css/bootstrap.css'
-import '../node_modules/bootstrap-vue/dist/bootstrap-vue.css'
-import '../node_modules/flatpickr/dist/flatpickr.css'
+import 'bootstrap/dist/css/bootstrap.css'
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+import 'flatpickr/dist/flatpickr.css'
+import 'intro.js/introjs.css'
 
 import '@/helpers/vue-awesome-icons.js'
 
 import Toasted from 'vue-toasted'
 import flatPickr from 'vue-flatpickr-component'
+import VueIntro from 'vue-introjs'
 
 Vue.config.productionTip = false
 Vue.use(Toasted, { position: 'top-center', duration: 4000 })
 Vue.use(BootstrapVue)
 Vue.use(flatPickr)
+Vue.use(VueIntro)
 
 /* Checks the store for for permissions according to the current route cID or aID. */
 Vue.prototype.$hasPermission = store.getters['permissions/hasPermission']
