@@ -3,25 +3,29 @@
     <content-columns>
         <bread-crumb slot="main-content-column" @edit-click="handleEdit()"/>
         <b-card slot="main-content-column" class="no-hover settings-card">
-            <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
+            <input class="theme-input full-width multi-form" type="text" v-model="searchValue" placeholder="Search..."/>
             <div class="d-flex">
-                <b-form-select class="multi-form mr-2" v-model="selectedFilterGroupOption"
-                               :select-size="1">
-                    <option :value="null">Filter group by ...</option>
+                <b-form-select
+                    class="multi-form mr-2"
+                    v-model="journalGroupFilter"
+                    :select-size="1"
+                >
+                    <option v-if="groups.length < 1" :value="null">No groups to filter by</option>
+                    <option v-else :value="null">Filter group by ...</option>
                     <option v-for="group in groups" :key="group.name" :value="group.name">
                         {{ group.name }}
                     </option>
                 </b-form-select>
                 <b-form-select class="multi-form mr-2" v-model="selectedSortOption" :select-size="1">
-                   <option value="sortFullName">Sort by name</option>
-                   <option value="sortUsername">Sort by username</option>
-                   <option value="sortMarking">Sort by marking needed</option>
+                   <option value="name">Sort by name</option>
+                   <option value="username">Sort by username</option>
+                   <option value="markingNeeded">Sort by marking needed</option>
                 </b-form-select>
-                <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button multi-form">
+                <b-button v-on:click.stop v-if="!order" @click="toggleOrder(!order)" class="button multi-form">
                     <icon name="long-arrow-down"/>
                     Ascending
                 </b-button>
-                <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="button multi-form">
+                <b-button v-on:click.stop v-if="order" @click="toggleOrder(!order)" class="button multi-form">
                     <icon name="long-arrow-up"/>
                     Descending
                 </b-button>
@@ -36,13 +40,14 @@
         </b-card>
 
         <div v-if="filteredJournals" v-for="journal in filteredJournals" :key="journal.student.id" slot="main-content-column">
-            <b-link tag="b-button" :to="{ name: 'Journal',
-                                          params: {
-                                              cID: cID,
-                                              aID: aID,
-                                              jID: journal.id
-                                          }, query: query
-                                        }">
+            <b-link tag="b-button" :to="{
+                name: 'Journal',
+                params: {
+                    cID: cID,
+                    aID: aID,
+                    jID: journal.id
+                }
+            }">
 
                 <student-card
                     :student="journal.student"
@@ -75,6 +80,7 @@ import assignmentAPI from '@/api/assignment'
 import groupAPI from '@/api/group'
 import participationAPI from '@/api/participation'
 import icon from 'vue-awesome/components/Icon'
+import { mapGetters, mapMutations } from 'vuex'
 
 export default {
     name: 'Assignment',
@@ -92,12 +98,7 @@ export default {
             assignmentJournals: [],
             stats: [],
             groups: [],
-            selectedSortOption: 'sortUsername',
-            selectedFilterGroupOption: null,
-            searchVariable: '',
-            query: {},
-            loadingJournals: true,
-            order: false
+            loadingJournals: true
         }
     },
     components: {
@@ -128,28 +129,31 @@ export default {
 
         if (this.$hasPermission('can_view_course_users')) {
             groupAPI.getAllFromCourse(this.cID)
-                .then(groups => { this.groups = groups })
+                .then(groups => {
+                    if (!groups.some(group => { return (group.name === this.getJournalGroupFilter) })) {
+                        this.setJournalGroupFilter(null)
+                    }
+                    this.groups = groups
+                })
         }
 
-        participationAPI.get(this.cID)
-            .then(participant => {
-                /* Group can be null */
-                if (participant.group && participant.group.name) {
-                    this.selectedFilterGroupOption = participant.group.name
-                }
-            })
-
-        if (this.$route.query.sort === 'sortFullName' ||
-            this.$route.query.sort === 'sortUsername' ||
-            this.$route.query.sort === 'sortMarking') {
-            this.selectedSortOption = this.$route.query.sort
-        }
-
-        if (this.$route.query.search) {
-            this.searchVariable = this.$route.query.search
+        if (!this.getJournalGroupFilter) {
+            participationAPI.get(this.cID)
+                .then(participant => {
+                    /* Group can be null */
+                    if (participant.group && participant.group.name) {
+                        this.setJournalGroupFilter(participant.group.name)
+                    }
+                })
         }
     },
     methods: {
+        ...mapMutations({
+            setJournalSortBy: 'preferences/SET_JOURNAL_SORT_BY',
+            toggleOrder: 'preferences/SET_JOURNAL_SORT_ASCENDING',
+            setJournalSearchValue: 'preferences/SET_JOURNAL_SEARCH_VALUE',
+            setJournalGroupFilter: 'preferences/SET_JOURNAL_GROUP_FILTER'
+        }),
         handleEdit () {
             this.$router.push({
                 name: 'FormatEdit',
@@ -174,24 +178,10 @@ export default {
                     })
             }
         },
-        updateQuery () {
-            if (this.searchVariable !== '') {
-                this.query = {sort: this.selectedSortOption, search: this.searchVariable}
-            } else {
-                this.query = {sort: this.selectedSortOption}
-            }
-
-            if (this.$route.query !== this.query) {
-                this.$router.replace({ query: this.query })
-            }
-        },
         compare (a, b) {
             if (a < b) { return this.order ? 1 : -1 }
             if (a > b) { return this.order ? -1 : 1 }
             return 0
-        },
-        toggleOrder () {
-            this.order = !this.order
         },
         calcStats (filteredJournals) {
             var needsMarking = 0
@@ -209,6 +199,36 @@ export default {
         }
     },
     computed: {
+        ...mapGetters({
+            journalSortBy: 'preferences/journalSortBy',
+            order: 'preferences/journalSortAscending',
+            getJournalSearchValue: 'preferences/journalSearchValue',
+            getJournalGroupFilter: 'preferences/journalGroupFilter'
+        }),
+        journalGroupFilter: {
+            get () {
+                return this.getJournalGroupFilter
+            },
+            set (value) {
+                this.setJournalGroupFilter(value)
+            }
+        },
+        searchValue: {
+            get () {
+                return this.getJournalSearchValue
+            },
+            set (value) {
+                this.setJournalSearchValue(value)
+            }
+        },
+        selectedSortOption: {
+            get () {
+                return this.journalSortBy
+            },
+            set (value) {
+                this.setJournalSortBy(value)
+            }
+        },
         filteredJournals: function () {
             let self = this
 
@@ -227,30 +247,29 @@ export default {
             function searchFilter (assignment) {
                 var username = assignment.student.username.toLowerCase()
                 var fullName = assignment.student.name.toLowerCase()
-                var searchVariable = self.searchVariable.toLowerCase()
+                var searchValue = self.searchValue.toLowerCase()
 
-                return username.includes(searchVariable) ||
-                       fullName.includes(searchVariable)
+                return username.includes(searchValue) ||
+                       fullName.includes(searchValue)
             }
 
             function groupFilter (assignment) {
-                if (self.selectedFilterGroupOption) {
-                    return assignment.student.group === self.selectedFilterGroupOption
+                if (self.getJournalGroupFilter) {
+                    return assignment.student.group === self.getJournalGroupFilter
                 }
 
                 return true
             }
 
             /* Filter list based on search input. */
-            if (this.selectedSortOption === 'sortFullName') {
+            if (this.selectedSortOption === 'name') {
                 store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareFullName))
-            } else if (this.selectedSortOption === 'sortUsername') {
+            } else if (this.selectedSortOption === 'username') {
                 store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareUsername))
-            } else if (this.selectedSortOption === 'sortMarking') {
+            } else if (this.selectedSortOption === 'markingNeeded') {
                 store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareMarkingNeeded))
             }
 
-            this.updateQuery()
             this.calcStats(store.state.filteredJournals.filter(groupFilter))
 
             return store.state.filteredJournals.filter(groupFilter).slice()

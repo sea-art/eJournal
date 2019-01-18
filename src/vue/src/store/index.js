@@ -12,7 +12,7 @@ Vue.use(Vuex)
 const debug = process.env.NODE_ENV !== 'production'
 const plugins = []
 
-plugins.push(createPersistedState({ paths: ['user', 'permissions', 'preferences'] }))
+plugins.push(createPersistedState({ paths: ['user', 'permissions'] }))
 
 export default new Vuex.Store({
     modules: {

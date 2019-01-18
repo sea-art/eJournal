@@ -98,6 +98,7 @@ class Command(BaseCommand):
                 "teachers": [5],
                 "start_date": faker.date("2018-09-01"),
                 "end_date": faker.date("2019-09-01"),
+                "student_group_names": ["Cobol", "Smalltalk"]
             },
             {
                 "pk": 1698,
@@ -107,6 +108,7 @@ class Command(BaseCommand):
                 "teachers": [5],
                 "start_date": faker.date("2018-09-01"),
                 "end_date": faker.date("2019-09-01"),
+                "student_group_names": ["Algol", "Ruby"]
             }
         ]
 
@@ -116,6 +118,10 @@ class Command(BaseCommand):
             course = Course(pk=c["pk"], name=c["name"], abbreviation=c["abbr"], startdate=c["start_date"],
                             enddate=c["end_date"], author=author)
             course.save()
+
+            student_groups = [factory.make_course_group(g, course) for g in c["student_group_names"]]
+            staff_group = factory.make_course_group("Staff", course)
+
             factory.make_role_student('Student', course)
             factory.make_role_ta('TA', course)
             factory.make_role_teacher('Teacher', course)
@@ -123,9 +129,9 @@ class Command(BaseCommand):
             role_teacher = Role.objects.get(name='Teacher', course=course)
             role_student = Role.objects.get(name='Student', course=course)
             for sid in c["students"]:
-                factory.make_participation(self.users[sid], course, role_student)
+                factory.make_participation(self.users[sid], course, role_student, random.choice(student_groups))
             for cid in c["teachers"]:
-                factory.make_participation(self.users[cid], course, role_teacher)
+                factory.make_participation(self.users[cid], course, role_teacher, staff_group)
 
             self.courses.append(course)
 

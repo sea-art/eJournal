@@ -6,9 +6,7 @@ const getters = {
     journalSortAscending: state => state.journal.sortAscending,
     journalGroupFilter: state => state.journal.groupFilter,
     journalSearchValue: state => state.journal.searchValue,
-    journalSortByMarkingNeeded: state => state.journal.sortBy.markingNeeded,
-    journalSortByName: state => state.journal.sortBy.name,
-    journalSortByUsername: state => state.journal.sortBy.username
+    journalSortBy: state => state.journal.sortBy
 }
 
 const mutations = {
@@ -25,14 +23,9 @@ const mutations = {
     [types.SET_JOURNAL_SEARCH_VALUE] (state, searchValue) {
         state.journal.searchValue = searchValue
     },
-    [types.SET_JOURNAL_SORT_BY_MARKING_NEEDED] (state, sortByMarkingNeeded) {
-        state.journal.sortBy.markingNeeded = sortByMarkingNeeded
-    },
-    [types.SET_JOURNAL_SORT_BY_NAME] (state, sortByName) {
-        state.journal.sortBy.name = sortByName
-    },
-    [types.SET_JOURNAL_SORT_BY_USERNAME] (state, sortByUsername) {
-        state.journal.sortBy.username = sortByUsername
+    [types.SET_JOURNAL_SORT_BY] (state, sortByOption) {
+        if (!preferenceOptions.JOURNAL_SORT_OPTIONS.has(sortByOption)) { throw new Error('Invalid journal sorting option.') }
+        state.journal.sortBy = sortByOption
     }
 }
 
@@ -45,12 +38,20 @@ export default {
         journal: {
             sortAscending: true,
             groupFilter: null,
+            searchValue: '',
+            sortBy: 'markingNeeded'
+        },
+        courseMembers: {
+            sortAscending: true,
+            enrolled: true,
+            groupFilter: null,
             searchValue: null,
-            sortBy: {
-                markingNeeded: true,
-                name: false,
-                username: false
-            }
+            sortBy: 'name'
+        },
+        assignmentOverview: {
+            sortAscending: true,
+            searchValue: null,
+            sortBy: 'name'
         }
     },
     getters,
