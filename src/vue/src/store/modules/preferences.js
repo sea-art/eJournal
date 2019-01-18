@@ -1,8 +1,8 @@
 import * as types from '../constants/mutation-types.js'
+import * as preferenceOptions from '../constants/preference-types.js'
 
 const getters = {
-    todoSortByDate: state => state.todo.sortBy.date,
-    todoSortByMarkingNeeded: state => state.todo.sortBy.markingNeeded,
+    todoSortBy: state => state.todo.sortBy,
     journalSortAscending: state => state.journal.sortAscending,
     journalGroupFilter: state => state.journal.groupFilter,
     journalSearchValue: state => state.journal.searchValue,
@@ -12,11 +12,9 @@ const getters = {
 }
 
 const mutations = {
-    [types.SET_TODO_SORT_BY_DATE] (state, sortByDate) {
-        state.todo.sortBy.date = sortByDate
-    },
-    [types.SET_TODO_SORT_BY_MARKING_NEEDED] (state, sortByMarkingNeeded) {
-        state.todo.sortBy.markingNeeded = sortByMarkingNeeded
+    [types.SET_TODO_SORT_BY] (state, sortByOption) {
+        if (!preferenceOptions.TODO_SORT_OPTIONS.has(sortByOption)) { throw new Error('Invalid TODO sorting option.') }
+        state.todo.sortBy = sortByOption
     },
     [types.SET_JOURNAL_SORT_ASCENDING] (state, ascending) {
         state.journal.sortAscending = ascending
@@ -42,10 +40,7 @@ export default {
     namespaced: true,
     state: {
         todo: {
-            sortBy: {
-                date: true,
-                markingNeeded: false
-            }
+            sortBy: 'date'
         },
         journal: {
             sortAscending: true,
