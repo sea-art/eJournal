@@ -143,6 +143,9 @@ export default {
                     /* Group can be null */
                     if (participant.group && participant.group.name) {
                         this.setJournalGroupFilter(participant.group.name)
+                        if (!this.filteredJournals.length) {
+                            this.setJournalGroupFilter(null)
+                        }
                     }
                 })
         }
