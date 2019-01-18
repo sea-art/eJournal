@@ -12,8 +12,8 @@ const getters = {
     courseMembersGroupFilter: state => state.courseMembers.groupFilter,
     courseMembersSearchValue: state => state.courseMembers.searchValue,
     courseMembersSortBy: state => state.courseMembers.sortBy,
-    assignmentSortAscending: state => state.assignmentOverview.sortAscending,
-    assignmentSearchValue: state => state.assignmentOverview.searchValue,
+    assignmentOverviewSortAscending: state => state.assignmentOverview.sortAscending,
+    assignmentOverviewSearchValue: state => state.assignmentOverview.searchValue,
     assignmentOverviewSortBy: state => state.assignmentOverview.sortBy
 }
 
