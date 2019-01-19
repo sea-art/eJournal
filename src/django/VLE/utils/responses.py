@@ -5,10 +5,6 @@ This file contains functions to easily generate common HTTP error responses
 using JsonResponses. These functions should be used whenever the client needs
 to receive the appropriate error code.
 """
-import base64
-import os
-
-from django.conf import settings
 from django.http import FileResponse, HttpResponse, JsonResponse
 
 import VLE.models
@@ -146,31 +142,22 @@ def value_error(message=None):
         return bad_request(description='One or more fields are invalid.')
 
 
-def user_file_b64(user_file):
-    """Return a file as base64 encoded binary string if found, otherwise returns a not found response."""
-    file_path = os.path.join(settings.MEDIA_ROOT, user_file.file.name)
-    if os.path.exists(file_path):
-        with open(file_path, 'rb') as fp:
-            response = HttpResponse(base64.b64encode(fp.read()), content_type=user_file.content_type)
-            response['Content-Disposition'] = 'attachment; filename=' + os.path.basename(file_path)
-            # Exposes headers to the response in javascript lowercase recommended
-            response['access-control-expose-headers'] = 'content-disposition, content-type'
-            return response
-    else:
-        return not_found(description='File not found.')
+def validation_error(err):
+    """Formats a validation error into a readable bad_request response."""
+    resp = ""
+    field_count = 1
 
+    for field, validation_errors in err.__dict__["error_dict"].items():
+        # Wrong with field:
+        resp += "{}) {}: ".format(field_count, field)
+        field_count += 1
+        for validation_error in validation_errors:
+            for msg in validation_error:
+                resp += msg + ' '
 
-def file_b64(file_path, content_type):
-    """Return a file as base64 encoded binary string if found, otherwise returns a not found response."""
-    if os.path.exists(file_path):
-        with open(file_path, 'rb') as fp:
-            response = HttpResponse(base64.b64encode(fp.read()), content_type=content_type)
-            response['Content-Disposition'] = 'attachment; filename=' + os.path.basename(file_path)
-            # Exposes headers to the response in javascript lowercase recommended
-            response['access-control-expose-headers'] = 'content-disposition, content-type'
-            return response
-    else:
-        return not_found(description='File not found.')
+            resp += " "
+
+    return bad_request(resp)
 
 
 def file(file_path):
