@@ -1,6 +1,6 @@
 <template>
     <div class="todo-square" :class="num ? 'num-nonzero' : 'num-zero'">
-        {{ num }}
+        {{ num ? Math.round(num * 100) / 100 : 0 }}
     </div>
 </template>
 
