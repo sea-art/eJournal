@@ -174,18 +174,18 @@ export default {
 
             editor.theme.panel.find('toolbar')[0].$el.hide()
             if (!this.basic) { editor.theme.panel.find('menubar')[0].$el.hide() }
-            editor.theme.panel.find('#statusbar')[0].$el.hide()
+            if (this.footer) { editor.theme.panel.find('#statusbar')[0].$el.hide() }
 
             editor.on('focus', function () {
                 if (!vm.basic) { editor.theme.panel.find('menubar')[0].$el.show() }
                 editor.theme.panel.find('toolbar')[0].$el.show()
-                editor.theme.panel.find('#statusbar')[0].$el.show()
+                if (this.footer) { editor.theme.panel.find('#statusbar')[0].$el.show() }
             })
 
             editor.on('blur', function () {
                 if (!vm.basic) { editor.theme.panel.find('menubar')[0].$el.hide() }
                 editor.theme.panel.find('toolbar')[0].$el.hide()
-                editor.theme.panel.find('#statusbar')[0].$el.hide()
+                if (this.footer) { editor.theme.panel.find('#statusbar')[0].$el.hide() }
             })
         },
         handleShortCuts (e) {
