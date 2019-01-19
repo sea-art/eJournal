@@ -1,5 +1,5 @@
 <!--
-    Card used in format editor to open template editor, toggle availability, delete templates from pool.
+    Used in a card in the format editor to open template editor, toggle availability, delete templates from pool.
 -->
 
 <template>
