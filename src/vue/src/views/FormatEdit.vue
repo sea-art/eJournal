@@ -13,7 +13,13 @@
                     v-if="$root.lgMax()"
                     v-intro="'Welcome to the assignment editor!<br/>This is where you can configure the structure of your assignment. Proceed with this tutorial to learn more.'"
                     v-intro-step="1">
-                    <icon name="question" scale="1.75" class="edit-icon" @click.native="startTour"/>
+                    <icon
+                        v-intro="'That\'s it! If you have any more questions, do not hesitate to contact us via the feedback button below. This tutorial can be consulted again by clicking the question mark.'"
+                        v-intro-step="4"
+                        name="question"
+                        scale="1.75"
+                        class="edit-icon"
+                        @click.native="startTour"/>
                 </bread-crumb>
                 <timeline
                     v-intro="'The timeline forms the basis for a journal. Assignment details can also be changed here, by clicking the first node.<br/><br/>The timeline contains a node for every entry. You can add two different types of nodes to it:<br/><br/><ul><li><b>Preset entries</b> are entries with a specific template which have to be completed before a set deadline</li><li><b>Progress deadlines</b> are point targets that have to be met before a set deadline</li></ul>New presets can be added via the \'+\' node. Click any node to view its contents.'"
@@ -30,7 +36,13 @@
                     v-if="$root.xl()"
                     v-intro="'Welcome to the assignment editor!<br/>This is where you can configure the structure of your assignment. Proceed with this tutorial to learn more.'"
                     v-intro-step="1">
-                    <icon name="question" scale="1.75" class="edit-icon" @click.native="startTour"/>
+                    <icon
+                        v-intro="'That\'s it! If you have any more questions, do not hesitate to contact us via the feedback button below. This tutorial can be consulted again by clicking the question mark.'"
+                        v-intro-step="4"
+                        name="question"
+                        scale="1.75"
+                        class="edit-icon"
+                        @click.native="startTour"/>
                 </bread-crumb>
                 <!--
                     Fill in the template using the corresponding data
