@@ -130,7 +130,7 @@ export default {
         if (this.$hasPermission('can_view_course_users')) {
             groupAPI.getAllFromCourse(this.cID)
                 .then(groups => {
-                    if (!groups.some(group => { return (group.name === this.getJournalGroupFilter) })) {
+                    if (!groups.some(group => group.name === this.getJournalGroupFilter)) {
                         this.setJournalGroupFilter(null)
                     }
                     this.groups = groups
