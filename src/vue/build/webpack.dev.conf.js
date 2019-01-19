@@ -66,7 +66,6 @@ const devWebpackConfig = merge(baseWebpackConfig, {
       }
     ]),
     new webpack.ProvidePlugin({
-      // other modules
       introJs: ['intro.js', 'introJs']
     })
   ]
