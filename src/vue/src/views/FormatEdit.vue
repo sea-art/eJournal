@@ -130,7 +130,7 @@ import formatAPI from '@/api/format.js'
 
 export default {
     name: 'FormatEdit',
-    props: ['cID', 'aID'],
+    props: ['cID', 'aID', 'newAssignment'],
     /* Main data representations:
        templates, presets, unused templates: as received.
        templatePool: the list of used templates. Elements are meta objects with a t field storing the template,
@@ -176,7 +176,9 @@ export default {
             .then(data => {
                 this.saveFromDB(data)
                 this.convertFromDB()
-                this.startTour()
+                if (this.newAssignment) {
+                    this.startTour()
+                }
             })
             .then(_ => { this.isChanged = false })
 

@@ -99,7 +99,8 @@ export default {
                 name: 'FormatEdit',
                 params: {
                     cID: this.cID,
-                    aID: aID
+                    aID: aID,
+                    newAssignment: true
                 }
             })
         },
