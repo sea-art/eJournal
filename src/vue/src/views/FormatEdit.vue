@@ -9,12 +9,29 @@
     <b-row class="outer-container-timeline-page" no-gutters>
         <b-col md="12" lg="8" xl="9" class="inner-container-timeline-page">
             <b-col md="12" lg="auto" xl="4" class="left-content-timeline-page">
-                <bread-crumb v-if="$root.lgMax()">&nbsp;</bread-crumb>
-                <timeline v-intro="'The content of tooltip'" v-intro-step="2" @select-node="selectNode" @add-node="addNode" :selected="currentNode" :nodes="nodes" :edit="true"/>
+                <bread-crumb
+                    v-if="$root.lgMax()"
+                    v-intro="'Welcome to the assignment editor!<br/>This is where you can configure the structure of your assignment. Proceed with this tutorial to learn more.'"
+                    v-intro-step="1">
+                    <icon name="question" scale="1.75" class="edit-icon" @click.native="startTour"/>
+                </bread-crumb>
+                <timeline
+                    v-intro="'The timeline forms the basis for a journal. Assignment details can also be changed here, by clicking the first node.<br/><br/>The timeline contains a node for every entry. You can add two different types of nodes to it:<br/><br/><ul><li><b>Preset entries</b> are entries with a specific template which have to be completed before a set deadline</li><li><b>Progress deadlines</b> are point targets that have to be met before a set deadline</li></ul>New presets can be added via the \'+\' node. Click any node to view its contents.'"
+                    v-intro-step="3"
+                    @select-node="selectNode"
+                    @add-node="addNode"
+                    :selected="currentNode"
+                    :nodes="nodes"
+                    :edit="true"/>
             </b-col>
 
             <b-col md="12" lg="auto" xl="8" class="main-content-timeline-page">
-                <bread-crumb v-if="$root.xl()">&nbsp;</bread-crumb>
+                <bread-crumb
+                    v-if="$root.xl()"
+                    v-intro="'Welcome to the assignment editor!<br/>This is where you can configure the structure of your assignment. Proceed with this tutorial to learn more.'"
+                    v-intro-step="1">
+                    <icon name="question" scale="1.75" class="edit-icon" @click.native="startTour"/>
+                </bread-crumb>
                 <!--
                     Fill in the template using the corresponding data
                     of the entry
@@ -47,21 +64,28 @@
                     size="lg"
                     title="Edit template"
                     hide-footer>
-                        <template-editor :template="templateBeingEdited"/>
+                        <template-editor :template="templateBeingEdited.t" :formatSettings="templateBeingEdited"/>
                 </b-modal>
             </b-col>
         </b-col>
 
         <b-col md="12" lg="4" xl="3" class="right-content-timeline-page right-content">
-            <h3 v-intro="'The content of tooltip'">Entry Templates</h3>
-            <div :class="{ 'input-disabled' : saveRequestInFlight }">
-                <available-template-card
-                    v-for="template in templatePool"
-                    :key="template.t.id"
-                    @click.native="showTemplateModal(template)"
-                    :template="template"
-                    @delete-template="deleteTemplate"/>
-                <b-button class="add-button grey-background full-width multi-form" @click="showTemplateModal(newTemplate())">
+            <div
+            :class="{ 'input-disabled' : saveRequestInFlight }"
+            v-intro="'Every assignment contains customizable <i>templates</i> which specify what the contents of each journal entry should be. There are two different types of templates:<br/><br/><ul><li><b>Unlimited templates</b> can be freely used by students as often as they want</li><li><b>Preset-only templates</b> can be used only for preset entries in the timeline</li></ul>You can preview and edit a template by clicking on it. More templates can be added by clicking the \'Create New Template\' button.'"
+            v-intro-step="2">
+                <h3>Entry Templates</h3>
+                <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+                    <available-template
+                        v-for="template in templatePool"
+                        :key="template.t.id"
+                        :template="template"
+                        @edit-template="showTemplateModal(template)"
+                        @delete-template="deleteTemplate"/>
+                </b-card>
+                <b-button
+                    class="add-button grey-background full-width multi-form"
+                    @click="showTemplateModal(newTemplate())">
                     <icon name="plus"/>
                     Create New Template
                 </b-button>
@@ -86,7 +110,7 @@ import mainCard from '@/components/assets/MainCard.vue'
 import timeline from '@/components/timeline/Timeline.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import FormatEditAssignmentDetailsCard from '@/components/format/FormatEditAssignmentDetailsCard.vue'
-import formatEditAvailableTemplateCard from '@/components/format/FormatEditAvailableTemplateCard.vue'
+import formatEditAvailableTemplate from '@/components/format/FormatEditAvailableTemplate.vue'
 import formatEditSelectTemplateCard from '@/components/format/FormatEditSelectTemplateCard.vue'
 import templateEdit from '@/components/template/TemplateEdit.vue'
 import icon from 'vue-awesome/components/Icon'
@@ -122,9 +146,12 @@ export default {
             saveRequestInFlight: false,
 
             templateBeingEdited: {
-                'field_set': [],
-                'name': '',
-                'id': -1
+                't': {
+                    'field_set': [],
+                    'name': '',
+                    'id': -1
+                },
+                'available': true
             },
             wipTemplateId: -1,
 
@@ -137,7 +164,7 @@ export default {
             .then(data => {
                 this.saveFromDB(data)
                 this.convertFromDB()
-                this.$intro().start()
+                this.startTour()
             })
             .then(_ => { this.isChanged = false })
 
@@ -202,7 +229,7 @@ export default {
             if (!this.templatePool.includes(template)) {
                 this.templatePool.push(template)
             }
-            this.templateBeingEdited = template.t
+            this.templateBeingEdited = template
             this.$refs['templateModal'].show()
         },
         hideModal (ref) {
@@ -374,13 +401,16 @@ export default {
                     this.unusedTemplates.push(template.t)
                 }
             }
+        },
+        startTour () {
+            this.$intro().start()
         }
     },
     components: {
         'content-columns': contentColumns,
         'bread-crumb': breadCrumb,
         'assignment-details-card': FormatEditAssignmentDetailsCard,
-        'available-template-card': formatEditAvailableTemplateCard,
+        'available-template': formatEditAvailableTemplate,
         'selected-node-card': formatEditSelectTemplateCard,
         'template-editor': templateEdit,
         'main-card': mainCard,
