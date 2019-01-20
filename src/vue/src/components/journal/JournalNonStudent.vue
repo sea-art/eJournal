@@ -87,7 +87,7 @@ import icon from 'vue-awesome/components/Icon'
 import store from '@/Store.vue'
 import journalAPI from '@/api/journal'
 import assignmentAPI from '@/api/assignment'
-import { mapGetters } from 'vuex'
+import { mapGetters, mapMutations } from 'vuex'
 
 export default {
     props: ['cID', 'aID', 'jID'],
@@ -104,6 +104,8 @@ export default {
         }
     },
     created () {
+        this.switchJournalAssignment(this.aID)
+
         assignmentAPI.get(this.aID)
             .then(assignment => { this.assignment = assignment })
         journalAPI.getNodes(this.jID)
@@ -141,6 +143,9 @@ export default {
         }
     },
     methods: {
+        ...mapMutations({
+            switchJournalAssignment: 'preferences/SWITCH_JOURNAL_ASSIGNMENT'
+        }),
         selectFirstUngradedNode () {
             var min = this.nodes.length - 1
 

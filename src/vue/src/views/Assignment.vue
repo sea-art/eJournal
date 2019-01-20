@@ -121,41 +121,50 @@ export default {
             }
         }
 
+        this.switchJournalAssignment(this.aID)
+
         assignmentAPI.get(this.aID, this.cID)
             .then(assignment => {
                 this.loadingJournals = false
                 this.assignmentJournals = assignment.journals
             })
 
+        let groupCalls = []
         if (this.$hasPermission('can_view_course_users')) {
-            groupAPI.getAllFromCourse(this.cID)
-                .then(groups => {
-                    if (!groups.some(group => group.name === this.getJournalGroupFilter)) {
-                        this.setJournalGroupFilter(null)
-                    }
-                    this.groups = groups
-                })
+            groupCalls.push(groupAPI.getAllFromCourse(this.cID))
         }
 
         if (!this.getJournalGroupFilter) {
-            participationAPI.get(this.cID)
-                .then(participant => {
-                    /* Group can be null */
-                    if (participant.group && participant.group.name) {
-                        this.setJournalGroupFilter(participant.group.name)
-                        if (!this.filteredJournals.length) {
-                            this.setJournalGroupFilter(null)
-                        }
-                    }
-                })
+            groupCalls.push(participationAPI.get(this.cID))
         }
+
+        Promise.all(groupCalls).then((results) => {
+            let groups = (results.length > 0) ? results[0] : null
+            let participant = (results.length > 1) ? results[1] : null
+
+            if (groups) { this.groups = groups }
+
+            /* If there are no groups or the current group filter yields no journals, remove the filter. */
+            if (!groups || !groups.some(group => group.name === this.getJournalGroupFilter)) {
+                this.setJournalGroupFilter(null)
+            }
+
+            /* If the group filter has not been set, set it to the group of the user provided that yields journals. */
+            if (this.getJournalGroupFilter === null && participant && participant.group && participant.group.name) {
+                this.setJournalGroupFilter(participant.group.name)
+                if (!this.filteredJournals.length) {
+                    this.setJournalGroupFilter(null)
+                }
+            }
+        })
     },
     methods: {
         ...mapMutations({
             setJournalSortBy: 'preferences/SET_JOURNAL_SORT_BY',
             toggleOrder: 'preferences/SET_JOURNAL_SORT_ASCENDING',
             setJournalSearchValue: 'preferences/SET_JOURNAL_SEARCH_VALUE',
-            setJournalGroupFilter: 'preferences/SET_JOURNAL_GROUP_FILTER'
+            setJournalGroupFilter: 'preferences/SET_JOURNAL_GROUP_FILTER',
+            switchJournalAssignment: 'preferences/SWITCH_JOURNAL_ASSIGNMENT'
         }),
         handleEdit () {
             this.$router.push({

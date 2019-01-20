@@ -7,6 +7,7 @@ const getters = {
     journalGroupFilter: state => state.journal.groupFilter,
     journalSearchValue: state => state.journal.searchValue,
     journalSortBy: state => state.journal.sortBy,
+    journalAID: state => state.journal.aID,
     courseMembersSortAscending: state => state.courseMembers.sortAscending,
     courseMembersViewEnrolled: state => state.courseMembers.viewEnrolled,
     courseMembersGroupFilter: state => state.courseMembers.groupFilter,
@@ -35,6 +36,15 @@ const mutations = {
         if (!preferenceOptions.JOURNAL_SORT_OPTIONS.has(sortByOption)) { throw new Error('Invalid journal sorting option.') }
         state.journal.sortBy = sortByOption
     },
+    [types.SWITCH_JOURNAL_ASSIGNMENT] (state, aID) {
+        if (aID !== state.journal.aID) {
+            state.journal.aID = aID
+            state.journal.sortAscending = true
+            state.journal.groupFilter = null
+            state.journal.searchValue = ''
+            state.journal.sortBy = 'markingNeeded'
+        }
+    },
     [types.SET_COURSE_MEMBERS_SORT_ASCENDING] (state, sortAscending) {
         state.courseMembers.sortAscending = sortAscending
     },
@@ -60,6 +70,22 @@ const mutations = {
     [types.SET_ASSIGNMENT_OVERVIEW_SORT_BY] (state, sortByOption) {
         if (!preferenceOptions.ASSIGNMENT_OVERVIEW_SORT_OPTIONS.has(sortByOption)) { throw new Error('Invalid assignment overview sorting option.') }
         state.assignmentOverview.sortBy = sortByOption
+    },
+    [types.RESET_PREFERENCES] (state) {
+        state.todo.sortBy = 'date'
+        state.journal.aID = null
+        state.journal.sortAscending = true
+        state.journal.groupFilter = null
+        state.journal.searchValue = ''
+        state.journal.sortBy = 'markingNeeded'
+        state.courseMembers.sortAscending = true
+        state.courseMembers.viewEnrolled = true
+        state.courseMembers.groupFilter = null
+        state.courseMembers.searchValue = ''
+        state.courseMembers.sortBy = 'name'
+        state.assignmentOverview.sortAscending = true
+        state.assignmentOverview.searchValue = ''
+        state.assignmentOverview.sortBy = 'name'
     }
 }
 
@@ -70,6 +96,7 @@ export default {
             sortBy: 'date'
         },
         journal: {
+            aID: null,
             sortAscending: true,
             groupFilter: null,
             searchValue: '',
