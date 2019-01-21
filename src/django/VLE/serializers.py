@@ -127,6 +127,7 @@ class ParticipationSerializer(serializers.ModelSerializer):
     course = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
     group = serializers.SerializerMethodField()
+
     class Meta:
         model = Participation
         fields = '__all__'
@@ -134,10 +135,13 @@ class ParticipationSerializer(serializers.ModelSerializer):
 
     def get_user(self, participation):
         return UserSerializer(participation.user, context=self.context).data
+
     def get_course(self, participation):
         return CourseSerializer(participation.course, context=self.context).data
+
     def get_role(self, participation):
         return RoleSerializer(participation.role, context=self.context).data
+
     def get_group(self, participation):
         return GroupSerializer(participation.group, context=self.context).data
 
