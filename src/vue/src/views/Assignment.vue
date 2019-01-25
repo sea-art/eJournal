@@ -128,7 +128,7 @@ export default {
 
         if (this.$hasPermission('can_view_course_users')) {
             groupAPI.getAllFromCourse(this.cID)
-                .then(groups => { this.groups = groups })
+                .then(groups => { this.groups = groups.sort((a, b) => b.name < a.name) })
         }
 
         participationAPI.get(this.cID)
