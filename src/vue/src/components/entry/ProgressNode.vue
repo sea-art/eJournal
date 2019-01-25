@@ -1,9 +1,9 @@
 <template>
     <b-card class="no-hover" :class="this.accomplished ? 'red-border' : 'green-border'">
         <h2 class="mb-2">Goal: {{ currentNode.target }} points</h2>
-        <span v-if="this.accomplished">
+        <span v-if="!this.accomplished">
             <b>{{ score }}</b> out of <b>{{ currentNode.target }}</b> points.<br/>
-            <b>{{ Math.round(left * 1000)/1000 }}</b> more required before <b>{{ $root.beautifyDate(currentNode.deadline) }}</b>.<br/>
+            <b>{{ Math.round(left * 1000) / 1000 }}</b> more required before <b>{{ $root.beautifyDate(currentNode.deadline) }}</b>.<br/>
         </span>
         <p>{{ currentNode.description }}</p>
     </b-card>
@@ -32,7 +32,7 @@ export default {
             return tempProgress
         },
         accomplished () {
-            return this.score < this.currentNode.target
+            return this.score > this.currentNode.target
         },
         left () {
             return this.currentNode.target - this.score
