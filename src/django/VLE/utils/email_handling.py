@@ -83,7 +83,7 @@ def send_email_feedback(user, files, topic, ftype, feedback, user_agent, url):
         subject=r_subject,
         body=r_body,
         attachments=attachments,
-        from_email='support@ejourn.al',
+        from_email='contact@ejourn.al',
         headers={'Content-Type': 'text/plain'},
         to=[user.email]
     )
@@ -92,7 +92,7 @@ def send_email_feedback(user, files, topic, ftype, feedback, user_agent, url):
         subject=f_subject,
         body=f_body,
         attachments=attachments,
-        from_email='support@ejourn.al',
+        from_email='contact@ejourn.al',
         to=['support@ejourn.al'],
         headers={'Content-Type': 'text/plain'},
         reply_to=[user.email]
