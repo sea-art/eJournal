@@ -18,11 +18,11 @@
                         v-intro-step="4"
                         name="question"
                         scale="1.75"
-                        class="edit-icon"
+                        class="question-icon"
                         @click.native="startTour"/>
                 </bread-crumb>
                 <timeline
-                    v-intro="'The timeline forms the basis for a journal. Assignment details can also be changed here, by clicking the first node.<br/><br/>The timeline contains a node for every entry. You can add two different types of nodes to it:<br/><br/><ul><li><b>Preset entries</b> are entries with a specific template which have to be completed before a set deadline</li><li><b>Progress deadlines</b> are point targets that have to be met before a set deadline</li></ul>New presets can be added via the \'+\' node. Click any node to view its contents.'"
+                    v-intro="'The timeline forms the basis for an assignment. The name, due date and other details of the assignment can also be changed here, by clicking the first node.<br/><br/>The timeline contains a node for every entry. You can add two different types of nodes to it:<br/><br/><ul><li><b>Preset entries</b> are entries with a specific template which have to be completed before a set deadline</li><li><b>Progress deadlines</b> are point targets that have to be met before a set deadline</li></ul>New nodes can be added via the \'+\' node. Click any node to view its contents.'"
                     v-intro-step="3"
                     @select-node="selectNode"
                     @add-node="addNode"
@@ -41,7 +41,7 @@
                         v-intro-step="4"
                         name="question"
                         scale="1.75"
-                        class="edit-icon"
+                        class="question-icon"
                         @click.native="startTour"/>
                 </bread-crumb>
                 <!--
@@ -84,7 +84,7 @@
         <b-col md="12" lg="4" xl="3" class="right-content-timeline-page right-content">
             <div
             :class="{ 'input-disabled' : saveRequestInFlight }"
-            v-intro="'Every assignment contains customizable <i>templates</i> which specify what the contents of each journal entry should be. There are two different types of templates:<br/><br/><ul><li><b>Unlimited templates</b> can be freely used by students as often as they want</li><li><b>Preset-only templates</b> can be used only for preset entries in the timeline</li></ul>You can preview and edit a template by clicking on it. More templates can be added by clicking the \'Create New Template\' button.'"
+            v-intro="'Every assignment contains customizable <i>templates</i> which specify what the contents of each journal entry should be. There are two different types of templates:<br/><br/><ul><li><b>Unlimited templates</b> can be freely used by students as often as they want</li><li><b>Preset-only templates</b> can be used only for preset entries that you add to the timeline</li></ul>You can preview and edit a template by clicking on it.'"
             v-intro-step="2">
                 <h3>Entry Templates</h3>
                 <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">

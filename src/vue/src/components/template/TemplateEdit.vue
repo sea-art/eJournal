@@ -26,7 +26,7 @@
                         Preset-only
                     </b-button>
                     <icon name="info-circle"/>
-                    This template can be used only for preset entries in the timeline
+                    This template can only be used for preset entries you add to the timeline
                 </div>
                 <div v-if="formatSettings.available" class="template-availability">
                     <b-button v-on:click.stop @click="toggleActive" class="add-button">

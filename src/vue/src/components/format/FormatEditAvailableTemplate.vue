@@ -33,7 +33,7 @@ export default {
     },
     methods: {
         emitDeleteTemplate () {
-            if (confirm('Are you sure you want to delete template "' + this.template.t.name + '" from this format?')) {
+            if (confirm('Are you sure you want to delete template "' + this.template.t.name + '" from this assignment?')) {
                 this.$emit('delete-template', this.template)
             }
         }
