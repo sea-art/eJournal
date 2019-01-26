@@ -38,6 +38,8 @@
                     <div v-else>
                         <text-editor
                             class="multi-form"
+                            :basic="true"
+                            :footer="false"
                             :id="'comment-text-editor-' + index"
                             :givenContent="editCommentTemp[index]"
                             @content-update="editCommentTemp[index] = $event"
@@ -61,6 +63,7 @@
                     ref="comment-text-editor-ref"
                     :basic="true"
                     :displayInline="true"
+                    :footer="false"
                     :id="'comment-text-editor'"
                     placeholder="Type your comment here..."
                     @content-update="tempComment = $event"
