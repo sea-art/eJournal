@@ -24,39 +24,9 @@ from VLE.utils import email_handling, file_handling
 from VLE.views import lti
 
 
-def get_lti_params(request, *keys):
-    jwt_params, = utils.optional_params(request.data, 'jwt_params')
-    if jwt_params:
-        lti_params = lti.decode_lti_params(jwt_params)
-    else:
-        lti_params = {'empty': ''}
-    values = utils.optional_params(lti_params, *keys)
-    values.append(settings.ROLES['Teacher'] in lti_launch.roles_to_list(lti_params))
-    return values
-
-
-class UserView(viewsets.ViewSet):
-    def list(self, request):
-        """Get all users.
-
-        Arguments:
-        request -- request data
-
-        Returns:
-        On failure:
-            unauthorized -- when the user is not logged in
-        On succes:
-            success -- with the course data
-
-        """
-        if not request.user.is_superuser:
-            return response.forbidden('Only administrators are allowed to request all user data.')
-
-        serializer = UserSerializer(User.objects.all(), many=True)
-        return response.success({'users': serializer.data})
-
+class PreferencesView(viewsets.ViewSet):
     def retrieve(self, request, pk):
-        """Get the user data of the requested user.
+        """Get the preferences of the requested user.
 
         Arguments:
         request -- request data
@@ -65,92 +35,26 @@ class UserView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-            not found -- when the user doesn't exists
+            not found -- when the user doesn't exist
         On success:
-            success -- with the user data
+            success -- with the preferences data
         """
         if int(pk) == 0:
             pk = request.user.id
 
-        user = User.objects.get(pk=pk)
+        if not (request.user == user or request.user.is_superuser):
+            return response.forbidden('You are not allowed to view this users preferences.')
 
-        if request.user == user or request.user.is_superuser:
-            serializer = OwnUserSerializer(user, many=False)
-        elif permissions.is_user_supervisor_of(request.user, user):
-            serializer = UserSerializer(user, many=False)
-        else:
-            return response.forbidden('You are not allowed to view this users information.')
+        try:
+            preferences = Preferences.objects.get(pk=pk)
+        except Preferences.DoesNotExist:
+            preferences = Preferences(user=pk)
+        serializer = PreferencesSerializer(preferences)
 
-        return response.success({'user': serializer.data})
+        return response.success({'preferences': serializer.data})
 
     def create(self, request):
-        """Create a new user.
 
-        Arguments:
-        request -- request data
-            username -- username
-            password -- password
-            first_name -- (optinal) first name
-            last_name -- (optinal) last name
-            email -- (optinal) email
-            jwt_params -- (optinal) jwt params to get the lti information from
-                user_id -- id of the user
-                user_image -- user image
-                roles -- role of the user
-
-        Returns:
-        On failure:
-            unauthorized -- when the user is not logged in
-            bad request -- when email/username/lti id already exists
-            bad request -- when email/password is invalid
-        On succes:
-            success -- with the newly created user data
-        """
-
-        lti_id, user_image, full_name, email, is_teacher = get_lti_params(
-            request, 'user_id', 'custom_user_image', 'custom_user_full_name', 'custom_user_email')
-        if full_name:
-            first_name, last_name = lti.split_fullname(full_name)
-
-        if lti_id is None:
-            # Check if instance allows standalone registration if user did not register through some LTI instance
-            try:
-                instance = Instance.objects.get(pk=1)
-                if not instance.allow_standalone_registration:
-                    return response.bad_request(('{} does not allow you to register through the website,' +
-                                                ' please use an LTI instance.').format(instance.name))
-            except Instance.DoesNotExist:
-                pass
-
-            first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
-
-        username, password = utils.required_params(request.data, 'username', 'password')
-
-        if email and User.objects.filter(email=email).exists():
-            return response.bad_request('User with this email already exists.')
-
-        validate_email(email)
-
-        if User.objects.filter(username=username).exists():
-            return response.bad_request('User with this username already exists.')
-
-        if lti_id is not None and User.objects.filter(lti_id=lti_id).exists():
-            return response.bad_request('User with this lti id already exists.')
-
-        validators.validate_password(password)
-
-        user = factory.make_user(username, password, email=email, lti_id=lti_id, is_teacher=is_teacher,
-                                 first_name=first_name, last_name=last_name, profile_picture=user_image,
-                                 verified_email=True if lti_id else False)
-
-        if lti_id is None:
-            try:
-                email_handling.send_email_verification_link(user)
-            except SMTPAuthenticationError as err:
-                user.delete()
-                raise err
-
-        return response.created({'user': UserSerializer(user).data})
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing user.
@@ -200,8 +104,11 @@ class UserView(viewsets.ViewSet):
 
         user.save()
         if user.lti_id is not None:
-            pp = utils.optional_params(request.data, 'profile_picture')
+            gn, cn, pp = utils.optional_params(
+                request.data, 'grade_notifications', 'comment_notifications', 'profile_picture')
             data = {
+                'grade_notifications': gn if gn else user.grade_notifications,
+                'comment_notifications': cn if cn else user.comment_notifications,
                 'profile_picture': pp if pp else user.profile_picture
             }
         else:

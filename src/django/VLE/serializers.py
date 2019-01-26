@@ -65,8 +65,7 @@ class OwnUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'first_name', 'last_name', 'email', 'permissions',
-                  'name', 'lti_id', 'profile_picture', 'is_teacher', 'grade_notifications', 'comment_notifications',
-                  'verified_email')
+                  'name', 'lti_id', 'profile_picture', 'is_teacher', 'verified_email')
         read_only_fields = ('id', 'permissions', 'lti_id', 'is_teacher', 'verified_email', 'username')
 
     def get_name(self, user):
@@ -101,6 +100,12 @@ class OwnUserSerializer(serializers.ModelSerializer):
             perms['assignment' + str(assignment.id)] = permissions.serialize_assignment_permissions(user, assignment)
 
         return perms
+
+
+class PreferencesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Preferences
+        read_only_fields = ('id', )
 
 
 class CourseSerializer(serializers.ModelSerializer):

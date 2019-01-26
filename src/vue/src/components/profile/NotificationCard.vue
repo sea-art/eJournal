@@ -24,7 +24,7 @@
 
 <script>
 import Switch from '@/components/assets/SwitchComponent.vue'
-import userAPI from '@/api/user'
+import preferencesAPI from '@/api/preferences'
 
 export default {
     props: ['userData'],
@@ -33,12 +33,12 @@ export default {
     },
     methods: {
         getGradeNotification (isActive) {
-            userAPI.update(0, {grade_notifications: isActive}, {customSuccessToast: 'Grade notification setting updated successfully.'})
-                .then(user => { this.$store.commit('user/SET_GRADE_NOTIFICATION', user.grade_notifications) })
+            preferencesAPI.update(0, {grade_notifications: isActive}, {customSuccessToast: 'Grade notification setting updated successfully.'})
+                .then(preferences => { this.$store.commit('preferences/SET_GRADE_NOTIFICATION', preferences.grade_notifications) })
         },
         getCommentNotification (isActive) {
-            userAPI.update(0, {comment_notifications: isActive}, {customSuccessToast: 'Comment notification setting updated successfully.'})
-                .then(user => { this.$store.commit('user/SET_COMMENT_NOTIFICATION', user.comment_notifications) })
+            preferencesAPI.update(0, {comment_notifications: isActive}, {customSuccessToast: 'Comment notification setting updated successfully.'})
+                .then(preferences => { this.$store.commit('preferences/SET_COMMENT_NOTIFICATION', preferences.comment_notifications) })
         }
     }
 }

@@ -137,12 +137,6 @@ class User(AbstractUser):
         null=True
     )
     is_teacher = models.BooleanField(default=False)
-    grade_notifications = models.BooleanField(
-        default=True
-    )
-    comment_notifications = models.BooleanField(
-        default=False
-    )
 
     def check_permission(self, permission, obj=None, message=None):
         """
@@ -205,6 +199,27 @@ class User(AbstractUser):
         if not (self.is_superuser or self == user or permissions.is_user_supervisor_of(user, self)):
             return "User"
         return self.username + " (" + str(self.pk) + ")"
+
+
+class Preferences(models.Model):
+    """Preferences.
+
+    Describes the preferences of a user:
+    - show_format_tutorial: whether or not to show the assignment format tutorial.
+    - grade_notifications: whether or not to receive grade notifications via email.
+    - comment_notifications: whether or not to receive comment notifications via email.
+    """
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE,
+        primary_key=True
+    )
+    grade_notifications = models.BooleanField(
+        default=True
+    )
+    comment_notifications = models.BooleanField(
+        default=True
+    )
 
 
 class Course(models.Model):

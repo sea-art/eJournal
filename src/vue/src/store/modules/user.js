@@ -15,8 +15,6 @@ const getters = {
     firstName: state => state.firstName,
     lastName: state => state.lastName,
     ltiID: state => state.ltiID,
-    gradeNotifications: state => state.gradeNotifications,
-    commentNotifications: state => state.commentNotifications,
     permissions: state => state.permissions,
     loggedIn: state => state.jwtAccess !== null && state.uID !== null, // We are not logged unless the store is populated as well
     storePopulated: state => state.uID !== null
@@ -45,9 +43,11 @@ const mutations = {
         state.firstName = userData.first_name
         state.lastName = userData.last_name
         state.ltiID = userData.lti_id
+        state.permissions = permissions
+    },
+    [types.HYDRATE_PREFERENCES] (state, data) {
         state.gradeNotifications = userData.grade_notifications
         state.commentNotifications = userData.comment_notifications
-        state.permissions = permissions
     },
     [types.LOGOUT] (state) {
         state.jwtAccess = null
