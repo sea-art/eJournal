@@ -207,6 +207,29 @@ class User(AbstractUser):
         return self.username + " (" + str(self.pk) + ")"
 
 
+@receiver(models.signals.post_save, sender=User)
+def create_user_preferences(sender, instance, created, **kwargs):
+    """Create matching preferences whenever a user object is created."""
+    if created:
+        UserPreferences.objects.create(user=instance)
+
+
+class UserPreferences(models.Model):
+    """UserPreferences
+
+    - user: User whose preferences are listed.
+    - show_format_editor_tutorial: Wether the format editor tutorial should be displayed or not.
+    """
+
+    user = models.OneToOneField(
+        'User',
+        related_name='preferences',
+        on_delete=models.CASCADE
+    )
+
+    show_format_editor_tutorial = models.BooleanField(default=True)
+
+
 class Course(models.Model):
     """Course.
 
