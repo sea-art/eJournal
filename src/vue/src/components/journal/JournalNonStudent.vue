@@ -13,13 +13,7 @@
                         <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'p'">
-                        <b-card class="no-hover" :class="getProgressBorderClass()">
-                            <h2 class="mb-2">Goal: {{ nodes[currentNode].target }} points</h2>
-                            <span v-if="progressPointsLeft > 0">
-                                <b>{{ progressNodes[nodes[currentNode].id] }}</b> out of <b>{{ nodes[currentNode].target }}</b> points.<br/>
-                                <b>{{ progressPointsLeft }}</b> more required before <b>{{ $root.beautifyDate(nodes[currentNode].deadline) }}</b>.
-                            </span>
-                        </b-card>
+                        <progress-node :currentNode="nodes[currentNode]" :nodes="nodes"/>
                     </div>
                 </div>
                 <journal-start-card v-else-if="currentNode === -1" :assignment="assignment"/>
@@ -82,6 +76,7 @@ import progressBar from '@/components/assets/ProgressBar.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import journalStartCard from '@/components/journal/JournalStartCard.vue'
 import journalEndCard from '@/components/journal/JournalEndCard.vue'
+import progressNode from '@/components/entry/ProgressNode.vue'
 
 import icon from 'vue-awesome/components/Icon'
 import store from '@/Store.vue'
@@ -115,12 +110,6 @@ export default {
                     this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
                 }
 
-                for (var node of this.nodes) {
-                    if (node.type === 'p') {
-                        this.progressPoints(node)
-                    }
-                }
-
                 this.selectFirstUngradedNode()
             })
 
@@ -131,14 +120,6 @@ export default {
             if (this.$hasPermission('can_view_all_journals')) {
                 journalAPI.getFromAssignment(this.cID, this.aID)
                     .then(journals => { this.assignmentJournals = journals })
-            }
-        }
-    },
-    watch: {
-        currentNode: function () {
-            if (this.currentNode !== -1 && this.currentNode !== this.nodes.length && this.nodes[this.currentNode].type === 'p') {
-                this.progressPoints(this.nodes[this.currentNode])
-                this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].id]
             }
         }
     },
@@ -190,35 +171,7 @@ export default {
 
             this.currentNode = $event
         },
-        progressPoints (progressNode) {
-            /* The function will update a given progressNode by
-             * going through all the nodes and count the published grades
-             * so far. */
-            var tempProgress = 0
-            for (var node of this.nodes) {
-                if (node.nID === progressNode.nID) {
-                    break
-                }
-
-                if (node.type === 'e' || node.type === 'd') {
-                    if (node.entry && node.entry.grade && node.entry.published && node.entry.grade !== '0') {
-                        tempProgress += parseInt(node.entry.grade)
-                    }
-                }
-            }
-
-            this.progressNodes[progressNode.id] = tempProgress.toString()
-        },
-        getProgressBorderClass () {
-            return this.progressPointsLeft > 0 ? 'red-border' : 'green-border'
-        },
         updatedGrade () {
-            for (var node of this.nodes) {
-                if (node.type === 'p') {
-                    this.progressPoints(node)
-                }
-            }
-
             journalAPI.get(this.jID)
                 .then(journal => { this.journal = journal })
         },
@@ -244,7 +197,7 @@ export default {
         },
         findEntryNode (nodeID) {
             for (var i = 0; i < this.nodes.length; i++) {
-                if (this.nodes[i].id === nodeID) {
+                if (this.nodes[i].nID === nodeID) {
                     return i
                 }
             }
@@ -288,7 +241,8 @@ export default {
         icon,
         'progress-bar': progressBar,
         'journal-start-card': journalStartCard,
-        'journal-end-card': journalEndCard
+        'journal-end-card': journalEndCard,
+        'progress-node': progressNode
     },
     computed: {
         ...mapGetters({
