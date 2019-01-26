@@ -80,6 +80,7 @@ def recover_password(request):
 
 
 @api_view(['POST'])
+@permission_classes((AllowAny, ))
 def verify_email(request):
     """Handles an email verification request.
 
@@ -88,16 +89,18 @@ def verify_email(request):
 
     Updates the email verification status.
     """
-    if request.user.verified_email:
+    token, username = utils.required_params(request.data, 'token', 'username')
+    user = User.objects.get(username=username)
+
+    if user.verified_email:
         return response.success(description='Email address already verified.')
 
-    token, = utils.required_params(request.data, 'token')
     token_generator = PasswordResetTokenGenerator()
-    if not token_generator.check_token(request.user, token):
+    if not token_generator.check_token(user, token):
         return response.bad_request(description='Invalid email recovery token.')
 
-    request.user.verified_email = True
-    request.user.save()
+    user.verified_email = True
+    user.save()
     return response.success(description='Successfully verified your email address.')
 
 

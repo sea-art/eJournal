@@ -30,8 +30,8 @@ export default {
     },
 
     /* Verify email adress using a given token. */
-    verifyEmail (token, connArgs = auth.DEFAULT_CONN_ARGS) {
-        return auth.post('/verify_email/', {token: token}, connArgs)
+    verifyEmail (username, token, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.post('/verify_email/', {username: username, token: token}, connArgs)
     },
 
     /* Request an email verification token for the given users email adress. */
