@@ -142,7 +142,8 @@ export default {
             let groups = (results.length > 0) ? results[0] : null
             let participant = (results.length > 1) ? results[1] : null
 
-            if (groups) { this.groups = groups }
+            /* Sort groups Alphabetically */
+            if (groups) { this.groups = groups.sort((a, b) => b.name < a.name) }
 
             /* If there are no groups or the current group filter yields no journals, remove the filter. */
             if (!groups || !groups.some(group => group.name === this.getJournalGroupFilter)) {
