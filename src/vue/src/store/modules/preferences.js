@@ -5,6 +5,7 @@ const getters = {
     todoSortBy: state => state.todo.sortBy,
     journalSortAscending: state => state.journal.sortAscending,
     journalGroupFilter: state => state.journal.groupFilter,
+    journalSelfSetGroupFilter: state => state.journal.selfSetGroupFilter,
     journalSearchValue: state => state.journal.searchValue,
     journalSortBy: state => state.journal.sortBy,
     journalAID: state => state.journal.aID,
@@ -29,6 +30,9 @@ const mutations = {
     [types.SET_JOURNAL_GROUP_FILTER] (state, groupFilter) {
         state.journal.groupFilter = groupFilter
     },
+    [types.SET_JOURNAL_SELF_SET_GROUP_FILTER] (state, selfSet) {
+        state.journal.selfSetGroupFilter = selfSet
+    },
     [types.SET_JOURNAL_SEARCH_VALUE] (state, searchValue) {
         state.journal.searchValue = searchValue
     },
@@ -41,6 +45,7 @@ const mutations = {
             state.journal.aID = aID
             state.journal.sortAscending = true
             state.journal.groupFilter = null
+            state.journal.selfSetGroupFilter = false
             state.journal.searchValue = ''
             state.journal.sortBy = 'markingNeeded'
         }
@@ -76,6 +81,7 @@ const mutations = {
         state.journal.aID = null
         state.journal.sortAscending = true
         state.journal.groupFilter = null
+        state.journal.selfSetGroupFilter = false
         state.journal.searchValue = ''
         state.journal.sortBy = 'markingNeeded'
         state.courseMembers.sortAscending = true
@@ -99,6 +105,7 @@ export default {
             aID: null,
             sortAscending: true,
             groupFilter: null,
+            selfSetGroupFilter: false,
             searchValue: '',
             sortBy: 'markingNeeded'
         },

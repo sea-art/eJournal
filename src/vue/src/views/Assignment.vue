@@ -123,35 +123,24 @@ export default {
 
         this.switchJournalAssignment(this.aID)
 
-        assignmentAPI.get(this.aID, this.cID)
-            .then(assignment => {
-                this.loadingJournals = false
-                this.assignmentJournals = assignment.journals
-            })
+        let initialCalls = []
+        initialCalls.push(assignmentAPI.get(this.aID, this.cID))
+        initialCalls.push(groupAPI.getAllFromCourse(this.cID))
+        initialCalls.push(participationAPI.get(this.cID))
 
-        let groupCalls = []
-        if (this.$hasPermission('can_view_course_users')) {
-            groupCalls.push(groupAPI.getAllFromCourse(this.cID))
-        }
-
-        if (!this.getJournalGroupFilter) {
-            groupCalls.push(participationAPI.get(this.cID))
-        }
-
-        Promise.all(groupCalls).then((results) => {
-            let groups = (results.length > 0) ? results[0] : null
-            let participant = (results.length > 1) ? results[1] : null
-
-            /* Sort groups Alphabetically */
-            if (groups) { this.groups = groups.sort((a, b) => b.name < a.name) }
+        Promise.all(initialCalls).then((results) => {
+            this.loadingJournals = false
+            this.assignmentJournals = results[0].journals
+            this.groups = results[1].sort((a, b) => b.name < a.name)
+            let participant = results[2]
 
             /* If there are no groups or the current group filter yields no journals, remove the filter. */
-            if (!groups || !groups.some(group => group.name === this.getJournalGroupFilter)) {
+            if (!this.groups || !this.groups.some(group => group.name === this.getJournalGroupFilter)) {
                 this.setJournalGroupFilter(null)
             }
 
             /* If the group filter has not been set, set it to the group of the user provided that yields journals. */
-            if (this.getJournalGroupFilter === null && participant && participant.group && participant.group.name) {
+            if (!this.getSelfSetGroupFilter && participant && participant.group && participant.group.name) {
                 this.setJournalGroupFilter(participant.group.name)
                 if (!this.filteredJournals.length) {
                     this.setJournalGroupFilter(null)
@@ -165,7 +154,8 @@ export default {
             toggleOrder: 'preferences/SET_JOURNAL_SORT_ASCENDING',
             setJournalSearchValue: 'preferences/SET_JOURNAL_SEARCH_VALUE',
             setJournalGroupFilter: 'preferences/SET_JOURNAL_GROUP_FILTER',
-            switchJournalAssignment: 'preferences/SWITCH_JOURNAL_ASSIGNMENT'
+            switchJournalAssignment: 'preferences/SWITCH_JOURNAL_ASSIGNMENT',
+            setSelfSetGroupFilter: 'preferences/SET_JOURNAL_SELF_SET_GROUP_FILTER'
         }),
         handleEdit () {
             this.$router.push({
@@ -216,7 +206,8 @@ export default {
             journalSortBy: 'preferences/journalSortBy',
             order: 'preferences/journalSortAscending',
             getJournalSearchValue: 'preferences/journalSearchValue',
-            getJournalGroupFilter: 'preferences/journalGroupFilter'
+            getJournalGroupFilter: 'preferences/journalGroupFilter',
+            getSelfSetGroupFilter: 'preferences/journalSelfSetGroupFilter'
         }),
         journalGroupFilter: {
             get () {
@@ -224,6 +215,7 @@ export default {
             },
             set (value) {
                 this.setJournalGroupFilter(value)
+                this.setSelfSetGroupFilter(true)
             }
         },
         searchValue: {
