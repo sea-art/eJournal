@@ -177,17 +177,9 @@ export default {
             .then(data => {
                 this.saveFromDB(data)
                 this.convertFromDB()
-<<<<<<< HEAD
                 if (this.$store.getters['preferences/showFormatTutorial']) {
                     preferencesAPI.update(0, {show_format_tutorial: false})
                         .then(preferences => { this.$store.commit('preferences/SET_FORMAT_TUTORIAL', false) })
-=======
-                console.log(this.$store.getters['preferences/showFormatTutorial'])
-                if (this.$store.getters['preferences/showFormatTutorial']) {
-                    preferencesAPI.update(0, {show_format_tutorial: false})
-                        .then(preferences => { this.$store.commit('preferences/SET_FORMAT_TUTORIAL', false) })
-                    console.log('PREFS')
->>>>>>> e1516db09b40934bc42bc550699f158be67322a9
                     this.startTour()
                 }
             })
