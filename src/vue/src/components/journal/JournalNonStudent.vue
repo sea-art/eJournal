@@ -42,7 +42,7 @@
                                 class="multi-form flex-grow-1"
                                 tag="b-button"
                                 v-if="filteredJournals.length !== 0"
-                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.id }, query: query }">
+                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.id } }">
                                 <icon name="arrow-left"/>
                                 Previous
                             </b-button>
@@ -50,7 +50,7 @@
                                 class="multi-form flex-grow-1"
                                 tag="b-button"
                                 v-if="filteredJournals.length !== 0"
-                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: nextJournal.id }, query: query }">
+                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: nextJournal.id } }">
                                 Next
                                 <icon name="arrow-right"/>
                             </b-button>
@@ -82,6 +82,7 @@ import icon from 'vue-awesome/components/Icon'
 import store from '@/Store.vue'
 import journalAPI from '@/api/journal'
 import assignmentAPI from '@/api/assignment'
+import { mapGetters, mapMutations } from 'vuex'
 
 export default {
     props: ['cID', 'aID', 'jID'],
@@ -94,13 +95,12 @@ export default {
             progressPointsLeft: 0,
             assignmentJournals: [],
             assignment: {},
-            journal: null,
-            selectedSortOption: 'sortUserName',
-            searchVariable: '',
-            query: {}
+            journal: null
         }
     },
     created () {
+        this.switchJournalAssignment(this.aID)
+
         assignmentAPI.get(this.aID)
             .then(assignment => { this.assignment = assignment })
         journalAPI.getNodes(this.jID)
@@ -121,21 +121,12 @@ export default {
                 journalAPI.getFromAssignment(this.cID, this.aID)
                     .then(journals => { this.assignmentJournals = journals })
             }
-
-            if (this.$route.query.sort === 'sortFullName' ||
-                this.$route.query.sort === 'sortUsername' ||
-                this.$route.query.sort === 'sortMarking') {
-                this.selectedSortOption = this.$route.query.sort
-            }
-
-            if (this.$route.query.search) {
-                this.searchVariable = this.$route.query.search
-            }
         }
-
-        this.query = this.$route.query
     },
     methods: {
+        ...mapMutations({
+            switchJournalAssignment: 'preferences/SWITCH_JOURNAL_ASSIGNMENT'
+        }),
         selectFirstUngradedNode () {
             var min = this.nodes.length - 1
 
@@ -212,15 +203,6 @@ export default {
             }
             return 0
         },
-        updateQuery () {
-            if (this.searchVariable !== '') {
-                this.query = {sort: this.selectedSortOption, search: this.searchVariable}
-            } else {
-                this.query = {sort: this.selectedSortOption}
-            }
-
-            this.$router.replace({ query: this.query })
-        },
         findIndex (array, property, value) {
             for (var i = 0; i < array.length; i++) {
                 if (String(array[i][property]) === String(value)) {
@@ -263,6 +245,12 @@ export default {
         'progress-node': progressNode
     },
     computed: {
+        ...mapGetters({
+            getJournalSortBy: 'preferences/journalSortBy',
+            order: 'preferences/journalSortAscending',
+            getJournalSearchValue: 'preferences/journalSearchValue',
+            getJournalGroupFilter: 'preferences/journalGroupFilter'
+        }),
         filteredJournals: function () {
             let self = this
 
@@ -281,26 +269,32 @@ export default {
             function checkFilter (user) {
                 var username = user.student.username.toLowerCase()
                 var fullName = user.student.name
-                var searchVariable = self.searchVariable.toLowerCase()
+                var searchVariable = self.getJournalSearchValue.toLowerCase()
 
                 return username.includes(searchVariable) ||
                        fullName.includes(searchVariable)
             }
 
-            if (store.state.filteredJournals.length === 0) {
-                /* Filter list based on search input. */
-                if (this.selectedSortOption === 'sortFullName') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareFullName))
-                } else if (this.selectedSortOption === 'sortUsername') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareUsername))
-                } else if (this.selectedSortOption === 'sortMarking') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded))
+            function groupFilter (assignment) {
+                if (self.getJournalGroupFilter) {
+                    return assignment.student.group === self.getJournalGroupFilter
                 }
 
-                this.updateQuery()
+                return true
             }
-            let filtered = store.state.filteredJournals.slice()
-            return filtered
+
+            if (store.state.filteredJournals.length === 0) {
+                /* Filter list based on search input. */
+                if (this.getJournalSortBy === 'sortFullName') {
+                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareFullName))
+                } else if (this.getJournalSortBy === 'sortUsername') {
+                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareUsername))
+                } else if (this.getJournalSortBy === 'sortMarking') {
+                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded))
+                }
+            }
+
+            return store.state.filteredJournals.filter(groupFilter).slice()
         },
         prevJournal () {
             var curIndex = this.findIndex(this.filteredJournals, 'id', this.jID)

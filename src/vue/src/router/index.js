@@ -43,7 +43,7 @@ var router = new Router({
         component: PasswordRecovery,
         props: true
     }, {
-        path: '/EmailVerification/:token',
+        path: '/EmailVerification/:username/:token',
         name: 'EmailVerification',
         component: EmailVerification,
         props: true
