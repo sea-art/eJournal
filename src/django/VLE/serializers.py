@@ -10,7 +10,7 @@ from rest_framework import serializers
 import VLE.permissions as permissions
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
                         Format, Group, Instance, Journal, Lti_ids, Node,
-                        Participation, PresetNode, Preferences, Role, Template,
+                        Participation, Preferences, PresetNode, Role, Template,
                         User)
 
 

@@ -7,7 +7,7 @@
             Grade updates
         </b-col>
         <b-col cols="8">
-            <toggle-switch :isActive="$store.getters['user/gradeNotifications']"
+            <toggle-switch :isActive="$store.getters['preferences/gradeNotifications']"
                            @parentActive="getGradeNotification">
             </toggle-switch>
         </b-col>
@@ -15,8 +15,16 @@
             Comments
         </b-col>
         <b-col cols="8">
-            <toggle-switch :isActive="$store.getters['user/commentNotifications']"
+            <toggle-switch :isActive="$store.getters['preferences/commentNotifications']"
                            @parentActive="getCommentNotification">
+            </toggle-switch>
+        </b-col>
+        <b-col cols="4">
+            Tutorial
+        </b-col>
+        <b-col cols="8">
+            <toggle-switch :isActive="$store.getters['preferences/showFormatTutorial']"
+                           @parentActive="getFormat">
             </toggle-switch>
         </b-col>
     </b-row>
@@ -39,6 +47,10 @@ export default {
         getCommentNotification (isActive) {
             preferencesAPI.update(0, {comment_notifications: isActive}, {customSuccessToast: 'Comment notification setting updated successfully.'})
                 .then(preferences => { this.$store.commit('preferences/SET_COMMENT_NOTIFICATION', preferences.comment_notifications) })
+        },
+        getFormat (isActive) {
+            preferencesAPI.update(0, {show_format_tutorial: isActive}, {customSuccessToast: 'Format setting updated successfully.'})
+                .then(preferences => { this.$store.commit('preferences/SET_FORMAT_TUTORIAL', preferences.show_format_tutorial) })
         }
     }
 }
