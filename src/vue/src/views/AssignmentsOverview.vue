@@ -3,20 +3,19 @@
         <bread-crumb :currentPage="'Assignments'"></bread-crumb>
 
         <b-card class="no-hover">
-            <input class="theme-input full-width multi-form" type="text" v-model="searchVariable" placeholder="Search..."/>
+            <input class="theme-input full-width multi-form" type="text" v-model="searchValue" placeholder="Search..."/>
             <div class="d-flex">
                 <b-form-select class="multi-form mr-2" v-model="selectedSortOption" :select-size="1">
-                   <option>Sort by...</option>
-                   <option value="sortDate">Sort by date</option>
-                   <option value="sortName">Sort by name</option>
+                   <option value="date">Sort by date</option>
+                   <option value="name">Sort by name</option>
                    <option v-if="$hasPermission('can_add_course')"
-                           value="sortNeedsMarking">Sort by marking needed</option>
+                           value="markingNeeded">Sort by marking needed</option>
                 </b-form-select>
-                <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="button multi-form">
+                <b-button v-on:click.stop v-if="!order" @click="setOrder(!order)" class="button multi-form">
                     <icon name="long-arrow-down"/>
                     Ascending
                 </b-button>
-                <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="button multi-form">
+                <b-button v-on:click.stop v-if="order" @click="setOrder(!order)" class="button multi-form">
                     <icon name="long-arrow-up"/>
                     Descending
                 </b-button>
@@ -43,14 +42,13 @@ import todoCard from '@/components/assets/TodoCard.vue'
 import icon from 'vue-awesome/components/Icon'
 import assignmentAPI from '@/api/assignment'
 
+import { mapGetters, mapMutations } from 'vuex'
+
 export default {
     name: 'AssignmentsOverview',
     data () {
         return {
-            deadlines: [],
-            selectedSortOption: 'sortDate',
-            searchVariable: '',
-            order: false
+            deadlines: []
         }
     },
     created () {
@@ -65,6 +63,11 @@ export default {
         'todo-card': todoCard
     },
     methods: {
+        ...mapMutations({
+            setOrder: 'preferences/SET_ASSIGNMENT_OVERVIEW_SORT_ASCENDING',
+            setAssignmentSearchValue: 'preferences/SET_ASSIGNMENT_OVERVIEW_SEARCH_VALUE',
+            setAssignmentOverviewSortBy: 'preferences/SET_ASSIGNMENT_OVERVIEW_SORT_BY'
+        }),
         assignmentRoute (cID, aID, jID, isPublished) {
             var route = {
                 params: {
@@ -87,12 +90,30 @@ export default {
             if (a < b) { return this.order ? 1 : -1 }
             if (a > b) { return this.order ? -1 : 1 }
             return 0
-        },
-        toggleOrder () {
-            this.order = !this.order
         }
     },
     computed: {
+        ...mapGetters({
+            order: 'preferences/assignmentOverviewSortAscending',
+            getAssignmentSearchValue: 'preferences/assignmentOverviewSearchValue',
+            getAssignmentOverviewSortBy: 'preferences/assignmentOverviewSortBy'
+        }),
+        searchValue: {
+            get () {
+                return this.getAssignmentSearchValue
+            },
+            set (value) {
+                this.setAssignmentSearchValue(value)
+            }
+        },
+        selectedSortOption: {
+            get () {
+                return this.getAssignmentOverviewSortBy
+            },
+            set (value) {
+                this.setAssignmentOverviewSortBy(value)
+            }
+        },
         computedDeadlines: function () {
             let self = this
 
@@ -111,16 +132,14 @@ export default {
             }
 
             function searchFilter (assignment) {
-                var searchVariable = self.searchVariable.toLowerCase()
-                return assignment.name.toLowerCase().includes(searchVariable) ||
-                       assignment.course.abbreviation.toLowerCase().includes(searchVariable)
+                return assignment.name.toLowerCase().includes(self.getAssignmentSearchValue.toLowerCase())
             }
 
-            if (this.selectedSortOption === 'sortName') {
+            if (this.selectedSortOption === 'name') {
                 return this.deadlines.filter(searchFilter).slice().sort(compareName)
-            } else if (this.selectedSortOption === 'sortDate') {
+            } else if (this.selectedSortOption === 'date') {
                 return this.deadlines.filter(searchFilter).slice().sort(compareDate)
-            } else if (this.selectedSortOption === 'sortNeedsMarking') {
+            } else if (this.selectedSortOption === 'markingNeeded') {
                 return this.deadlines.filter(searchFilter).slice().sort(compareMarkingNeeded)
             } else {
                 return this.deadlines.filter(searchFilter).slice()

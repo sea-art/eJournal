@@ -17,9 +17,9 @@ import userAPI from '@/api/user'
 
 export default {
     name: 'EmailVerification',
-    props: ['token'],
+    props: ['username', 'token'],
     mounted () {
-        userAPI.verifyEmail(this.token, {responseSuccessToast: true})
+        userAPI.verifyEmail(this.username, this.token, {responseSuccessToast: true})
             .then(response => {
                 this.$store.commit('user/EMAIL_VERIFIED')
                 this.$router.push({ name: 'Home' })

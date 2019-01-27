@@ -30,7 +30,7 @@ from VLE.views import common, email, lti
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
 
-    url(r'^', include(('VLE.views.urls', 'VLE.views'), namespace='VLE')),
+    url(r'^', include(('VLE.views', 'VLE.views'), namespace='VLE')),
 
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
