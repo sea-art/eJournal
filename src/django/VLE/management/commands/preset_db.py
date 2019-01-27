@@ -10,7 +10,7 @@ from django.core.management.base import BaseCommand
 from faker import Faker
 
 import VLE.factory as factory
-from VLE.models import Course, Field, Node, Role
+from VLE.models import Course, Field, Node
 
 faker = Faker()
 
@@ -22,112 +22,154 @@ class Command(BaseCommand):
 
     def gen_users(self):
         """Generate users with password 'pass'."""
-        users_examples = [
-            {
+        users_examples = {
+            "Student": {
                 "username": "Student",
                 "first_name": "Lars",
                 "last_name": "van Hijfte",
                 "verified_email": False,
-                "pass": "pass",
+                "password": "pass",
+                "email": "lars@eJourn.al",
                 "is_superuser": False,
                 "is_teacher": False
-            }, {
+            },
+            "Student2": {
                 "username": "Student2",
                 "first_name": "Rick",
                 "last_name": "Watertor",
-                "pass": "pass",
+                "verified_email": False,
+                "password": "pass",
+                "email": "rick@eJourn.al",
                 "is_superuser": False,
                 "is_teacher": False
-            }, {
+            },
+            "Student3": {
                 "username": "Student3",
                 "first_name": "Dennis",
                 "last_name": "Wind",
-                "pass": "pass",
+                "password": "pass",
+                "email": "dennis@eJourn.al",
+                "verified_email": False,
                 "is_superuser": False,
                 "is_teacher": False
-            }, {
+            },
+            "Student4": {
                 "username": "Student4",
                 "first_name": "Maarten",
                 "last_name": "Keulen",
-                "pass": "pass",
+                "password": "pass",
+                "email": "maarten@eJourn.al",
+                "verified_email": False,
                 "is_superuser": False,
                 "is_teacher": False
-            }, {
-                "username": "zzhu",
+            },
+            "Student5": {
+                "username": "Student5",
                 "first_name": "Zi Long",
                 "last_name": "Zhu",
-                "pass": "pass",
+                "password": "pass",
+                "email": "zi@eJourn.al",
+                "verified_email": False,
                 "is_superuser": False,
                 "is_teacher": False
-            }, {
+            },
+            "Teacher": {
                 "username": "Teacher",
                 "first_name": "Xavier",
                 "last_name": "van Dommelen",
-                "pass": "pass",
+                "password": "pass",
+                "email": "xavier@eJourn.al",
+                "verified_email": False,
                 "is_superuser": False,
                 "is_teacher": True
-            }, {
+            },
+            "TA": {
+                "username": "TA",
+                "first_name": "De TA",
+                "last_name": "van TAing",
+                "verified_email": False,
+                "password": "pass",
+                "email": "ta@eJourn.al",
+                "is_superuser": False,
+                "is_teacher": False
+            },
+            "TA2": {
+                "username": "TA2",
+                "first_name": "Backup TA",
+                "last_name": "van TAing",
+                "verified_email": False,
+                "password": "pass",
+                "email": "ta2@eJourn.al",
+                "is_superuser": False,
+                "is_teacher": False
+            },
+            "Superuser": {
                 "username": "Superuser",
                 "first_name": "Super",
                 "last_name": "User",
-                "pass": "pass",
+                "password": "pass",
+                "email": "superuser@eJourn.al",
+                "verified_email": False,
                 "is_superuser": True,
                 "is_teacher": True
             }
-        ]
+        }
 
-        self.users = []
-        for u in users_examples:
-            self.users.append(factory.make_user(
-                u['username'],
-                u['pass'],
-                u['email'] if 'email' in u else u['first_name'] + '@eJourn.al',
-                is_superuser=u['is_superuser'], is_teacher=u['is_teacher'],
-                first_name=u['first_name'], last_name=u['last_name'],
-                verified_email=u['verified_email'] if 'verified_email' in u else False)
-            )
+        self.users = {}
+
+        for key, value in users_examples.items():
+            self.users[key] = factory.make_user(**value)
 
     def gen_courses(self):
         """Generate courses."""
-        courses_examples = [
-            {
+        courses_examples = {
+            "Portfolio Academische Vaardigheden 1": {
                 "pk": 1697,
                 "name": "Portfolio Academische Vaardigheden 1",
                 "abbr": "PAV1",
-                "students": [0, 1, 2, 3, 4],
-                "teachers": [5],
+                "author": self.users["Teacher"],
+                "students": [self.users[s] for s in ["Student", "Student2", "Student3", "Student4", "Student5"]],
+                "teachers": [self.users["Teacher"]],
+                "tas": [self.users["TA"]],
                 "start_date": faker.date("2018-09-01"),
                 "end_date": faker.date("2019-09-01"),
+                "student_group_names": ["Cobol", "Smalltalk"]
             },
-            {
+            "Portfolio Academische Vaardigheden 2": {
                 "pk": 1698,
                 "name": "Portfolio Academische Vaardigheden 2",
                 "abbr": "PAV2",
-                "students": [0, 1, 2, 3, 4],
-                "teachers": [5],
+                "author": self.users["Teacher"],
+                "students": [self.users[s] for s in ["Student", "Student2", "Student3", "Student4", "Student5"]],
+                "teachers": [self.users["Teacher"]],
+                "tas": [self.users["TA2"]],
                 "start_date": faker.date("2018-09-01"),
                 "end_date": faker.date("2019-09-01"),
+                "student_group_names": ["Algol", "Ruby"]
             }
-        ]
+        }
 
-        self.courses = []
-        for c in courses_examples:
-            author = self.users[c["teachers"][0]]
+        self.courses = {}
+        for c in courses_examples.values():
             course = Course(pk=c["pk"], name=c["name"], abbreviation=c["abbr"], startdate=c["start_date"],
-                            enddate=c["end_date"], author=author)
+                            enddate=c["end_date"], author=c["author"])
             course.save()
-            factory.make_role_student('Student', course)
-            factory.make_role_ta('TA', course)
-            factory.make_role_teacher('Teacher', course)
 
-            role_teacher = Role.objects.get(name='Teacher', course=course)
-            role_student = Role.objects.get(name='Student', course=course)
-            for sid in c["students"]:
-                factory.make_participation(self.users[sid], course, role_student)
-            for cid in c["teachers"]:
-                factory.make_participation(self.users[cid], course, role_teacher)
+            student_groups = [factory.make_course_group(g, course) for g in c["student_group_names"]]
+            staff_group = factory.make_course_group("Staff", course)
 
-            self.courses.append(course)
+            role_student = factory.make_role_student('Student', course)
+            role_ta = factory.make_role_ta('TA', course)
+            role_teacher = factory.make_role_teacher('Teacher', course)
+
+            for student in c["students"]:
+                factory.make_participation(student, course, role_student, random.choice(student_groups))
+            for ta in c["tas"]:
+                factory.make_participation(ta, course, role_ta, random.choice(student_groups))
+            for teacher in c["teachers"]:
+                factory.make_participation(teacher, course, role_teacher, staff_group)
+
+            self.courses[c["name"]] = course
 
     def gen_templates(self):
         """Generate templates.
@@ -202,35 +244,37 @@ class Command(BaseCommand):
             {
                 "name": "Logboek",
                 "description": "This is a logboek for all your logging purposes",
-                "courses": [0, 1],
+                "courses": [
+                    self.courses["Portfolio Academische Vaardigheden 1"],
+                    self.courses["Portfolio Academische Vaardigheden 2"]
+                ],
                 "format": 0,
-                "author": 4,
+                "author": self.users["Teacher"],
             },
             {
                 "name": "Colloquium",
                 "description": "This is the best colloquium logbook in the world",
-                "courses": [0],
+                "courses": [self.courses["Portfolio Academische Vaardigheden 1"]],
                 "format": 1,
-                "author": 4,
+                "author": self.users["Teacher"],
             }
         ]
 
         self.assignments = []
         for a in assign_examples:
-            author = self.users[a["author"]]
             format = self.formats[a["format"]]
             faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
-            assignment = factory.make_assignment(a["name"], a["description"], author, format, is_published=True)
+            assignment = factory.make_assignment(a["name"], a["description"], a["author"], format, is_published=True)
 
             for course in a["courses"]:
-                assignment.courses.add(self.courses[course])
+                assignment.courses.add(course)
             self.assignments.append(assignment)
 
     def gen_journals(self):
         """Generate journals."""
         self.journals = []
         for a in self.assignments:
-            for u in self.users:
+            for u in self.users.values():
                 journal = factory.make_journal(a, u)
                 self.journals.append(journal)
 

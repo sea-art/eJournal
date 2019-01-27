@@ -106,9 +106,9 @@ const actions = {
             })
         })
     },
-    logout ({commit, state}) {
+    logout ({ commit, dispatch }) {
         return Promise.all([
-            // Example how to access different module mutation: commit(`module/${types.MUTATION_TYPE}`, null, { root: true })
+            commit(`preferences/${types.RESET_PREFERENCES}`, null, { root: true }),
             commit(types.LOGOUT)
         ])
     },

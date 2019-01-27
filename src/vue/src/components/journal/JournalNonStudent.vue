@@ -13,13 +13,7 @@
                         <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'p'">
-                        <b-card class="no-hover" :class="getProgressBorderClass()">
-                            <h2 class="mb-2">Goal: {{ nodes[currentNode].target }} points</h2>
-                            <span v-if="progressPointsLeft > 0">
-                                <b>{{ progressNodes[nodes[currentNode].id] }}</b> out of <b>{{ nodes[currentNode].target }}</b> points.<br/>
-                                <b>{{ progressPointsLeft }}</b> more required before <b>{{ $root.beautifyDate(nodes[currentNode].deadline) }}</b>.
-                            </span>
-                        </b-card>
+                        <progress-node :currentNode="nodes[currentNode]" :nodes="nodes"/>
                     </div>
                 </div>
                 <journal-start-card v-else-if="currentNode === -1" :assignment="assignment"/>
@@ -48,7 +42,7 @@
                                 class="multi-form flex-grow-1"
                                 tag="b-button"
                                 v-if="filteredJournals.length !== 0"
-                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.id }, query: query }">
+                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.id } }">
                                 <icon name="arrow-left"/>
                                 Previous
                             </b-button>
@@ -56,7 +50,7 @@
                                 class="multi-form flex-grow-1"
                                 tag="b-button"
                                 v-if="filteredJournals.length !== 0"
-                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: nextJournal.id }, query: query }">
+                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: nextJournal.id } }">
                                 Next
                                 <icon name="arrow-right"/>
                             </b-button>
@@ -82,11 +76,13 @@ import progressBar from '@/components/assets/ProgressBar.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import journalStartCard from '@/components/journal/JournalStartCard.vue'
 import journalEndCard from '@/components/journal/JournalEndCard.vue'
+import progressNode from '@/components/entry/ProgressNode.vue'
 
 import icon from 'vue-awesome/components/Icon'
 import store from '@/Store.vue'
 import journalAPI from '@/api/journal'
 import assignmentAPI from '@/api/assignment'
+import { mapGetters, mapMutations } from 'vuex'
 
 export default {
     props: ['cID', 'aID', 'jID'],
@@ -99,13 +95,12 @@ export default {
             progressPointsLeft: 0,
             assignmentJournals: [],
             assignment: {},
-            journal: null,
-            selectedSortOption: 'sortUserName',
-            searchVariable: '',
-            query: {}
+            journal: null
         }
     },
     created () {
+        this.switchJournalAssignment(this.aID)
+
         assignmentAPI.get(this.aID)
             .then(assignment => { this.assignment = assignment })
         journalAPI.getNodes(this.jID)
@@ -113,12 +108,6 @@ export default {
                 this.nodes = nodes
                 if (this.$route.query.nID !== undefined) {
                     this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
-                }
-
-                for (var node of this.nodes) {
-                    if (node.type === 'p') {
-                        this.progressPoints(node)
-                    }
                 }
 
                 this.selectFirstUngradedNode()
@@ -132,29 +121,12 @@ export default {
                 journalAPI.getFromAssignment(this.cID, this.aID)
                     .then(journals => { this.assignmentJournals = journals })
             }
-
-            if (this.$route.query.sort === 'sortFullName' ||
-                this.$route.query.sort === 'sortUsername' ||
-                this.$route.query.sort === 'sortMarking') {
-                this.selectedSortOption = this.$route.query.sort
-            }
-
-            if (this.$route.query.search) {
-                this.searchVariable = this.$route.query.search
-            }
-        }
-
-        this.query = this.$route.query
-    },
-    watch: {
-        currentNode: function () {
-            if (this.currentNode !== -1 && this.currentNode !== this.nodes.length && this.nodes[this.currentNode].type === 'p') {
-                this.progressPoints(this.nodes[this.currentNode])
-                this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].id]
-            }
         }
     },
     methods: {
+        ...mapMutations({
+            switchJournalAssignment: 'preferences/SWITCH_JOURNAL_ASSIGNMENT'
+        }),
         selectFirstUngradedNode () {
             var min = this.nodes.length - 1
 
@@ -199,35 +171,7 @@ export default {
 
             this.currentNode = $event
         },
-        progressPoints (progressNode) {
-            /* The function will update a given progressNode by
-             * going through all the nodes and count the published grades
-             * so far. */
-            var tempProgress = 0
-            for (var node of this.nodes) {
-                if (node.nID === progressNode.nID) {
-                    break
-                }
-
-                if (node.type === 'e' || node.type === 'd') {
-                    if (node.entry && node.entry.grade && node.entry.published && node.entry.grade !== '0') {
-                        tempProgress += parseInt(node.entry.grade)
-                    }
-                }
-            }
-
-            this.progressNodes[progressNode.id] = tempProgress.toString()
-        },
-        getProgressBorderClass () {
-            return this.progressPointsLeft > 0 ? 'red-border' : 'green-border'
-        },
         updatedGrade () {
-            for (var node of this.nodes) {
-                if (node.type === 'p') {
-                    this.progressPoints(node)
-                }
-            }
-
             journalAPI.get(this.jID)
                 .then(journal => { this.journal = journal })
         },
@@ -253,20 +197,11 @@ export default {
         },
         findEntryNode (nodeID) {
             for (var i = 0; i < this.nodes.length; i++) {
-                if (this.nodes[i].id === nodeID) {
+                if (this.nodes[i].nID === nodeID) {
                     return i
                 }
             }
             return 0
-        },
-        updateQuery () {
-            if (this.searchVariable !== '') {
-                this.query = {sort: this.selectedSortOption, search: this.searchVariable}
-            } else {
-                this.query = {sort: this.selectedSortOption}
-            }
-
-            this.$router.replace({ query: this.query })
         },
         findIndex (array, property, value) {
             for (var i = 0; i < array.length; i++) {
@@ -306,9 +241,16 @@ export default {
         icon,
         'progress-bar': progressBar,
         'journal-start-card': journalStartCard,
-        'journal-end-card': journalEndCard
+        'journal-end-card': journalEndCard,
+        'progress-node': progressNode
     },
     computed: {
+        ...mapGetters({
+            getJournalSortBy: 'preferences/journalSortBy',
+            order: 'preferences/journalSortAscending',
+            getJournalSearchValue: 'preferences/journalSearchValue',
+            getJournalGroupFilter: 'preferences/journalGroupFilter'
+        }),
         filteredJournals: function () {
             let self = this
 
@@ -327,26 +269,32 @@ export default {
             function checkFilter (user) {
                 var username = user.student.username.toLowerCase()
                 var fullName = user.student.name
-                var searchVariable = self.searchVariable.toLowerCase()
+                var searchVariable = self.getJournalSearchValue.toLowerCase()
 
                 return username.includes(searchVariable) ||
                        fullName.includes(searchVariable)
             }
 
-            if (store.state.filteredJournals.length === 0) {
-                /* Filter list based on search input. */
-                if (this.selectedSortOption === 'sortFullName') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareFullName))
-                } else if (this.selectedSortOption === 'sortUsername') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareUsername))
-                } else if (this.selectedSortOption === 'sortMarking') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded))
+            function groupFilter (assignment) {
+                if (self.getJournalGroupFilter) {
+                    return assignment.student.group === self.getJournalGroupFilter
                 }
 
-                this.updateQuery()
+                return true
             }
-            let filtered = store.state.filteredJournals.slice()
-            return filtered
+
+            if (store.state.filteredJournals.length === 0) {
+                /* Filter list based on search input. */
+                if (this.getJournalSortBy === 'sortFullName') {
+                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareFullName))
+                } else if (this.getJournalSortBy === 'sortUsername') {
+                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareUsername))
+                } else if (this.getJournalSortBy === 'sortMarking') {
+                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded))
+                }
+            }
+
+            return store.state.filteredJournals.filter(groupFilter).slice()
         },
         prevJournal () {
             var curIndex = this.findIndex(this.filteredJournals, 'id', this.jID)

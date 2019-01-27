@@ -108,7 +108,7 @@
                         v-if="viewEnrolled"
                         class="theme-input flex-grow-1 no-width multi-form mr-2"
                         type="text"
-                        v-model="searchVariable"
+                        v-model="searchValue"
                         placeholder="Search..."/>
                     <input
                         v-if="!viewEnrolled"
@@ -135,22 +135,21 @@
                 </div>
                 <div class="d-flex">
                     <b-form-select class="multi-form mr-2" v-model="selectedSortOption" :select-size="1">
-                        <option :value="null">Sort by ...</option>
-                        <option value="sortFullName">Sort by name</option>
-                        <option value="sortUsername">Sort by username</option>
+                        <option value="name">Sort by name</option>
+                        <option value="username">Sort by username</option>
                     </b-form-select>
-                    <b-form-select class="multi-form mr-2" v-model="selectedFilterGroupOption"
+                    <b-form-select class="multi-form mr-2" v-model="groupFilter"
                                    :select-size="1">
                         <option :value="null">Filter group by ...</option>
                         <option v-for="group in groups" :key="group.name" :value="group.name">
                             {{ group.name }}
                         </option>
                     </b-form-select>
-                    <b-button v-on:click.stop v-if="!order" @click="toggleOrder" class="multi-form">
+                    <b-button v-on:click.stop v-if="!order" @click="setOrder(!order)" class="multi-form">
                         <icon name="long-arrow-down"/>
                         Ascending
                     </b-button>
-                    <b-button v-on:click.stop v-if="order" @click="toggleOrder" class="multi-form">
+                    <b-button v-on:click.stop v-if="order" @click="setOrder(!order)" class="multi-form">
                         <icon name="long-arrow-up"/>
                         Descending
                     </b-button>
@@ -200,6 +199,7 @@ import courseAPI from '@/api/course'
 import groupAPI from '@/api/group'
 import roleAPI from '@/api/role'
 import participationAPI from '@/api/participation'
+import { mapGetters, mapMutations } from 'vuex'
 
 export default {
     name: 'CourseEdit',
@@ -215,14 +215,9 @@ export default {
             participants: [],
             unenrolledStudents: [],
             groups: [],
-            selectedSortOption: null,
-            selectedFilterGroupOption: null,
-            searchVariable: '',
             unenrolledLoaded: false,
             numTeachers: 0,
             roles: [],
-            viewEnrolled: true,
-            order: false,
             unenrolledQuery: '',
             unenrolledQueryDescription: 'Search unenrolled users in the search field above.'
         }
@@ -257,6 +252,13 @@ export default {
         }
     },
     methods: {
+        ...mapMutations({
+            setOrder: 'preferences/SET_COURSE_MEMBERS_SORT_ASCENDING',
+            setViewEnrolled: 'preferences/SET_COURSE_MEMBERS_VIEW_ENROLLED',
+            setCourseMembersGroupFilter: 'preferences/SET_COURSE_MEMBERS_GROUP_FILTER',
+            setCourseMembersSearchValue: 'preferences/SET_COURSE_MEMBERS_SEARCH_VALUE',
+            setCourseMembersSortBy: 'preferences/SET_COURSE_MEMBERS_SORT_BY'
+        }),
         formFilled () {
             return this.course.name && this.course.abbreviation && this.course.startdate && this.course.enddate
         },
@@ -330,11 +332,8 @@ export default {
             if (a > b) { return this.order ? -1 : 1 }
             return 0
         },
-        toggleOrder () {
-            this.order = !this.order
-        },
         toggleEnrolled () {
-            this.viewEnrolled = !this.viewEnrolled
+            this.setViewEnrolled(!this.viewEnrolled)
             this.unenrolledStudents = []
             this.unenrolledQuery = ''
             this.unenrolledQueryDescription = 'Search unenrolled users in the search field above.'
@@ -379,6 +378,37 @@ export default {
         }
     },
     computed: {
+        ...mapGetters({
+            order: 'preferences/courseMembersSortAscending',
+            viewEnrolled: 'preferences/courseMembersViewEnrolled',
+            getCourseMembersGroupFilter: 'preferences/courseMembersGroupFilter',
+            getCourseMembersSearchValue: 'preferences/courseMembersSearchValue',
+            getCourseMembersSortBy: 'preferences/courseMembersSortBy'
+        }),
+        selectedSortOption: {
+            get () {
+                return this.getCourseMembersSortBy
+            },
+            set (value) {
+                this.setCourseMembersSortBy(value)
+            }
+        },
+        searchValue: {
+            get () {
+                return this.getCourseMembersSearchValue
+            },
+            set (value) {
+                this.setCourseMembersSearchValue(value)
+            }
+        },
+        groupFilter: {
+            get () {
+                return this.getCourseMembersGroupFilter
+            },
+            set (value) {
+                this.setCourseMembersGroupFilter(value)
+            }
+        },
         filteredUsers () {
             let self = this
 
@@ -393,18 +423,18 @@ export default {
             function searchFilter (user) {
                 var username = user.username.toLowerCase()
                 var fullName = user.first_name.toLowerCase() + ' ' + user.last_name.toLowerCase()
-                var searchVariable = self.searchVariable.toLowerCase()
+                var searchValue = self.getCourseMembersSearchValue.toLowerCase()
 
-                return username.includes(searchVariable) ||
-                       fullName.includes(searchVariable)
+                return username.includes(searchValue) ||
+                       fullName.includes(searchValue)
             }
 
             function groupFilter (user) {
-                if (self.selectedFilterGroupOption) {
+                if (self.groupFilter) {
                     if (!user.group) {
-                        return user.group === self.selectedFilterGroupOption
+                        return user.group === self.groupFilter
                     } else {
-                        return user.group.includes(self.selectedFilterGroupOption)
+                        return user.group.includes(self.groupFilter)
                     }
                 }
 
@@ -420,9 +450,9 @@ export default {
             }
 
             /* Filter list based on search input. */
-            if (this.selectedSortOption === 'sortFullName') {
+            if (this.selectedSortOption === 'name') {
                 viewList = viewList.sort(compareFullName)
-            } else if (this.selectedSortOption === 'sortUsername') {
+            } else if (this.selectedSortOption === 'username') {
                 viewList = viewList.sort(compareUsername)
             }
 
