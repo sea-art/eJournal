@@ -115,7 +115,6 @@ class CourseSerializer(serializers.ModelSerializer):
         model = Course
         exclude = ('author', 'users', )
         read_only_fields = ('id', )
-        depth = 1
 
     def get_lti_linked(self, course):
         return Lti_ids.objects.filter(course=course.pk).exists()
@@ -129,11 +128,27 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class ParticipationSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+    course = serializers.SerializerMethodField()
+    role = serializers.SerializerMethodField()
+    group = serializers.SerializerMethodField()
+
     class Meta:
         model = Participation
         fields = '__all__'
         read_only_fields = ('id', )
-        depth = 1
+
+    def get_user(self, participation):
+        return UserSerializer(participation.user, context=self.context).data
+
+    def get_course(self, participation):
+        return CourseSerializer(participation.course, context=self.context).data
+
+    def get_role(self, participation):
+        return RoleSerializer(participation.role, context=self.context).data
+
+    def get_group(self, participation):
+        return GroupSerializer(participation.group, context=self.context).data
 
 
 class AssignmentDetailsSerializer(serializers.ModelSerializer):

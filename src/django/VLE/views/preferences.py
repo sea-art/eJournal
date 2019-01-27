@@ -48,13 +48,10 @@ class PreferencesView(viewsets.ViewSet):
         try:
             preferences = Preferences.objects.get(pk=pk)
         except Preferences.DoesNotExist:
-            preferences = Preferences(user=pk)
+            preferences = Preferences.object.create(user=pk)
         serializer = PreferencesSerializer(preferences)
 
         return response.success({'preferences': serializer.data})
-
-    def create(self, request):
-
 
     def partial_update(self, request, *args, **kwargs):
         """Update an existing user.

@@ -201,6 +201,13 @@ class User(AbstractUser):
         return self.username + " (" + str(self.pk) + ")"
 
 
+@receiver(models.signals.post_save, sender=User)
+def create_user_preferences(sender, instance, created, **kwargs):
+    """Create matching preferences whenever a user object is created."""
+    if created:
+        Preferences.objects.create(user=instance)
+
+
 class Preferences(models.Model):
     """Preferences.
 
@@ -218,6 +225,9 @@ class Preferences(models.Model):
         default=True
     )
     comment_notifications = models.BooleanField(
+        default=True
+    )
+    show_format_tutorial = models.BooleanField(
         default=True
     )
 

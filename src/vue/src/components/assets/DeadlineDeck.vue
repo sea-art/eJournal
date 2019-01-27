@@ -3,8 +3,8 @@
         <!-- TODO: This seems like an inappropriate permission check. Will have to be reconsidered in the rework. -->
         <b-card v-if="$hasPermission('can_add_course')" class="no-hover">
             <b-form-select v-model="selectedSortOption" :select-size="1">
-                <option value="sortDate">Sort by date</option>
-                <option value="sortNeedsMarking">Sort by marking needed</option>
+                <option value="date">Sort by date</option>
+                <option value="markingNeeded">Sort by marking needed</option>
             </b-form-select>
         </b-card>
 
@@ -22,19 +22,18 @@
 <script>
 import todoCard from '@/components/assets/TodoCard.vue'
 import todoSquare from '@/components/assets/TodoSquare.vue'
+import { mapGetters, mapMutations } from 'vuex'
 
 export default {
     props: ['deadlines'],
-    data () {
-        return {
-            selectedSortOption: 'sortDate'
-        }
-    },
     components: {
         'todo-card': todoCard,
         'todo-square': todoSquare
     },
     methods: {
+        ...mapMutations({
+            setSortBy: 'preferences/SET_TODO_SORT_BY'
+        }),
         assignmentRoute (cID, aID, jID, isPublished) {
             var route = {
                 params: {
@@ -55,6 +54,17 @@ export default {
         }
     },
     computed: {
+        ...mapGetters({
+            sortBy: 'preferences/todoSortBy'
+        }),
+        selectedSortOption: {
+            get () {
+                return this.sortBy
+            },
+            set (value) {
+                this.setSortBy(value)
+            }
+        },
         computedDeadlines: function () {
             var counter = 0
 
@@ -79,9 +89,9 @@ export default {
             }
 
             var deadlines = this.deadlines.slice()
-            if (this.selectedSortOption === 'sortDate') {
+            if (this.selectedSortOption === 'date') {
                 return deadlines.sort(compareDate).filter(filterTop)
-            } else if (this.selectedSortOption === 'sortNeedsMarking') {
+            } else if (this.selectedSortOption === 'markingNeeded') {
                 return deadlines.sort(compareMarkingNeeded).filter(filterTop).filter(filterNoEntries)
             } else {
                 return deadlines.sort(compareDate).filter(filterTop)
