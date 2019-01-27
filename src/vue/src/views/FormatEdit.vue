@@ -127,10 +127,11 @@ import formatEditSelectTemplateCard from '@/components/format/FormatEditSelectTe
 import templateEdit from '@/components/template/TemplateEdit.vue'
 import icon from 'vue-awesome/components/Icon'
 import formatAPI from '@/api/format.js'
+import preferencesAPI from '@/api/preferences.js'
 
 export default {
     name: 'FormatEdit',
-    props: ['cID', 'aID', 'newAssignment'],
+    props: ['cID', 'aID'],
     /* Main data representations:
        templates, presets, unused templates: as received.
        templatePool: the list of used templates. Elements are meta objects with a t field storing the template,
@@ -176,7 +177,11 @@ export default {
             .then(data => {
                 this.saveFromDB(data)
                 this.convertFromDB()
-                if (this.newAssignment) {
+                console.log(this.$store.getters['preferences/showFormatTutorial'])
+                if (this.$store.getters['preferences/showFormatTutorial']) {
+                    preferencesAPI.update(0, {show_format_tutorial: false})
+                        .then(preferences => { this.$store.commit('preferences/SET_FORMAT_TUTORIAL', false) })
+                    console.log('PREFS')
                     this.startTour()
                 }
             })

@@ -46,8 +46,8 @@ const mutations = {
         state.permissions = permissions
     },
     [types.HYDRATE_PREFERENCES] (state, data) {
-        state.gradeNotifications = userData.grade_notifications
-        state.commentNotifications = userData.comment_notifications
+        state.gradeNotifications = data.grade_notifications
+        state.commentNotifications = data.comment_notifications
     },
     [types.LOGOUT] (state) {
         state.jwtAccess = null
@@ -63,12 +63,6 @@ const mutations = {
         state.gradeNotifications = null
         state.commentNotifications = null
         state.permissions = null
-    },
-    [types.SET_GRADE_NOTIFICATION] (state, val) {
-        state.gradeNotifications = val
-    },
-    [types.SET_COMMENT_NOTIFICATION] (state, val) {
-        state.commentNotifications = val
     },
     [types.EMAIL_VERIFIED] (state) {
         state.verifiedEmail = true
@@ -148,7 +142,13 @@ const actions = {
         return new Promise((resolve, reject) => {
             connection.conn.get('/users/0/').then(response => {
                 commit(types.HYDRATE_USER, response.data)
-                resolve('Store is populated successfully')
+                connection.conn.get('/preferences/0/').then(response => {
+                    commit(types.HYDRATE_PREFERENCES, response.data)
+                    resolve('Store is populated successfully')
+                }, error => {
+                    Vue.toasted.error(sanitization.escapeHtml(error.response.data.description))
+                    reject(error)
+                })
             }, error => {
                 Vue.toasted.error(sanitization.escapeHtml(error.response.data.description))
                 reject(error)
@@ -170,8 +170,6 @@ export default {
         firstName: null,
         lastName: null,
         ltiID: null,
-        gradeNotifications: null,
-        commentNotifications: null,
         permissions: null
     },
     getters,

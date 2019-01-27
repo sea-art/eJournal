@@ -232,8 +232,7 @@ export default {
                             name: 'FormatEdit',
                             params: {
                                 cID: this.page.cID,
-                                aID: this.page.aID,
-                                newAssignment: true
+                                aID: this.page.aID
                             }
                         })
                     }
