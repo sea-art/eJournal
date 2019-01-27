@@ -66,7 +66,7 @@ export default {
             }
         },
         verifyEmail () {
-            userAPI.verifyEmail(this.emailVerificationToken, {responseSuccessToast: true})
+            userAPI.verifyEmail(this.$store.getters['user/username'], this.emailVerificationToken, {responseSuccessToast: true})
                 .then(_ => {
                     this.$store.commit('user/EMAIL_VERIFIED')
                     this.showEmailValidationInput = false
