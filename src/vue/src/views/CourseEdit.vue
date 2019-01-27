@@ -19,13 +19,31 @@
                     placeholder="Course abbreviation (max 10 characters)"/>
                 <b-row>
                     <b-col xs="6">
-                        <h2 class="field-heading required">From</h2>
+                        <h2 class="field-heading required">
+                            From
+                            <sup>
+                                <icon
+                                    v-b-tooltip.hover
+                                    title="Start date of the course"
+                                    name="question"
+                                    class="question-icon no-hover help-cursor"/>
+                            </sup>
+                        </h2>
                         <flat-pickr class="multi-form theme-input full-width"
                             :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
                             v-model="course.startdate"/>
                     </b-col>
                     <b-col xs="6">
-                        <h2 class="field-heading required">To</h2>
+                        <h2 class="field-heading required">
+                            To
+                            <sup>
+                                <icon
+                                    v-b-tooltip.hover
+                                    title="End date of the course"
+                                    name="question"
+                                    class="question-icon no-hover help-cursor"/>
+                            </sup>
+                        </h2>
                         <flat-pickr class="multi-form theme-input full-width"
                             :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
                             v-model="course.enddate"/>

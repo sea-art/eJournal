@@ -7,11 +7,29 @@
             <b-input class="multi-form theme-input" v-model="form.abbreviation" maxlength="10" placeholder="Course abbreviation (max 10 characters)"/>
             <b-row>
                 <b-col cols="6">
-                    <h2 class="field-heading required">From</h2>
+                    <h2 class="field-heading required">
+                        From
+                        <sup>
+                            <icon
+                                v-b-tooltip.hover
+                                title="Start date of the course"
+                                name="question"
+                                class="question-icon no-hover help-cursor"/>
+                        </sup>
+                    </h2>
                     <flat-pickr class="multi-form multi-date-input theme-input full-width" v-model="form.startdate"/>
                 </b-col>
                 <b-col cols="6">
-                    <h2 class="field-heading required">To</h2>
+                    <h2 class="field-heading required">
+                        To
+                        <sup>
+                            <icon
+                                v-b-tooltip.hover
+                                title="End date of the course"
+                                name="question"
+                                class="question-icon no-hover help-cursor"/>
+                        </sup>
+                    </h2>
                     <flat-pickr class="multi-form multi-date-input theme-input full-width" v-model="form.enddate"/>
                 </b-col>
             </b-row>

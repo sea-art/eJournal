@@ -2,11 +2,11 @@
     <b-card class="no-hover">
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
             <div class="d-flex float-right multi-form">
-                <b-button v-if="form.isPublished" @click="form.isPublished = false" class="add-button flex-grow-1">
+                <b-button v-if="form.isPublished" @click="form.isPublished = false" class="add-button flex-grow-1" v-b-tooltip.hover title="This assignment is visible to students">
                     <icon name="check"/>
                     Published
                 </b-button>
-                <b-button v-if="!form.isPublished" @click="form.isPublished = true" class="delete-button flex-grow-1">
+                <b-button v-if="!form.isPublished" @click="form.isPublished = true" class="delete-button flex-grow-1" v-b-tooltip.hover title="This assignment is not visible to students">
                     <icon name="times"/>
                     Unpublished
                 </b-button>
@@ -25,29 +25,65 @@
                 @content-update="form.assignmentDescription = $event"
                 :footer="false"
             />
-            <h2 class="field-heading">Points possible</h2>
+            <h2 class="field-heading">
+                Points possible
+                <sup>
+                    <icon
+                        v-b-tooltip.hover
+                        title="The maximum amount of points for this assignment"
+                        name="question"
+                        class="question-icon no-hover help-cursor"/>
+                </sup>
+            </h2>
             <b-input class="multi-form theme-input"
-            v-model="form.pointsPossible"
-            placeholder="Points"
-            type="number"/>
+                v-model="form.pointsPossible"
+                placeholder="Points"
+                type="number"/>
             <b-row>
                 <b-col xl="4">
-                    <h2 class="field-heading">Unlock date</h2>
+                    <h2 class="field-heading">
+                        Unlock date
+                        <sup>
+                            <icon
+                                v-b-tooltip.hover
+                                title="Students will be able to work on the assignment from this date onwards"
+                                name="question"
+                                class="question-icon no-hover help-cursor"/>
+                        </sup>
+                    </h2>
                     <flat-pickr class="multi-form theme-input full-width"
-                    v-model="form.unlockDate"
-                    :config="$root.flatPickrTimeConfig"/>
+                        v-model="form.unlockDate"
+                        :config="$root.flatPickrTimeConfig"/>
                 </b-col>
                 <b-col xl="4">
-                    <h2 class="field-heading">Due date</h2>
+                    <h2 class="field-heading">
+                        Due date
+                        <sup>
+                            <icon
+                                v-b-tooltip.hover
+                                title="Students are expected to have finished their assignment by this date"
+                                name="question"
+                                class="question-icon no-hover help-cursor"/>
+                        </sup>
+                    </h2>
                     <flat-pickr class="multi-form theme-input full-width"
-                    v-model="form.dueDate"
-                    :config="$root.flatPickrTimeConfig"/>
+                        v-model="form.dueDate"
+                        :config="$root.flatPickrTimeConfig"/>
                 </b-col>
                 <b-col xl="4">
-                    <h2 class="field-heading">Lock date</h2>
+                    <h2 class="field-heading">
+                        Lock date
+                        <sup>
+                            <icon
+                                v-b-tooltip.hover
+                                title="No more entries can be added after this date"
+                                name="question"
+                                class="question-icon no-hover help-cursor"/>
+                        </sup>
+                    </h2>
                     <flat-pickr class="multi-form theme-input full-width"
-                    v-model="form.lockDate"
-                    :config="$root.flatPickrTimeConfig"/>
+                        v-model="form.lockDate"
+                        :config="$root.flatPickrTimeConfig"/>
                 </b-col>
             </b-row>
             <b-button class="float-left change-button mt-2" type="reset">
