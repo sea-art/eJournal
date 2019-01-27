@@ -10,6 +10,7 @@ from VLE.views.instance import InstanceView
 from VLE.views.journal import JournalView
 from VLE.views.node import NodeView
 from VLE.views.participation import ParticipationView
+from VLE.views.preferences import PreferencesView
 from VLE.views.role import RoleView
 from VLE.views.user import UserView
 
@@ -23,6 +24,7 @@ router.register(r'assignments', AssignmentView, base_name='assignment')
 router.register(r'nodes', NodeView, base_name='node')
 router.register(r'comments', CommentView, base_name='comment')
 router.register(r'participations', ParticipationView, base_name='participation')
+router.register(r'preferences', PreferencesView, base_name='preferences')
 router.register(r'journals', JournalView, base_name='journal')
 router.register(r'entries', EntryView, base_name='entry')
 router.register(r'formats', FormatView, base_name='format')

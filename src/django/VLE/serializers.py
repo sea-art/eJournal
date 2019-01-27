@@ -10,7 +10,8 @@ from rest_framework import serializers
 import VLE.permissions as permissions
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
                         Format, Group, Instance, Journal, Lti_ids, Node,
-                        Participation, PresetNode, Role, Template, User)
+                        Participation, PresetNode, Preferences, Role, Template,
+                        User)
 
 
 class InstanceSerializer(serializers.ModelSerializer):
@@ -105,6 +106,7 @@ class OwnUserSerializer(serializers.ModelSerializer):
 class PreferencesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Preferences
+        fields = '__all__'
         read_only_fields = ('id', )
 
 
