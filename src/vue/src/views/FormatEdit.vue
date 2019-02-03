@@ -178,7 +178,7 @@ export default {
                 this.saveFromDB(data)
                 this.convertFromDB()
                 if (this.$store.getters['preferences/showFormatTutorial']) {
-                    preferencesAPI.update(0, {show_format_tutorial: false})
+                    preferencesAPI.update(this.$store.getters['user/uID'], {show_format_tutorial: false})
                         .then(preferences => { this.$store.commit('preferences/SET_FORMAT_TUTORIAL', false) })
                     this.startTour()
                 }
