@@ -30,7 +30,7 @@
                 <sup>
                     <icon
                         v-b-tooltip.hover
-                        title="The maximum amount of points for this assignment"
+                        title="It is `The amount of points that represents a perfect score for this assignment, excluding bonus points` there, do you think that covers the meaning?"
                         name="question"
                         class="question-icon no-hover help-cursor"/>
                 </sup>
