@@ -44,7 +44,7 @@
                         <sup>
                             <icon
                                 v-b-tooltip.hover
-                                title="Students are expected to have finished their assignment by this date, but new entries can still be added until the lock date"
+                                title="Students will be able to work on the assignment from this date onwards"
                                 name="question"
                                 class="question-icon no-hover help-cursor"/>
                         </sup>
@@ -59,7 +59,7 @@
                         <sup>
                             <icon
                                 v-b-tooltip.hover
-                                title="Students are expected to have finished their assignment by this date"
+                                title="Students are expected to have finished their assignment by this date, but new entries can still be added until the lock date"
                                 name="question"
                                 class="question-icon no-hover help-cursor"/>
                         </sup>
