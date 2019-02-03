@@ -26,8 +26,7 @@ class PreferencesView(viewsets.ViewSet):
         On success:
             success -- with the preferences data
         """
-        if int(pk) == 0:
-            pk = request.user.id
+        pk = int(pk)
         if not (request.user.id == pk or request.user.is_superuser):
             return response.forbidden('You are not allowed to view this users preferences.')
 
@@ -52,8 +51,6 @@ class PreferencesView(viewsets.ViewSet):
             success -- with the updated preferences
         """
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
-        if pk == 0:
-            pk = request.user.id
         if not (request.user.id == pk or request.user.is_superuser):
             return response.forbidden('You are not allowed to change this users preferences.')
 

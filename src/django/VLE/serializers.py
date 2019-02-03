@@ -106,8 +106,8 @@ class OwnUserSerializer(serializers.ModelSerializer):
 class PreferencesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Preferences
-        fields = '__all__'
-        read_only_fields = ('id', )
+        fields = ('user', 'grade_notifications', 'comment_notifications', 'show_format_tutorial')
+        read_only_fields = ('user', )
 
 
 class CourseSerializer(serializers.ModelSerializer):
