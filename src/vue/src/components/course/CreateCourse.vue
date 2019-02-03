@@ -8,11 +8,11 @@
             <b-row>
                 <b-col cols="6">
                     <h2 class="field-heading required">
-                        From
+                        Start date
                         <sup>
                             <icon
                                 v-b-tooltip.hover
-                                title="Start date of the course"
+                                title="Start date of the course, assignments can begin from this date onwards"
                                 name="question"
                                 class="question-icon no-hover help-cursor"/>
                         </sup>
@@ -21,11 +21,11 @@
                 </b-col>
                 <b-col cols="6">
                     <h2 class="field-heading required">
-                        To
+                        End date
                         <sup>
                             <icon
                                 v-b-tooltip.hover
-                                title="End date of the course"
+                                title="End date of the course, assignment deadlines cannot surpass this date"
                                 name="question"
                                 class="question-icon no-hover help-cursor"/>
                         </sup>

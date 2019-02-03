@@ -28,7 +28,7 @@
                 <sup>
                     <icon
                         v-b-tooltip.hover
-                        title="The maximum amount of points for this assignment"
+                        title="The amount of points that represents a perfect score for this assignment, excluding bonus points"
                         name="question"
                         class="question-icon no-hover help-cursor"/>
                 </sup>
@@ -44,7 +44,7 @@
                         <sup>
                             <icon
                                 v-b-tooltip.hover
-                                title="Students will be able to work on the assignment from this date onwards"
+                                title="Students are expected to have finished their assignment by this date, but new entries can still be added until the lock date"
                                 name="question"
                                 class="question-icon no-hover help-cursor"/>
                         </sup>

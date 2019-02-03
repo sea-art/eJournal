@@ -51,7 +51,7 @@
             <sup>
                 <icon
                     v-b-tooltip.hover
-                    title="Students should have achieved the goal of this node by this date"
+                    title="Students will no longer be able to complete the goal of this node after this date"
                     name="question"
                     class="question-icon no-hover help-cursor"/>
             </sup>
@@ -89,7 +89,7 @@
                 <sup>
                     <icon
                         v-b-tooltip.hover
-                        title="The amount of points students should have achieved by the deadline of this node"
+                        title="The amount of points students should have achieved by the deadline of this node to be on schedule, new entries can still be added until the assignment's lock date"
                         name="question"
                         class="question-icon no-hover help-cursor"/>
                 </sup>

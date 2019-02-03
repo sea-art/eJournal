@@ -61,7 +61,7 @@
                         <sup>
                             <icon
                                 v-b-tooltip.hover
-                                title="Students are expected to have finished their assignment by this date"
+                                title="Students are expected to have finished their assignment by this date, but new entries can still be added until the lock date"
                                 name="question"
                                 class="question-icon no-hover help-cursor"/>
                         </sup>
