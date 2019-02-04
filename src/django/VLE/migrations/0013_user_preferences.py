@@ -19,11 +19,21 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RemoveField(
+            model_name='user',
+            name='comment_notifications',
+        ),
+        migrations.RemoveField(
+            model_name='user',
+            name='grade_notifications',
+        ),
         migrations.CreateModel(
             name='Preferences',
             fields=[
-                ('show_format_editor_tutorial', models.BooleanField(default=True)),
-                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='preferences', to=settings.AUTH_USER_MODEL, primary_key=True)),
+                ('show_format_tutorial', models.BooleanField(default=True)),
+                ('user', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL, serialize=False, primary_key=True)),
+                ('comment_notifications', models.BooleanField(default=True)),
+                ('grade_notifications', models.BooleanField(default=True)),
             ],
         ),
         migrations.RunPython(
