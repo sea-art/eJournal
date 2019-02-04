@@ -46,14 +46,32 @@
             </b-col>
         </b-row>
 
-        <h2 class="field-heading">Deadline</h2>
+        <h2 class="field-heading">
+            Deadline
+            <sup>
+                <icon
+                    v-b-tooltip.hover
+                    title="Students will no longer be able to complete the goal of this node after this date"
+                    name="question"
+                    class="question-icon no-hover help-cursor"/>
+            </sup>
+        </h2>
         <flat-pickr class="theme-input multi-form full-width" v-model="currentPreset.deadline" :config="$root.flatPickrTimeConfig"/>
 
         <h2 class="field-heading">Description</h2>
         <b-textarea class="multi-form theme-input" v-model="currentPreset.description" placeholder="Description"/>
 
         <div v-if="currentPreset.type === 'd'">
-            <h2 class="field-heading">Preset Template</h2>
+            <h2 class="field-heading">
+                Preset Template
+                <sup>
+                    <icon
+                        v-b-tooltip.hover
+                        title="The template students can use for this node"
+                        name="question"
+                        class="question-icon no-hover help-cursor"/>
+                </sup>
+            </h2>
             <b-form-select v-model="currentPreset.template" class="multi-form">
                 <option disabled value="">Please select a template</option>
                 <option v-for="template in templates" :key="template.t.tID" :value="template.t">
@@ -66,7 +84,16 @@
             </div>
         </div>
         <div v-else-if="currentPreset.type === 'p'">
-            <h2 class="field-heading">Point Target</h2>
+            <h2 class="field-heading">
+                Point Target
+                <sup>
+                    <icon
+                        v-b-tooltip.hover
+                        title="The amount of points students should have achieved by the deadline of this node to be on schedule, new entries can still be added until the assignment's lock date"
+                        name="question"
+                        class="question-icon no-hover help-cursor"/>
+                </sup>
+            </h2>
             <b-input type="number" class="theme-input" v-model="currentPreset.target" placeholder="Amount of points"/>
         </div>
     </b-card>

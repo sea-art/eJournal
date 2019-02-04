@@ -1,11 +1,11 @@
 <template>
     <b-card class="no-hover settings-card" :class="$root.getBorderClass($route.params.cID)">
         <div class="d-flex float-right multi-form">
-            <b-button v-if="assignmentDetails.is_published" @click="assignmentDetails.is_published = false" class="add-button flex-grow-1">
+            <b-button v-if="assignmentDetails.is_published" @click="assignmentDetails.is_published = false" class="add-button flex-grow-1" v-b-tooltip.hover title="This assignment is visible to students">
                 <icon name="check"/>
                 Published
             </b-button>
-            <b-button v-if="!assignmentDetails.is_published" @click="assignmentDetails.is_published = true" class="delete-button flex-grow-1">
+            <b-button v-if="!assignmentDetails.is_published" @click="assignmentDetails.is_published = true" class="delete-button flex-grow-1" v-b-tooltip.hover title="This assignment is not visible to students">
                 <icon name="times"/>
                 Unpublished
             </b-button>
@@ -23,29 +23,65 @@
                 :givenContent="assignmentDetails.description"
                 @content-update="assignmentDetails.description = $event"
                 :footer="false"/>
-            <h2 class="field-heading">Points possible</h2>
+            <h2 class="field-heading">
+                Points possible
+                <sup>
+                    <icon
+                        v-b-tooltip.hover
+                        title="The amount of points that represents a perfect score for this assignment, excluding bonus points"
+                        name="question"
+                        class="question-icon no-hover help-cursor"/>
+                </sup>
+            </h2>
             <b-input class="multi-form theme-input"
                 v-model="assignmentDetails.points_possible"
                 placeholder="Points"
                 type="number"/>
             <b-row>
                 <b-col xl="4">
-                    <h2 class="field-heading">Unlock date</h2>
+                    <h2 class="field-heading">
+                        Unlock date
+                        <sup>
+                            <icon
+                                v-b-tooltip.hover
+                                title="Students will be able to work on the assignment from this date onwards"
+                                name="question"
+                                class="question-icon no-hover help-cursor"/>
+                        </sup>
+                    </h2>
                     <flat-pickr class="multi-form theme-input full-width"
-                    v-model="assignmentDetails.unlock_date"
-                    :config="$root.flatPickrTimeConfig"/>
+                        v-model="assignmentDetails.unlock_date"
+                        :config="$root.flatPickrTimeConfig"/>
                 </b-col>
                 <b-col xl="4">
-                    <h2 class="field-heading">Due date</h2>
+                    <h2 class="field-heading">
+                        Due date
+                        <sup>
+                            <icon
+                                v-b-tooltip.hover
+                                title="Students are expected to have finished their assignment by this date, but new entries can still be added until the lock date"
+                                name="question"
+                                class="question-icon no-hover help-cursor"/>
+                        </sup>
+                    </h2>
                     <flat-pickr class="multi-form theme-input full-width"
-                    v-model="assignmentDetails.due_date"
-                    :config="$root.flatPickrTimeConfig"/>
+                        v-model="assignmentDetails.due_date"
+                        :config="$root.flatPickrTimeConfig"/>
                 </b-col>
                 <b-col xl="4">
-                    <h2 class="field-heading">Lock date</h2>
+                    <h2 class="field-heading">
+                        Lock date
+                        <sup>
+                            <icon
+                                v-b-tooltip.hover
+                                title="No more entries can be added after this date"
+                                name="question"
+                                class="question-icon no-hover help-cursor"/>
+                        </sup>
+                    </h2>
                     <flat-pickr class="multi-form theme-input full-width"
-                    v-model="assignmentDetails.lock_date"
-                    :config="$root.flatPickrTimeConfig"/>
+                        v-model="assignmentDetails.lock_date"
+                        :config="$root.flatPickrTimeConfig"/>
                 </b-col>
             </b-row>
         </b-form>
