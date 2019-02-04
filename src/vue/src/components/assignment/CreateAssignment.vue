@@ -30,7 +30,7 @@
                 <sup>
                     <icon
                         v-b-tooltip.hover
-                        title="It is `The amount of points that represents a perfect score for this assignment, excluding bonus points` there, do you think that covers the meaning?"
+                        title="The amount of points that represents a perfect score for this assignment, excluding bonus points"
                         name="question"
                         class="question-icon no-hover help-cursor"/>
                 </sup>
