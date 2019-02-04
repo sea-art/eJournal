@@ -4,8 +4,6 @@ user.py.
 In this file are all the user api requests.
 """
 from django.conf import settings
-from django.core.exceptions import ValidationError
-from django.core.validators import validate_email
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
@@ -128,8 +126,6 @@ class UserView(viewsets.ViewSet):
         if email and User.objects.filter(email=email).exists():
             return response.bad_request('User with this email already exists.')
 
-        validate_email(email)
-
         if User.objects.filter(username=username).exists():
             return response.bad_request('User with this username already exists.')
 
@@ -143,10 +139,7 @@ class UserView(viewsets.ViewSet):
                     profile_picture=user_image if user_image else '/static/unknown-profile.png')
         user.set_password(password)
 
-        try:
-            user.full_clean()
-        except ValidationError as e:
-            return response.validation_error(e)
+        user.full_clean()
 
         if lti_id is None:
             email_handling.send_email_verification_link(user)

@@ -147,15 +147,21 @@ def validation_error(err):
     resp = ""
     field_count = 1
 
-    for field, validation_errors in err.__dict__["error_dict"].items():
-        # Wrong with field:
-        resp += "{}) {}: ".format(field_count, field)
-        field_count += 1
-        for validation_error in validation_errors:
-            for msg in validation_error:
-                resp += msg + ' '
+    for arg in err.args:
+        if isinstance(arg, dict):
+            # Iterate over all fields whas have one or more validation error(s)
+            for field, validation_errors in arg.items():
+                resp += "{}) {}: ".format(field_count, field)
+                field_count += 1
+                # Format all validation messages for a single field
+                for validation_error in validation_errors:
+                    for msg in validation_error:
+                        resp += msg + " "
 
-            resp += " "
+                    resp += " "
+        # This should only occur for manual raises, e.g: raise ValidationError('Password is too short.')
+        elif isinstance(arg, str):
+            resp += arg
 
     return bad_request(resp)
 
