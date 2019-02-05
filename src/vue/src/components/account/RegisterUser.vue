@@ -4,11 +4,11 @@
         <b-input v-if="lti" class="multi-form theme-input" :value="this.lti.username" disabled/>
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
             <h2 v-if="!lti" class="field-heading">Username</h2>
-            <b-input v-if="!lti" class="multi-form theme-input" v-model="form.username" placeholder="Username" required/>
+            <b-input v-if="!lti" class="multi-form theme-input" v-model="form.username" placeholder="Username" maxlength="150" required/>
             <h2 v-if="!lti" class="field-heading">First name</h2>
-            <b-input v-if="!lti" class="multi-form theme-input" v-model="form.firstname" placeholder="First name" required/>
+            <b-input v-if="!lti" class="multi-form theme-input" v-model="form.firstname" placeholder="First name" maxlength="30" required/>
             <h2 v-if="!lti" class="field-heading">Last name</h2>
-            <b-input v-if="!lti" class="multi-form theme-input" v-model="form.lastname" placeholder="Last name" required/>
+            <b-input v-if="!lti" class="multi-form theme-input" v-model="form.lastname" placeholder="Last name" maxlength="150" required/>
             <h2 class="field-heading">Password</h2>
             <b-input class="multi-form theme-input" v-model="form.password" type="password" placeholder="Password" required/>
             <h2 class="field-heading">Repeat password</h2>
