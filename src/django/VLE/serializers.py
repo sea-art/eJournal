@@ -167,6 +167,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
     stats = serializers.SerializerMethodField()
     course = serializers.SerializerMethodField()
     courses = serializers.SerializerMethodField()
+    course_count = serializers.SerializerMethodField()
     journals = serializers.SerializerMethodField()
 
     class Meta:
@@ -293,6 +294,9 @@ class AssignmentSerializer(serializers.ModelSerializer):
         if 'course' in self.context and self.context['course']:
             return None
         return CourseSerializer(assignment.courses, many=True).data
+
+    def get_course_count(self, assignment):
+        return assignment.courses.count()
 
 
 class NodeSerializer(serializers.ModelSerializer):

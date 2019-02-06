@@ -125,11 +125,11 @@ export default {
             return route
         },
         deleteAssignment (assignment) {
-            if (assignment.courses.length > 1
+            if (assignment.course_count > 1
                 ? confirm('Are you sure you want to remove this assignment from the course?')
                 : confirm('Are you sure you want to delete this assignment?')) {
                 assignmentAPI.delete(assignment.id, this.cID, {
-                    customSuccessToast: assignment.courses.length > 1 ? 'Removed assignment.' : 'Deleted assignment.'
+                    customSuccessToast: assignment.course_count > 1 ? 'Removed assignment.' : 'Deleted assignment.'
                 })
                     .then(_ => { this.loadAssignments() })
             }
