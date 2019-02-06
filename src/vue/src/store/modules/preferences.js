@@ -99,6 +99,9 @@ const mutations = {
         state.assignmentOverview.sortBy = sortByOption
     },
     [types.RESET_PREFERENCES] (state) {
+        state.gradeNotifications = null
+        state.commentNotifications = null
+        state.showFormatTutorial = null
         state.todo.sortBy = 'date'
         state.journal.aID = null
         state.journal.sortAscending = true

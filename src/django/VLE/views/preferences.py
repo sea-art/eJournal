@@ -30,7 +30,7 @@ class PreferencesView(viewsets.ViewSet):
         if not (request.user.id == pk or request.user.is_superuser):
             return response.forbidden('You are not allowed to view this users preferences.')
 
-        preferences = Preferences.objects.get(pk=pk)
+        preferences = Preferences.objects.get(user=pk)
         serializer = PreferencesSerializer(preferences)
 
         return response.success({'preferences': serializer.data})
@@ -40,6 +40,7 @@ class PreferencesView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
+        pk -- user ID
 
         Returns:
         On failure:
@@ -58,7 +59,7 @@ class PreferencesView(viewsets.ViewSet):
         serializer = PreferencesSerializer(preferences, data=request.data, partial=True)
 
         if not serializer.is_valid():
-            return response.bad_request()
+            return response.bad_request('Invalid preference data provided.')
 
         serializer.save()
 

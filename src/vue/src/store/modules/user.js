@@ -45,10 +45,6 @@ const mutations = {
         state.ltiID = userData.lti_id
         state.permissions = permissions
     },
-    [types.HYDRATE_PREFERENCES] (state, data) {
-        state.gradeNotifications = data.grade_notifications
-        state.commentNotifications = data.comment_notifications
-    },
     [types.LOGOUT] (state) {
         state.jwtAccess = null
         state.jwtRefresh = null
@@ -143,14 +139,14 @@ const actions = {
             connection.conn.get('/users/0/').then(response => {
                 commit(types.HYDRATE_USER, response.data)
                 connection.conn.get('/preferences/' + response.data.user.id).then(response => {
-                    commit(types.HYDRATE_PREFERENCES, response.data)
+                    commit(`preferences/${types.HYDRATE_PREFERENCES}`, response.data, { root: true })
                     resolve('Store is populated successfully')
                 }, error => {
-                    Vue.toasted.error(sanitization.escapeHtml(error.response.data.description))
+                    Vue.toasted.error(`Error loading preferences: ${sanitization.escapeHtml(error.response.data.description)}`)
                     reject(error)
                 })
             }, error => {
-                Vue.toasted.error(sanitization.escapeHtml(error.response.data.description))
+                Vue.toasted.error(`Error logging in: ${sanitization.escapeHtml(error.response.data.description)}`)
                 reject(error)
             })
         })
