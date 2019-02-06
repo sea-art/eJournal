@@ -3,10 +3,7 @@ user.py.
 
 In this file are all the user api requests.
 """
-from smtplib import SMTPAuthenticationError
-
 from django.conf import settings
-from django.core.validators import validate_email
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
@@ -129,8 +126,6 @@ class UserView(viewsets.ViewSet):
         if email and User.objects.filter(email=email).exists():
             return response.bad_request('User with this email already exists.')
 
-        validate_email(email)
-
         if User.objects.filter(username=username).exists():
             return response.bad_request('User with this username already exists.')
 
@@ -139,17 +134,17 @@ class UserView(viewsets.ViewSet):
 
         validators.validate_password(password)
 
-        user = factory.make_user(username, password, email=email, lti_id=lti_id, is_teacher=is_teacher,
-                                 first_name=first_name, last_name=last_name, profile_picture=user_image,
-                                 verified_email=True if lti_id else False)
+        user = User(username=username, email=email, first_name=first_name, last_name=last_name, lti_id=lti_id,
+                    is_teacher=is_teacher, verified_email=True if lti_id else False,
+                    profile_picture=user_image if user_image else '/static/unknown-profile.png')
+        user.set_password(password)
+
+        user.full_clean()
 
         if lti_id is None:
-            try:
-                email_handling.send_email_verification_link(user)
-            except SMTPAuthenticationError as err:
-                user.delete()
-                raise err
+            email_handling.send_email_verification_link(user)
 
+        user.save()
         return response.created({'user': UserSerializer(user).data})
 
     def partial_update(self, request, *args, **kwargs):
