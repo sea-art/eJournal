@@ -43,7 +43,9 @@ new Vue({
         maxEmailFileSizeBytes: 10485760,
         flatPickrTimeConfig: {
             enableTime: true,
-            time_24hr: true
+            time_24hr: true,
+            defaultHour: 23,
+            defaultMinute: 59
         }
     },
     mounted () {
