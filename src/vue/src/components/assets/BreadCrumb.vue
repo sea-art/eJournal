@@ -19,6 +19,7 @@
             </h4>
             <h1>
                 {{ crumbs.slice(-1)[0].displayName }}
+                <slot/>
             </h1>
         </div>
     </div>
@@ -43,7 +44,7 @@ export default {
             settings: {
                 aliases: {
                     'Home': 'Courses',
-                    'FormatEdit': 'Format Editor',
+                    'FormatEdit': 'Assignment Editor',
                     'CourseEdit': 'Course Editor',
                     'AssignmentsOverview': 'Assignments',
                     'UserRoleConfiguration': 'User Role Configuration'

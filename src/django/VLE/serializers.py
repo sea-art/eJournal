@@ -10,7 +10,8 @@ from rest_framework import serializers
 import VLE.permissions as permissions
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
                         Format, Group, Instance, Journal, Lti_ids, Node,
-                        Participation, PresetNode, Role, Template, User)
+                        Participation, Preferences, PresetNode, Role, Template,
+                        User)
 
 
 class InstanceSerializer(serializers.ModelSerializer):
@@ -65,8 +66,7 @@ class OwnUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'first_name', 'last_name', 'email', 'permissions',
-                  'name', 'lti_id', 'profile_picture', 'is_teacher', 'grade_notifications', 'comment_notifications',
-                  'verified_email')
+                  'name', 'lti_id', 'profile_picture', 'is_teacher', 'verified_email')
         read_only_fields = ('id', 'permissions', 'lti_id', 'is_teacher', 'verified_email', 'username')
 
     def get_name(self, user):
@@ -101,6 +101,13 @@ class OwnUserSerializer(serializers.ModelSerializer):
             perms['assignment' + str(assignment.id)] = permissions.serialize_assignment_permissions(user, assignment)
 
         return perms
+
+
+class PreferencesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Preferences
+        fields = ('user', 'grade_notifications', 'comment_notifications', 'show_format_tutorial')
+        read_only_fields = ('user', )
 
 
 class CourseSerializer(serializers.ModelSerializer):
@@ -160,6 +167,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
     stats = serializers.SerializerMethodField()
     course = serializers.SerializerMethodField()
     courses = serializers.SerializerMethodField()
+    course_count = serializers.SerializerMethodField()
     journals = serializers.SerializerMethodField()
 
     class Meta:
@@ -286,6 +294,9 @@ class AssignmentSerializer(serializers.ModelSerializer):
         if 'course' in self.context and self.context['course']:
             return None
         return CourseSerializer(assignment.courses, many=True).data
+
+    def get_course_count(self, assignment):
+        return assignment.courses.count()
 
 
 class NodeSerializer(serializers.ModelSerializer):

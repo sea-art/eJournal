@@ -2,6 +2,12 @@ import * as types from '../constants/mutation-types.js'
 import * as preferenceOptions from '../constants/preference-types.js'
 
 const getters = {
+    // Stored user preferences.
+    gradeNotifications: state => state.gradeNotifications,
+    commentNotifications: state => state.commentNotifications,
+    showFormatTutorial: state => state.showFormatTutorial,
+
+    // Search filters.
     todoSortBy: state => state.todo.sortBy,
     journalSortAscending: state => state.journal.sortAscending,
     journalGroupFilter: state => state.journal.groupFilter,
@@ -20,6 +26,22 @@ const getters = {
 }
 
 const mutations = {
+    [types.HYDRATE_PREFERENCES] (state, data) {
+        const preferences = data.preferences
+
+        state.gradeNotifications = preferences.grade_notifications
+        state.commentNotifications = preferences.comment_notifications
+        state.showFormatTutorial = preferences.show_format_tutorial
+    },
+    [types.SET_GRADE_NOTIFICATION] (state, val) {
+        state.gradeNotifications = val
+    },
+    [types.SET_COMMENT_NOTIFICATION] (state, val) {
+        state.commentNotifications = val
+    },
+    [types.SET_FORMAT_TUTORIAL] (state, val) {
+        state.showFormatTutorial = val
+    },
     [types.SET_TODO_SORT_BY] (state, sortByOption) {
         if (!preferenceOptions.TODO_SORT_OPTIONS.has(sortByOption)) { throw new Error('Invalid TODO sorting option.') }
         state.todo.sortBy = sortByOption
@@ -77,6 +99,9 @@ const mutations = {
         state.assignmentOverview.sortBy = sortByOption
     },
     [types.RESET_PREFERENCES] (state) {
+        state.gradeNotifications = null
+        state.commentNotifications = null
+        state.showFormatTutorial = null
         state.todo.sortBy = 'date'
         state.journal.aID = null
         state.journal.sortAscending = true
@@ -98,6 +123,9 @@ const mutations = {
 export default {
     namespaced: true,
     state: {
+        gradeNotifications: null,
+        commentNotifications: null,
+        showFormatTutorial: null,
         todo: {
             sortBy: 'date'
         },

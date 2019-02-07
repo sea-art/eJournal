@@ -18,7 +18,25 @@
         </div>
         <hr/>
         <div v-if="this.mode == 'edit'">
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" id="template-name" v-model="template.name" placeholder="Template name" required/>
+            <b-card class="no-hover">
+                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" id="template-name" v-model="template.name" placeholder="Template name" required/>
+                <div v-if="!formatSettings.available" class="template-availability">
+                    <b-button v-on:click.stop @click="toggleActive" class="delete-button">
+                        <icon name="times"/>
+                        Preset-only
+                    </b-button>
+                    <icon name="info-circle"/>
+                    This template can only be used for preset entries you add to the timeline
+                </div>
+                <div v-if="formatSettings.available" class="template-availability">
+                    <b-button v-on:click.stop @click="toggleActive" class="add-button">
+                        <icon name="check"/>
+                        Unlimited
+                    </b-button>
+                    <icon name="info-circle"/>
+                    This template can be freely used by students as often as they want
+                </div>
+            </b-card>
             <draggable v-model="template.field_set" @start="drag=true" @end="drag=false" @update="onUpdate" :options="{ handle:'.handle' }">
                 <b-card v-for="field in template.field_set" :key="field.location" class="field-card">
                     <b-row align-h="between" no-gutters>
@@ -91,6 +109,9 @@ export default {
     props: {
         template: {
             required: true
+        },
+        formatSettings: {
+            required: true
         }
     },
     data () {
@@ -162,6 +183,9 @@ export default {
             var options = JSON.parse(field.options)
             options.splice(options.indexOf(option.trim()), 1)
             field.options = JSON.stringify(options)
+        },
+        toggleActive () {
+            this.formatSettings.available = !this.formatSettings.available
         }
     }
 }
@@ -221,4 +245,15 @@ export default {
 @include sm-max
     .icon-box
         margin-top: 10px
+
+.template-availability
+    font-weight: bold
+    color: grey
+    .btn
+        margin-right: 20px
+        @include md-max
+            width: 100%
+            margin-bottom: 10px
+    svg
+        fill: grey
 </style>

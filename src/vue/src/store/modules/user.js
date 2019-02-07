@@ -15,8 +15,6 @@ const getters = {
     firstName: state => state.firstName,
     lastName: state => state.lastName,
     ltiID: state => state.ltiID,
-    gradeNotifications: state => state.gradeNotifications,
-    commentNotifications: state => state.commentNotifications,
     permissions: state => state.permissions,
     loggedIn: state => state.jwtAccess !== null && state.uID !== null, // We are not logged unless the store is populated as well
     storePopulated: state => state.uID !== null
@@ -45,8 +43,6 @@ const mutations = {
         state.firstName = userData.first_name
         state.lastName = userData.last_name
         state.ltiID = userData.lti_id
-        state.gradeNotifications = userData.grade_notifications
-        state.commentNotifications = userData.comment_notifications
         state.permissions = permissions
     },
     [types.LOGOUT] (state) {
@@ -63,12 +59,6 @@ const mutations = {
         state.gradeNotifications = null
         state.commentNotifications = null
         state.permissions = null
-    },
-    [types.SET_GRADE_NOTIFICATION] (state, val) {
-        state.gradeNotifications = val
-    },
-    [types.SET_COMMENT_NOTIFICATION] (state, val) {
-        state.commentNotifications = val
     },
     [types.EMAIL_VERIFIED] (state) {
         state.verifiedEmail = true
@@ -148,9 +138,15 @@ const actions = {
         return new Promise((resolve, reject) => {
             connection.conn.get('/users/0/').then(response => {
                 commit(types.HYDRATE_USER, response.data)
-                resolve('Store is populated successfully')
+                connection.conn.get('/preferences/' + response.data.user.id).then(response => {
+                    commit(`preferences/${types.HYDRATE_PREFERENCES}`, response.data, { root: true })
+                    resolve('Store is populated successfully')
+                }, error => {
+                    Vue.toasted.error(`Error loading preferences: ${sanitization.escapeHtml(error.response.data.description)}`)
+                    reject(error)
+                })
             }, error => {
-                Vue.toasted.error(sanitization.escapeHtml(error.response.data.description))
+                Vue.toasted.error(`Error logging in: ${sanitization.escapeHtml(error.response.data.description)}`)
                 reject(error)
             })
         })
@@ -170,8 +166,6 @@ export default {
         firstName: null,
         lastName: null,
         ltiID: null,
-        gradeNotifications: null,
-        commentNotifications: null,
         permissions: null
     },
     getters,

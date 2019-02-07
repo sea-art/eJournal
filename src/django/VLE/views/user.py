@@ -195,11 +195,8 @@ class UserView(viewsets.ViewSet):
 
         user.save()
         if user.lti_id is not None:
-            gn, cn, pp = utils.optional_params(
-                request.data, 'grade_notifications', 'comment_notifications', 'profile_picture')
+            pp = utils.optional_params(request.data, 'profile_picture')
             data = {
-                'grade_notifications': gn if gn else user.grade_notifications,
-                'comment_notifications': cn if cn else user.comment_notifications,
                 'profile_picture': pp if pp else user.profile_picture
             }
         else:
