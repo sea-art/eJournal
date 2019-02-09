@@ -87,8 +87,7 @@ class UserView(viewsets.ViewSet):
         request -- request data
             username -- username
             password -- password
-            first_name -- (optinal) first name
-            last_name -- (optinal) last name
+            full_name -- full name
             email -- (optinal) email
             jwt_params -- (optinal) jwt params to get the lti information from
                 user_id -- id of the user
@@ -106,8 +105,6 @@ class UserView(viewsets.ViewSet):
 
         lti_id, user_image, full_name, email, is_teacher = get_lti_params(
             request, 'user_id', 'custom_user_image', 'custom_user_full_name', 'custom_user_email')
-        if full_name:
-            first_name, last_name = lti.split_fullname(full_name)
 
         if lti_id is None:
             # Check if instance allows standalone registration if user did not register through some LTI instance
@@ -119,7 +116,7 @@ class UserView(viewsets.ViewSet):
             except Instance.DoesNotExist:
                 pass
 
-            first_name, last_name, email = utils.optional_params(request.data, 'first_name', 'last_name', 'email')
+            full_name, email = utils.required_params(request.data, 'full_name', 'email')
 
         username, password = utils.required_params(request.data, 'username', 'password')
 
@@ -133,9 +130,8 @@ class UserView(viewsets.ViewSet):
             return response.bad_request('User with this lti id already exists.')
 
         validators.validate_password(password)
-
-        user = User(username=username, email=email, first_name=first_name, last_name=last_name, lti_id=lti_id,
-                    is_teacher=is_teacher, verified_email=True if lti_id else False,
+        user = User(username=username, email=email, lti_id=lti_id, full_name=full_name,
+                    is_teacher=is_teacher, verified_email=bool(lti_id),
                     profile_picture=user_image if user_image else '/static/unknown-profile.png')
         user.set_password(password)
 
@@ -184,7 +180,7 @@ class UserView(viewsets.ViewSet):
             user.email = user_email
             user.verified_email = True
         if user_full_name is not None:
-            user.first_name, user.last_name = lti.split_fullname(user_full_name)
+            user.full_name = user_full_name
         if is_teacher:
             user.is_teacher = is_teacher
 

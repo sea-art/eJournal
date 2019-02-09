@@ -255,7 +255,7 @@ export default {
             let self = this
 
             function compareFullName (a, b) {
-                return self.compare(a.student.name, b.student.name)
+                return self.compare(a.student.full_name, b.student.full_name)
             }
 
             function compareUsername (a, b) {
@@ -268,7 +268,7 @@ export default {
 
             function checkFilter (user) {
                 var username = user.student.username.toLowerCase()
-                var fullName = user.student.name
+                var fullName = user.student.full_name
                 var searchVariable = self.getJournalSearchValue.toLowerCase()
 
                 return username.includes(searchVariable) ||

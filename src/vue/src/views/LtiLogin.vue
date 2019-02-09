@@ -4,7 +4,7 @@
         <b-card class="no-hover blue-border">
             <h2 class="multi-form">Let's get started</h2>
             <span class="d-block mb-2">
-                Good to see you, <i>{{ lti.firstname }}</i>. In order to link your learning environment
+                Good to see you, <i>{{ lti.fullName ? lti.fullName : lti.username }}</i>. In order to link your learning environment
                 to eJournal, please choose one of the options below.
             </span>
             <lti-create-link-user v-if="handleUserIntegration" @handleAction="userIntegrated" :lti="lti"/>
@@ -38,8 +38,7 @@ export default {
 
             lti: {
                 ltiJWT: '',
-                firstname: '',
-                lastname: '',
+                fullName: '',
                 username: '',
                 email: ''
             }
@@ -97,12 +96,9 @@ export default {
 
             /* The LTI parameters are verified in our backend, however there is no corresponding user yet. We must create/connect one. */
             } else if (this.$route.query.state === this.states.no_user) {
-                this.$store.dispatch('user/logout') // Ensures no old user is loaded from local storage.
-                if (this.$route.query.firstname !== undefined) {
-                    this.lti.firstname = this.$route.query.firstname
-                }
-                if (this.$route.query.lastname !== undefined) {
-                    this.lti.lastname = this.$route.query.lastname
+                this.$store.commit('user/LOGOUT') // Ensures no old user is loaded from local storage.
+                if (this.$route.query.full_name !== undefined) {
+                    this.lti.full_name = this.$route.query.full_name
                 }
                 if (this.$route.query.username !== undefined) {
                     this.lti.username = this.$route.query.username

@@ -70,12 +70,6 @@ class canEnterThroughLTI(TestCase):
         })
         self.assertEquals(selected_user, self.user)
 
-    def test_split_fullname(self):
-        """Hopefully splits the fullname correctly."""
-        firstname, lastname = lti_view.split_fullname('Test Tester')
-        self.assertEquals(firstname, 'Test')
-        self.assertEquals(lastname, 'Tester')
-
     def test_lti_launch_no_user_no_info(self):
         """Hopefully gives redirect with state = NO_USER."""
         self.request["oauth_timestamp"] = str(int(time.time()))

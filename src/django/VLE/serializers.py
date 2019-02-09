@@ -21,18 +21,14 @@ class InstanceSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
     group = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'name', 'profile_picture', 'is_teacher', 'lti_id', 'id',
+        fields = ('username', 'full_name', 'profile_picture', 'is_teacher', 'lti_id', 'id',
                   'role', 'group')
         read_only_fields = ('id', 'lti_id', 'is_teacher', 'username')
-
-    def get_name(self, user):
-        return user.first_name + ' ' + user.last_name
 
     def get_role(self, user):
         if 'course' not in self.context or not self.context['course']:
@@ -60,17 +56,13 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class OwnUserSerializer(serializers.ModelSerializer):
-    name = serializers.SerializerMethodField()
     permissions = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'first_name', 'last_name', 'email', 'permissions',
-                  'name', 'lti_id', 'profile_picture', 'is_teacher', 'verified_email')
+        fields = ('id', 'username', 'full_name', 'email', 'permissions',
+                  'lti_id', 'profile_picture', 'is_teacher', 'verified_email')
         read_only_fields = ('id', 'permissions', 'lti_id', 'is_teacher', 'verified_email', 'username')
-
-    def get_name(self, user):
-        return user.first_name + ' ' + user.last_name
 
     def get_permissions(self, user):
         """Returns a dictionary with all user permissions.

@@ -67,7 +67,7 @@ class UpdateApiTests(TestCase):
         teacher_role = Role.objects.get(name='Teacher', course=course)
 
         factory.make_participation(self.user, course, teacher_role)
-        student = factory.make_user("Rick", "pass", "r@r.com")
+        student = factory.make_user("Rick", "pass", "r@r.com", full_name='Test User')
 
         test.api_post_call(
             self,
@@ -134,7 +134,7 @@ class UpdateApiTests(TestCase):
         ta_role = Role.objects.get(name='TA', course=course)
         student_role = factory.make_role_student(name='SD', course=course)
 
-        self.user_role = factory.make_user("test123", "test", "testq@test.com")
+        self.user_role = factory.make_user("test123", "test", "testq@test.com", full_name='Test User')
         factory.make_participation(self.user_role, course, ta_role)
         factory.make_participation(self.user, course, student_role)
 

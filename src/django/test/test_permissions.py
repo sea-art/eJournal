@@ -17,7 +17,7 @@ from VLE.utils.error_handling import (VLEParticipationError,
 
 class PermissionTests(TestCase):
     def setUp(self):
-        self.user = factory.make_user('Username', 'Password', email='some@email.address')
+        self.user = factory.make_user('Username', 'Password', email='some@email.address', full_name='Test User')
 
         self.course1 = factory.make_course('Course', 'crs', startdate=datetime.date.today())
         self.course2 = factory.make_course('Course2', 'crs2', startdate=datetime.date.today())
@@ -128,7 +128,7 @@ class PermissionTests(TestCase):
 
     def test_admin_permissions(self):
         """Test if the admin has all permissions."""
-        user = factory.make_user('superuser', 'password', email='some@other', is_superuser=True)
+        user = factory.make_user('superuser', 'password', email='some@other', is_superuser=True, full_name='Test User')
 
         self.assertTrue(user.has_permission('can_edit_institute_details'))
         self.assertTrue(user.has_permission('can_add_course'))
@@ -139,7 +139,7 @@ class PermissionTests(TestCase):
 
     def test_teacher_permissions(self):
         """Test if the teacher has the right general permissions."""
-        user = factory.make_user('teacher', 'password', email='some@other', is_teacher=True)
+        user = factory.make_user('teacher', 'password', email='some@other', is_teacher=True, full_name='Test User')
 
         self.assertTrue(user.has_permission('can_add_course'))
 
@@ -253,8 +253,8 @@ class PermissionTests(TestCase):
         self.assertEquals(len(permissions.ASSIGNMENT_PERMISSIONS), len(result))
 
     def test_is_supervisor(self):
-        middle = factory.make_user('Username2', 'Password', email='some2@email.address')
-        student = factory.make_user('Username3', 'Password', email='some3@email.address')
+        middle = factory.make_user('Username2', 'Password', email='some2@email.address', full_name='Test User')
+        student = factory.make_user('Username3', 'Password', email='some3@email.address', full_name='Test User')
 
         role = factory.make_role_default_no_perms("TE", self.course1,
                                                   can_view_course_users=True, can_view_all_journals=True)

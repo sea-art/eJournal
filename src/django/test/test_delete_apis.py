@@ -34,8 +34,8 @@ class DeleteApiTests(TestCase):
 
         course = factory.make_course("Beeldbewerken", "BB")
 
-        rein = factory.make_user("Rein", "123", "r@r.com")
-        lars = factory.make_user("Lars", "123", "l@l.com")
+        rein = factory.make_user("Rein", "123", "r@r.com", full_name='Test User')
+        lars = factory.make_user("Lars", "123", "l@l.com", full_name='Test User')
 
         role = factory.make_role_default_no_perms("test", course)
         factory.make_participation(rein, course, role=role)
@@ -105,7 +105,7 @@ class DeleteApiTests(TestCase):
         """Test delete course roles"""
         teacher_user = 'Teacher'
         teacher_pass = 'pass'
-        teacher = factory.make_user(teacher_user, teacher_pass, "teach@teach.com")
+        teacher = factory.make_user(teacher_user, teacher_pass, "teach@teach.com", full_name='Test User')
         teacher_role = factory.make_role_teacher("TE", self.course)
         factory.make_participation(teacher, self.course, teacher_role)
         factory.make_role_ta('TA2', self.course)

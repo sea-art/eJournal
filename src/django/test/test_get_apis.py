@@ -26,9 +26,9 @@ class GetApiTests(TestCase):
         self.no_perm_user, self.no_perm_pass, self.no_permission_user = test.set_up_user_and_auth("no_perm", "123",
                                                                                                   'sigh@sigh.com')
         self.course = factory.make_course("Beeldbewerken", "BB")
-        self.lars = factory.make_user("Lars", "123", "l@l.com")
-        self.student1 = factory.make_user("Student1", "123", "Student1.com")
-        self.student2 = factory.make_user("Student2", "123", "Student2.com")
+        self.lars = factory.make_user("Lars", "123", "l@l.com", full_name='Test User')
+        self.student1 = factory.make_user("Student1", "123", "Student1.com", full_name='Test User')
+        self.student2 = factory.make_user("Student2", "123", "Student2.com", full_name='Test User')
         self.not_found_pk = 9999
 
     def test_get_course_data(self):
@@ -166,6 +166,20 @@ class GetApiTests(TestCase):
 
         # permissions and authorization check for the api call.
         test.test_unauthorized_api_get_call(self, '/courses/')
+
+    def test_get_groups(self):
+        """Test get groups function."""
+        course = factory.make_course('Portfolio', 'PAV')
+        factory.make_course_group('C++', course)
+        test.set_up_participation(self.user, course, 'Teacher')
+
+        login = test.logging_in(self, self.username, self.password)
+        response = test.api_get_call(self, '/groups/', login, params={'course_id': course.pk})
+        self.assertEquals(response.json()['groups'][0]['name'], 'C++')
+
+        factory.make_course_group('A', course)
+        response = test.api_get_call(self, '/groups/', login, params={'course_id': course.pk})
+        self.assertEquals(len(response.json()['groups']), 2)
 
     def test_get_linkable_courses(self):
         """Test the get linkable courses function."""
@@ -327,7 +341,7 @@ class GetApiTests(TestCase):
         """Test the get delete assignment function."""
         teacher_user = 'Teacher'
         teacher_pass = 'pass'
-        teacher = factory.make_user(teacher_user, teacher_pass, "teach@teach.com")
+        teacher = factory.make_user(teacher_user, teacher_pass, "teach@teach.com", full_name='Test User')
         factory.make_role_student("SD", self.course)
         factory.make_role_default_no_perms("HE", self.course)
         teacher_role = factory.make_role_teacher("TE", self.course)
@@ -365,7 +379,8 @@ class GetApiTests(TestCase):
         format = factory.make_format([template])
         assignment = factory.make_assignment('Colloq', 'description1', format=format, courses=[course],
                                              is_published=True)
-        student_user, student_pass, student = test.set_up_user_and_auth('student', 'pass', 's@s.com', 'first', 'last')
+        student_user, student_pass, student = test.set_up_user_and_auth(
+            'student', 'pass', 's@s.com', full_name='first last')
         test.set_up_participation(student, course, 'Student')
         journal = test.set_up_journal(assignment, template, student, 4)
 

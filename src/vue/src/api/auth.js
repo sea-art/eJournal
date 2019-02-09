@@ -161,12 +161,11 @@ export default {
     DEFAULT_CONN_ARGS: DEFAULT_CONN_ARGS,
 
     /* Create a user and add it to the database. */
-    register (username, password, firstname, lastname, email, jwtParams = null, connArgs = DEFAULT_CONN_ARGS) {
+    register (username, password, fullName, email, jwtParams = null, connArgs = DEFAULT_CONN_ARGS) {
         return unvalidatedSend(connection.conn.post, improveUrl('users'), {
             username: username,
             password: password,
-            first_name: firstname,
-            last_name: lastname,
+            full_name: fullName,
             email: email,
             jwt_params: jwtParams
         }, connArgs)

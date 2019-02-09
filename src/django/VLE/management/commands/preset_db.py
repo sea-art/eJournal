@@ -25,8 +25,7 @@ class Command(BaseCommand):
         users_examples = {
             "Student": {
                 "username": "Student",
-                "first_name": "Lars",
-                "last_name": "van Hijfte",
+                "full_name": "Lars van Hijfte",
                 "verified_email": False,
                 "password": "pass",
                 "email": "lars@eJourn.al",
@@ -35,8 +34,7 @@ class Command(BaseCommand):
             },
             "Student2": {
                 "username": "Student2",
-                "first_name": "Rick",
-                "last_name": "Watertor",
+                "full_name": "Rick Watertor",
                 "verified_email": False,
                 "password": "pass",
                 "email": "rick@eJourn.al",
@@ -45,8 +43,7 @@ class Command(BaseCommand):
             },
             "Student3": {
                 "username": "Student3",
-                "first_name": "Dennis",
-                "last_name": "Wind",
+                "full_name": "Dennis Wind",
                 "password": "pass",
                 "email": "dennis@eJourn.al",
                 "verified_email": False,
@@ -55,8 +52,7 @@ class Command(BaseCommand):
             },
             "Student4": {
                 "username": "Student4",
-                "first_name": "Maarten",
-                "last_name": "Keulen",
+                "full_name": "Maarten Keulen",
                 "password": "pass",
                 "email": "maarten@eJourn.al",
                 "verified_email": False,
@@ -65,8 +61,7 @@ class Command(BaseCommand):
             },
             "Student5": {
                 "username": "Student5",
-                "first_name": "Zi Long",
-                "last_name": "Zhu",
+                "full_name": "Zi Long Zhu",
                 "password": "pass",
                 "email": "zi@eJourn.al",
                 "verified_email": False,
@@ -75,8 +70,7 @@ class Command(BaseCommand):
             },
             "Teacher": {
                 "username": "Teacher",
-                "first_name": "Xavier",
-                "last_name": "van Dommelen",
+                "full_name": "Xavier van Dommelen",
                 "password": "pass",
                 "email": "xavier@eJourn.al",
                 "verified_email": False,
@@ -85,8 +79,7 @@ class Command(BaseCommand):
             },
             "TA": {
                 "username": "TA",
-                "first_name": "De TA",
-                "last_name": "van TAing",
+                "full_name": "De TA van TAing",
                 "verified_email": False,
                 "password": "pass",
                 "email": "ta@eJourn.al",
@@ -95,8 +88,7 @@ class Command(BaseCommand):
             },
             "TA2": {
                 "username": "TA2",
-                "first_name": "Backup TA",
-                "last_name": "van TAing",
+                "full_name": "Backup TA van TAing",
                 "verified_email": False,
                 "password": "pass",
                 "email": "ta2@eJourn.al",
@@ -105,8 +97,7 @@ class Command(BaseCommand):
             },
             "Superuser": {
                 "username": "Superuser",
-                "first_name": "Super",
-                "last_name": "User",
+                "full_name": "Super User",
                 "password": "pass",
                 "email": "superuser@eJourn.al",
                 "verified_email": False,

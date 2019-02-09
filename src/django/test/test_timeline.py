@@ -17,8 +17,8 @@ class TimelineTests(TestCase):
 
     def setUp(self):
         """Setup."""
-        self.u_rick = factory.make_user("Rick", "pass", "r@r.com")
-        self.u_lars = factory.make_user("Lars", "pass", "l@l.com")
+        self.u_rick = factory.make_user("Rick", "pass", "r@r.com", full_name='Test User')
+        self.u_lars = factory.make_user("Lars", "pass", "l@l.com", full_name='Test User')
 
         self.template = Template(name="some_template")
         self.template.save()

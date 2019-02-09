@@ -4,11 +4,9 @@
         <b-input v-if="lti" class="multi-form theme-input" :value="this.lti.username" disabled/>
         <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
             <h2 v-if="!lti" class="field-heading">Username</h2>
-            <b-input v-if="!lti" class="multi-form theme-input" v-model="form.username" placeholder="Username" maxlength="150" required/>
-            <h2 v-if="!lti" class="field-heading">First name</h2>
-            <b-input v-if="!lti" class="multi-form theme-input" v-model="form.firstname" placeholder="First name" maxlength="30" required/>
-            <h2 v-if="!lti" class="field-heading">Last name</h2>
-            <b-input v-if="!lti" class="multi-form theme-input" v-model="form.lastname" placeholder="Last name" maxlength="150" required/>
+            <b-input v-if="!lti" class="multi-form theme-input" v-model="form.username" placeholder="Username" maxlength="30" required/>
+            <h2 v-if="!lti" class="field-heading">Full name</h2>
+            <b-input v-if="!lti" class="multi-form theme-input" v-model="form.fullName" placeholder="Full name" maxlength="200" required/>
             <h2 class="field-heading">Password</h2>
             <b-input class="multi-form theme-input" v-model="form.password" type="password" placeholder="Password" required/>
             <h2 class="field-heading">Repeat password</h2>
@@ -43,8 +41,7 @@ export default {
                 username: '',
                 password: '',
                 password2: '',
-                firstname: '',
-                lastname: '',
+                fullName: '',
                 email: '',
                 ltiJWT: ''
             }
@@ -58,7 +55,7 @@ export default {
             }
 
             if (validation.validatePassword(this.form.password, this.form.password2) && (this.lti || validation.validateEmail(this.form.email))) {
-                authAPI.register(this.form.username, this.form.password, this.form.firstname, this.form.lastname,
+                authAPI.register(this.form.username, this.form.password, this.form.fullName,
                     this.form.email, this.form.ltiJWT, {
                         customSuccessToast: this.lti ? '' : 'Registration successful! Please follow the instructions sent to ' + this.form.email +
                                                             ' to confirm your email address.'
@@ -86,8 +83,7 @@ export default {
             this.form.username = ''
             this.form.password = ''
             this.form.password2 = ''
-            this.form.firstname = ''
-            this.form.lastname = ''
+            this.form.fullName = ''
             this.form.email = ''
         }
     },

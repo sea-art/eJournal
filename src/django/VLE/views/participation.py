@@ -174,9 +174,6 @@ class ParticipationView(viewsets.ViewSet):
             success -- list of all the users and their role
         """
         course_id, unenrolled_query = utils.required_params(request.query_params, 'course_id', 'unenrolled_query')
-        if ' ' in unenrolled_query:
-            first_name = unenrolled_query.split(' ', 1)[0]
-            last_name = unenrolled_query.split(' ', 1)[1]
 
         course = Course.objects.get(pk=course_id)
         request.user.check_permission('can_add_course_users', course)
@@ -192,10 +189,6 @@ class ParticipationView(viewsets.ViewSet):
                 return response.success({'participants': []})
 
         found_users = users.filter(Q(username__contains=unenrolled_query) |
-                                   Q(first_name__contains=unenrolled_query) |
-                                   Q(last_name__contains=unenrolled_query))
-
-        if ' ' in unenrolled_query:
-            found_users = found_users | users.filter(first_name__contains=first_name, last_name__contains=last_name)
+                                   Q(full_name__contains=unenrolled_query))
 
         return response.success({'participants': UserSerializer(found_users, many=True).data})

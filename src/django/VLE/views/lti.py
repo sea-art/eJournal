@@ -41,11 +41,6 @@ def encode_lti_params(jwt_params):
     return jwt.encode(jwt_params, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
 
 
-def split_fullname(fullname):
-    splitname = fullname.split(' ')
-    return splitname[0], fullname[len(splitname[0])+1:]
-
-
 @api_view(['GET'])
 def get_lti_params_from_jwt(request, jwt_params):
     """Handle the controlflow for course/assignment create, connect and select.

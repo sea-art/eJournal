@@ -12,8 +12,7 @@ const getters = {
     email: state => state.email,
     verifiedEmail: state => state.verifiedEmail,
     profilePicture: state => state.profilePicture,
-    firstName: state => state.firstName,
-    lastName: state => state.lastName,
+    fullName: state => state.fullName,
     ltiID: state => state.ltiID,
     permissions: state => state.permissions,
     loggedIn: state => state.jwtAccess !== null && state.uID !== null, // We are not logged unless the store is populated as well
@@ -40,8 +39,7 @@ const mutations = {
         state.email = userData.email
         state.verifiedEmail = userData.verified_email
         state.profilePicture = userData.profile_picture
-        state.firstName = userData.first_name
-        state.lastName = userData.last_name
+        state.fullName = userData.full_name
         state.ltiID = userData.lti_id
         state.permissions = permissions
     },
@@ -53,8 +51,7 @@ const mutations = {
         state.email = null
         state.verifiedEmail = null
         state.profilePicture = null
-        state.firstName = null
-        state.lastName = null
+        state.fullName = null
         state.ltiID = null
         state.gradeNotifications = null
         state.commentNotifications = null
@@ -64,8 +61,7 @@ const mutations = {
         state.verifiedEmail = true
     },
     [types.SET_FULL_USER_NAME] (state, data) {
-        state.firstName = data.firstName
-        state.lastName = data.lastName
+        state.fullName = data.fullName
     },
     [types.SET_PROFILE_PICTURE] (state, dataURL) {
         state.profilePicture = dataURL
@@ -163,8 +159,7 @@ export default {
         email: null,
         verifiedEmail: false,
         profilePicture: null,
-        firstName: null,
-        lastName: null,
+        fullName: null,
         ltiID: null,
         permissions: null
     },

@@ -15,7 +15,7 @@ def populate_user_preferences(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('VLE', '0012_auto_20181211_2201'),
+        ('VLE', '0013_user_full_name'),
     ]
 
     operations = [

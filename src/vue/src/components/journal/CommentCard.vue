@@ -11,7 +11,7 @@
                     <div v-if="!editCommentStatus[index]">
                         <sandboxed-iframe :content="comment.text"/>
                         <hr class="full-width"/>
-                        <b>{{ comment.author.first_name + ' ' + comment.author.last_name }}</b>
+                        <b>{{ comment.author.full_name }}</b>
                         <icon
                             v-if="$store.getters['user/uID'] == comment.author.id"
                             name="trash"

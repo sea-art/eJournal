@@ -19,7 +19,7 @@ class DataBaseTests(TestCase):
 
     def setUp(self):
         """Setup."""
-        self.u1 = factory.make_user("Zi", "pass", "z@z.com")
+        self.u1 = factory.make_user("Zi", "pass", "z@z.com", full_name='Test User')
 
         self.jf1 = factory.make_format()
         self.jf2 = factory.make_format()
@@ -45,12 +45,12 @@ class DataBaseTests(TestCase):
         self.jf1.available_templates.add()
         self.jf2.available_templates.add()
 
-        self.usr = factory.make_user('teun', '1234', email='t@t.com', lti_id='a')
+        self.usr = factory.make_user('teun', '1234', email='t@t.com', lti_id='a', full_name='Test User')
         self.crs = factory.make_course('test course please ignore', 'XXXX', startdate=datetime.date.today())
 
     def test_foreignkeys(self):
         """Test the foreign keys in the database."""
-        user_test = factory.make_user('lers', 'lers123', 'lers@uva.nl', '123456')
+        user_test = factory.make_user('lers', 'lers123', 'lers@uva.nl', '123456', full_name='Test User')
         course_test = factory.make_course('tname', 'XXXX', datetime.date.today())
         factory.make_format()
         template = factory.make_entry_template("some_template")

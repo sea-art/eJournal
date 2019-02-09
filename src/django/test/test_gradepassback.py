@@ -20,7 +20,7 @@ class GradePassBackRequestXMLTest(TestCase):
     def setUp(self):
         """Setup."""
         self.course = factory.make_course('TestCourse', 'aaaa', lti_id='asdf')
-        self.user = factory.make_user('TestUser', 'Pass', 'ltiTest@test.com')
+        self.user = factory.make_user('TestUser', 'Pass', 'ltiTest@test.com', full_name='Test User')
         factory.make_participation(self.user, self.course, Role.objects.get(name='Student', course=self.course))
         self.assignment = factory.make_assignment("TestAss", "TestDescr", points_possible=100, courses=[self.course])
         self.journal = factory.make_journal(self.assignment, self.user)
