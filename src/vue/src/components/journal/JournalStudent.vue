@@ -26,7 +26,7 @@
                             <entry-preview v-if="checkDeadline()" ref="entry-prev" @content-template="fillDeadline" :template="nodes[currentNode].template" :nodeID="nodes[currentNode].nID" :description="nodes[currentNode].description"/>
                             <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                                 <h2 class="mb-2">{{nodes[currentNode].template.name}}</h2>
-                                <b>The deadline has passed. You can not submit an entry anymore.</b>
+                                <b>The deadline has passed. You are not allowed to submit an entry anymore.</b>
                             </b-card>
                         </div>
                     </div>

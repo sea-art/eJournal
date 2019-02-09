@@ -412,7 +412,7 @@ class EntrySerializer(serializers.ModelSerializer):
         return ContentSerializer(entry.content_set.all(), many=True).data
 
     def get_editable(self, entry):
-        return entry.grade is None
+        return entry.grade is None and not entry.is_due()
 
     def get_grade(self, entry):
         # TODO: Add permission can_view_grade

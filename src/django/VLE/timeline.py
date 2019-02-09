@@ -51,7 +51,7 @@ def get_nodes(journal, user):
         elif node.type == Node.PROGRESS:
             node_list.append(get_progress(node))
 
-    if can_add and not journal.assignment.is_due():
+    if can_add and not journal.assignment.is_locked():
         add_node = get_add_node(journal)
         if add_node:
             node_list.append(add_node)

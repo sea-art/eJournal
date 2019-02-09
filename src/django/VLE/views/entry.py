@@ -229,13 +229,13 @@ class EntryView(viewsets.ViewSet):
         assignment = journal.assignment
 
         if journal.user == request.user:
-            request.user.check_permission('can_have_journal', assignment, 'You cannot delete entries.')
+            request.user.check_permission('can_have_journal', assignment, 'You are not allowed to delete entries.')
             if entry.grade:
-                return response.forbidden('You cannot delete graded entries.')
+                return response.forbidden('You are not allowed to delete graded entries.')
             if entry.is_due():
-                return response.forbidden('You cannot delete an entry for which the deadline has already passed.')
+                return response.forbidden('You are not allowed to delete entries past their due date.')
             if assignment.is_locked():
-                return response.forbidden('You cannot delete a locked entry.')
+                return response.forbidden('You are not allowed to delete entries after the assignment is locked.')
 
         elif not request.user.is_superuser:
             return response.forbidden('You are not allowed to delete someone else\'s entry.')

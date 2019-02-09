@@ -685,7 +685,7 @@ class PresetNode(models.Model):
     )
 
     def is_due(self):
-        return self.deadline < now() or self.format.assignment.is_due()
+        return self.deadline < now()
 
     def to_string(self, user=None):
         return "PresetNode"
@@ -734,7 +734,7 @@ class Entry(models.Model):
     )
 
     def is_due(self):
-        return (self.node.preset and self.node.preset.is_due()) or self.node.journal.assignment.is_due()
+        return (self.node.preset and self.node.preset.is_due()) or self.node.journal.assignment.is_locked()
 
     def save(self, *args, **kwargs):
         if not self.pk:
