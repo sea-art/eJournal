@@ -135,7 +135,7 @@ def lti_launch(request):
 
     try:
         lti.OAuthRequestValidater.check_signature(key, secret, request)
-    except (oauth2.Error, ValueError) as err:
+    except (oauth2.Error, ValueError):
         return redirect(lti.create_lti_query_link(QueryDict.fromkeys(['state'], LTI_STATES.BAD_AUTH.value)))
 
     params = request.POST.dict()
