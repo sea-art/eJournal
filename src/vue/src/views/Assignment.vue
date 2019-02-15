@@ -119,6 +119,7 @@ export default {
             } else {
                 this.$router.push({ name: 'Home' })
             }
+            return
         }
 
         this.switchJournalAssignment(this.aID)
