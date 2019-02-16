@@ -72,8 +72,9 @@
                     <b-form-checkbox v-if="$hasPermission('can_grade') && !entryGradePublished" v-model="publishAfterGrade">
                         Publish after grade
                     </b-form-checkbox>
-                    <b-button class="send-button mt-2" @click="addComment">
+                    <b-button class="mt-2" @click="addComment">
                         <icon name="paper-plane"/>
+                        Send
                     </b-button>
                 </div>
             </b-card>
