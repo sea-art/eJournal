@@ -34,15 +34,24 @@
                         Unlimited
                     </b-button>
                     <icon name="info-circle"/>
-                    This template can be freely used by students as often as they want
+                    This template can be freely used by students as often as they want<br/>
                 </div>
             </b-card>
-            <draggable v-model="template.field_set" @start="drag=true" @end="drag=false" @update="onUpdate" :options="{ handle:'.handle' }">
+            <draggable v-model="template.field_set" @start="startDrag" @end="endDrag" @update="onUpdate" :options="{ handle:'.handle' }">
                 <b-card v-for="field in template.field_set" :key="field.location" class="field-card">
                     <b-row align-h="between" no-gutters>
                         <b-col cols="12" sm="10" lg="11">
                             <b-input class="multi-form theme-input" v-model="field.title" placeholder="Field title" required/>
-                            <b-textarea class="multi-form theme-input" v-model="field.description" placeholder="Description" required/>
+                            <text-editor
+                                class="multi-form"
+                                v-if="showEditors"
+                                :id="`rich-text-editor-field-${template.id}-${field.location}`"
+                                :basic="true"
+                                :footer="false"
+                                :givenContent="field.description ? field.description : ''"
+                                @content-update="field.description = $event"
+                                required
+                            />
                             <div class="d-flex">
                                 <b-select class="multi-form mr-2" :options="fieldTypes" v-model="field.type" @change="field.options = ''"></b-select>
                                 <b-button v-on:click.stop v-if="!field.required" @click="field.required = !field.required" class="optional-field-template float-right multi-form">
@@ -102,8 +111,9 @@
 <script>
 import ContentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import TemplatePreview from '@/components/template/TemplatePreview.vue'
-import icon from 'vue-awesome/components/Icon'
+import textEditor from '@/components/assets/TextEditor.vue'
 import draggable from 'vuedraggable'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     props: {
@@ -128,13 +138,15 @@ export default {
                 's': 'Selection'
             },
             mode: 'edit',
-            selectedLocation: null
+            selectedLocation: null,
+            showEditors: true
         }
     },
     components: {
         'content-single-column': ContentSingleColumn,
         icon,
         'draggable': draggable,
+        'text-editor': textEditor,
         'template-preview': TemplatePreview
     },
     methods: {
@@ -163,6 +175,12 @@ export default {
             }
 
             this.updateLocations()
+        },
+        startDrag () {
+            this.showEditors = false
+        },
+        endDrag () {
+            this.showEditors = true
         },
         onUpdate () {
             this.updateLocations()

@@ -42,6 +42,11 @@ body {
 p a {
     text-decoration: none;
     color: #22648A;
+}
+
+img {
+    max-width: 100%;
+    height: auto
 }`
 
             var style = document.createElement('style')

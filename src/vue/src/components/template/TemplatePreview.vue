@@ -4,7 +4,7 @@
         <h2>{{ template.name }}</h2>
         <div v-for="(field, i) in template.field_set" :key="field.eID" class="multi-form">
             <h2 v-if="field.title" class="field-heading" :class="{ 'required': field.required }">{{ field.title }}</h2>
-            <p v-if="field.description">{{ field.description }}</p>
+            <sandboxed-iframe v-if="field.description" :content="field.description"/>
 
             <b-textarea
                 v-if="field.type == 't'"
@@ -70,6 +70,7 @@ import fileUploadInput from '@/components/assets/file_handling/FileUploadInput.v
 import textEditor from '@/components/assets/TextEditor.vue'
 import icon from 'vue-awesome/components/Icon'
 import urlInput from '@/components/assets/UrlInput.vue'
+import sandboxedIframe from '@/components/assets/SandboxedIframe.vue'
 
 export default {
     props: ['template'],
@@ -77,7 +78,8 @@ export default {
         'file-upload-input': fileUploadInput,
         'text-editor': textEditor,
         'url-input': urlInput,
-        icon
+        icon,
+        sandboxedIframe
     },
     methods: {
         parseSelectionOptions (fieldOptions) {

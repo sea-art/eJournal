@@ -95,6 +95,9 @@ export default {
                 autosave_ask_before_unload: true,
                 autosave_interval: '10s',
                 autosave_restore_when_empty: true,
+                autoresize_min_height: 150,
+                autoresize_max_height: 400,
+                autoresize_bottom_margin: 10,
 
                 /* Custom styling applied to the editor */
                 content_style: `

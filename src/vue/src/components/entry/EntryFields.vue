@@ -4,7 +4,7 @@
             <h2 v-if="field.title" class="field-heading" :class="{ 'required': field.required }">
                 {{ field.title }}
             </h2>
-            <p v-if="field.description">{{ field.description }}</p>
+            <sandboxed-iframe v-if="field.description" :content="field.description"/>
 
             <b-textarea v-if="field.type == 't'" class="theme-input" v-model="completeContent[i].data"/>
             <flat-pickr v-if="field.type == 'd'" class="theme-input full-width" v-model="completeContent[i].data"/>

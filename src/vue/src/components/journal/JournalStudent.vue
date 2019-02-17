@@ -43,7 +43,7 @@
                         </b-card>
                     </div>
                 </div>
-                <journal-start-card v-else-if="currentNode === -1" :assignment="assignment" :student="true"/>
+                <journal-start-card v-else-if="currentNode === -1" :assignment="assignment"/>
                 <journal-end-card v-else :assignment="assignment" :student="true"/>
             </b-col>
         </b-col>

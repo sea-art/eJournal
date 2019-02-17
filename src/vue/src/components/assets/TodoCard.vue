@@ -5,36 +5,39 @@
             :num="deadline.stats.needs_marking + deadline.stats.unpublished"
             class="float-right" />
 
-        <h5 class="deadline-name">{{ deadline.name }}</h5>
+        <b class="deadline-name field-heading">{{ deadline.name }}</b> ({{ course.abbreviation }})
         <b-badge
             v-if="!deadline.is_published"
             class="ml-2 mt-2">
             Unpublished
         </b-badge>
         <br />
-        {{ course.abbreviation }}
 
-        <!-- Teacher deadline shows last submitted entry date  -->
-        <h6 v-if="this.deadline.deadline && (this.deadline.stats.needs_marking + deadline.stats.unpublished)">
-            {{ timeLeft[1] }} ago
-            <span class="float-right">{{ $root.beautifyDate(deadline.deadline) }}</span>
-        </h6>
-        <!-- Student deadline shows last not submitted deadline -->
-        <h6 v-else-if="this.deadline.deadline">
-            <template v-if="timeLeft[0] < 0">Due in {{ timeLeft[1] }}</template>
-            <span class="text-red" v-else>{{ timeLeft[1] }} late</span>
-            <span class="float-right">{{ $root.beautifyDate(deadline.deadline) }}</span>
-        </h6>
+        <span v-if="this.deadline.deadline">
+            <!-- Teacher deadline shows last submitted entry date  -->
+            <span v-if="this.deadline.stats.needs_marking + deadline.stats.unpublished">
+                <icon name="eye" class="fill-grey shift-up-3"/> {{ timeLeft[1] }} ago<br/>
+            </span>
+            <!-- Student deadline shows last not submitted deadline -->
+            <span v-else>
+                <icon name="calendar" class="fill-grey shift-up-3"/>
+                <span v-if="timeLeft[0] < 0">Due in {{ timeLeft[1] }}<br/></span>
+                <span v-else class="text-red">{{ timeLeft[1] }} late<br/></span>
+            </span>
+            <icon name="flag" class="fill-grey shift-up-3"/> {{ $root.beautifyDate(this.deadline.deadline) }}
+        </span>
     </b-card>
 </template>
 
 <script>
 import todoSquare from '@/components/assets/TodoSquare.vue'
+import icon from 'vue-awesome/components/Icon'
 
 export default {
     props: ['deadline', 'course'],
     components: {
-        'todo-square': todoSquare
+        'todo-square': todoSquare,
+        icon
     },
     computed: {
         timeLeft: function () {
