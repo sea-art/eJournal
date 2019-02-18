@@ -5,7 +5,7 @@
 <template>
     <div>
         <div v-if="commentObject">
-            <div v-for="(comment, index) in commentObject" class="comment-section" :key="index">
+            <div v-for="(comment, index) in commentObject" class="comment-section" :key="`comment-${eID}-${index}`">
                 <img class="profile-picture-sm no-hover" :src="comment.author.profile_picture">
                 <b-card class="no-hover comment-card" :class="$root.getBorderClass($route.params.cID)">
                     <div v-if="!editCommentStatus[index]">
