@@ -3,20 +3,19 @@ entry.py.
 
 In this file are all the entry api requests.
 """
-from datetime import datetime
-
 from rest_framework import viewsets
+from rest_framework.decorators import action
 
 import VLE.factory as factory
 import VLE.lti_grade_passback as lti_grade
 import VLE.serializers as serialize
 import VLE.timeline as timeline
 import VLE.utils.entry_utils as entry_utils
+import VLE.utils.file_handling as file_handling
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 import VLE.validators as validators
 from VLE.models import Comment, Entry, Field, Journal, Node, Template
-from VLE.utils import file_handling
 
 
 class EntryView(viewsets.ViewSet):
@@ -50,31 +49,23 @@ class EntryView(viewsets.ViewSet):
         request.user.check_permission('can_have_journal', assignment)
 
         if assignment.is_locked():
-            return response.forbidden('The assignment is locked, no entries can be added.')
+            return response.forbidden('The assignment is locked, entries can no longer be edited/changed.')
 
+        # Check if the template is available
+        if not (node_id or assignment.format.available_templates.filter(pk=template.pk).exists()):
+            return response.forbidden('Entry template is not available.')
+
+        entry_utils.check_required_fields(template, content_list)
+        # Node specific entry
         if node_id:
             node = Node.objects.get(pk=node_id, journal=journal)
-
-            if not (node.preset and node.preset.forced_template == template):
-                return response.forbidden('Invalid template for preset node.')
-
-            if node.type != Node.ENTRYDEADLINE:
-                return response.bad_request('Passed node is not an EntryDeadline node.')
-
-            if node.entry:
-                return response.bad_request('Passed node already contains an entry.')
-
-            if node.preset.is_due():
-                return response.bad_request('The deadline has already passed.')
-
-            node.entry = factory.make_entry(template)
-            node.save()
-        elif not assignment.format.available_templates.filter(pk=template.pk).exists():
-            return response.forbidden('Entry template is not available.')
+            entry = entry_utils.add_entry_to_node(node, template)
+        # Template specific entry
         else:
             entry = factory.make_entry(template)
             node = factory.make_node(journal, entry)
 
+        # Notify teacher on new entry
         lti_grade.needs_grading(node)
 
         for content in content_list:
@@ -84,7 +75,7 @@ class EntryView(viewsets.ViewSet):
 
             created_content = factory.make_content(node.entry, data, field)
 
-            if field.type in ['i', 'f', 'p']:
+            if field.type in ['i', 'f', 'p']:  # Image, file or PDF
                 user_file = file_handling.get_temp_user_file(request.user, assignment, content['data'])
                 if user_file is None:
                     node.entry.delete()
@@ -92,19 +83,13 @@ class EntryView(viewsets.ViewSet):
 
                 file_handling.make_permanent_file_content(user_file, created_content, node)
 
+        # Delete old user files
         file_handling.remove_temp_user_files(request.user)
 
-        # Find the new index of the new node so that the client can automatically scroll to it.
-        result = timeline.get_nodes(journal, request.user)
-        added = -1
-        for i, result_node in enumerate(result):
-            if result_node['nID'] == node.id:
-                added = i
-                break
-
         return response.created({
-            'added': added,
-            'nodes': timeline.get_nodes(journal, request.user)
+            'added': entry_utils.get_node_index(journal, node, request.user),
+            'nodes': timeline.get_nodes(journal, request.user),
+            'entry': serialize.EntrySerializer(entry, context={'user': request.user}).data
         })
 
     def partial_update(self, request, *args, **kwargs):
@@ -126,86 +111,41 @@ class EntryView(viewsets.ViewSet):
             success -- with the new entry data
 
         """
-        published, content_list = utils.optional_params(request.data, 'published', 'content')
+        content_list, = utils.required_typed_params(request.data, (list, 'content'))
 
         entry_id, = utils.required_typed_params(kwargs, (int, 'pk'))
         entry = Entry.objects.get(pk=entry_id)
         journal = entry.node.journal
         assignment = journal.assignment
 
-        if 'grade' in request.data:
-            grade, = utils.required_typed_params(request.data, (float, 'grade'))
-            request.user.check_permission('can_grade', assignment)
-
-            if grade < 0:
-                return response.bad_request('Grade must be greater than or equal to zero.')
-
-            entry.grade = grade
-
         if assignment.is_locked():
-            request.user.check_permission('can_view_all_journals', assignment)
-
-        if published is not None:
-            request.user.check_permission('can_publish_grades', assignment)
-            entry.published = published
-            try:
-                entry.save()
-            except ValueError:
-                return response.bad_request('Invalid grade or published state.')
-            if published:
-                Comment.objects.filter(entry=entry).update(published=True)
+            return response.forbidden('The assignment is locked, entries can no longer be edited/changed.')
+        request.user.check_permission('can_have_journal', assignment)
+        if not (journal.user == request.user or request.user.is_superuser):
+            return response.forbidden('You are not allowed to edit someone else\'s entry.')
+        if entry.grade is not None:
+            return response.bad_request('You are not allowed to edit graded entries.')
+        if entry.is_due():
+            return response.bad_request('You are not allowed to edit entries past their due date.')
 
         # Attempt to edit the entries content.
-        if content_list:
-            if not (journal.user == request.user or request.user.is_superuser):
-                response.forbidden('You are not allowed to edit someone else\'s entry.')
+        for content in content_list:
+            field_id, content_id = utils.required_typed_params(content, (int, 'id'), (int, 'contentID'))
+            data, = utils.required_params(content, 'data')
+            field = Field.objects.get(pk=field_id)
+            old_content = entry.content_set.get(pk=content_id)
+            validators.validate_entry_content(data, field)
 
-            request.user.check_permission('can_have_journal', assignment)
+            if old_content.field.pk != field_id:
+                return response.bad_request('The given content does not match the accompanying field type.')
+            if not data:
+                old_content.delete()
+                continue
 
-            if entry.grade is not None:
-                return response.bad_request('You are not allowed to edit graded entries.')
-
-            if entry.is_due():
-                return response.bad_request('You are not allowed to edit entries past their due date.')
-
-            for content in content_list:
-                field_id, data, content_id = utils.required_params(content, 'id', 'data', 'contentID')
-                field = Field.objects.get(pk=field_id)
-                old_content = entry.content_set.get(pk=content_id)
-                validators.validate_entry_content(data, field)
-
-                if old_content.field.pk != int(field_id):
-                    return response.bad_request('The given content does not match the accompanying field type.')
-
-                if not data:
-                    old_content.delete()
-                    continue
-
-                entry_utils.patch_entry_content(request.user, entry, old_content, field, data, assignment)
-
+            entry_utils.patch_entry_content(request.user, entry, old_content, field, data, assignment)
             file_handling.remove_temp_user_files(request.user)
 
-        req_data = request.data
-        req_data.pop('content', None)
-        req_data.pop('published', None)
-        if content_list:
-            req_data['last_edited'] = datetime.now()
-        else:
-            req_data.pop('last_edited', None)
-        serializer = serialize.EntrySerializer(entry, data=req_data, partial=True, context={'user': request.user})
-        if not serializer.is_valid():
-            response.bad_request()
-
-        try:
-            serializer.save()
-        except ValueError:
-            return response.bad_request('Invalid grade or published state.')
-        if published:
-            payload = lti_grade.replace_result(journal)
-        else:
-            payload = dict()
-
-        return response.success({'entry': serializer.data, 'lti': payload})
+        return response.success({'entry': serialize.EntrySerializer(entry, context={'user': request.user}).data})
 
     def destroy(self, request, *args, **kwargs):
         """Delete an entry and the node it belongs to.
@@ -244,3 +184,30 @@ class EntryView(viewsets.ViewSet):
             entry.node.delete()
         entry.delete()
         return response.success(description='Successfully deleted entry.')
+
+    @action(methods=['patch'], detail=True)
+    def grade(self, request, pk):
+        entry = Entry.objects.get(pk=pk)
+        journal = entry.node.journal
+        assignment = journal.assignment
+        grade, published = utils.optional_typed_params(request.data, (float, 'grade'), (bool, 'published'))
+
+        if grade:
+            request.user.check_permission('can_grade', assignment)
+            if grade < 0:
+                return response.bad_request('Grade must be greater than or equal to zero.')
+            entry.grade = grade
+
+        if published is not None:
+            if published is not True and entry.published is True:
+                return response.bad_request('A published entry cannot be unpublished.')
+            request.user.check_permission('can_publish_grades', assignment)
+            entry.published = published
+            if published:
+                Comment.objects.filter(entry=entry).update(published=True)
+
+        entry.save()
+        return response.success({
+            'entry': serialize.EntrySerializer(entry, context={'user': request.user}).data,
+            'lti': lti_grade.replace_result(journal)
+        })

@@ -173,7 +173,7 @@ export default {
                     customErrorToast: 'Error while publishing all grades for this assignment.',
                     customSuccessToast: 'Published all grades for this assignment.'
                 })
-                    .then(_ => {
+                    .then(() => {
                         assignmentAPI.get(this.aID, this.cID)
                             .then(assignment => {
                                 this.assignmentJournals = assignment.journals

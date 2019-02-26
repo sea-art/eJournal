@@ -108,7 +108,6 @@ class GradePassBackRequest(object):
                 self.key, self.secret
             )
             client = oauth2.Client(consumer)
-
             _, content = client.request(
                 self.url,
                 'POST',
@@ -182,7 +181,7 @@ def needs_grading(node):
         return False
 
 
-def change_Entry_vle_coupling(journal, status):
+def change_entry_vle_coupling(journal, status):
     Entry.objects.filter(published=True, node__journal=journal).exclude(
         vle_coupling=Entry.LINK_COMPLETE).update(vle_coupling=status)
 
@@ -196,7 +195,7 @@ def replace_result(journal):
     returns the lti reponse.
     """
 
-    change_Entry_vle_coupling(journal, Entry.GRADING)
+    change_entry_vle_coupling(journal, Entry.GRADING)
 
     if journal.sourcedid is None or journal.grade_url is None:
         return None
@@ -208,11 +207,14 @@ def replace_result(journal):
     response = grade_request.send_post_request()
 
     if response['code_mayor'] == 'success':
-        change_Entry_vle_coupling(journal, Entry.LINK_COMPLETE)
+        change_entry_vle_coupling(journal, Entry.LINK_COMPLETE)
+
     return response
 
 
 def check_if_need_VLE_publish(assignment):
+    # TODO: Check if "user__participation__role__can_have_journal" would not leak
+    # if its a teacher and student in different courses
     for journal in Journal.objects.filter(assignment=assignment, user__participation__role__can_have_journal=True):
         if Entry.objects.filter(published=True, vle_coupling=Entry.GRADING):
             replace_result(journal)

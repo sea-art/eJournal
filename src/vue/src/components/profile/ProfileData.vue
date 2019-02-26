@@ -77,13 +77,13 @@ export default {
         },
         saveUserdata () {
             userAPI.update(0, {full_name: this.fullName}, {customSuccessToast: 'Saved profile data.'})
-                .then(_ => {
+                .then(() => {
                     this.$store.commit('user/SET_FULL_USER_NAME', {fullName: this.fullName})
                 })
         },
         fileHandler (dataURL) {
             userAPI.updateProfilePictureBase64(dataURL, {customSuccessToast: 'Profile picture updated.'})
-                .then(_ => {
+                .then(() => {
                     this.$store.commit('user/SET_PROFILE_PICTURE', dataURL)
                     this.profileImageDataURL = dataURL
                     this.$refs['cropperModal'].hide()

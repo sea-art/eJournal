@@ -92,12 +92,12 @@ def verify_email(request):
     token, username = utils.required_params(request.data, 'token', 'username')
     user = User.objects.get(username=username)
 
-    if user.verified_email:
-        return response.success(description='Email address already verified.')
-
     token_generator = PasswordResetTokenGenerator()
     if not token_generator.check_token(user, token):
         return response.bad_request(description='Invalid email recovery token.')
+
+    if user.verified_email:
+        return response.success(description='Email address already verified.')
 
     user.verified_email = True
     user.save()
@@ -108,7 +108,7 @@ def verify_email(request):
 def request_email_verification(request):
     """Request an email with a verifcation link for the users email address."""
     if request.user.verified_email:
-        return response.bad_request(description='Email address already verified.')
+        return response.success(description='Email address already verified.')
 
     email_handling.send_email_verification_link(request.user)
     return response.success(
@@ -135,9 +135,9 @@ def send_feedback(request):
         success -- with a description.
     """
     request.user.check_verified_email()
-    utils.required_params(request.POST, 'topic', 'feedback', 'ftype', 'user_agent')
+    utils.required_params(request.data, 'topic', 'feedback', 'ftype', 'user_agent', 'url')
 
     files = request.FILES.getlist('files')
     validators.validate_email_files(files)
-    email_handling.send_email_feedback(request.user, files, **request.POST)
+    email_handling.send_email_feedback(request.user, files, **request.data)
     return response.success(description='Feedback was successfully received, thank you!')

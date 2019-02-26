@@ -154,7 +154,7 @@ export default {
         },
         update () {
             roleAPI.update(this.cID, this.roleConfig, {customSuccessToast: 'Course roles successfully updated.'})
-                .then(_ => {
+                .then(() => {
                     this.originalRoleConfig = this.deepCopyRoles(this.roleConfig)
                     this.defaultRoles = Array.from(this.roles)
                     this.checkPermission()
@@ -173,7 +173,7 @@ export default {
                 if (this.defaultRoles.includes(role)) {
                     /* handle server update. */
                     roleAPI.delete(this.cID, role, {customSuccessToast: 'Role deleted successfully!'})
-                        .then(_ => {
+                        .then(() => {
                             this.deleteRoleLocalConfig(role)
                             this.deleteRoleServerLoadedConfig(role)
                         })

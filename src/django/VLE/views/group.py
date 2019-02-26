@@ -35,7 +35,7 @@ class GroupView(viewsets.ViewSet):
             unauthorized -- when the user is not logged in
             not found -- when the course does not exists
             forbidden -- when the user is not part of the course
-        On succes:
+        On success:
             success -- with the group data
 
         """
@@ -84,8 +84,8 @@ class GroupView(viewsets.ViewSet):
 
         Arguments:
         request -- request data
-        data -- the new data for the course group
-        pk -- course ID
+            name -- group name
+        pk -- group ID
 
         Returns:
         On failure:
@@ -97,34 +97,33 @@ class GroupView(viewsets.ViewSet):
         On success:
             success -- with the new course data
         """
-        old_group_name, new_group_name = utils.required_params(request.data, 'old_group_name', 'new_group_name')
+        name, = utils.required_params(request.data, 'name')
 
-        course_id, = utils.required_typed_params(kwargs, (int, 'pk'))
-        course = Course.objects.get(pk=course_id)
-        group = Group.objects.get(name=old_group_name, course=course)
+        group_id, = utils.required_typed_params(kwargs, (int, 'pk'))
+        group = Group.objects.get(pk=group_id)
+        course = group.course
 
         request.user.check_permission('can_edit_course_user_group', course)
 
-        if not new_group_name:
+        if not name:
             return response.bad_request('Group name is not allowed to be empty.')
 
-        if Group.objects.filter(name=new_group_name, course=course).exists():
+        if Group.objects.filter(name=name, course=course).exists():
             return response.bad_request('Course group with that name already exists.')
 
-        serializer = GroupSerializer(group, data={'name': new_group_name}, partial=True)
+        serializer = GroupSerializer(group, data={'name': name}, partial=True)
         if not serializer.is_valid():
             response.bad_request()
 
         serializer.save()
         return response.success({'group': serializer.data})
 
-    def destroy(self, request, *args, **kwargs):
+    def destroy(self, request, pk):
         """Delete an existing course group.
 
         Arguments:
         request -- request data
-            group_name -- name of the course
-        pk -- course ID
+        pk -- group ID
 
         Returns:
         On failure:
@@ -134,14 +133,10 @@ class GroupView(viewsets.ViewSet):
         On success:
             success -- with a message that the course group was deleted
         """
-        course_id, = utils.required_typed_params(kwargs, (int, 'pk'))
-        name, = utils.required_typed_params(request.query_params, (str, 'group_name'))
+        group = Group.objects.get(pk=pk)
 
-        course = Course.objects.get(pk=course_id)
+        request.user.check_permission('can_delete_course_user_group', group.course)
 
-        request.user.check_permission('can_delete_course_user_group', course)
-
-        group = Group.objects.get(name=name, course=course)
         group.delete()
         return response.success(description='Successfully deleted course group.')
 

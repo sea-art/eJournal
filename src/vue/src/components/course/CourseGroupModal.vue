@@ -27,7 +27,7 @@
             v-for="g in groups"
             :key="g.id"
             :cID="cID"
-            :group="g.name"/>
+            :group="g"/>
     </div>
 </template>
 
@@ -71,7 +71,7 @@ export default {
             groupAPI.create({name: this.form.groupName, course_id: this.cID, lti_id: this.lti_id},
                 {customSuccessToast: 'Successfully created group.'})
                 .then(group => {
-                    this.$emit('create-group', group.name)
+                    this.$emit('create-group', group)
                     this.resetFormInput()
                 })
         },
@@ -79,11 +79,11 @@ export default {
             /* Reset our form values */
             this.form.groupName = ''
         },
-        deleteGroup (groupName) {
-            this.$emit('delete-group', groupName)
+        deleteGroup (group) {
+            this.$emit('delete-group', group)
         },
-        updateGroup (oldGroupName, newGroupName) {
-            this.$emit('update-group', oldGroupName, newGroupName)
+        updateGroup (group) {
+            this.$emit('update-group', group)
         }
     },
     components: {

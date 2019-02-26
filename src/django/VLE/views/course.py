@@ -25,7 +25,7 @@ class CourseView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-        On succes:
+        On success:
             success -- with the course data
         """
         queryset = request.user.participations.all()
@@ -47,7 +47,7 @@ class CourseView(viewsets.ViewSet):
         On failure:
             unauthorized -- when the user is not logged in
             forbidden -- when the user has no permission to create new courses
-        On succes:
+        On success:
             success -- with the course data
         """
         request.user.check_permission('can_add_course')

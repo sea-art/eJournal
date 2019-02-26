@@ -1,37 +1,21 @@
-
-import test.test_utils as test
+import test.factory as factory
+from test.utils import api
 
 from django.test import TestCase
 
-from VLE.models import Instance
 
+class InstanceAPITest(TestCase):
 
-class InstanceTests(TestCase):
-    def setUp(self):
-        # Create superuser
-        self.supername, self.superpass, self.user = test.set_up_user_and_auth('super', 'pass', 'super@user.com')
-        self.user.is_superuser = True
-        self.user.save()
+    def test_get(self):
+        # Check if PK does not matter
+        resp = api.get(self, 'instance', params={'pk': 0})
+        assert resp['instance']['name'] == 'eJournal'
+        resp = api.get(self, 'instance', params={'pk': 0})
+        assert resp['instance']['name'] == 'eJournal'
 
-        # Create student
-        self.studentname, self.studentpass, self.student = test.set_up_user_and_auth(
-            'student', 'pass', 'student@user.com')
-        self.instance_data = {
-            'name': 'UvA',
-        }
+    def test_update(self):
+        api.update(self, 'instance', params={'pk': 0}, user=factory.Teacher(), status=403)
 
-    def test_get_instance(self):
-        student = test.logging_in(self, self.studentname, self.studentpass)
-        superuser = test.logging_in(self, self.supername, self.superpass)
-
-        test.api_get_call(self, '/instance/0/', login=student)
-        test.api_get_call(self, '/instance/0/', login=superuser)
-        self.assertEqual(Instance.objects.all().first().name, 'eJournal')
-
-    def test_update_instance(self):
-        student = test.logging_in(self, self.studentname, self.studentpass)
-        superuser = test.logging_in(self, self.supername, self.superpass)
-
-        test.api_patch_call(self, '/instance/0/', {'name': 'UvA'}, login=student, status=403)
-        test.api_patch_call(self, '/instance/0/', {'name': 'UvA'}, login=superuser)
-        self.assertEqual(Instance.objects.all().first().name, 'UvA')
+        admin = factory.Admin()
+        resp = api.update(self, 'instance', params={'pk': 0, 'name': 'B1'}, user=admin)
+        assert resp['instance']['name'] == 'B1'

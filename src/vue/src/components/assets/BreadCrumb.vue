@@ -108,7 +108,7 @@ export default {
                             this.cachedMap[crumb.route] = crumb.displayName
                         }
                     })
-                    .then(_ => { store.setCachedMap(this.cachedMap) })
+                    .then(() => { store.setCachedMap(this.cachedMap) })
             }
         },
         editClick () {

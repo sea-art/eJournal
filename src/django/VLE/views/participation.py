@@ -10,6 +10,7 @@ from VLE.serializers import ParticipationSerializer, UserSerializer
 
 
 class ParticipationView(viewsets.ViewSet):
+    # TODO: Make ParticipationView REST
     def list(self, request):
         """Get all users and their roles for a given course.
 
@@ -26,7 +27,7 @@ class ParticipationView(viewsets.ViewSet):
         On success:
             success -- list of all the users and their role
         """
-        course_id, = utils.required_params(request.query_params, "course_id")
+        course_id, = utils.required_params(request.query_params, 'course_id')
 
         course = Course.objects.get(pk=course_id)
 
@@ -96,7 +97,9 @@ class ParticipationView(viewsets.ViewSet):
         for assignment in assignments:
             if not Journal.objects.filter(assignment=assignment, user=user).exists():
                 factory.make_journal(assignment, user)
-        return response.success(description='Successfully added student to course.')
+
+        serializer = UserSerializer(user, context={'course': course})
+        return response.created({'participant': serializer.data}, description='Successfully added student to course.')
 
     def partial_update(self, request, pk):
         """Update user role in a course.
@@ -134,8 +137,8 @@ class ParticipationView(viewsets.ViewSet):
             participation.group = None
 
         participation.save()
-        serializer = UserSerializer(participation.user, context={'course': course})
-        return response.success({'user': serializer.data}, description='Successfully updated participation.')
+        serializer = ParticipationSerializer(participation, context={'course': course})
+        return response.success({'participation': serializer.data}, description='Successfully updated participation.')
 
     def destroy(self, request, pk):
         """Remove a user from the course.
@@ -153,7 +156,7 @@ class ParticipationView(viewsets.ViewSet):
         request.user.check_permission('can_delete_course_users', course)
 
         participation.delete()
-        return response.success(description='Sucesfully removed user from course.')
+        return response.success(description='Successfully removed user from course.')
 
     @action(methods=['get'], detail=False)
     def unenrolled(self, request):

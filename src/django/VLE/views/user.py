@@ -42,7 +42,7 @@ class UserView(viewsets.ViewSet):
         Returns:
         On failure:
             unauthorized -- when the user is not logged in
-        On succes:
+        On success:
             success -- with the course data
 
         """
@@ -99,7 +99,7 @@ class UserView(viewsets.ViewSet):
             unauthorized -- when the user is not logged in
             bad request -- when email/username/lti id already exists
             bad request -- when email/password is invalid
-        On succes:
+        On success:
             success -- with the newly created user data
         """
 
@@ -217,19 +217,19 @@ class UserView(viewsets.ViewSet):
         On success:
             success -- deleted message
         """
-        if not request.user.is_superuser:
-            return response.forbidden('You are not allowed to delete a user.')
-
         if int(pk) == 0:
             pk = request.user.id
-
         user = User.objects.get(pk=pk)
 
-        if len(User.objects.filter(is_superuser=True)) == 1:
+        if not (request.user.is_superuser or request.user == user):
+            return response.forbidden('You are not allowed to delete a user.')
+
+        # Deleting the last superuser should not be possible
+        if user.is_superuser and User.objects.filter(is_superuser=True).count() == 1:
             return response.bad_request('There is only 1 superuser left and therefore cannot be deleted')
 
         user.delete()
-        return response.deleted(description='Sucesfully deleted user.')
+        return response.success(description='Successfully deleted user.')
 
     @action(['patch'], detail=False)
     def password(self, request):
@@ -280,7 +280,7 @@ class UserView(viewsets.ViewSet):
         user = User.objects.get(pk=pk)
 
         # Check the right permissions to get this users data, either be the user of the data or be an admin.
-        if not (user.is_superuser or request.user.id == pk):
+        if not (request.user.is_superuser or request.user.id == pk):
             return response.forbidden('You are not allowed to view this user\'s data.')
 
         profile = UserSerializer(user).data

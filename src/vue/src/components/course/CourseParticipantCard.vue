@@ -77,9 +77,9 @@ export default {
     methods: {
         removeFromCourse () {
             if (confirm('Are you sure you want to remove "' + this.user.full_name + '" from this course?')) {
-                participationAPI.delete(this.cID, this.user.id, {responseSuccessToast: true}).then(data => {
+                participationAPI.delete(this.cID, this.user.id, {responseSuccessToast: true}).then(() => {
                     if (this.$store.getters['user/uID'] === this.user.id) {
-                        this.$store.dispatch('user/populateStore').catch(_ => {
+                        this.$store.dispatch('user/populateStore').catch(() => {
                             this.$toasted.error('The website might be out of sync, please login again.')
                         })
                         this.$router.push({name: 'Home'})
@@ -97,11 +97,11 @@ export default {
                 this.selectedRole = val
                 this.$emit('update:role', val)
                 this.$emit('update-participants', val, this.user.id)
-                participationAPI.update(this.cID, {user_id: this.user.id, role: this.selectedRole, group: this.selectedGroup}).then(_ => {
+                participationAPI.update(this.cID, {user_id: this.user.id, role: this.selectedRole, group: this.selectedGroup}).then(() => {
                     if (this.$store.getters['user/uID'] === this.user.id) {
-                        this.$store.dispatch('user/populateStore').then(_ => {
+                        this.$store.dispatch('user/populateStore').then(() => {
                             this.$router.push({name: 'Course', params: {cID: this.cID}})
-                        }, _ => {
+                        }, () => {
                             this.$toasted.error('The website might be out of sync, please login again.')
                         })
                     }

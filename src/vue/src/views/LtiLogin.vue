@@ -81,7 +81,7 @@ export default {
             /* The LTI parameters are verified in our backend, and the corresponding user is logged in. */
             if (this.$route.query.state === this.states.logged_in) {
                 this.$store.commit('user/SET_JWT', { access: this.$route.query.jwt_access, refresh: this.$route.query.jwt_refresh })
-                this.$store.dispatch('user/populateStore').then(_ => {
+                this.$store.dispatch('user/populateStore').then(() => {
                     this.userIntegrated()
                 }, error => {
                     this.$router.push({

@@ -48,4 +48,9 @@ class Migration(migrations.Migration):
             name='creation_date',
             field=models.DateTimeField(editable=False),
         ),
+        migrations.AlterField(
+            model_name='participation',
+            name='group',
+            field=models.ForeignKey(default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, to='VLE.Group'),
+        ),
     ]

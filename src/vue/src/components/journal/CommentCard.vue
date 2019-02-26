@@ -176,13 +176,13 @@ export default {
         deleteComment (cID) {
             if (confirm('Are you sure you want to delete this comment?')) {
                 commentAPI.delete(cID)
-                    .then(_ => {
+                    .then(() => {
                         for (var i in this.commentObject) {
                             if (this.commentObject[i].id === cID) {
                                 this.commentObject.splice(i, 1)
                             }
                         }
-                        for (_ in this.commentObject) {
+                        for (i in this.commentObject) {
                             this.editCommentStatus.push(false)
                             this.editCommentTemp.push('')
                         }

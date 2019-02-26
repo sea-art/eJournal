@@ -62,16 +62,16 @@ export default {
         requestEmailVerification () {
             if (!this.showEmailValidationInput) {
                 userAPI.requestEmailVerification({responseSuccessToast: true})
-                    .then(_ => { this.showEmailValidationInput = true })
+                    .then(() => { this.showEmailValidationInput = true })
             }
         },
         verifyEmail () {
             userAPI.verifyEmail(this.$store.getters['user/username'], this.emailVerificationToken, {responseSuccessToast: true})
-                .then(_ => {
+                .then(() => {
                     this.$store.commit('user/EMAIL_VERIFIED')
                     this.showEmailValidationInput = false
                 })
-                .catch(_ => { this.emailVerificationTokenMessage = 'Invalid token' })
+                .catch(() => { this.emailVerificationTokenMessage = 'Invalid token' })
         }
     }
 }

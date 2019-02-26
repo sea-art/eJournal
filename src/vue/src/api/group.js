@@ -11,9 +11,8 @@ export default {
             .then(response => response.data.group)
     },
 
-    delete (cID, groupName, connArgs = auth.DEFAULT_CONN_ARGS) {
-        return auth.delete('groups/' + cID, {group_name: groupName}, connArgs)
-            .then(response => response.data)
+    delete (id, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.delete('groups/' + id, null, connArgs)
     },
 
     getAllFromCourse (cID, connArgs = auth.DEFAULT_CONN_ARGS) {

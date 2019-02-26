@@ -75,9 +75,9 @@ export default {
         },
         handleLinked () {
             userAPI.update(0, {jwt_params: this.lti.ltiJWT})
-                .then(_ => {
+                .then(() => {
                     /* This is required because between the login and the connect of lti user to our user data can change. */
-                    this.$store.dispatch('user/populateStore').then(_ => {
+                    this.$store.dispatch('user/populateStore').then(() => {
                         this.hideModal('linkUserRef')
                         this.signal(['userIntegrated'])
                     })

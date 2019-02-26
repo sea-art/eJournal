@@ -131,7 +131,7 @@ export default {
                 assignmentAPI.delete(assignment.id, this.cID, {
                     customSuccessToast: assignment.course_count > 1 ? 'Removed assignment.' : 'Deleted assignment.'
                 })
-                    .then(_ => { this.loadAssignments() })
+                    .then(() => { this.loadAssignments() })
             }
         }
     }

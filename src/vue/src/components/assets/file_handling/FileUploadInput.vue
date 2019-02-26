@@ -64,10 +64,10 @@ export default {
             formData.append('content_id', this.contentID)
 
             userAPI.uploadUserFile(formData, {customSuccessToast: 'File upload success.'})
-                .then(_ => {
+                .then(() => {
                     this.$emit('fileUploadSuccess', this.file.name)
                 })
-                .catch(_ => {
+                .catch(() => {
                     this.$emit('fileUploadFailed', this.file.name)
                     this.file = null
                 })

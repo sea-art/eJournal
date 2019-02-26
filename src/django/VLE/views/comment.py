@@ -35,7 +35,7 @@ class CommentView(viewsets.ViewSet):
             unauthorized -- when the user is not logged in
             not found -- when the course does not exist
             forbidden -- when its not their own journal, or the user is not allowed to grade that journal
-        On succes:
+        On success:
             success -- with a list of the comments belonging to the entry
 
         """
@@ -62,7 +62,7 @@ class CommentView(viewsets.ViewSet):
         request -- request data
             entry_id -- entry ID
             text -- comment text
-            published -- publishment state
+            published -- published state
 
         Returns:
         On failure:
@@ -71,10 +71,11 @@ class CommentView(viewsets.ViewSet):
             not_found -- could not find the entry, author or assignment
 
         On success:
-            succes -- with the assignment data
+            success -- with the assignment data
 
         """
-        entry_id, text, published = utils.required_params(request.data, "entry_id", "text", "published")
+        entry_id, text, = utils.required_params(request.data, 'entry_id', 'text')
+        published, = utils.optional_typed_params(request.data, (bool, 'published'))
 
         entry = Entry.objects.get(pk=entry_id)
         journal = entry.node.journal
@@ -102,16 +103,13 @@ class CommentView(viewsets.ViewSet):
             forbidden -- not allowed to retrieve assignments in this course
 
         On success:
-            succes -- with the comment data
+            success -- with the comment data
 
         """
         comment = Comment.objects.get(pk=pk)
-        journal = comment.entry.node.journal
-
-        request.user.check_can_view(journal)
+        request.user.check_can_view(comment)
 
         serializer = CommentSerializer(comment)
-
         return response.success({'comment': serializer.data})
 
     def partial_update(self, request, *args, **kwargs):
@@ -170,9 +168,8 @@ class CommentView(viewsets.ViewSet):
         """
         comment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
         comment = Comment.objects.get(pk=comment_id)
-        journal = comment.entry.node.journal
 
-        request.user.check_can_view(journal)
+        request.user.check_can_view(comment)
 
         if not (request.user.is_superuser or request.user.id == comment.author.id):
             return response.forbidden(description='You are not allowed to delete this comment.')

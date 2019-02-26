@@ -94,8 +94,8 @@ export default {
         },
         handleLogin () {
             this.$store.dispatch('user/login', { username: this.username, password: this.password })
-                .then(_ => { this.$emit('handleAction') })
-                .catch(_ => { this.$toasted.error('Could not login') })
+                .then(() => { this.$emit('handleAction') })
+                .catch(() => { this.$toasted.error('Could not login') })
         }
     },
     mounted () {

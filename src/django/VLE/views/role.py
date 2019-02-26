@@ -11,6 +11,7 @@ from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
 
 
 class RoleView(viewsets.ViewSet):
+    # TODO: Make RoleView REST
     def list(self, request):
         """Get course roles.
 
@@ -105,7 +106,10 @@ class RoleView(viewsets.ViewSet):
             success -- newly created course
 
         """
-        course_id, name, permissions = utils.required_params(request.data, 'course_id', 'name', 'permissions')
+        course_id, name = utils.required_params(request.data, 'course_id', 'name')
+        permissions, = utils.optional_typed_params(request.data, (dict, 'permissions'))
+        if permissions is None:
+            permissions = dict()
         course = Course.objects.get(pk=course_id)
 
         # TODO: P Is this the right permission
@@ -113,8 +117,8 @@ class RoleView(viewsets.ViewSet):
 
         try:
             role = factory.make_role_default_no_perms(name, course, **permissions)
-        except Exception:
-            return response.bad_request()
+        except TypeError:
+            return response.bad_request("An invalid permission was given.")
 
         serializer = RoleSerializer(role, many=False)
         return response.created({'role': serializer.data})

@@ -119,7 +119,7 @@ function validatedSend (func, url, data, connArgs) {
             handleSuccess(resp, connArgs)
             return resp
         }, error =>
-            store.dispatch('user/validateToken', error).then(_ =>
+            store.dispatch('user/validateToken', error).then(() =>
                 func(url, data).then(resp => {
                     handleSuccess(resp, connArgs)
                     return resp

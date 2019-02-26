@@ -81,7 +81,7 @@ const actions = {
             connection.conn.post('/token/', {username: username, password: password}).then(response => {
                 commit(types.SET_JWT, response.data)
 
-                dispatch('populateStore').then(response => {
+                dispatch('populateStore').then(() => {
                     resolve('JWT and store are set successfully.')
                 }, error => {
                     Vue.toasted.error(sanitization.escapeHtml(error.response.data.description))
@@ -117,7 +117,7 @@ const actions = {
 
                     if (!getters.storePopulated) {
                         dispatch('populateStore')
-                            .then(_ => { resolve() })
+                            .then(() => { resolve() })
                             .catch(error => { reject(error) })
                     } else {
                         resolve('JWT refreshed successfully, store was already populated.')

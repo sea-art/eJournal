@@ -109,7 +109,7 @@ def get_lti_params_from_jwt(request, jwt_params):
         state = LTI_STATES.FINISH_T.value if user.has_permission('can_view_all_journals',
                                                                  assignment) else LTI_STATES.FINISH_S.value
     except KeyError as err:
-        raise VLEMissingRequiredKey(err)
+        raise VLEMissingRequiredKey(err.args[0])
 
     payload['state'] = state
     payload['cID'] = course.pk

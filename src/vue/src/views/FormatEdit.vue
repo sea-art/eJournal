@@ -183,7 +183,7 @@ export default {
                     this.startTour()
                 }
             })
-            .then(_ => { this.isChanged = false })
+            .then(() => { this.isChanged = false })
 
         window.addEventListener('beforeunload', e => {
             if (this.$route.name === 'FormatEdit' && this.isChanged) {
@@ -364,7 +364,7 @@ export default {
                         this.isChanged = false
                     })
                 })
-                .catch(_ => { this.saveRequestInFlight = false })
+                .catch(() => { this.saveRequestInFlight = false })
         },
         saveFromDB (data) {
             this.assignmentDetails = data.assignment_details

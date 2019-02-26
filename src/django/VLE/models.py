@@ -40,14 +40,14 @@ class UserFile(models.Model):
     - author: The user who uploaded the file.
     - file_name: The name of the file (no parts of the path to the file included).
     - creation_date: The time and date the file was uploaded.
-    - content_type: The mimetype supplied by the user (unvalidated).
+    - content_type: The content type supplied by the user (unvalidated).
     - assignment: The assignment that the UserFile is linked to.
     - node: The node that the UserFile is linked to.
     - entry: The entry that the UserFile is linked to.
     - content: The content that UserFile is linked to.
 
     Note that deleting the assignment, node or content will also delete the UserFile.
-    UserFiles uploaded initially have no node or content set, and are considered temporary untill the journal post
+    UserFiles uploaded initially have no node or content set, and are considered temporary until the journal post
     is made and the corresponding node and content are set.
     """
     file = models.FileField(
@@ -117,7 +117,7 @@ class User(AbstractUser):
     User is an entity in the database with the following features:
     - full_name: full name of the user
     - email: email of the user.
-    - verified_email: Boolean to indicate if the user has validated their email adress.
+    - verified_email: Boolean to indicate if the user has validated their email address.
     - USERNAME_FIELD: username of the username.
     - password: the hash of the password of the user.
     - lti_id: the DLO id of the user.
@@ -167,13 +167,13 @@ class User(AbstractUser):
             return permissions.has_assignment_permission(self, permission, obj)
         raise VLEProgrammingError("Permission object must be of type None, Course or Assignment.")
 
-    def check_participation(self, obj):
-        if not self.is_participant(obj):
-            raise VLEParticipationError(obj, self)
-
     def check_verified_email(self):
         if not self.verified_email:
             raise VLEUnverifiedEmailError()
+
+    def check_participation(self, obj):
+        if not self.is_participant(obj):
+            raise VLEParticipationError(obj, self)
 
     def is_participant(self, obj):
         if isinstance(obj, Course):
@@ -187,16 +187,31 @@ class User(AbstractUser):
             raise VLEPermissionError(message='You are not allowed to view {}'.format(str(obj)))
 
     def can_view(self, obj):
-        if isinstance(obj, Journal):
+        if self.is_superuser:
+            return True
+
+        if isinstance(obj, Course):
+            return self.is_participant(obj)
+
+        elif isinstance(obj, Assignment):
+            if self.is_participant(obj):
+                return obj.is_published or self.has_permission('can_view_unpublished_assignment', obj)
+            return False
+        elif isinstance(obj, Journal):
+
             if obj.user != self:
                 return self.has_permission('can_view_all_journals', obj.assignment)
             else:
                 return self.has_permission('can_have_journal', obj.assignment)
-        elif isinstance(obj, Assignment):
-            if self.is_participant(obj):
-                return obj.is_published or self.has_permission('can_view_unpublished_assignment', obj)
-            else:
+
+        elif isinstance(obj, Comment):
+            if not self.can_view(obj.entry.node.journal):
                 return False
+            if obj.published:
+                return True
+            return self.has_permission('can_grade', obj.entry.node.journal.assignment)
+
+        return False
 
     def to_string(self, user=None):
         if user is None:
@@ -243,7 +258,7 @@ class Course(models.Model):
     A Course entity has the following features:
     - name: name of the course.
     - author: the creator of the course.
-    - abbrevation: a max three letter abbrevation of the course name.
+    - abbreviation: a max three letter abbreviation of the course name.
     - startdate: the date that the course starts.
     - lti_ids: the ids of the course linked over LTI.
     """
@@ -311,7 +326,7 @@ class Group(models.Model):
             return "Group"
         if not user.can_view(self.course):
             return "Group"
-        return self.name + " (" + str(self.pk) + ")"
+        return "{} ({})".format(self.name, self.pk)
 
 
 class Role(models.Model):
@@ -382,7 +397,7 @@ class Role(models.Model):
         if not user.can_view(self.course):
             return "Role"
 
-        return self.name + " (" + str(self.pk) + ")"
+        return "{} ({})".format(self.name, self.pk)
 
     class Meta:
         """Meta data for the model: unique_together."""
@@ -487,13 +502,16 @@ class Assignment(models.Model):
 
         return super(Assignment, self).save(*args, **kwargs)
 
+    def can_unpublish(self):
+        return not (self.is_published and Entry.objects.filter(node__journal__assignment=self).exists())
+
     def to_string(self, user=None):
         if user is None:
             return "Assignment"
         if not user.can_view(self):
             return "Assignment"
 
-        return self.name + " (" + str(self.pk) + ")"
+        return "{} ({})".format(self.name, self.pk)
 
 
 class Journal(models.Model):
@@ -832,7 +850,7 @@ class Field(models.Model):
     required = models.BooleanField()
 
     def to_string(self, user=None):
-        return "Field"
+        return "{} ({})".format(self.title, self.id)
 
 
 class Content(models.Model):

@@ -33,19 +33,19 @@ class PermissionTests(TestCase):
         role = factory.make_role_default_no_perms('SD', self.course_independent)
         factory.make_participation(self.user, self.course_independent, role)
 
-        self.assertFalse(self.user.has_permission('can_edit_institute_details'))
-        self.assertFalse(self.user.has_permission('can_add_course'))
-        self.assertFalse(self.user.has_permission('can_delete_course', self.course_independent))
-        self.assertFalse(self.user.has_permission('can_have_journal', self.assignment_independent))
+        assert not self.user.has_permission('can_edit_institute_details')
+        assert not self.user.has_permission('can_add_course')
+        assert not self.user.has_permission('can_delete_course', self.course_independent)
+        assert not self.user.has_permission('can_have_journal', self.assignment_independent)
 
     def test_permission(self):
         """Test whether the user has only the given permission."""
         role = factory.make_role_default_no_perms("SD", self.course_independent, can_delete_assignment=True)
         factory.make_participation(self.user, self.course_independent, role)
 
-        self.assertTrue(self.user.has_permission('can_delete_assignment', self.course_independent))
+        assert self.user.has_permission('can_delete_assignment', self.course_independent)
 
-        self.assertFalse(self.user.has_permission('can_delete_course_user_group', self.course_independent))
+        assert not self.user.has_permission('can_delete_course_user_group', self.course_independent)
         self.assertRaises(VLEParticipationError, self.user.has_permission, 'can_delete_assignment', self.course1)
         self.assertRaises(VLEParticipationError, self.user.has_permission, 'can_delete_assignment', self.course2)
 
@@ -54,10 +54,10 @@ class PermissionTests(TestCase):
         role = factory.make_role_default_no_perms("SD", self.course_independent, can_have_journal=True)
         factory.make_participation(self.user, self.course_independent, role)
 
-        self.assertTrue(self.user.has_permission('can_have_journal', self.assignment_independent))
+        assert self.user.has_permission('can_have_journal', self.assignment_independent)
 
-        self.assertFalse(self.user.has_permission('can_add_course'))
-        self.assertFalse(self.user.has_permission('can_edit_assignment', self.assignment_independent))
+        assert not self.user.has_permission('can_add_course')
+        assert not self.user.has_permission('can_edit_assignment', self.assignment_independent)
         self.assertRaises(VLEParticipationError, self.user.has_permission, 'can_have_journal', self.assignment)
 
     def test_multi_course_assignment_permission(self):
@@ -67,9 +67,9 @@ class PermissionTests(TestCase):
         role = factory.make_role_default_no_perms("SD", self.course2, can_have_journal=False)
         factory.make_participation(self.user, self.course2, role)
 
-        self.assertTrue(self.user.has_permission('can_have_journal', self.assignment))
+        assert self.user.has_permission('can_have_journal', self.assignment)
 
-        self.assertFalse(self.user.has_permission('can_edit_assignment', self.assignment))
+        assert not self.user.has_permission('can_edit_assignment', self.assignment)
 
     def test_multi_course_assignment_negations(self):
         """Test whether the assignment has the correct permissions when bound to multiple courses,
@@ -79,9 +79,9 @@ class PermissionTests(TestCase):
         role = factory.make_role_default_no_perms("SD", self.course2, can_view_all_journals=True)
         factory.make_participation(self.user, self.course2, role)
 
-        self.assertTrue(self.user.has_permission('can_view_all_journals', self.assignment))
+        assert self.user.has_permission('can_view_all_journals', self.assignment)
 
-        self.assertFalse(self.user.has_permission('can_have_journal', self.assignment))
+        assert not self.user.has_permission('can_have_journal', self.assignment)
 
     def test_permission_constraints(self):
         factory.make_role_default_no_perms("SD1", self.course1,
@@ -130,20 +130,20 @@ class PermissionTests(TestCase):
         """Test if the admin has all permissions."""
         user = factory.make_user('superuser', 'password', email='some@other', is_superuser=True, full_name='Test User')
 
-        self.assertTrue(user.has_permission('can_edit_institute_details'))
-        self.assertTrue(user.has_permission('can_add_course'))
-        self.assertTrue(user.has_permission('can_delete_course', self.course_independent))
-        self.assertTrue(user.has_permission('can_edit_assignment', self.assignment_independent))
+        assert user.has_permission('can_edit_institute_details')
+        assert user.has_permission('can_add_course')
+        assert user.has_permission('can_delete_course', self.course_independent)
+        assert user.has_permission('can_edit_assignment', self.assignment_independent)
 
-        self.assertFalse(user.has_permission('can_have_journal', self.assignment_independent))
+        assert not user.has_permission('can_have_journal', self.assignment_independent)
 
     def test_teacher_permissions(self):
         """Test if the teacher has the right general permissions."""
         user = factory.make_user('teacher', 'password', email='some@other', is_teacher=True, full_name='Test User')
 
-        self.assertTrue(user.has_permission('can_add_course'))
+        assert user.has_permission('can_add_course')
 
-        self.assertFalse(user.has_permission('can_edit_institute_details'))
+        assert not user.has_permission('can_edit_institute_details')
         self.assertRaises(VLEParticipationError, user.has_permission, 'can_delete_course', self.course_independent)
         self.assertRaises(VLEParticipationError, user.has_permission, 'can_have_journal', self.assignment_independent)
 
@@ -199,10 +199,10 @@ class PermissionTests(TestCase):
         role = factory.make_role_default_no_perms("SD", self.course_independent)
         factory.make_participation(self.user, self.course_independent, role)
 
-        self.assertTrue(self.user.is_participant(self.course_independent))
+        assert self.user.is_participant(self.course_independent)
 
-        self.assertFalse(self.user.is_participant(self.course1))
-        self.assertFalse(self.user.is_participant(self.course2))
+        assert not self.user.is_participant(self.course1)
+        assert not self.user.is_participant(self.course2)
 
     def test_is_assignment_participant(self):
         """Test if is_participant correctly represent whether the user is participating
@@ -210,9 +210,9 @@ class PermissionTests(TestCase):
         role = factory.make_role_default_no_perms("SD", self.course_independent)
         factory.make_participation(self.user, self.course_independent, role)
 
-        self.assertTrue(self.user.is_participant(self.assignment_independent))
+        assert self.user.is_participant(self.assignment_independent)
 
-        self.assertFalse(self.user.is_participant(self.assignment))
+        assert not self.user.is_participant(self.assignment)
 
     def test_is_multi_participant(self):
         """Test if participating in one course does not implicitly participate the user
@@ -220,12 +220,12 @@ class PermissionTests(TestCase):
         role = factory.make_role_default_no_perms("SD", self.course1)
         factory.make_participation(self.user, self.course1, role)
 
-        self.assertTrue(self.user.is_participant(self.course1))
-        self.assertTrue(self.user.is_participant(self.assignment))
+        assert self.user.is_participant(self.course1)
+        assert self.user.is_participant(self.assignment)
 
-        self.assertFalse(self.user.is_participant(self.course2))
-        self.assertFalse(self.user.is_participant(self.course_independent))
-        self.assertFalse(self.user.is_participant(self.assignment_independent))
+        assert not self.user.is_participant(self.course2)
+        assert not self.user.is_participant(self.course_independent)
+        assert not self.user.is_participant(self.assignment_independent)
 
     def test_is_participant_invalid(self):
         self.assertRaises(VLEProgrammingError, self.user.is_participant, None)
@@ -234,23 +234,23 @@ class PermissionTests(TestCase):
 
     def test_serialize(self):
         result = permissions.serialize_general_permissions(self.user)
-        self.assertFalse(result['can_edit_institute_details'])
-        self.assertFalse(result['can_add_course'])
-        self.assertEquals(len(permissions.GENERAL_PERMISSIONS), len(result))
+        assert not result['can_edit_institute_details']
+        assert not result['can_add_course']
+        self.assertEqual(len(permissions.GENERAL_PERMISSIONS), len(result))
 
         role = factory.make_role_default_no_perms("SD", self.course_independent,
                                                   can_view_course_users=True, can_edit_assignment=True)
         factory.make_participation(self.user, self.course_independent, role)
 
         result = permissions.serialize_course_permissions(self.user, self.course_independent)
-        self.assertTrue(result['can_view_course_users'])
-        self.assertFalse(result['can_edit_course_details'])
-        self.assertEquals(len(permissions.COURSE_PERMISSIONS), len(result))
+        assert result['can_view_course_users']
+        assert not result['can_edit_course_details']
+        self.assertEqual(len(permissions.COURSE_PERMISSIONS), len(result))
 
         result = permissions.serialize_assignment_permissions(self.user, self.assignment_independent)
-        self.assertTrue(result['can_edit_assignment'])
-        self.assertFalse(result['can_have_journal'])
-        self.assertEquals(len(permissions.ASSIGNMENT_PERMISSIONS), len(result))
+        assert result['can_edit_assignment']
+        assert not result['can_have_journal']
+        self.assertEqual(len(permissions.ASSIGNMENT_PERMISSIONS), len(result))
 
     def test_is_supervisor(self):
         middle = factory.make_user('Username2', 'Password', email='some2@email.address', full_name='Test User')
@@ -267,16 +267,16 @@ class PermissionTests(TestCase):
         factory.make_participation(student, self.course1, role)
         factory.make_journal(self.assignment, student)
 
-        self.assertTrue(permissions.is_user_supervisor_of(self.user, student))
-        self.assertTrue(permissions.is_user_supervisor_of(self.user, middle))
-        self.assertTrue(permissions.is_user_supervisor_of(middle, self.user))
-        self.assertTrue(permissions.is_user_supervisor_of(middle, student))
-        self.assertFalse(permissions.is_user_supervisor_of(student, self.user))
-        self.assertFalse(permissions.is_user_supervisor_of(student, middle))
+        assert permissions.is_user_supervisor_of(self.user, student)
+        assert permissions.is_user_supervisor_of(self.user, middle)
+        assert permissions.is_user_supervisor_of(middle, self.user)
+        assert permissions.is_user_supervisor_of(middle, student)
+        assert not permissions.is_user_supervisor_of(student, self.user)
+        assert not permissions.is_user_supervisor_of(student, middle)
 
         Participation.objects.get(course=self.course1, user=student).delete()
 
-        self.assertTrue(permissions.is_user_supervisor_of(self.user, student))
-        self.assertFalse(permissions.is_user_supervisor_of(middle, student))
-        self.assertFalse(permissions.is_user_supervisor_of(student, self.user))
-        self.assertFalse(permissions.is_user_supervisor_of(student, middle))
+        assert permissions.is_user_supervisor_of(self.user, student)
+        assert not permissions.is_user_supervisor_of(middle, student)
+        assert not permissions.is_user_supervisor_of(student, self.user)
+        assert not permissions.is_user_supervisor_of(student, middle)

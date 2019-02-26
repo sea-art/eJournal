@@ -4,7 +4,7 @@ Utilities.
 A library with useful functions.
 """
 import VLE.factory as factory
-from VLE.models import Comment, Entry, Node, PresetNode, Template
+from VLE.models import Entry, Node, PresetNode, Template
 from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
 
 
@@ -12,14 +12,14 @@ from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
 def required_params(post, *keys):
     """Get required post parameters, throwing KeyError if not present."""
     if keys and not post:
-        raise VLEMissingRequiredKey()
+        raise VLEMissingRequiredKey(keys)
 
     result = []
     for key in keys:
         try:
             result.append(post[key])
-        except KeyError as err:
-            raise VLEMissingRequiredKey(err)
+        except KeyError:
+            raise VLEMissingRequiredKey(key)
 
     return result
 
@@ -40,7 +40,7 @@ def optional_params(post, *keys):
 
 def required_typed_params(post, *keys):
     if keys and not post:
-        raise VLEMissingRequiredKey()
+        raise VLEMissingRequiredKey([key[1] for key in keys])
 
     result = []
     for func, key in keys:
@@ -48,8 +48,8 @@ def required_typed_params(post, *keys):
             result.append(func(post[key]))
         except ValueError as err:
             raise VLEParamWrongType(err)
-        except KeyError as err:
-            raise VLEMissingRequiredKey(err)
+        except KeyError:
+            raise VLEMissingRequiredKey(key)
 
     return result
 
@@ -131,31 +131,6 @@ def get_published_count(entries):
     """
     return entries.filter(published=True).count()
 # END journal stat functions
-
-
-# START grading functions
-def publish_all_assignment_grades(assignment, published):
-    """Set published all not None grades from an assignment.
-
-    - assignment: the assignment in question
-    - published: either True or False. If True show the grade to student.
-    """
-    Entry.objects.filter(node__journal__assignment=assignment).exclude(grade=None).update(published=published)
-    if published:
-        (Comment.objects.filter(entry__node__journal__assignment=assignment)
-         .exclude(entry__grade=None).update(published=True))
-
-
-def publish_all_journal_grades(journal, published):
-    """Set published all not None grades from a journal.
-
-    - journal: the journal in question
-    - published: either True or False. If True show the grade to student.
-    """
-    Entry.objects.filter(node__journal=journal).exclude(grade=None).update(published=published)
-    if published:
-        Comment.objects.filter(entry__node__journal=journal).exclude(entry__grade=None).update(published=True)
-# END grading functions
 
 
 def update_templates(result_list, templates, template_map):

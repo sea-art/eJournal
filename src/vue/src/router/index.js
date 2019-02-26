@@ -125,8 +125,8 @@ router.beforeEach((to, from, next) => {
         next({name: 'Home'})
     } else if (!loggedIn && !routerConstraints.PERMISSIONLESS_CONTENT.has(to.name)) {
         store.dispatch('user/validateToken')
-            .then(_ => { next() })
-            .catch(_ => {
+            .then(() => { next() })
+            .catch(() => {
                 router.app.previousPage = to
                 next({name: 'Login'})
             })

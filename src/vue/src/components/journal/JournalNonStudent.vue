@@ -181,7 +181,7 @@ export default {
                     customSuccessToast: 'Published all grades for this journal.',
                     customErrorToast: 'Error while publishing all grades for this journal.'
                 })
-                    .then(_ => {
+                    .then(() => {
                         for (var node of this.nodes) {
                             if ((node.type === 'e' || node.type === 'd') && node.entry) {
                                 node.entry.published = true

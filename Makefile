@@ -1,6 +1,12 @@
+ifdef test
+TOTEST=-k ${test}
+else
+TOTEST=
+endif
+
 postgres_db = ejournal
 postgres_test_db = test_$(postgres_db)
-postgres_dev_user = ejournal_development_user
+postgres_dev_user = ejournal_development_user2
 postgres_dev_user_pass = development
 
 ##### TEST COMMANDS #####
@@ -8,15 +14,15 @@ postgres_dev_user_pass = development
 test-back:
 	pep8 ./src/django --max-line-length=120 --exclude='./src/django/VLE/migrations','./src/django/VLE/settings*'
 	bash -c 'source ./venv/bin/activate && flake8 --max-line-length=120 src/django --exclude="src/django/VLE/migrations/*","src/django/VLE/settings/*","src/django/VLE/settings.py" && deactivate'
-	bash -c "source ./venv/bin/activate && coverage run src/django/manage.py test src/django && coverage report && deactivate"
-	bash -c 'source ./venv/bin/activate && isort -rc src/django/ && deactivate'
+	bash -c "source ./venv/bin/activate && pytest --cov=VLE --cov-config .coveragerc src/django/test ${TOTEST} && deactivate"
+	bash -c 'source ./venv/bin/activate && isort -rc src/django/ -c && deactivate'
 
 test-front:
 	npm run lint --prefix ./src/vue
 	npm run test --prefix ./src/vue
 
-test-coverage:
-	bash -c "source ./venv/bin/activate && coverage run src/django/manage.py test src/django && coverage report -m && deactivate"
+display-coverage:
+	bash -c "source ./venv/bin/activate && cd src/django/ && coverage report -m && deactivate"
 
 test: test-front test-back
 
@@ -28,8 +34,12 @@ run-test:
 run-front:
 	bash -c "source ./venv/bin/activate && npm run dev --prefix ./src/vue && deactivate"
 
-run-back:
+run-back: isort
 	bash -c "source ./venv/bin/activate && python ./src/django/manage.py runserver && deactivate"
+
+isort:
+	bash -c 'source ./venv/bin/activate && isort -rc src/django/ && deactivate'
+
 
 setup:
 	@echo "This operation will clean old files, press enter to continue (ctrl+c to cancel)"

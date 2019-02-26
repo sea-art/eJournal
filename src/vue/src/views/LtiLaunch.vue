@@ -194,7 +194,7 @@ export default {
                 break
             case this.states.finish_s:
                 /* Student has created a journal for an existing assignment, we need to update the store. */
-                this.$store.dispatch('user/populateStore').then(_ => {
+                this.$store.dispatch('user/populateStore').then(() => {
                     this.$router.push({
                         name: 'Journal',
                         params: {
@@ -216,7 +216,7 @@ export default {
                 break
             case this.states.finish_t:
                 /* Teacher might have created or linked a new course and or assignment, we need to update the store. */
-                this.$store.dispatch('user/populateStore').then(_ => {
+                this.$store.dispatch('user/populateStore').then(() => {
                     if (this.tempStateToCheckIfWeCanAutoSetup === this.states.finish_t) {
                         /* The assignment already existed. */
                         this.$router.push({
@@ -282,7 +282,7 @@ export default {
     mounted () {
         this.ltiJWT = this.$route.query.ltiJWT
 
-        this.loadLtiData().then(_ => {
+        this.loadLtiData().then(() => {
             this.handleInitialState()
             /* The lti parameters such as course id are not set if we are a student. */
             if (this.lti.ltiCourseID) {

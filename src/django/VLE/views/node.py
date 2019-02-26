@@ -36,7 +36,7 @@ class NodeView(viewsets.ModelViewSet):
             unauthorized -- when the user is not logged in
             not found -- when the course does not exist
             forbidden -- when the user is not part of the course
-        On succes:
+        On success:
             success -- with the node data
 
         """

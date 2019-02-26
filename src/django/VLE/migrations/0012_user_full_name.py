@@ -9,10 +9,11 @@ def combine_names(apps, schema_editor):
         user.full_name = '{} {}'.format(user.first_name, user.last_name)
         user.save()
 
+
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('VLE', '0012_auto_20181211_2201'),
+        ('VLE', '0011_entry_vle_coupling'),
     ]
 
     operations = [

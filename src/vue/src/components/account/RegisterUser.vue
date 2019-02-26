@@ -60,10 +60,10 @@ export default {
                         customSuccessToast: this.lti ? '' : 'Registration successful! Please follow the instructions sent to ' + this.form.email +
                                                             ' to confirm your email address.'
                     })
-                    .then(_ => {
+                    .then(() => {
                         this.$store.dispatch('user/login', { username: this.form.username, password: this.form.password })
-                            .then(_ => { this.$emit('handleAction') })
-                            .catch(_ => { this.$toasted.error('Error logging in with your newly created account, please contact a system administrator or try registering again.') })
+                            .then(() => { this.$emit('handleAction') })
+                            .catch(() => { this.$toasted.error('Error logging in with your newly created account, please contact a system administrator or try registering again.') })
                     })
                     .catch(error => {
                         if (error.response.status === statuses.FORBIDDEN) {
