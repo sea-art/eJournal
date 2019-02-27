@@ -108,9 +108,9 @@ export default {
                 this.nodes = nodes
                 if (this.$route.query.nID !== undefined) {
                     this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
+                } else {
+                    this.selectFirstUngradedNode()
                 }
-
-                this.selectFirstUngradedNode()
             })
 
         journalAPI.get(this.jID)

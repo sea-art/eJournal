@@ -191,7 +191,7 @@ class UserView(viewsets.ViewSet):
 
         user.save()
         if user.lti_id is not None:
-            pp = utils.optional_params(request.data, 'profile_picture')
+            pp, = utils.optional_params(request.data, 'profile_picture')
             data = {
                 'profile_picture': pp if pp else user.profile_picture
             }

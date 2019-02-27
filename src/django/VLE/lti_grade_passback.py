@@ -12,7 +12,7 @@ class GradePassBackRequest(object):
 
     def __init__(self, key, secret, journal, send_score=False, result_data=None, submitted_at=None):
         """
-        Create the instancie to set the needed variables.
+        Create the instance to set the needed variables.
 
         Arguments:
         key -- key for the oauth communication
@@ -212,11 +212,15 @@ def replace_result(journal):
     return response
 
 
+# TODO: Add this to a cronjob and loop over all assignments
 def check_if_need_VLE_publish(assignment):
     # TODO: Check if "user__participation__role__can_have_journal" would not leak
     # if its a teacher and student in different courses
-    for journal in Journal.objects.filter(assignment=assignment, user__participation__role__can_have_journal=True):
-        if Entry.objects.filter(published=True, vle_coupling=Entry.GRADING):
-            replace_result(journal)
-        for node in Node.objects.filter(journal=journal, entry__vle_coupling=Entry.NEED_SUBMISSION):
-            needs_grading(node)
+    for node in Node.objects.filter(entry__vle_coupling=Entry.NEED_SUBMISSION, journal__sourcedid__isnull=False,
+                                    journal__user__participation__role__can_have_journal=True,
+                                    journal__assignment=assignment):
+        needs_grading(node)
+    for journal in Entry.objects.filter(node__journal__assignment=assignment, vle_coupling=Entry.GRADING,
+                                        published=True, node__journal__user__participation__role__can_have_journal=True
+                                        ).values('node__journal').distinct():
+        replace_result(Journal.objects.get(pk=journal['node__journal']))

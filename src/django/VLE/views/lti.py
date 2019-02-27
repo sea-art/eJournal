@@ -10,7 +10,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
-import VLE.lti_grade_passback as lti_grade
 import VLE.lti_launch as lti
 import VLE.utils.responses as response
 from VLE.models import User
@@ -100,9 +99,6 @@ def get_lti_params_from_jwt(request, jwt_params):
                 return response.not_found('The assignment you are looking for cannot be found. \
                     Either your teacher has not finished setting up the assignment, or it has been moved to another \
                     course. Please contact your course administrator.')
-
-        # TODO use worker system (celery)
-        lti_grade.check_if_need_VLE_publish(assignment)
 
         journal = lti.select_create_journal(lti_params, user, assignment)
         jID = journal.pk if journal is not None else None
