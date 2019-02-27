@@ -1,7 +1,9 @@
 <template>
-    <div class="todo-square" :class="num ? 'num-nonzero' : 'num-zero'">
+    <b-badge
+        class="todo-square"
+        :class="{'info': num > 0}">
         {{ num ? Math.round(num * 100) / 100 : 0 }}
-    </div>
+    </b-badge>
 </template>
 
 <script>
@@ -11,21 +13,7 @@ export default {
 </script>
 
 <style lang="sass">
-@import '~sass/modules/colors.sass'
-@import '~sass/partials/shadows.sass'
-
 .todo-square
-    text-align: center
-    color: white
     font-family: 'Roboto Condensed', sans-serif
     font-size: 18px
-    width: 45px
-    height: 30px
-    &.num-nonzero
-        background-color: $theme-blue
-        @extend .shadow
-    &.unpublished-count
-        background-color: $theme-orange
-    &.num-zero
-        background-color: $theme-dark-grey
 </style>

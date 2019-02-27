@@ -21,13 +21,7 @@
                     <b-col xs="6">
                         <h2 class="field-heading required">
                             From
-                            <sup>
-                                <icon
-                                    v-b-tooltip.hover
-                                    title="Start date of the course"
-                                    name="question"
-                                    class="question-icon no-hover help-cursor"/>
-                            </sup>
+                            <tooltip tip="Start date of the course" />
                         </h2>
                         <flat-pickr class="multi-form theme-input full-width"
                             :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
@@ -36,13 +30,7 @@
                     <b-col xs="6">
                         <h2 class="field-heading required">
                             To
-                            <sup>
-                                <icon
-                                    v-b-tooltip.hover
-                                    title="End date of the course"
-                                    name="question"
-                                    class="question-icon no-hover help-cursor"/>
-                            </sup>
+                            <tooltip tip="End date of the course" />
                         </h2>
                         <flat-pickr class="multi-form theme-input full-width"
                             :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
@@ -192,6 +180,7 @@ import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import courseParticipantCard from '@/components/course/CourseParticipantCard.vue'
 import groupModal from '@/components/course/CourseGroupModal.vue'
+import tooltip from '@/components/assets/Tooltip.vue'
 
 import store from '@/Store'
 import icon from 'vue-awesome/components/Icon'
@@ -452,6 +441,7 @@ export default {
     },
     components: {
         'add-user-card': addUsersToCourseCard,
+        'tooltip': tooltip,
         'bread-crumb': breadCrumb,
         'content-single-column': contentSingleColumn,
         'course-participant-card': courseParticipantCard,

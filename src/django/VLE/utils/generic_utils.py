@@ -88,20 +88,6 @@ def get_points_possible(journal):
     return journal.assignment.points_possible
 
 
-def get_acquired_points(entries):
-    """Get the number of acquired points from a set of entries.
-
-    - entries: the journal in question.
-
-    Returns the total number of points depending on the grade type.
-    """
-    total_grade = 0
-    for entry in entries:
-        if entry.published:
-            total_grade += entry.grade if entry.grade is not None else 0
-    return total_grade
-
-
 def get_submitted_count(entries):
     """Count the number of submitted entries.
 

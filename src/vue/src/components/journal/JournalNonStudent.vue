@@ -29,10 +29,18 @@
                         v-if="journal"
                         :student="journal.student"
                         :stats="journal.stats"
-                        :hideTodo="true"
-                        :fullWidthProgress="true"
                         :assignment="assignment"
-                        :class="'mb-4 no-hover'"/>
+                        :class="'mb-2 no-hover'"/>
+                    <b-card class="mb-4 no-hover settings-card" :class="$root.getBorderClass($route.params.cID)" v-if="journal && $hasPermission('can_grade')">
+                        <div v-if="$hasPermission('can_grade')" class="grade-section full-width bonus-section shadow">
+                            <icon name="star" class="fill-orange shift-up-2"/>
+                            <b-form-input type="number" class="theme-input" step="0.01" size="2" v-model="journal.bonus_points" autofocus placeholder="0" min="0.0"/> Bonus points
+                            <b-button class="add-button" @click="commitBonus">
+                                <icon name="save" scale="1"/>
+                                Save Bonus
+                            </b-button>
+                        </div>
+                    </b-card>
                 </b-col>
                 <b-col v-if="$hasPermission('can_publish_grades') || filteredJournals.length > 1" md="6" lg="12">
                     <h3>Controls</h3>
@@ -228,6 +236,13 @@ export default {
             }
 
             return true
+        },
+
+        commitBonus () {
+            if (this.journal.bonus_points !== null && this.journal.bonus_points !== '') {
+                journalAPI.update(this.journal.id, {bonus_points: this.journal.bonus_points}, {customSuccessToast: 'Bonus succesfully added.'})
+                    .then(journal => { this.journal = journal })
+            }
         }
     },
     components: {
@@ -311,3 +326,8 @@ export default {
     }
 }
 </script>
+
+<style lang="sass">
+.bonus-section
+    margin-bottom: 0px
+</style>

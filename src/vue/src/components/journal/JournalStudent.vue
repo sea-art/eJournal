@@ -54,6 +54,7 @@
                 <progress-bar v-if="journal.stats"
                               :currentPoints="journal.stats.acquired_points"
                               :totalPoints="journal.stats.total_points"
+                              :bonusPoints="journal.bonus_points"
                               :comparePoints="assignment.stats ? assignment.stats.average_points : -1" />
             </b-card>
 

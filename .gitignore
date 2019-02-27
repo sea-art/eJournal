@@ -4,6 +4,8 @@ VLE.db
 npm-debug.log
 core
 /settings/*
+*.retry
+
 htmlcov/*
 .vscode/*
 

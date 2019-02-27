@@ -9,26 +9,14 @@
                 <b-col cols="6">
                     <h2 class="field-heading required">
                         Start date
-                        <sup>
-                            <icon
-                                v-b-tooltip.hover
-                                title="Start date of the course, assignments can begin from this date onwards"
-                                name="question"
-                                class="question-icon no-hover help-cursor"/>
-                        </sup>
+                        <tooltip tip="Start date of the course, assignments can begin from this date onwards"/>
                     </h2>
                     <flat-pickr class="multi-form multi-date-input theme-input full-width" v-model="form.startdate"/>
                 </b-col>
                 <b-col cols="6">
                     <h2 class="field-heading required">
                         End date
-                        <sup>
-                            <icon
-                                v-b-tooltip.hover
-                                title="End date of the course, assignment deadlines cannot surpass this date"
-                                name="question"
-                                class="question-icon no-hover help-cursor"/>
-                        </sup>
+                        <tooltip tip="End date of the course, assignment deadlines cannot surpass this date"/>
                     </h2>
                     <flat-pickr class="multi-form multi-date-input theme-input full-width" v-model="form.enddate"/>
                 </b-col>
@@ -49,6 +37,7 @@
 import courseAPI from '@/api/course'
 import icon from 'vue-awesome/components/Icon'
 import genericUtils from '@/utils/generic_utils.js'
+import tooltip from '@/components/assets/Tooltip.vue'
 import commonAPI from '@/api/common'
 
 export default {
@@ -101,6 +90,7 @@ export default {
         }
     },
     components: {
+        'tooltip': tooltip,
         icon
     }
 }

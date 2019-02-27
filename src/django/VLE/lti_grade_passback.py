@@ -3,7 +3,6 @@ import xml.etree.cElementTree as ET
 import oauth2
 from django.conf import settings
 
-import VLE.utils.generic_utils as utils
 from VLE.models import Counter, Entry, Journal, Node
 
 
@@ -26,8 +25,7 @@ class GradePassBackRequest(object):
         self.timestamp = submitted_at
 
         if send_score and journal and journal.assignment and journal.assignment.points_possible:
-            entries = utils.get_journal_entries(journal)
-            score = utils.get_acquired_points(entries)
+            score = journal.get_grade()
             score /= float(journal.assignment.points_possible)
             self.score = str(min(score, 1.0))
         else:

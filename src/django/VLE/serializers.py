@@ -3,7 +3,7 @@ Serializers.
 
 Functions to convert certain data to other formats.
 """
-from django.db.models import Min, Q, Sum
+from django.db.models import Min, Q
 from django.utils import timezone
 from rest_framework import serializers
 
@@ -266,12 +266,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
                 .filter(node__entry__isnull=False, node__entry__published=False, node__entry__grade__isnull=False)\
                 .count()
         # Other stats
-        stats['average_points'] = journal_set \
-            .filter(node__entry__grade__isnull=False, node__entry__published=True) \
-            .values('node__entry__grade') \
-            .aggregate(Sum('node__entry__grade'))['node__entry__grade__sum']
-        if stats['average_points']:
-            stats['average_points'] /= journal_set.filter(user__in=users).count()
+        stats['average_points'] = sum([journal.get_grade() for journal in journal_set]) / (journal_set.count() or 1)
 
         return stats
 
@@ -320,19 +315,22 @@ class RoleSerializer(serializers.ModelSerializer):
 class JournalSerializer(serializers.ModelSerializer):
     stats = serializers.SerializerMethodField()
     student = serializers.SerializerMethodField()
+    grade = serializers.SerializerMethodField()
 
     class Meta:
         model = Journal
         fields = '__all__'
-        read_only_fields = ('id', 'assignment', 'user', 'grade_url', 'sourcedid')
+        read_only_fields = ('id', 'assignment', 'user', 'grade_url', 'sourcedid', 'grade')
+
+    def get_grade(self, journal):
+        return journal.get_grade()
 
     def get_student(self, journal):
         return UserSerializer(journal.user, context=self.context).data
 
     def get_stats(self, journal):
         return {
-            'acquired_points': journal.node_set.filter(entry__published=True)
-            .values('entry__grade').aggregate(Sum('entry__grade'))['entry__grade__sum'],
+            'acquired_points': journal.get_grade(),
             'graded': journal.node_set.filter(entry__published=True, entry__grade__isnull=False).count(),
             'published': journal.node_set.filter(entry__published=True).count(),
             'submitted': journal.node_set.filter(entry__isnull=False).count(),

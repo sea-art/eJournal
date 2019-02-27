@@ -1,7 +1,9 @@
 VLE/settings/email.py
-./static
+/static/*
 media
-
+/backup/*
+/logs/*
+*.retry
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

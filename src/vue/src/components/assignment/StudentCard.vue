@@ -1,20 +1,43 @@
 <template>
     <b-card :class="$root.getBorderClass($route.params.cID)">
-        <b-row no-gutters class="multi-form">
-            <b-col order="1" cols="3" class="d-flex align-items-center">
-                <img class="student-card-portrait" :src="student.profile_picture">
+        <b-row v-if="listView" no-gutters>
+            <b-col class="d-flex" md="7">
+                <div class="portrait-wrapper">
+                    <img :src="student.profile_picture">
+                    <todo-square v-if="numMarkingNeeded > 0" :num="numMarkingNeeded"/>
+                </div>
+                <div class="student-details list-view">
+                    <span>
+                        <b>{{ student.full_name }}</b>
+                        <span v-if="student.group">({{ student.group }})</span>
+                    </span>
+                    {{ student.username }}
+                </div>
             </b-col>
-            <b-col order="2" cols="9" class="pl-3">
-                <todo-square v-if="numMarkingNeeded > 0 && !hideTodo" class="float-right" :num="numMarkingNeeded"/>
-                <b>{{ student.full_name }}</b> <span v-if="student.group">({{ student.group }})</span> <br/>
-                {{ student.username }}
-                <progress-bar v-if="!fullWidthProgress || $root.mdMax()" :currentPoints="this.stats.acquired_points" :totalPoints="this.stats.total_points"/>
+            <b-col class="mt-2" md="5">
+                <progress-bar
+                    :currentPoints="this.stats.acquired_points"
+                    :totalPoints="this.stats.total_points"/>
             </b-col>
         </b-row>
-        <progress-bar v-if="fullWidthProgress && $root.lg()"
-                      :currentPoints="this.stats.acquired_points"
-                      :totalPoints="this.stats.total_points"
-                      :comparePoints="this.assignment && this.assignment.stats ? this.assignment.stats.average_points : -1"/>
+        <div v-else>
+            <div class="d-flex multi-form">
+                <div class="portrait-wrapper">
+                    <img :src="student.profile_picture">
+                </div>
+                <div class="student-details">
+                    <span>
+                        <b>{{ student.full_name }}</b>
+                        <span v-if="student.group">({{ student.group }})</span>
+                    </span>
+                    {{ student.username }}
+                </div>
+            </div>
+            <progress-bar
+                :currentPoints="this.stats.acquired_points"
+                :totalPoints="this.stats.total_points"
+                :comparePoints="this.assignment && this.assignment.stats ? this.assignment.stats.average_points : -1"/>
+        </div>
     </b-card>
 </template>
 
@@ -30,12 +53,7 @@ export default {
         'stats': {
             required: true
         },
-        'hideTodo': {
-            type: Boolean,
-            default: false
-        },
-        'fullWidthProgress': {
-            type: Boolean,
+        'listView': {
             default: false
         },
         'assignment': {
@@ -56,11 +74,30 @@ export default {
 
 <style lang="sass">
 @import '~sass/partials/shadows.sass'
+@import '~sass/modules/breakpoints.sass'
 
-.student-card-portrait
-    @extend .shadow
-    border-radius: 50% !important
-    display: block
-    margin: auto
-    max-height: 100px
+.portrait-wrapper
+    position: relative
+    min-width: 80px
+    height: 70px
+    img
+        @extend .shadow
+        width: 70px
+        height: 70px
+        border-radius: 50% !important
+    .todo-square
+        position: absolute
+        right: 0px
+        top: 0px
+
+.student-details
+    min-height: 70px
+    display: flex
+    flex-direction: column
+    flex-grow: 1
+    padding: 10px
+    &.list-view
+        padding-left: 40px
+    @include sm-max
+        align-items: flex-end
 </style>

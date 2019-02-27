@@ -99,12 +99,23 @@ class JournalView(viewsets.ViewSet):
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
         journal = Journal.objects.get(pk=pk)
 
-        request.user.check_can_view(journal)
+        request.user.check_can_view(journal.assignment)
 
+        req_data = request.data
         published, = utils.optional_params(request.data, 'published')
         if published:
             request.user.check_permission('can_publish_grades', journal.assignment)
+            req_data.pop('published', None)
             return self.publish(request, journal)
+
+        bonus_points, = utils.optional_typed_params(request.data, (float, 'bonus_points'))
+        if bonus_points is not None:
+            request.user.check_permission('can_grade', journal.assignment)
+            req_data.pop('bonus_points', None)
+            journal.bonus_points = bonus_points
+            journal.save()
+            lti_grade.replace_result(journal)
+            return response.success({'journal': JournalSerializer(journal).data})
 
         if not request.user.is_superuser:
             return response.forbidden('You are not allowed to edit this journal.')

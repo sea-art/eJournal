@@ -48,13 +48,7 @@
 
         <h2 class="field-heading">
             Deadline
-            <sup>
-                <icon
-                    v-b-tooltip.hover
-                    title="Students will no longer be able to complete the goal of this node after this date"
-                    name="question"
-                    class="question-icon no-hover help-cursor"/>
-            </sup>
+            <tooltip tip="Students will no longer be able to complete the goal of this node after this date" />
         </h2>
         <flat-pickr class="theme-input multi-form full-width" v-model="currentPreset.deadline" :config="$root.flatPickrTimeConfig"/>
 
@@ -64,13 +58,7 @@
         <div v-if="currentPreset.type === 'd'">
             <h2 class="field-heading">
                 Preset Template
-                <sup>
-                    <icon
-                        v-b-tooltip.hover
-                        title="The template students can use for this node"
-                        name="question"
-                        class="question-icon no-hover help-cursor"/>
-                </sup>
+                <tooltip tip="The template students can use for this node" />
             </h2>
             <b-form-select v-model="currentPreset.template" class="multi-form">
                 <option disabled value="">Please select a template</option>
@@ -86,13 +74,7 @@
         <div v-else-if="currentPreset.type === 'p'">
             <h2 class="field-heading">
                 Point Target
-                <sup>
-                    <icon
-                        v-b-tooltip.hover
-                        title="The amount of points students should have achieved by the deadline of this node to be on schedule, new entries can still be added until the assignment's lock date"
-                        name="question"
-                        class="question-icon no-hover help-cursor"/>
-                </sup>
+                <tooltip tip="The amount of points students should have achieved by the deadline of this node to be on schedule, new entries can still be added until the assignment's lock date"/>
             </h2>
             <b-input type="number" class="theme-input" v-model="currentPreset.target" placeholder="Amount of points"/>
         </div>
@@ -101,6 +83,7 @@
 
 <script>
 import templatePreview from '@/components/template/TemplatePreview.vue'
+import tooltip from '@/components/assets/Tooltip.vue'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
@@ -147,6 +130,7 @@ export default {
     },
     components: {
         'template-preview': templatePreview,
+        'tooltip': tooltip,
         icon
     }
 }

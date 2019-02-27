@@ -12,7 +12,8 @@ import VLE.factory as factory
 import VLE.utils.generic_utils as utils
 import VLE.utils.grading as grading_utils
 import VLE.utils.responses as response
-from VLE.models import Assignment, Course, Lti_ids
+import VLE.validators as validators
+from VLE.models import Assignment, Course, Journal, Lti_ids, User
 from VLE.serializers import AssignmentSerializer
 from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
 
@@ -275,3 +276,73 @@ class AssignmentView(viewsets.ViewSet):
         upcoming = AssignmentSerializer(viewable, context={'user': request.user, 'course': course}, many=True).data
 
         return response.success({'upcoming': upcoming})
+
+    @action(methods=['post'], detail=True)
+    def add_bonus_points(self, request, *args, **kwargs):
+        """Give students bonus points though file submission.
+
+        This will scan over the included file, and give all the users the bonus points supplied.
+        Format:
+        [username1], [bonus_points1]
+        [username2], [bonus_points2]
+
+        Arguments:
+        request
+            file -- list of all the bonus points
+        pk -- assignment ID
+        """
+        assignment_id, = utils.required_typed_params(kwargs, (int, 'pk'))
+        assignment = Assignment.objects.get(pk=assignment_id)
+
+        request.user.check_permission('can_grade', assignment)
+
+        if not (request.FILES and 'file' in request.FILES):
+            return response.bad_request('No accompanying file found in the request.')
+
+        validators.validate_user_file(request.FILES['file'], request.user)
+
+        bonuses = dict()
+        incorrect_format_lines = dict()
+        unknown_users = dict()
+        duplicates = dict()
+
+        for line_nr, line in enumerate(request.FILES['file'], 1):
+            try:
+                decoded_line = line.decode()
+
+                # Ignore empty lines.
+                if not decoded_line.strip():
+                    continue
+
+                username, bonus = decoded_line[:-1].split(',')[:2]
+                bonus = float(bonus)
+                user = User.objects.get(username=str(username))
+                journal = Journal.objects.get(assignment=assignment, user=user)
+                if journal in bonuses:
+                    duplicates[line_nr] = line.decode().split(',')[0]
+                else:
+                    bonuses[journal] = bonus
+            except UnicodeDecodeError:
+                return response.bad_request({'general': 'Not a valid csv file.'})
+            except ValueError:
+                incorrect_format_lines[line_nr] = line.decode()
+            except User.DoesNotExist:
+                unknown_users[line_nr] = line.decode().split(',')[0]
+
+        if unknown_users or incorrect_format_lines or duplicates:
+            errors = dict()
+
+            if incorrect_format_lines:
+                errors['incorrect_format_lines'] = incorrect_format_lines
+            if duplicates:
+                errors['duplicates'] = duplicates
+            if unknown_users:
+                errors['unknown_users'] = unknown_users
+
+            return response.bad_request(errors)
+
+        for j, b in bonuses.items():
+            j.bonus_points = b
+            j.save()
+
+        return response.success()

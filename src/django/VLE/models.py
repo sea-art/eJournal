@@ -8,6 +8,7 @@ import os
 from django.contrib.auth.models import AbstractUser
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import Sum
 from django.dispatch import receiver
 from django.utils import timezone
 from django.utils.timezone import now
@@ -542,6 +543,14 @@ class Journal(models.Model):
         'grade_url',
         null=True
     )
+
+    bonus_points = models.FloatField(
+        default=0,
+    )
+
+    def get_grade(self):
+        return self.bonus_points + (self.node_set.filter(entry__published=True)
+                                    .values('entry__grade').aggregate(Sum('entry__grade'))['entry__grade__sum'] or 0)
 
     def to_string(self, user=None):
         if user is None:

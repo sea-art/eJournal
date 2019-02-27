@@ -27,13 +27,7 @@
             />
             <h2 class="field-heading">
                 Points possible
-                <sup>
-                    <icon
-                        v-b-tooltip.hover
-                        title="The amount of points that represents a perfect score for this assignment, excluding bonus points"
-                        name="question"
-                        class="question-icon no-hover help-cursor"/>
-                </sup>
+                <tooltip tip="The amount of points that represents a perfect score for this assignment, excluding bonus points"/>
             </h2>
             <b-input class="multi-form theme-input"
                 v-model="form.pointsPossible"
@@ -43,13 +37,7 @@
                 <b-col xl="4">
                     <h2 class="field-heading">
                         Unlock date
-                        <sup>
-                            <icon
-                                v-b-tooltip.hover
-                                title="Students will be able to work on the assignment from this date onwards"
-                                name="question"
-                                class="question-icon no-hover help-cursor"/>
-                        </sup>
+                        <tooltip tip="Students will be able to work on the assignment from this date onwards"/>
                     </h2>
                     <flat-pickr class="multi-form theme-input full-width"
                         v-model="form.unlockDate"
@@ -58,13 +46,7 @@
                 <b-col xl="4">
                     <h2 class="field-heading">
                         Due date
-                        <sup>
-                            <icon
-                                v-b-tooltip.hover
-                                title="Students are expected to have finished their assignment by this date, but new entries can still be added until the lock date"
-                                name="question"
-                                class="question-icon no-hover help-cursor"/>
-                        </sup>
+                        <tooltip tip="Students are expected to have finished their assignment by this date, but new entries can still be added until the lock date"/>
                     </h2>
                     <flat-pickr class="multi-form theme-input full-width"
                         v-model="form.dueDate"
@@ -73,13 +55,7 @@
                 <b-col xl="4">
                     <h2 class="field-heading">
                         Lock date
-                        <sup>
-                            <icon
-                                v-b-tooltip.hover
-                                title="No more entries can be added after this date"
-                                name="question"
-                                class="question-icon no-hover help-cursor"/>
-                        </sup>
+                        <tooltip tip="No more entries can be added after this date" />
                     </h2>
                     <flat-pickr class="multi-form theme-input full-width"
                         v-model="form.lockDate"
@@ -100,6 +76,7 @@
 
 <script>
 import textEditor from '@/components/assets/TextEditor.vue'
+import tooltip from '@/components/assets/Tooltip.vue'
 import icon from 'vue-awesome/components/Icon'
 
 import assignmentAPI from '@/api/assignment'
@@ -124,6 +101,7 @@ export default {
     },
     components: {
         'text-editor': textEditor,
+        'tooltip': tooltip,
         icon
     },
     methods: {

@@ -1,9 +1,11 @@
 <template>
     <div>
-        <h4 class="progress-percentage float-right">{{ progressPercentage }}%</h4>
-        <h5 class="progress-percentage"><b>{{ currentPoints ? currentPoints : 0 }}</b> Points</h5><br/>
-        <span v-if="comparePoints">{{ message }}</span>
-        <b-progress class="shadow progress-bar-box" color="white" :max="totalPoints">
+        <h5 class="progress-percentage">{{ progressPercentage }}%</h5>
+        <h5>
+            <b>{{ currentPoints ? currentPoints : 0 }}</b> Points
+            <tooltip v-if="bonusPoints != 0" :tip="(currentPoints - bonusPoints) + ' journal points + ' + bonusPoints + ' bonus points'" />
+        </h5>
+        <b-progress class="shadow progress-bar-box multi-form" color="white" :max="totalPoints">
             <b-progress-bar class="own-bar"
                             :value="zeroIfNull(comparePoints === -1 ? currentPoints : Math.min(currentPoints, comparePoints))"/>
             <b-progress-bar class="compare-bar"
@@ -13,10 +15,21 @@
                             :value="Math.abs(comparePoints - currentPoints)"
                             v-else-if="comparePoints !== -1"/>
         </b-progress>
+        <span v-if="bonusPoints != 0">
+            <icon name="star" class="fill-orange shift-up-2"/>
+            <b>{{ bonusPoints }}</b> bonus {{ bonusPoints > 1 ? "points" : "point" }}<br/>
+        </span>
+        <span v-if="comparePoints >= 0">
+            <icon name="signal" class="shift-up-2" :class="compareClass"/>
+            {{ message }}
+        </span>
     </div>
 </template>
 
 <script>
+import tooltip from '@/components/assets/Tooltip.vue'
+import icon from 'vue-awesome/components/Icon'
+
 export default {
     props: {
         'currentPoints': {
@@ -27,6 +40,9 @@ export default {
         },
         'comparePoints': {
             default: -1
+        },
+        'bonusPoints': {
+            default: 0
         }
     },
     methods: {
@@ -64,7 +80,20 @@ export default {
                 }
             }
             return message
+        },
+        compareClass () {
+            if (this.difference === 0) {
+                return 'fill-grey'
+            } else if (this.comparePoints <= this.currentPoints) {
+                return 'fill-green'
+            }
+
+            return 'fill-red'
         }
+    },
+    components: {
+        tooltip,
+        icon
     }
 }
 </script>
@@ -73,14 +102,13 @@ export default {
 @import '~sass/modules/colors.sass'
 
 .progress-percentage
-    display: inline
-    border: none
-    padding: 0px !important
-    text-align: right
+    float: right
+    color: $theme-blue
+    font-weight: bold
 
 .progress-bar-box
-    margin-top: 10px
-    height: 20px
+    margin-top: 5px
+    height: 15px
     background-color: white
 
 .own-bar
