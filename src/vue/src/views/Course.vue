@@ -5,9 +5,9 @@
         <div slot="main-content-column" v-for="a in assignments" :key="a.id">
             <b-link tag="b-button" :to="assignmentRoute(cID, a.id, a.journal, a.is_published)">
                 <assignment-card :assignment="a">
-                    <b-button v-if="$hasPermission('can_delete_assignment')" @click.prevent.stop="deleteAssignment(a)" class="delete-button float-right">
-                        <icon name="trash"/>
-                        Delete
+                    <b-button v-if="$hasPermission('can_edit_assignment', 'assignment', a.id)" @click.prevent.stop="editAssignment(a)" class="change-button float-right">
+                        <icon name="edit"/>
+                        Edit
                     </b-button>
                 </assignment-card>
             </b-link>
@@ -94,6 +94,15 @@ export default {
                 }
             })
         },
+        editAssignment (assignment) {
+            this.$router.push({
+                name: 'FormatEdit',
+                params: {
+                    cID: this.cID,
+                    aID: assignment.id
+                }
+            })
+        },
         handleCreated (aID) {
             this.$router.push({
                 name: 'FormatEdit',
@@ -123,16 +132,6 @@ export default {
                 route.params.jID = jID
             }
             return route
-        },
-        deleteAssignment (assignment) {
-            if (assignment.course_count > 1
-                ? confirm('Are you sure you want to remove this assignment from the course?')
-                : confirm('Are you sure you want to delete this assignment?')) {
-                assignmentAPI.delete(assignment.id, this.cID, {
-                    customSuccessToast: assignment.course_count > 1 ? 'Removed assignment.' : 'Deleted assignment.'
-                })
-                    .then(() => { this.loadAssignments() })
-            }
         }
     }
 }

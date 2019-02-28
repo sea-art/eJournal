@@ -146,11 +146,16 @@ class ParticipationSerializer(serializers.ModelSerializer):
 
 
 class AssignmentDetailsSerializer(serializers.ModelSerializer):
+    course_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Assignment
         fields = ('id', 'name', 'description', 'points_possible', 'unlock_date', 'due_date', 'lock_date',
-                  'is_published')
+                  'is_published', 'course_count')
         read_only_fields = ('id', )
+
+    def get_course_count(self, assignment):
+        return assignment.courses.count()
 
 
 class AssignmentSerializer(serializers.ModelSerializer):
