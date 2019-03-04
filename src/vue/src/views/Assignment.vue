@@ -20,6 +20,7 @@
                    <option value="name">Sort by name</option>
                    <option value="username">Sort by username</option>
                    <option value="markingNeeded">Sort by marking needed</option>
+                   <option value="points">Sort by points</option>
                 </b-form-select>
                 <b-button v-on:click.stop v-if="!order" @click="toggleOrder(!order)" class="multi-form">
                     <icon name="long-arrow-down"/>
@@ -302,6 +303,10 @@ export default {
                 return self.compare(a.stats.submitted - a.stats.graded, b.stats.submitted - b.stats.graded)
             }
 
+            function comparePoints (a, b) {
+                return self.compare(a.stats.acquired_points, b.stats.acquired_points)
+            }
+
             function searchFilter (assignment) {
                 var username = assignment.student.username.toLowerCase()
                 var fullName = assignment.student.full_name.toLowerCase()
@@ -326,6 +331,8 @@ export default {
                 store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareUsername))
             } else if (this.selectedSortOption === 'markingNeeded') {
                 store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareMarkingNeeded))
+            } else if (this.selectedSortOption === 'points') {
+                store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(comparePoints))
             }
 
             this.calcStats(store.state.filteredJournals.filter(groupFilter))

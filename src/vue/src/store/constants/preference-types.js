@@ -6,7 +6,8 @@ export const TODO_SORT_OPTIONS = new Set([
 export const JOURNAL_SORT_OPTIONS = new Set([
     'name',
     'username',
-    'markingNeeded'
+    'markingNeeded',
+    'points'
 ])
 
 export const COURSE_MEMBER_SORT_OPTIONS = new Set([
