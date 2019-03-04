@@ -2,7 +2,7 @@
     <content-single-column>
         <bread-crumb>&nbsp;</bread-crumb>
         <b-card class="no-hover blue-border">
-            <profile-data ref="profileData"/>
+            <profile-data ref="profileData" class="multi-form"/>
             <!--<notification-card/>-->
             <password-card ref="passData"/>
         </b-card>

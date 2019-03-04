@@ -45,7 +45,7 @@ def forgot_password(request):
 
     email_handling.send_password_recovery_link(user)
     return response.success(
-        description='An email was sent to {}, please follow the email for instructions.'.format(email))
+        description='An email was sent to {}, please check your inbox for further instructions.'.format(email))
 
 
 @api_view(['POST'])
@@ -112,7 +112,8 @@ def request_email_verification(request):
 
     email_handling.send_email_verification_link(request.user)
     return response.success(
-        description='An email was sent to {}, please follow the email for instructions.'.format(request.user.email))
+        description='An email was sent to {}, please check your inbox for further \
+                     instructions.'.format(request.user.email))
 
 
 @api_view(['POST'])
@@ -139,5 +140,5 @@ def send_feedback(request):
 
     files = request.FILES.getlist('files')
     validators.validate_email_files(files)
-    email_handling.send_email_feedback(request.user, files, **request.data)
+    email_handling.send_email_feedback(request.user, **request.data)
     return response.success(description='Feedback was successfully received, thank you!')

@@ -82,7 +82,7 @@ ROOT_URLCONF = 'VLE.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': (os.path.join(BASE_DIR, 'templates/email_templates/'),),
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
