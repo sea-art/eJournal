@@ -9,38 +9,24 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
-import json
 import os
 
-import VLE.settings.email as email_config
 from VLE.settings.base import *
 
-SECRET_KEY = '@a4c3cpgfe0@8s!be=23d5+3e30vyj7!q%tolqpewafp^-@=br'
+ENVIRONMENT = 'DEVELOPMENT'
 
-EMAIL_USE_TLS = email_config.EMAIL_USE_TLS
-EMAIL_HOST = email_config.EMAIL_HOST
-EMAIL_HOST_USER = email_config.EMAIL_HOST_USER
-EMAIL_HOST_PASSWORD = email_config.EMAIL_HOST_PASSWORD
-EMAIL_PORT = email_config.EMAIL_PORT
-
-LTI_SECRET = '4339900ae5861f3086861ea492772864'
-LTI_KEY = '0cd500938a8e7414ccd31899710c98ce'
-LTI_ROLE_CONFIG_PATH = BASE_DIR + '/../../lti/role_config.json'
-
-with open(LTI_ROLE_CONFIG_PATH) as role_config:
-    ROLES = json.load(role_config)
-    LTI_ROLES = {value: key for (key, value) in ROLES.items()}
+MEDIA_ROOT = os.environ['MEDIA_ROOT']
+STATIC_ROOT = os.environ['STATIC_ROOT']
+BACKUP_DIR = os.environ['BACKUP_DIR']
 
 USER_MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024
 USER_MAX_TOTAL_STORAGE_BYTES = 100 * 1024 * 1024
 USER_MAX_EMAIL_ATTACHMENT_BYTES = 10 * 1024 * 1024
 
-BASELINK = 'http://localhost:8080'
 CORS_ORIGIN_ALLOW_ALL = True
 
 MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware'] + MIDDLEWARE
 ALLOWED_HOSTS = ['*']
-TIME_ZONE = 'Europe/Amsterdam'
 
 if 'TRAVIS' in os.environ:
     DATABASES = {
@@ -60,15 +46,56 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
-            'NAME': 'ejournal',
-            'USER': 'ejournal_development_user',
-            'PASSWORD': 'development',
-            'HOST': 'localhost',
-            'PORT': '',
+            'NAME': os.environ['DATABASE_NAME'],
+            'USER': os.environ['DATABASE_USER'],
+            'PASSWORD': os.environ['DATABASE_PASSWORD'],
+            'HOST': os.environ['DATABASE_HOST'],
+            'PORT': os.environ['DATABASE_PORT'],
             'TEST': {
                 'NAME': 'test_ejournal'
             }
         }
     }
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S",
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': '{}/django_info.log'.format(os.environ["LOG_DIR"]),
+            'maxBytes': 5 * 1024 * 1024,
+            'backupCount': 5,
+            'formatter': 'standard',
+        },
+        'file2': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': '{}/django_request_warning.log'.format(os.environ["LOG_DIR"]),
+            'maxBytes': 5 * 1024 * 1024,
+            'backupCount': 5,
+            'formatter': 'standard',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['file2'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+    },
+}
 
 DEBUG = True

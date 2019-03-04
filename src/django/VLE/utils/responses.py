@@ -5,6 +5,7 @@ This file contains functions to easily generate common HTTP error responses
 using JsonResponses. These functions should be used whenever the client needs
 to receive the appropriate error code.
 """
+from django.conf import settings
 from django.http import FileResponse, HttpResponse, JsonResponse
 
 import VLE.models
@@ -166,14 +167,21 @@ def validation_error(err):
     return bad_request(resp)
 
 
-def file(file_path):
+def file(file_path, filename):
     """Return a file as bytestring if found, otherwise returns a not found response."""
-    try:
-        if isinstance(file_path, VLE.models.UserFile):
-            file_path = file_path.file.path
-        response = FileResponse(open(file_path, 'rb'), as_attachment=True)
-        if isinstance(file_path, VLE.models.UserFile):
-            response['Content-Disposition'] = 'attachment; filename=' + file_path.file_name
-        return response
-    except FileNotFoundError:
-        return not_found(description='File not found.')
+    if isinstance(file_path, VLE.models.UserFile):
+        file_path = file_path.file.path
+
+    if settings.ENVIRONMENT == 'LOCAL':
+        try:
+            response = FileResponse(open(file_path, 'rb'), as_attachment=True)
+        except FileNotFoundError:
+            return not_found(description='File not found.')
+
+    response = HttpResponse()
+    # Note that the following headers are not modified by nginx:
+    # Content-Type, Content-Disposition, Accept-Ranges, Set-Cookie, Cache-Control, Expires
+    response['Content-Disposition'] = 'attachment; filename={}'.format(filename)
+    response['X-Accel-Redirect'] = '/{}'.format(file_path[file_path.find('media'):])
+
+    return response

@@ -1,0 +1,51 @@
+---
+
+- include: create_swap_file.yml
+  when: create_swap_file
+  tags: swap
+
+- name: Install security updates
+  apt: default_release={{ ansible_distribution_release }}-security
+       update_cache={{ update_apt_cache }}
+       upgrade=dist
+  tags:
+    - packages
+    - skip_ansible_lint
+
+- name: Install base packages
+  apt:
+    update_cache: "{{ update_apt_cache }}"
+    state: present
+    name:
+      - locales
+      - build-essential
+      - acl
+      - ntp
+      - htop
+      - git
+      - "{{ base_python_package }}-pip"
+      - "i{{ base_python_package }}"
+      - supervisor
+  tags:
+    - packages
+    - packages.security
+
+- name: Upgrade pip
+  pip: name=pip state=latest
+  tags:
+    - packages
+    - skip_ansible_lint
+
+- name: Check for an existing backup directory
+  stat:
+    path: "{{ backup_dir }}"
+  register: bdir
+
+- name: Ensures the backup directory exists
+  file:
+    path: "{{ backup_dir }}"
+    owner: root
+    group: root
+    mode: 0775
+    state: directory
+  when: not bdir.stat.exists or not bdir.stat.isdir

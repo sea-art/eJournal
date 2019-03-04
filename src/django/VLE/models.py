@@ -18,7 +18,7 @@ from VLE.utils import sanitization
 from VLE.utils.error_handling import (VLEParticipationError,
                                       VLEPermissionError, VLEProgrammingError,
                                       VLEUnverifiedEmailError)
-from VLE.utils.file_handling import get_path
+from VLE.utils.file_handling import get_feedback_file_path, get_path
 
 
 class Instance(models.Model):
@@ -142,7 +142,14 @@ class User(AbstractUser):
     profile_picture = models.TextField(
         null=True
     )
-    is_teacher = models.BooleanField(default=False)
+    is_teacher = models.BooleanField(
+        default=False
+    )
+    feedback_file = models.FileField(
+        null=True,
+        blank=True,
+        upload_to=get_feedback_file_path
+    )
 
     def check_permission(self, permission, obj=None, message=None):
         """
@@ -227,6 +234,14 @@ def create_user_preferences(sender, instance, created, **kwargs):
     """Create matching preferences whenever a user object is created."""
     if created:
         Preferences.objects.create(user=instance)
+
+
+@receiver(models.signals.post_delete, sender=User)
+def auto_delete_feedback_file_on_user_delete(sender, instance, **kwargs):
+    """Deletes feedback file from filesystem when corresponding `User` object is deleted."""
+    if instance.feedback_file:
+        if os.path.isfile(instance.feedback_file.path):
+            os.remove(instance.feedback_file.path)
 
 
 class Preferences(models.Model):
@@ -538,7 +553,6 @@ class Journal(models.Model):
         'sourcedid',
         null=True
     )
-
     grade_url = models.TextField(
         'grade_url',
         null=True
@@ -628,6 +642,7 @@ class Node(models.Model):
         on_delete=models.CASCADE,
     )
 
+    # Question: Why can this be null?
     preset = models.ForeignKey(
         'PresetNode',
         null=True,
@@ -872,6 +887,7 @@ class Content(models.Model):
         'Entry',
         on_delete=models.CASCADE
     )
+    # Question: Why can this be null?
     field = models.ForeignKey(
         'Field',
         on_delete=models.SET_NULL,
@@ -924,6 +940,7 @@ class Comment(models.Model):
         return "Comment"
 
 
+# TODO move to array field
 class Lti_ids(models.Model):
     """Lti ids
 

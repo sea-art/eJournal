@@ -3,7 +3,7 @@ import xml.etree.cElementTree as ET
 import oauth2
 from django.conf import settings
 
-from VLE.models import Counter, Entry, Journal, Node
+from VLE.models import Counter, Entry
 
 
 class GradePassBackRequest(object):
@@ -154,36 +154,12 @@ class GradePassBackRequest(object):
                 'description': description}
 
 
-def needs_grading(node):
-    """Give the teacher a needs grading notification in lti instance."""
-    if node.journal.sourcedid is None or node.entry.vle_coupling != Entry.NEED_SUBMISSION:
-        return
-
-    secret = settings.LTI_SECRET
-    key = settings.LTI_KEY
-
-    journal = node.journal
-    course = node.journal.assignment.courses.order_by('-startdate').first()
-
-    result_data = {'url': '{0}/Home/Course/{1}/Assignment/{2}/Journal/{3}?nID={4}'.format(
-        settings.BASELINK, course.pk, journal.assignment.pk, journal.pk, node.pk)}
-    grade_request = GradePassBackRequest(key, secret, journal, result_data=result_data,
-                                         submitted_at=str(node.entry.last_edited))
-
-    response = grade_request.send_post_request()
-    if response['code_mayor'] == 'success':
-        node.entry.vle_coupling = Entry.SEND_SUBMISSION
-        node.entry.save()
-        return True
-    else:
-        return False
-
-
 def change_entry_vle_coupling(journal, status):
     Entry.objects.filter(published=True, node__journal=journal).exclude(
         vle_coupling=Entry.LINK_COMPLETE).update(vle_coupling=status)
 
 
+# TODO Move to celery, however order and return is tricky
 def replace_result(journal):
     """Replace a grade on the LTI instance based on the request.
 
@@ -192,7 +168,6 @@ def replace_result(journal):
 
     returns the lti reponse.
     """
-
     change_entry_vle_coupling(journal, Entry.GRADING)
 
     if journal.sourcedid is None or journal.grade_url is None:
@@ -208,17 +183,3 @@ def replace_result(journal):
         change_entry_vle_coupling(journal, Entry.LINK_COMPLETE)
 
     return response
-
-
-# TODO: Add this to a cronjob and loop over all assignments
-def check_if_need_VLE_publish(assignment):
-    # TODO: Check if "user__participation__role__can_have_journal" would not leak
-    # if its a teacher and student in different courses
-    for node in Node.objects.filter(entry__vle_coupling=Entry.NEED_SUBMISSION, journal__sourcedid__isnull=False,
-                                    journal__user__participation__role__can_have_journal=True,
-                                    journal__assignment=assignment):
-        needs_grading(node)
-    for journal in Entry.objects.filter(node__journal__assignment=assignment, vle_coupling=Entry.GRADING,
-                                        published=True, node__journal__user__participation__role__can_have_journal=True
-                                        ).values('node__journal').distinct():
-        replace_result(Journal.objects.get(pk=journal['node__journal']))

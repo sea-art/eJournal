@@ -16,6 +16,13 @@ def get_path(instance, filename):
     return str(instance.author.id) + '/' + str(instance.assignment.id) + '/' + filename
 
 
+def get_feedback_file_path(instance, filename):
+    """Upload user feedback file into their respective directory. Following MEDIA_ROOT/uID/feedback/<file>
+
+    An uploaded feedback file is temporary, and removed when the feedback mail is processed by celery."""
+    return '{}/feedback/{}'.format(instance.id, filename)
+
+
 def compress_all_user_data(user, extra_data_dict=None, archive_extension='zip'):
     """Compresses all user files found in MEDIA_ROOT/uid into a single archiveself.
 
@@ -37,7 +44,7 @@ def compress_all_user_data(user, extra_data_dict=None, archive_extension='zip'):
 
     shutil.make_archive(archive_ouput_base_name, archive_extension, user_file_dir_path)
 
-    return archive_ouput_path
+    return archive_ouput_path, '{}.{}'.format(archive_name, archive_extension)
 
 
 def make_permanent_file_content(user_file, content, node):

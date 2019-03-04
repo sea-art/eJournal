@@ -9,22 +9,51 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
-
 import os
 from datetime import timedelta
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BASELINK = os.environ['BASELINK']
 
+STATIC_URL = '/static/'
+# NOTE: Public media directory (not used as such, should probably be renamed.)
 MEDIA_URL = 'media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL)
 
-# TODO Whitelist image extensions
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+
+
+# Email settings
+EMAIL_USE_TLS = True
+EMAIL_HOST = os.environ['EMAIL_HOST']
+EMAIL_HOST_USER = os.environ['EMAIL_HOST_USER']
+EMAIL_HOST_PASSWORD = os.environ['EMAIL_HOST_PASSWORD']
+EMAIL_PORT = 587
+
+
+# LTI settings
+LTI_SECRET = os.environ['LTI_SECRET']
+LTI_KEY = os.environ['LTI_KEY']
+ROLES = {'Teacher': 'instructor', 'TA': 'teachingassistant', 'Student': 'learner'}
+LTI_ROLES = {'instructor': 'Teacher', 'teachingassistant': 'TA', 'learner': 'Student'}
+
+
+# Celery settings
+CELERY_BROKER_URL = os.environ['BROKER_URL']
+CELERY_RESULT_BACKEND = 'django-db://{}:{}@{}:{}/{}'.format(
+    os.environ['DATABASE_USER'],
+    os.environ['DATABASE_PASSWORD'],
+    os.environ['DATABASE_HOST'],
+    os.environ['DATABASE_PORT'],
+    os.environ['DATABASE_NAME']
+)
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+
+# Read for webserver, r + w for django
+FILE_UPLOAD_PERMISSIONS = 0o644
 
 GROUP_API = 'https://api.datanose.nl/Groups/{}'
-
-# TODO Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 ALLOWED_HOSTS = []
 
@@ -40,6 +69,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'corsheaders',
+    'django_celery_results',
+    'django_celery_beat',
 ]
 
 REST_FRAMEWORK = {
@@ -117,16 +148,8 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = False
-
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')

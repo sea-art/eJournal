@@ -5,6 +5,7 @@ npm-debug.log
 core
 /settings/*
 *.retry
+pass.txt
 
 htmlcov/*
 .vscode/*

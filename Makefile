@@ -6,20 +6,19 @@ endif
 
 postgres_db = ejournal
 postgres_test_db = test_$(postgres_db)
-postgres_dev_user = ejournal_development_user2
-postgres_dev_user_pass = development
+postgres_dev_user = ejournal
+postgres_dev_user_pass = password
 
 ##### TEST COMMANDS #####
 
 test-back:
 	pep8 ./src/django --max-line-length=120 --exclude='./src/django/VLE/migrations','./src/django/VLE/settings*'
-	bash -c 'source ./venv/bin/activate && flake8 --max-line-length=120 src/django --exclude="src/django/VLE/migrations/*","src/django/VLE/settings/*","src/django/VLE/settings.py" && deactivate'
+	bash -c 'source ./venv/bin/activate && flake8 --max-line-length=120 src/django --exclude="src/django/VLE/migrations/*","src/django/VLE/settings/*","src/django/VLE/settings.py","src/django/VLE/tasks/__init__.py" && deactivate'
 	bash -c "source ./venv/bin/activate && pytest --cov=VLE --cov-config .coveragerc src/django/test ${TOTEST} && deactivate"
-	bash -c 'source ./venv/bin/activate && isort -rc src/django/ -c && deactivate'
+	bash -c 'source ./venv/bin/activate && isort -rc src/django/ && deactivate'
 
 test-front:
 	npm run lint --prefix ./src/vue
-	npm run test --prefix ./src/vue
 
 display-coverage:
 	bash -c "source ./venv/bin/activate && cd src/django/ && coverage report -m && deactivate"
@@ -54,14 +53,15 @@ setup-no-input:
 
 	sudo apt install npm -y
 	sudo npm install npm@latest -g
-	sudo apt install nodejs python3 python3-pip pep8 libpq-dev python3-dev postgresql postgresql-contrib -y
+	sudo apt install nodejs python3 python3-pip pep8 libpq-dev python3-dev postgresql postgresql-contrib rabbitmq-server -y
 
-	make setup-venv
+	make setup-venv requirements_file=local.txt
 
 	# Reinstall nodejs dependencies.
 	npm ci --prefix ./src/vue
 
 	make preset-db-no-input
+	bash -c 'source ./venv/bin/activate && cd ./src/django && python manage.py migrate django_celery_results && deactivate'
 
 	@echo "DONE!"
 
@@ -70,7 +70,9 @@ setup-travis:
 	sudo apt install npm -y
 	sudo apt install nodejs python3 python3-pip pep8 -y
 
-	make setup-venv
+	sudo pip3 install virtualenv
+	virtualenv -p python3 venv
+	bash -c 'source ./venv/bin/activate && pip install -r requirements/ci.txt && deactivate'
 
 	# Reinstall nodejs dependencies.
 	npm ci --prefix ./src/vue
@@ -82,9 +84,9 @@ setup-venv:
 	virtualenv -p python3 venv
 	bash -c '\
 		source ./venv/bin/activate && \
-		pip install git+https://github.com/joestump/python-oauth2.git && \
-		pip install -r requirements.txt && \
+		pip install -r requirements/$(requirements_file) && \
 		isort -rc src/django/ && \
+		ansible-playbook ./system_configuration_tools/provision-local.yml --ask-become-pass --ask-vault-pass && \
 		deactivate'
 
 ##### DEPLOY COMMANDS ######
@@ -96,6 +98,21 @@ deploy:
 	bash -c 'bash $(ROOT_DIR)/scripts/deploy.sh $(ROOT_DIR)'
 serve:
 	bash -c 'bash $(ROOT_DIR)/scripts/serve.sh $(ROOT_DIR)'
+
+ansible-test-connection:
+	@bash -c 'source ./venv/bin/activate && ansible -m ping all --ask-become-pass && deactivate'
+
+run-ansible-provision:
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --ask-become-pass --ask-vault-pass && deactivate'
+
+run-ansible-deploy:
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "deploy" --ask-become-pass --ask-vault-pass && deactivate'
+
+run-ansible-backup:
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "backup" --ask-become-pass --ask-vault-pass && deactivate'
+
+run-ansible-preset_db:
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "run_preset_db" --ask-become-pass --ask-vault-pass && deactivate'
 
 ##### MAKEFILE COMMANDS #####
 
@@ -115,6 +132,7 @@ clean:
 postgres-reset:
 	@sudo su -c "psql \
 	-c \"DROP DATABASE IF EXISTS $(postgres_db)\" \
+	-c \"DROP DATABASE IF EXISTS test_$(postgres_db)\" \
 	-c \"DROP USER IF EXISTS $(postgres_dev_user)\" \
 	" postgres
 
@@ -172,3 +190,9 @@ fix-live-reload:
 
 shell:
 	bash -c 'source ./venv/bin/activate && cd ./src/django && python manage.py shell'
+
+run-celery-worker-and-beat:
+	bash -c 'source ./venv/bin/activate && cd  ./src/django && celery -A VLE worker -l info -B'
+
+encrypt_vault_var:
+	bash -c 'source ./venv/bin/activate && ansible-vault encrypt_string "${inp}" --vault-password-file ./pass.txt'

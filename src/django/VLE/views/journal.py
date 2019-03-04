@@ -133,6 +133,7 @@ class JournalView(viewsets.ViewSet):
 
         return response.success({'journal': serializer.data})
 
+    # TODO: Is the payload ever used? Should this moved to celery...
     def publish(self, request, journal, published=True):
         grading.publish_all_journal_grades(journal, published)
         payload = lti_grade.replace_result(journal)

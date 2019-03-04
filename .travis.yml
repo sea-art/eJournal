@@ -7,7 +7,7 @@ before_install:
 install:
   - make setup-travis
   - pip install codecov
-script: make test
+script: bash -c 'source ./venv/bin/activate && isort -rc src/django/ -c && deactivate' && make test
 after_success:
   - codecov
 branches:
@@ -19,3 +19,5 @@ services:
 addons:
   # NOTE Travis is not compatible with postgres version 10+ (23/11/2018)
   postgresql: "9.6"
+env:
+  - BASELINK="http://localhost:8080" DJANGO_SECRET_KEY="@a4c3cpgfe0@8s!be=23d5+3e30vyj7!q%tolqpewafp^-@=br" DATABASE_NAME="ejournal" DATABASE_USER="ejournal" DATABASE_PASSWORD="password" DATABASE_HOST="localhost" DATABASE_PORT="5432" BROKER_URL="amqp://ejournal:password@localhost/ejournal" LTI_SECRET="4339900ae5861f3086861ea492772864" LTI_KEY="0cd500938a8e7414ccd31899710c98ce" EMAIL_HOST="placeholder" EMAIL_HOST_USER="placeholder" EMAIL_HOST_PASSWORD="placeholder" DJANGO_SETTINGS_MODULE="VLE.settings.local"

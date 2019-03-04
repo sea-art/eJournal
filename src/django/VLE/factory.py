@@ -24,7 +24,7 @@ def make_instance(allow_standalone_registration=None):
 
 
 def make_user(username, password, email, lti_id=None, profile_picture=None,
-              is_superuser=False, is_teacher=False, full_name=None, verified_email=False):
+              is_superuser=False, is_teacher=False, full_name=None, verified_email=False, is_staff=False):
     """Create a user.
 
     Arguments:
@@ -36,7 +36,7 @@ def make_user(username, password, email, lti_id=None, profile_picture=None,
     is_superuser -- if the user needs all permissions, set this true (default: False)
     """
     user = User(username=username, email=email, lti_id=lti_id, is_superuser=is_superuser,
-                is_teacher=is_teacher, verified_email=verified_email)
+                is_teacher=is_teacher, verified_email=verified_email, is_staff=is_staff)
 
     user.full_name = full_name
 

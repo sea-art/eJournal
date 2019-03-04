@@ -1,0 +1,74 @@
+---
+
+# Domain settings.
+baselink: http://localhost:8080
+
+
+# Database settings.
+db_user: "{{ application_name }}"
+db_name: "{{ application_name }}"
+db_password: password
+db_host: localhost
+db_port: 5432
+
+
+# LTI settings.
+lti_secret: 4339900ae5861f3086861ea492772864
+lti_key: 0cd500938a8e7414ccd31899710c98ce
+
+
+# Email settings.
+email_host: smtp.zoho.com
+email_host_user: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          32346333323062386535333665323661333735393434353932323137313466333866623664613962
+          3237643763626262623937353832323534613161323365660a386162383032386366663532303636
+          63363261373761623363396533386566386464626462646238356438316432386265656361653238
+          6436343935353832610a323962663237336636303662636133313231336463396465666233346437
+          35333865663266653832623231343366376637623433396561623835373632303431
+email_host_password: !vault |
+          $ANSIBLE_VAULT;1.1;AES256
+          31653961363535313661616566633233366639386436366465663066306230373635396335653831
+          6339643661316135336131383736333162643834343264640a643862343637383031363366333034
+          64396536616238613264373862303932303964333435663932653761363266663236373737383264
+          6263663464643964640a623462326537656461636335353466386161653939623234336137353264
+          65623937363566363666356635626465376138343135346565363232306633386137
+
+
+# Gunicorn settings.
+# For the number of workers, a good rule to follow is 2 x number of CPUs + 1
+gunicorn_num_workers: 3
+
+# Setting this to 1 will restart the Gunicorn process each time you make a request, basically reloading the code.
+# Very handy when developing. Set to 0 for unlimited requests (default).
+gunicorn_max_requests: 1
+
+
+# RabbitMQ settings.
+rabbitmq_server_name: "rabbitmq-local-server"
+
+rabbitmq_admin_user: admin
+rabbitmq_admin_password: password
+
+rabbitmq_application_vhost: "{{ application_name }}"
+rabbitmq_application_user: "{{ application_name }}"
+rabbitmq_application_password: password
+
+
+# Celery settings.
+celery_num_workers: 2
+
+
+# Application settings.
+django_settings_file: "{{ project_name }}.settings.local"
+django_secret_key: "@a4c3cpgfe0@8s!be=23d5+3e30vyj7!q%tolqpewafp^-@=br"
+
+broker_url: "amqp://localhost"
+
+run_django_db_migrations: true
+run_django_collectstatic: true
+
+
+# Nginx settings.
+ssl_crt: placeholder
+ssl_key: placeholder

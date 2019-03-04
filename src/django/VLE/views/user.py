@@ -17,7 +17,8 @@ import VLE.validators as validators
 from VLE.models import (Assignment, Content, Entry, Instance, Journal, Node,
                         User, UserFile)
 from VLE.serializers import EntrySerializer, OwnUserSerializer, UserSerializer
-from VLE.utils import email_handling, file_handling
+from VLE.tasks import send_email_verification_link
+from VLE.utils import file_handling
 from VLE.views import lti
 
 
@@ -136,11 +137,11 @@ class UserView(viewsets.ViewSet):
         user.set_password(password)
 
         user.full_clean()
+        user.save()
 
         if lti_id is None:
-            email_handling.send_email_verification_link(user)
+            send_email_verification_link.delay(user.pk)
 
-        user.save()
         return response.created({'user': UserSerializer(user).data})
 
     def partial_update(self, request, *args, **kwargs):
@@ -296,9 +297,12 @@ class UserView(viewsets.ViewSet):
                     entries, context={'user': request.user, 'comments': True}, many=True).data
             })
 
-        archive_path = file_handling.compress_all_user_data(user, {'profile': profile, 'journals': journal_dict})
+        archive_path, archive_name = file_handling.compress_all_user_data(
+            user,
+            {'profile': profile, 'journals': journal_dict}
+        )
 
-        return response.file(archive_path)
+        return response.file(archive_path, archive_name)
 
     @action(methods=['get'], detail=True)
     def download(self, request, pk):
@@ -333,7 +337,7 @@ class UserView(viewsets.ViewSet):
         except (UserFile.DoesNotExist, ValueError):
             return response.bad_request(file_name + ' was not found.')
 
-        return response.file(user_file)
+        return response.file(user_file, user_file.file_name)
 
     @action(methods=['post'], detail=False)
     def upload(self, request):

@@ -84,8 +84,8 @@ class RoleView(viewsets.ViewSet):
                 # TODO: P Add a permission for this
                 request.user.check_permission('can_view_all_journals', course)
 
+            # Returns keyerror if course_id nor assignment_id is set
             return response.success({'role': permissions.serialize_assignment_permissions(request.user, assignment)})
-        # Returns keyerror if course_id nor assignment_id is set
 
     def create(self, request):
         """Create course role.

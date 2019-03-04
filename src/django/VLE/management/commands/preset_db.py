@@ -72,8 +72,8 @@ class Command(BaseCommand):
                 "username": "Teacher",
                 "full_name": "Xavier van Dommelen",
                 "password": "pass",
-                "email": "xavier@eJourn.al",
-                "verified_email": False,
+                "email": "test@eJourn.al",
+                "verified_email": True,
                 "is_superuser": False,
                 "is_teacher": True
             },
@@ -102,7 +102,8 @@ class Command(BaseCommand):
                 "email": "superuser@eJourn.al",
                 "verified_email": False,
                 "is_superuser": True,
-                "is_teacher": True
+                "is_teacher": True,
+                "is_staff": True
             }
         }
 

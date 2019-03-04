@@ -13,8 +13,12 @@ import sys
 
 from django.core.wsgi import get_wsgi_application
 
+# NOTE: When deploying with mod_wsgi see:
+# http://docs.celeryproject.org/projects/django-celery/en/v2.5.3/introduction.html#special-note-for-mod-wsgi-users
+
 logging.basicConfig(stream=sys.stderr)
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "VLE.settings.production")
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "VLE.settings.development")
 path = '{{DIR}}'
 if path not in sys.path:
     sys.path.append(path)

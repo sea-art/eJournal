@@ -15,7 +15,8 @@ import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 import VLE.validators as validators
 from VLE.models import User
-from VLE.utils import email_handling
+from VLE.tasks import (send_email_feedback, send_email_verification_link,
+                       send_password_recovery_link)
 
 
 def index(request):
@@ -43,7 +44,7 @@ def forgot_password(request):
     except User.DoesNotExist:
         user = User.objects.get(email=email)
 
-    email_handling.send_password_recovery_link(user)
+    send_password_recovery_link.delay(user.pk)
     return response.success(
         description='An email was sent to {}, please check your inbox for further instructions.'.format(email))
 
@@ -110,7 +111,7 @@ def request_email_verification(request):
     if request.user.verified_email:
         return response.success(description='Email address already verified.')
 
-    email_handling.send_email_verification_link(request.user)
+    send_email_verification_link.delay(request.user.pk)
     return response.success(
         description='An email was sent to {}, please check your inbox for further \
                      instructions.'.format(request.user.email))
@@ -126,7 +127,7 @@ def send_feedback(request):
         type -- the type of feedback.
         feedback -- the actual feedback.
         browser -- the browser of the user who sends the feedback.
-        files -- potential files as attachments.
+        files -- potential files as attachments, currently only one file is processed.
 
     Returns:
     On failure:
@@ -136,9 +137,19 @@ def send_feedback(request):
         success -- with a description.
     """
     request.user.check_verified_email()
-    utils.required_params(request.data, 'topic', 'feedback', 'ftype', 'user_agent', 'url')
+    topic, ftype, feedback, user_agent, url = \
+        utils.required_params(request.data, 'topic', 'ftype', 'feedback', 'user_agent', 'url')
 
-    files = request.FILES.getlist('files')
-    validators.validate_email_files(files)
-    email_handling.send_email_feedback(request.user, **request.data)
+    if request.FILES:
+        files = request.FILES.getlist('files')
+        validators.validate_email_files(files)
+        if request.user.feedback_file:
+            request.user.feedback_file.delete()
+        request.user.feedback_file = files[0]
+        request.user.save()
+        send_email_feedback.delay(
+            request.user.pk, topic, ftype, feedback, user_agent, url, file_content_type=files[0].content_type)
+    else:
+        send_email_feedback.delay(request.user.pk, topic, ftype, feedback, user_agent, url)
+
     return response.success(description='Feedback was successfully received, thank you!')

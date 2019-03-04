@@ -1,0 +1,18 @@
+-r base.txt
+
+coverage==4.5.2 # Tests
+Faker==1.0.2 # Tests
+flake8==3.7.5 # Tests
+mccabe==0.6.1 # Tests, plugin for flake8
+pycodestyle==2.5.0 # Tests, flake8 tool
+isort==4.3.4 # Organization
+pyflakes==2.1.0 # Tests
+pytz==2018.9 # Preset db script and tests
+factory-boy==2.11.1 # Tests
+atomicwrites==1.2.1 # Pytest
+attrs==18.2.0 # Pytest
+pluggy==0.8.0 # Pytest
+py==1.7.0 # Pytest
+pytest==3.9.3 # Testing library
+pytest-cov==2.6.0 # Pytest
+pytest-django==3.4.3 # Pytest

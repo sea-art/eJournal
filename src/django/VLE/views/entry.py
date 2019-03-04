@@ -9,6 +9,7 @@ from rest_framework.decorators import action
 import VLE.factory as factory
 import VLE.lti_grade_passback as lti_grade
 import VLE.serializers as serialize
+import VLE.tasks.lti as lti_tasks
 import VLE.timeline as timeline
 import VLE.utils.entry_utils as entry_utils
 import VLE.utils.file_handling as file_handling
@@ -66,7 +67,9 @@ class EntryView(viewsets.ViewSet):
             node = factory.make_node(journal, entry)
 
         # Notify teacher on new entry
-        lti_grade.needs_grading(node)
+        # TODO Verbose name for check
+        if not (node.journal.sourcedid is None or node.entry.vle_coupling != Entry.NEED_SUBMISSION):
+            lti_tasks.needs_grading.delay(node.pk)
 
         for content in content_list:
             data, field_id = utils.required_params(content, 'data', 'id')

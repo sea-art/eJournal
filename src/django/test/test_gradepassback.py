@@ -9,6 +9,7 @@ from django.conf import settings
 from django.test import TestCase
 
 import VLE.lti_grade_passback as lti_grade
+import VLE.tasks.beats.lti as lti_beats
 from VLE.models import Entry
 
 
@@ -153,20 +154,20 @@ class GradePassBackRequestXMLTest(TestCase):
     def test_check_if_need_VLE_publish_no_journals(self):
         """Hopefully doesnt crash."""
         course = factory.LtiCourse()
-        assignment = factory.LtiAssignment(courses=[course])
-        lti_grade.check_if_need_VLE_publish(assignment)
+        factory.LtiAssignment(courses=[course])
+        lti_beats.check_if_need_VLE_publish()
 
     def test_check_if_need_VLE_publish_journals_nothing_needed(self):
         """Hopefully doesnt crash."""
-        lti_grade.check_if_need_VLE_publish(self.assignment)
+        lti_beats.check_if_need_VLE_publish()
 
     def test_check_if_need_VLE_publish_journals(self):
         """Hopefully doesnt crash."""
         factory.Entry(node__journal=self.journal, published=True, vle_coupling=Entry.GRADING)
         factory.Entry(node__journal=self.journal)
-        lti_grade.check_if_need_VLE_publish(self.assignment)
+        lti_beats.check_if_need_VLE_publish()
 
-    def test_change_Entry_vle_coupling(self):
+    def test_update_journal_entries_vle_state(self):
         """Hopefully doesnt crash."""
         entry = factory.Entry(node__journal=self.journal, published=True)
         lti_grade.change_entry_vle_coupling(self.journal, Entry.GRADING)

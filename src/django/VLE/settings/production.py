@@ -10,39 +10,21 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
-import json
+import os
 
-import VLE.settings.email as email_config
 from VLE.settings.base import *
 
-# SECURITY WARNING: KEEP secret
-SECRET_KEY = '{{SECRET_KEY}}'
+ENVIRONMENT = 'PRODUCTION'
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = '{{SMTP_HOST}}'
-EMAIL_HOST_USER = '{{SMTP_LOGIN_MAIL}}'
-EMAIL_HOST_PASSWORD = '{{SMTP_LOGIN_PASSWORD}}'
-EMAIL_PORT = '{{SMTP_PORT}}'
-
-# SECURITY WARNING: KEEP secret
-LTI_SECRET = '{{LTI_SECRET}}'
-LTI_KEY = '{{LTI_KEY}}'
-LTI_ROLE_CONFIG_PATH = BASE_DIR + '/../lti/role_config.json'
-
-with open(LTI_ROLE_CONFIG_PATH) as role_config:
-    ROLES = json.load(role_config)
-    LTI_ROLES = {value: key for (key, value) in ROLES.items()}
-
-BASELINK = '{{BASELINK}}'
-if BASELINK[-1] == '/':
-    BASELINK = BASELINK[:-1]
+MEDIA_ROOT = os.environ['MEDIA_ROOT']
+STATIC_ROOT = os.environ['STATIC_ROOT']
+BACKUP_DIR = os.environ['BACKUP_DIR']
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-FILE_UPLOAD_PERMISSIONS = 0o644
-USER_MAX_FILE_SIZE_BYTES = '{{USER_MAX_FILE_SIZE_BYTES}}'
-USER_MAX_TOTAL_STORAGE_BYTES = '{{USER_MAX_TOTAL_STORAGE_BYTES}}'
-USER_MAX_EMAIL_ATTACHMENT_BYTES = '{{USER_MAX_EMAIL_ATTACHMENT_BYTES}}'
+USER_MAX_FILE_SIZE_BYTES = 2097152
+USER_MAX_TOTAL_STORAGE_BYTES = 104857600
+USER_MAX_EMAIL_ATTACHMENT_BYTES = 2097152
 
 MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware'] + MIDDLEWARE
 ALLOWED_HOSTS = ['.ejoun.al', '.ejournal.app']
@@ -61,11 +43,52 @@ SECURE_HSTS_PRELOAD = True
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.{{DATABASE_TYPE}}',
-        'NAME': '{{DATABASE_NAME}}',
-        'USER': '{{DATABASE_USER}}',
-        'PASSWORD': '{{DATABASE_PASSWORD}}',
-        'HOST': '{{DATABASE_HOST}}',
-        'PORT': '{{DATABASE_PORT}}',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.environ['DATABASE_NAME'],
+        'USER': os.environ['DATABASE_USER'],
+        'PASSWORD': os.environ['DATABASE_PASSWORD'],
+        'HOST': os.environ['DATABASE_HOST'],
+        'PORT': os.environ['DATABASE_PORT'],
     }
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S",
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': '{}/django_info.log'.format(os.environ["LOG_DIR"]),
+            'maxBytes': 5 * 1024 * 1024,
+            'backupCount': 5,
+            'formatter': 'standard',
+        },
+        'file2': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': '{}/django_request_warning.log'.format(os.environ["LOG_DIR"]),
+            'maxBytes': 5 * 1024 * 1024,
+            'backupCount': 5,
+            'formatter': 'standard',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django.request': {
+            'handlers': ['file2'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+    },
 }

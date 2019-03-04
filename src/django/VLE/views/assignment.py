@@ -9,8 +9,8 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 import VLE.factory as factory
+import VLE.tasks.grading as grading_tasks
 import VLE.utils.generic_utils as utils
-import VLE.utils.grading as grading_utils
 import VLE.utils.responses as response
 import VLE.validators as validators
 from VLE.models import Assignment, Course, Journal, Lti_ids, User
@@ -180,7 +180,7 @@ class AssignmentView(viewsets.ViewSet):
         published, = utils.optional_params(request.data, 'published')
         if published:
             request.user.check_permission('can_publish_grades', assignment)
-            grading_utils.publish_all_assignment_grades(assignment, published)
+            grading_tasks.publish_all_assignment_grades(assignment.pk, published)
             response_data['published'] = published
 
         # Remove data that must not be changed by the serializer

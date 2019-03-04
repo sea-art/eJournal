@@ -1,8 +1,7 @@
 VLE/settings/email.py
-/static/*
+static/*
 media
-/backup/*
-/logs/*
+backup/*
 *.retry
 
 # Byte-compiled / optimized / DLL files
@@ -60,6 +59,7 @@ coverage.xml
 
 # Django stuff:
 *.log
+logs/*
 local_settings.py
 db.sqlite3
 

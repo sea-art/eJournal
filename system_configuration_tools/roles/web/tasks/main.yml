@@ -1,0 +1,37 @@
+---
+
+- include: install_additional_packages.yml
+  tags: packages
+
+- include: create_users_and_groups.yml
+
+- include: setup_virtualenv.yml
+  tags: virtualenv
+
+- include: backup_media.yml
+  tags:
+    - never
+    - deploy
+    - backup
+  when: run_backups
+
+- include: setup_git_repo.yml
+  tags: deploy
+
+- include: setup_frontend_file_structure.yml
+  tags: deploy
+
+- include: setup_django_app.yml
+  tags: deploy
+
+- include: setup_supervisor.yml
+  tags: supervisor
+
+- include: set_file_permissions.yml
+  tags: deploy
+
+- include: run_django_preset_db.yml
+  tags:
+    - never
+    - run_preset_db
+  when: env != 'production'

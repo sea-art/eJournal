@@ -1,0 +1,80 @@
+---
+
+- name: Remove {{ frontend_web_dir }} contents
+  file:
+    state: absent
+    path: "{{ frontend_web_dir }}/"
+  tags: deploy
+
+- name: Recreate {{ frontend_web_dir }} directory
+  file:
+    state: directory
+    path: "{{ frontend_web_dir }}/"
+  tags: deploy
+
+# NOTE: This route is not recommended for low end vps box, will require larger swap (npm install)
+# - name: Install npm
+#   apt:
+#     update_cache: "{{ update_apt_cache }}"
+#     state: present
+#     name:
+#       - npm
+#   tags:
+#     - packages
+#
+# TODO can we get rid of this command, global is bad afterall
+# - name: npm install npm@latest -g
+#   command: npm install npm@latest -g
+
+# - name: Install node dependencies
+#   npm:
+#     path: "{{ tmp_build.path }}/src/vue/"
+#
+# - name: Npm run build
+#   command: cd {{ tmp_build.path }}/src/vue/ && npm run build
+#
+# - name: Move the django content to the project_path
+#   command: rsync -r {{ tmp_build.path }}/src/vue/dist/ {{ frontend_web_dir }}/
+
+- name: Build the vuejs files to be deployed (LOCALLY) (Should not require sudo...)
+  local_action: shell npm run build --prefix ../src/vue
+  become: no
+
+# TODO Find a better solution for synchronize no tty present errors
+- name: (DEBUG) Allow RSYNC for user {{ server_user }} without SUDO password
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    insertafter: '^%sudo'
+    line: "{{ server_user }} ALL=NOPASSWD: /usr/bin/rsync"
+  tags: deploy
+
+- name: Copy the vuejs files over to {{ frontend_web_dir }}
+  synchronize:
+    src: ../src/vue/dist/
+    dest: "{{ frontend_web_dir }}/"
+    recursive: yes
+  tags: deploy
+
+- name: (DEBUG) Disallow RSYNC for user {{ server_user }} without SUDO password
+  lineinfile:
+    path: /etc/sudoers
+    state: absent
+    insertafter: '^%sudo'
+    line: "{{ server_user }} ALL=NOPASSWD: /usr/bin/rsync"
+  tags: deploy
+
+# TODO Find a more clean solution, best would be to set it local during the build (or remote during the build)
+- name: Find all deployed javascript files
+  find:
+    paths: "{{ frontend_web_dir }}/static/js/"
+  register: javascript_files
+  tags: deploy
+
+- name: Set the correct API url in all javascript files
+  replace:
+    path: "{{ item.path }}"
+    regexp: "http://localhost:8000/"
+    replace: "https://api.{{ inventory_hostname }}/"
+  with_items: "{{ javascript_files.files }}"
+  tags: deploy
