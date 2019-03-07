@@ -27,6 +27,7 @@ server {
 
     # The same list demands some headers
     add_header Strict-Transport-Security "max-age=63072000; includeSubDomains; preload";
+    # NOTE: Remove this header to allow Canvas to load ejournal in an iframe
     add_header X-Frame-Options DENY;
     # TODO Prevent MIME type sniffing for security (blocked by tinymce stylesheet mimetype)
     # add_header X-Content-Type-Options "nosniff";
@@ -150,6 +151,8 @@ server {
         proxy_set_header    X-Forwarded-Proto   https;
         proxy_set_header    Host                $http_host;
         proxy_redirect      off;
+        # Required to store the lengthy HTTP headers for LTI launch from Canvas (2x Default).
+        proxy_buffer_size          8k;
 
         # Try to serve static files from nginx, no point in making an
         # *application* server like Unicorn/Rainbows! serve static files.

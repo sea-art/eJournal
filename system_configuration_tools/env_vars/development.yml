@@ -58,7 +58,7 @@ email_host_password: !vault |
 
 # Gunicorn settings.
 # For the number of workers, a good rule to follow is 2 x number of CPUs + 1
-gunicorn_num_workers: 3
+gunicorn_num_workers: "{{ (2 * ansible_processor_cores + 1) }}"
 
 # Setting this to 1 will restart the Gunicorn process each time you make a request, basically reloading the code.
 # Very handy when developing. Set to 0 for unlimited requests (default).

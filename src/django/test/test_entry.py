@@ -128,3 +128,14 @@ class EntryAPITest(TestCase):
         self.journal.assignment.save()
         api.delete(self, 'entries', params={'pk': entry['id']}, user=self.student, status=403)
         api.delete(self, 'entries', params={'pk': entry['id']}, user=factory.Admin())
+
+    def test_grade(self):
+        entry = api.create(self, 'entries', params=self.valid_create_params, user=self.student)['entry']
+        entry = api.update(self, 'entries/grade', params={'pk': entry['id'], 'grade': 1, 'published': True},
+                           user=self.teacher)['entry']
+        assert entry['grade'] == 1
+        entry = api.update(self, 'entries/grade', params={'pk': entry['id'], 'grade': 0, 'published': True},
+                           user=self.teacher)['entry']
+        assert entry['grade'] == 0
+        api.update(self, 'entries/grade', params={'pk': entry['id'], 'grade': 0, 'published': False}, status=400,
+                   user=self.teacher)

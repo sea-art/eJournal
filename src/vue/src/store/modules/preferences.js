@@ -5,6 +5,7 @@ const getters = {
     // Stored user preferences.
     gradeNotifications: state => state.gradeNotifications,
     commentNotifications: state => state.commentNotifications,
+    upcomingDeadlineNotifications: state => state.upcomingDeadlineNotifications,
     showFormatTutorial: state => state.showFormatTutorial,
 
     // Search filters.
@@ -31,6 +32,7 @@ const mutations = {
 
         state.gradeNotifications = preferences.grade_notifications
         state.commentNotifications = preferences.comment_notifications
+        state.upcomingDeadlineNotifications = preferences.upcoming_deadline_notifications
         state.showFormatTutorial = preferences.show_format_tutorial
     },
     [types.SET_GRADE_NOTIFICATION] (state, val) {
@@ -38,6 +40,9 @@ const mutations = {
     },
     [types.SET_COMMENT_NOTIFICATION] (state, val) {
         state.commentNotifications = val
+    },
+    [types.SET_UPCOMING_DEADLINE_NOTIFICATION] (state, val) {
+        state.upcomingDeadlineNotifications = val
     },
     [types.SET_FORMAT_TUTORIAL] (state, val) {
         state.showFormatTutorial = val
@@ -101,6 +106,7 @@ const mutations = {
     [types.RESET_PREFERENCES] (state) {
         state.gradeNotifications = null
         state.commentNotifications = null
+        state.upcomingDeadlineNotifications = null
         state.showFormatTutorial = null
         state.todo.sortBy = 'date'
         state.journal.aID = null
@@ -125,6 +131,7 @@ export default {
     state: {
         gradeNotifications: null,
         commentNotifications: null,
+        upcomingDeadlineNotifications: null,
         showFormatTutorial: null,
         todo: {
             sortBy: 'date'

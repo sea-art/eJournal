@@ -14,7 +14,7 @@ import os
 
 from VLE.settings.base import *
 
-ENVIRONMENT = 'PRODUCTION'
+ENVIRONMENT = 'STAGE'
 
 MEDIA_ROOT = os.environ['MEDIA_ROOT']
 STATIC_ROOT = os.environ['STATIC_ROOT']
@@ -30,11 +30,10 @@ USER_MAX_TOTAL_STORAGE_BYTES = 104857600
 USER_MAX_EMAIL_ATTACHMENT_BYTES = 2097152
 
 MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware'] + MIDDLEWARE
-ALLOWED_HOSTS = ['.ejournal.app', '.ejourn.al', '.canvas.uva.nl']
+ALLOWED_HOSTS = ['.ejournal.app', '.ejourn.al', '.uvadlo-tes.instructure.com']
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
-# NOTE: Remove this header to allow Canvas to load ejournal in an iframe
 X_FRAME_OPTIONS = 'DENY'
 SECURE_BROWSER_XSS_FILTER = True
 

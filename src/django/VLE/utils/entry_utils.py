@@ -55,4 +55,7 @@ def add_entry_to_node(node, template):
     if node.preset.is_due():
         raise VLEBadRequest('The deadline has already passed.')
 
-    return factory.make_entry(template)
+    entry = factory.make_entry(template)
+    node.entry = entry
+    node.save()
+    return entry

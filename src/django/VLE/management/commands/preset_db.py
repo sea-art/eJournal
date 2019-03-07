@@ -4,6 +4,7 @@ Generate preset data.
 Generate preset data and save it to the database.
 """
 
+import datetime
 import random
 
 from django.core.management.base import BaseCommand
@@ -26,7 +27,7 @@ class Command(BaseCommand):
             "Student": {
                 "username": "Student",
                 "full_name": "Lars van Hijfte",
-                "verified_email": False,
+                "verified_email": True,
                 "password": "pass",
                 "email": "lars@eJourn.al",
                 "is_superuser": False,
@@ -35,7 +36,7 @@ class Command(BaseCommand):
             "Student2": {
                 "username": "Student2",
                 "full_name": "Rick Watertor",
-                "verified_email": False,
+                "verified_email": True,
                 "password": "pass",
                 "email": "rick@eJourn.al",
                 "is_superuser": False,
@@ -46,7 +47,7 @@ class Command(BaseCommand):
                 "full_name": "Dennis Wind",
                 "password": "pass",
                 "email": "dennis@eJourn.al",
-                "verified_email": False,
+                "verified_email": True,
                 "is_superuser": False,
                 "is_teacher": False
             },
@@ -210,6 +211,9 @@ class Command(BaseCommand):
                 "templates": [0],
                 "presets": [
                     {"type": Node.PROGRESS, "points": 5},
+                    {"type": Node.PROGRESS, "points": 1, "description": "1 day", "deadline_days": 1},
+                    {"type": Node.PROGRESS, "points": 3, "description": "1 week", "deadline_days": 7},
+                    {"type": Node.ENTRYDEADLINE, "template": 1, "description": "1 week entrydl", "deadline_days": 7},
                     {"type": Node.ENTRYDEADLINE, "template": 1},
                 ]
             },
@@ -221,10 +225,16 @@ class Command(BaseCommand):
             format = factory.make_format(templates)
 
             for p in f["presets"]:
-                deadline_date = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
+                if "deadline_days" in p:
+                    deadline_date = datetime.datetime.utcnow() + datetime.timedelta(days=p["deadline_days"])
+                else:
+                    deadline_date = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
 
                 if p["type"] == Node.PROGRESS:
-                    factory.make_progress_node(format, deadline_date, p["points"])
+                    node = factory.make_progress_node(format, deadline_date, p["points"])
+                    if "description" in p:
+                        node.description = p["description"]
+                        node.save()
                 elif p["type"] == Node.ENTRYDEADLINE:
                     factory.make_entrydeadline_node(format, deadline_date, self.templates[p["template"]])
 

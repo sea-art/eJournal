@@ -1,25 +1,22 @@
 <template>
-    <b-row>
-        <b-col cols="12">
-            <h2 class="mb-2">Email notifications</h2>
-        </b-col>
-        <b-col cols="4">
-            Grade updates
-        </b-col>
-        <b-col cols="8">
-            <toggle-switch :isActive="$store.getters['preferences/gradeNotifications']"
-                           @parentActive="getGradeNotification">
-            </toggle-switch>
-        </b-col>
-        <b-col cols="4">
-            Comments
-        </b-col>
-        <b-col cols="8">
-            <toggle-switch :isActive="$store.getters['preferences/commentNotifications']"
-                           @parentActive="getCommentNotification">
-            </toggle-switch>
-        </b-col>
-    </b-row>
+    <div class="multi-form">
+        <h2 class="mb-2">Email notifications</h2>
+        <!-- TODO: enable once comment and grade notifications available - <toggle-switch
+            class="float-right"
+            :isActive="$store.getters['preferences/gradeNotifications']"
+            @parentActive="getGradeNotification"/>
+        <h2 class="field-heading multi-form">Grade updates</h2>
+        <toggle-switch
+            class="float-right"
+            :isActive="$store.getters['preferences/commentNotifications']"
+            @parentActive="getCommentNotification"/>
+        <h2 class="field-heading multi-form">Comments</h2> -->
+        <toggle-switch
+            class="float-right"
+            :isActive="$store.getters['preferences/upcomingDeadlineNotifications']"
+            @parentActive="getUpcomingDeadlineNotification"/>
+        <h2 class="field-heading multi-form">Upcoming deadlines</h2>
+    </div>
 </template>
 
 <script>
@@ -39,6 +36,10 @@ export default {
         getCommentNotification (isActive) {
             preferencesAPI.update(this.$store.getters['user/uID'], {comment_notifications: isActive}, {customSuccessToast: 'Comment notification setting updated successfully.'})
                 .then(preferences => { this.$store.commit('preferences/SET_COMMENT_NOTIFICATION', preferences.comment_notifications) })
+        },
+        getUpcomingDeadlineNotification (isActive) {
+            preferencesAPI.update(this.$store.getters['user/uID'], {upcoming_deadline_notifications: isActive}, {customSuccessToast: 'Upcoming deadline notification setting updated successfully.'})
+                .then(preferences => { this.$store.commit('preferences/SET_UPCOMING_DEADLINE_NOTIFICATION', preferences.upcoming_deadline_notifications) })
         }
     }
 }

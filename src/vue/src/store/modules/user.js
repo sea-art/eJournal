@@ -53,8 +53,6 @@ const mutations = {
         state.profilePicture = null
         state.fullName = null
         state.ltiID = null
-        state.gradeNotifications = null
-        state.commentNotifications = null
         state.permissions = null
     },
     [types.EMAIL_VERIFIED] (state) {

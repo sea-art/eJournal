@@ -86,17 +86,17 @@ def send_email_feedback(user_pk, topic, ftype, feedback, user_agent, url, file_c
     """Sends the feedback of an user to the developers."""
     user = User.objects.get(pk=user_pk)
 
-    f_body = 'TYPE: {}\n\n'.format(ftype[0])
+    f_body = 'TYPE: {}\n\n'.format(ftype)
     f_body += 'FEEDBACK BY: {}\n'.format(user.username)
     f_body += 'EMAIL: {}\n'.format(user.email)
     f_body += 'TEACHER: {}\n'.format(user.is_teacher)
     f_body += 'ROLES: {}\n'.format(Role.objects.filter(role__user=user).values('name'))
-    f_body += 'USER-AGENT: {}\n'.format(user_agent[0])
-    f_body += 'URL: {}\n\n'.format(url[0])
-    f_body += 'THE FEEDBACK:\n{}'.format(feedback[0])
+    f_body += 'USER-AGENT: {}\n'.format(user_agent)
+    f_body += 'URL: {}\n\n'.format(url)
+    f_body += 'THE FEEDBACK:\n{}'.format(feedback)
 
     r_email_data = {}
-    r_email_data['feedback'] = feedback[0]
+    r_email_data['feedback'] = feedback
     r_email_data['profile_url'] = '{}/Profile'.format(settings.BASELINK)
 
     r_html_content = render_to_string('feedback.html', {'email_data': r_email_data})
@@ -117,7 +117,7 @@ def send_email_feedback(user_pk, topic, ftype, feedback, user_agent, url, file_c
     )
 
     forward = EmailMultiAlternatives(
-        subject='[Feedback] {}'.format(topic[0]),
+        subject='[Feedback] {}'.format(topic),
         body=f_body,
         attachments=attachments,
         from_email='support@ejourn.al' if 'PRODUCTION' in os.environ else 'test@ejourn.al',

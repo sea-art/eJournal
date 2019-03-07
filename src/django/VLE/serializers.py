@@ -98,7 +98,8 @@ class OwnUserSerializer(serializers.ModelSerializer):
 class PreferencesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Preferences
-        fields = ('user', 'grade_notifications', 'comment_notifications', 'show_format_tutorial')
+        fields = ('user', 'grade_notifications', 'comment_notifications', 'upcoming_deadline_notifications',
+                  'show_format_tutorial')
         read_only_fields = ('user', )
 
 
@@ -212,15 +213,15 @@ class AssignmentSerializer(serializers.ModelSerializer):
         deadline = None
         for node in nodes:
             # Sum published grades to check if PROGRESS node is fullfiled
-            if node.type in ['e', 'd'] and node.entry and node.entry.grade:
+            if node.type in [Node.ENTRY, Node.ENTRYDEADLINE] and node.entry and node.entry.grade:
                 if node.entry.published:
                     t_grade += node.entry.grade
-            # Set the deadline to the first ENTRYDEADLINE node date
-            elif node.type == 'd' and not node.entry and node.preset.deadline > timezone.now():
+            # Set the deadline to the first for filled ENTRYDEADLINE node date
+            elif node.type == Node.ENTRYDEADLINE and not node.entry and node.preset.deadline > timezone.now():
                 deadline = node.preset.deadline
                 break
             # Set the deadline to first not fullfilled PROGRESS node date
-            elif node.type == 'p':
+            elif node.type == Node.PROGRESS:
                 if node.preset.target > t_grade:
                     deadline = node.preset.deadline
                     break

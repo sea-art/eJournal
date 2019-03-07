@@ -194,8 +194,7 @@ class EntryView(viewsets.ViewSet):
         journal = entry.node.journal
         assignment = journal.assignment
         grade, published = utils.optional_typed_params(request.data, (float, 'grade'), (bool, 'published'))
-
-        if grade:
+        if grade is not None:
             request.user.check_permission('can_grade', assignment)
             if grade < 0:
                 return response.bad_request('Grade must be greater than or equal to zero.')

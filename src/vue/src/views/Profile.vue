@@ -3,7 +3,9 @@
         <bread-crumb>&nbsp;</bread-crumb>
         <b-card class="no-hover blue-border">
             <profile-data ref="profileData" class="multi-form"/>
-            <!--<notification-card/>-->
+            <hr/>
+            <notification-card class="multi-form"/>
+            <hr/>
             <password-card ref="passData"/>
         </b-card>
     </content-single-column>

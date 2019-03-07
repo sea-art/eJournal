@@ -251,6 +251,7 @@ class Preferences(models.Model):
     - show_format_tutorial: whether or not to show the assignment format tutorial.
     - grade_notifications: whether or not to receive grade notifications via email.
     - comment_notifications: whether or not to receive comment notifications via email.
+    - upcoming_deadline_notifications: whether or not to receive upcoming deadline notifications via email.
     """
     user = models.OneToOneField(
         User,
@@ -261,6 +262,9 @@ class Preferences(models.Model):
         default=True
     )
     comment_notifications = models.BooleanField(
+        default=True
+    )
+    upcoming_deadline_notifications = models.BooleanField(
         default=True
     )
     show_format_tutorial = models.BooleanField(

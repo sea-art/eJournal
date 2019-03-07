@@ -1,6 +1,6 @@
 <template>
     <b-row>
-        <b-col md="5" sm="12" class="text-center">
+        <b-col md="6" sm="12" class="text-center">
             <b-modal
                 ref="cropperModal"
                 title="Edit profile picture"
@@ -15,7 +15,7 @@
                 </b-button>
             </div>
         </b-col>
-        <b-col md="7" sm="12">
+        <b-col md="6" sm="12">
             <h2 class="mb-2">User details</h2>
             <b-form-input :readonly="true" class="theme-input multi-form input-disabled" :value="storeUsername" type="text"/>
             <b-form-input :readonly="(storeLtiID) ? true : false"
