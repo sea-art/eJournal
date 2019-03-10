@@ -47,9 +47,10 @@
                                 v-if="showEditors"
                                 :id="`rich-text-editor-field-${template.id}-${field.location}`"
                                 :basic="true"
-                                :footer="false"
-                                :givenContent="field.description ? field.description : ''"
-                                @content-update="field.description = $event"
+                                :displayInline="true"
+                                :minifiedTextArea="true"
+                                placeholder="Optional description"
+                                v-model="field.description"
                                 required
                             />
                             <div class="d-flex">

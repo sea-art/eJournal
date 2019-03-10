@@ -47,8 +47,7 @@
             <text-editor
                 v-else-if="field.type == 'rt'"
                 :id="'rich-text-editor-field-' + i"
-                :givenContent="completeContent[i].data ? completeContent[i].data : ''"
-                @content-update="completeContent[i].data = $event"
+                v-model='completeContent[i].data'
             />
             <url-input
                 v-else-if="field.type == 'u'"

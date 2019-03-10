@@ -41,8 +41,7 @@
                             :basic="true"
                             :footer="false"
                             :id="'comment-text-editor-' + index"
-                            :givenContent="editCommentTemp[index]"
-                            @content-update="editCommentTemp[index] = $event"
+                            v-model="editCommentTemp[index]"
                         />
                         <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="multi-form delete-button" @click="editCommentView(index, false, '')">
                             <icon name="ban"/>
@@ -65,8 +64,8 @@
                     :displayInline="true"
                     :footer="false"
                     :id="'comment-text-editor'"
-                    placeholder="Type your comment here..."
-                    @content-update="tempComment = $event"
+                    placeholder="Type here to leave a comment"
+                    v-model="tempComment"
                 />
                 <div class="d-flex full-width justify-content-end align-items-center">
                     <b-form-checkbox v-if="$hasPermission('can_grade') && !entryGradePublished" v-model="publishAfterGrade">

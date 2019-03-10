@@ -21,8 +21,8 @@
             <h2 class="field-heading">Description</h2>
             <text-editor class="multi-form"
                 :id="'text-editor-assignment-description'"
-                :givenContent="'Description of the assignment'"
-                @content-update="form.assignmentDescription = $event"
+                placeholder="Description of the assignment"
+                v-model="form.assignmentDescription"
                 :footer="false"
             />
             <h2 class="field-heading">

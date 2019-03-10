@@ -1,20 +1,15 @@
 <!-- Custom wrapper for tinymce editor -->
 <!-- If more events are desired, here is an overview: https://www.tiny.cloud/docs/advanced/events/ -->
 
-<!-- TODO Text placeholder functionality (not working with a content inject when not required.) -->
-<!-- TODO displayInline functionality not compatible with launching the editor from a modal -->
-
 <template>
     <div class="editor-container" >
-        <textarea :id="id"/>
+        <textarea :id="id" :placeholder="placeholder"/>
     </div>
 </template>
 
 <script>
-// TODO Figure out why importing tinymce gives a warning transferred with MIME type 2x
 import tinymce from 'tinymce/tinymce'
 import 'tinymce/themes/modern/theme'
-import 'tinymce/skins/lightgray/skin.min.css'
 
 /* Only works with basic lists enabled. */
 import 'tinymce/plugins/advlist'
@@ -44,6 +39,8 @@ import 'tinymce/plugins/textpattern'
 import 'tinymce/plugins/toc'
 import 'tinymce/plugins/wordcount'
 
+import 'static/external/tinymce/plugins/placeholder.js'
+
 export default {
     name: 'TextEditor',
     props: {
@@ -60,11 +57,18 @@ export default {
             type: String,
             required: true
         },
-        givenContent: {
+        value: {
+            type: String,
+            default: ''
+        },
+        placeholder: {
             type: String,
             default: ''
         },
         displayInline: {
+            default: false
+        },
+        minifiedTextArea: {
             default: false
         },
         footer: {
@@ -75,9 +79,14 @@ export default {
         return {
             content: '',
             editor: null,
+            justFocused: false,
+            valueSet: false,
             config: {
                 selector: '#' + this.id,
                 init_instance_callback: this.editorInit,
+                // QUESTION: How the bloody hell do we make this available with webpack so we can use node modules,
+                // whilst also predetermining the correct url before bundling?.
+                skin_url: '/static/external/tinymce/skins/lightgray',
 
                 paste_data_images: true,
                 /* https://www.tiny.cloud/docs/configure/file-image-upload/#images_dataimg_filter
@@ -103,23 +112,39 @@ export default {
                 content_style: `
                     @import url('https://fonts.googleapis.com/css?family=Roboto+Condensed|Roboto:400,700');
                     body {
-                        font-family: "Roboto Condensed"
-                    } `,
+                        font-family: 'Roboto Condensed', sans-serif;
+                        font-size: 16px !important;
+                    }
+                `,
 
                 file_picker_types: 'image',
-                file_picker_callback: this.insertDataURL
+                file_picker_callback: this.insertDataURL,
+
+                placeholder_attrs: {
+                    style: {
+                        position: 'absolute',
+                        top: '19px',
+                        left: 13,
+                        color: '#888',
+                        padding: '1%',
+                        width: '98%',
+                        overflow: 'hidden',
+                        'font-family': 'Roboto Condensed',
+                        'white-space': 'pre-wrap'
+                    }
+                }
             },
             basicConfig: {
                 toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify | forecolor backcolor restoredraft | formatselect | bullist numlist | image media table | removeformat fullscreentoggle fullscreen',
                 plugins: [
-                    'autoresize paste textcolor image lists wordcount autolink autosave',
+                    'placeholder autoresize paste textcolor image lists wordcount autolink autosave',
                     'table media fullscreen'
                 ]
             },
             extensiveConfig: {
                 toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify | forecolor backcolor | formatselect | bullist numlist | image media table | removeformat fullscreentoggle fullscreen',
                 plugins: [
-                    'link media preview paste print hr lists advlist wordcount autolink autosave',
+                    'placeholder link media preview paste print hr lists advlist wordcount autolink autosave',
                     'autoresize code fullscreen image imagetools',
                     'textcolor searchreplace table toc'
                 ]
@@ -138,39 +163,39 @@ export default {
         }
     },
     watch: {
-        content: function (newVal) { this.$emit('content-update', this.content) },
-        id: function () {
-            this.content = this.givenContent
-            this.editor.setContent(this.givenContent)
+        content (value) {
+            this.$emit('input', value)
         },
-        givenContent: () => {
-            this.content = this.givenContent
-            if (this.editor) {
-                this.editor.setContent(this.givenContent)
-            }
+        value (value) {
+            this.initValue(value)
         }
     },
     methods: {
+        initValue (value) {
+            if (value && this.editor && !this.valueSet && (value !== this.content)) {
+                let separatedContent = ''
+                if (this.content) {
+                    separatedContent = this.content.startsWith('<p>') ? this.content : `<p>${this.content}</p>`
+                }
+                this.content = `${value}${separatedContent}`
+                this.editor.setContent(`${value}${separatedContent}`)
+                this.valueSet = true
+            }
+        },
         editorInit (editor) {
             var vm = this
             this.editor = editor
 
-            this.content = this.givenContent
-            /* set content resets the default font for some reason */
-            editor.setContent(this.givenContent)
+            if (this.displayInline) { this.setupInlineDisplay(editor) }
 
-            if (this.displayInline) {
-                this.setupInlineDisplay(editor)
-            }
-
-            editor.on('Change', (e) => {
-                vm.content = this.editor.getContent()
-            })
+            editor.on('Change', (e) => { vm.content = this.editor.getContent() })
 
             editor.on('KeyUp', (e) => {
                 vm.handleShortCuts(e)
                 vm.content = this.editor.getContent()
             })
+
+            vm.initValue(vm.value)
         },
         setupInlineDisplay (editor) {
             var vm = this
@@ -180,12 +205,15 @@ export default {
             if (this.footer) { editor.theme.panel.find('#statusbar')[0].$el.hide() }
 
             editor.on('focus', function () {
+                vm.justFocused = true
+                setTimeout(() => { vm.justFocused = false }, 20)
                 if (!vm.basic) { editor.theme.panel.find('menubar')[0].$el.show() }
                 editor.theme.panel.find('toolbar')[0].$el.show()
                 if (this.footer) { editor.theme.panel.find('#statusbar')[0].$el.show() }
             })
 
             editor.on('blur', function () {
+                if (vm.justFocused) { return }
                 if (!vm.basic) { editor.theme.panel.find('menubar')[0].$el.hide() }
                 editor.theme.panel.find('toolbar')[0].$el.hide()
                 if (this.footer) { editor.theme.panel.find('#statusbar')[0].$el.hide() }
@@ -221,33 +249,6 @@ export default {
             }
             input.click()
         },
-        handleFilePicking (cb, value, meta) {
-            /* Client side allows for handling of files more than image types, which a plugin aslo handles.
-               Adds a more intuitive browse button the image upload section. */
-            var input = document.createElement('input')
-            input.setAttribute('type', 'file')
-            input.setAttribute('accept', 'image/*')
-            // TODO Remove input after click
-
-            input.onchange = function () {
-                // TODO Some file error handling
-                var file = this.files[0]
-
-                var reader = new FileReader()
-                reader.onload = function () {
-                    var id = 'blobid' + (new Date()).getTime()
-                    var blobCache = tinymce.activeEditor.editorUpload.blobCache
-                    var base64 = reader.result.split(',')[1]
-                    var blobInfo = blobCache.create(id, file, base64, file.name.replace(/\.[^/.]+$/, ''))
-                    blobCache.add(blobInfo)
-
-                    // Call the callback and populate the Title field with the file name
-                    cb(blobInfo.blobUri(), { title: file.name })
-                }
-                reader.readAsDataURL(file)
-            }
-            input.click()
-        },
         setCustomColors () {
             /* Enables some basic colors too chose from, inline with the websites theme colors. */
             this.config.textcolor_cols = 4
@@ -269,6 +270,12 @@ export default {
             this.config.toolbar1 = this.extensiveConfig.toolbar1
             this.config.plugins = this.extensiveConfig.plugins
             this.config.menu = this.extensiveConfigMenu.menu
+        },
+        minifyTextArea () {
+            this.config.autoresize_min_height = 0
+            this.config.autoresize_max_height = 150
+            this.config.autoresize_bottom_margin = 0.1
+            this.config.placeholder_attrs.style.left = 6
         },
         enableTabs () {
             /* Three space tabs, breaks tabbing through table entries (choice) */
@@ -295,9 +302,10 @@ export default {
                 {start: '- ', cmd: 'InsertUnorderedList'}
             ]
         },
+        /* NOTE: Called from parent. */
         clearContent () {
             this.editor.setContent('')
-            this.editor.execCommand('fontName', false, 'roboto condensed', {skip_focus: true})
+            this.editor.execCommand('fontName', false, 'Roboto Condensed', {skip_focus: true})
             this.content = ''
         }
     },
@@ -316,6 +324,8 @@ export default {
             this.config.plugins.push('colorpicker')
         }
 
+        if (this.minifiedTextArea) { this.minifyTextArea() }
+
         this.enableTabs()
         this.enableBrowserSpellchecker()
         this.enableMarkdownPatterns()
@@ -333,10 +343,9 @@ export default {
     padding-right: 1px
     width: 100%
 
-.mce-fullscreen
+div.mce-fullscreen
     padding-top: 70px
 
-// Assume we're in a modal
-form .mce-fullscreen
+.modal .mce-fullscreen
     padding-top: 0px
 </style>
