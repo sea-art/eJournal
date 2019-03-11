@@ -40,6 +40,17 @@ export default {
                     due_date: this.lti.ltiAssignDue ? this.lti.ltiAssignDue.slice(0, -6) : null,
                     lock_date: this.lti.ltiAssignLock ? this.lti.ltiAssignLock.slice(0, -6) : null})
                     .then(assignment => { this.$emit('handleAction', assignment.id) })
+                    .catch(error => {
+                        if (error.response.status === 400 &&
+                            error.response.data.description.startsWith(`You cannot unpublish an assignment that already has submissions`)) {
+                            this.$toasted.error(
+                                `We are sorry, the assignment is unpublished on Canvas but holds published entries on
+                                eJournal. We cannot unpublish these published entries.
+                                Publish the Canvas assignment, and try again with a fresh launch from Canvas.`,
+                                {duration: 12000}
+                            )
+                        }
+                    })
             }
         }
     },
