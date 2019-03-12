@@ -5,7 +5,7 @@
             <b>{{ currentPoints ? currentPoints : 0 }}</b> Points
             <tooltip v-if="bonusPoints != 0" :tip="(currentPoints - bonusPoints) + ' journal points + ' + bonusPoints + ' bonus points'" />
         </h5>
-        <b-progress class="shadow progress-bar-box multi-form" color="white" :max="totalPoints">
+        <b-progress class="progress-bar-box multi-form" color="white" :max="totalPoints">
             <b-progress-bar class="own-bar"
                             :value="zeroIfNull(comparePoints === -1 ? currentPoints : Math.min(currentPoints, comparePoints))"/>
             <b-progress-bar class="compare-bar"
@@ -109,7 +109,9 @@ export default {
 .progress-bar-box
     margin-top: 5px
     height: 15px
-    background-color: white
+    background-color: $theme-light-grey
+    border: 1px solid $theme-dark-grey
+    border-radius: 5px !important
 
 .own-bar
     background-color: $theme-blue !important

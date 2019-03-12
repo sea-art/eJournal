@@ -5,6 +5,7 @@
     background-color: white !important
     padding: 0.375rem 0.75rem !important
     border: 1px solid $theme-dark-grey !important
+    border-radius: 5px !important
     height: auto
     &.no-width
         width: 0
@@ -16,15 +17,24 @@
     [aria-invalid='true']
         border-color: $theme-green
         box-shadow: 0 0 2px 2px $theme-green
+    &:read-only:not(.mce-edit-area):not(.flatpickr-input):not(.input-append-icon):not(select)
+        background-color: #e9ecef !important    
+        pointer-events: none
+        -moz-user-select: -moz-none
+        -khtml-user-select: none
+        -webkit-user-select: none
+        -o-user-select: none
+        user-select: none
 
     // TODO possible rewrite of the arias to .form-control with .is-valid and .is-invalid
 
 .fileinput
-    @extend .small-shadow
+    @extend .shadow
     font-family: 'Roboto Condensed', sans-serif
     font-size: 1.2em
     background-color: white !important
     margin-bottom: 10px
+    border-radius: 5px !important
 
 .flatpickr-day
     &.selected, &.startRange, &.endRange
@@ -35,7 +45,7 @@
 .custom-checkbox
     .custom-control-label:before
         background-color: $theme-dark-grey
-        border-radius: 0
+        border-radius: 5px
     .custom-control-input:checked~.custom-control-label::before
         background-color: $theme-blue
-        border-radius: 0
+        border-radius: 5px

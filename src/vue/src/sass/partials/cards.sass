@@ -1,40 +1,47 @@
 @import '~sass/partials/shadows.sass'
 
 .card
-    @extend  .large-shadow
+    @extend  .shadow
     margin-bottom: 8px
     text-align: left
-    background-color: $theme-light-grey
-    border-width: 0px 0px 0px 15px !important
-    transition: background-color 0.6s cubic-bezier(.25,.8,.25,1) !important
-    border-radius: 0px
+    background-color: white
+    border-width: 2px 2px 2px 0px
+    border-color: $theme-dark-grey
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1) !important
+    border-radius: 5px !important
+    .card-body
+        border-radius: 3px !important
+        border-left: 8px solid $theme-blue
     .card
-        border: 2px solid $theme-dark-grey !important
+        border-left-width: 2px
+        .card-body
+            border: none
         &.unselected
             opacity: 0.5
     &:hover:not(.no-hover)
         cursor: pointer
-        background-color: $theme-medium-grey
+        background-color: $theme-light-grey !important
     &.pink-border
-        border-left-color: $theme-pink
+        .card-body
+            border-left-color: $theme-pink
     &.purple-border
-        border-left-color: $theme-purple
+        .card-body
+            border-left-color: $theme-purple
     &.yellow-border
-        border-left-color: $theme-yellow
+        .card-body
+            border-left-color: $theme-yellow
     &.blue-border
-        border-left-color: $theme-blue
+        .card-body
+            border-left-color: $theme-blue
     &.red-border
-        border-left-color: $theme-red
+        .card-body
+            border-left-color: $theme-red
     &.green-border
-        border-left-color: $theme-green
+        .card-body
+            border-left-color: $theme-green
     &.orange-border
-        border-left-color: $theme-orange
-
-.settings-card
-    display: flex
-    .btn, .theme-input, select
-        @include xs-max
-            width: 100%
+        .card-body
+            border-left-color: $theme-orange
 
 .card-body
     padding: 12px 10px 12px 10px

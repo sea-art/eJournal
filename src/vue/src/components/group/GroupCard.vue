@@ -1,18 +1,20 @@
 <template>
-    <b-card class="no-hover">
-        <h2 class="mb-2">Group: {{ group.name }}</h2>
-            <b-form v-if="$hasPermission('can_edit_course_user_group')" @submit.prevent="updateGroupName">
-                <b-input class="multi-form theme-input" v-model="form.newGroupName" placeholder="Update group name" required/>
-                <b-button class="float-right add-button" type="submit">
-                    <icon name="plus-square"/>
-                    Update
+    <div>
+        <h4 class="mb-2"><span>Group: {{ group.name }}</span></h4>
+        <b-card class="no-hover mb-4">
+                <b-form v-if="$hasPermission('can_edit_course_user_group')" @submit.prevent="updateGroupName">
+                    <b-input class="multi-form theme-input" v-model="form.newGroupName" placeholder="Update group name" required/>
+                    <b-button class="float-right add-button" type="submit">
+                        <icon name="save"/>
+                        Save
+                    </b-button>
+                </b-form>
+                <b-button v-if="$hasPermission('can_delete_course_user_group')" class="float-left delete-button" @click.prevent.stop="removeGroup()">
+                    <icon name="trash"/>
+                    Remove group
                 </b-button>
-            </b-form>
-            <b-button v-if="$hasPermission('can_delete_course_user_group')" class="float-left delete-button" @click.prevent.stop="removeGroup()">
-                <icon name="trash"/>
-                Remove group
-            </b-button>
-    </b-card>
+        </b-card>
+    </div>
 </template>
 
 <script>

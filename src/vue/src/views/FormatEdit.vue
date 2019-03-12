@@ -14,11 +14,13 @@
                     v-intro="'Welcome to the assignment editor!<br/>This is where you can configure the structure of your assignment. Proceed with this tutorial to learn more.'"
                     v-intro-step="1">
                     <icon
-                        v-intro="'That\'s it! If you have any more questions, do not hesitate to contact us via the feedback button below. This tutorial can be consulted again by clicking the question mark.'"
+                        v-intro="'That\'s it! If you have any more questions, do not hesitate to contact us via the feedback button below. This tutorial can be consulted again by clicking the info sign.'"
                         v-intro-step="4"
-                        name="question"
-                        scale="1.75"
-                        class="question-icon"
+                        name="info"
+                        scale="1.5"
+                        v-b-tooltip.hover
+                        title="Click to start a tutorial for this page"
+                        class="info-icon"
                         @click.native="startTour"/>
                 </bread-crumb>
                 <timeline
@@ -37,11 +39,13 @@
                     v-intro="'Welcome to the assignment editor!<br/>This is where you can configure the structure of your assignment. Proceed with this tutorial to learn more.'"
                     v-intro-step="1">
                     <icon
-                        v-intro="'That\'s it! If you have any more questions, do not hesitate to contact us via the feedback button below. This tutorial can be consulted again by clicking the question mark.'"
+                        v-intro="'That\'s it! If you have any more questions, do not hesitate to contact us via the feedback button below. This tutorial can be consulted again by clicking the info sign.'"
                         v-intro-step="4"
-                        name="question"
+                        name="info"
                         scale="1.75"
-                        class="question-icon"
+                        v-b-tooltip.hover
+                        title="Click to start a tutorial for this page"
+                        class="info-icon"
                         @click.native="startTour"/>
                 </bread-crumb>
                 <!--
@@ -96,7 +100,7 @@
                         @delete-template="deleteTemplate"/>
                 </b-card>
                 <b-button
-                    class="add-button grey-background full-width multi-form"
+                    class="add-button multi-form"
                     @click="showTemplateModal(newTemplate())">
                     <icon name="plus"/>
                     Create New Template
@@ -287,7 +291,12 @@ export default {
             var missingAssignmentName = false
             var missingPointMax = false
 
+            var deadlineBeforeUnlockDate = false
             var deadlineAfterDueDate = false
+            var deadlineAfterLockDate = false
+            var unlockAfterDueDate = false
+            var unlockAfterLockDate = false
+            var dueAfterLockDate = false
             var invalidDate = false
             var invalidTemplate = false
             var invalidTarget = false
@@ -308,6 +317,24 @@ export default {
             if (!missingPointMax && isNaN(parseInt(this.assignmentDetails.points_possible))) {
                 missingPointMax = true
                 this.$toasted.error('Points possible is missing. Please check the format and try again.')
+            }
+
+            if (!unlockAfterDueDate && this.assignmentDetails.unlock_date && this.assignmentDetails.due_date &&
+                Date.parse(this.assignmentDetails.unlock_date) > Date.parse(this.assignmentDetails.due_date)) {
+                unlockAfterDueDate = true
+                this.$toasted.error('The assignment is due before the unlock date. Please check the format and try again.')
+            }
+
+            if (!unlockAfterLockDate && this.assignmentDetails.unlock_date && this.assignmentDetails.lock_date &&
+                Date.parse(this.assignmentDetails.unlock_date) > Date.parse(this.assignmentDetails.lock_date)) {
+                unlockAfterLockDate = true
+                this.$toasted.error('The assignment lock date is before the unlock date. Please check the format and try again.')
+            }
+
+            if (!dueAfterLockDate && this.assignmentDetails.due_date && this.assignmentDetails.lock_date &&
+                Date.parse(this.assignmentDetails.due_date) > Date.parse(this.assignmentDetails.lock_date)) {
+                dueAfterLockDate = true
+                this.$toasted.error('The assignment lock date is before the due date. Please check the format and try again.')
             }
 
             for (var node of this.nodes) {
@@ -335,15 +362,26 @@ export default {
                     invalidTarget = true
                     this.$toasted.error('One or more presets have an invalid target. Please check the format and try again.')
                 }
+                if (!deadlineBeforeUnlockDate && this.assignmentDetails.unlock_date &&
+                    Date.parse(node.deadline) < Date.parse(this.assignmentDetails.unlock_date)) {
+                    deadlineBeforeUnlockDate = true
+                    this.$toasted.error('One or more presets have a deadline before the assignment unlock date. Please check the format and try again.')
+                }
                 if (!deadlineAfterDueDate && this.assignmentDetails.due_date &&
                     Date.parse(node.deadline) > Date.parse(this.assignmentDetails.due_date)) {
                     deadlineAfterDueDate = true
                     this.$toasted.error('One or more presets have a deadline after the assignment due date. Please check the format and try again.')
                 }
+                if (!deadlineAfterLockDate && this.assignmentDetails.lock_date &&
+                    Date.parse(node.deadline) > Date.parse(this.assignmentDetails.lock_date)) {
+                    deadlineAfterLockDate = true
+                    this.$toasted.error('One or more presets have a deadline after the assignment lock date. Please check the format and try again.')
+                }
             }
 
             if (missingAssignmentName | missingPointMax | invalidDate | invalidTemplate | invalidTarget | targetsOutOfOrder |
-                deadlineAfterDueDate) {
+                deadlineBeforeUnlockDate | deadlineAfterDueDate | deadlineAfterLockDate | unlockAfterDueDate | unlockAfterLockDate |
+                dueAfterLockDate) {
                 return
             }
             this.saveRequestInFlight = true

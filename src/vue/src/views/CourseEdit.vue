@@ -1,151 +1,108 @@
 <!-- TODO: You shouldnt be able to change your own role. -->
 <template>
-    <content-single-column>
-        <bread-crumb>&nbsp;</bread-crumb>
-        <b-card class="no-hover settings-card">
-            <h2 class="mb-2">Manage course data</h2>
+    <content-columns>
+        <bread-crumb slot="main-content-column"/>
 
-            <b-form @submit.prevent="onSubmit">
-                <h2 class="field-heading required">Course name</h2>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                    :readonly="!$hasPermission('can_edit_course_details')"
-                    v-model="course.name"
-                    placeholder="Course name"/>
-                <h2 class="field-heading required">Course abbreviation</h2>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
-                    :readonly="!$hasPermission('can_edit_course_details')"
-                    v-model="course.abbreviation"
-                    maxlength="10"
-                    placeholder="Course abbreviation (max 10 characters)"/>
-                <b-row>
-                    <b-col xs="6">
-                        <h2 class="field-heading required">
-                            From
-                            <tooltip tip="Start date of the course" />
-                        </h2>
-                        <flat-pickr class="multi-form theme-input full-width"
-                            :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
-                            v-model="course.startdate"/>
-                    </b-col>
-                    <b-col xs="6">
-                        <h2 class="field-heading required">
-                            To
-                            <tooltip tip="End date of the course" />
-                        </h2>
-                        <flat-pickr class="multi-form theme-input full-width"
-                            :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
-                            v-model="course.enddate"/>
-                    </b-col>
-                </b-row>
-                <b-button class="add-button float-right"
-                    type="submit"
-                    v-if="$hasPermission('can_edit_course_details')">
-                    <icon name="save"/>
-                    Save
-                </b-button>
-            </b-form>
-        </b-card>
-
-        <b-card class="no-hover">
-            <b-row>
-                <b-col class="d-flex flex-wrap">
-                    <b-button v-if="$hasPermission('can_delete_course')"
-                        @click.prevent.stop="deleteCourse()"
-                        class="multi-form delete-button flex-grow-1"
-                        :class="{ 'mr-2' : $hasPermission('can_edit_course_roles') | $hasPermission('can_edit_course_details') }">
-                        <icon name="trash"/>
-                        Delete Course
+        <div v-if="activeView === 'courseData'" slot="main-content-column">
+            <h4 class="mb-2"><span>Manage course details</span></h4>
+            <b-card class="no-hover multi-form" :class="$root.getBorderClass($route.params.uID)">
+                <b-form @submit.prevent="onSubmit">
+                    <h2 class="field-heading required">Course name</h2>
+                    <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                        :readonly="!$hasPermission('can_edit_course_details')"
+                        v-model="course.name"
+                        placeholder="Course name"/>
+                    <h2 class="field-heading required">Course abbreviation</h2>
+                    <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                        :readonly="!$hasPermission('can_edit_course_details')"
+                        v-model="course.abbreviation"
+                        maxlength="10"
+                        placeholder="Course abbreviation (max 10 characters)"/>
+                    <b-row>
+                        <b-col xs="6">
+                            <h2 class="field-heading required">
+                                From
+                                <tooltip tip="Start date of the course" />
+                            </h2>
+                            <flat-pickr class="multi-form theme-input full-width"
+                                :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
+                                v-model="course.startdate"/>
+                        </b-col>
+                        <b-col xs="6">
+                            <h2 class="field-heading required">
+                                To
+                                <tooltip tip="End date of the course" />
+                            </h2>
+                            <flat-pickr class="multi-form theme-input full-width"
+                                :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
+                                v-model="course.enddate"/>
+                        </b-col>
+                    </b-row>
+                    <b-button class="add-button float-right"
+                        type="submit"
+                        v-if="$hasPermission('can_edit_course_details')">
+                        <icon name="save"/>
+                        Save
                     </b-button>
-                    <b-button v-if="$hasPermission('can_edit_course_roles')"
-                        @click.prevent.stop="routeToEditCourseRoles"
-                        class="multi-form change-button flex-grow-1"
-                        :class="{ 'mr-2' : $hasPermission('can_edit_course_details') }">
-                        <icon name="cog"/>
-                        Manage Permissions
-                    </b-button>
-                    <b-btn v-if="$hasPermission('can_edit_course_details')"
-                        class="multi-form change-button flex-grow-1"
-                        v-b-modal="'CourseGroupModal'">
-                        <icon name="users"/>
-                        Manage Groups
-                    </b-btn>
-                </b-col>
-            </b-row>
-        </b-card>
-
-        <b-modal id="CourseGroupModal"
-                 title="Manage Course Groups"
-                 hide-footer>
-                 <group-modal v-if="$hasPermission('can_edit_course_details')"
-                     :cID="this.cID"
-                     :groups="this.groups"
-                     :lti_linked="this.course.lti_linked"
-                     :lti_id="this.course.lti_id"
-                     @create-group="createGroup"
-                     @delete-group="deleteGroup"
-                     @update-group="updateGroup"
-                     @update-groups="updateGroups">
-                 </group-modal>
-        </b-modal>
-
-        <div>
-            <b-card v-if="$hasPermission('can_add_course_users')" class="no-hover">
-                <h2 class="mb-2">Manage course members</h2>
-                <div class="d-flex">
-                    <input
-                        v-if="viewEnrolled"
-                        class="theme-input flex-grow-1 no-width multi-form mr-2"
-                        type="text"
-                        v-model="searchValue"
-                        placeholder="Search..."/>
-                    <input
-                        v-if="!viewEnrolled"
-                        class="theme-input flex-grow-1 no-width multi-form mr-2"
-                        type="text"
-                        v-model="unenrolledQuery"
-                        placeholder="Name or username with at least 5 characters"
-                        @keyup.enter="searchUnenrolled"/>
-                    <b-button
-                        v-if="!viewEnrolled"
-                        class="multi-form mr-2"
-                        @click="searchUnenrolled">
-                        <icon name="search"/>
-                        Search users
-                    </b-button>
-                    <b-button v-if="viewEnrolled" v-on:click.stop @click="toggleEnrolled" class="multi-form">
-                        <icon name="users"/>
-                        Enrolled
-                    </b-button>
-                    <b-button v-if="!viewEnrolled" v-on:click.stop @click="toggleEnrolled" class="multi-form">
-                        <icon name="user-plus"/>
-                        Unenrolled
-                    </b-button>
-                </div>
-                <div class="d-flex">
-                    <b-form-select class="multi-form mr-2" v-model="selectedSortOption" :select-size="1">
-                        <option value="name">Sort by name</option>
-                        <option value="username">Sort by username</option>
-                    </b-form-select>
-                    <b-form-select class="multi-form mr-2" v-model="groupFilter"
-                                   :select-size="1">
-                        <option :value="null">Filter group by ...</option>
-                        <option v-for="group in groups" :key="group.name" :value="group.name">
-                            {{ group.name }}
-                        </option>
-                    </b-form-select>
-                    <b-button v-on:click.stop v-if="!order" @click="setOrder(!order)" class="multi-form">
-                        <icon name="long-arrow-down"/>
-                        Ascending
-                    </b-button>
-                    <b-button v-on:click.stop v-if="order" @click="setOrder(!order)" class="multi-form">
-                        <icon name="long-arrow-up"/>
-                        Descending
-                    </b-button>
-                </div>
-                <b-col sm="8" class="d-flex flex-wrap">
-                </b-col>
+                </b-form>
             </b-card>
+        </div>
 
+        <div v-if="activeView === 'courseMembers'" slot="main-content-column">
+            <h4 class="mb-2"><span>Manage course members</span></h4>
+            <div class="d-flex">
+                <input
+                    v-if="viewEnrolled"
+                    class="theme-input flex-grow-1 no-width multi-form mr-2"
+                    type="text"
+                    v-model="searchValue"
+                    placeholder="Search..."/>
+                <input
+                    v-if="!viewEnrolled"
+                    class="theme-input flex-grow-1 no-width multi-form mr-2"
+                    type="text"
+                    v-model="unenrolledQuery"
+                    placeholder="Name or username with at least 5 characters"
+                    @keyup.enter="searchUnenrolled"/>
+                <b-button
+                    v-if="!viewEnrolled"
+                    class="multi-form mr-2"
+                    @click="searchUnenrolled">
+                    <icon name="search"/>
+                    Search users
+                </b-button>
+                <b-button v-if="viewEnrolled" v-on:click.stop @click="toggleEnrolled" class="multi-form">
+                    <icon name="users"/>
+                    Enrolled
+                </b-button>
+                <b-button v-if="!viewEnrolled" v-on:click.stop @click="toggleEnrolled" class="multi-form">
+                    <icon name="user-plus"/>
+                    Unenrolled
+                </b-button>
+            </div>
+            <div class="d-flex">
+                <b-form-select class="multi-form mr-2" v-model="selectedSortOption" :select-size="1">
+                    <option value="name">Sort by name</option>
+                    <option value="username">Sort by username</option>
+                </b-form-select>
+                <b-form-select class="multi-form mr-2" v-model="groupFilter"
+                               :select-size="1">
+                    <option :value="null">Filter group by ...</option>
+                    <option v-for="group in groups" :key="group.name" :value="group.name">
+                        {{ group.name }}
+                    </option>
+                </b-form-select>
+                <b-button v-on:click.stop v-if="!order" @click="setOrder(!order)" class="multi-form">
+                    <icon name="long-arrow-down"/>
+                    Ascending
+                </b-button>
+                <b-button v-on:click.stop v-if="order" @click="setOrder(!order)" class="multi-form">
+                    <icon name="long-arrow-up"/>
+                    Descending
+                </b-button>
+            </div>
+            <b-col sm="8" class="d-flex flex-wrap">
+            </b-col>
             <b-card class="no-hover" v-if="!viewEnrolled && !this.unenrolledStudents.length">
                 <div class="float-left">
                     <b>{{ unenrolledQueryDescription }}</b>
@@ -171,15 +128,61 @@
                 :cID="cID"
                 :user="p"/>
         </div>
-    </content-single-column>
+
+        <div slot="right-content-column">
+            <h3>Actions</h3>
+            <b-button v-if="$hasPermission('can_edit_course_details')"
+                class="multi-form change-button full-width"
+                @click="activeView = 'courseData'">
+                <icon name="edit"/>
+                Manage Details
+            </b-button>
+            <b-button v-if="$hasPermission('can_edit_course_details')"
+                class="multi-form change-button full-width"
+                @click="activeView = 'courseMembers'">
+                <icon name="user"/>
+                Manage Members
+            </b-button>
+            <b-button v-if="$hasPermission('can_edit_course_details')"
+                class="multi-form change-button full-width"
+                @click="activeView = 'courseGroups'">
+                <icon name="users"/>
+                Manage Groups
+            </b-button>
+            <b-button v-if="$hasPermission('can_edit_course_roles')"
+                @click.prevent.stop="routeToEditCourseRoles"
+                class="multi-form change-button full-width">
+                <icon name="cog"/>
+                Manage Permissions
+            </b-button>
+            <b-button v-if="$hasPermission('can_delete_course')"
+                @click.prevent.stop="deleteCourse()"
+                class="multi-form delete-button full-width">
+                <icon name="trash"/>
+                Delete Course
+            </b-button>
+        </div>
+
+        <group-editor
+            v-if="activeView === 'courseGroups'"
+            slot="main-content-column"
+            :cID="this.cID"
+            :groups="this.groups"
+            :lti_linked="this.course.lti_linked"
+            :lti_id="this.course.lti_id"
+            @create-group="createGroup"
+            @delete-group="deleteGroup"
+            @update-group="updateGroup"
+            @update-groups="updateGroups"/>
+    </content-columns>
 </template>
 
 <script>
 import addUsersToCourseCard from '@/components/course/AddUsersToCourseCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import contentColumns from '@/components/columns/ContentColumns.vue'
 import courseParticipantCard from '@/components/course/CourseParticipantCard.vue'
-import groupModal from '@/components/course/CourseGroupModal.vue'
+import groupEditor from '@/components/course/CourseGroupEditor.vue'
 import tooltip from '@/components/assets/Tooltip.vue'
 
 import store from '@/Store'
@@ -199,6 +202,7 @@ export default {
     },
     data () {
         return {
+            activeView: 'courseData',
             course: {},
             originalCourse: {},
             participants: [],
@@ -349,9 +353,11 @@ export default {
                 .then(users => {
                     this.unenrolledStudents = users
                     if (!this.unenrolledStudents.length) {
-                        this.unenrolledQueryDescription = 'No users found'
-                    } else {
-                        this.$toasted.success('Succesfully found user(s).')
+                        if (this.unenrolledQuery.length < 5) {
+                            this.unenrolledQueryDescription = 'No exact match found. To search for users, give at least 5 characters.'
+                        } else {
+                            this.unenrolledQueryDescription = 'No users found.'
+                        }
                     }
                 })
                 .catch(error => { this.$toasted.error(error.response.data.description) })
@@ -443,9 +449,9 @@ export default {
         'add-user-card': addUsersToCourseCard,
         'tooltip': tooltip,
         'bread-crumb': breadCrumb,
-        'content-single-column': contentSingleColumn,
+        'content-columns': contentColumns,
         'course-participant-card': courseParticipantCard,
-        'group-modal': groupModal,
+        'group-editor': groupEditor,
         icon
     },
     beforeRouteLeave (to, from, next) {

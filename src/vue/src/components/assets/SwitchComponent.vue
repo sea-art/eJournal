@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="round-border">
         <label class="switch">
           <input type="checkbox" v-model="active">
           <span class="slider"></span>
@@ -31,34 +31,33 @@ export default {
     display: inline-block
     width: 48px
     height: 26px
-
-.switch input
-    display:none
-
-.slider
-    position: absolute
-    cursor: pointer
-    top: 0
-    left: 0
-    right: 0
-    bottom: 0
-    background-color: #ccc
-    -webkit-transition: .4s
-    transition: .4s
-
-.slider:before
-    position: absolute
-    content: ""
-    height: 18px
-    width: 18px
-    left: 4px
-    bottom: 4px
-    background-color: white
-    -webkit-transition: .4s
-    transition: .4s
+    input
+        display: none
+    .slider
+        position: absolute
+        cursor: pointer
+        top: 0
+        left: 0
+        right: 0
+        bottom: 0
+        background-color: #ccc
+        -webkit-transition: .4s
+        transition: .4s
+        border-radius: 1em !important
+        &:before
+            position: absolute
+            content: ""
+            height: 18px
+            width: 18px
+            left: 4px
+            bottom: 4px
+            background-color: white
+            -webkit-transition: .4s
+            transition: .4s
+            border-radius: 1em !important
 
 input:checked + .slider
-    background-color: $theme-blue
+    background-color: $theme-green
 
 input:focus + .slider
     box-shadow: 0 0 1px #2196F3

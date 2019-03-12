@@ -136,8 +136,11 @@ class JournalView(viewsets.ViewSet):
     # TODO: Is the payload ever used? Should this moved to celery...
     def publish(self, request, journal, published=True):
         grading.publish_all_journal_grades(journal, published)
-        payload = lti_grade.replace_result(journal)
-        if payload and 'code_mayor' in payload and payload['code_mayor'] == 'success':
-            return response.success({'lti_info': payload})
+        if journal.sourcedid:
+            payload = lti_grade.replace_result(journal)
+            if payload and 'code_mayor' in payload and payload['code_mayor'] == 'success':
+                return response.success({'lti_info': payload, 'journal': JournalSerializer(journal).data})
+            else:
+                return response.bad_request({'lti_info': payload, 'journal': JournalSerializer(journal).data})
         else:
-            return response.bad_request({'lti_info': payload})
+            return response.success({'journal': JournalSerializer(journal).data})

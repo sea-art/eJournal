@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-card class="blue-border no-hover card-last-elem-button">
+        <b-card class="no-hover card-last-elem-button">
             <b-form @submit.prevent="handleLogin()">
                 <h2 class="field-heading">Username</h2>
                 <b-input
@@ -21,13 +21,17 @@
                     placeholder="Password"
                     autocomplete="current-password"
                 />
+                <b-button class="float-right multi-form" type="submit">
+                    <icon name="sign-in"/>
+                    Log in
+                </b-button>
                 <b-button class="multi-form change-button" v-b-modal.forgotPasswordModal>
                     <icon name="question"/>
                     Forgot password
                 </b-button>
-                <b-button class="float-right multi-form" type="submit">
-                    <icon name="sign-in"/>
-                    Log in
+                <b-button class="multi-form" v-if="allowRegistration" :to="{ name: 'Register' }">
+                    <icon name="user-plus"/>
+                    Register
                 </b-button>
             </b-form>
         </b-card>
@@ -68,6 +72,7 @@ import icon from 'vue-awesome/components/Icon'
 import validation from '@/utils/validation.js'
 
 import authAPI from '@/api/auth'
+import instanceAPI from '@/api/instance'
 
 export default {
     name: 'LoginForm',
@@ -75,7 +80,8 @@ export default {
         return {
             usernameEmail: null,
             username: null,
-            password: null
+            password: null,
+            allowRegistration: null
         }
     },
     methods: {
@@ -89,7 +95,7 @@ export default {
                 username = this.usernameEmail
             }
 
-            authAPI.forgotPassword(username, emailAdress, {responseSuccessToast: true})
+            authAPI.forgotPassword(username, emailAdress, {responseSuccessToast: true, redirect: false})
                 .then(response => { this.$refs.forgotPasswordModalRef.hide() })
         },
         handleLogin () {
@@ -97,6 +103,12 @@ export default {
                 .then(() => { this.$emit('handleAction') })
                 .catch(() => { this.$toasted.error('Could not login') })
         }
+    },
+    created () {
+        instanceAPI.get()
+            .then(instance => {
+                this.allowRegistration = instance.allow_standalone_registration
+            })
     },
     mounted () {
         if (this.$root.previousPage && this.$root.previousPage.name === 'PasswordRecovery') {

@@ -1,8 +1,10 @@
 <template>
     <b-row class="error-content">
         <b-col cols="12">
-            <h1 id="error-heading">
-                Error {{ code }}: <span id="error-message">{{ reasonPhrase }}</span>
+            <h1>
+                <span>
+                    Error {{ code }}: <span class="text-grey">{{ reasonPhrase }}</span>
+                </span>
             </h1>
         </b-col>
         <b-col cols="12" >
@@ -51,16 +53,4 @@ export default {
 
 .description-container
     padding: 20px 0px
-
-#error-heading, #error-message
-    border: none
-    padding: 0px
-
-#error-heading
-    color: $theme-dark-grey
-    font-size: 80px
-
-#error-message
-    color: $theme-medium-grey
-    font-size: 60px
 </style>

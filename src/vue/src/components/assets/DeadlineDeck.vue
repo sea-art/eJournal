@@ -1,12 +1,10 @@
 <template>
     <div>
         <!-- TODO: This seems like an inappropriate permission check. Will have to be reconsidered in the rework. -->
-        <b-card v-if="$hasPermission('can_add_course')" class="no-hover">
-            <b-form-select v-model="selectedSortOption" :select-size="1">
-                <option value="date">Sort by date</option>
-                <option value="markingNeeded">Sort by marking needed</option>
-            </b-form-select>
-        </b-card>
+        <b-form-select v-if="$hasPermission('can_add_course')" v-model="selectedSortOption" :select-size="1" class="multi-form">
+            <option value="date">Sort by date</option>
+            <option value="markingNeeded">Sort by marking needed</option>
+        </b-form-select>
 
         <div v-for="(d, i) in computedDeadlines" :key="i">
             <b-link v-if="d.course" tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal, d.is_published)">

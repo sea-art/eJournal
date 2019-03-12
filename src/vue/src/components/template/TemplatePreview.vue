@@ -1,6 +1,6 @@
 <!-- Loads a preview of a template. nID are required but unused as autoupload is disabled. -->
 <template>
-    <b-card class="no-hover">
+    <div>
         <h2>{{ template.name }}</h2>
         <div v-for="(field, i) in template.field_set" :key="field.eID" class="multi-form">
             <h2 v-if="field.title" class="field-heading" :class="{ 'required': field.required }">{{ field.title }}</h2>
@@ -62,7 +62,7 @@
                 :options="parseSelectionOptions(field.options)"
             />
         </div>
-    </b-card>
+    </div>
 </template>
 
 <script>
@@ -84,10 +84,10 @@ export default {
     methods: {
         parseSelectionOptions (fieldOptions) {
             if (!fieldOptions) {
-                return [{ value: null, text: 'Please select an option' }]
+                return [{ value: null, text: 'Please select an option...' }]
             }
             var options = JSON.parse(fieldOptions).filter(e => e).map(x => { return { value: x, text: x } })
-            options.unshift({ value: null, text: 'Please select an option' })
+            options.unshift({ value: null, text: 'Please select an option...' })
             return options
         }
     }

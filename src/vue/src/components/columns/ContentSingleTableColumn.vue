@@ -11,8 +11,3 @@ export default {
     name: 'ContentSingleTableColumn'
 }
 </script>
-
-<style lang="sass">
-.main-table
-    background-color: white
-</style>

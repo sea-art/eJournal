@@ -1,7 +1,7 @@
 <template>
     <content-single-column>
-        <h1>Password Recovery</h1>
-        <b-card class="blue-border no-hover">
+        <h1><span>Password Recovery</span></h1>
+        <b-card class="no-hover">
             <b-form @submit.prevent="recoverPassword()">
                 <h2 class="field-heading">New password</h2>
                 <b-input class="multi-form theme-input" type="password" v-model="password" required placeholder="New password"/>

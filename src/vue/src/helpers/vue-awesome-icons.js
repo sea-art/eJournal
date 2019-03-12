@@ -67,8 +67,10 @@ import 'vue-awesome/icons/linkedin'
 import 'vue-awesome/icons/file'
 import 'vue-awesome/icons/search'
 import 'vue-awesome/icons/info-circle'
+import 'vue-awesome/icons/info'
 import 'vue-awesome/icons/signal'
 import 'vue-awesome/icons/star'
+import 'vue-awesome/icons/level-up'
 
 import Icon from 'vue-awesome/components/Icon'
 

@@ -78,9 +78,17 @@ export default {
                 return 'fill-green'
             case 'failed':
                 return 'fill-red'
+            case 'start':
+            case 'end':
+            case 'add':
+                return 'fill-white'
             }
 
-            return 'fill-white'
+            if (this.selected) {
+                return 'fill-white'
+            }
+
+            return 'fill-grey'
         },
         iconScale () {
             if (this.type === 'a') {
@@ -109,18 +117,17 @@ export default {
 
 .timeline-node-circle-border
     border-radius: 50% !important
-    background-color: white
     padding: 5px
 
 .timeline-node-circle
-    @extend .small-shadow
+    @extend .shadow
     width: 55px
     height: 55px
     border-radius: 50% !important
     display: flex
     align-items: center
     justify-content: center
-    transition: all 0.6s cubic-bezier(.25,.8,.25,1)
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1)
     &:not(.enc-selected)
         cursor: pointer
     &.enc-selected
@@ -133,7 +140,7 @@ export default {
         width: 55px
         height: 55px
     &.enc-entry, &.enc-deadline
-        background-color: $theme-medium-grey
+        background-color: white
     &.enc-start
         background-color: $theme-green
     &.enc-end
@@ -145,7 +152,7 @@ export default {
     &.enc-selected
         background-color: $theme-dark-blue
     svg
-        transition: all 0.6s cubic-bezier(.25,.8,.25,1)
+        transition: all 0.3s cubic-bezier(.25,.8,.25,1)
     .timeline-node-circle-text
         color: white
         font-family: 'Roboto Condensed', sans-serif

@@ -3,8 +3,8 @@
         <icon
             v-b-tooltip.hover
             :title="tip"
-            name="question"
-            class="question-icon no-hover help-cursor"/>
+            name="info"
+            class="info-icon no-hover help-cursor"/>
     </sup>
 </template>
 <script>

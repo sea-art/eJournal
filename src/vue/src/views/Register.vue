@@ -1,8 +1,8 @@
 <template>
     <content-single-column>
-        <bread-crumb>&nbsp;</bread-crumb>
-        <register-user v-if="!accountCreated" class="blue-border" @handleAction="accountCreated=true"/>
-        <b-card v-if="accountCreated" class="blue-border no-hover">
+        <bread-crumb/>
+        <register-user v-if="!accountCreated" @handleAction="accountCreated=true"/>
+        <b-card v-if="accountCreated" class="no-hover">
             <b-form @submit.prevent="verifyEmail">
                 <h2 class="field-heading">Email verification token</h2>
                 <b-input class="multi-form theme-input" v-model="emailVerificationToken" required placeholder="Email verification token"/>

@@ -16,4 +16,5 @@ export default {
 .todo-square
     font-family: 'Roboto Condensed', sans-serif
     font-size: 18px
+    border-radius: 5px !important
 </style>

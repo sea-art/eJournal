@@ -57,7 +57,7 @@
         </div>
         <div v-if="$hasPermission('can_comment')" class="comment-section">
             <img class="profile-picture-sm no-hover" :src="$store.getters['user/profilePicture']">
-            <b-card class="no-hover new-comment">
+            <b-card class="no-hover new-comment" :class="$root.getBorderClass($route.params.cID)">
                 <text-editor
                     ref="comment-text-editor-ref"
                     :basic="true"

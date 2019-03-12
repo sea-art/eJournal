@@ -1,6 +1,5 @@
 <template>
-    <div class="multi-form">
-        <h2 class="mb-2">Email notifications</h2>
+    <b-card class="no-hover multi-form" :class="$root.getBorderClass($route.params.uID)">
         <!-- TODO: enable once comment and grade notifications available - <toggle-switch
             class="float-right"
             :isActive="$store.getters['preferences/gradeNotifications']"
@@ -16,7 +15,7 @@
             :isActive="$store.getters['preferences/upcomingDeadlineNotifications']"
             @parentActive="getUpcomingDeadlineNotification"/>
         <h2 class="field-heading multi-form">Upcoming deadlines</h2>
-    </div>
+    </b-card>
 </template>
 
 <script>

@@ -1,29 +1,29 @@
 <template>
-    <b-row>
-        <b-col md="6" sm="12" class="text-center">
-            <b-modal
-                ref="cropperModal"
-                title="Edit profile picture"
-                hide-footer>
-                    <cropper v-if="this.profileImageDataURL" ref="cropperRef" :pictureUrl="this.profileImageDataURL" @newPicture="fileHandler"/>
-            </b-modal>
-            <div class="profile-picture-lg">
-                <img :src="storeProfilePic">
-                <b-button @click="showCropperModal()">
-                    <icon name="edit"/>
-                    Edit
-                </b-button>
-            </div>
-        </b-col>
-        <b-col md="6" sm="12">
-            <h2 class="mb-2">User details</h2>
-            <b-form-input :readonly="true" class="theme-input multi-form input-disabled" :value="storeUsername" type="text"/>
+    <div>
+        <b-modal
+            ref="cropperModal"
+            title="Edit profile picture"
+            hide-footer>
+                <cropper v-if="this.profileImageDataURL" ref="cropperRef" :pictureUrl="this.profileImageDataURL" @newPicture="fileHandler"/>
+        </b-modal>
+        <div class="profile-picture-lg">
+            <img :src="storeProfilePic">
+            <b-button @click="showCropperModal()">
+                <icon name="edit"/>
+                Edit
+            </b-button>
+        </div>
+        <h4 class="mb-2 d-block"><span>User details</span></h4>
+        <b-card class="no-hover multi-form" :class="$root.getBorderClass($route.params.uID)">
+            <h2 class="field-heading multi-form">Username</h2>
+            <b-form-input :readonly="true" class="theme-input multi-form" :value="storeUsername" type="text"/>
+            <h2 class="field-heading multi-form">Full name</h2>
             <b-form-input :readonly="(storeLtiID) ? true : false"
-                :class="{'input-disabled': (storeLtiID) ? true : false}"
                 class="theme-input multi-form"
                 v-model="fullName"
                 type="text"
                 placeholder="Full name"/>
+            <h2 class="field-heading multi-form">Email address</h2>
             <email/>
 
             <b-button v-if="!storeLtiID" class="add-button multi-form float-right" @click="saveUserdata">
@@ -34,8 +34,8 @@
                 <icon name="download"/>
                 Download Data
             </b-button>
-        </b-col>
-    </b-row>
+        </b-card>
+    </div>
 </template>
 
 <script>

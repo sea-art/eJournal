@@ -1,26 +1,5 @@
 <template>
     <div>
-        <b-card class="no-hover settings-card">
-            <div v-if="$hasPermission('can_add_course_user_group')">
-                <h2 class="mb-2">Create new group</h2>
-                <b-form @submit.prevent="createUserGroup" @reset.prevent="resetFormInput">
-                    <b-input class="multi-form theme-input" v-model="form.groupName" placeholder="Desired group name" required/>
-                    <b-button class="float-left multi-form mr-2 change-button" type="reset">
-                        <icon name="undo"/>
-                        Reset
-                    </b-button>
-                    <b-button class="float-right multi-form mr-2 add-button" type="submit">
-                        <icon name="plus-square"/>
-                        Create
-                    </b-button>
-                    <b-button v-if="this.lti_linked" class="float-right multi-form mr-2 default-button" type="submit"  @click.prevent.stop="getDataNoseGroups()">
-                        <icon name="sync-alt"/>
-                        Sync from DataNose
-                    </b-button>
-                </b-form>
-            </div>
-        </b-card>
-
         <group-card
             @delete-group="deleteGroup"
             @update-group="updateGroup"
@@ -28,6 +7,27 @@
             :key="g.id"
             :cID="cID"
             :group="g"/>
+
+        <div v-if="$hasPermission('can_add_course_user_group')">
+            <h4 class="mb-2"><span>Create new group</span></h4>
+            <b-card class="no-hover">
+                    <b-form @submit.prevent="createUserGroup" @reset.prevent="resetFormInput">
+                        <b-input class="multi-form theme-input" v-model="form.groupName" placeholder="Desired group name" required/>
+                        <b-button class="float-left multi-form mr-2 change-button" type="reset">
+                            <icon name="undo"/>
+                            Reset
+                        </b-button>
+                        <b-button class="float-right multi-form mr-2 add-button" type="submit">
+                            <icon name="plus-square"/>
+                            Create
+                        </b-button>
+                        <b-button v-if="this.lti_linked" class="float-right multi-form mr-2" type="submit"  @click.prevent.stop="getDataNoseGroups()">
+                            <icon name="sync-alt"/>
+                            Sync from DataNose
+                        </b-button>
+                    </b-form>
+            </b-card>
+        </div>
     </div>
 </template>
 
@@ -37,7 +37,7 @@ import groupCard from '@/components/group/GroupCard.vue'
 import groupAPI from '@/api/group'
 
 export default {
-    name: 'CourseGroupModal',
+    name: 'CourseGroupEditor',
     props: {
         cID: {
             required: true

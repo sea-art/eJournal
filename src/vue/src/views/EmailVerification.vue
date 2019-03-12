@@ -1,7 +1,7 @@
 <template>
     <content-single-column>
-        <h1>Email Verification</h1>
-        <b-card class="blue-border no-hover">
+        <h1><span>Email Verification</span></h1>
+        <b-card class="no-hover">
             <div class="center-content">
                 <h2 class="center-content">Verifying</h2><br/>
                 <icon name="circle-o-notch" pulse scale="1.5"/>

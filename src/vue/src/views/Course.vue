@@ -17,7 +17,7 @@
             v-if="$hasPermission('can_add_assignment')"
             slot="main-content-column"
             @click="showModal('createAssignmentRef')"
-            class="add-button grey-background full-width">
+            class="add-button">
             <icon name="plus"/>
             Create New Assignment
         </b-button>

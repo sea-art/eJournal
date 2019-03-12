@@ -79,7 +79,12 @@
             </div>
         </b-collapse>
 
-        <div v-b-toggle.timeline-outer target="timeline-outer" aria-expanded="false" aria-controls="timeline-outer" id="timeline-toggle">
+        <div
+            v-b-toggle.timeline-outer
+            target="timeline-outer"
+            aria-expanded="false"
+            aria-controls="timeline-outer"
+            id="timeline-toggle">
             <span class="timeline-outer__icon timeline-outer__icon--open">
                     <icon class="collapse-icon" name="list-ul" scale="1.75"/>
             </span>
@@ -124,8 +129,6 @@ export default {
 #timeline-outer
     overflow: hidden
     height: 100%
-    @include lg-max
-        background-color: white
 
 @include xl
     #timeline-outer[style]
@@ -161,6 +164,7 @@ export default {
     #timeline-toggle
         border: 0px
         padding: 10px 0px
+        border-radius: 40px !important
         background-color: $theme-blue !important
         &:hover
             background-color: $theme-blue !important

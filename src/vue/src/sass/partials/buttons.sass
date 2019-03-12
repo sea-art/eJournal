@@ -1,9 +1,10 @@
 @import '~sass/partials/shadows.sass'
 
 .btn
-    @extend .small-shadow
+    @extend .shadow
+    border: 1px solid $theme-dark-grey !important
     position: relative
-    transition: all 0.6s cubic-bezier(.25,.8,.25,1) !important
+    transition: all 0.3s cubic-bezier(.25,.8,.25,1) !important
     font-family: 'Roboto Condensed', sans-serif
     color: $theme-dark-blue
     background-color: white
@@ -12,20 +13,20 @@
     align-items: center
     font-size: 1.2em
     border: none
+    border-radius: 5px !important
     svg
-        transition: all 0.6s cubic-bezier(.25,.8,.25,1) !important
+        transition: all 0.3s cubic-bezier(.25,.8,.25,1) !important
         margin: 5px
-    &.grey-background
-        background-color: $theme-light-grey
     &:hover:not(.no-hover), &.active
         background-color: $theme-blue !important
+        border-color: $theme-blue !important
         color: white !important
         svg
             fill: white !important
     &.no-hover:hover
         background-color: white
     &.fab
-        @extend .large-shadow
+        @extend .shadow
         background-color: $theme-blue
         border-radius: 50% !important
         position: fixed
@@ -36,51 +37,48 @@
         svg
             fill: white !important
 
-.button-top-border
-    border-top: 1px solid $theme-dark-grey
-
 .add-card
     opacity: 0.5
     &:hover:not(.no-hover), &.active
         opacity: 1
-
-.default-button
-    svg
-        fill: $theme-blue !important
-    &:hover:not(.no-hover), &.active, &.fab
-        background-color: $theme-blue !important
 
 .add-button
     svg
         fill: $theme-green !important
     &:hover:not(.no-hover), &.active, &.fab
         background-color: $theme-green !important
+        border-color: $theme-green !important
 
 .delete-button
     svg
         fill: $theme-red !important
     &:hover:not(.no-hover), &.active, &.fab
         background-color: $theme-red !important
+        border-color: $theme-red !important
 
 .change-button
     svg
         fill: $theme-orange !important
     &:hover:not(.no-hover), &.active, &.fab
         background-color: $theme-orange !important
+        border-color: $theme-orange !important
 
 .black-button
     &:hover:not(.no-hover), &.active, &.fab
         background-color: #24292e !important
+        border-color: #24292e !important
 
 .preset-type-button
     width: 75px
     height: 75px
     border-radius: 50% !important
     &.selected
-        background-color: $theme-dark-blue !important
         svg
             fill: white !important
+        background-color: $theme-dark-blue !important
+        border-color: $theme-dark-blue !important
 
-.lti-button-text
+.big-button-text
+    font-weight: bold
     font-size: 20px
     text-align: center

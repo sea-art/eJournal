@@ -1,14 +1,13 @@
 <template>
-    <div>
+    <b-card class="no-hover multi-form" :class="$root.getBorderClass($route.params.uID)">
         <b-form @submit.prevent="changePassword()">
-            <h2 class="mb-2">Change password</h2>
             <b-input name="username" autocomplete="username" hidden/>
-            <h2 class="field-heading">Old password</h2>
+            <h2 class="field-heading">Current password</h2>
             <b-input
                 class="theme-input multi-form"
                 v-model="oldPass"
                 type="password"
-                placeholder="Old password"
+                placeholder="Current password"
                 autocomplete="current-password"
             />
             <h2 class="field-heading">New password</h2>
@@ -32,7 +31,7 @@
                 Save
             </b-button>
         </b-form>
-    </div>
+    </b-card>
 </template>
 
 <script>

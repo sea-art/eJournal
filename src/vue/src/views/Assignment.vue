@@ -2,7 +2,7 @@
 <template v-if="$hasPermission('can_view_all_journals')">
     <content-columns>
         <bread-crumb slot="main-content-column" @edit-click="handleEdit()"/>
-        <b-card slot="main-content-column" class="no-hover settings-card">
+        <div slot="main-content-column">
             <input class="theme-input full-width multi-form" type="text" v-model="searchValue" placeholder="Search..."/>
             <div class="d-flex">
                 <b-form-select
@@ -78,7 +78,7 @@
                     />
                 </b-card>
             </b-modal>
-        </b-card>
+        </div>
 
         <div v-if="filteredJournals" v-for="journal in filteredJournals" :key="journal.student.id" slot="main-content-column">
             <b-link tag="b-button" :to="{
@@ -103,9 +103,7 @@
 
         <div v-if="stats" slot="right-content-column">
             <h3>Insights</h3>
-            <statistics-card :subject="'Needs marking'" :num="stats.needsMarking"/>
-            <statistics-card :subject="'Unpublished grades'" :num="stats.unpublished"/>
-            <statistics-card :subject="'Average points'" :num="stats.averagePoints"/>
+            <statistics-card :stats="stats"/>
         </div>
     </content-columns>
 </template>
@@ -139,7 +137,7 @@ export default {
     data () {
         return {
             assignmentJournals: [],
-            stats: [],
+            stats: null,
             groups: [],
             loadingJournals: true
         }
@@ -250,6 +248,7 @@ export default {
                 unpublished += filteredJournals[i]['stats']['submitted'] - filteredJournals[i]['stats']['published']
                 points += filteredJournals[i]['stats']['acquired_points']
             }
+            this.stats = {}
             this.stats['needsMarking'] = needsMarking
             this.stats['unpublished'] = unpublished - needsMarking
             this.stats['averagePoints'] = points / filteredJournals.length

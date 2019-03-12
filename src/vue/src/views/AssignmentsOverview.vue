@@ -2,25 +2,23 @@
     <content-single-column>
         <bread-crumb :currentPage="'Assignments'"></bread-crumb>
 
-        <b-card class="no-hover">
-            <input class="theme-input full-width multi-form" type="text" v-model="searchValue" placeholder="Search..."/>
-            <div class="d-flex">
-                <b-form-select class="multi-form mr-2" v-model="selectedSortOption" :select-size="1">
-                   <option value="date">Sort by date</option>
-                   <option value="name">Sort by name</option>
-                   <option v-if="$hasPermission('can_add_course')"
-                           value="markingNeeded">Sort by marking needed</option>
-                </b-form-select>
-                <b-button v-on:click.stop v-if="!order" @click="setOrder(!order)" class="button multi-form">
-                    <icon name="long-arrow-down"/>
-                    Ascending
-                </b-button>
-                <b-button v-on:click.stop v-if="order" @click="setOrder(!order)" class="button multi-form">
-                    <icon name="long-arrow-up"/>
-                    Descending
-                </b-button>
-            </div>
-        </b-card>
+        <input class="theme-input full-width multi-form" type="text" v-model="searchValue" placeholder="Search..."/>
+        <div class="d-flex">
+            <b-form-select class="multi-form mr-2" v-model="selectedSortOption" :select-size="1">
+               <option value="date">Sort by date</option>
+               <option value="name">Sort by name</option>
+               <option v-if="$hasPermission('can_add_course')"
+                       value="markingNeeded">Sort by marking needed</option>
+            </b-form-select>
+            <b-button v-on:click.stop v-if="!order" @click="setOrder(!order)" class="button multi-form">
+                <icon name="long-arrow-down"/>
+                Ascending
+            </b-button>
+            <b-button v-on:click.stop v-if="order" @click="setOrder(!order)" class="button multi-form">
+                <icon name="long-arrow-up"/>
+                Descending
+            </b-button>
+        </div>
 
         <div v-for="(d, i) in computedDeadlines" :key="i">
             <b-link v-if="d.course" tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal, d.is_published)">

@@ -2,7 +2,7 @@
     <div class="feedback-wrapper">
         <div
             v-if="loggedIn"
-            class="small-shadow feedback-button"
+            class="shadow feedback-button"
             @click="showModal('feedbackModal')">
             <icon name="comments"/>
             Feedback
@@ -53,15 +53,25 @@ export default {
 .feedback-wrapper
     position: absolute
     .feedback-button
+        font-family: 'Roboto Condensed', sans-serif
         cursor: pointer
         padding: 2px 10px 2px 10px
         position: fixed
         bottom: 0px
         left: 50px
-        background-color: $theme-medium-grey
+        background-color: white
+        border-width: 2px 2px 0px 2px
+        border-color: $theme-dark-grey
+        border-radius: 5px 5px 0px 0px !important
+        font-weight: bold
+        svg
+            fill: $theme-dark-blue
         @include md-max
             float: right
             position: relative
         &:hover
-            color: $theme-blue
+            background-color: $theme-dark-blue
+            color: white
+            svg
+                fill: $theme-orange
 </style>

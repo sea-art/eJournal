@@ -2,7 +2,7 @@
     <!-- Section visible if user logged in -->
     <b-navbar v-if="loggedIn" id="header" class="shadow" toggleable="md" type="dark" fixed=top>
         <transition name="fade">
-            <div class="spinner small-shadow" v-if="openApiCalls">
+            <div class="spinner shadow" v-if="openApiCalls">
                 <icon name="circle-o-notch" spin scale='1.3'/>
             </div>
         </transition>
@@ -35,11 +35,11 @@
                 <div class="profile-picture-container" slot="button-content">
                     <img class="profile-picture-sm" :src="profileImg">
                 </div>
-                <b-button :to="{ name: 'Profile' }">
+                <b-button :to="{ name: 'Profile' }" class="mb-1">
                     <icon name="user"/>
                     &nbsp;Profile
                 </b-button>
-                <b-button :to="{ name: 'Logout' }" class="button-top-border">
+                <b-button :to="{ name: 'Logout' }">
                     <icon name="sign-out"/>
                     Log out
                 </b-button>
@@ -50,7 +50,7 @@
     <!-- Section visible if user logged out -->
     <b-navbar v-else id="header" class="shadow" toggleable="md" type="dark" fixed=top>
         <transition name="fade">
-            <div class="spinner small-shadow" v-if="openApiCalls">
+            <div class="spinner shadow" v-if="openApiCalls">
                 <icon name="circle-o-notch" spin scale='1.3'/>
             </div>
         </transition>
@@ -61,11 +61,11 @@
                 <div class="profile-picture-container bg-white d-flex justify-content-center align-items-center" slot="button-content">
                     <icon name="user" scale="2.5"/>
                 </div>
-                <b-button :to="{ name: 'Register' }">
+                <b-button v-if="allowRegistration" :to="{ name: 'Register' }" class="mb-1">
                     <icon name="user-plus"/>
                     Register
                 </b-button>
-                <b-button :to="{ name: 'Login' }" class="button-top-border">
+                <b-button :to="{ name: 'Login' }">
                     <icon name="sign-in"/>
                     Log in
                 </b-button>
@@ -78,13 +78,16 @@
 import icon from 'vue-awesome/components/Icon'
 import { mapGetters } from 'vuex'
 
+import instanceAPI from '@/api/instance'
+
 export default {
     components: {
         icon
     },
     data () {
         return {
-            defaultProfileImg: '/static/unknown-profile.png'
+            defaultProfileImg: '/static/unknown-profile.png',
+            allowRegistration: null
         }
     },
     computed: {
@@ -93,6 +96,12 @@ export default {
             profileImg: 'user/profilePicture',
             openApiCalls: 'connection/checkOpenApiCalls'
         })
+    },
+    created () {
+        instanceAPI.get()
+            .then(instance => {
+                this.allowRegistration = instance.allow_standalone_registration
+            })
     }
 }
 </script>
@@ -100,6 +109,7 @@ export default {
 <style lang="sass">
 @import '~sass/modules/colors.sass'
 @import '~sass/modules/breakpoints.sass'
+@import '~sass/partials/shadows.sass'
 
 #header
     background-color: $theme-dark-blue
@@ -107,14 +117,15 @@ export default {
     font-family: 'Roboto Condensed', sans-serif
     font-size: 1.3em
     height: 70px
+    border-radius: 0px 0px 5px 5px !important
     .nav-link
-        svg
+        > svg
             fill: grey !important
         &:hover
-            svg
+            > svg
                 fill: $theme-medium-grey !important
         &.active
-            svg
+            > svg
                 fill: $theme-orange !important
     .brand-name
         font-weight: bold
@@ -174,8 +185,10 @@ export default {
     background-color: $theme-dark-blue
 
 .dropdown-menu
-    background: $theme-dark-grey !important
+    @extend .shadow
+    background: $theme-dark-blue !important
     border: none !important
+    border-radius: 0px 0px 5px 5px !important
     padding: 5px 5px
     margin-top: 10px
     .btn

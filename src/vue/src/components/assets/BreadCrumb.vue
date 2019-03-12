@@ -12,14 +12,28 @@
             Edit
         </b-button>
         <div>
-            <h4 v-if="crumbs.length > 1">
-                <span v-for="crumb in crumbs.slice(0, -1)" :key="crumb.route">
-                    <b-link tag="b-button" :to="{ name: crumb.routeName }">{{ crumb.displayName }}</b-link> /
-                </span>
-            </h4>
+            <div v-if="crumbs.length > 1">
+                <h4>
+                    <span>
+                        <span v-for="crumb in crumbs.slice(0, -1)" :key="crumb.route">
+                            <b-link tag="b-button" :to="{ name: crumb.routeName }">
+                                {{ crumb.displayName }}
+                            </b-link> /
+                        </span>
+                        <span>
+                            <b-link tag="b-button" :to="{ name: crumbs[crumbs.length-2].routeName }">
+                                <icon name="level-up" class="shift-up-2 action-icon"/>
+                            </b-link>
+                        </span>
+                    </span>
+                </h4>
+                <br/>
+            </div>
             <h1>
-                {{ crumbs.slice(-1)[0].displayName }}
-                <slot/>
+                <span>
+                    {{ crumbs.slice(-1)[0].displayName }}
+                    <slot/>
+                </span>
             </h1>
         </div>
     </div>
@@ -47,7 +61,7 @@ export default {
                     'FormatEdit': 'Assignment Editor',
                     'CourseEdit': 'Course Editor',
                     'AssignmentsOverview': 'Assignments',
-                    'UserRoleConfiguration': 'User Role Configuration'
+                    'UserRoleConfiguration': 'Permission Manager'
                 },
                 namedViews: {
                     'Course': { apiReturnValue: 'course', primaryParam: 'cID' },
@@ -65,7 +79,6 @@ export default {
             var routeMatched = this.$route.matched[0].path
             var routerRoutes = this.$router.options.routes
             routerRoutes.sort((a, b) => a.path.length - b.path.length)
-
             // Add every matched (sub)route with params substituted to use as key
             for (var route of routerRoutes.slice(1)) {
                 if (routeMatched.startsWith(route.path)) {
@@ -75,6 +88,10 @@ export default {
                     }
                     this.crumbs.push({ route: fullpath, routeName: route.name, displayName: null })
                 }
+            }
+            // Remove the name of the journal author if the user can have a journal themself
+            if (this.$route.name === 'Journal' && this.$hasPermission('can_have_journal')) {
+                this.crumbs.pop()
             }
         },
         // Load the displayname map from cache, complete crumbs from cache where possible, do aliasing

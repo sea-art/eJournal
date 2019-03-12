@@ -1,7 +1,7 @@
 <template>
     <content-single-table-column>
-        <bread-crumb>&nbsp;</bread-crumb>
-        <div class="table-responsive">
+        <bread-crumb/>
+        <b-card class="no-hover">
             <table class="table table-bordered table-hover">
                 <thead>
                     <tr>
@@ -25,7 +25,7 @@
                 </thead>
                 <tbody>
                     <tr v-for="permission in permissions" :key="permission">
-                        <td class="permission-column">{{ formatPermissionString(permission) }}</td>
+                        <td class="permission-column"><b>{{ formatPermissionString(permission) }}</b></td>
                         <td v-for="role in roles" :key="role + '-' + permission">
                             <!-- eslint-disable -->
                             <b-form-checkbox
@@ -36,7 +36,7 @@
                     </tr>
                 </tbody>
             </table>
-        </div>
+        </b-card>
 
         <transition name="fade">
             <b-button @click="update()" v-if="isChanged" class="add-button fab">

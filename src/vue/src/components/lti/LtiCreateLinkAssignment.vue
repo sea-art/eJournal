@@ -9,9 +9,9 @@
         <b-row>
             <b-col md="6">
                 <b-card class="no-hover full-height">
-                    <b-button class="add-button full-width" @click="showModal('createAssignmentRef')">
+                    <b-button class="add-button big-button-text full-width" @click="showModal('createAssignmentRef')">
                         <icon name="plus-square" class="mr-3" scale="1.8"/>
-                        <h2 class="lti-button-text">Create new<br/>assignment</h2>
+                        Create new<br/>assignment
                     </b-button>
                     <hr/>
                     If you have not yet preconfigured this assignment on eJournal, click the button above
@@ -21,9 +21,9 @@
             </b-col>
             <b-col md="6">
                 <b-card class="no-hover full-height">
-                    <b-button class="change-button full-width" @click="showModal('linkAssignmentRef')">
+                    <b-button class="change-button big-button-text full-width" @click="showModal('linkAssignmentRef')">
                         <icon name="link" class="mr-3" scale="1.8"/>
-                        <h2 class="lti-button-text">Link to existing<br/>assignment</h2>
+                        Link to existing<br/>assignment
                     </b-button>
                     <hr/>
                     If you have already set up an assignment on eJournal, you can link it to the assignment in

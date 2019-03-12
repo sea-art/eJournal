@@ -1,7 +1,7 @@
 <template>
     <content-single-column>
-        <h1 class="mb-2">{{ currentPage }}</h1>
-        <b-card class="no-hover blue-border">
+        <h1 class="mb-2"><span>{{ currentPage }}</span></h1>
+        <b-card class="no-hover">
             <lti-create-link-course v-if="handleCourseChoice" @handleAction="handleActions" :lti="lti" :courses="courses"/>
             <lti-create-link-assignment v-else-if="handleAssignmentChoice" @handleAction="handleActions" :lti="lti" :page="page"/>
             <div v-else class="center-content">

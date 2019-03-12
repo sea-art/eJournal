@@ -7,7 +7,10 @@
             Unlock date: {{ $root.beautifyDate(assignment.unlock_date) }}
         </b>
         <span v-else>
-            <b v-if="assignment.due_date && new Date(assignment.due_date) > new Date()">
+            <b v-if="assignment.due_date">
+                <span v-if="new Date() > new Date(assignment.due_date) && !assignment.lock_date">
+                    The due date for this assignment has passed.<br/>
+                </span>
                 Due date: {{ $root.beautifyDate(assignment.due_date) }}<br/>
             </b>
             <b v-if="assignment.lock_date">

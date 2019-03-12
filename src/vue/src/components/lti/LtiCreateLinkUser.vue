@@ -2,9 +2,9 @@
     <b-row>
         <b-col md="6">
             <b-card class="no-hover full-height">
-                <b-button class="add-button full-width" @click="showModal('createUserRef')">
+                <b-button class="add-button big-button-text full-width" @click="showModal('createUserRef')">
                     <icon name="user-plus" class="mr-3" scale="1.8"/>
-                    <h2 class="lti-button-text">Register new<br/>eJournal account</h2>
+                    Register new<br/>eJournal account
                 </b-button>
                 <hr/>
                 If this is the first time you are here, click the button above to register a new account.
@@ -14,9 +14,9 @@
         </b-col>
         <b-col md="6">
             <b-card class="no-hover full-height">
-                <b-button class="change-button full-width" @click="showModal('linkUserRef')">
+                <b-button class="change-button big-button-text full-width" @click="showModal('linkUserRef')">
                     <icon name="link" class="mr-3" scale="1.8"/>
-                    <h2 class="lti-button-text">Link to existing<br/>eJournal account</h2>
+                    Link to existing<br/>eJournal account
                 </b-button>
                 <hr/>
                 If you already have an account on eJournal, you can link it to your learning environment

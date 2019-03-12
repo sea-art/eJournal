@@ -1,7 +1,7 @@
 <template>
     <content-single-column>
-        <h1 class="mb-2">Welcome to eJournal!</h1>
-        <b-card class="no-hover blue-border">
+        <h1 class="mb-2"><span>Welcome to eJournal!</span></h1>
+        <b-card class="no-hover">
             <h2 class="multi-form">Let's get started</h2>
             <span class="d-block mb-2">
                 Good to see you, <i>{{ lti.fullName ? lti.fullName : lti.username }}</i>. In order to link your learning environment

@@ -9,9 +9,9 @@
         <b-row>
             <b-col md="6">
                 <b-card class="no-hover full-height">
-                    <b-button class="add-button full-width" @click="showModal('createCourseRef')">
+                    <b-button class="add-button big-button-text full-width" @click="showModal('createCourseRef')">
                         <icon name="plus-square" class="mr-3" scale="1.8"/>
-                        <h2 class="lti-button-text">Create new<br/>course</h2>
+                        Create new<br/>course
                     </b-button>
                     <hr/>
                     If you have not yet preconfigured this course on eJournal, click the button above
@@ -21,9 +21,9 @@
             </b-col>
             <b-col md="6">
                 <b-card class="no-hover full-height">
-                    <b-button class="change-button full-width" @click="showModal('linkCourseRef')">
+                    <b-button class="change-button big-button-text full-width" @click="showModal('linkCourseRef')">
                         <icon name="link" class="mr-3" scale="1.8"/>
-                        <h2 class="lti-button-text">Link to existing<br/>course</h2>
+                        Link to existing<br/>course
                     </b-button>
                     <hr/>
                     If you have already set up a course on eJournal, you can link it to the course in

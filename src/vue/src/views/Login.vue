@@ -1,6 +1,6 @@
 <template>
     <content-single-column>
-        <h1>Login</h1>
+        <h1><span>Login</span></h1>
         <login-form @handleAction="handleLoginSucces"/>
     </content-single-column>
 </template>

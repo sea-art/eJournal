@@ -1,5 +1,5 @@
 <template>
-    <b-card class="no-hover" :class="this.accomplished ? 'red-border' : 'green-border'">
+    <b-card class="no-hover">
         <h2 class="mb-2">Goal: {{ currentNode.target }} points</h2>
         <span v-if="!this.accomplished">
             <b>{{ score }}</b> out of <b>{{ currentNode.target }}</b> points.<br/>

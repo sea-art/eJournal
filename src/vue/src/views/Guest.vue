@@ -1,93 +1,55 @@
 <template>
     <content-single-column>
-        <h1>Welcome{{ this.name ? ' to ' + this.name : '' }}!</h1>
-        <b-card class="no-hover blue-border">
-            <h2 class="multi-form">Let's get started</h2>
-            <b-row>
-                <b-col md="6">
-                    <b-card class="no-hover full-height">
-                        <b-button class="add-button full-width" :to="{ name: 'Register' }">
-                            <h2 class="lti-button-text">
-                                <icon name="user-plus" scale="1.5"/>
-                                Register
-                            </h2>
-                        </b-button>
-                        <hr/>
-                        Click the button above to register a new account.
-                        In the beginning you will not be linked to any course however. Contact a teacher or connect your account with Canvas to connect to a course.
-                    </b-card>
-                </b-col>
-                <b-col md="6">
-                    <b-card class="no-hover full-height">
-                        <b-button class="default-button full-width" :to="{ name: 'Login' }">
-                            <h2 class="lti-button-text">
-                                <icon name="sign-in" scale="1.5"/>
-                                Login
-                            </h2>
-                        </b-button>
-                        <hr/>
-                        If you already have an account on eJournal, click the button above to login.
-                    </b-card>
-                </b-col>
-            </b-row>
-        </b-card>
-        <b-card class="no-hover blue-border">
-            <h2 class="multi-form">Want to use eJournal for your organisation?</h2>
-            <b-row>
-                <b-col md="6">
-                    <b-card class="no-hover full-height">
-                        <b-button class="change-button full-width" href="mailto:contact@ejourn.al">
-                            <h2 class="lti-button-text">
-                                <icon name="comments" scale="1.5"/>
-                                Contact
-                            </h2>
-                        </b-button>
-                        <hr/>
-                        If you want to use eJournal for an organisation, or just want to get some information first, contact us!
-                    </b-card>
-                </b-col>
-                <b-col md="6">
-                    <b-card class="no-hover full-height">
-                        <b-button class="black-button full-width" href="https://github.com/eJourn-al/eJournal/">
-                            <h2 class="lti-button-text">
-                                <icon name="github" scale="1.5"/>
-                                GitHub
-                            </h2>
-                        </b-button>
-                        <hr/>
-                        This is an open source project. This means you can also deploy it yourself to try it out.
-                        The button above will bring you to the GitHub repository where there are further instructions on how to deploy.
-                    </b-card>
-                </b-col>
-            </b-row>
-        </b-card>
+        <h1><span>Welcome to {{ this.name ? this.name : 'eJournal' }}!</span></h1><br/>
+        <h4 class="multi-form"><span>Let's get started</span></h4>
+        <login-form @handleAction="handleLoginSucces"/>
+        <h4 class="multi-form mt-4"><span>Want to use eJournal in your education?</span></h4>
         <b-card class="no-hover">
-            <h2 class="multi-form">Made By <a href="https://www.linkedin.com/company/ejourn-al/">eJournal</a></h2>
-            <b-button class="black-button full-width" href="/static/eJournal-privacy-notice.pdf">
-                <h2 class="lti-button-text">
-                    <icon name="file" scale="1.5"/>
-                    Privacy Notice
-                </h2>
-            </b-button>
+            <b>eJournal is a blended learning application that provides an easy to manage graded journal system for teachers and students. It seamlessly connects to your <i>learning management system</i> (LMS) via LTI, allowing for automatic grade passback and simple setup.</b>
+            Do you want to use eJournal in your education? Do not hesitate to contact us!
+
             <hr/>
-            We reserve the right to change this privacy policy as we may deem necessary from time to time or as may be required by law. Any changes will be immediately posted on the website and you are deemed to have accepted the terms of the privacy policy on your first use of the website following the alterations.
+            <div class="text-center multi-form">
+                <b-button class="change-button big-button-text" href="mailto:contact@ejourn.al" target="_blank">
+                    <icon name="envelope" class="shift-up-2" scale="1.5"/>
+                    Email
+                </b-button>
+                <b-button class="blue-button big-button-text" href="https://www.linkedin.com/company/eJourn-al" target="_blank">
+                    <icon name="linkedin" class="shift-up-2" scale="1.5"/>
+                    LinkedIn
+                </b-button>
+            </div>
         </b-card>
-        <b-row>
-            <span class="copy">
-                &copy; 2018 - eJourn.al
-            </span>
-        </b-row>
+
+        <h4 class="multi-form mt-4"><span>eJournal is open source software</span></h4>
+        <b-card class="no-hover">
+            <b>eJournal is an open source project.</b> This means you are free to deploy it yourself to try it out.
+            You can find the source code and more information including instructions for deployment on our GitHub repository below.
+            <hr/>
+            <div class="text-center multi-form">
+                <b-button class="black-button big-button-text" href="https://github.com/eJourn-al/eJournal/" target="_blank">
+                    <icon name="github" scale="1.5"/>
+                    GitHub
+                </b-button>
+            </div>
+        </b-card>
+
+        <div class="copy">
+            <hr/>
+            &copy; 2019 - eJournal.app -
+            <a href="/static/eJournal-privacy-notice.pdf" class="text-grey">
+                Privacy notice
+            </a>
+            <tooltip tip="We reserve the right to change this privacy policy as we may deem necessary from time to time or as may be required by law. Any changes will be immediately posted on the website and you are deemed to have accepted the terms of the privacy policy on your first use of the website following the alterations."/>
+        </div>
     </content-single-column>
 </template>
-<style lang="sass">
-.copy
-    text-align: center
-    width: 100%
-    margin-bottom: 10px
-</style>
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import tooltip from '@/components/assets/Tooltip.vue'
 import icon from 'vue-awesome/components/Icon'
+import loginForm from '@/components/account/LoginForm.vue'
+import routerConstraints from '@/utils/constants/router_constraints.js'
 
 import instanceAPI from '@/api/instance'
 
@@ -95,16 +57,41 @@ export default {
     name: 'Guest',
     components: {
         icon,
-        'content-single-column': contentSingleColumn
+        'content-single-column': contentSingleColumn,
+        tooltip,
+        loginForm
     },
     data () {
         return {
-            name: null
+            name: null,
+            username: '',
+            password: ''
         }
     },
     created () {
         instanceAPI.get()
-            .then(instance => { this.name = instance.name })
+            .then(instance => {
+                this.name = instance.name
+            })
+    },
+    methods: {
+        handleLoginSucces () {
+            if (this.$root.previousPage === null || this.$root.previousPage.name === null ||
+                this.$root.previousPage.name === 'Logout' ||
+                routerConstraints.PERMISSIONLESS_CONTENT.has(this.$root.previousPage.name)) {
+                this.$router.push({name: 'Home'})
+            }
+
+            this.$router.push({name: this.$root.previousPage.name, params: this.$root.previousPage.params})
+        }
     }
 }
 </script>
+
+<style lang="sass">
+.copy
+    color: grey
+    text-align: center
+    width: 100%
+    margin: 10px 0px
+</style>

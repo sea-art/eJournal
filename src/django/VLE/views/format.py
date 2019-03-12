@@ -83,6 +83,10 @@ class FormatView(viewsets.ViewSet):
         if not (request.user.is_superuser or request.user == assignment.author):
             req_data.pop('author', None)
 
+        for key in req_data:
+            if req_data[key] == '':
+                req_data[key] = None
+
         # Update the assignment details
         serializer = AssignmentSerializer(assignment, data=req_data, context={'user': request.user}, partial=True)
         if not serializer.is_valid():

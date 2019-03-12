@@ -1,14 +1,16 @@
 ---
 
-- name: Create default admin user
-  rabbitmq_user: user={{ rabbitmq_admin_user }}
+- name: Creates or recreates the default admin user
+  rabbitmq_user: force=yes
+                 user={{ rabbitmq_admin_user }}
                  password={{ rabbitmq_admin_password }}
                  vhost=/
                  tags=administrator
                  state=present
 
-- name: Create application user
-  rabbitmq_user: user={{ rabbitmq_application_user }}
+- name: Creates or recreates the application user
+  rabbitmq_user: force=yes
+                 user={{ rabbitmq_application_user }}
                  password={{ rabbitmq_application_password }}
                  vhost={{ rabbitmq_application_vhost }}
                  configure_priv=.*

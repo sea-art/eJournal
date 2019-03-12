@@ -9,6 +9,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 
 import VLE.factory as factory
+import VLE.lti_grade_passback as lti_grade
 import VLE.tasks.grading as grading_tasks
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
@@ -344,5 +345,6 @@ class AssignmentView(viewsets.ViewSet):
         for j, b in bonuses.items():
             j.bonus_points = b
             j.save()
+            lti_grade.replace_result(journal)
 
         return response.success()

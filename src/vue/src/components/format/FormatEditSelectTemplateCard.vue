@@ -68,7 +68,9 @@
             </b-form-select>
             <div v-if="currentPreset !== null">
                 <h2 class="field-heading">Preview of the {{ currentPreset.template.name }} template</h2>
-                <template-preview :template="currentPreset.template"/>
+                <b-card class="no-hover">
+                    <template-preview :template="currentPreset.template"/>
+                </b-card>
             </div>
         </div>
         <div v-else-if="currentPreset.type === 'p'">

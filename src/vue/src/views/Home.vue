@@ -12,7 +12,7 @@
         </div>
         <b-button v-if="$hasPermission('can_add_course')"
             slot="main-content-column"
-            class="add-button grey-background full-width"
+            class="add-button"
             @click="showModal('createCourseRef')">
             <icon name="plus"/>
             Create New Course

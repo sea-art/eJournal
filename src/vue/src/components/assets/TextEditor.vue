@@ -126,8 +126,8 @@ export default {
                         top: '19px',
                         left: 13,
                         color: '#888',
-                        padding: '1%',
-                        width: '98%',
+                        fontsize: '1.2em',
+                        padding: '0.375rem 0.75rem',
                         overflow: 'hidden',
                         'font-family': 'Roboto Condensed',
                         'white-space': 'pre-wrap'
@@ -340,8 +340,11 @@ export default {
 
 <style lang="sass">
 .editor-container
+    border-radius: 5px !important
     padding-right: 1px
     width: 100%
+    div
+        border-radius: 5px !important
 
 div.mce-fullscreen
     padding-top: 70px

@@ -2,7 +2,7 @@
     <b-input
         class="multi-form theme-input"
         v-model="url"
-        :placeholder="(placeholder) ? placeholder : 'Please enter a URL.'"
+        :placeholder="(placeholder) ? placeholder : 'Please enter a URL...'"
         @change="handleUrlInput"
         :state="state">
     </b-input>

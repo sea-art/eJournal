@@ -11,7 +11,7 @@
             class="ml-2 mt-2">
             Unpublished
         </b-badge>
-        <br />
+        <hr style="margin: 5px 0px"/>
 
         <span v-if="this.deadline.deadline">
             <!-- Teacher deadline shows last submitted entry date  -->

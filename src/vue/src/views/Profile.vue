@@ -1,13 +1,11 @@
 <template>
     <content-single-column>
-        <bread-crumb>&nbsp;</bread-crumb>
-        <b-card class="no-hover blue-border">
-            <profile-data ref="profileData" class="multi-form"/>
-            <hr/>
-            <notification-card class="multi-form"/>
-            <hr/>
-            <password-card ref="passData"/>
-        </b-card>
+        <bread-crumb/>
+        <profile-data ref="profileData"/>
+        <h4 class="mb-2 mt-4"><span>Email notifications</span></h4>
+        <notification-card/>
+        <h4 class="mb-2 mt-4"><span>Password</span></h4>
+        <password-card ref="passData"/>
     </content-single-column>
 </template>
 

@@ -17,7 +17,7 @@ export default {
     },
 
     delete (id, connArgs = auth.DEFAULT_CONN_ARGS) {
-        return auth.delete('comments/' + id, connArgs)
+        return auth.delete('comments/' + id, null, connArgs)
             .then(response => response.data)
     },
 

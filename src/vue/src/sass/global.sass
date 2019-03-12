@@ -25,11 +25,21 @@
     color: $theme-dark-blue
     text-align: left
 
+body
+    /* Background pattern from Toptal Subtle Patterns */
+    background-image: url(/static/background.png)
+
 a, select, input
     outline: 0
 
+a:hover
+    color: $theme-blue
+
 .min-height-100
     min-height: 100%
+
+.round-border
+    border-radius: 5px !important
 
 .multi-form
     margin-bottom: 10px !important
@@ -75,6 +85,9 @@ a, select, input
 .error, .success, .warning
     font-family: 'Roboto Condensed', sans-serif !important
     font-size: 1.1em !important
+
+.badge, .toasted
+    border-radius: 5px !important
 
 .text-white
     color: white

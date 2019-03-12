@@ -95,7 +95,7 @@ export default {
     .time-line
         position: absolute
         width: 5px
-        background-color: $theme-medium-grey
+        background-color: $theme-dark-grey
         height: 100px
         &.top
             height: 50px

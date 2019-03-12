@@ -2,12 +2,12 @@
     <b-row class="outer-container-timeline-page" no-gutters>
         <b-col md="12" lg="8" xl="9" class="inner-container-timeline-page">
             <b-col md="12" lg="auto" xl="4" class="left-content-timeline-page">
-                <bread-crumb v-if="$root.lgMax()">&nbsp;</bread-crumb>
+                <bread-crumb v-if="$root.lgMax()"></bread-crumb>
                 <timeline @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
             </b-col>
 
             <b-col md="12" lg="auto" xl="8" class="main-content-timeline-page">
-                <bread-crumb v-if="$root.xl()">&nbsp;</bread-crumb>
+                <bread-crumb v-if="$root.xl()"></bread-crumb>
                 <div v-if="nodes.length > currentNode && currentNode !== -1">
                     <div v-if="nodes[currentNode].type == 'e' || nodes[currentNode].type == 'd'">
                         <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
@@ -23,7 +23,7 @@
 
         <b-col md="12" lg="4" xl="3" class="right-content-timeline-page right-content">
             <b-row>
-                <b-col md="6" lg="12">
+                <b-col md="6" lg="12" class="mb-4">
                     <h3>Journal progress</h3>
                     <student-card
                         v-if="journal"
@@ -31,43 +31,41 @@
                         :stats="journal.stats"
                         :assignment="assignment"
                         :class="'mb-2 no-hover'"/>
-                    <b-card class="mb-4 no-hover settings-card" :class="$root.getBorderClass($route.params.cID)" v-if="journal && $hasPermission('can_grade')">
+                    <div v-if="journal && $hasPermission('can_grade')">
                         <div v-if="$hasPermission('can_grade')" class="grade-section full-width bonus-section shadow">
                             <icon name="star" class="fill-orange shift-up-2"/>
-                            <b-form-input type="number" class="theme-input" step="0.01" size="2" v-model="journal.bonus_points" autofocus placeholder="0" min="0.0"/> Bonus points
+                            <b-form-input type="number" class="theme-input mr-2" size="2" v-model="journal.bonus_points" placeholder="0" min="0.0"/> Bonus points
                             <b-button class="add-button" @click="commitBonus">
                                 <icon name="save" scale="1"/>
                                 Save Bonus
                             </b-button>
                         </div>
-                    </b-card>
+                    </div>
                 </b-col>
                 <b-col v-if="$hasPermission('can_publish_grades') || filteredJournals.length > 1" md="6" lg="12">
                     <h3>Controls</h3>
-                    <b-card class="no-hover settings-card" :class="$root.getBorderClass($route.params.cID)">
-                        <div class="d-flex" v-if="filteredJournals.length > 1">
-                            <b-button
-                                class="multi-form flex-grow-1"
-                                tag="b-button"
-                                v-if="filteredJournals.length !== 0"
-                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.id } }">
-                                <icon name="arrow-left"/>
-                                Previous
-                            </b-button>
-                            <b-button
-                                class="multi-form flex-grow-1"
-                                tag="b-button"
-                                v-if="filteredJournals.length !== 0"
-                                :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: nextJournal.id } }">
-                                Next
-                                <icon name="arrow-right"/>
-                            </b-button>
-                        </div>
-                        <b-button v-if="$hasPermission('can_publish_grades')" class="add-button flex-grow-1 full-width" @click="publishGradesJournal">
-                            <icon name="upload"/>
-                            Publish All Grades
+                    <div class="d-flex" v-if="filteredJournals.length > 1">
+                        <b-button
+                            class="multi-form mr-1 flex-grow-1"
+                            tag="b-button"
+                            v-if="filteredJournals.length !== 0"
+                            :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.id } }">
+                            <icon name="arrow-left"/>
+                            Previous
                         </b-button>
-                    </b-card>
+                        <b-button
+                            class="multi-form flex-grow-1"
+                            tag="b-button"
+                            v-if="filteredJournals.length !== 0"
+                            :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: nextJournal.id } }">
+                            Next
+                            <icon name="arrow-right"/>
+                        </b-button>
+                    </div>
+                    <b-button v-if="$hasPermission('can_publish_grades')" class="add-button flex-grow-1 full-width" @click="publishGradesJournal">
+                        <icon name="upload"/>
+                        Publish All Grades
+                    </b-button>
                 </b-col>
             </b-row>
         </b-col>
@@ -330,4 +328,5 @@ export default {
 <style lang="sass">
 .bonus-section
     margin-bottom: 0px
+    border-width: 3px !important
 </style>

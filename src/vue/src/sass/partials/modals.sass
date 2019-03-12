@@ -1,5 +1,8 @@
 .modal-content
+    border-radius: 5px !important
     .modal-header
+        border-radius: 5px 5px 0px 0px !important
+        margin-top: -4px
         background-color: $theme-dark-blue
         font-family: 'Roboto Condensed'
         color: white
@@ -13,13 +16,16 @@
             &:hover
                 color: $theme-red
     .modal-body
+        /* Background pattern from Toptal Subtle Patterns */
+        background-image: url(/static/background.png)
         padding: 0px
-        background-color: $theme-dark-grey
+        border-radius: 0px 0px 5px 5px !important
         .card
-            margin: 0px
-            border-width: 0px 0px 0px 15px !important
+            margin: 10px
+            border-left-width: 2px
             .card
-                margin-bottom: 8px
-                border: 2px solid $theme-dark-grey !important
+                margin: 0px 0px 8px 0px
                 &.unselected
                     opacity: 0.5
+            .card-body
+                border-left: none
