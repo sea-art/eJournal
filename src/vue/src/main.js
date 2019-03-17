@@ -51,20 +51,13 @@ new Vue({
             defaultMinute: 59
         }
     },
-    mounted () {
-        this.$nextTick(function () {
-            window.addEventListener('resize', this.getWindowWidth)
-
-            this.getWindowWidth()
-        })
-    },
-    beforeDestroy () {
-        window.removeEventListener('resize', this.getWindowWidth)
-    },
-    methods: {
-        getWindowWidth () {
+    created () {
+        window.addEventListener('resize', () => {
             this.windowWidth = window.innerWidth
-        },
+        })
+        this.windowWidth = window.innerWidth
+    },
+    computed: {
         /* Bootstrap breakpoints for custom events. */
         // TODO Figure out how to get these from the dedicated sass file (more webpack fun)
         sm () { return this.windowWidth > 575 },
@@ -74,7 +67,9 @@ new Vue({
         xsMax () { return this.windowWidth < 576 },
         smMax () { return this.windowWidth < 769 },
         mdMax () { return this.windowWidth < 992 },
-        lgMax () { return this.windowWidth < 1200 },
+        lgMax () { return this.windowWidth < 1200 }
+    },
+    methods: {
         getBorderClass (cID) {
             return this.colors[cID % this.colors.length]
         },

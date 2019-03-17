@@ -8,7 +8,7 @@
     <div class="timeline-container">
         <b-collapse id="timeline-outer">
             <div class="timeline-inner" ref="scd">
-                <div v-if="$root.lgMax()" v-b-toggle.timeline-outer target="timeline-outer" aria-expanded="false" aria-controls="timeline-outer">
+                <div v-if="$root.lgMax" v-b-toggle.timeline-outer target="timeline-outer" aria-expanded="false" aria-controls="timeline-outer">
                     <timeline-node
                         @select-node="$emit('select-node', $event)"
                         :index="-1"

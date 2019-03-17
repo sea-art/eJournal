@@ -19,21 +19,36 @@ export default {
             required: true
         }
     },
+    data () {
+        return {
+            iframe: null
+        }
+    },
+    computed: {
+        // QUESTION: How does one watch this.$root.windowWidth directly?
+        windowWidth: function () {
+            return this.$root.windowWidth
+        }
+    },
+    watch: {
+        windowWidth () {
+            if (this.iframe) { this.scaleIframe(this.iframe) }
+        }
+    },
     methods: {
         scaleIframe (obj) {
             obj.height = 0
             obj.height = obj.contentWindow.document.body.offsetHeight + 'px'
         },
         injectContent (obj) {
-            var doc = obj.contentWindow.document
+            let doc = obj.contentWindow.document
             doc.open()
             doc.write(this.content)
             doc.close()
         },
         setCustomStyle (obj) {
-            var doc = obj.contentWindow.document
-
-            var css = `
+            let doc = obj.contentWindow.document
+            const css = `
 body {
     font-family: 'Roboto', sans-serif;
     color: #252C39;
@@ -49,14 +64,14 @@ img {
     height: auto
 }`
 
-            var style = document.createElement('style')
+            let style = document.createElement('style')
             style.type = 'text/css'
             style.appendChild(document.createTextNode(css))
             doc.head.append(style)
         },
         setLinkTarget (obj) {
-            var doc = obj.contentWindow.document
-            var base = document.createElement('base')
+            let doc = obj.contentWindow.document
+            let base = document.createElement('base')
             base.target = '_blank'
             doc.head.append(base)
         },
@@ -65,6 +80,7 @@ img {
             this.setCustomStyle(e.target)
             this.setLinkTarget(e.target)
             this.scaleIframe(e.target)
+            this.iframe = e.target
         }
     }
 }

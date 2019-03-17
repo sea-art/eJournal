@@ -10,7 +10,7 @@
         <b-col md="12" lg="8" xl="9" class="inner-container-timeline-page">
             <b-col md="12" lg="auto" xl="4" class="left-content-timeline-page">
                 <bread-crumb
-                    v-if="$root.lgMax()"
+                    v-if="$root.lgMax"
                     v-intro="'Welcome to the assignment editor!<br/>This is where you can configure the structure of your assignment. Proceed with this tutorial to learn more.'"
                     v-intro-step="1">
                     <icon
@@ -35,7 +35,7 @@
 
             <b-col md="12" lg="auto" xl="8" class="main-content-timeline-page">
                 <bread-crumb
-                    v-if="$root.xl()"
+                    v-if="$root.xl"
                     v-intro="'Welcome to the assignment editor!<br/>This is where you can configure the structure of your assignment. Proceed with this tutorial to learn more.'"
                     v-intro-step="1">
                     <icon

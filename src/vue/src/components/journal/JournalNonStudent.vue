@@ -2,12 +2,12 @@
     <b-row class="outer-container-timeline-page" no-gutters>
         <b-col md="12" lg="8" xl="9" class="inner-container-timeline-page">
             <b-col md="12" lg="auto" xl="4" class="left-content-timeline-page">
-                <bread-crumb v-if="$root.lgMax()"></bread-crumb>
+                <bread-crumb v-if="$root.lgMax"></bread-crumb>
                 <timeline @select-node="selectNode" :selected="currentNode" :nodes="nodes"/>
             </b-col>
 
             <b-col md="12" lg="auto" xl="8" class="main-content-timeline-page">
-                <bread-crumb v-if="$root.xl()"></bread-crumb>
+                <bread-crumb v-if="$root.xl"></bread-crumb>
                 <div v-if="nodes.length > currentNode && currentNode !== -1">
                     <div v-if="nodes[currentNode].type == 'e' || nodes[currentNode].type == 'd'">
                         <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
