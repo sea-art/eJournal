@@ -4,7 +4,7 @@
   apt_repository: repo='ppa:deadsnakes/ppa'
                   update_cache={{ update_apt_cache }}
                   state=present
-  when: enable_deadsnakes_ppa
+  when: enable_deadsnakes_ppa and ansible_distribution == 'Ubuntu'
 
 - name: Install additional packages
   apt:

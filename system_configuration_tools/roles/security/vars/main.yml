@@ -3,8 +3,13 @@ user_public_keys:
   - ~/.ssh/id_rsa.pub
 
 ufw_allowed_ports:
+  # SSH
   - 22
+  # DNS
+  - 53
+  # HTTP
   - 80
+  # HTTPS
   - 443
 
 shell: "/bin/bash"

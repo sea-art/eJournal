@@ -4,6 +4,12 @@
   when: create_swap_file
   tags: swap
 
+- name: Ensure aptitude is present for upgrades
+  apt:
+    update_cache: "{{ update_apt_cache }}"
+    pkg: aptitude
+    state: present
+
 - name: Install security updates
   apt: default_release={{ ansible_distribution_release }}-security
        update_cache={{ update_apt_cache }}
@@ -11,6 +17,13 @@
   tags:
     - packages
     - skip_ansible_lint
+  when: ansible_distribution == 'Ubuntu'
+
+- include: debian_apt.yml
+  when: ansible_distribution == 'Debian'
+  tags:
+    - packages
+    - packages.security
 
 - name: Install base packages
   apt:
@@ -27,6 +40,7 @@
       - "i{{ base_python_package }}"
       - supervisor
       - apt-transport-https
+      - dirmngr
   tags:
     - packages
     - packages.security

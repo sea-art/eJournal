@@ -39,6 +39,7 @@ X_FRAME_OPTIONS = 'DENY'
 SECURE_BROWSER_XSS_FILTER = True
 
 DEBUG = False
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SECURE_SSL_REDIRECT = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_HSTS_SECONDS = 31536000
@@ -66,7 +67,7 @@ LOGGING = {
         },
     },
     'handlers': {
-        'file': {
+        'info_file': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': '{}/django_info.log'.format(os.environ["LOG_DIR"]),
@@ -74,7 +75,7 @@ LOGGING = {
             'backupCount': 5,
             'formatter': 'standard',
         },
-        'file2': {
+        'req_warning_file': {
             'level': 'WARNING',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': '{}/django_request_warning.log'.format(os.environ["LOG_DIR"]),
@@ -82,15 +83,23 @@ LOGGING = {
             'backupCount': 5,
             'formatter': 'standard',
         },
+        'error_file': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': '{}/django_error.log'.format(os.environ["LOG_DIR"]),
+            'maxBytes': 5 * 1024 * 1024,
+            'backupCount': 5,
+            'formatter': 'standard',
+        },
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
+            'handlers': ['info_file', 'error_file'],
             'level': 'INFO',
             'propagate': True,
         },
         'django.request': {
-            'handlers': ['file2'],
+            'handlers': ['req_warning_file'],
             'level': 'WARNING',
             'propagate': True,
         },

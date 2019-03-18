@@ -4,3 +4,10 @@
 
 - name: restart fail2ban
   service: name=fail2ban state=restarted
+
+- name: restart postfix
+  service: name=postfix state=restarted
+
+- name: reload ufw
+  ufw:
+    state: reloaded

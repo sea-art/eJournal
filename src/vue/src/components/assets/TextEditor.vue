@@ -305,7 +305,6 @@ export default {
         /* NOTE: Called from parent. */
         clearContent () {
             this.editor.setContent('')
-            this.editor.execCommand('fontName', false, 'Roboto Condensed', {skip_focus: true})
             this.content = ''
         }
     },

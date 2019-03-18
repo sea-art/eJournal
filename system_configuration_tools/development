@@ -1,5 +1,0 @@
-[all:vars]
-env=development
-
-[staging]
-test.ejournal.app ansible_user=mel

@@ -1,0 +1,5 @@
+[staging]
+test.ejournal.app ansible_user=mel env=stage
+
+[production]
+uva.ejournal.app env=production

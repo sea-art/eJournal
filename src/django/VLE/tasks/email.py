@@ -1,7 +1,5 @@
 from __future__ import absolute_import, unicode_literals
 
-import os
-
 from celery import shared_task
 from django.conf import settings
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
@@ -39,7 +37,7 @@ def send_email_verification_link(user_pk):
     email = EmailMultiAlternatives(
         subject='eJournal email verification',
         body=text_content,
-        from_email='noreply@ejourn.al' if 'PRODUCTION' in os.environ else 'test@ejourn.al',
+        from_email='noreply@ejourn.al' if settings.ENVIRONMENT == 'PRODUCTION' else 'test@ejourn.al',
         headers={'Content-Type': 'text/plain'},
         to=[user.email]
     )
@@ -72,7 +70,7 @@ def send_password_recovery_link(user_pk):
     email = EmailMultiAlternatives(
         subject='eJournal password recovery',
         body=text_content,
-        from_email='noreply@ejourn.al' if 'PRODUCTION' in os.environ else 'test@ejourn.al',
+        from_email='noreply@ejourn.al' if settings.ENVIRONMENT == 'PRODUCTION' else 'test@ejourn.al',
         headers={'Content-Type': 'text/plain'},
         to=[user.email]
     )
@@ -111,7 +109,7 @@ def send_email_feedback(user_pk, topic, ftype, feedback, user_agent, url, file_c
         subject='Thank you for your feedback!',
         body=r_text_content,
         attachments=attachments,
-        from_email='support@ejourn.al' if 'PRODUCTION' in os.environ else 'test@ejourn.al',
+        from_email='support@ejourn.al' if settings.ENVIRONMENT == 'PRODUCTION' else 'test@ejourn.al',
         headers={'Content-Type': 'text/plain'},
         to=[user.email]
     )
@@ -120,8 +118,8 @@ def send_email_feedback(user_pk, topic, ftype, feedback, user_agent, url, file_c
         subject='[Feedback] {}'.format(topic),
         body=f_body,
         attachments=attachments,
-        from_email='support@ejourn.al' if 'PRODUCTION' in os.environ else 'test@ejourn.al',
-        to=['support@ejourn.al'] if 'PRODUCTION' in os.environ else ['test@ejourn.al'],
+        from_email='support@ejourn.al' if settings.ENVIRONMENT == 'PRODUCTION' else 'test@ejourn.al',
+        to=['support@ejourn.al'] if settings.ENVIRONMENT == 'PRODUCTION' else ['test@ejourn.al'],
         headers={'Content-Type': 'text/plain'},
         reply_to=[user.email]
     )

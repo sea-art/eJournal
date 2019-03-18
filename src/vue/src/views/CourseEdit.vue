@@ -399,7 +399,7 @@ export default {
             let self = this
 
             function compareFullName (a, b) {
-                return self.compare(a.name, b.name)
+                return self.compare(a.full_name, b.full_name)
             }
 
             function compareUsername (a, b) {
