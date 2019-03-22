@@ -384,6 +384,7 @@ class Role(models.Model):
     can_publish_grades = models.BooleanField(default=False)
     can_have_journal = models.BooleanField(default=False)
     can_comment = models.BooleanField(default=False)
+    can_edit_staff_comment = models.BooleanField(default=False)
     can_view_unpublished_assignment = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
@@ -408,6 +409,13 @@ class Role(models.Model):
 
         if self.can_comment and not (self.can_view_all_journals or self.can_have_journal):
             raise ValidationError('A user requires a journal to comment on.')
+
+        if self.can_edit_staff_comment and self.can_have_journal:
+            raise ValidationError('Adminstrative users who can edit staff comments are not allowed to have a journal \
+                                  themselves.')
+
+        if self.can_edit_staff_comment and not self.can_comment:
+            raise ValidationError('Editing comments requires being able to comment.')
 
         super(Role, self).save(*args, **kwargs)
 
@@ -932,6 +940,31 @@ class Comment(models.Model):
     )
     creation_date = models.DateTimeField(editable=False)
     last_edited = models.DateTimeField()
+    last_edited_by = models.ForeignKey(
+        'User',
+        related_name='last_edited_by',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
+
+    def can_edit(self, user):
+        """
+        Returns whether the given user is allowed to edit the comment:
+            - Has to be the author or super_user
+            - Otheriwse has to have the permission 'can_edit_staff_comment' and edit a non journal author comment.
+              Because staff members can't have a journal themselves, checking if the author is not the owner of the
+              journal the comment is posted to suffices.
+        Raises a VLEProgramming error when misused.
+        """
+        if not isinstance(user, User):
+            raise VLEProgrammingError("Expected instance of type User.")
+
+        if user == self.author or user.is_superuser:
+            return True
+
+        return user.has_permission('can_edit_staff_comment', self.entry.node.journal.assignment) and \
+            self.author != self.entry.node.journal.user
 
     def save(self, *args, **kwargs):
         if not self.pk:

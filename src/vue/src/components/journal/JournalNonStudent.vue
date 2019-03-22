@@ -10,7 +10,12 @@
                 <bread-crumb v-if="$root.xl"></bread-crumb>
                 <div v-if="nodes.length > currentNode && currentNode !== -1">
                     <div v-if="nodes[currentNode].type == 'e' || nodes[currentNode].type == 'd'">
-                        <entry-non-student-preview ref="entry-template-card" @check-grade="updatedGrade" :entryNode="nodes[currentNode]"/>
+                        <entry-non-student-preview
+                            ref="entry-template-card"
+                            :journal="journal"
+                            @check-grade="updatedGrade"
+                            :entryNode="nodes[currentNode]"
+                        />
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'p'">
                         <progress-node :currentNode="nodes[currentNode]" :nodes="nodes"/>

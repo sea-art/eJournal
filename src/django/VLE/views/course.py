@@ -111,7 +111,7 @@ class CourseView(viewsets.ViewSet):
 
         serializer = self.serializer_class(course, data=data, partial=True)
         if not serializer.is_valid():
-            response.bad_request()
+            return response.bad_request()
         serializer.save()
         return response.success({'course': serializer.data})
 

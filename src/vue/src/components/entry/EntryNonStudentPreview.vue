@@ -45,7 +45,7 @@
             </div>
         </b-card>
 
-        <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published"/>
+        <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published" :journal="journal"/>
     </div>
     <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
         <h2 class="mb-2">{{entryNode.template.name}}</h2>
@@ -60,7 +60,7 @@ import entryAPI from '@/api/entry'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
-    props: ['entryNode'],
+    props: ['entryNode', 'journal'],
     data () {
         return {
             tempNode: this.entryNode,

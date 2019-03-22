@@ -54,7 +54,7 @@ class InstanceView(viewsets.ViewSet):
         req_data = request.data
         serializer = InstanceSerializer(instance, data=req_data, partial=True)
         if not serializer.is_valid():
-            response.bad_request()
+            return response.bad_request()
         serializer.save()
 
         return response.success({'instance': serializer.data})

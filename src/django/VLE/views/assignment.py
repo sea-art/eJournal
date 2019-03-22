@@ -204,7 +204,7 @@ class AssignmentView(viewsets.ViewSet):
         # Update the other data
         serializer = AssignmentSerializer(assignment, data=req_data, context={'user': request.user}, partial=True)
         if not serializer.is_valid():
-            response.bad_request()
+            return response.bad_request()
         serializer.save()
         response_data['assignment'] = serializer.data
 

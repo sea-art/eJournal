@@ -320,7 +320,8 @@ def make_role_default_no_perms(name, course, can_edit_course_details=False, can_
                                can_delete_course_user_group=False, can_edit_course_user_group=False,
                                can_add_assignment=False, can_delete_assignment=False, can_edit_assignment=False,
                                can_view_all_journals=False, can_grade=False, can_publish_grades=False,
-                               can_have_journal=False, can_comment=False, can_view_unpublished_assignment=False):
+                               can_have_journal=False, can_comment=False, can_edit_staff_comment=False,
+                               can_view_unpublished_assignment=False):
     """Make a role with all permissions set to false.
 
     Arguments:
@@ -349,7 +350,8 @@ def make_role_default_no_perms(name, course, can_edit_course_details=False, can_
         can_grade=can_grade,
         can_publish_grades=can_publish_grades,
         can_have_journal=can_have_journal,
-        can_comment=can_comment
+        can_comment=can_comment,
+        can_edit_staff_comment=can_edit_staff_comment
     )
     role.save()
     return role
@@ -361,14 +363,15 @@ def make_role_default_all_perms(name, course, can_edit_course_details=True, can_
                                 can_delete_course_user_group=True, can_edit_course_user_group=True,
                                 can_add_assignment=True, can_delete_assignment=True, can_edit_assignment=True,
                                 can_view_all_journals=True, can_grade=True, can_publish_grades=True,
-                                can_have_journal=True, can_comment=True, can_view_unpublished_assignment=True):
+                                can_have_journal=True, can_comment=True, can_edit_staff_comment=True,
+                                can_view_unpublished_assignment=True):
     """Makes a role with all permissions set to true."""
     return make_role_default_no_perms(name, course, can_edit_course_details, can_delete_course, can_edit_course_roles,
                                       can_view_course_users, can_add_course_users, can_delete_course_users,
                                       can_add_course_user_group, can_delete_course_user_group,
                                       can_edit_course_user_group, can_add_assignment, can_delete_assignment,
                                       can_edit_assignment, can_view_all_journals, can_grade,
-                                      can_publish_grades, can_have_journal, can_comment,
+                                      can_publish_grades, can_have_journal, can_comment, can_edit_staff_comment,
                                       can_view_unpublished_assignment)
 
 
@@ -392,7 +395,7 @@ def make_role_observer(name, course):
 
 def make_role_teacher(name, course):
     """Make a default teacher role."""
-    return make_role_default_all_perms(name, course, can_have_journal=False, can_view_unpublished_assignment=True)
+    return make_role_default_all_perms(name, course, can_have_journal=False)
 
 
 def make_comment(entry, author, text, published):

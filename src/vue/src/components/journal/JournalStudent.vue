@@ -12,6 +12,7 @@
                     <div v-if="nodes[currentNode].type == 'e'">
                         <entry-node
                             ref="entry-template-card"
+                            :journal="journal"
                             @edit-node="adaptData"
                             @delete-node="deleteNode"
                             :cID="cID"

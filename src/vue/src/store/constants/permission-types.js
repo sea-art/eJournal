@@ -25,7 +25,8 @@ export const ASSIGNMENT_LEVEL_PERMISSIONS = new Set([
     'can_view_unpublished_assignment',
     // Journal level
     'can_have_journal',
-    'can_comment'
+    'can_comment',
+    'can_edit_staff_comment'
 ])
 
 export const ALL_PERIMSSIONS = new Set([

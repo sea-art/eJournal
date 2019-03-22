@@ -74,7 +74,7 @@
             </div>
         </b-card>
 
-        <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published"/>
+        <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published" :journal="journal"/>
     </div>
 </template>
 
@@ -84,7 +84,7 @@ import icon from 'vue-awesome/components/Icon'
 import entryFields from '@/components/entry/EntryFields.vue'
 
 export default {
-    props: ['entryNode', 'cID'],
+    props: ['entryNode', 'cID', 'journal'],
     data () {
         return {
             saveEditMode: 'Edit',

@@ -139,14 +139,16 @@ class CommentView(viewsets.ViewSet):
         request.user.check_permission('can_comment', assignment)
         request.user.check_can_view(journal)
 
-        if not (comment.author.id == request.user.id or request.user.is_superuser):
+        if not comment.can_edit(request.user):
             return response.forbidden('You are not allowed to edit this comment.')
 
+        comment.last_edited_by = request.user
+        comment.save()
         text, = utils.required_params(request.data, 'text')
         serializer = CommentSerializer(
             comment, data={'text': text}, partial=True)
         if not serializer.is_valid():
-            response.bad_request()
+            return response.bad_request()
         serializer.save()
         return response.success({'comment': serializer.data})
 
@@ -171,7 +173,7 @@ class CommentView(viewsets.ViewSet):
 
         request.user.check_can_view(comment)
 
-        if not (request.user.is_superuser or request.user.id == comment.author.id):
+        if not comment.can_edit(request.user):
             return response.forbidden(description='You are not allowed to delete this comment.')
 
         comment.delete()

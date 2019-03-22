@@ -156,7 +156,7 @@ class RoleView(viewsets.ViewSet):
 
             serializer = RoleSerializer(role, data=new_role, partial=True)
             if not serializer.is_valid():
-                response.bad_request()
+                return response.bad_request()
             serializer.save()
 
             roles_response.append(serializer.data)

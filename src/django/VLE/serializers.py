@@ -301,14 +301,18 @@ class NodeSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     author = serializers.SerializerMethodField()
+    last_edited_by = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
-        fields = '__all__'
+        fields = ('id', 'entry', 'author', 'text', 'published', 'creation_date', 'last_edited', 'last_edited_by')
         read_only_fields = ('id', 'entry', 'author', 'timestamp')
 
     def get_author(self, comment):
         return UserSerializer(comment.author).data
+
+    def get_last_edited_by(self, comment):
+        return None if not comment.last_edited_by else comment.last_edited_by.full_name
 
 
 class RoleSerializer(serializers.ModelSerializer):

@@ -113,7 +113,7 @@ class GroupView(viewsets.ViewSet):
 
         serializer = GroupSerializer(group, data={'name': name}, partial=True)
         if not serializer.is_valid():
-            response.bad_request()
+            return response.bad_request()
 
         serializer.save()
         return response.success({'group': serializer.data})

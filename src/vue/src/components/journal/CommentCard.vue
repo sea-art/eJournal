@@ -13,13 +13,13 @@
                         <hr class="full-width"/>
                         <b>{{ comment.author.full_name }}</b>
                         <icon
-                            v-if="$store.getters['user/uID'] == comment.author.id"
+                            v-if="canEditComment(comment)"
                             name="trash"
                             class="float-right trash-icon"
                             @click.native="deleteComment(comment.id)"
                         />
                         <icon
-                            v-if="$store.getters['user/uID'] == comment.author.id"
+                            v-if="canEditComment(comment)"
                             name="edit" scale="1.07"
                             class="float-right ml-2 edit-icon"
                             @click.native="editCommentView(index, true, comment.text)"
@@ -27,8 +27,12 @@
                         <span v-if="comment.published && $root.beautifyDate(comment.last_edited) === $root.beautifyDate(comment.creation_date)" class="timestamp">
                             {{ $root.beautifyDate(comment.creation_date) }}<br/>
                         </span>
-                        <span v-else-if="comment.published" class="timestamp">
-                            Last edited: {{ $root.beautifyDate(comment.last_edited) }}<br/>
+                        <span
+                            v-else-if="comment.published"
+                            class="timestamp"
+                            v-b-tooltip
+                            :title="'Last edit by: ' + comment.last_edited_by">
+                            Last edited: {{ $root.beautifyDate(comment.last_edited) }}
                         </span>
                         <span v-else class="timestamp">
                             <icon name="hourglass-half" scale="0.8"/>
@@ -43,11 +47,11 @@
                             :id="'comment-text-editor-' + index"
                             v-model="editCommentTemp[index]"
                         />
-                        <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="multi-form delete-button" @click="editCommentView(index, false, '')">
+                        <b-button v-if="canEditComment(comment)" class="multi-form delete-button" @click="editCommentView(index, false, '')">
                             <icon name="ban"/>
                             Cancel
                         </b-button>
-                        <b-button v-if="$store.getters['user/uID'] == comment.author.id" class="ml-2 add-button float-right" @click="editComment(comment.id, index)">
+                        <b-button v-if="canEditComment(comment)" class="ml-2 add-button float-right" @click="editComment(comment.id, index)">
                             <icon name="save"/>
                             Save
                         </b-button>
@@ -93,6 +97,9 @@ export default {
         eID: {
             required: true
         },
+        journal: {
+            required: true
+        },
         entryGradePublished: {
             type: Boolean,
             default: false
@@ -125,6 +132,10 @@ export default {
         this.setComments()
     },
     methods: {
+        canEditComment (comment) {
+            return this.$store.getters['user/uID'] === comment.author.id ||
+                   (this.$hasPermission('can_edit_staff_comment') && comment.author.id !== this.journal.student.id)
+        },
         setComments () {
             commentAPI.getFromEntry(this.eID)
                 .then(comments => {
