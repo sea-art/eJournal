@@ -6,6 +6,7 @@ from VLE.views.course import CourseView
 from VLE.views.entry import EntryView
 from VLE.views.format import FormatView
 from VLE.views.group import GroupView
+from VLE.views.member import MemberView
 from VLE.views.instance import InstanceView
 from VLE.views.journal import JournalView
 from VLE.views.node import NodeView
@@ -18,6 +19,7 @@ router = routers.DefaultRouter()
 router.register(r'instance', InstanceView, basename='instance')
 router.register(r'courses', CourseView, basename='course')
 router.register(r'groups', GroupView, basename='group')
+router.register(r'members', MemberView, basename='member')
 router.register(r'roles', RoleView, basename='role')
 router.register(r'users', UserView, basename='user')
 router.register(r'assignments', AssignmentView, basename='assignment')

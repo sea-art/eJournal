@@ -7,20 +7,11 @@
                 </b-col>
                 <b-col cols="9">
                     <b>{{ user.full_name }}</b> ({{ user.role }})<br/>
-                    {{ user.username }}
+                    {{ user.username }}<br/>
+                    <span v-for="group in user.groups" :key="group.id">{{ group.name }} </span>
                 </b-col>
             </b-col>
             <b-col sm="4">
-                <div>
-                    <b-form-select v-if="$hasPermission('can_edit_course_user_group')"
-                                   v-model="selectedGroup"
-                                   :select-size="1">
-                        <option :value="null">No group</option>
-                        <option v-for="g in groups" :key="g.name" :value="g.name">
-                            {{ g.name }}
-                        </option>
-                    </b-form-select>
-                </div>
                 <div :class="{ 'input-disabled': numTeachers === 1 && selectedRole === 'Teacher'}">
                     <b-form-select v-if="$hasPermission('can_edit_course_roles')"
                                    v-model="selectedRole"
@@ -57,12 +48,6 @@ export default {
         roles: {
             required: true
         },
-        group: {
-            required: true
-        },
-        groups: {
-            required: true
-        },
         numTeachers: {
             required: true
         }
@@ -87,6 +72,11 @@ export default {
                     this.$emit('delete-participant', this.user)
                 })
             }
+        }
+    },
+    computed: {
+        groupNames () {
+            return this.user.groups.map(group => group['name'])
         }
     },
     watch: {

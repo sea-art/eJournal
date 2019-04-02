@@ -40,6 +40,67 @@ def encode_lti_params(jwt_params):
     return jwt.encode(jwt_params, settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
 
 
+def get_new_course_response(lti_params, role):
+    """Generate course information for the teacher to setup the course with.
+
+    This only works when the lti user is a teacher of that course.
+    """
+    if 'Teacher' not in role:
+        return response.not_found('The course you are looking for cannot be found. \
+                                   Most likely your teacher has not finished setting up the course.')
+
+    try:
+        return response.success({'params': {
+            'state': LTI_STATES.NEW_COURSE.value,
+            'lti_cName': lti_params['custom_course_name'],
+            'lti_abbr': lti_params.get('context_label', ''),
+            'lti_cID': lti_params['custom_course_id'],
+            'lti_course_start': lti_params['custom_course_start'],
+            'lti_aName': lti_params['custom_assignment_title'],
+            'lti_aID': lti_params['custom_assignment_id'],
+            'lti_aUnlock': lti_params['custom_assignment_unlock'],
+            'lti_aDue': lti_params['custom_assignment_due'],
+            'lti_aLock': lti_params['custom_assignment_lock'],
+            'lti_points_possible': lti_params['custom_assignment_points'],
+            'lti_aPublished': lti_params['custom_assignment_publish'],
+        }})
+    except KeyError as err:
+        raise VLEMissingRequiredKey(err.args[0])
+
+
+def get_new_assignment_response(lti_params, course, role):
+    """Generate assignment information for the teacher to setup the assignment with.
+
+    This only works when the lti user is a teacher of that assignment.
+    """
+    if 'Teacher' not in role:
+        return response.not_found('The assignment you are looking for cannot be found. \
+            Either your teacher has not finished setting up the assignment, or it has been moved to another \
+            course. Please contact your course administrator.')
+
+    try:
+        return response.success({'params': {
+            'state': LTI_STATES.NEW_ASSIGN.value,
+            'cID': course.pk,
+            'lti_aName': lti_params['custom_assignment_title'],
+            'lti_aID': lti_params['custom_assignment_id'],
+            'lti_aUnlock': lti_params['custom_assignment_unlock'],
+            'lti_aDue': lti_params['custom_assignment_due'],
+            'lti_aLock': lti_params['custom_assignment_lock'],
+            'lti_points_possible': lti_params['custom_assignment_points'],
+            'lti_aPublished': lti_params['custom_assignment_publish'],
+        }})
+    except KeyError as err:
+        raise VLEMissingRequiredKey(err.args[0])
+
+
+def get_finish_state(user, assignment):
+    if user.has_permission('can_view_all_journals', assignment):
+        return LTI_STATES.FINISH_T.value
+    else:
+        return LTI_STATES.FINISH_S.value
+
+
 @api_view(['GET'])
 def get_lti_params_from_jwt(request, jwt_params):
     """Handle the controlflow for course/assignment create, connect and select.
@@ -52,66 +113,46 @@ def get_lti_params_from_jwt(request, jwt_params):
         return response.forbidden(
             "The user specified that should be logged in according to the request is not the logged in user.")
 
-    try:
-        role = [settings.LTI_ROLES[r] if r in settings.LTI_ROLES else r for r in lti.roles_to_list(lti_params)]
-        payload = dict()
+    role = lti.roles_to_lti_roles(lti_params)
+    # convert LTI param for True to python True
+    lti_params['custom_assignment_publish'] = lti_params.get('custom_assignment_publish', 'false') == 'true'
 
-        # convert LTI param for True to python True
-        lti_params['custom_assignment_publish'] = 'custom_assignment_publish' in lti_params and \
-            lti_params['custom_assignment_publish'] == 'true'
+    # If the course is already created, update that course, else return new course variables
+    course = lti.update_lti_course_if_exists(lti_params, user, role)
+    if course is None:
+        return get_new_course_response(lti_params, role)
 
-        course = lti.check_course_lti(lti_params, user, role)
-        if course is None:
-            if 'Teacher' in role:
-                payload['state'] = LTI_STATES.NEW_COURSE.value
-                payload['lti_cName'] = lti_params['custom_course_name']
-                payload['lti_abbr'] = lti_params.get('context_label', '')
-                payload['lti_cID'] = lti_params['custom_course_id']
-                payload['lti_course_start'] = lti_params['custom_course_start']
-                payload['lti_aName'] = lti_params['custom_assignment_title']
-                payload['lti_aID'] = lti_params['custom_assignment_id']
-                payload['lti_aUnlock'] = lti_params['custom_assignment_unlock']
-                payload['lti_aDue'] = lti_params['custom_assignment_due']
-                payload['lti_aLock'] = lti_params['custom_assignment_lock']
-                payload['lti_points_possible'] = lti_params['custom_assignment_points']
-                payload['lti_aPublished'] = lti_params['custom_assignment_publish']
+    # If the assignment is already created, update that assignment, else return new assignment variables
+    assignment = lti.update_lti_assignment_if_exists(lti_params)
+    if assignment is None:
+        return get_new_assignment_response(lti_params, course, role)
 
-                return response.success({'params': payload})
-            else:
-                return response.not_found('The course you are looking for cannot be found. \
-                    Most likely your teacher has not finished setting up the course.')
+    # Select a journal
+    journal = lti.select_create_journal(lti_params, user, assignment)
 
-        assignment = lti.check_assignment_lti(lti_params)
-        if assignment is None:
-            if 'Teacher' in role:
-                payload['state'] = LTI_STATES.NEW_ASSIGN.value
-                payload['cID'] = course.pk
-                payload['lti_aName'] = lti_params['custom_assignment_title']
-                payload['lti_aID'] = lti_params['custom_assignment_id']
-                payload['lti_aUnlock'] = lti_params['custom_assignment_unlock']
-                payload['lti_aDue'] = lti_params['custom_assignment_due']
-                payload['lti_aLock'] = lti_params['custom_assignment_lock']
-                payload['lti_points_possible'] = lti_params['custom_assignment_points']
-                payload['lti_aPublished'] = lti_params['custom_assignment_publish']
+    return response.success(payload={'params': {
+        'state': get_finish_state(user, assignment),
+        'cID': course.pk,
+        'aID': assignment.pk,
+        'jID': journal.pk if journal is not None else None,
+    }})
 
-                return response.success({'params': payload})
-            else:
-                return response.not_found('The assignment you are looking for cannot be found. \
-                    Either your teacher has not finished setting up the assignment, or it has been moved to another \
-                    course. Please contact your course administrator.')
 
-        journal = lti.select_create_journal(lti_params, user, assignment)
-        jID = journal.pk if journal is not None else None
-        state = LTI_STATES.FINISH_T.value if user.has_permission('can_view_all_journals',
-                                                                 assignment) else LTI_STATES.FINISH_S.value
-    except KeyError as err:
-        raise VLEMissingRequiredKey(err.args[0])
+@api_view(['PATCH'])
+@permission_classes((AllowAny, ))
+def update_lti_groups(request, jwt_params):
+    user = request.user
+    lti_params = decode_lti_params(jwt_params)
+    if user != User.objects.get(lti_id=lti_params['user_id']):
+        return response.forbidden(
+            "The user specified that should be logged in according to the request is not the logged in user.")
 
-    payload['state'] = state
-    payload['cID'] = course.pk
-    payload['aID'] = assignment.pk
-    payload['jID'] = jID
-    return response.success(payload={'params': payload})
+    role = lti.roles_to_list(lti_params)
+    course = lti.update_lti_course_if_exists(lti_params, user, role)
+    if course:
+        return response.success()
+    else:
+        return response.bad_request('Course not found')
 
 
 @api_view(['POST'])

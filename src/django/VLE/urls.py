@@ -44,6 +44,7 @@ urlpatterns = [
 
     path('lti/launch', lti.lti_launch, name='lti_launch'),
     path('get_lti_params_from_jwt/<str:jwt_params>/', lti.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),
+    path('update_lti_groups/<str:jwt_params>/', lti.update_lti_groups, name='update_lti_groups'),
 
     path('names/<int:course_id>/<int:assignment_id>/<int:journal_id>/', common.names, name='names'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

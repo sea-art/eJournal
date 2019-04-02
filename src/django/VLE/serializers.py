@@ -22,12 +22,12 @@ class InstanceSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     role = serializers.SerializerMethodField()
-    group = serializers.SerializerMethodField()
+    groups = serializers.SerializerMethodField()
 
     class Meta:
         model = User
         fields = ('username', 'full_name', 'profile_picture', 'is_teacher', 'lti_id', 'id',
-                  'role', 'group')
+                  'role', 'groups')
         read_only_fields = ('id', 'lti_id', 'is_teacher', 'username')
 
     def get_role(self, user):
@@ -41,17 +41,13 @@ class UserSerializer(serializers.ModelSerializer):
         else:
             return None
 
-    def get_group(self, user):
+    def get_groups(self, user):
         if 'course' not in self.context or not self.context['course']:
             return None
         try:
-            group = Participation.objects.get(user=user, course=self.context['course']).group
+            groups = Participation.objects.get(user=user, course=self.context['course']).groups
+            return GroupSerializer(groups, many=True, context=self.context).data
         except Participation.DoesNotExist:
-            return None
-
-        if group:
-            return group.name
-        else:
             return None
 
 
@@ -126,7 +122,7 @@ class ParticipationSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     course = serializers.SerializerMethodField()
     role = serializers.SerializerMethodField()
-    group = serializers.SerializerMethodField()
+    groups = serializers.SerializerMethodField()
 
     class Meta:
         model = Participation
@@ -142,8 +138,8 @@ class ParticipationSerializer(serializers.ModelSerializer):
     def get_role(self, participation):
         return RoleSerializer(participation.role, context=self.context).data
 
-    def get_group(self, participation):
-        return GroupSerializer(participation.group, context=self.context).data
+    def get_groups(self, participation):
+        return GroupSerializer(participation.groups, many=True, context=self.context).data
 
 
 class AssignmentDetailsSerializer(serializers.ModelSerializer):

@@ -108,7 +108,7 @@ class GroupView(viewsets.ViewSet):
         if not name:
             return response.bad_request('Group name is not allowed to be empty.')
 
-        if Group.objects.filter(name=name, course=course).exists():
+        if Group.objects.filter(name=name, course=course).exclude(pk=group.pk).exists():
             return response.bad_request('Course group with that name already exists.')
 
         serializer = GroupSerializer(group, data={'name': name}, partial=True)

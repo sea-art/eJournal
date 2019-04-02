@@ -85,7 +85,7 @@ export default {
     },
     components: {
         'text-editor': textEditor,
-        'tooltip': tooltip,
+        tooltip,
         icon
     },
     data () {

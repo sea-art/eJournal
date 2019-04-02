@@ -135,12 +135,14 @@ export default {
                 this.handleCourseChoice = false
                 this.page.cID = args[1]
                 this.$toasted.success('Course Created!')
+                ltiAPI.updateLtiGroups(this.ltiJWT)
                 this.states.state = this.states.check_assign
                 break
             case 'courseLinked':
                 this.handleCourseChoice = false
                 this.page.cID = args[1]
                 this.$toasted.success('Course Linked!')
+                ltiAPI.updateLtiGroups(this.ltiJWT)
                 this.states.state = this.states.check_assign
                 break
             case 'assignmentIntegrated':

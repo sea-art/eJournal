@@ -90,7 +90,7 @@ export default {
         }
     },
     components: {
-        'tooltip': tooltip,
+        tooltip,
         icon
     }
 }

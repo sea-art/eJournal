@@ -448,10 +448,8 @@ class Participation(models.Model):
         on_delete=models.CASCADE,
         related_name='role',
     )
-    group = models.ForeignKey(
+    groups = models.ManyToManyField(
         Group,
-        null=True,
-        on_delete=models.SET_NULL,
         default=None,
     )
 

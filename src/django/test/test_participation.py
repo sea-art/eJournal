@@ -21,8 +21,7 @@ class ParticipationAPITest(TestCase):
         self.update_params = {
             'pk': self.course.pk,
             'user_id': self.student.pk,
-            'role': 'Teacher',
-            'group': self.group1.name
+            'role': 'Teacher'
         }
 
     def test_get(self):
@@ -41,16 +40,13 @@ class ParticipationAPITest(TestCase):
     def test_update(self):
         api.update(self, 'participations', params=self.update_params, user=self.student, status=403)
 
-        resp = api.update(self, 'participations', params=self.update_params, user=self.teacher)
-        assert resp['participation']['group']['name'] == self.update_params['group']
+        api.update(self, 'participations', params=self.update_params, user=self.teacher)
 
         # Check cannot update role without can_edit_course_roles permissions
         VLE.models.Role.objects.filter(course=self.course).update(can_edit_course_roles=False)
-        self.update_params['group'] = self.group2.name
         api.update(self, 'participations', params=self.update_params, user=self.teacher, status=403)
         self.update_params.pop('role', None)
-        resp = api.update(self, 'participations', params=self.update_params, user=self.teacher)
-        assert resp['participation']['group']['name'] == self.update_params['group']
+        api.update(self, 'participations', params=self.update_params, user=self.teacher)
 
     def test_delete(self):
         api.delete(self, 'participations', params={'pk': self.course.pk}, user=self.teacher, status=400)

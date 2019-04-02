@@ -53,7 +53,7 @@ class Command(BaseCommand):
             },
             "Student4": {
                 "username": "Student4",
-                "full_name": "Maarten Keulen",
+                "full_name": "Maarten van Keulen",
                 "password": "pass",
                 "email": "maarten@eJourn.al",
                 "verified_email": False,
@@ -156,11 +156,11 @@ class Command(BaseCommand):
             role_teacher = factory.make_role_teacher('Teacher', course)
 
             for student in c["students"]:
-                factory.make_participation(student, course, role_student, random.choice(student_groups))
+                factory.make_participation(student, course, role_student, [random.choice(student_groups)])
             for ta in c["tas"]:
-                factory.make_participation(ta, course, role_ta, random.choice(student_groups))
+                factory.make_participation(ta, course, role_ta, [random.choice(student_groups)])
             for teacher in c["teachers"]:
-                factory.make_participation(teacher, course, role_teacher, staff_group)
+                factory.make_participation(teacher, course, role_teacher, [staff_group])
 
             self.courses[c["name"]] = course
 

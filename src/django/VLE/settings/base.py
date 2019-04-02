@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 import os
+from collections import OrderedDict
 from datetime import timedelta
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -33,8 +34,8 @@ EMAIL_PORT = 587
 # LTI settings
 LTI_SECRET = os.environ['LTI_SECRET']
 LTI_KEY = os.environ['LTI_KEY']
-ROLES = {'Teacher': 'instructor', 'TA': 'teachingassistant', 'Student': 'learner'}
-LTI_ROLES = {'instructor': 'Teacher', 'teachingassistant': 'TA', 'learner': 'Student'}
+ROLES = OrderedDict({'Teacher': 'instructor', 'TA': 'teachingassistant', 'Student': 'learner'})
+LTI_ROLES = OrderedDict({'instructor': 'Teacher', 'teachingassistant': 'TA', 'learner': 'Student'})
 
 
 # Celery settings

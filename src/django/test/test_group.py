@@ -45,8 +45,12 @@ class GroupAPITest(TestCase):
         # Test required params
         api.create(self, 'groups', user=self.teacher, status=400)
 
+        # Test connected teacher
+        resp = api.create(self, 'groups', params={'course_id': self.course.pk, 'name': 'Test'}, user=self.teacher)
+        assert resp['group']['name'] == 'Test'
+
         # Test unconnected admin
-        api.create(self, 'groups', params={'course_id': self.course.pk, 'name': 'Test'}, user=factory.Admin())
+        api.create(self, 'groups', params={'course_id': self.course.pk, 'name': 'Test2'}, user=factory.Admin())
 
         # Test duplicate
         api.create(self, 'groups', params={'course_id': self.course.pk, 'name': 'Test'},
@@ -65,8 +69,8 @@ class GroupAPITest(TestCase):
         api.update(self, 'groups', params={'pk': self.group.pk}, user=factory.Admin(), status=400)
 
         # Test unconnected admin
-        resp = api.update(self, 'groups', params={'pk': self.group.pk, 'name': 'Test2'}, user=factory.Admin())['group']
-        assert resp['name'] == 'Test2'
+        resp = api.update(self, 'groups', params={'pk': self.group.pk, 'name': 'Test2'}, user=factory.Admin())
+        assert resp['group']['name'] == 'Test2'
 
         # Test duplicate
         factory.Group(name='duplicate', course=self.course)
@@ -78,3 +82,27 @@ class GroupAPITest(TestCase):
         api.delete(self, 'groups', params={'pk': self.group.pk}, user=factory.Student(), status=403)
         api.delete(self, 'groups', params={'pk': self.group.pk}, user=factory.Teacher(), status=403)
         api.delete(self, 'groups', params={'pk': self.group.pk}, user=factory.Admin())
+
+    def test_members(self):
+        members = api.get(self, 'members', params={'group_id': self.group.pk}, user=self.teacher)['members']
+        assert len(members) == 0, 'Default there should be 0 members in a group'
+
+        api.create(self, 'members',
+                   params={'group_id': self.group.pk, 'user_id': self.teacher.pk}, user=self.teacher)
+
+        members = api.get(self, 'members', params={'group_id': self.group.pk}, user=self.teacher)['members']
+        assert len(members) == 1, 'Teacher should be added to the group'
+
+        members = api.delete(self, 'members',
+                             params={'pk': self.group.pk, 'user_id': self.teacher.pk},
+                             user=self.teacher)
+
+        members = api.get(self, 'members', params={'group_id': self.group.pk}, user=self.teacher)['members']
+        assert len(members) == 0, 'Teacher should be removed from the group'
+
+        # Check not viewable for students
+        api.delete(self, 'members',
+                   params={'pk': self.group.pk, 'user_id': self.teacher.pk}, user=factory.Student(), status=403)
+        api.create(self, 'members',
+                   params={'group_id': self.group.pk, 'user_id': self.teacher.pk}, user=factory.Student(), status=403)
+        api.get(self, 'members', params={'group_id': self.group.pk}, user=factory.Student(), status=403)

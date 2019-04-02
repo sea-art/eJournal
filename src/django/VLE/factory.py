@@ -50,17 +50,19 @@ def make_user(username, password, email, lti_id=None, profile_picture=None,
     return user
 
 
-def make_participation(user=None, course=None, role=None, group=None):
+def make_participation(user=None, course=None, role=None, groups=None):
     """Create a participation.
 
     Arguments:
     user -- user that participates
     course -- course the user participates in
     role -- role the user has on the course
-    group -- group the user belongs to
+    groups -- groups the user belongs to
     """
-    participation = Participation(user=user, course=course, role=role, group=group)
-    participation.save()
+    participation = Participation.objects.create(user=user, course=course, role=role)
+    if groups:
+        participation.groups.set(groups)
+        participation.save()
 
     for assignment in course.assignment_set.all():
         if not Journal.objects.filter(assignment=assignment, user=user).exists():

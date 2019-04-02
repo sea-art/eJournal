@@ -5,13 +5,12 @@
         <div slot="main-content-column">
             <input class="theme-input full-width multi-form" type="text" v-model="searchValue" placeholder="Search..."/>
             <div class="d-flex">
-                <b-form-select
+                <b-form-select v-if="groups.length > 0"
                     class="multi-form mr-2"
                     v-model="journalGroupFilter"
                     :select-size="1"
                 >
-                    <option v-if="groups.length < 1" :value="null">No groups to filter by</option>
-                    <option v-else :value="null">Filter group by ...</option>
+                    <option :value="null">Filter on group...</option>
                     <option v-for="group in groups" :key="group.name" :value="group.name">
                         {{ group.name }}
                     </option>
@@ -195,10 +194,14 @@ export default {
                 }
 
                 /* If the group filter has not been set, set it to the group of the user provided that yields journals. */
-                if (!this.getSelfSetGroupFilter && participant && participant.group && participant.group.name) {
-                    this.setJournalGroupFilter(participant.group.name)
-                    if (!this.filteredJournals.length) {
-                        this.setJournalGroupFilter(null)
+                if (!this.getSelfSetGroupFilter && participant && participant.groups) {
+                    for (let i in participant.groups) {
+                        this.setJournalGroupFilter(participant.groups[i].name)
+                        if (!this.filteredJournals.length) {
+                            this.setJournalGroupFilter(null)
+                        } else {
+                            break
+                        }
                     }
                 }
             })
@@ -317,7 +320,7 @@ export default {
 
             function groupFilter (assignment) {
                 if (self.getJournalGroupFilter) {
-                    return assignment.student.group === self.getJournalGroupFilter
+                    return assignment.student.groups.map(g => g['name']).includes(self.getJournalGroupFilter)
                 }
 
                 return true

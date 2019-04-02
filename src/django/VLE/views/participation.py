@@ -27,7 +27,7 @@ class ParticipationView(viewsets.ViewSet):
         On success:
             success -- list of all the users and their role
         """
-        course_id, = utils.required_params(request.query_params, 'course_id')
+        course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
 
         course = Course.objects.get(pk=course_id)
 
@@ -78,7 +78,7 @@ class ParticipationView(viewsets.ViewSet):
         On success:
             success -- success message
         """
-        user_id, course_id = utils.required_params(request.data, 'user_id', 'course_id')
+        user_id, course_id = utils.required_typed_params(request.data, (int, 'user_id'), (int, 'course_id'))
         role_name = 'Student'
 
         user = User.objects.get(pk=user_id)
@@ -119,8 +119,8 @@ class ParticipationView(viewsets.ViewSet):
         On success:
             success -- with the new role name
         """
-        user_id, = utils.required_params(request.data, 'user_id')
-        role_name, group_name = utils.optional_params(request.data, 'role', 'group')
+        user_id, = utils.required_typed_params(request.data, (int, 'user_id'))
+        role_name, group_names = utils.optional_params(request.data, 'role', 'groups')
 
         user = User.objects.get(pk=user_id)
         course = Course.objects.get(pk=pk)
@@ -131,10 +131,10 @@ class ParticipationView(viewsets.ViewSet):
             request.user.check_permission('can_edit_course_roles', course)
             participation.role = Role.objects.get(name=role_name, course=course)
 
-        if group_name:
-            participation.group = Group.objects.get(name=group_name, course=course)
-        elif 'group' in request.data:
-            participation.group = None
+        if group_names:
+            participation.groups.set(Group.objects.get(name=group_names, course=course))
+        elif 'groups' in request.data:
+            participation.groups.set(None)
 
         participation.save()
         serializer = ParticipationSerializer(participation, context={'course': course})
@@ -147,7 +147,7 @@ class ParticipationView(viewsets.ViewSet):
             user_id -- user ID
         pk -- course ID
         """
-        user_id, = utils.required_params(request.query_params, 'user_id')
+        user_id, = utils.required_typed_params(request.query_params, (int, 'user_id'))
 
         user = User.objects.get(pk=user_id)
         course = Course.objects.get(pk=pk)
@@ -176,7 +176,8 @@ class ParticipationView(viewsets.ViewSet):
         On success:
             success -- list of all the users and their role
         """
-        course_id, unenrolled_query = utils.required_params(request.query_params, 'course_id', 'unenrolled_query')
+        course_id, unenrolled_query = utils.required_typed_params(
+            request.query_params, (int, 'course_id'), (str, 'unenrolled_query'))
 
         course = Course.objects.get(pk=course_id)
         request.user.check_permission('can_add_course_users', course)

@@ -58,6 +58,10 @@ def roles_to_list(params):
     return roles
 
 
+def roles_to_lti_roles(lti_params):
+    return [settings.LTI_ROLES[r] if r in settings.LTI_ROLES else r for r in roles_to_list(lti_params)]
+
+
 def get_user_lti(request):
     """Check if a user with the lti_id exists"""
     lti_user_id = request['user_id']
@@ -88,89 +92,111 @@ def create_lti_query_link(query):
     return ''.join((settings.BASELINK, '/LtiLogin', '?', query.urlencode()))
 
 
-def check_course_lti(request, user, role):
-    """Check if a course with the lti_id exists.
+def add_groups_if_not_exists(participation, group_ids):
+    """Add the lti groups to a participant.
 
-    If it does, put the user in the group with the right group and role."""
-    course_id = request['custom_course_id']
-    lti_couple = Lti_ids.objects.filter(lti_id=course_id, for_model=Lti_ids.COURSE).first()
+    This will only be done if there are no other groups already bound to the participant.
+    """
+    if participation.groups:
+        return False
 
-    if not lti_couple:
+    for group_id in group_ids:
+        group = Group.objects.filter(lti_id=group_id, course=participation.course)
+        if group.exists():
+            participation.groups.add(group.first())
+        else:
+            group = factory.make_course_group(group_id, participation.course, group_id)
+            participation.groups.add(group)
+
+    participation.save()
+    return participation.groups
+
+
+def _make_lti_participation(user, course, lti_role):
+    """Make the user a participant in the course.
+
+    This function also adds the role if this is a valid role registered in our system.
+    """
+    for role in settings.ROLES:
+        if role in lti_role:
+            return factory.make_participation(user, course, Role.objects.get(name=role, course=course))
+    return factory.make_participation(user, course, Role.objects.get(name='Student', course=course))
+
+
+def update_lti_course_if_exists(request, user, role):
+    """Update a course with lti request.
+
+    If no course exists, return None
+    If it does exist:
+    1. Put the user in the course
+    2. Add groups to the user
+    """
+    course_lti_id = request.get('custom_course_id', None)
+    lti_couple = Lti_ids.objects.filter(lti_id=course_lti_id, for_model=Lti_ids.COURSE)
+    if course_lti_id is None or not lti_couple.exists():
         return None
 
-    course = lti_couple.course
-    lti_id, = utils.optional_params(request, 'custom_section_id')
-    # If the user is participatant, but not yet in a group, put the user in the Canvas related group.
-    if user.is_participant(course):
-        participation = Participation.objects.get(course=course, user=user)
-        if not participation.group and lti_id:
-            groups = Group.objects.filter(lti_id=lti_id, course=course)
-            if groups.exists():
-                participation.group = groups[0]
-            else:
-                group = factory.make_course_group(lti_id, course, lti_id)
-                participation.group = group
+    course = lti_couple.first().course
 
-            participation.save()
-        return course
-
-    participation = None
-    for r in settings.ROLES:
-        if r in role:
-            participation = factory.make_participation(user, course, Role.objects.get(name=r, course=course))
-            break
-    if not participation:
-        participation = factory.make_participation(user, course, Role.objects.get(name='Student', course=course))
-
-    groups = Group.objects.filter(lti_id=lti_id, course=course)
-    if groups.exists():
-        participation.group = groups[0]
+    # If the user not is a participant, add participation with possibly the role given by the LTI instance.
+    if not user.is_participant(course):
+        participation = _make_lti_participation(user, course, role)
     else:
-        group = factory.make_course_group(lti_id, course, lti_id)
-        participation.group = group
-    participation.save()
+        participation = Participation.objects.get(course=course, user=user)
+
+    group_ids, = utils.optional_params(request, 'custom_section_id')
+    if group_ids:
+        add_groups_if_not_exists(participation, group_ids.split(','))
+
     return course
 
 
-def check_assignment_lti(request):
-    """Check is an assignment with the lti_id exists"""
+def update_lti_assignment_if_exists(request):
+    """Update a course with lti request.
+
+    If no course exists, return None
+    If it does exist:
+    Update the published state
+    """
     assign_id = request['custom_assignment_id']
     lti_couples = Lti_ids.objects.filter(lti_id=assign_id, for_model=Lti_ids.ASSIGNMENT)
-    if lti_couples.count() > 0:
-        assignment = lti_couples[0].assignment
-        if 'custom_assignment_publish' in request:
-            assignment.is_published = request['custom_assignment_publish']
+    if not lti_couples.exists():
+        return None
+
+    assignment = lti_couples.first().assignment
+    if 'custom_assignment_publish' in request:
+        assignment.is_published = request['custom_assignment_publish']
         assignment.save()
-        return assignment
-    return None
+    return assignment
 
 
 def select_create_journal(request, user, assignment):
     """
     Select or create the requested journal.
     """
-    if assignment is not None and user is not None:
-        journals = Journal.objects.filter(user=user, assignment=assignment)
-        if journals.count() > 0:
-            journal = journals[0]
-        else:
-            journal = factory.make_journal(assignment, user)
+    if assignment is None or user is None:
+        return None
 
-        within_assignment_timeframe = False
-        try:
-            begin = datetime.strptime(request['custom_assignment_unlock'], '%Y-%m-%d %X %z')
-            end = datetime.strptime(request['custom_assignment_due'], '%Y-%m-%d %X %z')
-            now = datetime.now(timezone.utc)
-            within_assignment_timeframe = begin < now < end
-        except (ValueError, KeyError):
-            pass
-
-        if (journal.grade_url is None or within_assignment_timeframe) and 'lis_outcome_service_url' in request:
-            journal.grade_url = request['lis_outcome_service_url']
-            journal.save()
-        if (journal.sourcedid is None or within_assignment_timeframe) and 'lis_result_sourcedid' in request:
-            journal.sourcedid = request['lis_result_sourcedid']
-            journal.save()
+    journals = Journal.objects.filter(user=user, assignment=assignment)
+    if journals.exists():
+        journal = journals.first()
     else:
-        journal = None
+        journal = factory.make_journal(assignment, user)
+
+    within_assignment_timeframe = False
+    try:
+        begin = datetime.strptime(request['custom_assignment_unlock'], '%Y-%m-%d %X %z')
+        end = datetime.strptime(request['custom_assignment_lock'], '%Y-%m-%d %X %z')
+        now = datetime.now(timezone.utc)
+        within_assignment_timeframe = begin < now < end
+    except (ValueError, KeyError):
+        pass
+
+    if (journal.grade_url is None or within_assignment_timeframe) and 'lis_outcome_service_url' in request:
+        journal.grade_url = request['lis_outcome_service_url']
+        journal.save()
+    if (journal.sourcedid is None or within_assignment_timeframe) and 'lis_result_sourcedid' in request:
+        journal.sourcedid = request['lis_result_sourcedid']
+        journal.save()
+
     return journal

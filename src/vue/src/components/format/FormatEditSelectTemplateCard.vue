@@ -132,7 +132,7 @@ export default {
     },
     components: {
         'template-preview': templatePreview,
-        'tooltip': tooltip,
+        tooltip,
         icon
     }
 }

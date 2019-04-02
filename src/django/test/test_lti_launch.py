@@ -327,7 +327,7 @@ class LtiLaunchTest(TestCase):
     def test_select_course_with_participation(self):
         """Hopefully select a course."""
         course = factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
-        selected_course = lti.check_course_lti(
+        selected_course = lti.update_lti_course_if_exists(
             {'custom_course_id': Lti_ids.objects.filter(course=course).last().lti_id},
             user=self.teacher, role=settings.ROLES['Teacher'])
         assert selected_course == course
