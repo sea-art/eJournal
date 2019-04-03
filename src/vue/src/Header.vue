@@ -3,7 +3,7 @@
     <b-navbar v-if="loggedIn" id="header" class="shadow" toggleable="md" type="dark" fixed=top>
         <transition name="fade">
             <div class="spinner shadow" v-if="openApiCalls">
-                <icon name="circle-o-notch" spin scale='1.3'/>
+                <icon name="circle-o-notch" spin scale="1.1"/>
             </div>
         </transition>
         <b-navbar-brand :to="{ name: 'Home' }" class="brand-name text-shadow">
@@ -201,17 +201,16 @@ export default {
         margin-top: 70px
 
 .spinner
-    background: $theme-dark-grey
+    background: white
     position: fixed
-    height: 28px
-    line-height: 24px
-    text-align: center
-    width: 45px
-    bottom: 0
-    margin-top: 10px
-    left: 0
-    font-size: 1.1rem!important
-    z-index: 9000
+    bottom: 0px
+    left: 0px
+    width: 1.5em
+    height: 1.5em
+    border-radius: 0px 5px 0px 0px !important
+    display: flex
+    align-items: center
+    justify-content: center
     &.fade-enter-active, &.fade-leave-active
         transition: opacity .5s
     &.fade-enter, &.fade-leave-to
