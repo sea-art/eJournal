@@ -2,11 +2,13 @@
     <content-single-column>
         <h1><span>Login</span></h1>
         <login-form @handleAction="handleLoginSucces"/>
+        <custom-footer/>
     </content-single-column>
 </template>
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import customFooter from '@/components/assets/Footer.vue'
 import loginForm from '@/components/account/LoginForm.vue'
 import routerConstraints from '@/utils/constants/router_constraints.js'
 
@@ -29,8 +31,9 @@ export default {
         }
     },
     components: {
-        'content-single-column': contentSingleColumn,
-        'login-form': loginForm
+        contentSingleColumn,
+        customFooter,
+        loginForm
     }
 }
 </script>

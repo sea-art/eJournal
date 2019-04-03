@@ -33,20 +33,12 @@
                 </b-button>
             </div>
         </b-card>
-
-        <div class="copy">
-            <hr/>
-            &copy; 2019 - eJournal.app -
-            <a href="/static/eJournal-privacy-notice.pdf" class="text-grey">
-                Privacy notice
-            </a>
-            <tooltip tip="We reserve the right to change this privacy policy as we may deem necessary from time to time or as may be required by law. Any changes will be immediately posted on the website and you are deemed to have accepted the terms of the privacy policy on your first use of the website following the alterations."/>
-        </div>
+        <custom-footer/>
     </content-single-column>
 </template>
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
-import tooltip from '@/components/assets/Tooltip.vue'
+import customFooter from '@/components/assets/Footer.vue'
 import icon from 'vue-awesome/components/Icon'
 import loginForm from '@/components/account/LoginForm.vue'
 import routerConstraints from '@/utils/constants/router_constraints.js'
@@ -57,8 +49,8 @@ export default {
     name: 'Guest',
     components: {
         icon,
-        'content-single-column': contentSingleColumn,
-        tooltip,
+        contentSingleColumn,
+        customFooter,
         loginForm
     },
     data () {
@@ -87,11 +79,3 @@ export default {
     }
 }
 </script>
-
-<style lang="sass">
-.copy
-    color: grey
-    text-align: center
-    width: 100%
-    margin: 10px 0px
-</style>
