@@ -6,7 +6,9 @@
                 <icon name="circle-o-notch" spin scale='1.3'/>
             </div>
         </transition>
-        <b-navbar-brand :to="{ name: 'Home' }" class="brand-name text-shadow"><span>e</span>Journal</b-navbar-brand>
+        <b-navbar-brand :to="{ name: 'Home' }" class="brand-name text-shadow">
+            <img src="static/ejournal-logo-white.svg"/>
+        </b-navbar-brand>
 
         <b-navbar-toggle class="ml-auto mr-auto" target="nav-collapse" aria-expanded="false" aria-controls="nav-collapse">
             <span class="nav-collapse__icon nav-collapse__icon--open">
@@ -54,7 +56,9 @@
                 <icon name="circle-o-notch" spin scale='1.3'/>
             </div>
         </transition>
-        <b-navbar-brand  :to="{ name: 'Guest' }" class="brand-name"><span>e</span>Journal</b-navbar-brand>
+        <b-navbar-brand  :to="{ name: 'Guest' }" class="brand-name">
+            <img src="static/ejournal-logo-white.svg"/>
+        </b-navbar-brand>
 
         <b-navbar-nav class="ml-auto">
             <b-nav-dropdown right no-caret id="nav-dropdown-options" ref="loginDropdown">
@@ -128,10 +132,8 @@ export default {
             > svg
                 fill: $theme-orange !important
     .brand-name
-        font-weight: bold
-        font-size: 25px
-        span
-            color: $theme-blue !important
+        img
+            height: 30px
     .navbar-toggler
         .collapse-icon
             fill: white !important
