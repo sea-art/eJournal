@@ -2,6 +2,7 @@
     <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
         <h2 class="multi-form">{{ assignment.name }}</h2>
         <sandboxed-iframe v-if="assignment.description" :content="assignment.description"/>
+        <hr class="full-width"/>
         <b v-if="assignment.unlock_date && new Date(assignment.unlock_date) > new Date()">
             This assignment is locked and will be made available later.<br/>
             Unlock date: {{ $root.beautifyDate(assignment.unlock_date) }}

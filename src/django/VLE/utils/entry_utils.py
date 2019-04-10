@@ -52,8 +52,8 @@ def add_entry_to_node(node, template):
     if node.entry:
         raise VLEBadRequest('Passed node already contains an entry.')
 
-    if node.preset.is_due():
-        raise VLEBadRequest('The deadline has already passed.')
+    if node.preset.is_locked():
+        raise VLEBadRequest('The lock date for this node has passed.')
 
     entry = factory.make_entry(template)
     node.entry = entry

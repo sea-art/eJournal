@@ -204,8 +204,9 @@ def update_presets(assignment, presets, template_map):
     format = assignment.format
     for preset in presets:
         exists = 'id' in preset
-        id, type, description, deadline, target, template = \
-            optional_params(preset, 'id', 'type', 'description', 'deadline', 'target', 'template')
+        id, type, description, unlock_date, due_date, lock_date, target, template = \
+            optional_params(preset, 'id', 'type', 'description', 'unlock_date', 'due_date',
+                            'lock_date', 'target', 'template')
 
         if exists:
             preset_node = PresetNode.objects.get(pk=preset['id'])
@@ -215,7 +216,9 @@ def update_presets(assignment, presets, template_map):
         type_changed = preset_node.type != type
         preset_node.description = description
         preset_node.type = type
-        preset_node.deadline = deadline
+        preset_node.unlock_date = unlock_date
+        preset_node.due_date = due_date
+        preset_node.lock_date = lock_date
 
         if preset_node.type == Node.PROGRESS:
             preset_node.target = target

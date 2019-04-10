@@ -13,7 +13,7 @@
         </b-button>
 
         <h2 class="field-heading">Preset Type</h2>
-        <b-row>
+        <b-row class="multi-form">
             <b-col md="6">
                 <b-card
                     @click="changePresetType('d')"
@@ -25,7 +25,7 @@
                     </b-button>
                     <div>
                         <b>Entry</b><br/>
-                        A preset that has to be filled in before a set deadline.
+                        An entry that should be filled in before a set deadline.
                     </div>
                 </b-card>
             </b-col>
@@ -40,17 +40,50 @@
                     </b-button>
                     <div>
                         <b>Progress</b><br/>
-                        A point target that has to be met before a set deadline.
+                        A point target to indicate required progress.
                     </div>
                 </b-card>
             </b-col>
         </b-row>
 
-        <h2 class="field-heading">
-            Deadline
-            <tooltip tip="Students will no longer be able to complete the goal of this node after this date" />
-        </h2>
-        <flat-pickr class="theme-input multi-form full-width" v-model="currentPreset.deadline" :config="$root.flatPickrTimeConfig"/>
+        <b-row v-if="currentPreset.type == 'd'">
+            <b-col xl="4">
+                <h2 class="field-heading">
+                    Unlock date
+                    <tooltip tip="Students will be able to work on the entry from this date onwards"/>
+                </h2>
+                <flat-pickr class="multi-form theme-input full-width"
+                    v-model="currentPreset.unlock_date"
+                    :config="$root.flatPickrTimeConfig"/>
+            </b-col>
+            <b-col xl="4">
+                <h2 class="field-heading">
+                    Due date
+                    <tooltip tip="Students are expected to have finished their entry by this date, but new entries can still be added until the lock date"/>
+                </h2>
+                <flat-pickr class="multi-form theme-input full-width"
+                    v-model="currentPreset.due_date"
+                    :config="$root.flatPickrTimeConfig"/>
+            </b-col>
+            <b-col xl="4">
+                <h2 class="field-heading">
+                    Lock date
+                    <tooltip tip="Students will not be able to fill in the entry anymore after this date" />
+                </h2>
+                <flat-pickr class="multi-form theme-input full-width"
+                    v-model="currentPreset.lock_date"
+                    :config="$root.flatPickrTimeConfig"/>
+            </b-col>
+        </b-row>
+        <div v-else>
+            <h2 class="field-heading">
+                Due date
+                <tooltip tip="Students are expected to have reached the point target by this date, but new entries can still be added until the assignment lock date"/>
+            </h2>
+            <flat-pickr class="multi-form theme-input full-width"
+                v-model="currentPreset.due_date"
+                :config="$root.flatPickrTimeConfig"/>
+        </div>
 
         <h2 class="field-heading">Description</h2>
         <b-textarea class="multi-form theme-input" v-model="currentPreset.description" placeholder="Description"/>
@@ -58,7 +91,7 @@
         <div v-if="currentPreset.type === 'd'">
             <h2 class="field-heading">
                 Preset Template
-                <tooltip tip="The template students can use for this node" />
+                <tooltip tip="The template students can use for this entry" />
             </h2>
             <b-form-select v-model="currentPreset.template" class="multi-form">
                 <option disabled value="">Please select a template</option>

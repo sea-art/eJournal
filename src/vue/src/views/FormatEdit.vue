@@ -224,7 +224,7 @@ export default {
         // Used to sort the list when dates are changed. Updates the currentNode index accordingly
         sortList () {
             var temp = this.nodes[this.currentNode]
-            this.nodes.sort((a, b) => { return new Date(a.deadline) - new Date(b.deadline) })
+            this.nodes.sort((a, b) => { return new Date(a.due_date) - new Date(b.due_date) })
             this.currentNode = this.nodes.indexOf(temp)
         },
         newTemplate () {
@@ -267,15 +267,15 @@ export default {
             return new Date().toISOString().split('T')[0].slice(0, 10) + ' ' + new Date().toISOString().split('T')[1].slice(0, 5)
         },
         addNode () {
-            var deadline = this.assignmentDetails.due_date
+            var dueDate = this.assignmentDetails.due_date
 
-            if (!deadline) {
-                deadline = this.newDate()
+            if (!dueDate) {
+                dueDate = this.newDate()
             }
 
             var newNode = {
                 'type': 'p',
-                'deadline': deadline,
+                'due_date': dueDate,
                 'target': this.assignmentDetails.points_possible
             }
 
@@ -290,16 +290,28 @@ export default {
         saveFormat () {
             var missingAssignmentName = false
             var missingPointMax = false
+            var unlockAfterDue = false
+            var unlockAfterLock = false
+            var dueAfterLock = false
 
-            var deadlineBeforeUnlockDate = false
-            var deadlineAfterDueDate = false
-            var deadlineAfterLockDate = false
-            var unlockAfterDueDate = false
-            var unlockAfterLockDate = false
-            var dueAfterLockDate = false
-            var invalidDate = false
-            var invalidTemplate = false
-            var invalidTarget = false
+            var presetUnlockBeforeUnlock = false
+            var presetUnlockAfterDue = false
+            var presetUnlockAfterLock = false
+            var presetDueBeforeUnlock = false
+            var presetDueAfterDue = false
+            var presetDueAfterLock = false
+            var presetLockBeforeUnlock = false
+            var presetLockAfterDue = false
+            var presetLockAfterLock = false
+            var presetUnlockAfterPresetDue = false
+            var presetUnlockAfterPresetLock = false
+            var presetDueAfterPresetLock = false
+
+            var presetInvalidDue = false
+            var presetInvalidLock = false
+            var presetInvalidUnlock = false
+            var presetInvalidTemplate = false
+            var presetInvalidTarget = false
 
             var lastTarget
             var targetsOutOfOrder = false
@@ -319,21 +331,19 @@ export default {
                 this.$toasted.error('Points possible is missing. Please check the format and try again.')
             }
 
-            if (!unlockAfterDueDate && this.assignmentDetails.unlock_date && this.assignmentDetails.due_date &&
+            if (!unlockAfterDue && this.assignmentDetails.unlock_date && this.assignmentDetails.due_date &&
                 Date.parse(this.assignmentDetails.unlock_date) > Date.parse(this.assignmentDetails.due_date)) {
-                unlockAfterDueDate = true
+                unlockAfterDue = true
                 this.$toasted.error('The assignment is due before the unlock date. Please check the format and try again.')
             }
-
-            if (!unlockAfterLockDate && this.assignmentDetails.unlock_date && this.assignmentDetails.lock_date &&
+            if (!unlockAfterLock && this.assignmentDetails.unlock_date && this.assignmentDetails.lock_date &&
                 Date.parse(this.assignmentDetails.unlock_date) > Date.parse(this.assignmentDetails.lock_date)) {
-                unlockAfterLockDate = true
+                unlockAfterLock = true
                 this.$toasted.error('The assignment lock date is before the unlock date. Please check the format and try again.')
             }
-
-            if (!dueAfterLockDate && this.assignmentDetails.due_date && this.assignmentDetails.lock_date &&
+            if (!dueAfterLock && this.assignmentDetails.due_date && this.assignmentDetails.lock_date &&
                 Date.parse(this.assignmentDetails.due_date) > Date.parse(this.assignmentDetails.lock_date)) {
-                dueAfterLockDate = true
+                dueAfterLock = true
                 this.$toasted.error('The assignment lock date is before the due date. Please check the format and try again.')
             }
 
@@ -346,42 +356,102 @@ export default {
                     lastTarget = node.target
                 }
 
-                if (!invalidDate && isNaN(Date.parse(node.deadline))) {
-                    invalidDate = true
-                    this.$toasted.error('One or more presets have an invalid deadline. Please check the format and try again.')
+                if (!presetInvalidDue && isNaN(Date.parse(node.due_date))) {
+                    presetInvalidDue = true
+                    this.$toasted.error('One or more presets have an invalid due date. Please check the format and try again.')
                 }
-                if (!invalidTemplate && node.type === 'd' && typeof node.template.id === 'undefined') {
-                    invalidTemplate = true
+                if (!presetInvalidLock && node.lock_date && isNaN(Date.parse(node.lock_date))) {
+                    presetInvalidLock = true
+                    this.$toasted.error('One or more presets have an invalid lock date. Please check the format and try again.')
+                }
+                if (!presetInvalidUnlock && node.unlock_date && isNaN(Date.parse(node.unlock_date))) {
+                    presetInvalidUnlock = true
+                    this.$toasted.error('One or more presets have an invalid unlock date. Please check the format and try again.')
+                }
+                if (!presetInvalidTemplate && node.type === 'd' && typeof node.template.id === 'undefined') {
+                    presetInvalidTemplate = true
                     this.$toasted.error('One or more presets have an invalid template. Please check the format and try again.')
                 }
-                if (!invalidTemplate && node.type === 'd' && node.template.id && !templatePoolIds.includes(node.template.id)) {
-                    invalidTemplate = true
+                if (!presetInvalidTemplate && node.type === 'd' && node.template.id && !templatePoolIds.includes(node.template.id)) {
+                    presetInvalidTemplate = true
                     this.$toasted.error('One or more presets have an invalid template. Please check the format and try again.')
                 }
-                if (!invalidTarget && node.type === 'p' && isNaN(parseInt(node.target))) {
-                    invalidTarget = true
+                if (!presetInvalidTarget && node.type === 'p' && isNaN(parseInt(node.target))) {
+                    presetInvalidTarget = true
                     this.$toasted.error('One or more presets have an invalid target. Please check the format and try again.')
                 }
-                if (!deadlineBeforeUnlockDate && this.assignmentDetails.unlock_date &&
-                    Date.parse(node.deadline) < Date.parse(this.assignmentDetails.unlock_date)) {
-                    deadlineBeforeUnlockDate = true
-                    this.$toasted.error('One or more presets have a deadline before the assignment unlock date. Please check the format and try again.')
+
+                if (!presetUnlockAfterPresetDue && node.unlock_date && node.due_date &&
+                    Date.parse(node.unlock_date) > Date.parse(node.due_date)) {
+                    presetUnlockAfterPresetDue = true
+                    this.$toasted.error('One or more presets are due before their unlock date. Please check the format and try again.')
                 }
-                if (!deadlineAfterDueDate && this.assignmentDetails.due_date &&
-                    Date.parse(node.deadline) > Date.parse(this.assignmentDetails.due_date)) {
-                    deadlineAfterDueDate = true
-                    this.$toasted.error('One or more presets have a deadline after the assignment due date. Please check the format and try again.')
+                if (!presetUnlockAfterPresetLock && node.unlock_date && node.lock_date &&
+                    Date.parse(node.unlock_date) > Date.parse(node.lock_date)) {
+                    presetUnlockAfterPresetLock = true
+                    this.$toasted.error('One or more presets have a lock date before their unlock date. Please check the format and try again.')
                 }
-                if (!deadlineAfterLockDate && this.assignmentDetails.lock_date &&
-                    Date.parse(node.deadline) > Date.parse(this.assignmentDetails.lock_date)) {
-                    deadlineAfterLockDate = true
-                    this.$toasted.error('One or more presets have a deadline after the assignment lock date. Please check the format and try again.')
+                if (!presetDueAfterPresetLock && node.due_date && node.lock_date &&
+                    Date.parse(node.due_date) > Date.parse(node.lock_date)) {
+                    presetDueAfterPresetLock = true
+                    this.$toasted.error('One or more presets have a lock date before their due date. Please check the format and try again.')
+                }
+
+                if (!presetUnlockBeforeUnlock && this.assignmentDetails.unlock_date &&
+                    Date.parse(node.unlock_date) < Date.parse(this.assignmentDetails.unlock_date)) {
+                    presetUnlockBeforeUnlock = true
+                    this.$toasted.error('One or more presets have an unlock date before the assignment unlock date. Please check the format and try again.')
+                }
+                if (!presetUnlockAfterDue && this.assignmentDetails.due_date &&
+                    Date.parse(node.unlock_date) > Date.parse(this.assignmentDetails.due_date)) {
+                    presetUnlockAfterDue = true
+                    this.$toasted.error('One or more presets have an unlock date after the assignment due date. Please check the format and try again.')
+                }
+                if (!presetUnlockAfterLock && this.assignmentDetails.lock_date &&
+                    Date.parse(node.unlock_date) > Date.parse(this.assignmentDetails.lock_date)) {
+                    presetUnlockAfterLock = true
+                    this.$toasted.error('One or more presets have an unlock date after the assignment lock date. Please check the format and try again.')
+                }
+                if (!presetDueBeforeUnlock && this.assignmentDetails.unlock_date &&
+                    Date.parse(node.due_date) < Date.parse(this.assignmentDetails.unlock_date)) {
+                    presetDueBeforeUnlock = true
+                    this.$toasted.error('One or more presets have a due date before the assignment unlock date. Please check the format and try again.')
+                }
+                if (!presetDueAfterDue && this.assignmentDetails.due_date &&
+                    Date.parse(node.due_date) > Date.parse(this.assignmentDetails.due_date)) {
+                    presetDueAfterDue = true
+                    this.$toasted.error('One or more presets have a due date after the assignment due date. Please check the format and try again.')
+                }
+                if (!presetDueAfterLock && this.assignmentDetails.lock_date &&
+                    Date.parse(node.due_date) > Date.parse(this.assignmentDetails.lock_date)) {
+                    presetDueAfterLock = true
+                    this.$toasted.error('One or more presets have a due date after the assignment lock date. Please check the format and try again.')
+                }
+                if (!presetLockBeforeUnlock && this.assignmentDetails.unlock_date &&
+                    Date.parse(node.lock_date) < Date.parse(this.assignmentDetails.unlock_date)) {
+                    presetLockBeforeUnlock = true
+                    this.$toasted.error('One or more presets have a lock date before the assignment unlock date. Please check the format and try again.')
+                }
+                if (!presetLockAfterDue && this.assignmentDetails.due_date &&
+                    Date.parse(node.lock_date) > Date.parse(this.assignmentDetails.due_date)) {
+                    presetLockAfterDue = true
+                    this.$toasted.error('One or more presets have a lock date after the assignment due date. Please check the format and try again.')
+                }
+                if (!presetLockAfterLock && this.assignmentDetails.lock_date &&
+                    Date.parse(node.lock_date) > Date.parse(this.assignmentDetails.lock_date)) {
+                    presetLockAfterLock = true
+                    this.$toasted.error('One or more presets have a lock date after the assignment lock date. Please check the format and try again.')
                 }
             }
 
-            if (missingAssignmentName | missingPointMax | invalidDate | invalidTemplate | invalidTarget | targetsOutOfOrder |
-                deadlineBeforeUnlockDate | deadlineAfterDueDate | deadlineAfterLockDate | unlockAfterDueDate | unlockAfterLockDate |
-                dueAfterLockDate) {
+            if (missingAssignmentName || missingPointMax || unlockAfterDue || unlockAfterLock ||
+                dueAfterLock || presetUnlockBeforeUnlock || presetUnlockAfterDue ||
+                presetUnlockAfterLock || presetDueBeforeUnlock || presetDueAfterDue ||
+                presetDueAfterLock || presetLockBeforeUnlock || presetLockAfterDue ||
+                presetUnlockAfterPresetDue || presetUnlockAfterPresetLock ||
+                presetDueAfterPresetLock || presetLockAfterLock || presetInvalidDue ||
+                presetInvalidLock || presetInvalidUnlock || presetInvalidTemplate ||
+                presetInvalidTarget || targetsOutOfOrder) {
                 return
             }
             this.saveRequestInFlight = true
@@ -439,7 +509,7 @@ export default {
             this.templatePool = Object.values(tempTemplatePool).sort((a, b) => { return a.t.id - b.t.id })
 
             this.nodes = this.presets.slice()
-            this.nodes.sort((a, b) => { return new Date(a.deadline) - new Date(b.deadline) })
+            this.nodes.sort((a, b) => { return new Date(a.due_date) - new Date(b.due_date) })
         },
         // Utility func to translate from internal format to db
         convertToDB () {

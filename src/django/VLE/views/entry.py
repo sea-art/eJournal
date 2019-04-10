@@ -128,8 +128,8 @@ class EntryView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to edit someone else\'s entry.')
         if entry.grade is not None:
             return response.bad_request('You are not allowed to edit graded entries.')
-        if entry.is_due():
-            return response.bad_request('You are not allowed to edit entries past their due date.')
+        if entry.is_locked():
+            return response.bad_request('You are not allowed to edit locked entries.')
 
         # Attempt to edit the entries content.
         for content in content_list:
@@ -175,10 +175,10 @@ class EntryView(viewsets.ViewSet):
             request.user.check_permission('can_have_journal', assignment, 'You are not allowed to delete entries.')
             if entry.grade:
                 return response.forbidden('You are not allowed to delete graded entries.')
-            if entry.is_due():
-                return response.forbidden('You are not allowed to delete entries past their due date.')
+            if entry.is_locked():
+                return response.forbidden('You are not allowed to delete locked entries.')
             if assignment.is_locked():
-                return response.forbidden('You are not allowed to delete entries after the assignment is locked.')
+                return response.forbidden('You are not allowed to delete entries in a locked assignment.')
 
         elif not request.user.is_superuser:
             return response.forbidden('You are not allowed to delete someone else\'s entry.')

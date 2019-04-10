@@ -20,7 +20,7 @@ def _send_deadline_mail(deadline, journal):
     email_data['heading'] = 'Upcoming deadline'
     email_data['main_content'] = '''\
     You have an unfinished deadline coming up for {} in {}.'''.format(course.name, assignment.name)
-    email_data['extra_content'] = 'Date: {}'.format(deadline['deadline'])
+    email_data['extra_content'] = 'Date: {}'.format(deadline['due_date'])
     email_data['button_url'] = '{}/Home/Course/{}/Assignment/{}/Journal/{}?nID={}'\
                                .format(settings.BASELINK, course.id, assignment.id, journal.id, deadline['node'])
     email_data['button_text'] = 'View Deadline'
@@ -49,7 +49,7 @@ def _send_deadline_mails(deadline_query):
     Arguments:
     deadline_query -- query of PresetNodes
     """
-    # Remove all filled entryedeadline, and remove where the user does not want to recieve an email.
+    # Remove all filled entrydeadline, and remove where the user does not want to recieve an email.
     no_submissions = Q(type=Node.ENTRYDEADLINE, node__entry__isnull=True) | Q(type=Node.PROGRESS)
     notifications_enabled = Q(node__journal__user__preferences__upcoming_deadline_notifications=True)
     verified_email = Q(node__journal__user__verified_email=True)
@@ -63,7 +63,7 @@ def _send_deadline_mails(deadline_query):
             continue
         # Dont send a mail when the target points is reached
         if deadline['type'] == Node.PROGRESS and \
-           (Entry.objects.filter(node__journal=journal, creation_date__lt=deadline['deadline'],
+           (Entry.objects.filter(node__journal=journal, creation_date__lt=deadline['due_date'],
                                  published=True).aggregate(Sum('grade'))['grade__sum'] or 0) > deadline['target']:
             continue
 
@@ -78,12 +78,12 @@ def send_upcoming_deadlines():
     Each user receives one a week before, and a day before a mail about the deadline.
     """
     upcoming_day_deadlines = PresetNode.objects.filter(
-        deadline__range=(
+        due_date__range=(
             datetime.datetime.utcnow().date() + datetime.timedelta(days=1),
             datetime.datetime.utcnow().date() + datetime.timedelta(days=2)))
     _send_deadline_mails(upcoming_day_deadlines)
     upcoming_week_deadlines = PresetNode.objects.filter(
-        deadline__range=(
+        due_date__range=(
             datetime.datetime.utcnow().date() + datetime.timedelta(days=7),
             datetime.datetime.utcnow().date() + datetime.timedelta(days=8)))
     _send_deadline_mails(upcoming_week_deadlines)

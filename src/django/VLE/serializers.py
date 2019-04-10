@@ -174,7 +174,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
         if 'user' in self.context and self.context['user'] and \
            self.context['user'].has_permission('can_have_journal', assignment):
             journal = Journal.objects.get(assignment=assignment, user=self.context['user'])
-            nodes = journal.node_set.order_by('preset__deadline')
+            nodes = journal.node_set.order_by('preset__due_date')
             if not nodes:
                 return None
 
@@ -213,13 +213,13 @@ class AssignmentSerializer(serializers.ModelSerializer):
                 if node.entry.published:
                     t_grade += node.entry.grade
             # Set the deadline to the first for filled ENTRYDEADLINE node date
-            elif node.type == Node.ENTRYDEADLINE and not node.entry and node.preset.deadline > timezone.now():
-                deadline = node.preset.deadline
+            elif node.type == Node.ENTRYDEADLINE and not node.entry and node.preset.due_date > timezone.now():
+                deadline = node.preset.due_date
                 break
             # Set the deadline to first not fullfilled PROGRESS node date
             elif node.type == Node.PROGRESS:
                 if node.preset.target > t_grade:
-                    deadline = node.preset.deadline
+                    deadline = node.preset.due_date
                     break
 
         return deadline
@@ -361,30 +361,42 @@ class FormatSerializer(serializers.ModelSerializer):
         return TemplateSerializer(entry.available_templates.all(), many=True).data
 
     def get_presets(self, entry):
-        return PresetNodeSerializer(entry.presetnode_set.all().order_by('deadline'), many=True).data
+        return PresetNodeSerializer(entry.presetnode_set.all().order_by('due_date'), many=True).data
 
 
 class PresetNodeSerializer(serializers.ModelSerializer):
-    deadline = serializers.SerializerMethodField()
+    unlock_date = serializers.SerializerMethodField()
+    due_date = serializers.SerializerMethodField()
+    lock_date = serializers.SerializerMethodField()
     target = serializers.SerializerMethodField()
     template = serializers.SerializerMethodField()
 
     class Meta:
         model = PresetNode
-        fields = ('id', 'description', 'type', 'deadline', 'target', 'template')
+        fields = ('id', 'description', 'type', 'unlock_date', 'due_date', 'lock_date', 'target', 'template')
         read_only_fields = ('id', )
 
-    def get_deadline(self, entry):
-        return entry.deadline.strftime('%Y-%m-%d %H:%M')
-
-    def get_target(self, entry):
-        if entry.type == Node.PROGRESS:
-            return entry.target
+    def get_unlock_date(self, node):
+        if node.type == Node.ENTRYDEADLINE and node.unlock_date is not None:
+            return node.unlock_date.strftime('%Y-%m-%d %H:%M')
         return None
 
-    def get_template(self, entry):
-        if entry.type == Node.ENTRYDEADLINE:
-            return TemplateSerializer(entry.forced_template).data
+    def get_due_date(self, node):
+        return node.due_date.strftime('%Y-%m-%d %H:%M')
+
+    def get_lock_date(self, node):
+        if node.type == Node.ENTRYDEADLINE and node.lock_date is not None:
+            return node.lock_date.strftime('%Y-%m-%d %H:%M')
+        return None
+
+    def get_target(self, node):
+        if node.type == Node.PROGRESS:
+            return node.target
+        return None
+
+    def get_template(self, node):
+        if node.type == Node.ENTRYDEADLINE:
+            return TemplateSerializer(node.forced_template).data
         return None
 
 
@@ -408,7 +420,7 @@ class EntrySerializer(serializers.ModelSerializer):
         return ContentSerializer(entry.content_set.all(), many=True).data
 
     def get_editable(self, entry):
-        return entry.grade is None and not entry.is_due()
+        return entry.grade is None and not entry.is_locked()
 
     def get_grade(self, entry):
         # TODO: Add permission can_view_grade

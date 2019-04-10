@@ -24,10 +24,12 @@
                             @delete-node="deleteNode" :entryNode="nodes[currentNode]"/>
                         </div>
                         <div v-else>
-                            <entry-preview v-if="checkDeadline()" ref="entry-prev" @content-template="fillDeadline" :template="nodes[currentNode].template" :nodeID="nodes[currentNode].nID" :description="nodes[currentNode].description"/>
+                            <entry-preview v-if="!isLocked()" ref="entry-prev" @content-template="fillDeadline" :template="nodes[currentNode].template" :nodeID="nodes[currentNode].nID" :description="nodes[currentNode].description"/>
                             <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
                                 <h2 class="mb-2">{{nodes[currentNode].template.name}}</h2>
-                                <b>The deadline has passed. You are not allowed to submit an entry anymore.</b>
+                                <hr class="full-width"/>
+                                <b>This preset is locked. You cannot submit an entry at the moment.</b><br/>
+                                {{ deadlineRange }}
                             </b-card>
                         </div>
                     </div>
@@ -35,13 +37,7 @@
                         <add-card @info-entry="addNode" ref="add-card-ref" :addNode="nodes[currentNode]"/>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'p'">
-                        <b-card class="no-hover" :class="getProgressBorderClass()">
-                            <h2 class="mb-2">Goal: {{ nodes[currentNode].target }} points</h2>
-                            <span v-if="progressPointsLeft > 0">
-                                <b>{{ progressNodes[nodes[currentNode].nID] }}</b> out of <b>{{ nodes[currentNode].target }}</b> points.<br/>
-                                <b>{{ progressPointsLeft }}</b> more required before <b>{{ $root.beautifyDate(nodes[currentNode].deadline) }}</b>.
-                            </span>
-                        </b-card>
+                        <progress-node :currentNode="nodes[currentNode]" :nodes="nodes"/>
                     </div>
                 </div>
                 <journal-start-card v-else-if="currentNode === -1" :assignment="assignment"/>
@@ -81,8 +77,9 @@ import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
 import journalStartCard from '@/components/journal/JournalStartCard.vue'
 import journalEndCard from '@/components/journal/JournalEndCard.vue'
-import icon from 'vue-awesome/components/Icon'
+import progressNode from '@/components/entry/ProgressNode.vue'
 
+import icon from 'vue-awesome/components/Icon'
 import journalAPI from '@/api/journal'
 import assignmentAPI from '@/api/assignment'
 import entryAPI from '@/api/entry'
@@ -95,8 +92,6 @@ export default {
             editedData: ['', ''],
             nodes: [],
             journal: {},
-            progressNodes: {},
-            progressPointsLeft: 0,
             assignment: ''
         }
     },
@@ -113,26 +108,12 @@ export default {
                             if (this.$route.query.nID !== undefined) {
                                 this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID))
                             }
-
-                            for (var node of this.nodes) {
-                                if (node.type === 'p') {
-                                    this.progressPoints(node)
-                                }
-                            }
                         })
                 }
             })
 
         journalAPI.get(this.jID)
             .then(journal => { this.journal = journal })
-    },
-    watch: {
-        currentNode: function () {
-            if (this.currentNode !== -1 && this.currentNode !== this.nodes.length && this.nodes[this.currentNode].type === 'p') {
-                this.progressPoints(this.nodes[this.currentNode])
-                this.progressPointsLeft = this.nodes[this.currentNode].target - this.progressNodes[this.nodes[this.currentNode].nID]
-            }
-        }
     },
     methods: {
         adaptData (editedData) {
@@ -156,7 +137,7 @@ export default {
              *  it will look for possible unsaved changes.
              *  If there are unsaved changes a confirmation will be asked.
              */
-            if (this.currentNode !== -1 && this.currentNode !== this.nodes.length && this.nodes[this.currentNode].type === 'd' && this.nodes[this.currentNode].entry === null && this.checkDeadline()) {
+            if (this.currentNode !== -1 && this.currentNode !== this.nodes.length && this.nodes[this.currentNode].type === 'd' && this.nodes[this.currentNode].entry === null && !this.isLocked()) {
                 if (this.$refs['entry-prev'].checkChanges() && !confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
                     return false
                 }
@@ -217,28 +198,6 @@ export default {
                     this.currentNode = data.added
                 })
         },
-        progressPoints (progressNode) {
-            /* The function will update a given progressNode by
-             * going through all the nodes and count the published grades
-             * so far. */
-            var tempProgress = 0
-            for (var node of this.nodes) {
-                if (node.nID === progressNode.nID) {
-                    break
-                }
-
-                if (node.type === 'e' || node.type === 'd') {
-                    if (node.entry && node.entry.grade && node.entry.grade !== '0') {
-                        tempProgress += parseInt(node.entry.grade)
-                    }
-                }
-            }
-
-            this.progressNodes[progressNode.nID] = tempProgress
-        },
-        getProgressBorderClass () {
-            return this.progressPointsLeft > 0 ? 'red-border' : 'green-border'
-        },
         findEntryNode (nodeID) {
             for (var i = 0; i < this.nodes.length; i++) {
                 if (this.nodes[i].nID === nodeID) {
@@ -247,11 +206,20 @@ export default {
             }
             return 0
         },
-        checkDeadline () {
+        isLocked () {
             var currentDate = new Date()
-            var deadline = new Date(this.nodes[this.currentNode].deadline)
+            var unlockDate = currentDate
+            var lockDate = currentDate
 
-            return currentDate <= deadline
+            if (this.nodes[this.currentNode].unlock_date) {
+                unlockDate = new Date(this.nodes[this.currentNode].unlock_date)
+            }
+
+            if (this.nodes[this.currentNode].lock_date) {
+                lockDate = new Date(this.nodes[this.currentNode].lock_date)
+            }
+
+            return currentDate < unlockDate || lockDate < currentDate
         }
     },
     computed: {
@@ -259,19 +227,34 @@ export default {
             return this.nodes.findIndex(function (node) {
                 return node.type === 'a'
             })
+        },
+        deadlineRange () {
+            var unlockDate = this.$root.beautifyDate(this.nodes[this.currentNode].unlock_date)
+            var lockDate = this.$root.beautifyDate(this.nodes[this.currentNode].lock_date)
+
+            if (unlockDate && lockDate) {
+                return `Available from ${unlockDate} until ${lockDate}`
+            } else if (unlockDate) {
+                return `Available from ${unlockDate}`
+            } else if (lockDate) {
+                return `Available until ${lockDate}`
+            }
+
+            return ''
         }
     },
     components: {
-        'content-columns': contentColumns,
-        'bread-crumb': breadCrumb,
-        'add-card': addCard,
+        contentColumns,
+        breadCrumb,
+        addCard,
         timeline,
         icon,
-        'entry-node': entryNode,
-        'entry-preview': entryPreview,
-        'progress-bar': progressBar,
-        'journal-start-card': journalStartCard,
-        'journal-end-card': journalEndCard
+        entryNode,
+        entryPreview,
+        progressBar,
+        progressNode,
+        journalStartCard,
+        journalEndCard
     }
 }
 </script>

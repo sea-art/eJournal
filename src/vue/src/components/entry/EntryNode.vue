@@ -63,13 +63,20 @@
                 :authorUID="$parent.journal.student.id"
                 :entryID="entryNode.entry.id"
             />
+            <hr class="full-width"/>
             <div>
-                <hr class="full-width"/>
-                <span class="timestamp" v-if="$root.beautifyDate(entryNode.entry.last_edited) === $root.beautifyDate(entryNode.entry.creation_date)">
-                    Submitted on: {{ $root.beautifyDate(entryNode.entry.creation_date) }}<br/>
-                </span>
-                <span class="timestamp" v-else>
-                    Last edited: {{ $root.beautifyDate(entryNode.entry.last_edited) }}<br/>
+                <span class="timestamp">
+                    <span  v-if="$root.beautifyDate(entryNode.entry.last_edited) === $root.beautifyDate(entryNode.entry.creation_date)">
+                        Submitted on: {{ $root.beautifyDate(entryNode.entry.creation_date) }}
+                    </span>
+                    <span v-else>
+                        Last edited: {{ $root.beautifyDate(entryNode.entry.last_edited) }}
+                    </span>
+                    <b-badge
+                        v-if="entryNode.due_date && new Date(entryNode.due_date) < new Date(entryNode.entry.last_edited)"
+                        class="late-submission-badge">
+                        LATE
+                    </b-badge><br/>
                 </span>
             </div>
         </b-card>

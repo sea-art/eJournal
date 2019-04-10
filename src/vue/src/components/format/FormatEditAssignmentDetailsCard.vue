@@ -52,7 +52,7 @@
                 <b-col xl="4">
                     <h2 class="field-heading">
                         Lock date
-                        <tooltip tip="No more entries can be added after this date" />
+                        <tooltip tip="Students will not be able to add any more entries after this date" />
                     </h2>
                     <flat-pickr class="multi-form theme-input full-width"
                         v-model="assignmentDetails.lock_date"
