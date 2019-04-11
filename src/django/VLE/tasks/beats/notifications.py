@@ -28,14 +28,14 @@ def _send_deadline_mail(deadline, journal):
 
     html_content = render_to_string('call_to_action.html', {'email_data': email_data})
     text_content = strip_tags(html_content)
-
-    email = EmailMultiAlternatives(
-        subject='Upcoming deadline in {}'.format(assignment.name),
-        body=text_content,
-        from_email='noreply@ejourn.al' if 'PRODUCTION' in os.environ else 'test@ejourn.al',
-        headers={'Content-Type': 'text/plain'},
-        to=[journal.user.email]
-    )
+    for author in journal.authors:
+        email = EmailMultiAlternatives(
+            subject='Upcoming deadline in {}'.format(assignment.name),
+            body=text_content,
+            from_email='noreply@ejourn.al' if 'PRODUCTION' in os.environ else 'test@ejourn.al',
+            headers={'Content-Type': 'text/plain'},
+            to=[author.email]
+        )
 
     email.attach_alternative(html_content, 'text/html')
     email.send()

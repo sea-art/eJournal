@@ -554,12 +554,12 @@ class Journal(models.Model):
         on_delete=models.CASCADE,
     )
 
-    user = models.ForeignKey(
+    authors = models.ForeignKey(
         'User',
         on_delete=models.CASCADE,
     )
 
-    sourcedid = models.TextField(
+    sourcedids = models.TextField(
         'sourcedid',
         null=True
     )
@@ -576,13 +576,18 @@ class Journal(models.Model):
         return self.bonus_points + (self.node_set.filter(entry__published=True)
                                     .values('entry__grade').aggregate(Sum('entry__grade'))['entry__grade__sum'] or 0)
 
+    def get_journal_names(self):
+        usernames = [author.username for author in self.authors]
+        return ', '.join(usernames[:-1]) + \
+            (' and ' + usernames[-1]) if len(usernames) > 1 else usernames[0]
+
     def to_string(self, user=None):
         if user is None:
             return "Journal"
         if not user.can_view(self):
             return "Journal"
 
-        return "the {0} journal of {1}".format(self.assignment.name, self.user.username)
+        return "the {0} journal of {1}".format(self.assignment.name, self.get_journal_names())
 
     class Meta:
         """A class for meta data.
@@ -962,7 +967,7 @@ class Comment(models.Model):
             return True
 
         return user.has_permission('can_edit_staff_comment', self.entry.node.journal.assignment) and \
-            self.author != self.entry.node.journal.user
+            self.author in self.entry.node.journal.authors
 
     def save(self, *args, **kwargs):
         if not self.pk:

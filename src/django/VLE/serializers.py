@@ -331,8 +331,8 @@ class JournalSerializer(serializers.ModelSerializer):
     def get_grade(self, journal):
         return journal.get_grade()
 
-    def get_student(self, journal):
-        return UserSerializer(journal.user, context=self.context).data
+    def get_students(self, journal):
+        return UserSerializer(journal.authors, many=True, context=self.context).data
 
     def get_stats(self, journal):
         return {

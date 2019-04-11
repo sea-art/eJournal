@@ -253,7 +253,7 @@ def make_node(journal, entry=None, type=Node.ENTRY, preset=None):
     return node
 
 
-def make_journal(assignment, user):
+def make_journal(assignment, author):
     """Make a new journal.
 
     First creates all nodes defined by the format.
@@ -261,10 +261,10 @@ def make_journal(assignment, user):
     as those in the format, so any changes should
     be reflected in the Nodes as well.
     """
-    if Journal.objects.filter(assignment=assignment, user=user).exists():
-        return Journal.objects.get(assignment=assignment, user=user)
+    if Journal.objects.filter(assignment=assignment, authors__contains=author).exists():
+        return Journal.objects.get(assignment=assignment, authors__contains=author)
     preset_nodes = assignment.format.presetnode_set.all()
-    journal = Journal(assignment=assignment, user=user)
+    journal = Journal(assignment=assignment, authors=author)
     journal.save()
 
     for preset_node in preset_nodes:
