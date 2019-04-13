@@ -8,3 +8,12 @@
         state=directory
   changed_when: false
   tags: deploy
+
+- name: Ensure that the frontend file permissions are set properly
+  file: path={{ frontend_web_dir }}
+        recurse=yes
+        owner=www-data
+        group=www-data
+        mode=0755
+  changed_when: false
+  tags: deploy
