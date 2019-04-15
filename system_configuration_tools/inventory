@@ -1,5 +1,5 @@
 [staging]
-test.ejournal.app ansible_user=mel env=stage
+test.ejournal.app ansible_user=mel env=stage baselink=https://test.ejournal.app
 
 [production]
-uva.ejournal.app env=production
+uva.ejournal.app env=production baselink=https://uva.ejournal.app

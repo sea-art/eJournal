@@ -1,9 +1,5 @@
 ---
 
-# Domain settings.
-baselink: https://ejournal.app
-
-
 # Git settings.
 setup_git_repo: true
 git_branch: master
