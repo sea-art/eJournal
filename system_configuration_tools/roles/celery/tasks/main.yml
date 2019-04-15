@@ -8,3 +8,8 @@
 
 - include: setup_celery_supervisor.yml
   tags: celery
+
+- include: restart_celery.yml
+  tags:
+    - never
+    - deploy
