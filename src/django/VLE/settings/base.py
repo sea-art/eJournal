@@ -50,6 +50,8 @@ CELERY_RESULT_BACKEND = 'django-db://{}:{}@{}:{}/{}'.format(
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
+DJANGO_CELERY_BEAT_TZ_AWARE = False
+
 
 # Read for webserver, r + w for django
 FILE_UPLOAD_PERMISSIONS = 0o644
