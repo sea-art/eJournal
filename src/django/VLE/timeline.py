@@ -23,14 +23,15 @@ def get_sorted_nodes(journal):
     ).order_by('sort_deadline')
 
 
-def get_nodes(journal, user=None):
+def get_nodes(journal, author=None):
     """Convert a journal to a list of node dictionaries.
 
     First sorts the nodes on date, then attempts to add an
     add-node if the user can add to the journal, the subsequent
     progress node is in the future and maximally one.
     """
-    can_add = user and journal.user == user and user.has_permission('can_have_journal', journal.assignment)
+    can_add = author and author not in journal.authors.all() and \
+        author.has_permission('can_have_journal', journal.assignment)
 
     node_list = []
     for node in get_sorted_nodes(journal):
@@ -45,9 +46,9 @@ def get_nodes(journal, user=None):
                 can_add = False
 
         if node.type == Node.ENTRY:
-            node_list.append(get_entry_node(node, user))
+            node_list.append(get_entry_node(node, author))
         elif node.type == Node.ENTRYDEADLINE:
-            node_list.append(get_deadline(node, user))
+            node_list.append(get_deadline(node, author))
         elif node.type == Node.PROGRESS:
             node_list.append(get_progress(node))
 

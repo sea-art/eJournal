@@ -6,6 +6,7 @@ Database file
 import os
 
 from django.contrib.auth.models import AbstractUser
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
@@ -206,8 +207,7 @@ class User(AbstractUser):
                 return obj.is_published or self.has_permission('can_view_unpublished_assignment', obj)
             return False
         elif isinstance(obj, Journal):
-
-            if obj.user != self:
+            if self not in obj.authors.all():
                 return self.has_permission('can_view_all_journals', obj.assignment)
             else:
                 return self.has_permission('can_have_journal', obj.assignment)
@@ -554,13 +554,12 @@ class Journal(models.Model):
         on_delete=models.CASCADE,
     )
 
-    authors = models.ForeignKey(
-        'User',
-        on_delete=models.CASCADE,
+    authors = models.ManyToManyField(
+        'User'
     )
 
-    sourcedids = models.TextField(
-        'sourcedid',
+    sourcedids = ArrayField(
+        models.TextField(null=True),
         null=True
     )
     grade_url = models.TextField(
@@ -576,8 +575,8 @@ class Journal(models.Model):
         return self.bonus_points + (self.node_set.filter(entry__published=True)
                                     .values('entry__grade').aggregate(Sum('entry__grade'))['entry__grade__sum'] or 0)
 
-    def get_journal_names(self):
-        usernames = [author.username for author in self.authors]
+    def get_names(self):
+        usernames = [author.username for author in self.authors.all()]
         return ', '.join(usernames[:-1]) + \
             (' and ' + usernames[-1]) if len(usernames) > 1 else usernames[0]
 
@@ -587,15 +586,7 @@ class Journal(models.Model):
         if not user.can_view(self):
             return "Journal"
 
-        return "the {0} journal of {1}".format(self.assignment.name, self.get_journal_names())
-
-    class Meta:
-        """A class for meta data.
-
-        - unique_together: assignment and user must be unique together.
-        """
-
-        unique_together = ('assignment', 'user',)
+        return "the {0} journal of {1}".format(self.assignment.name, self.get_names())
 
 
 class Node(models.Model):
@@ -967,7 +958,7 @@ class Comment(models.Model):
             return True
 
         return user.has_permission('can_edit_staff_comment', self.entry.node.journal.assignment) and \
-            self.author in self.entry.node.journal.authors
+            self.author not in self.entry.node.journal.authors.all()
 
     def save(self, *args, **kwargs):
         if not self.pk:

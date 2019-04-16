@@ -20,5 +20,5 @@ def publish_all_assignment_grades(assignment_pk, published):
         Comment.objects.filter(entry__node__journal__assignment=assignment) \
                        .exclude(entry__grade=None).update(published=True)
         for journal in assignment.journal_set.all():
-            if journal.sourcedid is not None and journal.grade_url is not None:
+            if journal.sourcedids is not None and journal.grade_url is not None:
                 lti_grade.replace_result(journal)

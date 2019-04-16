@@ -65,7 +65,7 @@ def make_participation(user=None, course=None, role=None, groups=None):
         participation.save()
 
     for assignment in course.assignment_set.all():
-        if not Journal.objects.filter(assignment=assignment, user=user).exists():
+        if not Journal.objects.filter(assignment=assignment, authors__in=[user]).exists():
             make_journal(assignment, user)
     return participation
 
@@ -162,7 +162,7 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
     assign.save()
 
     for user in User.objects.filter(participation__course__in=assign.courses.all()).distinct():
-        if not Journal.objects.filter(assignment=assign, user=user).exists():
+        if not Journal.objects.filter(assignment=assign, authors__in=[user]).exists():
             make_journal(assign, user)
 
     return assign
@@ -261,10 +261,11 @@ def make_journal(assignment, author):
     as those in the format, so any changes should
     be reflected in the Nodes as well.
     """
-    if Journal.objects.filter(assignment=assignment, authors__contains=author).exists():
-        return Journal.objects.get(assignment=assignment, authors__contains=author)
+    if Journal.objects.filter(assignment=assignment, authors__in=[author]).exists():
+        return Journal.objects.get(assignment=assignment, authors__in=[author])
     preset_nodes = assignment.format.presetnode_set.all()
-    journal = Journal(assignment=assignment, authors=author)
+    journal = Journal.objects.create(assignment=assignment)
+    journal.authors.add(author)
     journal.save()
 
     for preset_node in preset_nodes:

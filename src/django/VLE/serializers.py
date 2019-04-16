@@ -173,7 +173,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
         # Student deadlines
         if 'user' in self.context and self.context['user'] and \
            self.context['user'].has_permission('can_have_journal', assignment):
-            journal = Journal.objects.get(assignment=assignment, user=self.context['user'])
+            journal = Journal.objects.get(assignment=assignment, authors__in=[self.context['user']])
             nodes = journal.node_set.order_by('preset__deadline')
             if not nodes:
                 return None
@@ -229,7 +229,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
             return None
         if not self.context['user'].has_permission('can_have_journal', assignment):
             return None
-        return Journal.objects.get(assignment=assignment, user=self.context['user']).pk
+        return Journal.objects.get(assignment=assignment, authors__in=[self.context['user']]).pk
 
     def get_journals(self, assignment):
         """Retrieves the journals of an assignment of the users who have the permission
@@ -239,7 +239,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
            and self.context['journals'] and self.context['course']:
             course = self.context['course']
             users = course.participation_set.filter(role__can_have_journal=True).values('user')
-            journals = Journal.objects.filter(assignment=assignment, user__in=users)
+            journals = Journal.objects.filter(assignment=assignment, authors__in=users)
             return JournalSerializer(journals, many=True, context=self.context).data
         else:
             return None
@@ -259,7 +259,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
             ).distinct()
 
         stats = {}
-        journal_set = assignment.journal_set.filter(user__in=users)
+        journal_set = assignment.journal_set.filter(authors__in=users)
         # Grader stats
         if self.context['user'].has_permission('can_grade', assignment):
             stats['needs_marking'] = journal_set \
@@ -320,19 +320,23 @@ class RoleSerializer(serializers.ModelSerializer):
 
 class JournalSerializer(serializers.ModelSerializer):
     stats = serializers.SerializerMethodField()
-    student = serializers.SerializerMethodField()
+    students = serializers.SerializerMethodField()
+    names = serializers.SerializerMethodField()
     grade = serializers.SerializerMethodField()
 
     class Meta:
         model = Journal
         fields = '__all__'
-        read_only_fields = ('id', 'assignment', 'user', 'grade_url', 'sourcedid', 'grade')
+        read_only_fields = ('id', 'assignment', 'students', 'stats', 'grade_url', 'sourcedids', 'grade')
 
     def get_grade(self, journal):
         return journal.get_grade()
 
     def get_students(self, journal):
         return UserSerializer(journal.authors, many=True, context=self.context).data
+
+    def get_names(self, journal):
+        return journal.get_names()
 
     def get_stats(self, journal):
         return {

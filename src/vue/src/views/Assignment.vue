@@ -79,7 +79,7 @@
             </b-modal>
         </div>
 
-        <div v-if="filteredJournals" v-for="journal in filteredJournals" :key="journal.student.id" slot="main-content-column">
+        <div v-if="filteredJournals" v-for="journal in filteredJournals" :key="journal.students[0].id" slot="main-content-column">
             <b-link tag="b-button" :to="{
                 name: 'Journal',
                 params: {
@@ -91,8 +91,7 @@
 
                 <student-card
                     :listView="true"
-                    :student="journal.student"
-                    :stats="journal.stats">
+                    :journal="journal">
                 </student-card>
             </b-link>
         </div>
@@ -294,11 +293,11 @@ export default {
             let self = this
 
             function compareFullName (a, b) {
-                return self.compare(a.student.full_name, b.student.full_name)
+                return self.compare(a.students.map(s => s.full_name.toLowerCase()).join(' '), b.students.map(s => s.full_name.toLowerCase()).join(' '), b.student.full_name)
             }
 
             function compareUsername (a, b) {
-                return self.compare(a.student.username, b.student.username)
+                return self.compare(a.students.map(s => s.username.toLowerCase()).join(' '), b.students.map(s => s.username.toLowerCase()).join(' '))
             }
 
             function compareMarkingNeeded (a, b) {
@@ -310,17 +309,17 @@ export default {
             }
 
             function searchFilter (assignment) {
-                var username = assignment.student.username.toLowerCase()
-                var fullName = assignment.student.full_name.toLowerCase()
+                var usernames = assignment.students.map(s => s.username.toLowerCase()).join(' ')
+                var fullNames = assignment.students.map(s => s.full_name.toLowerCase()).join(' ')
                 var searchValue = self.searchValue.toLowerCase()
 
-                return username.includes(searchValue) ||
-                       fullName.includes(searchValue)
+                return usernames.includes(searchValue) ||
+                       fullNames.includes(searchValue)
             }
 
             function groupFilter (assignment) {
                 if (self.getJournalGroupFilter) {
-                    return assignment.student.groups.map(g => g['name']).includes(self.getJournalGroupFilter)
+                    return assignment.students.map(s => s.groups.map(g => g['name'])).includes(self.getJournalGroupFilter)
                 }
 
                 return true

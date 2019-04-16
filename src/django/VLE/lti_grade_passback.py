@@ -9,7 +9,7 @@ from VLE.models import Counter, Entry
 class GradePassBackRequest(object):
     """Class to send Grade replace lti requests."""
 
-    def __init__(self, key, secret, journal, send_score=False, result_data=None, submitted_at=None):
+    def __init__(self, key, secret, journal, sourcedid, send_score=False, result_data=None, submitted_at=None):
         """
         Create the instance to set the needed variables.
 
@@ -21,7 +21,7 @@ class GradePassBackRequest(object):
         self.key = key
         self.secret = secret
         self.url = None if journal is None else journal.grade_url
-        self.sourcedid = None if journal is None else journal.sourcedid
+        self.sourcedid = None if journal is None else sourcedid
         self.timestamp = submitted_at
 
         if send_score and journal and journal.assignment and journal.assignment.points_possible:
@@ -170,16 +170,18 @@ def replace_result(journal):
     """
     change_entry_vle_coupling(journal, Entry.GRADING)
 
-    if journal.sourcedid is None or journal.grade_url is None:
+    if journal.sourcedids is None or journal.grade_url is None:
         return None
 
     secret = settings.LTI_SECRET
     key = settings.LTI_KEY
 
-    grade_request = GradePassBackRequest(key, secret, journal, send_score=True)
-    response = grade_request.send_post_request()
+    for sourcedid in journal.sourcedids:
+        grade_request = GradePassBackRequest(key, secret, journal, sourcedid, send_score=True)
+        response = grade_request.send_post_request()
 
-    if response['code_mayor'] == 'success':
-        change_entry_vle_coupling(journal, Entry.LINK_COMPLETE)
-
+        if response['code_mayor'] == 'success':
+            change_entry_vle_coupling(journal, Entry.LINK_COMPLETE)
+        else:
+            return response
     return response

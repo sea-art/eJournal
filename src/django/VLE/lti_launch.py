@@ -177,12 +177,6 @@ def select_create_journal(request, user, assignment):
     if assignment is None or user is None:
         return None
 
-    journals = Journal.objects.filter(user=user, assignment=assignment)
-    if journals.exists():
-        journal = journals.first()
-    else:
-        journal = factory.make_journal(assignment, user)
-
     within_assignment_timeframe = False
     try:
         begin = datetime.strptime(request['custom_assignment_unlock'], '%Y-%m-%d %X %z')
@@ -192,11 +186,21 @@ def select_create_journal(request, user, assignment):
     except (ValueError, KeyError):
         pass
 
-    if (journal.grade_url is None or within_assignment_timeframe) and 'lis_outcome_service_url' in request:
-        journal.grade_url = request['lis_outcome_service_url']
-        journal.save()
-    if (journal.sourcedid is None or within_assignment_timeframe) and 'lis_result_sourcedid' in request:
-        journal.sourcedid = request['lis_result_sourcedid']
-        journal.save()
+    journals = Journal.objects.filter(authors__in=[user], assignment=assignment)
+    if journals.exists():
+        journal = journals.first()
+        if within_assignment_timeframe and 'lis_outcome_service_url' in request:
+            journal.grade_url = request['lis_outcome_service_url']
+            journal.save()
+        return journal
+    elif within_assignment_timeframe:
+        journal = factory.make_journal(assignment, user)
+        if 'lis_result_sourcedid' in request:
+            journal.sourcedids.add(request['lis_result_sourcedid'])
+            journal.save()
+        if 'lis_outcome_service_url' in request:
+            journal.grade_url = request['lis_outcome_service_url']
+            journal.save()
+        return journal
 
-    return journal
+    return None

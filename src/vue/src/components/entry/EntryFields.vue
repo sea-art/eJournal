@@ -73,7 +73,7 @@
                 v-else-if="field.type == 'i'"
                 :id="'image-display-field-' + i"
                 :fileName="completeContent[i].data"
-                :authorUID="authorUID"
+                :journalID="journalID"
                 :entryID="entryID"
                 :nodeID="nodeID"
                 :contentID="completeContent[i].contentID"
@@ -81,7 +81,7 @@
             <file-download-button
                 v-else-if="field.type == 'f'"
                 :fileName="completeContent[i].data"
-                :authorUID="authorUID"
+                :journalID="journalID"
                 :entryID="entryID"
                 :nodeID="nodeID"
                 :contentID="completeContent[i].contentID"
@@ -96,7 +96,7 @@
             <pdf-display
                 v-else-if="field.type == 'p'"
                 :fileName="completeContent[i].data"
-                :authorUID="authorUID"
+                :journalID="journalID"
                 :entryID="entryID"
                 :nodeID="nodeID"
                 :contentID="completeContent[i].contentID"
@@ -132,7 +132,7 @@ export default {
         nodeID: {
             required: true
         },
-        authorUID: {
+        journalID: {
             required: false
         },
         entryID: {

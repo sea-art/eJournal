@@ -285,7 +285,7 @@ class UserView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to view this user\'s data.')
 
         profile = UserSerializer(user).data
-        journals = Journal.objects.filter(user=pk)
+        journals = Journal.objects.filter(authors__in=[pk])
         journal_dict = {}
         for journal in journals:
             # Select the nodes of this journal but only the ones with entries.
@@ -373,7 +373,7 @@ class UserView(viewsets.ViewSet):
             factory.make_user_file(request.FILES['file'], request.user, assignment)
         else:
             try:
-                content = Content.objects.get(pk=int(content_id), entry__node__journal__user=request.user)
+                content = Content.objects.get(pk=int(content_id), entry__node__journal__authors__in=[request.user])
             except Content.DoesNotExist:
                 return response.bad_request('Content with id {:s} was not found.'.format(content_id))
 

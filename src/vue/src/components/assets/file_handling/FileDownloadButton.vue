@@ -15,7 +15,7 @@ export default {
             required: true,
             String
         },
-        authorUID: {
+        journalID: {
             required: true,
             String
         },
@@ -37,7 +37,7 @@ export default {
     },
     methods: {
         fileDownload (e) {
-            userAPI.download(this.authorUID, this.fileName, this.entryID, this.nodeID, this.contentID)
+            userAPI.download(this.journalID, this.fileName, this.entryID, this.nodeID, this.contentID)
                 .then(response => {
                     try {
                         let blob = new Blob([response.data], { type: response.headers['content-type'] })

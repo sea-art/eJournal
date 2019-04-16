@@ -119,7 +119,7 @@ class LtiLaunchTest(TestCase):
         self.student.save()
         self.request = REQUEST.copy()
 
-        self.journal = factory.Journal(user=self.student)
+        self.journal = factory.Journal(authors=[self.student])
         self.assignment = self.journal.assignment
 
     def test_select_user(self):

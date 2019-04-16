@@ -17,13 +17,16 @@ def needs_grading(node_pk):
 
     result_data = {'url': '{0}/Home/Course/{1}/Assignment/{2}/Journal/{3}?nID={4}'.format(
         settings.BASELINK, course.pk, journal.assignment.pk, journal.pk, node.pk)}
-    grade_request = GradePassBackRequest(settings.LTI_KEY, settings.LTI_SECRET, journal, result_data=result_data,
-                                         submitted_at=str(node.entry.last_edited))
 
-    response = grade_request.send_post_request()
-    if response['code_mayor'] == 'success':
-        node.entry.vle_coupling = Entry.SEND_SUBMISSION
-        node.entry.save()
-        return True
-    else:
-        return False
+    for sourcedid in journal.sourcedids:
+        grade_request = GradePassBackRequest(settings.LTI_KEY, settings.LTI_SECRET, journal, sourcedid,
+                                             result_data=result_data, submitted_at=str(node.entry.last_edited))
+
+        response = grade_request.send_post_request()
+        if response['code_mayor'] == 'success':
+            node.entry.vle_coupling = Entry.SEND_SUBMISSION
+            node.entry.save()
+        else:
+            return False
+
+    return True

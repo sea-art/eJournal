@@ -32,8 +32,7 @@
                     <h3>Journal progress</h3>
                     <student-card
                         v-if="journal"
-                        :student="journal.student"
-                        :stats="journal.stats"
+                        :journal="journal"
                         :assignment="assignment"
                         :class="'mb-2 no-hover'"/>
                     <div v-if="journal && $hasPermission('can_grade')">

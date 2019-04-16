@@ -50,7 +50,7 @@ class JournalView(viewsets.ViewSet):
         request.user.check_can_view(assignment)
 
         users = course.participation_set.filter(role__can_have_journal=True).values('user')
-        queryset = assignment.journal_set.filter(user__in=users)
+        queryset = assignment.journal_set.filter(authors__in=users)
         journals = JournalSerializer(queryset, many=True).data
 
         return response.success({'journals': journals})
@@ -136,7 +136,7 @@ class JournalView(viewsets.ViewSet):
     # TODO: Is the payload ever used? Should this moved to celery...
     def publish(self, request, journal, published=True):
         grading.publish_all_journal_grades(journal, published)
-        if journal.sourcedid:
+        if journal.sourcedids:
             payload = lti_grade.replace_result(journal)
             if payload and 'code_mayor' in payload and payload['code_mayor'] == 'success':
                 return response.success({'lti_info': payload, 'journal': JournalSerializer(journal).data})

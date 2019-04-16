@@ -31,7 +31,7 @@
                 :template="entryNode.entry.template"
                 :completeContent="completeContent"
                 :displayMode="true"
-                :authorUID="$parent.journal.student.id"
+                :journalID="$parent.journal.id"
                 :entryID="entryNode.entry.id"
             />
             <div>
