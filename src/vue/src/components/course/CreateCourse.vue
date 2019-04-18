@@ -9,16 +9,26 @@
                 <b-col cols="6">
                     <h2 class="field-heading required">
                         Start date
-                        <tooltip tip="Start date of the course, assignments can begin from this date onwards"/>
+                        <tooltip tip="Start date of the course"/>
                     </h2>
-                    <flat-pickr class="multi-form multi-date-input theme-input full-width" v-model="form.startdate"/>
+                    <flat-pickr
+                        class="multi-form multi-date-input theme-input full-width"
+                        v-model="form.startdate"
+                        :config="{
+                            maxDate: form.enddate
+                        }"/>
                 </b-col>
                 <b-col cols="6">
                     <h2 class="field-heading required">
                         End date
-                        <tooltip tip="End date of the course, assignment deadlines cannot surpass this date"/>
+                        <tooltip tip="End date of the course"/>
                     </h2>
-                    <flat-pickr class="multi-form multi-date-input theme-input full-width" v-model="form.enddate"/>
+                    <flat-pickr
+                        class="multi-form multi-date-input theme-input full-width"
+                        v-model="form.enddate"
+                        :config="{
+                            minDate: form.startdate
+                        }"/>
                 </b-col>
             </b-row>
             <b-button class="float-left change-button" type="reset">

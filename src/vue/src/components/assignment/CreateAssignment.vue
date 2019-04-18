@@ -41,7 +41,9 @@
                     </h2>
                     <flat-pickr class="multi-form theme-input full-width"
                         v-model="form.unlockDate"
-                        :config="$root.flatPickrTimeConfig"/>
+                        :config="Object.assign({}, {
+                            maxDate: form.dueDate ? form.dueDate : form.lockDate
+                        }, $root.flatPickrTimeConfig)"/>
                 </b-col>
                 <b-col xl="4">
                     <h2 class="field-heading">
@@ -50,7 +52,10 @@
                     </h2>
                     <flat-pickr class="multi-form theme-input full-width"
                         v-model="form.dueDate"
-                        :config="$root.flatPickrTimeConfig"/>
+                        :config="Object.assign({}, {
+                            minDate: form.unlockDate,
+                            maxDate: form.lockDate
+                        }, $root.flatPickrTimeConfig)"/>
                 </b-col>
                 <b-col xl="4">
                     <h2 class="field-heading">
@@ -59,7 +64,9 @@
                     </h2>
                     <flat-pickr class="multi-form theme-input full-width"
                         v-model="form.lockDate"
-                        :config="$root.flatPickrTimeConfig"/>
+                        :config="Object.assign({}, {
+                            minDate: form.dueDate ? form.dueDate : form.unlockDate
+                        }, $root.flatPickrTimeConfig)"/>
                 </b-col>
             </b-row>
             <b-button class="float-left change-button mt-2" type="reset">

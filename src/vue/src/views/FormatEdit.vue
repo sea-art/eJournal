@@ -58,6 +58,7 @@
                     ref="entry-template-card"
                     :currentPreset="nodes[currentNode]"
                     :templates="templatePool"
+                    :assignmentDetails="assignmentDetails"
                     @deadline-changed="sortList"
                     @delete-preset="deletePreset"
                     @changed="isChanged = true"/>
@@ -66,6 +67,7 @@
                     :class="{ 'input-disabled' : saveRequestInFlight }"
                     v-else-if="currentNode === -1"
                     :assignmentDetails="assignmentDetails"
+                    :presetNodes="presets"
                     @changed="isChanged = true"/>
 
                 <b-card v-else-if="currentNode === nodes.length" class="no-hover" :class="$root.getBorderClass($route.params.cID)">

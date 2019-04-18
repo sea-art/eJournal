@@ -54,7 +54,7 @@
                 </h2>
                 <flat-pickr class="multi-form theme-input full-width"
                     v-model="currentPreset.unlock_date"
-                    :config="$root.flatPickrTimeConfig"/>
+                    :config="unlockDateConfig"/>
             </b-col>
             <b-col xl="4">
                 <h2 class="field-heading">
@@ -63,7 +63,7 @@
                 </h2>
                 <flat-pickr class="multi-form theme-input full-width"
                     v-model="currentPreset.due_date"
-                    :config="$root.flatPickrTimeConfig"/>
+                    :config="dueDateConfig"/>
             </b-col>
             <b-col xl="4">
                 <h2 class="field-heading">
@@ -72,7 +72,7 @@
                 </h2>
                 <flat-pickr class="multi-form theme-input full-width"
                     v-model="currentPreset.lock_date"
-                    :config="$root.flatPickrTimeConfig"/>
+                    :config="lockDateConfig"/>
             </b-col>
         </b-row>
         <div v-else>
@@ -82,7 +82,7 @@
             </h2>
             <flat-pickr class="multi-form theme-input full-width"
                 v-model="currentPreset.due_date"
-                :config="$root.flatPickrTimeConfig"/>
+                :config="progressDateConfig"/>
         </div>
 
         <h2 class="field-heading">Description</h2>
@@ -111,7 +111,7 @@
                 Point Target
                 <tooltip tip="The amount of points students should have achieved by the deadline of this node to be on schedule, new entries can still be added until the assignment's lock date"/>
             </h2>
-            <b-input type="number" class="theme-input" v-model="currentPreset.target" placeholder="Amount of points"/>
+            <b-input type="number" class="theme-input" v-model="currentPreset.target" placeholder="Amount of points" min="0"/>
         </div>
     </b-card>
 </template>
@@ -122,11 +122,89 @@ import tooltip from '@/components/assets/Tooltip.vue'
 import icon from 'vue-awesome/components/Icon'
 
 export default {
-    props: ['currentPreset', 'templates'],
+    props: ['currentPreset', 'templates', 'assignmentDetails'],
     data () {
         return {
             templateNames: [],
             prevID: this.currentPreset.id
+        }
+    },
+    computed: {
+        unlockDateConfig () {
+            var maxDate
+
+            if (this.currentPreset.due_date) {
+                maxDate = this.currentPreset.due_date
+            } else if (this.currentPreset.lock_date) {
+                maxDate = this.currentPreset.lock_date
+            } else if (this.assignmentDetails.due_date) {
+                maxDate = this.assignmentDetails.due_date
+            } else {
+                maxDate = this.assignmentDetails.lock_date
+            }
+
+            return Object.assign({}, {
+                minDate: this.assignmentDetails.unlock_date,
+                maxDate: maxDate
+            }, this.$root.flatPickrTimeConfig)
+        },
+        dueDateConfig () {
+            var minDate
+            var maxDate
+
+            if (this.currentPreset.unlock_date) {
+                minDate = this.currentPreset.unlock_date
+            } else {
+                minDate = this.assignmentDetails.unlock_date
+            }
+
+            if (new Date(this.currentPreset.lock_date) < new Date(maxDate) || !maxDate) {
+                maxDate = this.currentPreset.lock_date
+            }
+
+            if (new Date(this.assignmentDetails.due_date) < new Date(maxDate) || !maxDate) {
+                maxDate = this.assignmentDetails.due_date
+            }
+
+            if (!maxDate) {
+                maxDate = this.assignmentDetails.lock_date
+            }
+
+            return Object.assign({}, {
+                minDate: minDate,
+                maxDate: maxDate
+            }, this.$root.flatPickrTimeConfig)
+        },
+        lockDateConfig () {
+            var minDate
+
+            if (this.currentPreset.due_date) {
+                minDate = this.currentPreset.due_date
+            } else if (this.currentPreset.unlock_date) {
+                minDate = this.currentPreset.unlock_date
+            } else {
+                minDate = this.assignmentDetails.unlock_date
+            }
+
+            return Object.assign({}, {
+                minDate: minDate,
+                maxDate: this.assignmentDetails.lock_date
+            }, this.$root.flatPickrTimeConfig)
+        },
+        progressDateConfig () {
+            var minDate = this.assignmentDetails.unlock_date
+            var maxDate
+
+            if (this.assignmentDetails.due_date) {
+                maxDate = this.assignmentDetails.due_date
+            } else {
+                maxDate = this.assignmentDetails.lock_date
+            }
+
+            return Object.assign({}, {
+                minDate: minDate,
+                maxDate: maxDate
+            }, this.$root.flatPickrTimeConfig)
         }
     },
     watch: {

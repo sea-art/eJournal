@@ -38,7 +38,7 @@
                     </h2>
                     <flat-pickr class="multi-form theme-input full-width"
                         v-model="assignmentDetails.unlock_date"
-                        :config="$root.flatPickrTimeConfig"/>
+                        :config="unlockDateConfig"/>
                 </b-col>
                 <b-col xl="4">
                     <h2 class="field-heading">
@@ -47,16 +47,16 @@
                     </h2>
                     <flat-pickr class="multi-form theme-input full-width"
                         v-model="assignmentDetails.due_date"
-                        :config="$root.flatPickrTimeConfig"/>
+                        :config="dueDateConfig"/>
                 </b-col>
                 <b-col xl="4">
                     <h2 class="field-heading">
                         Lock date
-                        <tooltip tip="Students will not be able to add any more entries after this date" />
+                        <tooltip tip="No more entries can be added after this date" />
                     </h2>
                     <flat-pickr class="multi-form theme-input full-width"
                         v-model="assignmentDetails.lock_date"
-                        :config="$root.flatPickrTimeConfig"/>
+                        :config="lockDateConfig"/>
                 </b-col>
             </b-row>
         </b-form>
@@ -81,16 +81,103 @@ export default {
     props: {
         assignmentDetails: {
             required: true
+        },
+        presetNodes: {
+            required: true
         }
     },
     components: {
-        'text-editor': textEditor,
+        textEditor,
         tooltip,
         icon
     },
     data () {
         return {
             prevDate: ''
+        }
+    },
+    computed: {
+        unlockDateConfig () {
+            var maxDate
+
+            for (var key in this.presetNodes) {
+                var node = this.presetNodes[key]
+
+                if (new Date(node.due_date) < new Date(maxDate) || !maxDate) {
+                    maxDate = node.due_date
+                }
+
+                if (node.type !== 'p') {
+                    if (new Date(node.unlock_date) < new Date(maxDate) || !maxDate) {
+                        maxDate = node.unlock_date
+                    }
+
+                    if (new Date(node.lock_date) < new Date(maxDate) || !maxDate) {
+                        maxDate = node.lock_date
+                    }
+                }
+            }
+
+            if (new Date(this.assignmentDetails.due_date) < new Date(maxDate) || !maxDate) {
+                maxDate = this.assignmentDetails.due_date
+            }
+
+            if (!maxDate) {
+                maxDate = this.assignmentDetails.lock_date
+            }
+
+            return Object.assign({}, { maxDate: maxDate }, this.$root.flatPickrTimeConfig)
+        },
+        dueDateConfig () {
+            var minDate
+
+            for (var key in this.presetNodes) {
+                var node = this.presetNodes[key]
+
+                if (new Date(node.due_date) > new Date(minDate) || !minDate) {
+                    minDate = node.due_date
+                }
+            }
+
+            if (!minDate) {
+                minDate = this.assignmentDetails.unlock_date
+            }
+
+            return Object.assign({}, {
+                minDate: minDate,
+                maxDate: this.assignmentDetails.lock_date
+            }, this.$root.flatPickrTimeConfig)
+        },
+        lockDateConfig () {
+            var minDate
+
+            for (var key in this.presetNodes) {
+                var node = this.presetNodes[key]
+
+                if (new Date(node.due_date) > new Date(minDate) || !minDate) {
+                    minDate = node.due_date
+                }
+
+                if (node.type !== 'p') {
+                    if (new Date(node.unlock_date) > new Date(minDate) || !minDate) {
+                        minDate = node.unlock_date
+                    }
+
+                    if (new Date(node.lock_date) > new Date(minDate) || !minDate) {
+                        minDate = node.lock_date
+                    }
+                }
+            }
+
+            if (new Date(this.assignmentDetails.due_date) > new Date(minDate) || !minDate) {
+                minDate = this.assignmentDetails.due_date
+            }
+
+            if (!minDate) {
+                minDate = this.assignmentDetails.lock_date
+            }
+
+            return Object.assign({}, { minDate: minDate }, this.$root.flatPickrTimeConfig)
         }
     },
     watch: {
