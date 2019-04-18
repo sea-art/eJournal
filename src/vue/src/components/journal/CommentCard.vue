@@ -65,7 +65,6 @@
                 <text-editor
                     ref="comment-text-editor-ref"
                     :basic="true"
-                    :displayInline="true"
                     :footer="false"
                     :id="'comment-text-editor'"
                     placeholder="Type here to leave a comment"
