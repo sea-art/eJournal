@@ -1,5 +1,12 @@
 ---
 
+- name: Set the backup root directory ownership to {{ gunicorn_user }}:{{ gunicorn_group }}
+  file: path={{ backup_dir }}
+        owner={{ gunicorn_user }}
+        group={{ gunicorn_group }}
+        mode=0755
+  changed_when: false
+
 - name: Ensure that the application file permissions are set properly
   file: path={{ virtualenv_path }}
         recurse=yes
