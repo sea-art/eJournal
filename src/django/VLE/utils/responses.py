@@ -177,11 +177,11 @@ def file(file_path, filename):
             response = FileResponse(open(file_path, 'rb'), as_attachment=True)
         except FileNotFoundError:
             return not_found(description='File not found.')
-
-    response = HttpResponse()
-    # Note that the following headers are not modified by nginx:
-    # Content-Type, Content-Disposition, Accept-Ranges, Set-Cookie, Cache-Control, Expires
-    response['Content-Disposition'] = 'attachment; filename={}'.format(filename)
-    response['X-Accel-Redirect'] = '/{}'.format(file_path[file_path.find('media'):])
+    else:
+        response = HttpResponse()
+        # Note that the following headers are not modified by nginx:
+        # Content-Type, Content-Disposition, Accept-Ranges, Set-Cookie, Cache-Control, Expires
+        response['Content-Disposition'] = 'attachment; filename={}'.format(filename)
+        response['X-Accel-Redirect'] = '/{}'.format(file_path[file_path.find('media'):])
 
     return response
