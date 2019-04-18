@@ -17,16 +17,26 @@
 
         <div v-if="errorLogs">
             <b class="text-red">Errors in file:</b>
-            <b v-if="errorLogs.general">
+            <div v-if="errorLogs.non_participants || errorLogs.unknown_users" class="text-dark-grey mb-1">
+                <i>Note: it is likely that one or more of the users reported as unkown or non participant still need
+                   to visit this assignment on the LMS (Canvas).</i>
+            </div>
+            <b v-if="errorLogs.general" class="mb-1">
                 {{ errorLogs.general }}
             </b>
-            <div v-if="errorLogs.unknown_users">
+            <div v-if="errorLogs.unknown_users" class="mb-1">
                 <b>The following users do not exist:</b><br/>
                 <span v-for="(username, lineNumber) in errorLogs.unknown_users" :key="`unknown-users-${lineNumber}-${username}`">
                     <b>&emsp;&emsp;&emsp;{{ lineNumber }})</b> {{ username }}<br/>
                 </span>
             </div>
-            <div v-if="errorLogs.incorrect_format_lines">
+            <div v-if="errorLogs.non_participants" class="mb-1">
+                <b>The following users are not participants of the assignment:</b><br/>
+                <span v-for="(username, lineNumber) in errorLogs.non_participants" :key="`non_participants-${lineNumber}-${username}`">
+                    <b>&emsp;&emsp;&emsp;{{ lineNumber }})</b> {{ username }}<br/>
+                </span>
+            </div>
+            <div v-if="errorLogs.incorrect_format_lines" class="mb-1">
                 <b>The following lines are incorrectly formatted:</b><br/>
                 <span v-for="(content, lineNumber) in errorLogs.incorrect_format_lines" :key="`incorrect-format-${lineNumber}-${content}`">
                     <b>&emsp;&emsp;&emsp;{{ lineNumber }})</b> {{ content }}<br/>

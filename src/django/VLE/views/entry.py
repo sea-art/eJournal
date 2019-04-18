@@ -115,7 +115,6 @@ class EntryView(viewsets.ViewSet):
 
         """
         content_list, = utils.required_typed_params(request.data, (list, 'content'))
-
         entry_id, = utils.required_typed_params(kwargs, (int, 'pk'))
         entry = Entry.objects.get(pk=entry_id)
         journal = entry.node.journal
@@ -131,21 +130,31 @@ class EntryView(viewsets.ViewSet):
         if entry.is_locked():
             return response.bad_request('You are not allowed to edit locked entries.')
 
+        # Check for required fields
+        entry_utils.check_required_fields(entry.template, content_list)
+
         # Attempt to edit the entries content.
         for content in content_list:
-            field_id, content_id = utils.required_typed_params(content, (int, 'id'), (int, 'contentID'))
+            field_id, = utils.required_typed_params(content, (int, 'id'))
             data, = utils.required_params(content, 'data')
             field = Field.objects.get(pk=field_id)
-            old_content = entry.content_set.get(pk=content_id)
             validators.validate_entry_content(data, field)
 
-            if old_content.field.pk != field_id:
-                return response.bad_request('The given content does not match the accompanying field type.')
-            if not data:
-                old_content.delete()
-                continue
+            old_content = entry.content_set.filter(field=field)
+            if old_content.exists():
+                old_content = old_content.first()
+                if old_content.field.pk != field_id:
+                    return response.bad_request('The given content does not match the accompanying field type.')
+                if not data:
+                    old_content.delete()
+                    continue
 
-            entry_utils.patch_entry_content(request.user, entry, old_content, field, data, assignment)
+                entry_utils.patch_entry_content(request.user, entry, old_content, field, data, assignment)
+            # If there was no content in this field before, create new content with the new data.
+            # This can happen with non-required fields, or when the given data is deleted.
+            else:
+                factory.make_content(entry, data, field)
+
             file_handling.remove_temp_user_files(request.user)
 
         return response.success({'entry': serialize.EntrySerializer(entry, context={'user': request.user}).data})

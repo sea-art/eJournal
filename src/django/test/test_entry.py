@@ -29,7 +29,9 @@ class EntryAPITest(TestCase):
 
     def test_create(self):
         # Check valid entry creation
-        api.create(self, 'entries', params=self.valid_create_params, user=self.student)
+        resp = api.create(self, 'entries', params=self.valid_create_params, user=self.student)['entry']
+        resp2 = api.create(self, 'entries', params=self.valid_create_params, user=self.student)['entry']
+        assert resp['id'] != resp2['id'], 'Multiple creations should lead to different ids'
 
         # Check if students cannot update journals without required parts filled in
         create_params = self.valid_create_params.copy()
@@ -57,6 +59,52 @@ class EntryAPITest(TestCase):
         # TODO: Test with file upload
         # TODO: Test added index
 
+    def test_required_and_optional(self):
+        # Creation with only required params should work
+        required_only_creation = {
+            'journal_id': self.journal.pk,
+            'template_id': self.format.available_templates.first().pk,
+            'content': []
+        }
+        fields = Field.objects.filter(template=self.format.available_templates.first())
+        required_only_creation['content'] = [{'data': 'test data', 'id': field.id}
+                                             for field in fields if field.required]
+        api.create(self, 'entries', params=required_only_creation, user=self.student)
+
+        entry = api.create(self, 'entries', params=self.valid_create_params, user=self.student)['entry']
+        params = {
+            'pk': entry['id'],
+            'content': [{
+                'id': field['field'],
+                'data': ''
+            } for field in entry['content']]
+        }
+        # Student should always provide required parameters
+        api.update(self, 'entries', params=params.copy(), user=self.student, status=400)
+
+        # Student should be able to update only the required fields, leaving the optinal fields empty
+        fields = Field.objects.filter(template=self.format.available_templates.first())
+        params = {
+            'pk': entry['id'],
+            'content': [{
+                'id': field.pk,
+                'data': 'filled' if field.required else ''
+            } for field in fields]
+        }
+        resp = api.update(self, 'entries', params=params.copy(), user=self.student)['entry']
+        assert len(resp['content']) == 2, 'Response should have emptied the optional fields'
+        # Student should be able to edit an optinal field
+        params = {
+            'pk': entry['id'],
+            'content': [{
+                'id': field.pk,
+                'data': 'filled'
+            } for field in fields]
+        }
+        resp = api.update(self, 'entries', params=params.copy(), user=self.student)['entry']
+        assert len(resp['content']) == 3 and resp['content'][2]['data'] == 'filled', \
+            'Response should have filled the optional fields'
+
     def test_update(self):
         entry = api.create(self, 'entries', params=self.valid_create_params, user=self.student)['entry']
 
@@ -64,22 +112,11 @@ class EntryAPITest(TestCase):
             'pk': entry['id'],
             'content': [{
                 'id': field['field'],
-                'contentID': field['id'],
                 'data': field['data']
             } for field in entry['content']]
         }
-        entry2 = api.create(self, 'entries', params=self.valid_create_params, user=self.student)['entry']
-        params2 = {
-            'pk': entry2['id'],
-            'content': [{
-                'id': field['field'],
-                'contentID': field['id'],
-                'data': ''
-            } for field in entry2['content']]
-        }
+
         api.update(self, 'entries', params=params.copy(), user=self.student)
-        # Student should always provide required parameters
-        api.update(self, 'entries', params=params2.copy(), user=self.student)
         # Other users shouldn't be able to update an entry
         api.update(self, 'entries', params=params.copy(), user=self.teacher, status=403)
 
