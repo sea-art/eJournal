@@ -8,7 +8,7 @@
 <template>
     <div>
         <!-- Edit mode. -->
-        <b-card v-if="saveEditMode == 'Save'" class="entry-card no-hover" :class="$root.getBorderClass(cID)">
+        <b-card v-if="saveEditMode == 'Save'" class="no-hover" :class="$root.getBorderClass(cID)">
             <div class="ml-2 btn float-right multi-form shadow no-hover" v-if="entryNode.entry.published">
                 {{ entryNode.entry.grade }}
             </div>
@@ -36,11 +36,11 @@
             </b-button>
         </b-card>
         <!-- Overview mode. -->
-        <b-card v-else class="entry-card no-hover" :class="$root.getBorderClass(cID)">
-            <div class="ml-2 grade-section shadow" v-if="entryNode.entry.published">
-                <span class="grade">{{ entryNode.entry.grade }}</span>
+        <b-card v-else class="no-hover" :class="$root.getBorderClass(cID)">
+            <div class="ml-2 grade-section grade shadow" v-if="entryNode.entry.published">
+                {{ entryNode.entry.grade }}
             </div>
-            <div class="ml-2 grade-section shadow" v-else-if="!entryNode.entry.editable">
+            <div class="ml-2 grade-section grade shadow" v-else-if="!entryNode.entry.editable">
                 <icon name="hourglass-half"/>
             </div>
             <div v-else>

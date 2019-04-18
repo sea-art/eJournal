@@ -5,50 +5,48 @@
 -->
 <template>
     <div v-if="entryNode.entry !== null">
-        <b-card class="entry-card no-hover entry-card-teacher" :class="$root.getBorderClass($route.params.cID)">
-            <div v-if="$hasPermission('can_grade')" class="grade-section shadow sticky">
-                <b-form-input type="number" class="theme-input" size="2" v-model="grade" autofocus placeholder="0" min="0.0"/>
-                <b-form-checkbox v-model="published" fieldValue=true unchecked-fieldValue=false data-toggle="tooltip" title="Show grade to student">
-                    Published
-                </b-form-checkbox>
-                <b-button class="add-button" @click="commitGrade">
-                    <icon name="save" scale="1"/>
-                    Save grade
-                </b-button>
+        <b-card class="no-hover entry-card-teacher" :class="$root.getBorderClass($route.params.cID)">
+            <div>
+                <div v-if="false" class="grade-section shadow sticky">
+                    <b-form-input type="number" class="theme-input" size="2" v-model="grade" autofocus placeholder="0" min="0.0"/>
+                    <b-form-checkbox v-model="published" fieldValue=true unchecked-fieldValue=false data-toggle="tooltip" title="Show grade to student">
+                        Published
+                    </b-form-checkbox>
+                    <b-button class="add-button" @click="commitGrade">
+                        <icon name="save" scale="1"/>
+                        Save grade
+                    </b-button>
+                </div>
+                <div v-else-if="tempNode.entry.published" class="grade-section grade shadow">
+                        {{ entryNode.entry.grade }}
+                </div>
+                <div v-else class="grade-section grade shadow">
+                    <icon name="hourglass-half"/>
+                </div>
+
+                <h2 class="mb-2">{{ entryNode.entry.template.name }}</h2>
+                <entry-fields
+                    :nodeID="entryNode.nID"
+                    :template="entryNode.entry.template"
+                    :completeContent="completeContent"
+                    :displayMode="true"
+                    :authorUID="$parent.journal.student.id"
+                    :entryID="entryNode.entry.id"
+                />
             </div>
-            <div v-else class="grade-section shadow">
-                <span v-if="tempNode.entry.published">
-                    {{ entryNode.entry.grade }}
+            <hr class="full-width"/>
+            <div class="timestamp">
+                <span  v-if="$root.beautifyDate(entryNode.entry.last_edited) === $root.beautifyDate(entryNode.entry.creation_date)">
+                    Submitted on: {{ $root.beautifyDate(entryNode.entry.creation_date) }}
                 </span>
                 <span v-else>
-                    <icon name="hourglass-half"/>
+                    Last edited: {{ $root.beautifyDate(entryNode.entry.last_edited) }}
                 </span>
-            </div>
-
-            <h2 class="mb-2">{{ entryNode.entry.template.name }}</h2>
-            <entry-fields
-                :nodeID="entryNode.nID"
-                :template="entryNode.entry.template"
-                :completeContent="completeContent"
-                :displayMode="true"
-                :authorUID="$parent.journal.student.id"
-                :entryID="entryNode.entry.id"
-            />
-            <div>
-                <hr class="full-width"/>
-                <span class="timestamp">
-                    <span  v-if="$root.beautifyDate(entryNode.entry.last_edited) === $root.beautifyDate(entryNode.entry.creation_date)">
-                        Submitted on: {{ $root.beautifyDate(entryNode.entry.creation_date) }}
-                    </span>
-                    <span v-else>
-                        Last edited: {{ $root.beautifyDate(entryNode.entry.last_edited) }}
-                    </span>
-                    <b-badge
-                        v-if="entryNode.due_date && new Date(entryNode.due_date) < new Date(entryNode.entry.last_edited)"
-                        class="late-submission-badge">
-                        LATE
-                    </b-badge><br/>
-                </span>
+                <b-badge
+                    v-if="entryNode.due_date && new Date(entryNode.due_date) < new Date(entryNode.entry.last_edited)"
+                    class="late-submission-badge">
+                    LATE
+                </b-badge>
             </div>
         </b-card>
 

@@ -36,15 +36,14 @@
                         :stats="journal.stats"
                         :assignment="assignment"
                         :class="'mb-2 no-hover'"/>
-                    <div v-if="journal && $hasPermission('can_grade')">
-                        <div v-if="$hasPermission('can_grade')" class="grade-section full-width bonus-section shadow">
+                    <div v-if="journal && $hasPermission('can_grade')" class="grade-section full-width bonus-section shadow">
                             <icon name="star" class="fill-orange shift-up-2"/>
-                            <b-form-input type="number" class="theme-input mr-2" size="2" v-model="journal.bonus_points" placeholder="0" min="0.0"/> Bonus points
-                            <b-button class="add-button" @click="commitBonus">
-                                <icon name="save" scale="1"/>
-                                Save Bonus
-                            </b-button>
-                        </div>
+                            <b-form-input type="number" class="theme-input mr-2" size="2" v-model="journal.bonus_points" placeholder="0" min="0.0"/>
+                            Bonus points
+                        <b-button class="add-button" @click="commitBonus">
+                            <icon name="save" scale="1"/>
+                            Save Bonus
+                        </b-button>
                     </div>
                 </b-col>
                 <b-col v-if="$hasPermission('can_publish_grades') || filteredJournals.length > 1" md="6" lg="12">
@@ -332,6 +331,7 @@ export default {
 
 <style lang="sass">
 .bonus-section
+    text-align: center
     margin-bottom: 0px
     border-width: 3px !important
 </style>
