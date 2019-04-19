@@ -14,12 +14,14 @@ import '@/helpers/vue-awesome-icons.js'
 import Toasted from 'vue-toasted'
 import flatPickr from 'vue-flatpickr-component'
 import VueIntro from 'vue-introjs'
+import VueMoment from 'vue-moment'
 
 Vue.config.productionTip = false
 Vue.use(Toasted, { position: 'top-center', duration: 4000 })
 Vue.use(BootstrapVue)
 Vue.use(flatPickr)
 Vue.use(VueIntro)
+Vue.use(VueMoment)
 
 /* Checks the store for for permissions according to the current route cID or aID. */
 Vue.prototype.$hasPermission = store.getters['permissions/hasPermission']

@@ -5,7 +5,7 @@
             :num="deadline.stats.needs_marking + deadline.stats.unpublished"
             class="float-right" />
 
-        <b class="deadline-name field-heading">{{ deadline.name }}</b> ({{ course.abbreviation }})
+        <b class="field-heading">{{ deadline.name }}</b> ({{ course.abbreviation }})
         <b-badge
             v-if="!deadline.is_published"
             class="ml-2 mt-2">
@@ -74,11 +74,3 @@ export default {
     }
 }
 </script>
-
-<style lang="sass" scoped>
-@import "~sass/modules/colors.sass"
-@import "~sass/partials/colors.sass"
-
-.deadline-name
-    display: inline-block
-</style>

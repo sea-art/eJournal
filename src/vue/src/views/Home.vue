@@ -65,13 +65,13 @@ export default {
         }
     },
     components: {
-        'content-columns': contentColumns,
-        'bread-crumb': breadCrumb,
-        'main-card': mainCard,
-        'todo-card': todoCard,
-        'create-course': createCourse,
-        'edit-home': editHome,
-        'deadline-deck': deadlineDeck,
+        contentColumns,
+        breadCrumb,
+        mainCard,
+        todoCard,
+        createCourse,
+        editHome,
+        deadlineDeck,
         icon
     },
     created () {

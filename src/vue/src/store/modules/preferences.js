@@ -7,6 +7,7 @@ const getters = {
     commentNotifications: state => state.commentNotifications,
     upcomingDeadlineNotifications: state => state.upcomingDeadlineNotifications,
     showFormatTutorial: state => state.showFormatTutorial,
+    hideVersionAlert: state => state.hideVersionAlert,
 
     // Search filters.
     todoSortBy: state => state.todo.sortBy,
@@ -34,6 +35,7 @@ const mutations = {
         state.commentNotifications = preferences.comment_notifications
         state.upcomingDeadlineNotifications = preferences.upcoming_deadline_notifications
         state.showFormatTutorial = preferences.show_format_tutorial
+        state.hideVersionAlert = preferences.hide_version_alert
     },
     [types.SET_GRADE_NOTIFICATION] (state, val) {
         state.gradeNotifications = val
@@ -46,6 +48,9 @@ const mutations = {
     },
     [types.SET_FORMAT_TUTORIAL] (state, val) {
         state.showFormatTutorial = val
+    },
+    [types.SET_HIDE_VERSION_ALERT] (state, val) {
+        state.hideVersionAlert = val
     },
     [types.SET_TODO_SORT_BY] (state, sortByOption) {
         if (!preferenceOptions.TODO_SORT_OPTIONS.has(sortByOption)) { throw new Error('Invalid TODO sorting option.') }
@@ -108,6 +113,7 @@ const mutations = {
         state.commentNotifications = null
         state.upcomingDeadlineNotifications = null
         state.showFormatTutorial = null
+        state.hideVersionAlert = null
         state.todo.sortBy = 'date'
         state.journal.aID = null
         state.journal.sortAscending = true
@@ -133,6 +139,7 @@ export default {
         commentNotifications: null,
         upcomingDeadlineNotifications: null,
         showFormatTutorial: null,
+        hideVersionAlert: null,
         todo: {
             sortBy: 'date'
         },

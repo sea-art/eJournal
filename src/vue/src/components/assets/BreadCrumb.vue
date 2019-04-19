@@ -7,6 +7,7 @@
 
 <template>
     <div class="breadcrumb-container">
+        <version-alert/>
         <b-button v-if="canEdit()" @click="editClick()" class="float-right change-button multi-form">
             <icon name="edit"/>
             Edit
@@ -40,6 +41,7 @@
 </template>
 
 <script>
+import versionAlert from '@/components/assets/VersionAlert.vue'
 import icon from 'vue-awesome/components/Icon'
 import store from '@/Store.vue'
 
@@ -47,6 +49,7 @@ import commonAPI from '@/api/common'
 
 export default {
     components: {
+        versionAlert,
         icon
     },
     /*
@@ -152,4 +155,6 @@ export default {
 <style lang="sass">
 .breadcrumb-container
     padding-right: 10px
+    .alert
+        margin-right: -10px
 </style>

@@ -252,6 +252,7 @@ class Preferences(models.Model):
     - grade_notifications: whether or not to receive grade notifications via email.
     - comment_notifications: whether or not to receive comment notifications via email.
     - upcoming_deadline_notifications: whether or not to receive upcoming deadline notifications via email.
+    - hide_version_alert: latest version number for which a version alert has been dismissed.
     """
     user = models.OneToOneField(
         User,
@@ -269,6 +270,10 @@ class Preferences(models.Model):
     )
     show_format_tutorial = models.BooleanField(
         default=True
+    )
+    hide_version_alert = models.TextField(
+        max_length=10,
+        null=True,
     )
 
 
