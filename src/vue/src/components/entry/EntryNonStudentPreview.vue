@@ -7,7 +7,7 @@
     <div v-if="entryNode.entry !== null">
         <b-card class="no-hover entry-card-teacher" :class="$root.getBorderClass($route.params.cID)">
             <div>
-                <div v-if="false" class="grade-section shadow sticky">
+                <div v-if="$hasPermission('can_grade')" class="grade-section shadow sticky">
                     <b-form-input type="number" class="theme-input" size="2" v-model="grade" autofocus placeholder="0" min="0.0"/>
                     <b-form-checkbox v-model="published" fieldValue=true unchecked-fieldValue=false data-toggle="tooltip" title="Show grade to student">
                         Published
