@@ -1,12 +1,9 @@
 import Vue from 'vue'
-import App from './App'
-import router from './router'
-import store from './store'
 import axios from 'axios'
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
-import 'flatpickr/dist/flatpickr.css'
+import 'flatpickr/dist/flatpickr.css' // eslint-disable-line import/no-extraneous-dependencies
 import 'intro.js/introjs.css'
 
 import '@/helpers/vue-awesome-icons.js'
@@ -14,7 +11,12 @@ import '@/helpers/vue-awesome-icons.js'
 import Toasted from 'vue-toasted'
 import flatPickr from 'vue-flatpickr-component'
 import VueIntro from 'vue-introjs'
+import Icon from 'vue-awesome/components/Icon.vue'
 import VueMoment from 'vue-moment'
+
+import App from './App.vue'
+import router from './router'
+import store from './store'
 
 Vue.config.productionTip = false
 Vue.use(Toasted, { position: 'top-center', duration: 4000 })
@@ -23,13 +25,15 @@ Vue.use(flatPickr)
 Vue.use(VueIntro)
 Vue.use(VueMoment)
 
+Vue.component('icon', Icon)
+
 /* Checks the store for for permissions according to the current route cID or aID. */
 Vue.prototype.$hasPermission = store.getters['permissions/hasPermission']
 
 /* Sets the default authorization token needed to for authenticated requests. */
 axios.defaults.transformRequest.push((data, headers) => {
     if (store.getters['user/jwtAccess']) {
-        headers.Authorization = 'Bearer ' + store.getters['user/jwtAccess']
+        headers.Authorization = `Bearer ${store.getters['user/jwtAccess']}`
     }
     return data
 })
@@ -50,14 +54,8 @@ new Vue({
             enableTime: true,
             time_24hr: true,
             defaultHour: 23,
-            defaultMinute: 59
-        }
-    },
-    created () {
-        window.addEventListener('resize', () => {
-            this.windowWidth = window.innerWidth
-        })
-        this.windowWidth = window.innerWidth
+            defaultMinute: 59,
+        },
     },
     computed: {
         /* Bootstrap breakpoints for custom events. */
@@ -69,7 +67,13 @@ new Vue({
         xsMax () { return this.windowWidth < 576 },
         smMax () { return this.windowWidth < 769 },
         mdMax () { return this.windowWidth < 992 },
-        lgMax () { return this.windowWidth < 1200 }
+        lgMax () { return this.windowWidth < 1200 },
+    },
+    created () {
+        window.addEventListener('resize', () => {
+            this.windowWidth = window.innerWidth
+        })
+        this.windowWidth = window.innerWidth
     },
     methods: {
         getBorderClass (cID) {
@@ -79,13 +83,13 @@ new Vue({
             if (!date) {
                 return ''
             }
-            var year = date.substring(0, 4)
-            var month = date.substring(5, 7)
-            var day = date.substring(8, 10)
-            var time = date.substring(11, 16)
-            var s = ''
+            const year = date.substring(0, 4)
+            const month = date.substring(5, 7)
+            const day = date.substring(8, 10)
+            const time = date.substring(11, 16)
+            let s = ''
             if (displayDate) {
-                s += day + '-' + month + '-' + year
+                s += `${day}-${month}-${year}`
             }
             if (displayDate && displayTime) {
                 s += ' at '
@@ -94,7 +98,7 @@ new Vue({
                 s += time
             }
             return s
-        }
+        },
     },
-    template: '<App/>'
+    template: '<App/>',
 })

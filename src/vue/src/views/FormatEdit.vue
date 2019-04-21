@@ -6,104 +6,167 @@
 -->
 
 <template>
-    <b-row class="outer-container-timeline-page" no-gutters>
-        <b-col md="12" lg="8" xl="9" class="inner-container-timeline-page">
-            <b-col md="12" lg="auto" xl="4" class="left-content-timeline-page">
+    <b-row
+        class="outer-container-timeline-page"
+        noGutters
+    >
+        <b-col
+            md="12"
+            lg="8"
+            xl="9"
+            class="inner-container-timeline-page"
+        >
+            <b-col
+                md="12"
+                lg="auto"
+                xl="4"
+                class="left-content-timeline-page"
+            >
                 <bread-crumb
                     v-if="$root.lgMax"
-                    v-intro="'Welcome to the assignment editor!<br/>This is where you can configure the structure of your assignment. Proceed with this tutorial to learn more.'"
-                    v-intro-step="1">
+                    v-intro="'Welcome to the assignment editor!<br/>This is where you can configure the structure of \
+                    your assignment. Proceed with this tutorial to learn more.'"
+                    v-intro-step="1"
+                >
                     <icon
-                        v-intro="'That\'s it! If you have any more questions, do not hesitate to contact us via the feedback button below. This tutorial can be consulted again by clicking the info sign.'"
+                        v-intro="'That\'s it! If you have any more questions, do not hesitate to contact us via the \
+                        feedback button below. This tutorial can be consulted again by clicking the info sign.'"
                         v-intro-step="4"
+                        v-b-tooltip.hover
                         name="info"
                         scale="1.5"
-                        v-b-tooltip.hover
                         title="Click to start a tutorial for this page"
                         class="info-icon"
-                        @click.native="startTour"/>
+                        @click.native="startTour"
+                    />
                 </bread-crumb>
                 <timeline
-                    v-intro="'The timeline forms the basis for an assignment. The name, due date and other details of the assignment can also be changed here, by clicking the first node.<br/><br/>The timeline contains a node for every entry. You can add two different types of nodes to it:<br/><br/><ul><li><b>Preset entries</b> are entries with a specific template which have to be completed before a set deadline</li><li><b>Progress deadlines</b> are point targets that have to be met before a set deadline</li></ul>New nodes can be added via the \'+\' node. Click any node to view its contents.'"
+                    v-intro="'The timeline forms the basis for an assignment. The name, due date and other details \
+                    of the assignment can also be changed here, by clicking the first node.<br/><br/>The timeline \
+                    contains a node for every entry. You can add two different types of nodes to it:<br/><br/><ul> \
+                    <li><b>Preset entries</b> are entries with a specific template which have to be completed before \
+                    a set deadline</li><li><b>Progress deadlines</b> are point targets that have to be met before a \
+                    set deadline</li></ul>New nodes can be added via the \'+\' node. Click any node to view its \
+                    contents.'"
                     v-intro-step="3"
-                    @select-node="selectNode"
-                    @add-node="addNode"
                     :selected="currentNode"
                     :nodes="nodes"
-                    :edit="true"/>
+                    :edit="true"
+                    @select-node="selectNode"
+                    @add-node="addNode"
+                />
             </b-col>
 
-            <b-col md="12" lg="auto" xl="8" class="main-content-timeline-page">
+            <b-col
+                md="12"
+                lg="auto"
+                xl="8"
+                class="main-content-timeline-page"
+            >
                 <bread-crumb
                     v-if="$root.xl"
-                    v-intro="'Welcome to the assignment editor!<br/>This is where you can configure the structure of your assignment. Proceed with this tutorial to learn more.'"
-                    v-intro-step="1">
+                    v-intro="'Welcome to the assignment editor!<br/>This is where you can configure the structure of \
+                    your assignment. Proceed with this tutorial to learn more.'"
+                    v-intro-step="1"
+                >
                     <icon
-                        v-intro="'That\'s it! If you have any more questions, do not hesitate to contact us via the feedback button below. This tutorial can be consulted again by clicking the info sign.'"
+                        v-intro="'That\'s it! If you have any more questions, do not hesitate to contact us via the \
+                        feedback button below. This tutorial can be consulted again by clicking the info sign.'"
                         v-intro-step="4"
+                        v-b-tooltip.hover
                         name="info"
                         scale="1.75"
-                        v-b-tooltip.hover
                         title="Click to start a tutorial for this page"
                         class="info-icon"
-                        @click.native="startTour"/>
+                        @click.native="startTour"
+                    />
                 </bread-crumb>
                 <!--
                     Fill in the template using the corresponding data
                     of the entry
                 . -->
                 <selected-node-card
-                    :class="{ 'input-disabled' : saveRequestInFlight }"
                     v-if="nodes.length > 0 && currentNode !== -1 && currentNode !== nodes.length"
                     ref="entry-template-card"
+                    :class="{ 'input-disabled' : saveRequestInFlight }"
                     :currentPreset="nodes[currentNode]"
                     :templates="templatePool"
                     :assignmentDetails="assignmentDetails"
                     @deadline-changed="sortList"
                     @delete-preset="deletePreset"
-                    @changed="isChanged = true"/>
+                    @changed="isChanged = true"
+                />
 
                 <assignment-details-card
-                    :class="{ 'input-disabled' : saveRequestInFlight }"
                     v-else-if="currentNode === -1"
+                    :class="{ 'input-disabled' : saveRequestInFlight }"
                     :assignmentDetails="assignmentDetails"
                     :presetNodes="presets"
-                    @changed="isChanged = true"/>
+                    @changed="isChanged = true"
+                />
 
-                <b-card v-else-if="currentNode === nodes.length" class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+                <b-card
+                    v-else-if="currentNode === nodes.length"
+                    class="no-hover"
+                    :class="$root.getBorderClass($route.params.cID)"
+                >
                     <h2>End of assignment</h2>
                     <p>This is the end of the assignment.</p>
                 </b-card>
 
-                <main-card v-else class="no-hover" :line1="'No presets in format'" :class="'grey-border'"/>
+                <main-card
+                    v-else
+                    :line1="'No presets in format'"
+                    :class="'grey-border'"
+                    class="no-hover"
+                />
 
                 <b-modal
                     ref="templateModal"
                     size="lg"
                     title="Edit template"
-                    hide-footer>
-                        <template-editor :template="templateBeingEdited.t" :formatSettings="templateBeingEdited"/>
+                    hideFooter
+                >
+                    <template-editor
+                        :template="templateBeingEdited.t"
+                        :formatSettings="templateBeingEdited"
+                    />
                 </b-modal>
             </b-col>
         </b-col>
 
-        <b-col md="12" lg="4" xl="3" class="right-content-timeline-page right-content">
+        <b-col
+            md="12"
+            lg="4"
+            xl="3"
+            class="right-content-timeline-page right-content"
+        >
             <div
-            :class="{ 'input-disabled' : saveRequestInFlight }"
-            v-intro="'Every assignment contains customizable <i>templates</i> which specify what the contents of each journal entry should be. There are two different types of templates:<br/><br/><ul><li><b>Unlimited templates</b> can be freely used by students as often as they want</li><li><b>Preset-only templates</b> can be used only for preset entries that you add to the timeline</li></ul>You can preview and edit a template by clicking on it.'"
-            v-intro-step="2">
+                v-intro="'Every assignment contains customizable <i>templates</i> which specify what the contents of \
+                each journal entry should be. There are two different types of templates:<br/><br/><ul><li><b>\
+                Unlimited templates</b> can be freely used by students as often as they want</li><li><b>Preset-only \
+                templates</b> can be used only for preset entries that you add to the timeline</li></ul>You can \
+                preview and edit a template by clicking on it.'"
+                v-intro-step="2"
+                :class="{ 'input-disabled' : saveRequestInFlight }"
+            >
                 <h3>Entry Templates</h3>
-                <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+                <b-card
+                    :class="$root.getBorderClass($route.params.cID)"
+                    class="no-hover"
+                >
                     <available-template
                         v-for="template in templatePool"
                         :key="template.t.id"
                         :template="template"
                         @edit-template="showTemplateModal(template)"
-                        @delete-template="deleteTemplate"/>
+                        @delete-template="deleteTemplate"
+                    />
                 </b-card>
                 <b-button
                     class="add-button multi-form"
-                    @click="showTemplateModal(newTemplate())">
+                    @click="showTemplateModal(newTemplate())"
+                >
                     <icon name="plus"/>
                     Create New Template
                 </b-button>
@@ -113,30 +176,41 @@
         <transition name="fade">
             <b-button
                 v-if="isChanged"
-                @click.prevent.stop="saveFormat"
                 :class="{ 'input-disabled' : saveRequestInFlight }"
-                class="add-button fab">
-                <icon name="save" scale="1.5"/>
+                class="add-button fab"
+                @click.prevent.stop="saveFormat"
+            >
+                <icon
+                    name="save"
+                    scale="1.5"
+                />
             </b-button>
         </transition>
     </b-row>
 </template>
 
 <script>
-import contentColumns from '@/components/columns/ContentColumns.vue'
 import mainCard from '@/components/assets/MainCard.vue'
 import timeline from '@/components/timeline/Timeline.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import FormatEditAssignmentDetailsCard from '@/components/format/FormatEditAssignmentDetailsCard.vue'
+import formatEditAssignmentDetailsCard from '@/components/format/FormatEditAssignmentDetailsCard.vue'
 import formatEditAvailableTemplate from '@/components/format/FormatEditAvailableTemplate.vue'
 import formatEditSelectTemplateCard from '@/components/format/FormatEditSelectTemplateCard.vue'
 import templateEdit from '@/components/template/TemplateEdit.vue'
-import icon from 'vue-awesome/components/Icon'
 import formatAPI from '@/api/format.js'
 import preferencesAPI from '@/api/preferences.js'
 
 export default {
     name: 'FormatEdit',
+    components: {
+        breadCrumb,
+        'assignment-details-card': formatEditAssignmentDetailsCard,
+        'available-template': formatEditAvailableTemplate,
+        'selected-node-card': formatEditSelectTemplateCard,
+        'template-editor': templateEdit,
+        mainCard,
+        timeline,
+    },
     props: ['cID', 'aID'],
     /* Main data representations:
        templates, presets, unused templates: as received.
@@ -165,49 +239,49 @@ export default {
             saveRequestInFlight: false,
 
             templateBeingEdited: {
-                't': {
-                    'field_set': [],
-                    'name': '',
-                    'id': -1
+                t: {
+                    field_set: [],
+                    name: '',
+                    id: -1,
                 },
-                'available': true
+                available: true,
             },
             wipTemplateId: -1,
 
             deletedTemplates: [],
-            deletedPresets: []
+            deletedPresets: [],
         }
+    },
+    watch: {
+        templatePool: {
+            handler () {
+                if (!this.saveRequestInFlight) {
+                    this.isChanged = true
+                }
+            },
+            deep: true,
+        },
     },
     created () {
         formatAPI.get(this.aID)
-            .then(data => {
+            .then((data) => {
                 this.saveFromDB(data)
                 this.convertFromDB()
                 if (this.$store.getters['preferences/showFormatTutorial']) {
-                    preferencesAPI.update(this.$store.getters['user/uID'], {show_format_tutorial: false})
-                        .then(preferences => { this.$store.commit('preferences/SET_FORMAT_TUTORIAL', false) })
+                    preferencesAPI.update(this.$store.getters['user/uID'], { show_format_tutorial: false })
+                        .then(() => { this.$store.commit('preferences/SET_FORMAT_TUTORIAL', false) })
                     this.startTour()
                 }
             })
             .then(() => { this.isChanged = false })
 
-        window.addEventListener('beforeunload', e => {
+        window.addEventListener('beforeunload', (e) => { // eslint-disable-line
             if (this.$route.name === 'FormatEdit' && this.isChanged) {
-                var dialogText = 'Unsaved changes will be lost if you leave. Do you wish to continue?'
+                const dialogText = 'Unsaved changes will be lost if you leave. Do you wish to continue?'
                 e.returnValue = dialogText
                 return dialogText
             }
         })
-    },
-    watch: {
-        templatePool: {
-            handler: function () {
-                if (!this.saveRequestInFlight) {
-                    this.isChanged = true
-                }
-            },
-            deep: true
-        }
     },
     methods: {
         deletePreset () {
@@ -225,25 +299,25 @@ export default {
         },
         // Used to sort the list when dates are changed. Updates the currentNode index accordingly
         sortList () {
-            var temp = this.nodes[this.currentNode]
-            this.nodes.sort((a, b) => { return new Date(a.due_date) - new Date(b.due_date) })
+            const temp = this.nodes[this.currentNode]
+            this.nodes.sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
             this.currentNode = this.nodes.indexOf(temp)
         },
         newTemplate () {
             return {
                 t: {
-                    'field_set': [{
-                        'type': 'rt',
-                        'title': 'Entry',
-                        'description': '',
-                        'options': null,
-                        'location': 0,
-                        'required': true
+                    field_set: [{
+                        type: 'rt',
+                        title: 'Entry',
+                        description: '',
+                        options: null,
+                        location: 0,
+                        required: true,
                     }],
-                    'name': 'Untitled Template',
-                    'id': this.wipTemplateId--
+                    name: 'Untitled Template',
+                    id: this.wipTemplateId--,
                 },
-                available: true
+                available: true,
             }
         },
         // Shows the modal and sets updated flag on template
@@ -253,7 +327,7 @@ export default {
                 this.templatePool.push(template)
             }
             this.templateBeingEdited = template
-            this.$refs['templateModal'].show()
+            this.$refs.templateModal.show()
         },
         hideModal (ref) {
             this.$refs[ref].hide()
@@ -266,19 +340,21 @@ export default {
             this.currentNode = $event
         },
         newDate () {
-            return new Date().toISOString().split('T')[0].slice(0, 10) + ' ' + new Date().toISOString().split('T')[1].slice(0, 5)
+            const pre = new Date().toISOString().split('T')[0].slice(0, 10)
+            const post = new Date().toISOString().split('T')[1].slice(0, 5)
+            return `${pre} ${post}`
         },
         addNode () {
-            var dueDate = this.assignmentDetails.due_date
+            let dueDate = this.assignmentDetails.due_date
 
             if (!dueDate) {
                 dueDate = this.newDate()
             }
 
-            var newNode = {
-                'type': 'p',
-                'due_date': dueDate,
-                'target': this.assignmentDetails.points_possible
+            const newNode = {
+                type: 'p',
+                due_date: dueDate,
+                target: this.assignmentDetails.points_possible,
             }
 
             this.nodes.push(newNode)
@@ -290,189 +366,211 @@ export default {
         },
         // Do client side validation and save to DB
         saveFormat () {
-            var missingAssignmentName = false
-            var missingPointMax = false
-            var unlockAfterDue = false
-            var unlockAfterLock = false
-            var dueAfterLock = false
+            let missingAssignmentName = false
+            let missingPointMax = false
+            let unlockAfterDue = false
+            let unlockAfterLock = false
+            let dueAfterLock = false
 
-            var presetUnlockBeforeUnlock = false
-            var presetUnlockAfterDue = false
-            var presetUnlockAfterLock = false
-            var presetDueBeforeUnlock = false
-            var presetDueAfterDue = false
-            var presetDueAfterLock = false
-            var presetLockBeforeUnlock = false
-            var presetLockAfterDue = false
-            var presetLockAfterLock = false
-            var presetUnlockAfterPresetDue = false
-            var presetUnlockAfterPresetLock = false
-            var presetDueAfterPresetLock = false
+            let presetUnlockBeforeUnlock = false
+            let presetUnlockAfterDue = false
+            let presetUnlockAfterLock = false
+            let presetDueBeforeUnlock = false
+            let presetDueAfterDue = false
+            let presetDueAfterLock = false
+            let presetLockBeforeUnlock = false
+            let presetLockAfterDue = false
+            let presetLockAfterLock = false
+            let presetUnlockAfterPresetDue = false
+            let presetUnlockAfterPresetLock = false
+            let presetDueAfterPresetLock = false
 
-            var presetInvalidDue = false
-            var presetInvalidLock = false
-            var presetInvalidUnlock = false
-            var presetInvalidTemplate = false
-            var presetInvalidTarget = false
+            let presetInvalidDue = false
+            let presetInvalidLock = false
+            let presetInvalidUnlock = false
+            let presetInvalidTemplate = false
+            let presetInvalidTarget = false
 
-            var lastTarget
-            var targetsOutOfOrder = false
+            let lastTarget
+            let targetsOutOfOrder = false
 
-            var templatePoolIds = []
-            for (var template of this.templatePool) {
+            const templatePoolIds = []
+            this.templatePool.forEach((template) => {
                 templatePoolIds.push(template.t.id)
-            }
+            })
 
             if (!/\S/.test(this.assignmentDetails.name)) {
                 missingAssignmentName = true
                 this.$toasted.error('Assignment name is missing. Please check the format and try again.')
             }
 
-            if (!missingPointMax && isNaN(parseInt(this.assignmentDetails.points_possible))) {
+            if (!missingPointMax && Number.isNaN(parseInt(this.assignmentDetails.points_possible, 10))) {
                 missingPointMax = true
                 this.$toasted.error('Points possible is missing. Please check the format and try again.')
             }
 
-            if (!unlockAfterDue && this.assignmentDetails.unlock_date && this.assignmentDetails.due_date &&
-                Date.parse(this.assignmentDetails.unlock_date) > Date.parse(this.assignmentDetails.due_date)) {
+            if (!unlockAfterDue && this.assignmentDetails.unlock_date && this.assignmentDetails.due_date
+                && Date.parse(this.assignmentDetails.unlock_date) > Date.parse(this.assignmentDetails.due_date)) {
                 unlockAfterDue = true
-                this.$toasted.error('The assignment is due before the unlock date. Please check the format and try again.')
+                this.$toasted.error(
+                    'The assignment is due before the unlock date. Please check the format and try again.')
             }
-            if (!unlockAfterLock && this.assignmentDetails.unlock_date && this.assignmentDetails.lock_date &&
-                Date.parse(this.assignmentDetails.unlock_date) > Date.parse(this.assignmentDetails.lock_date)) {
+            if (!unlockAfterLock && this.assignmentDetails.unlock_date && this.assignmentDetails.lock_date
+                && Date.parse(this.assignmentDetails.unlock_date) > Date.parse(this.assignmentDetails.lock_date)) {
                 unlockAfterLock = true
-                this.$toasted.error('The assignment lock date is before the unlock date. Please check the format and try again.')
+                this.$toasted.error(
+                    'The assignment lock date is before the unlock date. Please check the format and try again.')
             }
-            if (!dueAfterLock && this.assignmentDetails.due_date && this.assignmentDetails.lock_date &&
-                Date.parse(this.assignmentDetails.due_date) > Date.parse(this.assignmentDetails.lock_date)) {
+            if (!dueAfterLock && this.assignmentDetails.due_date && this.assignmentDetails.lock_date
+                && Date.parse(this.assignmentDetails.due_date) > Date.parse(this.assignmentDetails.lock_date)) {
                 dueAfterLock = true
-                this.$toasted.error('The assignment lock date is before the due date. Please check the format and try again.')
+                this.$toasted.error(
+                    'The assignment lock date is before the due date. Please check the format and try again.')
             }
 
-            for (var node of this.nodes) {
+            this.nodes.forEach((node) => {
                 if (!targetsOutOfOrder && node.type === 'p') {
                     if (lastTarget && node.target < lastTarget) {
                         targetsOutOfOrder = true
-                        this.$toasted.error('Some preset targets are out of order. Please check the format and try again.')
+                        this.$toasted.error(
+                            'Some preset targets are out of order. Please check the format and try again.')
                     }
                     lastTarget = node.target
                 }
 
-                if (!presetInvalidDue && isNaN(Date.parse(node.due_date))) {
+                if (!presetInvalidDue && Number.isNaN(Date.parse(node.due_date))) {
                     presetInvalidDue = true
-                    this.$toasted.error('One or more presets have an invalid due date. Please check the format and try again.')
+                    this.$toasted.error(
+                        'One or more presets have an invalid due date. Please check the format and try again.')
                 }
-                if (!presetInvalidLock && node.lock_date && isNaN(Date.parse(node.lock_date))) {
+                if (!presetInvalidLock && node.lock_date && Number.isNaN(Date.parse(node.lock_date))) {
                     presetInvalidLock = true
-                    this.$toasted.error('One or more presets have an invalid lock date. Please check the format and try again.')
+                    this.$toasted.error(
+                        'One or more presets have an invalid lock date. Please check the format and try again.')
                 }
-                if (!presetInvalidUnlock && node.unlock_date && isNaN(Date.parse(node.unlock_date))) {
+                if (!presetInvalidUnlock && node.unlock_date && Number.isNaN(Date.parse(node.unlock_date))) {
                     presetInvalidUnlock = true
-                    this.$toasted.error('One or more presets have an invalid unlock date. Please check the format and try again.')
+                    this.$toasted.error(
+                        'One or more presets have an invalid unlock date. Please check the format and try again.')
                 }
                 if (!presetInvalidTemplate && node.type === 'd' && typeof node.template.id === 'undefined') {
                     presetInvalidTemplate = true
-                    this.$toasted.error('One or more presets have an invalid template. Please check the format and try again.')
+                    this.$toasted.error(
+                        'One or more presets have an invalid template. Please check the format and try again.')
                 }
-                if (!presetInvalidTemplate && node.type === 'd' && node.template.id && !templatePoolIds.includes(node.template.id)) {
+                if (!presetInvalidTemplate && node.type === 'd'
+                    && node.template.id
+                    && !templatePoolIds.includes(node.template.id)) {
                     presetInvalidTemplate = true
-                    this.$toasted.error('One or more presets have an invalid template. Please check the format and try again.')
+                    this.$toasted.error(
+                        'One or more presets have an invalid template. Please check the format and try again.')
                 }
-                if (!presetInvalidTarget && node.type === 'p' && isNaN(parseInt(node.target))) {
+                if (!presetInvalidTarget && node.type === 'p' && Number.isNaN(parseInt(node.target, 10))) {
                     presetInvalidTarget = true
-                    this.$toasted.error('One or more presets have an invalid target. Please check the format and try again.')
+                    this.$toasted.error(
+                        'One or more presets have an invalid target. Please check the format and try again.')
                 }
 
-                if (!presetUnlockAfterPresetDue && node.unlock_date && node.due_date &&
-                    Date.parse(node.unlock_date) > Date.parse(node.due_date)) {
+                if (!presetUnlockAfterPresetDue && node.unlock_date && node.due_date
+                    && Date.parse(node.unlock_date) > Date.parse(node.due_date)) {
                     presetUnlockAfterPresetDue = true
-                    this.$toasted.error('One or more presets are due before their unlock date. Please check the format and try again.')
+                    this.$toasted.error(
+                        'One or more presets are due before their unlock date. Please check the format and try again.')
                 }
-                if (!presetUnlockAfterPresetLock && node.unlock_date && node.lock_date &&
-                    Date.parse(node.unlock_date) > Date.parse(node.lock_date)) {
+                if (!presetUnlockAfterPresetLock && node.unlock_date && node.lock_date
+                    && Date.parse(node.unlock_date) > Date.parse(node.lock_date)) {
                     presetUnlockAfterPresetLock = true
-                    this.$toasted.error('One or more presets have a lock date before their unlock date. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have a lock date before their unlock date. '
+                        + 'Please check the format and try again.')
                 }
-                if (!presetDueAfterPresetLock && node.due_date && node.lock_date &&
-                    Date.parse(node.due_date) > Date.parse(node.lock_date)) {
+                if (!presetDueAfterPresetLock && node.due_date && node.lock_date
+                    && Date.parse(node.due_date) > Date.parse(node.lock_date)) {
                     presetDueAfterPresetLock = true
-                    this.$toasted.error('One or more presets have a lock date before their due date. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have a lock date before their due date. '
+                        + 'Please check the format and try again.')
                 }
 
-                if (!presetUnlockBeforeUnlock && this.assignmentDetails.unlock_date &&
-                    Date.parse(node.unlock_date) < Date.parse(this.assignmentDetails.unlock_date)) {
+                if (!presetUnlockBeforeUnlock && this.assignmentDetails.unlock_date
+                    && Date.parse(node.unlock_date) < Date.parse(this.assignmentDetails.unlock_date)) {
                     presetUnlockBeforeUnlock = true
-                    this.$toasted.error('One or more presets have an unlock date before the assignment unlock date. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have an unlock date before the assignment unlock date. '
+                        + 'Please check the format and try again.')
                 }
-                if (!presetUnlockAfterDue && this.assignmentDetails.due_date &&
-                    Date.parse(node.unlock_date) > Date.parse(this.assignmentDetails.due_date)) {
+                if (!presetUnlockAfterDue && this.assignmentDetails.due_date
+                    && Date.parse(node.unlock_date) > Date.parse(this.assignmentDetails.due_date)) {
                     presetUnlockAfterDue = true
-                    this.$toasted.error('One or more presets have an unlock date after the assignment due date. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have an unlock date after the assignment due date. '
+                        + 'Please check the format and try again.')
                 }
-                if (!presetUnlockAfterLock && this.assignmentDetails.lock_date &&
-                    Date.parse(node.unlock_date) > Date.parse(this.assignmentDetails.lock_date)) {
+                if (!presetUnlockAfterLock && this.assignmentDetails.lock_date
+                    && Date.parse(node.unlock_date) > Date.parse(this.assignmentDetails.lock_date)) {
                     presetUnlockAfterLock = true
-                    this.$toasted.error('One or more presets have an unlock date after the assignment lock date. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have an unlock date after the assignment lock date. '
+                        + 'Please check the format and try again.')
                 }
-                if (!presetDueBeforeUnlock && this.assignmentDetails.unlock_date &&
-                    Date.parse(node.due_date) < Date.parse(this.assignmentDetails.unlock_date)) {
+                if (!presetDueBeforeUnlock && this.assignmentDetails.unlock_date
+                    && Date.parse(node.due_date) < Date.parse(this.assignmentDetails.unlock_date)) {
                     presetDueBeforeUnlock = true
-                    this.$toasted.error('One or more presets have a due date before the assignment unlock date. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have a due date before the assignment unlock date. '
+                        + 'Please check the format and try again.')
                 }
-                if (!presetDueAfterDue && this.assignmentDetails.due_date &&
-                    Date.parse(node.due_date) > Date.parse(this.assignmentDetails.due_date)) {
+                if (!presetDueAfterDue && this.assignmentDetails.due_date
+                    && Date.parse(node.due_date) > Date.parse(this.assignmentDetails.due_date)) {
                     presetDueAfterDue = true
-                    this.$toasted.error('One or more presets have a due date after the assignment due date. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have a due date after the assignment due date. '
+                        + 'Please check the format and try again.')
                 }
-                if (!presetDueAfterLock && this.assignmentDetails.lock_date &&
-                    Date.parse(node.due_date) > Date.parse(this.assignmentDetails.lock_date)) {
+                if (!presetDueAfterLock && this.assignmentDetails.lock_date
+                    && Date.parse(node.due_date) > Date.parse(this.assignmentDetails.lock_date)) {
                     presetDueAfterLock = true
-                    this.$toasted.error('One or more presets have a due date after the assignment lock date. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have a due date after the assignment lock date. '
+                        + 'Please check the format and try again.')
                 }
-                if (!presetLockBeforeUnlock && this.assignmentDetails.unlock_date &&
-                    Date.parse(node.lock_date) < Date.parse(this.assignmentDetails.unlock_date)) {
+                if (!presetLockBeforeUnlock && this.assignmentDetails.unlock_date
+                    && Date.parse(node.lock_date) < Date.parse(this.assignmentDetails.unlock_date)) {
                     presetLockBeforeUnlock = true
-                    this.$toasted.error('One or more presets have a lock date before the assignment unlock date. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have a lock date before the assignment unlock date. '
+                        + 'Please check the format and try again.')
                 }
-                if (!presetLockAfterDue && this.assignmentDetails.due_date &&
-                    Date.parse(node.lock_date) > Date.parse(this.assignmentDetails.due_date)) {
+                if (!presetLockAfterDue && this.assignmentDetails.due_date
+                    && Date.parse(node.lock_date) > Date.parse(this.assignmentDetails.due_date)) {
                     presetLockAfterDue = true
-                    this.$toasted.error('One or more presets have a lock date after the assignment due date. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have a lock date after the assignment due date. '
+                        + 'Please check the format and try again.')
                 }
-                if (!presetLockAfterLock && this.assignmentDetails.lock_date &&
-                    Date.parse(node.lock_date) > Date.parse(this.assignmentDetails.lock_date)) {
+                if (!presetLockAfterLock && this.assignmentDetails.lock_date
+                    && Date.parse(node.lock_date) > Date.parse(this.assignmentDetails.lock_date)) {
                     presetLockAfterLock = true
-                    this.$toasted.error('One or more presets have a lock date after the assignment lock date. Please check the format and try again.')
+                    this.$toasted.error('One or more presets have a lock date after the assignment lock date. '
+                        + 'Please check the format and try again.')
                 }
-            }
+            })
 
-            if (missingAssignmentName || missingPointMax || unlockAfterDue || unlockAfterLock ||
-                dueAfterLock || presetUnlockBeforeUnlock || presetUnlockAfterDue ||
-                presetUnlockAfterLock || presetDueBeforeUnlock || presetDueAfterDue ||
-                presetDueAfterLock || presetLockBeforeUnlock || presetLockAfterDue ||
-                presetUnlockAfterPresetDue || presetUnlockAfterPresetLock ||
-                presetDueAfterPresetLock || presetLockAfterLock || presetInvalidDue ||
-                presetInvalidLock || presetInvalidUnlock || presetInvalidTemplate ||
-                presetInvalidTarget || targetsOutOfOrder) {
+            if (missingAssignmentName || missingPointMax || unlockAfterDue || unlockAfterLock
+                || dueAfterLock || presetUnlockBeforeUnlock || presetUnlockAfterDue
+                || presetUnlockAfterLock || presetDueBeforeUnlock || presetDueAfterDue
+                || presetDueAfterLock || presetLockBeforeUnlock || presetLockAfterDue
+                || presetUnlockAfterPresetDue || presetUnlockAfterPresetLock
+                || presetDueAfterPresetLock || presetLockAfterLock || presetInvalidDue
+                || presetInvalidLock || presetInvalidUnlock || presetInvalidTemplate
+                || presetInvalidTarget || targetsOutOfOrder) {
                 return
             }
             this.saveRequestInFlight = true
             this.convertToDB()
             formatAPI.update(this.aID, {
-                'assignment_details': this.assignmentDetails,
-                'templates': this.templates,
-                'presets': this.presets,
-                'unused_templates': this.unusedTemplates,
-                'removed_templates': this.deletedTemplates,
-                'removed_presets': this.deletedPresets
-            }, {customSuccessToast: 'New format saved'})
-                .then(data => {
+                assignment_details: this.assignmentDetails,
+                templates: this.templates,
+                presets: this.presets,
+                unused_templates: this.unusedTemplates,
+                removed_templates: this.deletedTemplates,
+                removed_presets: this.deletedPresets,
+            }, { customSuccessToast: 'New format saved' })
+                .then((data) => {
                     this.saveFromDB(data)
                     this.convertFromDB()
                     this.saveRequestInFlight = false
-                    this.$nextTick(function () {
-                        this.isChanged = false
-                    })
+                    this.$nextTick(() => { this.isChanged = false })
                 })
                 .catch(() => { this.saveRequestInFlight = false })
         },
@@ -486,14 +584,15 @@ export default {
         },
         // Utility func to translate from db format to internal
         convertFromDB () {
-            var idInPool = []
-            var tempTemplatePool = {}
+            const idInPool = []
+            const tempTemplatePool = {}
 
-            for (var template of this.templates) {
+            this.templates.forEach((template) => {
                 idInPool.push(template.id)
                 tempTemplatePool[template.id] = { t: template, available: true }
-            }
-            for (var preset of this.presets) {
+            })
+
+            this.presets.forEach((preset) => {
                 if (preset.type === 'd') {
                     if (!idInPool.includes(preset.template.id)) {
                         idInPool.push(preset.template.id)
@@ -502,16 +601,17 @@ export default {
                         preset.template = tempTemplatePool[preset.template.id].t
                     }
                 }
-            }
-            for (var unusedTemplate of this.unusedTemplates) {
+            })
+
+            this.unusedTemplates.forEach((unusedTemplate) => {
                 idInPool.push(unusedTemplate.id)
                 tempTemplatePool[unusedTemplate.id] = { t: unusedTemplate, available: false }
-            }
+            })
 
-            this.templatePool = Object.values(tempTemplatePool).sort((a, b) => { return a.t.id - b.t.id })
+            this.templatePool = Object.values(tempTemplatePool).sort((a, b) => a.t.id - b.t.id)
 
             this.nodes = this.presets.slice()
-            this.nodes.sort((a, b) => { return new Date(a.due_date) - new Date(b.due_date) })
+            this.nodes.sort((a, b) => new Date(a.due_date) - new Date(b.due_date))
         },
         // Utility func to translate from internal format to db
         convertToDB () {
@@ -520,40 +620,29 @@ export default {
             this.templates = []
             this.unusedTemplates = []
 
-            for (var template of this.templatePool) {
+            this.templatePool.forEach((template) => {
                 template.t.updated = template.updated
                 if (template.available) {
                     this.templates.push(template.t)
                 } else {
                     this.unusedTemplates.push(template.t)
                 }
-            }
+            })
         },
         startTour () {
             this.$intro().start()
-        }
-    },
-    components: {
-        'content-columns': contentColumns,
-        'bread-crumb': breadCrumb,
-        'assignment-details-card': FormatEditAssignmentDetailsCard,
-        'available-template': formatEditAvailableTemplate,
-        'selected-node-card': formatEditSelectTemplateCard,
-        'template-editor': templateEdit,
-        'main-card': mainCard,
-        timeline,
-        icon
+        },
     },
 
     // Prompts user
     beforeRouteLeave (to, from, next) {
-        if (this.isChanged && !confirm('Unsaved changes will be lost if you leave. Do you wish to continue?')) {
+        if (this.isChanged && !window.confirm('Unsaved changes will be lost if you leave. Do you wish to continue?')) {
             next(false)
             return
         }
 
         next()
-    }
+    },
 }
 </script>
 

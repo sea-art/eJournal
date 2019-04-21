@@ -1,6 +1,6 @@
 export const GENERAL_LEVEL_PERMISSIONS = new Set([
     'can_edit_institute_details',
-    'can_add_course'
+    'can_add_course',
 ])
 
 export const COURSE_LEVEL_PERMISSIONS = new Set([
@@ -14,7 +14,7 @@ export const COURSE_LEVEL_PERMISSIONS = new Set([
     'can_delete_course_user_group',
     'can_edit_course_user_group',
     'can_add_assignment',
-    'can_delete_assignment'
+    'can_delete_assignment',
 ])
 
 export const ASSIGNMENT_LEVEL_PERMISSIONS = new Set([
@@ -26,17 +26,17 @@ export const ASSIGNMENT_LEVEL_PERMISSIONS = new Set([
     // Journal level
     'can_have_journal',
     'can_comment',
-    'can_edit_staff_comment'
+    'can_edit_staff_comment',
 ])
 
 export const ALL_PERIMSSIONS = new Set([
     ...GENERAL_LEVEL_PERMISSIONS,
     ...COURSE_LEVEL_PERMISSIONS,
-    ...ASSIGNMENT_LEVEL_PERMISSIONS
+    ...ASSIGNMENT_LEVEL_PERMISSIONS,
 ])
 
 export const PERMISSION_KEY_LEVELS = new Set([
     'general',
     'course',
-    'assignment'
+    'assignment',
 ])

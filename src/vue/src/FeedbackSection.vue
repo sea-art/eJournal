@@ -3,7 +3,8 @@
         <div
             v-if="loggedIn"
             class="shadow feedback-button"
-            @click="showModal('feedbackModal')">
+            @click="showModal('feedbackModal')"
+        >
             <icon name="comments"/>
             Feedback
         </div>
@@ -12,28 +13,27 @@
             ref="feedbackModal"
             size="lg"
             title="Send technical feedback"
-            hide-footer>
-            <feedback-form @feedbackSent="hideModal('feedbackModal')"/>
+            hideFooter
+        >
+            <feedback @feedbackSent="hideModal('feedbackModal')"/>
         </b-modal>
     </div>
 </template>
 
 <script>
-import icon from 'vue-awesome/components/Icon'
-import Feedback from '@/components/assets/Feedback.vue'
+import feedback from '@/components/assets/Feedback.vue'
 
 import { mapGetters } from 'vuex'
 
 export default {
     components: {
-        icon,
-        'feedback-form': Feedback
+        feedback,
     },
     computed: {
         ...mapGetters({
             loggedIn: 'user/loggedIn',
-            profileImg: 'user/profilePicture'
-        })
+            profileImg: 'user/profilePicture',
+        }),
     },
     methods: {
         showModal (ref) {
@@ -41,8 +41,8 @@ export default {
         },
         hideModal (ref) {
             this.$refs[ref].hide()
-        }
-    }
+        },
+    },
 }
 </script>
 

@@ -1,47 +1,89 @@
 <!-- TODO Is this check really required if we redirect, or even better have correct flow anyway? -->
 <template v-if="$hasPermission('can_view_all_journals')">
     <content-columns>
-        <bread-crumb slot="main-content-column" @edit-click="handleEdit()"/>
+        <bread-crumb
+            slot="main-content-column"
+            @edit-click="handleEdit()"
+        />
+
         <div slot="main-content-column">
-            <input class="theme-input full-width multi-form" type="text" v-model="searchValue" placeholder="Search..."/>
+            <input
+                v-model="searchValue"
+                class="theme-input full-width multi-form"
+                type="text"
+                placeholder="Search..."
+            />
+
             <div class="d-flex">
-                <b-form-select v-if="groups.length > 0"
-                    class="multi-form mr-2"
+                <b-form-select
+                    v-if="groups.length > 0"
                     v-model="journalGroupFilter"
-                    :select-size="1"
+                    :selectSize="1"
+                    class="multi-form mr-2"
                 >
-                    <option :value="null">Filter on group...</option>
-                    <option v-for="group in groups" :key="group.name" :value="group.name">
+                    <option :value="null">
+                        Filter on group...
+                    </option>
+                    <option
+                        v-for="group in groups"
+                        :key="group.name"
+                        :value="group.name"
+                    >
                         {{ group.name }}
                     </option>
                 </b-form-select>
-                <b-form-select class="multi-form mr-2" v-model="selectedSortOption" :select-size="1">
-                   <option value="name">Sort by name</option>
-                   <option value="username">Sort by username</option>
-                   <option value="markingNeeded">Sort by marking needed</option>
-                   <option value="points">Sort by points</option>
+                <b-form-select
+                    v-model="selectedSortOption"
+                    :selectSize="1"
+                    class="multi-form mr-2"
+                >
+                    <option value="name">
+                        Sort by name
+                    </option>
+                    <option value="username">
+                        Sort by username
+                    </option>
+                    <option value="markingNeeded">
+                        Sort by marking needed
+                    </option>
+                    <option value="points">
+                        Sort by points
+                    </option>
                 </b-form-select>
-                <b-button v-on:click.stop v-if="!order" @click="toggleOrder(!order)" class="multi-form">
+                <b-button
+                    v-if="!order"
+                    class="multi-form"
+                    @click.stop
+                    @click="toggleOrder(!order)"
+                >
                     <icon name="long-arrow-down"/>
                     Ascending
                 </b-button>
-                <b-button v-on:click.stop v-if="order" @click="toggleOrder(!order)" class="multi-form">
+                <b-button
+                    v-if="order"
+                    class="multi-form"
+                    @click.stop
+                    @click="toggleOrder(!order)"
+                >
                     <icon name="long-arrow-up"/>
                     Descending
                 </b-button>
             </div>
+
             <div class="d-flex flex-wrap">
                 <b-button
                     v-if="$hasPermission('can_publish_grades') && assignmentJournals.length > 0"
                     class="add-button multi-form fill-form-width"
-                    @click="publishGradesAssignment">
+                    @click="publishGradesAssignment"
+                >
                     <icon name="upload"/>
                     Publish all Grades for this Assignment
                 </b-button>
                 <b-button
                     v-if="$hasPermission('can_publish_grades') && assignmentJournals.length > 0"
                     class="change-button multi-form flex-grow-1"
-                    @click="showModal('bonusPointsModal')">
+                    @click="showModal('bonusPointsModal')"
+                >
                     <icon name="star"/>
                     Import bonus points
                 </b-button>
@@ -51,12 +93,14 @@
                 ref="bonusPointsModal"
                 title="Import bonus points"
                 size="lg"
-                hide-footer
-                @hide="$refs['bounsPointsUpload'].resetErrorLogs()">
+                hideFooter
+                @hide="$refs['bounsPointsUpload'].resetErrorLogs()"
+            >
                 <b-card class="no-hover">
                     <h2>Add bonus points to multiple journals at once</h2>
                     Use the button below to import bonus points from a <i>comma separated value</i> file (.csv).
-                    This type of file can be easily generated by any spreadsheet application. Use the following format:<br/>
+                    This type of file can be easily generated by any spreadsheet application. Use the following
+                    format:<br/>
 
                     <div class="text-monospace multi-form full-width text-center">
                         username1, bonus1<br/>
@@ -68,39 +112,64 @@
 
                     <bonus-file-upload-input
                         ref="bounsPointsUpload"
-                        class="mt-2"
                         :acceptedFiletype="'*/*.csv'"
                         :maxSizeBytes="$root.maxFileSizeBytes"
                         :endpoint="'assignments/' + $route.params.aID + '/add_bonus_points'"
                         :aID="$route.params.aID"
+                        class="mt-2"
                         @bonusPointsSuccesfullyUpdated="hideModal('bonusPointsModal'); init()"
                     />
                 </b-card>
             </b-modal>
         </div>
 
-        <div v-if="filteredJournals" v-for="journal in filteredJournals" :key="journal.student.id" slot="main-content-column">
-            <b-link tag="b-button" :to="{
-                name: 'Journal',
-                params: {
-                    cID: cID,
-                    aID: aID,
-                    jID: journal.id
-                }
-            }">
-
+        <div
+            v-for="journal in filteredJournals"
+            slot="main-content-column"
+            :key="journal.student.id"
+        >
+            <b-link
+                :to="{
+                    name: 'Journal',
+                    params: {
+                        cID: cID,
+                        aID: aID,
+                        jID: journal.id
+                    }
+                }"
+                tag="b-button"
+            >
                 <student-card
                     :listView="true"
                     :student="journal.student"
-                    :stats="journal.stats">
-                </student-card>
+                    :stats="journal.stats"
+                />
             </b-link>
         </div>
-        <main-card v-if="loadingJournals && assignmentJournals.length === 0" slot="main-content-column" class="no-hover" :line1="'Loading journals...'"/>
-        <main-card v-else-if="assignmentJournals.length === 0" slot="main-content-column" class="no-hover" :line1="'No participants with a journal'"/>
-        <main-card v-else-if="filteredJournals.length === 0" slot="main-content-column" class="no-hover" :line1="'No journals found'"/>
 
-        <div v-if="stats" slot="right-content-column">
+        <main-card
+            v-if="loadingJournals && assignmentJournals.length === 0"
+            slot="main-content-column"
+            :line1="'Loading journals...'"
+            class="no-hover"
+        />
+        <main-card
+            v-else-if="assignmentJournals.length === 0"
+            slot="main-content-column"
+            :line1="'No participants with a journal'"
+            class="no-hover"
+        />
+        <main-card
+            v-else-if="filteredJournals.length === 0"
+            slot="main-content-column"
+            :line1="'No journals found'"
+            class="no-hover"
+        />
+
+        <div
+            v-if="stats"
+            slot="right-content-column"
+        >
             <h3>Insights</h3>
             <statistics-card :stats="stats"/>
         </div>
@@ -116,145 +185,35 @@ import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import bonusFileUploadInput from '@/components/assets/file_handling/BonusFileUploadInput.vue'
 
 import store from '@/Store.vue'
-import assignmentAPI from '@/api/assignment'
-import groupAPI from '@/api/group'
-import participationAPI from '@/api/participation'
-import icon from 'vue-awesome/components/Icon'
+import assignmentAPI from '@/api/assignment.js'
+import groupAPI from '@/api/group.js'
+import participationAPI from '@/api/participation.js'
 import { mapGetters, mapMutations } from 'vuex'
 
 export default {
     name: 'Assignment',
+    components: {
+        contentColumns,
+        studentCard,
+        statisticsCard,
+        breadCrumb,
+        bonusFileUploadInput,
+        mainCard,
+    },
     props: {
         cID: {
-            required: true
+            required: true,
         },
         aID: {
-            required: true
+            required: true,
         },
-        jID: 0
     },
     data () {
         return {
             assignmentJournals: [],
             stats: null,
             groups: [],
-            loadingJournals: true
-        }
-    },
-    components: {
-        'content-columns': contentColumns,
-        'student-card': studentCard,
-        'statistics-card': statisticsCard,
-        'bread-crumb': breadCrumb,
-        'bonus-file-upload-input': bonusFileUploadInput,
-        store,
-        icon,
-        'main-card': mainCard
-    },
-    created () {
-        // TODO Should be moved to the breadcrumb, ensuring there is no more natural flow left that can get you to this
-        // page without manipulating the url manually. If someone does this, simply let the error be thrown (no checks required)
-        if (!this.$hasPermission('can_view_all_journals', 'assignment', String(this.aID))) {
-            if (this.$root.previousPage) {
-                this.$router.push({ name: this.$root.previousPage.name, params: this.$root.previousPage.params })
-            } else {
-                this.$router.push({ name: 'Home' })
-            }
-            return
-        }
-
-        this.init()
-    },
-    methods: {
-        ...mapMutations({
-            setJournalSortBy: 'preferences/SET_JOURNAL_SORT_BY',
-            toggleOrder: 'preferences/SET_JOURNAL_SORT_ASCENDING',
-            setJournalSearchValue: 'preferences/SET_JOURNAL_SEARCH_VALUE',
-            setJournalGroupFilter: 'preferences/SET_JOURNAL_GROUP_FILTER',
-            switchJournalAssignment: 'preferences/SWITCH_JOURNAL_ASSIGNMENT',
-            setSelfSetGroupFilter: 'preferences/SET_JOURNAL_SELF_SET_GROUP_FILTER'
-        }),
-        init () {
-            this.switchJournalAssignment(this.aID)
-
-            let initialCalls = []
-            initialCalls.push(assignmentAPI.get(this.aID, this.cID))
-            initialCalls.push(groupAPI.getAllFromCourse(this.cID))
-            initialCalls.push(participationAPI.get(this.cID))
-
-            Promise.all(initialCalls).then((results) => {
-                this.loadingJournals = false
-                this.assignmentJournals = results[0].journals
-                this.groups = results[1].sort((a, b) => b.name < a.name)
-                let participant = results[2]
-
-                /* If there are no groups or the current group filter yields no journals, remove the filter. */
-                if (!this.groups || !this.groups.some(group => group.name === this.getJournalGroupFilter)) {
-                    this.setJournalGroupFilter(null)
-                }
-
-                /* If the group filter has not been set, set it to the group of the user provided that yields journals. */
-                if (!this.getSelfSetGroupFilter && participant && participant.groups) {
-                    for (let i in participant.groups) {
-                        this.setJournalGroupFilter(participant.groups[i].name)
-                        if (!this.filteredJournals.length) {
-                            this.setJournalGroupFilter(null)
-                        } else {
-                            break
-                        }
-                    }
-                }
-            })
-        },
-        showModal (ref) {
-            this.$refs[ref].show()
-        },
-        hideModal (ref) {
-            this.$refs[ref].hide()
-        },
-        handleEdit () {
-            this.$router.push({
-                name: 'FormatEdit',
-                params: {
-                    cID: this.cID,
-                    aID: this.aID
-                }
-            })
-        },
-        publishGradesAssignment () {
-            if (confirm('Are you sure you want to publish all grades for each journal?')) {
-                assignmentAPI.update(this.aID, {published: true}, {
-                    customErrorToast: 'Error while publishing all grades for this assignment.',
-                    customSuccessToast: 'Published all grades for this assignment.'
-                })
-                    .then(() => {
-                        assignmentAPI.get(this.aID, this.cID)
-                            .then(assignment => {
-                                this.assignmentJournals = assignment.journals
-                                this.stats = assignment.stats
-                            })
-                    })
-            }
-        },
-        compare (a, b) {
-            if (a < b) { return this.order ? 1 : -1 }
-            if (a > b) { return this.order ? -1 : 1 }
-            return 0
-        },
-        calcStats (filteredJournals) {
-            var needsMarking = 0
-            var unpublished = 0
-            var points = 0
-
-            for (var i = 0; i < filteredJournals.length; i++) {
-                needsMarking += filteredJournals[i]['stats']['submitted'] - filteredJournals[i]['stats']['graded']
-                unpublished += filteredJournals[i]['stats']['submitted'] - filteredJournals[i]['stats']['published']
-                points += filteredJournals[i]['stats']['acquired_points']
-            }
-            this.stats = {}
-            this.stats['needsMarking'] = needsMarking
-            this.stats['unpublished'] = unpublished - needsMarking
-            this.stats['averagePoints'] = points / filteredJournals.length
+            loadingJournals: true,
         }
     },
     computed: {
@@ -263,7 +222,7 @@ export default {
             order: 'preferences/journalSortAscending',
             getJournalSearchValue: 'preferences/journalSearchValue',
             getJournalGroupFilter: 'preferences/journalGroupFilter',
-            getSelfSetGroupFilter: 'preferences/journalSelfSetGroupFilter'
+            getSelfSetGroupFilter: 'preferences/journalSelfSetGroupFilter',
         }),
         journalGroupFilter: {
             get () {
@@ -272,7 +231,7 @@ export default {
             set (value) {
                 this.setJournalGroupFilter(value)
                 this.setSelfSetGroupFilter(true)
-            }
+            },
         },
         searchValue: {
             get () {
@@ -280,7 +239,7 @@ export default {
             },
             set (value) {
                 this.setJournalSearchValue(value)
-            }
+            },
         },
         selectedSortOption: {
             get () {
@@ -288,10 +247,10 @@ export default {
             },
             set (value) {
                 this.setJournalSortBy(value)
-            }
+            },
         },
-        filteredJournals: function () {
-            let self = this
+        filteredJournals () {
+            const self = this
 
             function compareFullName (a, b) {
                 return self.compare(a.student.full_name, b.student.full_name)
@@ -310,17 +269,17 @@ export default {
             }
 
             function searchFilter (assignment) {
-                var username = assignment.student.username.toLowerCase()
-                var fullName = assignment.student.full_name.toLowerCase()
-                var searchValue = self.searchValue.toLowerCase()
+                const username = assignment.student.username.toLowerCase()
+                const fullName = assignment.student.full_name.toLowerCase()
+                const searchValue = self.searchValue.toLowerCase()
 
-                return username.includes(searchValue) ||
-                       fullName.includes(searchValue)
+                return username.includes(searchValue)
+                    || fullName.includes(searchValue)
             }
 
             function groupFilter (assignment) {
                 if (self.getJournalGroupFilter) {
-                    return assignment.student.groups.map(g => g['name']).includes(self.getJournalGroupFilter)
+                    return assignment.student.groups.map(g => g.name).includes(self.getJournalGroupFilter)
                 }
 
                 return true
@@ -340,7 +299,115 @@ export default {
             this.calcStats(store.state.filteredJournals.filter(groupFilter))
 
             return store.state.filteredJournals.filter(groupFilter).slice()
+        },
+    },
+    created () {
+        // TODO Should be moved to the breadcrumb, ensuring there is no more natural flow left that can get you to this
+        // page without manipulating the url manually. If someone does this, simply let the error be thrown
+        // (no checks required)
+        if (!this.$hasPermission('can_view_all_journals', 'assignment', String(this.aID))) {
+            if (this.$root.previousPage) {
+                this.$router.push({ name: this.$root.previousPage.name, params: this.$root.previousPage.params })
+            } else {
+                this.$router.push({ name: 'Home' })
+            }
+            return
         }
-    }
+
+        this.init()
+    },
+    methods: {
+        ...mapMutations({
+            setJournalSortBy: 'preferences/SET_JOURNAL_SORT_BY',
+            toggleOrder: 'preferences/SET_JOURNAL_SORT_ASCENDING',
+            setJournalSearchValue: 'preferences/SET_JOURNAL_SEARCH_VALUE',
+            setJournalGroupFilter: 'preferences/SET_JOURNAL_GROUP_FILTER',
+            switchJournalAssignment: 'preferences/SWITCH_JOURNAL_ASSIGNMENT',
+            setSelfSetGroupFilter: 'preferences/SET_JOURNAL_SELF_SET_GROUP_FILTER',
+        }),
+        init () {
+            this.switchJournalAssignment(this.aID)
+
+            const initialCalls = []
+            initialCalls.push(assignmentAPI.get(this.aID, this.cID))
+            initialCalls.push(groupAPI.getAllFromCourse(this.cID))
+            initialCalls.push(participationAPI.get(this.cID))
+
+            Promise.all(initialCalls).then((results) => {
+                this.loadingJournals = false
+                this.assignmentJournals = results[0].journals
+                this.groups = results[1].sort((a, b) => b.name < a.name)
+                const participant = results[2]
+
+                /* If there are no groups or the current group filter yields no journals, remove the filter. */
+                if (!this.groups || !this.groups.some(group => group.name === this.getJournalGroupFilter)) {
+                    this.setJournalGroupFilter(null)
+                }
+
+                /* If the group filter has not been set, set it to the
+                   group of the user provided that yields journals. */
+                if (!this.getSelfSetGroupFilter && participant && participant.groups) {
+                    participant.groups.forEach((group) => {
+                        this.setJournalGroupFilter(group.name)
+                        if (!this.filteredJournals.length) {
+                            this.setJournalGroupFilter(null)
+                        } else {
+                            return /* eslint no-useless-return: "off" */
+                        }
+                    })
+                }
+            })
+        },
+        showModal (ref) {
+            this.$refs[ref].show()
+        },
+        hideModal (ref) {
+            this.$refs[ref].hide()
+        },
+        handleEdit () {
+            this.$router.push({
+                name: 'FormatEdit',
+                params: {
+                    cID: this.cID,
+                    aID: this.aID,
+                },
+            })
+        },
+        publishGradesAssignment () {
+            if (window.confirm('Are you sure you want to publish all grades for each journal?')) {
+                assignmentAPI.update(this.aID, { published: true }, {
+                    customErrorToast: 'Error while publishing all grades for this assignment.',
+                    customSuccessToast: 'Published all grades for this assignment.',
+                })
+                    .then(() => {
+                        assignmentAPI.get(this.aID, this.cID)
+                            .then((assignment) => {
+                                this.assignmentJournals = assignment.journals
+                                this.stats = assignment.stats
+                            })
+                    })
+            }
+        },
+        compare (a, b) {
+            if (a < b) { return this.order ? 1 : -1 }
+            if (a > b) { return this.order ? -1 : 1 }
+            return 0
+        },
+        calcStats (filteredJournals) {
+            let needsMarking = 0
+            let unpublished = 0
+            let points = 0
+
+            for (let i = 0; i < filteredJournals.length; i++) {
+                needsMarking += filteredJournals[i].stats.submitted - filteredJournals[i].stats.graded
+                unpublished += filteredJournals[i].stats.submitted - filteredJournals[i].stats.published
+                points += filteredJournals[i].stats.acquired_points
+            }
+            this.stats = {}
+            this.stats.needsMarking = needsMarking
+            this.stats.unpublished = unpublished - needsMarking
+            this.stats.averagePoints = points / filteredJournals.length
+        },
+    },
 }
 </script>

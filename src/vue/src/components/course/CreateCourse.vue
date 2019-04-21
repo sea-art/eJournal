@@ -1,10 +1,27 @@
 <template>
     <b-card class="no-hover">
-        <b-form @submit.prevent="onSubmit" @reset.prevent="onReset" :v-model="form.lti_id">
-            <h2 class="field-heading required">Course name</h2>
-            <b-input class="multi-form theme-input" v-model="form.name" placeholder="Course name"/>
-            <h2 class="field-heading required">Course abbreviation</h2>
-            <b-input class="multi-form theme-input" v-model="form.abbreviation" maxlength="10" placeholder="Course abbreviation (max 10 characters)"/>
+        <b-form
+            :vModel="form.lti_id"
+            @submit.prevent="onSubmit"
+            @reset.prevent="onReset"
+        >
+            <h2 class="field-heading required">
+                Course name
+            </h2>
+            <b-input
+                v-model="form.name"
+                class="multi-form theme-input"
+                placeholder="Course name"
+            />
+            <h2 class="field-heading required">
+                Course abbreviation
+            </h2>
+            <b-input
+                v-model="form.abbreviation"
+                class="multi-form theme-input"
+                maxlength="10"
+                placeholder="Course abbreviation (max 10 characters)"
+            />
             <b-row>
                 <b-col cols="6">
                     <h2 class="field-heading required">
@@ -12,11 +29,10 @@
                         <tooltip tip="Start date of the course"/>
                     </h2>
                     <flat-pickr
-                        class="multi-form multi-date-input theme-input full-width"
                         v-model="form.startdate"
-                        :config="{
-                            maxDate: form.enddate
-                        }"/>
+                        class="multi-form multi-date-input theme-input full-width"
+                        :config="{ maxDate: form.enddate }"
+                    />
                 </b-col>
                 <b-col cols="6">
                     <h2 class="field-heading required">
@@ -24,18 +40,23 @@
                         <tooltip tip="End date of the course"/>
                     </h2>
                     <flat-pickr
-                        class="multi-form multi-date-input theme-input full-width"
                         v-model="form.enddate"
-                        :config="{
-                            minDate: form.startdate
-                        }"/>
+                        class="multi-form multi-date-input theme-input full-width"
+                        :config="{ minDate: form.startdate }"
+                    />
                 </b-col>
             </b-row>
-            <b-button class="float-left change-button" type="reset">
+            <b-button
+                class="float-left change-button"
+                type="reset"
+            >
                 <icon name="undo"/>
                 Reset
             </b-button>
-            <b-button class="float-right add-button" type="submit">
+            <b-button
+                class="float-right add-button"
+                type="submit"
+            >
                 <icon name="plus-square"/>
                 Create
             </b-button>
@@ -44,14 +65,16 @@
 </template>
 
 <script>
-import courseAPI from '@/api/course'
-import icon from 'vue-awesome/components/Icon'
+import courseAPI from '@/api/course.js'
 import genericUtils from '@/utils/generic_utils.js'
 import tooltip from '@/components/assets/Tooltip.vue'
-import commonAPI from '@/api/common'
+import commonAPI from '@/api/common.js'
 
 export default {
     name: 'CreateCourse',
+    components: {
+        tooltip,
+    },
     props: ['lti'],
     data () {
         return {
@@ -60,34 +83,8 @@ export default {
                 abbreviation: '',
                 startdate: '',
                 enddate: '',
-                lti_id: ''
-            }
-        }
-    },
-    methods: {
-        formFilled () {
-            return this.form.name && this.form.abbreviation && this.form.startdate && this.form.enddate
-        },
-        onSubmit () {
-            if (this.formFilled()) {
-                courseAPI.create(this.form)
-                    .then(course => {
-                        if (!this.lti) { // If we are here via LTI a full store update will take place anyway.
-                            commonAPI.getPermissions(course.id).then(coursePermissions => {
-                                this.$store.commit('user/UPDATE_PERMISSIONS', { permissions: coursePermissions, key: 'course' + course.id })
-                            })
-                        }
-                        this.$emit('handleAction', course.id)
-                    })
-            } else {
-                this.$toasted.error('One or more required fields are empty.')
-            }
-        },
-        onReset (evt) {
-            this.form.name = ''
-            this.form.abbreviation = ''
-            this.form.startdate = ''
-            this.form.enddate = ''
+                lti_id: '',
+            },
         }
     },
     mounted () {
@@ -99,9 +96,34 @@ export default {
             this.form.enddate = genericUtils.yearOffset(this.form.startdate)
         }
     },
-    components: {
-        tooltip,
-        icon
-    }
+    methods: {
+        formFilled () {
+            return this.form.name && this.form.abbreviation && this.form.startdate && this.form.enddate
+        },
+        onSubmit () {
+            if (this.formFilled()) {
+                courseAPI.create(this.form)
+                    .then((course) => {
+                        if (!this.lti) { // If we are here via LTI a full store update will take place anyway.
+                            commonAPI.getPermissions(course.id).then((coursePermissions) => {
+                                this.$store.commit(
+                                    'user/UPDATE_PERMISSIONS',
+                                    { permissions: coursePermissions, key: `course${course.id}` },
+                                )
+                            })
+                        }
+                        this.$emit('handleAction', course.id)
+                    })
+            } else {
+                this.$toasted.error('One or more required fields are empty.')
+            }
+        },
+        onReset () {
+            this.form.name = ''
+            this.form.abbreviation = ''
+            this.form.startdate = ''
+            this.form.enddate = ''
+        },
+    },
 }
 </script>

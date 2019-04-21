@@ -2,9 +2,13 @@
     <content-single-column>
         <bread-crumb/>
         <profile-data ref="profileData"/>
-        <h4 class="mb-2 mt-4"><span>Email notifications</span></h4>
+        <h4 class="mb-2 mt-4">
+            <span>Email notifications</span>
+        </h4>
         <notification-card/>
-        <h4 class="mb-2 mt-4"><span>Password</span></h4>
+        <h4 class="mb-2 mt-4">
+            <span>Password</span>
+        </h4>
         <password-card ref="passData"/>
         <custom-footer/>
     </content-single-column>
@@ -26,16 +30,16 @@ export default {
         breadCrumb,
         profileData,
         notificationCard,
-        passwordCard
+        passwordCard,
     },
     beforeRouteLeave (to, from, next) {
-        if ((this.$refs.profileData.isChanged() || this.$refs.passData.isChanged()) &&
-            !confirm('Unsaved changes will be lost if you leave. Do you wish to continue?')) {
+        if ((this.$refs.profileData.isChanged() || this.$refs.passData.isChanged())
+            && !window.confirm('Unsaved changes will be lost if you leave. Do you wish to continue?')) {
             next(false)
             return
         }
 
         next()
-    }
+    },
 }
 </script>

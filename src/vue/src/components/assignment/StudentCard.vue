@@ -1,10 +1,19 @@
 <template>
     <b-card :class="$root.getBorderClass($route.params.cID)">
-        <b-row v-if="listView" no-gutters>
-            <b-col class="d-flex" md="7">
+        <b-row
+            v-if="listView"
+            noGutters
+        >
+            <b-col
+                class="d-flex"
+                md="7"
+            >
                 <div class="portrait-wrapper">
-                    <img :src="student.profile_picture">
-                    <todo-square v-if="numMarkingNeeded > 0" :num="numMarkingNeeded"/>
+                    <img :src="student.profile_picture"/>
+                    <todo-square
+                        v-if="numMarkingNeeded > 0"
+                        :num="numMarkingNeeded"
+                    />
                 </div>
                 <div class="student-details list-view">
                     <span>
@@ -14,16 +23,20 @@
                     {{ student.username }}
                 </div>
             </b-col>
-            <b-col class="mt-2" md="5">
+            <b-col
+                class="mt-2"
+                md="5"
+            >
                 <progress-bar
-                    :currentPoints="this.stats.acquired_points"
-                    :totalPoints="this.stats.total_points"/>
+                    :currentPoints="stats.acquired_points"
+                    :totalPoints="stats.total_points"
+                />
             </b-col>
         </b-row>
         <div v-else>
             <div class="d-flex multi-form">
                 <div class="portrait-wrapper">
-                    <img :src="student.profile_picture">
+                    <img :src="student.profile_picture"/>
                 </div>
                 <div class="student-details">
                     <span>
@@ -34,9 +47,10 @@
                 </div>
             </div>
             <progress-bar
-                :currentPoints="this.stats.acquired_points"
-                :totalPoints="this.stats.total_points"
-                :comparePoints="this.assignment && this.assignment.stats ? this.assignment.stats.average_points : -1"/>
+                :currentPoints="stats.acquired_points"
+                :totalPoints="stats.total_points"
+                :comparePoints="assignment && assignment.stats ? assignment.stats.average_points : -1"
+            />
         </div>
     </b-card>
 </template>
@@ -46,29 +60,30 @@ import progressBar from '@/components/assets/ProgressBar.vue'
 import todoSquare from '@/components/assets/TodoSquare.vue'
 
 export default {
-    props: {
-        'student': {
-            required: true
-        },
-        'stats': {
-            required: true
-        },
-        'listView': {
-            default: false
-        },
-        'assignment': {
-            required: false
-        }
-    },
     components: {
-        'progress-bar': progressBar,
-        'todo-square': todoSquare
+        progressBar,
+        todoSquare,
+    },
+    props: {
+        student: {
+            required: true,
+        },
+        stats: {
+            required: true,
+        },
+        listView: {
+            default: false,
+        },
+        assignment: {
+            default: null,
+            required: false,
+        },
     },
     computed: {
         numMarkingNeeded () {
             return this.stats.submitted - this.stats.graded
-        }
-    }
+        },
+    },
 }
 </script>
 

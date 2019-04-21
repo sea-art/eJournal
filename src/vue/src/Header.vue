@@ -1,25 +1,58 @@
 <template>
     <!-- Section visible if user logged in -->
-    <b-navbar v-if="loggedIn" id="header" class="shadow" toggleable="md" type="dark" fixed=top>
+    <b-navbar
+        v-if="loggedIn"
+        id="header"
+        class="shadow"
+        toggleable="md"
+        type="dark"
+        fixed="top"
+    >
         <transition name="fade">
-            <div class="spinner shadow" v-if="openApiCalls">
-                <icon name="circle-o-notch" spin scale="1.1"/>
+            <div
+                v-if="openApiCalls"
+                class="spinner shadow"
+            >
+                <icon
+                    name="circle-o-notch"
+                    spin
+                    scale="1.1"
+                />
             </div>
         </transition>
-        <b-navbar-brand :to="{ name: 'Home' }" class="brand-name text-shadow">
+        <b-navbar-brand
+            :to="{ name: 'Home' }"
+            class="brand-name text-shadow"
+        >
             <img src="static/ejournal-logo-white.svg"/>
         </b-navbar-brand>
 
-        <b-navbar-toggle class="ml-auto mr-auto" target="nav-collapse" aria-expanded="false" aria-controls="nav-collapse">
+        <b-navbar-toggle
+            class="ml-auto mr-auto"
+            target="nav-collapse"
+            aria-expanded="false"
+            aria-controls="nav-collapse"
+        >
             <span class="nav-collapse__icon nav-collapse__icon--open">
-                <icon class="collapse-icon" name="caret-down" scale="1.75"/>
+                <icon
+                    class="collapse-icon"
+                    name="caret-down"
+                    scale="1.75"
+                />
             </span>
             <span class="nav-collapse__icon nav-collapse__icon--close">
-                <icon class="collapse-icon" name="caret-up" scale="1.75"/>
+                <icon
+                    class="collapse-icon"
+                    name="caret-up"
+                    scale="1.75"
+                />
             </span>
         </b-navbar-toggle>
 
-        <b-collapse is-nav id="nav-collapse">
+        <b-collapse
+            id="nav-collapse"
+            isNav
+        >
             <b-navbar-nav class="mr-auto">
                 <b-nav-item :to="{ name : 'Home' }">
                     <icon name="home"/>
@@ -33,11 +66,24 @@
         </b-collapse>
 
         <b-navbar-nav class="ml-auto">
-            <b-nav-dropdown no-caret right id="nav-dropdown-options">
-                <div class="profile-picture-container" slot="button-content">
-                    <img class="profile-picture-sm" :src="profileImg">
+            <b-nav-dropdown
+                id="nav-dropdown-options"
+                noCaret
+                right
+            >
+                <div
+                    slot="button-content"
+                    class="profile-picture-container"
+                >
+                    <img
+                        :src="profileImg"
+                        class="profile-picture-sm"
+                    />
                 </div>
-                <b-button :to="{ name: 'Profile' }" class="mb-1">
+                <b-button
+                    :to="{ name: 'Profile' }"
+                    class="mb-1"
+                >
                     <icon name="user"/>
                     &nbsp;Profile
                 </b-button>
@@ -50,22 +96,54 @@
     </b-navbar>
 
     <!-- Section visible if user logged out -->
-    <b-navbar v-else id="header" class="shadow" toggleable="md" type="dark" fixed=top>
+    <b-navbar
+        v-else
+        id="header"
+        class="shadow"
+        toggleable="md"
+        type="dark"
+        fixed="top"
+    >
         <transition name="fade">
-            <div class="spinner shadow" v-if="openApiCalls">
-                <icon name="circle-o-notch" spin scale='1.3'/>
+            <div
+                v-if="openApiCalls"
+                class="spinner shadow"
+            >
+                <icon
+                    name="circle-o-notch"
+                    spin
+                    scale="1.3"
+                />
             </div>
         </transition>
-        <b-navbar-brand  :to="{ name: 'Guest' }" class="brand-name">
+        <b-navbar-brand
+            :to="{ name: 'Guest' }"
+            class="brand-name"
+        >
             <img src="static/ejournal-logo-white.svg"/>
         </b-navbar-brand>
 
         <b-navbar-nav class="ml-auto">
-            <b-nav-dropdown right no-caret id="nav-dropdown-options" ref="loginDropdown">
-                <div class="profile-picture-container bg-white d-flex justify-content-center align-items-center" slot="button-content">
-                    <icon name="user" scale="2.5"/>
+            <b-nav-dropdown
+                id="nav-dropdown-options"
+                ref="loginDropdown"
+                right
+                noCaret
+            >
+                <div
+                    slot="button-content"
+                    class="profile-picture-container bg-white d-flex justify-content-center align-items-center"
+                >
+                    <icon
+                        name="user"
+                        scale="2.5"
+                    />
                 </div>
-                <b-button v-if="allowRegistration" :to="{ name: 'Register' }" class="mb-1">
+                <b-button
+                    v-if="allowRegistration"
+                    :to="{ name: 'Register' }"
+                    class="mb-1"
+                >
                     <icon name="user-plus"/>
                     Register
                 </b-button>
@@ -79,34 +157,30 @@
 </template>
 
 <script>
-import icon from 'vue-awesome/components/Icon'
 import { mapGetters } from 'vuex'
 
-import instanceAPI from '@/api/instance'
+import instanceAPI from '@/api/instance.js'
 
 export default {
-    components: {
-        icon
-    },
     data () {
         return {
             defaultProfileImg: '/static/unknown-profile.png',
-            allowRegistration: null
+            allowRegistration: null,
         }
     },
     computed: {
         ...mapGetters({
             loggedIn: 'user/loggedIn',
             profileImg: 'user/profilePicture',
-            openApiCalls: 'connection/checkOpenApiCalls'
-        })
+            openApiCalls: 'connection/checkOpenApiCalls',
+        }),
     },
     created () {
         instanceAPI.get()
-            .then(instance => {
+            .then((instance) => {
                 this.allowRegistration = instance.allow_standalone_registration
             })
-    }
+    },
 }
 </script>
 

@@ -1,8 +1,11 @@
 <template>
     <div class="round-border">
         <label class="switch">
-          <input type="checkbox" v-model="active">
-          <span class="slider"></span>
+            <input
+                v-model="active"
+                type="checkbox"
+            />
+            <span class="slider"/>
         </label>
     </div>
 </template>
@@ -12,14 +15,14 @@ export default {
     props: ['isActive'],
     computed: {
         active: {
-            get: function () {
+            get () {
                 return this.isActive
             },
-            set: function (value) {
+            set (value) {
                 this.$emit('parentActive', value)
-            }
-        }
-    }
+            },
+        },
+    },
 }
 </script>
 

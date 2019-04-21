@@ -2,9 +2,22 @@
 <template>
     <div>
         <h2>{{ template.name }}</h2>
-        <div v-for="(field, i) in template.field_set" :key="field.eID" class="multi-form">
-            <h2 v-if="field.title" class="field-heading" :class="{ 'required': field.required }">{{ field.title }}</h2>
-            <sandboxed-iframe v-if="field.description" :content="field.description"/>
+        <div
+            v-for="(field, i) in template.field_set"
+            :key="field.eID"
+            class="multi-form"
+        >
+            <h2
+                v-if="field.title"
+                :class="{ 'required': field.required }"
+                class="field-heading"
+            >
+                {{ field.title }}
+            </h2>
+            <sandboxed-iframe
+                v-if="field.description"
+                :content="field.description"
+            />
 
             <b-textarea
                 v-if="field.type == 't'"
@@ -12,21 +25,21 @@
             />
             <file-upload-input
                 v-else-if="field.type == 'i'"
-                class="input-disabled"
                 :acceptedFiletype="'image/*'"
                 :maxSizeBytes="$root.maxFileSizeBytes"
                 :autoUpload="false"
                 :aID="$route.params.aID"
                 :nID="'1'"
+                class="input-disabled"
             />
             <file-upload-input
                 v-else-if="field.type == 'f'"
-                class="input-disabled"
                 :acceptedFiletype="'*/*'"
                 :maxSizeBytes="$root.maxFileSizeBytes"
                 :autoUpload="false"
                 :aID="$route.params.aID"
                 :nID="'1'"
+                class="input-disabled"
             />
             <b-input
                 v-else-if="field.type == 'v'"
@@ -35,17 +48,17 @@
             />
             <file-upload-input
                 v-else-if="field.type == 'p'"
-                class="input-disabled"
                 :acceptedFiletype="'application/pdf'"
                 :maxSizeBytes="$root.maxFileSizeBytes"
                 :autoUpload="false"
                 :aID="$route.params.aID"
                 :nID="'1'"
+                class="input-disabled"
             />
             <text-editor
                 v-else-if="field.type == 'rt'"
-                class="input-disabled"
                 :id="'rich-text-editor-preview-field-' + i"
+                class="input-disabled"
             />
             <url-input
                 v-else-if="field.type == 'u'"
@@ -57,9 +70,9 @@
             />
             <b-form-select
                 v-else-if="field.type == 's'"
-                class="input-disabled"
                 :value="null"
                 :options="parseSelectionOptions(field.options)"
+                class="input-disabled"
             />
         </div>
     </div>
@@ -68,28 +81,26 @@
 <script>
 import fileUploadInput from '@/components/assets/file_handling/FileUploadInput.vue'
 import textEditor from '@/components/assets/TextEditor.vue'
-import icon from 'vue-awesome/components/Icon'
 import urlInput from '@/components/assets/UrlInput.vue'
 import sandboxedIframe from '@/components/assets/SandboxedIframe.vue'
 
 export default {
-    props: ['template'],
     components: {
-        'file-upload-input': fileUploadInput,
-        'text-editor': textEditor,
-        'url-input': urlInput,
-        icon,
-        sandboxedIframe
+        fileUploadInput,
+        textEditor,
+        urlInput,
+        sandboxedIframe,
     },
+    props: ['template'],
     methods: {
         parseSelectionOptions (fieldOptions) {
             if (!fieldOptions) {
                 return [{ value: null, text: 'Please select an option...' }]
             }
-            var options = JSON.parse(fieldOptions).filter(e => e).map(x => { return { value: x, text: x } })
+            const options = JSON.parse(fieldOptions).filter(e => e).map(x => Object({ value: x, text: x }))
             options.unshift({ value: null, text: 'Please select an option...' })
             return options
-        }
-    }
+        },
+    },
 }
 </script>

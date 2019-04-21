@@ -1,31 +1,39 @@
 <template>
     <b-card class="no-hover">
         <div class="profile-picture-lg profile-picture-cropper">
-            <croppa v-model="croppa"
-                disable-click-to-choose
+            <croppa
+                v-model="croppa"
                 :width="250"
                 :height="250"
-                canvas-color="transparent"
-                :show-remove-button="false"
-                :show-loading="true"
-                :loading-size="50"
+                :showRemoveButton="false"
+                :showLoading="true"
+                :loadingSize="50"
+                :fileSizeLimit="this.$root.maxFileSizeBytes"
+                :initialImage="pictureUrl"
+                disableClickToChoose
+                canvasColor="transparent"
                 accept="image/*"
-                :file-size-limit="this.$root.maxFileSizeBytes"
+                initialSize="natural"
+                initialPosition="center"
                 @file-type-mismatch="onFileTypeMismatch"
                 @file-size-exceed="onFileSizeExceed"
-                :initial-image="pictureUrl"
-                initial-size="natural"
-                initial-position="center"/>
+            />
         </div>
         <b-button @click="croppa.chooseFile()">
             <icon name="upload"/>
             Upload
         </b-button>
-        <b-button class="change-button" @click="refreshPicture()">
+        <b-button
+            class="change-button"
+            @click="refreshPicture()"
+        >
             <icon name="undo"/>
             Reset
         </b-button>
-        <b-button class="add-button float-right" @click="savePicture()">
+        <b-button
+            class="add-button float-right"
+            @click="savePicture()"
+        >
             <icon name="save"/>
             Save
         </b-button>
@@ -33,35 +41,34 @@
 </template>
 
 <script>
-import icon from 'vue-awesome/components/Icon'
 import Croppa from 'vue-croppa'
 
 export default {
     name: 'ImageCropper',
-    props: ['pictureUrl'],
     components: {
-        icon,
-        'croppa': Croppa.component
+        croppa: Croppa.component,
     },
+    props: ['pictureUrl'],
     data () {
         return {
-            croppa: {}
+            croppa: {},
         }
     },
     methods: {
-        onFileTypeMismatch (file) {
+        onFileTypeMismatch () {
             this.$toasted.error('Invalid file type. Please choose an image.')
         },
-        onFileSizeExceed (file) {
-            this.$toasted.error('The profile picture exceeds the maximum file size of ' + this.$root.maxFileSizeBytes + ' bytes.')
+        onFileSizeExceed () {
+            this.$toasted.error(
+                `The profile picture exceeds the maximum file size of ${this.$root.maxFileSizeBytes} bytes.`)
         },
         savePicture () {
             this.$emit('newPicture', this.croppa.generateDataUrl('image/jpeg'))
         },
         refreshPicture () {
             this.croppa.refresh()
-        }
-    }
+        },
+    },
 }
 </script>
 

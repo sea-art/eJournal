@@ -8,7 +8,12 @@
 <template>
     <div class="breadcrumb-container">
         <version-alert/>
-        <b-button v-if="canEdit()" @click="editClick()" class="float-right change-button multi-form">
+
+        <b-button
+            v-if="canEdit()"
+            class="float-right change-button multi-form"
+            @click="editClick()"
+        >
             <icon name="edit"/>
             Edit
         </b-button>
@@ -16,14 +21,26 @@
             <div v-if="crumbs.length > 1">
                 <h4>
                     <span>
-                        <span v-for="crumb in crumbs.slice(0, -1)" :key="crumb.route">
-                            <b-link tag="b-button" :to="{ name: crumb.routeName }">
+                        <span
+                            v-for="crumb in crumbs.slice(0, -1)"
+                            :key="crumb.route"
+                        >
+                            <b-link
+                                :to="{ name: crumb.routeName }"
+                                tag="b-button"
+                            >
                                 {{ crumb.displayName }}
                             </b-link> /
                         </span>
                         <span>
-                            <b-link tag="b-button" :to="{ name: crumbs[crumbs.length-2].routeName }">
-                                <icon name="level-up" class="shift-up-2 action-icon"/>
+                            <b-link
+                                :to="{ name: crumbs[crumbs.length-2].routeName }"
+                                tag="b-button"
+                            >
+                                <icon
+                                    name="level-up"
+                                    class="shift-up-2 action-icon"
+                                />
                             </b-link>
                         </span>
                     </span>
@@ -42,15 +59,13 @@
 
 <script>
 import versionAlert from '@/components/assets/VersionAlert.vue'
-import icon from 'vue-awesome/components/Icon'
 import store from '@/Store.vue'
 
-import commonAPI from '@/api/common'
+import commonAPI from '@/api/common.js'
 
 export default {
     components: {
         versionAlert,
-        icon
     },
     /*
         aliases: aliases for unnamed vews
@@ -60,38 +75,43 @@ export default {
         return {
             settings: {
                 aliases: {
-                    'Home': 'Courses',
-                    'FormatEdit': 'Assignment Editor',
-                    'CourseEdit': 'Course Editor',
-                    'AssignmentsOverview': 'Assignments',
-                    'UserRoleConfiguration': 'Permission Manager'
+                    Home: 'Courses',
+                    FormatEdit: 'Assignment Editor',
+                    CourseEdit: 'Course Editor',
+                    AssignmentsOverview: 'Assignments',
+                    UserRoleConfiguration: 'Permission Manager',
                 },
                 namedViews: {
-                    'Course': { apiReturnValue: 'course', primaryParam: 'cID' },
-                    'Assignment': { apiReturnValue: 'assignment', primaryParam: 'aID' },
-                    'Journal': { apiReturnValue: 'journal', primaryParam: 'jID' }
-                }
+                    Course: { apiReturnValue: 'course', primaryParam: 'cID' },
+                    Assignment: { apiReturnValue: 'assignment', primaryParam: 'aID' },
+                    Journal: { apiReturnValue: 'journal', primaryParam: 'jID' },
+                },
             },
             cachedMap: {},
-            crumbs: []
+            crumbs: [],
         }
+    },
+    created () {
+        this.findRoutes()
+        this.addDisplayNames()
+        this.fillCache()
     },
     methods: {
         // Match routes that prepend the current path, create incomplete crumbs
         findRoutes () {
-            var routeMatched = this.$route.matched[0].path
-            var routerRoutes = this.$router.options.routes
+            const routeMatched = this.$route.matched[0].path
+            const routerRoutes = this.$router.options.routes
             routerRoutes.sort((a, b) => a.path.length - b.path.length)
             // Add every matched (sub)route with params substituted to use as key
-            for (var route of routerRoutes.slice(1)) {
+            routerRoutes.slice(1).forEach((route) => {
                 if (routeMatched.startsWith(route.path)) {
-                    var fullpath = route.path
-                    for (var kvpair of Object.entries(this.$route.params)) {
-                        fullpath = fullpath.replace(':' + kvpair[0], kvpair[1])
-                    }
+                    let fullpath = route.path
+                    Object.entries(this.$route.params).forEach((kvpair) => {
+                        fullpath = fullpath.replace(`:${kvpair[0]}`, kvpair[1])
+                    })
                     this.crumbs.push({ route: fullpath, routeName: route.name, displayName: null })
                 }
-            }
+            })
             // Remove the name of the journal author if the user can have a journal themself
             if (this.$route.name === 'Journal' && this.$hasPermission('can_have_journal')) {
                 this.crumbs.pop()
@@ -101,32 +121,32 @@ export default {
         addDisplayNames () {
             this.cachedMap = store.state.cachedMap
 
-            for (var crumb of this.crumbs) {
+            this.crumbs.forEach((crumb) => {
                 if (!this.settings.namedViews[crumb.routeName]) {
                     crumb.displayName = this.settings.aliases[crumb.routeName] || crumb.routeName
                 } else {
                     crumb.displayName = this.cachedMap[crumb.route] || null
                 }
-            }
+            })
         },
         // If any are still missing display names (not in cache), request the names and set them in cache
         fillCache () {
-            var crumbsMissingDisplayName = this.crumbs.filter(crumb => !crumb.displayName)
+            const crumbsMissingDisplayName = this.crumbs.filter(crumb => !crumb.displayName)
 
             // Incrementally build request
-            var request = {}
-            for (var crumb of crumbsMissingDisplayName) {
-                var paramName = this.settings.namedViews[crumb.routeName].primaryParam
+            const request = {}
+            crumbsMissingDisplayName.forEach((crumb) => {
+                const paramName = this.settings.namedViews[crumb.routeName].primaryParam
                 request[paramName] = this.$route.params[paramName]
-            }
+            })
 
             if (crumbsMissingDisplayName.length > 0) {
                 commonAPI.getNames(request)
-                    .then(names => {
-                        for (var crumb of crumbsMissingDisplayName) {
+                    .then((names) => {
+                        crumbsMissingDisplayName.forEach((crumb) => {
                             crumb.displayName = names[this.settings.namedViews[crumb.routeName].apiReturnValue]
                             this.cachedMap[crumb.route] = crumb.displayName
-                        }
+                        })
                     })
                     .then(() => { store.setCachedMap(this.cachedMap) })
             }
@@ -135,20 +155,17 @@ export default {
             this.$emit('edit-click')
         },
         canEdit () {
-            var pageName = this.$route.name
+            const pageName = this.$route.name
 
-            if ((pageName === 'Home' && this.$hasPermission('can_edit_institute_details')) ||
-               (pageName === 'Course' && this.$hasPermission('can_edit_course_details')) ||
-               (pageName === 'Assignment' && this.$hasPermission('can_edit_assignment'))) {
+            if ((pageName === 'Home' && this.$hasPermission('can_edit_institute_details'))
+                || (pageName === 'Course' && this.$hasPermission('can_edit_course_details'))
+                || (pageName === 'Assignment' && this.$hasPermission('can_edit_assignment'))) {
                 return true
             }
-        }
+
+            return false
+        },
     },
-    created () {
-        this.findRoutes()
-        this.addDisplayNames()
-        this.fillCache()
-    }
 }
 </script>
 

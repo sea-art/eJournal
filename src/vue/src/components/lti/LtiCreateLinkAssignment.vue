@@ -1,6 +1,8 @@
 <template>
     <div>
-        <h2 class="multi-form">Configuring an assignment</h2>
+        <h2 class="multi-form">
+            Configuring an assignment
+        </h2>
         <span class="d-block mb-2">
             You came here from a learning environment through an unconfigured
             assignment. Do you want to create a new assignment on eJournal,
@@ -9,8 +11,15 @@
         <b-row>
             <b-col md="6">
                 <b-card class="no-hover full-height">
-                    <b-button class="add-button big-button-text full-width" @click="showModal('createAssignmentRef')">
-                        <icon name="plus-square" class="mr-3" scale="1.8"/>
+                    <b-button
+                        class="add-button big-button-text full-width"
+                        @click="showModal('createAssignmentRef')"
+                    >
+                        <icon
+                            name="plus-square"
+                            class="mr-3"
+                            scale="1.8"
+                        />
                         Create new<br/>assignment
                     </b-button>
                     <hr/>
@@ -21,8 +30,15 @@
             </b-col>
             <b-col md="6">
                 <b-card class="no-hover full-height">
-                    <b-button class="change-button big-button-text full-width" @click="showModal('linkAssignmentRef')">
-                        <icon name="link" class="mr-3" scale="1.8"/>
+                    <b-button
+                        class="change-button big-button-text full-width"
+                        @click="showModal('linkAssignmentRef')"
+                    >
+                        <icon
+                            name="link"
+                            class="mr-3"
+                            scale="1.8"
+                        />
                         Link to existing<br/>assignment
                     </b-button>
                     <hr/>
@@ -35,15 +51,25 @@
                 ref="linkAssignmentRef"
                 title="Link to existing assignment"
                 size="lg"
-                hide-footer>
-                    <link-assignment @handleAction="handleLinked" :lti="lti" :page="page"/>
+                hideFooter
+            >
+                <link-assignment
+                    :lti="lti"
+                    :page="page"
+                    @handleAction="handleLinked"
+                />
             </b-modal>
             <b-modal
                 ref="createAssignmentRef"
                 title="Create new assignment"
                 size="lg"
-                hide-footer>
-                    <create-assignment @handleAction="handleCreated" :lti="lti" :page="page"/>
+                hideFooter
+            >
+                <create-assignment
+                    :lti="lti"
+                    :page="page"
+                    @handleAction="handleCreated"
+                />
             </b-modal>
         </b-row>
     </div>
@@ -52,16 +78,14 @@
 <script>
 import createAssignment from '@/components/assignment/CreateAssignment.vue'
 import linkAssignment from '@/components/lti/LinkAssignment.vue'
-import icon from 'vue-awesome/components/Icon'
 
 export default {
     name: 'LtiCreateLinkAssignment',
-    props: ['lti', 'page'],
     components: {
-        'create-assignment': createAssignment,
-        'link-assignment': linkAssignment,
-        icon
+        createAssignment,
+        linkAssignment,
     },
+    props: ['lti', 'page'],
     methods: {
         signal (msg) {
             this.$emit('handleAction', msg)
@@ -79,7 +103,7 @@ export default {
         handleLinked (aID) {
             this.hideModal('linkAssignmentRef')
             this.signal(['assignmentIntegrated', aID])
-        }
-    }
+        },
+    },
 }
 </script>

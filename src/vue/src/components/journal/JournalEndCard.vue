@@ -1,5 +1,8 @@
 <template>
-    <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+    <b-card
+        :class="$root.getBorderClass($route.params.cID)"
+        class="no-hover"
+    >
         <h2>End of assignment</h2>
         <hr class="full-width"/>
         <b v-if="assignment.due_date">
@@ -22,6 +25,6 @@
 
 <script>
 export default {
-    props: ['assignment', 'student']
+    props: ['assignment', 'student'],
 }
 </script>

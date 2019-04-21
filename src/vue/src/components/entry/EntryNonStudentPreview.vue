@@ -5,26 +5,60 @@
 -->
 <template>
     <div v-if="entryNode.entry !== null">
-        <b-card class="no-hover entry-card-teacher" :class="$root.getBorderClass($route.params.cID)">
+        <b-card
+            class="no-hover entry-card-teacher"
+            :class="$root.getBorderClass($route.params.cID)"
+        >
             <div>
-                <div v-if="$hasPermission('can_grade')" class="grade-section shadow sticky">
-                    <b-form-input type="number" class="theme-input" size="2" v-model="grade" autofocus placeholder="0" min="0.0"/>
-                    <b-form-checkbox v-model="published" fieldValue=true unchecked-fieldValue=false data-toggle="tooltip" title="Show grade to student">
+                <div
+                    v-if="$hasPermission('can_grade')"
+                    class="grade-section shadow sticky"
+                >
+                    <b-form-input
+                        v-model="grade"
+                        type="number"
+                        class="theme-input"
+                        size="2"
+                        autofocus
+                        placeholder="0"
+                        min="0.0"
+                    />
+                    <b-form-checkbox
+                        v-model="published"
+                        fieldValue="true"
+                        uncheckedFieldValue="false"
+                        data-toggle="tooltip"
+                        title="Show grade to student"
+                    >
                         Published
                     </b-form-checkbox>
-                    <b-button class="add-button" @click="commitGrade">
-                        <icon name="save" scale="1"/>
+                    <b-button
+                        class="add-button"
+                        @click="commitGrade"
+                    >
+                        <icon
+                            name="save"
+                            scale="1"
+                        />
                         Save grade
                     </b-button>
                 </div>
-                <div v-else-if="tempNode.entry.published" class="grade-section grade shadow">
-                        {{ entryNode.entry.grade }}
+                <div
+                    v-else-if="tempNode.entry.published"
+                    class="grade-section grade shadow"
+                >
+                    {{ entryNode.entry.grade }}
                 </div>
-                <div v-else class="grade-section grade shadow">
+                <div
+                    v-else
+                    class="grade-section grade shadow"
+                >
                     <icon name="hourglass-half"/>
                 </div>
 
-                <h2 class="mb-2">{{ entryNode.entry.template.name }}</h2>
+                <h2 class="mb-2">
+                    {{ entryNode.entry.template.name }}
+                </h2>
                 <entry-fields
                     :nodeID="entryNode.nID"
                     :template="entryNode.entry.template"
@@ -36,7 +70,10 @@
             </div>
             <hr class="full-width"/>
             <div class="timestamp">
-                <span  v-if="$root.beautifyDate(entryNode.entry.last_edited) === $root.beautifyDate(entryNode.entry.creation_date)">
+                <span
+                    v-if="$root.beautifyDate(entryNode.entry.last_edited)
+                        === $root.beautifyDate(entryNode.entry.creation_date)"
+                >
                     Submitted on: {{ $root.beautifyDate(entryNode.entry.creation_date) }}
                 </span>
                 <span v-else>
@@ -44,16 +81,27 @@
                 </span>
                 <b-badge
                     v-if="entryNode.due_date && new Date(entryNode.due_date) < new Date(entryNode.entry.last_edited)"
-                    class="late-submission-badge">
+                    class="late-submission-badge"
+                >
                     LATE
                 </b-badge>
             </div>
         </b-card>
 
-        <comment-card :eID="entryNode.entry.id" :entryGradePublished="entryNode.entry.published" :journal="journal"/>
+        <comment-card
+            :eID="entryNode.entry.id"
+            :entryGradePublished="entryNode.entry.published"
+            :journal="journal"
+        />
     </div>
-    <b-card v-else class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-        <h2 class="mb-2">{{entryNode.template.name}}</h2>
+    <b-card
+        v-else
+        :class="$root.getBorderClass($route.params.cID)"
+        class="no-hover"
+    >
+        <h2 class="mb-2">
+            {{ entryNode.template.name }}
+        </h2>
         <b>No submission for this student</b>
     </b-card>
 </template>
@@ -61,17 +109,20 @@
 <script>
 import commentCard from '@/components/journal/CommentCard.vue'
 import entryFields from '@/components/entry/EntryFields.vue'
-import entryAPI from '@/api/entry'
-import icon from 'vue-awesome/components/Icon'
+import entryAPI from '@/api/entry.js'
 
 export default {
+    components: {
+        commentCard,
+        entryFields,
+    },
     props: ['entryNode', 'journal'],
     data () {
         return {
             tempNode: this.entryNode,
             completeContent: [],
             grade: null,
-            published: null
+            published: null,
         }
     },
     watch: {
@@ -87,7 +138,7 @@ export default {
                 this.grade = null
                 this.published = true
             }
-        }
+        },
     },
     created () {
         this.setContent()
@@ -101,32 +152,33 @@ export default {
         setContent () {
             /* Loads in the data of an entry in the right order by matching
              * the different data-fields with the corresponding template-IDs. */
-            var checkFound = false
+            let matchFound
 
             if (this.entryNode.entry !== null) {
-                for (var templateField of this.entryNode.entry.template.field_set) {
-                    checkFound = false
+                this.entryNode.entry.template.field_set.forEach((templateField) => {
+                    matchFound = false
 
-                    for (var content of this.entryNode.entry.content) {
+                    matchFound = this.entryNode.entry.content.some((content) => {
                         if (content.field === templateField.id) {
                             this.completeContent.push({
                                 data: content.data,
                                 id: content.field,
-                                contentID: content.id
+                                contentID: content.id,
                             })
 
-                            checkFound = true
-                            break
+                            return true
                         }
-                    }
 
-                    if (!checkFound) {
+                        return false
+                    })
+
+                    if (!matchFound) {
                         this.completeContent.push({
                             data: null,
-                            id: templateField.id
+                            id: templateField.id,
                         })
                     }
-                }
+                })
             }
         },
         commitGrade () {
@@ -135,19 +187,22 @@ export default {
                 this.tempNode.entry.published = this.published
 
                 if (this.published) {
-                    entryAPI.grade(this.entryNode.entry.id, {grade: this.grade, published: 1}, {customSuccessToast: 'Grade updated and published.'})
+                    entryAPI.grade(
+                        this.entryNode.entry.id,
+                        { grade: this.grade, published: 1 },
+                        { customSuccessToast: 'Grade updated and published.' },
+                    )
                         .then(() => { this.$emit('check-grade') })
                 } else {
-                    entryAPI.grade(this.entryNode.entry.id, {grade: this.grade, published: 0}, {customSuccessToast: 'Grade updated but not published.'})
+                    entryAPI.grade(
+                        this.entryNode.entry.id,
+                        { grade: this.grade, published: 0 },
+                        { customSuccessToast: 'Grade updated but not published.' },
+                    )
                         .then(() => { this.$emit('check-grade') })
                 }
             }
-        }
+        },
     },
-    components: {
-        'comment-card': commentCard,
-        'entry-fields': entryFields,
-        icon
-    }
 }
 </script>

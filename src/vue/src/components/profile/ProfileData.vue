@@ -3,34 +3,65 @@
         <b-modal
             ref="cropperModal"
             title="Edit profile picture"
-            hide-footer>
-                <cropper v-if="this.profileImageDataURL" ref="cropperRef" :pictureUrl="this.profileImageDataURL" @newPicture="fileHandler"/>
+            hideFooter
+        >
+            <cropper
+                v-if="profileImageDataURL"
+                ref="cropperRef"
+                :pictureUrl="profileImageDataURL"
+                @newPicture="fileHandler"
+            />
         </b-modal>
         <div class="profile-picture-lg">
-            <img :src="storeProfilePic">
+            <img :src="storeProfilePic"/>
             <b-button @click="showCropperModal()">
                 <icon name="edit"/>
                 Edit
             </b-button>
         </div>
-        <h4 class="mb-2 d-block"><span>User details</span></h4>
-        <b-card class="no-hover multi-form" :class="$root.getBorderClass($route.params.uID)">
-            <h2 class="field-heading multi-form">Username</h2>
-            <b-form-input :readonly="true" class="theme-input multi-form" :value="storeUsername" type="text"/>
-            <h2 class="field-heading multi-form">Full name</h2>
-            <b-form-input :readonly="(storeLtiID) ? true : false"
+        <h4 class="mb-2 d-block">
+            <span>User details</span>
+        </h4>
+        <b-card
+            :class="$root.getBorderClass($route.params.uID)"
+            class="no-hover multi-form"
+        >
+            <h2 class="field-heading multi-form">
+                Username
+            </h2>
+            <b-form-input
+                :readonly="true"
+                :value="storeUsername"
                 class="theme-input multi-form"
-                v-model="fullName"
                 type="text"
-                placeholder="Full name"/>
-            <h2 class="field-heading multi-form">Email address</h2>
+            />
+            <h2 class="field-heading multi-form">
+                Full name
+            </h2>
+            <b-form-input
+                v-model="fullName"
+                :readonly="(storeLtiID) ? true : false"
+                class="theme-input multi-form"
+                type="text"
+                placeholder="Full name"
+            />
+            <h2 class="field-heading multi-form">
+                Email address
+            </h2>
             <email/>
 
-            <b-button v-if="!storeLtiID" class="add-button multi-form float-right" @click="saveUserdata">
+            <b-button
+                v-if="!storeLtiID"
+                class="add-button multi-form float-right"
+                @click="saveUserdata"
+            >
                 <icon name="save"/>
                 Save
             </b-button>
-            <b-button class="multi-form" @click="downloadUserData">
+            <b-button
+                class="multi-form"
+                @click="downloadUserData"
+            >
                 <icon name="download"/>
                 Download Data
             </b-button>
@@ -40,16 +71,14 @@
 
 <script>
 import email from '@/components/profile/Email.vue'
-import userAPI from '@/api/user'
-import icon from 'vue-awesome/components/Icon'
-import cropper from '@/components/assets/ImageCropper'
+import userAPI from '@/api/user.js'
+import cropper from '@/components/assets/ImageCropper.vue'
 import { mapGetters } from 'vuex'
 
 export default {
     components: {
-        icon,
         email,
-        cropper
+        cropper,
     },
     data () {
         return {
@@ -59,7 +88,7 @@ export default {
             emailVerificationToken: null,
             emailVerificationTokenMessage: null,
             fullName: null,
-            updateCropper: false
+            updateCropper: false,
         }
     },
     computed: {
@@ -67,36 +96,40 @@ export default {
             storeUsername: 'user/username',
             storeLtiID: 'user/ltiID',
             storeProfilePic: 'user/profilePicture',
-            storeFullName: 'user/fullName'
-        })
+            storeFullName: 'user/fullName',
+        }),
+    },
+    mounted () {
+        this.profileImageDataURL = this.storeProfilePic
+        this.fullName = this.storeFullName
     },
     methods: {
         showCropperModal () {
             this.$refs.cropperRef.refreshPicture()
-            this.$refs['cropperModal'].show()
+            this.$refs.cropperModal.show()
         },
         saveUserdata () {
-            userAPI.update(0, {full_name: this.fullName}, {customSuccessToast: 'Saved profile data.'})
+            userAPI.update(0, { full_name: this.fullName }, { customSuccessToast: 'Saved profile data.' })
                 .then(() => {
-                    this.$store.commit('user/SET_FULL_USER_NAME', {fullName: this.fullName})
+                    this.$store.commit('user/SET_FULL_USER_NAME', { fullName: this.fullName })
                 })
         },
         fileHandler (dataURL) {
-            userAPI.updateProfilePictureBase64(dataURL, {customSuccessToast: 'Profile picture updated.'})
+            userAPI.updateProfilePictureBase64(dataURL, { customSuccessToast: 'Profile picture updated.' })
                 .then(() => {
                     this.$store.commit('user/SET_PROFILE_PICTURE', dataURL)
                     this.profileImageDataURL = dataURL
-                    this.$refs['cropperModal'].hide()
+                    this.$refs.cropperModal.hide()
                 })
         },
         downloadUserData () {
             userAPI.GDPR(0)
-                .then(response => {
+                .then((response) => {
                     try {
-                        let blob = new Blob([response.data], { type: response.headers['content-type'] })
-                        let link = document.createElement('a')
+                        const blob = new Blob([response.data], { type: response.headers['content-type'] })
+                        const link = document.createElement('a')
                         link.href = window.URL.createObjectURL(blob)
-                        link.download = this.storeUsername + '_all_user_data.zip'
+                        link.download = `${this.storeUsername}_all_user_data.zip`
                         document.body.appendChild(link)
                         link.click()
                         link.remove()
@@ -107,11 +140,7 @@ export default {
         },
         isChanged () {
             return (this.fullName !== this.storeFullName)
-        }
+        },
     },
-    mounted () {
-        this.profileImageDataURL = this.storeProfilePic
-        this.fullName = this.storeFullName
-    }
 }
 </script>

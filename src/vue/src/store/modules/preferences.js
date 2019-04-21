@@ -24,7 +24,7 @@ const getters = {
     courseMembersSortBy: state => state.courseMembers.sortBy,
     assignmentOverviewSortAscending: state => state.assignmentOverview.sortAscending,
     assignmentOverviewSearchValue: state => state.assignmentOverview.searchValue,
-    assignmentOverviewSortBy: state => state.assignmentOverview.sortBy
+    assignmentOverviewSortBy: state => state.assignmentOverview.sortBy,
 }
 
 const mutations = {
@@ -69,7 +69,9 @@ const mutations = {
         state.journal.searchValue = searchValue
     },
     [types.SET_JOURNAL_SORT_BY] (state, sortByOption) {
-        if (!preferenceOptions.JOURNAL_SORT_OPTIONS.has(sortByOption)) { throw new Error('Invalid journal sorting option.') }
+        if (!preferenceOptions.JOURNAL_SORT_OPTIONS.has(sortByOption)) {
+            throw new Error('Invalid journal sorting option.')
+        }
         state.journal.sortBy = sortByOption
     },
     [types.SWITCH_JOURNAL_ASSIGNMENT] (state, aID) {
@@ -95,7 +97,9 @@ const mutations = {
         state.courseMembers.searchValue = searchValue
     },
     [types.SET_COURSE_MEMBERS_SORT_BY] (state, sortByOption) {
-        if (!preferenceOptions.COURSE_MEMBER_SORT_OPTIONS.has(sortByOption)) { throw new Error('Invalid course member sorting option.') }
+        if (!preferenceOptions.COURSE_MEMBER_SORT_OPTIONS.has(sortByOption)) {
+            throw new Error('Invalid course member sorting option.')
+        }
         state.courseMembers.sortBy = sortByOption
     },
     [types.SET_ASSIGNMENT_OVERVIEW_SORT_ASCENDING] (state, sortAscending) {
@@ -105,7 +109,9 @@ const mutations = {
         state.assignmentOverview.searchValue = searchValue
     },
     [types.SET_ASSIGNMENT_OVERVIEW_SORT_BY] (state, sortByOption) {
-        if (!preferenceOptions.ASSIGNMENT_OVERVIEW_SORT_OPTIONS.has(sortByOption)) { throw new Error('Invalid assignment overview sorting option.') }
+        if (!preferenceOptions.ASSIGNMENT_OVERVIEW_SORT_OPTIONS.has(sortByOption)) {
+            throw new Error('Invalid assignment overview sorting option.')
+        }
         state.assignmentOverview.sortBy = sortByOption
     },
     [types.RESET_PREFERENCES] (state) {
@@ -129,7 +135,7 @@ const mutations = {
         state.assignmentOverview.sortAscending = true
         state.assignmentOverview.searchValue = ''
         state.assignmentOverview.sortBy = 'name'
-    }
+    },
 }
 
 export default {
@@ -141,7 +147,7 @@ export default {
         showFormatTutorial: null,
         hideVersionAlert: null,
         todo: {
-            sortBy: 'date'
+            sortBy: 'date',
         },
         journal: {
             aID: null,
@@ -149,21 +155,21 @@ export default {
             groupFilter: null,
             selfSetGroupFilter: false,
             searchValue: '',
-            sortBy: 'markingNeeded'
+            sortBy: 'markingNeeded',
         },
         courseMembers: {
             sortAscending: true,
             viewEnrolled: true,
             groupFilter: null,
             searchValue: '',
-            sortBy: 'name'
+            sortBy: 'name',
         },
         assignmentOverview: {
             sortAscending: true,
             searchValue: '',
-            sortBy: 'name'
-        }
+            sortBy: 'name',
+        },
     },
     getters,
-    mutations
+    mutations,
 }

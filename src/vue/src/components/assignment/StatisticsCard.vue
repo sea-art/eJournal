@@ -1,8 +1,26 @@
 <template>
-    <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
-        <div class="multi-form"><b>Needs marking</b><todo-square class="float-right" :num="stats.needsMarking"/></div>
-        <div class="multi-form"><b>Unpublished grades</b><todo-square class="float-right" :num="stats.unpublished"/></div>
-        <div><b>Average points</b><todo-square class="float-right" :num="stats.averagePoints"/></div>
+    <b-card
+        :class="$root.getBorderClass($route.params.cID)"
+        class="no-hover"
+    >
+        <div class="multi-form">
+            <b>Needs marking</b><todo-square
+                :num="stats.needsMarking"
+                class="float-right"
+            />
+        </div>
+        <div class="multi-form">
+            <b>Unpublished grades</b><todo-square
+                :num="stats.unpublished"
+                class="float-right"
+            />
+        </div>
+        <div>
+            <b>Average points</b><todo-square
+                :num="stats.averagePoints"
+                class="float-right"
+            />
+        </div>
     </b-card>
 </template>
 
@@ -10,9 +28,9 @@
 import todoSquare from '@/components/assets/TodoSquare.vue'
 
 export default {
-    props: ['stats'],
     components: {
-        'todo-square': todoSquare
-    }
+        todoSquare,
+    },
+    props: ['stats'],
 }
 </script>

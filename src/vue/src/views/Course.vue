@@ -1,11 +1,25 @@
 <template>
     <content-columns>
-        <bread-crumb slot="main-content-column" @edit-click="handleEdit()"/>
+        <bread-crumb
+            slot="main-content-column"
+            @edit-click="handleEdit()"
+        />
 
-        <div slot="main-content-column" v-for="a in assignments" :key="a.id">
-            <b-link tag="b-button" :to="assignmentRoute(cID, a.id, a.journal, a.is_published)">
+        <div
+            v-for="a in assignments"
+            slot="main-content-column"
+            :key="a.id"
+        >
+            <b-link
+                :to="assignmentRoute(cID, a.id, a.journal, a.is_published)"
+                tag="b-button"
+            >
                 <assignment-card :assignment="a">
-                    <b-button v-if="$hasPermission('can_edit_assignment', 'assignment', a.id)" @click.prevent.stop="editAssignment(a)" class="change-button float-right">
+                    <b-button
+                        v-if="$hasPermission('can_edit_assignment', 'assignment', a.id)"
+                        class="change-button float-right"
+                        @click.prevent.stop="editAssignment(a)"
+                    >
                         <icon name="edit"/>
                         Edit
                     </b-button>
@@ -16,8 +30,9 @@
         <b-button
             v-if="$hasPermission('can_add_assignment')"
             slot="main-content-column"
+            class="add-button"
             @click="showModal('createAssignmentRef')"
-            class="add-button">
+        >
             <icon name="plus"/>
             Create New Assignment
         </b-button>
@@ -27,12 +42,18 @@
             ref="createAssignmentRef"
             title="Create new assignment"
             size="lg"
-            hide-footer>
-                <create-assignment @handleAction="handleCreated"/>
+            hideFooter
+        >
+            <create-assignment @handleAction="handleCreated"/>
         </b-modal>
 
-        <h3 slot="right-content-column">To Do</h3>
-        <deadline-deck slot="right-content-column" :deadlines="deadlines"/>
+        <h3 slot="right-content-column">
+            To Do
+        </h3>
+        <deadline-deck
+            slot="right-content-column"
+            :deadlines="deadlines"
+        />
     </content-columns>
 </template>
 
@@ -40,21 +61,24 @@
 import contentColumns from '@/components/columns/ContentColumns.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import assignmentCard from '@/components/assignment/AssignmentCard.vue'
-import todoCard from '@/components/assets/TodoCard.vue'
-import mainCard from '@/components/assets/MainCard.vue'
-import icon from 'vue-awesome/components/Icon'
 import createAssignment from '@/components/assignment/CreateAssignment.vue'
 import deadlineDeck from '@/components/assets/DeadlineDeck.vue'
 
-import assignmentAPI from '@/api/assignment'
+import assignmentAPI from '@/api/assignment.js'
 
 export default {
     name: 'Course',
+    components: {
+        contentColumns,
+        breadCrumb,
+        assignmentCard,
+        createAssignment,
+        deadlineDeck,
+    },
     props: {
         cID: {
-            required: true
+            required: true,
         },
-        courseName: String
     },
     data () {
         return {
@@ -62,18 +86,8 @@ export default {
             cardColor: '',
             post: null,
             error: null,
-            deadlines: []
+            deadlines: [],
         }
-    },
-    components: {
-        'content-columns': contentColumns,
-        'bread-crumb': breadCrumb,
-        'assignment-card': assignmentCard,
-        'todo-card': todoCard,
-        'main-card': mainCard,
-        'create-assignment': createAssignment,
-        'deadline-deck': deadlineDeck,
-        icon
     },
     created () {
         this.loadAssignments()
@@ -81,17 +95,17 @@ export default {
     methods: {
         loadAssignments () {
             assignmentAPI.list(this.cID)
-                .then(assignments => { this.assignments = assignments })
+                .then((assignments) => { this.assignments = assignments })
 
             assignmentAPI.getUpcoming(this.cID)
-                .then(deadlines => { this.deadlines = deadlines })
+                .then((deadlines) => { this.deadlines = deadlines })
         },
         handleEdit () {
             this.$router.push({
                 name: 'CourseEdit',
                 params: {
-                    cID: this.cID
-                }
+                    cID: this.cID,
+                },
             })
         },
         editAssignment (assignment) {
@@ -99,8 +113,8 @@ export default {
                 name: 'FormatEdit',
                 params: {
                     cID: this.cID,
-                    aID: assignment.id
-                }
+                    aID: assignment.id,
+                },
             })
         },
         handleCreated (aID) {
@@ -108,19 +122,19 @@ export default {
                 name: 'FormatEdit',
                 params: {
                     cID: this.cID,
-                    aID: aID
-                }
+                    aID,
+                },
             })
         },
         showModal (ref) {
             this.$refs[ref].show()
         },
         assignmentRoute (cID, aID, jID, isPublished) {
-            var route = {
+            const route = {
                 params: {
-                    cID: cID,
-                    aID: aID
-                }
+                    cID,
+                    aID,
+                },
             }
 
             if (!isPublished) {
@@ -132,7 +146,7 @@ export default {
                 route.params.jID = jID
             }
             return route
-        }
-    }
+        },
+    },
 }
 </script>

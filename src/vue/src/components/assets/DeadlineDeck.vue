@@ -1,17 +1,45 @@
 <template>
     <div>
         <!-- TODO: This seems like an inappropriate permission check. Will have to be reconsidered in the rework. -->
-        <b-form-select v-if="$hasPermission('can_add_course')" v-model="selectedSortOption" :select-size="1" class="multi-form">
-            <option value="date">Sort by date</option>
-            <option value="markingNeeded">Sort by marking needed</option>
+        <b-form-select
+            v-if="$hasPermission('can_add_course')"
+            v-model="selectedSortOption"
+            :selectSize="1"
+            class="multi-form"
+        >
+            <option value="date">
+                Sort by date
+            </option>
+            <option value="markingNeeded">
+                Sort by marking needed
+            </option>
         </b-form-select>
 
-        <div v-for="(d, i) in computedDeadlines" :key="i">
-            <b-link v-if="d.course" tag="b-button" :to="assignmentRoute(d.course.id, d.id, d.journal, d.is_published)">
-                <todo-card :deadline="d" :course="d.course" />
+        <div
+            v-for="(d, i) in computedDeadlines"
+            :key="i"
+        >
+            <b-link
+                v-if="d.course"
+                :to="assignmentRoute(d.course.id, d.id, d.journal, d.is_published)"
+                tag="b-button"
+            >
+                <todo-card
+                    :deadline="d"
+                    :course="d.course"
+                />
             </b-link>
-            <b-link v-else v-for="(course, j) in d.courses" tag="b-button" :to="assignmentRoute(course.id, d.id, d.journal, d.is_published)"  :key="i + '-' + j">
-                <todo-card :deadline="d" :course="course" />
+            <b-link
+                v-for="(course, j) in d.courses"
+                v-else
+                :key="`${i}-${j}`"
+                :to="assignmentRoute(course.id, d.id, d.journal, d.is_published)"
+                tag="b-button"
+            >
+                <todo-card
+                    :deadline="d"
+                    :course="course"
+                />
             </b-link>
         </div>
     </div>
@@ -19,41 +47,16 @@
 
 <script>
 import todoCard from '@/components/assets/TodoCard.vue'
-import todoSquare from '@/components/assets/TodoSquare.vue'
 import { mapGetters, mapMutations } from 'vuex'
 
 export default {
-    props: ['deadlines'],
     components: {
-        'todo-card': todoCard,
-        'todo-square': todoSquare
+        todoCard,
     },
-    methods: {
-        ...mapMutations({
-            setSortBy: 'preferences/SET_TODO_SORT_BY'
-        }),
-        assignmentRoute (cID, aID, jID, isPublished) {
-            var route = {
-                params: {
-                    cID: cID,
-                    aID: aID
-                }
-            }
-
-            if (!isPublished) {
-                route.name = 'FormatEdit'
-            } else if (this.$hasPermission('can_view_all_journals', 'assignment', aID)) {
-                route.name = 'Assignment'
-            } else {
-                route.name = 'Journal'
-                route.params.jID = jID
-            }
-            return route
-        }
-    },
+    props: ['deadlines'],
     computed: {
         ...mapGetters({
-            sortBy: 'preferences/todoSortBy'
+            sortBy: 'preferences/todoSortBy',
         }),
         selectedSortOption: {
             get () {
@@ -61,10 +64,10 @@ export default {
             },
             set (value) {
                 this.setSortBy(value)
-            }
+            },
         },
-        computedDeadlines: function () {
-            var counter = 0
+        computedDeadlines () {
+            let counter = 0
 
             function compareDate (a, b) {
                 if (!a.deadline) { return 1 }
@@ -73,8 +76,12 @@ export default {
             }
 
             function compareMarkingNeeded (a, b) {
-                if (a.stats.needs_marking + a.stats.unpublished > b.stats.needs_marking + b.stats.unpublished) { return -1 }
-                if (a.stats.needs_marking + a.stats.unpublished < b.stats.needs_marking + b.stats.unpublished) { return 1 }
+                if (a.stats.needs_marking + a.stats.unpublished > b.stats.needs_marking + b.stats.unpublished) {
+                    return -1
+                }
+                if (a.stats.needs_marking + a.stats.unpublished < b.stats.needs_marking + b.stats.unpublished) {
+                    return 1
+                }
                 return 0
             }
 
@@ -86,7 +93,7 @@ export default {
                 return assignment.totalNeedsMarking !== 0
             }
 
-            var deadlines = this.deadlines.slice()
+            const deadlines = this.deadlines.slice()
             if (this.selectedSortOption === 'date') {
                 return deadlines.sort(compareDate).filter(filterTop)
             } else if (this.selectedSortOption === 'markingNeeded') {
@@ -94,7 +101,30 @@ export default {
             } else {
                 return deadlines.sort(compareDate).filter(filterTop)
             }
-        }
-    }
+        },
+    },
+    methods: {
+        ...mapMutations({
+            setSortBy: 'preferences/SET_TODO_SORT_BY',
+        }),
+        assignmentRoute (cID, aID, jID, isPublished) {
+            const route = {
+                params: {
+                    cID,
+                    aID,
+                },
+            }
+
+            if (!isPublished) {
+                route.name = 'FormatEdit'
+            } else if (this.$hasPermission('can_view_all_journals', 'assignment', aID)) {
+                route.name = 'Assignment'
+            } else {
+                route.name = 'Journal'
+                route.params.jID = jID
+            }
+            return route
+        },
+    },
 }
 </script>
