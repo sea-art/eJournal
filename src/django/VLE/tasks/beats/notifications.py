@@ -54,7 +54,7 @@ def _send_deadline_mails(deadline_query):
     notifications_enabled = Q(node__journal__user__preferences__upcoming_deadline_notifications=True)
     verified_email = Q(node__journal__user__verified_email=True)
     deadlines = deadline_query.filter(notifications_enabled & verified_email & no_submissions)\
-                              .values('node', 'node__journal', 'deadline', 'type', 'target')
+                              .values('node', 'node__journal', 'due_date', 'type', 'target')
     for deadline in deadlines:
         journal = Journal.objects.get(pk=deadline['node__journal'])
         # Only send to users who have a journal
