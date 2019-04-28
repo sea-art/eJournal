@@ -1,11 +1,6 @@
 ---
 # Contains production like settings without compromising any production keys
 
-
-# Domain settings.
-baselink: https://test.ejournal.app
-
-
 # Git settings.
 setup_git_repo: true
 git_branch: develop

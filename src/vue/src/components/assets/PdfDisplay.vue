@@ -1,25 +1,62 @@
 <template>
     <div>
-        <div class="pdf-controls mb-2 unselectable" @click="handleDownload">
+        <div
+            class="pdf-controls mb-2 unselectable"
+            @click="handleDownload"
+        >
             <icon name="align-left"/>
             <i><span>{{ fileName }}</span></i>
         </div>
 
-        <div v-if="show && loaded && numPages !== 0" class="pdf-menu-container">
-            <icon name="arrow-left" @click.native="page = (page - 1 > 0) ? page - 1 : numPages" class="action-icon"/>
-            <icon name="arrow-right" @click.native="page = (page + 1 > numPages) ? 1 : page + 1" class="action-icon"/>
-            <icon name="undo" @click.native="rotate -= 90" class="action-icon"/>
-            <icon name="undo" @click.native="rotate += 90" class="action-icon redo"/>
-            <icon name="print" @click.native="print" class="action-icon"/>
-            <icon @click.native="downloadLink.click()" name="save" class="action-icon"/>
+        <div
+            v-if="show && loaded && numPages !== 0"
+            class="pdf-menu-container"
+        >
+            <icon
+                name="arrow-left"
+                class="action-icon"
+                @click.native="page = (page - 1 > 0) ? page - 1 : numPages"
+            />
+            <icon
+                name="arrow-right"
+                class="action-icon"
+                @click.native="page = (page + 1 > numPages) ? 1 : page + 1"
+            />
+            <icon
+                name="undo"
+                class="action-icon"
+                @click.native="rotate -= 90"
+            />
+            <icon
+                name="undo"
+                class="action-icon redo"
+                @click.native="rotate += 90"
+            />
+            <icon
+                name="print"
+                class="action-icon"
+                @click.native="print"
+            />
+            <icon
+                name="save"
+                class="action-icon"
+                @click.native="downloadLink.click()"
+            />
             {{ page }} / {{ numPages }}
-            <input v-model="displayPageNumber" @input="validatePageInput" type="number" min="1" :max="numPages">
+            <input
+                v-model="displayPageNumber"
+                :max="numPages"
+                type="number"
+                min="1"
+                @input="validatePageInput"
+            />
         </div>
         <div>
             <div
                 v-if="loadedRatio > 0 && loadedRatio < 1"
+                :style="{ width: loadedRatio * 100 + '%' }"
                 style="background-color: green; color: white; text-align: center"
-                :style="{ width: loadedRatio * 100 + '%' }">
+            >
                 {{ Math.floor(loadedRatio * 100) }}%
             </div>
             <pdf
@@ -33,47 +70,45 @@
                 @error="error"
                 @num-pages="numPages = $event"
                 @link-clicked="page = $event"
-                @loaded="loaded = true">
-            </pdf>
+                @loaded="loaded = true"
+            />
         </div>
     </div>
 </template>
 
 <script>
 import pdf from 'vue-pdf'
-import userAPI from '@/api/user'
-import icon from 'vue-awesome/components/Icon'
+import userAPI from '@/api/user.js'
 import sanitization from '@/utils/sanitization.js'
 
 export default {
+    components: {
+        pdf,
+    },
     props: {
         fileName: {
             required: true,
-            String
+            String,
         },
         journalID: {
             required: true,
-            String
+            String,
         },
         display: {
-            default: false
+            default: false,
         },
         entryID: {
             required: true,
-            String
+            String,
         },
         nodeID: {
             required: true,
-            String
+            String,
         },
         contentID: {
             required: true,
-            String
-        }
-    },
-    components: {
-        icon,
-        pdf
+            String,
+        },
     },
     data () {
         return {
@@ -85,11 +120,16 @@ export default {
             numPages: 0,
             rotate: 0,
             loaded: false,
-            downloadLink: null
+            downloadLink: null,
         }
     },
     watch: {
-        page: function (val) { this.displayPageNumber = val }
+        page (val) { this.displayPageNumber = val },
+    },
+    created () {
+        this.show = this.display
+
+        if (this.show) { this.fileDownload() }
     },
     methods: {
         handleDownload () {
@@ -101,17 +141,17 @@ export default {
         },
         /* Ensures the input is within range of the PDF pages. */
         validatePageInput (input) {
-            let parsed = parseInt(input.data)
+            const parsed = parseInt(input.data, 10)
 
             if (parsed < 1) {
                 this.page = 1
             } else if (parsed > this.numPages) {
                 this.page = this.numPages
-            } else if (!isNaN(parsed)) {
-                this.page = parseInt(input.data)
+            } else if (!Number.isNaN(parsed)) {
+                this.page = parseInt(input.data, 10)
             }
         },
-        password (updatePassword, reason) {
+        password () {
             this.$toasted.error('Password handling is not implemented.')
         },
         error (err) {
@@ -122,9 +162,9 @@ export default {
         },
         fileDownload () {
             userAPI.download(this.journalID, this.fileName, this.entryID, this.nodeID, this.contentID)
-                .then(response => {
+                .then((response) => {
                     try {
-                        let blob = new Blob([response.data], { type: response.headers['content-type'] })
+                        const blob = new Blob([response.data], { type: response.headers['content-type'] })
                         this.fileURL = window.URL.createObjectURL(blob)
 
                         this.downloadLink = document.createElement('a')
@@ -135,14 +175,9 @@ export default {
                         this.$toasted.error('Error creating file.')
                     }
                 })
-        }
+        },
     },
-    created () {
-        this.show = this.display
-
-        if (this.show) { this.fileDownload() }
-    },
-    destroy () { this.downloadLink.remove() }
+    destroy () { this.downloadLink.remove() },
 }
 </script>
 

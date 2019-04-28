@@ -1,10 +1,19 @@
 <template>
     <b-card :class="$root.getBorderClass($route.params.cID)">
-        <b-row v-if="listView" no-gutters>
-            <b-col class="d-flex" md="7">
+        <b-row
+            v-if="listView"
+            noGutters
+        >
+            <b-col
+                class="d-flex"
+                md="7"
+            >
                 <div class="portrait-wrapper">
-                    <img :src="previewPicture">
-                    <todo-square v-if="numMarkingNeeded > 0" :num="numMarkingNeeded"/>
+                    <img :src="previewPicture"/>
+                    <todo-square
+                        v-if="numMarkingNeeded > 0"
+                        :num="numMarkingNeeded"
+                    />
                 </div>
                 <div class="student-details list-view">
                     <span>
@@ -14,16 +23,20 @@
                     {{ journal.students[0].username }}
                 </div>
             </b-col>
-            <b-col class="mt-2" md="5">
+            <b-col
+                class="mt-2"
+                md="5"
+            >
                 <progress-bar
-                    :currentPoints="this.journal.stats.acquired_points"
-                    :totalPoints="this.journal.stats.total_points"/>
+                    :currentPoints="journal.stats.acquired_points"
+                    :totalPoints="journal.stats.total_points"
+                />
             </b-col>
         </b-row>
         <div v-else>
             <div class="d-flex multi-form">
                 <div class="portrait-wrapper">
-                    <img :src="previewPicture">
+                    <img :src="previewPicture"/>
                 </div>
                 <div class="student-details">
                     <span>
@@ -34,9 +47,11 @@
                 </div>
             </div>
             <progress-bar
-                :currentPoints="this.journal.stats.acquired_points"
-                :totalPoints="this.journal.stats.total_points"
-                :comparePoints="this.assignment && this.assignment.stats ? this.assignment.stats.average_points : -1"/>
+                :currentPoints="journal.stats.acquired_points"
+                :totalPoints="journal.stats.total_points"
+                :comparePoints="assignment && assignment.stats ?
+                    assignment.stats.average_points : -1"
+            />
         </div>
     </b-card>
 </template>
@@ -46,27 +61,29 @@ import progressBar from '@/components/assets/ProgressBar.vue'
 import todoSquare from '@/components/assets/TodoSquare.vue'
 
 export default {
-    props: {
-        'assignment': {
-            required: false
-        },
-        'journal': {
-            required: true
-        },
-        'listView': {
-            default: false
-        }
-    },
     components: {
-        'progress-bar': progressBar,
-        'todo-square': todoSquare
+        progressBar,
+        todoSquare,
+    },
+    props: {
+        assignment: {
+            default: null,
+            required: false,
+        },
+        journal: {
+            required: true,
+        },
+        listView: {
+            default: false,
+        },
     },
     computed: {
         numMarkingNeeded () {
             return this.journal.stats.submitted - this.journal.stats.graded
         },
         previewPicture () {
-            let studentsWithPicture = this.journal.students.filter(student => student.profile_picture !== '/static/unknown-profile.png')
+            const studentsWithPicture = this.journal.students.filter(
+                student => student.profile_picture !== '/static/unknown-profile.png')
             if (studentsWithPicture.length > 0) {
                 return studentsWithPicture[0].profile_picture
             } else {
@@ -74,17 +91,17 @@ export default {
             }
         },
         groups () {
-            let groups = []
-            for (let student of this.journal.students) {
-                for (let group of student.groups) {
+            const groups = []
+            this.journal.students.forEach((student) => {
+                student.groups.forEach((group) => {
                     if (!groups.includes(group)) {
                         groups.push(group.name)
                     }
-                }
-            }
+                })
+            })
             return groups.join(', ')
-        }
-    }
+        },
+    },
 }
 </script>
 

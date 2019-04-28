@@ -6,84 +6,53 @@
 -->
 
 <template>
-    <b-row class="node-container" @click="$emit('select-node', index)">
-        <b-col cols="4" sm="1"/>
-        <b-col cols="4" sm="5" class="d-flex h-100 align-items-center">
-            <timeline-node-date :date="nodeDate" :selected="selected" :isDeadline="node.deadline != null"/>
+    <b-row class="node-container">
+        <b-col
+            cols="7"
+            class="d-flex h-100 align-items-center"
+        >
+            <timeline-node-info
+                :node="node"
+                :selected="selected"
+            />
         </b-col>
-        <b-col cols="4" sm="5" class="d-flex h-100 align-items-center justify-content-center">
-            <div class="time-line" :class="timeLineClass"></div>
-            <timeline-node-circle class="position-absolute" :type="node.type" :text="node.target" :selected="selected" :nodeState="nodeState()"/>
+        <b-col
+            cols="5"
+            class="d-flex h-100 align-items-center justify-content-center"
+        >
+            <div
+                :class="timeLineClass"
+                class="time-line"
+            />
+            <timeline-node-circle
+                :node="node"
+                :selected="selected"
+                :edit="edit"
+                class="position-absolute"
+                @click.native="$emit('select-node', index)"
+            />
         </b-col>
-        <b-col cols="4" sm="1"/>
     </b-row>
 </template>
 
 <script>
 import timelineNodeCircle from '@/components/timeline/TimelineNodeCircle.vue'
-import timelineNodeDate from '@/components/timeline/TimelineNodeDate.vue'
+import timelineNodeInfo from '@/components/timeline/TimelineNodeInfo.vue'
 
 export default {
-    props: ['node', 'selected', 'index', 'last', 'edit'],
     components: {
-        'timeline-node-date': timelineNodeDate,
-        'timeline-node-circle': timelineNodeCircle
+        timelineNodeInfo,
+        timelineNodeCircle,
     },
+    props: ['node', 'selected', 'index', 'last', 'edit'],
     computed: {
-        deadlineHasPassed () {
-            var currentDate = new Date()
-            var deadline = new Date(this.node.deadline)
-
-            return currentDate > deadline
-        },
         timeLineClass () {
             return {
-                'top': this.index === -1,
-                'bottom': this.last
+                top: this.index === -1,
+                bottom: this.last,
             }
         },
-        nodeDate () {
-            if (this.node.deadline) {
-                return this.node.deadline
-            } else if (this.node.entry) {
-                return this.node.entry.creation_date
-            } else {
-                return null
-            }
-        }
     },
-    methods: {
-        nodeState () {
-            if (this.node.type === 's') {
-                return 'start'
-            } else if (this.node.type === 'n') {
-                return 'end'
-            } else if (this.node.type === 'a') {
-                return 'add'
-            } else if (this.edit || this.node.type === 'p') {
-                return ''
-            }
-
-            var entry = this.node.entry
-            var isGrader = this.$hasPermission('can_grade')
-
-            if (entry && entry.published) {
-                return 'graded'
-            } else if (!entry && this.deadlineHasPassed) {
-                return 'failed'
-            } else if (!entry && !this.deadlineHasPassed) {
-                return 'empty'
-            } else if (!isGrader && entry && !entry.published) {
-                return 'awaiting_grade'
-            } else if (isGrader && entry && !entry.grade) {
-                return 'needs_grading'
-            } else if (isGrader && entry && !entry.published) {
-                return 'needs_publishing'
-            }
-
-            return ''
-        }
-    }
 }
 </script>
 

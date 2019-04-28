@@ -128,11 +128,10 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
     """
     if format is None:
         if due_date:
-            deadline = due_date
+            format = make_default_format(due_date, points_possible)
         else:
-            deadline = timezone.now()
+            format = make_default_format(timezone.now(), points_possible)
 
-        format = make_default_format(deadline, points_possible)
     assign = Assignment(name=name, description=description, author=author, format=format)
     assign.save()
     if course_ids:
@@ -214,28 +213,30 @@ def make_default_format(due_date, points_possible=10):
     return format
 
 
-def make_progress_node(format, deadline, target):
+def make_progress_node(format, due_date, target):
     """Make a progress node.
 
     Arguments:
     format -- format the node belongs to.
-    deadline -- deadline of the node.
+    due_date -- due_date of the node.
     """
-    node = PresetNode(type=Node.PROGRESS, deadline=deadline, target=target, format=format)
+    node = PresetNode(type=Node.PROGRESS, due_date=due_date, target=target, format=format)
     node.save()
     return node
 
 
-def make_entrydeadline_node(format, deadline, template):
+def make_entrydeadline_node(format, due_date, template, unlock_date=None, lock_date=None):
     """Make entry deadline.
 
     Arguments:
     format -- format of the entry deadline.
-    deadline -- deadline en the entry deadline.
+    unlock_date -- unlock date of the entry deadline.
+    due_date -- due date of the entry deadline.
+    lock_date -- lock date of the entry deadline.
     template -- template of the entrydeadline.
     """
-    node = PresetNode(type=Node.ENTRYDEADLINE, deadline=deadline,
-                      forced_template=template, format=format)
+    node = PresetNode(type=Node.ENTRYDEADLINE, unlock_date=unlock_date, due_date=due_date,
+                      lock_date=lock_date, forced_template=template, format=format)
     node.save()
 
     return node

@@ -1,6 +1,10 @@
 <template>
-    <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+    <b-card
+        :class="$root.getBorderClass($route.params.cID)"
+        class="no-hover"
+    >
         <h2>End of assignment</h2>
+        <hr class="full-width"/>
         <b v-if="assignment.due_date">
             <span v-if="new Date() > new Date(assignment.due_date) && !assignment.lock_date">
                 The due date for this assignment has passed.<br/>
@@ -21,6 +25,6 @@
 
 <script>
 export default {
-    props: ['assignment', 'student']
+    props: ['assignment', 'student'],
 }
 </script>

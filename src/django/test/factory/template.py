@@ -17,3 +17,4 @@ class TemplateFactory(factory.django.DjangoModelFactory):
 
         VLE.models.Field.objects.create(type='t', title='title', template=self, location=1, required=True)
         VLE.models.Field.objects.create(type='t', title='summary', template=self, location=2, required=True)
+        VLE.models.Field.objects.create(type='t', title='optional', template=self, location=3, required=False)

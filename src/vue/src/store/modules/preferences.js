@@ -7,6 +7,7 @@ const getters = {
     commentNotifications: state => state.commentNotifications,
     upcomingDeadlineNotifications: state => state.upcomingDeadlineNotifications,
     showFormatTutorial: state => state.showFormatTutorial,
+    hideVersionAlert: state => state.hideVersionAlert,
 
     // Search filters.
     todoSortBy: state => state.todo.sortBy,
@@ -23,7 +24,7 @@ const getters = {
     courseMembersSortBy: state => state.courseMembers.sortBy,
     assignmentOverviewSortAscending: state => state.assignmentOverview.sortAscending,
     assignmentOverviewSearchValue: state => state.assignmentOverview.searchValue,
-    assignmentOverviewSortBy: state => state.assignmentOverview.sortBy
+    assignmentOverviewSortBy: state => state.assignmentOverview.sortBy,
 }
 
 const mutations = {
@@ -34,6 +35,7 @@ const mutations = {
         state.commentNotifications = preferences.comment_notifications
         state.upcomingDeadlineNotifications = preferences.upcoming_deadline_notifications
         state.showFormatTutorial = preferences.show_format_tutorial
+        state.hideVersionAlert = preferences.hide_version_alert
     },
     [types.SET_GRADE_NOTIFICATION] (state, val) {
         state.gradeNotifications = val
@@ -46,6 +48,9 @@ const mutations = {
     },
     [types.SET_FORMAT_TUTORIAL] (state, val) {
         state.showFormatTutorial = val
+    },
+    [types.SET_HIDE_VERSION_ALERT] (state, val) {
+        state.hideVersionAlert = val
     },
     [types.SET_TODO_SORT_BY] (state, sortByOption) {
         if (!preferenceOptions.TODO_SORT_OPTIONS.has(sortByOption)) { throw new Error('Invalid TODO sorting option.') }
@@ -64,7 +69,9 @@ const mutations = {
         state.journal.searchValue = searchValue
     },
     [types.SET_JOURNAL_SORT_BY] (state, sortByOption) {
-        if (!preferenceOptions.JOURNAL_SORT_OPTIONS.has(sortByOption)) { throw new Error('Invalid journal sorting option.') }
+        if (!preferenceOptions.JOURNAL_SORT_OPTIONS.has(sortByOption)) {
+            throw new Error('Invalid journal sorting option.')
+        }
         state.journal.sortBy = sortByOption
     },
     [types.SWITCH_JOURNAL_ASSIGNMENT] (state, aID) {
@@ -90,7 +97,9 @@ const mutations = {
         state.courseMembers.searchValue = searchValue
     },
     [types.SET_COURSE_MEMBERS_SORT_BY] (state, sortByOption) {
-        if (!preferenceOptions.COURSE_MEMBER_SORT_OPTIONS.has(sortByOption)) { throw new Error('Invalid course member sorting option.') }
+        if (!preferenceOptions.COURSE_MEMBER_SORT_OPTIONS.has(sortByOption)) {
+            throw new Error('Invalid course member sorting option.')
+        }
         state.courseMembers.sortBy = sortByOption
     },
     [types.SET_ASSIGNMENT_OVERVIEW_SORT_ASCENDING] (state, sortAscending) {
@@ -100,7 +109,9 @@ const mutations = {
         state.assignmentOverview.searchValue = searchValue
     },
     [types.SET_ASSIGNMENT_OVERVIEW_SORT_BY] (state, sortByOption) {
-        if (!preferenceOptions.ASSIGNMENT_OVERVIEW_SORT_OPTIONS.has(sortByOption)) { throw new Error('Invalid assignment overview sorting option.') }
+        if (!preferenceOptions.ASSIGNMENT_OVERVIEW_SORT_OPTIONS.has(sortByOption)) {
+            throw new Error('Invalid assignment overview sorting option.')
+        }
         state.assignmentOverview.sortBy = sortByOption
     },
     [types.RESET_PREFERENCES] (state) {
@@ -108,6 +119,7 @@ const mutations = {
         state.commentNotifications = null
         state.upcomingDeadlineNotifications = null
         state.showFormatTutorial = null
+        state.hideVersionAlert = null
         state.todo.sortBy = 'date'
         state.journal.aID = null
         state.journal.sortAscending = true
@@ -123,7 +135,7 @@ const mutations = {
         state.assignmentOverview.sortAscending = true
         state.assignmentOverview.searchValue = ''
         state.assignmentOverview.sortBy = 'name'
-    }
+    },
 }
 
 export default {
@@ -133,8 +145,9 @@ export default {
         commentNotifications: null,
         upcomingDeadlineNotifications: null,
         showFormatTutorial: null,
+        hideVersionAlert: null,
         todo: {
-            sortBy: 'date'
+            sortBy: 'date',
         },
         journal: {
             aID: null,
@@ -142,21 +155,21 @@ export default {
             groupFilter: null,
             selfSetGroupFilter: false,
             searchValue: '',
-            sortBy: 'markingNeeded'
+            sortBy: 'markingNeeded',
         },
         courseMembers: {
             sortAscending: true,
             viewEnrolled: true,
             groupFilter: null,
             searchValue: '',
-            sortBy: 'name'
+            sortBy: 'name',
         },
         assignmentOverview: {
             sortAscending: true,
             searchValue: '',
-            sortBy: 'name'
-        }
+            sortBy: 'name',
+        },
     },
     getters,
-    mutations
+    mutations,
 }

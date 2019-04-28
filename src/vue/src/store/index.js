@@ -19,8 +19,8 @@ export default new Vuex.Store({
         user,
         permissions,
         connection,
-        preferences
+        preferences,
     },
     strict: debug,
-    plugins
+    plugins,
 })

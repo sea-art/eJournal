@@ -306,6 +306,7 @@ class AssignmentView(viewsets.ViewSet):
         incorrect_format_lines = dict()
         unknown_users = dict()
         duplicates = dict()
+        non_participants = dict()
 
         for line_nr, line in enumerate(request.FILES['file'], 1):
             try:
@@ -329,6 +330,8 @@ class AssignmentView(viewsets.ViewSet):
                 incorrect_format_lines[line_nr] = line.decode()
             except User.DoesNotExist:
                 unknown_users[line_nr] = line.decode().split(',')[0]
+            except Journal.DoesNotExist:
+                non_participants[line_nr] = line.decode().split(',')[0]
 
         if unknown_users or incorrect_format_lines or duplicates:
             errors = dict()
@@ -339,6 +342,8 @@ class AssignmentView(viewsets.ViewSet):
                 errors['duplicates'] = duplicates
             if unknown_users:
                 errors['unknown_users'] = unknown_users
+            if non_participants:
+                errors['non_participants'] = non_participants
 
             return response.bad_request(errors)
 

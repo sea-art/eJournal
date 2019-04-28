@@ -1,20 +1,23 @@
 <template>
     <div id="app">
         <header-bar/>
-        <router-view :key="$route.path" class="min-height-100"/>
+        <router-view
+            :key="$route.path"
+            class="min-height-100"
+        />
         <feedback-section/>
     </div>
 </template>
 
 <script>
-import Header from '@/Header'
-import FeedbackSection from '@/FeedbackSection'
+import headerBar from '@/Header.vue'
+import feedbackSection from '@/FeedbackSection.vue'
 
 export default {
     components: {
-        'header-bar': Header,
-        'feedback-section': FeedbackSection
-    }
+        headerBar,
+        feedbackSection,
+    },
 }
 </script>
 

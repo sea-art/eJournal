@@ -5,21 +5,48 @@
     Timeline-Tree.
 -->
 <template>
-    <b-card class="no-hover" :class="$root.getBorderClass($route.params.cID)">
+    <b-card
+        :class="$root.getBorderClass($route.params.cID)"
+        class="no-hover"
+    >
         <div v-if="addNode.templates.length > 1">
-            <h2 class="mb-2">Select a template</h2>
+            <h2 class="mb-2">
+                Select a template
+            </h2>
             <b-form-select v-model="selectedTemplate">
-                <option :value="null" disabled>Please select a template</option>
-                <option v-for="template in addNode.templates" :key="template.id" :value="template">
+                <option
+                    :value="null"
+                    disabled
+                >
+                    Please select a template
+                </option>
+                <option
+                    v-for="template in addNode.templates"
+                    :key="template.id"
+                    :value="template"
+                >
                     {{ template.name }}
                 </option>
             </b-form-select>
-            <br><br>
-            <entry-preview v-if="selectedTemplate !== null" ref="entry-prev" @content-template="createEntry" :template="selectedTemplate" :nodeID="addNode.nID"/>
+            <br/><br/>
+            <entry-preview
+                v-if="selectedTemplate !== null"
+                ref="entry-prev"
+                :template="selectedTemplate"
+                :nodeID="addNode.nID"
+                @content-template="createEntry"
+            />
         </div>
         <div v-else-if="addNode.templates.length === 1">
-            <h2 class="mb-2">Selected template</h2>
-            <entry-preview @content-template="createEntry" ref="entry-prev" :template="selectedTemplate" :nodeID="addNode.nID"/>
+            <h2 class="mb-2">
+                Selected template
+            </h2>
+            <entry-preview
+                ref="entry-prev"
+                :template="selectedTemplate"
+                :nodeID="addNode.nID"
+                @content-template="createEntry"
+            />
         </div>
     </b-card>
 </template>
@@ -28,20 +55,23 @@
 import entryPreview from '@/components/entry/EntryPreview.vue'
 
 export default {
+    components: {
+        entryPreview,
+    },
     props: ['addNode'],
     data () {
         return {
             selectedTemplate: null,
-            infoEntry: null
+            infoEntry: null,
         }
     },
-    created: function () {
+    created () {
         if (this.addNode.templates.length === 1) {
             this.selectedTemplate = this.addNode.templates[0]
         }
     },
     methods: {
-        createEntry: function (content) {
+        createEntry (content) {
             this.$emit('info-entry', [this.selectedTemplate, content])
         },
         checkChanges () {
@@ -51,10 +81,7 @@ export default {
             }
 
             return this.$refs['entry-prev'].checkChanges()
-        }
+        },
     },
-    components: {
-        'entry-preview': entryPreview
-    }
 }
 </script>

@@ -226,17 +226,17 @@ class Command(BaseCommand):
 
             for p in f["presets"]:
                 if "deadline_days" in p:
-                    deadline_date = datetime.datetime.utcnow() + datetime.timedelta(days=p["deadline_days"])
+                    due_date = datetime.datetime.utcnow() + datetime.timedelta(days=p["deadline_days"])
                 else:
-                    deadline_date = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
+                    due_date = faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
 
                 if p["type"] == Node.PROGRESS:
-                    node = factory.make_progress_node(format, deadline_date, p["points"])
+                    node = factory.make_progress_node(format, due_date, p["points"])
                     if "description" in p:
                         node.description = p["description"]
                         node.save()
                 elif p["type"] == Node.ENTRYDEADLINE:
-                    factory.make_entrydeadline_node(format, deadline_date, self.templates[p["template"]])
+                    factory.make_entrydeadline_node(format, due_date, self.templates[p["template"]])
 
             self.formats.append(format)
 

@@ -6,14 +6,12 @@ const ENTITY_MAP = {
     "'": '&#39;',
     '/': '&#x2F;',
     '`': '&#x60;',
-    '=': '&#x3D;'
+    '=': '&#x3D;',
 }
 
 /* Taken from https://github.com/janl/mustache.js/blob/master/mustache.js#L60 */
 export default {
     escapeHtml (string) {
-        return String(string).replace(/[&<>"'`=/]/g, function fromEntityMap (s) {
-            return ENTITY_MAP[s]
-        })
-    }
+        return String(string).replace(/[&<>"'`=/]/g, s => ENTITY_MAP[s])
+    },
 }

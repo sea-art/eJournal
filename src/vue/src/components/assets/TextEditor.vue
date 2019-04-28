@@ -2,8 +2,11 @@
 <!-- If more events are desired, here is an overview: https://www.tiny.cloud/docs/advanced/events/ -->
 
 <template>
-    <div class="editor-container" >
-        <textarea :id="id" :placeholder="placeholder"/>
+    <div class="editor-container">
+        <textarea
+            :id="id"
+            :placeholder="placeholder"
+        />
     </div>
 </template>
 
@@ -46,34 +49,34 @@ export default {
     props: {
         limitedColors: {
             type: Boolean,
-            default: false
+            default: false,
         },
         basic: {
             type: Boolean,
-            default: false
+            default: false,
         },
         /* Used to bind the editor to the components text area. */
         id: {
             type: String,
-            required: true
+            required: true,
         },
         value: {
             type: String,
-            default: ''
+            default: '',
         },
         placeholder: {
             type: String,
-            default: ''
+            default: '',
         },
         displayInline: {
-            default: false
+            default: false,
         },
         minifiedTextArea: {
-            default: false
+            default: false,
         },
         footer: {
-            default: true
-        }
+            default: true,
+        },
     },
     data () {
         return {
@@ -82,7 +85,7 @@ export default {
             justFocused: false,
             valueSet: false,
             config: {
-                selector: '#' + this.id,
+                selector: `#${this.id}`,
                 init_instance_callback: this.editorInit,
                 // QUESTION: How the bloody hell do we make this available with webpack so we can use node modules,
                 // whilst also predetermining the correct url before bundling?.
@@ -91,7 +94,7 @@ export default {
                 paste_data_images: true,
                 /* https://www.tiny.cloud/docs/configure/file-image-upload/#images_dataimg_filter
                  * Disables conversion of base64 images into blobs, only used when pasting an image. */
-                images_dataimg_filter: function (img) {
+                images_dataimg_filter (img) {
                     return img.hasAttribute('internal-blob')
                 },
 
@@ -130,36 +133,43 @@ export default {
                         padding: '0.375rem 0.75rem',
                         overflow: 'hidden',
                         'font-family': 'Roboto Condensed',
-                        'white-space': 'pre-wrap'
-                    }
-                }
+                        'white-space': 'pre-wrap',
+                    },
+                },
             },
             basicConfig: {
-                toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify | forecolor backcolor restoredraft | formatselect | bullist numlist | image media table | removeformat fullscreentoggle fullscreen',
+                toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify '
+                    + '| forecolor backcolor restoredraft | formatselect | bullist numlist | image media table '
+                    + '| removeformat fullscreentoggle fullscreen',
                 plugins: [
                     'placeholder autoresize paste textcolor image lists wordcount autolink autosave',
-                    'table media fullscreen'
-                ]
+                    'table media fullscreen',
+                ],
             },
             extensiveConfig: {
-                toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify | forecolor backcolor | formatselect | bullist numlist | image media table | removeformat fullscreentoggle fullscreen',
+                toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify | forecolor backcolor '
+                    + '| formatselect | bullist numlist | image media table | removeformat fullscreentoggle fullscreen',
                 plugins: [
                     'placeholder link media preview paste print hr lists advlist wordcount autolink autosave',
                     'autoresize code fullscreen image imagetools',
-                    'textcolor searchreplace table toc'
-                ]
+                    'textcolor searchreplace table toc',
+                ],
             },
             extensiveConfigMenu: {
                 menu: {
-                    file: {title: 'File', items: 'newdocument restoredraft print'},
-                    edit: {title: 'Edit', items: 'undo redo | cut copy paste | code | selectall searchreplace'},
-                    insert: {title: 'Insert', items: 'image media link | hr | toc'},
-                    view: {title: 'View', items: 'preview fullscreen'},
-                    format: {title: 'Format', items: 'bold italic underline strikethrough superscript subscript | blockformats align | removeformat'},
-                    table: {title: 'Table', items: 'inserttable tableprops deletetable | cell row column'}
-                }
+                    file: { title: 'File', items: 'newdocument restoredraft print' },
+                    edit: { title: 'Edit', items: 'undo redo | cut copy paste | code | selectall searchreplace' },
+                    insert: { title: 'Insert', items: 'image media link | hr | toc' },
+                    view: { title: 'View', items: 'preview fullscreen' },
+                    format: {
+                        title: 'Format',
+                        items: 'bold italic underline strikethrough superscript subscript '
+                            + '| blockformats align | removeformat',
+                    },
+                    table: { title: 'Table', items: 'inserttable tableprops deletetable | cell row column' },
+                },
             },
-            fullScreenButton: null
+            fullScreenButton: null,
         }
     },
     watch: {
@@ -168,7 +178,33 @@ export default {
         },
         value (value) {
             this.initValue(value)
+        },
+    },
+    mounted () {
+        this.config.statusbar = this.footer
+
+        if (this.basic) {
+            this.setBasicConfig()
+        } else {
+            this.setExtensiveConfig()
         }
+
+        if (this.limitedColors) {
+            this.setCustomColors()
+        } else {
+            this.config.plugins.push('colorpicker')
+        }
+
+        if (this.minifiedTextArea) { this.minifyTextArea() }
+
+        this.enableTabs()
+        this.enableBrowserSpellchecker()
+        this.enableMarkdownPatterns()
+
+        tinymce.init(this.config)
+    },
+    beforeDestroy () {
+        if (this.editor) { this.editor.destroy() }
     },
     methods: {
         initValue (value) {
@@ -183,12 +219,12 @@ export default {
             }
         },
         editorInit (editor) {
-            var vm = this
+            const vm = this
             this.editor = editor
 
             if (this.displayInline) { this.setupInlineDisplay(editor) }
 
-            editor.on('Change', (e) => { vm.content = this.editor.getContent() })
+            editor.on('Change', () => { vm.content = this.editor.getContent() })
 
             editor.on('KeyUp', (e) => {
                 vm.handleShortCuts(e)
@@ -198,52 +234,50 @@ export default {
             vm.initValue(vm.value)
         },
         setupInlineDisplay (editor) {
-            var vm = this
-
             editor.theme.panel.find('toolbar')[0].$el.hide()
             if (!this.basic) { editor.theme.panel.find('menubar')[0].$el.hide() }
             if (this.footer) { editor.theme.panel.find('#statusbar')[0].$el.hide() }
 
-            editor.on('focus', function () {
-                vm.justFocused = true
-                setTimeout(() => { vm.justFocused = false }, 20)
-                if (!vm.basic) { editor.theme.panel.find('menubar')[0].$el.show() }
+            editor.on('focus', () => {
+                this.justFocused = true
+                setTimeout(() => { this.justFocused = false }, 20)
+                if (!this.basic) { editor.theme.panel.find('menubar')[0].$el.show() }
                 editor.theme.panel.find('toolbar')[0].$el.show()
                 if (this.footer) { editor.theme.panel.find('#statusbar')[0].$el.show() }
             })
 
-            editor.on('blur', function () {
-                if (vm.justFocused) { return }
-                if (!vm.basic) { editor.theme.panel.find('menubar')[0].$el.hide() }
+            editor.on('blur', () => {
+                if (this.justFocused) { return }
+                if (!this.basic) { editor.theme.panel.find('menubar')[0].$el.hide() }
                 editor.theme.panel.find('toolbar')[0].$el.hide()
                 if (this.footer) { editor.theme.panel.find('#statusbar')[0].$el.hide() }
             })
         },
         handleShortCuts (e) {
             if (this.editor.plugins.fullscreen.isFullscreen() && e.key === 'Escape') {
-                this.editor.execCommand('mceFullScreen', {skip_focus: true})
+                this.editor.execCommand('mceFullScreen', { skip_focus: true })
             }
         },
         insertDataURL () {
-            var input = document.createElement('input')
+            const input = document.createElement('input')
             input.setAttribute('type', 'file')
             input.setAttribute('accept', 'image/*')
-            var vm = this
 
-            input.onchange = function () {
-                var files = this.files
+            input.onchange = () => {
+                const files = this.files
                 if (!files.length) { return }
 
-                var file = files[0]
-                if (files[0].size > vm.$root.maxFileSizeBytes) {
-                    this.$toasted.error('The selected image exceeds the maximum file size of ' + vm.$root.maxFileSizeBytes + ' bytes.')
+                const file = files[0]
+                if (files[0].size > this.$root.maxFileSizeBytes) {
+                    this.$toasted.error(
+                        `The selected image exceeds the maximum file size of ${this.$root.maxFileSizeBytes} bytes.`)
                     return
                 }
 
-                var reader = new FileReader()
-                reader.onload = function () {
-                    var dataURL = reader.result
-                    vm.editor.insertContent('<img src="' + dataURL + '"/>')
+                const reader = new FileReader()
+                reader.onload = () => {
+                    const dataURL = reader.result
+                    this.editor.insertContent(`<img src="${dataURL}"/>`)
                 }
                 reader.readAsDataURL(file)
             }
@@ -257,7 +291,7 @@ export default {
                 '252C39', 'Theme dark blue',
                 '007E33', 'Theme positive selected',
                 'FF8800', 'Theme change selected',
-                'CC0000', 'Theme negative selected'
+                'CC0000', 'Theme negative selected',
             ]
         },
         setBasicConfig () {
@@ -289,51 +323,25 @@ export default {
         enableMarkdownPatterns () {
             this.config.plugins.push('textpattern')
             this.config.textpattern_patterns = [
-                {start: '*', end: '*', format: 'italic'},
-                {start: '**', end: '**', format: 'bold'},
-                {start: '#', format: 'h1'},
-                {start: '##', format: 'h2'},
-                {start: '###', format: 'h3'},
-                {start: '####', format: 'h4'},
-                {start: '#####', format: 'h5'},
-                {start: '######', format: 'h6'},
-                {start: '1. ', cmd: 'InsertOrderedList'},
-                {start: '* ', cmd: 'InsertUnorderedList'},
-                {start: '- ', cmd: 'InsertUnorderedList'}
+                { start: '*', end: '*', format: 'italic' },
+                { start: '**', end: '**', format: 'bold' },
+                { start: '#', format: 'h1' },
+                { start: '##', format: 'h2' },
+                { start: '###', format: 'h3' },
+                { start: '####', format: 'h4' },
+                { start: '#####', format: 'h5' },
+                { start: '######', format: 'h6' },
+                { start: '1. ', cmd: 'InsertOrderedList' },
+                { start: '* ', cmd: 'InsertUnorderedList' },
+                { start: '- ', cmd: 'InsertUnorderedList' },
             ]
         },
         /* NOTE: Called from parent. */
         clearContent () {
             this.editor.setContent('')
             this.content = ''
-        }
+        },
     },
-    mounted () {
-        this.config.statusbar = this.footer
-
-        if (this.basic) {
-            this.setBasicConfig()
-        } else {
-            this.setExtensiveConfig()
-        }
-
-        if (this.limitedColors) {
-            this.setCustomColors()
-        } else {
-            this.config.plugins.push('colorpicker')
-        }
-
-        if (this.minifiedTextArea) { this.minifyTextArea() }
-
-        this.enableTabs()
-        this.enableBrowserSpellchecker()
-        this.enableMarkdownPatterns()
-
-        tinymce.init(this.config)
-    },
-    beforeDestroy () {
-        if (this.editor) { this.editor.destroy() }
-    }
 }
 </script>
 

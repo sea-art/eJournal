@@ -14,13 +14,13 @@ def get_sorted_nodes(journal):
     """Get sorted nodes.
 
     Get all the nodes of a journal in sorted order.
-    Order is default by deadline.
+    Order is default by due_date.
     """
     return journal.node_set.annotate(
-        sort_deadline=Case(
+        sort_due_date=Case(
             When(type=Node.ENTRY, then='entry__creation_date'),
-            default='preset__deadline')
-    ).order_by('sort_deadline')
+            default='preset__due_date')
+    ).order_by('sort_due_date')
 
 
 def get_nodes(journal, author=None):
@@ -38,7 +38,7 @@ def get_nodes(journal, author=None):
         # If there is a progress node upcoming, and there are stackable entries before the deadline
         # add an ADDNODE
         if node.type == Node.PROGRESS:
-            is_future = (node.preset.deadline - timezone.now()).total_seconds() > 0
+            is_future = (node.preset.due_date - timezone.now()).total_seconds() > 0
             if can_add and is_future:
                 add_node = get_add_node(journal)
                 if add_node:
@@ -88,7 +88,9 @@ def get_deadline(node, user):
         'type': node.type,
         'nID': node.id,
         'jID': node.journal.id,
-        'deadline': node.preset.deadline,
+        'unlock_date': node.preset.unlock_date,
+        'due_date': node.preset.due_date,
+        'lock_date': node.preset.lock_date,
         'template': TemplateSerializer(node.preset.forced_template).data,
         'entry': EntrySerializer(node.entry, context={'user': user}).data if node.entry else None,
     } if node else None
@@ -101,6 +103,6 @@ def get_progress(node):
         'type': node.type,
         'nID': node.id,
         'jID': node.journal.id,
-        'deadline': node.preset.deadline,
+        'due_date': node.preset.due_date,
         'target': node.preset.target,
     } if node else None

@@ -1,56 +1,64 @@
 <template>
     <b-form-file
         :accept="acceptedFiletype"
+        :state="Boolean(file)"
+        :placeholder="placeholderText"
         class="fileinput"
         @change="fileHandler"
-        :state="Boolean(file)"
-        :placeholder="placeholderText" />
+    />
 </template>
 
 <script>
-import auth from '@/api/auth'
+import auth from '@/api/auth.js'
 
 export default {
     props: {
         acceptedFiletype: {
             required: true,
-            String
+            String,
         },
         maxSizeBytes: {
             required: true,
-            Number
+            Number,
         },
         aID: {
             required: true,
-            String
+            String,
         },
         autoUpload: {
             default: false,
-            Boolean
+            Boolean,
         },
         endpoint: {
-            default: 'users/upload'
+            default: 'users/upload',
         },
         placeholder: {
-            default: 'No file chosen'
+            default: 'No file chosen',
         },
         contentID: {
-            default: null
-        }
+            default: null,
+        },
     },
     data () {
         return {
             placeholderText: 'No file chosen',
-            file: null
+            file: null,
+        }
+    },
+    created () {
+        // Assume the given file is present in the backend
+        if (this.placeholder !== null && this.placeholder !== 'No file chosen') {
+            this.file = true
+            this.placeholderText = this.placeholder
         }
     },
     methods: {
         fileHandler (e) {
-            let files = e.target.files
+            const files = e.target.files
 
             if (!files.length) { return }
             if (files[0].size > this.maxSizeBytes) {
-                this.$toasted.error('The selected file exceeds the maximum file size of: ' + this.maxSizeBytes + ' bytes.')
+                this.$toasted.error(`The selected file exceeds the maximum file size of: ${this.maxSizeBytes} bytes.`)
                 return
             }
 
@@ -61,12 +69,12 @@ export default {
             if (this.autoUpload) { this.uploadFile() }
         },
         uploadFile () {
-            let formData = new FormData()
+            const formData = new FormData()
             formData.append('file', this.file)
             formData.append('assignment_id', this.aID)
             formData.append('content_id', this.contentID)
 
-            auth.uploadFile(this.endpoint, formData, {customSuccessToast: 'File upload success.'})
+            auth.uploadFile(this.endpoint, formData, { customSuccessToast: 'File upload success.' })
                 .then(() => {
                     this.$emit('fileUploadSuccess', this.file.name)
                 })
@@ -74,14 +82,7 @@ export default {
                     this.$emit('fileUploadFailed', this.file.name)
                     this.file = null
                 })
-        }
+        },
     },
-    created () {
-        // Assume the given file is present in the backend
-        if (this.placeholder !== null && this.placeholder !== 'No file chosen') {
-            this.file = true
-            this.placeholderText = this.placeholder
-        }
-    }
 }
 </script>

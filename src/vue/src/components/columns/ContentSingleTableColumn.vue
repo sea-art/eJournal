@@ -1,6 +1,11 @@
 <template>
-    <b-row no-gutters>
-        <b-col cols="12" lg="8" offset-lg="2" class="main-content main-table">
+    <b-row noGutters>
+        <b-col
+            cols="12"
+            lg="8"
+            offsetLg="2"
+            class="main-content main-table"
+        >
             <slot/>
         </b-col>
     </b-row>
@@ -8,6 +13,6 @@
 
 <script>
 export default {
-    name: 'ContentSingleTableColumn'
+    name: 'ContentSingleTableColumn',
 }
 </script>

@@ -6,16 +6,16 @@ const PERMISSIONLESS_CONTENT = new Set([
     'ErrorPage',
     'PasswordRecovery',
     'EmailVerification',
-    'Guest'
+    'Guest',
 ])
 
 const UNAVAILABLE_WHEN_LOGGED_IN = new Set([
     'Login',
     'Guest',
-    'Register'
+    'Register',
 ])
 
 export default {
     PERMISSIONLESS_CONTENT,
-    UNAVAILABLE_WHEN_LOGGED_IN
+    UNAVAILABLE_WHEN_LOGGED_IN,
 }

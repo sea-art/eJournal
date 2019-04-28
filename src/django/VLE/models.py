@@ -252,6 +252,7 @@ class Preferences(models.Model):
     - grade_notifications: whether or not to receive grade notifications via email.
     - comment_notifications: whether or not to receive comment notifications via email.
     - upcoming_deadline_notifications: whether or not to receive upcoming deadline notifications via email.
+    - hide_version_alert: latest version number for which a version alert has been dismissed.
     """
     user = models.OneToOneField(
         User,
@@ -269,6 +270,10 @@ class Preferences(models.Model):
     )
     show_format_tutorial = models.BooleanField(
         default=True
+    )
+    hide_version_alert = models.TextField(
+        max_length=10,
+        null=True,
     )
 
 
@@ -520,9 +525,6 @@ class Assignment(models.Model):
     def is_locked(self):
         return self.unlock_date and self.unlock_date > now() or self.lock_date and self.lock_date < now()
 
-    def is_due(self):
-        return self.due_date and self.due_date < now()
-
     def save(self, *args, **kwargs):
         self.description = sanitization.strip_script_tags(self.description)
 
@@ -600,10 +602,10 @@ class Node(models.Model):
         and contains no entry. This deadline
         contains a 'target point amount'
         which should be reached before the
-        deadline has passed.
+        due date has passed.
         This type of node has to be predefined in
         the Format. In the Format it is assigned a
-        deadline and a 'target point amount'.
+        due date and a 'target point amount'.
     -Entry
         A node that is merely an entry,
         and contains no deadline. The entry
@@ -618,8 +620,8 @@ class Node(models.Model):
         This node is entirely separate from the
         Progress and Entry node.
         This type of node has to be predefined in
-        the Format. In the Format it is assigned a
-        deadline and a 'forced template'.
+        the Format. In the Format it is assigned an
+        unlock/lock date, a due date and a 'forced template'.
     """
 
     PROGRESS = 'p'
@@ -701,7 +703,9 @@ class PresetNode(models.Model):
     It contains the following features:
     - description: user defined text description of the preset node.
     - type: the type of the preset node (progress or entrydeadline node).
-    - deadline: the deadline for this preset node.
+    - unlock_date: the date from which the preset node can be filled in.
+    - due_date: the due date for this preset node.
+    - lock_date: the date after which the preset node can no longer be fulfilled.
     - forced_template: the template for this preset node - null if PROGRESS node.
     - format: a foreign key linked to a format.
     """
@@ -724,7 +728,15 @@ class PresetNode(models.Model):
         null=True,
     )
 
-    deadline = models.DateTimeField()
+    unlock_date = models.DateTimeField(
+        null=True
+    )
+
+    due_date = models.DateTimeField()
+
+    lock_date = models.DateTimeField(
+        null=True
+    )
 
     forced_template = models.ForeignKey(
         'Template',
@@ -737,8 +749,8 @@ class PresetNode(models.Model):
         on_delete=models.CASCADE
     )
 
-    def is_due(self):
-        return self.deadline < now()
+    def is_locked(self):
+        return self.unlock_date is not None and self.unlock_date > now() or self.lock_date and self.lock_date < now()
 
     def to_string(self, user=None):
         return "PresetNode"
@@ -786,8 +798,8 @@ class Entry(models.Model):
         choices=TYPES,
     )
 
-    def is_due(self):
-        return (self.node.preset and self.node.preset.is_due()) or self.node.journal.assignment.is_locked()
+    def is_locked(self):
+        return (self.node.preset and self.node.preset.is_locked()) or self.node.journal.assignment.is_locked()
 
     def save(self, *args, **kwargs):
         if not self.pk:

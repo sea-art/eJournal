@@ -15,32 +15,29 @@
             @click.native="$emit('edit-template')"
         />
         <span
-            @click="$emit('edit-template')">
+            @click="$emit('edit-template')"
+        >
             {{ template.t.name }}
         </span>
     </div>
 </template>
 
 <script>
-import icon from 'vue-awesome/components/Icon'
-
 export default {
     props: ['template'],
     data () {
         return {
-            isActive: this.template.available
+            isActive: this.template.available,
         }
     },
     methods: {
         emitDeleteTemplate () {
-            if (confirm('Are you sure you want to delete template "' + this.template.t.name + '" from this assignment?')) {
+            if (window.confirm(
+                `Are you sure you want to delete template "${this.template.t.name}" from this assignment?`)) {
                 this.$emit('delete-template', this.template)
             }
-        }
+        },
     },
-    components: {
-        icon
-    }
 }
 </script>
 

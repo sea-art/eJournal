@@ -45,7 +45,17 @@ server {
 
     # Provides html 5 history mode https://router.vuejs.org/guide/essentials/history-mode.html#example-server-configurations
     location / {
+        if (-f {{ maintenance_dir }}/maintenance_on.html) {
+            return 503;
+        }
+
         try_files $uri $uri/ /index.html;
+    }
+
+    # Error pages.
+    error_page 503 /maintenance_on.html;
+    location = /maintenance_on.html {
+        root {{ maintenance_dir }}/;
     }
 }
 
@@ -146,6 +156,10 @@ server {
     }
 
     location / {
+        if (-f {{ maintenance_dir }}/maintenance_on.html) {
+            return 503;
+        }
+
         proxy_set_header    X-Forwarded-For     $proxy_add_x_forwarded_for;
         proxy_set_header    X-Forwarded-Proto   $scheme;
         proxy_set_header    Host                $http_host;
@@ -159,5 +173,11 @@ server {
             proxy_pass http://api.{{ application_name }}_wsgi_server;
             break;
         }
+    }
+
+    # Error pages.
+    error_page 503 /maintenance_on.html;
+    location = /maintenance_on.html {
+        root {{ maintenance_dir }}/;
     }
 }

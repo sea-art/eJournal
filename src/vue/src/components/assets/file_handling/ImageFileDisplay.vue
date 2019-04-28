@@ -1,58 +1,66 @@
 <template>
     <div class="image-field">
-        <div class="image-controls mb-2 unselectable" @click="handleDownload">
+        <div
+            class="image-controls mb-2 unselectable"
+            @click="handleDownload"
+        >
             <icon name="image"/>
             <i><span>{{ fileName }}</span></i>
         </div>
         <transition name="fade">
-            <img :class="showImage" v-if="fileURL && show" :src="fileURL">
+            <img
+                v-if="fileURL && show"
+                :class="showImage"
+                :src="fileURL"
+            />
         </transition>
     </div>
 </template>
 
 <script>
-import userAPI from '@/api/user'
-import icon from 'vue-awesome/components/Icon'
+import userAPI from '@/api/user.js'
 
 export default {
     props: {
         fileName: {
             required: true,
-            String
+            String,
         },
         journalID: {
             required: true,
-            String
+            String,
         },
         display: {
-            default: false
+            default: false,
         },
         entryID: {
             required: true,
-            String
+            String,
         },
         nodeID: {
             required: true,
-            String
+            String,
         },
         contentID: {
             required: true,
-            String
-        }
-    },
-    components: {
-        icon
+            String,
+        },
     },
     data () {
         return {
             show: false,
-            fileURL: null
+            fileURL: null,
         }
     },
     computed: {
         showImage () {
             return this.show ? 'open' : 'closed'
-        }
+        },
+    },
+    created () {
+        this.show = this.display
+
+        if (this.show) { this.fileDownload() }
     },
     methods: {
         handleDownload () {
@@ -64,22 +72,17 @@ export default {
         },
         fileDownload () {
             userAPI.download(this.journalID, this.fileName, this.entryID, this.nodeID, this.contentID)
-                .then(response => {
+                .then((response) => {
                     try {
-                        let blob = new Blob([response.data], { type: response.headers['content-type'] })
+                        const blob = new Blob([response.data], { type: response.headers['content-type'] })
                         this.fileURL = window.URL.createObjectURL(blob)
                     } catch (_) {
                         this.$toasted.error('Error creating file.')
                     }
                 })
-        }
+        },
     },
-    created () {
-        this.show = this.display
-
-        if (this.show) { this.fileDownload() }
-    },
-    destroy () { this.downloadLink.remove() }
+    destroy () { this.downloadLink.remove() },
 }
 </script>
 

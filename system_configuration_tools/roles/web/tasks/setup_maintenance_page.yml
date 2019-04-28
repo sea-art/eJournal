@@ -1,0 +1,15 @@
+---
+
+- name: Creates the maintenance directory
+  file:
+    path: "{{ maintenance_dir }}"
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: 0755
+    recurse: yes
+
+- name: Create the maintenance page
+  template: src=maintenance_off.html
+            dest={{ maintenance_dir }}/maintenance_off.html
+            mode=0664
