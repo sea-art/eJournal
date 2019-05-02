@@ -14,13 +14,13 @@
 
 <script>
 export default {
-    props: ['nodes', 'currentNode'],
+    props: ['nodes', 'currentNode', 'bonusPoints'],
     computed: {
         score () {
             /* The function will update a given progressNode by
             * going through all the nodes and count the published grades
             * so far. */
-            var tempProgress = 0
+            var tempProgress = this.bonusPoints
             for (var node of this.nodes) {
                 if (node.nID === this.currentNode.nID) {
                     break

@@ -37,7 +37,11 @@
                         <add-card @info-entry="addNode" ref="add-card-ref" :addNode="nodes[currentNode]"/>
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'p'">
-                        <progress-node :currentNode="nodes[currentNode]" :nodes="nodes"/>
+                        <progress-node
+                            :currentNode="nodes[currentNode]"
+                            :nodes="nodes"
+                            :bonusPoints="journal.bonus_points"
+                        />
                     </div>
                 </div>
                 <journal-start-card v-else-if="currentNode === -1" :assignment="assignment"/>

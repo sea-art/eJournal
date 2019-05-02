@@ -11,9 +11,9 @@
             class="ml-2 mt-2">
             Unpublished
         </b-badge>
-        <hr style="margin: 5px 0px"/>
 
         <span v-if="this.deadline.deadline">
+            <hr style="margin: 5px 0px"/>
             <!-- Teacher deadline shows last submitted entry date  -->
             <span v-if="this.deadline.stats.needs_marking + deadline.stats.unpublished">
                 <icon name="eye" class="fill-grey shift-up-3"/> {{ timeLeft[1] }} ago<br/>
