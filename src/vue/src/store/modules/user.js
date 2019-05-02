@@ -112,7 +112,7 @@ const actions = {
 
         return new Promise((resolve, reject) => {
             if (!error || code === 'token_not_valid') {
-                connection.conn.post('token/refresh/', { refresh: getters.jwtRefresh }).then((response) => {
+                connection.connRefresh.post('token/refresh/', { refresh: getters.jwtRefresh }).then((response) => {
                     commit(types.SET_ACCES_TOKEN, response.data.access) // Refresh token valid, update access token.
 
                     if (!getters.storePopulated) {

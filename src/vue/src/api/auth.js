@@ -62,8 +62,6 @@ function toastError (error, connArgs) {
 /* Lowers the connection count and toast a success message
  * if a custom one is provided or responseSuccessToast is set. */
 function handleSuccess (resp, connArgs) {
-    setTimeout(() => { store.commit('connection/CLOSE_API_CALL') }, 300)
-
     if (connArgs.responseSuccessToast) {
         let message
         if (resp.data instanceof ArrayBuffer) {
@@ -90,8 +88,6 @@ function handleError (error, connArgs) {
     const response = error.response
     const status = response.status
 
-    setTimeout(() => { store.commit('connection/CLOSE_API_CALL') }, 300)
-
     if (connArgs.redirect && status === statuses.UNAUTHORIZED) {
         store.commit('user/LOGOUT')
         router.push({ name: 'Login' })
@@ -112,26 +108,9 @@ function handleError (error, connArgs) {
     throw error
 }
 
-function validatedSend (func, url, data, connArgs) {
+function initRequest (func, url, data = null, connArgs = DEFAULT_CONN_ARGS) {
     const packedConnArgs = packConnArgs(connArgs)
 
-    store.commit('connection/OPEN_API_CALL')
-    return func(url, data).then(
-        (resp) => {
-            handleSuccess(resp, packedConnArgs)
-            return resp
-        }, error => store.dispatch('user/validateToken', error).then(() => func(url, data).then((resp) => {
-            handleSuccess(resp, packedConnArgs)
-            return resp
-        }),
-        ),
-    ).catch(error => handleError(error, packedConnArgs))
-}
-
-function unvalidatedSend (func, url, data = null, connArgs = DEFAULT_CONN_ARGS) {
-    const packedConnArgs = packConnArgs(connArgs) // eslint-disable-line
-
-    store.commit('connection/OPEN_API_CALL')
     return func(url, data).then(
         (resp) => {
             handleSuccess(resp, packedConnArgs)
@@ -159,7 +138,7 @@ export default {
 
     /* Create a user and add it to the database. */
     register (username, password, fullName, email, jwtParams = null, connArgs = DEFAULT_CONN_ARGS) {
-        return unvalidatedSend(connection.conn.post, improveUrl('users'), {
+        return initRequest(connection.conn.post, improveUrl('users'), {
             username,
             password,
             full_name: fullName,
@@ -177,12 +156,12 @@ export default {
     /* Forgot password.
      * Checks if a user is known by the given email or username. Sends an email with a link to reset the password. */
     forgotPassword (username, email, connArgs = DEFAULT_CONN_ARGS) {
-        return unvalidatedSend(connection.conn.post, improveUrl('forgot_password'), { username, email }, connArgs)
+        return initRequest(connection.conn.post, improveUrl('forgot_password'), { username, email }, connArgs)
     },
 
     /* Recover password */
     recoverPassword (username, recoveryToken, newPassword, connArgs = DEFAULT_CONN_ARGS) {
-        return unvalidatedSend(connection.conn.post, improveUrl('recover_password'), {
+        return initRequest(connection.conn.post, improveUrl('recover_password'), {
             username,
             recovery_token: recoveryToken,
             new_password: newPassword,
@@ -190,25 +169,25 @@ export default {
     },
 
     get (url, data, connArgs) {
-        return validatedSend(connection.conn.get, improveUrl(url, data), null, connArgs)
+        return initRequest(connection.conn.get, improveUrl(url, data), null, connArgs)
     },
     post (url, data, connArgs) {
-        return validatedSend(connection.conn.post, improveUrl(url), data, connArgs)
+        return initRequest(connection.conn.post, improveUrl(url), data, connArgs)
     },
     patch (url, data, connArgs) {
-        return validatedSend(connection.conn.patch, improveUrl(url), data, connArgs)
+        return initRequest(connection.conn.patch, improveUrl(url), data, connArgs)
     },
     delete (url, data, connArgs) {
-        return validatedSend(connection.conn.delete, improveUrl(url, data), null, connArgs)
+        return initRequest(connection.conn.delete, improveUrl(url, data), null, connArgs)
     },
     uploadFile (url, data, connArgs) {
-        return validatedSend(connection.connFile.post, improveUrl(url), data, connArgs)
+        return initRequest(connection.connFile.post, improveUrl(url), data, connArgs)
     },
     uploadFileEmail (url, data, connArgs) {
-        return validatedSend(connection.connFileEmail.post, improveUrl(url), data, connArgs)
+        return initRequest(connection.connFileEmail.post, improveUrl(url), data, connArgs)
     },
     downloadFile (url, data, connArgs) {
-        return validatedSend(connection.connFile.get, improveUrl(url, data), null, connArgs)
+        return initRequest(connection.connFile.get, improveUrl(url, data), null, connArgs)
     },
     create (url, data, connArgs) { return this.post(url, data, connArgs) },
     update (url, data, connArgs) { return this.patch(url, data, connArgs) },
