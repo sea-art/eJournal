@@ -13,9 +13,9 @@
         >
             Unpublished
         </b-badge>
-        <hr style="margin: 5px 0px"/>
 
         <span v-if="deadline.deadline">
+            <hr style="margin: 5px 0px"/>
             <!-- Teacher deadline shows last submitted entry date  -->
             <span v-if="deadline.stats.needs_marking + deadline.stats.unpublished">
                 <icon

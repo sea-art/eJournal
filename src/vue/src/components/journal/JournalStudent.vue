@@ -85,6 +85,7 @@
                         <progress-node
                             :currentNode="nodes[currentNode]"
                             :nodes="nodes"
+                            :bonusPoints="journal.bonus_points"
                         />
                     </div>
                 </div>
