@@ -207,7 +207,11 @@ export default {
                 return self.compare(a.stats.submitted - a.stats.graded, b.stats.submitted - b.stats.graded)
             }
 
-            function checkFilter (user) {
+            function comparePoints (a, b) {
+                return self.compare(a.stats.acquired_points, b.stats.acquired_points)
+            }
+
+            function searchFilter (user) {
                 const username = user.student.username.toLowerCase()
                 const fullName = user.student.full_name
                 const searchVariable = self.getJournalSearchValue.toLowerCase()
@@ -218,7 +222,7 @@ export default {
 
             function groupFilter (assignment) {
                 if (self.getJournalGroupFilter) {
-                    return assignment.student.group === self.getJournalGroupFilter
+                    return assignment.student.groups.map(g => g.name).includes(self.getJournalGroupFilter)
                 }
 
                 return true
@@ -226,12 +230,14 @@ export default {
 
             if (store.state.filteredJournals.length === 0) {
                 /* Filter list based on search input. */
-                if (this.getJournalSortBy === 'sortFullName') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareFullName))
-                } else if (this.getJournalSortBy === 'sortUsername') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareUsername))
-                } else if (this.getJournalSortBy === 'sortMarking') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(checkFilter).sort(compareMarkingNeeded))
+                if (this.getJournalSortBy === 'name') {
+                    store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareFullName))
+                } else if (this.getJournalSortBy === 'username') {
+                    store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareUsername))
+                } else if (this.getJournalSortBy === 'markingNeeded') {
+                    store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareMarkingNeeded))
+                } else if (this.getJournalSortBy === 'points') {
+                    store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(comparePoints))
                 }
             }
 

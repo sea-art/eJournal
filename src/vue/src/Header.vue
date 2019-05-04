@@ -10,7 +10,7 @@
     >
         <transition name="fade">
             <div
-                v-if="openApiCalls"
+                v-if="showConnectionSpinner"
                 class="spinner shadow"
             >
                 <icon
@@ -106,7 +106,7 @@
     >
         <transition name="fade">
             <div
-                v-if="openApiCalls"
+                v-if="showConnectionSpinner"
                 class="spinner shadow"
             >
                 <icon
@@ -172,7 +172,7 @@ export default {
         ...mapGetters({
             loggedIn: 'user/loggedIn',
             profileImg: 'user/profilePicture',
-            openApiCalls: 'connection/checkOpenApiCalls',
+            showConnectionSpinner: 'connection/showConnectionSpinner',
         }),
     },
     created () {

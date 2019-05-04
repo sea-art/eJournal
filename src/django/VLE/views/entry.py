@@ -80,11 +80,11 @@ class EntryView(viewsets.ViewSet):
 
             if field.type in ['i', 'f', 'p']:  # Image, file or PDF
                 user_file = file_handling.get_temp_user_file(request.user, assignment, content['data'])
-                if user_file is None:
+                if user_file is None and field.required:
                     node.entry.delete()
-                    return response.bad_request('One of your files was not correctly uploaded, please try gain.')
-
-                file_handling.make_permanent_file_content(user_file, created_content, node)
+                    return response.bad_request('One of your files was not correctly uploaded, please try again.')
+                elif user_file:
+                    file_handling.make_permanent_file_content(user_file, created_content, node)
 
         # Delete old user files
         file_handling.remove_temp_user_files(request.user)
