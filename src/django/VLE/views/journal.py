@@ -4,7 +4,9 @@ journal.py.
 In this file are all the journal api requests.
 """
 from rest_framework import viewsets
+from rest_framework.decorators import action
 
+import VLE.factory as factory
 import VLE.lti_grade_passback as lti_grade
 import VLE.utils.generic_utils as utils
 import VLE.utils.grading as grading
@@ -46,14 +48,31 @@ class JournalView(viewsets.ViewSet):
         assignment = Assignment.objects.get(pk=assignment_id)
         course = Course.objects.get(pk=course_id)
 
-        request.user.check_permission('can_view_all_journals', assignment)
         request.user.check_can_view(assignment)
+        if not assignment.is_group_assignment:
+            request.user.check_permission('can_view_all_journals', assignment)
 
         users = course.participation_set.filter(role__can_have_journal=True).values('user')
-        queryset = assignment.journal_set.filter(authors__in=users)
+        queryset = Journal.objects.filter(assignment=assignment, authors__in=users).distinct()
         journals = JournalSerializer(queryset, many=True).data
 
         return response.success({'journals': journals})
+
+    def create(self, request):
+        """Create a journal.
+
+        This is used for group assignments when the student needs to create their own journal.
+        """
+        assignment_id, = utils.required_typed_params(request.data, (int, "assignment_id"))
+        assignment = Assignment.objects.get(pk=assignment_id)
+
+        request.user.check_can_view(assignment)
+        if Journal.objects.filter(assignment=assignment, authors__in=[request.user]).exists():
+            return response.bad_request('You may only be in one journal at the time.')
+
+        journal = factory.make_journal(assignment, request.user)
+        serializer = JournalSerializer(journal)
+        return response.created({'journal': serializer.data})
 
     def retrieve(self, request, pk):
         """Get a student submitted journal.
@@ -121,6 +140,38 @@ class JournalView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to edit this journal.')
 
         return self.admin_update(request, journal)
+
+    @action(['patch'], detail=True)
+    def join(self, request, pk):
+        journal = Journal.objects.get(pk=pk)
+
+        request.user.check_can_view(journal.assignment)
+
+        if journal.authors.count() >= journal.assignment.group_size:
+            return response.bad_request('This group is already full.')
+
+        if Journal.objects.filter(assignment=journal.assignment, authors__in=[request.user]).exists():
+            return response.bad_request('You may only be in one journal at the time.')
+
+        journal.authors.add(request.user)
+        journal.save()
+
+        serializer = JournalSerializer(journal)
+        return response.success({'journal': serializer.data})
+
+    @action(['patch'], detail=True)
+    def leave(self, request, pk):
+        journal = Journal.objects.get(pk=pk)
+
+        request.user.check_can_view(journal.assignment)
+
+        if request.user not in journal.authors.all():
+            return response.bad_request('You are currently not in this journal.')
+
+        journal.authors.remove(request.user)
+        journal.save()
+
+        return response.success(description='Successfully removed from the journal.')
 
     def admin_update(self, request, journal):
         req_data = request.data

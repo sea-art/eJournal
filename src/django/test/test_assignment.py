@@ -46,6 +46,14 @@ class AssignmentAPITest(TestCase):
         api.update(self, 'assignments', params={'pk': assignment['id'], 'published': True},
                    user=factory.Admin())
 
+        # Test script sanitation
+        params = {
+            'pk': assignment['id'],
+            'description': '<script>alert("asdf")</script>Rest'
+        }
+        resp = api.update(self, 'assignments', params=params, user=self.teacher)['assignment']
+        assert resp['description'] != params['description']
+
     def test_delete(self):
         teach_course = factory.Course(author=self.teacher)
         other_course = factory.Course()

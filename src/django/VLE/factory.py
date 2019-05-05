@@ -64,7 +64,7 @@ def make_participation(user=None, course=None, role=None, groups=None):
         participation.groups.set(groups)
         participation.save()
 
-    for assignment in course.assignment_set.all():
+    for assignment in course.assignment_set.filter(is_published=True):
         if not Journal.objects.filter(assignment=assignment, authors__in=[user]).exists():
             make_journal(assignment, user)
     return participation
@@ -113,7 +113,7 @@ def make_course_group(name, course, lti_id=None):
 
 def make_assignment(name, description, author=None, format=None, lti_id=None,
                     points_possible=10, is_published=None, unlock_date=None, due_date=None,
-                    lock_date=None, course_ids=None, courses=None):
+                    lock_date=None, course_ids=None, courses=None, group_size=None):
     """Make a new assignment.
 
     Arguments:
@@ -132,7 +132,7 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
         else:
             format = make_default_format(timezone.now(), points_possible)
 
-    assign = Assignment(name=name, description=description, author=author, format=format)
+    assign = Assignment(name=name, description=description, author=author, format=format, group_size=group_size)
     assign.save()
     if course_ids:
         for course_id in course_ids:
@@ -160,9 +160,10 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
         assign.lock_date = lock_date
     assign.save()
 
-    for user in User.objects.filter(participation__course__in=assign.courses.all()).distinct():
-        if not Journal.objects.filter(assignment=assign, authors__in=[user]).exists():
-            make_journal(assign, user)
+    if assign.is_published:
+        for user in User.objects.filter(participation__course__in=assign.courses.all()).distinct():
+            if not Journal.objects.filter(assignment=assign, authors__in=[user]).exists():
+                make_journal(assign, user)
 
     return assign
 

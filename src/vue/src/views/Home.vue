@@ -27,7 +27,7 @@
             @click="showModal('createCourseRef')"
         >
             <icon name="plus"/>
-            Create New Course
+            Create new course
         </b-button>
 
         <h3 slot="right-content-column">

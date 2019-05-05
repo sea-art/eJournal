@@ -217,6 +217,12 @@ class Command(BaseCommand):
                     {"type": Node.ENTRYDEADLINE, "template": 1},
                 ]
             },
+            {
+                "templates": [0, 1],
+                "presets": [
+                    {"type": Node.PROGRESS, "points": 10},
+                ]
+            },
         ]
 
         self.formats = []
@@ -252,6 +258,7 @@ class Command(BaseCommand):
                 ],
                 "format": 0,
                 "author": self.users["Teacher"],
+                "group_size": 0,
             },
             {
                 "name": "Colloquium",
@@ -259,6 +266,16 @@ class Command(BaseCommand):
                 "courses": [self.courses["Portfolio Academische Vaardigheden 1"]],
                 "format": 1,
                 "author": self.users["Teacher"],
+                "group_size": 0,
+            },
+            {
+                "name": "Group Assignment",
+                "description": "This is a group assignment. This is purely for testing group assignment stuff.<br/>" +
+                               "Initialized with student and student2 in 1 journal and student3 in another.",
+                "courses": [self.courses["Portfolio Academische Vaardigheden 2"]],
+                "format": 2,
+                "author": self.users["Teacher"],
+                "group_size": 3,
             }
         ]
 
@@ -266,19 +283,26 @@ class Command(BaseCommand):
         for a in assign_examples:
             format = self.formats[a["format"]]
             faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
-            assignment = factory.make_assignment(a["name"], a["description"], a["author"], format, is_published=True)
+            assignment = factory.make_assignment(a["name"], a["description"], a["author"], format,
+                                                 is_published=True, group_size=a["group_size"])
 
             for course in a["courses"]:
                 assignment.courses.add(course)
             self.assignments.append(assignment)
 
+        journal = factory.make_journal(self.assignments[2], self.users["Student"])
+        journal.authors.add(self.users["Student2"])
+        journal.save()
+        factory.make_journal(self.assignments[2], self.users["Student3"])
+
     def gen_journals(self):
         """Generate journals."""
         self.journals = []
         for a in self.assignments:
-            for u in self.users.values():
-                journal = factory.make_journal(a, u)
-                self.journals.append(journal)
+            if not a.is_group_assignment:
+                for u in self.users.values():
+                    journal = factory.make_journal(a, u)
+                    self.journals.append(journal)
 
     def gen_entries(self):
         """Generate entries."""

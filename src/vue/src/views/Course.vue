@@ -34,7 +34,7 @@
             @click="showModal('createAssignmentRef')"
         >
             <icon name="plus"/>
-            Create New Assignment
+            Create new assignment
         </b-button>
 
         <b-modal
@@ -137,11 +137,13 @@ export default {
                 },
             }
 
-            if (!isPublished) {
+            if (!isPublished) { // Teacher not published route
                 route.name = 'FormatEdit'
-            } else if (this.$hasPermission('can_view_all_journals', 'assignment', aID)) {
+            } else if (this.$hasPermission('can_view_all_journals', 'assignment', aID)) { // Teacher published route
                 route.name = 'Assignment'
-            } else {
+            } else if (jID === -1) { // Student new group assignment route
+                route.name = 'CreateJoinJournal'
+            } else { // Student with journal route
                 route.name = 'Journal'
                 route.params.jID = jID
             }

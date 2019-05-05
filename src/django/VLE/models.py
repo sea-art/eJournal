@@ -207,6 +207,7 @@ class User(AbstractUser):
                 return obj.is_published or self.has_permission('can_view_unpublished_assignment', obj)
             return False
         elif isinstance(obj, Journal):
+            print(obj.authors.all())
             if self not in obj.authors.all():
                 return self.has_permission('can_view_all_journals', obj.assignment)
             else:
@@ -521,6 +522,15 @@ class Assignment(models.Model):
         'Format',
         on_delete=models.CASCADE
     )
+
+    group_size = models.IntegerField(
+        'group_size',
+        null=True
+    )
+
+    @property
+    def is_group_assignment(self):
+        return self.group_size and self.group_size > 1
 
     def is_locked(self):
         return self.unlock_date and self.unlock_date > now() or self.lock_date and self.lock_date < now()

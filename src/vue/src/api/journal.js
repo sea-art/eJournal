@@ -1,13 +1,18 @@
 import auth from '@/api/auth.js'
 
 export default {
+    list (cID, aID, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.get('journals', { course_id: cID, assignment_id: aID }, connArgs)
+            .then(response => response.data.journals)
+    },
+
     get (id, connArgs = auth.DEFAULT_CONN_ARGS) {
         return auth.get(`journals/${id}`, null, connArgs)
             .then(response => response.data.journal)
     },
 
-    create (data, connArgs = auth.DEFAULT_CONN_ARGS) {
-        return auth.create('journals', data, connArgs)
+    create (aID, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.create('journals', { assignment_id: aID }, connArgs)
             .then(response => response.data.journal)
     },
 
@@ -18,6 +23,16 @@ export default {
 
     delete (id, connArgs = auth.DEFAULT_CONN_ARGS) {
         return auth.delete(`journals/${id}`, null, connArgs)
+            .then(response => response.data)
+    },
+
+    join (id, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.update(`journals/${id}/join`, null, connArgs)
+            .then(response => response.data.journal)
+    },
+
+    leave (id, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.update(`journals/${id}/leave`, null, connArgs)
             .then(response => response.data)
     },
 

@@ -148,11 +148,14 @@ class AssignmentDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assignment
         fields = ('id', 'name', 'description', 'points_possible', 'unlock_date', 'due_date', 'lock_date',
-                  'is_published', 'course_count')
+                  'is_published', 'course_count', 'group_size', 'is_group_assignment')
         read_only_fields = ('id', )
 
     def get_course_count(self, assignment):
         return assignment.courses.count()
+
+    def get_is_group_assignment(self, assignment):
+        return assignment.is_group_assignment()
 
 
 class AssignmentSerializer(serializers.ModelSerializer):
@@ -173,7 +176,11 @@ class AssignmentSerializer(serializers.ModelSerializer):
         # Student deadlines
         if 'user' in self.context and self.context['user'] and \
            self.context['user'].has_permission('can_have_journal', assignment):
-            journal = Journal.objects.get(assignment=assignment, authors__in=[self.context['user']])
+            journal = Journal.objects.filter(assignment=assignment, authors__in=[self.context['user']])
+            if not journal.count():
+                return None
+            else:
+                journal = journal.first()
             nodes = journal.node_set.order_by('preset__due_date')
             if not nodes:
                 return None
@@ -229,7 +236,10 @@ class AssignmentSerializer(serializers.ModelSerializer):
             return None
         if not self.context['user'].has_permission('can_have_journal', assignment):
             return None
-        return Journal.objects.get(assignment=assignment, authors__in=[self.context['user']]).pk
+        try:
+            return Journal.objects.get(assignment=assignment, authors__in=[self.context['user']]).pk
+        except Journal.DoesNotExist:
+            return -1
 
     def get_journals(self, assignment):
         """Retrieves the journals of an assignment of the users who have the permission
@@ -239,7 +249,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
            and self.context['journals'] and self.context['course']:
             course = self.context['course']
             users = course.participation_set.filter(role__can_have_journal=True).values('user')
-            journals = Journal.objects.filter(assignment=assignment, authors__in=users)
+            journals = Journal.objects.filter(assignment=assignment, authors__in=users).distinct()
             return JournalSerializer(journals, many=True, context=self.context).data
         else:
             return None

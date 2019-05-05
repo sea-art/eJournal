@@ -45,7 +45,10 @@ def required_typed_params(post, *keys):
     result = []
     for func, key in keys:
         try:
-            result.append(func(post[key]))
+            if post[key] is None:
+                result.append(None)
+            else:
+                result.append(func(post[key]))
         except ValueError as err:
             raise VLEParamWrongType(err)
         except KeyError:
@@ -60,9 +63,12 @@ def optional_typed_params(post, *keys):
 
     result = []
     for func, key in keys:
-        if key in post and post[key] != '':
+        if key and key in post and post[key] != '':
             try:
-                result.append(func(post[key]))
+                if post[key] is None:
+                    result.append(None)
+                else:
+                    result.append(func(post[key]))
             except ValueError as err:
                 raise VLEParamWrongType(err)
         else:

@@ -546,6 +546,10 @@ export default {
                 }
             })
 
+            if (this.assignmentDetails.is_group_assignment === false) {
+                this.assignmentDetails.group_size = null
+            }
+
             if (missingAssignmentName || missingPointMax || unlockAfterDue || unlockAfterLock
                 || dueAfterLock || presetUnlockBeforeUnlock || presetUnlockAfterDue
                 || presetUnlockAfterLock || presetDueBeforeUnlock || presetDueAfterDue

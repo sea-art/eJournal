@@ -285,7 +285,7 @@ class UserView(viewsets.ViewSet):
             return response.forbidden('You are not allowed to view this user\'s data.')
 
         profile = UserSerializer(user).data
-        journals = Journal.objects.filter(authors__in=[pk])
+        journals = Journal.objects.filter(authors__in=[pk]).distinct()
         journal_dict = {}
         for journal in journals:
             # Select the nodes of this journal but only the ones with entries.

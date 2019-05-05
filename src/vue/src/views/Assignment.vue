@@ -252,11 +252,11 @@ export default {
             const self = this
 
             function compareFullName (a, b) {
-                return self.compare(a.student.full_name, b.student.full_name)
+                return self.compare(a.students[0].full_name, b.students[0].full_name)
             }
 
             function compareUsername (a, b) {
-                return self.compare(a.student.username, b.student.username)
+                return self.compare(a.students[0].username, b.students[0].username)
             }
 
             function compareMarkingNeeded (a, b) {
@@ -267,18 +267,19 @@ export default {
                 return self.compare(a.stats.acquired_points, b.stats.acquired_points)
             }
 
-            function searchFilter (assignment) {
-                const username = assignment.student.username.toLowerCase()
-                const fullName = assignment.student.full_name.toLowerCase()
+            function searchFilter (journal) {
+                const username = journal.students.map(s => s.username).toString().toLowerCase()
+                const fullname = journal.students.map(s => s.full_name).toString().toLowerCase()
                 const searchValue = self.searchValue.toLowerCase()
 
                 return username.includes(searchValue)
-                    || fullName.includes(searchValue)
+                    || fullname.includes(searchValue)
             }
 
-            function groupFilter (assignment) {
+            function groupFilter (journal) {
                 if (self.getJournalGroupFilter) {
-                    return assignment.student.groups.map(g => g.name).includes(self.getJournalGroupFilter)
+                    return journal.students.map(s => s.groups.map(g => g.name)).flat(1)
+                        .includes(self.getJournalGroupFilter)
                 }
 
                 return true

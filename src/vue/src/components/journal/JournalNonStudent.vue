@@ -196,11 +196,11 @@ export default {
             const self = this
 
             function compareFullName (a, b) {
-                return self.compare(a.student.full_name, b.student.full_name)
+                return self.compare(a.students[0].full_name, b.students[0].full_name)
             }
 
             function compareUsername (a, b) {
-                return self.compare(a.student.username, b.student.username)
+                return self.compare(a.students[0].username, b.students[0].username)
             }
 
             function compareMarkingNeeded (a, b) {
@@ -211,34 +211,33 @@ export default {
                 return self.compare(a.stats.acquired_points, b.stats.acquired_points)
             }
 
-            function searchFilter (user) {
-                const username = user.student.username.toLowerCase()
-                const fullName = user.student.full_name
-                const searchVariable = self.getJournalSearchValue.toLowerCase()
+            function searchFilter (journal) {
+                const username = journal.students.map(s => s.username).toString().toLowerCase()
+                const fullname = journal.students.map(s => s.full_name).toString().toLowerCase()
+                const searchValue = self.searchValue.toLowerCase()
 
-                return username.includes(searchVariable)
-                    || fullName.includes(searchVariable)
+                return username.includes(searchValue)
+                    || fullname.includes(searchValue)
             }
 
-            function groupFilter (assignment) {
+            function groupFilter (journal) {
                 if (self.getJournalGroupFilter) {
-                    return assignment.student.groups.map(g => g.name).includes(self.getJournalGroupFilter)
+                    return journal.students.map(s => s.groups.map(g => g.name)).flat(1)
+                        .includes(self.getJournalGroupFilter)
                 }
 
                 return true
             }
 
-            if (store.state.filteredJournals.length === 0) {
-                /* Filter list based on search input. */
-                if (this.getJournalSortBy === 'name') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareFullName))
-                } else if (this.getJournalSortBy === 'username') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareUsername))
-                } else if (this.getJournalSortBy === 'markingNeeded') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareMarkingNeeded))
-                } else if (this.getJournalSortBy === 'points') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(comparePoints))
-                }
+            /* Filter list based on search input. */
+            if (this.selectedSortOption === 'name') {
+                store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareFullName))
+            } else if (this.selectedSortOption === 'username') {
+                store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareUsername))
+            } else if (this.selectedSortOption === 'markingNeeded') {
+                store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareMarkingNeeded))
+            } else if (this.selectedSortOption === 'points') {
+                store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(comparePoints))
             }
 
             return store.state.filteredJournals.filter(groupFilter).slice()

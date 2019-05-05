@@ -80,6 +80,7 @@ export default {
                     CourseEdit: 'Course Editor',
                     AssignmentsOverview: 'Assignments',
                     UserRoleConfiguration: 'Permission Manager',
+                    CreateJoinJournal: 'Click to join a group',
                 },
                 namedViews: {
                     Course: { apiReturnValue: 'course', primaryParam: 'cID' },

@@ -132,9 +132,47 @@
                     />
                 </b-button>
             </transition>
+
+            <h3>Controls</h3>
+            <b-card
+                :class="$root.getBorderClass($route.params.cID)"
+                class="no-hover"
+            >
+                <h2>Journal members</h2>
+                <ul class="member-list">
+                    <li
+                        v-for="student in journal.students"
+                        :key="student.id"
+                    >
+                        {{ student.full_name }}
+                    </li>
+                </ul>
+                <b-button
+                    class="mr-1 flex-grow-1 delete-button"
+                    tag="b-button"
+                    @click="leaveJournal()"
+                >
+                    <icon name="sign-out"/>
+                    Leave group
+                </b-button>
+            </b-card>
         </b-col>
     </b-row>
 </template>
+<style lang="sass">
+.member-list
+    padding: 0
+    margin-bottom: 0
+    li
+        list-style-type: none
+        line-height: 2.5em
+        padding-bottom: 0px
+        margin-bottom: 0px
+        border-bottom: 1px solid #eee
+    li:last-child
+        border-bottom: none
+
+</style>
 
 <script>
 import entryNode from '@/components/entry/EntryNode.vue'
@@ -224,6 +262,19 @@ export default {
             .then((journal) => { this.journal = journal })
     },
     methods: {
+        leaveJournal () {
+            if (window.confirm('Are you sure you want to leave this journal?')) {
+                journalAPI.leave(this.jID)
+                    .then(() => {
+                        this.$router.push({
+                            name: 'CreateJoinJournal',
+                            params: {
+                                cID: this.cID, aID: this.aID,
+                            },
+                        })
+                    })
+            }
+        },
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData
             entryAPI.update(this.nodes[this.currentNode].entry.id, { content: editedData.entry.content })

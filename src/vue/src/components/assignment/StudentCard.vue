@@ -43,7 +43,7 @@
                         <b>{{ journal.names }}</b>
                         <span v-if="groups">({{ groups }})</span>
                     </span>
-                    {{ students.map(s => s.username).join(', ') }}
+                    {{ journal.students.map(s => s.username).join(', ') }}
                 </div>
             </div>
             <progress-bar
@@ -93,11 +93,13 @@ export default {
         groups () {
             const groups = []
             this.journal.students.forEach((student) => {
-                student.groups.forEach((group) => {
-                    if (!groups.includes(group)) {
-                        groups.push(group.name)
-                    }
-                })
+                if (student.groups) {
+                    student.groups.forEach((group) => {
+                        if (!groups.includes(group)) {
+                            groups.push(group.name)
+                        }
+                    })
+                }
             })
             return groups.join(', ')
         },
