@@ -1,5 +1,8 @@
 <template>
-    <b-card :class="$root.getBorderClass($route.params.cID)">
+    <b-card
+        :class="$root.getBorderClass($route.params.cID)"
+        class="no-hover"
+    >
         <assignment-details
             :assignmentDetails="assignmentDetails"
             :presetNodes="presetNodes"

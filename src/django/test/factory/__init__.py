@@ -1,4 +1,4 @@
-from test.factory.assignment import AssignmentFactory, LtiAssignmentFactory, GroupAssignment
+from test.factory.assignment import AssignmentFactory, LtiAssignmentFactory, GroupAssignmentFactory
 from test.factory.instance import InstanceFactory
 from test.factory.course import CourseFactory, LtiCourseFactory
 from test.factory.user import UserFactory, TeacherFactory, AdminFactory
@@ -10,7 +10,7 @@ from test.factory.lti import LtiFactory
 from test.factory.comment import StudentCommentFactory, TeacherCommentFactory
 from test.factory.participation import ParticipationFactory, GroupParticipationFactory
 from test.factory.role import RoleFactory
-from test.factory.journal import JournalFactory
+from test.factory.journal import JournalFactory, GroupJournalFactory
 
 Instance = InstanceFactory
 Assignment = AssignmentFactory
@@ -36,6 +36,7 @@ Participation = ParticipationFactory
 GroupParticipation = GroupParticipationFactory
 
 Journal = JournalFactory
+GroupJournal = GroupJournalFactory
 Fromat = FormatFactory
 Template = TemplateFactory
 

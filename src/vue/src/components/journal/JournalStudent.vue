@@ -132,8 +132,6 @@
                     />
                 </b-button>
             </transition>
-
-            <h3>Controls</h3>
             <b-card
                 :class="$root.getBorderClass($route.params.cID)"
                 class="no-hover"

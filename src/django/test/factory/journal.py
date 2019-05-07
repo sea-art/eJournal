@@ -30,3 +30,7 @@ class JournalFactory(factory.django.DjangoModelFactory):
                 if not VLE.models.Participation.objects.filter(course=course, user=author).exists():
                     role = VLE.models.Role.objects.get(course=course, name='Student')
                     VLE.models.Participation.objects.create(course=course, user=author, role=role)
+
+
+class GroupJournalFactory(JournalFactory):
+    assignment = factory.SubFactory('test.factory.assignment.GroupAssignmentFactory')

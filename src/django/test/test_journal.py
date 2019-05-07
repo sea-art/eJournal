@@ -8,12 +8,17 @@ class JournalAPITest(TestCase):
     def setUp(self):
         self.student = factory.Student()
         self.journal = factory.Journal(authors=[self.student])
-        self.teacher = self.journal.assignment.courses.first().author
+        self.assignment = self.journal.assignment
+        self.course = self.assignment.courses.first()
+        self.teacher = self.course.author
+
+        self.group_journal = factory.GroupJournal(authors=[self.student])
+        self.group_assignment = self.group_journal.assignment
+        self.group_course = self.assignment.courses.first()
+        self.group_teacher = self.course.author
 
     def test_get(self):
-        assignment = self.journal.assignment
-        course = assignment.courses.first()
-        payload = {'assignment_id': assignment.pk, 'course_id': course.pk}
+        payload = {'assignment_id': self.assignment.pk, 'course_id': self.course.pk}
         # Test list
         api.get(self, 'journals', params=payload, user=self.student, status=403)
         api.get(self, 'journals', params=payload, user=self.teacher)
@@ -33,3 +38,7 @@ class JournalAPITest(TestCase):
 
         # Check if the admin can update the journal
         api.update(self, 'journals', params={'pk': self.journal.pk, 'user': factory.Student().pk}, user=factory.Admin())
+
+    def test_join(self):
+        student = factory.Participation(course=self.group_course).user
+        api.update(self, 'journals/join', params={'pk': self.group_journal.pk}, user=student)

@@ -166,11 +166,15 @@ class AssignmentSerializer(serializers.ModelSerializer):
     courses = serializers.SerializerMethodField()
     course_count = serializers.SerializerMethodField()
     journals = serializers.SerializerMethodField()
+    is_group_assignment = serializers.SerializerMethodField()
 
     class Meta:
         model = Assignment
         fields = '__all__'
         read_only_fields = ('id', )
+
+    def get_is_group_assignment(self, assignment):
+        return assignment.is_group_assignment
 
     def get_deadline(self, assignment):
         # Student deadlines

@@ -9,9 +9,12 @@ class AssignmentAPITest(TestCase):
         self.teacher = factory.Teacher()
         self.admin = factory.Admin()
         self.course = factory.Course(author=self.teacher)
+        self.student = factory.Student()
+        self.participating = factory.Participation(user=self.student, course=self.course)
         self.create_params = {
             'name': 'test',
             'description': 'test_description',
+            'points_possible': 10,
             'course_id': self.course.pk
         }
 
@@ -41,13 +44,27 @@ class AssignmentAPITest(TestCase):
     def test_create(self):
         # Test creation with default params is not a group assignment
         assignment = api.create(self, 'assignments', params=self.create_params, user=self.teacher)['assignment']
-        assert not assignment['is_group_assignment'], 'Default assignment should be individual'
+        assert 'is_group_assignment' in assignment and not assignment['is_group_assignment'], \
+            'Default assignment should be individual'
+        assert 'group_size' not in assignment or assignment['group_size'] is None
 
         # Test required fields
         api.create(self, 'assignments', params={}, user=self.teacher, status=400)
         api.create(self, 'assignments', params={'name': 'test'}, user=self.teacher, status=400)
+        api.create(self, 'assignments', params={'points_possible': 5}, user=self.teacher, status=400)
 
         # Test creation of group assignment
+        params = {
+            'name': 'test',
+            'description': 'test_description',
+            'points_possible': 10,
+            'course_id': self.course.pk,
+            'group_size': 3,
+        }
+        assignment = api.create(self, 'assignments', params=params, user=self.teacher)['assignment']
+        assert 'is_group_assignment' in assignment and assignment['is_group_assignment'], \
+            'Assignment with group size should be a group assignment'
+        assert 'group_size' in assignment and assignment['group_size'] == 3
 
     def test_update(self):
         assignment = api.create(self, 'assignments', params=self.create_params, user=self.teacher)['assignment']
@@ -96,6 +113,3 @@ class AssignmentAPITest(TestCase):
                           params={'pk': assignment.pk, 'course_id': self.course.id}, user=self.teacher)
         assert 'removed' not in resp['description'] and 'deleted' in resp['description'], \
             'The assignment should be deleted from the course, not removed'
-
-    def test_join(self):
-        group_assignment = factory.GroupAssignment()

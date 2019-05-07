@@ -46,5 +46,5 @@ class LtiAssignmentFactory(AssignmentFactory):
         lti_id.save()
 
 
-class GroupAssignment(AssignmentFactory):
+class GroupAssignmentFactory(AssignmentFactory):
     group_size = 3
