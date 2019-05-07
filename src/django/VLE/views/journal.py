@@ -153,6 +153,9 @@ class JournalView(viewsets.ViewSet):
         if Journal.objects.filter(assignment=journal.assignment, authors__in=[request.user]).exists():
             return response.bad_request('You may only be in one journal at the time.')
 
+        if not journal.assignment.is_group_assignment:
+            return response.bad_request('You can only join group assignments.')
+
         journal.authors.add(request.user)
         journal.save()
 
@@ -167,6 +170,9 @@ class JournalView(viewsets.ViewSet):
 
         if request.user not in journal.authors.all():
             return response.bad_request('You are currently not in this journal.')
+
+        if not journal.assignment.is_group_assignment:
+            return response.bad_request('You can only leave group assignments.')
 
         journal.authors.remove(request.user)
         journal.save()

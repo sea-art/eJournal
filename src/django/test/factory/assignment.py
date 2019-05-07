@@ -44,3 +44,7 @@ class LtiAssignmentFactory(AssignmentFactory):
         lti_id = VLE.models.Lti_ids.objects.last()
         lti_id.assignment = self
         lti_id.save()
+
+
+class GroupAssignment(AssignmentFactory):
+    group_size = 3

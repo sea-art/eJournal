@@ -90,20 +90,15 @@ class AssignmentView(viewsets.ViewSet):
             success -- with the assignment data
 
         """
-        name, description, course_id = utils.required_typed_params(
-            request.data, (str, "name"), (str, "description"), (int, "course_id"))
-        points_possible, unlock_date, due_date, lock_date, lti_id, is_published, group_size = \
+        name, description, course_id, points_possible = utils.required_typed_params(
+            request.data, (str, 'name'), (str, 'description'), (int, 'course_id'), (float, 'points_possible'))
+        unlock_date, due_date, lock_date, lti_id, is_published, group_size = \
             utils.optional_typed_params(
-                request.data, (float, "points_possible"), (str, "unlock_date"), (str, "due_date"), (str, "lock_date"),
-                (str, "lti_id"), (bool, "is_published"), (int, "group_size"))
+                request.data, (str, 'unlock_date'), (str, 'due_date'), (str, 'lock_date'),
+                (str, 'lti_id'), (bool, 'is_published'), (int, 'group_size'))
         course = Course.objects.get(pk=course_id)
 
         request.user.check_permission('can_add_assignment', course)
-
-        if name == '':
-            return response.bad_request('Assignment name is required')
-        if points_possible is None or points_possible < 0:
-            return response.bad_request('Points possible is required')
 
         assignment = factory.make_assignment(
             name, description, courses=[course], author=request.user, lti_id=lti_id, points_possible=points_possible,

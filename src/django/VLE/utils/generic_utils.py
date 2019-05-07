@@ -17,6 +17,8 @@ def required_params(post, *keys):
     result = []
     for key in keys:
         try:
+            if post[key] == '':
+                VLEMissingRequiredKey(key)
             result.append(post[key])
         except KeyError:
             raise VLEMissingRequiredKey(key)
@@ -45,6 +47,8 @@ def required_typed_params(post, *keys):
     result = []
     for func, key in keys:
         try:
+            if post[key] == '':
+                VLEMissingRequiredKey(key)
             if post[key] is None:
                 result.append(None)
             else:

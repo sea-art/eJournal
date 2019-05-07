@@ -9,7 +9,11 @@ class AssignmentAPITest(TestCase):
         self.teacher = factory.Teacher()
         self.admin = factory.Admin()
         self.course = factory.Course(author=self.teacher)
-        self.create_params = {'name': 'test', 'description': 'test_description', 'course_id': self.course.pk}
+        self.create_params = {
+            'name': 'test',
+            'description': 'test_description',
+            'course_id': self.course.pk
+        }
 
     def test_rest(self):
         # Test the basic rest functionality as a superuser
@@ -33,6 +37,17 @@ class AssignmentAPITest(TestCase):
                       create_params=self.create_params,
                       create_status=403,
                       user=factory.Student())
+
+    def test_create(self):
+        # Test creation with default params is not a group assignment
+        assignment = api.create(self, 'assignments', params=self.create_params, user=self.teacher)['assignment']
+        assert not assignment['is_group_assignment'], 'Default assignment should be individual'
+
+        # Test required fields
+        api.create(self, 'assignments', params={}, user=self.teacher, status=400)
+        api.create(self, 'assignments', params={'name': 'test'}, user=self.teacher, status=400)
+
+        # Test creation of group assignment
 
     def test_update(self):
         assignment = api.create(self, 'assignments', params=self.create_params, user=self.teacher)['assignment']
@@ -81,3 +96,6 @@ class AssignmentAPITest(TestCase):
                           params={'pk': assignment.pk, 'course_id': self.course.id}, user=self.teacher)
         assert 'removed' not in resp['description'] and 'deleted' in resp['description'], \
             'The assignment should be deleted from the course, not removed'
+
+    def test_join(self):
+        group_assignment = factory.GroupAssignment()
