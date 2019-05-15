@@ -27,7 +27,7 @@
             <span v-else>
                 <icon
                     name="calendar"
-                    class="fill-grey shift-up-3"
+                    class="fill-grey shift-up-3 mr-1"
                 />
                 <span v-if="timeLeft[0] < 0">Due in {{ timeLeft[1] }}<br/></span>
                 <span

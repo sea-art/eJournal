@@ -19,7 +19,7 @@
                 :content="field.description"
             />
 
-            <b-textarea
+            <b-input
                 v-if="field.type == 't'"
                 class="theme-input input-disabled"
             />

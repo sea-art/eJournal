@@ -5,18 +5,22 @@
         "baseUrl": "./",
         "paths": {
             "@/*": [
-                "src/*"
+                "./src/*"
             ],
             "sass/*": [
-                "src/sass/*"
+                "./src/sass/*"
             ],
-            "static/*": [
-                "static/*"
+            "public/*": [
+                "./public/*"
             ],
-        }
+        },
     },
     "exclude": [
         "node_modules",
-        "dist"
-    ]
+        "dist",
+        "public",
+    ],
+    "include": [
+        "src"
+    ],
 }

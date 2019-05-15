@@ -40,6 +40,8 @@ axios.defaults.transformRequest.push((data, headers) => {
     return data
 })
 
+Vue.config.productionTip = false
+
 /* eslint-disable no-new */
 new Vue({
     el: '#app',
@@ -102,5 +104,6 @@ new Vue({
             return s
         },
     },
+    render: h => h(App),
     template: '<App/>',
-})
+}).$mount('#app')

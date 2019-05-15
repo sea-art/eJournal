@@ -8,10 +8,8 @@ from django.utils import timezone
 from rest_framework import serializers
 
 import VLE.permissions as permissions
-from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
-                        Format, Group, Instance, Journal, Lti_ids, Node,
-                        Participation, Preferences, PresetNode, Role, Template,
-                        User)
+from VLE.models import (Assignment, Comment, Content, Course, Entry, Field, Format, Group, Instance, Journal, Lti_ids,
+                        Node, Participation, Preferences, PresetNode, Role, Template, User)
 
 
 class InstanceSerializer(serializers.ModelSerializer):

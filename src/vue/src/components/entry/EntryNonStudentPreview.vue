@@ -25,6 +25,7 @@
                     />
                     <b-form-checkbox
                         v-model="published"
+                        inline
                         fieldValue="true"
                         uncheckedFieldValue="false"
                         data-toggle="tooltip"

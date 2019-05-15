@@ -42,7 +42,7 @@ import 'tinymce/plugins/textpattern'
 import 'tinymce/plugins/toc'
 import 'tinymce/plugins/wordcount'
 
-import 'static/external/tinymce/plugins/placeholder.js'
+import 'public/external/tinymce/plugins/placeholder.js'
 
 export default {
     name: 'TextEditor',
@@ -89,7 +89,7 @@ export default {
                 init_instance_callback: this.editorInit,
                 // QUESTION: How the bloody hell do we make this available with webpack so we can use node modules,
                 // whilst also predetermining the correct url before bundling?.
-                skin_url: '/static/external/tinymce/skins/lightgray',
+                skin_url: '/external/tinymce/skins/lightgray',
 
                 paste_data_images: true,
                 /* https://www.tiny.cloud/docs/configure/file-image-upload/#images_dataimg_filter

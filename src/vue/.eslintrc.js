@@ -17,6 +17,7 @@ module.exports = {
     ],
     rules: {
         'generator-star-spacing': 'off',
+        'import/no-cycle': 'off',
         'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
         'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
         'semi': 0, // do not require ;
@@ -59,12 +60,10 @@ module.exports = {
     },
     settings: {
         'import/resolver': {
-            'alias': [
-                ['@', './src'],
-                ['sass', './src/sass'],
-                ['static', './static'],
-            ]
-        }
+            webpack: {
+                config: require.resolve('@vue/cli-service/webpack.config.js')
+            },
+        },
     },
     globals: {
         CurrentRelease: true

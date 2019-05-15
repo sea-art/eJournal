@@ -15,8 +15,7 @@ from django.utils.timezone import now
 
 import VLE.permissions as permissions
 from VLE.utils import sanitization
-from VLE.utils.error_handling import (VLEParticipationError,
-                                      VLEPermissionError, VLEProgrammingError,
+from VLE.utils.error_handling import (VLEParticipationError, VLEPermissionError, VLEProgrammingError,
                                       VLEUnverifiedEmailError)
 from VLE.utils.file_handling import get_feedback_file_path, get_path
 

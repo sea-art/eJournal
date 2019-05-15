@@ -8,10 +8,8 @@ import requests
 from django.conf import settings
 from django.utils import timezone
 
-from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
-                        Format, Group, Instance, Journal, Lti_ids, Node,
-                        Participation, PresetNode, Role, Template, User,
-                        UserFile)
+from VLE.models import (Assignment, Comment, Content, Course, Entry, Field, Format, Group, Instance, Journal, Lti_ids,
+                        Node, Participation, PresetNode, Role, Template, User, UserFile)
 
 
 def make_instance(allow_standalone_registration=None):
@@ -45,7 +43,7 @@ def make_user(username, password, email, lti_id=None, profile_picture=None,
     if profile_picture:
         user.profile_picture = profile_picture
     else:
-        user.profile_picture = '/static/unknown-profile.png'
+        user.profile_picture = '/unknown-profile.png'
     user.save()
     return user
 

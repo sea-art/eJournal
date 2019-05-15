@@ -3,7 +3,7 @@
         <hr/>
         &copy; 2019 - eJournal.app -
         <a
-            href="/static/eJournal-privacy-notice.pdf"
+            href="/eJournal-privacy-notice.pdf"
             class="text-grey"
         >
             Privacy notice

@@ -34,7 +34,7 @@
                 </b-button>
                 <b-button
                     v-b-modal.forgotPasswordModal
-                    class="multi-form change-button"
+                    class="multi-form change-button mr-2"
                 >
                     <icon name="question"/>
                     Forgot password

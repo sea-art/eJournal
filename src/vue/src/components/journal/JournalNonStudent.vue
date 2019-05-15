@@ -120,7 +120,7 @@
                         <b-button
                             v-if="filteredJournals.length !== 0"
                             :to="{ name: 'Journal', params: { cID: cID, aID: aID, jID: prevJournal.id } }"
-                            class="multi-form mr-1 flex-grow-1"
+                            class="multi-form mr-2 flex-grow-1"
                             tag="b-button"
                         >
                             <icon name="arrow-left"/>

@@ -8,8 +8,7 @@ from rest_framework import viewsets
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 from VLE.models import Assignment
-from VLE.serializers import (AssignmentDetailsSerializer, AssignmentSerializer,
-                             FormatSerializer)
+from VLE.serializers import AssignmentDetailsSerializer, AssignmentSerializer, FormatSerializer
 
 
 class FormatView(viewsets.ViewSet):

@@ -20,7 +20,6 @@
             </h4>
             <b-card class="no-hover">
                 <b-form
-                    class="d-flex"
                     @submit.prevent="createUserGroup"
                     @reset.prevent="resetFormInput"
                 >
@@ -31,7 +30,7 @@
                         required
                     />
                     <b-button
-                        class="add-button"
+                        class="add-button float-right"
                         type="submit"
                     >
                         <icon name="plus-square"/>

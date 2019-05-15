@@ -300,7 +300,7 @@ export default {
         fill: $theme-medium-grey
 
 .required-field-template
-    background-color: $theme-dark-blue
+    background-color: $theme-dark-blue !important
     color: white !important
     svg, &:hover:not(.no-hover) svg
         fill: $theme-red !important

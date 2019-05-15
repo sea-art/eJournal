@@ -114,6 +114,7 @@
                     <b-form-checkbox
                         v-if="$hasPermission('can_grade') && !entryGradePublished"
                         v-model="publishAfterGrade"
+                        inline
                     >
                         Publish after grade
                     </b-form-checkbox>

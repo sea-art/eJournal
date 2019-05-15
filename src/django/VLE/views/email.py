@@ -15,8 +15,7 @@ import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 import VLE.validators as validators
 from VLE.models import User
-from VLE.tasks import (send_email_feedback, send_email_verification_link,
-                       send_password_recovery_link)
+from VLE.tasks import send_email_feedback, send_email_verification_link, send_password_recovery_link
 
 
 def index(request):
