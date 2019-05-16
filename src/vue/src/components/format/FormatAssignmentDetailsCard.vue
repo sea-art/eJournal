@@ -65,6 +65,7 @@
                     </h2>
                     <flat-pickr
                         v-model="assignmentDetails.unlock_date"
+                        class="multi-form theme-input full-width"
                         :config="unlockDateConfig"
                     />
                 </b-col>
@@ -78,6 +79,7 @@
                     </h2>
                     <flat-pickr
                         v-model="assignmentDetails.due_date"
+                        class="multi-form theme-input full-width"
                         :config="dueDateConfig"
                     />
                 </b-col>
@@ -88,6 +90,7 @@
                     </h2>
                     <flat-pickr
                         v-model="assignmentDetails.lock_date"
+                        class="multi-form theme-input full-width"
                         :config="lockDateConfig"
                     />
                 </b-col>
@@ -95,11 +98,11 @@
         </b-form>
         <b-button
             v-if="$hasPermission('can_delete_assignment')"
-            class="delete-button full-width mb-4"
+            class="delete-button full-width"
             @click="deleteAssignment"
         >
             <icon name="trash"/>
-            {{ assignmentDetails.course_count > 1 ? 'Remove' : 'Delete' }} Assignment
+            {{ assignmentDetails.course_count > 1 ? 'Remove' : 'Delete' }} assignment
         </b-button>
     </b-card>
 </template>

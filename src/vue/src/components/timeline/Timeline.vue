@@ -38,19 +38,21 @@
                     />
                     <timeline-node
                         v-if="edit"
+                        :index="nodes.length"
                         :node="{
                             'type': 'a'
                         }"
+                        :selected="isSelected(nodes.length)"
                         :edit="edit"
-                        @select-node="$emit('add-node')"
+                        @select-node="$emit('select-node', $event)"
                     />
                     <timeline-node
-                        :index="nodes.length"
+                        :index="nodes.length + 1"
                         :last="true"
                         :node="{
                             'type': 'n'
                         }"
-                        :selected="isSelected(nodes.length)"
+                        :selected="isSelected(nodes.length + 1)"
                         :edit="edit"
                         @select-node="$emit('select-node', $event)"
                     />
@@ -76,19 +78,21 @@
                     />
                     <timeline-node
                         v-if="edit"
+                        :index="nodes.length"
                         :node="{
                             'type': 'a'
                         }"
+                        :selected="isSelected(nodes.length)"
                         :edit="edit"
-                        @select-node="$emit('add-node')"
+                        @select-node="$emit('select-node', $event)"
                     />
                     <timeline-node
-                        :index="nodes.length"
+                        :index="nodes.length + 1"
                         :last="true"
                         :node="{
                             'type': 'n'
                         }"
-                        :selected="isSelected(nodes.length)"
+                        :selected="isSelected(nodes.length + 1)"
                         :edit="edit"
                         @select-node="$emit('select-node', $event)"
                     />

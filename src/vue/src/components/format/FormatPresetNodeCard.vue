@@ -9,62 +9,13 @@
         :class="$root.getBorderClass($route.params.cID)"
         class="no-hover overflow-x-hidden"
     >
-        <h2 class="d-inline multi-form">
-            Preset
-        </h2>
-        <b-button
-            class="delete-button float-right multi-form"
-            @click.prevent="emitDeletePreset"
+        <h2
+            v-if="!newPreset"
+            class="d-inline multi-form"
         >
-            <icon name="trash"/>
-            Remove
-        </b-button>
-
-        <h2 class="field-heading">
-            Preset Type
+            <span v-if="currentPreset.type == 'd'">Entry</span>
+            <span v-if="currentPreset.type == 'p'">Progress goal</span>
         </h2>
-        <b-row class="multi-form">
-            <b-col md="6">
-                <b-card
-                    :class="{'unselected': currentPreset.type !== 'd'}"
-                    @click="changePresetType('d')"
-                >
-                    <b-button
-                        :class="{'selected': currentPreset.type === 'd'}"
-                        class="change-button preset-type-button float-left mr-3 mt-2 no-hover"
-                    >
-                        <icon
-                            name="calendar"
-                            scale="1.8"
-                        />
-                    </b-button>
-                    <div>
-                        <b>Entry</b><br/>
-                        An entry that should be filled in before a set deadline.
-                    </div>
-                </b-card>
-            </b-col>
-            <b-col md="6">
-                <b-card
-                    :class="{'unselected': currentPreset.type !== 'p'}"
-                    @click="changePresetType('p')"
-                >
-                    <b-button
-                        :class="{'selected': currentPreset.type === 'p'}"
-                        class="change-button preset-type-button float-left mr-3 mt-2 no-hover"
-                    >
-                        <icon
-                            name="flag-checkered"
-                            scale="1.8"
-                        />
-                    </b-button>
-                    <div>
-                        <b>Progress</b><br/>
-                        A point target to indicate required progress.
-                    </div>
-                </b-card>
-            </b-col>
-        </b-row>
 
         <b-row v-if="currentPreset.type == 'd'">
             <b-col xl="4">
@@ -74,11 +25,12 @@
                 </h2>
                 <flat-pickr
                     v-model="currentPreset.unlock_date"
+                    class="multi-form theme-input full-width"
                     :config="unlockDateConfig"
                 />
             </b-col>
             <b-col xl="4">
-                <h2 class="field-heading">
+                <h2 class="field-heading required">
                     Due date
                     <tooltip
                         tip="Students are expected to have finished their entry by this date, but new entries can
@@ -87,6 +39,7 @@
                 </h2>
                 <flat-pickr
                     v-model="currentPreset.due_date"
+                    class="multi-form theme-input full-width"
                     :config="dueDateConfig"
                 />
             </b-col>
@@ -97,20 +50,22 @@
                 </h2>
                 <flat-pickr
                     v-model="currentPreset.lock_date"
+                    class="multi-form theme-input full-width"
                     :config="lockDateConfig"
                 />
             </b-col>
         </b-row>
         <div v-else>
-            <h2 class="field-heading">
+            <h2 class="field-heading required">
                 Due date
                 <tooltip
-                    tip="Students are expected to have reached the point target by this date, but new entries can still
-                    be added until the assignment lock date"
+                    tip="Students are expected to have reached the amount of points below by this date,
+                    but new entries can still be added until the assignment lock date"
                 />
             </h2>
             <flat-pickr
                 v-model="currentPreset.due_date"
+                class="multi-form theme-input full-width"
                 :config="progressDateConfig"
             />
         </div>
@@ -125,40 +80,62 @@
         />
 
         <div v-if="currentPreset.type === 'd'">
-            <h2 class="field-heading">
+            <h2 class="field-heading required">
                 Preset Template
                 <tooltip tip="The template students can use for this entry"/>
             </h2>
-            <b-form-select
-                v-model="currentPreset.template"
-                class="multi-form"
-            >
-                <option
-                    disabled
-                    value=""
+            <div class="d-flex">
+                <b-form-select
+                    v-model="currentPreset.template"
+                    class="multi-form mr-2"
+                    :class="{ 'input-disabled' : templates.length === 0 }"
                 >
-                    Please select a template
-                </option>
-                <option
-                    v-for="template in templates"
-                    :key="template.t.tID"
-                    :value="template.t"
+                    <option
+                        disabled
+                        value=""
+                    >
+                        Please select a template
+                    </option>
+                    <option
+                        v-for="template in templates"
+                        :key="template.t.tID"
+                        :value="template.t"
+                    >
+                        {{ template.t.name }}
+                    </option>
+                </b-form-select>
+                <b-button
+                    v-if="showTemplatePreview"
+                    class="multi-form delete-button flex-shrink-0"
+                    @click="showTemplatePreview = false"
                 >
-                    {{ template.t.name }}
-                </option>
-            </b-form-select>
-            <div v-if="currentPreset !== null">
-                <h2 class="field-heading">
-                    Preview of the {{ currentPreset.template.name }} template
-                </h2>
+                    <icon name="eye-slash"/>
+                    Hide template
+                </b-button>
+                <b-button
+                    v-if="!showTemplatePreview"
+                    class="multi-form add-button flex-shrink-0"
+                    @click="showTemplatePreview = true"
+                >
+                    <icon name="eye"/>
+                    Preview template
+                </b-button>
+            </div>
+            <div v-if="showTemplatePreview">
                 <b-card class="no-hover">
-                    <template-preview :template="currentPreset.template"/>
+                    <template-preview
+                        v-if="currentPreset.template"
+                        :template="currentPreset.template"
+                    />
+                    <span v-else>
+                        Select a template to preview
+                    </span>
                 </b-card>
             </div>
         </div>
         <div v-else-if="currentPreset.type === 'p'">
-            <h2 class="field-heading">
-                Point Target
+            <h2 class="field-heading required">
+                Amount of points
                 <tooltip
                     tip="The amount of points students should have achieved by the deadline of this node to be on
                     schedule, new entries can still be added until the assignment's lock date"
@@ -169,9 +146,17 @@
                 type="number"
                 class="theme-input"
                 placeholder="Amount of points"
-                min="0"
+                min="1"
             />
         </div>
+        <b-button
+            v-if="!newPreset"
+            class="delete-button full-width"
+            @click.prevent="emitDeletePreset"
+        >
+            <icon name="trash"/>
+            Remove preset
+        </b-button>
     </b-card>
 </template>
 
@@ -184,11 +169,11 @@ export default {
         templatePreview,
         tooltip,
     },
-    props: ['currentPreset', 'templates', 'assignmentDetails'],
+    props: ['newPreset', 'currentPreset', 'templates', 'assignmentDetails'],
     data () {
         return {
-            templateNames: [],
             prevID: this.currentPreset.id,
+            showTemplatePreview: false,
         }
     },
     computed: {
@@ -286,20 +271,6 @@ export default {
             this.$emit('changed')
             if (window.confirm('Are you sure you want to remove this preset from this format?')) {
                 this.$emit('delete-preset')
-            }
-        },
-        // Type-specific fields should be set or deleted
-        changePresetType (type) {
-            this.currentPreset.type = type
-            if (type !== 'p') {
-                this.currentPreset.target = ''
-            }
-            if (type === 'd') {
-                if (this.templates[0]) {
-                    this.$set(this.currentPreset, 'template', this.templates[0].t)
-                } else {
-                    this.$set(this.currentPreset, 'template', {})
-                }
             }
         },
     },

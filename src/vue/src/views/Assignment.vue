@@ -77,7 +77,7 @@
                     @click="publishGradesAssignment"
                 >
                     <icon name="upload"/>
-                    Publish all Grades for this Assignment
+                    Publish all grades for this assignment
                 </b-button>
                 <b-button
                     v-if="$hasPermission('can_publish_grades') && assignmentJournals.length > 0"

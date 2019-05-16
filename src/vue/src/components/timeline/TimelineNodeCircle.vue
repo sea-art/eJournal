@@ -80,7 +80,11 @@ export default {
             case 'needs_publishing':
                 return 'Awaiting publishment'
             case 'add':
-                return 'Add new entry'
+                if (this.edit) {
+                    return 'Add new preset'
+                } else {
+                    return 'Add new entry'
+                }
             case 'start':
             case 'end':
                 return 'Assignment details'

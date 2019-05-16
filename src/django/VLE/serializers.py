@@ -372,7 +372,7 @@ class PresetNodeSerializer(serializers.ModelSerializer):
     class Meta:
         model = PresetNode
         fields = ('id', 'description', 'type', 'unlock_date', 'due_date', 'lock_date', 'target', 'template')
-        read_only_fields = ('id', )
+        read_only_fields = ('id', 'type')
 
     def get_unlock_date(self, node):
         if node.type == Node.ENTRYDEADLINE and node.unlock_date is not None:

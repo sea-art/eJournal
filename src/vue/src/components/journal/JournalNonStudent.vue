@@ -103,7 +103,7 @@
                                 name="save"
                                 scale="1"
                             />
-                            Save Bonus
+                            Save bonus
                         </b-button>
                     </div>
                 </b-col>
@@ -142,7 +142,7 @@
                         @click="publishGradesJournal"
                     >
                         <icon name="upload"/>
-                        Publish All Grades
+                        Publish all grades
                     </b-button>
                 </b-col>
             </b-row>
@@ -312,7 +312,7 @@ export default {
                 /* TODO fix mess */
             } else if (!this.discardChanges()) {
                 /* pass */
-            } else if (this.currentNode === -1 || this.currentNode === this.nodes.length
+            } else if (this.currentNode === -1 || this.currentNode >= this.nodes.length
                 || this.nodes[this.currentNode].type !== 'e'
                 || this.nodes[this.currentNode].type !== 'd') {
                 this.currentNode = $event
@@ -370,7 +370,7 @@ export default {
         },
         discardChanges () {
             if (this.currentNode !== -1
-                && this.currentNode !== this.nodes.length
+                && this.currentNode < this.nodes.length
                 && (this.nodes[this.currentNode].type === 'e'
                 || (this.nodes[this.currentNode].type === 'd' && this.nodes[this.currentNode].entry !== null))) {
                 if ((this.$refs['entry-template-card'].grade !== this.nodes[this.currentNode].entry.grade

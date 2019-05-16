@@ -1,7 +1,6 @@
 <template>
     <b-alert
-        v-if="showVersionAlert"
-        show
+        :show="showVersionAlert"
         dismissible
         @dismissed="hideVersionAlert"
     >

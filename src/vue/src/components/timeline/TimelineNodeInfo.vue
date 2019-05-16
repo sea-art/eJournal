@@ -43,7 +43,7 @@ export default {
             } else if (this.node.template) {
                 return this.node.template.name
             } else if (this.node.target) {
-                return 'Point target'
+                return 'Progress goal'
             } else {
                 return null
             }

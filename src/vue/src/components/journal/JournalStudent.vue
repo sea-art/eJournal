@@ -196,7 +196,7 @@ export default {
     watch: {
         currentNode () {
             if (this.currentNode !== -1
-                && this.currentNode !== this.nodes.length
+                && this.currentNode < this.nodes.length
                 && this.nodes[this.currentNode].type === 'p') {
                 this.progressPoints(this.nodes[this.currentNode])
                 this.progressPointsLeft = this.nodes[this.currentNode].target
@@ -246,42 +246,36 @@ export default {
              *  it will look for possible unsaved changes.
              *  If there are unsaved changes a confirmation will be asked.
              */
-            if (this.currentNode !== -1
-                && this.currentNode !== this.nodes.length
-                && this.nodes[this.currentNode].type === 'd'
-                && this.nodes[this.currentNode].entry === null
-                && !this.isLocked()) {
-                if (this.$refs['entry-prev'].checkChanges()
-                    && !window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
-                    return false
+            if (this.currentNode !== -1 && this.currentNode < this.nodes.length) {
+                if (this.nodes[this.currentNode].type === 'd'
+                    && this.nodes[this.currentNode].entry === null
+                    && !this.isLocked()) {
+                    if (this.$refs['entry-prev'].checkChanges()
+                        && !window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                        return false
+                    }
                 }
-            }
 
-            if (this.currentNode !== -1
-                && this.currentNode !== this.nodes.length
-                && this.nodes[this.currentNode].type === 'd'
-                && this.nodes[this.currentNode].entry !== null) {
-                if (this.$refs['entry-template-card'].saveEditMode === 'Save'
-                    && !window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
-                    return false
+                if (this.nodes[this.currentNode].type === 'd'
+                    && this.nodes[this.currentNode].entry !== null) {
+                    if (this.$refs['entry-template-card'].saveEditMode === 'Save'
+                        && !window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                        return false
+                    }
                 }
-            }
 
-            if (this.currentNode !== -1
-                && this.currentNode !== this.nodes.length
-                && this.nodes[this.currentNode].type === 'a') {
-                if (this.$refs['add-card-ref'].checkChanges()
-                    && !window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
-                    return false
+                if (this.nodes[this.currentNode].type === 'a') {
+                    if (this.$refs['add-card-ref'].checkChanges()
+                        && !window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                        return false
+                    }
                 }
-            }
 
-            if (this.currentNode !== -1
-                && this.currentNode !== this.nodes.length
-                && this.nodes[this.currentNode].type === 'e') {
-                if (this.$refs['entry-template-card'].saveEditMode === 'Save'
-                    && !window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
-                    return false
+                if (this.nodes[this.currentNode].type === 'e') {
+                    if (this.$refs['entry-template-card'].saveEditMode === 'Save'
+                        && !window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                        return false
+                    }
                 }
             }
 

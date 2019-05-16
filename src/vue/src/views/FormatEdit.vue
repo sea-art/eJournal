@@ -45,7 +45,7 @@
                     of the assignment can also be changed here, by clicking the first node.<br/><br/>The timeline \
                     contains a node for every entry. You can add two different types of nodes to it:<br/><br/><ul> \
                     <li><b>Preset entries</b> are entries with a specific template which have to be completed before \
-                    a set deadline</li><li><b>Progress deadlines</b> are point targets that have to be met before a \
+                    a set deadline</li><li><b>Progress goals</b> are point targets that have to be met before a \
                     set deadline</li></ul>New nodes can be added via the \'+\' node. Click any node to view its \
                     contents.'"
                     v-intro-step="3"
@@ -53,7 +53,6 @@
                     :nodes="nodes"
                     :edit="true"
                     @select-node="selectNode"
-                    @add-node="addNode"
                 />
             </b-col>
 
@@ -81,12 +80,17 @@
                         @click.native="startTour"
                     />
                 </bread-crumb>
-                <!--
-                    Fill in the template using the corresponding data
-                    of the entry
-                . -->
-                <selected-node-card
-                    v-if="nodes.length > 0 && currentNode !== -1 && currentNode !== nodes.length"
+
+                <assignment-details-card
+                    v-if="currentNode === -1"
+                    :class="{ 'input-disabled' : saveRequestInFlight }"
+                    :assignmentDetails="assignmentDetails"
+                    :presetNodes="presets"
+                    @changed="isChanged = true"
+                />
+
+                <preset-node-card
+                    v-else-if="nodes.length > 0 && currentNode !== -1 && currentNode < nodes.length"
                     ref="entry-template-card"
                     :class="{ 'input-disabled' : saveRequestInFlight }"
                     :currentPreset="nodes[currentNode]"
@@ -97,29 +101,22 @@
                     @changed="isChanged = true"
                 />
 
-                <assignment-details-card
-                    v-else-if="currentNode === -1"
+                <add-preset-node
+                    v-else-if="currentNode === nodes.length"
                     :class="{ 'input-disabled' : saveRequestInFlight }"
+                    :templates="templatePool"
                     :assignmentDetails="assignmentDetails"
-                    :presetNodes="presets"
-                    @changed="isChanged = true"
+                    @new-preset="newPreset"
                 />
 
                 <b-card
-                    v-else-if="currentNode === nodes.length"
+                    v-else-if="currentNode === nodes.length + 1"
                     class="no-hover"
                     :class="$root.getBorderClass($route.params.cID)"
                 >
                     <h2>End of assignment</h2>
                     <p>This is the end of the assignment.</p>
                 </b-card>
-
-                <main-card
-                    v-else
-                    :line1="'No presets in format'"
-                    :class="'grey-border'"
-                    class="no-hover"
-                />
 
                 <b-modal
                     ref="templateModal"
@@ -190,12 +187,12 @@
 </template>
 
 <script>
-import mainCard from '@/components/assets/MainCard.vue'
 import timeline from '@/components/timeline/Timeline.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import formatEditAssignmentDetailsCard from '@/components/format/FormatEditAssignmentDetailsCard.vue'
-import formatEditAvailableTemplate from '@/components/format/FormatEditAvailableTemplate.vue'
-import formatEditSelectTemplateCard from '@/components/format/FormatEditSelectTemplateCard.vue'
+import formatAssignmentDetailsCard from '@/components/format/FormatAssignmentDetailsCard.vue'
+import formatAvailableTemplate from '@/components/format/FormatAvailableTemplate.vue'
+import formatPresetNodeCard from '@/components/format/FormatPresetNodeCard.vue'
+import formatAddPresetNode from '@/components/format/FormatAddPresetNode.vue'
 import templateEdit from '@/components/template/TemplateEdit.vue'
 import formatAPI from '@/api/format.js'
 import preferencesAPI from '@/api/preferences.js'
@@ -204,11 +201,11 @@ export default {
     name: 'FormatEdit',
     components: {
         breadCrumb,
-        'assignment-details-card': formatEditAssignmentDetailsCard,
-        'available-template': formatEditAvailableTemplate,
-        'selected-node-card': formatEditSelectTemplateCard,
+        'assignment-details-card': formatAssignmentDetailsCard,
+        'available-template': formatAvailableTemplate,
+        'preset-node-card': formatPresetNodeCard,
+        'add-preset-node': formatAddPresetNode,
         'template-editor': templateEdit,
-        mainCard,
         timeline,
     },
     props: ['cID', 'aID'],
@@ -344,25 +341,13 @@ export default {
             const post = new Date().toISOString().split('T')[1].slice(0, 5)
             return `${pre} ${post}`
         },
-        addNode () {
-            let dueDate = this.assignmentDetails.due_date
-
-            if (!dueDate) {
-                dueDate = this.newDate()
-            }
-
-            const newNode = {
-                type: 'p',
-                due_date: dueDate,
-                target: this.assignmentDetails.points_possible,
-            }
-
-            this.nodes.push(newNode)
-            this.currentNode = this.nodes.indexOf(newNode)
+        newPreset (presetContent) {
+            this.nodes.push(presetContent)
+            this.currentNode = this.nodes.indexOf(presetContent)
             this.sortList()
             this.isChanged = true
 
-            this.$toasted.success('Added new node to format.')
+            this.$toasted.success('Added new preset.')
         },
         // Do client side validation and save to DB
         saveFormat () {

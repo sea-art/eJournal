@@ -27,7 +27,7 @@
                 </b-button>
             </div>
 
-            <h2 class="field-heading">
+            <h2 class="field-heading required">
                 Assignment Name
             </h2>
             <b-input
@@ -46,7 +46,7 @@
                 class="multi-form"
                 placeholder="Description of the assignment"
             />
-            <h2 class="field-heading">
+            <h2 class="field-heading required">
                 Points possible
                 <tooltip
                     tip="The amount of points that represents a perfect score for this assignment, excluding bonus
