@@ -23,7 +23,6 @@
                     required
                     placeholder="Password"
                     autocomplete="current-password"
-                    @keyup.enter="handleLogin()"
                 />
                 <b-button
                     class="float-right multi-form"

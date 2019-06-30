@@ -134,7 +134,7 @@ const actions = {
         return new Promise((resolve, reject) => {
             connection.conn.get('/users/0/').then((response) => {
                 commit(types.HYDRATE_USER, response.data)
-                connection.conn.get(`/preferences/${response.data.user.id}`).then((preferencesResponse) => {
+                connection.conn.get(`/preferences/${response.data.user.id}/`).then((preferencesResponse) => {
                     commit(`preferences/${types.HYDRATE_PREFERENCES}`, preferencesResponse.data, { root: true })
                     resolve('Store is populated successfully')
                 }, (error) => {
