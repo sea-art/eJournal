@@ -35,6 +35,7 @@ ALLOWED_HOSTS = ['.ejournal.app', '.ejourn.al', '.uvadlo-tes.instructure.com']
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 X_FRAME_OPTIONS = 'DENY'
+CSP_DEFAULT_SRC = ("'self'", 'uvadlo-tes.instructure.com')
 SECURE_BROWSER_XSS_FILTER = True
 
 DEBUG = False
