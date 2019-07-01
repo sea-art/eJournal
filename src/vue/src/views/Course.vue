@@ -14,7 +14,12 @@
                 :to="assignmentRoute(cID, a.id, a.journal, a.is_published)"
                 tag="b-button"
             >
-                <assignment-card :assignment="a">
+                <assignment-card
+                    :assignment="a"
+                    :uniqueName="!assignments.some(a2 =>
+                        a.name === a2.name && a.id !== a2.id
+                    )"
+                >
                     <b-button
                         v-if="$hasPermission('can_edit_assignment', 'assignment', a.id)"
                         class="change-button float-right"

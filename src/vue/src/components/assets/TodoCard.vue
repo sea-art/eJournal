@@ -1,5 +1,5 @@
 <template>
-    <b-card :class="$root.getBorderClass(course.id)">
+    <b-card :class="$root.getBorderClass(deadline.id)">
         <todo-square
             v-if="deadline.stats && deadline.stats.unpublished"
             :num="deadline.stats.needs_marking + deadline.stats.unpublished"
