@@ -31,9 +31,10 @@ nginx_static_dir: "{{ virtualenv_path }}/static"
 nginx_media_dir: "{{ virtualenv_path }}/media"
 
 
-# Django environment variables.
-django_environment:
+# Project environment variables.
+project_environment:
   BASELINK: "{{ baselink }}"
+  API_URL: "{{ api_url }}"
   DJANGO_SETTINGS_MODULE: "{{ django_settings_file }}"
   DJANGO_SECRET_KEY: "{{ django_secret_key }}"
   MEDIA_ROOT: "{{ nginx_media_dir }}"

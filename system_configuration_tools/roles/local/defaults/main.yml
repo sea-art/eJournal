@@ -1,6 +1,7 @@
 # Django environment variables.
-django_environment:
+project_environment:
   BASELINK: "{{ baselink }}"
+  API_URL: "{{ api_url }}"
   DJANGO_SETTINGS_MODULE: "{{ django_settings_file }}"
   DJANGO_SECRET_KEY: "{{ django_secret_key }}"
   DATABASE_NAME: "{{ db_name }}"

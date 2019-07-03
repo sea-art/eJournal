@@ -98,7 +98,13 @@ run-ansible-provision:
 	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --ask-become-pass --ask-vault-pass && deactivate'
 
 run-ansible-deploy:
-	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "deploy" --ask-become-pass --ask-vault-pass && deactivate'
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "deploy_back,deploy_front" --ask-become-pass --ask-vault-pass && deactivate'
+
+run-ansible-deploy-front:
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "deploy_front" --ask-become-pass --ask-vault-pass && deactivate'
+
+run-ansible-deploy-back:
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "deploy_back" --ask-become-pass --ask-vault-pass && deactivate'
 
 run-ansible-backup:
 	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "backup" --ask-become-pass --ask-vault-pass && deactivate'

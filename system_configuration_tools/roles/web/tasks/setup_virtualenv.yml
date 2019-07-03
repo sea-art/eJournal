@@ -75,4 +75,4 @@
             mode=0640
             backup=yes
   notify: restart application
-  tags: deploy
+  tags: deploy_back

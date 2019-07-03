@@ -1,5 +1,4 @@
 ---
-# Contains production like settings without compromising any production keys
 
 # Git settings.
 setup_git_repo: true

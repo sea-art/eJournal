@@ -66,6 +66,7 @@ module.exports = {
         },
     },
     globals: {
-        CurrentRelease: true
+        CurrentRelease: true,
+        CustomEnv: true,
     },
 }

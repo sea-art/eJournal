@@ -30,7 +30,7 @@ Vue.component('icon', Icon)
 /* Checks the store for for permissions according to the current route cID or aID. */
 Vue.prototype.$hasPermission = store.getters['permissions/hasPermission']
 
-axios.defaults.baseURL = 'http://localhost:8000/'
+axios.defaults.baseURL = CustomEnv.API_URL
 
 /* Sets the default authorization token needed to for authenticated requests. */
 axios.defaults.transformRequest.push((data, headers) => {

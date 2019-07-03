@@ -14,6 +14,9 @@ module.exports = {
         plugins: [
             new webpack.DefinePlugin({
                 CurrentRelease: JSON.stringify(currentRelease),
+                CustomEnv: {
+                    API_URL: JSON.stringify(process.env.API_URL),
+                },
             }),
         ],
     },
