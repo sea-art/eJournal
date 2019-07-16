@@ -291,7 +291,7 @@ class Command(BaseCommand):
             self.assignments.append(assignment)
 
         journal = factory.make_journal(self.assignments[2], self.users["Student"])
-        journal.authors.add(self.users["Student2"])
+        journal.authors.add(factory.make_assignment_participation(self.users["Student2"], assignment))
         journal.save()
         factory.make_journal(self.assignments[2], self.users["Student3"])
 

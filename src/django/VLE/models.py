@@ -6,7 +6,6 @@ Database file
 import os
 
 from django.contrib.auth.models import AbstractUser
-from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
@@ -552,6 +551,53 @@ class Assignment(models.Model):
         return "{} ({})".format(self.name, self.pk)
 
 
+class AssignmentParticipation(models.Model):
+    """AssignmentParticipation
+
+    A user that is connected to an assignment
+    this can then be used as a participation for a journal
+    """
+
+    journal = models.ForeignKey(
+        'Journal',
+        on_delete=models.SET_NULL,
+        related_name='authors',
+        null=True,
+    )
+
+    user = models.ForeignKey(
+        'User',
+        on_delete=models.CASCADE,
+    )
+
+    assignment = models.ForeignKey(
+        'Assignment',
+        on_delete=models.CASCADE
+    )
+
+    sourcedid = models.TextField(null=True)
+    grade_url = models.TextField(null=True)
+
+    @property
+    def name(self):
+        self.user.username
+
+    def to_string(self, user=None):
+        if user is None:
+            return "Journal"
+        if not user.can_view(self):
+            return "Journal"
+
+        return "{0} in {1}".format(self.user.username, self.assignment.name)
+
+    class Meta:
+        """A class for meta data.
+
+        - unique_together: assignment and author must be unique together.
+        """
+        unique_together = ('assignment', 'user',)
+
+
 class Journal(models.Model):
     """Journal.
 
@@ -566,19 +612,6 @@ class Journal(models.Model):
         on_delete=models.CASCADE,
     )
 
-    authors = models.ManyToManyField(
-        'User'
-    )
-
-    sourcedids = ArrayField(
-        models.TextField(null=True),
-        null=True
-    )
-    grade_url = models.TextField(
-        'grade_url',
-        null=True
-    )
-
     bonus_points = models.FloatField(
         default=0,
     )
@@ -588,7 +621,7 @@ class Journal(models.Model):
                                     .values('entry__grade').aggregate(Sum('entry__grade'))['entry__grade__sum'] or 0)
 
     def get_names(self):
-        usernames = [author.username for author in self.authors.all()]
+        usernames = [author.name for author in self.authors.all()]
         return ', '.join(usernames[:-1]) + \
             (' and ' + usernames[-1]) if len(usernames) > 1 else usernames[0]
 

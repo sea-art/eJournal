@@ -27,7 +27,7 @@ class NodeAPITest(TestCase):
     def setUp(self):
         self.admin = factory.Admin()
         self.student = factory.Student()
-        self.journal = factory.Journal(authors=[self.student])
+        self.journal = factory.Journal(authors__user=self.student)
         self.TA = factory.Student()
         nfac.make_participation(
             user=self.TA,

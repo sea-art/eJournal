@@ -8,7 +8,7 @@ import requests
 from django.conf import settings
 from django.utils import timezone
 
-from VLE.models import (Assignment, Comment, Content, Course, Entry, Field,
+from VLE.models import (Assignment, AssignmentParticipation, Comment, Content, Course, Entry, Field,
                         Format, Group, Instance, Journal, Lti_ids, Node,
                         Participation, PresetNode, Role, Template, User,
                         UserFile)
@@ -263,11 +263,11 @@ def make_journal(assignment, author):
     as those in the format, so any changes should
     be reflected in the Nodes as well.
     """
-    if Journal.objects.filter(assignment=assignment, authors__in=[author]).exists():
-        return Journal.objects.get(assignment=assignment, authors__in=[author])
+    if Journal.objects.filter(assignment=assignment, authors__user=author).exists():
+        return Journal.objects.get(assignment=assignment, authors__user=author)
     preset_nodes = assignment.format.presetnode_set.all()
     journal = Journal.objects.create(assignment=assignment)
-    journal.authors.add(author)
+    journal.authors.add(make_assignment_participation(assignment, author))
     journal.save()
 
     for preset_node in preset_nodes:
@@ -275,6 +275,17 @@ def make_journal(assignment, author):
              journal=journal,
              preset=preset_node).save()
     return journal
+
+def make_assignment_participation(assignment, author):
+    """Make a new assignment participation.
+
+    returns the assignment_participation if it already exists, as there should always only be one
+    """
+    assignment_participation =  AssignmentParticipation.objects.filter(assignment=assignment, user=author)
+    if assignment_participation.exists():
+        return assignment_participation
+
+    return AssignmentParticipation.objects.create(assignment=assignment, user=author)
 
 
 def make_entry(template):

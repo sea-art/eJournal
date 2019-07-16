@@ -14,7 +14,7 @@ class StudentCommentFactory(factory.django.DjangoModelFactory):
         if not create:
             return
 
-        self.author = self.entry.node.journal.authors.first()
+        self.author = self.entry.node.journal.authors.first().user
         self.save()
 
 

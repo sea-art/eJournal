@@ -11,7 +11,7 @@ class EntryAPITest(TestCase):
     def setUp(self):
         self.student = factory.Student()
         self.admin = factory.Admin()
-        self.journal = factory.Journal(authors=[self.student])
+        self.journal = factory.Journal(authors__user=self.student)
         self.teacher = self.journal.assignment.courses.first().author
         self.journal_teacher = factory.Journal(authors=[self.teacher], assignment=self.journal.assignment)
         self.format = self.journal.assignment.format
