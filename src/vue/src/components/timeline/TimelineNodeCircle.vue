@@ -155,7 +155,7 @@ export default {
             const entry = this.node.entry
             const isGrader = this.$hasPermission('can_grade')
 
-            if (entry && entry.published) {
+            if (entry && entry.grade && entry.grade.published) {
                 return 'graded'
             } else if (!entry && this.lockDateHasPassed()) {
                 return 'failed'
@@ -163,11 +163,11 @@ export default {
                 return 'overdue'
             } else if (!entry && !this.dueDateHasPassed()) {
                 return 'empty'
-            } else if (!isGrader && entry && !entry.published) {
+            } else if (!isGrader && entry && !entry.grade && !entry.editable) {
                 return 'awaiting_grade'
-            } else if (isGrader && entry && !entry.grade) {
+            } else if (isGrader && entry && (!entry.grade || !entry.grade.grade)) {
                 return 'needs_grading'
-            } else if (isGrader && entry && !entry.published) {
+            } else if (isGrader && entry && entry.grade && !entry.grade.published) {
                 return 'needs_publishing'
             }
 

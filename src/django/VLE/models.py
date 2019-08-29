@@ -386,6 +386,7 @@ class Role(models.Model):
     can_view_all_journals = models.BooleanField(default=False)
     can_grade = models.BooleanField(default=False)
     can_publish_grades = models.BooleanField(default=False)
+    can_view_grade_history = models.BooleanField(default=False)
     can_have_journal = models.BooleanField(default=False)
     can_comment = models.BooleanField(default=False)
     can_edit_staff_comment = models.BooleanField(default=False)
@@ -393,33 +394,35 @@ class Role(models.Model):
 
     def save(self, *args, **kwargs):
         if self.can_add_course_users and not self.can_view_course_users:
-            raise ValidationError('A user needs to view course users in order to add them.')
+            raise ValidationError('A user needs to be able to view course users in order to add them.')
 
         if self.can_delete_course_users and not self.can_view_course_users:
-            raise ValidationError('A user needs to view course users in order to remove them.')
+            raise ValidationError('A user needs to be able to view course users in order to remove them.')
 
         if self.can_edit_course_user_group and not self.can_view_course_users:
-            raise ValidationError('A user needs to view course users in order to manage user groups.')
+            raise ValidationError('A user needs to be able to view course users in order to manage user groups.')
 
         if self.can_view_all_journals and self.can_have_journal:
-            raise ValidationError('An administrative user is not allowed to have a journal in the same course.')
+            raise ValidationError('Teaching staff is not allowed to have a journal in their own course.')
 
         if self.can_grade and not self.can_view_all_journals:
             raise ValidationError('A user needs to be able to view journals in order to grade them.')
 
         if self.can_publish_grades and not (self.can_view_all_journals and self.can_grade):
-            raise ValidationError('A user should not be able to publish grades without being able to view or grade \
-                                  the journals.')
+            raise ValidationError('A user needs to be able to view and grade journals in order to publish grades.')
+
+        if self.can_view_grade_history and not (self.can_view_all_journals and self.can_grade):
+            raise ValidationError('A user needs to be able to view and grade journals in order to see a history\
+                                   of grades.')
 
         if self.can_comment and not (self.can_view_all_journals or self.can_have_journal):
             raise ValidationError('A user requires a journal to comment on.')
 
         if self.can_edit_staff_comment and self.can_have_journal:
-            raise ValidationError('Adminstrative users who can edit staff comments are not allowed to have a journal \
-                                  themselves.')
+            raise ValidationError('Users who can edit staff comments are not allowed to have a journal themselves.')
 
         if self.can_edit_staff_comment and not self.can_comment:
-            raise ValidationError('Editing comments requires being able to comment.')
+            raise ValidationError('A user needs to be able to comment in order to edit other comments.')
 
         super(Role, self).save(*args, **kwargs)
 
@@ -574,8 +577,9 @@ class Journal(models.Model):
     )
 
     def get_grade(self):
-        return self.bonus_points + (self.node_set.filter(entry__published=True)
-                                    .values('entry__grade').aggregate(Sum('entry__grade'))['entry__grade__sum'] or 0)
+        return self.bonus_points + (self.node_set.filter(entry__grade__published=True)
+                                    .values('entry__grade__grade')
+                                    .aggregate(Sum('entry__grade__grade'))['entry__grade__grade__sum'] or 0)
 
     def to_string(self, user=None):
         if user is None:
@@ -763,16 +767,13 @@ class Entry(models.Model):
     """Entry.
 
     An Entry has the following features:
-    - journal: a foreign key linked to an Journal.
     - creation_date: the date and time when the entry was posted.
-    - grade: grade the entry has
-    - published: if its a published grade or not
-    - last_edited: when the etry was last edited
+    - last_edited: the date and time when the etry was last edited
     """
-    NEED_SUBMISSION = 'Submission need to be send to VLE'
-    SEND_SUBMISSION = 'Submission is successfully recieved by VLE'
-    GRADING = 'Grade need to be send to VLE'
-    LINK_COMPLETE = 'Everything is send to VLE'
+    NEED_SUBMISSION = 'Submission needs to be sent to VLE'
+    SEND_SUBMISSION = 'Submission is successfully received by VLE'
+    GRADING = 'Grade needs to be sent to VLE'
+    LINK_COMPLETE = 'Everything is sent to VLE'
     TYPES = (
         (NEED_SUBMISSION, 'entry_submission'),
         (SEND_SUBMISSION, 'entry_submitted'),
@@ -786,12 +787,11 @@ class Entry(models.Model):
         on_delete=models.SET_NULL,
         null=True,
     )
-    grade = models.FloatField(
-        default=None,
+    grade = models.ForeignKey(
+        'Grade',
+        on_delete=models.SET_NULL,
+        related_name='+',
         null=True,
-    )
-    published = models.BooleanField(
-        default=False
     )
     creation_date = models.DateTimeField(editable=False)
     last_edited = models.DateTimeField()
@@ -804,6 +804,12 @@ class Entry(models.Model):
     def is_locked(self):
         return (self.node.preset and self.node.preset.is_locked()) or self.node.journal.assignment.is_locked()
 
+    def is_editable(self):
+        return not self.is_graded() and not self.is_locked()
+
+    def is_graded(self):
+        return not (self.grade is None or self.grade.grade is None)
+
     def save(self, *args, **kwargs):
         if not self.pk:
             now = timezone.now()
@@ -814,6 +820,43 @@ class Entry(models.Model):
 
     def to_string(self, user=None):
         return "Entry"
+
+
+class Grade(models.Model):
+    """Grade.
+
+    Used to keep a history of grades.
+    """
+    entry = models.ForeignKey(
+        'Entry',
+        editable=False,
+        related_name='+',
+        on_delete=models.CASCADE
+    )
+    grade = models.FloatField(
+        null=True,
+        editable=False
+    )
+    published = models.BooleanField(
+        default=False,
+        editable=False
+    )
+    creation_date = models.DateTimeField(
+        editable=False
+    )
+    author = models.ForeignKey(
+        'User',
+        null=True,
+        editable=False,
+        on_delete=models.SET_NULL
+    )
+
+    def save(self, *args, **kwargs):
+        self.creation_date = timezone.now()
+        return super(Grade, self).save(*args, **kwargs)
+
+    def to_string(self, user=None):
+        return "Grade"
 
 
 class Counter(models.Model):

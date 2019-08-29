@@ -105,7 +105,7 @@ def get_graded_count(entries):
 
     Returns the graded entry count.
     """
-    return entries.exclude(grade=None).count()
+    return entries.exclude(grade=None).exclude(grade__grade=None).count()
 
 
 def get_published_count(entries):

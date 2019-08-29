@@ -96,7 +96,7 @@
                         />
                         Bonus points
                         <b-button
-                            class="add-button"
+                            class="add-button save-button"
                             @click="commitBonus"
                         >
                             <icon
@@ -291,11 +291,9 @@ export default {
             let min = this.nodes.length - 1
 
             for (let i = 0; i < this.nodes.length; i++) {
-                if ('entry' in this.nodes[i] && this.nodes[i].entry) {
-                    const entry = this.nodes[i].entry
-                    if (('grade' in entry && entry.grade === null) || ('published' in entry && !entry.published)) {
-                        if (i < min) { min = i }
-                    }
+                if (this.nodes[i].entry && this.nodes[i].entry.grade && (this.nodes[i].entry.grade.grade === null
+                    || !this.nodes[i].entry.grade.published) && i < min) {
+                    min = i
                 }
             }
 
@@ -333,12 +331,6 @@ export default {
                     customErrorToast: 'Error while publishing all grades for this journal.',
                 })
                     .then(() => {
-                        this.nodes.forEach((node) => {
-                            if ((node.type === 'e' || node.type === 'd') && node.entry) {
-                                node.entry.published = true
-                            }
-                        })
-
                         journalAPI.getNodes(this.jID)
                             .then((nodes) => { this.nodes = nodes })
                         journalAPI.get(this.jID)
@@ -373,8 +365,9 @@ export default {
                 && this.currentNode < this.nodes.length
                 && (this.nodes[this.currentNode].type === 'e'
                 || (this.nodes[this.currentNode].type === 'd' && this.nodes[this.currentNode].entry !== null))) {
-                if ((this.$refs['entry-template-card'].grade !== this.nodes[this.currentNode].entry.grade
-                    || this.$refs['entry-template-card'].published !== this.nodes[this.currentNode].entry.published)
+                if ((this.$refs['entry-template-card'].grade.grade !== this.nodes[this.currentNode].entry.grade.grade
+                    || this.$refs['entry-template-card'].grade.published
+                    !== this.nodes[this.currentNode].entry.grade.published)
                     && !window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
                     return false
                 }

@@ -4,6 +4,7 @@ from test.factory.course import CourseFactory, LtiCourseFactory
 from test.factory.user import UserFactory, TeacherFactory, AdminFactory
 from test.factory.format import FormatFactory
 from test.factory.entry import EntryFactory
+from test.factory.grade import GradeFactory
 from test.factory.template import TemplateFactory
 from test.factory.group import GroupFactory, LtiGroupFactory
 from test.factory.lti import LtiFactory
@@ -41,3 +42,4 @@ Template = TemplateFactory
 Entry = EntryFactory
 StudentComment = StudentCommentFactory
 TeacherComment = TeacherCommentFactory
+Grade = GradeFactory

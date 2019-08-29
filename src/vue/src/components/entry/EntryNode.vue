@@ -14,10 +14,10 @@
             :class="$root.getBorderClass(cID)"
         >
             <div
-                v-if="entryNode.entry.published"
+                v-if="gradePublished"
                 class="ml-2 btn float-right multi-form shadow no-hover"
             >
-                {{ entryNode.entry.grade }}
+                {{ entryNode.entry.grade.grade }}
             </div>
 
             <h2 class="mb-2">
@@ -61,10 +61,10 @@
             :class="$root.getBorderClass(cID)"
         >
             <div
-                v-if="entryNode.entry.published"
+                v-if="gradePublished"
                 class="ml-2 grade-section grade shadow"
             >
-                {{ entryNode.entry.grade }}
+                {{ entryNode.entry.grade.grade }}
             </div>
             <div
                 v-else-if="!entryNode.entry.editable"
@@ -127,7 +127,7 @@
 
         <comment-card
             :eID="entryNode.entry.id"
-            :entryGradePublished="entryNode.entry.published"
+            :entryGradePublished="gradePublished"
             :journal="journal"
         />
     </div>
@@ -154,6 +154,11 @@ export default {
             dismissCountDown: 0,
             showDismissibleAlert: false,
         }
+    },
+    computed: {
+        gradePublished () {
+            return this.entryNode.entry && this.entryNode.entry.grade
+        },
     },
     watch: {
         entryNode () {

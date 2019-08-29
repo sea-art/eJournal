@@ -15,7 +15,7 @@
                     class="grade-section shadow sticky"
                 >
                     <b-form-input
-                        v-model="grade"
+                        v-model="grade.grade"
                         type="number"
                         class="theme-input"
                         size="2"
@@ -24,7 +24,7 @@
                         min="0.0"
                     />
                     <b-form-checkbox
-                        v-model="published"
+                        v-model="grade.published"
                         inline
                         fieldValue="true"
                         uncheckedFieldValue="false"
@@ -34,7 +34,14 @@
                         Published
                     </b-form-checkbox>
                     <b-button
-                        class="add-button"
+                        v-if="$hasPermission('can_view_grade_history')"
+                        class="grade-history-button"
+                        @click="showGradeHistory"
+                    >
+                        <icon name="history"/>
+                    </b-button>
+                    <b-button
+                        class="add-button save-button"
                         @click="commitGrade"
                     >
                         <icon
@@ -45,10 +52,10 @@
                     </b-button>
                 </div>
                 <div
-                    v-else-if="tempNode.entry.published"
+                    v-else-if="gradePublished"
                     class="grade-section grade shadow"
                 >
-                    {{ entryNode.entry.grade }}
+                    {{ entryNode.entry.grade.grade }}
                 </div>
                 <div
                     v-else
@@ -91,9 +98,51 @@
 
         <comment-card
             :eID="entryNode.entry.id"
-            :entryGradePublished="entryNode.entry.published"
+            :entryGradePublished="gradePublished"
             :journal="journal"
         />
+
+        <b-modal
+            id="gradeHistoryModal"
+            ref="gradeHistoryModal"
+            size="lg"
+            title="Grade history"
+            hideFooter
+        >
+            <b-card class="no-hover">
+                <b-table
+                    responsive
+                    striped
+                    noSortReset
+                    sortBy="date"
+                    :sortDesc="true"
+                    :items="gradeHistory"
+                    class="mb-0"
+                >
+                    <template
+                        slot="published"
+                        slot-scope="data"
+                    >
+                        <icon
+                            v-if="data.value"
+                            name="check"
+                            class="fill-green"
+                        />
+                        <icon
+                            v-else
+                            name="times"
+                            class="fill-red"
+                        />
+                    </template>
+                    <template
+                        slot="creation_date"
+                        slot-scope="data"
+                    >
+                        {{ $root.beautifyDate(data.value) }}
+                    </template>
+                </b-table>
+            </b-card>
+        </b-modal>
     </div>
     <b-card
         v-else
@@ -110,7 +159,7 @@
 <script>
 import commentCard from '@/components/journal/CommentCard.vue'
 import entryFields from '@/components/entry/EntryFields.vue'
-import entryAPI from '@/api/entry.js'
+import gradeAPI from '@/api/grade.js'
 
 export default {
     components: {
@@ -120,33 +169,44 @@ export default {
     props: ['entryNode', 'journal'],
     data () {
         return {
-            tempNode: this.entryNode,
             completeContent: [],
-            grade: null,
-            published: null,
+            gradeHistory: [],
+            grade: {
+                grade: '',
+                published: false,
+            },
         }
+    },
+    computed: {
+        gradePublished () {
+            return this.entryNode.entry.grade && this.entryNode.entry.grade.published
+        },
     },
     watch: {
         entryNode () {
             this.completeContent = []
             this.setContent()
-            this.tempNode = this.entryNode
 
-            if (this.entryNode.entry !== null) {
+            if (this.entryNode.entry && this.entryNode.entry.grade) {
                 this.grade = this.entryNode.entry.grade
-                this.published = this.entryNode.entry.published
             } else {
-                this.grade = null
-                this.published = true
+                this.grade = {
+                    grade: '',
+                    published: false,
+                }
             }
         },
     },
     created () {
         this.setContent()
 
-        if (this.entryNode.entry) {
+        if (this.entryNode.entry && this.entryNode.entry.grade) {
             this.grade = this.entryNode.entry.grade
-            this.published = this.entryNode.entry.published
+        } else {
+            this.grade = {
+                grade: '',
+                published: false,
+            }
         }
     },
     methods: {
@@ -155,7 +215,7 @@ export default {
              * the different data-fields with the corresponding template-IDs. */
             let matchFound
 
-            if (this.entryNode.entry !== null) {
+            if (this.entryNode.entry) {
                 this.entryNode.entry.template.field_set.forEach((templateField) => {
                     matchFound = false
 
@@ -183,26 +243,41 @@ export default {
             }
         },
         commitGrade () {
-            if (this.grade !== null) {
-                this.tempNode.entry.grade = this.grade
-                this.tempNode.entry.published = this.published
+            if (this.grade.grade !== '') {
+                let toastMessage = ''
 
-                if (this.published) {
-                    entryAPI.grade(
-                        this.entryNode.entry.id,
-                        { grade: this.grade, published: 1 },
-                        { customSuccessToast: 'Grade updated and published.' },
-                    )
-                        .then(() => { this.$emit('check-grade') })
+                if (this.grade.published) {
+                    toastMessage = 'Grade updated and published.'
                 } else {
-                    entryAPI.grade(
-                        this.entryNode.entry.id,
-                        { grade: this.grade, published: 0 },
-                        { customSuccessToast: 'Grade updated but not published.' },
-                    )
-                        .then(() => { this.$emit('check-grade') })
+                    toastMessage = 'Grade updated but not published.'
                 }
+
+                gradeAPI.grade(
+                    {
+                        entry_id: this.entryNode.entry.id,
+                        grade: this.grade.grade,
+                        published: this.grade.published,
+                    },
+                    { customSuccessToast: toastMessage },
+                )
+                    .then(() => {
+                        this.entryNode.entry.grade = {
+                            grade: this.grade.grade,
+                            published: this.grade.published,
+                        }
+
+                        this.$emit('check-grade')
+                    })
+            } else {
+                this.$toasted.error('Grade field is empty.')
             }
+        },
+        showGradeHistory () {
+            gradeAPI.get_history(
+                { entry_id: this.entryNode.entry.id },
+            )
+                .then((gradeHistory) => { this.gradeHistory = gradeHistory })
+            this.$refs.gradeHistoryModal.show()
         },
     },
 }

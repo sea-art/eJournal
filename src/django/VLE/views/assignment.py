@@ -181,7 +181,7 @@ class AssignmentView(viewsets.ViewSet):
         published, = utils.optional_params(request.data, 'published')
         if published:
             request.user.check_permission('can_publish_grades', assignment)
-            grading_tasks.publish_all_assignment_grades(assignment.pk, published)
+            grading_tasks.publish_all_assignment_grades(request.user, assignment.pk)
             response_data['published'] = published
 
         # Remove data that must not be changed by the serializer

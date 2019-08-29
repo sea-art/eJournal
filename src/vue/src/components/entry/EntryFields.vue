@@ -17,10 +17,11 @@
                 :content="field.description"
             />
 
-            <b-textarea
+            <b-input
                 v-if="field.type == 't'"
                 v-model="completeContent[i].data"
                 class="theme-input"
+                rows="1"
             />
             <flat-pickr
                 v-if="field.type == 'd'"

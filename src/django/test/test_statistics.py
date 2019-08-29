@@ -5,6 +5,7 @@ Test the authentication calls.
 """
 
 import test.factory as factory
+from test.utils import api
 
 from django.test import TestCase
 
@@ -21,11 +22,9 @@ class StatisticsTests(TestCase):
     def test_journal_stats(self):
         """Test the journal stats functions in the serializer."""
         entries = utils.get_journal_entries(self.journal)
-        for i in range(len(entries)):
-            if i > 0:
-                entries[i].grade = 1
-                entries[i].published = True
-                entries[i].save()
+        for entry in entries[1:]:
+            api.create(self, 'grades', params={'entry_id': entry.id, 'grade': 1, 'published': True},
+                       user=self.journal.assignment.courses.first().author)
         assert self.journal.get_grade() == 3
         self.journal.bonus_points = 5
         self.journal.save()

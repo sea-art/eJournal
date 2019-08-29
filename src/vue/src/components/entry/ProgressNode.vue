@@ -38,8 +38,9 @@ export default {
                 if (node.nID === this.currentNode.nID) { return true }
 
                 if (node.type === 'e' || node.type === 'd') {
-                    if (node.entry && node.entry.grade && node.entry.published && node.entry.grade !== '0') {
-                        tempProgress += parseFloat(node.entry.grade)
+                    if (node.entry && node.entry.grade && node.entry.grade.published
+                        && node.entry.grade.grade !== '0') {
+                        tempProgress += parseFloat(node.entry.grade.grade)
                     }
                 }
 

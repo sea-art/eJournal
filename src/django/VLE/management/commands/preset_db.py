@@ -71,7 +71,7 @@ class Command(BaseCommand):
             },
             "Teacher": {
                 "username": "Teacher",
-                "full_name": "Xavier van Dommelen",
+                "full_name": "Engel Hamer",
                 "password": "pass",
                 "email": "test@eJourn.al",
                 "verified_email": True,
@@ -287,8 +287,9 @@ class Command(BaseCommand):
                 if node.type == Node.ENTRYDEADLINE:
                     entry = factory.make_entry(node.preset.forced_template)
                     entry.late = faker.boolean()
-                    entry.grade = random.randint(1, 10)
                     entry.save()
+
+                    factory.make_grade(entry, self.users['Teacher'].pk, random.randint(1, 10), faker.boolean())
 
                     node.entry = entry
 
@@ -298,8 +299,9 @@ class Command(BaseCommand):
                     template = random.choice(journal.assignment.format.available_templates.all())
                     entry = factory.make_entry(template)
                     entry.late = faker.boolean()
-                    entry.grade = random.randint(1, 10)
                     entry.save()
+
+                    factory.make_grade(entry, self.users['Teacher'].pk, random.randint(1, 10), faker.boolean())
 
                     factory.make_node(journal, entry)
 

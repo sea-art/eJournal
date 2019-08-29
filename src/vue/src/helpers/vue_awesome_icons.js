@@ -74,6 +74,7 @@ import 'vue-awesome/icons/signal'
 import 'vue-awesome/icons/star'
 import 'vue-awesome/icons/level-up'
 import 'vue-awesome/icons/globe'
+import 'vue-awesome/icons/history'
 
 import Icon from 'vue-awesome/components/Icon.vue'
 

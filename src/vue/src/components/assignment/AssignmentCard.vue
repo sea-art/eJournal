@@ -11,7 +11,7 @@
             <span
                 v-if="assignment.due_date"
                 class="text-grey"
-                >
+            >
                 <icon
                     name="clock-o"
                     scale="0.8"

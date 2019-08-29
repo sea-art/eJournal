@@ -8,8 +8,8 @@ from django.utils import timezone
 from rest_framework import serializers
 
 import VLE.permissions as permissions
-from VLE.models import (Assignment, Comment, Content, Course, Entry, Field, Format, Group, Instance, Journal, Lti_ids,
-                        Node, Participation, Preferences, PresetNode, Role, Template, User)
+from VLE.models import (Assignment, Comment, Content, Course, Entry, Field, Format, Grade, Group, Instance, Journal,
+                        Lti_ids, Node, Participation, Preferences, PresetNode, Role, Template, User)
 
 
 class InstanceSerializer(serializers.ModelSerializer):
@@ -191,7 +191,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
     def _get_teacher_deadline(self, assignment):
         return assignment.journal_set \
             .filter(
-                Q(node__entry__grade__isnull=True) | Q(node__entry__published=False),
+                Q(node__entry__grade__grade__isnull=True) | Q(node__entry__grade__published=False),
                 node__entry__isnull=False) \
             .values('node__entry__last_edited') \
             .aggregate(Min('node__entry__last_edited'))['node__entry__last_edited__min']
@@ -206,10 +206,15 @@ class AssignmentSerializer(serializers.ModelSerializer):
         t_grade = 0
         deadline = None
         for node in nodes:
+            if node.entry:
+                grade = node.entry.grade
+            else:
+                grade = None
+
             # Sum published grades to check if PROGRESS node is fullfiled
-            if node.type in [Node.ENTRY, Node.ENTRYDEADLINE] and node.entry and node.entry.grade:
-                if node.entry.published:
-                    t_grade += node.entry.grade
+            if node.type in [Node.ENTRY, Node.ENTRYDEADLINE] and grade and grade.grade:
+                if grade.published:
+                    t_grade += grade.grade
             # Set the deadline to the first for filled ENTRYDEADLINE node date
             elif node.type == Node.ENTRYDEADLINE and not node.entry and node.preset.due_date > timezone.now():
                 deadline = node.preset.due_date
@@ -261,10 +266,11 @@ class AssignmentSerializer(serializers.ModelSerializer):
         # Grader stats
         if self.context['user'].has_permission('can_grade', assignment):
             stats['needs_marking'] = journal_set \
-                .filter(node__entry__isnull=False, node__entry__grade__isnull=True).count()
+                .filter(Q(node__entry__grade__grade=None) | Q(node__entry__grade=None),
+                        node__entry__isnull=False).count()
             stats['unpublished'] = journal_set \
-                .filter(node__entry__isnull=False, node__entry__published=False, node__entry__grade__isnull=False)\
-                .count()
+                .filter(node__entry__isnull=False, node__entry__grade__published=False,
+                        node__entry__grade__grade__isnull=False).count()
         # Other stats
         stats['average_points'] = sum([journal.get_grade() for journal in journal_set]) / (journal_set.count() or 1)
 
@@ -335,8 +341,8 @@ class JournalSerializer(serializers.ModelSerializer):
     def get_stats(self, journal):
         return {
             'acquired_points': journal.get_grade(),
-            'graded': journal.node_set.filter(entry__published=True, entry__grade__isnull=False).count(),
-            'published': journal.node_set.filter(entry__published=True).count(),
+            'graded': journal.node_set.filter(entry__grade__published=True, entry__grade__grade__isnull=False).count(),
+            'published': journal.node_set.filter(entry__grade__published=True).count(),
             'submitted': journal.node_set.filter(entry__isnull=False).count(),
             'total_points': journal.assignment.points_possible,
         }
@@ -407,9 +413,9 @@ class EntrySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Entry
-        fields = ('id', 'creation_date', 'published', 'template', 'content',
-                  'editable', 'grade', 'last_edited', 'comments')
-        read_only_fields = ('id', 'template', 'creation_date', 'content', 'published')
+        fields = ('id', 'creation_date', 'template', 'content', 'editable',
+                  'grade', 'last_edited', 'comments')
+        read_only_fields = ('id', 'template', 'creation_date', 'content', 'grade')
 
     def get_template(self, entry):
         return TemplateSerializer(entry.template).data
@@ -418,20 +424,44 @@ class EntrySerializer(serializers.ModelSerializer):
         return ContentSerializer(entry.content_set.all(), many=True).data
 
     def get_editable(self, entry):
-        return entry.grade is None and not entry.is_locked()
+        return entry.is_editable()
 
     def get_grade(self, entry):
         # TODO: Add permission can_view_grade
         if 'user' not in self.context or not self.context['user']:
             return None
-        if entry.published or self.context['user'].has_permission('can_grade', entry.node.journal.assignment):
-            return entry.grade
+        grade = entry.grade
+        if grade and (grade.published or
+                      self.context['user'].has_permission('can_grade', entry.node.journal.assignment)):
+            return GradeSerializer(grade).data
         return None
 
     def get_comments(self, entry):
         if 'comments' not in self.context or not self.context['comments']:
             return None
         return CommentSerializer(Comment.objects.filter(entry=entry), many=True).data
+
+
+class GradeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Grade
+        fields = ('id', 'entry', 'grade', 'published')
+        read_only_fields = ('id', 'entry', 'grade', 'published')
+
+
+class GradeHistorySerializer(serializers.ModelSerializer):
+    author = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Grade
+        fields = ('grade', 'published', 'creation_date', 'author')
+        read_only_fields = ('grade', 'published', 'creation_date', 'author')
+
+    def get_author(self, grade):
+        if grade.author is not None:
+            return grade.author.full_name
+
+        return 'Unknown or deleted account'
 
 
 class TemplateSerializer(serializers.ModelSerializer):
