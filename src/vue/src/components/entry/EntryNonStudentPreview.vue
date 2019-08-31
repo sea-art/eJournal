@@ -157,7 +157,7 @@
 </template>
 
 <script>
-import commentCard from '@/components/journal/CommentCard.vue'
+import commentCard from '@/components/entry/CommentCard.vue'
 import entryFields from '@/components/entry/EntryFields.vue'
 import gradeAPI from '@/api/grade.js'
 
