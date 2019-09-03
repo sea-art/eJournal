@@ -1,5 +1,8 @@
 <template>
-    <b-card :class="$root.getBorderClass($route.params.cID)">
+    <b-card
+        :class="$root.getBorderClass($route.params.cID)"
+        class="no-hover"
+    >
         <div class="d-flex float-right multi-form">
             <b-button
                 v-if="assignmentDetails.is_published"
@@ -126,11 +129,6 @@ export default {
             required: true,
         },
     },
-    data () {
-        return {
-            prevDate: '',
-        }
-    },
     computed: {
         unlockDateConfig () {
             let maxDate
@@ -207,26 +205,6 @@ export default {
             }
 
             return Object.assign({}, { minDate }, this.$root.flatPickrTimeConfig)
-        },
-    },
-    watch: {
-        assignmentDetails: {
-            handler (newAssignmentDetails) {
-                const patt = new RegExp('T')
-
-                /*  When the date is loaded in from the db this format
-                    will be adapted to the flatpickr format,
-                    which triggers this watcher.
-                    These changes happen in the initial load and when it's
-                    saved. This will be ignored as an unsaved change by the
-                    following regex if-statement.  */
-                if (!patt.test(newAssignmentDetails.lock_date) && !patt.test(this.prevDate)) {
-                    this.$emit('changed')
-                }
-
-                this.prevDate = newAssignmentDetails.lock_date
-            },
-            deep: true,
         },
     },
     methods: {

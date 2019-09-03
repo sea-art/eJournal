@@ -51,7 +51,8 @@ class EntryView(viewsets.ViewSet):
             return response.forbidden('The assignment is locked, entries can no longer be edited/changed.')
 
         # Check if the template is available
-        if not (node_id or assignment.format.available_templates.filter(pk=template.pk).exists()):
+        if not (node_id or assignment.format.template_set.filter(archived=False, preset_only=False,
+                                                                 pk=template.pk).exists()):
             return response.forbidden('Entry template is not available.')
 
         entry_utils.check_required_fields(template, content_list)

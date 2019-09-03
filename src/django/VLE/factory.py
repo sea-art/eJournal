@@ -186,28 +186,13 @@ def make_lti_groups(lti_id, course):
                 continue
 
 
-def make_format(templates=[]):
-    """Make a format.
-
-    Arguments:
-    templates -- list of all the templates to add to the format.
-    max-points -- maximum points of the format (default: 10)
-
-    Returns the format
-    """
+def make_default_format(due_date=None, points_possible=10):
     format = Format()
     format.save()
-    format.available_templates.add(*templates)
-    return format
-
-
-def make_default_format(due_date, points_possible=10):
-    template = make_entry_template('Default Template')
-    make_field(template, 'Submission', 0, Field.RICH_TEXT, True)
-
-    format = make_format([template])
-
-    make_progress_node(format, due_date, points_possible)
+    template = make_entry_template('Entry', format)
+    make_field(template, 'Content', 0, Field.RICH_TEXT, True)
+    if due_date:
+        make_progress_node(format, due_date, points_possible)
     return format
 
 
@@ -288,9 +273,9 @@ def make_entry(template):
     return entry
 
 
-def make_entry_template(name):
+def make_entry_template(name, format, preset_only=False):
     """Make an entry template."""
-    entry_template = Template(name=name)
+    entry_template = Template(name=name, format=format, preset_only=preset_only)
     entry_template.save()
     return entry_template
 

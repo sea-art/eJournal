@@ -98,6 +98,7 @@ export default {
             currentPreset: {
                 type: '',
                 template: '',
+                description: '',
             },
             showAlert: false,
         }
@@ -109,12 +110,12 @@ export default {
                     this.currentPreset.target = ''
                 }
                 if (this.currentPreset.type !== 'd') {
-                    this.currentPreset.template = {}
+                    this.currentPreset.template = null
                     this.currentPreset.unlock_date = null
                     this.currentPreset.lock_date = null
                 }
 
-                this.$emit('new-preset', this.currentPreset)
+                this.$emit('add-preset', this.currentPreset)
             } else {
                 this.showAlert = true
             }

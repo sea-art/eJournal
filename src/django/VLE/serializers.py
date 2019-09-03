@@ -349,23 +349,19 @@ class JournalSerializer(serializers.ModelSerializer):
 
 
 class FormatSerializer(serializers.ModelSerializer):
-    unused_templates = serializers.SerializerMethodField()
-    templates = serializers.SerializerMethodField(source='available_templates')
     presets = serializers.SerializerMethodField()
+    templates = serializers.SerializerMethodField()
 
     class Meta:
         model = Format
-        fields = ('id', 'grade_type', 'unused_templates', 'templates', 'presets')
+        fields = ('id', 'templates', 'presets', )
         read_only_fields = ('id', )
 
-    def get_unused_templates(self, entry):
-        return TemplateSerializer(entry.unused_templates.all(), many=True).data
+    def get_templates(self, format):
+        return TemplateSerializer(format.template_set.filter(archived=False), many=True).data
 
-    def get_templates(self, entry):
-        return TemplateSerializer(entry.available_templates.all(), many=True).data
-
-    def get_presets(self, entry):
-        return PresetNodeSerializer(entry.presetnode_set.all().order_by('due_date'), many=True).data
+    def get_presets(self, format):
+        return PresetNodeSerializer(format.presetnode_set.all().order_by('due_date'), many=True).data
 
 
 class PresetNodeSerializer(serializers.ModelSerializer):

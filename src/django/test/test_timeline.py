@@ -9,7 +9,7 @@ from django.test import TestCase
 
 import VLE.factory as factory
 import VLE.timeline as timeline
-from VLE.models import Role, Template
+from VLE.models import Role
 
 
 class TimelineTests(TestCase):
@@ -20,17 +20,15 @@ class TimelineTests(TestCase):
         self.u_rick = factory.make_user("Rick", "pass", "r@r.com", full_name='Test User')
         self.u_lars = factory.make_user("Lars", "pass", "l@l.com", full_name='Test User')
 
-        self.template = Template(name="some_template")
-        self.template.save()
-
-        f_colloq = factory.make_format()
+        f_colloq = factory.make_default_format()
         self.deadlineentry = factory.make_entrydeadline_node(
-            f_colloq, due_date=datetime.datetime.now() - datetime.timedelta(days=10), template=self.template)
+            f_colloq, due_date=datetime.datetime.now() - datetime.timedelta(days=10),
+            template=f_colloq.template_set.first())
         self.progressnode = factory.make_progress_node(
             f_colloq, datetime.datetime.now() + datetime.timedelta(days=10), 10)
-        f_log = factory.make_format()
+        f_log = factory.make_default_format()
 
-        f_colloq.available_templates.add(self.template)
+        self.template = f_colloq.template_set.first()
 
         course = factory.make_course("Some Course", "c")
         student_role = Role.objects.get(name='Student', course=course)
@@ -49,9 +47,10 @@ class TimelineTests(TestCase):
         """Test if the due date is correctly formatted."""
         due_date = datetime.date.today()
 
-        format = factory.make_format()
+        format = factory.make_default_format()
         format.save()
-        preset = factory.make_entrydeadline_node(format, due_date=due_date, template=self.template)
+        preset = factory.make_entrydeadline_node(format, due_date=due_date,
+                                                 template=format.template_set.first())
 
         self.assertEqual(due_date, preset.due_date)
 

@@ -119,41 +119,64 @@ def get_published_count(entries):
 # END journal stat functions
 
 
-def update_templates(result_list, templates, template_map):
-    """Create new templates for those which have changed, and removes the old one.
+def update_templates(format, templates):
+    """Update or create templates for a format.
 
-    Entries have to keep their original template, so that the content
-    does not change after a template update, therefore when a template
-    is updated, the template is recreated from scratch and bound to
-    all nodes that use the previous template, if there were any.
+    - format: the format that is being edited
+    - templates: the list of temlates that should be updated or created
+
+    Since existing entries that use a template should remain untouched a copy
+    of the current template is saved in an archived state before processing any
+    changes. The distinction between existing and new templates occurs based on
+    the id: newly created templates are assigned a negative id in the format
+    editor.
     """
-    for template_field in templates:
-        if 'updated' in template_field and template_field['updated']:
-            # Create the new template and add it to the format.
-            if 'id' in template_field and template_field['id'] < 0 and template_field['id'] in template_map:
-                new_template = template_map[template_field['id']]
+    new_ids = {}
+    for template in templates:
+        if template['id'] > 0:  # Template already exists.
+            old_template = Template.objects.get(pk=template['id'])
+
+            # Archive the previous version of the template if changes were made.
+            if (old_template.name != template['name'] or old_template.field_set.count() !=
+                    len(template['field_set']) or old_template.preset_only != template['preset_only']):
+                old_template.archived = True
             else:
-                new_template = parse_template(template_field)
+                for old_field, new_field in zip(sorted(old_template.field_set.all(), key=lambda f: f.location),
+                                                sorted(template['field_set'], key=lambda f: f['location'])):
+                    if (old_field.type != new_field['type'] or old_field.title != new_field['title'] or
+                            old_field.location != new_field['location'] or old_field.required !=
+                            new_field['required'] or old_field.description != new_field['description'] or
+                            old_field.options != new_field['options']):
+                        old_template.archived = True
+                        break
 
-            result_list.add(new_template)
+            if old_template.archived:
+                old_template.save()
+                new_template = parse_template(template, format)
 
-            # Update presets to use the new template.
-            if 'id' in template_field and template_field['id'] > 0:
-                template = Template.objects.get(pk=template_field['id'])
-                presets = PresetNode.objects.filter(forced_template=template).all()
+                # Update preset nodes to use the new template.
+                presets = PresetNode.objects.filter(forced_template=old_template).all()
                 for preset in presets:
                     preset.forced_template = new_template
                     preset.save()
 
-                result_list.remove(template)
+                if len(presets) == 0 and not Entry.objects.filter(template=old_template).exists():
+                    old_template.delete()
+
+        else:  # Unknown (newly created) template.
+            new_template = parse_template(template, format)
+            new_ids[template['id']] = new_template.pk
+
+    return new_ids
 
 
-def parse_template(template_dict):
+def parse_template(template_dict, format):
     """Parse a new template according to the passed JSON-serialized template."""
     name = template_dict['name']
+    preset_only = template_dict['preset_only']
     fields = template_dict['field_set']
 
-    template = factory.make_entry_template(name)
+    template = factory.make_entry_template(name, format, preset_only)
 
     for field in fields:
         type = field['type']
@@ -169,32 +192,18 @@ def parse_template(template_dict):
     return template
 
 
-def swap_templates(from_list, goal_list, target_list):
-    """Swap templates from from_list to target_list if they are present in goal_list."""
-    for template in goal_list:
-        if from_list.filter(pk=template['id']).count() > 0:
-            template = from_list.get(pk=template['id'])
-            from_list.remove(template)
-            target_list.add(template)
-
-
-def update_journals(journals, preset, created):
-    """Create or update the preset node in all relevant journals.
+def update_journals(journals, preset):
+    """Create the preset node in all relevant journals.
 
     Arguments:
     journals -- the journals to update.
-    preset -- the preset node to update the journals with.
-    created -- whether the preset node was newly created.
+    preset -- the preset node to add to the journals.
     """
-    if created:
-        for journal in journals:
-            factory.make_node(journal, None, preset.type, preset)
-    else:
-        for journal in journals:
-            journal.node_set.filter(preset=preset).update(type=preset.type)
+    for journal in journals:
+        factory.make_node(journal, None, preset.type, preset)
 
 
-def update_presets(assignment, presets, template_map):
+def update_presets(assignment, presets, new_ids):
     """Update preset nodes in the assignment according to the passed list.
 
     Arguments:
@@ -203,62 +212,47 @@ def update_presets(assignment, presets, template_map):
     """
     format = assignment.format
     for preset in presets:
-        exists = 'id' in preset
         id, type, description, unlock_date, due_date, lock_date, target, template = \
-            optional_params(preset, 'id', 'type', 'description', 'unlock_date', 'due_date',
+            required_params(preset, 'id', 'type', 'description', 'unlock_date', 'due_date',
                             'lock_date', 'target', 'template')
 
-        if exists:
-            preset_node = PresetNode.objects.get(pk=preset['id'])
+        if id > 0:
+            preset_node = PresetNode.objects.get(pk=id)
         else:
             preset_node = PresetNode(format=format)
+            preset_node.type = type
 
-        type_changed = preset_node.type != type
         preset_node.description = description
-        preset_node.type = type
-        preset_node.unlock_date = unlock_date
+        preset_node.unlock_date = unlock_date if unlock_date else None
         preset_node.due_date = due_date
-        preset_node.lock_date = lock_date
+        preset_node.lock_date = lock_date if lock_date else None
 
         if preset_node.type == Node.PROGRESS:
             preset_node.target = target
         elif preset_node.type == Node.ENTRYDEADLINE:
-            template_field = template
-
-            if 'id' in template_field:
-                if template_field['id'] > 0:
-                    preset_node.forced_template = Template.objects.get(pk=template_field['id'])
-                else:
-                    if template_field['id'] in template_map:
-                        preset_node.forced_template = template_map[template_field['id']]
-                    else:
-                        preset_node.forced_template = parse_template(template_field)
-                        template_map[template_field['id']] = preset_node.forced_template
+            if template['id'] > 0:
+                preset_node.forced_template = Template.objects.get(pk=template['id'])
             else:
-                preset_node.forced_template = parse_template(template_field)
-
+                preset_node.forced_template = Template.objects.get(pk=new_ids[template['id']])
         preset_node.save()
-        if type_changed:
-            update_journals(assignment.journal_set.all(), preset_node, not exists)
+        if id < 0:
+            update_journals(assignment.journal_set.all(), preset_node)
 
 
-def delete_presets(presets, remove_presets):
+def delete_presets(presets):
     """Deletes all presets in remove_presets from presets. """
     ids = []
-    for preset in remove_presets:
+    for preset in presets:
         ids.append(preset['id'])
 
-    presets.filter(pk__in=ids).delete()
+    PresetNode.objects.filter(pk__in=ids).delete()
 
 
-def delete_templates(templates, remove_templates):
-    """Deletes all templates in remove_templates from templates. """
+def archive_templates(templates):
+    """Puts all templates in an archived stated. This means that they cannot be
+    used for new entries anymore."""
     ids = []
-    remove_ids = []
-    for template in remove_templates:
-        if Entry.objects.filter(id=template['id']).count() == 0:
-            remove_ids.append(template['id'])
+    for template in templates:
         ids.append(template['id'])
 
-    templates.filter(pk__in=remove_ids).delete()
-    templates.set(templates.exclude(pk__in=ids))
+    Template.objects.filter(pk__in=ids).update(archived=True)

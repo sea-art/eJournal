@@ -18,6 +18,9 @@ module.exports = {
                     API_URL: JSON.stringify(process.env.API_URL),
                 },
             }),
+            new webpack.ProvidePlugin({
+                introJs: ['intro.js'],
+            }),
         ],
     },
 }

@@ -195,6 +195,9 @@ export default {
             return this.template.field_set.filter((field, i) => (field.required || this.completeContent[i].data))
         },
     },
+    created () {
+        this.template.field_set.sort((a, b) => a.location - b.location)
+    },
     methods: {
         // from https://stackoverflow.com/a/9102270
         youtubeEmbedFromURL (url) {

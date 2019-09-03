@@ -46,8 +46,6 @@ class FormatView(viewsets.ViewSet):
         request -- request data
             templates -- the list of templates to bind to the format
             presets -- the list of presets to bind to the format
-            unused_templates -- the list of templates that are bound to the template
-                                deck, but are not used in presets nor the entry templates.
             removed_presets -- presets to be removed
             removed_templates -- templates to be removed
         pk -- assignment ID
@@ -63,12 +61,13 @@ class FormatView(viewsets.ViewSet):
             success -- with the new assignment data
 
         """
-        assignment_details, templates, presets, unused_templates, removed_presets, removed_templates \
+        assignment_details, templates, presets, removed_templates, removed_presets \
             = utils.required_params(request.data, 'assignment_details', 'templates', 'presets',
-                                    'unused_templates', 'removed_presets', 'removed_templates')
+                                    'removed_templates', 'removed_presets')
 
         assignment = Assignment.objects.get(pk=pk)
         format = assignment.format
+
         request.user.check_permission('can_edit_assignment', assignment)
 
         # Check if the assignment can be unpublished
@@ -79,8 +78,7 @@ class FormatView(viewsets.ViewSet):
         # Remove data that must not be changed by the serializer
         req_data = assignment_details or {}
         req_data.pop('published', None)
-        if not (request.user.is_superuser or request.user == assignment.author):
-            req_data.pop('author', None)
+        req_data.pop('author', None)
 
         for key in req_data:
             if req_data[key] == '':
@@ -92,19 +90,11 @@ class FormatView(viewsets.ViewSet):
             return response.bad_request('Invalid data.')
         serializer.save()
 
-        template_map = {}
-        utils.update_presets(assignment, presets, template_map)
-        utils.update_templates(format.available_templates, templates, template_map)
-        utils.update_templates(format.unused_templates, unused_templates, template_map)
+        new_ids = utils.update_templates(format, templates)
+        utils.update_presets(assignment, presets, new_ids)
 
-        # Swap templates from lists if they occur in the other:
-        # If a template was previously unused, but is now used, swap it to available templates, and vice versa.
-        utils.swap_templates(format.available_templates, unused_templates, format.unused_templates)
-        utils.swap_templates(format.unused_templates, templates, format.available_templates)
-
-        utils.delete_presets(format.presetnode_set, removed_presets)
-        utils.delete_templates(format.available_templates, removed_templates)
-        utils.delete_templates(format.unused_templates, removed_templates)
+        utils.delete_presets(removed_presets)
+        utils.archive_templates(removed_templates)
 
         serializer = FormatSerializer(format)
         assignment_details = AssignmentDetailsSerializer(assignment)

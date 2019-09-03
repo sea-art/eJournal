@@ -41,6 +41,7 @@
                     v-model="currentPreset.due_date"
                     class="multi-form theme-input full-width"
                     :config="dueDateConfig"
+                    @on-change="$emit('change-due-date')"
                 />
             </b-col>
             <b-col xl="4">
@@ -67,6 +68,7 @@
                 v-model="currentPreset.due_date"
                 class="multi-form theme-input full-width"
                 :config="progressDateConfig"
+                @on-change="$emit('change-due-date')"
             />
         </div>
 
@@ -98,10 +100,10 @@
                     </option>
                     <option
                         v-for="template in templates"
-                        :key="template.t.tID"
-                        :value="template.t"
+                        :key="template.id"
+                        :value="template"
                     >
-                        {{ template.t.name }}
+                        {{ template.name }}
                     </option>
                 </b-form-select>
                 <b-button
@@ -151,7 +153,7 @@
         </div>
         <b-button
             v-if="!newPreset"
-            class="delete-button full-width"
+            class="delete-button full-width mt-2"
             @click.prevent="emitDeletePreset"
         >
             <icon name="trash"/>
@@ -172,7 +174,6 @@ export default {
     props: ['newPreset', 'currentPreset', 'templates', 'assignmentDetails'],
     data () {
         return {
-            prevID: this.currentPreset.id,
             showTemplatePreview: false,
         }
     },
@@ -254,21 +255,8 @@ export default {
             }, this.$root.flatPickrTimeConfig)
         },
     },
-    watch: {
-        currentPreset: {
-            handler (newPreset) {
-                if (newPreset.id === this.prevID) {
-                    this.$emit('changed')
-                }
-
-                this.prevID = newPreset.id
-            },
-            deep: true,
-        },
-    },
     methods: {
         emitDeletePreset () {
-            this.$emit('changed')
             if (window.confirm('Are you sure you want to remove this preset from this format?')) {
                 this.$emit('delete-preset')
             }

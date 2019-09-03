@@ -674,30 +674,7 @@ class Format(models.Model):
     Format of a journal.
     The format determines how a students' journal is structured.
     See PresetNodes for attached 'default' nodes.
-    - available_templates are those available in 'Entry' nodes.
-      'Entrydeadline' nodes hold their own forced template.
     """
-
-    PERCENTAGE = 'PE'
-    GRADE = 'GR'
-    TYPES = (
-        (PERCENTAGE, 'percentage'),
-        (GRADE, 'from 0 to 10'),
-    )
-    grade_type = models.TextField(
-        max_length=2,
-        choices=TYPES,
-        default=PERCENTAGE,
-    )
-    unused_templates = models.ManyToManyField(
-        'Template',
-        related_name='unused_templates',
-    )
-
-    available_templates = models.ManyToManyField(
-        'Template',
-        related_name='available_templates',
-    )
 
     def to_string(self, user=None):
         return "Format"
@@ -884,8 +861,18 @@ class Template(models.Model):
     """
 
     name = models.TextField()
-    max_grade = models.IntegerField(
-        default=1,
+
+    format = models.ForeignKey(
+        'Format',
+        on_delete=models.CASCADE
+    )
+
+    preset_only = models.BooleanField(
+        default=False
+    )
+
+    archived = models.BooleanField(
+        default=False
     )
 
     def to_string(self, user=None):

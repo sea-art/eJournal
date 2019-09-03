@@ -15,16 +15,16 @@ class EntryAPITest(TestCase):
         self.teacher = self.journal.assignment.courses.first().author
         self.journal_teacher = factory.Journal(user=self.teacher, assignment=self.journal.assignment)
         self.format = self.journal.assignment.format
-        self.format.available_templates.add(factory.Template())
-        self.format.available_templates.add(factory.Template())
-        self.format.unused_templates.add(factory.Template())
+        factory.Template(format=self.format)
+        factory.Template(format=self.format)
+        factory.Template(format=self.format)
 
         self.valid_create_params = {
             'journal_id': self.journal.pk,
-            'template_id': self.format.available_templates.first().pk,
+            'template_id': self.format.template_set.first().pk,
             'content': []
         }
-        fields = Field.objects.filter(template=self.format.available_templates.first())
+        fields = Field.objects.filter(template=self.format.template_set.first())
         self.valid_create_params['content'] = [{'data': 'test data', 'id': field.id} for field in fields]
 
     def test_create(self):
@@ -45,9 +45,11 @@ class EntryAPITest(TestCase):
         self.journal.assignment.lock_date = date.today() + timedelta(1)
         self.journal.assignment.save()
 
-        # Check if not connected templates wont work
+        # Check if template for other assignment wont work
         create_params = self.valid_create_params.copy()
-        create_params['template_id'] = factory.Template().pk
+        alt_journal = factory.Journal(user=self.student)
+        template = factory.Template(format=alt_journal.assignment.format)
+        create_params['template_id'] = template.pk
         api.create(self, 'entries', params=create_params, user=self.student, status=403)
 
         # Teachers shouldn't be able to make entries on their own journal
@@ -63,10 +65,10 @@ class EntryAPITest(TestCase):
         # Creation with only required params should work
         required_only_creation = {
             'journal_id': self.journal.pk,
-            'template_id': self.format.available_templates.first().pk,
+            'template_id': self.format.template_set.first().pk,
             'content': []
         }
-        fields = Field.objects.filter(template=self.format.available_templates.first())
+        fields = Field.objects.filter(template=self.format.template_set.first())
         required_only_creation['content'] = [{'data': 'test data', 'id': field.id}
                                              for field in fields if field.required]
         api.create(self, 'entries', params=required_only_creation, user=self.student)
@@ -83,7 +85,7 @@ class EntryAPITest(TestCase):
         api.update(self, 'entries', params=params.copy(), user=self.student, status=400)
 
         # Student should be able to update only the required fields, leaving the optinal fields empty
-        fields = Field.objects.filter(template=self.format.available_templates.first())
+        fields = Field.objects.filter(template=self.format.template_set.first())
         params = {
             'pk': entry['id'],
             'content': [{

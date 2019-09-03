@@ -3,7 +3,7 @@
     <div>
         <h2>{{ template.name }}</h2>
         <div
-            v-for="(field, i) in template.field_set"
+            v-for="(field, i) in sortedFields"
             :key="field.eID"
             class="multi-form"
         >
@@ -92,6 +92,11 @@ export default {
         sandboxedIframe,
     },
     props: ['template'],
+    computed: {
+        sortedFields () {
+            return this.template.field_set.slice(0).sort((a, b) => a.location - b.location)
+        },
+    },
     methods: {
         parseSelectionOptions (fieldOptions) {
             if (!fieldOptions) {
