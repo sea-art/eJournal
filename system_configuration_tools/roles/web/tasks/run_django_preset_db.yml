@@ -6,7 +6,7 @@
     app_path: "{{ project_path }}"
     virtualenv: "{{ virtualenv_path }}"
     settings: "{{ django_settings_file }}"
-  environment: "{{ django_environment }}"
+  environment: "{{ project_environment }}"
 
 - name: Run Django command preset_db
   django_manage:
@@ -14,4 +14,4 @@
     app_path: "{{ project_path }}"
     virtualenv: "{{ virtualenv_path }}"
     settings: "{{ django_settings_file }}"
-  environment: "{{ django_environment }}"
+  environment: "{{ project_environment }}"

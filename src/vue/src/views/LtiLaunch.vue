@@ -1,12 +1,33 @@
 <template>
     <content-single-column>
-        <h1 class="mb-2"><span>{{ currentPage }}</span></h1>
+        <h1 class="mb-2">
+            <span>{{ currentPage }}</span>
+        </h1>
         <b-card class="no-hover">
-            <lti-create-link-course v-if="handleCourseChoice" @handleAction="handleActions" :lti="lti" :courses="courses"/>
-            <lti-create-link-assignment v-else-if="handleAssignmentChoice" @handleAction="handleActions" :lti="lti" :page="page"/>
-            <div v-else class="center-content">
-                <h2 class="center-content">Setting up a link to your learning environment</h2><br/>
-                <icon name="circle-o-notch" pulse scale="1.5"/>
+            <lti-create-link-course
+                v-if="handleCourseChoice"
+                :lti="lti"
+                :courses="courses"
+                @handleAction="handleActions"
+            />
+            <lti-create-link-assignment
+                v-else-if="handleAssignmentChoice"
+                :lti="lti"
+                :page="page"
+                @handleAction="handleActions"
+            />
+            <div
+                v-else
+                class="center-content"
+            >
+                <h2 class="center-content">
+                    Setting up a link to your learning environment
+                </h2><br/>
+                <icon
+                    name="circle-o-notch"
+                    pulse
+                    scale="1.5"
+                />
             </div>
         </b-card>
     </content-single-column>
@@ -16,20 +37,18 @@
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import ltiCreateLinkCourse from '@/components/lti/LtiCreateLinkCourse.vue'
 import ltiCreateLinkAssignment from '@/components/lti/LtiCreateLinkAssignment.vue'
-import ltiAPI from '@/api/lti'
+import ltiAPI from '@/api/lti.js'
 import router from '@/router'
 import courseAPI from '@/api/course.js'
 import assignmentAPI from '@/api/assignment.js'
 import genericUtils from '@/utils/generic_utils.js'
-import icon from 'vue-awesome/components/Icon'
 
 export default {
     name: 'LtiLaunch',
     components: {
-        'content-single-column': contentSingleColumn,
-        'lti-create-link-course': ltiCreateLinkCourse,
-        'lti-create-link-assignment': ltiCreateLinkAssignment,
-        icon
+        contentSingleColumn,
+        ltiCreateLinkCourse,
+        ltiCreateLinkAssignment,
     },
     data () {
         return {
@@ -39,7 +58,7 @@ export default {
             handleCourseChoice: false,
             handleAssignmentChoice: false,
             ltiJWT: '',
-            tempStateToCheckIfWeCanAutoSetup: '',
+            canAutoSetupState: '',
 
             /* Possible states for the control flow. */
             states: {
@@ -56,7 +75,7 @@ export default {
                 grade_center: '6',
 
                 /* Intern variables for checking the state of the lti launch. */
-                check_assign: '7'
+                check_assign: '7',
             },
 
             /* Set a dictionary with the needed lti variables. */
@@ -71,23 +90,57 @@ export default {
                 ltiPointsPossible: '',
                 ltiAssignUnlock: '',
                 ltiAssignDue: '',
-                ltiAssignLock: ''
+                ltiAssignLock: '',
             },
 
             /* Set a dictionary with the variables of the linked page. */
             page: {
                 cID: '',
                 aID: '',
-                jID: ''
+                jID: '',
             },
 
-            courses: null
+            courses: null,
         }
+    },
+    watch: {
+        'states.state': function (val) { // eslint-disable-line
+            this.updateState(val)
+        },
+    },
+    mounted () {
+        this.ltiJWT = this.$route.query.ltiJWT
+
+        this.loadLtiData().then(() => {
+            this.handleInitialState()
+            /* The lti parameters such as course id are not set if we are a student. */
+            if (this.lti.ltiCourseID) {
+                courseAPI.getLinkable().then((courses) => {
+                    if (courses.length) {
+                        this.courses = courses
+                        this.states.state = this.canAutoSetupState
+                    } else {
+                        this.autoSetupCourseAndAssignment()
+                    }
+                })
+            } else {
+                this.states.state = this.canAutoSetupState
+            }
+        }).catch((error) => {
+            this.$router.push({
+                name: 'ErrorPage',
+                params: {
+                    code: error.response.status,
+                    reasonPhrase: error.response.statusText,
+                    description: error.response.data.description,
+                },
+            })
+        })
     },
     methods: {
         loadLtiData () {
             return ltiAPI.getLtiParams(this.ltiJWT)
-                .then(response => {
+                .then((response) => {
                     this.lti.ltiCourseName = response.lti_cName
                     this.lti.ltiCourseAbbr = response.lti_abbr
                     this.lti.ltiCourseID = response.lti_cID
@@ -102,7 +155,7 @@ export default {
                     this.page.cID = response.cID
                     this.page.aID = response.aID
                     this.page.jID = response.jID
-                    this.tempStateToCheckIfWeCanAutoSetup = response.state
+                    this.canAutoSetupState = response.state
                 })
         },
         autoSetupCourseAndAssignment () {
@@ -111,7 +164,8 @@ export default {
                 abbreviation: this.lti.ltiCourseAbbr,
                 startdate: this.lti.ltiCourseStart.split(' ')[0],
                 enddate: genericUtils.yearOffset(this.lti.ltiCourseStart.split(' ')[0]),
-                lti_id: this.lti.ltiCourseID }).then(course => {
+                lti_id: this.lti.ltiCourseID,
+            }).then((course) => {
                 this.page.cID = course.id
                 assignmentAPI.create({
                     name: this.lti.ltiAssignName,
@@ -122,8 +176,8 @@ export default {
                     unlock_date: this.lti.ltiAssignUnlock.slice(0, -9),
                     due_date: this.lti.ltiAssignDue.slice(0, -9),
                     lock_date: this.lti.ltiAssignLock.slice(0, -9),
-                    is_published: this.lti.ltiAssignPublished
-                }).then(assignment => {
+                    is_published: this.lti.ltiAssignPublished,
+                }).then((assignment) => {
                     this.page.aID = assignment.id
                     this.updateState(this.states.finish_t)
                 })
@@ -156,6 +210,8 @@ export default {
                 this.$toasted.success('Assignment Created!')
                 this.states.state = this.states.finish_t
                 break
+            default:
+                throw Error(`Unknown argument encountered: ${args[0]}`)
             }
         },
         updateState (state) {
@@ -169,8 +225,8 @@ export default {
                 this.handleAssignmentChoice = true
                 break
             case this.states.check_assign:
-                assignmentAPI.getWithLti(this.lti.ltiAssignID, {redirect: false, customErrorToast: ''})
-                    .then(assignment => {
+                assignmentAPI.getWithLti(this.lti.ltiAssignID, { redirect: false, customErrorToast: '' })
+                    .then((assignment) => {
                         if (assignment === undefined) {
                             this.states.state = this.states.new_assign
                         } else {
@@ -178,7 +234,7 @@ export default {
                             this.states.state = this.states.finish_t
                         }
                     })
-                    .catch(error => {
+                    .catch((error) => {
                         if (error.response.status === 404) {
                             this.states.state = this.states.new_assign
                         }
@@ -190,8 +246,8 @@ export default {
                     params: {
                         cID: this.page.cID,
                         aID: this.page.aID,
-                        jID: this.page.jID
-                    }
+                        jID: this.page.jID,
+                    },
                 })
                 break
             case this.states.finish_s:
@@ -202,31 +258,31 @@ export default {
                         params: {
                             cID: this.page.cID,
                             aID: this.page.aID,
-                            jID: this.page.jID
-                        }
+                            jID: this.page.jID,
+                        },
                     })
-                }, error => {
+                }, (error) => {
                     this.$router.push({
                         name: 'ErrorPage',
                         params: {
                             code: error.response.status,
                             reasonPhrase: error.response.statusText,
-                            description: `Unable to acquire the newly created journal data, please try again.`
-                        }
+                            description: 'Unable to acquire the newly created journal data, please try again.',
+                        },
                     })
                 })
                 break
             case this.states.finish_t:
                 /* Teacher might have created or linked a new course and or assignment, we need to update the store. */
                 this.$store.dispatch('user/populateStore').then(() => {
-                    if (this.tempStateToCheckIfWeCanAutoSetup === this.states.finish_t) {
+                    if (this.canAutoSetupState === this.states.finish_t) {
                         /* The assignment already existed. */
                         this.$router.push({
                             name: 'Assignment',
                             params: {
                                 cID: this.page.cID,
-                                aID: this.page.aID
-                            }
+                                aID: this.page.aID,
+                            },
                         })
                     } else {
                         /* A new assignment has been created, yet to be configured. */
@@ -234,35 +290,38 @@ export default {
                             name: 'FormatEdit',
                             params: {
                                 cID: this.page.cID,
-                                aID: this.page.aID
-                            }
+                                aID: this.page.aID,
+                            },
                         })
                     }
-                }, error => {
+                }, (error) => {
                     this.$router.push({
                         name: 'ErrorPage',
                         params: {
                             code: error.response.status,
                             reasonPhrase: error.response.statusText,
-                            description: `Unable to acquire the newly created assignment data, please try again.`
-                        }
+                            description: 'Unable to acquire the newly created assignment data, please try again.',
+                        },
                     })
                 })
                 break
+            default:
+                throw Error(`Unknown LTI state encountered: ${state}`)
             }
         },
         handleInitialState () {
-            if (this.tempStateToCheckIfWeCanAutoSetup === this.states.bad_auth) {
+            if (this.canAutoSetupState === this.states.bad_auth) {
                 router.push({
                     name: 'ErrorPage',
                     params: {
                         code: '511',
                         reasonPhrase: 'Network authorization required',
                         description: `Invalid credentials from the LTI environment.
-                                      Please contact the system administrator.`
-                    }
+                                      Please contact the system administrator.`,
+                    },
                 })
-            } else if (this.tempStateToCheckIfWeCanAutoSetup === this.states.no_course || this.tempStateToCheckIfWeCanAutoSetup === this.states.no_assign) {
+            } else if (this.canAutoSetupState === this.states.no_course
+                       || this.canAutoSetupState === this.states.no_assign) {
                 router.push({
                     name: 'ErrorPage',
                     params: {
@@ -270,45 +329,11 @@ export default {
                         reasonPhrase: 'No course found with given ID',
                         description: `The requested course is not available on
                                       ejournal. Wait for it to become availible or
-                                      contact your teacher for more information.`
-                    }
+                                      contact your teacher for more information.`,
+                    },
                 })
             }
-        }
+        },
     },
-    watch: {
-        'states.state': function (val) {
-            this.updateState(this.states.state)
-        }
-    },
-    mounted () {
-        this.ltiJWT = this.$route.query.ltiJWT
-
-        this.loadLtiData().then(() => {
-            this.handleInitialState()
-            /* The lti parameters such as course id are not set if we are a student. */
-            if (this.lti.ltiCourseID) {
-                courseAPI.getLinkable().then(courses => {
-                    if (courses.length) {
-                        this.courses = courses
-                        this.states.state = this.tempStateToCheckIfWeCanAutoSetup
-                    } else {
-                        this.autoSetupCourseAndAssignment()
-                    }
-                })
-            } else {
-                this.states.state = this.tempStateToCheckIfWeCanAutoSetup
-            }
-        }).catch(error => {
-            this.$router.push({
-                name: 'ErrorPage',
-                params: {
-                    code: error.response.status,
-                    reasonPhrase: error.response.statusText,
-                    description: error.response.data.description
-                }
-            })
-        })
-    }
 }
 </script>

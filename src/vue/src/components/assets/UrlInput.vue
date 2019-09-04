@@ -1,11 +1,11 @@
 <template>
     <b-input
-        class="multi-form theme-input"
         v-model="url"
         :placeholder="(placeholder) ? placeholder : 'Please enter a URL...'"
+        :state="state"
+        class="multi-form theme-input"
         @change="handleUrlInput"
-        :state="state">
-    </b-input>
+    />
 </template>
 
 <script>
@@ -16,7 +16,12 @@ export default {
     data () {
         return {
             url: null,
-            state: null
+            state: null,
+        }
+    },
+    created () {
+        if (this.placeholder) {
+            this.state = validation.validateURL(this.placeholder, false)
         }
     },
     methods: {
@@ -31,12 +36,7 @@ export default {
             } else { // Empty input (input deleted)
                 this.state = null
             }
-        }
+        },
     },
-    created () {
-        if (this.placeholder) {
-            this.state = validation.validateURL(this.placeholder, false)
-        }
-    }
 }
 </script>

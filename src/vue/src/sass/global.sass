@@ -28,7 +28,7 @@
 
 body
     /* Background pattern from Toptal Subtle Patterns */
-    background-image: url(/static/background.png)
+    background-image: url(/background.png)
 
 a, select, input
     outline: 0
@@ -86,9 +86,12 @@ a:hover
 .error, .success, .warning
     font-family: 'Roboto Condensed', sans-serif !important
     font-size: 1.1em !important
+    color: white
 
 .badge, .toasted
     border-radius: 5px !important
 
-.text-white
-    color: white
+.fade-enter-active, .fade-leave-active
+  transition: opacity .5s
+.fade-enter, .fade-leave-to
+  opacity: 0

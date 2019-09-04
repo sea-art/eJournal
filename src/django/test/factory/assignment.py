@@ -33,6 +33,12 @@ class AssignmentFactory(factory.django.DjangoModelFactory):
             self.courses.add(course)
 
 
+class TemplateAssignmentFactory(AssignmentFactory):
+    class Meta:
+        model = 'VLE.Assignment'
+    format = factory.SubFactory('test.factory.format.TemplateFormatFactory')
+
+
 class LtiAssignmentFactory(AssignmentFactory):
     lti_id = factory.RelatedFactory('test.factory.lti.LtiFactory', 'assignment',
                                     for_model=VLE.models.Lti_ids.ASSIGNMENT)

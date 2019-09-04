@@ -1,6 +1,12 @@
 <template>
-    <b-row no-gutters>
-        <b-col lg="8" xl="6" offset-lg="2" offset-xl="3" :class="'main-content ' + extraClasses">
+    <b-row noGutters>
+        <b-col
+            :class="'main-content ' + extraClasses"
+            lg="8"
+            xl="6"
+            offsetLg="2"
+            offsetXl="3"
+        >
             <slot/>
         </b-col>
     </b-row>
@@ -11,8 +17,8 @@ export default {
     name: 'ContentColumn',
     props: {
         extraClasses: {
-            default: ''
-        }
-    }
+            default: '',
+        },
+    },
 }
 </script>

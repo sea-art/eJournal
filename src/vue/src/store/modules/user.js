@@ -15,8 +15,9 @@ const getters = {
     fullName: state => state.fullName,
     ltiID: state => state.ltiID,
     permissions: state => state.permissions,
-    loggedIn: state => state.jwtAccess !== null && state.uID !== null, // We are not logged unless the store is populated as well
-    storePopulated: state => state.uID !== null
+    // We are not logged unless the store is populated as well
+    loggedIn: state => state.jwtAccess !== null && state.uID !== null,
+    storePopulated: state => state.uID !== null,
 }
 
 const mutations = {
@@ -69,38 +70,39 @@ const mutations = {
         const permissionKey = data.key
 
         state.permissions[permissionKey] = permissions
-    }
+    },
 }
 
 const actions = {
     /* Authenticates the user and poplates the store, if either fails the login fails. */
     login ({ commit, dispatch }, { username, password }) {
         return new Promise((resolve, reject) => {
-            connection.conn.post('/token/', {username: username, password: password}).then(response => {
+            connection.conn.post('/token/', { username, password }).then((response) => {
                 commit(types.SET_JWT, response.data)
 
                 dispatch('populateStore').then(() => {
                     resolve('JWT and store are set successfully.')
-                }, error => {
+                }, (error) => {
                     Vue.toasted.error(sanitization.escapeHtml(error.response.data.description))
                     reject(error) // Login success but hydration failed
                 })
-            }, error => {
+            }, (error) => {
                 reject(error) // Login failed, hydration failed.
             })
         })
     },
-    logout ({ commit, dispatch }) {
+    logout ({ commit }) {
         return Promise.all([
             commit(`preferences/${types.RESET_PREFERENCES}`, null, { root: true }),
-            commit(types.LOGOUT)
+            commit(types.LOGOUT),
         ])
     },
     /* An attempt is made at refreshing the JW access token, store is populated if needed.
      * Fails if the refresh fails or if the store needed to be populated if that fails as well. */
-    validateToken ({ commit, dispatch, getters }, error = null) {
+    validateToken ({ commit, dispatch, getters }, error = null) { // eslint-disable-line
+        let code
+
         if (error) {
-            var code
             if (error.response.data instanceof ArrayBuffer) {
                 code = genericUtils.parseArrayBuffer(error.response.data).code
             } else {
@@ -110,18 +112,18 @@ const actions = {
 
         return new Promise((resolve, reject) => {
             if (!error || code === 'token_not_valid') {
-                connection.conn.post('token/refresh/', {refresh: getters.jwtRefresh}).then(response => {
+                connection.connRefresh.post('token/refresh/', { refresh: getters.jwtRefresh }).then((response) => {
                     commit(types.SET_ACCES_TOKEN, response.data.access) // Refresh token valid, update access token.
 
                     if (!getters.storePopulated) {
                         dispatch('populateStore')
                             .then(() => { resolve() })
-                            .catch(error => { reject(error) })
+                            .catch((populateError) => { reject(populateError) })
                     } else {
                         resolve('JWT refreshed successfully, store was already populated.')
                     }
-                }, error => {
-                    reject(error) // Refresh token invalid, reject
+                }, (invalidRefreshTokenError) => {
+                    reject(invalidRefreshTokenError)
                 })
             } else {
                 reject(error) // We should not validate if the error has nothing to do with the token
@@ -130,21 +132,22 @@ const actions = {
     },
     populateStore ({ commit }) {
         return new Promise((resolve, reject) => {
-            connection.conn.get('/users/0/').then(response => {
+            connection.conn.get('/users/0/').then((response) => {
                 commit(types.HYDRATE_USER, response.data)
-                connection.conn.get('/preferences/' + response.data.user.id).then(response => {
-                    commit(`preferences/${types.HYDRATE_PREFERENCES}`, response.data, { root: true })
+                connection.conn.get(`/preferences/${response.data.user.id}/`).then((preferencesResponse) => {
+                    commit(`preferences/${types.HYDRATE_PREFERENCES}`, preferencesResponse.data, { root: true })
                     resolve('Store is populated successfully')
-                }, error => {
-                    Vue.toasted.error(`Error loading preferences: ${sanitization.escapeHtml(error.response.data.description)}`)
+                }, (error) => {
+                    Vue.toasted.error(
+                        `Error loading preferences: ${sanitization.escapeHtml(error.response.data.description)}`)
                     reject(error)
                 })
-            }, error => {
+            }, (error) => {
                 Vue.toasted.error(`Error logging in: ${sanitization.escapeHtml(error.response.data.description)}`)
                 reject(error)
             })
         })
-    }
+    },
 }
 
 export default {
@@ -159,9 +162,9 @@ export default {
         profilePicture: null,
         fullName: null,
         ltiID: null,
-        permissions: null
+        permissions: null,
     },
     getters,
     mutations,
-    actions
+    actions,
 }

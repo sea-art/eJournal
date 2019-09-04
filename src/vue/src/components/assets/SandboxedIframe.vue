@@ -1,12 +1,12 @@
 <template>
     <iframe
-        @load="init($event)"
         sandbox="allow-same-origin allow-popups"
         frameBorder="0"
         marginwidth="0"
         marginheight="0"
         scrolling="no"
         class="w-100 theme-iframe"
+        @load="loadedIframe"
     />
 </template>
 
@@ -16,38 +16,40 @@ export default {
     props: {
         content: {
             type: String,
-            required: true
-        }
+            required: true,
+        },
     },
     data () {
         return {
-            iframe: null
-        }
-    },
-    computed: {
-        // QUESTION: How does one watch this.$root.windowWidth directly?
-        windowWidth: function () {
-            return this.$root.windowWidth
+            iframe: null,
         }
     },
     watch: {
-        windowWidth () {
-            if (this.iframe) { this.scaleIframe(this.iframe) }
-        }
+        content () {
+            this.setContent()
+        },
     },
     methods: {
-        scaleIframe (obj) {
-            obj.height = 0
-            obj.height = obj.contentWindow.document.body.offsetHeight + 'px'
+        loadedIframe (e) {
+            this.iframe = e.target
+            window.addEventListener('resize', this.fitContent)
+            this.setCustomStyle()
+            this.setLinkTarget()
+            this.setContent()
         },
-        injectContent (obj) {
-            let doc = obj.contentWindow.document
-            doc.open()
-            doc.write(this.content)
-            doc.close()
+        setContent () {
+            if (this.iframe && this.iframe.contentWindow) {
+                this.iframe.contentWindow.document.body.innerHTML = this.content
+                this.fitContent()
+            }
         },
-        setCustomStyle (obj) {
-            let doc = obj.contentWindow.document
+        fitContent () {
+            if (this.iframe && this.iframe.contentWindow) {
+                this.iframe.height = 0
+                this.iframe.height = this.iframe.contentWindow.document.body.scrollHeight
+            }
+        },
+        setCustomStyle () {
             const css = `
 body {
     font-family: 'Roboto', sans-serif;
@@ -63,25 +65,16 @@ img {
     max-width: 100%;
     height: auto
 }`
-
-            let style = document.createElement('style')
+            const style = document.createElement('style')
             style.type = 'text/css'
             style.appendChild(document.createTextNode(css))
-            doc.head.append(style)
+            this.iframe.contentWindow.document.head.append(style)
         },
-        setLinkTarget (obj) {
-            let doc = obj.contentWindow.document
-            let base = document.createElement('base')
+        setLinkTarget () {
+            const base = document.createElement('base')
             base.target = '_blank'
-            doc.head.append(base)
+            this.iframe.contentWindow.document.head.append(base)
         },
-        init (e) {
-            this.injectContent(e.target)
-            this.setCustomStyle(e.target)
-            this.setLinkTarget(e.target)
-            this.scaleIframe(e.target)
-            this.iframe = e.target
-        }
-    }
+    },
 }
 </script>

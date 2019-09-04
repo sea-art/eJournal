@@ -4,7 +4,7 @@ export default {
     state: {
         cachedMap: {},
         format: { templatePool: [], nodes: [] },
-        filteredJournals: []
+        filteredJournals: [],
     },
     setCachedMap (cachedMap) {
         if (this.debug) { console.log('setCachedMap triggered with', cachedMap) }
@@ -30,6 +30,6 @@ export default {
     },
     clearCache () {
         this.state.cachedMap = []
-    }
+    },
 }
 </script>

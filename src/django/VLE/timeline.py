@@ -62,12 +62,14 @@ def get_nodes(journal, user=None):
 # TODO: Make serializers for these functions as well (if possible)
 def get_add_node(journal):
     """Convert a add_node to a dictionary."""
-    if not journal or journal.assignment.format.available_templates.count() == 0:
+    if not journal or journal.assignment.format.template_set.filter(archived=False, preset_only=False).count() == 0:
         return None
     return {
         'type': Node.ADDNODE,
         'nID': -1,
-        'templates': TemplateSerializer(journal.assignment.format.available_templates.all(), many=True).data
+        'templates': TemplateSerializer(journal.assignment.format.template_set.filter(archived=False,
+                                                                                      preset_only=False),
+                                        many=True).data
     }
 
 

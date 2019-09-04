@@ -4,26 +4,36 @@
 -->
 
 <template>
-    <span class="node-info" :class="{'selected': this.selected}">
-        <span v-if="nodeTitle" class="node-title">
+    <span
+        :class="{'selected': selected}"
+        class="node-info"
+    >
+        <span
+            v-if="nodeTitle"
+            class="node-title"
+        >
             <icon
                 v-if="new Date(nodeDate) > new Date()"
+                v-b-tooltip.hover
                 name="calendar"
                 class="mb-1 mr-1"
-                v-b-tooltip.hover
-                title="Upcoming deadline"/>
+                title="Upcoming deadline"
+            />
             {{ nodeTitle }}<br/>
         </span>
 
-        <span v-if="nodeDate" class="node-date" v-b-tooltip.hover :title="deadlineRange">
+        <span
+            v-if="nodeDate"
+            v-b-tooltip.hover
+            :title="deadlineRange"
+            class="node-date"
+        >
             {{ $root.beautifyDate(nodeDate) }}
         </span>
     </span>
 </template>
 
 <script>
-import icon from 'vue-awesome/components/Icon'
-
 export default {
     props: ['node', 'selected'],
     computed: {
@@ -33,7 +43,7 @@ export default {
             } else if (this.node.template) {
                 return this.node.template.name
             } else if (this.node.target) {
-                return 'Point target'
+                return 'Progress goal'
             } else {
                 return null
             }
@@ -48,8 +58,8 @@ export default {
             }
         },
         deadlineRange () {
-            var unlockDate = this.$root.beautifyDate(this.node.unlock_date)
-            var lockDate = this.$root.beautifyDate(this.node.lock_date)
+            const unlockDate = this.$root.beautifyDate(this.node.unlock_date)
+            const lockDate = this.$root.beautifyDate(this.node.lock_date)
 
             if (unlockDate && lockDate) {
                 return `Available from ${unlockDate} until ${lockDate}`
@@ -60,11 +70,8 @@ export default {
             }
 
             return ''
-        }
+        },
     },
-    components: {
-        icon
-    }
 }
 </script>
 

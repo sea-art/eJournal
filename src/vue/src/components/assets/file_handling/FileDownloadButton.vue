@@ -1,47 +1,46 @@
 <template>
-    <div @click="fileDownload" class="file-controls">
+    <div
+        class="file-controls"
+        @click="fileDownload"
+    >
         <icon name="download"/>
         <i><span>{{ fileName }}</span></i>
     </div>
 </template>
 
 <script>
-import icon from 'vue-awesome/components/Icon'
-import userAPI from '@/api/user'
+import userAPI from '@/api/user.js'
 
 export default {
     props: {
         fileName: {
             required: true,
-            String
+            String,
         },
         authorUID: {
             required: true,
-            String
+            String,
         },
         entryID: {
             required: true,
-            String
+            String,
         },
         nodeID: {
             required: true,
-            String
+            String,
         },
         contentID: {
             required: true,
-            String
-        }
-    },
-    components: {
-        icon
+            String,
+        },
     },
     methods: {
-        fileDownload (e) {
+        fileDownload () {
             userAPI.download(this.authorUID, this.fileName, this.entryID, this.nodeID, this.contentID)
-                .then(response => {
+                .then((response) => {
                     try {
-                        let blob = new Blob([response.data], { type: response.headers['content-type'] })
-                        let link = document.createElement('a')
+                        const blob = new Blob([response.data], { type: response.headers['content-type'] })
+                        const link = document.createElement('a')
                         link.href = window.URL.createObjectURL(blob)
                         link.download = this.fileName
                         document.body.appendChild(link)
@@ -51,8 +50,8 @@ export default {
                         this.$toasted.error('Error creating file.')
                     }
                 })
-        }
-    }
+        },
+    },
 }
 </script>
 

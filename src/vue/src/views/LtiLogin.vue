@@ -1,13 +1,21 @@
 <template>
     <content-single-column>
-        <h1 class="mb-2"><span>Welcome to eJournal!</span></h1>
+        <h1 class="mb-2">
+            <span>Welcome to eJournal!</span>
+        </h1>
         <b-card class="no-hover">
-            <h2 class="multi-form">Let's get started</h2>
+            <h2 class="multi-form">
+                Let's get started
+            </h2>
             <span class="d-block mb-2">
-                Good to see you, <i>{{ lti.fullName ? lti.fullName : lti.username }}</i>. In order to link your learning environment
-                to eJournal, please choose one of the options below.
+                Good to see you, <i>{{ lti.fullName ? lti.fullName : lti.username }}</i>. In order to link your
+                learning environment to eJournal, please choose one of the options below.
             </span>
-            <lti-create-link-user v-if="handleUserIntegration" @handleAction="userIntegrated" :lti="lti"/>
+            <lti-create-link-user
+                v-if="handleUserIntegration"
+                :lti="lti"
+                @handleAction="userIntegrated"
+            />
         </b-card>
     </content-single-column>
 </template>
@@ -19,8 +27,8 @@ import ltiCreateLinkUser from '@/components/lti/LtiCreateLinkUser.vue'
 export default {
     name: 'LtiLogin',
     components: {
-        'content-single-column': contentSingleColumn,
-        'lti-create-link-user': ltiCreateLinkUser
+        contentSingleColumn,
+        ltiCreateLinkUser,
     },
     data () {
         return {
@@ -33,25 +41,15 @@ export default {
                 key_error: '-2',
                 bad_auth: '-1',
                 no_user: '0',
-                logged_in: '1'
+                logged_in: '1',
             },
 
             lti: {
                 ltiJWT: '',
                 fullName: '',
                 username: '',
-                email: ''
-            }
-        }
-    },
-    methods: {
-        userIntegrated () {
-            this.$router.push({
-                name: 'LtiLaunch',
-                query: {
-                    ltiJWT: this.lti.ltiJWT
-                }
-            })
+                email: '',
+            },
         }
     },
     mounted () {
@@ -62,8 +60,8 @@ export default {
                     code: '511',
                     reasonPhrase: 'Network authorization required',
                     description: `Invalid credentials from the LTI environment.
-                                  Please contact the system administrator.`
-                }
+                                  Please contact the system administrator.`,
+                },
             })
         } else if (this.$route.query.state === this.states.key_error) {
             this.$router.push({
@@ -71,30 +69,34 @@ export default {
                 params: {
                     code: '400',
                     reasonPhrase: 'Missing parameter in LTI request',
-                    description: this.$route.query.description + `
-                    Please contact the system administrator.`
-                }
+                    description: `${this.$route.query.description}
+                    Please contact the system administrator.`,
+                },
             })
         } else {
             this.lti.ltiJWT = this.$route.query.lti_params
 
             /* The LTI parameters are verified in our backend, and the corresponding user is logged in. */
             if (this.$route.query.state === this.states.logged_in) {
-                this.$store.commit('user/SET_JWT', { access: this.$route.query.jwt_access, refresh: this.$route.query.jwt_refresh })
+                this.$store.commit(
+                    'user/SET_JWT',
+                    { access: this.$route.query.jwt_access, refresh: this.$route.query.jwt_refresh },
+                )
                 this.$store.dispatch('user/populateStore').then(() => {
                     this.userIntegrated()
-                }, error => {
+                }, (error) => {
                     this.$router.push({
                         name: 'ErrorPage',
                         params: {
                             code: error.response.status,
                             reasonPhrase: error.response.statusText,
-                            description: 'Could not fetch all user data, please try again.'
-                        }
+                            description: 'Could not fetch all user data, please try again.',
+                        },
                     })
                 })
 
-            /* The LTI parameters are verified in our backend, however there is no corresponding user yet. We must create/connect one. */
+            /* The LTI parameters are verified in our backend, however there is no corresponding user yet.
+               We must create/connect one. */
             } else if (this.$route.query.state === this.states.no_user) {
                 this.$store.commit('user/LOGOUT') // Ensures no old user is loaded from local storage.
                 if (this.$route.query.full_name !== undefined) {
@@ -118,11 +120,21 @@ export default {
                                       when trying to integrate the new user.
                                       Please contact the system administrator
                                       for more information. Further integration
-                                      is not possible.`
-                    }
+                                      is not possible.`,
+                    },
                 })
             }
         }
-    }
+    },
+    methods: {
+        userIntegrated () {
+            this.$router.push({
+                name: 'LtiLaunch',
+                query: {
+                    ltiJWT: this.lti.ltiJWT,
+                },
+            })
+        },
+    },
 }
 </script>

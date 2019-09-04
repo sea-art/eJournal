@@ -155,7 +155,7 @@ class GradePassBackRequest(object):
 
 
 def change_entry_vle_coupling(journal, status):
-    Entry.objects.filter(published=True, node__journal=journal).exclude(
+    Entry.objects.filter(grade__published=True, node__journal=journal).exclude(
         vle_coupling=Entry.LINK_COMPLETE).update(vle_coupling=status)
 
 

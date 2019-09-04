@@ -1,7 +1,7 @@
 <template>
     <b-card :class="color">
         <div class="float-right">
-            <slot></slot>
+            <slot/>
         </div>
         <h2>{{ line1 }}</h2>
         {{ line2 }}
@@ -10,6 +10,6 @@
 
 <script>
 export default {
-    props: ['line1', 'line2', 'color']
+    props: ['line1', 'line2', 'color'],
 }
 </script>

@@ -4,10 +4,8 @@ entry.py.
 In this file are all the entry api requests.
 """
 from rest_framework import viewsets
-from rest_framework.decorators import action
 
 import VLE.factory as factory
-import VLE.lti_grade_passback as lti_grade
 import VLE.serializers as serialize
 import VLE.tasks.lti as lti_tasks
 import VLE.timeline as timeline
@@ -16,7 +14,7 @@ import VLE.utils.file_handling as file_handling
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 import VLE.validators as validators
-from VLE.models import Comment, Entry, Field, Journal, Node, Template
+from VLE.models import Entry, Field, Journal, Node, Template
 
 
 class EntryView(viewsets.ViewSet):
@@ -53,7 +51,8 @@ class EntryView(viewsets.ViewSet):
             return response.forbidden('The assignment is locked, entries can no longer be edited/changed.')
 
         # Check if the template is available
-        if not (node_id or assignment.format.available_templates.filter(pk=template.pk).exists()):
+        if not (node_id or assignment.format.template_set.filter(archived=False, preset_only=False,
+                                                                 pk=template.pk).exists()):
             return response.forbidden('Entry template is not available.')
 
         entry_utils.check_required_fields(template, content_list)
@@ -80,11 +79,11 @@ class EntryView(viewsets.ViewSet):
 
             if field.type in ['i', 'f', 'p']:  # Image, file or PDF
                 user_file = file_handling.get_temp_user_file(request.user, assignment, content['data'])
-                if user_file is None:
+                if user_file is None and field.required:
                     node.entry.delete()
-                    return response.bad_request('One of your files was not correctly uploaded, please try gain.')
-
-                file_handling.make_permanent_file_content(user_file, created_content, node)
+                    return response.bad_request('One of your files was not correctly uploaded, please try again.')
+                elif user_file:
+                    file_handling.make_permanent_file_content(user_file, created_content, node)
 
         # Delete old user files
         file_handling.remove_temp_user_files(request.user)
@@ -117,6 +116,7 @@ class EntryView(viewsets.ViewSet):
         content_list, = utils.required_typed_params(request.data, (list, 'content'))
         entry_id, = utils.required_typed_params(kwargs, (int, 'pk'))
         entry = Entry.objects.get(pk=entry_id)
+        graded = entry.is_graded()
         journal = entry.node.journal
         assignment = journal.assignment
 
@@ -125,7 +125,7 @@ class EntryView(viewsets.ViewSet):
         request.user.check_permission('can_have_journal', assignment)
         if not (journal.user == request.user or request.user.is_superuser):
             return response.forbidden('You are not allowed to edit someone else\'s entry.')
-        if entry.grade is not None:
+        if graded:
             return response.bad_request('You are not allowed to edit graded entries.')
         if entry.is_locked():
             return response.bad_request('You are not allowed to edit locked entries.')
@@ -182,7 +182,7 @@ class EntryView(viewsets.ViewSet):
 
         if journal.user == request.user:
             request.user.check_permission('can_have_journal', assignment, 'You are not allowed to delete entries.')
-            if entry.grade:
+            if entry.is_graded():
                 return response.forbidden('You are not allowed to delete graded entries.')
             if entry.is_locked():
                 return response.forbidden('You are not allowed to delete locked entries.')
@@ -196,29 +196,3 @@ class EntryView(viewsets.ViewSet):
             entry.node.delete()
         entry.delete()
         return response.success(description='Successfully deleted entry.')
-
-    @action(methods=['patch'], detail=True)
-    def grade(self, request, pk):
-        entry = Entry.objects.get(pk=pk)
-        journal = entry.node.journal
-        assignment = journal.assignment
-        grade, published = utils.optional_typed_params(request.data, (float, 'grade'), (bool, 'published'))
-        if grade is not None:
-            request.user.check_permission('can_grade', assignment)
-            if grade < 0:
-                return response.bad_request('Grade must be greater than or equal to zero.')
-            entry.grade = grade
-
-        if published is not None:
-            if published is not True and entry.published is True:
-                return response.bad_request('A published entry cannot be unpublished.')
-            request.user.check_permission('can_publish_grades', assignment)
-            entry.published = published
-            if published:
-                Comment.objects.filter(entry=entry).update(published=True)
-
-        entry.save()
-        return response.success({
-            'entry': serialize.EntrySerializer(entry, context={'user': request.user}).data,
-            'lti': lti_grade.replace_result(journal)
-        })

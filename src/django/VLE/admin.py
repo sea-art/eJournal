@@ -6,8 +6,7 @@ inside the web interface through http://site/admin/VLE/user/
 """
 from django.contrib import admin
 
-from VLE.models import (Assignment, Course, Entry, Journal, Participation,
-                        Role, User)
+from VLE.models import Assignment, Course, Entry, Journal, Participation, Role, User
 
 admin.site.register(User)
 admin.site.register(Course)

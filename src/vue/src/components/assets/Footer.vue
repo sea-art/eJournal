@@ -2,21 +2,26 @@
     <footer>
         <hr/>
         &copy; 2019 - eJournal.app -
-        <a href="/static/eJournal-privacy-notice.pdf" class="text-grey">
+        <a
+            href="/eJournal-privacy-notice.pdf"
+            class="text-grey"
+        >
             Privacy notice
         </a>
-        <tooltip tip="We reserve the right to change this privacy policy as we may deem necessary from time to time or as may be required by law. Any changes will be immediately posted on the website and you are deemed to have accepted the terms of the privacy policy on your first use of the website following the alterations."/>
+        <tooltip
+            tip="We reserve the right to change this privacy policy as we may deem necessary from time to time or as
+            may be required by law. Any changes will be immediately posted on the website and you are deemed to have
+            accepted the terms of the privacy policy on your first use of the website following the alterations."
+        />
     </footer>
 </template>
 <script>
 import tooltip from '@/components/assets/Tooltip.vue'
-import icon from 'vue-awesome/components/Icon'
 
 export default {
     components: {
         tooltip,
-        icon
-    }
+    },
 }
 
 </script>

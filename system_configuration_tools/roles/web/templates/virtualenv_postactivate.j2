@@ -1,5 +1,5 @@
 #!/bin/sh
 
-{% for variable_name, value in django_environment.items() %}
+{% for variable_name, value in project_environment.items() %}
 export {{ variable_name }}='{{ value }}'
 {% endfor %}

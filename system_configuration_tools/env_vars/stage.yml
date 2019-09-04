@@ -1,5 +1,4 @@
 ---
-# Contains production like settings without compromising any production keys
 
 # Git settings.
 setup_git_repo: true
@@ -144,3 +143,4 @@ run_django_collectstatic: true
 # Nginx settings.
 ssl_crt: placeholder
 ssl_key: placeholder
+csp_frame_ancestors_whitelist: "'self' uvadlo-tes.instructure.com"

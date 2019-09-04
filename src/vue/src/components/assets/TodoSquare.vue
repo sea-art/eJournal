@@ -1,14 +1,15 @@
 <template>
     <b-badge
+        :class="{'info': num > 0}"
         class="todo-square"
-        :class="{'info': num > 0}">
+    >
         {{ num ? Math.round(num * 100) / 100 : 0 }}
     </b-badge>
 </template>
 
 <script>
 export default {
-    props: ['num']
+    props: ['num'],
 }
 </script>
 

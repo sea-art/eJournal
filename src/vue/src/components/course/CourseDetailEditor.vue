@@ -1,12 +1,32 @@
 <template>
     <div>
-        <h4 class="mb-2"><span>Manage course details</span></h4>
-        <b-card class="no-hover multi-form" :class="$root.getBorderClass($route.params.uID)">
+        <h4 class="mb-2">
+            <span>Manage course details</span>
+        </h4>
+        <b-card
+            class="no-hover multi-form"
+            :class="$root.getBorderClass($route.params.uID)"
+        >
             <b-form @submit.prevent="onSubmit">
-                <h2 class="field-heading required">Course name</h2>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" :readonly="!$hasPermission('can_edit_course_details')" v-model="course.name" placeholder="Course name" />
-                <h2 class="field-heading required">Course abbreviation</h2>
-                <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" :readonly="!$hasPermission('can_edit_course_details')" v-model="course.abbreviation" maxlength="10" placeholder="Course abbreviation (max 10 characters)" />
+                <h2 class="field-heading required">
+                    Course name
+                </h2>
+                <b-input
+                    v-model="course.name"
+                    class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                    :readonly="!$hasPermission('can_edit_course_details')"
+                    placeholder="Course name"
+                />
+                <h2 class="field-heading required">
+                    Course abbreviation
+                </h2>
+                <b-input
+                    v-model="course.abbreviation"
+                    class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                    :readonly="!$hasPermission('can_edit_course_details')"
+                    maxlength="10"
+                    placeholder="Course abbreviation (max 10 characters)"
+                />
                 <b-row>
                     <b-col cols="6">
                         <h2 class="field-heading required">
@@ -14,12 +34,13 @@
                             <tooltip tip="Start date of the course"/>
                         </h2>
                         <flat-pickr
+                            v-model="course.startdate"
                             class="multi-form multi-date-input theme-input full-width"
                             :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
-                            v-model="course.startdate"
                             :config="{
                                 maxDate: course.enddate
-                            }"/>
+                            }"
+                        />
                     </b-col>
                     <b-col cols="6">
                         <h2 class="field-heading required">
@@ -27,17 +48,22 @@
                             <tooltip tip="End date of the course"/>
                         </h2>
                         <flat-pickr
+                            v-model="course.enddate"
                             class="multi-form multi-date-input theme-input full-width"
                             :class="{ 'input-disabled': !$hasPermission('can_edit_course_details') }"
-                            v-model="course.enddate"
                             :config="{
                                 minDate: course.startdate
-                            }"/>
+                            }"
+                        />
                     </b-col>
                 </b-row>
-                <b-button class="add-button float-right" type="submit" v-if="$hasPermission('can_edit_course_details')">
-                <icon name="save" />
-                Save
+                <b-button
+                    v-if="$hasPermission('can_edit_course_details')"
+                    class="add-button float-right"
+                    type="submit"
+                >
+                    <icon name="save"/>
+                    Save
                 </b-button>
             </b-form>
         </b-card>
@@ -46,19 +72,17 @@
 
 <script>
 import tooltip from '@/components/assets/Tooltip.vue'
-import icon from 'vue-awesome/components/Icon'
-import courseAPI from '@/api/course'
+import courseAPI from '@/api/course.js'
 
 export default {
     name: 'CourseEdit',
-    props: {
-        course: {
-            required: true
-        }
-    },
     components: {
         tooltip,
-        icon
+    },
+    props: {
+        course: {
+            required: true,
+        },
     },
     methods: {
         formFilled () {
@@ -66,14 +90,18 @@ export default {
         },
         onSubmit () {
             if (this.formFilled()) {
-                courseAPI.update(this.course.id, this.course, {customSuccessToast: 'Successfully updated the course.'})
-                    .then(course => {
+                courseAPI.update(
+                    this.course.id,
+                    this.course,
+                    { customSuccessToast: 'Successfully updated the course.' },
+                )
+                    .then((course) => {
                         this.$emit('update-course', course)
                     })
             } else {
                 this.$toasted.error('One or more required fields are empty.')
             }
-        }
-    }
+        },
+    },
 }
 </script>

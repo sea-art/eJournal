@@ -5,16 +5,29 @@
 
 <template>
     <div class="timeline-node-circle-border">
-        <div class="timeline-node-circle unselectable" data-toggle="tooltip" :title="nodeTitle" :class="nodeClass">
-            <icon v-if="this.node.type !== 'p'" :name="iconName" :class="iconClass" :scale="iconScale"/>
-            <div v-else class="timeline-node-circle-text">{{ node.target }}</div>
+        <div
+            :title="nodeTitle"
+            :class="nodeClass"
+            class="timeline-node-circle unselectable"
+            data-toggle="tooltip"
+        >
+            <icon
+                v-if="node.type !== 'p'"
+                :name="iconName"
+                :class="iconClass"
+                :scale="iconScale"
+            />
+            <div
+                v-else
+                class="timeline-node-circle-text"
+            >
+                {{ node.target }}
+            </div>
         </div>
     </div>
 </template>
 
 <script>
-import icon from 'vue-awesome/components/Icon'
-
 export default {
     props: ['node', 'selected', 'edit'],
     computed: {
@@ -26,7 +39,7 @@ export default {
                 'enc-deadline': this.node.type === 'd',
                 'enc-progress': this.node.type === 'p',
                 'enc-add': this.node.type === 'a',
-                'enc-selected': this.selected
+                'enc-selected': this.selected,
             }
         },
         iconName () {
@@ -41,16 +54,16 @@ export default {
             case 'needs_grading':
                 return 'exclamation'
             case 'needs_publishing':
-                return 'eye'
+                return 'eye-slash'
             case 'add':
                 return 'plus'
             case 'start':
                 return 'flag'
             case 'end':
                 return 'flag-checkered'
+            default:
+                return 'calendar'
             }
-
-            return 'calendar'
         },
         nodeTitle () {
             switch (this.nodeState()) {
@@ -67,13 +80,17 @@ export default {
             case 'needs_publishing':
                 return 'Awaiting publishment'
             case 'add':
-                return 'Add new entry'
+                if (this.edit) {
+                    return 'Add new preset'
+                } else {
+                    return 'Add new entry'
+                }
             case 'start':
             case 'end':
                 return 'Assignment details'
+            default:
+                return 'Deadline'
             }
-
-            return 'Deadline'
         },
         iconClass () {
             switch (this.nodeState()) {
@@ -87,13 +104,10 @@ export default {
             case 'end':
             case 'add':
                 return 'fill-white'
+            default:
+                if (this.selected) { return 'fill-white' }
+                return 'fill-grey'
             }
-
-            if (this.selected) {
-                return 'fill-white'
-            }
-
-            return 'fill-grey'
         },
         iconScale () {
             if (this.node.type === 'a') {
@@ -108,12 +122,12 @@ export default {
             } else {
                 return '1.5'
             }
-        }
+        },
     },
     methods: {
         dueDateHasPassed () {
-            var currentDate = new Date()
-            var dueDate = new Date(this.node.due_date)
+            const currentDate = new Date()
+            const dueDate = new Date(this.node.due_date)
 
             return currentDate > dueDate
         },
@@ -122,8 +136,8 @@ export default {
                 return false
             }
 
-            var currentDate = new Date()
-            var lockDate = new Date(this.node.lock_date)
+            const currentDate = new Date()
+            const lockDate = new Date(this.node.lock_date)
 
             return currentDate > lockDate
         },
@@ -138,10 +152,10 @@ export default {
                 return ''
             }
 
-            var entry = this.node.entry
-            var isGrader = this.$hasPermission('can_grade')
+            const entry = this.node.entry
+            const isGrader = this.$hasPermission('can_grade')
 
-            if (entry && entry.published) {
+            if (entry && entry.grade && entry.grade.published) {
                 return 'graded'
             } else if (!entry && this.lockDateHasPassed()) {
                 return 'failed'
@@ -149,20 +163,17 @@ export default {
                 return 'overdue'
             } else if (!entry && !this.dueDateHasPassed()) {
                 return 'empty'
-            } else if (!isGrader && entry && !entry.published) {
+            } else if (!isGrader && entry && !entry.grade && !entry.editable) {
                 return 'awaiting_grade'
-            } else if (isGrader && entry && !entry.grade) {
+            } else if (isGrader && entry && (!entry.grade || !entry.grade.grade)) {
                 return 'needs_grading'
-            } else if (isGrader && entry && !entry.published) {
+            } else if (isGrader && entry && entry.grade && !entry.grade.published) {
                 return 'needs_publishing'
             }
 
             return ''
-        }
+        },
     },
-    components: {
-        icon
-    }
 }
 </script>
 

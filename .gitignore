@@ -6,6 +6,7 @@ core
 /settings/*
 *.retry
 pass.txt
+*.dump
 
 htmlcov/*
 .vscode/*

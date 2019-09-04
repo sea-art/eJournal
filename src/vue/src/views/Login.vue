@@ -14,26 +14,26 @@ import routerConstraints from '@/utils/constants/router_constraints.js'
 
 export default {
     name: 'Login',
+    components: {
+        contentSingleColumn,
+        customFooter,
+        loginForm,
+    },
     data () {
         return {
             username: '',
-            password: ''
+            password: '',
         }
     },
     methods: {
         handleLoginSucces () {
-            if (this.$root.previousPage === null || this.$root.previousPage.name === null ||
-                routerConstraints.PERMISSIONLESS_CONTENT.has(this.$root.previousPage.name)) {
-                this.$router.push({name: 'Home'})
+            if (this.$root.previousPage === null || this.$root.previousPage.name === null
+                || routerConstraints.PERMISSIONLESS_CONTENT.has(this.$root.previousPage.name)) {
+                this.$router.push({ name: 'Home' })
             }
 
-            this.$router.push({name: this.$root.previousPage.name, params: this.$root.previousPage.params})
-        }
+            this.$router.push({ name: this.$root.previousPage.name, params: this.$root.previousPage.params })
+        },
     },
-    components: {
-        contentSingleColumn,
-        customFooter,
-        loginForm
-    }
 }
 </script>

@@ -1,27 +1,48 @@
 <template>
     <div>
-        <h4 class="mb-2"><span>Groups</span></h4>
+        <h4 class="mb-2">
+            <span>Groups</span>
+        </h4>
         <group-card
-            @delete-group="deleteGroup"
-            @update-group="updateGroup"
-            @remove-member="removeMember"
             v-for="g in groups"
             :key="g.id"
             :participants="participants"
             :cID="course.id"
-            :group="g"/>
+            :group="g"
+            @delete-group="deleteGroup"
+            @update-group="updateGroup"
+            @remove-member="removeMember"
+        />
 
         <div v-if="$hasPermission('can_add_course_user_group')">
-            <h4 class="mb-2"><span>Create new group</span></h4>
+            <h4 class="mb-2">
+                <span>Create new group</span>
+            </h4>
             <b-card class="no-hover">
-                <b-form @submit.prevent="createUserGroup" @reset.prevent="resetFormInput" class="d-flex">
-                    <b-input class="new-group-input multi-form mr-2 theme-input" v-model="form.groupName" placeholder="Desired group name" required/>
-                    <b-button class="add-button" type="submit">
+                <b-form
+                    @submit.prevent="createUserGroup"
+                    @reset.prevent="resetFormInput"
+                >
+                    <b-input
+                        v-model="form.groupName"
+                        class="new-group-input multi-form mr-2 theme-input"
+                        placeholder="Desired group name"
+                        required
+                    />
+                    <b-button
+                        class="add-button float-right"
+                        type="submit"
+                    >
                         <icon name="plus-square"/>
                         Create
                     </b-button>
                 </b-form>
-                <b-button v-if="this.course.lti_linked" class="lti-sync multi-form mr-2" type="submit"  @click.prevent.stop="getDataNoseGroups()">
+                <b-button
+                    v-if="course.lti_linked"
+                    class="lti-sync multi-form mr-2"
+                    type="submit"
+                    @click.prevent.stop="getDataNoseGroups()"
+                >
                     <icon name="sync-alt"/>
                     Sync from DataNose
                 </b-button>
@@ -37,48 +58,51 @@
     margin-bottom: 0px !important
     margin-top: 10px !important
 </style>
+
 <script>
-import icon from 'vue-awesome/components/Icon'
 import groupCard from '@/components/group/GroupCard.vue'
-import groupAPI from '@/api/group'
-import participationAPI from '@/api/participation'
+import groupAPI from '@/api/group.js'
+import participationAPI from '@/api/participation.js'
 
 export default {
     name: 'CourseGroupEditor',
+    components: {
+        groupCard,
+    },
     props: {
         course: {
-            required: true
-        }
+            required: true,
+        },
     },
     data () {
         return {
             form: {
                 groupName: '',
-                lti_id: ''
+                lti_id: '',
             },
             participants: [],
-            groups: []
+            groups: [],
         }
     },
     created () {
         groupAPI.getAllFromCourse(this.course.id)
-            .then(groups => { this.groups = groups })
+            .then((groups) => { this.groups = groups })
         participationAPI.getEnrolled(this.course.id)
-            .then(participants => { this.participants = participants })
+            .then((participants) => { this.participants = participants })
     },
     methods: {
         getDataNoseGroups () {
-            groupAPI.getDataNose(this.course.id, {customSuccessToast: 'Successfully syncronized from DataNose.'})
+            groupAPI.getDataNose(this.course.id, { customSuccessToast: 'Successfully syncronized from DataNose.' })
         },
         createUserGroup () {
-            groupAPI.create({name: this.form.groupName, course_id: this.course.id, lti_id: this.course.lti_id},
-                {customSuccessToast: 'Successfully created group.'})
-                .then(group => {
+            groupAPI.create({ name: this.form.groupName, course_id: this.course.id, lti_id: this.course.lti_id },
+                { customSuccessToast: 'Successfully created group.' })
+                .then((group) => {
                     this.groups.push(group)
                     this.resetFormInput()
                 })
         },
-        resetFormInput (evt) {
+        resetFormInput () {
             /* Reset our form values */
             this.form.groupName = ''
         },
@@ -90,17 +114,12 @@ export default {
             this.$emit('update-group', group)
         },
         removeMember (member, group) {
-            for (let i in this.participants) {
-                if (this.participants[i].id === member.id) {
-                    this.participants[i].groups = this.participants[i].groups.filter(g => g.id !== group.id)
+            this.participants.forEach((participant) => {
+                if (participant.id === member.id) {
+                    participant.groups = participant.groups.filter(g => g.id !== group.id)
                 }
-            }
-            this.participants = this.participants
-        }
+            })
+        },
     },
-    components: {
-        icon,
-        'group-card': groupCard
-    }
 }
 </script>

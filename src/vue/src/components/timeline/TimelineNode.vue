@@ -7,17 +7,30 @@
 
 <template>
     <b-row class="node-container">
-        <b-col cols="7" class="d-flex h-100 align-items-center">
-            <timeline-node-info :node="node" :selected="selected"/>
-        </b-col>
-        <b-col cols="5" class="d-flex h-100 align-items-center justify-content-center">
-            <div class="time-line" :class="timeLineClass"></div>
-            <timeline-node-circle
-                @click.native="$emit('select-node', index)"
-                class="position-absolute"
+        <b-col
+            cols="7"
+            class="d-flex h-100 align-items-center"
+        >
+            <timeline-node-info
                 :node="node"
                 :selected="selected"
-                :edit="edit"/>
+            />
+        </b-col>
+        <b-col
+            cols="5"
+            class="d-flex h-100 align-items-center justify-content-center"
+        >
+            <div
+                :class="timeLineClass"
+                class="time-line"
+            />
+            <timeline-node-circle
+                :node="node"
+                :selected="selected"
+                :edit="edit"
+                class="position-absolute"
+                @click.native="$emit('select-node', index)"
+            />
         </b-col>
     </b-row>
 </template>
@@ -27,19 +40,19 @@ import timelineNodeCircle from '@/components/timeline/TimelineNodeCircle.vue'
 import timelineNodeInfo from '@/components/timeline/TimelineNodeInfo.vue'
 
 export default {
-    props: ['node', 'selected', 'index', 'last', 'edit'],
     components: {
         timelineNodeInfo,
-        timelineNodeCircle
+        timelineNodeCircle,
     },
+    props: ['node', 'selected', 'index', 'last', 'edit'],
     computed: {
         timeLineClass () {
             return {
-                'top': this.index === -1,
-                'bottom': this.last
+                top: this.index === -1,
+                bottom: this.last,
             }
-        }
-    }
+        },
+    },
 }
 </script>
 

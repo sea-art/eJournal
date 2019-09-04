@@ -14,8 +14,7 @@ import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 import VLE.validators as validators
-from VLE.models import (Assignment, Content, Entry, Instance, Journal, Node,
-                        User, UserFile)
+from VLE.models import Assignment, Content, Entry, Instance, Journal, Node, User, UserFile
 from VLE.serializers import EntrySerializer, OwnUserSerializer, UserSerializer
 from VLE.tasks import send_email_verification_link
 from VLE.utils import file_handling
@@ -133,7 +132,7 @@ class UserView(viewsets.ViewSet):
         validators.validate_password(password)
         user = User(username=username, email=email, lti_id=lti_id, full_name=full_name,
                     is_teacher=is_teacher, verified_email=bool(lti_id),
-                    profile_picture=user_image if user_image else '/static/unknown-profile.png')
+                    profile_picture=user_image if user_image else '/unknown-profile.png')
         user.set_password(password)
 
         user.full_clean()

@@ -7,89 +7,119 @@
 <template>
     <div class="timeline-container">
         <b-collapse id="timeline-outer">
-            <div class="timeline-inner" ref="scd">
-                <div v-if="$root.lgMax" v-b-toggle.timeline-outer target="timeline-outer" aria-expanded="false" aria-controls="timeline-outer">
+            <div
+                ref="scd"
+                class="timeline-inner"
+            >
+                <div
+                    v-if="$root.lgMax"
+                    v-b-toggle.timeline-outer
+                    target="timeline-outer"
+                    aria-expanded="false"
+                    aria-controls="timeline-outer"
+                >
                     <timeline-node
-                        @select-node="$emit('select-node', $event)"
                         :index="-1"
                         :node="{
                             'type': 's'
                         }"
                         :selected="isSelected(-1)"
-                        :edit="edit"/>
-                    <timeline-node
-                        v-for="(node, index) in this.nodes"
+                        :edit="edit"
                         @select-node="$emit('select-node', $event)"
+                    />
+                    <timeline-node
+                        v-for="(node, index) in nodes"
+                        :key="node.id"
                         :index="index"
                         :node="node"
                         :selected="isSelected(index)"
                         :edit="edit"
-                        :key="node.id"/>
+                        @select-node="$emit('select-node', $event)"
+                    />
                     <timeline-node
                         v-if="edit"
-                        @select-node="$emit('add-node')"
+                        :index="nodes.length"
                         :node="{
                             'type': 'a'
                         }"
-                        :edit="edit"/>
-                    <timeline-node
+                        :selected="isSelected(nodes.length)"
+                        :edit="edit"
                         @select-node="$emit('select-node', $event)"
-                        :index="nodes.length"
+                    />
+                    <timeline-node
+                        :index="nodes.length + 1"
                         :last="true"
                         :node="{
                             'type': 'n'
                         }"
-                        :selected="isSelected(nodes.length)"
-                        :edit="edit"/>
+                        :selected="isSelected(nodes.length + 1)"
+                        :edit="edit"
+                        @select-node="$emit('select-node', $event)"
+                    />
                 </div>
                 <div v-else>
                     <timeline-node
-                        @select-node="$emit('select-node', $event)"
                         :index="-1"
                         :node="{
                             'type': 's'
                         }"
                         :selected="isSelected(-1)"
-                        :edit="edit"/>
-                    <timeline-node
-                        v-for="(node, index) in this.nodes"
+                        :edit="edit"
                         @select-node="$emit('select-node', $event)"
+                    />
+                    <timeline-node
+                        v-for="(node, index) in nodes"
+                        :key="node.id"
                         :index="index"
                         :node="node"
                         :selected="isSelected(index)"
                         :edit="edit"
-                        :key="node.id"/>
+                        @select-node="$emit('select-node', $event)"
+                    />
                     <timeline-node
                         v-if="edit"
-                        @select-node="$emit('add-node')"
+                        :index="nodes.length"
                         :node="{
                             'type': 'a'
                         }"
-                        :edit="edit"/>
-                    <timeline-node
+                        :selected="isSelected(nodes.length)"
+                        :edit="edit"
                         @select-node="$emit('select-node', $event)"
-                        :index="nodes.length"
+                    />
+                    <timeline-node
+                        :index="nodes.length + 1"
                         :last="true"
                         :node="{
                             'type': 'n'
                         }"
-                        :selected="isSelected(nodes.length)"
-                        :edit="edit"/>
+                        :selected="isSelected(nodes.length + 1)"
+                        :edit="edit"
+                        @select-node="$emit('select-node', $event)"
+                    />
                 </div>
             </div>
         </b-collapse>
 
         <div
+            id="timeline-toggle"
             v-b-toggle.timeline-outer
             target="timeline-outer"
             aria-expanded="false"
             aria-controls="timeline-outer"
-            id="timeline-toggle">
+        >
             <span class="timeline-outer__icon timeline-outer__icon--open">
-                    <icon class="collapse-icon" name="list-ul" scale="1.75"/>
+                <icon
+                    class="collapse-icon"
+                    name="list-ul"
+                    scale="1.75"
+                />
             </span>
             <span class="timeline-outer__icon timeline-outer__icon--close">
-                    <icon class="collapse-icon" name="caret-up" scale="1.75"/>
+                <icon
+                    class="collapse-icon"
+                    name="caret-up"
+                    scale="1.75"
+                />
             </span>
         </div>
     </div>
@@ -97,19 +127,17 @@
 
 <script>
 import timelineNode from '@/components/timeline/TimelineNode.vue'
-import icon from 'vue-awesome/components/Icon'
 
 export default {
+    components: {
+        timelineNode,
+    },
     props: ['selected', 'nodes', 'edit'],
     methods: {
         isSelected (id) {
             return id === this.selected
-        }
+        },
     },
-    components: {
-        'timeline-node': timelineNode,
-        icon
-    }
 }
 </script>
 

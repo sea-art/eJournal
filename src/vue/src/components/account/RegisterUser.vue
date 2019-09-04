@@ -1,23 +1,93 @@
 <template>
     <b-card class="no-hover">
-        <h2 v-if="lti" class="field-heading">Username</h2>
-        <b-input v-if="lti" class="multi-form theme-input" :value="this.lti.username" disabled/>
-        <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
-            <h2 v-if="!lti" class="field-heading">Username</h2>
-            <b-input v-if="!lti" class="multi-form theme-input" v-model="form.username" placeholder="Username" maxlength="30" required/>
-            <h2 v-if="!lti" class="field-heading">Full name</h2>
-            <b-input v-if="!lti" class="multi-form theme-input" v-model="form.fullName" placeholder="Full name" maxlength="200" required/>
-            <h2 class="field-heading">Password</h2>
-            <b-input class="multi-form theme-input" v-model="form.password" type="password" placeholder="Password" required/>
-            <h2 class="field-heading">Repeat password</h2>
-            <b-input class="multi-form theme-input" v-model="form.password2" type="password" placeholder="Repeat password" required/>
-            <h2 v-if="!lti" class="field-heading">Email</h2>
-            <b-input v-if="!lti" class="multi-form theme-input" v-model="form.email" placeholder="Email" required/>
-            <b-button class="float-left change-button multi-form" type="reset">
+        <h2
+            v-if="lti"
+            class="field-heading"
+        >
+            Username
+        </h2>
+        <b-input
+            v-if="lti"
+            :value="lti.username"
+            class="multi-form theme-input"
+            disabled
+        />
+        <b-form
+            @submit.prevent="onSubmit"
+            @reset.prevent="onReset"
+        >
+            <h2
+                v-if="!lti"
+                class="field-heading"
+            >
+                Username
+            </h2>
+            <b-input
+                v-if="!lti"
+                v-model="form.username"
+                class="multi-form theme-input"
+                placeholder="Username"
+                maxlength="30"
+                required
+            />
+            <h2
+                v-if="!lti"
+                class="field-heading"
+            >
+                Full name
+            </h2>
+            <b-input
+                v-if="!lti"
+                v-model="form.fullName"
+                class="multi-form theme-input"
+                placeholder="Full name"
+                maxlength="200"
+                required
+            />
+            <h2 class="field-heading">
+                Password
+            </h2>
+            <b-input
+                v-model="form.password"
+                class="multi-form theme-input"
+                type="password"
+                placeholder="Password"
+                required
+            />
+            <h2 class="field-heading">
+                Repeat password
+            </h2>
+            <b-input
+                v-model="form.password2"
+                class="multi-form theme-input"
+                type="password"
+                placeholder="Repeat password"
+                required
+            />
+            <h2
+                v-if="!lti"
+                class="field-heading"
+            >
+                Email
+            </h2>
+            <b-input
+                v-if="!lti"
+                v-model="form.email"
+                class="multi-form theme-input"
+                placeholder="Email"
+                required
+            />
+            <b-button
+                class="float-left change-button multi-form"
+                type="reset"
+            >
                 <icon name="undo"/>
                 Reset
             </b-button>
-            <b-button class="float-right multi-form" type="submit">
+            <b-button
+                class="float-right multi-form"
+                type="submit"
+            >
                 <icon name="user-plus"/>
                 Create account
             </b-button>
@@ -26,9 +96,7 @@
 </template>
 
 <script>
-import icon from 'vue-awesome/components/Icon'
-
-import authAPI from '@/api/auth'
+import authAPI from '@/api/auth.js'
 import validation from '@/utils/validation.js'
 import statuses from '@/utils/constants/status_codes.js'
 
@@ -43,8 +111,8 @@ export default {
                 password2: '',
                 fullName: '',
                 email: '',
-                ltiJWT: ''
-            }
+                ltiJWT: '',
+            },
         }
     },
     methods: {
@@ -54,41 +122,50 @@ export default {
                 this.form.ltiJWT = this.lti.ltiJWT
             }
 
-            if (validation.validatePassword(this.form.password, this.form.password2) && (this.lti || validation.validateEmail(this.form.email))) {
-                authAPI.register(this.form.username, this.form.password, this.form.fullName,
-                    this.form.email, this.form.ltiJWT, {
-                        customSuccessToast: this.lti ? '' : 'Registration successful! Please follow the instructions sent to ' + this.form.email +
-                                                            ' to confirm your email address.'
+            if (validation.validatePassword(this.form.password, this.form.password2)
+                && (this.lti || validation.validateEmail(this.form.email))) {
+                authAPI.register(
+                    this.form.username,
+                    this.form.password,
+                    this.form.fullName,
+                    this.form.email,
+                    this.form.ltiJWT,
+                    {
+                        customSuccessToast: this.lti ? '' : `Registration successful! Please follow the instructions
+                        sent to ${this.form.email} to confirm your email address.`,
                     })
                     .then(() => {
-                        this.$store.dispatch('user/login', { username: this.form.username, password: this.form.password })
+                        this.$store.dispatch(
+                            'user/login',
+                            { username: this.form.username, password: this.form.password },
+                        )
                             .then(() => { this.$emit('handleAction') })
-                            .catch(() => { this.$toasted.error('Error logging in with your newly created account, please contact a system administrator or try registering again.') })
+                            .catch(() => {
+                                this.$toasted.error('Error logging in with your newly created account, please contact '
+                                + 'a system administrator or try registering again.')
+                            })
                     })
-                    .catch(error => {
+                    .catch((error) => {
                         if (error.response.status === statuses.FORBIDDEN) {
                             this.$router.push({
                                 name: 'ErrorPage',
                                 params: {
                                     code: error.response.status,
                                     reasonPhrase: error.response.statusText,
-                                    description: error.response.data.description
-                                }
+                                    description: error.response.data.description,
+                                },
                             })
                         }
                     })
             }
         },
-        onReset (evt) {
+        onReset () {
             this.form.username = ''
             this.form.password = ''
             this.form.password2 = ''
             this.form.fullName = ''
             this.form.email = ''
-        }
+        },
     },
-    components: {
-        icon
-    }
 }
 </script>
