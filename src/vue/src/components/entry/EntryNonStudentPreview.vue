@@ -223,30 +223,31 @@ export default {
             let matchFound
 
             if (this.entryNode.entry) {
-                this.entryNode.entry.template.field_set.forEach((templateField) => {
-                    matchFound = false
+                this.entryNode.entry.template.field_set.sort((a, b) => a.location - b.location)
+                    .forEach((templateField) => {
+                        matchFound = false
 
-                    matchFound = this.entryNode.entry.content.some((content) => {
-                        if (content.field === templateField.id) {
-                            this.completeContent.push({
-                                data: content.data,
-                                id: content.field,
-                                contentID: content.id,
-                            })
+                        matchFound = this.entryNode.entry.content.some((content) => {
+                            if (content.field === templateField.id) {
+                                this.completeContent.push({
+                                    data: content.data,
+                                    id: content.field,
+                                    contentID: content.id,
+                                })
 
-                            return true
-                        }
+                                return true
+                            }
 
-                        return false
-                    })
-
-                    if (!matchFound) {
-                        this.completeContent.push({
-                            data: null,
-                            id: templateField.id,
+                            return false
                         })
-                    }
-                })
+
+                        if (!matchFound) {
+                            this.completeContent.push({
+                                data: null,
+                                id: templateField.id,
+                            })
+                        }
+                    })
             }
         },
         changeButtonOption (option) {

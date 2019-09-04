@@ -214,18 +214,18 @@ export default {
                 return self.compare(a.stats.acquired_points, b.stats.acquired_points)
             }
 
-            function searchFilter (user) {
-                const username = user.student.username.toLowerCase()
-                const fullName = user.student.full_name
+            function searchFilter (journal) {
+                const username = journal.student.username.toLowerCase()
+                const fullName = journal.student.full_name
                 const searchVariable = self.getJournalSearchValue.toLowerCase()
 
                 return username.includes(searchVariable)
                     || fullName.includes(searchVariable)
             }
 
-            function groupFilter (assignment) {
+            function groupFilter (journal) {
                 if (self.getJournalGroupFilter) {
-                    return assignment.student.groups.map(g => g.name).includes(self.getJournalGroupFilter)
+                    return journal.student.groups.map(g => g.name).includes(self.getJournalGroupFilter)
                 }
 
                 return true
@@ -242,9 +242,11 @@ export default {
                 } else if (this.getJournalSortBy === 'points') {
                     store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(comparePoints))
                 }
+
+                return store.state.filteredJournals.filter(groupFilter).slice()
             }
 
-            return store.state.filteredJournals.filter(groupFilter).slice()
+            return store.state.filteredJournals.slice()
         },
         prevJournal () {
             const curIndex = this.findIndex(this.filteredJournals, 'id', this.jID)

@@ -268,18 +268,18 @@ export default {
                 return self.compare(a.stats.acquired_points, b.stats.acquired_points)
             }
 
-            function searchFilter (assignment) {
-                const username = assignment.student.username.toLowerCase()
-                const fullName = assignment.student.full_name.toLowerCase()
+            function searchFilter (journal) {
+                const username = journal.student.username.toLowerCase()
+                const fullName = journal.student.full_name.toLowerCase()
                 const searchValue = self.searchValue.toLowerCase()
 
                 return username.includes(searchValue)
                     || fullName.includes(searchValue)
             }
 
-            function groupFilter (assignment) {
+            function groupFilter (journal) {
                 if (self.getJournalGroupFilter) {
-                    return assignment.student.groups.map(g => g.name).includes(self.getJournalGroupFilter)
+                    return journal.student.groups.map(g => g.name).includes(self.getJournalGroupFilter)
                 }
 
                 return true
