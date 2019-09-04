@@ -109,6 +109,7 @@
         >
             <b-card class="no-hover">
                 <b-table
+                    v-if="gradeHistory.length > 0"
                     responsive
                     striped
                     noSortReset
@@ -139,6 +140,11 @@
                         {{ $root.beautifyDate(data.value) }}
                     </template>
                 </b-table>
+                <div v-else>
+                    <h4>No grades available</h4>
+                    <hr class="m-0 mb-1"/>
+                    This entry has not yet been graded.
+                </div>
             </b-card>
         </b-modal>
     </div>
