@@ -83,7 +83,6 @@ export default {
     },
     data () {
         return {
-            intituteName: 'Universiteit van Amsterdam (UvA)',
             courses: [],
             deadlines: [],
         }

@@ -54,7 +54,7 @@ export default {
             case 'needs_grading':
                 return 'exclamation'
             case 'needs_publishing':
-                return 'eye'
+                return 'eye-slash'
             case 'add':
                 return 'plus'
             case 'start':

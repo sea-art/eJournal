@@ -8,6 +8,10 @@ const getters = {
     upcomingDeadlineNotifications: state => state.upcomingDeadlineNotifications,
     showFormatTutorial: state => state.showFormatTutorial,
     hideVersionAlert: state => state.hideVersionAlert,
+    gradeButtonSetting: state => state.gradeButtonSetting,
+    commentButtonSetting: state => state.commentButtonSetting,
+    autoSelectUngradedEntry: state => state.autoSelectUngradedEntry,
+    autoProceedNextJournal: state => state.autoProceedNextJournal,
 
     // Search filters.
     todoSortBy: state => state.todo.sortBy,
@@ -36,6 +40,10 @@ const mutations = {
         state.upcomingDeadlineNotifications = preferences.upcoming_deadline_notifications
         state.showFormatTutorial = preferences.show_format_tutorial
         state.hideVersionAlert = preferences.hide_version_alert
+        state.gradeButtonSetting = preferences.grade_button_setting
+        state.commentButtonSetting = preferences.comment_button_setting
+        state.autoSelectUngradedEntry = preferences.auto_select_ungraded_entry
+        state.autoProceedNextJournal = preferences.auto_proceed_next_journal
     },
     [types.SET_GRADE_NOTIFICATION] (state, val) {
         state.gradeNotifications = val
@@ -51,6 +59,18 @@ const mutations = {
     },
     [types.SET_HIDE_VERSION_ALERT] (state, val) {
         state.hideVersionAlert = val
+    },
+    [types.SET_GRADE_BUTTON_SETTING] (state, val) {
+        state.gradeButtonSetting = val
+    },
+    [types.SET_COMMENT_BUTTON_SETTING] (state, val) {
+        state.commentButtonSetting = val
+    },
+    [types.SET_AUTO_SELECT_UNGRADED_ENTRY] (state, val) {
+        state.autoSelectUngradedEntry = val
+    },
+    [types.SET_AUTO_PROCEED_NEXT_JOURNAL] (state, val) {
+        state.autoProceedNextJournal = val
     },
     [types.SET_TODO_SORT_BY] (state, sortByOption) {
         if (!preferenceOptions.TODO_SORT_OPTIONS.has(sortByOption)) { throw new Error('Invalid TODO sorting option.') }
@@ -120,6 +140,10 @@ const mutations = {
         state.upcomingDeadlineNotifications = null
         state.showFormatTutorial = null
         state.hideVersionAlert = null
+        state.gradeButtonSetting = 'p'
+        state.commentButtonSetting = 'p'
+        state.autoSelectUngradedEntry = null
+        state.autoProceedNextJournal = null
         state.todo.sortBy = 'date'
         state.journal.aID = null
         state.journal.sortAscending = true
@@ -146,6 +170,10 @@ export default {
         upcomingDeadlineNotifications: null,
         showFormatTutorial: null,
         hideVersionAlert: null,
+        autoSelectUngradedEntry: null,
+        autoProceedNextJournal: null,
+        gradeButtonSetting: 'p',
+        commentButtonSetting: 'p',
         todo: {
             sortBy: 'date',
         },

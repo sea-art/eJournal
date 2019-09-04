@@ -52,6 +52,7 @@
                 :comparePoints="assignment && assignment.stats ? assignment.stats.average_points : -1"
             />
         </div>
+        <slot/>
     </b-card>
 </template>
 

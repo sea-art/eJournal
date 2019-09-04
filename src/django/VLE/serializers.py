@@ -93,7 +93,8 @@ class PreferencesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Preferences
         fields = ('user', 'grade_notifications', 'comment_notifications', 'upcoming_deadline_notifications',
-                  'show_format_tutorial', 'hide_version_alert')
+                  'show_format_tutorial', 'hide_version_alert', 'grade_button_setting', 'comment_button_setting',
+                  'auto_select_ungraded_entry', 'auto_proceed_next_journal')
         read_only_fields = ('user', )
 
 

@@ -36,7 +36,7 @@
                             ref="entry-template-card"
                             :journal="journal"
                             :entryNode="nodes[currentNode]"
-                            @check-grade="updatedGrade"
+                            @check-grade="loadJournal(true)"
                         />
                     </div>
                     <div v-else-if="nodes[currentNode].type == 'p'">
@@ -77,35 +77,36 @@
                         :stats="journal.stats"
                         :assignment="assignment"
                         :class="'mb-2 no-hover'"
-                    />
-                    <div
-                        v-if="journal && $hasPermission('can_grade')"
-                        class="grade-section full-width bonus-section shadow"
                     >
-                        <icon
-                            name="star"
-                            class="fill-orange shift-up-2"
-                        />
-                        <b-form-input
-                            v-model="journal.bonus_points"
-                            type="number"
-                            class="theme-input mr-2"
-                            size="2"
-                            placeholder="0"
-                            min="0.0"
-                        />
-                        Bonus points
-                        <b-button
-                            class="add-button save-button"
-                            @click="commitBonus"
+                        <div
+                            v-if="journal && $hasPermission('can_grade')"
+                            class="grade-section bonus-section full-width shadow"
                         >
                             <icon
-                                name="save"
-                                scale="1"
+                                name="star"
+                                class="fill-orange shift-up-2"
                             />
-                            Save bonus
-                        </b-button>
-                    </div>
+                            <b-form-input
+                                v-model="journal.bonus_points"
+                                type="number"
+                                class="theme-input mr-2"
+                                size="2"
+                                placeholder="0"
+                                min="0.0"
+                            />
+                            Bonus points
+                            <b-button
+                                class="add-button"
+                                @click="commitBonus"
+                            >
+                                <icon
+                                    name="save"
+                                    scale="1"
+                                />
+                                Save bonus
+                            </b-button>
+                        </div>
+                    </student-card>
                 </b-col>
                 <b-col
                     v-if="$hasPermission('can_publish_grades') || filteredJournals.length > 1"
@@ -263,18 +264,7 @@ export default {
 
         assignmentAPI.get(this.aID)
             .then((assignment) => { this.assignment = assignment })
-        journalAPI.getNodes(this.jID)
-            .then((nodes) => {
-                this.nodes = nodes
-                if (this.$route.query.nID !== undefined) {
-                    this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID, 10))
-                } else {
-                    this.selectFirstUngradedNode()
-                }
-            })
-
-        journalAPI.get(this.jID)
-            .then((journal) => { this.journal = journal })
+        this.loadJournal(false)
 
         if (store.state.filteredJournals.length === 0) {
             if (this.$hasPermission('can_view_all_journals')) {
@@ -287,17 +277,39 @@ export default {
         ...mapMutations({
             switchJournalAssignment: 'preferences/SWITCH_JOURNAL_ASSIGNMENT',
         }),
-        selectFirstUngradedNode () {
+        loadJournal (gradeUpdated) {
+            journalAPI.getNodes(this.jID)
+                .then((nodes) => {
+                    this.nodes = nodes
+                    if (this.$route.query.nID !== undefined) {
+                        this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID, 10))
+                    } else {
+                        this.selectFirstUngradedNode(gradeUpdated)
+                    }
+                })
+
+            journalAPI.get(this.jID)
+                .then((journal) => { this.journal = journal })
+        },
+        selectFirstUngradedNode (gradeUpdated) {
             let min = this.nodes.length - 1
 
-            for (let i = 0; i < this.nodes.length; i++) {
+            for (let i = Math.max(this.currentNode, 0); i < this.nodes.length; i++) {
                 if (this.nodes[i].entry && this.nodes[i].entry.grade && (this.nodes[i].entry.grade.grade === null
                     || !this.nodes[i].entry.grade.published) && i < min) {
                     min = i
                 }
             }
 
-            if (min < this.nodes.length - 1) { this.currentNode = min }
+            if (min < this.nodes.length - 1 && this.$store.getters['preferences/autoSelectUngradedEntry']) {
+                this.currentNode = min
+            } else if (min === this.nodes.length - 1 && this.$store.getters['preferences/autoProceedNextJournal']
+                && gradeUpdated && this.filteredJournals.length > 1) {
+                this.$router.push({
+                    name: 'Journal',
+                    params: { cID: this.cID, aID: this.aID, jID: this.nextJournal.id },
+                })
+            }
         },
         adaptData (editedData) {
             this.nodes[this.currentNode] = editedData
@@ -319,10 +331,6 @@ export default {
             } else {
                 this.currentNode = $event
             }
-        },
-        updatedGrade () {
-            journalAPI.get(this.jID)
-                .then((journal) => { this.journal = journal })
         },
         publishGradesJournal () {
             if (window.confirm('Are you sure you want to publish all grades for this journal?')) {
@@ -393,6 +401,10 @@ export default {
 <style lang="sass">
 .bonus-section
     text-align: center
-    margin-bottom: 0px
-    border-width: 3px !important
+    margin: 10px 0px 0px 0px !important
+    .btn
+        display: block
+        width: 100%
+        border-width: 1px 0px 0px 0px !important
+        border-radius: 0px 0px 5px 5px !important
 </style>

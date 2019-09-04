@@ -5,36 +5,36 @@
     min-height: 3em
     background-color: white
     float: right
-    overflow: hidden
     margin: 0px 0px 10px 0px
+    text-align: center
     &.grade
-        text-align: center
         line-height: 2.5em
         font-weight: bold
-    .theme-input, span, .theme-input:hover:not(.no-hover), .theme-input:focus
-        width: 3em
-        display: inline
+    .theme-input, .theme-input:hover:not(.no-hover), .theme-input:focus, .btn
         box-shadow: none
+    .theme-input, .theme-input:hover:not(.no-hover), .theme-input:focus
+        width: 3em
+        display: inline-block
         border: none !important
         margin: 0px
         padding: 0px !important
         font-family: 'Roboto', sans-serif
         font-weight: bold
         font-size: 1.5em
-        text-align: right
-        vertical-align: middle
+        text-align: center
+        margin-left: 20px
     .grade-history-button
         border-width: 0px 0px 0px 1px !important
         border-radius: 0px !important
         box-shadow: none
-    .save-button
+    .dropdown-button
         display: block
         width: 100%
         border-width: 1px 0px 0px 0px !important
         border-radius: 0px 0px 5px 5px !important
     &.sticky
         position: sticky
-        top: 0px
+        top: 10px
 
 hr.full-width
     width: 100%

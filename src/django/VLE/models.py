@@ -270,9 +270,37 @@ class Preferences(models.Model):
     show_format_tutorial = models.BooleanField(
         default=True
     )
+    auto_select_ungraded_entry = models.BooleanField(
+        default=True
+    )
+    auto_proceed_next_journal = models.BooleanField(
+        default=False
+    )
     hide_version_alert = models.TextField(
         max_length=10,
         null=True,
+    )
+    SAVE = 's'
+    PUBLISH = 'p'
+    GRADE_BUTTON_OPTIONS = (
+        (SAVE, 's'),
+        (PUBLISH, 'p'),
+    )
+    grade_button_setting = models.TextField(
+        max_length=1,
+        choices=GRADE_BUTTON_OPTIONS,
+        default=PUBLISH,
+    )
+    PUBLISH_AND_PUBLISH_GRADE = 'g'
+    COMMENT_SEND_BUTTON_OPTIONS = (
+        (SAVE, 's'),
+        (PUBLISH, 'p'),
+        (PUBLISH_AND_PUBLISH_GRADE, 'g'),
+    )
+    comment_button_setting = models.TextField(
+        max_length=2,
+        choices=COMMENT_SEND_BUTTON_OPTIONS,
+        default=SAVE,
     )
 
 

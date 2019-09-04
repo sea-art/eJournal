@@ -23,33 +23,30 @@
                         placeholder="0"
                         min="0.0"
                     />
-                    <b-form-checkbox
-                        v-model="grade.published"
-                        inline
-                        fieldValue="true"
-                        uncheckedFieldValue="false"
-                        data-toggle="tooltip"
-                        title="Show grade to student"
-                    >
-                        Published
-                    </b-form-checkbox>
                     <b-button
                         v-if="$hasPermission('can_view_grade_history')"
-                        class="grade-history-button"
+                        class="grade-history-button float-right"
                         @click="showGradeHistory"
                     >
                         <icon name="history"/>
                     </b-button>
-                    <b-button
-                        class="add-button save-button"
+                    <dropdown-button
+                        :selectedOption="this.$store.getters['preferences/gradeButtonSetting']"
+                        :options="{
+                            s: {
+                                text: 'Save grade',
+                                icon: 'save',
+                                class: 'add-button',
+                            },
+                            p: {
+                                text: 'Save & publish grade',
+                                icon: 'save',
+                                class: 'add-button',
+                            },
+                        }"
                         @click="commitGrade"
-                    >
-                        <icon
-                            name="save"
-                            scale="1"
-                        />
-                        Save grade
-                    </b-button>
+                        @change-option="changeButtonOption"
+                    />
                 </div>
                 <div
                     v-else-if="gradePublished"
@@ -100,6 +97,7 @@
             :eID="entryNode.entry.id"
             :entryGradePublished="gradePublished"
             :journal="journal"
+            @publish-grade="commitGrade('p')"
         />
 
         <b-modal
@@ -158,12 +156,15 @@
 
 <script>
 import commentCard from '@/components/entry/CommentCard.vue'
+import dropdownButton from '@/components/assets/DropdownButton.vue'
 import entryFields from '@/components/entry/EntryFields.vue'
 import gradeAPI from '@/api/grade.js'
+import preferencesAPI from '@/api/preferences.js'
 
 export default {
     components: {
         commentCard,
+        dropdownButton,
         entryFields,
     },
     props: ['entryNode', 'journal'],
@@ -242,30 +243,26 @@ export default {
                 })
             }
         },
-        commitGrade () {
+        changeButtonOption (option) {
+            preferencesAPI.update(this.$store.getters['user/uID'], { grade_button_setting: option })
+                .then((preferences) => {
+                    this.$store.commit('preferences/SET_GRADE_BUTTON_SETTING',
+                        preferences.grade_button_setting)
+                })
+        },
+        commitGrade (option) {
             if (this.grade.grade !== '') {
-                let toastMessage = ''
-
-                if (this.grade.published) {
-                    toastMessage = 'Grade updated and published.'
-                } else {
-                    toastMessage = 'Grade updated but not published.'
-                }
-
+                const customSuccessToast = option === 'p' ? 'Grade updated and published.'
+                    : 'Grade updated but not published.'
                 gradeAPI.grade(
                     {
                         entry_id: this.entryNode.entry.id,
                         grade: this.grade.grade,
-                        published: this.grade.published,
+                        published: option === 'p',
                     },
-                    { customSuccessToast: toastMessage },
+                    { customSuccessToast },
                 )
                     .then(() => {
-                        this.entryNode.entry.grade = {
-                            grade: this.grade.grade,
-                            published: this.grade.published,
-                        }
-
                         this.$emit('check-grade')
                     })
             } else {

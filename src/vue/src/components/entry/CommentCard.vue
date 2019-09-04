@@ -110,35 +110,55 @@
                     :footer="false"
                     placeholder="Type here to leave a comment"
                 />
-                <div class="d-flex full-width justify-content-end align-items-center">
-                    <b-form-checkbox
-                        v-if="$hasPermission('can_grade') && !entryGradePublished"
-                        v-model="publishAfterGrade"
-                        inline
-                    >
-                        Publish after grade
-                    </b-form-checkbox>
-                    <b-button
-                        class="mt-2"
-                        @click="addComment"
-                    >
-                        <icon name="paper-plane"/>
-                        Send
-                    </b-button>
-                </div>
+                <dropdown-button
+                    v-if="$hasPermission('can_grade') && !entryGradePublished"
+                    :up="true"
+                    :selectedOption="$store.getters['preferences/commentButtonSetting']"
+                    :options="{
+                        p: {
+                            text: 'Send',
+                            icon: 'paper-plane',
+                            class: '',
+                        },
+                        s: {
+                            text: 'Send & publish after grade',
+                            icon: 'paper-plane',
+                            class: '',
+                        },
+                        g: {
+                            text: 'Send & publish grade',
+                            icon: 'paper-plane',
+                            class: '',
+                        },
+                    }"
+                    class="float-right mt-2"
+                    @click="addComment"
+                    @change-option="changeButtonOption"
+                />
+                <b-button
+                    v-else
+                    class="float-right mt-2"
+                    @click="addComment('p')"
+                >
+                    <icon name="paper-plane"/>
+                    Send
+                </b-button>
             </b-card>
         </div>
     </div>
 </template>
 
 <script>
+import dropdownButton from '@/components/assets/DropdownButton.vue'
 import textEditor from '@/components/assets/TextEditor.vue'
 import sandboxedIframe from '@/components/assets/SandboxedIframe.vue'
 
 import commentAPI from '@/api/comment.js'
+import preferencesAPI from '@/api/preferences.js'
 
 export default {
     components: {
+        dropdownButton,
         textEditor,
         sandboxedIframe,
     },
@@ -158,7 +178,6 @@ export default {
         return {
             tempComment: '',
             commentObject: null,
-            publishAfterGrade: true,
             editCommentStatus: [],
             editCommentTemp: [],
         }
@@ -194,12 +213,23 @@ export default {
             commentAPI.getFromEntry(this.eID)
                 .then((comments) => { this.commentObject = comments })
         },
-        addComment () {
+        changeButtonOption (option) {
+            preferencesAPI.update(this.$store.getters['user/uID'], { comment_button_setting: option })
+                .then((preferences) => {
+                    this.$store.commit('preferences/SET_COMMENT_BUTTON_SETTING',
+                        preferences.comment_button_setting)
+                })
+        },
+        addComment (option) {
             if (this.tempComment !== '') {
+                if (option === 'g') {
+                    this.$emit('publish-grade')
+                }
+
                 commentAPI.create({
                     entry_id: this.eID,
                     text: this.tempComment,
-                    published: this.entryGradePublished || !this.publishAfterGrade,
+                    published: option === 'p' || option === 'g',
                 })
                     .then((comment) => {
                         this.commentObject.push(comment)
@@ -253,7 +283,7 @@ export default {
     .profile-picture-sm
         margin: 0px 12px
         display: inline
-    .new-comment .card-body
+    .new-comment.card-body
         display: flex
         flex-wrap: wrap
     .card

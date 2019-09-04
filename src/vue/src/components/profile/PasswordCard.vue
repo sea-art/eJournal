@@ -17,7 +17,7 @@
                 class="theme-input multi-form"
                 type="password"
                 placeholder="Current password"
-                autocomplete="current-password"
+                autocomplete="new-password"
             />
             <h2 class="field-heading">
                 New password

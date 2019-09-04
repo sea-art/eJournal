@@ -286,9 +286,5 @@ export default {
     display: flex
     align-items: center
     justify-content: center
-    &.fade-enter-active, &.fade-leave-active
-        transition: opacity .5s
-    &.fade-enter, &.fade-leave-to
-        opacity: 0
 
 </style>
