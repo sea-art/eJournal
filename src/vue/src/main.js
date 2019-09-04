@@ -59,6 +59,9 @@ new Vue({
             time_24hr: true,
             defaultHour: 23,
             defaultMinute: 59,
+            altInput: true,
+            altFormat: 'D d M Y H:i',
+            dateFormat: 'Y-m-dTH:i:S',
         },
     },
     computed: {

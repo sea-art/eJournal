@@ -99,14 +99,23 @@
                 </b-col>
             </b-row>
         </b-form>
-        <b-button
-            v-if="$hasPermission('can_delete_assignment')"
-            class="delete-button full-width"
-            @click="deleteAssignment"
-        >
-            <icon name="trash"/>
-            {{ assignmentDetails.course_count > 1 ? 'Remove' : 'Delete' }} assignment
-        </b-button>
+        <div class="d-flex flex-wrap">
+            <b-button
+                v-if="$hasPermission('can_delete_assignment')"
+                class="delete-button multi-form mr-md-2 flex-grow-1"
+                @click="deleteAssignment"
+            >
+                <icon name="trash"/>
+                {{ assignmentDetails.course_count > 1 ? 'Remove' : 'Delete' }} assignment
+            </b-button>
+            <b-button
+                class="add-button multi-form flex-grow-1"
+                @click="$emit('copyFormat')"
+            >
+                <icon name="file"/>
+                Copy other assignment
+            </b-button>
+        </div>
     </b-card>
 </template>
 
@@ -139,17 +148,20 @@ export default {
                 }
 
                 if (node.type !== 'p') {
-                    if (new Date(node.unlock_date) < new Date(maxDate) || !maxDate) {
+                    if ((node.unlock_date && new Date(node.unlock_date) < new Date(maxDate))
+                        || !maxDate) {
                         maxDate = node.unlock_date
                     }
 
-                    if (new Date(node.lock_date) < new Date(maxDate) || !maxDate) {
+                    if ((node.lock_date && new Date(node.lock_date) < new Date(maxDate))
+                        || !maxDate) {
                         maxDate = node.lock_date
                     }
                 }
             })
 
-            if (new Date(this.assignmentDetails.due_date) < new Date(maxDate) || !maxDate) {
+            if ((this.assignmentDetails.due_date && new Date(this.assignmentDetails.due_date) < new Date(maxDate))
+                || !maxDate) {
                 maxDate = this.assignmentDetails.due_date
             }
 

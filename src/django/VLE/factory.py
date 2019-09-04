@@ -191,7 +191,7 @@ def make_default_format(due_date=None, points_possible=10):
     format.save()
     template = make_entry_template('Entry', format)
     make_field(template, 'Content', 0, Field.RICH_TEXT, True)
-    if due_date:
+    if due_date and points_possible and int(points_possible) > 0:
         make_progress_node(format, due_date, points_possible)
     return format
 

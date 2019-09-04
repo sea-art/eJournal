@@ -206,11 +206,13 @@ export default {
                 minDate = this.assignmentDetails.unlock_date
             }
 
-            if (new Date(this.currentPreset.lock_date) < new Date(maxDate) || !maxDate) {
+            if ((this.currentPreset.lock_date && new Date(this.currentPreset.lock_date) < new Date(maxDate))
+                || !maxDate) {
                 maxDate = this.currentPreset.lock_date
             }
 
-            if (new Date(this.assignmentDetails.due_date) < new Date(maxDate) || !maxDate) {
+            if ((this.assignmentDetails.due_date && new Date(this.assignmentDetails.due_date) < new Date(maxDate))
+                || !maxDate) {
                 maxDate = this.assignmentDetails.due_date
             }
 

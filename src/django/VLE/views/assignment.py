@@ -15,7 +15,7 @@ import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 import VLE.validators as validators
 from VLE.models import Assignment, Course, Journal, Lti_ids, User
-from VLE.serializers import AssignmentSerializer
+from VLE.serializers import AssignmentDetailsSerializer, AssignmentSerializer, CourseSerializer
 from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
 
 
@@ -353,3 +353,24 @@ class AssignmentView(viewsets.ViewSet):
             lti_grade.replace_result(journal)
 
         return response.success()
+
+    @action(methods=['get'], detail=True)
+    def copyable(self, request, pk):
+        """Get all assignments that a user can copy a format from, except for the current assignment.
+
+        Arguments:
+        pk -- assignment ID
+
+        Returns a list of tuples consisting of courses and copyable assignments."""
+        courses = Course.objects.filter(participation__user=request.user.id,
+                                        participation__role__can_edit_assignment=True)
+
+        copyable = []
+        for course in courses:
+            assignments = Assignment.objects.filter(courses=course).exclude(pk=pk)
+            if assignments:
+                copyable.append({
+                    'course': CourseSerializer(course).data,
+                    'assignments': AssignmentDetailsSerializer(assignments, many=True).data
+                })
+        return response.success({'data': copyable})

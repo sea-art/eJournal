@@ -88,6 +88,7 @@
                     :class="{ 'input-disabled' : saveRequestInFlight }"
                     :assignmentDetails="assignmentDetails"
                     :presetNodes="presets"
+                    @copyFormat="getCopyableFormats"
                 />
 
                 <preset-node-card
@@ -127,6 +128,17 @@
                     <template-editor
                         v-if="currentTemplate !== -1"
                         :template="templates[currentTemplate]"
+                    />
+                </b-modal>
+                <b-modal
+                    ref="copyFormatModal"
+                    size="lg"
+                    title="Select an assignment to copy"
+                    hideFooter
+                >
+                    <format-copy-selection
+                        :copyableFormats="copyableFormats"
+                        @copyFormat="copyFormat"
                     />
                 </b-modal>
             </b-col>
@@ -187,7 +199,10 @@ import formatAssignmentDetailsCard from '@/components/format/FormatAssignmentDet
 import formatTemplateLink from '@/components/format/FormatTemplateLink.vue'
 import formatPresetNodeCard from '@/components/format/FormatPresetNodeCard.vue'
 import formatAddPresetNode from '@/components/format/FormatAddPresetNode.vue'
+import formatCopySelection from '@/components/format/FormatCopySelection.vue'
 import templateEdit from '@/components/template/TemplateEdit.vue'
+
+import assignmentAPI from '@/api/assignment.js'
 import formatAPI from '@/api/format.js'
 import preferencesAPI from '@/api/preferences.js'
 
@@ -201,6 +216,7 @@ export default {
         'add-preset-node': formatAddPresetNode,
         'template-editor': templateEdit,
         timeline,
+        formatCopySelection,
     },
     props: ['cID', 'aID'],
     data () {
@@ -211,6 +227,8 @@ export default {
 
             templates: [],
             deletedTemplates: [],
+
+            copyableFormats: [],
 
             presets: [],
             deletedPresets: [],
@@ -248,6 +266,7 @@ export default {
                     this.originalData = JSON.stringify(data, this.replacer)
                     this.assignmentDetails = data.assignment_details
                     this.templates = data.format.templates
+                    this.copyableFormats = []
                     this.presets = data.format.presets
                     this.deletedTemplates = []
                     this.deletedPresets = []
@@ -475,6 +494,7 @@ export default {
                     this.originalData = JSON.stringify(data, this.replacer)
                     this.assignmentDetails = data.assignment_details
                     this.templates = data.format.templates
+                    this.copyableFormats = []
                     this.presets = data.format.presets
                     this.deletedTemplates = []
                     this.deletedPresets = []
@@ -542,6 +562,36 @@ export default {
                 return ''
             }
             return value
+        },
+        getCopyableFormats () {
+            assignmentAPI.getCopyable(this.aID)
+                .then((data) => {
+                    this.copyableFormats = data
+                    this.$refs.copyFormatModal.show()
+                })
+        },
+        copyFormat (fromAssignmentId) {
+            if (window.confirm('This action will replace the current format and templates and cannot be undone.'
+                + ' Do you wish to continue?')) {
+                formatAPI.copy(this.aID, {
+                    from_assignment_id: fromAssignmentId,
+                })
+                    .then((data) => {
+                        this.currentData = data
+                        this.originalData = JSON.stringify(data, this.replacer)
+                        this.assignmentDetails = data.assignment_details
+                        this.templates = data.format.templates
+                        this.copyableFormats = []
+                        this.presets = data.format.presets
+                        this.deletedTemplates = []
+                        this.deletedPresets = []
+                        this.saveRequestInFlight = false
+                        this.currentTemplate = -1
+                        this.newTemplateId = -1
+                        this.newPresetId = -1
+                    })
+                this.$refs.copyFormatModal.hide()
+            }
         },
     },
     beforeRouteLeave (to, from, next) {

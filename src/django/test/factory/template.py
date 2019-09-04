@@ -10,6 +10,13 @@ class TemplateFactory(factory.django.DjangoModelFactory):
     name = 'default text'
 
     @factory.post_generation
+    def add_template(self, create, extracted):
+        if not create:
+            return
+
+        self.format.template_set.add(self)
+
+    @factory.post_generation
     def add_fields(self, create, extracted):
         if not create:
             return
