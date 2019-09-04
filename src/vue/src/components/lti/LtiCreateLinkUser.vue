@@ -2,8 +2,15 @@
     <b-row>
         <b-col md="6">
             <b-card class="no-hover full-height">
-                <b-button class="add-button big-button-text full-width" @click="showModal('createUserRef')">
-                    <icon name="user-plus" class="mr-3" scale="1.8"/>
+                <b-button
+                    class="add-button big-button-text full-width"
+                    @click="showModal('createUserRef')"
+                >
+                    <icon
+                        name="user-plus"
+                        class="mr-3"
+                        scale="1.8"
+                    />
                     Register new<br/>eJournal account
                 </b-button>
                 <hr/>
@@ -14,8 +21,15 @@
         </b-col>
         <b-col md="6">
             <b-card class="no-hover full-height">
-                <b-button class="change-button big-button-text full-width" @click="showModal('linkUserRef')">
-                    <icon name="link" class="mr-3" scale="1.8"/>
+                <b-button
+                    class="change-button big-button-text full-width"
+                    @click="showModal('linkUserRef')"
+                >
+                    <icon
+                        name="link"
+                        class="mr-3"
+                        scale="1.8"
+                    />
                     Link to existing<br/>eJournal account
                 </b-button>
                 <hr/>
@@ -28,18 +42,23 @@
             ref="createUserRef"
             title="Register new eJournal account"
             size="lg"
-            hide-footer
-            no-enforce-focus>
-                <register-user @handleAction="handleRegistered" :lti="lti"/>
+            hideFooter
+            noEnforceFocus
+        >
+            <register-user
+                :lti="lti"
+                @handleAction="handleRegistered"
+            />
         </b-modal>
 
         <b-modal
             ref="linkUserRef"
             title="Link to existing eJournal account"
             size="lg"
-            hide-footer
-            no-enforce-focus>
-                <login-form @handleAction="handleLinked"/>
+            hideFooter
+            noEnforceFocus
+        >
+            <login-form @handleAction="handleLinked"/>
         </b-modal>
     </b-row>
 </template>
@@ -48,17 +67,15 @@
 import registerUser from '@/components/account/RegisterUser.vue'
 import loginForm from '@/components/account/LoginForm.vue'
 
-import userAPI from '@/api/user'
-import icon from 'vue-awesome/components/Icon'
+import userAPI from '@/api/user.js'
 
 export default {
     name: 'LtiCreateLinkUser',
-    props: ['lti'],
     components: {
-        'register-user': registerUser,
-        'login-form': loginForm,
-        icon
+        registerUser,
+        loginForm,
     },
+    props: ['lti'],
     methods: {
         signal (msg) {
             this.$emit('handleAction', msg)
@@ -74,15 +91,16 @@ export default {
             this.signal(['userIntegrated'])
         },
         handleLinked () {
-            userAPI.update(0, {jwt_params: this.lti.ltiJWT})
+            userAPI.update(0, { jwt_params: this.lti.ltiJWT })
                 .then(() => {
-                    /* This is required because between the login and the connect of lti user to our user data can change. */
+                    /* This is required because between the login and the connect of lti user to our user
+                      data can change. */
                     this.$store.dispatch('user/populateStore').then(() => {
                         this.hideModal('linkUserRef')
                         this.signal(['userIntegrated'])
                     })
                 })
-        }
-    }
+        },
+    },
 }
 </script>

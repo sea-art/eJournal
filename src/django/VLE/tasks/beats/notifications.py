@@ -64,7 +64,8 @@ def _send_deadline_mails(deadline_query):
         # Dont send a mail when the target points is reached
         if deadline['type'] == Node.PROGRESS and \
            (Entry.objects.filter(node__journal=journal, creation_date__lt=deadline['due_date'],
-                                 published=True).aggregate(Sum('grade'))['grade__sum'] or 0) > deadline['target']:
+                                 grade__published=True)
+                         .aggregate(Sum('grade__grade'))['grade__grade__sum'] or 0) > deadline['target']:
             continue
 
         _send_deadline_mail(deadline, journal)

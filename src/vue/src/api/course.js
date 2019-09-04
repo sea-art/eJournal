@@ -1,8 +1,8 @@
-import auth from '@/api/auth'
+import auth from '@/api/auth.js'
 
 export default {
     get (id, connArgs = auth.DEFAULT_CONN_ARGS) {
-        return auth.get('courses/' + id, null, connArgs)
+        return auth.get(`courses/${id}`, null, connArgs)
             .then(response => response.data.course)
     },
 
@@ -12,12 +12,12 @@ export default {
     },
 
     update (id, data, connArgs = auth.DEFAULT_CONN_ARGS) {
-        return auth.update('courses/' + id, data, connArgs)
+        return auth.update(`courses/${id}`, data, connArgs)
             .then(response => response.data.course)
     },
 
     delete (id, connArgs = auth.DEFAULT_CONN_ARGS) {
-        return auth.delete('courses/' + id, null, connArgs)
+        return auth.delete(`courses/${id}`, null, connArgs)
             .then(response => response.data)
     },
 
@@ -29,5 +29,5 @@ export default {
     getLinkable (connArgs = auth.DEFAULT_CONN_ARGS) {
         return auth.get('courses/linkable', null, connArgs)
             .then(response => response.data.courses)
-    }
+    },
 }

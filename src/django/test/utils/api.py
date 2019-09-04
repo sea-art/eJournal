@@ -160,5 +160,7 @@ def call(obj, function, url, params=None,
         result = response
 
     assert response.status_code == status, \
-        'Request status did not match the expected response. {}: {}'.format(response.status_code, result)
+        'Request status did not match the expected response. Expected {}, but got {}: {}'.format(status,
+                                                                                                 response.status_code,
+                                                                                                 result)
     return result

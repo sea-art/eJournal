@@ -8,7 +8,13 @@ class TemplateFactory(factory.django.DjangoModelFactory):
         model = 'VLE.Template'
 
     name = 'default text'
-    max_grade = 10
+
+    @factory.post_generation
+    def add_template(self, create, extracted):
+        if not create:
+            return
+
+        self.format.template_set.add(self)
 
     @factory.post_generation
     def add_fields(self, create, extracted):

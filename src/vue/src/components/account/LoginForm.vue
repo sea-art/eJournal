@@ -2,34 +2,47 @@
     <div>
         <b-card class="no-hover card-last-elem-button">
             <b-form @submit.prevent="handleLogin()">
-                <h2 class="field-heading">Username</h2>
+                <h2 class="field-heading">
+                    Username
+                </h2>
                 <b-input
-                    class="multi-form theme-input"
                     v-model="username"
+                    class="multi-form theme-input"
                     autofocus
                     required
                     placeholder="Username"
                     autocomplete="username"
                 />
-                <h2 class="field-heading">Password</h2>
+                <h2 class="field-heading">
+                    Password
+                </h2>
                 <b-input
+                    v-model="password"
                     class="multi-form theme-input"
                     type="password"
-                    @keyup.enter="handleLogin()"
-                    v-model="password"
                     required
                     placeholder="Password"
                     autocomplete="current-password"
                 />
-                <b-button class="float-right multi-form" type="submit">
+                <b-button
+                    class="float-right multi-form"
+                    type="submit"
+                >
                     <icon name="sign-in"/>
                     Log in
                 </b-button>
-                <b-button class="multi-form change-button" v-b-modal.forgotPasswordModal>
+                <b-button
+                    v-b-modal.forgotPasswordModal
+                    class="multi-form change-button mr-2"
+                >
                     <icon name="question"/>
                     Forgot password
                 </b-button>
-                <b-button class="multi-form" v-if="allowRegistration" :to="{ name: 'Register' }">
+                <b-button
+                    v-if="allowRegistration"
+                    :to="{ name: 'Register' }"
+                    class="multi-form"
+                >
                     <icon name="user-plus"/>
                     Register
                 </b-button>
@@ -37,27 +50,36 @@
         </b-card>
 
         <b-modal
-            ref="forgotPasswordModalRef"
             id="forgotPasswordModal"
+            ref="forgotPasswordModalRef"
             size="lg"
-            @shown="$refs.usernameEmailInput.focus(); usernameEmail=username"
             title="Password recovery"
-            hide-footer>
+            hideFooter
+            @shown="$refs.usernameEmailInput.focus(); usernameEmail=username"
+        >
             <b-card class="no-hover">
                 <b-form @submit.prevent="handleForgotPassword">
-                    <h2 class="field-heading">Username or email</h2>
+                    <h2 class="field-heading">
+                        Username or email
+                    </h2>
                     <b-input
+                        ref="usernameEmailInput"
                         v-model="usernameEmail"
                         required
                         placeholder="Please enter your username or email"
-                        ref="usernameEmailInput"
                         class="theme-input multi-form"
                     />
-                    <b-button class="float-right change-button" type="submit">
+                    <b-button
+                        class="float-right change-button"
+                        type="submit"
+                    >
                         <icon name="key"/>
                         Recover password
                     </b-button>
-                    <b-button class="delete-button" @click="$refs.forgotPasswordModalRef.hide()">
+                    <b-button
+                        class="delete-button"
+                        @click="$refs.forgotPasswordModalRef.hide()"
+                    >
                         <icon name="times"/>
                         Cancel
                     </b-button>
@@ -68,11 +90,10 @@
 </template>
 
 <script>
-import icon from 'vue-awesome/components/Icon'
 import validation from '@/utils/validation.js'
 
-import authAPI from '@/api/auth'
-import instanceAPI from '@/api/instance'
+import authAPI from '@/api/auth.js'
+import instanceAPI from '@/api/instance.js'
 
 export default {
     name: 'LoginForm',
@@ -81,7 +102,18 @@ export default {
             usernameEmail: null,
             username: null,
             password: null,
-            allowRegistration: null
+            allowRegistration: null,
+        }
+    },
+    created () {
+        instanceAPI.get()
+            .then((instance) => {
+                this.allowRegistration = instance.allow_standalone_registration
+            })
+    },
+    mounted () {
+        if (this.$root.previousPage && this.$root.previousPage.name === 'PasswordRecovery') {
+            this.username = this.$root.previousPage.params.username
         }
     },
     methods: {
@@ -95,28 +127,14 @@ export default {
                 username = this.usernameEmail
             }
 
-            authAPI.forgotPassword(username, emailAdress, {responseSuccessToast: true, redirect: false})
-                .then(response => { this.$refs.forgotPasswordModalRef.hide() })
+            authAPI.forgotPassword(username, emailAdress, { responseSuccessToast: true, redirect: false })
+                .then(() => { this.$refs.forgotPasswordModalRef.hide() })
         },
         handleLogin () {
             this.$store.dispatch('user/login', { username: this.username, password: this.password })
                 .then(() => { this.$emit('handleAction') })
                 .catch(() => { this.$toasted.error('Could not login') })
-        }
+        },
     },
-    created () {
-        instanceAPI.get()
-            .then(instance => {
-                this.allowRegistration = instance.allow_standalone_registration
-            })
-    },
-    mounted () {
-        if (this.$root.previousPage && this.$root.previousPage.name === 'PasswordRecovery') {
-            this.username = this.$root.previousPage.params.username
-        }
-    },
-    components: {
-        icon
-    }
 }
 </script>

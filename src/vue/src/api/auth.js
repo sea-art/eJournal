@@ -1,4 +1,4 @@
-import connection from '@/api/connection'
+import connection from '@/api/connection.js'
 import statuses from '@/utils/constants/status_codes.js'
 import router from '@/router'
 import store from '@/store'
@@ -8,7 +8,7 @@ import genericUtils from '@/utils/generic_utils.js'
 const ERRORS_TO_REDIRECT = new Set([
     statuses.FORBIDDEN,
     statuses.NOT_FOUND,
-    statuses.INTERNAL_SERVER_ERROR
+    statuses.INTERNAL_SERVER_ERROR,
 ])
 
 /*
@@ -25,7 +25,7 @@ const DEFAULT_CONN_ARGS = {
     redirect: true,
     customSuccessToast: false,
     responseSuccessToast: false,
-    customErrorToast: false
+    customErrorToast: false,
 }
 
 /* Sets default connection arguments to missing keys, otherwise use the given connArgs value. */
@@ -34,11 +34,11 @@ function packConnArgs (connArgs) {
         throw Error('Connection arguments should be a non emtpy object.')
     }
 
-    for (let key in connArgs) {
-        if (!(key in DEFAULT_CONN_ARGS)) { throw Error('Unkown connection argument key: ' + key) }
-    }
+    Object.keys(connArgs).forEach((key) => {
+        if (!(key in DEFAULT_CONN_ARGS)) { throw Error(`Unkown connection argument key: ${key}`) }
+    })
 
-    return {...DEFAULT_CONN_ARGS, ...connArgs}
+    return { ...DEFAULT_CONN_ARGS, ...connArgs }
 }
 
 /* Toasts an error safely, escaping html and parsing an array buffer. */
@@ -46,7 +46,7 @@ function toastError (error, connArgs) {
     if (connArgs.customErrorToast) {
         router.app.$toasted.error(sanitization.escapeHtml(connArgs.customErrorToast))
     } else if (connArgs.customErrorToast !== '') {
-        var data
+        let data
         if (error.response.data instanceof ArrayBuffer) {
             data = genericUtils.parseArrayBuffer(error.response.data)
         } else {
@@ -54,17 +54,16 @@ function toastError (error, connArgs) {
         }
 
         /* The Django throttle module uses detail as description. */
-        var message = data.description ? data.description : data.detail
+        const message = data.description ? data.description : data.detail
         if (message) { router.app.$toasted.error(sanitization.escapeHtml(message)) }
     }
 }
 
-/* Lowers the connection count and toast a success message if a custom one is provided or responseSuccessToast is set. */
+/* Lowers the connection count and toast a success message
+ * if a custom one is provided or responseSuccessToast is set. */
 function handleSuccess (resp, connArgs) {
-    setTimeout(function () { store.commit('connection/CLOSE_API_CALL') }, 300)
-
     if (connArgs.responseSuccessToast) {
-        var message
+        let message
         if (resp.data instanceof ArrayBuffer) {
             message = genericUtils.parseArrayBuffer(resp.data).description
         } else {
@@ -89,19 +88,18 @@ function handleError (error, connArgs) {
     const response = error.response
     const status = response.status
 
-    setTimeout(function () { store.commit('connection/CLOSE_API_CALL') }, 300)
-
     if (connArgs.redirect && status === statuses.UNAUTHORIZED) {
         store.commit('user/LOGOUT')
-        router.push({name: 'Login'})
+        router.push({ name: 'Login' })
         toastError(error, connArgs)
     } else if (connArgs.redirect && ERRORS_TO_REDIRECT.has(status)) {
-        router.push({name: 'ErrorPage',
+        router.push({
+            name: 'ErrorPage',
             params: {
                 code: status,
                 reasonPhrase: response.statusText,
-                description: response.data.description
-            }
+                description: response.data.description,
+            },
         })
     } else {
         toastError(error, connArgs)
@@ -110,109 +108,87 @@ function handleError (error, connArgs) {
     throw error
 }
 
-function validatedSend (func, url, data, connArgs) {
-    connArgs = packConnArgs(connArgs)
+function initRequest (func, url, data = null, connArgs = DEFAULT_CONN_ARGS) {
+    const packedConnArgs = packConnArgs(connArgs)
 
-    store.commit('connection/OPEN_API_CALL')
     return func(url, data).then(
-        resp => {
-            handleSuccess(resp, connArgs)
+        (resp) => {
+            handleSuccess(resp, packedConnArgs)
             return resp
-        }, error =>
-            store.dispatch('user/validateToken', error).then(() =>
-                func(url, data).then(resp => {
-                    handleSuccess(resp, connArgs)
-                    return resp
-                })
-            )
-    ).catch(error => {
-        return handleError(error, connArgs)
-    })
-}
-
-function unvalidatedSend (func, url, data = null, connArgs = DEFAULT_CONN_ARGS) {
-    connArgs = packConnArgs(connArgs)
-
-    store.commit('connection/OPEN_API_CALL')
-    return func(url, data).then(
-        resp => {
-            handleSuccess(resp, connArgs)
-            return resp
-        }, error => {
-            return handleError(error, connArgs)
-        })
+        }, error => handleError(error, packedConnArgs))
 }
 
 function improveUrl (url, data = null) {
-    if (url[0] !== '/') url = '/' + url
-    if (url.slice(-1) !== '/' && !url.includes('?')) url += '/'
+    let improvedUrl = url
+    if (improvedUrl[0] !== '/') { improvedUrl = `/${improvedUrl}` }
+    if (improvedUrl.slice(-1) !== '/' && !improvedUrl.includes('?')) { improvedUrl += '/' }
     if (data) {
-        url += '?'
-        for (var key in data) { url += key + '=' + encodeURIComponent(data[key]) + '&' }
-        url = url.slice(0, -1)
+        improvedUrl += '?'
+        Object.keys(data).forEach((key) => { improvedUrl += `${key}=${encodeURIComponent(data[key])}&` })
+        improvedUrl = improvedUrl.slice(0, -1)
     }
 
-    return url
+    return improvedUrl
 }
 /*
  * Previous functions are 'private', following are 'public'.
  */
 export default {
-    DEFAULT_CONN_ARGS: DEFAULT_CONN_ARGS,
+    DEFAULT_CONN_ARGS,
 
     /* Create a user and add it to the database. */
     register (username, password, fullName, email, jwtParams = null, connArgs = DEFAULT_CONN_ARGS) {
-        return unvalidatedSend(connection.conn.post, improveUrl('users'), {
-            username: username,
-            password: password,
+        return initRequest(connection.conn.post, improveUrl('users'), {
+            username,
+            password,
             full_name: fullName,
-            email: email,
-            jwt_params: jwtParams
+            email,
+            jwt_params: jwtParams,
         }, connArgs)
-            .then(response => { return response.data.user })
+            .then(response => response.data.user)
     },
 
     /* Change password. */
     changePassword (newPassword, oldPassword, connArgs = DEFAULT_CONN_ARGS) {
-        return this.update('users/password', {new_password: newPassword, old_password: oldPassword}, connArgs)
+        return this.update('users/password', { new_password: newPassword, old_password: oldPassword }, connArgs)
     },
 
     /* Forgot password.
      * Checks if a user is known by the given email or username. Sends an email with a link to reset the password. */
     forgotPassword (username, email, connArgs = DEFAULT_CONN_ARGS) {
-        return unvalidatedSend(connection.conn.post, improveUrl('forgot_password'), {username: username, email: email}, connArgs)
+        return initRequest(connection.conn.post, improveUrl('forgot_password'), { username, email }, connArgs)
     },
 
     /* Recover password */
     recoverPassword (username, recoveryToken, newPassword, connArgs = DEFAULT_CONN_ARGS) {
-        return unvalidatedSend(connection.conn.post, improveUrl('recover_password'), {
-            username: username,
+        return initRequest(connection.conn.post, improveUrl('recover_password'), {
+            username,
             recovery_token: recoveryToken,
-            new_password: newPassword
+            new_password: newPassword,
         }, connArgs)
     },
 
     get (url, data, connArgs) {
-        return validatedSend(connection.conn.get, improveUrl(url, data), null, connArgs)
+        return initRequest(connection.conn.get, improveUrl(url, data), null, connArgs)
     },
     post (url, data, connArgs) {
-        return validatedSend(connection.conn.post, improveUrl(url), data, connArgs)
+        return initRequest(connection.conn.post, improveUrl(url), data, connArgs)
     },
     patch (url, data, connArgs) {
-        return validatedSend(connection.conn.patch, improveUrl(url), data, connArgs)
+        return initRequest(connection.conn.patch, improveUrl(url), data, connArgs)
     },
     delete (url, data, connArgs) {
-        return validatedSend(connection.conn.delete, improveUrl(url, data), null, connArgs)
+        return initRequest(connection.conn.delete, improveUrl(url, data), null, connArgs)
     },
     uploadFile (url, data, connArgs) {
-        return validatedSend(connection.connFile.post, improveUrl(url), data, connArgs)
+        return initRequest(connection.connFile.post, improveUrl(url), data, connArgs)
     },
     uploadFileEmail (url, data, connArgs) {
-        return validatedSend(connection.connFileEmail.post, improveUrl(url), data, connArgs)
+        return initRequest(connection.connFileEmail.post, improveUrl(url), data, connArgs)
     },
     downloadFile (url, data, connArgs) {
-        return validatedSend(connection.connFile.get, improveUrl(url, data), null, connArgs)
+        return initRequest(connection.connFile.get, improveUrl(url, data), null, connArgs)
     },
     create (url, data, connArgs) { return this.post(url, data, connArgs) },
-    update (url, data, connArgs) { return this.patch(url, data, connArgs) }
+    update (url, data, connArgs) { return this.patch(url, data, connArgs) },
 }

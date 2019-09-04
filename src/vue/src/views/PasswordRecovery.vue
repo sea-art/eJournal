@@ -3,11 +3,31 @@
         <h1><span>Password Recovery</span></h1>
         <b-card class="no-hover">
             <b-form @submit.prevent="recoverPassword()">
-                <h2 class="field-heading">New password</h2>
-                <b-input class="multi-form theme-input" type="password" v-model="password" required placeholder="New password"/>
-                <h2 class="field-heading">Repeat new password</h2>
-                <b-input class="multi-form theme-input" type="password" v-model="passwordRepeated" @keyup.enter="handleLogin()" required placeholder="Repeat new password"/>
-                <b-button class="float-right multi-form add-button" type="submit">
+                <h2 class="field-heading">
+                    New password
+                </h2>
+                <b-input
+                    v-model="password"
+                    class="multi-form theme-input"
+                    type="password"
+                    required
+                    placeholder="New password"
+                />
+                <h2 class="field-heading">
+                    Repeat new password
+                </h2>
+                <b-input
+                    v-model="passwordRepeated"
+                    class="multi-form theme-input"
+                    type="password"
+                    required
+                    placeholder="Repeat new password"
+                    @keyup.enter="handleLogin()"
+                />
+                <b-button
+                    class="float-right multi-form add-button"
+                    type="submit"
+                >
                     <icon name="save"/>
                     Save
                 </b-button>
@@ -18,41 +38,44 @@
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
-import icon from 'vue-awesome/components/Icon'
 
-import authAPI from '@/api/auth'
+import authAPI from '@/api/auth.js'
 import validation from '@/utils/validation.js'
 
 export default {
     name: 'PasswordRecovery',
+    components: {
+        contentSingleColumn,
+    },
     props: ['username', 'recoveryToken'],
     data () {
         return {
             password: '',
-            passwordRepeated: ''
+            passwordRepeated: '',
         }
     },
     methods: {
         recoverPassword () {
             if (validation.validatePassword(this.password, this.passwordRepeated)) {
-                authAPI.recoverPassword(this.username, this.recoveryToken, this.password, {responseSuccessToast: true})
-                    .then(response => { this.$router.push({ name: 'Login' }) })
-                    .catch(error => {
+                authAPI.recoverPassword(
+                    this.username,
+                    this.recoveryToken,
+                    this.password,
+                    { responseSuccessToast: true },
+                )
+                    .then(() => { this.$router.push({ name: 'Login' }) })
+                    .catch((error) => {
                         this.$router.push({
                             name: 'ErrorPage',
                             params: {
                                 code: error.response.status,
                                 reasonPhrase: error.response.statusText,
-                                description: error.response.data.description
-                            }
+                                description: error.response.data.description,
+                            },
                         })
                     })
             }
-        }
+        },
     },
-    components: {
-        'content-single-column': contentSingleColumn,
-        icon
-    }
 }
 </script>

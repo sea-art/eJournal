@@ -1,6 +1,8 @@
 <template>
     <div v-if="courses">
-        <h2 class="multi-form">Configuring a Course</h2>
+        <h2 class="multi-form">
+            Configuring a Course
+        </h2>
         <span class="d-block mb-2">
             You came here from a learning environment through an unconfigured
             course. Do you want to create a new course on eJournal,
@@ -9,8 +11,15 @@
         <b-row>
             <b-col md="6">
                 <b-card class="no-hover full-height">
-                    <b-button class="add-button big-button-text full-width" @click="showModal('createCourseRef')">
-                        <icon name="plus-square" class="mr-3" scale="1.8"/>
+                    <b-button
+                        class="add-button big-button-text full-width"
+                        @click="showModal('createCourseRef')"
+                    >
+                        <icon
+                            name="plus-square"
+                            class="mr-3"
+                            scale="1.8"
+                        />
                         Create new<br/>course
                     </b-button>
                     <hr/>
@@ -21,8 +30,15 @@
             </b-col>
             <b-col md="6">
                 <b-card class="no-hover full-height">
-                    <b-button class="change-button big-button-text full-width" @click="showModal('linkCourseRef')">
-                        <icon name="link" class="mr-3" scale="1.8"/>
+                    <b-button
+                        class="change-button big-button-text full-width"
+                        @click="showModal('linkCourseRef')"
+                    >
+                        <icon
+                            name="link"
+                            class="mr-3"
+                            scale="1.8"
+                        />
                         Link to existing<br/>course
                     </b-button>
                     <hr/>
@@ -35,16 +51,25 @@
                 ref="createCourseRef"
                 title="New Course"
                 size="lg"
-                hide-footer>
-                    <create-course @handleAction="handleCreation" :lti="lti"/>
+                hideFooter
+            >
+                <create-course
+                    :lti="lti"
+                    @handleAction="handleCreation"
+                />
             </b-modal>
 
             <b-modal
                 ref="linkCourseRef"
                 title="Link Course"
                 size="lg"
-                hide-footer>
-                    <link-course @handleAction="handleLinked" :lti="lti" :courses="courses"/>
+                hideFooter
+            >
+                <link-course
+                    :lti="lti"
+                    :courses="courses"
+                    @handleAction="handleLinked"
+                />
             </b-modal>
         </b-row>
     </div>
@@ -53,16 +78,14 @@
 <script>
 import createCourse from '@/components/course/CreateCourse.vue'
 import linkCourse from '@/components/lti/LinkCourse.vue'
-import icon from 'vue-awesome/components/Icon'
 
 export default {
     name: 'LtiCreateLinkCourse',
-    props: ['lti', 'courses'],
     components: {
-        'create-course': createCourse,
-        'link-course': linkCourse,
-        icon
+        createCourse,
+        linkCourse,
     },
+    props: ['lti', 'courses'],
     methods: {
         signal (msg) {
             this.$emit('handleAction', msg)
@@ -80,7 +103,7 @@ export default {
         handleLinked (cID) {
             this.hideModal('linkCourseRef')
             this.signal(['courseLinked', cID])
-        }
-    }
+        },
+    },
 }
 </script>

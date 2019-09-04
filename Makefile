@@ -31,7 +31,7 @@ run-test:
 ##### DEVELOP COMMANDS #####
 
 run-front:
-	bash -c "source ./venv/bin/activate && npm run dev --prefix ./src/vue && deactivate"
+	bash -c "source ./venv/bin/activate && npm run serve --prefix ./src/vue && deactivate"
 
 run-back: isort
 	bash -c "source ./venv/bin/activate && python ./src/django/manage.py runserver && deactivate"
@@ -91,14 +91,6 @@ setup-venv:
 
 ##### DEPLOY COMMANDS ######
 
-ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-install:
-	bash -c 'bash $(ROOT_DIR)/scripts/install.sh $(ROOT_DIR)'
-deploy:
-	bash -c 'bash $(ROOT_DIR)/scripts/deploy.sh $(ROOT_DIR)'
-serve:
-	bash -c 'bash $(ROOT_DIR)/scripts/serve.sh $(ROOT_DIR)'
-
 ansible-test-connection:
 	@bash -c 'source ./venv/bin/activate && ansible -m ping all --ask-become-pass && deactivate'
 
@@ -106,7 +98,13 @@ run-ansible-provision:
 	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --ask-become-pass --ask-vault-pass && deactivate'
 
 run-ansible-deploy:
-	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "deploy" --ask-become-pass --ask-vault-pass && deactivate'
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "deploy_back,deploy_front" --ask-become-pass --ask-vault-pass && deactivate'
+
+run-ansible-deploy-front:
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "deploy_front" --ask-become-pass --ask-vault-pass && deactivate'
+
+run-ansible-deploy-back:
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "deploy_back" --ask-become-pass --ask-vault-pass && deactivate'
 
 run-ansible-backup:
 	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "backup" --ask-become-pass --ask-vault-pass && deactivate'

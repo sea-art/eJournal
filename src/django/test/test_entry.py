@@ -15,16 +15,16 @@ class EntryAPITest(TestCase):
         self.teacher = self.journal.assignment.courses.first().author
         self.journal_teacher = factory.Journal(user=self.teacher, assignment=self.journal.assignment)
         self.format = self.journal.assignment.format
-        self.format.available_templates.add(factory.Template())
-        self.format.available_templates.add(factory.Template())
-        self.format.unused_templates.add(factory.Template())
+        factory.Template(format=self.format)
+        factory.Template(format=self.format)
+        factory.Template(format=self.format)
 
         self.valid_create_params = {
             'journal_id': self.journal.pk,
-            'template_id': self.format.available_templates.first().pk,
+            'template_id': self.format.template_set.first().pk,
             'content': []
         }
-        fields = Field.objects.filter(template=self.format.available_templates.first())
+        fields = Field.objects.filter(template=self.format.template_set.first())
         self.valid_create_params['content'] = [{'data': 'test data', 'id': field.id} for field in fields]
 
     def test_create(self):
@@ -45,9 +45,11 @@ class EntryAPITest(TestCase):
         self.journal.assignment.lock_date = date.today() + timedelta(1)
         self.journal.assignment.save()
 
-        # Check if not connected templates wont work
+        # Check if template for other assignment wont work
         create_params = self.valid_create_params.copy()
-        create_params['template_id'] = factory.Template().pk
+        alt_journal = factory.Journal(user=self.student)
+        template = factory.Template(format=alt_journal.assignment.format)
+        create_params['template_id'] = template.pk
         api.create(self, 'entries', params=create_params, user=self.student, status=403)
 
         # Teachers shouldn't be able to make entries on their own journal
@@ -63,10 +65,10 @@ class EntryAPITest(TestCase):
         # Creation with only required params should work
         required_only_creation = {
             'journal_id': self.journal.pk,
-            'template_id': self.format.available_templates.first().pk,
+            'template_id': self.format.template_set.first().pk,
             'content': []
         }
-        fields = Field.objects.filter(template=self.format.available_templates.first())
+        fields = Field.objects.filter(template=self.format.template_set.first())
         required_only_creation['content'] = [{'data': 'test data', 'id': field.id}
                                              for field in fields if field.required]
         api.create(self, 'entries', params=required_only_creation, user=self.student)
@@ -83,7 +85,7 @@ class EntryAPITest(TestCase):
         api.update(self, 'entries', params=params.copy(), user=self.student, status=400)
 
         # Student should be able to update only the required fields, leaving the optinal fields empty
-        fields = Field.objects.filter(template=self.format.available_templates.first())
+        fields = Field.objects.filter(template=self.format.template_set.first())
         params = {
             'pk': entry['id'],
             'content': [{
@@ -128,19 +130,20 @@ class EntryAPITest(TestCase):
         self.journal.assignment.save()
 
         # Grade and publish an entry
-        api.update(self, 'entries/grade', params={'pk': entry['id'], 'grade': 5}, user=self.student, status=403)
-        api.update(self, 'entries/grade', params={'pk': entry['id'], 'grade': 5}, user=self.teacher)
+        api.create(self, 'grades', params={'entry_id': entry['id'], 'grade': 5, 'published': True}, user=self.student,
+                   status=403)
+        api.create(self, 'grades', params={'entry_id': entry['id'], 'grade': 5, 'published': True}, user=self.teacher)
 
         # Shouldn't be able to edit entries after grade
         api.update(self, 'entries', params=params.copy(), user=self.student, status=400)
 
-        api.update(self, 'entries/grade', params={'pk': entry['id'], 'grade': 5, 'published': False}, user=self.teacher)
-        api.update(self, 'entries/grade', params={'pk': entry['id'], 'grade': 5, 'published': True}, user=self.teacher)
-        api.update(self, 'entries/grade', params={'pk': entry['id'], 'grade': 5, 'published': True},
+        api.create(self, 'grades', params={'entry_id': entry['id'], 'grade': 5, 'published': False}, user=self.teacher)
+        api.create(self, 'grades', params={'entry_id': entry['id'], 'grade': 5, 'published': True}, user=self.teacher)
+        api.create(self, 'grades', params={'entry_id': entry['id'], 'grade': 5, 'published': True},
                    user=factory.Teacher(), status=403)
 
         # Check if a published entry cannot be unpublished
-        api.update(self, 'entries/grade', params={'pk': entry['id'], 'published': False}, user=self.teacher, status=400)
+        api.create(self, 'grades', params={'entry_id': entry['id'], 'published': False}, user=self.teacher, status=400)
 
     def test_destroy(self):
         # Only a student can delete their own entry
@@ -155,7 +158,7 @@ class EntryAPITest(TestCase):
 
         # Only superusers should be allowed to delete graded entries
         entry = api.create(self, 'entries', params=self.valid_create_params, user=self.student)['entry']
-        api.update(self, 'entries/grade', params={'pk': entry['id'], 'grade': 5, 'published': True}, user=self.teacher)
+        api.create(self, 'grades', params={'entry_id': entry['id'], 'grade': 5, 'published': True}, user=self.teacher)
         api.delete(self, 'entries', params={'pk': entry['id']}, user=self.student, status=403)
         api.delete(self, 'entries', params={'pk': entry['id']}, user=factory.Admin())
 
@@ -168,11 +171,28 @@ class EntryAPITest(TestCase):
 
     def test_grade(self):
         entry = api.create(self, 'entries', params=self.valid_create_params, user=self.student)['entry']
-        entry = api.update(self, 'entries/grade', params={'pk': entry['id'], 'grade': 1, 'published': True},
+        entry = api.create(self, 'grades', params={'entry_id': entry['id'], 'grade': 1, 'published': True},
                            user=self.teacher)['entry']
-        assert entry['grade'] == 1
-        entry = api.update(self, 'entries/grade', params={'pk': entry['id'], 'grade': 0, 'published': True},
+        assert entry['grade']['grade'] == 1
+        entry = api.create(self, 'grades', params={'entry_id': entry['id'], 'grade': 0, 'published': True},
                            user=self.teacher)['entry']
-        assert entry['grade'] == 0
-        api.update(self, 'entries/grade', params={'pk': entry['id'], 'grade': 0, 'published': False}, status=400,
+        assert entry['grade']['grade'] == 0
+
+    def test_grade_history(self):
+        entry = api.create(self, 'entries', params=self.valid_create_params, user=self.student)['entry']
+        api.create(self, 'grades', params={'entry_id': entry['id'], 'grade': 1, 'published': True},
                    user=self.teacher)
+        api.create(self, 'grades', params={'entry_id': entry['id'], 'grade': 1, 'published': False},
+                   user=self.teacher)
+        api.create(self, 'grades', params={'entry_id': entry['id'], 'grade': 10, 'published': True},
+                   user=self.teacher)
+        grade_history = api.get_list(self, 'grades', params={'entry_id': entry['id']},
+                                     user=self.teacher)['grade_history']
+        assert len(grade_history) == 3, 'Grade history is incomplete.'
+        assert grade_history[0]['author'] == grade_history[1]['author'] == grade_history[2]['author'] == \
+            self.teacher.full_name, 'Teacher should be author of all grades.'
+        assert grade_history[0]['grade'] == grade_history[1]['grade'] == 1
+        assert grade_history[2]['grade'] == 10
+        assert grade_history[0]['published'] == grade_history[2]['published'] and grade_history[0]['published'], \
+            'First and last grade should be published.'
+        assert not grade_history[1]['published'], 'Second grade should be unpublished.'

@@ -19,9 +19,10 @@ def patch_entry_content(user, entry, old_content, field, data, assignment):
 
         if new_file:
             # As this get does not rely on user given data, no error should be needed.
-            old_file = user.userfile_set.get(author=user, assignment=assignment, node=entry.node, entry=entry,
-                                             content=old_content, file_name=old_content.data)
-            old_file.delete()
+            old_file = user.userfile_set.filter(author=user, assignment=assignment, node=entry.node, entry=entry,
+                                                content=old_content, file_name=old_content.data)
+            if old_file.exists():
+                old_file.delete()
             file_handling.make_permanent_file_content(new_file, old_content, entry.node)
 
     old_content.data = data

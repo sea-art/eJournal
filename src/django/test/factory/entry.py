@@ -8,7 +8,6 @@ class EntryFactory(factory.django.DjangoModelFactory):
     node = factory.SubFactory('test.factory.node.NodeFactory')
     template = None
     grade = None
-    published = True
 
     @factory.post_generation
     def add_node(self, create, extracted):

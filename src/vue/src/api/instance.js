@@ -1,4 +1,4 @@
-import auth from '@/api/auth'
+import auth from '@/api/auth.js'
 
 export default {
     get (connArgs = auth.DEFAULT_CONN_ARGS) {
@@ -9,6 +9,6 @@ export default {
     update (data, connArgs = auth.DEFAULT_CONN_ARGS) {
         return auth.update('instance/0', data, connArgs)
             .then(response => response.data.instance)
-    }
+    },
 
 }

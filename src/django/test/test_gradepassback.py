@@ -4,6 +4,7 @@ test_gradepassback.py.
 Test the lti grade passback.
 """
 import test.factory as factory
+from test.utils import api
 
 from django.conf import settings
 from django.test import TestCase
@@ -163,13 +164,15 @@ class GradePassBackRequestXMLTest(TestCase):
 
     def test_check_if_need_VLE_publish_journals(self):
         """Hopefully doesnt crash."""
-        factory.Entry(node__journal=self.journal, published=True, vle_coupling=Entry.GRADING)
+        factory.Entry(node__journal=self.journal, vle_coupling=Entry.GRADING)
         factory.Entry(node__journal=self.journal)
         lti_beats.check_if_need_VLE_publish()
 
     def test_update_journal_entries_vle_state(self):
         """Hopefully doesnt crash."""
-        entry = factory.Entry(node__journal=self.journal, published=True)
+        entry = factory.Entry(node__journal=self.journal)
+        api.create(self, 'grades', params={'entry_id': entry.id, 'grade': 0, 'published': True},
+                   user=self.teacher)
         lti_grade.change_entry_vle_coupling(self.journal, Entry.GRADING)
 
         entry = Entry.objects.get(pk=entry.pk)
@@ -177,7 +180,9 @@ class GradePassBackRequestXMLTest(TestCase):
 
     def test_replace_result_no_url(self):
         """Hopefully doesnt crash."""
-        factory.Entry(node__journal=self.journal, published=True)
+        entry = factory.Entry(node__journal=self.journal)
+        api.create(self, 'grades', params={'entry_id': entry.id, 'grade': 0, 'published': True},
+                   user=self.teacher)
         self.journal.sourcedid = None
         self.journal.grade_url = None
         self.journal.save()

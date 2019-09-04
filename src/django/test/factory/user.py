@@ -12,7 +12,7 @@ class UserFactory(factory.django.DjangoModelFactory):
     password = factory.PostGenerationMethodCall('set_password', DEFAULT_PASSWORD)
     verified_email = True
 
-    profile_picture = '/static/unknown-profile.png'
+    profile_picture = '/unknown-profile.png'
 
     first_name = factory.Faker('first_name')
     last_name = factory.Faker('last_name')

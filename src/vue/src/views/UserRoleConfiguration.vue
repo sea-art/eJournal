@@ -6,8 +6,15 @@
                 <thead>
                     <tr>
                         <th/>
-                        <th v-for="role in roles" :key="'th-' + role">
-                            <b-button v-if="!undeleteableRoles.includes(role)" @click="deleteRole(role)" class="delete-button">
+                        <th
+                            v-for="role in roles"
+                            :key="`th-${role}`"
+                        >
+                            <b-button
+                                v-if="!undeleteableRoles.includes(role)"
+                                class="delete-button"
+                                @click="deleteRole(role)"
+                            >
                                 {{ role }}
                                 <icon name="trash"/>
                             </b-button>
@@ -16,7 +23,10 @@
                             </span>
                         </th>
                         <th>
-                            <b-button @click="modalShow = !modalShow" class="add-button">
+                            <b-button
+                                class="add-button"
+                                @click="modalShow = !modalShow"
+                            >
                                 <icon name="plus-square"/>
                                 Add Role
                             </b-button>
@@ -24,14 +34,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="permission in permissions" :key="permission">
-                        <td class="permission-column"><b>{{ formatPermissionString(permission) }}</b></td>
-                        <td v-for="role in roles" :key="role + '-' + permission">
-                            <!-- eslint-disable -->
+                    <tr
+                        v-for="permission in permissions"
+                        :key="permission"
+                    >
+                        <td class="permission-column">
+                            <b>{{ formatPermissionString(permission) }}</b>
+                        </td>
+                        <td
+                            v-for="role in roles"
+                            :key="`${role}-${permission}`"
+                        >
                             <b-form-checkbox
+                                v-model="roleConfig[getIndex(role)][permission]"
                                 :class="{ 'input-disabled': essentialPermission(role, permission) }"
-                                v-model="roleConfig[getIndex(role)][permission]"/>
-                            <!-- eslint-enable -->
+                                inline
+                            />
                         </td>
                     </tr>
                 </tbody>
@@ -39,29 +57,45 @@
         </b-card>
 
         <transition name="fade">
-            <b-button @click="update()" v-if="isChanged" class="add-button fab">
-                <icon name="save" scale="1.5"/>
+            <b-button
+                v-if="isChanged"
+                class="add-button fab"
+                @click="update()"
+            >
+                <icon
+                    name="save"
+                    scale="1.5"
+                />
             </b-button>
         </transition>
 
         <b-modal
-            @shown="focusRoleNameInput"
+            v-model="modalShow"
             title="New Role"
             size="lg"
-            v-model="modalShow"
-            hide-footer>
+            hideFooter
+            @shown="focusRoleNameInput"
+        >
             <b-card class="no-hover">
                 <b-form-input
-                    @keyup.enter.native="addRole"
+                    ref="roleNameInput"
                     v-model="newRole"
                     class="multi-form theme-input"
-                    ref="roleNameInput"
-                    required placeholder="Role name"/>
-                <b-button @click="modalShow = false" class="delete-button float-left">
+                    required
+                    placeholder="Role name"
+                    @keyup.enter.native="addRole"
+                />
+                <b-button
+                    class="delete-button float-left"
+                    @click="modalShow = false"
+                >
                     <icon name="ban"/>
                     Cancel
                 </b-button>
-                <b-button @click="addRole" class="add-button float-right">
+                <b-button
+                    class="add-button float-right"
+                    @click="addRole"
+                >
                     <icon name="user-plus"/>
                     Create new role
                 </b-button>
@@ -73,16 +107,19 @@
 <script>
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import contentSingleTableColumn from '@/components/columns/ContentSingleTableColumn.vue'
-import icon from 'vue-awesome/components/Icon'
-import roleAPI from '@/api/role'
-import commonAPI from '@/api/common'
+import roleAPI from '@/api/role.js'
+import commonAPI from '@/api/common.js'
 
 export default {
     name: 'UserRoleConfiguration',
+    components: {
+        contentSingleTableColumn,
+        breadCrumb,
+    },
     props: {
         cID: {
-            required: true
-        }
+            required: true,
+        },
     },
     data () {
         return {
@@ -94,20 +131,41 @@ export default {
             undeleteableRoles: ['Student', 'TA', 'Teacher'],
             modalShow: false,
             newRole: '',
-            essentialPermissions: {'Teacher': ['can_edit_course_roles', 'can_edit_course_details']},
+            essentialPermissions: { Teacher: ['can_edit_course_roles', 'can_edit_course_details'] },
             setRoleConfig: false,
-            isChanged: false
+            isChanged: false,
         }
     },
     watch: {
         roleConfig: {
-            handler: function () {
+            handler () {
                 if (this.setRoleConfig) {
                     this.isChanged = true
                 }
             },
-            deep: true
-        }
+            deep: true,
+        },
+    },
+    created () {
+        /* Initialises roles, permissions and role config as well as their defaults.
+         * Roles and Permissions objects need to exist as deepcopy depends on then. */
+        roleAPI.getFromCourse(this.cID)
+            .then((roleConfig) => {
+                this.roleConfig = roleConfig
+
+                roleConfig.forEach((role) => {
+                    this.defaultRoles.push(role.name)
+                    this.roles.push(role.name)
+                })
+                this.permissions = Object.keys(roleConfig[0])
+                this.permissions.splice(this.permissions.indexOf('id'), 1)
+                this.permissions.splice(this.permissions.indexOf('name'), 1)
+                this.permissions.splice(this.permissions.indexOf('course'), 1)
+
+                this.originalRoleConfig = this.deepCopyRoles(roleConfig)
+
+                this.$nextTick(() => { this.setRoleConfig = true })
+            })
     },
     methods: {
         essentialPermission (role, permission) {
@@ -119,22 +177,22 @@ export default {
         callocRoleObject (role) {
             /* Initialises a role object with the given name, the pages cID
              * and permissions object with all  corresponding permissions set to false. */
-            var newPermissions = {}
+            const newPermissions = {}
 
-            for (var i = 0; i < this.permissions.length; i++) {
+            for (let i = 0; i < this.permissions.length; i++) {
                 newPermissions[this.permissions[i]] = 0
             }
 
             return { name: role, cID: this.cID, permissions: newPermissions }
         },
         deepCopyRoles (roles) {
-            var deepCopy = []
+            const deepCopy = []
 
-            for (var i = 0; i < roles.length; i++) {
+            for (let i = 0; i < roles.length; i++) {
                 deepCopy.push({})
-                for (var key in roles[i]) {
+                Object.keys(roles[i]).forEach((key) => {
                     deepCopy[i][key] = roles[i][key]
-                }
+                })
             }
 
             return deepCopy
@@ -153,26 +211,24 @@ export default {
             this.$refs.roleNameInput.focus()
         },
         update () {
-            roleAPI.update(this.cID, this.roleConfig, {customSuccessToast: 'Course roles successfully updated.'})
+            roleAPI.update(this.cID, this.roleConfig, { customSuccessToast: 'Course roles successfully updated.' })
                 .then(() => {
                     this.originalRoleConfig = this.deepCopyRoles(this.roleConfig)
                     this.defaultRoles = Array.from(this.roles)
                     this.checkPermission()
-                    this.$nextTick(function () {
-                        this.isChanged = false
-                    })
+                    this.$nextTick(() => { this.isChanged = false })
                 })
         },
         formatPermissionString (str) {
             /* Converts underscores to spaces and capatilises the first letter. */
-            var temp = str.split('_').join(' ')
+            const temp = str.split('_').join(' ')
             return temp[0].toUpperCase() + temp.slice(1)
         },
         deleteRole (role) {
-            if (confirm('Are you sure you want to delete the role "' + role + '" from this course?')) {
+            if (window.confirm(`Are you sure you want to delete the role "${role}" from this course?`)) {
                 if (this.defaultRoles.includes(role)) {
                     /* handle server update. */
-                    roleAPI.delete(this.cID, role, {customSuccessToast: 'Role deleted successfully!'})
+                    roleAPI.delete(this.cID, role, { customSuccessToast: 'Role deleted successfully!' })
                         .then(() => {
                             this.deleteRoleLocalConfig(role)
                             this.deleteRoleServerLoadedConfig(role)
@@ -183,27 +239,30 @@ export default {
             }
         },
         deleteRoleLocalConfig (role) {
-            var i = this.roleConfig.findIndex(p => p.name === role)
+            let i = this.roleConfig.findIndex(p => p.name === role)
             this.roleConfig.splice(i, 1)
             i = this.roles.findIndex(p => p === role)
             this.roles.splice(i, 1)
         },
         deleteRoleServerLoadedConfig (role) {
-            var i = this.originalRoleConfig.findIndex(p => p.name === role)
+            let i = this.originalRoleConfig.findIndex(p => p.name === role)
             this.originalRoleConfig.splice(i, 1)
             i = this.defaultRoles.findIndex(p => p === role)
             this.defaultRoles.splice(i, 1)
         },
         checkPermission () {
             commonAPI.getPermissions(this.cID)
-                .then(coursePermissions => {
-                    this.$store.commit('user/UPDATE_PERMISSIONS', { permissions: coursePermissions, key: 'course' + this.cID })
+                .then((coursePermissions) => {
+                    this.$store.commit(
+                        'user/UPDATE_PERMISSIONS',
+                        { permissions: coursePermissions, key: `course${this.cID}` },
+                    )
                     if (!this.$hasPermission('can_edit_course_roles')) { this.$router.push({ name: 'Home' }) }
                 })
         },
         checkChanged () {
-            for (var i = 0; i < this.roleConfig.length; i++) {
-                for (var j = 0; j < this.permissions.length; j++) {
+            for (let i = 0; i < this.roleConfig.length; i++) {
+                for (let j = 0; j < this.permissions.length; j++) {
                     if (this.roleConfig[i][this.permissions[j]] !== this.originalRoleConfig[i][this.permissions[j]]) {
                         return true
                     }
@@ -211,61 +270,31 @@ export default {
             }
 
             return false
-        }
-    },
-    created () {
-        /* Initialises roles, permissions and role config as well as their defaults.
-         * Roles and Permissions objects need to exist as deepcopy depends on then. */
-        roleAPI.getFromCourse(this.cID)
-            .then(roleConfig => {
-                this.roleConfig = roleConfig
-
-                roleConfig.forEach(role => {
-                    this.defaultRoles.push(role.name)
-                    this.roles.push(role.name)
-                })
-                this.permissions = Object.keys(roleConfig[0])
-                this.permissions.splice(this.permissions.indexOf('id'), 1)
-                this.permissions.splice(this.permissions.indexOf('name'), 1)
-                this.permissions.splice(this.permissions.indexOf('course'), 1)
-
-                this.originalRoleConfig = this.deepCopyRoles(roleConfig)
-
-                this.$nextTick(function () {
-                    this.setRoleConfig = true
-                })
-            })
-    },
-    components: {
-        'content-single-table-column': contentSingleTableColumn,
-        'bread-crumb': breadCrumb,
-        icon
+        },
     },
     beforeRouteLeave (to, from, next) {
-        if (this.checkChanged() && !confirm('Unsaved changes will be lost if you leave. Do you wish to continue?')) {
+        if (this.checkChanged()
+            && !window.confirm('Unsaved changes will be lost if you leave. Do you wish to continue?')) {
             next(false)
             return
         }
 
         next()
-    }
+    },
 }
 </script>
 
 <style lang="sass">
 .select-center
     text-align: center
-
 .table th
     text-align: center
-
 .table td
     text-align: center
     align-items: center
     .custom-checkbox
         margin: 0px
         padding-left: 2em
-
 .permission-column
     text-align: left !important
 </style>

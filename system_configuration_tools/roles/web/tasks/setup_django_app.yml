@@ -5,25 +5,20 @@
   file:
     state: absent
     path: "{{ project_path }}/"
-  tags: deploy
 
 - name: Recreate {{ project_path }} directory
   file:
     state: directory
     path: "{{ project_path }}/"
-  tags: deploy
 
 - name: Move the django content to the project_path
   command: rsync -r {{ tmp_build.path }}/src/django/ {{ project_path }}/ --exclude test
-  tags: deploy
 
 - name: Copy the requirements folder
   command: cp -r {{ tmp_build.path }}/requirements {{ project_path }}/requirements
-  tags: deploy
 
 - name: Install packages required by the Django app inside virtualenv
   pip: virtualenv={{ virtualenv_path }} requirements={{ requirements_file }}
-  tags: deploy
 
 - name: Run the Django syncdb command
   django_manage:
@@ -31,11 +26,10 @@
     app_path: "{{ project_path }}"
     virtualenv: "{{ virtualenv_path }}"
     settings: "{{ django_settings_file }}"
-  environment: "{{ django_environment }}"
+  environment: "{{ project_environment }}"
   when: run_django_syncdb is defined and run_django_syncdb
   tags:
     - django.syncdb
-    - deploy
 
 - name: Run Django database migrations
   django_manage:
@@ -43,11 +37,10 @@
     app_path: "{{ project_path }}"
     virtualenv: "{{ virtualenv_path }}"
     settings: "{{ django_settings_file }}"
-  environment: "{{ django_environment }}"
+  environment: "{{ project_environment }}"
   when: run_django_db_migrations is defined and run_django_db_migrations
   tags:
     - django.migrate
-    - deploy
 
 - name: Run Django collectstatic
   django_manage:
@@ -55,9 +48,16 @@
     app_path: "{{ project_path }}"
     virtualenv: "{{ virtualenv_path }}"
     settings: "{{ django_settings_file }}"
-  environment: "{{ django_environment }}"
+  environment: "{{ project_environment }}"
   when: run_django_collectstatic is defined and run_django_collectstatic
   notify: restart application
   tags:
     - django.collectstatic
-    - deploy
+
+- name: Ensure that the application file permissions are set properly
+  file: path={{ virtualenv_path }}
+        recurse=yes
+        owner={{ gunicorn_user }}
+        group={{ gunicorn_group }}
+        state=directory
+  changed_when: false

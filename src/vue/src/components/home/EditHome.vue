@@ -1,14 +1,30 @@
 <template>
     <b-card class="no-hover">
-        <b-form @submit.prevent="onSubmit" @reset.prevent="onReset">
-            <h2 class="field-heading">Institute name</h2>
-            <b-input class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input" type="text" v-model="instituteName" placeholder="Institute name"/>
+        <b-form
+            @submit.prevent="onSubmit"
+            @reset.prevent="onReset"
+        >
+            <h2 class="field-heading">
+                Institute name
+            </h2>
+            <b-input
+                v-model="instituteName"
+                class="mb-2 mr-sm-2 mb-sm-0 multi-form theme-input"
+                type="text"
+                placeholder="Institute name"
+            />
             <!-- TODO less placeholdery -->
-            <b-button class="float-right delete-button" type="reset">
+            <b-button
+                class="float-right delete-button"
+                type="reset"
+            >
                 <icon name="undo"/>
                 Reset
             </b-button>
-            <b-button class="float-right add-button" type="submit">
+            <b-button
+                class="float-right add-button"
+                type="submit"
+            >
                 <icon name="save"/>
                 Save
             </b-button>
@@ -17,17 +33,15 @@
 </template>
 
 <script>
-import icon from 'vue-awesome/components/Icon'
-
 export default {
     name: 'EditHome',
     data () {
         return {
-            instituteName: ''
+            instituteName: '',
         }
     },
     methods: {
-        onSubmit (evt) {
+        onSubmit () {
             /* TODO: Insert submission API. */
         },
         onReset (evt) {
@@ -38,10 +52,7 @@ export default {
             /* Trick to reset/clear native browser form validation state */
             this.show = false
             this.$nextTick(() => { this.show = true })
-        }
+        },
     },
-    components: {
-        icon
-    }
 }
 </script>

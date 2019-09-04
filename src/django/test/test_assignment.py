@@ -3,6 +3,8 @@ from test.utils import api
 
 from django.test import TestCase
 
+import VLE.utils.generic_utils as utils
+
 
 class AssignmentAPITest(TestCase):
     def setUp(self):
@@ -73,3 +75,32 @@ class AssignmentAPITest(TestCase):
                           params={'pk': assignment.pk, 'course_id': self.course.id}, user=self.teacher)
         assert 'removed' not in resp['description'] and 'deleted' in resp['description'], \
             'The assignment should be deleted from the course, not removed'
+
+    def test_copyable(self):
+        teacher = factory.Teacher()
+        course = factory.Course(author=teacher)
+        assignment = factory.TemplateAssignment(courses=[course])
+        factory.TemplateFormat(assignment=assignment)
+        assignment2 = factory.TemplateAssignment(courses=[course])
+        factory.TemplateFormat(assignment=assignment2)
+        journal = factory.Journal(assignment=assignment2)
+        [factory.Entry(node__journal=journal) for _ in range(4)]
+
+        resp = api.get(self, 'assignments/copyable', params={'pk': assignment.pk}, user=teacher)['data']
+        assert len(resp[0]['assignments']) == 1
+        assert resp[0]['course']['id'] == course.id, 'copyable assignments should be displayed'
+
+        before_id = api.get(self, 'formats', params={'pk': assignment2.pk},
+                            user=teacher)['format']['templates'][0]['id']
+        before_from_id = api.get(self, 'formats', params={'pk': assignment.pk},
+                                 user=teacher)['format']['templates'][0]['id']
+        resp = api.update(self, 'formats/copy', params={'pk': assignment2.pk, 'from_assignment_id': assignment.pk},
+                          user=teacher)
+        after_id = api.get(self, 'formats', params={'pk': assignment2.pk}, user=teacher)['format']['templates'][0]['id']
+
+        after_from_id = api.get(self, 'formats', params={'pk': assignment.pk},
+                                user=teacher)['format']['templates'][0]['id']
+        assert before_id != after_id, 'Assignment should be changed'
+        assert before_from_id == after_from_id, 'From assignment templates should be unchanged'
+
+        assert len(utils.get_journal_entries(journal)) == 4, 'Old entries should not be removed'
