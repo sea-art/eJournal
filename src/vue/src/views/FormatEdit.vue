@@ -502,6 +502,7 @@ export default {
                     this.currentTemplate = -1
                     this.newTemplateId = -1
                     this.newPresetId = -1
+                    this.currentNode = -1
                 })
                 .catch(() => { this.saveRequestInFlight = false })
         },

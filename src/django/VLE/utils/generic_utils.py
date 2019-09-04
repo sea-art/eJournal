@@ -153,6 +153,7 @@ def update_templates(format, templates):
             if old_template.archived:
                 old_template.save()
                 new_template = parse_template(template, format)
+                new_ids[template['id']] = new_template.pk
 
                 # Update preset nodes to use the new template.
                 presets = PresetNode.objects.filter(forced_template=old_template).all()
@@ -230,10 +231,10 @@ def update_presets(assignment, presets, new_ids):
         if preset_node.type == Node.PROGRESS:
             preset_node.target = target
         elif preset_node.type == Node.ENTRYDEADLINE:
-            if template['id'] > 0:
-                preset_node.forced_template = Template.objects.get(pk=template['id'])
-            else:
+            if template['id'] in new_ids:
                 preset_node.forced_template = Template.objects.get(pk=new_ids[template['id']])
+            else:
+                preset_node.forced_template = Template.objects.get(pk=template['id'])
         preset_node.save()
         if id < 0:
             update_journals(assignment.journal_set.all(), preset_node)
