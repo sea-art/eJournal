@@ -12,7 +12,7 @@ export default {
     },
 
     copy (id, data, connArgs = auth.DEFAULT_CONN_ARGS) {
-        return auth.post(`formats/${id}/copy`, data, connArgs)
+        return auth.update(`formats/${id}/copy`, data, connArgs)
             .then(response => response.data)
     },
 }

@@ -847,7 +847,8 @@ class Grade(models.Model):
         editable=False
     )
     creation_date = models.DateTimeField(
-        editable=False
+        editable=False,
+        auto_now_add=True
     )
     author = models.ForeignKey(
         'User',

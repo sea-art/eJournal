@@ -40,7 +40,7 @@ class Migration(migrations.Migration):
                 ('entry', models.ForeignKey(editable=False, on_delete=django.db.models.deletion.CASCADE, related_name='+', to='VLE.Entry')),
                 ('grade', models.FloatField(editable=False, null=True)),
                 ('published', models.BooleanField(default=False, editable=False)),
-                ('creation_date', models.DateTimeField(editable=False)),
+                ('creation_date', models.DateTimeField(editable=False, auto_now_add=True)),
                 ('author', models.ForeignKey(editable=False, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
             ],
         ),
@@ -56,7 +56,11 @@ class Migration(migrations.Migration):
             name='can_view_grade_history',
             field=models.BooleanField(default=False),
         ),
-        migrations.AlterField(
+        migrations.RemoveField(
+            model_name='entry',
+            name='grade',
+        ),
+        migrations.AddField(
             model_name='entry',
             name='grade',
             field=models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='VLE.Grade'),

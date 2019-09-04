@@ -373,17 +373,24 @@ export default {
                 && this.currentNode < this.nodes.length
                 && (this.nodes[this.currentNode].type === 'e'
                 || (this.nodes[this.currentNode].type === 'd' && this.nodes[this.currentNode].entry !== null))) {
-                if ((this.$refs['entry-template-card'].grade.grade !== this.nodes[this.currentNode].entry.grade.grade
-                    || this.$refs['entry-template-card'].grade.published
-                    !== this.nodes[this.currentNode].entry.grade.published)
-                    && !window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
-                    return false
+                if (this.nodes[this.currentNode].entry.grade === null) {
+                    if (this.$refs['entry-template-card'].grade.grade > 0) {
+                        if (!window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                            return false
+                        }
+                    }
+                } else if (this.$refs['entry-template-card'].grade.grade
+                           !== this.nodes[this.currentNode].entry.grade.grade
+                           || this.$refs['entry-template-card'].grade.published
+                           !== this.nodes[this.currentNode].entry.grade.published) {
+                    if (!window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                        return false
+                    }
                 }
             }
 
             return true
         },
-
         commitBonus () {
             if (this.journal.bonus_points !== null && this.journal.bonus_points !== '') {
                 journalAPI.update(

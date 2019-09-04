@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('VLE', '0023_template_format_rework'),
+        ('VLE', '0025_template_format_rework'),
     ]
 
     operations = [
