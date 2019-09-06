@@ -196,57 +196,11 @@ export default {
             getJournalGroupFilter: 'preferences/journalGroupFilter',
         }),
         filteredJournals () {
-            const self = this
-
-            function compareFullName (a, b) {
-                return self.compare(a.student.full_name, b.student.full_name)
+            if (this.assignmentJournals.length > 0) {
+                store.setFilteredJournals(this.assignmentJournals, this.order, this.getJournalGroupFilter,
+                    this.getJournalSearchValue, this.getJournalSortBy)
             }
-
-            function compareUsername (a, b) {
-                return self.compare(a.student.username, b.student.username)
-            }
-
-            function compareMarkingNeeded (a, b) {
-                return self.compare(a.stats.submitted - a.stats.graded, b.stats.submitted - b.stats.graded)
-            }
-
-            function comparePoints (a, b) {
-                return self.compare(a.stats.acquired_points, b.stats.acquired_points)
-            }
-
-            function searchFilter (journal) {
-                const username = journal.student.username.toLowerCase()
-                const fullName = journal.student.full_name
-                const searchVariable = self.getJournalSearchValue.toLowerCase()
-
-                return username.includes(searchVariable)
-                    || fullName.includes(searchVariable)
-            }
-
-            function groupFilter (journal) {
-                if (self.getJournalGroupFilter) {
-                    return journal.student.groups.map(g => g.name).includes(self.getJournalGroupFilter)
-                }
-
-                return true
-            }
-
-            if (store.state.filteredJournals.length === 0) {
-                /* Filter list based on search input. */
-                if (this.getJournalSortBy === 'name') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareFullName))
-                } else if (this.getJournalSortBy === 'username') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareUsername))
-                } else if (this.getJournalSortBy === 'markingNeeded') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(compareMarkingNeeded))
-                } else if (this.getJournalSortBy === 'points') {
-                    store.setFilteredJournals(this.assignmentJournals.filter(searchFilter).sort(comparePoints))
-                }
-
-                return store.state.filteredJournals.filter(groupFilter).slice()
-            }
-
-            return store.state.filteredJournals.slice()
+            return store.state.filteredJournals
         },
         prevJournal () {
             const curIndex = this.findIndex(this.filteredJournals, 'id', this.jID)
@@ -364,11 +318,6 @@ export default {
             }
 
             return false
-        },
-        compare (a, b) {
-            if (a < b) { return -1 }
-            if (a > b) { return 1 }
-            return 0
         },
         discardChanges () {
             if (this.currentNode !== -1

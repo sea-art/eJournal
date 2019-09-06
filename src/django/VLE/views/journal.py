@@ -51,7 +51,13 @@ class JournalView(viewsets.ViewSet):
 
         users = course.participation_set.filter(role__can_have_journal=True).values('user')
         queryset = assignment.journal_set.filter(user__in=users)
-        journals = JournalSerializer(queryset, many=True).data
+        journals = JournalSerializer(
+            queryset,
+            many=True,
+            context={
+                'user': request.user,
+                'course': course,
+            }).data
 
         return response.success({'journals': journals})
 
@@ -74,7 +80,9 @@ class JournalView(viewsets.ViewSet):
         journal = Journal.objects.get(pk=pk)
         request.user.check_can_view(journal)
 
-        serializer = JournalSerializer(journal)
+        serializer = JournalSerializer(journal, context={
+            'user': requset.user,
+        })
         return response.success({'journal': serializer.data})
 
     def partial_update(self, request, *args, **kwargs):

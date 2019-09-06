@@ -5,11 +5,11 @@ from VLE.views.comment import CommentView
 from VLE.views.course import CourseView
 from VLE.views.entry import EntryView
 from VLE.views.format import FormatView
-from VLE.views.group import GroupView
 from VLE.views.grade import GradeView
-from VLE.views.member import MemberView
+from VLE.views.group import GroupView
 from VLE.views.instance import InstanceView
 from VLE.views.journal import JournalView
+from VLE.views.member import MemberView
 from VLE.views.node import NodeView
 from VLE.views.participation import ParticipationView
 from VLE.views.preferences import PreferencesView
