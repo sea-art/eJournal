@@ -81,7 +81,7 @@ class JournalView(viewsets.ViewSet):
         request.user.check_can_view(journal)
 
         serializer = JournalSerializer(journal, context={
-            'user': requset.user,
+            'user': request.user,
         })
         return response.success({'journal': serializer.data})
 
