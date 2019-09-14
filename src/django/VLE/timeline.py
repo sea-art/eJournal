@@ -67,9 +67,9 @@ def get_add_node(journal):
     return {
         'type': Node.ADDNODE,
         'nID': -1,
-        'templates': TemplateSerializer(journal.assignment.format.template_set.filter(archived=False,
-                                                                                      preset_only=False),
-                                        many=True).data
+        'templates': TemplateSerializer(
+            journal.assignment.format.template_set.filter(archived=False, preset_only=False).order_by('name'),
+            many=True).data
     }
 
 

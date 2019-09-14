@@ -359,7 +359,7 @@ class FormatSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', )
 
     def get_templates(self, format):
-        return TemplateSerializer(format.template_set.filter(archived=False), many=True).data
+        return TemplateSerializer(format.template_set.filter(archived=False).order_by('name'), many=True).data
 
     def get_presets(self, format):
         return PresetNodeSerializer(format.presetnode_set.all().order_by('due_date'), many=True).data
