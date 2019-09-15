@@ -11,9 +11,8 @@
 #     - tasks.py
 #     - models.py
 
-from .email import *
-from .lti import *
-
 from .beats.backup import *
 from .beats.lti import *
 from .beats.notifications import *
+from .email import *
+from .lti import *

@@ -1,21 +1,28 @@
 <template>
     <div>
         <div
-            v-for="a in assignments"
-            :key="a.id"
+            v-for="linkable in linkableAssignments"
+            :key="`linkable-${linkable.course.id}`"
         >
-            <div v-if="a.lti_couples">
+            <main-card
+                v-if="linkable.course.id !== page.cID"
+                :key="`course-${linkable.course.id}-copy`"
+                :line1="linkable.course.name"
+                :line2="linkable.course.startdate ? (linkable.course.startdate.substring(0, 4) +
+                    (linkable.course.enddate ? ` - ${linkable.course.enddate.substring(0, 4)}` : '')) : ''"
+                @click.native="() => {
+                    selectedCourse = linkable.course.id
+                }"
+            />
+            <div
+                v-if="selectedCourse === linkable.course.id"
+                class="pl-5"
+            >
                 <assignment-card
-                    :assignment="a"
-                    class="orange-border"
-                    @click.native="linkAssignment(a.id, a.lti_couples)"
-                />
-            </div>
-            <div v-else>
-                <assignment-card
-                    :assignment="a"
-                    class="green-border"
-                    @click.native="linkAssignment(a.id, a.lti_couples)"
+                    v-for="assignment in linkable.assignments"
+                    :key="`assignment-${assignment.id}-copy`"
+                    :assignment="assignment"
+                    @click.native="linkAssignment(assignment.id, assignment.lti_count)"
                 />
             </div>
         </div>
@@ -24,32 +31,27 @@
 
 <script>
 import assignmentCard from '@/components/assignment/AssignmentCard.vue'
+import mainCard from '@/components/assets/MainCard.vue'
 import assignmentAPI from '@/api/assignment.js'
 
 export default {
     name: 'LinkAssignment',
     components: {
         assignmentCard,
+        mainCard,
     },
-    props: ['lti', 'page'],
+    props: ['lti', 'page', 'linkableAssignments'],
     data () {
         return {
-            assignments: [],
+            selectedCourse: null,
         }
     },
-    created () {
-        this.loadAssignments()
-    },
     methods: {
-        loadAssignments () {
-            assignmentAPI.list(this.page.cID)
-                .then((assignments) => { this.assignments = assignments })
-        },
-        linkAssignment (aID, aLtiCouples) {
-            if (!aLtiCouples || window.confirm(
-                `This assignment is already linked to ${aLtiCouples > 1 ? `${aLtiCouples} ` : 'an'}
-                other assignment${aLtiCouples > 1 ? 's' : ''} from the LMS, are you sure you want to
-                link this one as well?`)) {
+        linkAssignment (aID, ltiCount) {
+            if (!ltiCount || window.confirm(
+                `This assignment is already linked to ${ltiCount > 1 ? `${ltiCount} ` : 'an'}`
+                + `other assignment${ltiCount > 1 ? 's' : ''} on the LMS (Canvas). Are you sure you want to`
+                + ' link this one as well? Grades will only be passed back to the new link.')) {
                 assignmentAPI.update(aID, {
                     lti_id: this.lti.ltiAssignID,
                     points_possible: this.lti.ltiPointsPossible,
@@ -57,6 +59,7 @@ export default {
                     unlock_date: this.lti.ltiAssignUnlock ? this.lti.ltiAssignUnlock.slice(0, -6) : null,
                     due_date: this.lti.ltiAssignDue ? this.lti.ltiAssignDue.slice(0, -6) : null,
                     lock_date: this.lti.ltiAssignLock ? this.lti.ltiAssignLock.slice(0, -6) : null,
+                    course_id: this.page.cID,
                 })
                     .then((assignment) => { this.$emit('handleAction', assignment.id) })
                     .catch((error) => {

@@ -4,12 +4,14 @@ grade.py.
 In this file are all the grade api requests.
 """
 from rest_framework import viewsets
+from rest_framework.decorators import action
 
 import VLE.factory as factory
 import VLE.lti_grade_passback as lti_grade
+import VLE.tasks.grading as grading_tasks
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
-from VLE.models import Comment, Entry, Grade
+from VLE.models import Assignment, Comment, Entry, Grade
 from VLE.serializers import EntrySerializer, GradeHistorySerializer
 
 
@@ -85,7 +87,19 @@ class GradeView(viewsets.ViewSet):
         if published:
             Comment.objects.filter(entry=entry).update(published=True)
 
+        # TODO: Is the lti flag ever used? Else move replace_result to celery
         return response.created({
             'entry': EntrySerializer(entry, context={'user': request.user}).data,
             'lti': lti_grade.replace_result(journal)
         })
+
+    @action(methods=['patch'], detail=False)
+    def publish_all_assignment_grades(self, request):
+        """This will publish all (unpublished) grades for a given assignment."""
+        assignment_id, = utils.required_typed_params(request.data, (int, 'assignment_id'))
+        assignment = Assignment.objects.get(pk=assignment_id)
+
+        request.user.check_permission('can_publish_grades', assignment)
+        grading_tasks.publish_all_assignment_grades(request.user, assignment.pk)
+
+        return response.success()

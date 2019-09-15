@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
-from VLE.models import Course, Group, Lti_ids
+from VLE.models import Course, Group
 from VLE.serializers import GroupSerializer
 from VLE.utils.error_handling import VLEPermissionError
 
@@ -73,7 +73,7 @@ class GroupView(viewsets.ViewSet):
         request.user.check_permission('can_add_course_user_group', course)
 
         if Group.objects.filter(name=name, course=course).exists():
-            return response.bad_request('Course group with that name already exists.')
+            return response.bad_request('Course group with the desired name already exists.')
 
         course_group = factory.make_course_group(name, course, lti_id)
         serializer = GroupSerializer(course_group, many=False)
@@ -142,12 +142,12 @@ class GroupView(viewsets.ViewSet):
 
     @action(['get'], detail=False)
     def datanose(self, request):
+        """"""
         course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
         course = Course.objects.get(pk=course_id)
         check_can_view_groups(request.user, course)
 
-        for lti_id in Lti_ids.objects.filter(course=course):
-            factory.make_lti_groups(lti_id.lti_id, lti_id.course)
+        factory.make_lti_groups(course)
 
         queryset = Group.objects.filter(course=course)
         serializer = GroupSerializer(queryset, many=True, context={'user': request.user, 'course': course})

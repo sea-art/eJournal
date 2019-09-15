@@ -1,33 +1,37 @@
 <template>
     <content-single-column>
-        <h1 class="mb-2">
-            <span>Welcome to eJournal!</span>
-        </h1>
-        <b-card class="no-hover">
-            <h2 class="multi-form">
-                Let's get started
-            </h2>
-            <span class="d-block mb-2">
-                Good to see you, <i>{{ lti.fullName ? lti.fullName : lti.username }}</i>. In order to link your
-                learning environment to eJournal, please choose one of the options below.
-            </span>
-            <lti-create-link-user
-                v-if="handleUserIntegration"
-                :lti="lti"
-                @handleAction="userIntegrated"
-            />
-        </b-card>
+        <div v-if="handleUserIntegration">
+            <h1 class="mb-2">
+                <span>Welcome to eJournal!</span>
+            </h1>
+            <b-card class="no-hover">
+                <h2 class="multi-form">
+                    Let's get started
+                </h2>
+                <span class="d-block mb-2">
+                    Good to see you, <i>{{ lti.fullName ? lti.fullName : lti.username }}</i>. To link your
+                    learning environment to eJournal, please choose one of the options below.
+                </span>
+                <lti-create-link-user
+                    :lti="lti"
+                    @handleAction="userIntegrated"
+                />
+            </b-card>
+        </div>
+        <load-spinner v-else/>
     </content-single-column>
 </template>
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import loadSpinner from '@/components/assets/LoadSpinner.vue'
 import ltiCreateLinkUser from '@/components/lti/LtiCreateLinkUser.vue'
 
 export default {
     name: 'LtiLogin',
     components: {
         contentSingleColumn,
+        loadSpinner,
         ltiCreateLinkUser,
     },
     data () {

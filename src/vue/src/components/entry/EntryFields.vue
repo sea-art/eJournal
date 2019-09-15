@@ -1,7 +1,7 @@
 <template>
     <div v-if="!displayMode">
         <div
-            v-for="(field, i) in template.field_set"
+            v-for="(field, i) in template.field_set.sort((a, b) => a.location - b.location)"
             :key="`node ${nodeID}-field-${field.id}`"
             class="multi-form"
         >
@@ -85,7 +85,7 @@
     <!-- Display section -->
     <div v-else>
         <div
-            v-for="field in fieldsToDisplay"
+            v-for="field in fieldsToDisplay.sort((a, b) => a.location - b.location)"
             :key="`node-${nodeID}-field-${field.id}`"
             class="multi-form"
         >

@@ -30,7 +30,8 @@ def get_nodes(journal, user=None):
     add-node if the user can add to the journal, the subsequent
     progress node is in the future and maximally one.
     """
-    can_add = user and journal.user == user and user.has_permission('can_have_journal', journal.assignment)
+    can_add = user and journal.user == user and user.has_permission('can_have_journal', journal.assignment) and \
+        not journal.needs_lti_link()
 
     node_list = []
     for node in get_sorted_nodes(journal):
@@ -67,9 +68,9 @@ def get_add_node(journal):
     return {
         'type': Node.ADDNODE,
         'nID': -1,
-        'templates': TemplateSerializer(journal.assignment.format.template_set.filter(archived=False,
-                                                                                      preset_only=False),
-                                        many=True).data
+        'templates': TemplateSerializer(
+            journal.assignment.format.template_set.filter(archived=False, preset_only=False).order_by('name'),
+            many=True).data
     }
 
 

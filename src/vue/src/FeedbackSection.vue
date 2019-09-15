@@ -51,7 +51,8 @@ export default {
 @import '~sass/modules/breakpoints.sass'
 
 .feedback-wrapper
-    position: absolute
+    position: fixed
+    bottom: 0px
     .feedback-button
         font-family: 'Roboto Condensed', sans-serif
         cursor: pointer

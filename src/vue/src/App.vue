@@ -1,10 +1,7 @@
 <template>
     <div id="app">
         <header-bar/>
-        <router-view
-            :key="$route.path"
-            class="min-height-100"
-        />
+        <router-view :key="$route.path"/>
         <feedback-section/>
     </div>
 </template>

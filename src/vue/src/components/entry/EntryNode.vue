@@ -157,7 +157,7 @@ export default {
     },
     computed: {
         gradePublished () {
-            return this.entryNode.entry && this.entryNode.entry.grade
+            return this.entryNode.entry && this.entryNode.entry.grade && this.entryNode.entry.grade.published
         },
     },
     watch: {
@@ -201,7 +201,7 @@ export default {
             let matchFound
             /* Loads in the data of an entry in the right order by matching
              * the different data-fields with the corresponding template-IDs. */
-            this.entryNode.entry.template.field_set.forEach((templateField) => {
+            this.entryNode.entry.template.field_set.sort((a, b) => a.location - b.location).forEach((templateField) => {
                 matchFound = false
 
                 matchFound = this.entryNode.entry.content.some((content) => {
@@ -228,7 +228,7 @@ export default {
         checkFilled () {
             for (let i = 0; i < this.completeContent.length; i++) {
                 const content = this.completeContent[i]
-                const field = this.entryNode.entry.template.field_set[i]
+                const field = this.entryNode.entry.template.field_set.sort((a, b) => a.location - b.location)[i]
                 if (field.required && !content.data) {
                     return false
                 }

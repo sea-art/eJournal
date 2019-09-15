@@ -36,7 +36,7 @@ SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
 # NOTE: CSP takes presedence over X_FRAME if both are supported
 X_FRAME_OPTIONS = 'DENY'
-CSP_DEFAULT_SRC = ("'self'", '*.canvas.uva.nl')
+CSP_DEFAULT_SRC = ("'self'", 'canvas.uva.nl')
 SECURE_BROWSER_XSS_FILTER = True
 
 DEBUG = False

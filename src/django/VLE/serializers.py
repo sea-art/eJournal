@@ -9,7 +9,7 @@ from rest_framework import serializers
 
 import VLE.permissions as permissions
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field, Format, Grade, Group, Instance, Journal,
-                        Lti_ids, Node, Participation, Preferences, PresetNode, Role, Template, User)
+                        Node, Participation, Preferences, PresetNode, Role, Template, User)
 
 
 class InstanceSerializer(serializers.ModelSerializer):
@@ -107,7 +107,7 @@ class CourseSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', )
 
     def get_lti_linked(self, course):
-        return Lti_ids.objects.filter(course=course.pk).exists()
+        return course.has_lti_link()
 
 
 class GroupSerializer(serializers.ModelSerializer):
@@ -143,15 +143,32 @@ class ParticipationSerializer(serializers.ModelSerializer):
 
 class AssignmentDetailsSerializer(serializers.ModelSerializer):
     course_count = serializers.SerializerMethodField()
+    lti_count = serializers.SerializerMethodField()
+    active_lti_course = serializers.SerializerMethodField()
 
     class Meta:
         model = Assignment
         fields = ('id', 'name', 'description', 'points_possible', 'unlock_date', 'due_date', 'lock_date',
-                  'is_published', 'course_count')
+                  'is_published', 'course_count', 'lti_count', 'active_lti_course')
         read_only_fields = ('id', )
 
     def get_course_count(self, assignment):
         return assignment.courses.count()
+
+    def get_lti_count(self, assignment):
+        if 'user' in self.context and self.context['user'] and \
+           self.context['user'].has_permission('can_edit_assignment', assignment):
+            return len(assignment.lti_id_set)
+        return None
+
+    def get_active_lti_course(self, assignment):
+        if 'user' in self.context and self.context['user'] and \
+           self.context['user'].is_participant(assignment):
+            c = assignment.get_active_course()
+            if c:
+                return {'cID': c.pk, 'name': c.name}
+            return None
+        return None
 
 
 class AssignmentSerializer(serializers.ModelSerializer):
@@ -162,6 +179,8 @@ class AssignmentSerializer(serializers.ModelSerializer):
     courses = serializers.SerializerMethodField()
     course_count = serializers.SerializerMethodField()
     journals = serializers.SerializerMethodField()
+    active_lti_course = serializers.SerializerMethodField()
+    lti_courses = serializers.SerializerMethodField()
 
     class Meta:
         model = Assignment
@@ -282,12 +301,31 @@ class AssignmentSerializer(serializers.ModelSerializer):
             return None
         if not self.context['course'] in assignment.courses.all():
             return None
-        return CourseSerializer(self.context['course']).data
+        if 'user' in self.context and self.context['user'] and \
+                self.context['user'].is_participant(self.context['course']):
+            return CourseSerializer(self.context['course']).data
+        return None
 
     def get_courses(self, assignment):
         if 'course' in self.context and self.context['course']:
             return None
         return CourseSerializer(assignment.courses, many=True).data
+
+    def get_active_lti_course(self, assignment):
+        if 'user' in self.context and self.context['user'] and \
+           self.context['user'].is_participant(assignment):
+            c = assignment.get_active_course()
+            if c:
+                return {'cID': c.pk, 'name': c.name}
+            return None
+        return None
+
+    def get_lti_courses(self, assignment):
+        if 'user' in self.context and self.context['user'] and \
+           self.context['user'].has_permission('can_edit_assignment', assignment):
+            courses = assignment.courses.filter(assignment_lti_id_set__overlap=assignment.lti_id_set)
+            return {c.pk: c.name for c in courses}
+        return None
 
     def get_course_count(self, assignment):
         return assignment.courses.count()
@@ -327,14 +365,18 @@ class JournalSerializer(serializers.ModelSerializer):
     stats = serializers.SerializerMethodField()
     student = serializers.SerializerMethodField()
     grade = serializers.SerializerMethodField()
+    needs_lti_link = serializers.SerializerMethodField()
 
     class Meta:
         model = Journal
-        fields = '__all__'
+        fields = ('id', 'bonus_points', 'grade', 'student', 'needs_lti_link', 'stats')
         read_only_fields = ('id', 'assignment', 'user', 'grade_url', 'sourcedid', 'grade')
 
     def get_grade(self, journal):
         return journal.get_grade()
+
+    def get_needs_lti_link(self, journal):
+        return journal.needs_lti_link()
 
     def get_student(self, journal):
         return UserSerializer(journal.user, context=self.context).data
@@ -359,7 +401,7 @@ class FormatSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', )
 
     def get_templates(self, format):
-        return TemplateSerializer(format.template_set.filter(archived=False), many=True).data
+        return TemplateSerializer(format.template_set.filter(archived=False).order_by('name'), many=True).data
 
     def get_presets(self, format):
         return PresetNodeSerializer(format.presetnode_set.all().order_by('due_date'), many=True).data

@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 from VLE.models import Assignment, Entry, Field, PresetNode, Template
-from VLE.serializers import AssignmentDetailsSerializer, AssignmentSerializer, FormatSerializer
+from VLE.serializers import AssignmentDetailsSerializer, FormatSerializer
 
 
 class FormatView(viewsets.ViewSet):
@@ -36,7 +36,7 @@ class FormatView(viewsets.ViewSet):
         request.user.check_permission('can_edit_assignment', assignment)
 
         serializer = FormatSerializer(assignment.format)
-        assignment_details = AssignmentDetailsSerializer(assignment)
+        assignment_details = AssignmentDetailsSerializer(assignment, context={'user': request.user})
 
         return response.success({'format': serializer.data, 'assignment_details': assignment_details.data})
 
@@ -86,7 +86,8 @@ class FormatView(viewsets.ViewSet):
                 req_data[key] = None
 
         # Update the assignment details
-        serializer = AssignmentSerializer(assignment, data=req_data, context={'user': request.user}, partial=True)
+        serializer = AssignmentDetailsSerializer(assignment, data=req_data, context={'user': request.user},
+                                                 partial=True)
         if not serializer.is_valid():
             return response.bad_request('Invalid data.')
         serializer.save()
@@ -98,7 +99,7 @@ class FormatView(viewsets.ViewSet):
         utils.archive_templates(removed_templates)
 
         serializer = FormatSerializer(format)
-        assignment_details = AssignmentDetailsSerializer(assignment)
+        assignment_details = AssignmentDetailsSerializer(assignment, context={'user': request.user})
 
         return response.success({'format': serializer.data, 'assignment_details': assignment_details.data})
 
@@ -163,6 +164,6 @@ class FormatView(viewsets.ViewSet):
             utils.update_journals(to_assignment.journal_set.all(), preset)
 
         serializer = FormatSerializer(to_assignment.format)
-        assignment_details = AssignmentDetailsSerializer(to_assignment)
+        assignment_details = AssignmentDetailsSerializer(to_assignment, context={'user': request.user})
 
         return response.success({'format': serializer.data, 'assignment_details': assignment_details.data})

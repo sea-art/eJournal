@@ -2,8 +2,6 @@ import test.factory.course
 
 import factory
 
-import VLE.models
-
 
 class AssignmentFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -25,7 +23,7 @@ class AssignmentFactory(factory.django.DjangoModelFactory):
             for course in extracted:
                 self.courses.add(course)
                 p = factory.SubFactory('test.factory.participation.ParticipationFactory')
-                p.user = self.author,
+                p.user = self.author
                 p.course = course
                 p.role = factory.SubFactory('test.factory.role.TeacherRoleFactory')
         else:
@@ -40,13 +38,22 @@ class TemplateAssignmentFactory(AssignmentFactory):
 
 
 class LtiAssignmentFactory(AssignmentFactory):
-    lti_id = factory.RelatedFactory('test.factory.lti.LtiFactory', 'assignment',
-                                    for_model=VLE.models.Lti_ids.ASSIGNMENT)
+    active_lti_id = factory.Sequence(lambda x: "assignment_lti_id{}".format(x))
 
     @factory.post_generation
-    def link_lti_id(self, create, extracted):
+    def courses(self, create, extracted):
         if not create:
             return
-        lti_id = VLE.models.Lti_ids.objects.last()
-        lti_id.assignment = self
-        lti_id.save()
+
+        if extracted:
+            for course in extracted:
+                self.courses.add(course)
+                p = factory.SubFactory('test.factory.participation.ParticipationFactory')
+                p.user = self.author
+                p.course = course
+                p.role = factory.SubFactory('test.factory.role.TeacherRoleFactory')
+        else:
+            course = test.factory.course.LtiCourseFactory()
+            course.assignment_lti_id_set.append(self.active_lti_id)
+            course.save()
+            self.courses.add(course)

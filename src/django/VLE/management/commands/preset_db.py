@@ -116,28 +116,28 @@ class Command(BaseCommand):
     def gen_courses(self):
         """Generate courses."""
         courses_examples = {
-            "Portfolio Academische Vaardigheden 1": {
+            "Portfolio Academische Vaardigheden - Cohort 1": {
                 "pk": 1697,
-                "name": "Portfolio Academische Vaardigheden 1",
+                "name": "Portfolio Academische Vaardigheden - Cohort 1",
                 "abbr": "PAV1",
                 "author": self.users["Teacher"],
                 "students": [self.users[s] for s in ["Student", "Student2", "Student3", "Student4", "Student5"]],
                 "teachers": [self.users["Teacher"]],
                 "tas": [self.users["TA"]],
                 "start_date": faker.date("2018-09-01"),
-                "end_date": faker.date("2019-09-01"),
+                "end_date": faker.date("2021-07-31"),
                 "student_group_names": ["Cobol", "Smalltalk"]
             },
-            "Portfolio Academische Vaardigheden 2": {
+            "Portfolio Academische Vaardigheden - Cohort 2": {
                 "pk": 1698,
-                "name": "Portfolio Academische Vaardigheden 2",
+                "name": "Portfolio Academische Vaardigheden - Cohort 2",
                 "abbr": "PAV2",
                 "author": self.users["Teacher"],
                 "students": [self.users[s] for s in ["Student", "Student2", "Student3", "Student4", "Student5"]],
                 "teachers": [self.users["Teacher"]],
                 "tas": [self.users["TA2"]],
-                "start_date": faker.date("2018-09-01"),
-                "end_date": faker.date("2019-09-01"),
+                "start_date": faker.date("2019-09-01"),
+                "end_date": faker.date("2022-07-31"),
                 "student_group_names": ["Algol", "Ruby"]
             }
         }
@@ -245,8 +245,8 @@ class Command(BaseCommand):
                 "name": "Logboek",
                 "description": "This is a logboek for all your logging purposes",
                 "courses": [
-                    self.courses["Portfolio Academische Vaardigheden 1"],
-                    self.courses["Portfolio Academische Vaardigheden 2"]
+                    self.courses["Portfolio Academische Vaardigheden - Cohort 1"],
+                    self.courses["Portfolio Academische Vaardigheden - Cohort 2"]
                 ],
                 "format": 0,
                 "author": self.users["Teacher"],
@@ -254,7 +254,7 @@ class Command(BaseCommand):
             {
                 "name": "Colloquium",
                 "description": "This is the best colloquium logbook in the world",
-                "courses": [self.courses["Portfolio Academische Vaardigheden 1"]],
+                "courses": [self.courses["Portfolio Academische Vaardigheden - Cohort 1"]],
                 "format": 1,
                 "author": self.users["Teacher"],
             }
