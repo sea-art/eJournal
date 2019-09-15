@@ -18,6 +18,10 @@ class UserFactory(factory.django.DjangoModelFactory):
     last_name = factory.Faker('last_name')
 
 
+class LtiStudentFactory(UserFactory):
+    lti_id = factory.Sequence(lambda x: "id{}".format(x))
+
+
 class TeacherFactory(UserFactory):
     username = factory.Sequence(lambda x: "teacher{}".format(x))
     is_teacher = True

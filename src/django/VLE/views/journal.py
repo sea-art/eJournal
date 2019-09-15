@@ -141,7 +141,7 @@ class JournalView(viewsets.ViewSet):
 
         return response.success({'journal': serializer.data})
 
-    # TODO: Is the payload ever used? Should this moved to celery...
+    # TODO: lti_info is never used, move replace_result to celery
     def publish(self, request, journal):
         grading.publish_all_journal_grades(journal, request.user)
         if journal.sourcedid:

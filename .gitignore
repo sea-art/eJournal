@@ -68,3 +68,6 @@ fabric.properties
 
 # *.iml
 # modules.xml
+
+# psql dump
+*.dump

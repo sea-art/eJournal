@@ -1,9 +1,15 @@
 <template>
     <content-single-column>
-        <h1 class="mb-2">
+        <h1
+            v-if="currentPage"
+            class="mb-2"
+        >
             <span>{{ currentPage }}</span>
         </h1>
-        <b-card class="no-hover">
+        <b-card
+            v-if="currentPage"
+            class="no-hover"
+        >
             <lti-create-link-course
                 v-if="handleCourseChoice"
                 :lti="lti"
@@ -14,27 +20,17 @@
                 v-else-if="handleAssignmentChoice"
                 :lti="lti"
                 :page="page"
+                :linkableAssignments="assignments"
                 @handleAction="handleActions"
             />
-            <div
-                v-else
-                class="center-content"
-            >
-                <h2 class="center-content">
-                    Setting up a link to your learning environment
-                </h2><br/>
-                <icon
-                    name="circle-o-notch"
-                    pulse
-                    scale="1.5"
-                />
-            </div>
         </b-card>
+        <load-spinner v-else/>
     </content-single-column>
 </template>
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import loadSpinner from '@/components/assets/LoadSpinner.vue'
 import ltiCreateLinkCourse from '@/components/lti/LtiCreateLinkCourse.vue'
 import ltiCreateLinkAssignment from '@/components/lti/LtiCreateLinkAssignment.vue'
 import ltiAPI from '@/api/lti.js'
@@ -47,12 +43,13 @@ export default {
     name: 'LtiLaunch',
     components: {
         contentSingleColumn,
+        loadSpinner,
         ltiCreateLinkCourse,
         ltiCreateLinkAssignment,
     },
     data () {
         return {
-            currentPage: 'LTI Integration',
+            currentPage: '',
 
             /* Variables for loading the right component. */
             handleCourseChoice: false,
@@ -101,6 +98,7 @@ export default {
             },
 
             courses: null,
+            assignments: null,
         }
     },
     watch: {
@@ -120,7 +118,7 @@ export default {
                         this.courses = courses
                         this.states.state = this.canAutoSetupState
                     } else {
-                        this.autoSetupCourseAndAssignment()
+                        this.autoSetupCourse()
                     }
                 })
             } else {
@@ -158,7 +156,7 @@ export default {
                     this.canAutoSetupState = response.state
                 })
         },
-        autoSetupCourseAndAssignment () {
+        autoSetupCourse () {
             courseAPI.create({
                 name: this.lti.ltiCourseName,
                 abbreviation: this.lti.ltiCourseAbbr,
@@ -167,20 +165,23 @@ export default {
                 lti_id: this.lti.ltiCourseID,
             }).then((course) => {
                 this.page.cID = course.id
-                assignmentAPI.create({
-                    name: this.lti.ltiAssignName,
-                    description: 'No content.',
-                    course_id: this.page.cID,
-                    lti_id: this.lti.ltiAssignID,
-                    points_possible: this.lti.ltiPointsPossible,
-                    unlock_date: this.lti.ltiAssignUnlock.slice(0, -9),
-                    due_date: this.lti.ltiAssignDue.slice(0, -9),
-                    lock_date: this.lti.ltiAssignLock.slice(0, -9),
-                    is_published: this.lti.ltiAssignPublished,
-                }).then((assignment) => {
-                    this.page.aID = assignment.id
-                    this.updateState(this.states.finish_t)
-                })
+                this.updateState(this.states.new_assign)
+            })
+        },
+        autoSetupAssignment () {
+            assignmentAPI.create({
+                name: this.lti.ltiAssignName,
+                description: 'No content.',
+                course_id: this.page.cID,
+                lti_id: this.lti.ltiAssignID,
+                points_possible: this.lti.ltiPointsPossible,
+                unlock_date: this.lti.ltiAssignUnlock.slice(0, -9),
+                due_date: this.lti.ltiAssignDue.slice(0, -9),
+                lock_date: this.lti.ltiAssignLock.slice(0, -9),
+                is_published: this.lti.ltiAssignPublished,
+            }).then((assignment) => {
+                this.page.aID = assignment.id
+                this.updateState(this.states.finish_t)
             })
         },
         handleActions (args) {
@@ -202,7 +203,7 @@ export default {
             case 'assignmentIntegrated':
                 this.handleAssignmentChoice = false
                 this.page.aID = args[1]
-                this.$toasted.success('Assignment Integrated!')
+                this.$toasted.success('Assignment Linked!')
                 this.states.state = this.states.finish_t
                 break
             case 'assignmentCreated':
@@ -215,14 +216,24 @@ export default {
             }
         },
         updateState (state) {
+            this.currentPage = ''
+
             switch (state) {
             case this.states.new_course:
-                this.currentPage = 'Course Integration'
+                this.currentPage = 'Course setup'
                 this.handleCourseChoice = true
                 break
             case this.states.new_assign:
-                this.currentPage = 'Assignment Integration'
-                this.handleAssignmentChoice = true
+                assignmentAPI.getCopyable(0).then((assignments) => {
+                    this.assignments = assignments.filter(
+                        assignment => parseInt(assignment.course.cID, 10) !== this.page.cID)
+                    if (this.assignments.length) {
+                        this.currentPage = 'Assignment setup'
+                        this.handleAssignmentChoice = true
+                    } else {
+                        this.autoSetupAssignment()
+                    }
+                })
                 break
             case this.states.check_assign:
                 assignmentAPI.getWithLti(this.lti.ltiAssignID, { redirect: false, customErrorToast: '' })

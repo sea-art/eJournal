@@ -4,7 +4,7 @@
             Configuring an assignment
         </h2>
         <span class="d-block mb-2">
-            You came here from a learning environment through an unconfigured
+            You came here from a learning management system through an unconfigured
             assignment. Do you want to create a new assignment on eJournal,
             or link it to an existing one?
         </span>
@@ -25,7 +25,8 @@
                     <hr/>
                     If you have not yet preconfigured this assignment on eJournal, click the button above
                     to create a new assignment. This will be linked to your learning environment, allowing for automatic
-                    grade passback.
+                    grade passback. Also choose this option if you wish to copy the assignment structure of an existing
+                    assignment, but want students to start with a new journal.
                 </b-card>
             </b-col>
             <b-col md="6">
@@ -43,7 +44,8 @@
                     </b-button>
                     <hr/>
                     If you have already set up an assignment on eJournal, you can link it to the assignment in
-                    your learning environment by clicking the button above.
+                    your learning management system by clicking the button above. This allows students to continue
+                    working on their existing journals related to this assignment.
                 </b-card>
             </b-col>
 
@@ -56,6 +58,7 @@
                 <link-assignment
                     :lti="lti"
                     :page="page"
+                    :linkableAssignments="linkableAssignments"
                     @handleAction="handleLinked"
                 />
             </b-modal>
@@ -85,7 +88,7 @@ export default {
         createAssignment,
         linkAssignment,
     },
-    props: ['lti', 'page'],
+    props: ['lti', 'page', 'linkableAssignments'],
     methods: {
         signal (msg) {
             this.$emit('handleAction', msg)

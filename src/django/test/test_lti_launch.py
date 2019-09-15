@@ -15,7 +15,7 @@ from django.test import RequestFactory, TestCase
 
 import VLE.lti_launch as lti
 import VLE.views.lti as lti_view
-from VLE.models import Lti_ids, User
+from VLE.models import Journal, User
 
 REQUEST = {
     'oauth_consumer_key': str(settings.LTI_KEY),
@@ -28,6 +28,8 @@ REQUEST = {
     'custom_assignment_unlock': '2018-08-16 00:00:00 +0200',
     'custom_assignment_points': '10',
     'custom_assignment_publish': 'true',
+    'lis_outcome_service_url': 'a grade url',
+    'lis_result_sourcedid': 'a sourcedid',
     'custom_course_id': 'course_lti_id',
     'custom_course_name': 'Course Title',
     'custom_course_start': '2018-06-15 14:41:00 +0200',
@@ -241,15 +243,61 @@ class LtiLaunchTest(TestCase):
             assert_msg='When a student gets jwt_params and the course is not setup, it should return response_msg')
 
     def test_get_lti_params_from_jwt_assignment_teacher(self):
-        factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
+        course = factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
         get_jwt(
             self, user=self.teacher, status=200,
             request_body={
                 'user_id': self.teacher.lti_id,
                 'roles': 'Instructor',
-                'custom_course_id': Lti_ids.objects.filter(course__author=self.teacher).first().lti_id},
+                'custom_course_id': course.active_lti_id},
             response_value=lti_view.LTI_STATES.NEW_ASSIGN.value,
             assert_msg='When a teacher gets jwt_params after course is created it should return the NEW_ASSIGN state')
+
+    def test_get_lti_params_from_jwt_old_assignment_teacher(self):
+        course = factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
+        assignment = factory.LtiAssignment(
+            author=self.teacher, courses=[course], name=REQUEST['custom_assignment_title'])
+        old_id = assignment.active_lti_id
+        assignment.active_lti_id = assignment.active_lti_id + '_new'
+        assignment.save()
+
+        response = get_jwt(
+            self, user=self.teacher, status=200,
+            request_body={
+                'user_id': self.teacher.lti_id,
+                'roles': 'Instructor',
+                'custom_course_id': course.active_lti_id,
+                'custom_assignment_id': old_id},
+            response_value=lti_view.LTI_STATES.FINISH_T.value,
+            assert_msg='When a teacher joins via a no longer active lti assignment, he should still be normally' +
+                       ' forwarded.')
+        assert response['params']['jID'] is None, 'A teacher should receive no journal id'
+
+    def test_get_lti_params_from_jwt_old_assignment_student_with_journal(self):
+        course = factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
+        assignment = factory.LtiAssignment(
+            author=self.teacher, courses=[course], name=REQUEST['custom_assignment_title'])
+        get_jwt(
+            self, user=self.student, status=200,
+            request_body={
+                'user_id': self.student.lti_id,
+                'custom_course_id': course.active_lti_id,
+                'custom_assignment_id': assignment.active_lti_id},
+            response_value=lti_view.LTI_STATES.FINISH_S.value,
+            assert_msg='When after assignment is created it should return the FINISH_S state for students')
+        old_id = assignment.active_lti_id
+        assignment.active_lti_id = assignment.active_lti_id + '_new'
+        assignment.save()
+        get_jwt(
+            self, user=self.student, status=200,
+            request_body={
+                'user_id': self.student.lti_id,
+                'roles': 'Student',
+                'custom_course_id': course.active_lti_id,
+                'custom_assignment_id': old_id},
+            response_value=lti_view.LTI_STATES.FINISH_S.value,
+            assert_msg='When a student with journal joins via an old LTI connection, he should still be normally ' +
+                       'forwarded (FINISH_S state)')
 
     def test_get_lti_params_from_jwt_no_context_label(self):
         get_jwt(
@@ -261,39 +309,108 @@ class LtiLaunchTest(TestCase):
             delete_field='context_label')
 
     def test_get_lti_params_from_jwt_assignment_student(self):
-        factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
+        course = factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
         get_jwt(
             self, user=self.student, status=404,
             request_body={
                 'user_id': self.student.lti_id,
-                'custom_course_id': Lti_ids.objects.filter(course__author=self.teacher).first().lti_id},
+                'custom_course_id': course.active_lti_id},
             response_msg='not finished setting up the assignment',
             assert_msg='When a student gets jwt_params after course is created it should return response_msg')
 
     def test_get_lti_params_from_jwt_journal_teacher(self):
         course = factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
-        factory.LtiAssignment(author=self.teacher, courses=[course], name=REQUEST['custom_assignment_title'])
+        assignment = factory.LtiAssignment(
+            author=self.teacher, courses=[course], name=REQUEST['custom_assignment_title'])
         get_jwt(
             self, user=self.teacher, status=200,
             request_body={
                 'user_id': self.teacher.lti_id,
                 'roles': 'Instructor',
-                'custom_course_id': Lti_ids.objects.filter(course__author=self.teacher).first().lti_id,
-                'custom_assignment_id': Lti_ids.objects.filter(assignment__author=self.teacher).first().lti_id},
+                'custom_course_id': course.active_lti_id,
+                'custom_assignment_id': assignment.active_lti_id},
             response_value=lti_view.LTI_STATES.FINISH_T.value,
             assert_msg='When after assignment is created it should return the FINISH_T state for teachers')
 
     def test_get_lti_params_from_jwt_journal_student(self):
         course = factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
-        factory.LtiAssignment(author=self.teacher, courses=[course], name=REQUEST['custom_assignment_title'])
+        assignment = factory.LtiAssignment(
+            author=self.teacher, courses=[course], name=REQUEST['custom_assignment_title'])
         get_jwt(
             self, user=self.student, status=200,
             request_body={
                 'user_id': self.student.lti_id,
-                'custom_course_id': Lti_ids.objects.filter(course__author=self.teacher).first().lti_id,
-                'custom_assignment_id': Lti_ids.objects.filter(assignment__author=self.teacher).first().lti_id},
+                'custom_course_id': course.active_lti_id,
+                'custom_assignment_id': assignment.active_lti_id},
             response_value=lti_view.LTI_STATES.FINISH_S.value,
             assert_msg='When after assignment is created it should return the FINISH_S state for students')
+
+    def test_legit_student_new_journal_update_passback(self):
+        course = factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
+        assignment = factory.LtiAssignment(
+            author=self.teacher, courses=[course], name=REQUEST['custom_assignment_title'])
+        student = factory.LtiStudent()
+        journal_exists = Journal.objects.filter(user=student, assignment=assignment).exists()
+        assert not journal_exists, "The student is assumed to have no journal beforehand"
+
+        get_jwt(
+            self, user=student, status=200,
+            request_body={
+                'user_id': student.lti_id,
+                'custom_course_id': course.active_lti_id,
+                'custom_assignment_id': assignment.active_lti_id,
+                'lis_outcome_service_url': REQUEST['lis_outcome_service_url'],
+                'lis_result_sourcedid': REQUEST['lis_result_sourcedid'],
+            },
+            response_value=lti_view.LTI_STATES.FINISH_S.value,
+            assert_msg='With a setup assignment, a legitimate student jwt connection should return FINISH_S state')
+
+        journal_qry = Journal.objects.filter(user=student, assignment=assignment)
+        assert journal_qry.count() == 1, 'A legitimate student jwt connection should create a single journal.'
+        journal = journal_qry.first()
+        assert journal.sourcedid == REQUEST['lis_result_sourcedid'], \
+            'A legitimate student jwt route should set a journal sourcedid.'
+        assert journal.grade_url == REQUEST['lis_outcome_service_url'], \
+            'A legitimate student jwt route should set a journal grade_url.'
+
+    def test_legit_student_from_old_uplink_update_passback(self):
+        course = factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
+        assignment = factory.LtiAssignment(
+            author=self.teacher, courses=[course], name=REQUEST['custom_assignment_title'])
+        student = factory.LtiStudent()
+        journal = factory.Journal(user=student)
+        assignment = journal.assignment
+
+        journal_exists = Journal.objects.filter(user=student, assignment=assignment)
+        journal_exists = journal_exists.count() == 1 and journal.pk == journal_exists.first().pk
+        assert journal_exists, "The student is assumed to have a single nested journal beforehand"
+
+        journal.grade_url = 'before'
+        journal.sourcedid = 'before'
+        course.active_lti_id = 'new'
+        assignment.active_lti_id = 'new'
+        course.save()
+        assignment.save()
+        journal.save()
+
+        get_jwt(
+            self, user=student, status=200,
+            request_body={
+                'user_id': student.lti_id,
+                'custom_course_id': 'new',
+                'custom_assignment_id': 'new',
+                'lis_outcome_service_url': REQUEST['lis_outcome_service_url'],
+                'lis_result_sourcedid': REQUEST['lis_result_sourcedid'],
+            },
+            response_value=lti_view.LTI_STATES.FINISH_S.value,
+            assert_msg='With a setup assignment, a legitimate student jwt connection should return FINISH_S state',
+        )
+
+        journal = Journal.objects.get(user=student, assignment=assignment)
+        assert journal.sourcedid == REQUEST['lis_result_sourcedid'], \
+            'A legitimate student jwt route should set a journal sourcedid.'
+        assert journal.grade_url == REQUEST['lis_outcome_service_url'], \
+            'A legitimate student jwt route should set a journal grade_url.'
 
     def test_get_lti_params_from_jwt_multiple_roles(self):
         get_jwt(
@@ -328,7 +445,7 @@ class LtiLaunchTest(TestCase):
         """Hopefully select a course."""
         course = factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
         selected_course = lti.update_lti_course_if_exists(
-            {'custom_course_id': Lti_ids.objects.filter(course=course).last().lti_id},
+            {'custom_course_id': course.active_lti_id},
             user=self.teacher, role=settings.ROLES['Teacher'])
         assert selected_course == course
 
@@ -337,6 +454,7 @@ class LtiLaunchTest(TestCase):
         selected_journal = lti.select_create_journal(
             {
                 'roles': settings.ROLES['Student'],
+                'custom_assignment_id': self.assignment.active_lti_id,
                 'lis_result_sourcedid': "267-686-2694-585-0afc8c37342732c97b011855389af1f2c2f6d552",
                 'lis_outcome_service_url': "https://uvadlo-tes.instructure.com/api/lti/v1/tools/267/grade_passback"
             },
@@ -350,6 +468,7 @@ class LtiLaunchTest(TestCase):
         selected_journal = lti.select_create_journal(
             {
                 'roles': settings.ROLES['Student'],
+                'custom_assignment_id': self.assignment.active_lti_id,
                 'lis_result_sourcedid': "267-686-2694-585-0afc8c37342732c97b011855389af1f2c2f6d552",
                 'lis_outcome_service_url': "https://uvadlo-tes.instructure.com/api/lti/v1/tools/267/grade_passback"
             },

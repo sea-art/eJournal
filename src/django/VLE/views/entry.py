@@ -50,6 +50,9 @@ class EntryView(viewsets.ViewSet):
         if assignment.is_locked():
             return response.forbidden('The assignment is locked, entries can no longer be edited/changed.')
 
+        if journal.needs_lti_link():
+            return response.forbidden(journal.outdated_link_warning_msg)
+
         # Check if the template is available
         if not (node_id or assignment.format.template_set.filter(archived=False, preset_only=False,
                                                                  pk=template.pk).exists()):
@@ -66,8 +69,7 @@ class EntryView(viewsets.ViewSet):
             node = factory.make_node(journal, entry)
 
         # Notify teacher on new entry
-        # TODO Verbose name for check
-        if not (node.journal.sourcedid is None or node.entry.vle_coupling != Entry.NEED_SUBMISSION):
+        if (node.journal.sourcedid and node.entry.vle_coupling == Entry.NEED_SUBMISSION):
             lti_tasks.needs_grading.delay(node.pk)
 
         for content in content_list:
@@ -129,6 +131,8 @@ class EntryView(viewsets.ViewSet):
             return response.bad_request('You are not allowed to edit graded entries.')
         if entry.is_locked():
             return response.bad_request('You are not allowed to edit locked entries.')
+        if journal.needs_lti_link():
+            return response.forbidden(journal.outdated_link_warning_msg)
 
         # Check for required fields
         entry_utils.check_required_fields(entry.template, content_list)
@@ -188,9 +192,10 @@ class EntryView(viewsets.ViewSet):
                 return response.forbidden('You are not allowed to delete locked entries.')
             if assignment.is_locked():
                 return response.forbidden('You are not allowed to delete entries in a locked assignment.')
-
         elif not request.user.is_superuser:
             return response.forbidden('You are not allowed to delete someone else\'s entry.')
+        if journal.needs_lti_link():
+            return response.forbidden(journal.outdated_link_warning_msg)
 
         if entry.node.type != Node.ENTRYDEADLINE:
             entry.node.delete()

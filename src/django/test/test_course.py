@@ -91,3 +91,11 @@ class CourseAPITest(TestCase):
         api.delete(self, 'courses', params={'pk': self.course1.pk}, user=self.teacher2, status=403)
         api.delete(self, 'courses', params={'pk': self.course1.pk}, user=self.teacher1)
         api.delete(self, 'courses', params={'pk': self.course2.pk}, user=self.admin)
+
+    def test_functions(self):
+        course = factory.Course()
+        course.set_assignment_lti_id_set('lti_id1')
+        assert 'lti_id1' in course.assignment_lti_id_set, 'test if set_assignment_lti_id_set works'
+        course.set_assignment_lti_id_set('lti_id2')
+        course.set_assignment_lti_id_set('lti_id2')
+        assert len(course.assignment_lti_id_set) == 2, 'test if set_assignment_lti_id_set does not add duplicates'

@@ -164,6 +164,20 @@ migrate-back:
 migrate-merge:
 	bash -c "source ./venv/bin/activate && cd ./src/django && python manage.py makemigrations --merge"
 
+db-dump:
+	@pg_dump --dbname=postgresql://$(postgres_dev_user):$(postgres_dev_user_pass)@127.0.0.1:5432/$(dbname) > db.dump
+	@echo dump to file: db.dump success!
+
+db-restore:
+	@echo "This operation will wipe and then restore the $(postgres_db) database from db.dump, press enter to continue (ctrl+c to cancel)"
+	@read -r a
+	@sudo su -c "psql \
+	-c \"DROP DATABASE IF EXISTS $(postgres_db)\" \
+	-c \"DROP DATABASE IF EXISTS test_$(postgres_db)\" \
+	-c \"CREATE DATABASE $(postgres_db)\" \
+	" postgres
+	@psql --dbname=postgresql://$(postgres_dev_user):$(postgres_dev_user_pass)@127.0.0.1:5432/$(dbname) < db.dump
+
 ##### MISC COMMANDS #####
 
 superuser:

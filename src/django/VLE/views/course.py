@@ -10,7 +10,7 @@ import VLE.factory as factory
 import VLE.serializers as serialize
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
-from VLE.models import Course, Lti_ids
+from VLE.models import Course
 
 
 class CourseView(viewsets.ViewSet):
@@ -53,9 +53,9 @@ class CourseView(viewsets.ViewSet):
         request.user.check_permission('can_add_course')
 
         name, abbr = utils.required_params(request.data, 'name', 'abbreviation')
-        startdate, enddate, lti_id = utils.optional_params(request.data, 'startdate', 'enddate', 'lti_id')
+        startdate, enddate, active_lti_id = utils.optional_params(request.data, 'startdate', 'enddate', 'lti_id')
 
-        course = factory.make_course(name, abbr, startdate, enddate, request.user, lti_id)
+        course = factory.make_course(name, abbr, startdate, enddate, request.user, active_lti_id=active_lti_id)
 
         serializer = self.serializer_class(course, many=False)
         return response.created({'course': serializer.data})
@@ -105,11 +105,12 @@ class CourseView(viewsets.ViewSet):
 
         request.user.check_permission('can_edit_course_details', course)
 
-        data = request.data
-        if 'lti_id' in data:
-            factory.make_lti_ids(lti_id=data['lti_id'], for_model=Lti_ids.COURSE, course=course)
+        if 'lti_id' in request.data:
+            if course.active_lti_id:
+                return response.bad_request('Course already linked to LMS.')
+            request.data['active_lti_id'] = request.data.pop('lti_id')
 
-        serializer = self.serializer_class(course, data=data, partial=True)
+        serializer = self.serializer_class(course, data=request.data, partial=True)
         if not serializer.is_valid():
             return response.bad_request()
         serializer.save()
@@ -160,9 +161,8 @@ class CourseView(viewsets.ViewSet):
             return response.forbidden("You are not allowed to get linkable courses.")
 
         unlinked_courses = Course.objects.filter(participation__user=request.user.id,
-                                                 participation__role__can_edit_course_details=True)
+                                                 participation__role__can_edit_course_details=True,
+                                                 participation__role__can_add_assignment=True,
+                                                 active_lti_id=None)
         serializer = serialize.CourseSerializer(unlinked_courses, many=True)
-        data = serializer.data
-        for i, course in enumerate(data):
-            data[i]['lti_couples'] = len(Lti_ids.objects.filter(course=course['id']))
-        return response.success({'courses': data})
+        return response.success({'courses': serializer.data})

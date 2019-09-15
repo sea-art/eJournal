@@ -1,7 +1,7 @@
 """
 factory.py.
 
-The facory has all kinds of functions to create entries in the database.
+The factory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
 import requests
@@ -9,7 +9,7 @@ from django.conf import settings
 from django.utils import timezone
 
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field, Format, Grade, Group, Instance, Journal,
-                        Lti_ids, Node, Participation, PresetNode, Role, Template, User, UserFile)
+                        Node, Participation, PresetNode, Role, Template, User, UserFile)
 
 
 def make_instance(allow_standalone_registration=None):
@@ -68,7 +68,7 @@ def make_participation(user=None, course=None, role=None, groups=None):
     return participation
 
 
-def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=None):
+def make_course(name, abbrev, startdate=None, enddate=None, author=None, active_lti_id=None):
     """Create a course.
 
     Arguments:
@@ -76,14 +76,15 @@ def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=
     abbrev -- abbreviation of the course
     startdate -- startdate of the course
     author -- author of the course, this will also get the teacher role as participation
-    lti_id -- potential lti_id, this is to link the canvas course to the VLE course.
+    active_lti_id -- (optional) lti_id, this links an eJournal course to a VLE course, only the active id receives
+        grade passback.
     """
     course = Course(name=name, abbreviation=abbrev, startdate=startdate, enddate=enddate,
-                    author=author)
+                    author=author, active_lti_id=active_lti_id)
     course.save()
 
-    if lti_id is not None:
-        make_lti_ids(lti_id=lti_id, for_model=Lti_ids.COURSE, course=course)
+    if course.has_lti_link():
+        make_lti_groups(course)
 
     # Student, TA and Teacher role are created on course creation as is saves check for lti.
     make_role_student('Student', course)
@@ -109,7 +110,7 @@ def make_course_group(name, course, lti_id=None):
     return course_group
 
 
-def make_assignment(name, description, author=None, format=None, lti_id=None,
+def make_assignment(name, description, author=None, format=None, active_lti_id=None,
                     points_possible=10, is_published=None, unlock_date=None, due_date=None,
                     lock_date=None, course_ids=None, courses=None):
     """Make a new assignment.
@@ -121,6 +122,8 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
     format -- format of assignment
     courseIDs -- ID of the courses the assignment belongs to
     courses -- courses it belongs to
+    active_lti_id -- (optional) lti_id, this links an eJournal course to a VLE course, only the active id receives
+        grade passback.
 
     On success, returns a new assignment.
     """
@@ -130,7 +133,7 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
         else:
             format = make_default_format(timezone.now(), points_possible)
 
-    assign = Assignment(name=name, description=description, author=author, format=format)
+    assign = Assignment(name=name, description=description, author=author, format=format, active_lti_id=active_lti_id)
     assign.save()
     if course_ids:
         for course_id in course_ids:
@@ -138,8 +141,6 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
     if courses:
         for course in courses:
             assign.courses.add(course)
-    if lti_id is not None:
-        make_lti_ids(lti_id=lti_id, for_model=Lti_ids.ASSIGNMENT, assignment=assign)
     if points_possible is not None:
         assign.points_possible = points_possible
     if is_published is not None:
@@ -165,16 +166,8 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
     return assign
 
 
-def make_lti_ids(lti_id, for_model, course=None, assignment=None):
-    if for_model == 'Course':
-        make_lti_groups(lti_id, course)
-    lti_id_couple = Lti_ids(lti_id=lti_id, for_model=for_model, assignment=assignment, course=course)
-    lti_id_couple.save()
-    return lti_id_couple
-
-
-def make_lti_groups(lti_id, course):
-    groups = requests.get(settings.GROUP_API.format(lti_id)).json()
+def make_lti_groups(course):
+    groups = requests.get(settings.GROUP_API.format(course.active_lti_id)).json()
     if isinstance(groups, list):
         for group in groups:
             try:

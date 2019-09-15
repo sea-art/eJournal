@@ -186,7 +186,7 @@ export default {
     },
     computed: {
         gradePublished () {
-            return this.entryNode.entry.grade && this.entryNode.entry.grade.published
+            return this.entryNode.entry && this.entryNode.entry.grade && this.entryNode.entry.grade.published
         },
     },
     watch: {

@@ -4,7 +4,7 @@ from test.utils import api
 
 from django.test import TestCase
 
-from VLE.models import Field
+from VLE.models import Entry, Field
 
 
 class EntryAPITest(TestCase):
@@ -56,6 +56,16 @@ class EntryAPITest(TestCase):
         teacher_params = self.valid_create_params.copy()
         teacher_params['journal_id'] = self.journal_teacher.pk
         api.create(self, 'entries', params=teacher_params, user=self.teacher, status=403)
+
+        # Entries can no longer be created if the LTI link is outdated (new active uplink)
+        assignment_old_lti_id = self.journal.assignment.active_lti_id
+        self.journal.assignment.active_lti_id = 'new_lti_id_1'
+        self.journal.assignment.save()
+        resp = api.create(self, 'entries', params=self.valid_create_params, user=self.student, status=403)
+        assert resp['description'] == self.journal.outdated_link_warning_msg, 'When the active LTI uplink is outdated' \
+            ' no more entries can be created.'
+        self.journal.assignment.active_lti_id = assignment_old_lti_id
+        self.journal.assignment.save()
 
         # TODO: Test for entry bound to entrydeadline
         # TODO: Test with file upload
@@ -129,6 +139,16 @@ class EntryAPITest(TestCase):
         self.journal.assignment.lock_date = date.today() + timedelta(1)
         self.journal.assignment.save()
 
+        # Entries can no longer be edited if the LTI link is outdated (new active uplink)
+        assignment_old_lti_id = self.journal.assignment.active_lti_id
+        self.journal.assignment.active_lti_id = 'new_lti_id_2'
+        self.journal.assignment.save()
+        resp = api.update(self, 'entries', params=params.copy(), user=self.student, status=403)
+        assert resp['description'] == self.journal.outdated_link_warning_msg, 'When the active LTI uplink is outdated' \
+            ' no more entries can be created.'
+        self.journal.assignment.active_lti_id = assignment_old_lti_id
+        self.journal.assignment.save()
+
         # Grade and publish an entry
         api.create(self, 'grades', params={'entry_id': entry['id'], 'grade': 5, 'published': True}, user=self.student,
                    status=403)
@@ -161,6 +181,20 @@ class EntryAPITest(TestCase):
         api.create(self, 'grades', params={'entry_id': entry['id'], 'grade': 5, 'published': True}, user=self.teacher)
         api.delete(self, 'entries', params={'pk': entry['id']}, user=self.student, status=403)
         api.delete(self, 'entries', params={'pk': entry['id']}, user=factory.Admin())
+
+        # Entries can no longer be deleted if the LTI link is outdated (new active uplink)
+        entry = api.create(self, 'entries', params=self.valid_create_params, user=self.student)['entry']
+        entry = Entry.objects.get(pk=entry['id'])
+        journal = entry.node.journal
+        assignment_old_lti_id = journal.assignment.active_lti_id
+        journal.assignment.active_lti_id = 'new_lti_id_3'
+        journal.assignment.save()
+
+        resp = api.delete(self, 'entries', params={'pk': entry.pk}, user=self.student, status=403)
+        assert resp['description'] == journal.outdated_link_warning_msg, 'When the active LTI uplink is outdated' \
+            ' no more entries can be created.'
+        journal.assignment.active_lti_id = assignment_old_lti_id
+        journal.assignment.save()
 
         # Only superusers should be allowed to delete locked entries
         entry = api.create(self, 'entries', params=self.valid_create_params, user=self.student)['entry']

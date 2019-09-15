@@ -6,6 +6,7 @@ Database file
 import os
 
 from django.contrib.auth.models import AbstractUser
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
@@ -312,7 +313,8 @@ class Course(models.Model):
     - author: the creator of the course.
     - abbreviation: a max three letter abbreviation of the course name.
     - startdate: the date that the course starts.
-    - lti_ids: the ids of the course linked over LTI.
+    - active_lti_id: (optional) the active VLE id of the course linked through LTI which receives grade updates.
+    - lti_id_set: (optional) the set of VLE lti_id_set which permit basic access.
     """
 
     name = models.TextField()
@@ -340,6 +342,25 @@ class Course(models.Model):
     enddate = models.DateField(
         null=True,
     )
+
+    active_lti_id = models.TextField(
+        null=True,
+        unique=True,
+        blank=True,
+    )
+
+    # These LTI assignments belong to this course.
+    assignment_lti_id_set = ArrayField(
+        models.TextField(),
+        default=list,
+    )
+
+    def set_assignment_lti_id_set(self, lti_id):
+        if lti_id not in self.assignment_lti_id_set:
+            self.assignment_lti_id_set.append(lti_id)
+
+    def has_lti_link(self):
+        return self.active_lti_id is not None
 
     def to_string(self, user=None):
         if user is None:
@@ -513,7 +534,8 @@ class Assignment(models.Model):
     is part of.
     - format: a one-to-one key linked to the format this assignment
     holds. The format determines how a students' journal is structured.
-    - lti_ids: The lti ids of the assignment linked over lti.
+    - active_lti_id: (optional) the active VLE id of the assignment linked through LTI which receives grade updates.
+    - lti_id_set: (optional) the set of VLE assignment lti_id_set which permit basic access.
     """
 
     name = models.TextField()
@@ -552,13 +574,61 @@ class Assignment(models.Model):
         on_delete=models.CASCADE
     )
 
+    active_lti_id = models.TextField(
+        null=True,
+        unique=True,
+        blank=True,
+    )
+    lti_id_set = ArrayField(
+        models.TextField(),
+        default=list,
+    )
+
+    def has_lti_link(self):
+        return self.active_lti_id is not None
+
     def is_locked(self):
         return self.unlock_date and self.unlock_date > now() or self.lock_date and self.lock_date < now()
 
     def save(self, *args, **kwargs):
         self.description = sanitization.strip_script_tags(self.description)
 
+        active_lti_id_modified = False
+
+        # Instance is being created (not modified)
+        if self._state.adding:
+            active_lti_id_modified = self.active_lti_id is not None
+        else:
+            pre_save = Assignment.objects.get(pk=self.pk)
+            active_lti_id_modified = pre_save.active_lti_id != self.active_lti_id
+
+        if active_lti_id_modified:
+            # Reset all sourcedid if the active lti id is updated.
+            Journal.objects.filter(assignment=self.pk).update(sourcedid=None, grade_url=None)
+
+            if self.active_lti_id is not None and self.active_lti_id not in self.lti_id_set:
+                self.lti_id_set.append(self.active_lti_id)
+
+            other_assignments_with_lti_id_set = Assignment.objects.filter(
+                lti_id_set__contains=[self.active_lti_id]).exclude(pk=self.pk)
+            if other_assignments_with_lti_id_set.exists():
+                raise ValidationError(
+                    "A lti_id should be unique, and only part of a single assignment's lti_id_set.")
+
         return super(Assignment, self).save(*args, **kwargs)
+
+    def get_active_course(self):
+        """"Query for retrieving the course which matches the active lti id of the assignment."""
+        courses = self.courses.filter(assignment_lti_id_set__contains=[self.active_lti_id])
+        return courses.first()
+
+    def get_course_lti_id(self, course):
+        """Gets the assignment lti_id that belongs to the course assignment pair if it exists."""
+        if not isinstance(course, Course):
+            raise VLEProgrammingError("Expected instance of type Course.")
+
+        intersection = list(set(self.lti_id_set).intersection(course.assignment_lti_id_set))
+        return intersection[0] if intersection else None
 
     def can_unpublish(self):
         return not (self.is_published and Entry.objects.filter(node__journal__assignment=self).exists())
@@ -608,6 +678,13 @@ class Journal(models.Model):
         return self.bonus_points + (self.node_set.filter(entry__grade__published=True)
                                     .values('entry__grade__grade')
                                     .aggregate(Sum('entry__grade__grade'))['entry__grade__grade__sum'] or 0)
+
+    # NOTE: Any suggestions for a clear warning msg for all cases?
+    outdated_link_warning_msg = 'This journal has an outdated LMS uplink and can no longer be edited. Visit  ' \
+        + 'eJournal from an updated LMS connection.'
+
+    def needs_lti_link(self):
+        return self.sourcedid is None and self.assignment.active_lti_id is not None
 
     def to_string(self, user=None):
         if user is None:
@@ -1043,44 +1120,3 @@ class Comment(models.Model):
 
     def to_string(self, user=None):
         return "Comment"
-
-
-# TODO move to array field
-class Lti_ids(models.Model):
-    """Lti ids
-
-    Contains the lti ids for course and assignments as one course/assignment
-    on our site needs to be able to link to multiple course/assignment in the
-    linked VLE.
-    """
-    ASSIGNMENT = 'Assignment'
-    COURSE = 'Course'
-    TYPES = ((ASSIGNMENT, 'Assignment'), (COURSE, 'Course'))
-
-    assignment = models.ForeignKey(
-        'Assignment',
-        on_delete=models.CASCADE,
-        null=True
-    )
-
-    course = models.ForeignKey(
-        'Course',
-        on_delete=models.CASCADE,
-        null=True
-    )
-
-    lti_id = models.TextField()
-    for_model = models.TextField(
-        choices=TYPES
-    )
-
-    def to_string(self, user=None):
-        return "Lti_ids"
-
-    class Meta:
-        """A class for meta data.
-
-        - unique_together: assignment and user must be unique together.
-        """
-
-        unique_together = ('lti_id', 'for_model',)

@@ -30,7 +30,18 @@
                 class="main-content-timeline-page"
             >
                 <bread-crumb v-if="$root.xl"/>
-                <div v-if="nodes.length > currentNode && currentNode !== -1">
+                <b-alert
+                    v-if="journal && journal.needs_lti_link && assignment && assignment.active_lti_course"
+                    show
+                >
+                    <b>Warning:</b> You cannot update this journal until you visit the assignment in your LMS
+                    (Canvas) course '{{ assignment.active_lti_course.name }}' at least once.
+                </b-alert>
+                <div
+                    v-if="nodes.length > currentNode && currentNode !== -1"
+                    :class="{'input-disabled': journal && journal.needs_lti_link && assignment
+                        && assignment.active_lti_course}"
+                >
                     <div v-if="nodes[currentNode].type == 'e'">
                         <entry-node
                             ref="entry-template-card"
@@ -191,17 +202,6 @@ export default {
             }
 
             return ''
-        },
-    },
-    watch: {
-        currentNode () {
-            if (this.currentNode !== -1
-                && this.currentNode < this.nodes.length
-                && this.nodes[this.currentNode].type === 'p') {
-                this.progressPoints(this.nodes[this.currentNode])
-                this.progressPointsLeft = this.nodes[this.currentNode].target
-                    - this.progressNodes[this.nodes[this.currentNode].nID]
-            }
         },
     },
     created () {

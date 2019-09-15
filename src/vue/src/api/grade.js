@@ -9,4 +9,8 @@ export default {
         return auth.get('grades', data, connArgs)
             .then(response => response.data.grade_history)
     },
+    publish_all_assignment_grades (id, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.update('grades/publish_all_assignment_grades', { assignment_id: id }, connArgs)
+            .then(response => response.data.grade_history)
+    },
 }

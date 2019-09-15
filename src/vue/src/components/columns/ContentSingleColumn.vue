@@ -1,5 +1,8 @@
 <template>
-    <b-row noGutters>
+    <b-row
+        class="content-single-column"
+        noGutters
+    >
         <b-col
             :class="'main-content ' + extraClasses"
             lg="8"

@@ -30,6 +30,14 @@
                 class="main-content-timeline-page"
             >
                 <bread-crumb v-if="$root.xl"/>
+                <b-alert
+                    v-if="journal && journal.needs_lti_link && assignment && assignment.active_lti_course"
+                    show
+                >
+                    <b>Warning:</b> This student has not visited the assignment in the active LMS (Canvas) course
+                    '{{ assignment.active_lti_course.name }}' yet. They cannot update this journal and grades cannot
+                    be passed back until they visit the assignment at least once.
+                </b-alert>
                 <div v-if="nodes.length > currentNode && currentNode !== -1">
                     <div v-if="nodes[currentNode].type == 'e' || nodes[currentNode].type == 'd'">
                         <entry-non-student-preview
@@ -82,19 +90,17 @@
                             v-if="journal && $hasPermission('can_grade')"
                             class="grade-section bonus-section full-width shadow"
                         >
-                            <icon
-                                name="star"
-                                class="fill-orange shift-up-2"
-                            />
-                            <b-form-input
-                                v-model="journal.bonus_points"
-                                type="number"
-                                class="theme-input mr-2"
-                                size="2"
-                                placeholder="0"
-                                min="0.0"
-                            />
-                            Bonus points
+                            <div class="center">
+                                <b-form-input
+                                    v-model="journal.bonus_points"
+                                    type="number"
+                                    class="theme-input mr-2"
+                                    size="2"
+                                    placeholder="0"
+                                    min="0.0"
+                                />
+                                Bonus points
+                            </div>
                             <b-button
                                 class="add-button"
                                 @click="commitBonus"

@@ -102,6 +102,8 @@
         <div class="d-flex flex-wrap">
             <b-button
                 v-if="$hasPermission('can_delete_assignment')"
+                :class="{'input-disabled': assignmentDetails.lti_count > 1 && assignmentDetails.active_lti_course
+                    && parseInt(assignmentDetails.active_lti_course.cID) === parseInt($route.params.cID)}"
                 class="delete-button multi-form mr-md-2 flex-grow-1"
                 @click="deleteAssignment"
             >
