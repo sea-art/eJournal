@@ -23,8 +23,8 @@ def migrate_lti_ids(apps, schema_editor):
             assignment.save()
             for c in assignment.courses.all():
                 for lti_id in lti_ids:
-                    if lti_id not in c.assignment_lti_id_set:
-                        c.assignment_lti_id_set.append(lti_id)
+                    if lti_id.lti_id not in c.assignment_lti_id_set:
+                        c.assignment_lti_id_set.append(lti_id.lti_id)
                 c.save()
 
 
