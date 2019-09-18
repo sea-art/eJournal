@@ -98,9 +98,6 @@ def add_groups_if_not_exists(participation, group_ids):
 
     This will only be done if there are no other groups already bound to the participant.
     """
-    if participation.groups:
-        return False
-
     for group_id in group_ids:
         group = Group.objects.filter(lti_id=group_id, course=participation.course)
         if group.exists():
