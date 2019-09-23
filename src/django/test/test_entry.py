@@ -5,6 +5,7 @@ from test.utils import api
 from django.test import TestCase
 
 from VLE.models import Entry, Field
+from VLE.utils.error_handling import VLEPermissionError
 
 
 class EntryAPITest(TestCase):
@@ -30,6 +31,8 @@ class EntryAPITest(TestCase):
     def test_create(self):
         # Check valid entry creation
         resp = api.create(self, 'entries', params=self.valid_create_params, user=self.student)['entry']
+        entry = Entry.objects.get(pk=resp['id'])
+        self.student.check_can_edit(entry)
         resp2 = api.create(self, 'entries', params=self.valid_create_params, user=self.student)['entry']
         assert resp['id'] != resp2['id'], 'Multiple creations should lead to different ids'
 
@@ -44,6 +47,11 @@ class EntryAPITest(TestCase):
         # Check for assignment locked
         self.journal.assignment.lock_date = date.today() - timedelta(1)
         self.journal.assignment.save()
+        self.assertRaises(
+            VLEPermissionError,
+            self.student.check_can_edit,
+            Entry.objects.filter(node__journal=self.journal).first(),
+        )
         api.create(self, 'entries', params=create_params, user=self.student, status=403)
         self.journal.assignment.lock_date = date.today() + timedelta(1)
         self.journal.assignment.save()
@@ -56,6 +64,11 @@ class EntryAPITest(TestCase):
         api.create(self, 'entries', params=create_params, user=self.student, status=403)
 
         # Teachers shouldn't be able to make entries on their own journal
+        self.assertRaises(
+            VLEPermissionError,
+            self.teacher.check_can_edit,
+            Entry.objects.filter(node__journal=self.journal).first(),
+        )
         teacher_params = self.valid_create_params.copy()
         teacher_params['journal_id'] = self.journal_teacher.pk
         api.create(self, 'entries', params=teacher_params, user=self.teacher, status=403)
@@ -64,6 +77,11 @@ class EntryAPITest(TestCase):
         assignment_old_lti_id = self.journal.assignment.active_lti_id
         self.journal.assignment.active_lti_id = 'new_lti_id_1'
         self.journal.assignment.save()
+        self.assertRaises(
+            VLEPermissionError,
+            self.student.check_can_edit,
+            Entry.objects.filter(node__journal=self.journal).first(),
+        )
         resp = api.create(self, 'entries', params=self.valid_create_params, user=self.student, status=403)
         assert resp['description'] == self.journal.outdated_link_warning_msg, 'When the active LTI uplink is outdated' \
             ' no more entries can be created.'
@@ -187,6 +205,11 @@ class EntryAPITest(TestCase):
         api.create(self, 'grades', params={'entry_id': entry['id'], 'grade': 5, 'published': True}, user=self.teacher)
 
         # Shouldn't be able to edit entries after grade
+        self.assertRaises(
+            VLEPermissionError,
+            self.student.check_can_edit,
+            Entry.objects.filter(node__journal=self.journal).first(),
+        )
         api.update(self, 'entries', params=params.copy(), user=self.student, status=400)
 
         api.create(self, 'grades', params={'entry_id': entry['id'], 'grade': 5, 'published': False}, user=self.teacher)

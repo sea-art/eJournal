@@ -221,6 +221,10 @@ class User(AbstractUser):
 
         return False
 
+    def check_can_edit(self, obj):
+        if not permissions.can_edit(self, obj):
+            raise VLEPermissionError(message='You are not allowed to edit {}'.format(str(obj)))
+
     def to_string(self, user=None):
         if user is None:
             return "User"

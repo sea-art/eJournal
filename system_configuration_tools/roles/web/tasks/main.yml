@@ -19,8 +19,7 @@
     - backup
   when: run_backups
 
-- name: Activate maintenance page
-  command: mv {{ maintenance_dir }}/maintenance_off.html {{ maintenance_dir }}/maintenance_on.html
+- include: activate_maintenance_page.yml
   tags:
     - deploy_back
     - deploy_front

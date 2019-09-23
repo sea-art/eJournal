@@ -1,7 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 
 import datetime
-import os
 
 from celery import shared_task
 from django.conf import settings
@@ -32,7 +31,7 @@ def _send_deadline_mail(deadline, journal):
     email = EmailMultiAlternatives(
         subject='Upcoming deadline in {}'.format(assignment.name),
         body=text_content,
-        from_email='noreply@ejourn.al' if 'PRODUCTION' in os.environ else 'test@ejourn.al',
+        from_email='noreply@ejourn.al' if settings.ENVIRONMENT == 'PRODUCTION' else 'test@ejourn.al',
         headers={'Content-Type': 'text/plain'},
         to=[journal.user.email]
     )
@@ -49,6 +48,7 @@ def _send_deadline_mails(deadline_query):
     Arguments:
     deadline_query -- query of PresetNodes
     """
+    emails_sent_to = []
     # Remove all filled entrydeadline, and remove where the user does not want to recieve an email.
     no_submissions = Q(type=Node.ENTRYDEADLINE, node__entry__isnull=True) | Q(type=Node.PROGRESS)
     notifications_enabled = Q(node__journal__user__preferences__upcoming_deadline_notifications=True)
@@ -69,6 +69,9 @@ def _send_deadline_mails(deadline_query):
             continue
 
         _send_deadline_mail(deadline, journal)
+        emails_sent_to.append(journal.user.email)
+
+    return emails_sent_to
 
 
 @shared_task
@@ -87,4 +90,5 @@ def send_upcoming_deadlines():
         due_date__range=(
             datetime.datetime.utcnow().date() + datetime.timedelta(days=7),
             datetime.datetime.utcnow().date() + datetime.timedelta(days=8)))
-    _send_deadline_mails(upcoming_week_deadlines)
+    emails_sent_to = _send_deadline_mails(upcoming_week_deadlines)
+    return emails_sent_to

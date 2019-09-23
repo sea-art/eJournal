@@ -2,7 +2,7 @@
 
 coverage==4.5.2 # Tests
 Faker==1.0.2 # Tests
-flake8==3.7.5 # Tests
+flake8==3.7.8 # Tests
 mccabe==0.6.1 # Tests, plugin for flake8
 pycodestyle==2.5.0 # Tests, flake8 tool
 isort==4.3.4 # Organization

@@ -158,7 +158,7 @@ class EntryView(viewsets.ViewSet):
             else:
                 factory.make_content(entry, data, field)
 
-            file_handling.remove_temp_user_files(request.user)
+        file_handling.remove_temp_user_files(request.user)
 
         return response.success({'entry': serialize.EntrySerializer(entry, context={'user': request.user}).data})
 

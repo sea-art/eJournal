@@ -118,6 +118,28 @@ def is_user_supervisor_of(supervisor, user):
     return False
 
 
+def can_edit(user, obj):
+    if isinstance(obj, VLE.models.Entry):
+        return _can_edit_entry(user, obj)
+
+    return False
+
+
+def _can_edit_entry(user, entry):
+    user.check_permission('can_have_journal', entry.node.journal.assignment)
+
+    if (
+        user != entry.node.journal.user or
+        entry.node.journal.assignment.is_locked() or
+        entry.is_graded() or
+        entry.is_locked() or
+        entry.node.journal.needs_lti_link()
+    ):
+        return False
+
+    return True
+
+
 def serialize_general_permissions(user):
     return {key: has_general_permission(user, key) for key in GENERAL_PERMISSIONS}
 

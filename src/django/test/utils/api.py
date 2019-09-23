@@ -108,19 +108,22 @@ def create(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWO
                 params=params, user=user, password=password, status=status)
 
 
-def post(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWORD, status=200):
+def post(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWORD, status=200,
+         content_type='application/json'):
     return call(obj, obj.client.post, url,
-                params=params, user=user, password=password, status=status)
+                params=params, user=user, password=password, status=status, content_type=content_type)
 
 
-def update(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWORD, status=200):
+def update(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWORD, status=200,
+           content_type='application/json'):
     return call(obj, obj.client.patch, url,
-                params=params, user=user, password=password, status=status)
+                params=params, user=user, password=password, status=status, content_type=content_type)
 
 
-def patch(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWORD, status=200):
+def patch(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWORD, status=200,
+          content_type='application/json'):
     return call(obj, obj.client.patch, url,
-                params=params, user=user, password=password, status=status)
+                params=params, user=user, password=password, status=status, content_type=content_type)
 
 
 def delete(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWORD, status=200):
@@ -144,16 +147,21 @@ def call(obj, function, url, params=None,
         if function in [obj.client.get, obj.client.delete]:
             response = function(url, content_type=content_type)
         else:
-            response = function(url, json.dumps(params), content_type=content_type)
+            if content_type != 'application/json':
+                response = function(url, params)
+            else:
+                response = function(url, json.dumps(params), content_type=content_type)
     else:
         logged_user = login(obj, user, password)
         access, = utils.required_params(logged_user, 'access')
         if function in [obj.client.get, obj.client.delete]:
             response = function(url, content_type=content_type, HTTP_AUTHORIZATION='Bearer ' + access)
         else:
-            response = function(url, json.dumps(params), content_type=content_type,
-                                HTTP_AUTHORIZATION='Bearer ' + access)
-
+            if content_type != 'application/json':
+                response = function(url, params, HTTP_AUTHORIZATION='Bearer ' + access)
+            else:
+                response = function(url, json.dumps(params), content_type=content_type,
+                                    HTTP_AUTHORIZATION='Bearer ' + access)
     try:
         result = response.json()
     except (AttributeError, ValueError):
