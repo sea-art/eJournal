@@ -218,6 +218,7 @@ export default {
                 v: 'YouTube Video',
                 u: 'URL',
                 d: 'Date',
+                dt: 'Date Time',
                 s: 'Selection',
             },
             mode: 'edit',

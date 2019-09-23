@@ -35,7 +35,10 @@ class EntryAPITest(TestCase):
 
         # Check if students cannot update journals without required parts filled in
         create_params = self.valid_create_params.copy()
-        create_params['content'] = [{'data': 'test title', 'id': 1}]
+        create_params['content'] = [{
+            'data': 'test title',
+            'id': self.valid_create_params['content'][0]['id']
+        }]
         api.create(self, 'entries', params=create_params, user=self.student, status=400)
 
         # Check for assignment locked
@@ -70,6 +73,35 @@ class EntryAPITest(TestCase):
         # TODO: Test for entry bound to entrydeadline
         # TODO: Test with file upload
         # TODO: Test added index
+
+    def test_valid_entry(self):
+        template = factory.TemplateAllTypes(format=self.format)
+        fields = Field.objects.filter(template=template)
+        entries = {
+            Field.TEXT: ['text', 'VALID'],
+            Field.RICH_TEXT: ['<p> RICH </p>', 'VALID'],
+            Field.VIDEO: ['https://www.youtube.com/watch?v=dQw4w9WgXcQ', 'INVALID'],
+            Field.URL: ['https://ejournal.app', 'INVALID'],
+            Field.DATE: ['2019-10-10', 'INVALID'],
+            Field.DATETIME: ['2019-10-10T12:12:00', 'INVALID'],
+            Field.SELECTION: ['a', 'INVALID'],
+        }
+        create_params = {
+            'journal_id': self.journal.pk,
+            'template_id': template.pk,
+            'content': [{
+                'id': f.pk,
+                'data': entries[f.type][0]
+            } for f in fields if f.type in entries]
+        }
+
+        api.create(self, 'entries', params=create_params, user=self.student)['entry']
+        # Test is all
+        for i, field in enumerate(create_params['content']):
+            field['data'] = list(entries.values())[i][1]
+            if field['data'] != 'VALID':
+                api.create(self, 'entries', params=create_params, user=self.student, status=400)
+            field['data'] = list(entries.values())[i][0]
 
     def test_required_and_optional(self):
         # Creation with only required params should work

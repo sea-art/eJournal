@@ -13,7 +13,6 @@ import VLE.utils.entry_utils as entry_utils
 import VLE.utils.file_handling as file_handling
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
-import VLE.validators as validators
 from VLE.models import Entry, Field, Journal, Node, Template
 
 
@@ -58,7 +57,8 @@ class EntryView(viewsets.ViewSet):
                                                                  pk=template.pk).exists()):
             return response.forbidden('Entry template is not available.')
 
-        entry_utils.check_required_fields(template, content_list)
+        entry_utils.check_fields(template, content_list)
+
         # Node specific entry
         if node_id:
             node = Node.objects.get(pk=node_id, journal=journal)
@@ -73,13 +73,13 @@ class EntryView(viewsets.ViewSet):
             lti_tasks.needs_grading.delay(node.pk)
 
         for content in content_list:
-            data, field_id = utils.required_params(content, 'data', 'id')
+            field_id, = utils.required_typed_params(content, (int, 'id'))
+            data, = utils.required_params(content, 'data')
             field = Field.objects.get(pk=field_id)
-            validators.validate_entry_content(data, field)
 
             created_content = factory.make_content(node.entry, data, field)
 
-            if field.type in ['i', 'f', 'p']:  # Image, file or PDF
+            if field.type in field.FILE_TYPES:  # Image, file or PDF
                 user_file = file_handling.get_temp_user_file(request.user, assignment, content['data'])
                 if user_file is None and field.required:
                     node.entry.delete()
@@ -135,14 +135,13 @@ class EntryView(viewsets.ViewSet):
             return response.forbidden(journal.outdated_link_warning_msg)
 
         # Check for required fields
-        entry_utils.check_required_fields(entry.template, content_list)
+        entry_utils.check_fields(entry.template, content_list)
 
         # Attempt to edit the entries content.
         for content in content_list:
             field_id, = utils.required_typed_params(content, (int, 'id'))
             data, = utils.required_params(content, 'data')
             field = Field.objects.get(pk=field_id)
-            validators.validate_entry_content(data, field)
 
             old_content = entry.content_set.filter(field=field)
             if old_content.exists():

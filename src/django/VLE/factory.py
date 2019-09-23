@@ -21,7 +21,7 @@ def make_instance(allow_standalone_registration=None):
     return instance
 
 
-def make_user(username, password, email, lti_id=None, profile_picture=None,
+def make_user(username, password, email, lti_id=None, profile_picture='/unknown-profile.png',
               is_superuser=False, is_teacher=False, full_name=None, verified_email=False, is_staff=False):
     """Create a user.
 
@@ -33,17 +33,11 @@ def make_user(username, password, email, lti_id=None, profile_picture=None,
     profile_picture -- profile picture of the user (default: none)
     is_superuser -- if the user needs all permissions, set this true (default: False)
     """
-    user = User(username=username, email=email, lti_id=lti_id, is_superuser=is_superuser,
-                is_teacher=is_teacher, verified_email=verified_email, is_staff=is_staff)
+    user = User.objects.create(
+        username=username, email=email, lti_id=lti_id, is_superuser=is_superuser, is_teacher=is_teacher,
+        verified_email=verified_email, is_staff=is_staff, full_name=full_name, profile_picture=profile_picture)
 
-    user.full_name = full_name
-
-    user.save()
     user.set_password(password)
-    if profile_picture:
-        user.profile_picture = profile_picture
-    else:
-        user.profile_picture = '/unknown-profile.png'
     user.save()
     return user
 

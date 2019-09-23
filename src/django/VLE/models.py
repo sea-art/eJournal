@@ -999,7 +999,9 @@ class Field(models.Model):
     PDF = 'p'
     URL = 'u'
     DATE = 'd'
+    DATETIME = 'dt'
     SELECTION = 's'
+    FILE_TYPES = [PDF, FILE, IMG]
     TYPES = (
         (TEXT, 'text'),
         (RICH_TEXT, 'rich text'),
@@ -1009,6 +1011,7 @@ class Field(models.Model):
         (VIDEO, 'vid'),
         (URL, 'url'),
         (DATE, 'date'),
+        (DATETIME, 'datetime'),
         (SELECTION, 'selection')
     )
     type = models.TextField(

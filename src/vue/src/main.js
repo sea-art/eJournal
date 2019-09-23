@@ -63,6 +63,12 @@ new Vue({
             altFormat: 'D d M Y H:i',
             dateFormat: 'Y-m-dTH:i:S',
         },
+        flatPickrConfig: {
+            enableTime: false,
+            altInput: true,
+            altFormat: 'D d M Y',
+            dateFormat: 'Y-m-d',
+        },
     },
     computed: {
         /* Bootstrap breakpoints for custom events. */

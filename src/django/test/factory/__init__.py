@@ -10,7 +10,7 @@ from test.factory.instance import InstanceFactory
 from test.factory.journal import JournalFactory
 from test.factory.participation import GroupParticipationFactory, ParticipationFactory
 from test.factory.role import RoleFactory
-from test.factory.template import TemplateFactory
+from test.factory.template import TemplateFactory, TemplateAllTypesFactory
 
 Instance = InstanceFactory
 Assignment = AssignmentFactory
@@ -35,6 +35,7 @@ Journal = JournalFactory
 Format = FormatFactory
 TemplateFormat = TemplateFormatFactory
 Template = TemplateFactory
+TemplateAllTypes = TemplateAllTypesFactory
 
 Entry = EntryFactory
 StudentComment = StudentCommentFactory

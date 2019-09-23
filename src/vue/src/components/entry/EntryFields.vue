@@ -27,8 +27,14 @@
                 v-if="field.type == 'd'"
                 v-model="completeContent[i].data"
                 class="theme-input full-width"
+                :config="$root.flatPickrConfig"
             />
-
+            <flat-pickr
+                v-if="field.type == 'dt'"
+                v-model="completeContent[i].data"
+                class="theme-input full-width"
+                :config="$root.flatPickrTimeConfig"
+            />
             <file-upload-input
                 v-else-if="field.type == 'i'"
                 :placeholder="completeContent[i].data"
@@ -102,6 +108,10 @@
             >{{ completeContent[field.location].data }}</span>
             <span
                 v-if="field.type == 'd'"
+                class="show-enters"
+            >{{ $root.beautifyDate(completeContent[field.location].data, true, false) }}</span>
+            <span
+                v-if="field.type == 'dt'"
                 class="show-enters"
             >{{ $root.beautifyDate(completeContent[field.location].data) }}</span>
             <image-file-display

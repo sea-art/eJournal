@@ -6,17 +6,8 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 
+from VLE.models import Field
 from VLE.utils.error_handling import VLEMissingRequiredField
-
-TEXT = 't'
-RICH_TEXT = 'rt'
-IMG = 'i'
-FILE = 'f'
-VIDEO = 'v'
-PDF = 'p'
-URL = 'u'
-DATE = 'd'
-SELECTION = 's'
 
 
 # Base 64 image is roughly 37% larger than a plain image
@@ -64,16 +55,23 @@ def validate_entry_content(data, field):
     if not data:
         return
 
-    if field.type == URL:
+    # TODO: improve VIDEO validator
+    if field.type == Field.URL or field.type == Field.VIDEO:
         url_validate = URLValidator(schemes=('http', 'https', 'ftp', 'ftps'))
         url_validate(data)
 
-    if field.type == SELECTION:
+    if field.type == Field.SELECTION:
         if data not in json.loads(field.options):
             raise ValidationError("Selected option is not in the given options")
 
-    if field.type == DATE:
+    if field.type == Field.DATE:
         try:
             datetime.strptime(data, '%Y-%m-%d')
+        except ValueError as e:
+            raise ValidationError(str(e))
+
+    if field.type == Field.DATETIME:
+        try:
+            datetime.strptime(data, '%Y-%m-%dT%H:%M:%S')
         except ValueError as e:
             raise ValidationError(str(e))
