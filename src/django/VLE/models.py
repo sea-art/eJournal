@@ -817,7 +817,7 @@ class PresetNode(models.Model):
         choices=TYPES,
     )
 
-    target = models.IntegerField(
+    target = models.FloatField(
         null=True,
     )
 

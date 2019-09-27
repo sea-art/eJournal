@@ -149,6 +149,7 @@
                 class="theme-input"
                 placeholder="Amount of points"
                 min="1"
+                :max="assignmentDetails.points_possible"
             />
         </div>
         <b-button

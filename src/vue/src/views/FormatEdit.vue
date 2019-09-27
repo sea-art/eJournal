@@ -309,6 +309,7 @@ export default {
 
             let lastTarget
             let targetsOutOfOrder = false
+            let targetTooHigh = false
             let untitledTemplates = false
 
             const templatesIds = []
@@ -358,6 +359,11 @@ export default {
                         this.$toasted.error(
                             'Some preset targets are out of order. Please check the timeline and try again.')
                     }
+                    if (preset.target > this.assignmentDetails.points_possible) {
+                        targetTooHigh = true
+                        this.$toasted.error(
+                            'Preset target is higher than the maximum possible points for the assignment.')
+                    }
                     lastTarget = preset.target
                 }
 
@@ -388,7 +394,7 @@ export default {
                     this.$toasted.error(
                         'One or more presets have an invalid template. Please check the timeline and try again.')
                 }
-                if (!presetInvalidTarget && preset.type === 'p' && Number.isNaN(parseInt(preset.target, 10))) {
+                if (!presetInvalidTarget && preset.type === 'p' && Number.isNaN(parseFloat(preset.target, 10))) {
                     presetInvalidTarget = true
                     this.$toasted.error(
                         'One or more presets have an invalid target. Please check the timeline and try again.')
@@ -477,7 +483,7 @@ export default {
                 || presetUnlockAfterPresetDue || presetUnlockAfterPresetLock
                 || presetDueAfterPresetLock || presetLockAfterLock || presetInvalidDue
                 || presetInvalidLock || presetInvalidUnlock || presetInvalidTemplate
-                || presetInvalidTarget || targetsOutOfOrder || untitledTemplates) {
+                || presetInvalidTarget || targetsOutOfOrder || targetTooHigh || untitledTemplates) {
                 return
             }
 

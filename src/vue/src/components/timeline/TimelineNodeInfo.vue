@@ -38,11 +38,11 @@ export default {
     props: ['node', 'selected'],
     computed: {
         nodeTitle () {
-            if (this.node.entry) {
+            if (this.node.type === 'e') { // Entry
                 return this.node.entry.template.name
-            } else if (this.node.template) {
+            } else if (this.node.type === 'd') { // Entry deadline
                 return this.node.template.name
-            } else if (this.node.target) {
+            } else if (this.node.type === 'p') { // Progress node
                 return 'Progress goal'
             } else {
                 return null

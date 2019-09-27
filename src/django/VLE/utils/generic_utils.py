@@ -5,7 +5,7 @@ A library with useful functions.
 """
 import VLE.factory as factory
 from VLE.models import Entry, Node, PresetNode, Template
-from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
+from VLE.utils.error_handling import VLEBadRequest, VLEMissingRequiredKey, VLEParamWrongType
 
 
 # START: API-POST functions
@@ -45,7 +45,10 @@ def required_typed_params(post, *keys):
     result = []
     for func, key in keys:
         try:
-            result.append(func(post[key]))
+            if post[key] is not None:
+                result.append(func(post[key]))
+            else:
+                result.append(None)
         except ValueError as err:
             raise VLEParamWrongType(err)
         except KeyError:
@@ -213,9 +216,9 @@ def update_presets(assignment, presets, new_ids):
     """
     format = assignment.format
     for preset in presets:
-        id, type, description, unlock_date, due_date, lock_date, target, template = \
-            required_params(preset, 'id', 'type', 'description', 'unlock_date', 'due_date',
-                            'lock_date', 'target', 'template')
+        id, target, template = required_typed_params(preset, (int, 'id'), (float, 'target'), (dict, 'template'))
+        type, description, unlock_date, due_date, lock_date = \
+            required_params(preset, 'type', 'description', 'unlock_date', 'due_date', 'lock_date')
 
         if id > 0:
             preset_node = PresetNode.objects.get(pk=id)
@@ -229,7 +232,12 @@ def update_presets(assignment, presets, new_ids):
         preset_node.lock_date = lock_date if lock_date else None
 
         if preset_node.type == Node.PROGRESS:
-            preset_node.target = target
+            if target > 0 and target <= assignment.points_possible:
+                preset_node.target = target
+            else:
+                raise VLEBadRequest(
+                    'Progress goal needs to be between 0 and the maximum amount for the assignment: {}'
+                    .format(assignment.points_possible))
         elif preset_node.type == Node.ENTRYDEADLINE:
             if template['id'] in new_ids:
                 preset_node.forced_template = Template.objects.get(pk=new_ids[template['id']])

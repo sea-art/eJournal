@@ -421,15 +421,15 @@ class PresetNodeSerializer(serializers.ModelSerializer):
 
     def get_unlock_date(self, node):
         if node.type == Node.ENTRYDEADLINE and node.unlock_date is not None:
-            return node.unlock_date.strftime('%Y-%m-%d %H:%M')
+            return node.unlock_date.strftime('%Y-%m-%dT%H:%M')
         return None
 
     def get_due_date(self, node):
-        return node.due_date.strftime('%Y-%m-%d %H:%M')
+        return node.due_date.strftime('%Y-%m-%dT%H:%M:%S')
 
     def get_lock_date(self, node):
         if node.type == Node.ENTRYDEADLINE and node.lock_date is not None:
-            return node.lock_date.strftime('%Y-%m-%d %H:%M')
+            return node.lock_date.strftime('%Y-%m-%dT%H:%M:%S')
         return None
 
     def get_target(self, node):
