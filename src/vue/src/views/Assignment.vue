@@ -77,7 +77,8 @@
                     @click="publishGradesAssignment"
                 >
                     <icon name="upload"/>
-                    Publish all grades
+                    {{ assignment.journals.length === filteredJournals.length ?
+                        "Publish all grades" : "Publish grades" }}
                 </b-button>
                 <b-button
                     v-if="$hasPermission('can_edit_assignment') && assignment.lti_courses
@@ -196,6 +197,7 @@
                     :listView="true"
                     :student="journal.student"
                     :stats="journal.stats"
+                    :assignment="assignment"
                 />
             </b-link>
         </div>
@@ -242,6 +244,7 @@ import assignmentAPI from '@/api/assignment.js'
 import groupAPI from '@/api/group.js'
 import gradeAPI from '@/api/grade.js'
 import participationAPI from '@/api/participation.js'
+import journalAPI from '@/api/journal.js'
 import { mapGetters, mapMutations } from 'vuex'
 
 export default {
@@ -359,13 +362,13 @@ export default {
                 /* If the group filter has not been set, set it to the
                    group of the user provided that yields journals. */
                 if (!this.getSelfSetGroupFilter && participant && participant.groups) {
-                    participant.groups.forEach((group) => {
+                    participant.groups.some((group) => {
                         this.setJournalGroupFilter(group.name)
-                        if (!this.filteredJournals.length) {
+                        if (this.filteredJournals.length === 0) {
                             this.setJournalGroupFilter(null)
-                        } else {
-                            return /* eslint no-useless-return: "off" */
+                            return false
                         }
+                        return true
                     })
                 }
             })
@@ -386,18 +389,34 @@ export default {
             })
         },
         publishGradesAssignment () {
-            if (window.confirm('Are you sure you want to publish all grades for each journal?')) {
-                gradeAPI.publish_all_assignment_grades(this.aID, {
-                    customErrorToast: 'Error while publishing all grades for this assignment.',
-                    customSuccessToast: 'Published all grades for this assignment.',
-                })
-                    .then(() => {
+            if (this.assignment.journals.length === store.state.filteredJournals.length) {
+                if (window.confirm('Are you sure you want to publish the grades for all journals?')) {
+                    gradeAPI.publish_all_assignment_grades(this.aID, {
+                        customErrorToast: 'Error while publishing all grades for this assignment.',
+                        customSuccessToast: 'Published all grades for this assignment.',
+                    }).then(() => {
                         assignmentAPI.get(this.aID, this.cID)
                             .then((assignment) => {
                                 this.assignmentJournals = assignment.journals
                                 this.stats = assignment.stats
                             })
                     })
+                }
+            } else if (window.confirm('Are you sure you want to publish the grades of the filtered journals?')) {
+                const allJournals = []
+                this.filteredJournals.forEach((journal) => {
+                    allJournals.push(journalAPI.update(journal.id, { published: true }, {
+                        customErrorToast: `Error while publishing grades for ${journal.student}.`,
+                    }))
+                })
+                Promise.all(allJournals).then(() => {
+                    this.$toasted.success('Published grades.')
+                    assignmentAPI.get(this.aID, this.cID)
+                        .then((assignment) => {
+                            this.assignmentJournals = assignment.journals
+                            this.stats = assignment.stats
+                        })
+                })
             }
         },
         saveNewActiveLTICourse () {

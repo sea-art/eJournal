@@ -3,24 +3,11 @@ timeline.py.
 
 Useful timeline functions.
 """
-from django.db.models import Case, When
 from django.utils import timezone
 
 from VLE.models import Node
 from VLE.serializers import EntrySerializer, TemplateSerializer
-
-
-def get_sorted_nodes(journal):
-    """Get sorted nodes.
-
-    Get all the nodes of a journal in sorted order.
-    Order is default by due_date.
-    """
-    return journal.node_set.annotate(
-        sort_due_date=Case(
-            When(type=Node.ENTRY, then='entry__creation_date'),
-            default='preset__due_date')
-    ).order_by('sort_due_date')
+from VLE.utils import generic_utils as utils
 
 
 def get_nodes(journal, user=None):
@@ -34,7 +21,7 @@ def get_nodes(journal, user=None):
         not journal.needs_lti_link()
 
     node_list = []
-    for node in get_sorted_nodes(journal):
+    for node in utils.get_sorted_nodes(journal):
         # If there is a progress node upcoming, and there are stackable entries before the deadline
         # add an ADDNODE
         if node.type == Node.PROGRESS:

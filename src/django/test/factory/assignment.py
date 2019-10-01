@@ -1,6 +1,8 @@
+import datetime
 import test.factory.course
 
 import factory
+from django.utils import timezone
 
 
 class AssignmentFactory(factory.django.DjangoModelFactory):
@@ -11,6 +13,8 @@ class AssignmentFactory(factory.django.DjangoModelFactory):
     description = 'Logboek for all your logging purposes'
     is_published = True
     author = factory.SubFactory('test.factory.user.TeacherFactory')
+    due_date = timezone.now() + datetime.timedelta(weeks=1)
+    lock_date = timezone.now() + datetime.timedelta(weeks=2)
 
     format = factory.SubFactory('test.factory.format.FormatFactory')
 

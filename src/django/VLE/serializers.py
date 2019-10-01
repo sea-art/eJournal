@@ -10,6 +10,8 @@ from rest_framework import serializers
 import VLE.permissions as permissions
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field, Format, Grade, Group, Instance, Journal,
                         Node, Participation, Preferences, PresetNode, Role, Template, User)
+from VLE.utils import generic_utils as utils
+from VLE.utils.error_handling import VLEParticipationError, VLEProgrammingError
 
 
 class InstanceSerializer(serializers.ModelSerializer):
@@ -192,21 +194,17 @@ class AssignmentSerializer(serializers.ModelSerializer):
         if 'user' in self.context and self.context['user'] and \
            self.context['user'].has_permission('can_have_journal', assignment):
             journal = Journal.objects.get(assignment=assignment, user=self.context['user'])
-            nodes = journal.node_set.order_by('preset__due_date')
-            if not nodes:
-                return None
+            deadline, name = self._get_student_deadline(journal, assignment)
 
-            deadline = self._get_student_deadline(nodes)
-            if deadline:
-                return deadline
-            elif journal.assignment.lock_date and journal.assignment.lock_date < timezone.now():
-                return journal.assignment.due_date
-            else:
-                return None
-
+            return {
+                'date': deadline,
+                'name': name
+            }
         # Teacher deadline
         else:
-            return self._get_teacher_deadline(assignment)
+            return {
+                'date': self._get_teacher_deadline(assignment),
+            }
 
     def _get_teacher_deadline(self, assignment):
         return assignment.journal_set \
@@ -216,15 +214,18 @@ class AssignmentSerializer(serializers.ModelSerializer):
             .values('node__entry__last_edited') \
             .aggregate(Min('node__entry__last_edited'))['node__entry__last_edited__min']
 
-    def _get_student_deadline(self, nodes):
+    def _get_student_deadline(self, journal, assignment):
         """Get student deadline.
 
         This function gets the first upcoming deadline.
         It checks for the first entrydeadline that still need to submitted and still can be, or for the first
         progressnode that is not yet fullfilled.
         """
+        nodes = utils.get_sorted_nodes(journal)
         t_grade = 0
         deadline = None
+        name = None
+
         for node in nodes:
             if node.entry:
                 grade = node.entry.grade
@@ -235,17 +236,26 @@ class AssignmentSerializer(serializers.ModelSerializer):
             if node.type in [Node.ENTRY, Node.ENTRYDEADLINE] and grade and grade.grade:
                 if grade.published:
                     t_grade += grade.grade
-            # Set the deadline to the first for filled ENTRYDEADLINE node date
+            # Set the deadline to the first unfilled ENTRYDEADLINE node date
             elif node.type == Node.ENTRYDEADLINE and not node.entry and node.preset.due_date > timezone.now():
                 deadline = node.preset.due_date
+                name = node.preset.forced_template.name
                 break
-            # Set the deadline to first not fullfilled PROGRESS node date
+            # Set the deadline to first not completed PROGRESS node date
             elif node.type == Node.PROGRESS:
-                if node.preset.target > t_grade:
+                if node.preset.target > t_grade and node.preset.due_date > timezone.now():
                     deadline = node.preset.due_date
+                    name = "{:g}/{:g} points".format(t_grade, node.preset.target)
                     break
 
-        return deadline
+        # If no deadline is found, but the points possible has not been reached, make assignment due date the deadline
+        if deadline is None and t_grade < assignment.points_possible:
+            if journal.assignment.due_date or \
+               journal.assignment.lock_date and journal.assignment.lock_date < timezone.now():
+                deadline = assignment.due_date
+                name = 'End of assignment'
+
+        return deadline, name
 
     def get_journal(self, assignment):
         if not ('user' in self.context and self.context['user']):
@@ -271,18 +281,20 @@ class AssignmentSerializer(serializers.ModelSerializer):
         if 'user' not in self.context or not self.context['user']:
             return None
 
+        course = self._get_course(assignment)
         # Get the stats from only the course that its linked to, when no courses are supplied.
-        if 'course' in self.context and self.context['course']:
-            users = User.objects.filter(
-                participation__course=self.context['course'], participation__role__can_have_journal=True
-            )
-        else:
-            users = User.objects.filter(
-                participation__course__in=assignment.courses.all(), participation__role__can_have_journal=True
-            ).distinct()
+        users = User.objects.filter(
+            participation__course=course, participation__role__can_have_journal=True
+        )
+        participation = Participation.objects.filter(user=self.context['user'], course=course)
+        if participation.exists():
+            participation = participation.first()
+            if participation.groups and users.filter(participation__groups=participation.groups.first()).exists():
+                users = users.filter(participation__groups=participation.groups.first())
 
         stats = {}
         journal_set = assignment.journal_set.filter(user__in=users)
+
         # Grader stats
         if self.context['user'].has_permission('can_grade', assignment):
             stats['needs_marking'] = journal_set \
@@ -297,14 +309,25 @@ class AssignmentSerializer(serializers.ModelSerializer):
         return stats
 
     def get_course(self, assignment):
+        return CourseSerializer(self._get_course(assignment)).data
+
+    def _get_course(self, assignment):
         if 'course' not in self.context or not self.context['course']:
-            return None
-        if not self.context['course'] in assignment.courses.all():
-            return None
-        if 'user' in self.context and self.context['user'] and \
-                self.context['user'].is_participant(self.context['course']):
-            return CourseSerializer(self.context['course']).data
-        return None
+            if assignment.active_lti_id:
+                course = assignment.get_active_course()
+            else:
+                course = assignment.courses.order_by('-enddate').first()
+
+        else:
+            if not self.context['course'] in assignment.courses.all():
+                raise VLEProgrammingError('Wrong course is supplied')
+            elif not self.context['user'].is_participant(self.context['course']):
+                raise VLEParticipationError(self.context['course'], self.context['user'])
+
+            else:
+                course = self.context['course']
+
+        return course
 
     def get_courses(self, assignment):
         if 'course' in self.context and self.context['course']:
@@ -384,10 +407,9 @@ class JournalSerializer(serializers.ModelSerializer):
     def get_stats(self, journal):
         return {
             'acquired_points': journal.get_grade(),
-            'graded': journal.node_set.filter(entry__grade__published=True, entry__grade__grade__isnull=False).count(),
+            'graded': journal.node_set.filter(entry__grade__grade__isnull=False).count(),
             'published': journal.node_set.filter(entry__grade__published=True).count(),
             'submitted': journal.node_set.filter(entry__isnull=False).count(),
-            'total_points': journal.assignment.points_possible,
         }
 
 

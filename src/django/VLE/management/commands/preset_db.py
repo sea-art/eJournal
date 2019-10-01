@@ -182,7 +182,7 @@ class Command(BaseCommand):
                 ]
             },
             {
-                "name": "Default Text",
+                "name": "Mentorgesprek",
                 "fields": [
                     {"title": "Text", "location": 0, "type": Field.TEXT},
                 ]

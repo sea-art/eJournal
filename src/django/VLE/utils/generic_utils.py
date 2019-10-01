@@ -3,6 +3,8 @@ Utilities.
 
 A library with useful functions.
 """
+from django.db.models import Case, When
+
 import VLE.factory as factory
 from VLE.models import Entry, Node, PresetNode, Template
 from VLE.utils.error_handling import VLEBadRequest, VLEMissingRequiredKey, VLEParamWrongType
@@ -120,6 +122,19 @@ def get_published_count(entries):
     """
     return entries.filter(published=True).count()
 # END journal stat functions
+
+
+def get_sorted_nodes(journal):
+    """Get sorted nodes.
+
+    Get all the nodes of a journal in sorted order.
+    Order is default by due_date.
+    """
+    return journal.node_set.annotate(
+        sort_due_date=Case(
+            When(type=Node.ENTRY, then='entry__creation_date'),
+            default='preset__due_date')
+    ).order_by('sort_due_date')
 
 
 def update_templates(format, templates):

@@ -9,7 +9,7 @@ from test.factory.group import GroupFactory, LtiGroupFactory
 from test.factory.instance import InstanceFactory
 from test.factory.journal import JournalFactory
 from test.factory.participation import GroupParticipationFactory, ParticipationFactory
-from test.factory.role import RoleFactory
+from test.factory.role import RoleFactory, StudentRoleFactory
 from test.factory.template import TemplateFactory, TemplateAllTypesFactory
 
 Instance = InstanceFactory
@@ -24,6 +24,7 @@ LtiStudent = LtiStudentFactory
 Teacher = TeacherFactory
 Admin = AdminFactory
 Role = RoleFactory
+StudentRole = StudentRoleFactory
 
 Group = GroupFactory
 LtiGroup = LtiGroupFactory

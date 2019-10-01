@@ -1,5 +1,7 @@
 import factory
 
+import VLE.models
+
 
 class EntryFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -15,6 +17,6 @@ class EntryFactory(factory.django.DjangoModelFactory):
             return
 
         self.node.entry = self
-        self.node.type = 'entry'
+        self.node.type = VLE.models.Node.ENTRY
         self.node.save()
         self.node.journal.node_set.add(self.node)

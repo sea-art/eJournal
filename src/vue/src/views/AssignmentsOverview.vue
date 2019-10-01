@@ -48,7 +48,7 @@
         </div>
 
         <div
-            v-for="(d, i) in computedDeadlines"
+            v-for="(d, i) in computedAssignments"
             :key="i"
         >
             <b-link
@@ -119,39 +119,37 @@ export default {
                 this.setAssignmentOverviewSortBy(value)
             },
         },
-        computedDeadlines () {
+        computedAssignments () {
             const self = this
 
             function compareName (a, b) {
-                return self.compare(a.name, b.name)
+                return b.name < a.name
             }
 
             function compareDate (a, b) {
-                if (!a.deadline) { return 1 }
-                if (!b.deadline) { return -1 }
-                return self.compare(new Date(a.deadline), new Date(b.deadline))
+                if (!a.deadline.date) { return 1 }
+                if (!b.deadline.date) { return -1 }
+                return new Date(a.deadline.date) - new Date(b.deadline.date)
             }
 
             function compareMarkingNeeded (a, b) {
-                return self.compare(
-                    a.stats.needs_marking + a.stats.unpublished,
-                    b.stats.needs_marking + b.stats.unpublished,
-                )
+                return (a.stats.needs_marking + a.stats.unpublished) - (b.stats.needs_marking + b.stats.unpublished)
             }
 
             function searchFilter (assignment) {
                 return assignment.name.toLowerCase().includes(self.getAssignmentSearchValue.toLowerCase())
             }
 
+            const deadlines = this.deadlines.filter(searchFilter)
             if (this.selectedSortOption === 'name') {
-                return this.deadlines.filter(searchFilter).slice().sort(compareName)
+                deadlines.sort(compareName)
             } else if (this.selectedSortOption === 'date') {
-                return this.deadlines.filter(searchFilter).slice().sort(compareDate)
+                deadlines.sort(compareDate)
             } else if (this.selectedSortOption === 'markingNeeded') {
-                return this.deadlines.filter(searchFilter).slice().sort(compareMarkingNeeded)
-            } else {
-                return this.deadlines.filter(searchFilter).slice()
+                deadlines.sort(compareMarkingNeeded)
             }
+
+            return this.order ? deadlines.reverse() : deadlines
         },
     },
     created () {

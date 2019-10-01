@@ -1,8 +1,11 @@
 <template>
-    <div>
+    <div v-if="computedDeadlines.length > 0">
+        <h3 slot="right-content-column">
+            To Do
+        </h3>
         <!-- TODO: This seems like an inappropriate permission check. Will have to be reconsidered in the rework. -->
         <b-form-select
-            v-if="$hasPermission('can_add_course')"
+            v-if="showSortBy && computedDeadlines.length > 1"
             v-model="selectedSortOption"
             :selectSize="1"
             class="multi-form"
@@ -20,7 +23,6 @@
             :key="i"
         >
             <b-link
-                v-if="d.course"
                 :to="assignmentRoute(d.course.id, d.id, d.journal, d.is_published)"
                 tag="b-button"
             >
@@ -29,23 +31,13 @@
                     :course="d.course"
                 />
             </b-link>
-            <b-link
-                v-for="(course, j) in d.courses"
-                v-else
-                :key="`${i}-${j}`"
-                :to="assignmentRoute(course.id, d.id, d.journal, d.is_published)"
-                tag="b-button"
-            >
-                <todo-card
-                    :deadline="d"
-                    :course="course"
-                />
-            </b-link>
         </div>
     </div>
 </template>
 
 <script>
+import assignmentAPI from '@/api/assignment.js'
+
 import todoCard from '@/components/assets/TodoCard.vue'
 import { mapGetters, mapMutations } from 'vuex'
 
@@ -53,7 +45,11 @@ export default {
     components: {
         todoCard,
     },
-    props: ['deadlines'],
+    data () {
+        return {
+            deadlines: [],
+        }
+    },
     computed: {
         ...mapGetters({
             sortBy: 'preferences/todoSortBy',
@@ -67,41 +63,41 @@ export default {
             },
         },
         computedDeadlines () {
-            let counter = 0
-
             function compareDate (a, b) {
-                if (!a.deadline) { return 1 }
-                if (!b.deadline) { return -1 }
-                return new Date(a.deadline) - new Date(b.deadline)
+                if (!a.deadline.date) { return 1 }
+                if (!b.deadline.date) { return -1 }
+                return new Date(a.deadline.date) - new Date(b.deadline.date)
             }
 
             function compareMarkingNeeded (a, b) {
-                if (a.stats.needs_marking + a.stats.unpublished > b.stats.needs_marking + b.stats.unpublished) {
-                    return -1
-                }
-                if (a.stats.needs_marking + a.stats.unpublished < b.stats.needs_marking + b.stats.unpublished) {
-                    return 1
-                }
-                return 0
+                return (b.stats.needs_marking + b.stats.unpublished) - (a.stats.needs_marking + a.stats.unpublished)
             }
 
-            function filterTop () {
-                return (++counter <= 5)
-            }
-
-            function filterNoEntries (assignment) {
-                return assignment.totalNeedsMarking !== 0
-            }
-
-            const deadlines = this.deadlines.slice()
-            if (this.selectedSortOption === 'date') {
-                return deadlines.sort(compareDate).filter(filterTop)
-            } else if (this.selectedSortOption === 'markingNeeded') {
-                return deadlines.sort(compareMarkingNeeded).filter(filterTop).filter(filterNoEntries)
+            let deadlines = this.deadlines
+            if (this.$hasPermission('can_add_course')) {
+                deadlines = deadlines.filter(
+                    d => d.stats.needs_marking + d.stats.unpublished > 0 || !d.is_published)
             } else {
-                return deadlines.sort(compareDate).filter(filterTop)
+                deadlines = deadlines.filter(
+                    d => d.deadline.date !== null)
             }
+
+            if (this.selectedSortOption === 'date') {
+                deadlines.sort(compareDate)
+            } else if (this.selectedSortOption === 'markingNeeded') {
+                deadlines.sort(compareMarkingNeeded)
+            }
+
+            return deadlines
         },
+        showSortBy () {
+            return Object.entries(this.$store.getters['user/permissions']).some(
+                ([key, value]) => ((key.indexOf('assignment') >= 0) && value.can_grade))
+        },
+    },
+    created () {
+        assignmentAPI.getUpcoming()
+            .then((deadlines) => { this.deadlines = deadlines })
     },
     methods: {
         ...mapMutations({

@@ -10,6 +10,7 @@ from django.test import TestCase
 import VLE.factory as factory
 import VLE.timeline as timeline
 from VLE.models import Role
+from VLE.utils import generic_utils as utils
 
 
 class TimelineTests(TestCase):
@@ -63,7 +64,7 @@ class TimelineTests(TestCase):
         """Test is the sort function works."""
         entry = factory.make_entry(self.template)
         node = factory.make_node(self.j_rick_colloq, entry)
-        nodes = timeline.get_sorted_nodes(self.j_rick_colloq)
+        nodes = utils.get_sorted_nodes(self.j_rick_colloq)
 
         self.assertEqual(nodes[0].preset, self.deadlineentry)
         self.assertEqual(nodes[1], node)

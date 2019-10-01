@@ -9,10 +9,15 @@
                 md="7"
             >
                 <div class="portrait-wrapper">
-                    <img :src="student.profile_picture"/>
-                    <todo-square
-                        v-if="numMarkingNeeded > 0"
-                        :num="numMarkingNeeded"
+                    <img
+                        class="no-hover"
+                        :src="student.profile_picture"
+                    />
+                    <number-badge
+                        v-if="markingNeeded + unpublished > 0"
+                        :leftNum="markingNeeded"
+                        :rightNum="unpublished"
+                        :title="squareInfo"
                     />
                 </div>
                 <div class="student-details list-view">
@@ -29,7 +34,7 @@
             >
                 <progress-bar
                     :currentPoints="stats.acquired_points"
-                    :totalPoints="stats.total_points"
+                    :totalPoints="assignment.points_possible"
                 />
             </b-col>
         </b-row>
@@ -48,7 +53,7 @@
             </div>
             <progress-bar
                 :currentPoints="stats.acquired_points"
-                :totalPoints="stats.total_points"
+                :totalPoints="assignment.points_possible"
                 :comparePoints="assignment && assignment.stats ? assignment.stats.average_points : -1"
             />
         </div>
@@ -58,12 +63,12 @@
 
 <script>
 import progressBar from '@/components/assets/ProgressBar.vue'
-import todoSquare from '@/components/assets/TodoSquare.vue'
+import numberBadge from '@/components/assets/NumberBadge.vue'
 
 export default {
     components: {
         progressBar,
-        todoSquare,
+        numberBadge,
     },
     props: {
         student: {
@@ -77,12 +82,30 @@ export default {
         },
         assignment: {
             default: null,
-            required: false,
+            required: true,
         },
     },
     computed: {
-        numMarkingNeeded () {
+        markingNeeded () {
             return this.stats.submitted - this.stats.graded
+        },
+        unpublished () {
+            return this.stats.graded - this.stats.published
+        },
+        squareInfo () {
+            const info = []
+            if (this.markingNeeded === 1) {
+                info.push('an entry needs marking')
+            } else if (this.markingNeeded > 1) {
+                info.push(`${this.markingNeeded} entries need marking`)
+            }
+            if (this.unpublished === 1) {
+                info.push('an entry needs to be published')
+            } else if (this.unpublished > 1) {
+                info.push(`${this.unpublished} grades need to be published`)
+            }
+            const s = info.join(' and ')
+            return `${s.charAt(0).toUpperCase()}${s.slice(1)}`
         },
     },
 }
@@ -101,7 +124,7 @@ export default {
         width: 70px
         height: 70px
         border-radius: 50% !important
-    .todo-square
+    .number-badge
         position: absolute
         right: 0px
         top: 0px

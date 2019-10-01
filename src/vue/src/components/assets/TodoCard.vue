@@ -1,9 +1,12 @@
 <template>
     <b-card :class="$root.getBorderClass(deadline.id)">
-        <todo-square
-            v-if="deadline.stats && deadline.stats.unpublished"
-            :num="deadline.stats.needs_marking + deadline.stats.unpublished"
-            class="float-right"
+        <!-- Teacher show things todo -->
+        <number-badge
+            v-if="deadline.stats && deadline.stats.needs_marking + deadline.stats.unpublished > 0"
+            :leftNum="deadline.stats.needs_marking"
+            :rightNum="deadline.stats.unpublished"
+            class="float-right multi-form mr-2"
+            :title="squareInfo"
         />
 
         <b class="field-heading">{{ deadline.name }}</b> ({{ course.abbreviation }})
@@ -13,15 +16,18 @@
         >
             Unpublished
         </b-badge>
-
-        <span v-if="deadline.deadline">
-            <hr style="margin: 5px 0px"/>
+        <br/>
+        <span v-if="deadline.deadline.date">
             <!-- Teacher deadline shows last submitted entry date  -->
-            <span v-if="deadline.stats.needs_marking + deadline.stats.unpublished">
+            <span v-if="deadline.stats.needs_marking + deadline.stats.unpublished > 0">
                 <icon
                     name="eye"
                     class="fill-grey shift-up-3"
                 /> {{ timeLeft[1] }} ago<br/>
+                <icon
+                    name="flag"
+                    class="fill-grey shift-up-3"
+                /> {{ $root.beautifyDate(deadline.deadline.date) }}
             </span>
             <!-- Student deadline shows last not submitted deadline -->
             <span v-else>
@@ -34,28 +40,28 @@
                     v-else
                     class="text-red"
                 >{{ timeLeft[1] }} late<br/></span>
+                <icon
+                    name="flag"
+                    class="fill-grey shift-up-3"
+                /> {{ deadline.deadline.name }}
             </span>
-            <icon
-                name="flag"
-                class="fill-grey shift-up-3"
-            /> {{ $root.beautifyDate(deadline.deadline) }}
         </span>
     </b-card>
 </template>
 
 <script>
-import todoSquare from '@/components/assets/TodoSquare.vue'
+import numberBadge from '@/components/assets/NumberBadge.vue'
 
 export default {
     components: {
-        todoSquare,
+        numberBadge,
     },
     props: ['deadline', 'course'],
     computed: {
         timeLeft () {
-            if (!this.deadline.deadline) { return '' }
+            if (!this.deadline.deadline.date) { return '' }
             const dateNow = new Date()
-            const dateFuture = new Date(this.deadline.deadline)
+            const dateFuture = new Date(this.deadline.deadline.date)
 
             // get total seconds between the times
             let delta = Math.abs(dateFuture - dateNow) / 1000
@@ -82,6 +88,21 @@ export default {
             }
 
             return [dir, minutes > 1 ? `${minutes} minutes` : '1 minute']
+        },
+        squareInfo () {
+            const info = []
+            if (this.deadline.stats.needs_marking === 1) {
+                info.push('an entry needs marking')
+            } else if (this.deadline.stats.needs_marking > 1) {
+                info.push(`${this.deadline.stats.needs_marking} entries need marking`)
+            }
+            if (this.deadline.stats.unpublished === 1) {
+                info.push('an entry needs to be published')
+            } else if (this.deadline.stats.unpublished > 1) {
+                info.push(`${this.deadline.stats.unpublished} grades need to be published`)
+            }
+            const s = info.join(' and ')
+            return `${s.charAt(0).toUpperCase()}${s.slice(1)}`
         },
     },
 }

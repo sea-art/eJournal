@@ -52,13 +52,7 @@
             <create-assignment @handleAction="handleCreated"/>
         </b-modal>
 
-        <h3 slot="right-content-column">
-            To Do
-        </h3>
-        <deadline-deck
-            slot="right-content-column"
-            :deadlines="deadlines"
-        />
+        <deadline-deck slot="right-content-column"/>
     </content-columns>
 </template>
 

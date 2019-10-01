@@ -184,6 +184,8 @@ class User(AbstractUser):
             raise VLEParticipationError(obj, self)
 
     def is_participant(self, obj):
+        if self.is_superuser:
+            return True
         if isinstance(obj, Course):
             return Course.objects.filter(pk=obj.pk, users=self).exists()
         if isinstance(obj, Assignment):

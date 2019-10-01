@@ -4,20 +4,20 @@
         class="no-hover"
     >
         <div class="multi-form">
-            <b>Needs marking</b><todo-square
-                :num="stats.needsMarking"
+            <b>Needs marking</b><number-badge
+                :leftNum="stats.needsMarking"
                 class="float-right"
             />
         </div>
         <div class="multi-form">
-            <b>Unpublished grades</b><todo-square
-                :num="stats.unpublished"
+            <b>Unpublished grades</b><number-badge
+                :leftNum="stats.unpublished"
                 class="float-right"
             />
         </div>
         <div>
-            <b>Average points</b><todo-square
-                :num="stats.averagePoints"
+            <b>Average points</b><number-badge
+                :leftNum="stats.averagePoints"
                 class="float-right"
             />
         </div>
@@ -25,11 +25,11 @@
 </template>
 
 <script>
-import todoSquare from '@/components/assets/TodoSquare.vue'
+import numberBadge from '@/components/assets/NumberBadge.vue'
 
 export default {
     components: {
-        todoSquare,
+        numberBadge,
     },
     props: ['stats'],
 }

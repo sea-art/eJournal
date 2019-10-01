@@ -1,11 +1,14 @@
+import datetime
 import test.factory as factory
 from test.utils import api
 
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django.utils import timezone
 
+import VLE.factory
 import VLE.utils.generic_utils as utils
-from VLE.models import Assignment, Course, Journal
+from VLE.models import Assignment, Course, Journal, Node, Role
 
 
 class AssignmentAPITest(TestCase):
@@ -37,6 +40,41 @@ class AssignmentAPITest(TestCase):
                       create_params=self.create_params,
                       create_status=403,
                       user=factory.Student())
+
+    def test_get(self):
+        student = factory.Student()
+        assignment = factory.Assignment(courses=[self.course])
+
+        api.get(self, 'assignments', params={'pk': assignment.pk}, user=student, status=403)
+        factory.Participation(
+            user=student, course=self.course, role=Role.objects.get(course=self.course, name='Student'))
+        resp = api.get(self, 'assignments', params={'pk': assignment.pk, 'course_id': self.course.pk},
+                       user=student)['assignment']
+        assert resp['journal'] is not None, 'Response should include student serializer'
+
+        resp = api.get(self, 'assignments', params={'pk': assignment.pk, 'course_id': self.course.pk},
+                       user=self.teacher)['assignment']
+        assert resp['journals'] is not None, 'Response should include teacher serializer'
+
+    def test_list(self):
+        course2 = factory.Course(author=self.teacher)
+        factory.Assignment(courses=[self.course])
+        factory.Assignment(courses=[self.course, course2])
+        assignment = factory.Assignment()
+
+        resp = api.get(self, 'assignments', params={'course_id': self.course.pk}, user=self.teacher)['assignments']
+        assert len(resp) == 2, 'All connected courses should be returned'
+        resp = api.get(self, 'assignments', params={'course_id': course2.pk}, user=self.teacher)['assignments']
+        assert len(resp) == 1, 'Not connected courses should not be returned'
+
+        # Connected assignment
+        course = assignment.courses.first()
+        factory.Participation(user=self.teacher, course=course)
+        # Not connected assignment
+        factory.Assignment()
+
+        resp = api.get(self, 'assignments', user=self.teacher)['assignments']
+        assert len(resp) == 3, 'Without a course supplied, it should return all assignments connected to user'
 
     def test_create(self):
         lti_params = {**self.create_params, **{'lti_id': 'new_lti_id'}}
@@ -137,6 +175,32 @@ class AssignmentAPITest(TestCase):
 
         assert len(utils.get_journal_entries(journal)) == 4, 'Old entries should not be removed'
 
+    def test_upcoming(self):
+        course2 = factory.Course(author=self.teacher)
+        factory.Assignment(courses=[self.course])
+        factory.Assignment(courses=[self.course, course2])
+        assignment = factory.Assignment()
+
+        resp = api.get(
+            self, 'assignments/upcoming', params={'course_id': self.course.pk}, user=self.teacher)['upcoming']
+        assert len(resp) == 2, 'All connected courses should be returned'
+        resp = api.get(self, 'assignments/upcoming', params={'course_id': course2.pk}, user=self.teacher)['upcoming']
+        assert len(resp) == 1, 'Not connected courses should not be returned'
+
+        # Connected assignment
+        course = assignment.courses.first()
+        factory.Participation(user=self.teacher, course=course)
+        # Not connected assignment
+        factory.Assignment()
+
+        resp = api.get(self, 'assignments/upcoming', user=self.teacher)['upcoming']
+        assert len(resp) == 3, 'Without a course supplied, it should return all assignments connected to user'
+
+        assignment.lock_date = timezone.now()
+        assignment.save()
+        resp = api.get(self, 'assignments/upcoming', user=self.teacher)['upcoming']
+        assert len(resp) == 2, 'Past assignment should not be added'
+
     def test_lti_id_model_logic(self):
         # Test if a single lTI id can only be coupled to a singular assignment
         ltiAssignment1 = factory.LtiAssignment()
@@ -166,3 +230,62 @@ class AssignmentAPITest(TestCase):
         assert journal.grade_url is None and journal.sourcedid is None, \
             'Updating the active LTI id of an assignment should reset the grade_url and sourcedid of all nested ' \
             'journals'
+
+    def test_deadline(self):
+        journal = factory.Journal(assignment__format=factory.TemplateFormatFactory())
+        assignment = journal.assignment
+        teacher = assignment.courses.first().author
+        assignment.points_possible = 10
+
+        resp = api.get(self, 'assignments/upcoming', user=journal.user)['upcoming']
+        assert resp[0]['deadline']['name'] == 'End of assignment', \
+            'Default end of assignment should be shown'
+
+        resp = api.get(self, 'assignments/upcoming', user=teacher)['upcoming']
+        assert resp[0]['deadline']['date'] is None, \
+            'Default no deadline for a teacher be shown'
+
+        progress = VLE.factory.make_progress_node(assignment.format, timezone.now() + datetime.timedelta(days=3), 7)
+        utils.update_journals(assignment.journal_set.all(), progress)
+
+        resp = api.get(self, 'assignments/upcoming', user=journal.user)['upcoming']
+        assert resp[0]['deadline']['name'] == '0/7 points', \
+            'When not having completed an progress node, that should be shown'
+
+        entrydeadline = VLE.factory.make_entrydeadline_node(
+            assignment.format, timezone.now() + datetime.timedelta(days=1), assignment.format.template_set.first())
+        utils.update_journals(assignment.journal_set.all(), entrydeadline)
+
+        resp = api.get(self, 'assignments/upcoming', user=journal.user)['upcoming']
+        assert resp[0]['deadline']['name'] == assignment.format.template_set.first().name, \
+            'When not having completed an entry deadline, that should be shown'
+
+        entry = factory.Entry(node=Node.objects.get(preset=entrydeadline))
+
+        resp = api.get(self, 'assignments/upcoming', user=teacher)['upcoming']
+        assert resp[0]['deadline']['date'] is not None, \
+            'With ungraded entry a deadline for a teacher be shown'
+
+        api.create(self, 'grades', params={'entry_id': entry.pk, 'grade': 5, 'published': False}, user=teacher)
+        resp = api.get(self, 'assignments/upcoming', user=teacher)['upcoming']
+        assert resp[0]['deadline']['date'] is not None, \
+            'With only graded & NOT published entries a deadline for a teacher be shown'
+
+        api.create(self, 'grades', params={'entry_id': entry.pk, 'grade': 5, 'published': True}, user=teacher)
+        resp = api.get(self, 'assignments/upcoming', user=teacher)['upcoming']
+        assert resp[0]['deadline']['date'] is None, \
+            'With only graded & published entries no deadline for a teacher be shown'
+
+        resp = api.get(self, 'assignments/upcoming', user=journal.user)['upcoming']
+        assert resp[0]['deadline']['name'] == '5/7 points', \
+            'With only graded & published entries progres node should be the deadline'
+
+        api.create(self, 'grades', params={'entry_id': entry.pk, 'grade': 7, 'published': True}, user=teacher)
+        resp = api.get(self, 'assignments/upcoming', user=journal.user)['upcoming']
+        assert resp[0]['deadline']['name'] == 'End of assignment', \
+            'With full points of progress node, end of assignment should be shown'
+
+        api.create(self, 'grades', params={'entry_id': entry.pk, 'grade': 10, 'published': True}, user=teacher)
+        resp = api.get(self, 'assignments/upcoming', user=journal.user)['upcoming']
+        assert resp[0]['deadline']['name'] is None, \
+            'With full points of assignment, no deadline should be shown'

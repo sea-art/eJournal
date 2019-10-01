@@ -126,7 +126,7 @@
                 <progress-bar
                     v-if="journal.stats"
                     :currentPoints="journal.stats.acquired_points"
-                    :totalPoints="journal.stats.total_points"
+                    :totalPoints="assignment.points_possible"
                     :bonusPoints="journal.bonus_points"
                     :comparePoints="assignment.stats ? assignment.stats.average_points : -1"
                 />
