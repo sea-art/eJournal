@@ -40,20 +40,21 @@ export default {
 
 <style lang="sass">
 @import '~sass/modules/colors.sass'
-.badge-part
-    font-family: 'Roboto Condensed', sans-serif
-    font-size: 1.1em !important
-    border-radius: 5px !important
-    border: 2px solid $theme-blue !important
-.inverse
-    background-color: white !important
-    color: $theme-blue !important
-span.right-number
-    border-top-left-radius: 0!important
-    border-bottom-left-radius: 0!important
-    border-left: 0px!important
-span.left-number
-    border-top-right-radius: 0!important
-    border-bottom-right-radius: 0!important
-    border-right: 0px !important
+.number-badge
+    .badge-part
+        font-family: 'Roboto Condensed', sans-serif
+        font-size: 1.1em !important
+        border-radius: 5px !important
+        border: 2px solid $theme-blue !important
+    .inverse
+        background-color: white !important
+        color: $theme-blue !important
+    span.right-number
+        border-top-left-radius: 0!important
+        border-bottom-left-radius: 0!important
+        border-left: 0px!important
+    span.left-number
+        border-top-right-radius: 0!important
+        border-bottom-right-radius: 0!important
+        border-right: 0px !important
 </style>

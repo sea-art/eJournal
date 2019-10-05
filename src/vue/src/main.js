@@ -1,5 +1,4 @@
 import Vue from 'vue'
-import axios from 'axios'
 import BootstrapVue from 'bootstrap-vue'
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -7,6 +6,7 @@ import 'flatpickr/dist/flatpickr.css' // eslint-disable-line import/no-extraneou
 import 'intro.js/introjs.css'
 
 import '@/helpers/vue_awesome_icons.js'
+import initSentry from '@/helpers/sentry.js'
 
 import Toasted from 'vue-toasted'
 import flatPickr from 'vue-flatpickr-component'
@@ -17,6 +17,7 @@ import VueMoment from 'vue-moment'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import connection from '@/api/connection.js'
 
 Vue.config.productionTip = false
 Vue.use(Toasted, { position: 'top-center', duration: 4000 })
@@ -27,18 +28,10 @@ Vue.use(VueMoment)
 
 Vue.component('icon', Icon)
 
+initSentry(Vue)
+
 /* Checks the store for for permissions according to the current route cID or aID. */
 Vue.prototype.$hasPermission = store.getters['permissions/hasPermission']
-
-axios.defaults.baseURL = CustomEnv.API_URL
-
-/* Sets the default authorization token needed to for authenticated requests. */
-axios.defaults.transformRequest.push((data, headers) => {
-    if (store.getters['user/jwtAccess']) {
-        headers.Authorization = `Bearer ${store.getters['user/jwtAccess']}`
-    }
-    return data
-})
 
 Vue.config.productionTip = false
 
@@ -83,6 +76,12 @@ new Vue({
         lgMax () { return this.windowWidth < 1200 },
     },
     created () {
+        store.dispatch('connection/setupConnectionInterceptors', { connection: connection.conn })
+        store.dispatch('connection/setupConnectionInterceptors',
+            { connection: connection.connRefresh, isRefresh: true })
+        store.dispatch('connection/setupConnectionInterceptors', { connection: connection.connFile })
+        store.dispatch('connection/setupConnectionInterceptors', { connection: connection.connFileEmail })
+
         window.addEventListener('resize', () => {
             this.windowWidth = window.innerWidth
         })

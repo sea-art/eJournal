@@ -5,7 +5,6 @@
             :currentPage="'Courses'"
             @edit-click="handleEdit()"
         />
-
         <div
             v-for="c in courses"
             slot="main-content-column"

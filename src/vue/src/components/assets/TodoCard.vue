@@ -5,7 +5,7 @@
             v-if="deadline.stats && deadline.stats.needs_marking + deadline.stats.unpublished > 0"
             :leftNum="deadline.stats.needs_marking"
             :rightNum="deadline.stats.unpublished"
-            class="float-right multi-form mr-2"
+            class="float-right multi-form"
             :title="squareInfo"
         />
 
