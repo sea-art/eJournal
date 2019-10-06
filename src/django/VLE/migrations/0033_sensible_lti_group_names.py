@@ -15,7 +15,7 @@ def sensible_lti_names(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('VLE', '0031_assignment_target_to_float'),
+        ('VLE', '0032_preset_node_fix'),
     ]
 
     operations = [
