@@ -28,7 +28,6 @@ def migrate_lti_ids(apps, schema_editor):
                 c.save()
 
 
-# TODO delete Lti_ids table
 class Migration(migrations.Migration):
 
     dependencies = [

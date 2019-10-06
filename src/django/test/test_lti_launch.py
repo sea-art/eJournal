@@ -15,7 +15,7 @@ from django.test import RequestFactory, TestCase
 
 import VLE.lti_launch as lti
 import VLE.views.lti as lti_view
-from VLE.models import Journal, User
+from VLE.models import Group, Journal, User
 
 REQUEST = {
     'oauth_consumer_key': str(settings.LTI_KEY),
@@ -448,6 +448,20 @@ class LtiLaunchTest(TestCase):
             {'custom_course_id': course.active_lti_id},
             user=self.teacher, role=settings.ROLES['Teacher'])
         assert selected_course == course
+
+    def test_select_course_with_participation_and_groups(self):
+        """Hopefully creates extra groups."""
+        course = factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
+        factory.Group(name='existing group', course=course, lti_id='1000')
+        selected_course = lti.update_lti_course_if_exists({
+                'custom_course_id': course.active_lti_id,
+                'custom_section_id': ','.join(['1000', '1001']),
+            }, user=self.teacher, role=settings.ROLES['Teacher'])
+        assert selected_course == course
+        assert Group.objects.filter(course=course, name='Group 2').exists(), \
+            'Groups with an LTI id that are do not exist need to get renamed'
+        assert Group.objects.filter(course=course).count() == 2, \
+            'Groups with an LTI id that exists should not create new groups'
 
     def test_select_journal(self):
         """Hopefully select a journal."""

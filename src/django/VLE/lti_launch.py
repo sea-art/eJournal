@@ -103,7 +103,8 @@ def add_groups_if_not_exists(participation, group_ids):
         if group.exists():
             participation.groups.add(group.first())
         else:
-            group = factory.make_course_group(group_id, participation.course, group_id)
+            n_groups = Group.objects.filter(course=participation.course).count()
+            group = factory.make_course_group('Group {:d}'.format(n_groups + 1), participation.course, group_id)
             participation.groups.add(group)
 
     participation.save()
