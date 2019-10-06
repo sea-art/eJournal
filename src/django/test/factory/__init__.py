@@ -8,6 +8,7 @@ from test.factory.group import GroupFactory, LtiGroupFactory
 from test.factory.instance import InstanceFactory
 from test.factory.journal import JournalFactory
 from test.factory.participation import GroupParticipationFactory, ParticipationFactory
+from test.factory.presetnode import EntrydeadlineNodeFactory, ProgressNodeFactory
 from test.factory.role import RoleFactory, StudentRoleFactory
 from test.factory.template import TemplateAllTypesFactory, TemplateFactory
 from test.factory.user import AdminFactory, LtiStudentFactory, TeacherFactory, UserFactory
@@ -37,6 +38,8 @@ Format = FormatFactory
 TemplateFormat = TemplateFormatFactory
 Template = TemplateFactory
 TemplateAllTypes = TemplateAllTypesFactory
+ProgressNode = ProgressNodeFactory
+EntrydeadlineNode = EntrydeadlineNodeFactory
 
 Entry = EntryFactory
 StudentComment = StudentCommentFactory

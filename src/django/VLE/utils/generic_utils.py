@@ -67,7 +67,10 @@ def optional_typed_params(post, *keys):
     for func, key in keys:
         if key in post and post[key] != '':
             try:
-                result.append(func(post[key]))
+                if post[key] is not None:
+                    result.append(func(post[key]))
+                else:
+                    result.append(None)
             except ValueError as err:
                 raise VLEParamWrongType(err)
         else:
@@ -231,7 +234,8 @@ def update_presets(assignment, presets, new_ids):
     """
     format = assignment.format
     for preset in presets:
-        id, target, template = required_typed_params(preset, (int, 'id'), (float, 'target'), (dict, 'template'))
+        id, template = required_typed_params(preset, (int, 'id'), (dict, 'template'))
+        target, = optional_typed_params(preset, (float, 'target'))
         type, description, unlock_date, due_date, lock_date = \
             required_params(preset, 'type', 'description', 'unlock_date', 'due_date', 'lock_date')
 
@@ -269,6 +273,8 @@ def delete_presets(presets):
     for preset in presets:
         ids.append(preset['id'])
 
+    for id in ids:
+        Node.objects.filter(preset=id, entry__isnull=True).delete()
     PresetNode.objects.filter(pk__in=ids).delete()
 
 

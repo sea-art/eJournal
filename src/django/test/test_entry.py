@@ -4,15 +4,18 @@ from test.utils import api
 
 from django.test import TestCase
 
-from VLE.models import Entry, Field
+from VLE.models import Entry, Field, Node
+from VLE.utils import generic_utils as utils
 from VLE.utils.error_handling import VLEPermissionError
 
 
 class EntryAPITest(TestCase):
     def setUp(self):
         self.student = factory.Student()
+        self.student2 = factory.Student()
         self.admin = factory.Admin()
         self.journal = factory.Journal(user=self.student)
+        self.journal2 = factory.Journal(user=self.student2, assignment=self.journal.assignment)
         self.teacher = self.journal.assignment.courses.first().author
         self.journal_teacher = factory.Journal(user=self.teacher, assignment=self.journal.assignment)
         self.format = self.journal.assignment.format
@@ -285,3 +288,35 @@ class EntryAPITest(TestCase):
         assert grade_history[0]['published'] == grade_history[2]['published'] and grade_history[0]['published'], \
             'First and last grade should be published.'
         assert not grade_history[1]['published'], 'Second grade should be unpublished.'
+
+    def test_keep_entry_on_delete_preset(self):
+        entrydeadline = factory.EntrydeadlineNode(format=self.format)
+
+        node = Node.objects.get(preset=entrydeadline, journal=self.journal)
+        node_student2 = Node.objects.get(preset=entrydeadline, journal=self.journal2)
+        create_params = {
+            'journal_id': self.journal.pk,
+            'template_id': entrydeadline.forced_template.pk,
+            'content': [],
+            'node_id': node.pk
+        }
+
+        fields = Field.objects.filter(template=entrydeadline.forced_template)
+        create_params['content'] = [{'data': 'test data', 'id': field.pk} for field in fields]
+        entry = api.create(self, 'entries', params=create_params, user=self.student)['entry']
+
+        assert Entry.objects.filter(pk=entry['id']).exists(), \
+            'Entry exists before deletion of preset'
+        assert Node.objects.filter(entry=entry['id']).exists(), \
+            'Node exist before deletion of preset'
+        assert Node.objects.filter(pk=node_student2.pk).exists(), \
+            'Node student 2 exist before deletion of preset'
+
+        utils.delete_presets([{'id': entrydeadline.pk}])
+
+        assert Entry.objects.filter(pk=entry['id']).exists(), \
+            'Entry should also exist after deletion of preset'
+        assert Node.objects.filter(entry=entry['id']).exists(), \
+            'Node should also exist after deletion of preset'
+        assert not Node.objects.filter(pk=node_student2.pk).exists(), \
+            'Node student 2 does not exist after deletion of preset'

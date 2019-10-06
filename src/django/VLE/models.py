@@ -768,11 +768,10 @@ class Node(models.Model):
         on_delete=models.CASCADE,
     )
 
-    # Question: Why can this be null?
     preset = models.ForeignKey(
         'PresetNode',
         null=True,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
     )
 
     def to_string(self, user=None):
