@@ -1,31 +1,37 @@
 <template>
-    <content-single-column class="small-error">
+    <content-single-column>
         <h1 class="mb-2">
             <span>
-                Error {{ code }}: <span class="text-grey">{{ reasonPhrase }}</span>
+                Error {{ code }}: <span class="text-dark-grey">{{ reasonPhrase }}</span>
             </span>
         </h1>
         <b-card
-            v-if="description !== null"
-            class="no-hover"
+            class="no-hover grey-border max-width-600"
         >
-            <b>Message:</b>
-            {{ description }}
+            <h2
+                v-if="description !== null"
+                class="mb-2"
+            >
+                {{ description }}
+            </h2>
+            <span
+                v-else
+                class="d-block multi-form"
+            >
+                We are sorry, but an unknown error has brought you here.
+            </span>
+            <sentry-feedback-form
+                v-if="sentryLastEventID !== null"
+                class="sentry-feedback-form"
+            />
+            <b-button
+                v-else
+                :to="{name: 'Home'}"
+            >
+                <icon name="home"/>
+                Home
+            </b-button>
         </b-card>
-        <b-card
-            v-else
-            class="no-hover"
-        >
-            We are sorry, but an unknown error has brought you here.
-        </b-card>
-        <sentry-feedback-form v-if="sentryLastEventID !== null"/>
-        <b-button
-            v-else
-            :to="{name: 'Home'}"
-        >
-            <icon name="home"/>
-            Home
-        </b-button>
     </content-single-column>
 </template>
 
@@ -60,16 +66,6 @@ export default {
 </script>
 
 <style lang="sass">
-@import '~sass/modules/colors.sass'
-
-.error-content
-    padding: 40px
-
-.description-container
-    padding: 20px 0px
-
-
-.small-error .offset-xl-3
+.max-width-600
     max-width: 600px
-    margin-left: calc(50% - 300px)!important
 </style>

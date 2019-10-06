@@ -1,12 +1,11 @@
 <template>
     <!-- eslint-disable vue/attribute-hyphenation -->
-    <b-card
-        id="sentry-feedback-form"
-        class="no-hover"
-        title="It looks like we're having issues."
-        sub-title="Our team has been notified. If you'd like to help, tell us what happened below."
-    >
-        <b-form @submit.prevent="sendSentryFeedback()">
+    <div>
+        Our team has been notified. If you'd like to help, tell us what happened below.
+        <b-form
+            @submit.prevent="sendSentryFeedback()"
+            class="mt-2"
+        >
             <b-form-group
                 v-if="!userLoggedIn"
                 label="Name"
@@ -15,6 +14,7 @@
                 <b-form-input
                     id="form-sentry-feedback-name"
                     v-model="name"
+                    class="theme-input multi-form"
                     required
                     placeholder="Jane Doe"
                 />
@@ -28,6 +28,7 @@
                 <b-form-input
                     id="form-sentry-feedback-email"
                     v-model="email"
+                    class="theme-input multi-form"
                     type="email"
                     required
                     placeholder="jane@example.com"
@@ -41,10 +42,9 @@
                 <b-form-textarea
                     id="form-sentry-feedback-description"
                     v-model="description"
+                    class="theme-input"
                     required
                     placeholder="I clicked on 'X' and then hit 'Confirm'"
-                    rows="3"
-                    max-rows="9"
                 />
             </b-form-group>
 
@@ -57,11 +57,11 @@
                 class="float-right"
                 type="submit"
             >
-                <icon name="envelope"/>
+                <icon name="paper-plane"/>
                 Submit report
             </b-button>
         </b-form>
-    </b-card>
+    </div>
 </template>
 
 <script>
