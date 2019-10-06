@@ -68,10 +68,6 @@ class EntryView(viewsets.ViewSet):
             entry = factory.make_entry(template)
             node = factory.make_node(journal, entry)
 
-        # Notify teacher on new entry
-        if (node.journal.sourcedid and node.entry.vle_coupling == Entry.NEED_SUBMISSION):
-            lti_tasks.needs_grading.delay(node.pk)
-
         for content in content_list:
             field_id, = utils.required_typed_params(content, (int, 'id'))
             data, = utils.required_params(content, 'data')
@@ -83,9 +79,16 @@ class EntryView(viewsets.ViewSet):
                 user_file = file_handling.get_temp_user_file(request.user, assignment, content['data'])
                 if user_file is None and field.required:
                     node.entry.delete()
+                    # If there is a newly created node, delete that as well
+                    if not node_id:
+                        node.delete()
                     return response.bad_request('One of your files was not correctly uploaded, please try again.')
                 elif user_file:
                     file_handling.make_permanent_file_content(user_file, created_content, node)
+
+        # Notify teacher on new entry
+        if (node.journal.sourcedid and node.entry.vle_coupling == Entry.NEED_SUBMISSION):
+            lti_tasks.needs_grading.delay(node.pk)
 
         # Delete old user files
         file_handling.remove_temp_user_files(request.user)
