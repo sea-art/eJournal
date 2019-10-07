@@ -18,13 +18,16 @@
                 />
             </b-card>
         </div>
-        <load-spinner v-else/>
+        <load-spinner
+            v-else
+            class="mt-5"
+        />
     </content-single-column>
 </template>
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
-import loadSpinner from '@/components/assets/LoadSpinner.vue'
+import loadSpinner from '@/components/loading/LoadSpinner.vue'
 import ltiCreateLinkUser from '@/components/lti/LtiCreateLinkUser.vue'
 
 export default {

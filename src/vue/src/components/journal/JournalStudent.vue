@@ -37,78 +37,80 @@
                     <b>Warning:</b> You cannot update this journal until you visit the assignment in your LMS
                     (Canvas) course '{{ assignment.active_lti_course.name }}' at least once.
                 </b-alert>
-                <div
-                    v-if="nodes.length > currentNode && currentNode !== -1"
-                    :class="{'input-disabled': journal && journal.needs_lti_link && assignment
-                        && assignment.active_lti_course}"
-                >
-                    <div v-if="nodes[currentNode].type == 'e'">
-                        <entry-node
-                            ref="entry-template-card"
-                            :journal="journal"
-                            :cID="cID"
-                            :entryNode="nodes[currentNode]"
-                            @edit-node="adaptData"
-                            @delete-node="deleteNode"
-                        />
-                    </div>
-                    <div v-else-if="nodes[currentNode].type == 'd'">
-                        <div v-if="nodes[currentNode].entry !== null">
+                <load-wrapper :loading="loadingNodes">
+                    <div
+                        v-if="nodes.length > currentNode && currentNode !== -1"
+                        :class="{'input-disabled': journal && journal.needs_lti_link && assignment
+                            && assignment.active_lti_course}"
+                    >
+                        <div v-if="nodes[currentNode].type == 'e'">
                             <entry-node
                                 ref="entry-template-card"
+                                :journal="journal"
                                 :cID="cID"
                                 :entryNode="nodes[currentNode]"
                                 @edit-node="adaptData"
                                 @delete-node="deleteNode"
                             />
                         </div>
-                        <div v-else>
-                            <entry-preview
-                                v-if="!isLocked()"
-                                ref="entry-prev"
-                                :template="nodes[currentNode].template"
-                                :nodeID="nodes[currentNode].nID"
-                                :description="nodes[currentNode].description"
-                                @content-template="fillDeadline"
+                        <div v-else-if="nodes[currentNode].type == 'd'">
+                            <div v-if="nodes[currentNode].entry !== null">
+                                <entry-node
+                                    ref="entry-template-card"
+                                    :cID="cID"
+                                    :entryNode="nodes[currentNode]"
+                                    @edit-node="adaptData"
+                                    @delete-node="deleteNode"
+                                />
+                            </div>
+                            <div v-else>
+                                <entry-preview
+                                    v-if="!isLocked()"
+                                    ref="entry-prev"
+                                    :template="nodes[currentNode].template"
+                                    :nodeID="nodes[currentNode].nID"
+                                    :description="nodes[currentNode].description"
+                                    @content-template="fillDeadline"
+                                />
+                                <b-card
+                                    v-else
+                                    :class="$root.getBorderClass($route.params.cID)"
+                                    class="no-hover"
+                                >
+                                    <h2 class="mb-2">
+                                        {{ nodes[currentNode].template.name }}
+                                    </h2>
+                                    <hr class="full-width"/>
+                                    <b>This preset is locked. You cannot submit an entry at the moment.</b><br/>
+                                    {{ deadlineRange }}
+                                </b-card>
+                            </div>
+                        </div>
+                        <div v-else-if="nodes[currentNode].type == 'a'">
+                            <add-card
+                                ref="add-card-ref"
+                                :addNode="nodes[currentNode]"
+                                @info-entry="addNode"
                             />
-                            <b-card
-                                v-else
-                                :class="$root.getBorderClass($route.params.cID)"
-                                class="no-hover"
-                            >
-                                <h2 class="mb-2">
-                                    {{ nodes[currentNode].template.name }}
-                                </h2>
-                                <hr class="full-width"/>
-                                <b>This preset is locked. You cannot submit an entry at the moment.</b><br/>
-                                {{ deadlineRange }}
-                            </b-card>
+                        </div>
+                        <div v-else-if="nodes[currentNode].type == 'p'">
+                            <progress-node
+                                :currentNode="nodes[currentNode]"
+                                :nodes="nodes"
+                                :bonusPoints="journal.bonus_points"
+                            />
                         </div>
                     </div>
-                    <div v-else-if="nodes[currentNode].type == 'a'">
-                        <add-card
-                            ref="add-card-ref"
-                            :addNode="nodes[currentNode]"
-                            @info-entry="addNode"
-                        />
-                    </div>
-                    <div v-else-if="nodes[currentNode].type == 'p'">
-                        <progress-node
-                            :currentNode="nodes[currentNode]"
-                            :nodes="nodes"
-                            :bonusPoints="journal.bonus_points"
-                        />
-                    </div>
-                </div>
-                <journal-start-card
-                    v-else-if="currentNode === -1"
-                    :assignment="assignment"
-                />
-                <journal-end-card
-                    v-else
-                    :assignment="assignment"
-                    :student="true"
-                />
+                    <journal-start-card
+                        v-else-if="currentNode === -1"
+                        :assignment="assignment"
+                    />
+                    <journal-end-card
+                        v-else
+                        :assignment="assignment"
+                        :student="true"
+                    />
+                </load-wrapper>
             </b-col>
         </b-col>
 
@@ -154,6 +156,7 @@ import entryPreview from '@/components/entry/EntryPreview.vue'
 import addCard from '@/components/journal/AddCard.vue'
 import timeline from '@/components/timeline/Timeline.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
 import journalStartCard from '@/components/journal/JournalStartCard.vue'
 import journalEndCard from '@/components/journal/JournalEndCard.vue'
@@ -166,6 +169,7 @@ import entryAPI from '@/api/entry.js'
 export default {
     components: {
         breadCrumb,
+        loadWrapper,
         addCard,
         timeline,
         entryNode,
@@ -183,6 +187,7 @@ export default {
             nodes: [],
             journal: {},
             assignment: '',
+            loadingNodes: true,
         }
     },
     computed: {
@@ -214,6 +219,7 @@ export default {
                     journalAPI.getNodes(this.jID)
                         .then((nodes) => {
                             this.nodes = nodes
+                            this.loadingNodes = false
                             if (this.$route.query.nID !== undefined) {
                                 this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID, 10))
                             }
@@ -303,6 +309,7 @@ export default {
             })
                 .then((data) => {
                     this.nodes = data.nodes
+                    this.loadingNodes = false
                     this.currentNode = data.added
                 })
         },

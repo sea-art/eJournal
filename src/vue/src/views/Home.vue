@@ -5,29 +5,41 @@
             :currentPage="'Courses'"
             @edit-click="handleEdit()"
         />
-        <div
-            v-for="c in courses"
+
+        <load-wrapper
             slot="main-content-column"
-            :key="c.id"
+            :loading="loadingCourses"
         >
-            <b-link :to="{ name: 'Course', params: { cID: c.id, courseName: c.name } }">
-                <main-card
-                    :line1="c.name"
-                    :line2="c.startdate ? (c.startdate.substring(0, 4) +
-                        (c.enddate ? ` - ${c.enddate.substring(0, 4)}` : '')) : ''"
-                    :color="$root.getBorderClass(c.id)"
-                />
-            </b-link>
-        </div>
-        <b-button
-            v-if="$hasPermission('can_add_course')"
-            slot="main-content-column"
-            class="add-button"
-            @click="showModal('createCourseRef')"
-        >
-            <icon name="plus"/>
-            Create New Course
-        </b-button>
+            <div v-if="courses.length > 0">
+                <div
+                    v-for="c in courses"
+                    :key="c.id"
+                >
+                    <b-link :to="{ name: 'Course', params: { cID: c.id, courseName: c.name } }">
+                        <main-card
+                            :line1="c.name"
+                            :line2="c.startdate ? (c.startdate.substring(0, 4) +
+                                (c.enddate ? ` - ${c.enddate.substring(0, 4)}` : '')) : ''"
+                            :color="$root.getBorderClass(c.id)"
+                        />
+                    </b-link>
+                </div>
+                <b-button
+                    v-if="$hasPermission('can_add_course')"
+                    slot="main-content-column"
+                    class="add-button"
+                    @click="showModal('createCourseRef')"
+                >
+                    <icon name="plus"/>
+                    Create New Course
+                </b-button>
+            </div>
+            <main-card
+                v-else-if="courses.length === 0"
+                :line1="'No courses found'"
+                class="no-hover"
+            />
+        </load-wrapper>
 
         <deadline-deck slot="right-content-column"/>
 
@@ -56,6 +68,7 @@
 <script>
 import contentColumns from '@/components/columns/ContentColumns.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import mainCard from '@/components/assets/MainCard.vue'
 import createCourse from '@/components/course/CreateCourse.vue'
 import editHome from '@/components/home/EditHome.vue'
@@ -68,6 +81,7 @@ export default {
     components: {
         contentColumns,
         breadCrumb,
+        loadWrapper,
         mainCard,
         createCourse,
         editHome,
@@ -76,6 +90,7 @@ export default {
     data () {
         return {
             courses: [],
+            loadingCourses: true,
         }
     },
     created () {
@@ -84,7 +99,10 @@ export default {
     methods: {
         loadCourses () {
             courseAPI.getUserEnrolled()
-                .then((courses) => { this.courses = courses })
+                .then((courses) => {
+                    this.courses = courses
+                    this.loadingCourses = false
+                })
         },
         showModal (ref) {
             this.$refs[ref].show()

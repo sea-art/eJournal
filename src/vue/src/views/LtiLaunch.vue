@@ -24,13 +24,16 @@
                 @handleAction="handleActions"
             />
         </b-card>
-        <load-spinner v-else/>
+        <load-spinner
+            v-else
+            class="mt-5"
+        />
     </content-single-column>
 </template>
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
-import loadSpinner from '@/components/assets/LoadSpinner.vue'
+import loadSpinner from '@/components/loading/LoadSpinner.vue'
 import ltiCreateLinkCourse from '@/components/lti/LtiCreateLinkCourse.vue'
 import ltiCreateLinkAssignment from '@/components/lti/LtiCreateLinkAssignment.vue'
 import ltiAPI from '@/api/lti.js'

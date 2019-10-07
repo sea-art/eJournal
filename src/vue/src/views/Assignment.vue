@@ -177,49 +177,44 @@
             </b-modal>
         </div>
 
-        <div
-            v-for="journal in filteredJournals"
+        <load-wrapper
             slot="main-content-column"
-            :key="journal.student.id"
+            :loading="loadingJournals"
         >
-            <b-link
-                :to="{
-                    name: 'Journal',
-                    params: {
-                        cID: cID,
-                        aID: aID,
-                        jID: journal.id
-                    }
-                }"
-                tag="b-button"
+            <div
+                v-for="journal in filteredJournals"
+                :key="journal.student.id"
             >
-                <student-card
-                    :listView="true"
-                    :student="journal.student"
-                    :stats="journal.stats"
-                    :assignment="assignment"
-                />
-            </b-link>
-        </div>
-
-        <main-card
-            v-if="loadingJournals && assignmentJournals.length === 0"
-            slot="main-content-column"
-            :line1="'Loading journals...'"
-            class="no-hover"
-        />
-        <main-card
-            v-else-if="assignmentJournals.length === 0"
-            slot="main-content-column"
-            :line1="'No participants with a journal'"
-            class="no-hover"
-        />
-        <main-card
-            v-else-if="filteredJournals.length === 0"
-            slot="main-content-column"
-            :line1="'No journals found'"
-            class="no-hover"
-        />
+                <b-link
+                    :to="{
+                        name: 'Journal',
+                        params: {
+                            cID: cID,
+                            aID: aID,
+                            jID: journal.id
+                        }
+                    }"
+                    tag="b-button"
+                >
+                    <student-card
+                        :listView="true"
+                        :student="journal.student"
+                        :stats="journal.stats"
+                        :assignment="assignment"
+                    />
+                </b-link>
+            </div>
+            <main-card
+                v-if="assignmentJournals.length === 0"
+                line1="No participants with a journal"
+                class="no-hover"
+            />
+            <main-card
+                v-else-if="filteredJournals.length === 0"
+                line1="No journals found"
+                class="no-hover"
+            />
+        </load-wrapper>
 
         <div
             v-if="stats"
@@ -232,12 +227,13 @@
 </template>
 
 <script>
+import bonusFileUploadInput from '@/components/assets/file_handling/BonusFileUploadInput.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import contentColumns from '@/components/columns/ContentColumns.vue'
-import studentCard from '@/components/assignment/StudentCard.vue'
+import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import mainCard from '@/components/assets/MainCard.vue'
 import statisticsCard from '@/components/assignment/StatisticsCard.vue'
-import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import bonusFileUploadInput from '@/components/assets/file_handling/BonusFileUploadInput.vue'
+import studentCard from '@/components/assignment/StudentCard.vue'
 
 import store from '@/Store.vue'
 import assignmentAPI from '@/api/assignment.js'
@@ -250,12 +246,13 @@ import { mapGetters, mapMutations } from 'vuex'
 export default {
     name: 'Assignment',
     components: {
-        contentColumns,
-        studentCard,
-        statisticsCard,
-        breadCrumb,
         bonusFileUploadInput,
+        breadCrumb,
+        contentColumns,
+        loadWrapper,
         mainCard,
+        statisticsCard,
+        studentCard,
     },
     props: {
         cID: {

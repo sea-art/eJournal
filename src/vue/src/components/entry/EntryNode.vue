@@ -99,7 +99,7 @@
                 :template="entryNode.entry.template"
                 :completeContent="completeContent"
                 :displayMode="true"
-                :authorUID="$parent.journal.student.id"
+                :authorUID="journal.student.id"
                 :entryID="entryNode.entry.id"
             />
             <hr class="full-width"/>

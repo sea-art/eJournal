@@ -1,7 +1,6 @@
 <template>
     <content-single-column>
         <bread-crumb :currentPage="'Assignments'"/>
-
         <input
             v-model="searchValue"
             class="theme-input full-width multi-form"
@@ -46,40 +45,42 @@
                 Descending
             </b-button>
         </div>
-
-        <div
-            v-for="(d, i) in computedAssignments"
-            :key="i"
-        >
-            <b-link
-                v-if="d.course"
-                :to="assignmentRoute(d.course.id, d.id, d.journal, d.is_published)"
-                tag="b-button"
+        <load-wrapper :loading="loadingAssignments">
+            <div
+                v-for="(d, i) in computedAssignments"
+                :key="i"
             >
-                <todo-card
-                    :deadline="d"
-                    :course="d.course"
-                />
-            </b-link>
-            <b-link
-                v-for="(course, j) in d.courses"
-                v-else
-                :key="`${i}-${j}`"
-                :to="assignmentRoute(course.id, d.id, d.journal, d.is_published)"
-                tag="b-button"
-            >
-                <todo-card
-                    :deadline="d"
-                    :course="course"
-                />
-            </b-link>
-        </div>
+                <b-link
+                    v-if="d.course"
+                    :to="assignmentRoute(d.course.id, d.id, d.journal, d.is_published)"
+                    tag="b-button"
+                >
+                    <todo-card
+                        :deadline="d"
+                        :course="d.course"
+                    />
+                </b-link>
+                <b-link
+                    v-for="(course, j) in d.courses"
+                    v-else
+                    :key="`${i}-${j}`"
+                    :to="assignmentRoute(course.id, d.id, d.journal, d.is_published)"
+                    tag="b-button"
+                >
+                    <todo-card
+                        :deadline="d"
+                        :course="course"
+                    />
+                </b-link>
+            </div>
+        </load-wrapper>
     </content-single-column>
 </template>
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import todoCard from '@/components/assets/TodoCard.vue'
 import assignmentAPI from '@/api/assignment.js'
 
@@ -90,11 +91,13 @@ export default {
     components: {
         contentSingleColumn,
         breadCrumb,
+        loadWrapper,
         todoCard,
     },
     data () {
         return {
             deadlines: [],
+            loadingAssignments: true,
         }
     },
     computed: {
@@ -154,7 +157,10 @@ export default {
     },
     created () {
         assignmentAPI.list()
-            .then((deadlines) => { this.deadlines = deadlines })
+            .then((deadlines) => {
+                this.deadlines = deadlines
+                this.loadingAssignments = false
+            })
     },
     methods: {
         ...mapMutations({

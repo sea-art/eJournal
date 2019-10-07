@@ -3,8 +3,8 @@
     <div>
         Our team has been notified. If you'd like to help, tell us what happened below.
         <b-form
-            @submit.prevent="sendSentryFeedback()"
             class="mt-2"
+            @submit.prevent="sendSentryFeedback()"
         >
             <b-form-group
                 v-if="!userLoggedIn"
