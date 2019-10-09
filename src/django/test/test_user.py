@@ -5,6 +5,9 @@ from test.utils import api
 from django.test import TestCase
 from rest_framework.settings import api_settings
 
+import VLE.permissions as permissions
+from VLE.models import User
+
 
 class UserAPITest(TestCase):
     def setUp(self):
@@ -22,27 +25,38 @@ class UserAPITest(TestCase):
     def test_get(self):
         student = factory.Student()
         admin = factory.Admin()
+        journal = factory.Journal(user=student)
+        teacher = journal.assignment.courses.first().author
 
         # Test get all users
         api.get(self, 'users', user=student, status=403)
-        get_resp = api.get(self, 'users', user=admin)['users']
-        assert len(get_resp) == 2, 'Test if the admin got all the users'
+        resp = api.get(self, 'users', user=admin)['users']
+        assert len(resp) == User.objects.count(), 'Test if the admin got all the users'
 
         # Test get own user
-        get_resp = api.get(self, 'users', params={'pk': 0}, user=student)['user']
-        assert 'id' in get_resp, 'Test if the student got userdata'
-        assert 'verified_email' in get_resp, 'Test if the student got all their userdata'
+        resp = api.get(self, 'users', params={'pk': 0}, user=student)['user']
+        assert 'id' in resp, 'Test if the student got userdata'
+        assert 'verified_email' in resp, 'Test if the student got all their userdata'
+
+        resp = api.get(self, 'users', params={'pk': 0}, user=admin)['user']
+        assert resp['is_superuser'], 'Admin user should be flagged as superuser.'
 
         # Check if a user cant see other users data
         api.get(self, 'users', params={'pk': admin.pk}, user=student, status=403)
 
-        # TODO: test get user as supervisor
-        # NOTE: verified_email should not be in get_resp
+        # Test get user as supervisor
+        assert permissions.is_user_supervisor_of(teacher, student), 'Teacher should be supervisor of student'
+        resp = api.get(self, 'users', params={'pk': student.pk}, user=teacher)['user']
+        assert 'username' in resp, 'Supervisor can retrieve basic supervisee data'
+        assert 'full_name' in resp, 'Supervisor can retrieve basic supervisee data'
+        assert 'verified_email' not in resp, 'Supervisor can\'t retrieve all supervisee data'
+        assert 'email' not in resp, 'Supervisor can\'t retrieve all supervisee data'
 
         # Test get user as admin
-        get_resp = api.get(self, 'users', params={'pk': student.pk}, user=admin)['user']
-        assert 'id' in get_resp, 'Test if the student got userdata'
-        assert 'verified_email' in get_resp, 'Test if the student got all their userdata'
+        resp = api.get(self, 'users', params={'pk': student.pk}, user=admin)['user']
+        assert 'id' in resp, 'Admin can retrieve basic user data'
+        assert 'verified_email' in resp, 'Admin can retrieve all user data'
+        assert 'email' in resp, 'Admin can retrieve all user data'
 
     def test_create(self):
         params = dict(self.create_params)

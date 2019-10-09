@@ -56,9 +56,9 @@ class OwnUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'full_name', 'email', 'permissions',
+        fields = ('id', 'username', 'full_name', 'email', 'permissions', 'is_superuser',
                   'lti_id', 'profile_picture', 'is_teacher', 'verified_email')
-        read_only_fields = ('id', 'permissions', 'lti_id', 'is_teacher', 'verified_email', 'username')
+        read_only_fields = ('id', 'permissions', 'lti_id', 'is_teacher', 'verified_email', 'username', 'is_superuser')
 
     def get_permissions(self, user):
         """Returns a dictionary with all user permissions.

@@ -194,7 +194,7 @@ class User(AbstractUser):
 
     def check_can_view(self, obj):
         if not self.can_view(obj):
-            raise VLEPermissionError(message='You are not allowed to view {}'.format(str(obj)))
+            raise VLEPermissionError(message='You are not allowed to view {}'.format(obj.to_string()))
 
     def can_view(self, obj):
         if self.is_superuser:
@@ -309,6 +309,9 @@ class Preferences(models.Model):
         choices=COMMENT_SEND_BUTTON_OPTIONS,
         default=SAVE,
     )
+
+    def to_string(self, user=None):
+        return "Preferences"
 
 
 class Course(models.Model):

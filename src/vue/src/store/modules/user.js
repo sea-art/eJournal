@@ -15,6 +15,7 @@ const getters = {
     fullName: state => state.fullName,
     ltiID: state => state.ltiID,
     permissions: state => state.permissions,
+    isSuperuser: state => state.isSuperuser,
     // We are not logged unless the store is populated as well
     loggedIn: state => state.jwtAccess !== null && state.uID !== null,
     storePopulated: state => state.uID !== null,
@@ -42,6 +43,7 @@ const mutations = {
         state.profilePicture = userData.profile_picture
         state.fullName = userData.full_name
         state.ltiID = userData.lti_id
+        state.isSuperuser = userData.is_superuser
         state.permissions = permissions
     },
     [types.LOGOUT] (state) {
@@ -94,6 +96,7 @@ const actions = {
     logout ({ commit }) {
         return Promise.all([
             commit(`preferences/${types.RESET_PREFERENCES}`, null, { root: true }),
+            commit(`permissions/${types.RESET_PERMISSIONS}`, null, { root: true }),
             commit(types.LOGOUT),
         ])
     },
@@ -163,6 +166,7 @@ export default {
         fullName: null,
         ltiID: null,
         permissions: null,
+        isSuperuser: false,
     },
     getters,
     mutations,

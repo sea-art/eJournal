@@ -275,6 +275,7 @@ export default {
     computed: {
         ...mapGetters({
             journalSortBy: 'preferences/journalSortBy',
+            isSuperuser: 'user/isSuperuser',
             order: 'preferences/journalSortAscending',
             getJournalSearchValue: 'preferences/journalSearchValue',
             getJournalGroupFilter: 'preferences/journalGroupFilter',
@@ -342,7 +343,9 @@ export default {
             const initialCalls = []
             initialCalls.push(assignmentAPI.get(this.aID, this.cID))
             initialCalls.push(groupAPI.getAllFromCourse(this.cID))
-            initialCalls.push(participationAPI.get(this.cID))
+            /* Superuser does not have any participation, this should not redict to error, nor give an error toast */
+            initialCalls.push(
+                participationAPI.get(this.cID, { redirect: !this.isSuperuser, customErrorToast: '' }).catch(() => {}))
 
             Promise.all(initialCalls).then((results) => {
                 this.loadingJournals = false
