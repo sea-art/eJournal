@@ -87,7 +87,8 @@ class EntryView(viewsets.ViewSet):
                     file_handling.make_permanent_file_content(user_file, created_content, node)
 
         # Notify teacher on new entry
-        if (node.journal.sourcedids and node.entry.vle_coupling == Entry.NEED_SUBMISSION):
+        if node.journal.authors.filter(sourcedid__isnull=False).exists() and \
+           node.entry.vle_coupling == Entry.NEED_SUBMISSION:
             lti_tasks.needs_grading.delay(node.pk)
 
         # Delete old user files

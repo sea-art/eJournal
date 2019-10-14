@@ -7,7 +7,8 @@ from django.test import TestCase
 class JournalAPITest(TestCase):
     def setUp(self):
         self.student = factory.Student()
-        self.journal = factory.Journal(authors=[self.student])
+        ap = factory.AssignmentParticipation(user=self.student)
+        self.journal = ap.journal
         self.assignment = self.journal.assignment
         self.course = self.assignment.courses.first()
         self.teacher = self.course.author

@@ -8,7 +8,7 @@ from test.factory.grade import GradeFactory
 from test.factory.group import GroupFactory, LtiGroupFactory
 from test.factory.instance import InstanceFactory
 from test.factory.journal import GroupJournalFactory, JournalFactory
-from test.factory.participation import GroupParticipationFactory, ParticipationFactory
+from test.factory.participation import GroupParticipationFactory, ParticipationFactory, AssignmentParticipationFactory
 from test.factory.presetnode import EntrydeadlineNodeFactory, ProgressNodeFactory
 from test.factory.role import RoleFactory, StudentRoleFactory
 from test.factory.template import TemplateAllTypesFactory, TemplateFactory
@@ -34,6 +34,7 @@ LtiGroup = LtiGroupFactory
 
 Participation = ParticipationFactory
 GroupParticipation = GroupParticipationFactory
+AssignmentParticipation = AssignmentParticipationFactory
 
 Journal = JournalFactory
 GroupJournal = GroupJournalFactory

@@ -129,7 +129,7 @@ def _can_edit_entry(user, entry):
     user.check_permission('can_have_journal', entry.node.journal.assignment)
 
     if (
-        user != entry.node.journal.user or
+        not entry.node.journal.authors.filter(user=user).exists() or
         entry.node.journal.assignment.is_locked() or
         entry.is_graded() or
         entry.is_locked() or

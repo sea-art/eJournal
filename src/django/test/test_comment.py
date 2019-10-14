@@ -23,11 +23,12 @@ def assert_comments_are_equal(c1, c2):
     assert c1.last_edited_by == c2.last_edited_by, 'Last edited bys are not equal'
 
 
-class NodeAPITest(TestCase):
+class CommentAPITest(TestCase):
     def setUp(self):
         self.admin = factory.Admin()
         self.student = factory.Student()
-        self.journal = factory.Journal(authors__user=self.student)
+        ap = factory.AssignmentParticipation(user=self.student)
+        self.journal = ap.journal
         self.TA = factory.Student()
         nfac.make_participation(
             user=self.TA,

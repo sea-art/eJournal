@@ -18,8 +18,8 @@ def needs_grading(node_pk):
     result_data = {'url': '{0}/Home/Course/{1}/Assignment/{2}/Journal/{3}?nID={4}'.format(
         settings.BASELINK, course.pk, journal.assignment.pk, journal.pk, node.pk)}
 
-    for sourcedid in journal.sourcedids:
-        grade_request = GradePassBackRequest(settings.LTI_KEY, settings.LTI_SECRET, journal, sourcedid,
+    for author in journal.authors:
+        grade_request = GradePassBackRequest(author, journal.get_grade(),
                                              result_data=result_data, submitted_at=str(node.entry.last_edited))
 
         response = grade_request.send_post_request()

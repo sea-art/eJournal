@@ -1,8 +1,6 @@
 from __future__ import absolute_import, unicode_literals
 
 from celery import shared_task
-from django.conf import settings
-from django.db.models import Q
 
 import VLE.lti_grade_passback as lti_grade
 from VLE import factory
@@ -26,7 +24,7 @@ def publish_all_assignment_grades(user, assignment_pk):
     Comment.objects.filter(entry__node__journal__assignment=assignment) \
                    .exclude(entry__grade=None).update(published=True)
 
-    for journal in Journal.objects.filter(assignment=assignment).exclude(Q(sourcedid=None) | Q(grade_url=None)):
+    for journal in Journal.objects.filter(assignment=assignment):
         lti_grade.replace_result(journal)
 
 
@@ -39,20 +37,20 @@ def send_journal_grade_to_LMS(journal_pk):
 
     Task results (or errors) are logged as a result string"""
     journal = Journal.objects.get(pk=journal_pk)
+    for author in journal.authors:
+        if author.sourcedid is None or author.grade_url is None:
+            return "This author has no sourcedid: {} or grade_url: {}, skipping".format(
+                author.sourcedid, author.grade_url)
 
-    if journal.sourcedid is None or journal.grade_url is None:
-        return "This journal has no sourcedid: {} or grade_url: {}, skipping".format(
-            journal.sourcedid, journal.grade_url)
+        # Reflag -> all entries grade needs to be submitted to LMS
+        Entry.objects.filter(grade__published=True, node__journal=journal).update(vle_coupling=Entry.GRADING)
 
-    # Reflag -> all entries grade needs to be submitted to LMS
-    Entry.objects.filter(grade__published=True, node__journal=journal).update(vle_coupling=Entry.GRADING)
+        grade_request = GradePassBackRequest(author, journal.get_grade(), send_score=True)
+        response = grade_request.send_post_request()
 
-    grade_request = GradePassBackRequest(settings.LTI_KEY, settings.LTI_SECRET, journal, send_score=True)
-    response = grade_request.send_post_request()
+        if response['code_mayor'] == 'success':
+            # Reflag -> all entries grade (weighted avg) has been successfully submitted to LMS
+            Entry.objects.filter(grade__published=True, node__journal=journal).update(vle_coupling=Entry.LINK_COMPLETE)
+            return "Journal {} grade was succesfully sent to the LMS".format(journal_pk)
 
-    if response['code_mayor'] == 'success':
-        # Reflag -> all entries grade (weighted avg) has been successfully submitted to LMS
-        Entry.objects.filter(grade__published=True, node__journal=journal).update(vle_coupling=Entry.LINK_COMPLETE)
-        return "Journal {} grade was succesfully sent to the LMS".format(journal_pk)
-
-    return "Journal {} grade could not be sent to the LMS. Response was: {}".format(journal_pk, response)
+        return "Journal {} grade could not be sent to the LMS. Response was: {}".format(journal_pk, response)

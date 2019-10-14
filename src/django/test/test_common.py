@@ -7,7 +7,8 @@ from django.test import TestCase
 class CommonAPITest(TestCase):
     def setUp(self):
         self.student = factory.Student()
-        self.journal = factory.Journal(authors__user=self.student)
+        ap = factory.AssignmentParticipation(user=self.student)
+        self.journal = ap.journal
         self.teacher = self.journal.assignment.courses.first().author
 
     def test_names(self):

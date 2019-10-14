@@ -69,7 +69,8 @@ def _send_deadline_mails(deadline_query):
             continue
 
         _send_deadline_mail(deadline, journal)
-        emails_sent_to.append(journal.user.email)
+        for author in journal.authors:
+            emails_sent_to.append(author.user.email)
 
     return emails_sent_to
 

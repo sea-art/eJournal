@@ -25,7 +25,7 @@
                         <b>{{ journal.names }}</b>
                         <span v-if="groups">({{ groups }})</span>
                     </span>
-                    {{ journal.students[0].username }}
+                    <!-- {{ journal.students[0].user.username }} -->
                 </div>
             </b-col>
             <b-col
@@ -33,7 +33,7 @@
                 md="5"
             >
                 <progress-bar
-                    :currentPoints="stats.acquired_points"
+                    :currentPoints="journal.stats.acquired_points"
                     :totalPoints="assignment.points_possible"
                 />
             </b-col>
@@ -45,14 +45,14 @@
                 </div>
                 <div class="student-details">
                     <span>
-                        <b>{{ journal.names }}</b>
+                        <b>{{ journal.full_names }}</b>
                         <span v-if="groups">({{ groups }})</span>
                     </span>
-                    {{ journal.students.map(s => s.username).join(', ') }}
+                    {{ journal.students.map(s => s.user.username).join(', ') }}
                 </div>
             </div>
             <progress-bar
-                :currentPoints="stats.acquired_points"
+                :currentPoints="journal.stats.acquired_points"
                 :totalPoints="assignment.points_possible"
                 :comparePoints="assignment && assignment.stats ? assignment.stats.average_points : -1"
             />
@@ -88,9 +88,9 @@ export default {
         },
         previewPicture () {
             const studentsWithPicture = this.journal.students.filter(
-                student => student.profile_picture !== '/static/unknown-profile.png')
+                student => student.user.profile_picture !== '/static/unknown-profile.png')
             if (studentsWithPicture.length > 0) {
-                return studentsWithPicture[0].profile_picture
+                return studentsWithPicture[0].user.profile_picture
             } else {
                 return '/static/unknown-profile.png'
             }
@@ -98,8 +98,8 @@ export default {
         groups () {
             const groups = []
             this.journal.students.forEach((student) => {
-                if (student.groups) {
-                    student.groups.forEach((group) => {
+                if (student.user.groups) {
+                    student.user.groups.forEach((group) => {
                         if (!groups.includes(group)) {
                             groups.push(group.name)
                         }
@@ -109,10 +109,10 @@ export default {
             return groups.join(', ')
         },
         markingNeeded () {
-            return this.stats.submitted - this.stats.graded
+            return this.journal.stats.submitted - this.journal.stats.graded
         },
         unpublished () {
-            return this.stats.graded - this.stats.published
+            return this.journal.stats.graded - this.journal.stats.published
         },
         squareInfo () {
             const info = []

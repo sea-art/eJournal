@@ -31,15 +31,25 @@ export default {
         }
 
         function groupFilter (journal) {
-            if (journal.student.groups === null) {
+            const groups = []
+            journal.students.forEach((student) => {
+                if (student.user.groups) {
+                    student.user.groups.forEach((group) => {
+                        if (!groups.includes(group)) {
+                            groups.push(group.name)
+                        }
+                    })
+                }
+            })
+            if (groups === []) {
                 return false
             }
-            return journal.student.groups.map(g => g.name).includes(groupName)
+            return groups.map(g => g.name).includes(groupName)
         }
 
         function searchFilter (journal) {
-            return journal.student.username.toLowerCase().includes(searchValue.toLowerCase())
-                || journal.student.full_name.toLowerCase().includes(searchValue.toLowerCase())
+            return journal.names.toLowerCase().includes(searchValue.toLowerCase())
+                || journal.full_names.toLowerCase().includes(searchValue.toLowerCase())
         }
         let filteredJournals = journals
         if (groupName !== null) {

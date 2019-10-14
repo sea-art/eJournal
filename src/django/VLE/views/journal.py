@@ -201,7 +201,7 @@ class JournalView(viewsets.ViewSet):
     # TODO: lti_info is never used, move replace_result to celery
     def publish(self, request, journal):
         grading.publish_all_journal_grades(journal, request.user)
-        if journal.sourcedids:
+        if journal.authors.filter(sourcedids__isnull=False).exists():
             payload = lti_grade.replace_result(journal)
             if payload and 'code_mayor' in payload and payload['code_mayor'] == 'success':
                 return response.success({'lti_info': payload, 'journal': JournalSerializer(journal).data})

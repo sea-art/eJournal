@@ -11,7 +11,7 @@ from VLE.tasks.lti import needs_grading as needs_grading_task
 def check_if_need_VLE_publish():
     for node in Node.objects.filter(
         entry__vle_coupling=Entry.NEED_SUBMISSION,
-        journal__sourcedids__isnull=False,
+        journal__author__sourcedid__isnull=False,
         journal__authors__user__participation__role__can_have_journal=True
     ):
         needs_grading_task(node.pk)

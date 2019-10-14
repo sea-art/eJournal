@@ -208,8 +208,7 @@ class User(AbstractUser):
                 return obj.is_published or self.has_permission('can_view_unpublished_assignment', obj)
             return False
         elif isinstance(obj, Journal):
-            print(obj.authors.all())
-            if self not in obj.authors.all():
+            if not obj.authors.filter(user=self).exists():
                 return self.has_permission('can_view_all_journals', obj.assignment)
             else:
                 return self.has_permission('can_have_journal', obj.assignment)
@@ -622,7 +621,7 @@ class Assignment(models.Model):
 
         if active_lti_id_modified:
             # Reset all sourcedid if the active lti id is updated.
-            Journal.objects.filter(assignment=self.pk).update(sourcedid=None, grade_url=None)
+            AssignmentParticipation.objects.filter(assignment=self).update(sourcedid=None, grade_url=None)
 
             if self.active_lti_id is not None and self.active_lti_id not in self.lti_id_set:
                 self.lti_id_set.append(self.active_lti_id)
@@ -739,9 +738,14 @@ class Journal(models.Model):
             any(author.sourcedid is None for author in self.authors)
 
     def get_names(self):
-        usernames = [author.name for author in self.authors.all()]
+        usernames = [author.user.username for author in self.authors.all()]
         return ', '.join(usernames[:-1]) + \
             (' and ' + usernames[-1]) if len(usernames) > 1 else usernames[0]
+
+    def get_full_names(self):
+        full_names = [author.user.full_name for author in self.authors.all()]
+        return ', '.join(full_names[:-1]) + \
+            (' and ' + full_names[-1]) if len(full_names) > 1 else full_names[0]
 
     def to_string(self, user=None):
         if user is None:

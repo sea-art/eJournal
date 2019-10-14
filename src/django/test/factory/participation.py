@@ -1,6 +1,7 @@
 import factory
 
 import VLE.models
+import VLE.factory
 
 
 class ParticipationFactory(factory.django.DjangoModelFactory):
@@ -17,7 +18,7 @@ class ParticipationFactory(factory.django.DjangoModelFactory):
             return
 
         for assignment in VLE.models.Assignment.objects.filter(courses__in=[self.course]):
-            VLE.models.Journal.objects.create(user=self.user, assignment=assignment)
+            VLE.factory.make_journal(assignment, self.user)
 
 
 class GroupParticipationFactory(ParticipationFactory):
@@ -30,4 +31,15 @@ class AssignmentParticipationFactory(factory.django.DjangoModelFactory):
 
     user = factory.SubFactory('test.factory.user.UserFactory')
     assignment = factory.SubFactory('test.factory.assignment.AssignmentFactory')
-    journal = factory.SubFactory('test.factory.journal.JournalFactory', assignment=factory.SelfAttribute('..assignment'))
+    journal = factory.SubFactory(
+        'test.factory.journal.JournalFactory', assignment=factory.SelfAttribute('..assignment'))
+
+    @factory.post_generation
+    def add_user_to_assignment(self, create, extracted):
+        if not create:
+            return
+
+        for course in self.assignment.courses.all():
+            if not VLE.models.Participation.objects.filter(course=course, user=self.user).exists():
+                role = VLE.models.Role.objects.get(course=course, name='Student')
+                VLE.models.Participation.objects.create(course=course, user=self.user, role=role)

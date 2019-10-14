@@ -121,7 +121,8 @@ class LtiLaunchTest(TestCase):
         self.student.save()
         self.request = REQUEST.copy()
 
-        self.journal = factory.Journal(authors=[self.student])
+        ap = factory.AssignmentParticipation(user=self.student)
+        self.journal = ap.journal
         self.assignment = self.journal.assignment
 
     def test_select_user(self):
@@ -378,7 +379,7 @@ class LtiLaunchTest(TestCase):
         assignment = factory.LtiAssignment(
             author=self.teacher, courses=[course], name=REQUEST['custom_assignment_title'])
         student = factory.LtiStudent()
-        journal = factory.Journal(user=student)
+        journal = factory.journal(authors__user=student)
         assignment = journal.assignment
 
         journal_exists = Journal.objects.filter(user=student, assignment=assignment)

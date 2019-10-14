@@ -276,7 +276,7 @@ class AssignmentAPITest(TestCase):
         teacher = assignment.courses.first().author
         assignment.points_possible = 10
 
-        resp = api.get(self, 'assignments/upcoming', user=journal.user)['upcoming']
+        resp = api.get(self, 'assignments/upcoming', user=journal.author.first().user)['upcoming']
         assert resp[0]['deadline']['name'] == 'End of assignment', \
             'Default end of assignment should be shown'
 
@@ -287,7 +287,7 @@ class AssignmentAPITest(TestCase):
         progress = VLE.factory.make_progress_node(assignment.format, timezone.now() + datetime.timedelta(days=3), 7)
         utils.update_journals(assignment.journal_set.all(), progress)
 
-        resp = api.get(self, 'assignments/upcoming', user=journal.user)['upcoming']
+        resp = api.get(self, 'assignments/upcoming', user=journal.author.first().user)['upcoming']
         assert resp[0]['deadline']['name'] == '0/7 points', \
             'When not having completed an progress node, that should be shown'
 
@@ -295,7 +295,7 @@ class AssignmentAPITest(TestCase):
             assignment.format, timezone.now() + datetime.timedelta(days=1), assignment.format.template_set.first())
         utils.update_journals(assignment.journal_set.all(), entrydeadline)
 
-        resp = api.get(self, 'assignments/upcoming', user=journal.user)['upcoming']
+        resp = api.get(self, 'assignments/upcoming', user=journal.author.first().user)['upcoming']
         assert resp[0]['deadline']['name'] == assignment.format.template_set.first().name, \
             'When not having completed an entry deadline, that should be shown'
 
@@ -315,16 +315,16 @@ class AssignmentAPITest(TestCase):
         assert resp[0]['deadline']['date'] is None, \
             'With only graded & published entries no deadline for a teacher be shown'
 
-        resp = api.get(self, 'assignments/upcoming', user=journal.user)['upcoming']
+        resp = api.get(self, 'assignments/upcoming', user=journal.author.first().user)['upcoming']
         assert resp[0]['deadline']['name'] == '5/7 points', \
             'With only graded & published entries progres node should be the deadline'
 
         api.create(self, 'grades', params={'entry_id': entry.pk, 'grade': 7, 'published': True}, user=teacher)
-        resp = api.get(self, 'assignments/upcoming', user=journal.user)['upcoming']
+        resp = api.get(self, 'assignments/upcoming', user=journal.author.first().user)['upcoming']
         assert resp[0]['deadline']['name'] == 'End of assignment', \
             'With full points of progress node, end of assignment should be shown'
 
         api.create(self, 'grades', params={'entry_id': entry.pk, 'grade': 10, 'published': True}, user=teacher)
-        resp = api.get(self, 'assignments/upcoming', user=journal.user)['upcoming']
+        resp = api.get(self, 'assignments/upcoming', user=journal.author.first().user)['upcoming']
         assert resp[0]['deadline']['name'] is None, \
             'With full points of assignment, no deadline should be shown'

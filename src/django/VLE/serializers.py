@@ -8,8 +8,8 @@ from django.utils import timezone
 from rest_framework import serializers
 
 import VLE.permissions as permissions
-from VLE.models import (Assignment, Comment, Content, Course, Entry, Field, Format, Grade, Group, Instance, Journal,
-                        Node, Participation, Preferences, PresetNode, Role, Template, User, AssignmentParticipation)
+from VLE.models import (Assignment, AssignmentParticipation, Comment, Content, Course, Entry, Field, Format, Grade,
+                        Group, Instance, Journal, Node, Participation, Preferences, PresetNode, Role, Template, User)
 from VLE.utils import generic_utils as utils
 from VLE.utils.error_handling import VLEParticipationError, VLEProgrammingError
 
@@ -120,10 +120,15 @@ class GroupSerializer(serializers.ModelSerializer):
 
 
 class AssignmentParticipationSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+
     class Meta:
         model = AssignmentParticipation
         fields = '__all__'
-        read_only_fields = ('id', 'joural', 'user', 'assignment')
+        read_only_fields = ('id', 'joural', 'assignment')
+
+    def get_user(self, participation):
+        return UserSerializer(participation.user, context=self.context).data
 
 
 class ParticipationSerializer(serializers.ModelSerializer):
@@ -405,13 +410,14 @@ class JournalSerializer(serializers.ModelSerializer):
     stats = serializers.SerializerMethodField()
     students = serializers.SerializerMethodField()
     names = serializers.SerializerMethodField()
+    full_names = serializers.SerializerMethodField()
     grade = serializers.SerializerMethodField()
     needs_lti_link = serializers.SerializerMethodField()
 
     class Meta:
         model = Journal
-        fields = ('id', 'bonus_points', 'grade', 'students', 'needs_lti_link', 'stats', 'names')
-        read_only_fields = ('id', 'assignment', 'students', 'grade_url', 'sourcedids', 'grade')
+        fields = ('id', 'bonus_points', 'grade', 'students', 'needs_lti_link', 'stats', 'names', 'full_names')
+        read_only_fields = ('id', 'assignment', 'students', 'grade')
 
     def get_grade(self, journal):
         return journal.get_grade()
@@ -424,6 +430,9 @@ class JournalSerializer(serializers.ModelSerializer):
 
     def get_names(self, journal):
         return journal.get_names()
+
+    def get_full_names(self, journal):
+        return journal.get_full_names()
 
     def get_stats(self, journal):
         return {

@@ -91,10 +91,10 @@ class AssignmentView(viewsets.ViewSet):
         """
         name, description, course_id = utils.required_typed_params(
             request.data, (str, 'name'), (str, 'description'), (int, 'course_id'))
-        unlock_date, due_date, lock_date, lti_id, is_published, group_size, points_possible = \
+        unlock_date, due_date, lock_date, active_lti_id, is_published, group_size, points_possible = \
             utils.optional_typed_params(
-                request.data, (str, 'unlock_date'), (str, 'due_date'), (str, 'lock_date'),
-                (str, 'lti_id'), (bool, 'is_published'), (int, 'group_size'), (float, 'points_possible'))
+                request.data, (str, 'unlock_date'), (str, 'due_date'), (str, 'lock_date'), (str, 'lti_id'),
+                (bool, 'is_published'), (int, 'group_size'), (float, 'points_possible'))
         course = Course.objects.get(pk=course_id)
 
         request.user.check_permission('can_add_assignment', course)

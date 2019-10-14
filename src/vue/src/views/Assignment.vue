@@ -406,7 +406,7 @@ export default {
                 const allJournals = []
                 this.filteredJournals.forEach((journal) => {
                     allJournals.push(journalAPI.update(journal.id, { published: true }, {
-                        customErrorToast: `Error while publishing grades for ${journal.student}.`,
+                        customErrorToast: `Error while publishing grades for ${journal.names}.`,
                     }))
                 })
                 Promise.all(allJournals).then(() => {

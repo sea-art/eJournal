@@ -9,24 +9,22 @@ from VLE.models import Counter, Entry
 class GradePassBackRequest(object):
     """Class to send Grade replace lti requests."""
 
-    def __init__(self, key, secret, journal, sourcedid, send_score=False, result_data=None, submitted_at=None):
+    def __init__(self, author, grade, send_score=False, result_data=None, submitted_at=None):
         """
         Create the instance to set the needed variables.
 
         Arguments:
         key -- key for the oauth communication
         secret -- secret for the oauth communication
-        journal -- journal database object
+        author -- journal author (AssignmentParticipant)
         """
-        self.key = key
-        self.secret = secret
-        self.url = None if journal is None else journal.grade_url
-        self.sourcedid = None if journal is None else sourcedid
+        self.key = settings.LTI_KEY
+        self.secret = settings.LTI_SECRET
+        self.url = None if author is None else author.grade_url
+        self.sourcedid = None if author is None else author.sourcedid
         self.timestamp = submitted_at
-
-        if send_score and journal and journal.assignment and journal.assignment.points_possible:
-            score = journal.get_grade()
-            score /= float(journal.assignment.points_possible)
+        if send_score and author and author.assignment and author.assignment.points_possible:
+            score = grade / float(author.assignment.points_possible)
             self.score = str(min(score, 1.0))
         else:
             self.score = None
@@ -170,18 +168,14 @@ def replace_result(journal):
     """
     change_entry_vle_coupling(journal, Entry.GRADING)
 
-    if journal.sourcedids is None or journal.grade_url is None:
-        return None
+    for author in journal.authors:
+        if author.sourcedid is None or author.grade_url is None:
+            continue
 
-    secret = settings.LTI_SECRET
-    key = settings.LTI_KEY
-
-    for sourcedid in journal.sourcedids:
-        grade_request = GradePassBackRequest(key, secret, journal, sourcedid, send_score=True)
+        grade_request = GradePassBackRequest(author, journal.get_grade(), send_score=True)
         response = grade_request.send_post_request()
 
         if response['code_mayor'] == 'success':
             change_entry_vle_coupling(journal, Entry.LINK_COMPLETE)
         else:
             return response
-    return response

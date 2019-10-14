@@ -14,10 +14,13 @@ class EntryAPITest(TestCase):
         self.student = factory.Student()
         self.student2 = factory.Student()
         self.admin = factory.Admin()
-        self.journal = factory.Journal(authors__user=self.student)
-        self.journal2 = factory.Journal(authors__user=self.student2, assignment=self.journal.assignment)
+        ap = factory.AssignmentParticipation(user=self.student)
+        self.journal = ap.journal
+        ap = factory.AssignmentParticipation(user=self.student2, assignment=self.journal.assignment)
+        self.journal2 = ap.journal
         self.teacher = self.journal.assignment.courses.first().author
-        self.journal_teacher = factory.Journal(authors=[self.teacher], assignment=self.journal.assignment)
+        ap = factory.AssignmentParticipation(user=self.teacher, assignment=self.journal.assignment)
+        self.journal_teacher = ap.journal
         self.format = self.journal.assignment.format
         factory.Template(format=self.format)
         factory.Template(format=self.format)
@@ -61,7 +64,8 @@ class EntryAPITest(TestCase):
 
         # Check if template for other assignment wont work
         create_params = self.valid_create_params.copy()
-        alt_journal = factory.Journal(user=self.student)
+        ap = factory.AssignmentParticipation(user=self.student)
+        alt_journal = ap.journal
         template = factory.Template(format=alt_journal.assignment.format)
         create_params['template_id'] = template.pk
         api.create(self, 'entries', params=create_params, user=self.student, status=403)
