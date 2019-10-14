@@ -426,7 +426,7 @@ class JournalSerializer(serializers.ModelSerializer):
         return journal.needs_lti_link()
 
     def get_students(self, journal):
-        return AssignmentParticipationSerializer(journal.authors, many=True, context=self.context).data
+        return AssignmentParticipationSerializer(journal.authors.all(), many=True, context=self.context).data
 
     def get_names(self, journal):
         return journal.get_names()

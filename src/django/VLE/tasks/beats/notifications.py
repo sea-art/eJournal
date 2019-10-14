@@ -27,7 +27,7 @@ def _send_deadline_mail(deadline, journal):
 
     html_content = render_to_string('call_to_action.html', {'email_data': email_data})
     text_content = strip_tags(html_content)
-    for author in journal.authors:
+    for author in journal.authors.all():
         email = EmailMultiAlternatives(
             subject='Upcoming deadline in {}'.format(assignment.name),
             body=text_content,
@@ -69,7 +69,7 @@ def _send_deadline_mails(deadline_query):
             continue
 
         _send_deadline_mail(deadline, journal)
-        for author in journal.authors:
+        for author in journal.authors.all():
             emails_sent_to.append(author.user.email)
 
     return emails_sent_to

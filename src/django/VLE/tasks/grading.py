@@ -37,7 +37,7 @@ def send_journal_grade_to_LMS(journal_pk):
 
     Task results (or errors) are logged as a result string"""
     journal = Journal.objects.get(pk=journal_pk)
-    for author in journal.authors:
+    for author in journal.authors.all():
         if author.sourcedid is None or author.grade_url is None:
             return "This author has no sourcedid: {} or grade_url: {}, skipping".format(
                 author.sourcedid, author.grade_url)

@@ -168,7 +168,7 @@ def replace_result(journal):
     """
     change_entry_vle_coupling(journal, Entry.GRADING)
 
-    for author in journal.authors:
+    for author in journal.authors.all():
         if author.sourcedid is None or author.grade_url is None:
             continue
 
