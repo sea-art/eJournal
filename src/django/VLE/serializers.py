@@ -9,7 +9,7 @@ from rest_framework import serializers
 
 import VLE.permissions as permissions
 from VLE.models import (Assignment, Comment, Content, Course, Entry, Field, Format, Grade, Group, Instance, Journal,
-                        Node, Participation, Preferences, PresetNode, Role, Template, User)
+                        Node, Participation, Preferences, PresetNode, Role, Template, User, AssignmentParticipation)
 from VLE.utils import generic_utils as utils
 from VLE.utils.error_handling import VLEParticipationError, VLEProgrammingError
 
@@ -119,6 +119,13 @@ class GroupSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', 'course', 'lti_id')
 
 
+class AssignmentParticipationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AssignmentParticipation
+        fields = '__all__'
+        read_only_fields = ('id', 'joural', 'user', 'assignment')
+
+
 class ParticipationSerializer(serializers.ModelSerializer):
     user = serializers.SerializerMethodField()
     course = serializers.SerializerMethodField()
@@ -200,7 +207,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
         # Student deadlines
         if 'user' in self.context and self.context['user'] and \
            self.context['user'].has_permission('can_have_journal', assignment):
-            journal = Journal.objects.get(assignment=assignment, authors__in=[self.context['user']])
+            journal = Journal.objects.get(assignment=assignment, authors__user=self.context['user'])
             deadline, name = self._get_student_deadline(journal, assignment)
 
             return {
@@ -270,7 +277,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
         if not self.context['user'].has_permission('can_have_journal', assignment):
             return None
         try:
-            return Journal.objects.get(assignment=assignment, authors__in=[self.context['user']]).pk
+            return Journal.objects.get(assignment=assignment, authors__user=self.context['user']).pk
         except Journal.DoesNotExist:
             return -1
 
@@ -282,7 +289,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
            and self.context['journals'] and self.context['course']:
             course = self.context['course']
             users = course.participation_set.filter(role__can_have_journal=True).values('user')
-            journals = Journal.objects.filter(assignment=assignment, authors__in=users).distinct()
+            journals = Journal.objects.filter(assignment=assignment, authors__user__in=users).distinct()
             return JournalSerializer(journals, many=True, context=self.context).data
         else:
             return None
@@ -303,7 +310,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
                 users = users.filter(participation__groups=participation.groups.first())
 
         stats = {}
-        journal_set = assignment.journal_set.filter(authors__in=users)
+        journal_set = assignment.journal_set.filter(authors__user__in=users)
 
         # Grader stats
         if self.context['user'].has_permission('can_grade', assignment):
@@ -403,8 +410,8 @@ class JournalSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Journal
-        fields = ('id', 'bonus_points', 'grade', 'student', 'needs_lti_link', 'stats')
-        read_only_fields = ('id', 'assignment', 'students', 'grade_url', 'sourcedid', 'grade')
+        fields = ('id', 'bonus_points', 'grade', 'students', 'needs_lti_link', 'stats', 'names')
+        read_only_fields = ('id', 'assignment', 'students', 'grade_url', 'sourcedids', 'grade')
 
     def get_grade(self, journal):
         return journal.get_grade()
@@ -413,7 +420,7 @@ class JournalSerializer(serializers.ModelSerializer):
         return journal.needs_lti_link()
 
     def get_students(self, journal):
-        return UserSerializer(journal.authors, many=True, context=self.context).data
+        return AssignmentParticipationSerializer(journal.authors, many=True, context=self.context).data
 
     def get_names(self, journal):
         return journal.get_names()

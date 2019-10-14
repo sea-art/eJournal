@@ -53,7 +53,7 @@ class JournalView(viewsets.ViewSet):
             request.user.check_permission('can_view_all_journals', assignment)
 
         users = course.participation_set.filter(role__can_have_journal=True).values('user')
-        queryset = assignment.journal_set.filter(authors__in=users)
+        queryset = assignment.journal_set.filter(authors__user__in=users)
         journals = JournalSerializer(
             queryset,
             many=True,
@@ -73,7 +73,7 @@ class JournalView(viewsets.ViewSet):
         assignment = Assignment.objects.get(pk=assignment_id)
 
         request.user.check_can_view(assignment)
-        if Journal.objects.filter(assignment=assignment, authors__in=[request.user]).exists():
+        if Journal.objects.filter(assignment=assignment, authors__user=request.user).exists():
             return response.bad_request('You may only be in one journal at the time.')
 
         journal = factory.make_journal(assignment, request.user)
@@ -158,7 +158,7 @@ class JournalView(viewsets.ViewSet):
         if journal.authors.count() >= journal.assignment.group_size:
             return response.bad_request('This group is already full.')
 
-        if Journal.objects.filter(assignment=journal.assignment, authors__in=[request.user]).exists():
+        if Journal.objects.filter(assignment=journal.assignment, authors__user=request.user).exists():
             return response.bad_request('You may only be in one journal at the time.')
 
         if not journal.assignment.is_group_assignment:

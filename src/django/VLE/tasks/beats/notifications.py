@@ -51,8 +51,8 @@ def _send_deadline_mails(deadline_query):
     emails_sent_to = []
     # Remove all filled entrydeadline, and remove where the user does not want to recieve an email.
     no_submissions = Q(type=Node.ENTRYDEADLINE, node__entry__isnull=True) | Q(type=Node.PROGRESS)
-    notifications_enabled = Q(node__journal__authors__preferences__upcoming_deadline_notifications=True)
-    verified_email = Q(node__journal__authors__verified_email=True)
+    notifications_enabled = Q(node__journal__authors__user__preferences__upcoming_deadline_notifications=True)
+    verified_email = Q(node__journal__authors__user__verified_email=True)
     deadlines = deadline_query.filter(notifications_enabled & verified_email & no_submissions)\
                               .values('node', 'node__journal', 'due_date', 'type', 'target')
     for deadline in deadlines:

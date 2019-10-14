@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('VLE', '0020_preferences_hide_version_alert'),
+        ('VLE', '0033_sensible_lti_group_names'),
     ]
 
     operations = [

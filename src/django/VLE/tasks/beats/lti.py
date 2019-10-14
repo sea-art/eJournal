@@ -12,12 +12,12 @@ def check_if_need_VLE_publish():
     for node in Node.objects.filter(
         entry__vle_coupling=Entry.NEED_SUBMISSION,
         journal__sourcedids__isnull=False,
-        journal__authors__participation__role__can_have_journal=True
+        journal__authors__user__participation__role__can_have_journal=True
     ):
         needs_grading_task(node.pk)
     for journal in Entry.objects.filter(
         vle_coupling=Entry.GRADING,
         grade__published=True,
-        node__journal__authors__participation__role__can_have_journal=True
+        node__journal__authors__user__participation__role__can_have_journal=True
     ).values('node__journal').distinct():
         lti_grade.replace_result(Journal.objects.get(pk=journal['node__journal']))

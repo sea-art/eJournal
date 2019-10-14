@@ -95,7 +95,7 @@ class ParticipationView(viewsets.ViewSet):
 
         assignments = course.assignment_set.all()
         for assignment in assignments:
-            if not Journal.objects.filter(assignment=assignment, authors__in=[user]).exists():
+            if not Journal.objects.filter(assignment=assignment, authors__user=user).exists():
                 factory.make_journal(assignment, user)
 
         serializer = UserSerializer(user, context={'course': course})

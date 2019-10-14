@@ -8,10 +8,8 @@ import requests
 from django.conf import settings
 from django.utils import timezone
 
-from VLE.models import (Assignment, AssignmentParticipation, Comment, Content, Course, Entry, Field,
-                        Format, Group, Instance, Journal, Lti_ids, Node,
-                        Participation, PresetNode, Role, Template, User,
-                        UserFile)
+from VLE.models import (Assignment, AssignmentParticipation, Comment, Content, Course, Entry, Field, Format, Grade,
+                        Group, Instance, Journal, Node, Participation, PresetNode, Role, Template, User, UserFile)
 
 
 def make_instance(allow_standalone_registration=None):
@@ -59,7 +57,7 @@ def make_participation(user=None, course=None, role=None, groups=None):
         participation.save()
 
     for assignment in course.assignment_set.filter(is_published=True):
-        if not Journal.objects.filter(assignment=assignment, authors__in=[user]).exists():
+        if not Journal.objects.filter(assignment=assignment, authors__user=user).exists():
             make_journal(assignment, user)
     return participation
 
@@ -157,7 +155,7 @@ def make_assignment(name, description, author=None, format=None, active_lti_id=N
 
     if assign.is_published:
         for user in User.objects.filter(participation__course__in=assign.courses.all()).distinct():
-            if not Journal.objects.filter(assignment=assign, authors__in=[user]).exists():
+            if not Journal.objects.filter(assignment=assign, authors__user=user).exists():
                 make_journal(assign, user)
 
     return assign
@@ -248,12 +246,13 @@ def make_journal(assignment, author):
              preset=preset_node).save()
     return journal
 
+
 def make_assignment_participation(assignment, author):
     """Make a new assignment participation.
 
     returns the assignment_participation if it already exists, as there should always only be one
     """
-    assignment_participation =  AssignmentParticipation.objects.filter(assignment=assignment, user=author)
+    assignment_participation = AssignmentParticipation.objects.filter(assignment=assignment, user=author)
     if assignment_participation.exists():
         return assignment_participation
 

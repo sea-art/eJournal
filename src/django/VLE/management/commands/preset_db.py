@@ -270,7 +270,7 @@ class Command(BaseCommand):
                 "name": "Group Assignment",
                 "description": "This is a group assignment. This is purely for testing group assignment stuff.<br/>" +
                                "Initialized with student and student2 in 1 journal and student3 in another.",
-                "courses": [self.courses["Portfolio Academische Vaardigheden 2"]],
+                "courses": [self.courses["Portfolio Academische Vaardigheden - Cohort 2"]],
                 "format": 2,
                 "author": self.users["Teacher"],
                 "group_size": 3,
@@ -289,7 +289,7 @@ class Command(BaseCommand):
             self.assignments.append(assignment)
 
         journal = factory.make_journal(self.assignments[2], self.users["Student"])
-        journal.authors.add(factory.make_assignment_participation(self.users["Student2"], assignment))
+        journal.authors.add(factory.make_assignment_participation(assignment, self.users["Student2"]))
         journal.save()
         factory.make_journal(self.assignments[2], self.users["Student3"])
 

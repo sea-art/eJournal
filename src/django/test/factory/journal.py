@@ -5,6 +5,7 @@ import factory
 import VLE.factory
 import VLE.models
 
+
 class JournalFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = 'VLE.Journal'

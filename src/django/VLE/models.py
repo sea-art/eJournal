@@ -725,17 +725,18 @@ class Journal(models.Model):
         default=0,
     )
 
+    # NOTE: Any suggestions for a clear warning msg for all cases?
+    outdated_link_warning_msg = 'This journal has an outdated LMS uplink and can no longer be edited. Visit  ' \
+        + 'eJournal from an updated LMS connection.'
+
     def get_grade(self):
         return self.bonus_points + (self.node_set.filter(entry__grade__published=True)
                                     .values('entry__grade__grade')
                                     .aggregate(Sum('entry__grade__grade'))['entry__grade__grade__sum'] or 0)
 
-    # NOTE: Any suggestions for a clear warning msg for all cases?
-    outdated_link_warning_msg = 'This journal has an outdated LMS uplink and can no longer be edited. Visit  ' \
-        + 'eJournal from an updated LMS connection.'
-
-    def needs_lti_link(self):
-        return self.sourcedid is None and self.assignment.active_lti_id is not None
+    def needs_lti_link(self, user=None):
+        return self.assignment.active_lti_id is not None and \
+            any(author.sourcedid is None for author in self.authors)
 
     def get_names(self):
         usernames = [author.name for author in self.authors.all()]

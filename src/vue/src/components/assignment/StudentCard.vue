@@ -73,17 +73,13 @@ export default {
     props: {
         assignment: {
             default: null,
-            required: false,
+            required: true,
         },
         journal: {
             required: true,
         },
         listView: {
             default: false,
-        },
-        assignment: {
-            default: null,
-            required: true,
         },
     },
     computed: {

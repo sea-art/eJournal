@@ -40,7 +40,7 @@ class EntryView(viewsets.ViewSet):
             request.data, "journal_id", "template_id", "content")
         node_id, = utils.optional_params(request.data, "node_id")
 
-        journal = Journal.objects.get(pk=journal_id, authors__in=[request.user])
+        journal = Journal.objects.get(pk=journal_id, authors__user=request.user)
         assignment = journal.assignment
         template = Template.objects.get(pk=template_id)
 

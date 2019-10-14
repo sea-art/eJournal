@@ -46,7 +46,7 @@
                 <flat-pickr
                     v-model="assignmentDetails.unlock_date"
                     :config="Object.assign({}, {
-                        maxDate: form.dueDate ? form.dueDate : form.lockDate
+                        maxDate: assignmentDetails.dueDate ? assignmentDetails.dueDate : assignmentDetails.lockDate
                     }, $root.flatPickrTimeConfig)"
                 />
             </b-col>
@@ -61,8 +61,8 @@
                 <flat-pickr
                     v-model="assignmentDetails.due_date"
                     :config="Object.assign({}, {
-                        minDate: form.unlockDate,
-                        maxDate: form.lockDate,
+                        minDate: assignmentDetails.unlockDate,
+                        maxDate: assignmentDetails.lockDate,
                     }, $root.flatPickrTimeConfig)"
                 />
             </b-col>
@@ -74,7 +74,7 @@
                 <flat-pickr
                     v-model="assignmentDetails.lock_date"
                     :config="Object.assign({}, {
-                        minDate: form.dueDate ? form.dueDate : form.unlockDate
+                        minDate: assignmentDetails.dueDate ? assignmentDetails.dueDate : assignmentDetails.unlockDate
                     }, $root.flatPickrTimeConfig)"
                 />
             </b-col>

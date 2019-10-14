@@ -1,4 +1,5 @@
-from test.factory.assignment import AssignmentFactory, LtiAssignmentFactory, TemplateAssignmentFactory, GroupAssignmentFactory
+from test.factory.assignment import (AssignmentFactory, GroupAssignmentFactory, LtiAssignmentFactory,
+                                     TemplateAssignmentFactory)
 from test.factory.comment import StudentCommentFactory, TeacherCommentFactory
 from test.factory.course import CourseFactory, LtiCourseFactory
 from test.factory.entry import EntryFactory
@@ -6,7 +7,7 @@ from test.factory.format import FormatFactory, TemplateFormatFactory
 from test.factory.grade import GradeFactory
 from test.factory.group import GroupFactory, LtiGroupFactory
 from test.factory.instance import InstanceFactory
-from test.factory.journal import JournalFactory, GroupJournalFactory
+from test.factory.journal import GroupJournalFactory, JournalFactory
 from test.factory.participation import GroupParticipationFactory, ParticipationFactory
 from test.factory.presetnode import EntrydeadlineNodeFactory, ProgressNodeFactory
 from test.factory.role import RoleFactory, StudentRoleFactory
