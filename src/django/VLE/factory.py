@@ -127,7 +127,8 @@ def make_assignment(name, description, author=None, format=None, active_lti_id=N
         else:
             format = make_default_format(timezone.now(), points_possible)
 
-    assign = Assignment(name=name, description=description, author=author, format=format, group_size=group_size)
+    assign = Assignment(name=name, description=description, author=author, format=format, group_size=group_size,
+                        active_lti_id=active_lti_id)
     assign.save()
     if course_ids:
         for course_id in course_ids:

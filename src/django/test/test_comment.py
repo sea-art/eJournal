@@ -26,9 +26,8 @@ def assert_comments_are_equal(c1, c2):
 class CommentAPITest(TestCase):
     def setUp(self):
         self.admin = factory.Admin()
-        self.student = factory.Student()
-        ap = factory.AssignmentParticipation(user=self.student)
-        self.journal = ap.journal
+        self.journal = factory.Journal()
+        self.student = self.journal.authors.first().user
         self.TA = factory.Student()
         nfac.make_participation(
             user=self.TA,

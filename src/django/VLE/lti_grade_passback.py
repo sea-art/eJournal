@@ -16,7 +16,7 @@ class GradePassBackRequest(object):
         Arguments:
         key -- key for the oauth communication
         secret -- secret for the oauth communication
-        author -- journal author (AssignmentParticipant)
+        author -- journal author (AssignmentParticipation)
         """
         self.key = settings.LTI_KEY
         self.secret = settings.LTI_SECRET

@@ -18,9 +18,8 @@ MULTIPART_CONTENT = 'multipart/form-data; boundary=%s' % BOUNDARY
 
 class FileHandlingTest(TestCase):
     def setUp(self):
-        self.student = factory.Student()
-        ap = factory.AssignmentParticipation(user=self.student)
-        self.journal = ap.journal
+        self.journal = factory.Journal()
+        self.student = self.journal.authors.first().user
         self.teacher = self.journal.assignment.courses.first().author
         self.unrelated_assignment = factory.Assignment()
         self.video = SimpleUploadedFile('file.mp4', b'file_content', content_type='video/mp4')

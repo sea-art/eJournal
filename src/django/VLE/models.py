@@ -618,7 +618,6 @@ class Assignment(models.Model):
         else:
             pre_save = Assignment.objects.get(pk=self.pk)
             active_lti_id_modified = pre_save.active_lti_id != self.active_lti_id
-
         if active_lti_id_modified:
             # Reset all sourcedid if the active lti id is updated.
             AssignmentParticipation.objects.filter(assignment=self).update(sourcedid=None, grade_url=None)
@@ -735,7 +734,7 @@ class Journal(models.Model):
 
     def needs_lti_link(self, user=None):
         return self.assignment.active_lti_id is not None and \
-            any(author.sourcedid is None for author in self.authors)
+            any(author.sourcedid is None for author in self.authors.all())
 
     def get_names(self):
         usernames = [author.user.username for author in self.authors.all()]
@@ -1164,7 +1163,7 @@ class Comment(models.Model):
             return True
 
         return user.has_permission('can_edit_staff_comment', self.entry.node.journal.assignment) and \
-            self.author not in self.entry.node.journal.authors.all()
+            not self.entry.node.journal.authors.filter(user=self.author).exists()
 
     def save(self, *args, **kwargs):
         if not self.pk:

@@ -5,7 +5,7 @@ from django.conf import settings
 
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
-from VLE.models import Assignment, Course, Group, Journal, Participation, Role, User, AssignmentParticipation
+from VLE.models import Assignment, AssignmentParticipation, Course, Group, Journal, Participation, Role, User
 from VLE.tasks.grading import send_journal_grade_to_LMS
 
 
@@ -179,7 +179,7 @@ def select_create_journal(request, user, assignment):
     if assignment is None or user is None:
         return None
 
-    journals = Journal.objects.filter(user=user, assignment=assignment)
+    journals = Journal.objects.filter(authors__user=user, assignment=assignment)
     if journals.exists():
         journal = journals.first()
     else:
@@ -199,4 +199,4 @@ def select_create_journal(request, user, assignment):
         if passback_changed:
             send_journal_grade_to_LMS.delay(journal.pk)
 
-    return None
+    return journal

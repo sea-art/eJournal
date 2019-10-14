@@ -23,9 +23,9 @@ class UserAPITest(TestCase):
                       user=factory.Admin())
 
     def test_get(self):
-        student = factory.Student()
+        journal = factory.Journal()
+        student = journal.authors.first().user
         admin = factory.Admin()
-        journal = factory.journal(authors__user=student)
         teacher = journal.assignment.courses.first().author
 
         # Test get all users

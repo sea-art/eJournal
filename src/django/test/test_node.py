@@ -6,9 +6,8 @@ from django.test import TestCase
 
 class NodeTest(TestCase):
     def setUp(self):
-        self.student = factory.Student()
-        ap = factory.AssignmentParticipation(user=self.student)
-        self.journal = ap.journal
+        self.journal = factory.Journal()
+        self.student = self.journal.authors.first().user
         self.teacher = self.journal.assignment.courses.first().author
 
     def test_get(self):

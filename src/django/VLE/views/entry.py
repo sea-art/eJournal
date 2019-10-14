@@ -129,7 +129,7 @@ class EntryView(viewsets.ViewSet):
         if assignment.is_locked():
             return response.forbidden('The assignment is locked, entries can no longer be edited/changed.')
         request.user.check_permission('can_have_journal', assignment)
-        if not (request.user in journal.authors.all() or request.user.is_superuser):
+        if not (journal.authors.filter(user=request.user).exists() or request.user.is_superuser):
             return response.forbidden('You are not allowed to edit someone else\'s entry.')
         if graded:
             return response.bad_request('You are not allowed to edit graded entries.')
@@ -187,7 +187,7 @@ class EntryView(viewsets.ViewSet):
         journal = entry.node.journal
         assignment = journal.assignment
 
-        if request.user in journal.authors.all():
+        if journal.authors.filter(user=request.user).exists():
             request.user.check_permission('can_have_journal', assignment, 'You are not allowed to delete entries.')
             if entry.is_graded():
                 return response.forbidden('You are not allowed to delete graded entries.')

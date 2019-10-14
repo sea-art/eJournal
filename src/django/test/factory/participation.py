@@ -1,7 +1,7 @@
 import factory
 
-import VLE.models
 import VLE.factory
+import VLE.models
 
 
 class ParticipationFactory(factory.django.DjangoModelFactory):
@@ -31,8 +31,6 @@ class AssignmentParticipationFactory(factory.django.DjangoModelFactory):
 
     user = factory.SubFactory('test.factory.user.UserFactory')
     assignment = factory.SubFactory('test.factory.assignment.AssignmentFactory')
-    journal = factory.SubFactory(
-        'test.factory.journal.JournalFactory', assignment=factory.SelfAttribute('..assignment'))
 
     @factory.post_generation
     def add_user_to_assignment(self, create, extracted):

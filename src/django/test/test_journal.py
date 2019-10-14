@@ -6,17 +6,18 @@ from django.test import TestCase
 
 class JournalAPITest(TestCase):
     def setUp(self):
-        self.student = factory.Student()
-        ap = factory.AssignmentParticipation(user=self.student)
-        self.journal = ap.journal
+        self.journal = factory.Journal()
+        self.student = self.journal.authors.first().user
         self.assignment = self.journal.assignment
         self.course = self.assignment.courses.first()
         self.teacher = self.course.author
 
-        self.group_journal = factory.GroupJournal(authors=[self.student])
-        self.group_assignment = self.group_journal.assignment
-        self.group_course = self.assignment.courses.first()
-        self.group_teacher = self.course.author
+        self.group_assignment = factory.GroupAssignment()
+        self.group_journal = factory.GroupJournal(assignment=self.group_assignment)
+        ap = factory.AssignmentParticipation(assignment=self.group_assignment)
+        self.group_student = ap.user
+        self.group_course = self.group_assignment.courses.first()
+        self.group_teacher = self.group_course.author
 
     def test_get(self):
         payload = {'assignment_id': self.assignment.pk, 'course_id': self.course.pk}
@@ -41,5 +42,4 @@ class JournalAPITest(TestCase):
         api.update(self, 'journals', params={'pk': self.journal.pk, 'user': factory.Student().pk}, user=factory.Admin())
 
     def test_join(self):
-        student = factory.Participation(course=self.group_course).user
-        api.update(self, 'journals/join', params={'pk': self.group_journal.pk}, user=student)
+        api.update(self, 'journals/join', params={'pk': self.group_journal.pk}, user=self.group_student)

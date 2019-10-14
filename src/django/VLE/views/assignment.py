@@ -103,7 +103,7 @@ class AssignmentView(viewsets.ViewSet):
                                              author=request.user, active_lti_id=active_lti_id,
                                              points_possible=points_possible,
                                              unlock_date=unlock_date, due_date=due_date,
-                                             lock_date=lock_date, is_published=is_published)
+                                             lock_date=lock_date, is_published=is_published, group_size=group_size)
 
         if active_lti_id is not None:
             course.set_assignment_lti_id_set(active_lti_id)

@@ -11,16 +11,17 @@ from VLE.utils.error_handling import VLEPermissionError
 
 class EntryAPITest(TestCase):
     def setUp(self):
-        self.student = factory.Student()
-        self.student2 = factory.Student()
         self.admin = factory.Admin()
-        ap = factory.AssignmentParticipation(user=self.student)
-        self.journal = ap.journal
-        ap = factory.AssignmentParticipation(user=self.student2, assignment=self.journal.assignment)
-        self.journal2 = ap.journal
+        self.journal = factory.Journal()
+        self.student = self.journal.authors.first().user
+        self.journal2 = factory.Journal(assignment=self.journal.assignment)
+        self.student2 = self.journal2.authors.first().user
         self.teacher = self.journal.assignment.courses.first().author
-        ap = factory.AssignmentParticipation(user=self.teacher, assignment=self.journal.assignment)
-        self.journal_teacher = ap.journal
+        APteacher = factory.AssignmentParticipation(user=self.teacher)
+        self.journal_teacher = factory.Journal(assignment=self.journal.assignment)
+        self.journal_teacher.authors.add(APteacher)
+        self.journal_teacher.save()
+        # self.teacher = self.journal_teacher.authors.first().user
         self.format = self.journal.assignment.format
         factory.Template(format=self.format)
         factory.Template(format=self.format)
@@ -64,8 +65,7 @@ class EntryAPITest(TestCase):
 
         # Check if template for other assignment wont work
         create_params = self.valid_create_params.copy()
-        ap = factory.AssignmentParticipation(user=self.student)
-        alt_journal = ap.journal
+        alt_journal = factory.Journal()
         template = factory.Template(format=alt_journal.assignment.format)
         create_params['template_id'] = template.pk
         api.create(self, 'entries', params=create_params, user=self.student, status=403)

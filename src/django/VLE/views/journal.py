@@ -11,7 +11,7 @@ import VLE.lti_grade_passback as lti_grade
 import VLE.utils.generic_utils as utils
 import VLE.utils.grading as grading
 import VLE.utils.responses as response
-from VLE.models import Assignment, Course, Journal
+from VLE.models import Assignment, AssignmentParticipation, Course, Journal
 from VLE.serializers import JournalSerializer
 
 
@@ -155,6 +155,9 @@ class JournalView(viewsets.ViewSet):
 
         request.user.check_can_view(journal.assignment)
 
+        if not journal.assignment.is_group_assignment:
+            return response.bad_request('This is not a group assignment.')
+
         if journal.authors.count() >= journal.assignment.group_size:
             return response.bad_request('This group is already full.')
 
@@ -164,7 +167,8 @@ class JournalView(viewsets.ViewSet):
         if not journal.assignment.is_group_assignment:
             return response.bad_request('You can only join group assignments.')
 
-        journal.authors.add(request.user)
+        student = AssignmentParticipation.objects.get(assignment=journal.assignment, user=request.user)
+        journal.authors.add(student)
         journal.save()
 
         serializer = JournalSerializer(journal)
@@ -176,7 +180,7 @@ class JournalView(viewsets.ViewSet):
 
         request.user.check_can_view(journal.assignment)
 
-        if request.user not in journal.authors.all():
+        if not journal.authors.filter(user=request.user).exists():
             return response.bad_request('You are currently not in this journal.')
 
         if not journal.assignment.is_group_assignment:
@@ -201,7 +205,7 @@ class JournalView(viewsets.ViewSet):
     # TODO: lti_info is never used, move replace_result to celery
     def publish(self, request, journal):
         grading.publish_all_journal_grades(journal, request.user)
-        if journal.authors.filter(sourcedids__isnull=False).exists():
+        if journal.authors.filter(sourcedid__isnull=False).exists():
             payload = lti_grade.replace_result(journal)
             if payload and 'code_mayor' in payload and payload['code_mayor'] == 'success':
                 return response.success({'lti_info': payload, 'journal': JournalSerializer(journal).data})

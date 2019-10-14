@@ -159,6 +159,7 @@ class AssignmentDetailsSerializer(serializers.ModelSerializer):
     course_count = serializers.SerializerMethodField()
     lti_count = serializers.SerializerMethodField()
     active_lti_course = serializers.SerializerMethodField()
+    is_group_assignment = serializers.SerializerMethodField()
 
     class Meta:
         model = Assignment
@@ -170,7 +171,7 @@ class AssignmentDetailsSerializer(serializers.ModelSerializer):
         return assignment.courses.count()
 
     def get_is_group_assignment(self, assignment):
-        return assignment.is_group_assignment()
+        return assignment.is_group_assignment
 
     def get_lti_count(self, assignment):
         if 'user' in self.context and self.context['user'] and \
