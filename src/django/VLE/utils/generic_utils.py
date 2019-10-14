@@ -268,7 +268,7 @@ def update_presets(assignment, presets, new_ids):
                 preset_node.forced_template = Template.objects.get(pk=template['id'])
         preset_node.save()
         if id < 0:
-            update_journals(assignment.journal_set.all(), preset_node)
+            update_journals(assignment.journal_set.distinct(), preset_node)
 
 
 def delete_presets(presets):

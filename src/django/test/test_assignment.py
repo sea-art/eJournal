@@ -285,7 +285,7 @@ class AssignmentAPITest(TestCase):
             'Default no deadline for a teacher be shown'
 
         progress = VLE.factory.make_progress_node(assignment.format, timezone.now() + datetime.timedelta(days=3), 7)
-        utils.update_journals(assignment.journal_set.all(), progress)
+        utils.update_journals(assignment.journal_set.distinct(), progress)
 
         resp = api.get(self, 'assignments/upcoming', user=journal.authors.first().user)['upcoming']
         assert resp[0]['deadline']['name'] == '0/7 points', \
@@ -293,7 +293,7 @@ class AssignmentAPITest(TestCase):
 
         entrydeadline = VLE.factory.make_entrydeadline_node(
             assignment.format, timezone.now() + datetime.timedelta(days=1), assignment.format.template_set.first())
-        utils.update_journals(assignment.journal_set.all(), entrydeadline)
+        utils.update_journals(assignment.journal_set.distinct(), entrydeadline)
 
         resp = api.get(self, 'assignments/upcoming', user=journal.authors.first().user)['upcoming']
         assert resp[0]['deadline']['name'] == assignment.format.template_set.first().name, \

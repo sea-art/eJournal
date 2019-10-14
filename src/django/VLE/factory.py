@@ -255,7 +255,7 @@ def make_assignment_participation(assignment, author):
     """
     assignment_participation = AssignmentParticipation.objects.filter(assignment=assignment, user=author)
     if assignment_participation.exists():
-        return assignment_participation
+        return assignment_participation.first()
 
     return AssignmentParticipation.objects.create(assignment=assignment, user=author)
 

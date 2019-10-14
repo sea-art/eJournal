@@ -13,7 +13,7 @@
             <main-card
                 :line1="journal.names"
                 :color="$root.getBorderClass(journal.id)"
-                :line2="`${journal.authors.length}/${assignment.group_size}`"
+                :line2="`${journal.students.length}/${assignment.group_size}`"
             />
         </div>
         <b-button

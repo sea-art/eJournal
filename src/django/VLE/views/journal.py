@@ -53,7 +53,7 @@ class JournalView(viewsets.ViewSet):
             request.user.check_permission('can_view_all_journals', assignment)
 
         users = course.participation_set.filter(role__can_have_journal=True).values('user')
-        queryset = assignment.journal_set.filter(authors__user__in=users)
+        queryset = assignment.journal_set.filter(authors__user__in=users).distinct()
         journals = JournalSerializer(
             queryset,
             many=True,
@@ -186,8 +186,11 @@ class JournalView(viewsets.ViewSet):
         if not journal.assignment.is_group_assignment:
             return response.bad_request('You can only leave group assignments.')
 
-        journal.authors.remove(request.user)
+        author = AssignmentParticipation.objects.get(user=request.user, journal=journal)
+        print(journal.authors.all())
+        journal.authors.remove(author)
         journal.save()
+        print(journal.authors.all())
 
         return response.success(description='Successfully removed from the journal.')
 

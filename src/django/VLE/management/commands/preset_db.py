@@ -283,7 +283,8 @@ class Command(BaseCommand):
             faker.date_time_between(start_date="now", end_date="+1y", tzinfo=None)
             assignment = factory.make_assignment(a["name"], a["description"], a["author"], format,
                                                  is_published=True, group_size=a["group_size"])
-
+            for user in self.users.values():
+                factory.make_assignment_participation(assignment, user)
             for course in a["courses"]:
                 assignment.courses.add(course)
             self.assignments.append(assignment)

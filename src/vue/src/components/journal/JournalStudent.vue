@@ -156,7 +156,7 @@
                         v-for="student in journal.students"
                         :key="student.id"
                     >
-                        {{ student.full_name }}
+                        {{ student.user.full_name }}
                     </li>
                 </ul>
                 <b-button

@@ -171,7 +171,7 @@ class FormatView(viewsets.ViewSet):
         to_assignment.save()
 
         for preset in PresetNode.objects.filter(format=format):
-            utils.update_journals(to_assignment.journal_set.all(), preset)
+            utils.update_journals(to_assignment.journal_set.distinct(), preset)
 
         serializer = FormatSerializer(to_assignment.format)
         assignment_details = AssignmentDetailsSerializer(to_assignment, context={'user': request.user})

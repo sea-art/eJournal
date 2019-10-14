@@ -213,7 +213,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
         # Student deadlines
         if 'user' in self.context and self.context['user'] and \
            self.context['user'].has_permission('can_have_journal', assignment):
-            journal = Journal.objects.get(assignment=assignment, authors__user=self.context['user'])
+            journal = Journal.objects.filter(assignment=assignment, authors__user=self.context['user']).first()
             deadline, name = self._get_student_deadline(journal, assignment)
 
             return {
@@ -241,37 +241,37 @@ class AssignmentSerializer(serializers.ModelSerializer):
         It checks for the first entrydeadline that still need to submitted and still can be, or for the first
         progressnode that is not yet fullfilled.
         """
-        nodes = utils.get_sorted_nodes(journal)
         t_grade = 0
         deadline = None
         name = None
 
-        for node in nodes:
-            if node.entry:
-                grade = node.entry.grade
-            else:
-                grade = None
+        if journal is not None:
+            for node in utils.get_sorted_nodes(journal):
+                if node.entry:
+                    grade = node.entry.grade
+                else:
+                    grade = None
 
-            # Sum published grades to check if PROGRESS node is fullfiled
-            if node.type in [Node.ENTRY, Node.ENTRYDEADLINE] and grade and grade.grade:
-                if grade.published:
-                    t_grade += grade.grade
-            # Set the deadline to the first unfilled ENTRYDEADLINE node date
-            elif node.type == Node.ENTRYDEADLINE and not node.entry and node.preset.due_date > timezone.now():
-                deadline = node.preset.due_date
-                name = node.preset.forced_template.name
-                break
-            # Set the deadline to first not completed PROGRESS node date
-            elif node.type == Node.PROGRESS:
-                if node.preset.target > t_grade and node.preset.due_date > timezone.now():
+                # Sum published grades to check if PROGRESS node is fullfiled
+                if node.type in [Node.ENTRY, Node.ENTRYDEADLINE] and grade and grade.grade:
+                    if grade.published:
+                        t_grade += grade.grade
+                # Set the deadline to the first unfilled ENTRYDEADLINE node date
+                elif node.type == Node.ENTRYDEADLINE and not node.entry and node.preset.due_date > timezone.now():
                     deadline = node.preset.due_date
-                    name = "{:g}/{:g} points".format(t_grade, node.preset.target)
+                    name = node.preset.forced_template.name
                     break
+                # Set the deadline to first not completed PROGRESS node date
+                elif node.type == Node.PROGRESS:
+                    if node.preset.target > t_grade and node.preset.due_date > timezone.now():
+                        deadline = node.preset.due_date
+                        name = "{:g}/{:g} points".format(t_grade, node.preset.target)
+                        break
 
         # If no deadline is found, but the points possible has not been reached, make assignment due date the deadline
         if deadline is None and t_grade < assignment.points_possible:
-            if journal.assignment.due_date or \
-               journal.assignment.lock_date and journal.assignment.lock_date < timezone.now():
+            if assignment.due_date or \
+               assignment.lock_date and assignment.lock_date < timezone.now():
                 deadline = assignment.due_date
                 name = 'End of assignment'
 
@@ -316,7 +316,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
                 users = users.filter(participation__groups=participation.groups.first())
 
         stats = {}
-        journal_set = assignment.journal_set.filter(authors__user__in=users)
+        journal_set = assignment.journal_set.filter(authors__user__in=users).distinct()
 
         # Grader stats
         if self.context['user'].has_permission('can_grade', assignment):

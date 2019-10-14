@@ -24,7 +24,7 @@ def publish_all_assignment_grades(user, assignment_pk):
     Comment.objects.filter(entry__node__journal__assignment=assignment) \
                    .exclude(entry__grade=None).update(published=True)
 
-    for journal in Journal.objects.filter(assignment=assignment):
+    for journal in Journal.objects.filter(assignment=assignment).distinct():
         lti_grade.replace_result(journal)
 
 
