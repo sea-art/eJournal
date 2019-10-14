@@ -2,10 +2,8 @@
     <content-single-column>
         <bread-crumb/>
         <profile-data ref="profileData"/>
-        <h4 class="mb-2 mt-4">
-            <span>Email notifications</span>
-        </h4>
         <notification-card/>
+        <grading-card v-if="showGradeSettings"/>
         <h4 class="mb-2 mt-4">
             <span>Password</span>
         </h4>
@@ -17,6 +15,7 @@
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import customFooter from '@/components/assets/Footer.vue'
+import gradingCard from '@/components/profile/GradingCard.vue'
 import profileData from '@/components/profile/ProfileData.vue'
 import notificationCard from '@/components/profile/NotificationCard.vue'
 import passwordCard from '@/components/profile/PasswordCard.vue'
@@ -28,9 +27,16 @@ export default {
         contentSingleColumn,
         customFooter,
         breadCrumb,
+        gradingCard,
         profileData,
         notificationCard,
         passwordCard,
+    },
+    computed: {
+        showGradeSettings () {
+            return Object.entries(this.$store.getters['user/permissions']).some(
+                ([key, value]) => ((key.indexOf('assignment') >= 0) && value.can_grade))
+        },
     },
     beforeRouteLeave (to, from, next) {
         if ((this.$refs.profileData.isChanged() || this.$refs.passData.isChanged())

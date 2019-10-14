@@ -1,7 +1,7 @@
 <template>
     <div v-if="!displayMode">
         <div
-            v-for="(field, i) in template.field_set"
+            v-for="(field, i) in fieldsToEdit"
             :key="`node ${nodeID}-field-${field.id}`"
             class="multi-form"
         >
@@ -17,17 +17,24 @@
                 :content="field.description"
             />
 
-            <b-textarea
+            <b-input
                 v-if="field.type == 't'"
                 v-model="completeContent[i].data"
                 class="theme-input"
+                rows="1"
             />
             <flat-pickr
                 v-if="field.type == 'd'"
                 v-model="completeContent[i].data"
                 class="theme-input full-width"
+                :config="$root.flatPickrConfig"
             />
-
+            <flat-pickr
+                v-if="field.type == 'dt'"
+                v-model="completeContent[i].data"
+                class="theme-input full-width"
+                :config="$root.flatPickrTimeConfig"
+            />
             <file-upload-input
                 v-else-if="field.type == 'i'"
                 :placeholder="completeContent[i].data"
@@ -101,6 +108,10 @@
             >{{ completeContent[field.location].data }}</span>
             <span
                 v-if="field.type == 'd'"
+                class="show-enters"
+            >{{ $root.beautifyDate(completeContent[field.location].data, true, false) }}</span>
+            <span
+                v-if="field.type == 'dt'"
                 class="show-enters"
             >{{ $root.beautifyDate(completeContent[field.location].data) }}</span>
             <image-file-display
@@ -193,6 +204,12 @@ export default {
         fieldsToDisplay () {
             return this.template.field_set.filter((field, i) => (field.required || this.completeContent[i].data))
         },
+        fieldsToEdit () {
+            return this.template.field_set
+        },
+    },
+    created () {
+        this.template.field_set.sort((a, b) => a.location - b.location)
     },
     methods: {
         // from https://stackoverflow.com/a/9102270

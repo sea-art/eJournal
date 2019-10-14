@@ -18,7 +18,6 @@ import 'tinymce/themes/modern/theme'
 import 'tinymce/plugins/advlist'
 import 'tinymce/plugins/autolink'
 import 'tinymce/plugins/autoresize'
-import 'tinymce/plugins/autosave'
 /* Allows direct manipulation of the html aswell as easy export. */
 import 'tinymce/plugins/code'
 import 'tinymce/plugins/colorpicker'
@@ -42,7 +41,7 @@ import 'tinymce/plugins/textpattern'
 import 'tinymce/plugins/toc'
 import 'tinymce/plugins/wordcount'
 
-import 'static/external/tinymce/plugins/placeholder.js'
+import 'public/external/tinymce/plugins/placeholder.js'
 
 export default {
     name: 'TextEditor',
@@ -89,7 +88,7 @@ export default {
                 init_instance_callback: this.editorInit,
                 // QUESTION: How the bloody hell do we make this available with webpack so we can use node modules,
                 // whilst also predetermining the correct url before bundling?.
-                skin_url: '/static/external/tinymce/skins/lightgray',
+                skin_url: '/external/tinymce/skins/lightgray',
 
                 paste_data_images: true,
                 /* https://www.tiny.cloud/docs/configure/file-image-upload/#images_dataimg_filter
@@ -104,9 +103,6 @@ export default {
                 inline: false,
                 image_title: true,
 
-                autosave_ask_before_unload: true,
-                autosave_interval: '10s',
-                autosave_restore_when_empty: true,
                 autoresize_min_height: 150,
                 autoresize_max_height: 400,
                 autoresize_bottom_margin: 10,
@@ -139,10 +135,10 @@ export default {
             },
             basicConfig: {
                 toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify '
-                    + '| forecolor backcolor restoredraft | formatselect | bullist numlist | image media table '
+                    + '| forecolor backcolor | formatselect | bullist numlist | image media table '
                     + '| removeformat fullscreentoggle fullscreen',
                 plugins: [
-                    'placeholder autoresize paste textcolor image lists wordcount autolink autosave',
+                    'placeholder autoresize paste textcolor image lists wordcount autolink',
                     'table media fullscreen',
                 ],
             },
@@ -150,14 +146,14 @@ export default {
                 toolbar1: 'bold italic underline alignleft aligncenter alignright alignjustify | forecolor backcolor '
                     + '| formatselect | bullist numlist | image media table | removeformat fullscreentoggle fullscreen',
                 plugins: [
-                    'placeholder link media preview paste print hr lists advlist wordcount autolink autosave',
+                    'placeholder link media preview paste print hr lists advlist wordcount autolink',
                     'autoresize code fullscreen image imagetools',
                     'textcolor searchreplace table toc',
                 ],
             },
             extensiveConfigMenu: {
                 menu: {
-                    file: { title: 'File', items: 'newdocument restoredraft print' },
+                    file: { title: 'File', items: 'newdocument print' },
                     edit: { title: 'Edit', items: 'undo redo | cut copy paste | code | selectall searchreplace' },
                     insert: { title: 'Insert', items: 'image media link | hr | toc' },
                     view: { title: 'View', items: 'preview fullscreen' },

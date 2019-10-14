@@ -17,7 +17,6 @@
   when: ssh_forward_agent is defined and ssh_forward_agent
   tags:
     - git
-    - deploy
 
 # The git module calls python's tempfile.mkstemp() which uses the TMPDIR
 # environment variable. However this is set to /tmp which is mounted as
@@ -45,7 +44,6 @@
     state: directory
     suffix: build
   register: tmp_build
-  tags: deploy
 
 - name: Setup the Git repo in {{ tmp_build.path }}
   environment:
@@ -58,4 +56,3 @@
   notify: restart application
   tags:
     - git
-    - deploy

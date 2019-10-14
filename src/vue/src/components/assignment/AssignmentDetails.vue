@@ -20,7 +20,7 @@
             v-model="assignmentDetails.description"
             :footer="false"
             class="multi-form"
-            placeholder="Enter the description of the assignment here"
+            placeholder="Description of the assignment"
         />
         <h2 class="field-heading required">
             Points possible
@@ -45,20 +45,25 @@
                 </h2>
                 <flat-pickr
                     v-model="assignmentDetails.unlock_date"
-                    :config="unlockDateConfig"
+                    :config="Object.assign({}, {
+                        maxDate: form.dueDate ? form.dueDate : form.lockDate
+                    }, $root.flatPickrTimeConfig)"
                 />
             </b-col>
             <b-col xl="4">
                 <h2 class="field-heading">
                     Due date
                     <tooltip
-                        tip="Students are expected to have finished their assignment by this date, but new
-                        entries can still be added until the lock date"
+                        tip="Students are expected to have finished their assignment by this date, but new entries
+                        can still be added until the lock date"
                     />
                 </h2>
                 <flat-pickr
                     v-model="assignmentDetails.due_date"
-                    :config="dueDateConfig"
+                    :config="Object.assign({}, {
+                        minDate: form.unlockDate,
+                        maxDate: form.lockDate,
+                    }, $root.flatPickrTimeConfig)"
                 />
             </b-col>
             <b-col xl="4">
@@ -68,7 +73,9 @@
                 </h2>
                 <flat-pickr
                     v-model="assignmentDetails.lock_date"
-                    :config="lockDateConfig"
+                    :config="Object.assign({}, {
+                        minDate: form.dueDate ? form.dueDate : form.unlockDate
+                    }, $root.flatPickrTimeConfig)"
                 />
             </b-col>
         </b-row>

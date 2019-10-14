@@ -16,8 +16,8 @@ COURSE_PERMISSIONS = ['can_edit_course_details', 'can_delete_course', 'can_edit_
                       'can_add_course_user_group', 'can_delete_course_user_group', 'can_edit_course_user_group',
                       'can_add_assignment', 'can_delete_assignment']
 ASSIGNMENT_PERMISSIONS = ['can_edit_assignment', 'can_view_all_journals', 'can_grade',
-                          'can_publish_grades', 'can_have_journal', 'can_comment', 'can_edit_staff_comment',
-                          'can_view_unpublished_assignment']
+                          'can_publish_grades', 'can_view_grade_history', 'can_have_journal', 'can_comment',
+                          'can_edit_staff_comment', 'can_view_unpublished_assignment']
 
 
 def has_general_permission(user, permission):
@@ -116,6 +116,28 @@ def is_user_supervisor_of(supervisor, user):
                     return True
 
     return False
+
+
+def can_edit(user, obj):
+    if isinstance(obj, VLE.models.Entry):
+        return _can_edit_entry(user, obj)
+
+    return False
+
+
+def _can_edit_entry(user, entry):
+    user.check_permission('can_have_journal', entry.node.journal.assignment)
+
+    if (
+        user != entry.node.journal.user or
+        entry.node.journal.assignment.is_locked() or
+        entry.is_graded() or
+        entry.is_locked() or
+        entry.node.journal.needs_lti_link()
+    ):
+        return False
+
+    return True
 
 
 def serialize_general_permissions(user):

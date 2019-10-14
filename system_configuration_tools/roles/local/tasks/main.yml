@@ -1,12 +1,12 @@
 ---
 
-- name: Add django env variables
+- name: Add project environment variables
   lineinfile:
     path: "../venv/bin/activate"
     state: present
     regexp: ^export {{ item.key }}
     line: export {{ item.key }}='{{ item.value }}'
-  loop: "{{ django_environment | dict2items }}"
+  loop: "{{ project_environment | dict2items }}"
 
 - name: Check for an existing local backup directory
   local_action:

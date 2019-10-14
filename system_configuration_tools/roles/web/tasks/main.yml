@@ -10,33 +10,37 @@
 - include: setup_virtualenv.yml
   tags: virtualenv
 
+- include: create_backup_dir.yml
+
 - include: backup_media.yml
   tags:
     - never
-    - deploy
+    - deploy_back
     - backup
   when: run_backups
 
-- name: Activate maintenance page
-  command: mv {{ maintenance_dir }}/maintenance_off.html {{ maintenance_dir }}/maintenance_on.html
+- include: activate_maintenance_page.yml
+  tags:
+    - deploy_back
+    - deploy_front
 
 - include: setup_git_repo.yml
-  tags: deploy
+  tags: deploy_back
 
 - include: setup_frontend_file_structure.yml
-  tags: deploy
+  tags: deploy_front
 
 - include: setup_django_app.yml
-  tags: deploy
+  tags: deploy_back
 
 - include: setup_supervisor.yml
   tags: supervisor
 
-- include: set_file_permissions.yml
-  tags: deploy
-
 - name: Deactivate maintenance page
   command: mv {{ maintenance_dir }}/maintenance_on.html {{ maintenance_dir }}/maintenance_off.html
+  tags:
+    - deploy_back
+    - deploy_front
 
 - include: run_django_preset_db.yml
   tags:

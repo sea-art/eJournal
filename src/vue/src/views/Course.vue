@@ -5,37 +5,45 @@
             @edit-click="handleEdit()"
         />
 
-        <div
-            v-for="a in assignments"
+        <load-wrapper
             slot="main-content-column"
-            :key="a.id"
+            :loading="loadingAssignments"
         >
-            <b-link
-                :to="assignmentRoute(cID, a.id, a.journal, a.is_published)"
-                tag="b-button"
+            <div
+                v-for="a in assignments"
+                :key="a.id"
             >
-                <assignment-card :assignment="a">
-                    <b-button
-                        v-if="$hasPermission('can_edit_assignment', 'assignment', a.id)"
-                        class="change-button float-right"
-                        @click.prevent.stop="editAssignment(a)"
+                <b-link
+                    :to="assignmentRoute(cID, a.id, a.journal, a.is_published)"
+                    tag="b-button"
+                >
+                    <assignment-card
+                        :assignment="a"
+                        :uniqueName="!assignments.some(a2 =>
+                            a.name === a2.name && a.id !== a2.id
+                        )"
                     >
-                        <icon name="edit"/>
-                        Edit
-                    </b-button>
-                </assignment-card>
-            </b-link>
-        </div>
-
-        <b-button
-            v-if="$hasPermission('can_add_assignment')"
-            slot="main-content-column"
-            class="add-button"
-            @click="showModal('createAssignmentRef')"
-        >
-            <icon name="plus"/>
-            Create new assignment
-        </b-button>
+                        <b-button
+                            v-if="$hasPermission('can_edit_assignment', 'assignment', a.id)"
+                            class="change-button float-right"
+                            @click.prevent.stop="editAssignment(a)"
+                        >
+                            <icon name="edit"/>
+                            Edit
+                        </b-button>
+                    </assignment-card>
+                </b-link>
+            </div>
+            <b-button
+                v-if="$hasPermission('can_add_assignment')"
+                slot="main-content-column"
+                class="add-button"
+                @click="showModal('createAssignmentRef')"
+            >
+                <icon name="plus"/>
+                Create new assignment
+            </b-button>
+        </load-wrapper>
 
         <b-modal
             slot="main-content-column"
@@ -47,19 +55,14 @@
             <create-assignment @handleAction="handleCreated"/>
         </b-modal>
 
-        <h3 slot="right-content-column">
-            To Do
-        </h3>
-        <deadline-deck
-            slot="right-content-column"
-            :deadlines="deadlines"
-        />
+        <deadline-deck slot="right-content-column"/>
     </content-columns>
 </template>
 
 <script>
 import contentColumns from '@/components/columns/ContentColumns.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import assignmentCard from '@/components/assignment/AssignmentCard.vue'
 import createAssignment from '@/components/assignment/CreateAssignment.vue'
 import deadlineDeck from '@/components/assets/DeadlineDeck.vue'
@@ -71,6 +74,7 @@ export default {
     components: {
         contentColumns,
         breadCrumb,
+        loadWrapper,
         assignmentCard,
         createAssignment,
         deadlineDeck,
@@ -87,6 +91,7 @@ export default {
             post: null,
             error: null,
             deadlines: [],
+            loadingAssignments: true,
         }
     },
     created () {
@@ -95,7 +100,10 @@ export default {
     methods: {
         loadAssignments () {
             assignmentAPI.list(this.cID)
-                .then((assignments) => { this.assignments = assignments })
+                .then((assignments) => {
+                    this.assignments = assignments
+                    this.loadingAssignments = false
+                })
 
             assignmentAPI.getUpcoming(this.cID)
                 .then((deadlines) => { this.deadlines = deadlines })

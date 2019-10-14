@@ -10,4 +10,9 @@ export default {
         return auth.update(`formats/${id}`, data, connArgs)
             .then(response => response.data)
     },
+
+    copy (id, data, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.update(`formats/${id}/copy`, data, connArgs)
+            .then(response => response.data)
+    },
 }

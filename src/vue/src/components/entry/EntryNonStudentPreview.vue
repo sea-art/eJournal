@@ -15,7 +15,7 @@
                     class="grade-section shadow sticky"
                 >
                     <b-form-input
-                        v-model="grade"
+                        v-model="grade.grade"
                         type="number"
                         class="theme-input"
                         size="2"
@@ -23,31 +23,36 @@
                         placeholder="0"
                         min="0.0"
                     />
-                    <b-form-checkbox
-                        v-model="published"
-                        fieldValue="true"
-                        uncheckedFieldValue="false"
-                        data-toggle="tooltip"
-                        title="Show grade to student"
-                    >
-                        Published
-                    </b-form-checkbox>
                     <b-button
-                        class="add-button"
-                        @click="commitGrade"
+                        v-if="$hasPermission('can_view_grade_history')"
+                        class="grade-history-button float-right"
+                        @click="showGradeHistory"
                     >
-                        <icon
-                            name="save"
-                            scale="1"
-                        />
-                        Save grade
+                        <icon name="history"/>
                     </b-button>
+                    <dropdown-button
+                        :selectedOption="this.$store.getters['preferences/gradeButtonSetting']"
+                        :options="{
+                            s: {
+                                text: 'Save grade',
+                                icon: 'save',
+                                class: 'add-button',
+                            },
+                            p: {
+                                text: 'Save & publish grade',
+                                icon: 'save',
+                                class: 'add-button',
+                            },
+                        }"
+                        @click="commitGrade"
+                        @change-option="changeButtonOption"
+                    />
                 </div>
                 <div
-                    v-else-if="tempNode.entry.published"
+                    v-else-if="gradePublished"
                     class="grade-section grade shadow"
                 >
-                    {{ entryNode.entry.grade }}
+                    {{ entryNode.entry.grade.grade }}
                 </div>
                 <div
                     v-else
@@ -64,7 +69,7 @@
                     :template="entryNode.entry.template"
                     :completeContent="completeContent"
                     :displayMode="true"
-                    :journalID="$parent.journal.id"
+                    :journalID="journal.id"
                     :entryID="entryNode.entry.id"
                 />
             </div>
@@ -90,9 +95,58 @@
 
         <comment-card
             :eID="entryNode.entry.id"
-            :entryGradePublished="entryNode.entry.published"
+            :entryGradePublished="gradePublished"
             :journal="journal"
+            @publish-grade="commitGrade('p')"
         />
+
+        <b-modal
+            id="gradeHistoryModal"
+            ref="gradeHistoryModal"
+            size="lg"
+            title="Grade history"
+            hideFooter
+        >
+            <b-card class="no-hover">
+                <b-table
+                    v-if="gradeHistory.length > 0"
+                    responsive
+                    striped
+                    noSortReset
+                    sortBy="date"
+                    :sortDesc="true"
+                    :items="gradeHistory"
+                    class="mb-0"
+                >
+                    <template
+                        slot="published"
+                        slot-scope="data"
+                    >
+                        <icon
+                            v-if="data.value"
+                            name="check"
+                            class="fill-green"
+                        />
+                        <icon
+                            v-else
+                            name="times"
+                            class="fill-red"
+                        />
+                    </template>
+                    <template
+                        slot="creation_date"
+                        slot-scope="data"
+                    >
+                        {{ $root.beautifyDate(data.value) }}
+                    </template>
+                </b-table>
+                <div v-else>
+                    <h4>No grades available</h4>
+                    <hr class="m-0 mb-1"/>
+                    This entry has not yet been graded.
+                </div>
+            </b-card>
+        </b-modal>
     </div>
     <b-card
         v-else
@@ -107,45 +161,59 @@
 </template>
 
 <script>
-import commentCard from '@/components/journal/CommentCard.vue'
+import commentCard from '@/components/entry/CommentCard.vue'
+import dropdownButton from '@/components/assets/DropdownButton.vue'
 import entryFields from '@/components/entry/EntryFields.vue'
-import entryAPI from '@/api/entry.js'
+import gradeAPI from '@/api/grade.js'
+import preferencesAPI from '@/api/preferences.js'
 
 export default {
     components: {
         commentCard,
+        dropdownButton,
         entryFields,
     },
     props: ['entryNode', 'journal'],
     data () {
         return {
-            tempNode: this.entryNode,
             completeContent: [],
-            grade: null,
-            published: null,
+            gradeHistory: [],
+            grade: {
+                grade: '',
+                published: false,
+            },
         }
+    },
+    computed: {
+        gradePublished () {
+            return this.entryNode.entry && this.entryNode.entry.grade && this.entryNode.entry.grade.published
+        },
     },
     watch: {
         entryNode () {
             this.completeContent = []
             this.setContent()
-            this.tempNode = this.entryNode
 
-            if (this.entryNode.entry !== null) {
+            if (this.entryNode.entry && this.entryNode.entry.grade) {
                 this.grade = this.entryNode.entry.grade
-                this.published = this.entryNode.entry.published
             } else {
-                this.grade = null
-                this.published = true
+                this.grade = {
+                    grade: '',
+                    published: false,
+                }
             }
         },
     },
     created () {
         this.setContent()
 
-        if (this.entryNode.entry) {
+        if (this.entryNode.entry && this.entryNode.entry.grade) {
             this.grade = this.entryNode.entry.grade
-            this.published = this.entryNode.entry.published
+        } else {
+            this.grade = {
+                grade: '',
+                published: false,
+            }
         }
     },
     methods: {
@@ -154,54 +222,66 @@ export default {
              * the different data-fields with the corresponding template-IDs. */
             let matchFound
 
-            if (this.entryNode.entry !== null) {
-                this.entryNode.entry.template.field_set.forEach((templateField) => {
-                    matchFound = false
+            if (this.entryNode.entry) {
+                this.entryNode.entry.template.field_set.sort((a, b) => a.location - b.location)
+                    .forEach((templateField) => {
+                        matchFound = false
 
-                    matchFound = this.entryNode.entry.content.some((content) => {
-                        if (content.field === templateField.id) {
-                            this.completeContent.push({
-                                data: content.data,
-                                id: content.field,
-                                contentID: content.id,
-                            })
+                        matchFound = this.entryNode.entry.content.some((content) => {
+                            if (content.field === templateField.id) {
+                                this.completeContent.push({
+                                    data: content.data,
+                                    id: content.field,
+                                    contentID: content.id,
+                                })
 
-                            return true
-                        }
+                                return true
+                            }
 
-                        return false
-                    })
-
-                    if (!matchFound) {
-                        this.completeContent.push({
-                            data: null,
-                            id: templateField.id,
+                            return false
                         })
-                    }
-                })
+
+                        if (!matchFound) {
+                            this.completeContent.push({
+                                data: null,
+                                id: templateField.id,
+                            })
+                        }
+                    })
             }
         },
-        commitGrade () {
-            if (this.grade !== null) {
-                this.tempNode.entry.grade = this.grade
-                this.tempNode.entry.published = this.published
-
-                if (this.published) {
-                    entryAPI.grade(
-                        this.entryNode.entry.id,
-                        { grade: this.grade, published: 1 },
-                        { customSuccessToast: 'Grade updated and published.' },
-                    )
-                        .then(() => { this.$emit('check-grade') })
-                } else {
-                    entryAPI.grade(
-                        this.entryNode.entry.id,
-                        { grade: this.grade, published: 0 },
-                        { customSuccessToast: 'Grade updated but not published.' },
-                    )
-                        .then(() => { this.$emit('check-grade') })
-                }
+        changeButtonOption (option) {
+            preferencesAPI.update(this.$store.getters['user/uID'], { grade_button_setting: option })
+                .then((preferences) => {
+                    this.$store.commit('preferences/SET_GRADE_BUTTON_SETTING',
+                        preferences.grade_button_setting)
+                })
+        },
+        commitGrade (option) {
+            if (this.grade.grade !== '') {
+                const customSuccessToast = option === 'p' ? 'Grade updated and published.'
+                    : 'Grade updated but not published.'
+                gradeAPI.grade(
+                    {
+                        entry_id: this.entryNode.entry.id,
+                        grade: this.grade.grade,
+                        published: option === 'p',
+                    },
+                    { customSuccessToast },
+                )
+                    .then(() => {
+                        this.$emit('check-grade')
+                    })
+            } else {
+                this.$toasted.error('Grade field is empty.')
             }
+        },
+        showGradeHistory () {
+            gradeAPI.get_history(
+                { entry_id: this.entryNode.entry.id },
+            )
+                .then((gradeHistory) => { this.gradeHistory = gradeHistory })
+            this.$refs.gradeHistoryModal.show()
         },
     },
 }

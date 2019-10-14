@@ -45,11 +45,11 @@
                             v-for="role in roles"
                             :key="`${role}-${permission}`"
                         >
-                            <!-- eslint-disable -->
                             <b-form-checkbox
+                                v-model="roleConfig[getIndex(role)][permission]"
                                 :class="{ 'input-disabled': essentialPermission(role, permission) }"
-                                v-model="roleConfig[getIndex(role)][permission]"/>
-                            <!-- eslint-enable -->
+                                inline
+                            />
                         </td>
                     </tr>
                 </tbody>
@@ -287,17 +287,14 @@ export default {
 <style lang="sass">
 .select-center
     text-align: center
-
 .table th
     text-align: center
-
 .table td
     text-align: center
     align-items: center
     .custom-checkbox
         margin: 0px
         padding-left: 2em
-
 .permission-column
     text-align: left !important
 </style>

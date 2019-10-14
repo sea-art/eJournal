@@ -15,6 +15,7 @@ copies or substantial portions of the Software.
 */
 
 import 'vue-awesome/icons/eye'
+import 'vue-awesome/icons/eye-slash'
 import 'vue-awesome/icons/caret-up'
 import 'vue-awesome/icons/caret-down'
 import 'vue-awesome/icons/arrows'
@@ -61,6 +62,7 @@ import 'vue-awesome/icons/long-arrow-down'
 import 'vue-awesome/icons/comments'
 import 'vue-awesome/icons/cog'
 import 'vue-awesome/icons/clock-o'
+import 'vue-awesome/icons/lock'
 import 'vue-awesome/icons/print'
 import 'vue-awesome/icons/github'
 import 'vue-awesome/icons/linkedin'
@@ -72,6 +74,8 @@ import 'vue-awesome/icons/signal'
 import 'vue-awesome/icons/star'
 import 'vue-awesome/icons/level-up'
 import 'vue-awesome/icons/globe'
+import 'vue-awesome/icons/history'
+import 'vue-awesome/icons/graduation-cap'
 
 import Icon from 'vue-awesome/components/Icon.vue'
 

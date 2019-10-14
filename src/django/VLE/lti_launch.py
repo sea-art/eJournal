@@ -1,11 +1,12 @@
-from datetime import datetime, timezone
+from urllib.parse import urljoin
 
 import oauth2
 from django.conf import settings
 
 import VLE.factory as factory
 import VLE.utils.generic_utils as utils
-from VLE.models import Group, Journal, Lti_ids, Participation, Role, User
+from VLE.models import Assignment, Course, Group, Journal, Participation, Role, User
+from VLE.tasks.grading import send_journal_grade_to_LMS
 
 
 class OAuthRequestValidater(object):
@@ -89,7 +90,7 @@ def create_lti_query_link(query):
 
     returns the link
     """
-    return ''.join((settings.BASELINK, '/LtiLogin', '?', query.urlencode()))
+    return ''.join((urljoin(settings.BASELINK, '/LtiLogin'), '?', query.urlencode()))
 
 
 def add_groups_if_not_exists(participation, group_ids):
@@ -97,15 +98,13 @@ def add_groups_if_not_exists(participation, group_ids):
 
     This will only be done if there are no other groups already bound to the participant.
     """
-    if participation.groups:
-        return False
-
     for group_id in group_ids:
         group = Group.objects.filter(lti_id=group_id, course=participation.course)
         if group.exists():
             participation.groups.add(group.first())
         else:
-            group = factory.make_course_group(group_id, participation.course, group_id)
+            n_groups = Group.objects.filter(course=participation.course).count()
+            group = factory.make_course_group('Group {:d}'.format(n_groups + 1), participation.course, group_id)
             participation.groups.add(group)
 
     participation.save()
@@ -132,11 +131,12 @@ def update_lti_course_if_exists(request, user, role):
     2. Add groups to the user
     """
     course_lti_id = request.get('custom_course_id', None)
-    lti_couple = Lti_ids.objects.filter(lti_id=course_lti_id, for_model=Lti_ids.COURSE)
-    if course_lti_id is None or not lti_couple.exists():
+    course = Course.objects.filter(active_lti_id=course_lti_id)
+    if course_lti_id is None or not course.exists():
         return None
 
-    course = lti_couple.first().course
+    # There can only be one actively linked course.
+    course = course.first()
 
     # If the user not is a participant, add participation with possibly the role given by the LTI instance.
     if not user.is_participant(course):
@@ -156,14 +156,16 @@ def update_lti_assignment_if_exists(request):
 
     If no course exists, return None
     If it does exist:
-    Update the published state
+        Update the published state
     """
     assign_id = request['custom_assignment_id']
-    lti_couples = Lti_ids.objects.filter(lti_id=assign_id, for_model=Lti_ids.ASSIGNMENT)
-    if not lti_couples.exists():
+    assignment = Assignment.objects.filter(lti_id_set__contains=[assign_id])
+    if not assignment.exists():
         return None
 
-    assignment = lti_couples.first().assignment
+    # Assignment and lti_id_set values are unique together (no two assignments set contain the same lti id)
+    assignment = assignment.first()
+
     if 'custom_assignment_publish' in request:
         assignment.is_published = request['custom_assignment_publish']
         assignment.save()
@@ -177,30 +179,24 @@ def select_create_journal(request, user, assignment):
     if assignment is None or user is None:
         return None
 
-    within_assignment_timeframe = False
-    try:
-        begin = datetime.strptime(request['custom_assignment_unlock'], '%Y-%m-%d %X %z')
-        end = datetime.strptime(request['custom_assignment_lock'], '%Y-%m-%d %X %z')
-        now = datetime.now(timezone.utc)
-        within_assignment_timeframe = begin < now < end
-    except (ValueError, KeyError):
-        pass
-
-    journals = Journal.objects.filter(authors__in=[user], assignment=assignment)
+    journals = Journal.objects.filter(user=user, assignment=assignment)
     if journals.exists():
         journal = journals.first()
-        if within_assignment_timeframe and 'lis_outcome_service_url' in request:
-            journal.grade_url = request['lis_outcome_service_url']
-            journal.save()
-        return journal
-    elif within_assignment_timeframe:
+    else:
         journal = factory.make_journal(assignment, user)
-        if 'lis_result_sourcedid' in request:
-            journal.sourcedids.add(request['lis_result_sourcedid'])
-            journal.save()
-        if 'lis_outcome_service_url' in request:
+
+    # Update the grade_url and sourcedid if the active LMS link is followed.
+    if assignment.active_lti_id == request['custom_assignment_id']:
+        passback_changed = False
+        if 'lis_outcome_service_url' in request and journal.grade_url != request['lis_outcome_service_url']:
+            passback_changed = True
             journal.grade_url = request['lis_outcome_service_url']
             journal.save()
-        return journal
+        if 'lis_result_sourcedid' in request and journal.sourcedid != request['lis_result_sourcedid']:
+            passback_changed = True
+            journal.sourcedid = request['lis_result_sourcedid']
+            journal.save()
+        if passback_changed:
+            send_journal_grade_to_LMS.delay(journal.pk)
 
     return None

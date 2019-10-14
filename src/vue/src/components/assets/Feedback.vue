@@ -46,7 +46,10 @@
             @change="filesHandler"
         />
 
-        <b-form-checkbox v-model="privacyAgreement">
+        <b-form-checkbox
+            v-model="privacyAgreement"
+            inline
+        >
             I agree to share my username, email, full name and feedback with eJournal's email provider Zoho.*
         </b-form-checkbox>
 

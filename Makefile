@@ -31,7 +31,7 @@ run-test:
 ##### DEVELOP COMMANDS #####
 
 run-front:
-	bash -c "source ./venv/bin/activate && npm run dev --prefix ./src/vue && deactivate"
+	bash -c "source ./venv/bin/activate && npm run serve --prefix ./src/vue && deactivate"
 
 run-back: isort
 	bash -c "source ./venv/bin/activate && python ./src/django/manage.py runserver && deactivate"
@@ -91,14 +91,6 @@ setup-venv:
 
 ##### DEPLOY COMMANDS ######
 
-ROOT_DIR:=$(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
-install:
-	bash -c 'bash $(ROOT_DIR)/scripts/install.sh $(ROOT_DIR)'
-deploy:
-	bash -c 'bash $(ROOT_DIR)/scripts/deploy.sh $(ROOT_DIR)'
-serve:
-	bash -c 'bash $(ROOT_DIR)/scripts/serve.sh $(ROOT_DIR)'
-
 ansible-test-connection:
 	@bash -c 'source ./venv/bin/activate && ansible -m ping all --ask-become-pass && deactivate'
 
@@ -106,7 +98,13 @@ run-ansible-provision:
 	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --ask-become-pass --ask-vault-pass && deactivate'
 
 run-ansible-deploy:
-	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "deploy" --ask-become-pass --ask-vault-pass && deactivate'
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "deploy_back,deploy_front" --ask-become-pass --ask-vault-pass && deactivate'
+
+run-ansible-deploy-front:
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "deploy_front" --ask-become-pass --ask-vault-pass && deactivate'
+
+run-ansible-deploy-back:
+	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "deploy_back" --ask-become-pass --ask-vault-pass && deactivate'
 
 run-ansible-backup:
 	@bash -c 'source ./venv/bin/activate && ansible-playbook ./system_configuration_tools/provision-servers.yml --tags "backup" --ask-become-pass --ask-vault-pass && deactivate'
@@ -165,6 +163,20 @@ migrate-back:
 
 migrate-merge:
 	bash -c "source ./venv/bin/activate && cd ./src/django && python manage.py makemigrations --merge"
+
+db-dump:
+	@pg_dump --dbname=postgresql://$(postgres_dev_user):$(postgres_dev_user_pass)@127.0.0.1:5432/$(dbname) > db.dump
+	@echo dump to file: db.dump success!
+
+db-restore:
+	@echo "This operation will wipe and then restore the $(postgres_db) database from db.dump, press enter to continue (ctrl+c to cancel)"
+	@read -r a
+	@sudo su -c "psql \
+	-c \"DROP DATABASE IF EXISTS $(postgres_db)\" \
+	-c \"DROP DATABASE IF EXISTS test_$(postgres_db)\" \
+	-c \"CREATE DATABASE $(postgres_db)\" \
+	" postgres
+	@psql --dbname=postgresql://$(postgres_dev_user):$(postgres_dev_user_pass)@127.0.0.1:5432/$(dbname) < db.dump
 
 ##### MISC COMMANDS #####
 

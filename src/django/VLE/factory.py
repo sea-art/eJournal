@@ -1,7 +1,7 @@
 """
 factory.py.
 
-The facory has all kinds of functions to create entries in the database.
+The factory has all kinds of functions to create entries in the database.
 Sometimes this also supports extra functionallity like adding courses to assignments.
 """
 import requests
@@ -23,7 +23,7 @@ def make_instance(allow_standalone_registration=None):
     return instance
 
 
-def make_user(username, password, email, lti_id=None, profile_picture=None,
+def make_user(username, password, email, lti_id=None, profile_picture='/unknown-profile.png',
               is_superuser=False, is_teacher=False, full_name=None, verified_email=False, is_staff=False):
     """Create a user.
 
@@ -35,17 +35,11 @@ def make_user(username, password, email, lti_id=None, profile_picture=None,
     profile_picture -- profile picture of the user (default: none)
     is_superuser -- if the user needs all permissions, set this true (default: False)
     """
-    user = User(username=username, email=email, lti_id=lti_id, is_superuser=is_superuser,
-                is_teacher=is_teacher, verified_email=verified_email, is_staff=is_staff)
+    user = User.objects.create(
+        username=username, email=email, lti_id=lti_id, is_superuser=is_superuser, is_teacher=is_teacher,
+        verified_email=verified_email, is_staff=is_staff, full_name=full_name, profile_picture=profile_picture)
 
-    user.full_name = full_name
-
-    user.save()
     user.set_password(password)
-    if profile_picture:
-        user.profile_picture = profile_picture
-    else:
-        user.profile_picture = '/static/unknown-profile.png'
     user.save()
     return user
 
@@ -70,7 +64,7 @@ def make_participation(user=None, course=None, role=None, groups=None):
     return participation
 
 
-def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=None):
+def make_course(name, abbrev, startdate=None, enddate=None, author=None, active_lti_id=None):
     """Create a course.
 
     Arguments:
@@ -78,14 +72,15 @@ def make_course(name, abbrev, startdate=None, enddate=None, author=None, lti_id=
     abbrev -- abbreviation of the course
     startdate -- startdate of the course
     author -- author of the course, this will also get the teacher role as participation
-    lti_id -- potential lti_id, this is to link the canvas course to the VLE course.
+    active_lti_id -- (optional) lti_id, this links an eJournal course to a VLE course, only the active id receives
+        grade passback.
     """
     course = Course(name=name, abbreviation=abbrev, startdate=startdate, enddate=enddate,
-                    author=author)
+                    author=author, active_lti_id=active_lti_id)
     course.save()
 
-    if lti_id is not None:
-        make_lti_ids(lti_id=lti_id, for_model=Lti_ids.COURSE, course=course)
+    if course.has_lti_link():
+        make_lti_groups(course)
 
     # Student, TA and Teacher role are created on course creation as is saves check for lti.
     make_role_student('Student', course)
@@ -111,7 +106,7 @@ def make_course_group(name, course, lti_id=None):
     return course_group
 
 
-def make_assignment(name, description, author=None, format=None, lti_id=None,
+def make_assignment(name, description, author=None, format=None, active_lti_id=None,
                     points_possible=10, is_published=None, unlock_date=None, due_date=None,
                     lock_date=None, course_ids=None, courses=None, group_size=None):
     """Make a new assignment.
@@ -123,6 +118,8 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
     format -- format of assignment
     courseIDs -- ID of the courses the assignment belongs to
     courses -- courses it belongs to
+    active_lti_id -- (optional) lti_id, this links an eJournal course to a VLE course, only the active id receives
+        grade passback.
 
     On success, returns a new assignment.
     """
@@ -140,8 +137,6 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
     if courses:
         for course in courses:
             assign.courses.add(course)
-    if lti_id is not None:
-        make_lti_ids(lti_id=lti_id, for_model=Lti_ids.ASSIGNMENT, assignment=assign)
     if points_possible is not None:
         assign.points_possible = points_possible
     if is_published is not None:
@@ -168,16 +163,8 @@ def make_assignment(name, description, author=None, format=None, lti_id=None,
     return assign
 
 
-def make_lti_ids(lti_id, for_model, course=None, assignment=None):
-    if for_model == 'Course':
-        make_lti_groups(lti_id, course)
-    lti_id_couple = Lti_ids(lti_id=lti_id, for_model=for_model, assignment=assignment, course=course)
-    lti_id_couple.save()
-    return lti_id_couple
-
-
-def make_lti_groups(lti_id, course):
-    groups = requests.get(settings.GROUP_API.format(lti_id)).json()
+def make_lti_groups(course):
+    groups = requests.get(settings.GROUP_API.format(course.active_lti_id)).json()
     if isinstance(groups, list):
         for group in groups:
             try:
@@ -189,28 +176,13 @@ def make_lti_groups(lti_id, course):
                 continue
 
 
-def make_format(templates=[]):
-    """Make a format.
-
-    Arguments:
-    templates -- list of all the templates to add to the format.
-    max-points -- maximum points of the format (default: 10)
-
-    Returns the format
-    """
+def make_default_format(due_date=None, points_possible=10):
     format = Format()
     format.save()
-    format.available_templates.add(*templates)
-    return format
-
-
-def make_default_format(due_date, points_possible=10):
-    template = make_entry_template('Default Template')
-    make_field(template, 'Submission', 0, Field.RICH_TEXT, True)
-
-    format = make_format([template])
-
-    make_progress_node(format, due_date, points_possible)
+    template = make_entry_template('Entry', format)
+    make_field(template, 'Content', 0, Field.RICH_TEXT, True)
+    if due_date and points_possible and int(points_possible) > 0:
+        make_progress_node(format, due_date, points_possible)
     return format
 
 
@@ -303,9 +275,9 @@ def make_entry(template):
     return entry
 
 
-def make_entry_template(name):
+def make_entry_template(name, format, preset_only=False):
     """Make an entry template."""
-    entry_template = Template(name=name)
+    entry_template = Template(name=name, format=format, preset_only=preset_only)
     entry_template.save()
     return entry_template
 
@@ -336,8 +308,8 @@ def make_role_default_no_perms(name, course, can_edit_course_details=False, can_
                                can_delete_course_user_group=False, can_edit_course_user_group=False,
                                can_add_assignment=False, can_delete_assignment=False, can_edit_assignment=False,
                                can_view_all_journals=False, can_grade=False, can_publish_grades=False,
-                               can_have_journal=False, can_comment=False, can_edit_staff_comment=False,
-                               can_view_unpublished_assignment=False):
+                               can_view_grade_history=False, can_have_journal=False, can_comment=False,
+                               can_edit_staff_comment=False, can_view_unpublished_assignment=False):
     """Make a role with all permissions set to false.
 
     Arguments:
@@ -365,6 +337,7 @@ def make_role_default_no_perms(name, course, can_edit_course_details=False, can_
         can_view_all_journals=can_view_all_journals,
         can_grade=can_grade,
         can_publish_grades=can_publish_grades,
+        can_view_grade_history=can_view_grade_history,
         can_have_journal=can_have_journal,
         can_comment=can_comment,
         can_edit_staff_comment=can_edit_staff_comment
@@ -379,15 +352,15 @@ def make_role_default_all_perms(name, course, can_edit_course_details=True, can_
                                 can_delete_course_user_group=True, can_edit_course_user_group=True,
                                 can_add_assignment=True, can_delete_assignment=True, can_edit_assignment=True,
                                 can_view_all_journals=True, can_grade=True, can_publish_grades=True,
-                                can_have_journal=True, can_comment=True, can_edit_staff_comment=True,
-                                can_view_unpublished_assignment=True):
+                                can_view_grade_history=True, can_have_journal=True, can_comment=True,
+                                can_edit_staff_comment=True, can_view_unpublished_assignment=True):
     """Makes a role with all permissions set to true."""
     return make_role_default_no_perms(name, course, can_edit_course_details, can_delete_course, can_edit_course_roles,
                                       can_view_course_users, can_add_course_users, can_delete_course_users,
                                       can_add_course_user_group, can_delete_course_user_group,
                                       can_edit_course_user_group, can_add_assignment, can_delete_assignment,
-                                      can_edit_assignment, can_view_all_journals, can_grade,
-                                      can_publish_grades, can_have_journal, can_comment, can_edit_staff_comment,
+                                      can_edit_assignment, can_view_all_journals, can_grade, can_publish_grades,
+                                      can_view_grade_history, can_have_journal, can_comment, can_edit_staff_comment,
                                       can_view_unpublished_assignment)
 
 
@@ -431,6 +404,29 @@ def make_comment(entry, author, text, published):
         text=text,
         published=published
     )
+
+
+def make_grade(entry, author, grade, published=False):
+    """Make a new grade record for an entry.
+
+    Make a grade record for an entry based on its ID.
+    Arguments:
+    entry -- entry that the grade belongs to
+    author -- uID of the author of the grade
+    grade -- the new grade
+    published -- publishment state of the grade
+    """
+    grade = Grade.objects.create(
+        entry=entry,
+        author=User.objects.filter(pk=author).first(),
+        grade=grade,
+        published=published
+    )
+
+    entry.grade = grade
+    entry.save()
+
+    return grade
 
 
 def make_user_file(uploaded_file, author, assignment, entry=None, node=None, content=None):

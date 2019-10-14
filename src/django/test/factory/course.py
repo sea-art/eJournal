@@ -36,12 +36,4 @@ class CourseFactory(factory.django.DjangoModelFactory):
 
 
 class LtiCourseFactory(CourseFactory):
-    lti_id = factory.RelatedFactory('test.factory.lti.LtiFactory', 'course', for_model=VLE.models.Lti_ids.COURSE)
-
-    @factory.post_generation
-    def link_lti_id(self, create, extracted):
-        if not create:
-            return
-        lti_id = VLE.models.Lti_ids.objects.last()
-        lti_id.course = self
-        lti_id.save()
+    active_lti_id = factory.Sequence(lambda x: "course_lti_id{}".format(x))

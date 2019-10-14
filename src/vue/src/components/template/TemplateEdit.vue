@@ -28,13 +28,13 @@
                 required
             />
             <div
-                v-if="!formatSettings.available"
+                v-if="template.preset_only"
                 class="template-availability"
             >
                 <b-button
                     class="delete-button"
                     @click.stop
-                    @click="toggleActive"
+                    @click="togglePresetOnly"
                 >
                     <icon name="times"/>
                     Preset-only
@@ -43,13 +43,13 @@
                 This template can only be used for preset entries you add to the timeline
             </div>
             <div
-                v-if="formatSettings.available"
+                v-if="!template.preset_only"
                 class="template-availability"
             >
                 <b-button
                     class="add-button"
                     @click.stop
-                    @click="toggleActive"
+                    @click="togglePresetOnly"
                 >
                     <icon name="check"/>
                     Unlimited
@@ -206,9 +206,6 @@ export default {
         template: {
             required: true,
         },
-        formatSettings: {
-            required: true,
-        },
     },
     data () {
         return {
@@ -221,12 +218,16 @@ export default {
                 v: 'YouTube Video',
                 u: 'URL',
                 d: 'Date',
+                dt: 'Date Time',
                 s: 'Selection',
             },
             mode: 'edit',
             selectedLocation: null,
             showEditors: true,
         }
+    },
+    created () {
+        this.template.field_set.sort((a, b) => a.location - b.location)
     },
     methods: {
         updateLocations () {
@@ -282,8 +283,8 @@ export default {
             options.splice(options.indexOf(option.trim()), 1)
             field.options = JSON.stringify(options)
         },
-        toggleActive () {
-            this.formatSettings.available = !this.formatSettings.available
+        togglePresetOnly () {
+            this.template.preset_only = !this.template.preset_only
         },
     },
 }
@@ -300,7 +301,7 @@ export default {
         fill: $theme-medium-grey
 
 .required-field-template
-    background-color: $theme-dark-blue
+    background-color: $theme-dark-blue !important
     color: white !important
     svg, &:hover:not(.no-hover) svg
         fill: $theme-red !important

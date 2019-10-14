@@ -22,8 +22,7 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path
-from rest_framework_simplejwt.views import (TokenObtainPairView,
-                                            TokenRefreshView, TokenVerifyView)
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView, TokenVerifyView
 
 from VLE.views import common, email, lti
 
@@ -42,7 +41,10 @@ urlpatterns = [
     path('request_email_verification/', email.request_email_verification, name='request_email_verification'),
     path('send_feedback/', email.send_feedback, name='send_feedback'),
 
+    # Launch from LMS, verifies jwt credentials and redirects to front end lti_launch point of entry
     path('lti/launch', lti.lti_launch, name='lti_launch'),
+
+    # Launch from our front end
     path('get_lti_params_from_jwt/<str:jwt_params>/', lti.get_lti_params_from_jwt, name='get_lti_params_from_jwt'),
     path('update_lti_groups/<str:jwt_params>/', lti.update_lti_groups, name='update_lti_groups'),
 

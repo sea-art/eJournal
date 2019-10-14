@@ -9,10 +9,15 @@
                 md="7"
             >
                 <div class="portrait-wrapper">
-                    <img :src="previewPicture"/>
-                    <todo-square
-                        v-if="numMarkingNeeded > 0"
-                        :num="numMarkingNeeded"
+                    <img
+                        class="no-hover"
+                        :src="previewPicture"
+                    />
+                    <number-badge
+                        v-if="markingNeeded + unpublished > 0"
+                        :leftNum="markingNeeded"
+                        :rightNum="unpublished"
+                        :title="squareInfo"
                     />
                 </div>
                 <div class="student-details list-view">
@@ -28,8 +33,8 @@
                 md="5"
             >
                 <progress-bar
-                    :currentPoints="journal.stats.acquired_points"
-                    :totalPoints="journal.stats.total_points"
+                    :currentPoints="stats.acquired_points"
+                    :totalPoints="assignment.points_possible"
                 />
             </b-col>
         </b-row>
@@ -47,23 +52,23 @@
                 </div>
             </div>
             <progress-bar
-                :currentPoints="journal.stats.acquired_points"
-                :totalPoints="journal.stats.total_points"
-                :comparePoints="assignment && assignment.stats ?
-                    assignment.stats.average_points : -1"
+                :currentPoints="stats.acquired_points"
+                :totalPoints="assignment.points_possible"
+                :comparePoints="assignment && assignment.stats ? assignment.stats.average_points : -1"
             />
         </div>
+        <slot/>
     </b-card>
 </template>
 
 <script>
 import progressBar from '@/components/assets/ProgressBar.vue'
-import todoSquare from '@/components/assets/TodoSquare.vue'
+import numberBadge from '@/components/assets/NumberBadge.vue'
 
 export default {
     components: {
         progressBar,
-        todoSquare,
+        numberBadge,
     },
     props: {
         assignment: {
@@ -75,6 +80,10 @@ export default {
         },
         listView: {
             default: false,
+        },
+        assignment: {
+            default: null,
+            required: true,
         },
     },
     computed: {
@@ -103,6 +112,27 @@ export default {
             })
             return groups.join(', ')
         },
+        markingNeeded () {
+            return this.stats.submitted - this.stats.graded
+        },
+        unpublished () {
+            return this.stats.graded - this.stats.published
+        },
+        squareInfo () {
+            const info = []
+            if (this.markingNeeded === 1) {
+                info.push('an entry needs marking')
+            } else if (this.markingNeeded > 1) {
+                info.push(`${this.markingNeeded} entries need marking`)
+            }
+            if (this.unpublished === 1) {
+                info.push('an entry needs to be published')
+            } else if (this.unpublished > 1) {
+                info.push(`${this.unpublished} grades need to be published`)
+            }
+            const s = info.join(' and ')
+            return `${s.charAt(0).toUpperCase()}${s.slice(1)}`
+        },
     },
 }
 </script>
@@ -120,7 +150,7 @@ export default {
         width: 70px
         height: 70px
         border-radius: 50% !important
-    .todo-square
+    .number-badge
         position: absolute
         right: 0px
         top: 0px

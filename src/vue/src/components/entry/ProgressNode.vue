@@ -26,20 +26,21 @@
 
 <script>
 export default {
-    props: ['nodes', 'currentNode'],
+    props: ['nodes', 'currentNode', 'bonusPoints'],
     computed: {
         score () {
             /* The function will update a given progressNode by
             * going through all the nodes and count the published grades
             * so far. */
-            let tempProgress = 0
+            let tempProgress = this.bonusPoints
 
             this.nodes.some((node) => {
                 if (node.nID === this.currentNode.nID) { return true }
 
                 if (node.type === 'e' || node.type === 'd') {
-                    if (node.entry && node.entry.grade && node.entry.published && node.entry.grade !== '0') {
-                        tempProgress += parseFloat(node.entry.grade)
+                    if (node.entry && node.entry.grade && node.entry.grade.published
+                        && node.entry.grade.grade !== '0') {
+                        tempProgress += parseFloat(node.entry.grade.grade)
                     }
                 }
 

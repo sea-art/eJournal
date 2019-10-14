@@ -6,6 +6,7 @@ Database file
 import os
 
 from django.contrib.auth.models import AbstractUser
+from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models import Sum
@@ -15,8 +16,7 @@ from django.utils.timezone import now
 
 import VLE.permissions as permissions
 from VLE.utils import sanitization
-from VLE.utils.error_handling import (VLEParticipationError,
-                                      VLEPermissionError, VLEProgrammingError,
+from VLE.utils.error_handling import (VLEParticipationError, VLEPermissionError, VLEProgrammingError,
                                       VLEUnverifiedEmailError)
 from VLE.utils.file_handling import get_feedback_file_path, get_path
 
@@ -184,6 +184,8 @@ class User(AbstractUser):
             raise VLEParticipationError(obj, self)
 
     def is_participant(self, obj):
+        if self.is_superuser:
+            return True
         if isinstance(obj, Course):
             return Course.objects.filter(pk=obj.pk, users=self).exists()
         if isinstance(obj, Assignment):
@@ -192,7 +194,7 @@ class User(AbstractUser):
 
     def check_can_view(self, obj):
         if not self.can_view(obj):
-            raise VLEPermissionError(message='You are not allowed to view {}'.format(str(obj)))
+            raise VLEPermissionError(message='You are not allowed to view {}'.format(obj.to_string()))
 
     def can_view(self, obj):
         if self.is_superuser:
@@ -220,6 +222,10 @@ class User(AbstractUser):
             return self.has_permission('can_grade', obj.entry.node.journal.assignment)
 
         return False
+
+    def check_can_edit(self, obj):
+        if not permissions.can_edit(self, obj):
+            raise VLEPermissionError(message='You are not allowed to edit {}'.format(str(obj)))
 
     def to_string(self, user=None):
         if user is None:
@@ -271,10 +277,41 @@ class Preferences(models.Model):
     show_format_tutorial = models.BooleanField(
         default=True
     )
+    auto_select_ungraded_entry = models.BooleanField(
+        default=True
+    )
+    auto_proceed_next_journal = models.BooleanField(
+        default=False
+    )
     hide_version_alert = models.TextField(
         max_length=10,
         null=True,
     )
+    SAVE = 's'
+    PUBLISH = 'p'
+    GRADE_BUTTON_OPTIONS = (
+        (SAVE, 's'),
+        (PUBLISH, 'p'),
+    )
+    grade_button_setting = models.TextField(
+        max_length=1,
+        choices=GRADE_BUTTON_OPTIONS,
+        default=PUBLISH,
+    )
+    PUBLISH_AND_PUBLISH_GRADE = 'g'
+    COMMENT_SEND_BUTTON_OPTIONS = (
+        (SAVE, 's'),
+        (PUBLISH, 'p'),
+        (PUBLISH_AND_PUBLISH_GRADE, 'g'),
+    )
+    comment_button_setting = models.TextField(
+        max_length=2,
+        choices=COMMENT_SEND_BUTTON_OPTIONS,
+        default=SAVE,
+    )
+
+    def to_string(self, user=None):
+        return "Preferences"
 
 
 class Course(models.Model):
@@ -285,7 +322,8 @@ class Course(models.Model):
     - author: the creator of the course.
     - abbreviation: a max three letter abbreviation of the course name.
     - startdate: the date that the course starts.
-    - lti_ids: the ids of the course linked over LTI.
+    - active_lti_id: (optional) the active VLE id of the course linked through LTI which receives grade updates.
+    - lti_id_set: (optional) the set of VLE lti_id_set which permit basic access.
     """
 
     name = models.TextField()
@@ -313,6 +351,25 @@ class Course(models.Model):
     enddate = models.DateField(
         null=True,
     )
+
+    active_lti_id = models.TextField(
+        null=True,
+        unique=True,
+        blank=True,
+    )
+
+    # These LTI assignments belong to this course.
+    assignment_lti_id_set = ArrayField(
+        models.TextField(),
+        default=list,
+    )
+
+    def set_assignment_lti_id_set(self, lti_id):
+        if lti_id not in self.assignment_lti_id_set:
+            self.assignment_lti_id_set.append(lti_id)
+
+    def has_lti_link(self):
+        return self.active_lti_id is not None
 
     def to_string(self, user=None):
         if user is None:
@@ -387,6 +444,7 @@ class Role(models.Model):
     can_view_all_journals = models.BooleanField(default=False)
     can_grade = models.BooleanField(default=False)
     can_publish_grades = models.BooleanField(default=False)
+    can_view_grade_history = models.BooleanField(default=False)
     can_have_journal = models.BooleanField(default=False)
     can_comment = models.BooleanField(default=False)
     can_edit_staff_comment = models.BooleanField(default=False)
@@ -394,33 +452,35 @@ class Role(models.Model):
 
     def save(self, *args, **kwargs):
         if self.can_add_course_users and not self.can_view_course_users:
-            raise ValidationError('A user needs to view course users in order to add them.')
+            raise ValidationError('A user needs to be able to view course users in order to add them.')
 
         if self.can_delete_course_users and not self.can_view_course_users:
-            raise ValidationError('A user needs to view course users in order to remove them.')
+            raise ValidationError('A user needs to be able to view course users in order to remove them.')
 
         if self.can_edit_course_user_group and not self.can_view_course_users:
-            raise ValidationError('A user needs to view course users in order to manage user groups.')
+            raise ValidationError('A user needs to be able to view course users in order to manage user groups.')
 
         if self.can_view_all_journals and self.can_have_journal:
-            raise ValidationError('An administrative user is not allowed to have a journal in the same course.')
+            raise ValidationError('Teaching staff is not allowed to have a journal in their own course.')
 
         if self.can_grade and not self.can_view_all_journals:
             raise ValidationError('A user needs to be able to view journals in order to grade them.')
 
         if self.can_publish_grades and not (self.can_view_all_journals and self.can_grade):
-            raise ValidationError('A user should not be able to publish grades without being able to view or grade \
-                                  the journals.')
+            raise ValidationError('A user needs to be able to view and grade journals in order to publish grades.')
+
+        if self.can_view_grade_history and not (self.can_view_all_journals and self.can_grade):
+            raise ValidationError('A user needs to be able to view and grade journals in order to see a history\
+                                   of grades.')
 
         if self.can_comment and not (self.can_view_all_journals or self.can_have_journal):
             raise ValidationError('A user requires a journal to comment on.')
 
         if self.can_edit_staff_comment and self.can_have_journal:
-            raise ValidationError('Adminstrative users who can edit staff comments are not allowed to have a journal \
-                                  themselves.')
+            raise ValidationError('Users who can edit staff comments are not allowed to have a journal themselves.')
 
         if self.can_edit_staff_comment and not self.can_comment:
-            raise ValidationError('Editing comments requires being able to comment.')
+            raise ValidationError('A user needs to be able to comment in order to edit other comments.')
 
         super(Role, self).save(*args, **kwargs)
 
@@ -483,7 +543,8 @@ class Assignment(models.Model):
     is part of.
     - format: a one-to-one key linked to the format this assignment
     holds. The format determines how a students' journal is structured.
-    - lti_ids: The lti ids of the assignment linked over lti.
+    - active_lti_id: (optional) the active VLE id of the assignment linked through LTI which receives grade updates.
+    - lti_id_set: (optional) the set of VLE assignment lti_id_set which permit basic access.
     """
 
     name = models.TextField()
@@ -522,6 +583,16 @@ class Assignment(models.Model):
         on_delete=models.CASCADE
     )
 
+    active_lti_id = models.TextField(
+        null=True,
+        unique=True,
+        blank=True,
+    )
+    lti_id_set = ArrayField(
+        models.TextField(),
+        default=list,
+    )
+
     group_size = models.IntegerField(
         'group_size',
         null=True
@@ -531,13 +602,51 @@ class Assignment(models.Model):
     def is_group_assignment(self):
         return self.group_size and self.group_size > 1
 
+    def has_lti_link(self):
+        return self.active_lti_id is not None
+
     def is_locked(self):
         return self.unlock_date and self.unlock_date > now() or self.lock_date and self.lock_date < now()
 
     def save(self, *args, **kwargs):
         self.description = sanitization.strip_script_tags(self.description)
 
+        active_lti_id_modified = False
+
+        # Instance is being created (not modified)
+        if self._state.adding:
+            active_lti_id_modified = self.active_lti_id is not None
+        else:
+            pre_save = Assignment.objects.get(pk=self.pk)
+            active_lti_id_modified = pre_save.active_lti_id != self.active_lti_id
+
+        if active_lti_id_modified:
+            # Reset all sourcedid if the active lti id is updated.
+            Journal.objects.filter(assignment=self.pk).update(sourcedid=None, grade_url=None)
+
+            if self.active_lti_id is not None and self.active_lti_id not in self.lti_id_set:
+                self.lti_id_set.append(self.active_lti_id)
+
+            other_assignments_with_lti_id_set = Assignment.objects.filter(
+                lti_id_set__contains=[self.active_lti_id]).exclude(pk=self.pk)
+            if other_assignments_with_lti_id_set.exists():
+                raise ValidationError(
+                    "A lti_id should be unique, and only part of a single assignment's lti_id_set.")
+
         return super(Assignment, self).save(*args, **kwargs)
+
+    def get_active_course(self):
+        """"Query for retrieving the course which matches the active lti id of the assignment."""
+        courses = self.courses.filter(assignment_lti_id_set__contains=[self.active_lti_id])
+        return courses.first()
+
+    def get_course_lti_id(self, course):
+        """Gets the assignment lti_id that belongs to the course assignment pair if it exists."""
+        if not isinstance(course, Course):
+            raise VLEProgrammingError("Expected instance of type Course.")
+
+        intersection = list(set(self.lti_id_set).intersection(course.assignment_lti_id_set))
+        return intersection[0] if intersection else None
 
     def can_unpublish(self):
         return not (self.is_published and Entry.objects.filter(node__journal__assignment=self).exists())
@@ -617,8 +726,16 @@ class Journal(models.Model):
     )
 
     def get_grade(self):
-        return self.bonus_points + (self.node_set.filter(entry__published=True)
-                                    .values('entry__grade').aggregate(Sum('entry__grade'))['entry__grade__sum'] or 0)
+        return self.bonus_points + (self.node_set.filter(entry__grade__published=True)
+                                    .values('entry__grade__grade')
+                                    .aggregate(Sum('entry__grade__grade'))['entry__grade__grade__sum'] or 0)
+
+    # NOTE: Any suggestions for a clear warning msg for all cases?
+    outdated_link_warning_msg = 'This journal has an outdated LMS uplink and can no longer be edited. Visit  ' \
+        + 'eJournal from an updated LMS connection.'
+
+    def needs_lti_link(self):
+        return self.sourcedid is None and self.assignment.active_lti_id is not None
 
     def get_names(self):
         usernames = [author.name for author in self.authors.all()]
@@ -693,11 +810,10 @@ class Node(models.Model):
         on_delete=models.CASCADE,
     )
 
-    # Question: Why can this be null?
     preset = models.ForeignKey(
         'PresetNode',
         null=True,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
     )
 
     def to_string(self, user=None):
@@ -710,30 +826,7 @@ class Format(models.Model):
     Format of a journal.
     The format determines how a students' journal is structured.
     See PresetNodes for attached 'default' nodes.
-    - available_templates are those available in 'Entry' nodes.
-      'Entrydeadline' nodes hold their own forced template.
     """
-
-    PERCENTAGE = 'PE'
-    GRADE = 'GR'
-    TYPES = (
-        (PERCENTAGE, 'percentage'),
-        (GRADE, 'from 0 to 10'),
-    )
-    grade_type = models.TextField(
-        max_length=2,
-        choices=TYPES,
-        default=PERCENTAGE,
-    )
-    unused_templates = models.ManyToManyField(
-        'Template',
-        related_name='unused_templates',
-    )
-
-    available_templates = models.ManyToManyField(
-        'Template',
-        related_name='available_templates',
-    )
 
     def to_string(self, user=None):
         return "Format"
@@ -767,7 +860,7 @@ class PresetNode(models.Model):
         choices=TYPES,
     )
 
-    target = models.IntegerField(
+    target = models.FloatField(
         null=True,
     )
 
@@ -803,16 +896,13 @@ class Entry(models.Model):
     """Entry.
 
     An Entry has the following features:
-    - journal: a foreign key linked to an Journal.
     - creation_date: the date and time when the entry was posted.
-    - grade: grade the entry has
-    - published: if its a published grade or not
-    - last_edited: when the etry was last edited
+    - last_edited: the date and time when the etry was last edited
     """
-    NEED_SUBMISSION = 'Submission need to be send to VLE'
-    SEND_SUBMISSION = 'Submission is successfully recieved by VLE'
-    GRADING = 'Grade need to be send to VLE'
-    LINK_COMPLETE = 'Everything is send to VLE'
+    NEED_SUBMISSION = 'Submission needs to be sent to VLE'
+    SEND_SUBMISSION = 'Submission is successfully received by VLE'
+    GRADING = 'Grade needs to be sent to VLE'
+    LINK_COMPLETE = 'Everything is sent to VLE'
     TYPES = (
         (NEED_SUBMISSION, 'entry_submission'),
         (SEND_SUBMISSION, 'entry_submitted'),
@@ -826,12 +916,11 @@ class Entry(models.Model):
         on_delete=models.SET_NULL,
         null=True,
     )
-    grade = models.FloatField(
-        default=None,
+    grade = models.ForeignKey(
+        'Grade',
+        on_delete=models.SET_NULL,
+        related_name='+',
         null=True,
-    )
-    published = models.BooleanField(
-        default=False
     )
     creation_date = models.DateTimeField(editable=False)
     last_edited = models.DateTimeField()
@@ -844,6 +933,12 @@ class Entry(models.Model):
     def is_locked(self):
         return (self.node.preset and self.node.preset.is_locked()) or self.node.journal.assignment.is_locked()
 
+    def is_editable(self):
+        return not self.is_graded() and not self.is_locked()
+
+    def is_graded(self):
+        return not (self.grade is None or self.grade.grade is None)
+
     def save(self, *args, **kwargs):
         if not self.pk:
             now = timezone.now()
@@ -854,6 +949,44 @@ class Entry(models.Model):
 
     def to_string(self, user=None):
         return "Entry"
+
+
+class Grade(models.Model):
+    """Grade.
+
+    Used to keep a history of grades.
+    """
+    entry = models.ForeignKey(
+        'Entry',
+        editable=False,
+        related_name='+',
+        on_delete=models.CASCADE
+    )
+    grade = models.FloatField(
+        null=True,
+        editable=False
+    )
+    published = models.BooleanField(
+        default=False,
+        editable=False
+    )
+    creation_date = models.DateTimeField(
+        editable=False,
+        auto_now_add=True
+    )
+    author = models.ForeignKey(
+        'User',
+        null=True,
+        editable=False,
+        on_delete=models.SET_NULL
+    )
+
+    def save(self, *args, **kwargs):
+        self.creation_date = timezone.now()
+        return super(Grade, self).save(*args, **kwargs)
+
+    def to_string(self, user=None):
+        return "Grade"
 
 
 class Counter(models.Model):
@@ -881,8 +1014,18 @@ class Template(models.Model):
     """
 
     name = models.TextField()
-    max_grade = models.IntegerField(
-        default=1,
+
+    format = models.ForeignKey(
+        'Format',
+        on_delete=models.CASCADE
+    )
+
+    preset_only = models.BooleanField(
+        default=False
+    )
+
+    archived = models.BooleanField(
+        default=False
     )
 
     def to_string(self, user=None):
@@ -903,7 +1046,9 @@ class Field(models.Model):
     PDF = 'p'
     URL = 'u'
     DATE = 'd'
+    DATETIME = 'dt'
     SELECTION = 's'
+    FILE_TYPES = [PDF, FILE, IMG]
     TYPES = (
         (TEXT, 'text'),
         (RICH_TEXT, 'rich text'),
@@ -913,6 +1058,7 @@ class Field(models.Model):
         (VIDEO, 'vid'),
         (URL, 'url'),
         (DATE, 'date'),
+        (DATETIME, 'datetime'),
         (SELECTION, 'selection')
     )
     type = models.TextField(
@@ -1024,44 +1170,3 @@ class Comment(models.Model):
 
     def to_string(self, user=None):
         return "Comment"
-
-
-# TODO move to array field
-class Lti_ids(models.Model):
-    """Lti ids
-
-    Contains the lti ids for course and assignments as one course/assignment
-    on our site needs to be able to link to multiple course/assignment in the
-    linked VLE.
-    """
-    ASSIGNMENT = 'Assignment'
-    COURSE = 'Course'
-    TYPES = ((ASSIGNMENT, 'Assignment'), (COURSE, 'Course'))
-
-    assignment = models.ForeignKey(
-        'Assignment',
-        on_delete=models.CASCADE,
-        null=True
-    )
-
-    course = models.ForeignKey(
-        'Course',
-        on_delete=models.CASCADE,
-        null=True
-    )
-
-    lti_id = models.TextField()
-    for_model = models.TextField(
-        choices=TYPES
-    )
-
-    def to_string(self, user=None):
-        return "Lti_ids"
-
-    class Meta:
-        """A class for meta data.
-
-        - unique_together: assignment and user must be unique together.
-        """
-
-        unique_together = ('lti_id', 'for_model',)

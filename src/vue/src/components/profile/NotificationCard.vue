@@ -1,27 +1,32 @@
 <template>
-    <b-card
-        :class="$root.getBorderClass($route.params.uID)"
-        class="no-hover multi-form"
-    >
-        <!-- TODO: enable once comment and grade notifications available - <toggle-switch
-            class="float-right"
-            :isActive="$store.getters['preferences/gradeNotifications']"
-            @parentActive="getGradeNotification"/>
-        <h2 class="field-heading multi-form">Grade updates</h2>
-        <toggle-switch
-            class="float-right"
-            :isActive="$store.getters['preferences/commentNotifications']"
-            @parentActive="getCommentNotification"/>
-        <h2 class="field-heading multi-form">Comments</h2> -->
-        <toggle-switch
-            :isActive="$store.getters['preferences/upcomingDeadlineNotifications']"
-            class="float-right"
-            @parentActive="getUpcomingDeadlineNotification"
-        />
-        <h2 class="field-heading multi-form">
-            Upcoming deadlines
-        </h2>
-    </b-card>
+    <div>
+        <h4 class="mb-2 mt-4">
+            <span>Email notifications</span>
+        </h4>
+        <b-card
+            :class="$root.getBorderClass($route.params.uID)"
+            class="no-hover multi-form"
+        >
+            <!-- TODO: enable once comment and grade notifications available - <toggle-switch
+                class="float-right"
+                :isActive="$store.getters['preferences/gradeNotifications']"
+                @parentActive="getGradeNotification"/>
+            <h2 class="field-heading multi-form">Grade updates</h2>
+            <toggle-switch
+                class="float-right"
+                :isActive="$store.getters['preferences/commentNotifications']"
+                @parentActive="getCommentNotification"/>
+            <h2 class="field-heading multi-form">Comments</h2> -->
+            <toggle-switch
+                :isActive="$store.getters['preferences/upcomingDeadlineNotifications']"
+                class="float-right"
+                @parentActive="getUpcomingDeadlineNotification"
+            />
+            <h2 class="field-heading multi-form">
+                Upcoming deadlines
+            </h2>
+        </b-card>
+    </div>
 </template>
 
 <script>

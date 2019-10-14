@@ -34,4 +34,10 @@ export default {
     getWithLti (id, connArgs = auth.DEFAULT_CONN_ARGS) {
         return auth.get(`assignments/${id}`, { lti: true }, connArgs)
     },
+
+    getCopyable (id, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.get(`assignments/${id}/copyable`, null, connArgs)
+            .then(response => response.data.data)
+    },
+
 }

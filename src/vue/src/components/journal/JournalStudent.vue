@@ -30,73 +30,87 @@
                 class="main-content-timeline-page"
             >
                 <bread-crumb v-if="$root.xl"/>
-                <div v-if="nodes.length > currentNode && currentNode !== -1">
-                    <div v-if="nodes[currentNode].type == 'e'">
-                        <entry-node
-                            ref="entry-template-card"
-                            :journal="journal"
-                            :cID="cID"
-                            :entryNode="nodes[currentNode]"
-                            @edit-node="adaptData"
-                            @delete-node="deleteNode"
-                        />
-                    </div>
-                    <div v-else-if="nodes[currentNode].type == 'd'">
-                        <div v-if="nodes[currentNode].entry !== null">
+                <b-alert
+                    v-if="journal && journal.needs_lti_link && assignment && assignment.active_lti_course"
+                    show
+                >
+                    <b>Warning:</b> You cannot update this journal until you visit the assignment in your LMS
+                    (Canvas) course '{{ assignment.active_lti_course.name }}' at least once.
+                </b-alert>
+                <load-wrapper :loading="loadingNodes">
+                    <div
+                        v-if="nodes.length > currentNode && currentNode !== -1"
+                        :class="{'input-disabled': journal && journal.needs_lti_link && assignment
+                            && assignment.active_lti_course}"
+                    >
+                        <div v-if="nodes[currentNode].type == 'e'">
                             <entry-node
                                 ref="entry-template-card"
+                                :journal="journal"
                                 :cID="cID"
                                 :entryNode="nodes[currentNode]"
                                 @edit-node="adaptData"
                                 @delete-node="deleteNode"
                             />
                         </div>
-                        <div v-else>
-                            <entry-preview
-                                v-if="!isLocked()"
-                                ref="entry-prev"
-                                :template="nodes[currentNode].template"
-                                :nodeID="nodes[currentNode].nID"
-                                :description="nodes[currentNode].description"
-                                @content-template="fillDeadline"
+                        <div v-else-if="nodes[currentNode].type == 'd'">
+                            <div v-if="nodes[currentNode].entry !== null">
+                                <entry-node
+                                    ref="entry-template-card"
+                                    :cID="cID"
+                                    :entryNode="nodes[currentNode]"
+                                    @edit-node="adaptData"
+                                    @delete-node="deleteNode"
+                                />
+                            </div>
+                            <div v-else>
+                                <entry-preview
+                                    v-if="!isLocked()"
+                                    ref="entry-prev"
+                                    :template="nodes[currentNode].template"
+                                    :nodeID="nodes[currentNode].nID"
+                                    :description="nodes[currentNode].description"
+                                    @content-template="fillDeadline"
+                                />
+                                <b-card
+                                    v-else
+                                    :class="$root.getBorderClass($route.params.cID)"
+                                    class="no-hover"
+                                >
+                                    <h2 class="mb-2">
+                                        {{ nodes[currentNode].template.name }}
+                                    </h2>
+                                    <hr class="full-width"/>
+                                    <b>This preset is locked. You cannot submit an entry at the moment.</b><br/>
+                                    {{ deadlineRange }}
+                                </b-card>
+                            </div>
+                        </div>
+                        <div v-else-if="nodes[currentNode].type == 'a'">
+                            <add-card
+                                ref="add-card-ref"
+                                :addNode="nodes[currentNode]"
+                                @info-entry="addNode"
                             />
-                            <b-card
-                                v-else
-                                :class="$root.getBorderClass($route.params.cID)"
-                                class="no-hover"
-                            >
-                                <h2 class="mb-2">
-                                    {{ nodes[currentNode].template.name }}
-                                </h2>
-                                <hr class="full-width"/>
-                                <b>This preset is locked. You cannot submit an entry at the moment.</b><br/>
-                                {{ deadlineRange }}
-                            </b-card>
+                        </div>
+                        <div v-else-if="nodes[currentNode].type == 'p'">
+                            <progress-node
+                                :currentNode="nodes[currentNode]"
+                                :nodes="nodes"
+                                :bonusPoints="journal.bonus_points"
+                            />
                         </div>
                     </div>
-                    <div v-else-if="nodes[currentNode].type == 'a'">
-                        <add-card
-                            ref="add-card-ref"
-                            :addNode="nodes[currentNode]"
-                            @info-entry="addNode"
-                        />
-                    </div>
-                    <div v-else-if="nodes[currentNode].type == 'p'">
-                        <progress-node
-                            :currentNode="nodes[currentNode]"
-                            :nodes="nodes"
-                        />
-                    </div>
-                </div>
-                <journal-start-card
-                    v-else-if="currentNode === -1"
-                    :assignment="assignment"
-                />
-                <journal-end-card
-                    v-else
-                    :assignment="assignment"
-                    :student="true"
-                />
+                    <journal-start-card
+                        v-else-if="currentNode === -1"
+                        :assignment="assignment"
+                    />
+                    <journal-end-card
+                        v-else
+                        :assignment="assignment"
+                        :student="true"
+                    />
+                </load-wrapper>
             </b-col>
         </b-col>
 
@@ -114,7 +128,7 @@
                 <progress-bar
                     v-if="journal.stats"
                     :currentPoints="journal.stats.acquired_points"
-                    :totalPoints="journal.stats.total_points"
+                    :totalPoints="assignment.points_possible"
                     :bonusPoints="journal.bonus_points"
                     :comparePoints="assignment.stats ? assignment.stats.average_points : -1"
                 />
@@ -178,6 +192,7 @@ import entryPreview from '@/components/entry/EntryPreview.vue'
 import addCard from '@/components/journal/AddCard.vue'
 import timeline from '@/components/timeline/Timeline.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import progressBar from '@/components/assets/ProgressBar.vue'
 import journalStartCard from '@/components/journal/JournalStartCard.vue'
 import journalEndCard from '@/components/journal/JournalEndCard.vue'
@@ -190,6 +205,7 @@ import entryAPI from '@/api/entry.js'
 export default {
     components: {
         breadCrumb,
+        loadWrapper,
         addCard,
         timeline,
         entryNode,
@@ -207,6 +223,7 @@ export default {
             nodes: [],
             journal: {},
             assignment: '',
+            loadingNodes: true,
         }
     },
     computed: {
@@ -228,17 +245,6 @@ export default {
             return ''
         },
     },
-    watch: {
-        currentNode () {
-            if (this.currentNode !== -1
-                && this.currentNode !== this.nodes.length
-                && this.nodes[this.currentNode].type === 'p') {
-                this.progressPoints(this.nodes[this.currentNode])
-                this.progressPointsLeft = this.nodes[this.currentNode].target
-                    - this.progressNodes[this.nodes[this.currentNode].nID]
-            }
-        },
-    },
     created () {
         assignmentAPI.get(this.aID, this.cID, { customErrorToast: 'Error while loading assignment data.' })
             .then((assignment) => {
@@ -249,6 +255,7 @@ export default {
                     journalAPI.getNodes(this.jID)
                         .then((nodes) => {
                             this.nodes = nodes
+                            this.loadingNodes = false
                             if (this.$route.query.nID !== undefined) {
                                 this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID, 10))
                             }
@@ -294,42 +301,36 @@ export default {
              *  it will look for possible unsaved changes.
              *  If there are unsaved changes a confirmation will be asked.
              */
-            if (this.currentNode !== -1
-                && this.currentNode !== this.nodes.length
-                && this.nodes[this.currentNode].type === 'd'
-                && this.nodes[this.currentNode].entry === null
-                && !this.isLocked()) {
-                if (this.$refs['entry-prev'].checkChanges()
-                    && !window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
-                    return false
+            if (this.currentNode !== -1 && this.currentNode < this.nodes.length) {
+                if (this.nodes[this.currentNode].type === 'd'
+                    && this.nodes[this.currentNode].entry === null
+                    && !this.isLocked()) {
+                    if (this.$refs['entry-prev'].checkChanges()
+                        && !window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                        return false
+                    }
                 }
-            }
 
-            if (this.currentNode !== -1
-                && this.currentNode !== this.nodes.length
-                && this.nodes[this.currentNode].type === 'd'
-                && this.nodes[this.currentNode].entry !== null) {
-                if (this.$refs['entry-template-card'].saveEditMode === 'Save'
-                    && !window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
-                    return false
+                if (this.nodes[this.currentNode].type === 'd'
+                    && this.nodes[this.currentNode].entry !== null) {
+                    if (this.$refs['entry-template-card'].saveEditMode === 'Save'
+                        && !window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                        return false
+                    }
                 }
-            }
 
-            if (this.currentNode !== -1
-                && this.currentNode !== this.nodes.length
-                && this.nodes[this.currentNode].type === 'a') {
-                if (this.$refs['add-card-ref'].checkChanges()
-                    && !window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
-                    return false
+                if (this.nodes[this.currentNode].type === 'a') {
+                    if (this.$refs['add-card-ref'].checkChanges()
+                        && !window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                        return false
+                    }
                 }
-            }
 
-            if (this.currentNode !== -1
-                && this.currentNode !== this.nodes.length
-                && this.nodes[this.currentNode].type === 'e') {
-                if (this.$refs['entry-template-card'].saveEditMode === 'Save'
-                    && !window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
-                    return false
+                if (this.nodes[this.currentNode].type === 'e') {
+                    if (this.$refs['entry-template-card'].saveEditMode === 'Save'
+                        && !window.confirm('Progress will not be saved if you leave. Do you wish to continue?')) {
+                        return false
+                    }
                 }
             }
 
@@ -357,6 +358,7 @@ export default {
             })
                 .then((data) => {
                     this.nodes = data.nodes
+                    this.loadingNodes = false
                     this.currentNode = data.added
                 })
         },

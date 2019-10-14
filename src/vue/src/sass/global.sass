@@ -1,5 +1,6 @@
 @import '~sass/modules/colors.sass'
 @import '~sass/modules/breakpoints.sass'
+@import '~sass/modules/keyframe-prefixes.sass'
 
 @import '~sass/partials/shadows.sass'
 @import '~sass/partials/buttons.sass'
@@ -28,7 +29,7 @@
 
 body
     /* Background pattern from Toptal Subtle Patterns */
-    background-image: url(/static/background.png)
+    background-image: url(/background.png)
 
 a, select, input
     outline: 0
@@ -83,12 +84,15 @@ a:hover
 .info
     background-color: $theme-blue !important
 
-.error, .success, .warning
+.error, .success, .warning, .info
     font-family: 'Roboto Condensed', sans-serif !important
     font-size: 1.1em !important
+    color: white
 
 .badge, .toasted
-    border-radius: 5px !important
+    border-radius: 5px
 
-.text-white
-    color: white
+.fade-enter-active, .fade-leave-active
+  transition: opacity .5s
+.fade-enter, .fade-leave-to
+  opacity: 0

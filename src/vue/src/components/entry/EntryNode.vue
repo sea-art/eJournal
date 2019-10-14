@@ -14,10 +14,10 @@
             :class="$root.getBorderClass(cID)"
         >
             <div
-                v-if="entryNode.entry.published"
+                v-if="gradePublished"
                 class="ml-2 btn float-right multi-form shadow no-hover"
             >
-                {{ entryNode.entry.grade }}
+                {{ entryNode.entry.grade.grade }}
             </div>
 
             <h2 class="mb-2">
@@ -61,10 +61,10 @@
             :class="$root.getBorderClass(cID)"
         >
             <div
-                v-if="entryNode.entry.published"
+                v-if="gradePublished"
                 class="ml-2 grade-section grade shadow"
             >
-                {{ entryNode.entry.grade }}
+                {{ entryNode.entry.grade.grade }}
             </div>
             <div
                 v-else-if="!entryNode.entry.editable"
@@ -99,7 +99,7 @@
                 :template="entryNode.entry.template"
                 :completeContent="completeContent"
                 :displayMode="true"
-                :journalID="$parent.journal.id"
+                :journalID="journal.id"
                 :entryID="entryNode.entry.id"
             />
             <hr class="full-width"/>
@@ -127,14 +127,14 @@
 
         <comment-card
             :eID="entryNode.entry.id"
-            :entryGradePublished="entryNode.entry.published"
+            :entryGradePublished="gradePublished"
             :journal="journal"
         />
     </div>
 </template>
 
 <script>
-import commentCard from '@/components/journal/CommentCard.vue'
+import commentCard from '@/components/entry/CommentCard.vue'
 import entryFields from '@/components/entry/EntryFields.vue'
 
 export default {
@@ -154,6 +154,11 @@ export default {
             dismissCountDown: 0,
             showDismissibleAlert: false,
         }
+    },
+    computed: {
+        gradePublished () {
+            return this.entryNode.entry && this.entryNode.entry.grade && this.entryNode.entry.grade.published
+        },
     },
     watch: {
         entryNode () {
@@ -196,7 +201,7 @@ export default {
             let matchFound
             /* Loads in the data of an entry in the right order by matching
              * the different data-fields with the corresponding template-IDs. */
-            this.entryNode.entry.template.field_set.forEach((templateField) => {
+            this.entryNode.entry.template.field_set.sort((a, b) => a.location - b.location).forEach((templateField) => {
                 matchFound = false
 
                 matchFound = this.entryNode.entry.content.some((content) => {
@@ -223,7 +228,7 @@ export default {
         checkFilled () {
             for (let i = 0; i < this.completeContent.length; i++) {
                 const content = this.completeContent[i]
-                const field = this.entryNode.entry.template.field_set[i]
+                const field = this.entryNode.entry.template.field_set.sort((a, b) => a.location - b.location)[i]
                 if (field.required && !content.data) {
                     return false
                 }

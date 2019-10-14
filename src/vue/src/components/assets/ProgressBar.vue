@@ -20,13 +20,13 @@
                 class="own-bar"
             />
             <b-progress-bar
-                v-if="comparePoints !== -1 && comparePoints > currentPoints"
-                :value="Math.abs(comparePoints - currentPoints)"
+                v-if="currentPoints < totalPoints && comparePoints !== -1 && comparePoints > currentPoints"
+                :value="Math.min(totalPoints - currentPoints, Math.abs(comparePoints - currentPoints))"
                 class="compare-bar"
             />
             <b-progress-bar
-                v-else-if="comparePoints !== -1"
-                :value="Math.abs(comparePoints - currentPoints)"
+                v-else-if="currentPoints < totalPoints && comparePoints !== -1"
+                :value="Math.max(totalPoints - currentPoints, Math.abs(comparePoints - currentPoints))"
                 class="compare-bar ahead"
             />
         </b-progress>

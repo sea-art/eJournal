@@ -4,13 +4,14 @@
   file:
     state: absent
     path: "{{ frontend_web_dir }}/"
-  tags: deploy
 
 - name: Recreate {{ frontend_web_dir }} directory
   file:
     state: directory
     path: "{{ frontend_web_dir }}/"
-  tags: deploy
+    owner: "{{ nginx_user }}"
+    group: "{{ nginx_group }}"
+    mode: 0755
 
 # NOTE: This route is not recommended for low end vps box, will require larger swap (npm install)
 # - name: Install npm
@@ -39,6 +40,11 @@
 - name: Build the vuejs files to be deployed (LOCALLY) (Should not require sudo...)
   local_action: shell npm run build --prefix ../src/vue
   become: no
+  environment:
+    API_URL: "{{ api_url }}"
+    SENTRY_DSN: "{{ sentry_dsn }}"
+    SENTRY_ORGANIZATION_SLUG: "{{ sentry_organization_slug }}"
+    SENTRY_PROJECT_SLUG: "{{ sentry_project_slug }}"
 
 # TODO Find a better solution for synchronize no tty present errors
 - name: (DEBUG) Allow RSYNC for user {{ server_user }} without SUDO password
@@ -47,14 +53,12 @@
     state: present
     insertafter: '^%sudo'
     line: "{{ server_user }} ALL=NOPASSWD: /usr/bin/rsync"
-  tags: deploy
 
 - name: Copy the vuejs files over to {{ frontend_web_dir }}
   synchronize:
     src: ../src/vue/dist/
     dest: "{{ frontend_web_dir }}/"
     recursive: yes
-  tags: deploy
 
 - name: (DEBUG) Disallow RSYNC for user {{ server_user }} without SUDO password
   lineinfile:
@@ -62,19 +66,11 @@
     state: absent
     insertafter: '^%sudo'
     line: "{{ server_user }} ALL=NOPASSWD: /usr/bin/rsync"
-  tags: deploy
 
-# TODO Find a more clean solution, best would be to set it local during the build (or remote during the build)
-- name: Find all deployed javascript files
-  find:
-    paths: "{{ frontend_web_dir }}/static/js/"
-  register: javascript_files
-  tags: deploy
-
-- name: Set the correct API url in all javascript files
-  replace:
-    path: "{{ item.path }}"
-    regexp: "http://localhost:8000/"
-    replace: "https://api.{{ inventory_hostname }}/"
-  with_items: "{{ javascript_files.files }}"
-  tags: deploy
+- name: Ensure that the frontend file permissions are set properly
+  file: path={{ frontend_web_dir }}
+        recurse=yes
+        owner={{ nginx_user }}
+        group={{ nginx_group }}
+        mode=0755
+  changed_when: false

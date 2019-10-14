@@ -54,7 +54,7 @@ export default {
             case 'needs_grading':
                 return 'exclamation'
             case 'needs_publishing':
-                return 'eye'
+                return 'eye-slash'
             case 'add':
                 return 'plus'
             case 'start':
@@ -80,7 +80,11 @@ export default {
             case 'needs_publishing':
                 return 'Awaiting publishment'
             case 'add':
-                return 'Add new entry'
+                if (this.edit) {
+                    return 'Add new preset'
+                } else {
+                    return 'Add new entry'
+                }
             case 'start':
             case 'end':
                 return 'Assignment details'
@@ -151,7 +155,7 @@ export default {
             const entry = this.node.entry
             const isGrader = this.$hasPermission('can_grade')
 
-            if (entry && entry.published) {
+            if (entry && entry.grade && entry.grade.published) {
                 return 'graded'
             } else if (!entry && this.lockDateHasPassed()) {
                 return 'failed'
@@ -159,11 +163,11 @@ export default {
                 return 'overdue'
             } else if (!entry && !this.dueDateHasPassed()) {
                 return 'empty'
-            } else if (!isGrader && entry && !entry.published) {
+            } else if (!isGrader && entry && !entry.grade && !entry.editable) {
                 return 'awaiting_grade'
-            } else if (isGrader && entry && !entry.grade) {
+            } else if (isGrader && entry && (!entry.grade || !entry.grade.grade)) {
                 return 'needs_grading'
-            } else if (isGrader && entry && !entry.published) {
+            } else if (isGrader && entry && entry.grade && !entry.grade.published) {
                 return 'needs_publishing'
             }
 

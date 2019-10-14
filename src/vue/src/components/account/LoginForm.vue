@@ -23,7 +23,6 @@
                     required
                     placeholder="Password"
                     autocomplete="current-password"
-                    @keyup.enter="handleLogin()"
                 />
                 <b-button
                     class="float-right multi-form"
@@ -34,7 +33,7 @@
                 </b-button>
                 <b-button
                     v-b-modal.forgotPasswordModal
-                    class="multi-form change-button"
+                    class="multi-form change-button mr-2"
                 >
                     <icon name="question"/>
                     Forgot password
@@ -134,7 +133,7 @@ export default {
         handleLogin () {
             this.$store.dispatch('user/login', { username: this.username, password: this.password })
                 .then(() => { this.$emit('handleAction') })
-                .catch(() => { this.$toasted.error('Could not login') })
+                .catch(() => { this.$toasted.error('Incorrect username or password.') })
         },
     },
 }

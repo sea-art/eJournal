@@ -71,7 +71,7 @@ class Command(BaseCommand):
             },
             "Teacher": {
                 "username": "Teacher",
-                "full_name": "Xavier van Dommelen",
+                "full_name": "Engel Hamer",
                 "password": "pass",
                 "email": "test@eJourn.al",
                 "verified_email": True,
@@ -116,28 +116,28 @@ class Command(BaseCommand):
     def gen_courses(self):
         """Generate courses."""
         courses_examples = {
-            "Portfolio Academische Vaardigheden 1": {
+            "Portfolio Academische Vaardigheden - Cohort 1": {
                 "pk": 1697,
-                "name": "Portfolio Academische Vaardigheden 1",
+                "name": "Portfolio Academische Vaardigheden - Cohort 1",
                 "abbr": "PAV1",
                 "author": self.users["Teacher"],
                 "students": [self.users[s] for s in ["Student", "Student2", "Student3", "Student4", "Student5"]],
                 "teachers": [self.users["Teacher"]],
                 "tas": [self.users["TA"]],
                 "start_date": faker.date("2018-09-01"),
-                "end_date": faker.date("2019-09-01"),
+                "end_date": faker.date("2021-07-31"),
                 "student_group_names": ["Cobol", "Smalltalk"]
             },
-            "Portfolio Academische Vaardigheden 2": {
+            "Portfolio Academische Vaardigheden - Cohort 2": {
                 "pk": 1698,
-                "name": "Portfolio Academische Vaardigheden 2",
+                "name": "Portfolio Academische Vaardigheden - Cohort 2",
                 "abbr": "PAV2",
                 "author": self.users["Teacher"],
                 "students": [self.users[s] for s in ["Student", "Student2", "Student3", "Student4", "Student5"]],
                 "teachers": [self.users["Teacher"]],
                 "tas": [self.users["TA2"]],
-                "start_date": faker.date("2018-09-01"),
-                "end_date": faker.date("2019-09-01"),
+                "start_date": faker.date("2019-09-01"),
+                "end_date": faker.date("2022-07-31"),
                 "student_group_names": ["Algol", "Ruby"]
             }
         }
@@ -164,13 +164,11 @@ class Command(BaseCommand):
 
             self.courses[c["name"]] = course
 
-    def gen_templates(self):
+    def gen_templates(self, format):
         """Generate templates.
 
         One with title, summary, experience, requested points and proof.
-        One with only a title.
-        One with only an image.
-        One with only a file.
+        One with only text.
         """
         template_examples = [
             {
@@ -180,35 +178,35 @@ class Command(BaseCommand):
                     {"title": "Summary", "location": 1, "type": Field.RICH_TEXT},
                     {"title": "Experience", "location": 2, "type": Field.RICH_TEXT},
                     {"title": "Requested Points", "location": 3, "type": Field.TEXT},
+                    {"title": "Proof", "location": 4, "type": Field.IMG},
                 ]
             },
             {
-                "name": "Default Text",
+                "name": "Mentorgesprek",
                 "fields": [
                     {"title": "Text", "location": 0, "type": Field.TEXT},
                 ]
             }
         ]
 
-        self.templates = []
+        templates = []
         for t in template_examples:
-            template = factory.make_entry_template(t["name"])
+            template = factory.make_entry_template(t["name"], format)
+            templates.append(template)
             for f in t["fields"]:
                 factory.make_field(template, f["title"], f["location"], f["type"])
 
-            self.templates.append(template)
+        return templates
 
     def gen_format(self):
         """Generate a format."""
         format_examples = [
             {
-                "templates": [0, 1],
                 "presets": [
                     {"type": Node.PROGRESS, "points": 10},
                 ]
             },
             {
-                "templates": [0],
                 "presets": [
                     {"type": Node.PROGRESS, "points": 5},
                     {"type": Node.PROGRESS, "points": 1, "description": "1 day", "deadline_days": 1},
@@ -227,8 +225,8 @@ class Command(BaseCommand):
 
         self.formats = []
         for f in format_examples:
-            templates = [self.templates[template] for template in f["templates"]]
-            format = factory.make_format(templates)
+            format = factory.make_default_format()
+            templates = self.gen_templates(format)
 
             for p in f["presets"]:
                 if "deadline_days" in p:
@@ -242,7 +240,7 @@ class Command(BaseCommand):
                         node.description = p["description"]
                         node.save()
                 elif p["type"] == Node.ENTRYDEADLINE:
-                    factory.make_entrydeadline_node(format, due_date, self.templates[p["template"]])
+                    factory.make_entrydeadline_node(format, due_date, templates[p["template"]])
 
             self.formats.append(format)
 
@@ -253,8 +251,8 @@ class Command(BaseCommand):
                 "name": "Logboek",
                 "description": "This is a logboek for all your logging purposes",
                 "courses": [
-                    self.courses["Portfolio Academische Vaardigheden 1"],
-                    self.courses["Portfolio Academische Vaardigheden 2"]
+                    self.courses["Portfolio Academische Vaardigheden - Cohort 1"],
+                    self.courses["Portfolio Academische Vaardigheden - Cohort 2"]
                 ],
                 "format": 0,
                 "author": self.users["Teacher"],
@@ -263,7 +261,7 @@ class Command(BaseCommand):
             {
                 "name": "Colloquium",
                 "description": "This is the best colloquium logbook in the world",
-                "courses": [self.courses["Portfolio Academische Vaardigheden 1"]],
+                "courses": [self.courses["Portfolio Academische Vaardigheden - Cohort 1"]],
                 "format": 1,
                 "author": self.users["Teacher"],
                 "group_size": 0,
@@ -311,19 +309,22 @@ class Command(BaseCommand):
                 if node.type == Node.ENTRYDEADLINE:
                     entry = factory.make_entry(node.preset.forced_template)
                     entry.late = faker.boolean()
-                    entry.grade = random.randint(1, 10)
                     entry.save()
+
+                    factory.make_grade(entry, self.users['Teacher'].pk, random.randint(1, 10), faker.boolean())
 
                     node.entry = entry
 
-            if journal.assignment.format.available_templates.count() > 0:
+            if journal.assignment.format.template_set.filter(archived=False, preset_only=False).count() > 0:
                 random_entries = random.randint(0, 8)
                 for _ in range(random_entries):
-                    template = random.choice(journal.assignment.format.available_templates.all())
+                    template = random.choice(journal.assignment.format.template_set.filter(archived=False,
+                                                                                           preset_only=False))
                     entry = factory.make_entry(template)
                     entry.late = faker.boolean()
-                    entry.grade = random.randint(1, 10)
                     entry.save()
+
+                    factory.make_grade(entry, self.users['Teacher'].pk, random.randint(1, 10), faker.boolean())
 
                     factory.make_node(journal, entry)
 
@@ -350,7 +351,6 @@ class Command(BaseCommand):
         """
         self.gen_users()
         self.gen_courses()
-        self.gen_templates()
         self.gen_format()
         self.gen_assignments()
         self.gen_journals()

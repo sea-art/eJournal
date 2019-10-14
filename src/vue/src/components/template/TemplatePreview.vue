@@ -3,7 +3,7 @@
     <div>
         <h2>{{ template.name }}</h2>
         <div
-            v-for="(field, i) in template.field_set"
+            v-for="(field, i) in sortedFields"
             :key="field.eID"
             class="multi-form"
         >
@@ -19,7 +19,7 @@
                 :content="field.description"
             />
 
-            <b-textarea
+            <b-input
                 v-if="field.type == 't'"
                 class="theme-input input-disabled"
             />
@@ -68,6 +68,10 @@
                 v-else-if="field.type == 'd'"
                 class="input-disabled theme-input full-width"
             />
+            <flat-pickr
+                v-else-if="field.type == 'dt'"
+                class="input-disabled theme-input full-width"
+            />
             <b-form-select
                 v-else-if="field.type == 's'"
                 :value="null"
@@ -92,6 +96,11 @@ export default {
         sandboxedIframe,
     },
     props: ['template'],
+    computed: {
+        sortedFields () {
+            return this.template.field_set.slice(0).sort((a, b) => a.location - b.location)
+        },
+    },
     methods: {
         parseSelectionOptions (fieldOptions) {
             if (!fieldOptions) {

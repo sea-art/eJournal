@@ -10,12 +10,11 @@ from rest_framework.decorators import action
 
 import VLE.factory as factory
 import VLE.lti_grade_passback as lti_grade
-import VLE.tasks.grading as grading_tasks
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 import VLE.validators as validators
-from VLE.models import Assignment, Course, Journal, Lti_ids, User
-from VLE.serializers import AssignmentSerializer
+from VLE.models import Assignment, Course, Journal, User
+from VLE.serializers import AssignmentDetailsSerializer, AssignmentSerializer, CourseSerializer
 from VLE.utils.error_handling import VLEMissingRequiredKey, VLEParamWrongType
 
 
@@ -48,11 +47,11 @@ class AssignmentView(viewsets.ViewSet):
 
         """
         try:
-            course_id, = utils.optional_typed_params(request.query_params, (int, 'course_id'))
+            course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
             course = Course.objects.get(pk=course_id)
             request.user.check_participation(course)
             courses = [course]
-        except VLEParamWrongType:
+        except (VLEMissingRequiredKey, VLEParamWrongType):
             course = None
             courses = request.user.participations.all()
 
@@ -62,7 +61,7 @@ class AssignmentView(viewsets.ViewSet):
 
         data = serializer.data
         for i, assignment in enumerate(data):
-            data[i]['lti_couples'] = len(Lti_ids.objects.filter(assignment=assignment['id']))
+            data[i]['lti_couples'] = len(Assignment.objects.get(id=assignment['id']).lti_id_set)
         return response.success({'assignments': data})
 
     def create(self, request):
@@ -77,7 +76,7 @@ class AssignmentView(viewsets.ViewSet):
             unlock_date -- (optional) date the assignment becomes available on
             due_date -- (optional) date the assignment is due for
             lock_date -- (optional) date the assignment becomes unavailable on
-            lti_id -- id labeled link to LTI instance
+            lti_id -- (optional) id labeled link to LTI instance
 
         Returns:
         On failure:
@@ -90,24 +89,27 @@ class AssignmentView(viewsets.ViewSet):
             success -- with the assignment data
 
         """
-        name, description, course_id, points_possible = utils.required_typed_params(
-            request.data, (str, 'name'), (str, 'description'), (int, 'course_id'), (float, 'points_possible'))
-        unlock_date, due_date, lock_date, lti_id, is_published, group_size = \
+        name, description, course_id = utils.required_typed_params(
+            request.data, (str, 'name'), (str, 'description'), (int, 'course_id'))
+        unlock_date, due_date, lock_date, lti_id, is_published, group_size, points_possible = \
             utils.optional_typed_params(
                 request.data, (str, 'unlock_date'), (str, 'due_date'), (str, 'lock_date'),
-                (str, 'lti_id'), (bool, 'is_published'), (int, 'group_size'))
+                (str, 'lti_id'), (bool, 'is_published'), (int, 'group_size'), (float, 'points_possible'))
         course = Course.objects.get(pk=course_id)
 
         request.user.check_permission('can_add_assignment', course)
 
-        assignment = factory.make_assignment(
-            name, description, courses=[course], author=request.user, lti_id=lti_id, points_possible=points_possible,
-            unlock_date=unlock_date, due_date=due_date, lock_date=lock_date, is_published=is_published,
-            group_size=group_size)
+        assignment = factory.make_assignment(name, description, courses=[course],
+                                             author=request.user, active_lti_id=active_lti_id,
+                                             points_possible=points_possible,
+                                             unlock_date=unlock_date, due_date=due_date,
+                                             lock_date=lock_date, is_published=is_published)
 
-        if is_published and group_size is None:
-            print("Making journals")
-            print(is_published)
+        if active_lti_id is not None:
+            course.set_assignment_lti_id_set(active_lti_id)
+            course.save()
+
+        if group_size is None:
             for user in course.users.all():
                 factory.make_journal(assignment, user)
 
@@ -138,7 +140,7 @@ class AssignmentView(viewsets.ViewSet):
 
         """
         if 'lti' in request.query_params:
-            assignment = Assignment.objects.get(lti_ids__lti_id=pk, lti_ids__for_model=Lti_ids.ASSIGNMENT)
+            assignment = Assignment.objects.get(lti_id_set__contains=[pk])
         else:
             assignment = Assignment.objects.get(pk=pk)
 
@@ -179,22 +181,14 @@ class AssignmentView(viewsets.ViewSet):
         pk, = utils.required_typed_params(kwargs, (int, 'pk'))
         assignment = Assignment.objects.get(pk=pk)
 
-        response_data = {}
+        request.user.check_permission('can_edit_assignment', assignment)
 
-        # Publish grades of the assignment
-        publish_grades, = utils.optional_params(request.data, 'published')
-        if publish_grades:
-            request.user.check_permission('can_publish_grades', assignment)
-            grading_tasks.publish_all_assignment_grades(assignment.pk, publish_grades)
-            response_data['published'] = publish_grades
+        response_data = {}
 
         # Remove data that must not be changed by the serializer
         req_data = request.data
-        req_data.pop('published', None)
         if not (request.user.is_superuser or request.user == assignment.author):
             req_data.pop('author', None)
-        if not req_data:
-            return response.success(response_data)
 
         is_published, group_size, is_group_assignment = utils.optional_typed_params(
             request.data, (bool, 'is_published'), (int, 'group_size'), (bool, 'is_group_assignment'))
@@ -218,9 +212,33 @@ class AssignmentView(viewsets.ViewSet):
                 for user in course.users.all():
                     factory.make_journal(assignment, user)
 
-        # Add LTI ids
+        # Check if the assignment can be unpublished
+        is_published, = utils.optional_params(request.data, 'is_published')
+        if not assignment.can_unpublish() and is_published is False:
+            return response.bad_request('You cannot unpublish an assignment that already has submissions.')
+
+        active_lti_course, = utils.optional_typed_params(request.data, (int, 'active_lti_course'))
+        if active_lti_course is not None:
+            course = Course.objects.get(pk=active_lti_course)
+            active_lti_id = assignment.get_course_lti_id(course)
+            if active_lti_id:
+                assignment.active_lti_id = active_lti_id
+                assignment.save()
+
+        # Rename lti id key for serializer
         if 'lti_id' in req_data:
-            factory.make_lti_ids(lti_id=req_data['lti_id'], for_model=Lti_ids.ASSIGNMENT, assignment=assignment)
+            course_id, = utils.required_params(request.data, 'course_id')
+            course = Course.objects.get(pk=course_id)
+            request.user.check_permission('can_add_assignment', course)
+            if course in assignment.courses.all():
+                return response.bad_request('Assignment already used in course.')
+            course.set_assignment_lti_id_set(req_data['lti_id'])
+            course.save()
+            assignment.courses.add(course)
+            assignment.save()
+            for user in User.objects.filter(participation__course=course).exclude(journal__assignment=assignment):
+                factory.make_journal(assignment, user)
+            req_data['active_lti_id'] = req_data.pop('lti_id')
 
         # Update the other data
         serializer = AssignmentSerializer(assignment, data=req_data, context={'user': request.user}, partial=True)
@@ -256,8 +274,21 @@ class AssignmentView(viewsets.ViewSet):
 
         request.user.check_permission('can_delete_assignment', course)
 
+        intersecting_assignment_lti_id = assignment.get_course_lti_id(course)
+        if intersecting_assignment_lti_id:
+            if assignment.active_lti_id == intersecting_assignment_lti_id and len(assignment.lti_id_set) > 1:
+                return response.bad_request('This assignment cannot be removed from this course, since it is' +
+                                            ' currently configured for grade passback to the LMS')
+            course.assignment_lti_id_set.remove(intersecting_assignment_lti_id)
+            assignment.lti_id_set.remove(intersecting_assignment_lti_id)
+            course.save()
+
         assignment.courses.remove(course)
         assignment.save()
+
+        if assignment.active_lti_id is not None and assignment.active_lti_id in course.assignment_lti_id_set:
+            course.assignment_lti_id_set.remove(assignment.active_lti_id)
+            course.save()
 
         # If the assignment is only connected to one course, delete it completely
         if assignment.courses.count() == 0:
@@ -285,6 +316,7 @@ class AssignmentView(viewsets.ViewSet):
         try:
             course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
             course = Course.objects.get(pk=course_id)
+            request.user.check_participation(course)
             courses = [course]
         except (VLEMissingRequiredKey, VLEParamWrongType):
             course = None
@@ -374,3 +406,25 @@ class AssignmentView(viewsets.ViewSet):
             lti_grade.replace_result(journal)
 
         return response.success()
+
+    @action(methods=['get'], detail=True)
+    def copyable(self, request, pk):
+        """Get all assignments that a user can copy a format from, except for the current assignment.
+
+        Arguments:
+        pk -- assignment ID
+
+        Returns a list of tuples consisting of courses and copyable assignments."""
+        courses = Course.objects.filter(participation__user=request.user.id,
+                                        participation__role__can_edit_assignment=True)
+
+        copyable = []
+        for course in courses:
+            assignments = Assignment.objects.filter(courses=course).exclude(pk=pk)
+            if assignments:
+                copyable.append({
+                    'course': CourseSerializer(course).data,
+                    'assignments': AssignmentDetailsSerializer(assignments, context={'user': request.user},
+                                                               many=True).data
+                })
+        return response.success({'data': copyable})

@@ -94,7 +94,7 @@ def get_new_assignment_response(lti_params, course, role):
         raise VLEMissingRequiredKey(err.args[0])
 
 
-def get_finish_state(user, assignment):
+def get_finish_state(user, assignment, lti_params):
     if user.has_permission('can_view_all_journals', assignment):
         return LTI_STATES.FINISH_T.value
     else:
@@ -128,13 +128,14 @@ def get_lti_params_from_jwt(request, jwt_params):
         return get_new_assignment_response(lti_params, course, role)
 
     # Select a journal
-    journal = lti.select_create_journal(lti_params, user, assignment)
+    if user.has_permission('can_have_journal', assignment):
+        journal = lti.select_create_journal(lti_params, user, assignment)
 
     return response.success(payload={'params': {
-        'state': get_finish_state(user, assignment),
+        'state': get_finish_state(user, assignment, lti_params),
         'cID': course.pk,
         'aID': assignment.pk,
-        'jID': journal.pk if journal is not None else None,
+        'jID': journal.pk if user.has_permission('can_have_journal', assignment) else None,
     }})
 
 

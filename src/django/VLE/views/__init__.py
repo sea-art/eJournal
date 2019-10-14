@@ -5,10 +5,11 @@ from VLE.views.comment import CommentView
 from VLE.views.course import CourseView
 from VLE.views.entry import EntryView
 from VLE.views.format import FormatView
+from VLE.views.grade import GradeView
 from VLE.views.group import GroupView
-from VLE.views.member import MemberView
 from VLE.views.instance import InstanceView
 from VLE.views.journal import JournalView
+from VLE.views.member import MemberView
 from VLE.views.node import NodeView
 from VLE.views.participation import ParticipationView
 from VLE.views.preferences import PreferencesView
@@ -29,6 +30,7 @@ router.register(r'participations', ParticipationView, basename='participation')
 router.register(r'preferences', PreferencesView, basename='preferences')
 router.register(r'journals', JournalView, basename='journal')
 router.register(r'entries', EntryView, basename='entry')
+router.register(r'grades', GradeView, basename='grades')
 router.register(r'formats', FormatView, basename='format')
 
 urlpatterns = router.urls

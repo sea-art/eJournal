@@ -24,7 +24,7 @@
             :to="{ name: 'Home' }"
             class="brand-name text-shadow"
         >
-            <img src="static/ejournal-logo-white.svg"/>
+            <img src="/ejournal-logo-white.svg"/>
         </b-navbar-brand>
 
         <b-navbar-toggle
@@ -120,10 +120,13 @@
             :to="{ name: 'Guest' }"
             class="brand-name"
         >
-            <img src="static/ejournal-logo-white.svg"/>
+            <img src="/ejournal-logo-white.svg"/>
         </b-navbar-brand>
 
-        <b-navbar-nav class="ml-auto">
+        <b-navbar-nav
+            v-if="$route.name !== 'LtiLogin'"
+            class="ml-auto"
+        >
             <b-nav-dropdown
                 id="nav-dropdown-options"
                 ref="loginDropdown"
@@ -164,7 +167,7 @@ import instanceAPI from '@/api/instance.js'
 export default {
     data () {
         return {
-            defaultProfileImg: '/static/unknown-profile.png',
+            defaultProfileImg: '/unknown-profile.png',
             allowRegistration: null,
         }
     },
@@ -202,7 +205,8 @@ export default {
         &:hover
             > svg
                 fill: $theme-medium-grey !important
-        &.active
+        &.router-link-active
+            color: white
             > svg
                 fill: $theme-orange !important
     .brand-name
@@ -285,9 +289,5 @@ export default {
     display: flex
     align-items: center
     justify-content: center
-    &.fade-enter-active, &.fade-leave-active
-        transition: opacity .5s
-    &.fade-enter, &.fade-leave-to
-        opacity: 0
 
 </style>

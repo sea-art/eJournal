@@ -14,8 +14,7 @@ import VLE.permissions as permissions
 import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 import VLE.validators as validators
-from VLE.models import (Assignment, Content, Entry, Instance, Journal, Node,
-                        User, UserFile)
+from VLE.models import Assignment, Content, Entry, Instance, Journal, Node, User, UserFile
 from VLE.serializers import EntrySerializer, OwnUserSerializer, UserSerializer
 from VLE.tasks import send_email_verification_link
 from VLE.utils import file_handling
@@ -133,7 +132,7 @@ class UserView(viewsets.ViewSet):
         validators.validate_password(password)
         user = User(username=username, email=email, lti_id=lti_id, full_name=full_name,
                     is_teacher=is_teacher, verified_email=bool(lti_id),
-                    profile_picture=user_image if user_image else '/static/unknown-profile.png')
+                    profile_picture=user_image if user_image else '/unknown-profile.png')
         user.set_password(password)
 
         user.full_clean()
@@ -321,7 +320,12 @@ class UserView(viewsets.ViewSet):
         On success:
             success -- a zip file of all the userdata with all their files
         """
-        if int(pk) == 0:
+        try:
+            pk = int(pk)
+        except ValueError:
+            return response.bad_request('We can\'t find the file you are looking for.')
+
+        if pk == 0:
             pk = request.user.id
 
         file_name, entry_id, node_id, content_id = utils.required_typed_params(
@@ -343,7 +347,8 @@ class UserView(viewsets.ViewSet):
     def upload(self, request):
         """Upload a user file.
 
-        No validation is performed beyond a size check of the file and the available space for the user.
+        Checks available space for the user and max file size.
+        If the file is intended for an entry, checks if the user can edit the entry.
         At the time of creation, the UserFile is uploaded but not attached to an entry yet. This UserFile is treated
         as temporary untill the actual entry is created and the node and content are updated.
 
@@ -377,6 +382,7 @@ class UserView(viewsets.ViewSet):
             except Content.DoesNotExist:
                 return response.bad_request('Content with id {:s} was not found.'.format(content_id))
 
+            request.user.check_can_edit(content.entry)
             factory.make_user_file(request.FILES['file'], request.user, assignment, content=content)
 
         return response.success(description='Successfully uploaded {:s}.'.format(request.FILES['file'].name))

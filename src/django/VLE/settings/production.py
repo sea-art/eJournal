@@ -25,17 +25,18 @@ CORS_ORIGIN_REGEX_WHITELIST = (
     r'^(https?://)?(\w+\.)?ejournal\.app$',
 )
 
-USER_MAX_FILE_SIZE_BYTES = 2097152
+USER_MAX_FILE_SIZE_BYTES = 10485760
 USER_MAX_TOTAL_STORAGE_BYTES = 104857600
-USER_MAX_EMAIL_ATTACHMENT_BYTES = 2097152
+USER_MAX_EMAIL_ATTACHMENT_BYTES = 10485760
 
 MIDDLEWARE = ['corsheaders.middleware.CorsMiddleware'] + MIDDLEWARE
 ALLOWED_HOSTS = ['.ejournal.app', '.ejourn.al', '.canvas.uva.nl']
 
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
-# NOTE: Remove this header to allow Canvas to load ejournal in an iframe
+# NOTE: CSP takes presedence over X_FRAME if both are supported
 X_FRAME_OPTIONS = 'DENY'
+CSP_DEFAULT_SRC = ("'self'", 'canvas.uva.nl')
 SECURE_BROWSER_XSS_FILTER = True
 
 DEBUG = False
