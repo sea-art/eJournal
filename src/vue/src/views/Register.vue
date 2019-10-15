@@ -1,15 +1,17 @@
 <template>
     <content-single-column>
         <bread-crumb/>
-        <register-user
-            v-if="!accountCreated"
-            @handleAction="accountCreated=true"
-        />
         <b-card
-            v-if="accountCreated"
             class="no-hover"
         >
-            <b-form @submit.prevent="verifyEmail">
+            <register-user
+                v-if="!accountCreated"
+                @handleAction="accountCreated=true"
+            />
+            <b-form
+                v-else
+                @submit.prevent="verifyEmail"
+            >
                 <h2 class="field-heading">
                     Email verification token
                 </h2>

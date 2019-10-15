@@ -1,17 +1,5 @@
 <template>
-    <b-card class="no-hover">
-        <h2
-            v-if="lti"
-            class="field-heading"
-        >
-            Username
-        </h2>
-        <b-input
-            v-if="lti"
-            :value="lti.username"
-            class="multi-form theme-input"
-            disabled
-        />
+    <div>
         <b-form
             @submit.prevent="onSubmit"
             @reset.prevent="onReset"
@@ -45,7 +33,7 @@
                 required
             />
             <h2 class="field-heading">
-                Password
+                New password
             </h2>
             <b-input
                 v-model="form.password"
@@ -55,7 +43,7 @@
                 required
             />
             <h2 class="field-heading">
-                Repeat password
+                Repeat new password
             </h2>
             <b-input
                 v-model="form.password2"
@@ -92,7 +80,7 @@
                 Create account
             </b-button>
         </b-form>
-    </b-card>
+    </div>
 </template>
 
 <script>
