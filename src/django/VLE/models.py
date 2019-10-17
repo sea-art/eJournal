@@ -396,12 +396,11 @@ class Group(models.Model):
 
     lti_id = models.TextField(
         null=True,
-        unique=False,
     )
 
     class Meta:
         """Meta data for the model: unique_together."""
-        unique_together = ('name', 'course')
+        unique_together = ('lti_id', 'course')
 
     def to_string(self, user=None):
         if user is None:

@@ -26,8 +26,8 @@
                     </option>
                     <option
                         v-for="group in groups"
-                        :key="group.name"
-                        :value="group.name"
+                        :key="group.id"
+                        :value="group.id"
                     >
                         {{ group.name }}
                     </option>
@@ -363,7 +363,7 @@ export default {
                    group of the user provided that yields journals. */
                 if (!this.getSelfSetGroupFilter && participant && participant.groups) {
                     participant.groups.some((group) => {
-                        this.setJournalGroupFilter(group.name)
+                        this.setJournalGroupFilter(group.id)
                         if (this.filteredJournals.length === 0) {
                             this.setJournalGroupFilter(null)
                             return false
