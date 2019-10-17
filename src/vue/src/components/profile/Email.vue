@@ -2,8 +2,8 @@
     <div>
         <b-input-group class="multi-form">
             <b-input
-                :value="$store.getters['user/email']"
-                readonly
+                v-model="email"
+                :readonly="$store.getters['user/verifiedEmail']"
                 class="theme-input"
                 type="text"
             />
@@ -69,10 +69,20 @@ export default {
             emailVerificationTokenMessage: null,
         }
     },
+    computed: {
+        email: {
+            get () {
+                return this.$store.getters['user/email']
+            },
+            set (value) {
+                this.$store.commit('user/SET_EMAIL', value)
+            },
+        },
+    },
     methods: {
         requestEmailVerification () {
             if (!this.showEmailValidationInput) {
-                userAPI.requestEmailVerification({ responseSuccessToast: true })
+                userAPI.requestEmailVerification(this.email, { responseSuccessToast: true })
                     .then(() => { this.showEmailValidationInput = true })
             }
         },

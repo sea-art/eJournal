@@ -18,7 +18,7 @@ from sentry_sdk.integrations.celery import CeleryIntegration
 from sentry_sdk.integrations.django import DjangoIntegration
 
 sentry_sdk.init(
-    dsn=os.environ['SENTRY_DSN'],
+    dsn=None if 'TRAVIS' in os.environ else os.environ['SENTRY_DSN'],
     integrations=[DjangoIntegration(), CeleryIntegration()]
 )
 
@@ -45,6 +45,7 @@ LTI_SECRET = os.environ['LTI_SECRET']
 LTI_KEY = os.environ['LTI_KEY']
 ROLES = OrderedDict({'Teacher': 'instructor', 'TA': 'teachingassistant', 'Student': 'learner'})
 LTI_ROLES = OrderedDict({'instructor': 'Teacher', 'teachingassistant': 'TA', 'learner': 'Student'})
+LTI_TEST_STUDENT_FULL_NAME = 'Test student'
 
 
 # Celery settings

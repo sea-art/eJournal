@@ -93,48 +93,48 @@ def test_rest(obj, url, create_params=None, delete_params=None, update_params=No
     delete(obj, url, params={'pk': pk, **delete_params}, user=user, password=password, status=delete_status)
 
 
-def get(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWORD, status=200):
+def get(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWORD, status=200, access=None):
     return call(obj, obj.client.get, url,
-                params=params, user=user, password=password, status=status)
+                params=params, user=user, password=password, status=status, access=access)
 
 
-def get_list(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWORD, status=200):
+def get_list(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWORD, status=200, access=None):
     return call(obj, obj.client.get, url,
-                params=params, user=user, password=password, status=status)
+                params=params, user=user, password=password, status=status, access=access)
 
 
-def create(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWORD, status=201):
+def create(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWORD, status=201, access=None):
     return call(obj, obj.client.post, url,
-                params=params, user=user, password=password, status=status)
+                params=params, user=user, password=password, status=status, access=access)
 
 
 def post(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWORD, status=200,
-         content_type='application/json'):
+         content_type='application/json', access=None):
     return call(obj, obj.client.post, url,
-                params=params, user=user, password=password, status=status, content_type=content_type)
+                params=params, user=user, password=password, status=status, content_type=content_type, access=access)
 
 
 def update(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWORD, status=200,
-           content_type='application/json'):
+           content_type='application/json', access=None):
     return call(obj, obj.client.patch, url,
-                params=params, user=user, password=password, status=status, content_type=content_type)
+                params=params, user=user, password=password, status=status, content_type=content_type, access=access)
 
 
 def patch(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWORD, status=200,
-          content_type='application/json'):
+          content_type='application/json', access=None):
     return call(obj, obj.client.patch, url,
                 params=params, user=user, password=password, status=status, content_type=content_type)
 
 
-def delete(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWORD, status=200):
+def delete(obj, url, params=None, user=None, password=userfactory.DEFAULT_PASSWORD, status=200, access=None):
     return call(obj, obj.client.delete, url,
-                params=params, user=user, password=password, status=status)
+                params=params, user=user, password=password, status=status, access=access)
 
 
 def call(obj, function, url, params=None,
          user=None, password=userfactory.DEFAULT_PASSWORD,
          status=200, status_when_unauthorized=401,
-         content_type='application/json'):
+         content_type='application/json', access=None):
     # Set params to an empty dictionary when its None this cant be done in the parameters themself as that can give
     # unwanted results when calling the function multiple times
     if params is None:
@@ -152,8 +152,10 @@ def call(obj, function, url, params=None,
             else:
                 response = function(url, json.dumps(params), content_type=content_type)
     else:
-        logged_user = login(obj, user, password)
-        access, = utils.required_params(logged_user, 'access')
+        # A test student does not login via password
+        if not access:
+            logged_user = login(obj, user, password)
+            access, = utils.required_params(logged_user, 'access')
         if function in [obj.client.get, obj.client.delete]:
             response = function(url, content_type=content_type, HTTP_AUTHORIZATION='Bearer ' + access)
         else:

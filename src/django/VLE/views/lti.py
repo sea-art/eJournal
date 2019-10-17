@@ -10,7 +10,9 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+import VLE.factory as factory
 import VLE.lti_launch as lti
+import VLE.utils.generic_utils as utils
 import VLE.utils.responses as response
 from VLE.models import User
 from VLE.utils.error_handling import VLEMissingRequiredKey
@@ -101,6 +103,21 @@ def get_finish_state(user, assignment, lti_params):
         return LTI_STATES.FINISH_S.value
 
 
+def handle_test_student(user, params):
+    """Creates a test user if no user is proved and the params contain a blank email adress."""
+    if not user \
+       and 'custom_user_email' in params and params['custom_user_email'] == '' \
+       and 'custom_user_full_name' in params and params['custom_user_full_name'] == settings.LTI_TEST_STUDENT_FULL_NAME:
+        lti_id, username, full_name, email, course_id = utils.required_params(
+            params, 'user_id', 'custom_username', 'custom_user_full_name', 'custom_user_email', 'custom_course_id')
+        profile_picture = '/unknown-profile.png' if 'custom_user_image' not in params else params['custom_user_image']
+        is_teacher = settings.ROLES['Teacher'] in lti.roles_to_list(params)
+
+        return factory.make_user(username, email=email, lti_id=lti_id, profile_picture=profile_picture,
+                                 is_teacher=is_teacher, full_name=full_name, is_test_student=True)
+    return user
+
+
 @api_view(['GET'])
 def get_lti_params_from_jwt(request, jwt_params):
     """Handle the controlflow for course/assignment create, connect and select.
@@ -179,6 +196,7 @@ def lti_launch(request):
     params = request.POST.dict()
 
     user = lti.get_user_lti(params)
+    user = handle_test_student(user, params)
 
     params['exp'] = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
     lti_params = encode_lti_params(params)

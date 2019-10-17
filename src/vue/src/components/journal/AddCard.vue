@@ -39,7 +39,7 @@
         </div>
         <div v-else-if="addNode.templates.length === 1">
             <h2 class="mb-2">
-                Selected template
+                New entry
             </h2>
             <entry-preview
                 ref="entry-prev"

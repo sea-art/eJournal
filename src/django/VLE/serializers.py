@@ -27,8 +27,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'full_name', 'profile_picture', 'is_teacher', 'lti_id', 'id',
-                  'role', 'groups')
-        read_only_fields = ('id', 'lti_id', 'is_teacher', 'username')
+                  'role', 'groups', 'is_test_student')
+        read_only_fields = ('id', 'lti_id', 'is_teacher', 'username', 'is_test_student')
 
     def get_role(self, user):
         if 'course' not in self.context or not self.context['course']:
@@ -56,9 +56,10 @@ class OwnUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'full_name', 'email', 'permissions', 'is_superuser',
-                  'lti_id', 'profile_picture', 'is_teacher', 'verified_email')
-        read_only_fields = ('id', 'permissions', 'lti_id', 'is_teacher', 'verified_email', 'username', 'is_superuser')
+        fields = ('id', 'username', 'full_name', 'email', 'permissions', 'is_test_student',
+                  'lti_id', 'profile_picture', 'is_teacher', 'verified_email', 'is_superuser')
+        read_only_fields = ('id', 'permissions', 'lti_id', 'is_teacher', 'is_superuser',
+                            'verified_email', 'username', 'is_test_student')
 
     def get_permissions(self, user):
         """Returns a dictionary with all user permissions.

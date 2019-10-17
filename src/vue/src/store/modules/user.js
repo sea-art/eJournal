@@ -15,6 +15,7 @@ const getters = {
     fullName: state => state.fullName,
     ltiID: state => state.ltiID,
     permissions: state => state.permissions,
+    isTestStudent: state => state.is_test_student,
     isSuperuser: state => state.isSuperuser,
     // We are not logged unless the store is populated as well
     loggedIn: state => state.jwtAccess !== null && state.uID !== null,
@@ -57,9 +58,13 @@ const mutations = {
         state.fullName = null
         state.ltiID = null
         state.permissions = null
+        state.isTestStudent = null
     },
     [types.EMAIL_VERIFIED] (state) {
         state.verifiedEmail = true
+    },
+    [types.SET_EMAIL] (state, val) {
+        state.email = val
     },
     [types.SET_FULL_USER_NAME] (state, data) {
         state.fullName = data.fullName
@@ -162,6 +167,7 @@ export default {
         username: null,
         email: null,
         verifiedEmail: false,
+        isTestStudent: null,
         profilePicture: null,
         fullName: null,
         ltiID: null,

@@ -7,11 +7,13 @@ from test.factory.grade import GradeFactory
 from test.factory.group import GroupFactory, LtiGroupFactory
 from test.factory.instance import InstanceFactory
 from test.factory.journal import JournalFactory
+from test.factory.params import JWTParamsFactory, JWTTestUserParamsFactory, UserParamsFactory
 from test.factory.participation import GroupParticipationFactory, ParticipationFactory
 from test.factory.presetnode import EntrydeadlineNodeFactory, ProgressNodeFactory
 from test.factory.role import RoleFactory, StudentRoleFactory
 from test.factory.template import TemplateAllTypesFactory, TemplateFactory
-from test.factory.user import AdminFactory, LtiStudentFactory, TeacherFactory, UserFactory
+from test.factory.user import (AdminFactory, LtiStudentFactory, LtiTeacherFactory, TeacherFactory, TestUserFactory,
+                               UserFactory)
 
 Instance = InstanceFactory
 Assignment = AssignmentFactory
@@ -21,7 +23,9 @@ Course = CourseFactory
 LtiCourse = LtiCourseFactory
 
 Student = UserFactory
+TestUser = TestUserFactory
 LtiStudent = LtiStudentFactory
+LtiTeacher = LtiTeacherFactory
 Teacher = TeacherFactory
 Admin = AdminFactory
 Role = RoleFactory
@@ -45,3 +49,7 @@ Entry = EntryFactory
 StudentComment = StudentCommentFactory
 TeacherComment = TeacherCommentFactory
 Grade = GradeFactory
+
+UserParams = UserParamsFactory
+JWTParams = JWTParamsFactory
+JWTTestUserParams = JWTTestUserParamsFactory

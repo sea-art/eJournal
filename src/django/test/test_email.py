@@ -11,6 +11,7 @@ class EmailAPITest(TestCase):
     def setUp(self):
         self.student = factory.Student()
         self.not_verified = factory.Student(verified_email=False)
+        self.is_test_student = factory.TestUser()
         self.valid_pass = 'New_v4lid_pass!'
 
     def test_forgot_password(self):
@@ -29,6 +30,9 @@ class EmailAPITest(TestCase):
         resp = api.post(self, 'forgot_password', params={'email': self.student.email}, user=self.student)
         assert 'An email was sent' in resp['description'], \
             'You should be able to get forgot password mail while logged in'
+        resp = api.post(self, 'forgot_password', params={'username': self.is_test_student.username}, status=400)
+        assert 'no known email address' in resp['description'], \
+            'Test student without email address cannot retrieve their password via email.'
 
     def test_recover_password(self):
         api.post(self, 'recover_password', status=400)
@@ -91,6 +95,13 @@ class EmailAPITest(TestCase):
         assert 'already verified' in resp['description']
 
         resp = api.post(self, 'request_email_verification', user=self.not_verified)
+        assert 'email was sent' in resp['description']
+
+        # A test student without email address set can't request email verification
+        api.post(self, 'request_email_verification', user=self.is_test_student, status=400)
+        self.is_test_student.email = 'some_valid@email.com'
+        self.is_test_student.save()
+        resp = api.post(self, 'request_email_verification', user=self.is_test_student, status=200)
         assert 'email was sent' in resp['description']
 
     def test_send_feedback(self):

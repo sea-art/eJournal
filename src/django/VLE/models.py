@@ -5,6 +5,7 @@ Database file
 """
 import os
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
@@ -129,7 +130,9 @@ class User(AbstractUser):
         max_length=200
     )
     email = models.EmailField(
+        blank=True,
         unique=True,
+        null=True,
     )
     verified_email = models.BooleanField(
         default=False
@@ -149,6 +152,9 @@ class User(AbstractUser):
         null=True,
         blank=True,
         upload_to=get_feedback_file_path
+    )
+    is_test_student = models.BooleanField(
+        default=False
     )
 
     def check_permission(self, permission, obj=None, message=None):
@@ -233,6 +239,24 @@ class User(AbstractUser):
         if not (self.is_superuser or self == user or permissions.is_user_supervisor_of(user, self)):
             return "User"
         return self.username + " (" + str(self.pk) + ")"
+
+    def save(self, *args, **kwargs):
+        if not self.is_test_student and not self.email:
+            raise ValidationError('A legitimate user requires an email adress.')
+
+        if self._state.adding:
+            if self.is_test_student and settings.LTI_TEST_STUDENT_FULL_NAME not in self.full_name:
+                raise ValidationError('Test user\'s full name deviates on creation.')
+        else:
+            pre_save = User.objects.get(pk=self.pk)
+            if pre_save.is_test_student and not self.is_test_student:
+                raise ValidationError('A test user is expected to remain a test user.')
+
+        # Enforce unique constraint
+        if self.email == '':
+            self.email = None
+
+        super(User, self).save(*args, **kwargs)
 
 
 @receiver(models.signals.post_save, sender=User)

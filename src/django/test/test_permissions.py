@@ -4,6 +4,7 @@ test_permissions.py
 This file tests whether all permissions behave as required.
 """
 import datetime
+from test.factory.user import DEFAULT_PASSWORD
 
 from django.core.validators import ValidationError
 from django.test import TestCase
@@ -16,7 +17,7 @@ from VLE.utils.error_handling import VLEParticipationError, VLEPermissionError, 
 
 class PermissionTests(TestCase):
     def setUp(self):
-        self.user = factory.make_user('Username', 'Password', email='some@email.address', full_name='Test User')
+        self.user = factory.make_user('Username', DEFAULT_PASSWORD, email='some@email.address', full_name='Test User')
 
         self.course1 = factory.make_course('Course', 'crs', startdate=datetime.date.today())
         self.course2 = factory.make_course('Course2', 'crs2', startdate=datetime.date.today())
@@ -127,7 +128,8 @@ class PermissionTests(TestCase):
 
     def test_admin_permissions(self):
         """Test if the admin has all permissions."""
-        user = factory.make_user('superuser', 'password', email='some@other', is_superuser=True, full_name='Test User')
+        user = factory.make_user(
+            'superuser', DEFAULT_PASSWORD, email='some@other.com', is_superuser=True, full_name='Test User')
 
         assert user.has_permission('can_edit_institute_details')
         assert user.has_permission('can_add_course')
@@ -138,7 +140,8 @@ class PermissionTests(TestCase):
 
     def test_teacher_permissions(self):
         """Test if the teacher has the right general permissions."""
-        user = factory.make_user('teacher', 'password', email='some@other', is_teacher=True, full_name='Test User')
+        user = factory.make_user(
+            'teacher', DEFAULT_PASSWORD, email='some@other.com', is_teacher=True, full_name='Test User')
 
         assert user.has_permission('can_add_course')
 
@@ -252,8 +255,8 @@ class PermissionTests(TestCase):
         self.assertEqual(len(permissions.ASSIGNMENT_PERMISSIONS), len(result))
 
     def test_is_supervisor(self):
-        middle = factory.make_user('Username2', 'Password', email='some2@email.address', full_name='Test User')
-        student = factory.make_user('Username3', 'Password', email='some3@email.address', full_name='Test User')
+        middle = factory.make_user('Username2', DEFAULT_PASSWORD, email='some2@email.address', full_name='Test User')
+        student = factory.make_user('Username3', DEFAULT_PASSWORD, email='some3@email.address', full_name='Test User')
 
         role = factory.make_role_default_no_perms("TE", self.course1,
                                                   can_view_course_users=True, can_view_all_journals=True)

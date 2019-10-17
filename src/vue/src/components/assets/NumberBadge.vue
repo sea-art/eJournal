@@ -43,18 +43,19 @@ export default {
 .number-badge
     .badge-part
         font-family: 'Roboto Condensed', sans-serif
-        font-size: 1.1em !important
+        font-size: 1.1em
         border-radius: 5px !important
-        border: 2px solid $theme-blue !important
+        border-color: red
+        border: 2px solid $theme-dark-blue
+        span.right-number
+            border-top-left-radius: 0 !important
+            border-bottom-left-radius: 0 !important
+            border-left: 0px !important
+        span.left-number
+            border-top-right-radius: 0 !important
+            border-bottom-right-radius: 0 !important
+            border-right: 0px !important
     .inverse
-        background-color: white !important
-        color: $theme-blue !important
-    span.right-number
-        border-top-left-radius: 0!important
-        border-bottom-left-radius: 0!important
-        border-left: 0px!important
-    span.left-number
-        border-top-right-radius: 0!important
-        border-bottom-right-radius: 0!important
-        border-right: 0px !important
+        background-color: white
+        color: $theme-dark-blue
 </style>
