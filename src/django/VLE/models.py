@@ -649,10 +649,25 @@ class Assignment(models.Model):
 
         return super(Assignment, self).save(*args, **kwargs)
 
-    def get_active_course(self):
+    def get_active_lti_course(self):
         """"Query for retrieving the course which matches the active lti id of the assignment."""
         courses = self.courses.filter(assignment_lti_id_set__contains=[self.active_lti_id])
         return courses.first()
+
+    def get_active_course(self):
+        """"Query for retrieving the course which is most relevant to the assignment."""
+        # Get matching LTI course if possible
+        course = self.get_active_lti_course()
+        if course is not None:
+            return course
+
+        # Else get course that started the most recent
+        course = self.courses.filter(startdate__lt=timezone.now()).order_by('-startdate').first()
+        if course is not None:
+            return course
+
+        # Else get the course that starts the soonest
+        return self.courses.order_by('startdate').first()
 
     def get_course_lti_id(self, course):
         """Gets the assignment lti_id that belongs to the course assignment pair if it exists."""

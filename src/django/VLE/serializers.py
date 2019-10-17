@@ -167,7 +167,7 @@ class AssignmentDetailsSerializer(serializers.ModelSerializer):
     def get_active_lti_course(self, assignment):
         if 'user' in self.context and self.context['user'] and \
            self.context['user'].is_participant(assignment):
-            c = assignment.get_active_course()
+            c = assignment.get_active_lti_course()
             if c:
                 return {'cID': c.pk, 'name': c.name}
             return None
@@ -314,21 +314,14 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
     def _get_course(self, assignment):
         if 'course' not in self.context or not self.context['course']:
-            if assignment.active_lti_id:
-                course = assignment.get_active_course()
-            else:
-                course = assignment.courses.order_by('-enddate').first()
-
+            return assignment.get_active_course()
         else:
             if not self.context['course'] in assignment.courses.all():
                 raise VLEProgrammingError('Wrong course is supplied')
             elif not self.context['user'].is_participant(self.context['course']):
                 raise VLEParticipationError(self.context['course'], self.context['user'])
 
-            else:
-                course = self.context['course']
-
-        return course
+            return self.context['course']
 
     def get_courses(self, assignment):
         if 'course' in self.context and self.context['course']:
@@ -338,7 +331,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
     def get_active_lti_course(self, assignment):
         if 'user' in self.context and self.context['user'] and \
            self.context['user'].is_participant(assignment):
-            c = assignment.get_active_course()
+            c = assignment.get_active_lti_course()
             if c:
                 return {'cID': c.pk, 'name': c.name}
             return None
