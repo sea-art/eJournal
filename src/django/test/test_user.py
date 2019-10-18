@@ -164,7 +164,7 @@ class UserAPITest(TestCase):
         assert resp['email'] == 'new_cor@m.com', 'Email should be updated'
 
     def test_lti_update(self):
-        # Valid LTI coupling to preexisting account
+        # Valid LTI coupling to pre-existing account
         user = factory.Student(verified_email=False)
         resp = api.update(self, 'users', user=user, params={
             **gen_jwt_params(params={
@@ -189,6 +189,13 @@ class UserAPITest(TestCase):
             'pk': user2.pk,
         }, status=400)
         assert 'lti id already exists' in resp['description']
+
+        # Cannot link to a user when the email address is already claimed
+        resp = api.update(self, 'users', user=user2, params={
+            **gen_jwt_params(params={'custom_user_email': user.email}),
+            'pk': user2.pk,
+        }, status=400)
+        assert 'is taken' in resp['description'], 'Cannot link to a user when the email address is already claimed'
 
         # It is forbidden to link a test account to an existing account
         lti_teacher = factory.LtiTeacher()

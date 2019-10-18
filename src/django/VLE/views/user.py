@@ -185,6 +185,10 @@ class UserView(viewsets.ViewSet):
         if user_image is not None:
             user.profile_picture = user_image
         if user_email:
+            if User.objects.filter(email=user_email).exclude(pk=user.pk).exists():
+                return response.bad_request(
+                    '{} is taken by another account. Link to that account or contact support.'.format(user_email))
+
             user.email = user_email
             user.verified_email = True
         if user_full_name is not None:
