@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('VLE', '0033_sensible_lti_group_names'),
+        ('VLE', '0034_allow_same_group_name'),
     ]
 
     operations = [
