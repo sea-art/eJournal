@@ -4,12 +4,14 @@ test_timeline.py.
 Test all about the timeline.
 """
 import datetime
+from test.factory.user import DEFAULT_PASSWORD
 
 from django.test import TestCase
 
 import VLE.factory as factory
 import VLE.timeline as timeline
 from VLE.models import Role
+from VLE.utils import generic_utils as utils
 
 
 class TimelineTests(TestCase):
@@ -17,8 +19,8 @@ class TimelineTests(TestCase):
 
     def setUp(self):
         """Setup."""
-        self.u_rick = factory.make_user("Rick", "pass", "r@r.com", full_name='Test User')
-        self.u_lars = factory.make_user("Lars", "pass", "l@l.com", full_name='Test User')
+        self.u_rick = factory.make_user("Rick", DEFAULT_PASSWORD, "r@r.com", full_name='Test User')
+        self.u_lars = factory.make_user("Lars", DEFAULT_PASSWORD, "l@l.com", full_name='Test User')
 
         f_colloq = factory.make_default_format()
         self.deadlineentry = factory.make_entrydeadline_node(
@@ -63,7 +65,7 @@ class TimelineTests(TestCase):
         """Test is the sort function works."""
         entry = factory.make_entry(self.template)
         node = factory.make_node(self.j_rick_colloq, entry)
-        nodes = timeline.get_sorted_nodes(self.j_rick_colloq)
+        nodes = utils.get_sorted_nodes(self.j_rick_colloq)
 
         self.assertEqual(nodes[0].preset, self.deadlineentry)
         self.assertEqual(nodes[1], node)

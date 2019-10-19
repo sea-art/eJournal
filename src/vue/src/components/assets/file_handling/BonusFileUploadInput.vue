@@ -23,7 +23,7 @@
                 v-if="errorLogs.non_participants || errorLogs.unknown_users"
                 class="text-dark-grey mb-1"
             >
-                <i>Note: it is likely that one or more of the users reported as unkown or non participant still need
+                <i>Note: it is likely that one or more of the users reported as unknown or non participant still need
                     to visit this assignment on the LMS (Canvas).</i>
             </div>
             <b

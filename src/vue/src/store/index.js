@@ -6,6 +6,7 @@ import user from './modules/user'
 import permissions from './modules/permissions'
 import connection from './modules/connection'
 import preferences from './modules/preferences'
+import sentry from './modules/sentry'
 
 Vue.use(Vuex)
 
@@ -19,6 +20,7 @@ export default new Vuex.Store({
         user,
         permissions,
         connection,
+        sentry,
         preferences,
     },
     strict: debug,

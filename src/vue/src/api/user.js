@@ -30,7 +30,7 @@ export default {
     },
 
     /* Request an email verification token for the given users email adress. */
-    requestEmailVerification (connArgs = auth.DEFAULT_CONN_ARGS) {
-        return auth.post('/request_email_verification/', null, connArgs)
+    requestEmailVerification (email, connArgs = auth.DEFAULT_CONN_ARGS) {
+        return auth.post('/request_email_verification/', { email }, connArgs)
     },
 }

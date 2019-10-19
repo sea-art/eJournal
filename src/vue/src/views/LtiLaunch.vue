@@ -24,13 +24,16 @@
                 @handleAction="handleActions"
             />
         </b-card>
-        <load-spinner v-else/>
+        <load-spinner
+            v-else
+            class="mt-5"
+        />
     </content-single-column>
 </template>
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
-import loadSpinner from '@/components/assets/LoadSpinner.vue'
+import loadSpinner from '@/components/loading/LoadSpinner.vue'
 import ltiCreateLinkCourse from '@/components/lti/LtiCreateLinkCourse.vue'
 import ltiCreateLinkAssignment from '@/components/lti/LtiCreateLinkAssignment.vue'
 import ltiAPI from '@/api/lti.js'
@@ -62,6 +65,9 @@ export default {
                 state: '',
 
                 /* Extern variables for checking the state of the lti launch. */
+                lacking_permissions_to_setup_assignment: '-4',
+                lacking_permissions_to_setup_course: '-3',
+
                 bad_auth: '-1',
                 no_course: '0',
                 no_assign: '1',
@@ -109,8 +115,45 @@ export default {
     mounted () {
         this.ltiJWT = this.$route.query.ltiJWT
 
-        this.loadLtiData().then(() => {
-            this.handleInitialState()
+        ltiAPI.getLtiParams(this.ltiJWT).then((response) => {
+            if (response.state === this.states.lacking_permissions_to_setup_course
+                || (response.state === this.states.lacking_permissions_to_setup_assignment)) {
+                this.$router.push({
+                    name: 'NotSetup',
+                    params: {
+                        courseName: response.lti_cName,
+                        assignmentName: response.lti_aName,
+                        ltiState: response.state,
+                    },
+                })
+            } else if (response.state === this.states.bad_auth) {
+                router.push({
+                    name: 'ErrorPage',
+                    params: {
+                        code: '511',
+                        reasonPhrase: 'Network authorization required',
+                        description: `Invalid credentials from the LTI environment.
+                                      Please contact the system administrator.`,
+                    },
+                })
+            }
+
+            this.lti.ltiCourseName = response.lti_cName
+            this.lti.ltiCourseAbbr = response.lti_abbr
+            this.lti.ltiCourseID = response.lti_cID
+            this.lti.ltiCourseStart = response.lti_course_start
+            this.lti.ltiAssignName = response.lti_aName
+            this.lti.ltiAssignID = response.lti_aID
+            this.lti.ltiPointsPossible = response.lti_points_possible
+            this.lti.ltiAssignUnlock = response.lti_aUnlock
+            this.lti.ltiAssignDue = response.lti_aDue
+            this.lti.ltiAssignLock = response.lti_aLock
+            this.lti.ltiAssignPublished = response.lti_aPublished
+            this.page.cID = response.cID
+            this.page.aID = response.aID
+            this.page.jID = response.jID
+            this.canAutoSetupState = response.state
+
             /* The lti parameters such as course id are not set if we are a student. */
             if (this.lti.ltiCourseID) {
                 courseAPI.getLinkable().then((courses) => {
@@ -136,26 +179,6 @@ export default {
         })
     },
     methods: {
-        loadLtiData () {
-            return ltiAPI.getLtiParams(this.ltiJWT)
-                .then((response) => {
-                    this.lti.ltiCourseName = response.lti_cName
-                    this.lti.ltiCourseAbbr = response.lti_abbr
-                    this.lti.ltiCourseID = response.lti_cID
-                    this.lti.ltiCourseStart = response.lti_course_start
-                    this.lti.ltiAssignName = response.lti_aName
-                    this.lti.ltiAssignID = response.lti_aID
-                    this.lti.ltiPointsPossible = response.lti_points_possible
-                    this.lti.ltiAssignUnlock = response.lti_aUnlock
-                    this.lti.ltiAssignDue = response.lti_aDue
-                    this.lti.ltiAssignLock = response.lti_aLock
-                    this.lti.ltiAssignPublished = response.lti_aPublished
-                    this.page.cID = response.cID
-                    this.page.aID = response.aID
-                    this.page.jID = response.jID
-                    this.canAutoSetupState = response.state
-                })
-        },
         autoSetupCourse () {
             courseAPI.create({
                 name: this.lti.ltiCourseName,
@@ -318,31 +341,6 @@ export default {
                 break
             default:
                 throw Error(`Unknown LTI state encountered: ${state}`)
-            }
-        },
-        handleInitialState () {
-            if (this.canAutoSetupState === this.states.bad_auth) {
-                router.push({
-                    name: 'ErrorPage',
-                    params: {
-                        code: '511',
-                        reasonPhrase: 'Network authorization required',
-                        description: `Invalid credentials from the LTI environment.
-                                      Please contact the system administrator.`,
-                    },
-                })
-            } else if (this.canAutoSetupState === this.states.no_course
-                       || this.canAutoSetupState === this.states.no_assign) {
-                router.push({
-                    name: 'ErrorPage',
-                    params: {
-                        code: '404',
-                        reasonPhrase: 'No course found with given ID',
-                        description: `The requested course is not available on
-                                      ejournal. Wait for it to become availible or
-                                      contact your teacher for more information.`,
-                    },
-                })
             }
         },
     },

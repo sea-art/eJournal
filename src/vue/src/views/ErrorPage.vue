@@ -1,29 +1,51 @@
 <template>
-    <b-row class="error-content">
-        <b-col cols="12">
-            <h1>
-                <span>
-                    Error {{ code }}: <span class="text-grey">{{ reasonPhrase }}</span>
-                </span>
-            </h1>
-        </b-col>
-        <b-col cols="12">
-            <div class="description-container">
+    <content-single-column>
+        <h1 class="mb-2">
+            <span>
+                Error {{ code }}: <span class="text-dark-grey">{{ reasonPhrase }}</span>
+            </span>
+        </h1>
+        <b-card
+            class="no-hover border-dark-grey max-width-600"
+        >
+            <h2
+                v-if="description !== null"
+                class="mb-2"
+            >
                 {{ description }}
-            </div>
-        </b-col>
-        <b-col cols="12">
-            <b-button :to="{name: 'Home'}">
+            </h2>
+            <span
+                v-else
+                class="d-block multi-form"
+            >
+                We are sorry, but an unknown error has brought you here.
+            </span>
+            <sentry-feedback-form
+                v-if="sentryLastEventID !== null"
+                class="sentry-feedback-form"
+            />
+            <b-button
+                v-else
+                :to="{name: 'Home'}"
+            >
                 <icon name="home"/>
                 Home
             </b-button>
-        </b-col>
-    </b-row>
+        </b-card>
+    </content-single-column>
 </template>
 
 <script>
+import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
+import sentryFeedbackForm from '@/components/sentry/SentryFeedbackForm.vue'
+import { mapGetters } from 'vuex'
+
 export default {
-    name: 'Error',
+    name: 'ErrorPage',
+    components: {
+        sentryFeedbackForm,
+        contentSingleColumn,
+    },
     props: {
         code: {
             default: '520',
@@ -32,20 +54,18 @@ export default {
             default: 'Unknown Error',
         },
         description: {
-            default: 'We are sorry, but an unkown error has brought you here. '
-                + 'Please use the feedback button at the bottom of the page '
-                + 'to get in touch with us.',
+            default: null,
         },
+    },
+    computed: {
+        ...mapGetters({
+            sentryLastEventID: 'sentry/lastEvenID',
+        }),
     },
 }
 </script>
 
 <style lang="sass">
-@import '~sass/modules/colors.sass'
-
-.error-content
-    padding: 40px
-
-.description-container
-    padding: 20px 0px
+.max-width-600
+    max-width: 600px
 </style>

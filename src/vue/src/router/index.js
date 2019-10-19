@@ -14,6 +14,7 @@ import Register from '@/views/Register.vue'
 import LtiLaunch from '@/views/LtiLaunch.vue'
 import AssignmentsOverview from '@/views/AssignmentsOverview.vue'
 import ErrorPage from '@/views/ErrorPage.vue'
+import NotSetup from '@/views/NotSetup.vue'
 import CourseEdit from '@/views/CourseEdit.vue'
 import UserRoleConfiguration from '@/views/UserRoleConfiguration.vue'
 import FormatEdit from '@/views/FormatEdit.vue'
@@ -71,6 +72,11 @@ const router = new Router({
         path: '/Error',
         name: 'ErrorPage',
         component: ErrorPage,
+        props: true,
+    }, {
+        path: '/NotSetup',
+        name: 'NotSetup',
+        component: NotSetup,
         props: true,
     }, {
         path: '/Logout',

@@ -143,19 +143,25 @@ class ParticipationView(viewsets.ViewSet):
     def destroy(self, request, pk):
         """Remove a user from the course.
 
+        Deletes a test user if no participations remain.
+
         request -- request data
             user_id -- user ID
         pk -- course ID
         """
         user_id, = utils.required_typed_params(request.query_params, (int, 'user_id'))
 
-        user = User.objects.get(pk=user_id)
         course = Course.objects.get(pk=pk)
-        participation = Participation.objects.get(user=user, course=course)
-
         request.user.check_permission('can_delete_course_users', course)
 
+        user = User.objects.get(pk=user_id)
+        participation = Participation.objects.get(user=user, course=course)
+
         participation.delete()
+
+        if user.is_test_student and not Participation.objects.filter(user=user.pk).exists():
+            user.delete()
+
         return response.success(description='Successfully removed user from course.')
 
     @action(methods=['get'], detail=False)

@@ -1,7 +1,6 @@
 <template>
     <content-single-column>
         <bread-crumb :currentPage="'Assignments'"/>
-
         <input
             v-model="searchValue"
             class="theme-input full-width multi-form"
@@ -46,41 +45,50 @@
                 Descending
             </b-button>
         </div>
-
-        <div
-            v-for="(d, i) in computedDeadlines"
-            :key="i"
-        >
-            <b-link
-                v-if="d.course"
-                :to="assignmentRoute(d.course.id, d.id, d.journal, d.is_published)"
-                tag="b-button"
+        <load-wrapper :loading="loadingAssignments">
+            <div
+                v-for="(d, i) in computedAssignments"
+                :key="i"
             >
-                <todo-card
-                    :deadline="d"
-                    :course="d.course"
-                />
-            </b-link>
-            <b-link
-                v-for="(course, j) in d.courses"
-                v-else
-                :key="`${i}-${j}`"
-                :to="assignmentRoute(course.id, d.id, d.journal, d.is_published)"
-                tag="b-button"
-            >
-                <todo-card
-                    :deadline="d"
-                    :course="course"
-                />
-            </b-link>
-        </div>
+                <b-link
+                    v-if="d.course"
+                    :to="assignmentRoute(d.course.id, d.id, d.journal, d.is_published)"
+                    tag="b-button"
+                >
+                    <todo-card
+                        :deadline="d"
+                        :course="d.course"
+                    />
+                </b-link>
+                <b-link
+                    v-for="(course, j) in d.courses"
+                    v-else
+                    :key="`${i}-${j}`"
+                    :to="assignmentRoute(course.id, d.id, d.journal, d.is_published)"
+                    tag="b-button"
+                >
+                    <todo-card
+                        :deadline="d"
+                        :course="course"
+                    />
+                </b-link>
+            </div>
+            <main-card
+                v-if="computedAssignments.length === 0"
+                line1="No assignments found"
+                line2="You currently do not participate in any assignments."
+                class="no-hover border-dark-grey"
+            />
+        </load-wrapper>
     </content-single-column>
 </template>
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import todoCard from '@/components/assets/TodoCard.vue'
+import mainCard from '@/components/assets/MainCard.vue'
 import assignmentAPI from '@/api/assignment.js'
 
 import { mapGetters, mapMutations } from 'vuex'
@@ -90,11 +98,14 @@ export default {
     components: {
         contentSingleColumn,
         breadCrumb,
+        loadWrapper,
         todoCard,
+        mainCard,
     },
     data () {
         return {
             deadlines: [],
+            loadingAssignments: true,
         }
     },
     computed: {
@@ -119,44 +130,45 @@ export default {
                 this.setAssignmentOverviewSortBy(value)
             },
         },
-        computedDeadlines () {
+        computedAssignments () {
             const self = this
 
             function compareName (a, b) {
-                return self.compare(a.name, b.name)
+                return b.name < a.name
             }
 
             function compareDate (a, b) {
-                if (!a.deadline) { return 1 }
-                if (!b.deadline) { return -1 }
-                return self.compare(new Date(a.deadline), new Date(b.deadline))
+                if (!a.deadline.date) { return 1 }
+                if (!b.deadline.date) { return -1 }
+                return new Date(a.deadline.date) - new Date(b.deadline.date)
             }
 
             function compareMarkingNeeded (a, b) {
-                return self.compare(
-                    a.stats.needs_marking + a.stats.unpublished,
-                    b.stats.needs_marking + b.stats.unpublished,
-                )
+                return (a.stats.needs_marking + a.stats.unpublished) - (b.stats.needs_marking + b.stats.unpublished)
             }
 
             function searchFilter (assignment) {
                 return assignment.name.toLowerCase().includes(self.getAssignmentSearchValue.toLowerCase())
             }
 
+            const deadlines = this.deadlines.filter(searchFilter)
             if (this.selectedSortOption === 'name') {
-                return this.deadlines.filter(searchFilter).slice().sort(compareName)
+                deadlines.sort(compareName)
             } else if (this.selectedSortOption === 'date') {
-                return this.deadlines.filter(searchFilter).slice().sort(compareDate)
+                deadlines.sort(compareDate)
             } else if (this.selectedSortOption === 'markingNeeded') {
-                return this.deadlines.filter(searchFilter).slice().sort(compareMarkingNeeded)
-            } else {
-                return this.deadlines.filter(searchFilter).slice()
+                deadlines.sort(compareMarkingNeeded)
             }
+
+            return this.order ? deadlines.reverse() : deadlines
         },
     },
     created () {
         assignmentAPI.list()
-            .then((deadlines) => { this.deadlines = deadlines })
+            .then((deadlines) => {
+                this.deadlines = deadlines
+                this.loadingAssignments = false
+            })
     },
     methods: {
         ...mapMutations({

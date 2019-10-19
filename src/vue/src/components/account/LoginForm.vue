@@ -133,7 +133,7 @@ export default {
         handleLogin () {
             this.$store.dispatch('user/login', { username: this.username, password: this.password })
                 .then(() => { this.$emit('handleAction') })
-                .catch(() => { this.$toasted.error('Could not login') })
+                .catch(() => { this.$toasted.error('Incorrect username or password.') })
         },
     },
 }

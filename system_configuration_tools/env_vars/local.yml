@@ -13,6 +13,11 @@ db_host: localhost
 db_port: 5432
 
 
+# Sentry settings
+sentry_dsn: ""
+sentry_organization_slug: ejournal-test
+sentry_project_slug: ejournal-test
+
 # LTI settings.
 lti_secret: 4339900ae5861f3086861ea492772864
 lti_key: 0cd500938a8e7414ccd31899710c98ce

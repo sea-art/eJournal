@@ -6,33 +6,66 @@
             </h1>
             <b-card class="no-hover">
                 <h2 class="multi-form">
-                    Let's get started
+                    Hi {{ lti.fullName ? lti.fullName : lti.username }}
                 </h2>
-                <span class="d-block mb-2">
-                    Good to see you, <i>{{ lti.fullName ? lti.fullName : lti.username }}</i>. To link your
-                    learning environment to eJournal, please choose one of the options below.
-                </span>
-                <lti-create-link-user
+                <p>
+                    You are ready to start using eJournal as soon as you configure a password below.
+                    This allows you to access eJournal directly at
+                    <a
+                        :href="domainUrl"
+                        target="_blank"
+                    >
+                        {{ domain }}
+                    </a>, as well as via Canvas like you did just now.
+                </p>
+                <p>
+                    Do you already have an existing eJournal account?
+                    <a
+                        href=""
+                        @click.prevent.stop="showModal('linkUserModal')"
+                    >
+                        Click here
+                    </a> to link it instead.
+                </p>
+                <register-user
                     :lti="lti"
+                    class="mt-2"
                     @handleAction="userIntegrated"
                 />
             </b-card>
+
+            <b-modal
+                ref="linkUserModal"
+                title="Link to existing eJournal account"
+                size="lg"
+                hideFooter
+                noEnforceFocus
+            >
+                <login-form @handleAction="handleLinked"/>
+            </b-modal>
         </div>
-        <load-spinner v-else/>
+        <load-spinner
+            v-else
+            class="mt-5"
+        />
     </content-single-column>
 </template>
 
 <script>
 import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
-import loadSpinner from '@/components/assets/LoadSpinner.vue'
-import ltiCreateLinkUser from '@/components/lti/LtiCreateLinkUser.vue'
+import loadSpinner from '@/components/loading/LoadSpinner.vue'
+import registerUser from '@/components/account/RegisterUser.vue'
+import loginForm from '@/components/account/LoginForm.vue'
+
+import userAPI from '@/api/user.js'
 
 export default {
     name: 'LtiLogin',
     components: {
         contentSingleColumn,
         loadSpinner,
-        ltiCreateLinkUser,
+        registerUser,
+        loginForm,
     },
     data () {
         return {
@@ -55,6 +88,14 @@ export default {
                 email: '',
             },
         }
+    },
+    computed: {
+        domain () {
+            return window.location.host
+        },
+        domainUrl () {
+            return window.location.origin
+        },
     },
     mounted () {
         if (this.$route.query.state === this.states.bad_auth) {
@@ -104,7 +145,7 @@ export default {
             } else if (this.$route.query.state === this.states.no_user) {
                 this.$store.commit('user/LOGOUT') // Ensures no old user is loaded from local storage.
                 if (this.$route.query.full_name !== undefined) {
-                    this.lti.full_name = this.$route.query.full_name
+                    this.lti.fullName = this.$route.query.full_name
                 }
                 if (this.$route.query.username !== undefined) {
                     this.lti.username = this.$route.query.username
@@ -138,6 +179,23 @@ export default {
                     ltiJWT: this.lti.ltiJWT,
                 },
             })
+        },
+        showModal (ref) {
+            this.$refs[ref].show()
+        },
+        hideModal (ref) {
+            this.$refs[ref].hide()
+        },
+        handleLinked () {
+            userAPI.update(0, { jwt_params: this.lti.ltiJWT })
+                .then(() => {
+                    /* This is required because between the login and the connect of lti user to our user
+                      data can change. */
+                    this.$store.dispatch('user/populateStore').then(() => {
+                        this.hideModal('linkUserModal')
+                        this.userIntegrated()
+                    })
+                })
         },
     },
 }

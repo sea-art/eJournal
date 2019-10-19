@@ -1,5 +1,7 @@
 import factory
 
+import VLE.models
+
 
 class ParticipationFactory(factory.django.DjangoModelFactory):
     class Meta:
@@ -8,6 +10,14 @@ class ParticipationFactory(factory.django.DjangoModelFactory):
     user = factory.SubFactory('test.factory.user.UserFactory')
     course = factory.SubFactory('test.factory.course.CourseFactory')
     role = factory.SubFactory('test.factory.role.RoleFactory', course=factory.SelfAttribute('..course'))
+
+    @factory.post_generation
+    def journals(self, create, extracted):
+        if not create:
+            return
+
+        for assignment in VLE.models.Assignment.objects.filter(courses__in=[self.course]):
+            VLE.models.Journal.objects.create(user=self.user, assignment=assignment)
 
 
 class GroupParticipationFactory(ParticipationFactory):

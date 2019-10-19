@@ -5,6 +5,7 @@ Database file
 """
 import os
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
@@ -129,7 +130,9 @@ class User(AbstractUser):
         max_length=200
     )
     email = models.EmailField(
+        blank=True,
         unique=True,
+        null=True,
     )
     verified_email = models.BooleanField(
         default=False
@@ -149,6 +152,9 @@ class User(AbstractUser):
         null=True,
         blank=True,
         upload_to=get_feedback_file_path
+    )
+    is_test_student = models.BooleanField(
+        default=False
     )
 
     def check_permission(self, permission, obj=None, message=None):
@@ -184,6 +190,8 @@ class User(AbstractUser):
             raise VLEParticipationError(obj, self)
 
     def is_participant(self, obj):
+        if self.is_superuser:
+            return True
         if isinstance(obj, Course):
             return Course.objects.filter(pk=obj.pk, users=self).exists()
         if isinstance(obj, Assignment):
@@ -192,7 +200,7 @@ class User(AbstractUser):
 
     def check_can_view(self, obj):
         if not self.can_view(obj):
-            raise VLEPermissionError(message='You are not allowed to view {}'.format(str(obj)))
+            raise VLEPermissionError(message='You are not allowed to view {}'.format(obj.to_string()))
 
     def can_view(self, obj):
         if self.is_superuser:
@@ -221,12 +229,34 @@ class User(AbstractUser):
 
         return False
 
+    def check_can_edit(self, obj):
+        if not permissions.can_edit(self, obj):
+            raise VLEPermissionError(message='You are not allowed to edit {}'.format(str(obj)))
+
     def to_string(self, user=None):
         if user is None:
             return "User"
         if not (self.is_superuser or self == user or permissions.is_user_supervisor_of(user, self)):
             return "User"
         return self.username + " (" + str(self.pk) + ")"
+
+    def save(self, *args, **kwargs):
+        if not self.email and not self.is_test_student:
+            raise ValidationError('A legitimate user requires an email adress.')
+
+        if self._state.adding:
+            if self.is_test_student and settings.LTI_TEST_STUDENT_FULL_NAME not in self.full_name:
+                raise ValidationError('Test user\'s full name deviates on creation.')
+        else:
+            pre_save = User.objects.get(pk=self.pk)
+            if pre_save.is_test_student and not self.is_test_student:
+                raise ValidationError('A test user is expected to remain a test user.')
+
+        # Enforce unique constraint
+        if self.email == '':
+            self.email = None
+
+        super(User, self).save(*args, **kwargs)
 
 
 @receiver(models.signals.post_save, sender=User)
@@ -303,6 +333,9 @@ class Preferences(models.Model):
         choices=COMMENT_SEND_BUTTON_OPTIONS,
         default=SAVE,
     )
+
+    def to_string(self, user=None):
+        return "Preferences"
 
 
 class Course(models.Model):
@@ -387,12 +420,11 @@ class Group(models.Model):
 
     lti_id = models.TextField(
         null=True,
-        unique=False,
     )
 
     class Meta:
         """Meta data for the model: unique_together."""
-        unique_together = ('name', 'course')
+        unique_together = ('lti_id', 'course')
 
     def to_string(self, user=None):
         if user is None:
@@ -617,10 +649,25 @@ class Assignment(models.Model):
 
         return super(Assignment, self).save(*args, **kwargs)
 
-    def get_active_course(self):
+    def get_active_lti_course(self):
         """"Query for retrieving the course which matches the active lti id of the assignment."""
         courses = self.courses.filter(assignment_lti_id_set__contains=[self.active_lti_id])
         return courses.first()
+
+    def get_active_course(self):
+        """"Query for retrieving the course which is most relevant to the assignment."""
+        # Get matching LTI course if possible
+        course = self.get_active_lti_course()
+        if course is not None:
+            return course
+
+        # Else get course that started the most recent
+        course = self.courses.filter(startdate__lt=timezone.now()).order_by('-startdate').first()
+        if course is not None:
+            return course
+
+        # Else get the course that starts the soonest
+        return self.courses.order_by('startdate').first()
 
     def get_course_lti_id(self, course):
         """Gets the assignment lti_id that belongs to the course assignment pair if it exists."""
@@ -762,11 +809,10 @@ class Node(models.Model):
         on_delete=models.CASCADE,
     )
 
-    # Question: Why can this be null?
     preset = models.ForeignKey(
         'PresetNode',
         null=True,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
     )
 
     def to_string(self, user=None):
@@ -813,7 +859,7 @@ class PresetNode(models.Model):
         choices=TYPES,
     )
 
-    target = models.IntegerField(
+    target = models.FloatField(
         null=True,
     )
 
@@ -999,7 +1045,9 @@ class Field(models.Model):
     PDF = 'p'
     URL = 'u'
     DATE = 'd'
+    DATETIME = 'dt'
     SELECTION = 's'
+    FILE_TYPES = [PDF, FILE, IMG]
     TYPES = (
         (TEXT, 'text'),
         (RICH_TEXT, 'rich text'),
@@ -1009,6 +1057,7 @@ class Field(models.Model):
         (VIDEO, 'vid'),
         (URL, 'url'),
         (DATE, 'date'),
+        (DATETIME, 'datetime'),
         (SELECTION, 'selection')
     )
     type = models.TextField(

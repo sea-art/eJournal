@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" id="Book_1_" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 359 471" style="enable-background:new 0 0 359 471;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#DEDEDE;}
+	.st1{fill-rule:evenodd;clip-rule:evenodd;fill:#22648A;}
+	.st2{fill-rule:evenodd;clip-rule:evenodd;fill:#FFFFFF;}
+</style>
+<g id="Rounded_Rectangle_1">
+	<g>
+		<path class="st0" d="M344,22.4H37.4c-8.3,0-15,6.7-15,15V456c0,8.3,6.7,15,15,15H344c8.3,0,15-6.7,15-15V37.4
+			C359,29.2,352.3,22.4,344,22.4z"/>
+	</g>
+</g>
+<g id="Rounded_Rectangle_1_copy">
+	<g>
+		<path class="st1" d="M321.6,0H15C6.7,0,0,6.7,0,15v418.6c0,8.3,6.7,15,15,15h306.6c8.3,0,15-6.7,15-15V15
+			C336.6,6.7,329.8,0,321.6,0z"/>
+	</g>
+</g>
+<g id="Rounded_Rectangle_2">
+	<g>
+		<path class="st2" d="M37.4,22.4c-8.3,0-15,6.7-15,15v373.7c0,8.3,6.7,15,15,15c8.3,0,15-6.7,15-15V37.4
+			C52.4,29.1,45.7,22.4,37.4,22.4z"/>
+	</g>
+</g>
+</svg>

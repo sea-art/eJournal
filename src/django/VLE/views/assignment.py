@@ -47,11 +47,11 @@ class AssignmentView(viewsets.ViewSet):
 
         """
         try:
-            course_id, = utils.optional_typed_params(request.query_params, (int, 'course_id'))
+            course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
             course = Course.objects.get(pk=course_id)
             request.user.check_participation(course)
             courses = [course]
-        except VLEParamWrongType:
+        except (VLEMissingRequiredKey, VLEParamWrongType):
             course = None
             courses = request.user.participations.all()
 
@@ -291,6 +291,7 @@ class AssignmentView(viewsets.ViewSet):
         try:
             course_id, = utils.required_typed_params(request.query_params, (int, 'course_id'))
             course = Course.objects.get(pk=course_id)
+            request.user.check_participation(course)
             courses = [course]
         except (VLEMissingRequiredKey, VLEParamWrongType):
             course = None

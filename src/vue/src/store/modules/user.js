@@ -15,6 +15,8 @@ const getters = {
     fullName: state => state.fullName,
     ltiID: state => state.ltiID,
     permissions: state => state.permissions,
+    isTestStudent: state => state.is_test_student,
+    isSuperuser: state => state.isSuperuser,
     // We are not logged unless the store is populated as well
     loggedIn: state => state.jwtAccess !== null && state.uID !== null,
     storePopulated: state => state.uID !== null,
@@ -42,6 +44,7 @@ const mutations = {
         state.profilePicture = userData.profile_picture
         state.fullName = userData.full_name
         state.ltiID = userData.lti_id
+        state.isSuperuser = userData.is_superuser
         state.permissions = permissions
     },
     [types.LOGOUT] (state) {
@@ -55,9 +58,13 @@ const mutations = {
         state.fullName = null
         state.ltiID = null
         state.permissions = null
+        state.isTestStudent = null
     },
     [types.EMAIL_VERIFIED] (state) {
         state.verifiedEmail = true
+    },
+    [types.SET_EMAIL] (state, val) {
+        state.email = val
     },
     [types.SET_FULL_USER_NAME] (state, data) {
         state.fullName = data.fullName
@@ -75,12 +82,13 @@ const mutations = {
 
 const actions = {
     /* Authenticates the user and poplates the store, if either fails the login fails. */
-    login ({ commit, dispatch }, { username, password }) {
+    login ({ state, commit, dispatch }, { username, password }) {
         return new Promise((resolve, reject) => {
             connection.conn.post('/token/', { username, password }).then((response) => {
                 commit(types.SET_JWT, response.data)
 
                 dispatch('populateStore').then(() => {
+                    commit(`sentry/${types.SET_SENTRY_USER_SCOPE}`, { uID: state.uID }, { root: true })
                     resolve('JWT and store are set successfully.')
                 }, (error) => {
                     Vue.toasted.error(sanitization.escapeHtml(error.response.data.description))
@@ -94,6 +102,7 @@ const actions = {
     logout ({ commit }) {
         return Promise.all([
             commit(`preferences/${types.RESET_PREFERENCES}`, null, { root: true }),
+            commit(`permissions/${types.RESET_PERMISSIONS}`, null, { root: true }),
             commit(types.LOGOUT),
         ])
     },
@@ -159,10 +168,12 @@ export default {
         username: null,
         email: null,
         verifiedEmail: false,
+        isTestStudent: null,
         profilePicture: null,
         fullName: null,
         ltiID: null,
         permissions: null,
+        isSuperuser: false,
     },
     getters,
     mutations,

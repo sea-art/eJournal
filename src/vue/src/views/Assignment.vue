@@ -15,23 +15,18 @@
             />
 
             <div class="d-flex">
-                <b-form-select
-                    v-if="groups.length > 0"
+                <theme-select
                     v-model="journalGroupFilter"
-                    :selectSize="1"
+                    label="name"
+                    trackBy="name"
+                    :options="groups"
+                    :multiple="true"
+                    :searchable="true"
+                    :multiSelectText="`active group filter${journalGroupFilter &&
+                        journalGroupFilter.length === 1 ? '' : 's'}`"
+                    placeholder="Filter by group"
                     class="multi-form mr-2"
-                >
-                    <option :value="null">
-                        Filter on group...
-                    </option>
-                    <option
-                        v-for="group in groups"
-                        :key="group.name"
-                        :value="group.name"
-                    >
-                        {{ group.name }}
-                    </option>
-                </b-form-select>
+                />
                 <b-form-select
                     v-model="selectedSortOption"
                     :selectSize="1"
@@ -77,7 +72,8 @@
                     @click="publishGradesAssignment"
                 >
                     <icon name="upload"/>
-                    Publish all grades
+                    {{ assignment.journals.length === filteredJournals.length ?
+                        "Publish all grades" : "Publish grades" }}
                 </b-button>
                 <b-button
                     v-if="$hasPermission('can_edit_assignment') && assignment.lti_courses
@@ -176,48 +172,46 @@
             </b-modal>
         </div>
 
-        <div
-            v-for="journal in filteredJournals"
+        <load-wrapper
             slot="main-content-column"
-            :key="journal.student.id"
+            :loading="loadingJournals"
         >
-            <b-link
-                :to="{
-                    name: 'Journal',
-                    params: {
-                        cID: cID,
-                        aID: aID,
-                        jID: journal.id
-                    }
-                }"
-                tag="b-button"
+            <div
+                v-for="journal in filteredJournals"
+                :key="journal.student.id"
             >
-                <student-card
-                    :listView="true"
-                    :student="journal.student"
-                    :stats="journal.stats"
-                />
-            </b-link>
-        </div>
-
-        <main-card
-            v-if="loadingJournals && assignmentJournals.length === 0"
-            slot="main-content-column"
-            :line1="'Loading journals...'"
-            class="no-hover"
-        />
-        <main-card
-            v-else-if="assignmentJournals.length === 0"
-            slot="main-content-column"
-            :line1="'No participants with a journal'"
-            class="no-hover"
-        />
-        <main-card
-            v-else-if="filteredJournals.length === 0"
-            slot="main-content-column"
-            :line1="'No journals found'"
-            class="no-hover"
-        />
+                <b-link
+                    :to="{
+                        name: 'Journal',
+                        params: {
+                            cID: cID,
+                            aID: aID,
+                            jID: journal.id
+                        }
+                    }"
+                    tag="b-button"
+                >
+                    <student-card
+                        :listView="true"
+                        :student="journal.student"
+                        :stats="journal.stats"
+                        :assignment="assignment"
+                    />
+                </b-link>
+            </div>
+            <main-card
+                v-if="assignmentJournals.length === 0"
+                line1="No participants with a journal"
+                line2="There are no journals for this assignment."
+                class="no-hover border-dark-grey"
+            />
+            <main-card
+                v-else-if="filteredJournals.length === 0"
+                line1="No journals found"
+                line2="There are no journals that match your search query."
+                class="no-hover border-dark-grey"
+            />
+        </load-wrapper>
 
         <div
             v-if="stats"
@@ -230,29 +224,32 @@
 </template>
 
 <script>
+import bonusFileUploadInput from '@/components/assets/file_handling/BonusFileUploadInput.vue'
+import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import contentColumns from '@/components/columns/ContentColumns.vue'
-import studentCard from '@/components/assignment/StudentCard.vue'
+import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import mainCard from '@/components/assets/MainCard.vue'
 import statisticsCard from '@/components/assignment/StatisticsCard.vue'
-import breadCrumb from '@/components/assets/BreadCrumb.vue'
-import bonusFileUploadInput from '@/components/assets/file_handling/BonusFileUploadInput.vue'
+import studentCard from '@/components/assignment/StudentCard.vue'
 
 import store from '@/Store.vue'
 import assignmentAPI from '@/api/assignment.js'
 import groupAPI from '@/api/group.js'
 import gradeAPI from '@/api/grade.js'
 import participationAPI from '@/api/participation.js'
+import journalAPI from '@/api/journal.js'
 import { mapGetters, mapMutations } from 'vuex'
 
 export default {
     name: 'Assignment',
     components: {
-        contentColumns,
-        studentCard,
-        statisticsCard,
-        breadCrumb,
         bonusFileUploadInput,
+        breadCrumb,
+        contentColumns,
+        loadWrapper,
         mainCard,
+        statisticsCard,
+        studentCard,
     },
     props: {
         cID: {
@@ -270,11 +267,13 @@ export default {
             groups: [],
             loadingJournals: true,
             newActiveLTICourse: null,
+            filteredGroups: null,
         }
     },
     computed: {
         ...mapGetters({
             journalSortBy: 'preferences/journalSortBy',
+            isSuperuser: 'user/isSuperuser',
             order: 'preferences/journalSortAscending',
             getJournalSearchValue: 'preferences/journalSearchValue',
             getJournalGroupFilter: 'preferences/journalGroupFilter',
@@ -306,7 +305,7 @@ export default {
             },
         },
         filteredJournals () {
-            store.setFilteredJournals(this.assignmentJournals, this.order, this.getJournalGroupFilter,
+            store.setFilteredJournals(this.assignmentJournals, this.order, this.journalGroupFilter,
                 this.getJournalSearchValue, this.journalSortBy)
             this.calcStats(store.state.filteredJournals)
             return store.state.filteredJournals
@@ -342,7 +341,9 @@ export default {
             const initialCalls = []
             initialCalls.push(assignmentAPI.get(this.aID, this.cID))
             initialCalls.push(groupAPI.getAllFromCourse(this.cID))
-            initialCalls.push(participationAPI.get(this.cID))
+            /* Superuser does not have any participation, this should not redict to error, nor give an error toast */
+            initialCalls.push(
+                participationAPI.get(this.cID, { redirect: !this.isSuperuser, customErrorToast: '' }).catch(() => {}))
 
             Promise.all(initialCalls).then((results) => {
                 this.loadingJournals = false
@@ -351,22 +352,15 @@ export default {
                 this.groups = results[1].sort((a, b) => b.name < a.name)
                 const participant = results[2]
 
-                /* If there are no groups or the current group filter yields no journals, remove the filter. */
-                if (!this.groups || !this.groups.some(group => group.name === this.getJournalGroupFilter)) {
-                    this.setJournalGroupFilter(null)
-                }
-
                 /* If the group filter has not been set, set it to the
                    group of the user provided that yields journals. */
                 if (!this.getSelfSetGroupFilter && participant && participant.groups) {
-                    participant.groups.forEach((group) => {
-                        this.setJournalGroupFilter(group.name)
-                        if (!this.filteredJournals.length) {
-                            this.setJournalGroupFilter(null)
-                        } else {
-                            return /* eslint no-useless-return: "off" */
-                        }
-                    })
+                    this.setJournalGroupFilter(participant.groups)
+                }
+
+                /* If there are no groups or the current group filter yields no journals, remove the filter. */
+                if (!this.groups || this.filteredJournals.length === 0) {
+                    this.setJournalGroupFilter(null)
                 }
             })
         },
@@ -386,18 +380,34 @@ export default {
             })
         },
         publishGradesAssignment () {
-            if (window.confirm('Are you sure you want to publish all grades for each journal?')) {
-                gradeAPI.publish_all_assignment_grades(this.aID, {
-                    customErrorToast: 'Error while publishing all grades for this assignment.',
-                    customSuccessToast: 'Published all grades for this assignment.',
-                })
-                    .then(() => {
+            if (this.assignment.journals.length === store.state.filteredJournals.length) {
+                if (window.confirm('Are you sure you want to publish the grades for all journals?')) {
+                    gradeAPI.publish_all_assignment_grades(this.aID, {
+                        customErrorToast: 'Error while publishing all grades for this assignment.',
+                        customSuccessToast: 'Published all grades for this assignment.',
+                    }).then(() => {
                         assignmentAPI.get(this.aID, this.cID)
                             .then((assignment) => {
                                 this.assignmentJournals = assignment.journals
                                 this.stats = assignment.stats
                             })
                     })
+                }
+            } else if (window.confirm('Are you sure you want to publish the grades of the filtered journals?')) {
+                const allJournals = []
+                this.filteredJournals.forEach((journal) => {
+                    allJournals.push(journalAPI.update(journal.id, { published: true }, {
+                        customErrorToast: `Error while publishing grades for ${journal.student}.`,
+                    }))
+                })
+                Promise.all(allJournals).then(() => {
+                    this.$toasted.success('Published grades.')
+                    assignmentAPI.get(this.aID, this.cID)
+                        .then((assignment) => {
+                            this.assignmentJournals = assignment.journals
+                            this.stats = assignment.stats
+                        })
+                })
             }
         },
         saveNewActiveLTICourse () {

@@ -123,7 +123,10 @@
             <img src="/ejournal-logo-white.svg"/>
         </b-navbar-brand>
 
-        <b-navbar-nav class="ml-auto">
+        <b-navbar-nav
+            v-if="$route.name !== 'LtiLogin'"
+            class="ml-auto"
+        >
             <b-nav-dropdown
                 id="nav-dropdown-options"
                 ref="loginDropdown"

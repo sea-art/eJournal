@@ -35,7 +35,7 @@ function packConnArgs (connArgs) {
     }
 
     Object.keys(connArgs).forEach((key) => {
-        if (!(key in DEFAULT_CONN_ARGS)) { throw Error(`Unkown connection argument key: ${key}`) }
+        if (!(key in DEFAULT_CONN_ARGS)) { throw Error(`Unknown connection argument key: ${key}`) }
     })
 
     return { ...DEFAULT_CONN_ARGS, ...connArgs }

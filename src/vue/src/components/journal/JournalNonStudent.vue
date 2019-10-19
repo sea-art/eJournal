@@ -38,31 +38,33 @@
                     '{{ assignment.active_lti_course.name }}' yet. They cannot update this journal and grades cannot
                     be passed back until they visit the assignment at least once.
                 </b-alert>
-                <div v-if="nodes.length > currentNode && currentNode !== -1">
-                    <div v-if="nodes[currentNode].type == 'e' || nodes[currentNode].type == 'd'">
-                        <entry-non-student-preview
-                            ref="entry-template-card"
-                            :journal="journal"
-                            :entryNode="nodes[currentNode]"
-                            @check-grade="loadJournal(true)"
-                        />
+                <load-wrapper :loading="loadingNodes">
+                    <div v-if="nodes.length > currentNode && currentNode !== -1">
+                        <div v-if="nodes[currentNode].type == 'e' || nodes[currentNode].type == 'd'">
+                            <entry-non-student-preview
+                                ref="entry-template-card"
+                                :journal="journal"
+                                :entryNode="nodes[currentNode]"
+                                @check-grade="loadJournal(true)"
+                            />
+                        </div>
+                        <div v-else-if="nodes[currentNode].type == 'p'">
+                            <progress-node
+                                :currentNode="nodes[currentNode]"
+                                :nodes="nodes"
+                                :bonusPoints="journal.bonus_points"
+                            />
+                        </div>
                     </div>
-                    <div v-else-if="nodes[currentNode].type == 'p'">
-                        <progress-node
-                            :currentNode="nodes[currentNode]"
-                            :nodes="nodes"
-                            :bonusPoints="journal.bonus_points"
-                        />
-                    </div>
-                </div>
-                <journal-start-card
-                    v-else-if="currentNode === -1"
-                    :assignment="assignment"
-                />
-                <journal-end-card
-                    v-else
-                    :assignment="assignment"
-                />
+                    <journal-start-card
+                        v-else-if="currentNode === -1"
+                        :assignment="assignment"
+                    />
+                    <journal-end-card
+                        v-else
+                        :assignment="assignment"
+                    />
+                </load-wrapper>
             </b-col>
         </b-col>
 
@@ -162,6 +164,7 @@ import entryNonStudentPreview from '@/components/entry/EntryNonStudentPreview.vu
 import timeline from '@/components/timeline/Timeline.vue'
 import studentCard from '@/components/assignment/StudentCard.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
+import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import journalStartCard from '@/components/journal/JournalStartCard.vue'
 import journalEndCard from '@/components/journal/JournalEndCard.vue'
 import progressNode from '@/components/entry/ProgressNode.vue'
@@ -175,6 +178,7 @@ export default {
     components: {
         entryNonStudentPreview,
         breadCrumb,
+        loadWrapper,
         timeline,
         studentCard,
         journalStartCard,
@@ -192,6 +196,7 @@ export default {
             assignmentJournals: [],
             assignment: {},
             journal: null,
+            loadingNodes: true,
         }
     },
     computed: {
@@ -243,6 +248,7 @@ export default {
             journalAPI.getNodes(this.jID)
                 .then((nodes) => {
                     this.nodes = nodes
+                    this.loadingNodes = false
                     if (this.$route.query.nID !== undefined) {
                         this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID, 10))
                     } else {
@@ -254,18 +260,19 @@ export default {
                 .then((journal) => { this.journal = journal })
         },
         selectFirstUngradedNode (gradeUpdated) {
-            let min = this.nodes.length - 1
+            let min = this.nodes.length
 
             for (let i = Math.max(this.currentNode, 0); i < this.nodes.length; i++) {
-                if (this.nodes[i].entry && this.nodes[i].entry.grade && (this.nodes[i].entry.grade.grade === null
-                    || !this.nodes[i].entry.grade.published) && i < min) {
+                if (this.nodes[i].entry && (this.nodes[i].entry.grade === null
+                    || (this.nodes[i].entry.grade.grade === null || !this.nodes[i].entry.grade.published))) {
                     min = i
+                    break
                 }
             }
 
-            if (min < this.nodes.length - 1 && this.$store.getters['preferences/autoSelectUngradedEntry']) {
+            if (min < this.nodes.length && this.$store.getters['preferences/autoSelectUngradedEntry']) {
                 this.currentNode = min
-            } else if (min === this.nodes.length - 1 && this.$store.getters['preferences/autoProceedNextJournal']
+            } else if (min === this.nodes.length && this.$store.getters['preferences/autoProceedNextJournal']
                 && gradeUpdated && this.filteredJournals.length > 1) {
                 this.$router.push({
                     name: 'Journal',
@@ -302,7 +309,10 @@ export default {
                 })
                     .then(() => {
                         journalAPI.getNodes(this.jID)
-                            .then((nodes) => { this.nodes = nodes })
+                            .then((nodes) => {
+                                this.nodes = nodes
+                                this.loadingNodes = false
+                            })
                         journalAPI.get(this.jID)
                             .then((journal) => { this.journal = journal })
                     })

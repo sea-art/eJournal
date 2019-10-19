@@ -13,6 +13,15 @@ import os
 from collections import OrderedDict
 from datetime import timedelta
 
+import sentry_sdk
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.django import DjangoIntegration
+
+sentry_sdk.init(
+    dsn=None if 'TRAVIS' in os.environ else os.environ['SENTRY_DSN'],
+    integrations=[DjangoIntegration(), CeleryIntegration()]
+)
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 BASELINK = os.environ['BASELINK']
 
@@ -36,6 +45,7 @@ LTI_SECRET = os.environ['LTI_SECRET']
 LTI_KEY = os.environ['LTI_KEY']
 ROLES = OrderedDict({'Teacher': 'instructor', 'TA': 'teachingassistant', 'Student': 'learner'})
 LTI_ROLES = OrderedDict({'instructor': 'Teacher', 'teachingassistant': 'TA', 'learner': 'Student'})
+LTI_TEST_STUDENT_FULL_NAME = 'Test student'
 
 
 # Celery settings

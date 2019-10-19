@@ -68,6 +68,10 @@
                 v-else-if="field.type == 'd'"
                 class="input-disabled theme-input full-width"
             />
+            <flat-pickr
+                v-else-if="field.type == 'dt'"
+                class="input-disabled theme-input full-width"
+            />
             <b-form-select
                 v-else-if="field.type == 's'"
                 :value="null"

@@ -4,9 +4,11 @@ Entry utilities.
 A library with utilities related to entries.
 """
 import VLE.timeline as timeline
+import VLE.validators as validators
 from VLE import factory
 from VLE.models import Field, Node
 from VLE.utils import file_handling
+from VLE.utils import generic_utils as utils
 from VLE.utils.error_handling import VLEBadRequest, VLEMissingRequiredField
 
 
@@ -14,7 +16,7 @@ def patch_entry_content(user, entry, old_content, field, data, assignment):
     """Creates new content for an entry, deleting the current content.
 
     If no temporary file is stored to replace the current content, the old content is kept as is."""
-    if field.type in ['i', 'f', 'p']:
+    if field.type in field.FILE_TYPES:
         new_file = file_handling.get_temp_user_file(user, assignment, data, content=old_content)
 
         if new_file:
@@ -35,9 +37,23 @@ def get_node_index(journal, node, user):
             return i
 
 
-def check_required_fields(template, content):
+def check_fields(template, content_list):
+    """Check if the supplied content list is a valid for the given template"""
+    received_ids = []
+
+    # Check if all the content is valid
+    for content in content_list:
+        data, field_id = utils.required_params(content, 'data', 'id')
+        if data is not None and data != '':
+            received_ids.append(field_id)
+            try:
+                field = Field.objects.get(pk=field_id, template=template)
+            except Field.DoesNotExist:
+                raise VLEBadRequest('Passed field is not from template.')
+            validators.validate_entry_content(data, field)
+
+    # Check for missing required fields
     required_fields = Field.objects.filter(template=template, required=True)
-    received_ids = [field['id'] for field in content if field['data'] != '']
     for field in required_fields:
         if field.id not in received_ids:
             raise VLEMissingRequiredField(field)

@@ -19,7 +19,7 @@ class TemplateFormatFactory(factory.django.DjangoModelFactory):
         if not create:
             return
 
-        template = VLE.models.Template.objects.create(format=self)
+        template = VLE.models.Template.objects.create(format=self, name="template 1")
         self.template_set.add(template)
-        template = VLE.models.Template.objects.create(format=self)
+        template = VLE.models.Template.objects.create(format=self, name="template 2")
         self.template_set.add(template)

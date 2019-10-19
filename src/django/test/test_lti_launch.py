@@ -8,6 +8,7 @@ import datetime
 import test.factory as factory
 import time
 from test.utils import api
+from test.utils.lti import get_new_lti_id, get_signature, lti_launch_response_to_access_token
 
 import oauth2
 from django.conf import settings
@@ -15,7 +16,7 @@ from django.test import RequestFactory, TestCase
 
 import VLE.lti_launch as lti
 import VLE.views.lti as lti_view
-from VLE.models import Journal, User
+from VLE.models import Group, Journal, User
 
 REQUEST = {
     'oauth_consumer_key': str(settings.LTI_KEY),
@@ -44,12 +45,6 @@ REQUEST = {
     'oauth_timestamp': 'null',
     'oauth_nonce': 'null'
 }
-
-
-def get_signature(request):
-    oauth_request = oauth2.Request.from_request('POST', 'http://testserver/lti/launch', parameters=request)
-    oauth_consumer = oauth2.Consumer(settings.LTI_KEY, settings.LTI_SECRET)
-    return oauth2.SignatureMethod_HMAC_SHA1().sign(oauth_request, oauth_consumer, {}).decode('utf-8')
 
 
 def create_request(request_body={}, timestamp=str(int(time.time())), nonce=str(oauth2.generate_nonce()),
@@ -86,10 +81,11 @@ def lti_launch(request_body={}, response_value=lti_view.LTI_STATES.NO_USER.value
 
 
 def get_jwt(obj, request_body={}, timestamp=str(int(time.time())), nonce=str(oauth2.generate_nonce()),
-            user=None, status=200, response_msg='', assert_msg='', response_value=None, delete_field=False):
+            user=None, status=200, response_msg='', assert_msg='', response_value=None, delete_field=False,
+            access=None):
     request = create_request(request_body, timestamp, nonce, delete_field)
     jwt_params = lti_view.encode_lti_params(request)
-    response = api.get(obj, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), user=user, status=status)
+    response = api.get(obj, '/get_lti_params_from_jwt/{0}/'.format(jwt_params), user=user, status=status, access=access)
     if response_msg:
         if 'description' in response:
             assert response_msg in response['description'], assert_msg
@@ -109,17 +105,10 @@ class LtiLaunchTest(TestCase):
     def setUp(self):
         """Setup."""
         self.factory = RequestFactory()
-
-        self.new_lti_id = 'new_lti_id'
-
-        self.teacher = factory.Teacher()
-        self.teacher.lti_id = 'teacher_lti_id'
-        self.teacher.save()
-
-        self.student = factory.Student()
-        self.student.lti_id = 'student_lti_id'
-        self.student.save()
         self.request = REQUEST.copy()
+
+        self.teacher = factory.LtiTeacher()
+        self.student = factory.LtiStudent()
 
         self.journal = factory.Journal(user=self.student)
         self.assignment = self.journal.assignment
@@ -178,7 +167,7 @@ class LtiLaunchTest(TestCase):
         lti_launch(
             request_body={
                 'roles': 'urn:lti:instrole:ims/lis/Administrator',
-                'user_id': self.new_lti_id,
+                'user_id': get_new_lti_id(),
                 'oauth_signature': 'invalid'
             },
             response_value=lti_view.LTI_STATES.BAD_AUTH.value,
@@ -187,13 +176,109 @@ class LtiLaunchTest(TestCase):
 
     def test_lti_launch_key_error(self):
         lti_launch(
-            request_body={
-                'user_id': self.new_lti_id
-            },
+            request_body={'user_id': get_new_lti_id()},
             response_value=lti_view.LTI_STATES.KEY_ERR.value,
             assert_msg='Without all the keys, it should return a KEY_ERROR',
             delete_field='custom_username',
         )
+
+    def test_lti_flow_test_user(self):
+        course = factory.LtiCourse()
+        assignment = factory.LtiAssignment(courses=[course])
+        test_user_params = factory.JWTTestUserParams(user_id=get_new_lti_id())
+
+        resp = lti_launch(
+            request_body=test_user_params,
+            response_value=lti_view.LTI_STATES.LOGGED_IN.value,
+            assert_msg='A test user should directly be created on lti launch if not exist.',
+        )
+        test_student = User.objects.get(lti_id=test_user_params['user_id'])
+        assert test_student.is_test_student, 'A new test user should be created and flagged accordingly.'
+        total_users = User.objects.count()
+
+        get_jwt(
+            self, user=test_student, status=200, access=lti_launch_response_to_access_token(resp),
+            request_body={
+                **test_user_params,
+                'custom_course_id': course.active_lti_id,
+                'custom_assignment_id': assignment.active_lti_id},
+            response_value=lti_view.LTI_STATES.FINISH_S.value,
+            assert_msg='With a course and assign linked, a fresh test student should be forwarded to finish state.'
+        )
+
+        resp = lti_launch(
+            request_body=test_user_params,
+            response_value=lti_view.LTI_STATES.LOGGED_IN.value,
+            assert_msg='A reused test user can launch succesfully after being created.',
+        )
+
+        get_jwt(
+            self, user=test_student, status=200, access=lti_launch_response_to_access_token(resp),
+            request_body={
+                **test_user_params,
+                'custom_course_id': course.active_lti_id,
+                'custom_assignment_id': assignment.active_lti_id},
+            response_value=lti_view.LTI_STATES.FINISH_S.value,
+            assert_msg='With a course and assign linked, a reused test student should be forwarded to finish state.'
+        )
+
+        assert total_users == User.objects.count(), 'Launching and relaunching should create no additional users.'
+
+        # Test the flow of another test user part of the same course and assignment
+        test_user_params2 = factory.JWTTestUserParams(user_id=get_new_lti_id())
+
+        resp = lti_launch(request_body=test_user_params2, response_value=lti_view.LTI_STATES.LOGGED_IN.value)
+        test_student2 = User.objects.get(lti_id=test_user_params2['user_id'])
+        get_jwt(
+            self, user=test_student2, status=200, access=lti_launch_response_to_access_token(resp),
+            request_body={
+                **test_user_params2,
+                'custom_course_id': course.active_lti_id,
+                'custom_assignment_id': assignment.active_lti_id},
+            response_value=lti_view.LTI_STATES.FINISH_S.value,
+            assert_msg='A second fresh test student from the same course and assign should be forwarded to finish state'
+        )
+        assert User.objects.filter(lti_id=test_user_params2['user_id']).exists(), 'Second test user should be created.'
+        assert not User.objects.filter(lti_id=test_student.lti_id).exists(), 'Can only be one test student per course.'
+
+    def test_get_lti_params_from_valid_test_user(self):
+        course = factory.LtiCourse()
+        assignment = factory.LtiAssignment(courses=[course])
+        test_student = factory.TestUser()
+        get_jwt(
+            self, user=test_student, status=200,
+            request_body={
+                'user_id': test_student.lti_id,
+                'custom_course_id': course.active_lti_id,
+                'custom_assignment_id': assignment.active_lti_id},
+            response_value=lti_view.LTI_STATES.FINISH_S.value,
+            assert_msg='With a course and assign linked, a test student should be forwarded to finish state.')
+
+        test_student2 = factory.TestUser()
+        get_jwt(
+            self, user=test_student2, status=200,
+            request_body={
+                'user_id': test_student2.lti_id,
+                'custom_course_id': course.active_lti_id,
+                'custom_assignment_id': assignment.active_lti_id},
+            response_value=lti_view.LTI_STATES.FINISH_S.value,
+            assert_msg='With a course and assign linked, a test student should be forwarded to finish state.')
+        assert not User.objects.filter(lti_id=test_student.lti_id).exists(), 'Max of 1 test student per course.'
+
+        course2 = factory.LtiCourse()
+        assignment2 = factory.LtiAssignment(courses=[course2])
+
+        test_student3 = factory.TestUser()
+        get_jwt(
+            self, user=test_student3, status=200,
+            request_body={
+                'user_id': test_student3.lti_id,
+                'custom_course_id': course2.active_lti_id,
+                'custom_assignment_id': assignment2.active_lti_id},
+            response_value=lti_view.LTI_STATES.FINISH_S.value,
+            assert_msg='With a course and assign linked, a test student should be forwarded to finish state.')
+        assert User.objects.filter(lti_id=test_student2.lti_id).exists(), \
+            'Linking a test user to one course should not delete test users of a different course.'
 
     def test_get_lti_params_from_invalid_user_id(self):
         get_jwt(
@@ -237,10 +322,10 @@ class LtiLaunchTest(TestCase):
 
     def test_get_lti_params_from_jwt_course_student(self):
         get_jwt(
-            self, user=self.student, status=404,
+            self, user=self.student, status=200,
             request_body={'user_id': self.student.lti_id},
-            response_msg='not finished setting up the course',
-            assert_msg='When a student gets jwt_params and the course is not setup, it should return response_msg')
+            response_value=lti_view.LTI_STATES.LACKING_PERMISSION_TO_SETUP_COURSE.value,
+            assert_msg='Connecting to an course which has not been setup yet as a student, should flag accordingly')
 
     def test_get_lti_params_from_jwt_assignment_teacher(self):
         course = factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
@@ -311,12 +396,12 @@ class LtiLaunchTest(TestCase):
     def test_get_lti_params_from_jwt_assignment_student(self):
         course = factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
         get_jwt(
-            self, user=self.student, status=404,
+            self, user=self.student, status=200,
             request_body={
                 'user_id': self.student.lti_id,
                 'custom_course_id': course.active_lti_id},
-            response_msg='not finished setting up the assignment',
-            assert_msg='When a student gets jwt_params after course is created it should return response_msg')
+            response_value=lti_view.LTI_STATES.LACKING_PERMISSION_TO_SETUP_ASSIGNMENT.value,
+            assert_msg='Connecting to an assignment which has not been setup yet as a student, should flag accordingly')
 
     def test_get_lti_params_from_jwt_journal_teacher(self):
         course = factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
@@ -424,11 +509,11 @@ class LtiLaunchTest(TestCase):
 
     def test_get_lti_params_from_jwt_unknown_role(self):
         get_jwt(
-            self, user=self.teacher, status=404,
+            self, user=self.teacher, status=200,
             request_body={
                 'user_id': self.teacher.lti_id,
                 'roles': 'urn:lti:instrole:ims/lis/Administrator'},
-            response_msg='not finished setting up the course',
+            response_value=lti_view.LTI_STATES.LACKING_PERMISSION_TO_SETUP_COURSE.value,
             assert_msg='When a teacher goes to the platform without a teacher role, it should lose its teacher powers')
 
     def test_get_lti_params_from_jwt_key_Error(self):
@@ -448,6 +533,20 @@ class LtiLaunchTest(TestCase):
             {'custom_course_id': course.active_lti_id},
             user=self.teacher, role=settings.ROLES['Teacher'])
         assert selected_course == course
+
+    def test_select_course_with_participation_and_groups(self):
+        """Hopefully creates extra groups."""
+        course = factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
+        factory.Group(name='existing group', course=course, lti_id='1000')
+        selected_course = lti.update_lti_course_if_exists({
+                'custom_course_id': course.active_lti_id,
+                'custom_section_id': ','.join(['1000', '1001']),
+            }, user=self.teacher, role=settings.ROLES['Teacher'])
+        assert selected_course == course
+        assert Group.objects.filter(course=course, name='Group 2').exists(), \
+            'Groups with an LTI id that are do not exist need to get renamed'
+        assert Group.objects.filter(course=course).count() == 2, \
+            'Groups with an LTI id that exists should not create new groups'
 
     def test_select_journal(self):
         """Hopefully select a journal."""
