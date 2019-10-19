@@ -107,7 +107,7 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         exclude = ('author', 'users', )
-        read_only_fields = ('id', )
+        read_only_fields = ('id', 'assignment_lti_id_set')
 
     def get_lti_linked(self, course):
         return course.has_lti_link()
