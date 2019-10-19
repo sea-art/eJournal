@@ -322,10 +322,10 @@ class LtiLaunchTest(TestCase):
 
     def test_get_lti_params_from_jwt_course_student(self):
         get_jwt(
-            self, user=self.student, status=404,
+            self, user=self.student, status=200,
             request_body={'user_id': self.student.lti_id},
-            response_msg='not finished setting up the course',
-            assert_msg='When a student gets jwt_params and the course is not setup, it should return response_msg')
+            response_value=lti_view.LTI_STATES.LACKING_PERMISSION_TO_SETUP_COURSE.value,
+            assert_msg='Connecting to an course which has not been setup yet as a student, should flag accordingly')
 
     def test_get_lti_params_from_jwt_assignment_teacher(self):
         course = factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
@@ -396,12 +396,12 @@ class LtiLaunchTest(TestCase):
     def test_get_lti_params_from_jwt_assignment_student(self):
         course = factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
         get_jwt(
-            self, user=self.student, status=404,
+            self, user=self.student, status=200,
             request_body={
                 'user_id': self.student.lti_id,
                 'custom_course_id': course.active_lti_id},
-            response_msg='not finished setting up the assignment',
-            assert_msg='When a student gets jwt_params after course is created it should return response_msg')
+            response_value=lti_view.LTI_STATES.LACKING_PERMISSION_TO_SETUP_ASSIGNMENT.value,
+            assert_msg='Connecting to an assignment which has not been setup yet as a student, should flag accordingly')
 
     def test_get_lti_params_from_jwt_journal_teacher(self):
         course = factory.LtiCourse(author=self.teacher, name=REQUEST['custom_course_name'])
@@ -509,11 +509,11 @@ class LtiLaunchTest(TestCase):
 
     def test_get_lti_params_from_jwt_unknown_role(self):
         get_jwt(
-            self, user=self.teacher, status=404,
+            self, user=self.teacher, status=200,
             request_body={
                 'user_id': self.teacher.lti_id,
                 'roles': 'urn:lti:instrole:ims/lis/Administrator'},
-            response_msg='not finished setting up the course',
+            response_value=lti_view.LTI_STATES.LACKING_PERMISSION_TO_SETUP_COURSE.value,
             assert_msg='When a teacher goes to the platform without a teacher role, it should lose its teacher powers')
 
     def test_get_lti_params_from_jwt_key_Error(self):

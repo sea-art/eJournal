@@ -20,6 +20,9 @@ from VLE.utils.error_handling import VLEMissingRequiredKey
 
 class LTI_STATES(enum.Enum):
     """VUE ENTRY STATE."""
+    LACKING_PERMISSION_TO_SETUP_ASSIGNMENT = '-4'
+    LACKING_PERMISSION_TO_SETUP_COURSE = '-3'
+
     KEY_ERR = '-2'
     BAD_AUTH = '-1'
 
@@ -48,8 +51,11 @@ def get_new_course_response(lti_params, role):
     This only works when the lti user is a teacher of that course.
     """
     if 'Teacher' not in role:
-        return response.not_found('The course you are looking for cannot be found. \
-                                   Most likely your teacher has not finished setting up the course.')
+        return response.success({'params': {
+            'state': LTI_STATES.LACKING_PERMISSION_TO_SETUP_COURSE.value,
+            'lti_cName': lti_params['custom_course_name'],
+            'lti_aName': lti_params['custom_assignment_title'],
+        }})
 
     try:
         return response.success({'params': {
@@ -76,9 +82,11 @@ def get_new_assignment_response(lti_params, course, role):
     This only works when the lti user is a teacher of that assignment.
     """
     if 'Teacher' not in role:
-        return response.not_found('The assignment you are looking for cannot be found. \
-            Either your teacher has not finished setting up the assignment, or it has been moved to another \
-            course. Please contact your course administrator.')
+        return response.success({'params': {
+            'state': LTI_STATES.LACKING_PERMISSION_TO_SETUP_ASSIGNMENT.value,
+            'lti_cName': lti_params['custom_course_name'],
+            'lti_aName': lti_params['custom_assignment_title'],
+        }})
 
     try:
         return response.success({'params': {
