@@ -1,18 +1,24 @@
 <template>
-    <div class="feedback-wrapper">
+    <div
+        v-if="loggedIn"
+        class="feedback-wrapper"
+    >
         <div
-            v-if="loggedIn"
             class="shadow feedback-button"
             @click="showModal('feedbackModal')"
         >
-            <icon name="comments"/>
-            Feedback
+            <icon
+                name="life-ring"
+                scale="1"
+                class="shift-up-2"
+            />
+            Support
         </div>
 
         <b-modal
             ref="feedbackModal"
             size="lg"
-            title="Send technical feedback"
+            title="Technical support"
             hideFooter
         >
             <feedback @feedbackSent="hideModal('feedbackModal')"/>
@@ -53,26 +59,25 @@ export default {
 .feedback-wrapper
     position: fixed
     bottom: 0px
+    z-index: 1200
     .feedback-button
         font-family: 'Roboto Condensed', sans-serif
         cursor: pointer
         padding: 2px 10px 2px 10px
         position: fixed
         bottom: 0px
-        left: 50px
+        right: 150px
         background-color: white
-        border-width: 2px 2px 0px 2px
-        border-color: $theme-dark-grey
-        border-radius: 5px 5px 0px 0px !important
-        font-weight: bold
+        border: 2px solid $theme-dark-grey
+        border-bottom-width: 0px
+        border-radius: 10px 10px 0px 0px !important
+        transition: all 0.3s cubic-bezier(.25,.8,.25,1) !important
         svg
+            transition: all 0.3s cubic-bezier(.25,.8,.25,1) !important
             fill: $theme-dark-blue
-        @include md-max
-            float: right
-            position: relative
         &:hover
             background-color: $theme-dark-blue
             color: white
             svg
-                fill: $theme-orange
+                fill: white
 </style>

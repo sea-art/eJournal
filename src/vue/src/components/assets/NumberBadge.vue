@@ -5,6 +5,7 @@
             class="badge-part"
             :class="{
                 'info': leftNum > 0,
+                'border-grey': leftNum <= 0,
                 'left-number': rightNum !== null && rightNum > 0,
             }"
         >
@@ -43,10 +44,9 @@ export default {
 .number-badge
     .badge-part
         font-family: 'Roboto Condensed', sans-serif
-        font-size: 1.1em
+        font-size: 1em
         border-radius: 5px !important
-        border-color: red
-        border: 2px solid $theme-dark-blue
+        border: 1px solid #CCCCCC
         span.right-number
             border-top-left-radius: 0 !important
             border-bottom-left-radius: 0 !important

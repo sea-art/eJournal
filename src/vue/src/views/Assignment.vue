@@ -207,12 +207,14 @@
             <main-card
                 v-if="assignmentJournals.length === 0"
                 line1="No participants with a journal"
-                class="no-hover"
+                line2="There are no journals for this assignment."
+                class="no-hover border-dark-grey"
             />
             <main-card
                 v-else-if="filteredJournals.length === 0"
                 line1="No journals found"
-                class="no-hover"
+                line2="There are no journals that match your search query."
+                class="no-hover border-dark-grey"
             />
         </load-wrapper>
 

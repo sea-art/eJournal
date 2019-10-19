@@ -100,7 +100,7 @@ def verify_email(request):
 
     token_generator = PasswordResetTokenGenerator()
     if not token_generator.check_token(user, token):
-        return response.bad_request(description='Invalid email recovery token.')
+        return response.bad_request(description='Invalid email verification token.')
 
     if user.verified_email:
         return response.success(description='Email address already verified.')
@@ -167,4 +167,4 @@ def send_feedback(request):
     else:
         send_email_feedback.delay(request.user.pk, topic, ftype, feedback, user_agent, url)
 
-    return response.success(description='Feedback was successfully received, thank you!')
+    return response.success(description='Thank you for contacting support, we\'ll get back to you as soon as possible!')

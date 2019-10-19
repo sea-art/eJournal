@@ -34,6 +34,12 @@
                     </assignment-card>
                 </b-link>
             </div>
+            <main-card
+                v-if="assignments !== null && assignments.length === 0"
+                line1="No assignments found"
+                line2="This course currently does not have any assignments."
+                class="no-hover border-dark-grey"
+            />
             <b-button
                 v-if="$hasPermission('can_add_assignment')"
                 slot="main-content-column"

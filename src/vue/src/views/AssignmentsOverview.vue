@@ -73,6 +73,12 @@
                     />
                 </b-link>
             </div>
+            <main-card
+                v-if="computedAssignments.length === 0"
+                line1="No assignments found"
+                line2="You currently do not participate in any assignments."
+                class="no-hover border-dark-grey"
+            />
         </load-wrapper>
     </content-single-column>
 </template>
@@ -82,6 +88,7 @@ import contentSingleColumn from '@/components/columns/ContentSingleColumn.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import todoCard from '@/components/assets/TodoCard.vue'
+import mainCard from '@/components/assets/MainCard.vue'
 import assignmentAPI from '@/api/assignment.js'
 
 import { mapGetters, mapMutations } from 'vuex'
@@ -93,6 +100,7 @@ export default {
         breadCrumb,
         loadWrapper,
         todoCard,
+        mainCard,
     },
     data () {
         return {

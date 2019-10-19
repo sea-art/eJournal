@@ -16,8 +16,7 @@
                     v-b-tooltip.hover
                     :title="(showEmailValidationInput) ? 'Enter the email verification token below.' :
                         'Click to verify your email!'"
-                    name="info"
-                    class="crossed-icon"
+                    :name="(showEmailValidationInput) ? 'check' : 'paper-plane'"
                     @click.native="requestEmailVerification"
                 />
                 <icon
@@ -49,7 +48,6 @@
                 <icon
                     v-b-tooltip.hover
                     name="paper-plane"
-                    class="validate-icon"
                     title="Validate verification code."
                     @click.native="verifyEmail"
                 />

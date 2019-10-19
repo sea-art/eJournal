@@ -35,9 +35,10 @@
                 </b-button>
             </div>
             <main-card
-                v-else-if="courses.length === 0"
-                :line1="'No courses found'"
-                class="no-hover"
+                v-else
+                line1="No courses found"
+                line2="You currently do not participate in any courses."
+                class="no-hover border-dark-grey"
             />
         </load-wrapper>
 

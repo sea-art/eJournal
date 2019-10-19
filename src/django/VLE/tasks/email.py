@@ -100,28 +100,31 @@ def send_email_feedback(user_pk, topic, ftype, feedback, user_agent, url, file_c
     r_html_content = render_to_string('feedback.html', {'email_data': r_email_data})
     r_text_content = strip_tags(r_html_content)
 
+    from_email = 'eJournal | Support<' + ('support@ejourn.al' if settings.ENVIRONMENT == 'PRODUCTION'
+                                          else 'test@ejourn.al') + '>'
+
     attachments = []
     if user.feedback_file:
         r_email_data['attachments_added'] = True
         attachments.append((user.feedback_file.name, user.feedback_file.read(), file_content_type))
 
     reply = EmailMultiAlternatives(
-        subject='Thank you for your feedback!',
+        subject='Re: {}'.format(topic),
         body=r_text_content,
         attachments=attachments,
-        from_email='support@ejourn.al' if settings.ENVIRONMENT == 'PRODUCTION' else 'test@ejourn.al',
+        from_email=from_email,
         headers={'Content-Type': 'text/plain'},
-        to=[user.email]
+        to=[user.email],
+        bcc=['support@ejourn.al'] if settings.ENVIRONMENT == 'PRODUCTION' else ['test@ejourn.al']
     )
 
     forward = EmailMultiAlternatives(
-        subject='[Feedback] {}'.format(topic),
+        subject='Additional support info: {}'.format(topic),
         body=f_body,
         attachments=attachments,
-        from_email='support@ejourn.al' if settings.ENVIRONMENT == 'PRODUCTION' else 'test@ejourn.al',
+        from_email=from_email,
         to=['support@ejourn.al'] if settings.ENVIRONMENT == 'PRODUCTION' else ['test@ejourn.al'],
-        headers={'Content-Type': 'text/plain'},
-        reply_to=[user.email]
+        headers={'Content-Type': 'text/plain'}
     )
 
     reply.attach_alternative(r_html_content, 'text/html')
