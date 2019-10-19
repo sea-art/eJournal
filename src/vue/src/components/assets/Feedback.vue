@@ -32,15 +32,15 @@
             </b-button>
             <b-button
                 class="flex-grow-1"
-                :class="{'active': type === 'other'}"
+                :class="{'active': type === 'feedback'}"
                 @click="() => {
-                    type = 'other'
+                    type = 'feedback'
                     topicPlaceholder = 'I have a suggestion for a new feature, or...'
                     contentPlaceholder = 'It would be nice if I would be able to do \'X\' instead of having to do \'Y\''
                 }"
             >
                 <icon name="envelope"/>
-                Other
+                Feedback
             </b-button>
         </div>
         <div v-if="type">
@@ -94,7 +94,7 @@ export default {
             topicPlaceholder: null,
             contentPlaceholder: null,
             types: [
-                'bug', 'help', 'other',
+                'bug', 'help', 'feedback',
             ],
             files: null,
         }

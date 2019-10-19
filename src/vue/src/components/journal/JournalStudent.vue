@@ -57,6 +57,7 @@
                             <div v-if="nodes[currentNode].entry !== null">
                                 <entry-node
                                     ref="entry-template-card"
+                                    :journal="journal"
                                     :cID="cID"
                                     :entryNode="nodes[currentNode]"
                                     @edit-node="adaptData"

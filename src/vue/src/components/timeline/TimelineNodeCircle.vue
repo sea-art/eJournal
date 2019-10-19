@@ -163,7 +163,7 @@ export default {
                 return 'overdue'
             } else if (!entry && !this.dueDateHasPassed()) {
                 return 'empty'
-            } else if (!isGrader && entry && !entry.grade && !entry.editable) {
+            } else if (!isGrader && entry && !entry.grade) {
                 return 'awaiting_grade'
             } else if (isGrader && entry && (!entry.grade || !entry.grade.grade)) {
                 return 'needs_grading'

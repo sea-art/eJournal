@@ -47,11 +47,11 @@ export default {
         font-size: 1em
         border-radius: 5px !important
         border: 1px solid #CCCCCC
-        span.right-number
+        &.right-number
             border-top-left-radius: 0 !important
             border-bottom-left-radius: 0 !important
             border-left: 0px !important
-        span.left-number
+        &.left-number
             border-top-right-radius: 0 !important
             border-bottom-right-radius: 0 !important
             border-right: 0px !important

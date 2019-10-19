@@ -33,7 +33,7 @@
         <span v-if="bonusPoints != 0">
             <icon
                 name="star"
-                class="fill-orange shift-up-2"
+                class="fill-orange shift-up-2 mr-1"
             />
             <b>{{ bonusPoints }}</b> bonus {{ bonusPoints > 1 ? "points" : "point" }}<br/>
         </span>

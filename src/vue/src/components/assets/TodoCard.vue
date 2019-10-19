@@ -9,10 +9,13 @@
             :title="squareInfo"
         />
 
-        <b class="field-heading">{{ deadline.name }}</b> ({{ course.abbreviation }})
+        <b class="field-heading">
+            {{ deadline.name }}
+        </b>
+        ({{ course.abbreviation }})
         <b-badge
             v-if="!deadline.is_published"
-            class="ml-2 mt-2"
+            class="ml-2 align-top"
         >
             Unpublished
         </b-badge>

@@ -96,7 +96,7 @@ export default {
         },
     },
     created () {
-        assignmentAPI.getUpcoming()
+        assignmentAPI.getUpcoming(this.$route.params.cID)
             .then((deadlines) => { this.deadlines = deadlines })
     },
     methods: {

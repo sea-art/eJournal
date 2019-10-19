@@ -15,23 +15,18 @@
             />
 
             <div class="d-flex">
-                <b-form-select
-                    v-if="groups.length > 0"
+                <theme-select
                     v-model="journalGroupFilter"
-                    :selectSize="1"
+                    label="name"
+                    trackBy="name"
+                    :options="groups"
+                    :multiple="true"
+                    :searchable="true"
+                    :multiSelectText="`active group filter${journalGroupFilter &&
+                        journalGroupFilter.length === 1 ? '' : 's'}`"
+                    placeholder="Filter by group"
                     class="multi-form mr-2"
-                >
-                    <option :value="null">
-                        Filter on group...
-                    </option>
-                    <option
-                        v-for="group in groups"
-                        :key="group.id"
-                        :value="group.id"
-                    >
-                        {{ group.name }}
-                    </option>
-                </b-form-select>
+                />
                 <b-form-select
                     v-model="selectedSortOption"
                     :selectSize="1"
@@ -272,6 +267,7 @@ export default {
             groups: [],
             loadingJournals: true,
             newActiveLTICourse: null,
+            filteredGroups: null,
         }
     },
     computed: {
@@ -309,7 +305,7 @@ export default {
             },
         },
         filteredJournals () {
-            store.setFilteredJournals(this.assignmentJournals, this.order, this.getJournalGroupFilter,
+            store.setFilteredJournals(this.assignmentJournals, this.order, this.journalGroupFilter,
                 this.getJournalSearchValue, this.journalSortBy)
             this.calcStats(store.state.filteredJournals)
             return store.state.filteredJournals
@@ -356,22 +352,15 @@ export default {
                 this.groups = results[1].sort((a, b) => b.name < a.name)
                 const participant = results[2]
 
-                /* If there are no groups or the current group filter yields no journals, remove the filter. */
-                if (!this.groups || !this.groups.some(group => group.name === this.getJournalGroupFilter)) {
-                    this.setJournalGroupFilter(null)
-                }
-
                 /* If the group filter has not been set, set it to the
                    group of the user provided that yields journals. */
                 if (!this.getSelfSetGroupFilter && participant && participant.groups) {
-                    participant.groups.some((group) => {
-                        this.setJournalGroupFilter(group.id)
-                        if (this.filteredJournals.length === 0) {
-                            this.setJournalGroupFilter(null)
-                            return false
-                        }
-                        return true
-                    })
+                    this.setJournalGroupFilter(participant.groups)
+                }
+
+                /* If there are no groups or the current group filter yields no journals, remove the filter. */
+                if (!this.groups || this.filteredJournals.length === 0) {
+                    this.setJournalGroupFilter(null)
                 }
             })
         },

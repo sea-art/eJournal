@@ -41,8 +41,7 @@
                 class="no-hover border-dark-grey"
             />
             <b-button
-                v-if="$hasPermission('can_add_assignment')"
-                slot="main-content-column"
+                v-if="$hasPermission('can_add_assignment', 'course', cID)"
                 class="add-button"
                 @click="showModal('createAssignmentRef')"
             >
