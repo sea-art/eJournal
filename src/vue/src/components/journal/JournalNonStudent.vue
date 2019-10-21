@@ -245,19 +245,19 @@ export default {
             switchJournalAssignment: 'preferences/SWITCH_JOURNAL_ASSIGNMENT',
         }),
         loadJournal (gradeUpdated) {
-            journalAPI.getNodes(this.jID)
-                .then((nodes) => {
-                    this.nodes = nodes
-                    this.loadingNodes = false
-                    if (this.$route.query.nID !== undefined) {
-                        this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID, 10))
-                    } else {
-                        this.selectFirstUngradedNode(gradeUpdated)
-                    }
-                })
-
-            journalAPI.get(this.jID)
-                .then((journal) => { this.journal = journal })
+            const initialCalls = []
+            initialCalls.push(journalAPI.get(this.jID))
+            initialCalls.push(journalAPI.getNodes(this.jID))
+            Promise.all(initialCalls).then((results) => {
+                this.journal = results[0]
+                this.nodes = results[1]
+                this.loadingNodes = false
+                if (this.$route.query.nID !== undefined) {
+                    this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID, 10))
+                } else {
+                    this.selectFirstUngradedNode(gradeUpdated)
+                }
+            })
         },
         selectFirstUngradedNode (gradeUpdated) {
             let min = this.nodes.length
