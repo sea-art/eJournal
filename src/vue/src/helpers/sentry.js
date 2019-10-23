@@ -8,6 +8,16 @@ function beforeSend (event, hint) { // eslint-disable-line no-unused-vars
     if (event.exception) {
         store.commit('sentry/SET_LAST_EVENT_ID', { eventID: event.event_id })
     }
+
+    if (hint && hint.originalException) {
+        const originalException = hint.originalException
+
+        if (event.extra === undefined) { event.extra = {} }
+        if (originalException.config) { event.extra.config = originalException.config }
+        if (originalException.request) { event.extra.request = originalException.request }
+        if (originalException.response) { event.extra.response = originalException.response }
+    }
+
     return event
 }
 

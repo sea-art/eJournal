@@ -103,6 +103,7 @@ const actions = {
         return Promise.all([
             commit(`preferences/${types.RESET_PREFERENCES}`, null, { root: true }),
             commit(`permissions/${types.RESET_PERMISSIONS}`, null, { root: true }),
+            commit(`connection/${types.RESET_CONNECTION}`, null, { root: true }),
             commit(types.LOGOUT),
         ])
     },
