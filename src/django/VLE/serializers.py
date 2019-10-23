@@ -528,7 +528,7 @@ class TemplateSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', )
 
     def get_field_set(self, template):
-        return FieldSerializer(template.field_set.all(), many=True).data
+        return FieldSerializer(template.field_set.all().order_by('location'), many=True).data
 
 
 class ContentSerializer(serializers.ModelSerializer):

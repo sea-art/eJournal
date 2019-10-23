@@ -42,6 +42,12 @@ const mutations = {
             success ? resolve(connection(originalRequest)) : reject(retryError)
         })
     },
+    [types.RESET_CONNECTION] (state) {
+        state.openApiCalls = 0
+        state.fetchingAccessToken = false
+        state.refreshSubscribers = []
+        state.minConTimerRunning = false
+    },
 }
 
 const actions = {
