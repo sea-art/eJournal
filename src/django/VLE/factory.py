@@ -8,6 +8,7 @@ import requests
 from django.conf import settings
 from django.utils import timezone
 
+import VLE.validators as validators
 from VLE.models import (Assignment, AssignmentParticipation, Comment, Content, Course, Entry, Field, Format, Grade,
                         Group, Instance, Journal, Node, Participation, PresetNode, Role, Template, User, UserFile)
 
@@ -21,8 +22,9 @@ def make_instance(allow_standalone_registration=None):
     return instance
 
 
-def make_user(username, password, email, lti_id=None, profile_picture='/unknown-profile.png',
-              is_superuser=False, is_teacher=False, full_name=None, verified_email=False, is_staff=False):
+def make_user(username, password=None, email=None, lti_id=None, profile_picture='/unknown-profile.png',
+              is_superuser=False, is_teacher=False, full_name=None, verified_email=False, is_staff=False,
+              is_test_student=False):
     """Create a user.
 
     Arguments:
@@ -33,11 +35,18 @@ def make_user(username, password, email, lti_id=None, profile_picture='/unknown-
     profile_picture -- profile picture of the user (default: none)
     is_superuser -- if the user needs all permissions, set this true (default: False)
     """
-    user = User.objects.create(
+    user = User(
         username=username, email=email, lti_id=lti_id, is_superuser=is_superuser, is_teacher=is_teacher,
-        verified_email=verified_email, is_staff=is_staff, full_name=full_name, profile_picture=profile_picture)
+        verified_email=verified_email, is_staff=is_staff, full_name=full_name, profile_picture=profile_picture,
+        is_test_student=is_test_student)
 
-    user.set_password(password)
+    if is_test_student:
+        user.set_unusable_password()
+    else:
+        validators.validate_password(password)
+        user.set_password(password)
+
+    user.full_clean()
     user.save()
     return user
 

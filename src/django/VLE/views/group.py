@@ -72,8 +72,8 @@ class GroupView(viewsets.ViewSet):
 
         request.user.check_permission('can_add_course_user_group', course)
 
-        if Group.objects.filter(name=name, course=course).exists():
-            return response.bad_request('Course group with the desired name already exists.')
+        if lti_id and Group.objects.filter(lti_id=lti_id, course=course).exists():
+            return response.bad_request('Course group with the desired lti id already exists.')
 
         course_group = factory.make_course_group(name, course, lti_id)
         serializer = GroupSerializer(course_group, many=False)
@@ -107,9 +107,6 @@ class GroupView(viewsets.ViewSet):
 
         if not name:
             return response.bad_request('Group name is not allowed to be empty.')
-
-        if Group.objects.filter(name=name, course=course).exclude(pk=group.pk).exists():
-            return response.bad_request('Course group with that name already exists.')
 
         serializer = GroupSerializer(group, data={'name': name}, partial=True)
         if not serializer.is_valid():

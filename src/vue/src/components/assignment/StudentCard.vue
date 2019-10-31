@@ -152,13 +152,20 @@ export default {
         top: 0px
 
 .student-details
+    position: relative
+    width: calc(100% - 80px)
     min-height: 70px
-    display: flex
     flex-direction: column
-    flex-grow: 1
     padding: 10px
+    .username-wrapper
+        display: block
+        width: 100%
+        text-overflow: ellipsis
+        white-space: nowrap
+        overflow: hidden
     &.list-view
         padding-left: 40px
     @include sm-max
         align-items: flex-end
+
 </style>

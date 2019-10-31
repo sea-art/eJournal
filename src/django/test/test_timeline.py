@@ -4,6 +4,7 @@ test_timeline.py.
 Test all about the timeline.
 """
 import datetime
+from test.factory.user import DEFAULT_PASSWORD
 
 from django.test import TestCase
 
@@ -18,8 +19,8 @@ class TimelineTests(TestCase):
 
     def setUp(self):
         """Setup."""
-        self.u_rick = factory.make_user("Rick", "pass", "r@r.com", full_name='Test User')
-        self.u_lars = factory.make_user("Lars", "pass", "l@l.com", full_name='Test User')
+        self.u_rick = factory.make_user("Rick", DEFAULT_PASSWORD, "r@r.com", full_name='Test User')
+        self.u_lars = factory.make_user("Lars", DEFAULT_PASSWORD, "l@l.com", full_name='Test User')
 
         f_colloq = factory.make_default_format()
         self.deadlineentry = factory.make_entrydeadline_node(

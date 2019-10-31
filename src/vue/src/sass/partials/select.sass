@@ -1,9 +1,9 @@
-select, .multiselect__tags
+select
+    @extend .shadow
     -webkit-appearance: none
     -moz-appearance: none
     appearance: none
     outline: none
-    @extend .shadow
     font-family: 'Roboto Condensed', sans-serif
     font-size: 1.2em !important
 
@@ -21,20 +21,6 @@ select, .multiselect__tags
     svg
         transition: all 0.3s cubic-bezier(.25,.8,.25,1) !important
         margin: 5px
-
-.multiselect__tags
-    line-height: 1em !important
-
-.multiselect__single
-    margin: 0 !important
-
-.multiselect__placeholder
-    margin: 0 !important
-    padding: 0 !important
-
-.multiselect__option--highlight, .multiselect__option--highlight::after
-    background: $theme-light-grey !important
-    color: $theme-dark-grey !important
 
 select
     padding: 0.3rem 0.75rem !important

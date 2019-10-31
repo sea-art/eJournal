@@ -59,15 +59,17 @@
 
             <div v-if="$hasPermission('can_edit_course_user_group')">
                 <div class="d-flex">
-                    <multiselect
-                        v-model="participantToAdd"
-                        :options="notMembers"
-                        :closeOnSelect="true"
-                        :customLabel="participantLabel"
-                        class="multi-form mr-2"
-                        placeholder="Select user to add..."
-                        label="participant"
+                    <theme-select
+                        v-model="participantsToAdd"
+                        label="full_name"
                         trackBy="id"
+                        :options="notMembers"
+                        :multiple="true"
+                        :searchable="true"
+                        :multiSelectText="`user${participantsToAdd &&
+                            participantsToAdd.length === 1 ? '' : 's'} selected`"
+                        placeholder="Select users to add"
+                        class="multi-form mr-2"
                     />
                     <b-button
                         class="add-button multi-form"
@@ -119,12 +121,8 @@
 
 <script>
 import groupAPI from '@/api/group.js'
-import multiselect from 'vue-multiselect'
 
 export default {
-    components: {
-        multiselect,
-    },
     props: {
         cID: {
             required: true,
@@ -142,7 +140,7 @@ export default {
                 newGroupName: '',
             },
             editing: false,
-            participantToAdd: null,
+            participantsToAdd: [],
         }
     },
     computed: {
@@ -180,20 +178,17 @@ export default {
                 .then(() => { this.$emit('remove-member', member, this.group) })
         },
         addToGroup () {
-            if (this.participantToAdd) {
+            for (let i = 0; i < this.participantsToAdd.length; i++) {
                 groupAPI.addMember(
                     this.group.id,
-                    this.participantToAdd.id,
-                    { customSuccessToast: `Added ${this.participantToAdd.full_name} to ${this.group.name}.` },
+                    this.participantsToAdd[i].id,
+                    { customSuccessToast: `Added ${this.participantsToAdd[i].full_name} to ${this.group.name}.` },
                 )
                     .then((participants) => {
                         this.$emit('update-group', participants, this.group)
-                        this.participantToAdd = null
+                        this.participantsToAdd = []
                     })
             }
-        },
-        participantLabel (participant) {
-            return participant.full_name
         },
     },
 }

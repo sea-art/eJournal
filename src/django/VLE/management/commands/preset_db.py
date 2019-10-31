@@ -7,11 +7,12 @@ Generate preset data and save it to the database.
 import datetime
 import random
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from faker import Faker
 
 import VLE.factory as factory
-from VLE.models import Course, Field, Node
+from VLE.models import Course, Field, Node, User
 
 faker = Faker()
 
@@ -69,6 +70,16 @@ class Command(BaseCommand):
                 "is_superuser": False,
                 "is_teacher": False
             },
+            "TestUser": {
+                "username": "305c9b180a9ce9684ea62aeff2b2e97052cf2d4b1",
+                "full_name": settings.LTI_TEST_STUDENT_FULL_NAME,
+                "password": "pass",
+                "email": "",
+                "verified_email": False,
+                "is_superuser": False,
+                "is_teacher": False,
+                "is_test_student": True,
+            },
             "Teacher": {
                 "username": "Teacher",
                 "full_name": "Engel Hamer",
@@ -111,7 +122,10 @@ class Command(BaseCommand):
         self.users = {}
 
         for key, value in users_examples.items():
-            self.users[key] = factory.make_user(**value)
+            self.users[key] = User.objects.create(**value)
+            self.users[key].set_password(value['password'])
+            self.users[key].profile_picture = '/unknown-profile.png'
+            self.users[key].save()
 
     def gen_courses(self):
         """Generate courses."""
@@ -121,7 +135,8 @@ class Command(BaseCommand):
                 "name": "Portfolio Academische Vaardigheden - Cohort 1",
                 "abbr": "PAV1",
                 "author": self.users["Teacher"],
-                "students": [self.users[s] for s in ["Student", "Student2", "Student3", "Student4", "Student5"]],
+                "students": [self.users[s] for s in ["Student", "Student2", "Student3", "Student4", "Student5",
+                                                     "TestUser"]],
                 "teachers": [self.users["Teacher"]],
                 "tas": [self.users["TA"]],
                 "start_date": faker.date("2018-09-01"),
@@ -133,7 +148,8 @@ class Command(BaseCommand):
                 "name": "Portfolio Academische Vaardigheden - Cohort 2",
                 "abbr": "PAV2",
                 "author": self.users["Teacher"],
-                "students": [self.users[s] for s in ["Student", "Student2", "Student3", "Student4", "Student5"]],
+                "students": [self.users[s] for s in ["Student", "Student2", "Student3", "Student4", "Student5",
+                                                     "TestUser"]],
                 "teachers": [self.users["Teacher"]],
                 "tas": [self.users["TA2"]],
                 "start_date": faker.date("2019-09-01"),

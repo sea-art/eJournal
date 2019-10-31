@@ -127,8 +127,9 @@ def update_lti_course_if_exists(request, user, role):
 
     If no course exists, return None
     If it does exist:
-    1. Put the user in the course
-    2. Add groups to the user
+    1. If the to be processed user is a test student, remove any other test students from the course, 1 max.
+    2. Put the user in the course
+    3. Add groups to the user
     """
     course_lti_id = request.get('custom_course_id', None)
     course = Course.objects.filter(active_lti_id=course_lti_id)
@@ -137,6 +138,10 @@ def update_lti_course_if_exists(request, user, role):
 
     # There can only be one actively linked course.
     course = course.first()
+
+    # Can only have one active test student per course at a time.
+    if user.is_test_student:
+        User.objects.filter(participation__course=course, is_test_student=True).exclude(pk=user.pk).delete()
 
     # If the user not is a participant, add participation with possibly the role given by the LTI instance.
     if not user.is_participant(course):

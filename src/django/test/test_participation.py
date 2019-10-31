@@ -3,7 +3,7 @@ from test.utils import api
 
 from django.test import TestCase
 
-import VLE.models
+from VLE.models import Role, User
 
 
 class ParticipationAPITest(TestCase):
@@ -43,7 +43,7 @@ class ParticipationAPITest(TestCase):
         api.update(self, 'participations', params=self.update_params, user=self.teacher)
 
         # Check cannot update role without can_edit_course_roles permissions
-        VLE.models.Role.objects.filter(course=self.course).update(can_edit_course_roles=False)
+        Role.objects.filter(course=self.course).update(can_edit_course_roles=False)
         api.update(self, 'participations', params=self.update_params, user=self.teacher, status=403)
         self.update_params.pop('role', None)
         api.update(self, 'participations', params=self.update_params, user=self.teacher)
@@ -56,6 +56,20 @@ class ParticipationAPITest(TestCase):
                    params={'pk': self.course.pk, 'user_id': self.student.pk}, user=self.teacher)
         api.delete(self, 'participations',
                    params={'pk': self.course.pk, 'user_id': self.student.pk}, user=self.teacher, status=404)
+
+    def test_delete_test_user_participation(self):
+        test_user = factory.TestUser()
+        factory.Participation(user=test_user, course=self.course)
+        api.delete(self, 'participations', params={'pk': self.course.pk, 'user_id': test_user.pk}, user=self.teacher)
+        assert not User.objects.filter(pk=test_user.pk).exists(), 'A test user should be deleted upon removal from a ' \
+            'course, if the test user has no remaining participations.'
+
+        test_user = factory.TestUser()
+        factory.Participation(user=test_user, course=self.course)
+        factory.Participation(user=test_user, course=factory.Course())
+        api.delete(self, 'participations', params={'pk': self.course.pk, 'user_id': test_user.pk}, user=self.teacher)
+        assert User.objects.filter(pk=test_user.pk).exists(), 'A test user should not be deleted upon removal from a ' \
+            'course, if the test user has remaining participations.'
 
     def test_unenrolled(self):
         api.get(self, 'participations/unenrolled',

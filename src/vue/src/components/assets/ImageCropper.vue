@@ -19,7 +19,10 @@
                 @file-size-exceed="onFileSizeExceed"
             />
         </div>
-        <b-button @click="croppa.chooseFile()">
+        <b-button
+            class="mr-2"
+            @click="croppa.chooseFile()"
+        >
             <icon name="upload"/>
             Upload
         </b-button>

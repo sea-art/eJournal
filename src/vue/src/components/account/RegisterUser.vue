@@ -1,24 +1,12 @@
 <template>
-    <b-card class="no-hover">
-        <h2
-            v-if="lti"
-            class="field-heading"
-        >
-            Username
-        </h2>
-        <b-input
-            v-if="lti"
-            :value="lti.username"
-            class="multi-form theme-input"
-            disabled
-        />
+    <div>
         <b-form
             @submit.prevent="onSubmit"
             @reset.prevent="onReset"
         >
             <h2
                 v-if="!lti"
-                class="field-heading"
+                class="field-heading required"
             >
                 Username
             </h2>
@@ -32,7 +20,7 @@
             />
             <h2
                 v-if="!lti"
-                class="field-heading"
+                class="field-heading required"
             >
                 Full name
             </h2>
@@ -44,8 +32,8 @@
                 maxlength="200"
                 required
             />
-            <h2 class="field-heading">
-                Password
+            <h2 class="field-heading required">
+                New password
             </h2>
             <b-input
                 v-model="form.password"
@@ -54,8 +42,8 @@
                 placeholder="Password"
                 required
             />
-            <h2 class="field-heading">
-                Repeat password
+            <h2 class="field-heading required">
+                Repeat new password
             </h2>
             <b-input
                 v-model="form.password2"
@@ -66,7 +54,7 @@
             />
             <h2
                 v-if="!lti"
-                class="field-heading"
+                class="field-heading required"
             >
                 Email
             </h2>
@@ -92,7 +80,7 @@
                 Create account
             </b-button>
         </b-form>
-    </b-card>
+    </div>
 </template>
 
 <script>

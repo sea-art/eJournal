@@ -27,8 +27,8 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'full_name', 'profile_picture', 'is_teacher', 'lti_id', 'id',
-                  'role', 'groups')
-        read_only_fields = ('id', 'lti_id', 'is_teacher', 'username')
+                  'role', 'groups', 'is_test_student')
+        read_only_fields = ('id', 'lti_id', 'is_teacher', 'username', 'is_test_student')
 
     def get_role(self, user):
         if 'course' not in self.context or not self.context['course']:
@@ -56,9 +56,10 @@ class OwnUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'full_name', 'email', 'permissions', 'is_superuser',
-                  'lti_id', 'profile_picture', 'is_teacher', 'verified_email')
-        read_only_fields = ('id', 'permissions', 'lti_id', 'is_teacher', 'verified_email', 'username', 'is_superuser')
+        fields = ('id', 'username', 'full_name', 'email', 'permissions', 'is_test_student',
+                  'lti_id', 'profile_picture', 'is_teacher', 'verified_email', 'is_superuser')
+        read_only_fields = ('id', 'permissions', 'lti_id', 'is_teacher', 'is_superuser',
+                            'verified_email', 'username', 'is_test_student')
 
     def get_permissions(self, user):
         """Returns a dictionary with all user permissions.
@@ -106,7 +107,7 @@ class CourseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Course
         exclude = ('author', 'users', )
-        read_only_fields = ('id', )
+        read_only_fields = ('id', 'assignment_lti_id_set')
 
     def get_lti_linked(self, course):
         return course.has_lti_link()
@@ -182,7 +183,7 @@ class AssignmentDetailsSerializer(serializers.ModelSerializer):
     def get_active_lti_course(self, assignment):
         if 'user' in self.context and self.context['user'] and \
            self.context['user'].is_participant(assignment):
-            c = assignment.get_active_course()
+            c = assignment.get_active_lti_course()
             if c:
                 return {'cID': c.pk, 'name': c.name}
             return None
@@ -336,21 +337,14 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
     def _get_course(self, assignment):
         if 'course' not in self.context or not self.context['course']:
-            if assignment.active_lti_id:
-                course = assignment.get_active_course()
-            else:
-                course = assignment.courses.order_by('-enddate').first()
-
+            return assignment.get_active_course()
         else:
             if not self.context['course'] in assignment.courses.all():
                 raise VLEProgrammingError('Wrong course is supplied')
             elif not self.context['user'].is_participant(self.context['course']):
                 raise VLEParticipationError(self.context['course'], self.context['user'])
 
-            else:
-                course = self.context['course']
-
-        return course
+            return self.context['course']
 
     def get_courses(self, assignment):
         if 'course' in self.context and self.context['course']:
@@ -360,7 +354,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
     def get_active_lti_course(self, assignment):
         if 'user' in self.context and self.context['user'] and \
            self.context['user'].is_participant(assignment):
-            c = assignment.get_active_course()
+            c = assignment.get_active_lti_course()
             if c:
                 return {'cID': c.pk, 'name': c.name}
             return None
@@ -565,7 +559,7 @@ class TemplateSerializer(serializers.ModelSerializer):
         read_only_fields = ('id', )
 
     def get_field_set(self, template):
-        return FieldSerializer(template.field_set.all(), many=True).data
+        return FieldSerializer(template.field_set.all().order_by('location'), many=True).data
 
 
 class ContentSerializer(serializers.ModelSerializer):

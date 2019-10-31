@@ -34,8 +34,10 @@ body
 a, select, input
     outline: 0
 
-a:hover
+a
     color: $theme-blue
+    &:hover
+        color: $theme-dark-blue
 
 .min-height-100
     min-height: 100%
@@ -84,13 +86,13 @@ a:hover
 .info
     background-color: $theme-blue !important
 
-.error, .success, .warning, .info
+.error, .success, .warning
     font-family: 'Roboto Condensed', sans-serif !important
     font-size: 1.1em !important
     color: white
 
 .badge, .toasted
-    border-radius: 5px
+    border-radius: 5px !important
 
 .fade-enter-active, .fade-leave-active
   transition: opacity .5s

@@ -17,6 +17,8 @@ import VueMoment from 'vue-moment'
 import App from './App.vue'
 import router from './router'
 import store from './store'
+import ThemeSelect from './components/assets/ThemeSelect.vue'
+
 import connection from '@/api/connection.js'
 
 Vue.config.productionTip = false
@@ -27,6 +29,7 @@ Vue.use(VueIntro)
 Vue.use(VueMoment)
 
 Vue.component('icon', Icon)
+Vue.component('theme-select', ThemeSelect)
 
 initSentry(Vue)
 

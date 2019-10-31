@@ -58,7 +58,7 @@
                 type="submit"
             >
                 <icon name="paper-plane"/>
-                Submit report
+                Submit
             </b-button>
         </b-form>
     </div>

@@ -41,7 +41,13 @@ def forgot_password(request):
         user = User.objects.get(username=username)
         email = 'your recovery address'
     except User.DoesNotExist:
+        if email is None or email == '':
+            return response.not_found('Invalid email address provided.')
         user = User.objects.get(email=email)
+
+    if not user.email:
+        return response.bad_request(
+            description='The provided account has no known email address.')
 
     send_password_recovery_link.delay(user.pk)
     return response.success(
@@ -94,7 +100,7 @@ def verify_email(request):
 
     token_generator = PasswordResetTokenGenerator()
     if not token_generator.check_token(user, token):
-        return response.bad_request(description='Invalid email recovery token.')
+        return response.bad_request(description='Invalid email verification token.')
 
     if user.verified_email:
         return response.success(description='Email address already verified.')
@@ -106,9 +112,19 @@ def verify_email(request):
 
 @api_view(['POST'])
 def request_email_verification(request):
-    """Request an email with a verifcation link for the users email address."""
+    """Request an email with a verifcation link for the user's email address."""
     if request.user.verified_email:
         return response.success(description='Email address already verified.')
+
+    email, = utils.optional_params(request.data, 'email')
+
+    if not email and not request.user.email:
+        return response.bad_request(description='Please provide an email address.')
+
+    if email and request.user.email != email:
+        request.user.email = email
+        request.user.verified_email = False
+        request.user.save()
 
     send_email_verification_link.delay(request.user.pk)
     return response.success(
@@ -151,4 +167,4 @@ def send_feedback(request):
     else:
         send_email_feedback.delay(request.user.pk, topic, ftype, feedback, user_agent, url)
 
-    return response.success(description='Feedback was successfully received, thank you!')
+    return response.success(description='Thank you for contacting support, we\'ll get back to you as soon as possible!')

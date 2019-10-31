@@ -70,7 +70,7 @@
                     dismissible
                     @dismissed="showAlert = false"
                 >
-                    Some required fields are empty.
+                    Some required fields are empty or invalid.
                 </b-alert>
 
                 <b-button

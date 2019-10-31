@@ -2,8 +2,8 @@
     <div>
         <b-input-group class="multi-form">
             <b-input
-                :value="$store.getters['user/email']"
-                readonly
+                v-model="email"
+                :readonly="$store.getters['user/verifiedEmail']"
                 class="theme-input"
                 type="text"
             />
@@ -16,8 +16,7 @@
                     v-b-tooltip.hover
                     :title="(showEmailValidationInput) ? 'Enter the email verification token below.' :
                         'Click to verify your email!'"
-                    name="info"
-                    class="crossed-icon"
+                    :name="(showEmailValidationInput) ? 'check' : 'paper-plane'"
                     @click.native="requestEmailVerification"
                 />
                 <icon
@@ -49,7 +48,6 @@
                 <icon
                     v-b-tooltip.hover
                     name="paper-plane"
-                    class="validate-icon"
                     title="Validate verification code."
                     @click.native="verifyEmail"
                 />
@@ -69,10 +67,20 @@ export default {
             emailVerificationTokenMessage: null,
         }
     },
+    computed: {
+        email: {
+            get () {
+                return this.$store.getters['user/email']
+            },
+            set (value) {
+                this.$store.commit('user/SET_EMAIL', value)
+            },
+        },
+    },
     methods: {
         requestEmailVerification () {
             if (!this.showEmailValidationInput) {
-                userAPI.requestEmailVerification({ responseSuccessToast: true })
+                userAPI.requestEmailVerification(this.email, { responseSuccessToast: true })
                     .then(() => { this.showEmailValidationInput = true })
             }
         },

@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('VLE', '0034_group_assignments'),
+        ('VLE', '0036_group_assignments'),
     ]
 
     operations = [

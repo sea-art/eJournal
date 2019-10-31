@@ -204,7 +204,7 @@ shell:
 	bash -c 'source ./venv/bin/activate && cd ./src/django && python manage.py shell'
 
 run-celery-worker-and-beat:
-	bash -c 'source ./venv/bin/activate && cd  ./src/django && celery -A VLE worker -l info -B'
+	bash -c 'sudo rabbitmqctl purge_queue celery && source ./venv/bin/activate && cd  ./src/django && celery -A VLE worker -l info -B'
 
 encrypt_vault_var:
 	bash -c 'source ./venv/bin/activate && ansible-vault encrypt_string "${inp}" --vault-password-file ./pass.txt'

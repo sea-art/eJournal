@@ -4,9 +4,11 @@ user.py.
 In this file are all the user api requests.
 """
 from django.conf import settings
+from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.views import TokenObtainPairView
 
 import VLE.factory as factory
 import VLE.lti_launch as lti_launch
@@ -30,6 +32,15 @@ def get_lti_params(request, *keys):
     values = utils.optional_params(lti_params, *keys)
     values.append(settings.ROLES['Teacher'] in lti_launch.roles_to_list(lti_params))
     return values
+
+
+class LoginView(TokenObtainPairView):
+    def post(self, request):
+        result = super(LoginView, self).post(request)
+        if result.status_code == 200:
+            username, = utils.required_params(request.data, 'username')
+            User.objects.filter(username=username).update(last_login=timezone.now())
+        return result
 
 
 class UserView(viewsets.ViewSet):
@@ -105,6 +116,7 @@ class UserView(viewsets.ViewSet):
 
         lti_id, user_image, full_name, email, is_teacher = get_lti_params(
             request, 'user_id', 'custom_user_image', 'custom_user_full_name', 'custom_user_email')
+        is_test_student = bool(lti_id) and not bool(email) and full_name == settings.LTI_TEST_STUDENT_FULL_NAME
 
         if lti_id is None:
             # Check if instance allows standalone registration if user did not register through some LTI instance
@@ -129,14 +141,10 @@ class UserView(viewsets.ViewSet):
         if lti_id is not None and User.objects.filter(lti_id=lti_id).exists():
             return response.bad_request('User with this lti id already exists.')
 
-        validators.validate_password(password)
-        user = User(username=username, email=email, lti_id=lti_id, full_name=full_name,
-                    is_teacher=is_teacher, verified_email=bool(lti_id),
-                    profile_picture=user_image if user_image else '/unknown-profile.png')
-        user.set_password(password)
-
-        user.full_clean()
-        user.save()
+        user = factory.make_user(username=username, email=email, lti_id=lti_id, full_name=full_name,
+                                 is_teacher=is_teacher, verified_email=bool(lti_id) and bool(email), password=password,
+                                 profile_picture=user_image if user_image else '/unknown-profile.png',
+                                 is_test_student=is_test_student)
 
         if lti_id is None:
             send_email_verification_link.delay(user.pk)
@@ -176,7 +184,11 @@ class UserView(viewsets.ViewSet):
 
         if user_image is not None:
             user.profile_picture = user_image
-        if user_email is not None:
+        if user_email:
+            if User.objects.filter(email=user_email).exclude(pk=user.pk).exists():
+                return response.bad_request(
+                    '{} is taken by another account. Link to that account or contact support.'.format(user_email))
+
             user.email = user_email
             user.verified_email = True
         if user_full_name is not None:
@@ -187,14 +199,15 @@ class UserView(viewsets.ViewSet):
         if lti_id is not None:
             if User.objects.filter(lti_id=lti_id).exists():
                 return response.bad_request('User with this lti id already exists.')
+            elif (bool(lti_id) and not bool(user_email) and user_full_name == settings.LTI_TEST_STUDENT_FULL_NAME or
+                  user.is_test_student):
+                return response.forbidden('You are not allowed to link a test account to an existing account.')
             user.lti_id = lti_id
 
         user.save()
         if user.lti_id is not None:
             pp, = utils.optional_params(request.data, 'profile_picture')
-            data = {
-                'profile_picture': pp if pp else user.profile_picture
-            }
+            data = {'profile_picture': pp if pp else user.profile_picture}
         else:
             data = request.data
         serializer = OwnUserSerializer(user, data=data, partial=True)

@@ -15,7 +15,7 @@ export default {
         this.state.format.templatePool = templatePool
         this.state.format.nodes = nodes
     },
-    setFilteredJournals (journals, order = true, groupName = null, searchValue = null, sortBy = 'name') {
+    setFilteredJournals (journals, order = true, groups = null, searchValue = null, sortBy = 'name') {
         if (this.debug) { console.log('setFilteredJournals triggered with', journals) }
         function compare (a, b) {
             if (a < b) { return order ? 1 : -1 }
@@ -31,20 +31,20 @@ export default {
         }
 
         function groupFilter (journal) {
-            const groups = []
+            const groupsList = []
             journal.students.forEach((student) => {
                 if (student.user.groups) {
                     student.user.groups.forEach((group) => {
-                        if (!groups.includes(group)) {
-                            groups.push(group.name)
+                        if (!groupsList.includes(group)) {
+                            groupsList.push(group)
                         }
                     })
                 }
             })
-            if (groups === []) {
+            if (groups === null) {
                 return false
             }
-            return groups.map(g => g.name).includes(groupName)
+            return groups.some(group => groupsList.includes(group))
         }
 
         function searchFilter (journal) {
@@ -52,7 +52,7 @@ export default {
                 || journal.full_names.toLowerCase().includes(searchValue.toLowerCase())
         }
         let filteredJournals = journals
-        if (groupName !== null) {
+        if (groups !== null && groups.length !== 0) {
             filteredJournals = filteredJournals.filter(groupFilter)
         }
         if (searchValue !== null && searchValue !== '') {

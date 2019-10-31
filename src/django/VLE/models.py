@@ -5,6 +5,7 @@ Database file
 """
 import os
 
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
@@ -129,7 +130,9 @@ class User(AbstractUser):
         max_length=200
     )
     email = models.EmailField(
+        blank=True,
         unique=True,
+        null=True,
     )
     verified_email = models.BooleanField(
         default=False
@@ -149,6 +152,9 @@ class User(AbstractUser):
         null=True,
         blank=True,
         upload_to=get_feedback_file_path
+    )
+    is_test_student = models.BooleanField(
+        default=False
     )
 
     def check_permission(self, permission, obj=None, message=None):
@@ -232,6 +238,24 @@ class User(AbstractUser):
         if not (self.is_superuser or self == user or permissions.is_user_supervisor_of(user, self)):
             return "User"
         return self.username + " (" + str(self.pk) + ")"
+
+    def save(self, *args, **kwargs):
+        if not self.email and not self.is_test_student:
+            raise ValidationError('A legitimate user requires an email adress.')
+
+        if self._state.adding:
+            if self.is_test_student and settings.LTI_TEST_STUDENT_FULL_NAME not in self.full_name:
+                raise ValidationError('Test user\'s full name deviates on creation.')
+        else:
+            pre_save = User.objects.get(pk=self.pk)
+            if pre_save.is_test_student and not self.is_test_student:
+                raise ValidationError('A test user is expected to remain a test user.')
+
+        # Enforce unique constraint
+        if self.email == '':
+            self.email = None
+
+        super(User, self).save(*args, **kwargs)
 
 
 @receiver(models.signals.post_save, sender=User)
@@ -395,12 +419,11 @@ class Group(models.Model):
 
     lti_id = models.TextField(
         null=True,
-        unique=False,
     )
 
     class Meta:
         """Meta data for the model: unique_together."""
-        unique_together = ('name', 'course')
+        unique_together = ('lti_id', 'course')
 
     def to_string(self, user=None):
         if user is None:
@@ -633,10 +656,25 @@ class Assignment(models.Model):
 
         return super(Assignment, self).save(*args, **kwargs)
 
-    def get_active_course(self):
+    def get_active_lti_course(self):
         """"Query for retrieving the course which matches the active lti id of the assignment."""
         courses = self.courses.filter(assignment_lti_id_set__contains=[self.active_lti_id])
         return courses.first()
+
+    def get_active_course(self):
+        """"Query for retrieving the course which is most relevant to the assignment."""
+        # Get matching LTI course if possible
+        course = self.get_active_lti_course()
+        if course is not None:
+            return course
+
+        # Else get course that started the most recent
+        course = self.courses.filter(startdate__lt=timezone.now()).order_by('-startdate').first()
+        if course is not None:
+            return course
+
+        # Else get the course that starts the soonest
+        return self.courses.order_by('startdate').first()
 
     def get_course_lti_id(self, course):
         """Gets the assignment lti_id that belongs to the course assignment pair if it exists."""

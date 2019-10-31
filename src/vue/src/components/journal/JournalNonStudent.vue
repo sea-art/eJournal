@@ -244,33 +244,34 @@ export default {
             switchJournalAssignment: 'preferences/SWITCH_JOURNAL_ASSIGNMENT',
         }),
         loadJournal (gradeUpdated) {
-            journalAPI.getNodes(this.jID)
-                .then((nodes) => {
-                    this.nodes = nodes
-                    this.loadingNodes = false
-                    if (this.$route.query.nID !== undefined) {
-                        this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID, 10))
-                    } else {
-                        this.selectFirstUngradedNode(gradeUpdated)
-                    }
-                })
-
-            journalAPI.get(this.jID)
-                .then((journal) => { this.journal = journal })
+            const initialCalls = []
+            initialCalls.push(journalAPI.get(this.jID))
+            initialCalls.push(journalAPI.getNodes(this.jID))
+            Promise.all(initialCalls).then((results) => {
+                this.journal = results[0]
+                this.nodes = results[1]
+                this.loadingNodes = false
+                if (this.$route.query.nID !== undefined) {
+                    this.currentNode = this.findEntryNode(parseInt(this.$route.query.nID, 10))
+                } else {
+                    this.selectFirstUngradedNode(gradeUpdated)
+                }
+            })
         },
         selectFirstUngradedNode (gradeUpdated) {
-            let min = this.nodes.length - 1
+            let min = this.nodes.length
 
             for (let i = Math.max(this.currentNode, 0); i < this.nodes.length; i++) {
-                if (this.nodes[i].entry && this.nodes[i].entry.grade && (this.nodes[i].entry.grade.grade === null
-                    || !this.nodes[i].entry.grade.published) && i < min) {
+                if (this.nodes[i].entry && (this.nodes[i].entry.grade === null
+                    || (this.nodes[i].entry.grade.grade === null || !this.nodes[i].entry.grade.published))) {
                     min = i
+                    break
                 }
             }
 
-            if (min < this.nodes.length - 1 && this.$store.getters['preferences/autoSelectUngradedEntry']) {
+            if (min < this.nodes.length && this.$store.getters['preferences/autoSelectUngradedEntry']) {
                 this.currentNode = min
-            } else if (min === this.nodes.length - 1 && this.$store.getters['preferences/autoProceedNextJournal']
+            } else if (min === this.nodes.length && this.$store.getters['preferences/autoProceedNextJournal']
                 && gradeUpdated && this.filteredJournals.length > 1) {
                 this.$router.push({
                     name: 'Journal',

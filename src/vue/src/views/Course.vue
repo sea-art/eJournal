@@ -34,9 +34,14 @@
                     </assignment-card>
                 </b-link>
             </div>
+            <main-card
+                v-if="assignments !== null && assignments.length === 0"
+                line1="No assignments found"
+                line2="This course currently does not have any assignments."
+                class="no-hover border-dark-grey"
+            />
             <b-button
-                v-if="$hasPermission('can_add_assignment')"
-                slot="main-content-column"
+                v-if="$hasPermission('can_add_assignment', 'course', cID)"
                 class="add-button"
                 @click="showModal('createAssignmentRef')"
             >
@@ -64,6 +69,7 @@ import contentColumns from '@/components/columns/ContentColumns.vue'
 import breadCrumb from '@/components/assets/BreadCrumb.vue'
 import loadWrapper from '@/components/loading/LoadWrapper.vue'
 import assignmentCard from '@/components/assignment/AssignmentCard.vue'
+import mainCard from '@/components/assets/MainCard.vue'
 import createAssignment from '@/components/assignment/CreateAssignment.vue'
 import deadlineDeck from '@/components/assets/DeadlineDeck.vue'
 
@@ -76,6 +82,7 @@ export default {
         breadCrumb,
         loadWrapper,
         assignmentCard,
+        mainCard,
         createAssignment,
         deadlineDeck,
     },

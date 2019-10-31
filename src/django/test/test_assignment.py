@@ -328,3 +328,25 @@ class AssignmentAPITest(TestCase):
         resp = api.get(self, 'assignments/upcoming', user=journal.authors.first().user)['upcoming']
         assert resp[0]['deadline']['name'] is None, \
             'With full points of assignment, no deadline should be shown'
+
+    def test_get_active_course(self):
+        future_course = factory.Course(startdate=timezone.now() + datetime.timedelta(weeks=2))
+        later_future_course = factory.Course(startdate=timezone.now() + datetime.timedelta(weeks=5))
+        assignment = factory.Assignment(courses=[future_course, later_future_course])
+        assert assignment.get_active_course() == future_course, \
+            'Select first upcomming course as there is no LTI course or course that has already started'
+
+        past_course = factory.Course(startdate=timezone.now() - datetime.timedelta(weeks=5))
+        assignment.courses.add(past_course)
+        recent_course = factory.Course(startdate=timezone.now() - datetime.timedelta(weeks=3))
+        assignment.courses.add(recent_course)
+        assert assignment.get_active_course() == recent_course, \
+            'Select most recent course as there is no LTI course'
+
+        lti_course = factory.LtiCourseFactory(startdate=timezone.now() + datetime.timedelta(weeks=1))
+        assignment.courses.add(lti_course)
+        assignment.active_lti_id = 'lti_id'
+        lti_course.assignment_lti_id_set.append('lti_id')
+        lti_course.save()
+        assignment.save()
+        assert assignment.get_active_course() == lti_course, 'Select LTI course above all other courses'

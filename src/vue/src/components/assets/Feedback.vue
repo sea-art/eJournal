@@ -1,69 +1,88 @@
 <template>
     <b-card class="no-hover">
-        <h2>Thank you for helping us improve eJournal</h2>
-        Hi {{ $store.getters['user/fullName'] }}! If you have any suggestions for improvements or encountered
-        any issues/bugs, please inform us by filling in the form below. We aim to get back to you as soon as possible.
-        <hr/>
-        <h2 class="field-heading">
-            Topic:*
+        <h2 class="multi-form">
+            How can we help you?
         </h2>
-        <b-input
-            v-model="topic"
-            class="theme-input multi-form"
-            type="text"
-            required
-        />
-        <h2 class="field-heading">
-            Type of feedback:*
-        </h2>
-        <b-form-select
-            v-model="type"
-            :options="types"
-            class="theme-input multi-form"
-            required
-        />
+        Hi {{ this.$store.getters['user/fullName'] }}, thanks for reaching out to eJournal support.
+        Please select the support category that best fits your situation:
+        <div class="full-width d-flex justify-content-center mt-2">
+            <b-button
+                class="delete-button mr-2 flex-grow-1"
+                :class="{'active': type === 'bug'}"
+                @click="() => {
+                    type = 'bug'
+                    topicPlaceholder = 'Something went wrong while using eJournal'
+                    contentPlaceholder = 'I clicked on \'X\' and then an error appeared...'
+                }"
+            >
+                <icon name="bug"/>
+                Bug
+            </b-button>
+            <b-button
+                class="mr-2 flex-grow-1"
+                :class="{'active': type === 'help'}"
+                @click="() => {
+                    type = 'help'
+                    topicPlaceholder = 'I could use some help while using eJournal'
+                    contentPlaceholder = 'How does feature \'X\' work? Help is much appreciated!'
+                }"
+            >
+                <icon name="info"/>
+                Help
+            </b-button>
+            <b-button
+                class="flex-grow-1"
+                :class="{'active': type === 'feedback'}"
+                @click="() => {
+                    type = 'feedback'
+                    topicPlaceholder = 'I have a suggestion for a new feature, or...'
+                    contentPlaceholder = 'It would be nice if I would be able to do \'X\' instead of having to do \'Y\''
+                }"
+            >
+                <icon name="envelope"/>
+                Feedback
+            </b-button>
+        </div>
+        <div v-if="type">
+            <hr/>
+            <b-input
+                v-model="topic"
+                :placeholder="topicPlaceholder"
+                class="theme-input multi-form"
+                type="text"
+                required
+            />
 
-        <h2 class="field-heading">
-            Feedback:*
-        </h2>
-        <b-form-textarea
-            v-model="feedback"
-            :rows="4"
-            :maxRows="10"
-            class="theme-input multi-form"
-            required
-        />
-        <h2 class="field-heading">
-            Attachments:
-        </h2>
-        <b-form-file
-            ref="fileinput"
-            v-model="files"
-            :state="Boolean(files)"
-            class="fileinput multi-form"
-            multiple
-            placeholder="Choose a file..."
-            @change="filesHandler"
-        />
-
-        <b-form-checkbox
-            v-model="privacyAgreement"
-            inline
-        >
-            I agree to share my username, email, full name and feedback with eJournal's email provider Zoho.*
-        </b-form-checkbox>
-
-        <b-button
-            class="add-button float-right"
-            @click="$emit(sendFeedback())"
-        >
-            <icon name="paper-plane"/>
-            Send
-        </b-button>
+            <b-form-textarea
+                v-model="feedback"
+                :rows="4"
+                :placeholder="contentPlaceholder"
+                class="theme-input multi-form"
+                required
+            />
+            <b-form-file
+                ref="fileinput"
+                v-model="files"
+                class="fileinput"
+                multiple
+                placeholder="Add an attachment (optional)"
+                @change="filesHandler"
+            />
+            <hr/>
+            <b-button
+                class="float-right"
+                @click="$emit(sendFeedback())"
+            >
+                <icon name="paper-plane"/>
+                Send
+            </b-button>
+        </div>
     </b-card>
 </template>
 
 <script>
+import connection from '@/api/connection.js'
+import { mapGetters } from 'vuex'
 import feedbackAPI from '@/api/feedback.js'
 
 export default {
@@ -72,13 +91,21 @@ export default {
             topic: '',
             feedback: '',
             type: null,
+            topicPlaceholder: null,
+            contentPlaceholder: null,
             types: [
-                { text: 'Select one', value: null },
-                'Issue/Bug', 'Suggestion', 'Other',
+                'bug', 'help', 'feedback',
             ],
             files: null,
-            privacyAgreement: false,
         }
+    },
+    computed: {
+        ...mapGetters({
+            userLoggedIn: 'user/loggedIn',
+            userFullName: 'user/fullName',
+            userEmail: 'user/email',
+            sentryLastEventID: 'sentry/lastEvenID',
+        }),
     },
     methods: {
         filesHandler (e) {
@@ -102,12 +129,9 @@ export default {
             if (this.topic === '') {
                 this.$toasted.error('Please fill in a topic')
             } else if (this.type == null) {
-                this.$toasted.error('Please choose a feedback type')
+                this.$toasted.error('Please choose a support category')
             } else if (this.feedback === '') {
-                this.$toasted.error('Please describe your feedback')
-            } else if (!this.privacyAgreement) {
-                this.$toasted.error(
-                    'You will have to agree to the privacy agreement in order for us to read your feedback!')
+                this.$toasted.error('Please enter your message')
             } else {
                 const data = new FormData()
                 data.append('topic', this.topic)
@@ -122,6 +146,14 @@ export default {
                 }
 
                 feedbackAPI.sendFeedback(data, { responseSuccessToast: true })
+                if (this.type === 'bug' && this.sentryLastEventID) {
+                    connection.connSentry.post('/user-feedback/', {
+                        comments: `Topic: ${this.topic}\n\nFeedback: ${this.feedback}`,
+                        email: this.userEmail,
+                        event_id: this.sentryLastEventID,
+                        name: this.userFullName,
+                    })
+                }
 
                 this.resetFeedback()
                 return 'feedbackSent'
