@@ -631,8 +631,13 @@ class Assignment(models.Model):
         if self._state.adding:
             active_lti_id_modified = self.active_lti_id is not None
         else:
-            pre_save = Assignment.objects.get(pk=self.pk)
-            active_lti_id_modified = pre_save.active_lti_id != self.active_lti_id
+            if self.pk:
+                pre_save = Assignment.objects.get(pk=self.pk)
+                active_lti_id_modified = pre_save.active_lti_id != self.active_lti_id
+            # A copy is being made of the original instance
+            else:
+                self.active_lti_id = None
+                self.lti_id_set = []
 
         if active_lti_id_modified:
             # Reset all sourcedid if the active lti id is updated.

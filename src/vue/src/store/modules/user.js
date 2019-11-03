@@ -78,6 +78,13 @@ const mutations = {
 
         state.permissions[permissionKey] = permissions
     },
+    [types.COPY_ASSIGNMENT_PERMISSIONS] (state, data) {
+        const copyAssignmentID = data.copyAssignmentID
+        const sourceAssignmentID = data.sourceAssignmentID
+        const permissionCopy = JSON.parse(JSON.stringify(state.permissions[`assignment${sourceAssignmentID}`]))
+
+        state.permissions[`assignment${copyAssignmentID}`] = permissionCopy
+    },
 }
 
 const actions = {
